@@ -23,6 +23,7 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
   let(:suggestions_help_path) { '/help/suggestions' }
   let(:default_suggestion_commit_message) { 'Apply suggestion' }
   let(:coverage_endpoint) { nil }
+  let(:codequality_endpoint) { nil }
   let(:new_comment_template_paths) do
     [{
       text: 'Your comment templates',
@@ -55,7 +56,8 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       new_comment_template_paths: new_comment_template_paths,
       linked_file: nil,
       initial_preparation?: false,
-      coverage_endpoint: coverage_endpoint
+      coverage_endpoint: coverage_endpoint,
+      codequality_endpoint: codequality_endpoint
     )
   end
 
@@ -90,7 +92,8 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
         default_suggestion_commit_message: default_suggestion_commit_message,
         new_comment_template_paths: new_comment_template_paths,
         versions: versions,
-        coverage_endpoint: coverage_endpoint
+        coverage_endpoint: coverage_endpoint,
+        codequality_endpoint: codequality_endpoint
       }
     )
 
@@ -104,6 +107,19 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       expect(RapidDiffs::AppComponent).to receive(:new).with(
         presenter,
         extra_app_data: hash_including(coverage_endpoint: coverage_endpoint)
+      )
+
+      render_component
+    end
+  end
+
+  context 'when codequality_endpoint is set' do
+    let(:codequality_endpoint) { '/codequality_mr_diff_reports.json' }
+
+    it 'forwards codequality_endpoint via extra_app_data' do
+      expect(RapidDiffs::AppComponent).to receive(:new).with(
+        presenter,
+        extra_app_data: hash_including(codequality_endpoint: codequality_endpoint)
       )
 
       render_component

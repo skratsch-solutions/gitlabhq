@@ -97,20 +97,31 @@ module RapidDiffs
         def line_content_cell(line, change, position)
           css = line ? 'rd-line-content' : 'rd-line-content rd-line-number-empty'
           content = if line
-                      coverage = line_coverage(line, position)
+                      indicators = [line_coverage(line, position), line_codequality(line, position)].compact
                       pre = tag.pre(line.text_content, class: 'rd-line-text')
-                      coverage ? safe_join([coverage, pre]) : pre
+                      safe_join([*indicators, pre])
                     end
 
           tag.td(content, class: css, data: { change: change, position: position })
         end
 
         def line_coverage(line, position)
-          return if position == :old
-          return if line.meta? || line.removed?
-          return unless line.new_pos&.positive?
+          return unless line_indicator_visible?(line, position)
 
           tag.span('', class: 'has-tooltip', data: { line_coverage: line.new_pos })
+        end
+
+        def line_codequality(line, position)
+          return unless line_indicator_visible?(line, position)
+
+          tag.div('', data: { line_codequality: line.new_pos })
+        end
+
+        def line_indicator_visible?(line, position)
+          return false if position == :old
+          return false if line.meta? || line.removed?
+
+          line.new_pos&.positive?
         end
       end
     end

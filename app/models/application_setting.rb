@@ -1366,12 +1366,11 @@ class ApplicationSetting < ApplicationRecord
     remember_me_enabled?
   end
 
+  # Overrides the belongs_to :push_rule association.
+  # This method and the push_rule_id column from application_settings should be removed together.
+  # See https://gitlab.com/gitlab-org/gitlab/-/work_items/601603
   def push_rule
-    if Feature.enabled?(:update_organization_push_rules, Feature.current_request)
-      nil
-    else
-      super
-    end
+    nil
   end
 
   def custom_default_search_scope_set?

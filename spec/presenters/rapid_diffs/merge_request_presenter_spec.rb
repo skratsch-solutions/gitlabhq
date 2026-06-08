@@ -342,6 +342,26 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
     end
   end
 
+  describe '#codequality_endpoint' do
+    subject(:url) { presenter.codequality_endpoint }
+
+    context 'when the merge request has codequality reports' do
+      before do
+        allow(merge_request).to receive(:has_codequality_reports?).and_return(true)
+      end
+
+      it { is_expected.to eq("#{base_path}/codequality_reports.json") }
+    end
+
+    context 'when the merge request has no codequality reports' do
+      before do
+        allow(merge_request).to receive(:has_codequality_reports?).and_return(false)
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe '#user_permissions' do
     let(:current_user) { build_stubbed(:user) }
     let(:can_create_note) { false }

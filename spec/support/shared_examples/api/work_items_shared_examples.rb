@@ -64,12 +64,20 @@ RSpec.shared_examples 'work item pagination' do
 end
 
 RSpec.shared_examples 'work item authorization' do
-  it 'returns forbidden when feature flag is disabled' do
-    stub_feature_flags(work_item_rest_api: false)
+  it 'returns forbidden when both feature flags are disabled' do
+    stub_feature_flags(work_item_rest_api: false, work_item_rest_api_index: false)
 
     get api(api_request_path, user)
 
     expect(response).to have_gitlab_http_status(:forbidden)
+  end
+
+  it 'returns success when only the index feature flag is enabled' do
+    stub_feature_flags(work_item_rest_api: false, work_item_rest_api_index: true)
+
+    get api(api_request_path, user)
+
+    expect(response).to have_gitlab_http_status(:ok)
   end
 end
 
@@ -351,6 +359,14 @@ RSpec.shared_examples 'work item show endpoint' do
 
   it 'returns forbidden when the feature flag is disabled' do
     stub_feature_flags(work_item_rest_api: false)
+
+    get api(show_request_path, user)
+
+    expect(response).to have_gitlab_http_status(:forbidden)
+  end
+
+  it 'returns forbidden when only the index feature flag is enabled' do
+    stub_feature_flags(work_item_rest_api: false, work_item_rest_api_index: true)
 
     get api(show_request_path, user)
 
