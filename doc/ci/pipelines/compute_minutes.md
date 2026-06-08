@@ -59,8 +59,7 @@ Job duration / 60 * Cost factor
 - **Cost factor**: A number based on the [runner type](#cost-factors) and
   [project type](#cost-factors).
 
-The value is converted into compute minutes and added to the count of used units
-in the job's top-level namespace.
+The resulting compute minutes are added to the usage count for the job's top-level namespace.
 
 For example, if a user `alice` runs a pipeline:
 

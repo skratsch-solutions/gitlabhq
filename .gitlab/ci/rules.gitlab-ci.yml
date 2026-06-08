@@ -3847,6 +3847,15 @@
       changes:
         - "doc/api/openapi/openapi_v3.yaml"
 
+.rails:rules:api-high-impact-entity-baseline-check:
+  rules:
+    - <<: *if-default-branch-schedule-weekly
+
+.rails:rules:api-high-impact-entity-baseline-check:notify:
+  rules:
+    - <<: *if-default-branch-schedule-weekly
+      when: on_failure
+
 .test-metadata:rules:export-predictive-test-metrics:
   rules:
     - <<: *if-merge-request-tier-3

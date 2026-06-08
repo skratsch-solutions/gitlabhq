@@ -163,7 +163,7 @@ follow these steps to avoid unnecessary data loss:
      > - If you are using an older version of Ubuntu like 14.04 LTS
      >   or any other distribution based on the Upstart init system, you can prevent GitLab
      >   from starting if the machine reboots as `root` with
-     >   `initctl stop gitlab-runsvvdir && echo 'manual' > /etc/init/gitlab-runsvdir.override && initctl reload-configuration`.
+     >   `initctl stop gitlab-runsvdir && echo 'manual' > /etc/init/gitlab-runsvdir.override && initctl reload-configuration`.
 
    - If you do not have SSH access to the primary site, take the machine offline and
      prevent it from rebooting. As there are many ways you may prefer to accomplish

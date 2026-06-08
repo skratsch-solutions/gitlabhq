@@ -103,33 +103,17 @@ RSpec.describe 'Admin updates CI/CD settings', :request_store, :enable_admin_mod
       end
     end
 
-    it 'changes `/jobs/request` rate limits settings' do
+    it 'changes runner rate limits settings', :aggregate_failures do
       within_testid('runner-settings') do
-        fill_field_with_new_value(s_('Runners|Maximum requests per minute to the POST /jobs/request endpoint'), '0')
+        fill_field_with_new_value(s_('Runners|Maximum requests per minute to the POST /jobs/request endpoint'), '10')
+        fill_field_with_new_value(s_('Runners|Maximum requests per minute to the PATCH /jobs/:id/trace endpoint'), '20')
+        fill_field_with_new_value(s_('Runners|Maximum requests per minute to other Runner Jobs API endpoints'), '30')
 
         expect_save_settings
 
-        expect_field_value(s_('Runners|Maximum requests per minute to the POST /jobs/request endpoint'), '0')
-      end
-    end
-
-    it 'changes `PATCH /jobs/:id/trace` rate limits settings' do
-      within_testid('runner-settings') do
-        fill_field_with_new_value(s_('Runners|Maximum requests per minute to the PATCH /jobs/:id/trace endpoint'), '0')
-
-        expect_save_settings
-
-        expect_field_value(s_('Runners|Maximum requests per minute to the PATCH /jobs/:id/trace endpoint'), '0')
-      end
-    end
-
-    it 'changes Runner Jobs rate limits settings' do
-      within_testid('runner-settings') do
-        fill_field_with_new_value(s_('Runners|Maximum requests per minute to other Runner Jobs API endpoints'), '0')
-
-        expect_save_settings
-
-        expect_field_value(s_('Runners|Maximum requests per minute to other Runner Jobs API endpoints'), '0')
+        expect_field_value(s_('Runners|Maximum requests per minute to the POST /jobs/request endpoint'), '10')
+        expect_field_value(s_('Runners|Maximum requests per minute to the PATCH /jobs/:id/trace endpoint'), '20')
+        expect_field_value(s_('Runners|Maximum requests per minute to other Runner Jobs API endpoints'), '30')
       end
     end
   end
@@ -148,14 +132,6 @@ RSpec.describe 'Admin updates CI/CD settings', :request_store, :enable_admin_mod
 
   context 'for Container Registry', feature_category: :container_registry do
     let(:client_support) { true }
-    let(:settings_labels) do
-      {
-        container_registry_delete_tags_service_timeout: _('Cleanup policy maximum processing time (seconds)'),
-        container_registry_expiration_policies_worker_capacity:
-          _('Cleanup policy maximum workers running concurrently'),
-        container_registry_cleanup_tags_service_max_list_size: _('Cleanup policy maximum number of tags to be deleted')
-      }
-    end
 
     before do
       stub_container_registry_config(enabled: true)
@@ -163,33 +139,19 @@ RSpec.describe 'Admin updates CI/CD settings', :request_store, :enable_admin_mod
       visit ci_cd_admin_application_settings_path
     end
 
-    %i[
-      container_registry_delete_tags_service_timeout
-      container_registry_expiration_policies_worker_capacity
-      container_registry_cleanup_tags_service_max_list_size
-    ].each do |setting|
-      context "for container registry setting #{setting}" do
-        it 'changes the setting' do
-          within_testid('registry-settings') do
-            fill_field_with_new_value(settings_labels[setting], '400')
+    it 'changes registry settings', :aggregate_failures do
+      within_testid('registry-settings') do
+        fill_field_with_new_value(_('Cleanup policy maximum processing time (seconds)'), '100')
+        fill_field_with_new_value(_('Cleanup policy maximum workers running concurrently'), '200')
+        fill_field_with_new_value(_('Cleanup policy maximum number of tags to be deleted'), '300')
+        click_checked_field(_("Enable cleanup policy caching."))
 
-            expect_save_settings
+        expect_save_settings
 
-            expect_field_value(settings_labels[setting], '400')
-          end
-        end
-      end
-    end
-
-    context 'for container registry setting container_registry_expiration_policies_caching' do
-      it 'updates container_registry_expiration_policies_caching' do
-        within_testid('registry-settings') do
-          click_checked_field(_("Enable cleanup policy caching."))
-
-          expect_save_settings
-
-          expect_field_unchecked(_("Enable cleanup policy caching."))
-        end
+        expect_field_value(_('Cleanup policy maximum processing time (seconds)'), '100')
+        expect_field_value(_('Cleanup policy maximum workers running concurrently'), '200')
+        expect_field_value(_('Cleanup policy maximum number of tags to be deleted'), '300')
+        expect_field_unchecked(_("Enable cleanup policy caching."))
       end
     end
   end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe EnvironmentStatus do
+RSpec.describe EnvironmentStatus, feature_category: :environment_management do
   include ProjectForksHelper
 
   let(:deployment)    { create(:deployment, :succeed, :review_app) }

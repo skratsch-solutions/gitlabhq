@@ -1,6 +1,6 @@
 <script>
 import { GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/src/charts';
-import { merge } from 'lodash-es';
+import { merge, omit } from 'lodash-es';
 
 import {
   formatChartTooltipTitle,
@@ -33,7 +33,8 @@ export default {
       return Boolean(this.options.includeLegendAvgMax);
     },
     fullOptions() {
-      return merge({ yAxis: { min: 0 } }, this.options);
+      // Exclude `tooltip` to prevent ECharts from rendering default tooltip
+      return merge({ yAxis: { min: 0 } }, omit(this.options, 'tooltip'));
     },
   },
   methods: {

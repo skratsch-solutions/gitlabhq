@@ -348,6 +348,31 @@ ci-job-token-policies-verify:
   script:
     - bundle exec rake ci:job_tokens:check_policies
 
+api-high-impact-entity-baseline-check:
+  variables:
+    SETUP_DB: "false"
+  extends:
+    - .default-retry
+    - .ruby-cache
+    - .default-before_script
+    - .rails:rules:api-high-impact-entity-baseline-check
+  stage: lint
+  needs:
+    - job: cache:ruby-gems
+      optional: true
+  script:
+    - bundle exec rake gitlab:api:check_high_impact_entity_baseline
+
+api-high-impact-entity-baseline-check:notify:
+  extends:
+    - .rails:rules:api-high-impact-entity-baseline-check:notify
+  stage: lint
+  needs:
+    - job: api-high-impact-entity-baseline-check
+      artifacts: false
+  script:
+    - 'scripts/slack alerts-api-platform ":warning: New high-impact API entities detected. Baseline drift found in weekly check. See ${CI_JOB_URL}" warning "GitLab Bot"'
+
 templates-shellcheck:
   extends:
     - .ci-templates:rules:shellcheck

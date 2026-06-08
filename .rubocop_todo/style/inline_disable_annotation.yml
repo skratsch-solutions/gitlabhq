@@ -722,7 +722,6 @@ Style/InlineDisableAnnotation:
     - 'app/workers/environments/auto_delete_cron_worker.rb'
     - 'app/workers/environments/auto_stop_cron_worker.rb'
     - 'app/workers/error_tracking_issue_link_worker.rb'
-    - 'app/workers/expire_build_artifacts_worker.rb'
     - 'app/workers/export_csv_worker.rb'
     - 'app/workers/external_service_reactive_caching_worker.rb'
     - 'app/workers/file_hook_worker.rb'

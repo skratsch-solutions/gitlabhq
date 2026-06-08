@@ -45,13 +45,17 @@ RSpec.describe 'Admin updates preferences settings', :request_store, :enable_adm
     end
   end
 
-  it 'change Pages settings' do
+  it 'change Pages settings', :aggregate_failures do
     within_testid('pages-content') do
       fill_field_with_new_value(_('Maximum size of pages (MiB)'), '15')
+      fill_field_with_new_value(s_("AdminSettings|Let's Encrypt email"), 'my@test.example.com')
+      click_unchecked_field("I have read and agree to the Let's Encrypt Terms of Service")
 
       expect_save_settings
 
       expect_field_value(_('Maximum size of pages (MiB)'), '15')
+      expect_field_value(s_("AdminSettings|Let's Encrypt email"), 'my@test.example.com')
+      expect_field_checked("I have read and agree to the Let's Encrypt Terms of Service")
     end
   end
 
@@ -75,18 +79,6 @@ RSpec.describe 'Admin updates preferences settings', :request_store, :enable_adm
     expect(page).to have_content(
       "The form contains the following error: Polling interval multiplier must be greater than or equal to 0"
     )
-  end
-
-  it "change Pages Let's Encrypt settings", :aggregate_failures do
-    within_testid('pages-content') do
-      fill_field_with_new_value(s_("AdminSettings|Let's Encrypt email"), 'my@test.example.com')
-      click_unchecked_field("I have read and agree to the Let's Encrypt Terms of Service")
-
-      expect_save_settings
-
-      expect_field_value(s_("AdminSettings|Let's Encrypt email"), 'my@test.example.com')
-      expect_field_checked("I have read and agree to the Let's Encrypt Terms of Service")
-    end
   end
 
   context 'for Terraform state settings' do

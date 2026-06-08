@@ -208,13 +208,20 @@ RSpec.describe API::Ci::JobArtifacts, feature_category: :job_artifacts do
         let(:api_user) { nil }
 
         context 'when project is public' do
-          it 'allows to access artifacts' do
+          it 'allows to access artifacts and sends the artifact entry via Workhorse', :aggregate_failures do
             project.update_column(:visibility_level, Gitlab::VisibilityLevel::PUBLIC)
             project.update_column(:public_builds, true)
 
             get_artifact_file(artifact)
 
             expect(response).to have_gitlab_http_status(:ok)
+            expect(response.headers.to_h).to include(
+              'Content-Type' => 'application/json',
+              'Gitlab-Workhorse-Send-Data' => /artifacts-entry/
+            )
+            expect(response.headers.to_h)
+              .not_to include('Gitlab-Workhorse-Detect-Content-Type' => 'true')
+            expect(response.parsed_body).to be_empty
           end
         end
 

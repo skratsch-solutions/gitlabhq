@@ -117,21 +117,26 @@ After you create a secret, you can use it in the pipeline configuration or in jo
 
 ## Use secrets in job scripts
 
+By default, similar to [file type CI/CD variables](../../variables/_index.md#use-file-type-cicd-variables),
+a secret is made available in a job as a file with an associated environment variable:
+
+- The secret's key is the environment variable name.
+- The secret's value is saved to a temporary file. Unlike masked CI/CD variables, secrets can have spaces and newlines.
+- The path to the temporary file is the environment variable value.
+
+Use a secret in job scripts with commands that accept files as inputs, or optionally
+directly [use the secret as an environment variable](#use-a-secret-as-an-environment-variable-with-file-false).
+
+If a job outputs a secret's value, GitLab replaces the value in the job log with `[MASKED]`.
+
 ### For project secrets
 
 Prerequisites:
 
 - GitLab Runner 19.0 or later.
 
-To access secrets defined with the Secret Manager, use the [`secrets`](../../yaml/_index.md#secrets)
+To access secrets stored in the Secret Manager for a project, use the [`secrets`](../../yaml/_index.md#secrets)
 and `gitlab_secrets_manager` keywords.
-
-Similar to [file type variables](../../variables/_index.md#use-file-type-cicd-variables),
-the secret is made available as an environment variable with:
-
-- The secret's key as the environment variable name.
-- The secret's value saved to a temporary file. Unlike masked variables, secrets can have spaces and newlines.
-- The path to the temporary file as the environment variable value.
 
 For example:
 
@@ -145,32 +150,48 @@ job:
    - kubectl config set-cluster e2e --server="https://example.com" --certificate-authority="$KUBE_CA_PEM"
 ```
 
-If a job outputs a secret's value, for example by running `cat $KUBE_CA_PEM`,
-GitLab replaces the value in the job log with `[MASKED]`.
-
 ### For group secrets
 
 Prerequisites:
 
 - GitLab Runner 19.0 or later.
 
-To access group secrets:
+To access secrets stored in the Secret Manager for a group:
 
 - Use the [`secrets`](../../yaml/_index.md#secrets) and `gitlab_secrets_manager` keywords.
-- Specify the secret manager source with the `source` field with the format `group/<full-path-to-group>`.
+- Specify the group as a secret manager source with the `source` field with the format `group/<full-path-to-group>`.
 
 For example:
 
 ```yaml
 job:
   secrets:
-    TEST_SECRET:
+    KUBE_CA_PEM:
       gitlab_secrets_manager:
-        name: foo
-        source: group/<full-path-to-group>
+        name: kube-cert
+        source: group/my-group/my-subgroup
   script:
-   - cat $TEST_SECRET
+   - kubectl config set-cluster e2e --server="https://example.com" --certificate-authority="$KUBE_CA_PEM"
 ```
+
+### Use a secret as an environment variable with `file: false`
+
+To use a secret as an environment variable and not have it stored in a file,
+set `file: false` for the secret. For example:
+
+```yaml
+job:
+  secrets:
+    DEPLOY_SECRET:
+      gitlab_secrets_manager:
+        name: deploy-credentials
+      file: false
+  script:
+    - my_deploy_command --user username --pass $DEPLOY_SECRET
+```
+
+In this example, the secret is made available to the job as the `DEPLOY_SECRET` variable,
+which you can use like any other environment variable.
 
 ## Manage secrets permissions
 

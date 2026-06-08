@@ -65,6 +65,12 @@ describe('LineChart Visualization', () => {
 
       expect(findLineChart().props().includeLegendAvgMax).toBe(true);
     });
+
+    it('does not pass `tooltip` option to chart options', () => {
+      createWrapper({ props: { options: { tooltip: { description: 'Panel tooltip' } } } });
+
+      expect(findLineChart().props().option).not.toHaveProperty('tooltip');
+    });
   });
 
   describe('chart tooltip', () => {

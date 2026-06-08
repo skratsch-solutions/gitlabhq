@@ -906,16 +906,6 @@
   :idempotent: false
   :tags: []
   :queue_namespace: :cronjob
-- :name: cronjob:expire_build_artifacts
-  :worker_name: ExpireBuildArtifactsWorker
-  :feature_category: :job_artifacts
-  :has_external_dependencies: false
-  :urgency: :low
-  :resource_boundary: :unknown
-  :weight: 1
-  :idempotent: false
-  :tags: []
-  :queue_namespace: :cronjob
 - :name: cronjob:export_prune_project_export_jobs
   :worker_name: Gitlab::Export::PruneProjectExportJobsWorker
   :feature_category: :importers

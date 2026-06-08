@@ -5573,9 +5573,6 @@ msgstr ""
 msgid "Additional text to show on the Help page"
 msgstr ""
 
-msgid "Additional units"
-msgstr ""
-
 msgid "Address"
 msgstr ""
 
@@ -39659,9 +39656,6 @@ msgid "Instance audit events"
 msgstr ""
 
 msgid "Instance overview"
-msgstr ""
-
-msgid "Instance runners help link"
 msgstr ""
 
 msgid "Insufficient permission to modify user organizations"
@@ -80306,6 +80300,9 @@ msgstr ""
 msgid "UsageQuota|%{value} loose refs"
 msgstr ""
 
+msgid "UsageQuota|Additional compute minutes"
+msgstr ""
+
 msgid "UsageQuota|An error occured while loading the storage usage details. Please refresh the page to try again."
 msgstr ""
 
@@ -80427,6 +80424,9 @@ msgid "UsageQuota|Instance runner duration"
 msgstr ""
 
 msgid "UsageQuota|Instance runners are disabled in all projects in this namespace."
+msgstr ""
+
+msgid "UsageQuota|Instance runners help link"
 msgstr ""
 
 msgid "UsageQuota|Job artifacts created by CI/CD."
@@ -80691,6 +80691,9 @@ msgid "UsageQuota|You can generate a new report at any time by clicking the butt
 msgstr ""
 
 msgid "UsageQuota|You have used %{percentageUsed}%% of your total storage."
+msgstr ""
+
+msgid "UsageQuota|compute minutes"
 msgstr ""
 
 msgid "UsageTrends|Could not load the issues and merge requests chart. Please refresh the page to try again."
@@ -91302,9 +91305,6 @@ msgid "type parameter is missing and is required"
 msgstr ""
 
 msgid "unicode domains should use IDNA encoding"
-msgstr ""
-
-msgid "units"
 msgstr ""
 
 msgid "unknown"

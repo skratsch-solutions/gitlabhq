@@ -45829,6 +45829,8 @@ CREATE INDEX idx_vuln_reads_for_filtering ON vulnerability_reads USING btree (pr
 
 CREATE UNIQUE INDEX idx_vuln_signatures_uniqueness_signature_sha ON vulnerability_finding_signatures USING btree (finding_id, algorithm_type, signature_sha);
 
+CREATE UNIQUE INDEX idx_vuln_user_mentions_on_note_id_and_project_id ON vulnerability_user_mentions USING btree (note_id, project_id) WHERE (note_id IS NOT NULL);
+
 CREATE INDEX idx_vulnerabilities_on_project_id_and_id_active_cis_dft_branch ON vulnerabilities USING btree (project_id, id) WHERE ((report_type = 7) AND (state = ANY (ARRAY[1, 4])) AND (present_on_default_branch IS TRUE));
 
 CREATE INDEX idx_vulnerabilities_partial_devops_adoption_and_default_branch ON vulnerabilities USING btree (project_id, created_at, present_on_default_branch) WHERE (state <> 1);
@@ -51056,8 +51058,6 @@ CREATE UNIQUE INDEX index_vulnerability_statistics_on_unique_project_id ON vulne
 CREATE INDEX index_vulnerability_triggered_workflows_on_project_id ON vulnerability_triggered_workflows USING btree (project_id);
 
 CREATE INDEX index_vulnerability_triggered_workflows_on_workflow_id ON vulnerability_triggered_workflows USING btree (workflow_id);
-
-CREATE UNIQUE INDEX index_vulnerability_user_mentions_on_note_id ON vulnerability_user_mentions USING btree (note_id) WHERE (note_id IS NOT NULL);
 
 CREATE INDEX index_vulnerability_user_mentions_on_project_id ON vulnerability_user_mentions USING btree (project_id);
 

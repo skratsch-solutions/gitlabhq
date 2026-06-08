@@ -662,9 +662,6 @@ production: &base
     # Execute scheduled triggers
     pipeline_schedule_worker:
       cron: "3-59/10 * * * *"
-    # Remove expired build artifacts
-    expire_build_artifacts_worker:
-      cron: "*/7 * * * *"
     # Remove expired pipeline artifacts
     ci_pipelines_expire_artifacts_worker:
       cron: "*/23 * * * *"
