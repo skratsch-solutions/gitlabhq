@@ -632,17 +632,11 @@ reconnect to the database now that it's writable:
 kubectl --namespace gitlab rollout restart deployment -l app=openbao
 ```
 
-#### (Optional) Configure JWT authentication
+#### Configure JWT authentication
 
-Skip this step if you've updated DNS records for the primary domain to point to the secondary site.
-
-To reconfigure JWT authentication, you need a root token. Use the recovery key to generate one.
-For more information, see
-[Generate a root token from the recovery key](../../secrets_manager/recovery_key.md#generate-a-root-token-from-the-recovery-key).
-
-After you have a root token, reconfigure the JWT auth mount to point to the secondary domain.
-For configuration details, see
-[Geo configuration](https://docs.gitlab.com/charts/charts/openbao/#geo-configuration).
+Update DNS records so the primary domain points to the promoted secondary site. OpenBao does not
+support failover to a secondary site that uses a different domain. For more information, see
+[Geo deployment](../../secrets_manager/_index.md#geo-deployment).
 
 #### Restore the unseal secret if needed
 

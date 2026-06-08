@@ -6,6 +6,7 @@ import { TYPE_ISSUE } from '~/issues/constants';
 import { defaultSortableOptions } from '~/sortable/constants';
 
 export default {
+  name: 'RelatedIssuesList',
   components: {
     GlLoadingIcon,
     RelatedIssuableItem,

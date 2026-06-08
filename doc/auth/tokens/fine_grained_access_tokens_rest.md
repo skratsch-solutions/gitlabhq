@@ -2979,7 +2979,6 @@ incompatible with personal access tokens.
 | `POST` | `/internal/allowed` | GitLab Shell token |
 | `GET` | `/internal/authorized_certs` | GitLab Shell token |
 | `GET` | `/internal/authorized_keys` | GitLab Shell token |
-| `GET` | `/internal/autoflow/repository_info` | Kubernetes agent JWT |
 | `GET` | `/internal/check` | GitLab Shell token |
 | `GET` | `/internal/ci/agents/runner/info` | Kubernetes agent JWT |
 | `GET` | `/internal/ci/agents/runnerc/info` | Kubernetes agent JWT |

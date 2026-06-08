@@ -40624,6 +40624,12 @@ paths:
           description: Create a new application
           schema:
             "$ref": "#/definitions/API_Entities_ApplicationWithSecret"
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
       - applications
       operationId: postApiV4Applications
@@ -40639,6 +40645,10 @@ paths:
             type: array
             items:
               "$ref": "#/definitions/API_Entities_Application"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
       - applications
       operationId: getApiV4Applications
@@ -40658,6 +40668,12 @@ paths:
       responses:
         '204':
           description: Delete an application
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
       tags:
       - applications
       operationId: deleteApiV4ApplicationsId
@@ -40681,6 +40697,12 @@ paths:
           description: Renew an application secret
           schema:
             "$ref": "#/definitions/API_Entities_ApplicationWithSecret"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
       tags:
       - applications
       operationId: postApiV4ApplicationsIdRenewSecret
@@ -44380,6 +44402,10 @@ paths:
             type: array
             items:
               "$ref": "#/definitions/API_Entities_Feature"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
       - features
       operationId: getApiV4Features
@@ -44396,6 +44422,10 @@ paths:
             type: array
             items:
               "$ref": "#/definitions/API_Entities_Feature_Definition"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
       - features
       operationId: getApiV4FeaturesDefinitions
@@ -47427,6 +47457,8 @@ paths:
           description: Return the user specific counts
           schema:
             "$ref": "#/definitions/API_Entities_UserCounts"
+        '401':
+          description: Unauthorized
       tags:
       - users
       operationId: getApiV4UserCounts
@@ -47531,6 +47563,10 @@ paths:
           description: Get the current appearance
           schema:
             "$ref": "#/definitions/API_Entities_Appearance"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
       - instance
       operationId: getApiV4ApplicationAppearance
@@ -47636,6 +47672,12 @@ paths:
           description: Modify appearance
           schema:
             "$ref": "#/definitions/API_Entities_Appearance"
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
       - instance
       operationId: putApiV4ApplicationAppearance
@@ -47650,6 +47692,10 @@ paths:
           description: Retrieve application statistics
           schema:
             "$ref": "#/definitions/API_Entities_ApplicationStatistics"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
       - instance
       operationId: getApiV4ApplicationStatistics

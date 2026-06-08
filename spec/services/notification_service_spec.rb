@@ -3286,9 +3286,17 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
         ]
       end
 
+      # Watch-level user who participates in the merge request (here, by authoring a note) but
+      # has not explicitly subscribed. They should still receive the push email because
+      # participation trumps the Watch-level exclusion of push_to_merge_request.
+      # See gitlab-org/gitlab#599785.
+      let_it_be(:watcher_and_participant) { create(:user).tap { |user| create_global_setting_for(user, :watch) } }
+
       before do
         update_custom_notification(:push_to_merge_request, u_guest_custom, resource: project)
         update_custom_notification(:push_to_merge_request, u_custom_global)
+        project.add_maintainer(watcher_and_participant)
+        create(:note_on_merge_request, project: project, noteable: merge_request, author: watcher_and_participant)
         allow(::Notify).to receive(:push_to_merge_request_email).and_call_original
       end
 
@@ -3308,6 +3316,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
           .and(enqueue_mail_with(Notify, :push_to_merge_request_email, u_participant_mentioned, any_args))
           .and(enqueue_mail_with(Notify, :push_to_merge_request_email, subscriber, any_args))
           .and(enqueue_mail_with(Notify, :push_to_merge_request_email, watcher_and_subscriber, any_args))
+          .and(enqueue_mail_with(Notify, :push_to_merge_request_email, watcher_and_participant, any_args))
           .and(not_enqueue_mail_with(Notify, :push_to_merge_request_email, u_watcher, any_args))
           .and(not_enqueue_mail_with(Notify, :push_to_merge_request_email, u_guest_watcher, any_args))
           .and(not_enqueue_mail_with(Notify, :push_to_merge_request_email, unsubscriber, any_args))

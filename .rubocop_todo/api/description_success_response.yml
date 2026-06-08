@@ -44,7 +44,6 @@ API/DescriptionSuccessResponse:
     - 'lib/api/integrations.rb'
     - 'lib/api/integrations/slack/interactions.rb'
     - 'lib/api/integrations/slack/options.rb'
-    - 'lib/api/internal/auto_flow.rb'
     - 'lib/api/internal/kubernetes.rb'
     - 'lib/api/internal/lfs.rb'
     - 'lib/api/internal/pages.rb'

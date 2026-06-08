@@ -5134,7 +5134,6 @@
 - './spec/lib/gitlab/search/recent_issues_spec.rb'
 - './spec/lib/gitlab/search/recent_merge_requests_spec.rb'
 - './spec/lib/gitlab/search_results_spec.rb'
-- './spec/lib/gitlab/search/sort_options_spec.rb'
 - './spec/lib/gitlab/security/scan_configuration_spec.rb'
 - './spec/lib/gitlab/seeders/ci/daily_build_group_report_result_spec.rb'
 - './spec/lib/gitlab/seeder_spec.rb'

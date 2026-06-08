@@ -59295,7 +59295,7 @@ ALTER TABLE ONLY cluster_platforms_kubernetes
     ADD CONSTRAINT fk_eb81334270 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY tag_gpg_signatures
-    ADD CONSTRAINT fk_ebf091e1c4 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_ebf091e1c4 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE NOT VALID;
 
 ALTER TABLE ONLY compliance_requirements
     ADD CONSTRAINT fk_ebf5c3365b FOREIGN KEY (framework_id) REFERENCES compliance_management_frameworks(id) ON DELETE CASCADE;

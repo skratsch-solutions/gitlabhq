@@ -1631,7 +1631,6 @@ RSpec/ContextWording:
     - 'spec/lib/gitlab/runtime_spec.rb'
     - 'spec/lib/gitlab/sanitizers/exif_spec.rb'
     - 'spec/lib/gitlab/sanitizers/svg_spec.rb'
-    - 'spec/lib/gitlab/search/sort_options_spec.rb'
     - 'spec/lib/gitlab/search_context/controller_concern_spec.rb'
     - 'spec/lib/gitlab/sidekiq_config/worker_router_spec.rb'
     - 'spec/lib/gitlab/sidekiq_logging/json_formatter_spec.rb'

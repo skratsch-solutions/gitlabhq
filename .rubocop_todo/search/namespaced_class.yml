@@ -149,7 +149,6 @@ Search/NamespacedClass:
     - 'lib/gitlab/search/recent_items.rb'
     - 'lib/gitlab/search/recent_merge_requests.rb'
     - 'lib/gitlab/search/recent_work_items.rb'
-    - 'lib/gitlab/search/sort_options.rb'
     - 'lib/gitlab/search_context.rb'
     - 'lib/gitlab/search_results.rb'
     - 'lib/gitlab/slash_commands/issue_search.rb'

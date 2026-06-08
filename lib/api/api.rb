@@ -429,7 +429,6 @@ module API
       mount ::API::Ml::MlflowArtifacts::Entrypoint
     end
 
-    mount ::API::Internal::AutoFlow
     mount ::API::Internal::Base
     mount ::API::Internal::Coverage if Gitlab::Utils.to_boolean(ENV['COVERBAND_ENABLED'], default: false)
     mount ::API::Internal::Ci::JobRouter

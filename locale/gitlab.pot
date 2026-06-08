@@ -3381,25 +3381,25 @@ msgstr ""
 msgid "AICatalog|Triage Issue, Generate Release Notes, Update Docs"
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when a merge request cannot be merged anymore due to a code conflict."
+msgid "AICatalog|Trigger %{itemType} when a merge request cannot be merged anymore due to a code conflict."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when a merge request is approved."
+msgid "AICatalog|Trigger %{itemType} when a merge request is approved."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when a merge request's draft status is removed, and it is ready for review."
+msgid "AICatalog|Trigger %{itemType} when a merge request's draft status is removed, and it is ready for review."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when a pipeline status changes."
+msgid "AICatalog|Trigger %{itemType} when a pipeline status changes."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when the service account user is assigned as a reviewer to a merge request."
+msgid "AICatalog|Trigger %{itemType} when service account user is assigned as a reviewer to a merge request."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when the service account user is assigned to issue or merge request."
+msgid "AICatalog|Trigger %{itemType} when service account user is assigned to an issue or merge request."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when the service account user is mentioned in an issue or merge request."
+msgid "AICatalog|Trigger %{itemType} when service account user is mentioned in an issue or merge request."
 msgstr ""
 
 msgid "AICatalog|Trigger types are not supported for this item type."
@@ -3538,6 +3538,9 @@ msgid "AICatalog|Your bulk enablement of %{link_start}%{item_name}%{link_end} di
 msgstr ""
 
 msgid "AICatalog|agent"
+msgstr ""
+
+msgid "AICatalog|agent or flow"
 msgstr ""
 
 msgid "AICatalog|agents"

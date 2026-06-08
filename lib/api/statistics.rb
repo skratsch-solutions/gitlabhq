@@ -12,6 +12,10 @@ module API
     desc 'Retrieve application statistics' do
       detail 'Retrieves the current application statistics for this GitLab instance.'
       success code: 200, model: Entities::ApplicationStatistics
+      failure [
+        { code: 401, message: 'Unauthorized' },
+        { code: 403, message: 'Forbidden' }
+      ]
       tags %w[instance]
     end
     route_setting :authorization, permissions: :read_statistic, boundary_type: :instance

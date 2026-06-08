@@ -52,8 +52,35 @@ module Enums
           reached_downstream_pipeline_trigger_rate_limit: 1_012,
           duo_workflow_not_allowed: 1_013,
           job_router_failure: 1_014,
-          job_token_expired: 1_015
+          job_token_expired: 1_015,
+          downstream_project_trigger_resolved_to_empty: 1_016
         }
+      end
+
+      # Maps a legacy `failure_reason` to the set of more specific reasons that
+      # replaced it. When a broad reason is split into granular ones, new builds
+      # stop being written with the legacy value, but it must keep working
+      # wherever users reference failure reasons (for example `retry:when` in
+      # `.gitlab-ci.yml`). Listing the legacy reason here makes it behave as an
+      # alias that matches any of the reasons that superseded it, preserving the
+      # original intent without re-emitting the legacy value.
+      #
+      # Add an entry whenever a failure reason is split, so the old name keeps
+      # matching the failures it used to.
+      # See https://gitlab.com/gitlab-org/gitlab/-/issues/602133.
+      def self.failure_reason_aliases
+        {
+          'stuck_or_timeout_failure' => %w[
+            stuck_pending_with_matching_runners
+            stuck_pending_no_matching_runners
+            no_updates_running
+            no_updates_canceling
+          ],
+          'job_execution_timeout' => %w[
+            server_timeout_running
+            server_timeout_canceling
+          ]
+        }.freeze
       end
     end
   end

@@ -31,6 +31,7 @@ module Gitlab
             protected_environment_failure: 'protected environment failure',
             pipeline_loop_detected: 'job would create infinitely looping pipelines',
             invalid_bridge_trigger: 'downstream pipeline trigger definition is invalid',
+            downstream_project_trigger_resolved_to_empty: 'trigger:project resolved to a blank value',
             downstream_bridge_project_not_found: 'downstream project could not be found',
             upstream_bridge_project_not_found: 'upstream project could not be found',
             insufficient_bridge_permissions: 'no permissions to trigger downstream pipeline',

@@ -27,6 +27,7 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
     insufficient_upstream_permissions: 'This job could not be executed because of insufficient permissions to track the upstream project.',
     upstream_bridge_project_not_found: 'This job could not be executed because upstream bridge project could not be found.',
     invalid_bridge_trigger: 'This job could not be executed because downstream pipeline trigger definition is invalid',
+    downstream_project_trigger_resolved_to_empty: 'This job could not be executed because the trigger:project value resolved to a blank value. Check that the variables or inputs used in trigger:project are set.',
     downstream_bridge_project_not_found: 'This job could not be executed because downstream bridge project could not be found',
     protected_environment_failure: 'The environment this job is deploying to is protected. Only users with permission may successfully run this job.',
     insufficient_bridge_permissions: 'This job could not be executed because of insufficient permissions to create a downstream pipeline',

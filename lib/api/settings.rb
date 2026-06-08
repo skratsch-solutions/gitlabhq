@@ -23,6 +23,10 @@ module API
       detail 'Retrieves the current application settings for this GitLab instance.'
       tags ['instance']
       success Entities::ApplicationSetting
+      failure [
+        { code: 401, message: 'Unauthorized' },
+        { code: 403, message: 'Forbidden' }
+      ]
     end
     route_setting :authorization, permissions: :read_application_setting, boundary_type: :instance
     get "application/settings" do
@@ -33,6 +37,10 @@ module API
       detail 'Updates the current application settings for this GitLab instance.'
       tags ['instance']
       success Entities::ApplicationSetting
+      failure [
+        { code: 401, message: 'Unauthorized' },
+        { code: 403, message: 'Forbidden' }
+      ]
     end
     params do
       optional :admin_mode, type: Boolean, desc: 'Require admin users to re-authenticate for administrative (i.e. potentially dangerous) operations'

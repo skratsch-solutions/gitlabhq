@@ -13,6 +13,10 @@ module API
         detail 'Lists all feature flags for the instance.'
         success Entities::Feature
         is_array true
+        failure [
+          { code: 401, message: 'Unauthorized' },
+          { code: 403, message: 'Forbidden' }
+        ]
         tags features_tags
       end
       route_setting :authorization, permissions: :read_feature, boundary_type: :instance
@@ -26,6 +30,10 @@ module API
         detail 'Lists all feature flag definitions.'
         success Entities::Feature::Definition
         is_array true
+        failure [
+          { code: 401, message: 'Unauthorized' },
+          { code: 403, message: 'Forbidden' }
+        ]
         tags features_tags
       end
       route_setting :authorization, permissions: :read_feature, boundary_type: :instance
