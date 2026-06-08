@@ -418,8 +418,8 @@
           padding: 0;
 
           .issuable-context-form {
-            top: calc(#{$calc-application-header-height} + #{$mr-sticky-header-height});
-            height: calc(#{$calc-application-viewport-height} - #{$mr-sticky-header-height});
+            top: $mr-sticky-header-height;
+            height: calc(var(--panel-content-inner-height) - #{$mr-sticky-header-height});
             position: sticky;
             padding: 0 $gl-spacing-scale-3;
             margin-bottom: calc((#{$content-wrapper-padding} * -1));

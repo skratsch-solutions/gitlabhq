@@ -7,4 +7,4 @@ rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/600240
 milestone: '19.0'
 group: group::global search
 type: development
-default_enabled: false
+default_enabled: true

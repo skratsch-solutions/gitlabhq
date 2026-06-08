@@ -72,6 +72,7 @@ module Gitlab
               variables.append(key: 'CI_COMMIT_REF_NAME', value: pipeline.source_ref)
               variables.append(key: 'CI_COMMIT_REF_SLUG', value: pipeline.source_ref_slug)
               variables.append(key: 'CI_COMMIT_BRANCH', value: pipeline.ref) if pipeline.branch?
+              append_variable(variables, key: 'CI_COMMIT_DEFAULT_BRANCH_BASE_SHA') { commit_default_branch_base_sha }
 
               append_variable(variables, key: 'CI_COMMIT_MESSAGE') { git_commit_message_truncated }
               append_variable(variables, key: 'CI_COMMIT_MESSAGE_IS_TRUNCATED') { git_commit_message_truncated?.to_s }
@@ -134,6 +135,19 @@ module Gitlab
             pipeline.merge_request_diff
           end
           strong_memoize_attr :merge_request_diff
+
+          def non_default_branch_pipeline?
+            pipeline.branch? && !pipeline.default_branch?
+          end
+
+          def commit_default_branch_base_sha
+            return unless non_default_branch_pipeline?
+
+            pipeline.project.repository.merge_base(pipeline.sha, pipeline.project.default_branch)
+          rescue Gitlab::Git::Repository::NoRepository
+            nil
+          end
+          strong_memoize_attr :commit_default_branch_base_sha
 
           def git_commit_message_truncated
             return git_commit_message unless git_commit_message_truncated?

@@ -2470,7 +2470,7 @@ paths:
   "/api/v4/groups/{id}/ssh_certificates":
     get:
       summary: Get a list of Groups::SshCertificate for a Group.
-      description: Get a list of ssh certificates created for a group.
+      description: Lists all SSH certificates for a specified group.
       produces:
       - application/json
       parameters:
@@ -2497,7 +2497,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of ssh certificates created for a group.
+          description: List all group SSH certificates
           schema:
             type: array
             items:
@@ -2513,7 +2513,7 @@ paths:
       operationId: getApiV4GroupsIdSshCertificates
     post:
       summary: Add a Groups::SshCertificate.
-      description: Create a ssh certificate for a group.
+      description: Adds a group SSH certificate for a specified group.
       produces:
       - application/json
       consumes:
@@ -2531,7 +2531,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdSshCertificates"
       responses:
         '201':
-          description: Create a ssh certificate for a group.
+          description: Add a group SSH certificate
           schema:
             "$ref": "#/definitions/API_Entities_SshCertificate"
         '400':
@@ -2547,8 +2547,8 @@ paths:
       operationId: postApiV4GroupsIdSshCertificates
   "/api/v4/groups/{id}/ssh_certificates/{ssh_certificates_id}":
     delete:
-      summary: Removes an ssh certificate from a group.
-      description: Removes a Groups::SshCertificate
+      summary: Delete a group SSH certificate
+      description: Deletes a specified group SSH certificate.
       produces:
       - application/json
       parameters:
@@ -2564,7 +2564,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Removes an ssh certificate from a group.
+          description: Delete a group SSH certificate
         '400':
           description: Bad request
         '401':
@@ -28277,7 +28277,11 @@ paths:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidRelatedIssues
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approvals":
     get:
-      description: List approvals for merge request
+      summary: Retrieve approval state for a merge request
+      description: Retrieves the approval state for a specified merge request. In
+        the response, `approved_by` contains information about all approvers of the
+        merge request, regardless of whether those approvals satisfy any approval
+        rule.
       produces:
       - application/json
       parameters:
@@ -28293,7 +28297,7 @@ paths:
         required: true
       responses:
         '200':
-          description: List approvals for merge request
+          description: Retrieve approval state for a merge request
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestApprovals"
         '404':
@@ -28336,7 +28340,11 @@ paths:
       deprecated: true
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approve":
     post:
-      description: Approve a merge request
+      summary: Approve merge request
+      description: Approves a specified merge request. The currently authenticated
+        user must be an eligible approver. The `sha` parameter ensures you are approving
+        the current version of the merge request. If defined, the value must match
+        the merge request’s HEAD commit SHA. A mismatch returns a `409 Conflict` response.
       produces:
       - application/json
       consumes:
@@ -28359,7 +28367,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdMergeRequestsMergeRequestIidApprove"
       responses:
         '201':
-          description: Approve a merge request
+          description: Approve merge request
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestApprovals"
         '404':
@@ -28371,7 +28379,9 @@ paths:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidApprove
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/unapprove":
     post:
-      description: Remove an approval from a merge request
+      summary: Unapprove a merge request
+      description: Unapproves a merge request. Removes the approval for the currently
+        authenticated user from a specified merge request.
       produces:
       - application/json
       consumes:
@@ -28389,7 +28399,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Remove an approval from a merge request
+          description: Unapprove a merge request
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestApprovals"
         '404':
@@ -28401,9 +28411,10 @@ paths:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidUnapprove
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/reset_approvals":
     put:
-      summary: Remove all merge request approvals
-      description: Clear all approvals of merge request. This feature was added in
-        GitLab 15.4
+      summary: Reset approvals for a merge request
+      description: Resets all approvals for a specified merge request. Available only
+        to bot users with a valid project or group token. Human users receive a `401
+        Unauthorized` response.
       produces:
       - application/json
       consumes:
@@ -28421,7 +28432,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Remove all merge request approvals
+          description: Reset approvals for a merge request
         '401':
           description: Unauthorized
         '404':
@@ -28431,7 +28442,10 @@ paths:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidResetApprovals
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approval_state":
     get:
-      description: Get approval state of merge request
+      summary: Retrieve approval details for a merge request
+      description: Retrieves approval details for a specified merge request. If a
+        user has modified the approval rules for the merge request, the response includes
+        `approval_rules_overwritten`.
       produces:
       - application/json
       parameters:
@@ -28448,7 +28462,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get approval state of merge request
+          description: Retrieve approval details for a merge request
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestApprovalState"
       tags:
@@ -28456,8 +28470,8 @@ paths:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidApprovalState
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/versions":
     get:
-      summary: Get a list of merge request diff versions
-      description: This feature was introduced in GitLab 8.12.
+      summary: Retrieve merge request diff versions
+      description: Retrieves merge request diff versions.
       produces:
       - application/json
       parameters:
@@ -28490,7 +28504,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get a list of merge request diff versions
+          description: Retrieve merge request diff versions
           schema:
             type: array
             items:
@@ -28500,8 +28514,8 @@ paths:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidVersions
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/versions/{version_id}":
     get:
-      summary: Get a single merge request diff version
-      description: This feature was introduced in GitLab 8.12.
+      summary: Retrieve a merge request diff version
+      description: Retrieves a merge request diff version.
       produces:
       - application/json
       parameters:
@@ -28530,7 +28544,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a single merge request diff version
+          description: Retrieve a merge request diff version
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestDiffFull"
       tags:
@@ -44666,8 +44680,8 @@ paths:
       operationId: postApiV4GeoNodeProxyIdGraphql
   "/api/v4/glql":
     post:
-      summary: Execute GLQL query
-      description: Execute a GLQL (GitLab Query Language) query
+      summary: Execute a GLQL query
+      description: Executes a GLQL query to search and filter GitLab resources.
       produces:
       - application/json
       consumes:
@@ -44680,7 +44694,7 @@ paths:
           "$ref": "#/definitions/postApiV4Glql"
       responses:
         '200':
-          description: Execute GLQL query
+          description: Execute a GLQL query
           schema:
             "$ref": "#/definitions/API_Entities_Glql_Result"
         '400':
@@ -45192,8 +45206,8 @@ paths:
       operationId: getApiV4Keys
   "/api/v4/markdown":
     post:
-      summary: Render an arbitrary Markdown document
-      description: This feature was introduced in GitLab 11.0.
+      summary: Render Markdown content
+      description: Renders Markdown content as HTML.
       produces:
       - application/json
       consumes:
@@ -45206,7 +45220,7 @@ paths:
           "$ref": "#/definitions/postApiV4Markdown"
       responses:
         '201':
-          description: Render an arbitrary Markdown document
+          description: Render Markdown content
           schema:
             "$ref": "#/definitions/API_Entities_Markdown"
         '400':
@@ -46780,7 +46794,9 @@ paths:
       operationId: getApiV4SnippetsIdUserAgentDetail
   "/api/v4/suggestions/{id}/apply":
     put:
-      description: Apply suggestion patch in the Merge Request it was created
+      summary: Apply a suggestion to a merge request
+      description: Applies a suggested patch in a merge request. You must have the
+        Developer, Maintainer, or Owner role.
       produces:
       - application/json
       consumes:
@@ -46799,7 +46815,7 @@ paths:
           "$ref": "#/definitions/putApiV4SuggestionsIdApply"
       responses:
         '200':
-          description: Apply suggestion patch in the Merge Request it was created
+          description: Apply a suggestion to a merge request
           schema:
             "$ref": "#/definitions/API_Entities_Suggestion"
       tags:
@@ -46807,8 +46823,9 @@ paths:
       operationId: putApiV4SuggestionsIdApply
   "/api/v4/suggestions/batch_apply":
     put:
-      description: Apply multiple suggestion patches in the Merge Request where they
-        were created
+      summary: Apply multiple suggestions to a merge request
+      description: Applies multiple suggested patches in a merge request. You must
+        have the Developer, Maintainer, or Owner role.
       produces:
       - application/json
       consumes:
@@ -46821,8 +46838,7 @@ paths:
           "$ref": "#/definitions/putApiV4SuggestionsBatchApply"
       responses:
         '200':
-          description: Apply multiple suggestion patches in the Merge Request where
-            they were created
+          description: Apply multiple suggestions to a merge request
           schema:
             "$ref": "#/definitions/API_Entities_Suggestion"
       tags:
@@ -51263,7 +51279,7 @@ definitions:
     required:
     - title
     - key
-    description: Create a ssh certificate for a group.
+    description: Add a group SSH certificate
   API_Entities_Ci_Runner:
     type: object
     properties:
@@ -65757,7 +65773,7 @@ definitions:
         description: Current user's password if project is set to require explicit
           auth on approval
         example: secret
-    description: Approve a merge request
+    description: Approve merge request
   API_Entities_MergeRequestApprovalState:
     type: object
     properties:
@@ -75835,7 +75851,7 @@ definitions:
           response to fetch the next page
     required:
     - glql_yaml
-    description: Execute GLQL query
+    description: Execute a GLQL query
   API_Entities_Glql_Result:
     type: object
     properties:
@@ -76229,7 +76245,7 @@ definitions:
           Flavored Markdown
     required:
     - text
-    description: Render an arbitrary Markdown document
+    description: Render Markdown content
   API_Entities_Markdown:
     type: object
     properties:
@@ -77203,7 +77219,7 @@ definitions:
         type: string
         description: A custom commit message to use instead of the default generated
           message or the project's default message
-    description: Apply suggestion patch in the Merge Request it was created
+    description: Apply a suggestion to a merge request
   putApiV4SuggestionsBatchApply:
     type: object
     properties:
@@ -77219,8 +77235,7 @@ definitions:
           message or the project's default message
     required:
     - ids
-    description: Apply multiple suggestion patches in the Merge Request where they
-      were created
+    description: Apply multiple suggestions to a merge request
   putApiV4HooksHookIdUrlVariablesKey:
     type: object
     properties:

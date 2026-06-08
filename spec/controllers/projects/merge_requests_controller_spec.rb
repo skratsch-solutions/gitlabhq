@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'labkit/rspec/matchers'
 
 RSpec.describe Projects::MergeRequestsController, feature_category: :code_review_workflow do
   include ProjectForksHelper
@@ -675,6 +676,10 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :code_review
         merge_with_sha
       end
 
+      it 'starts the immediate_web_merge UX SLI' do
+        expect { merge_with_sha }.to start_user_experience(:immediate_web_merge)
+      end
+
       context 'for logging' do
         let(:expected_params) { { merge_action_status: 'success' } }
         let(:subject_proc) { proc { subject } }
@@ -735,6 +740,10 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :code_review
           let(:service_class) { AutoMerge::MergeWhenChecksPassService }
           let(:status) { 'merge_when_checks_pass' }
           let(:not_current_pipeline_status) { 'merge_when_checks_pass' }
+        end
+
+        it 'does not start the immediate_web_merge UX SLI' do
+          expect { set_auto_merge }.not_to start_user_experience(:immediate_web_merge)
         end
       end
 

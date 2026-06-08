@@ -31,6 +31,7 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
           CI_COMMIT_REF_NAME
           CI_COMMIT_REF_SLUG
           CI_COMMIT_BRANCH
+          CI_COMMIT_DEFAULT_BRANCH_BASE_SHA
           CI_COMMIT_MESSAGE
           CI_COMMIT_MESSAGE_IS_TRUNCATED
           CI_COMMIT_TITLE
@@ -171,6 +172,7 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
           CI_COMMIT_BEFORE_SHA
           CI_COMMIT_REF_NAME
           CI_COMMIT_REF_SLUG
+          CI_COMMIT_DEFAULT_BRANCH_BASE_SHA
           CI_COMMIT_MESSAGE
           CI_COMMIT_MESSAGE_IS_TRUNCATED
           CI_COMMIT_TITLE
@@ -470,7 +472,9 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
 
     context 'when source is external pull request' do
       let(:pipeline) do
-        create(:ci_pipeline, source: :external_pull_request_event, external_pull_request: pull_request)
+        create(:ci_pipeline, project: project,
+          source: :external_pull_request_event,
+          external_pull_request: pull_request)
       end
 
       let(:pull_request) { create(:external_pull_request, project: project) }
@@ -543,6 +547,124 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
 
         it 'is not included' do
           expect(subject.to_hash).not_to have_key('CI_GITLAB_FIPS_MODE')
+        end
+      end
+    end
+
+    describe 'variable CI_COMMIT_DEFAULT_BRANCH_BASE_SHA' do
+      context 'for non-default branch pipelines' do
+        let(:merge_base_sha) { project.repository.merge_base(pipeline.sha, project.default_branch) }
+        let(:branch_name) { "feature-#{SecureRandom.hex(8)}" }
+        let(:branch_commit_sha) do
+          project.repository.create_file(
+            project.creator,
+            'branch-file.txt',
+            'content',
+            message: 'Add branch file',
+            branch_name: branch_name
+          )
+        end
+
+        before do
+          project.repository.add_branch(project.creator, branch_name, project.default_branch)
+        end
+
+        context 'when pipeline is for a new branch' do
+          let(:pipeline) do
+            create(:ci_pipeline, project: project,
+              ref: branch_name,
+              sha: branch_commit_sha,
+              before_sha: project.repository.blank_ref
+            )
+          end
+
+          it 'includes the merge base between the commit and the default branch' do
+            expect(subject.to_hash).to include('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA' => merge_base_sha)
+          end
+        end
+
+        context 'when pipeline is for an existing branch' do
+          let(:current_branch_commit_sha) do
+            project.repository.create_file(
+              project.creator,
+              'existing-branch-file.txt',
+              'content',
+              message: 'Add existing branch file',
+              branch_name: branch_name
+            )
+          end
+
+          let(:pipeline) do
+            create(:ci_pipeline, project: project,
+              ref: branch_name,
+              sha: current_branch_commit_sha,
+              before_sha: branch_commit_sha
+            )
+          end
+
+          it 'includes the merge base between the commit and the default branch' do
+            expect(subject.to_hash).to include('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA' => merge_base_sha)
+          end
+        end
+
+        context 'when branch ref does not exist but pipeline SHA is valid' do
+          let(:pipeline) do
+            create(:ci_pipeline, project: project,
+              ref: 'missing-branch',
+              sha: branch_commit_sha)
+          end
+
+          it 'includes the merge base between the commit and the default branch' do
+            expect(subject.to_hash)
+              .to include('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA' => merge_base_sha)
+          end
+        end
+
+        context 'when repository is unavailable' do
+          let(:pipeline) do
+            create(:ci_pipeline, project: project,
+              ref: branch_name,
+              sha: branch_commit_sha)
+          end
+
+          before do
+            allow(project.repository).to receive(:merge_base)
+              .and_raise(Gitlab::Git::Repository::NoRepository)
+          end
+
+          it 'does not include the variable' do
+            expect(subject.to_hash).not_to have_key('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA')
+          end
+        end
+      end
+
+      context 'when pipeline is for the default branch' do
+        let(:pipeline) { create(:ci_pipeline, project: project, ref: project.default_branch) }
+
+        it 'does not include the variable' do
+          expect(subject.to_hash).not_to have_key('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA')
+        end
+      end
+
+      context 'when pipeline is for a tag' do
+        let(:pipeline) { build(:ci_empty_pipeline, :created, project: project, ref: 'v1.0', tag: true) }
+
+        it 'does not include the variable' do
+          expect(subject.to_hash).not_to have_key('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA')
+        end
+      end
+
+      context 'when pipeline is for a merge request' do
+        let(:merge_request) { create(:merge_request, :simple, source_project: project, target_project: project) }
+        let(:pipeline) do
+          create(:ci_pipeline, :detached_merge_request_pipeline,
+            ci_ref_presence: false,
+            user: user,
+            merge_request: merge_request)
+        end
+
+        it 'does not include the variable' do
+          expect(subject.to_hash).not_to have_key('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA')
         end
       end
     end
@@ -730,6 +852,38 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
 
           hash.fetch('CI_COMMIT_MESSAGE')
           expect(pipeline).to have_received(:git_commit_message).once
+        end
+
+        context 'when it is a non-default branch' do
+          let(:branch_name) { "feature-#{SecureRandom.hex(8)}" }
+
+          let(:pipeline) do
+            create(:ci_pipeline, project: project, ref: branch_name)
+          end
+
+          before do
+            project.repository.add_branch(project.creator, branch_name, project.default_branch)
+          end
+
+          it 'does not call expensive Gitaly operations during collection building' do
+            allow(project.repository).to receive(:merge_base).and_call_original
+
+            subject
+
+            expect(project.repository).not_to have_received(:merge_base)
+          end
+
+          it 'calls expensive operations only when variable value is accessed' do
+            allow(project.repository).to receive(:merge_base).and_call_original
+
+            variables = subject
+            hash = variables.to_lazy_hash
+
+            expect(project.repository).not_to have_received(:merge_base)
+
+            hash.fetch('CI_COMMIT_DEFAULT_BRANCH_BASE_SHA')
+            expect(project.repository).to have_received(:merge_base).once
+          end
         end
       end
     end

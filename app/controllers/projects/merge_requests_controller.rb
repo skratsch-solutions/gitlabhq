@@ -585,6 +585,13 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
           )
       end
     else
+      # Measure the immediate web merge journey end to end: from accepting the
+      # merge here until MergeWorker completes it. This captures Sidekiq enqueue
+      # and execution latency that no single request can measure. Started only on
+      # this path so the SLI is scoped to immediate web merges; MergeWorker's
+      # other callers (GraphQL, auto-merge) do not start it.
+      Labkit::UserExperienceSli.start(:immediate_web_merge)
+
       @merge_request.merge_async(current_user.id, merge_params)
 
       :success

@@ -139,69 +139,6 @@ RSpec.describe Gitlab::Kas::Client, feature_category: :deployment_management do
       it { expect(subject).to eq(agent_configurations) }
     end
 
-    describe '#send_autoflow_event' do
-      subject { client.send_autoflow_event(project: project, type: 'any-type', id: 'any-id', data: { 'any-data-key': 'any-data-value' }) }
-
-      context 'when autoflow_enabled FF is disabled' do
-        before do
-          stub_feature_flags(autoflow_enabled: false)
-        end
-
-        it { expect(subject).to be_nil }
-      end
-
-      context 'when autoflow_enabled FF is enabled' do
-        let_it_be(:autoflow_var1) { create(:ci_variable, project: project, key: 'test_key_1', value: 'test-value-1', environment_scope: 'autoflow/internal-use') }
-        let_it_be(:autoflow_var2) { create(:ci_variable, project: project, key: 'test_key_2', value: 'test-value-2', environment_scope: 'autoflow/internal-use') }
-        let_it_be(:other_var) { create(:ci_variable, project: project, key: 'test_key_3', value: 'test-value-3') }
-        let(:stub) { instance_double(Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub) }
-        let(:request) { instance_double(Gitlab::Agent::AutoFlow::Rpc::CloudEventRequest) }
-        let(:event_param) { instance_double(Gitlab::Agent::Event::CloudEvent) }
-        let(:project_param) { instance_double(Gitlab::Agent::Event::Project) }
-        let(:response) { double(Gitlab::Agent::AutoFlow::Rpc::CloudEventResponse) }
-
-        before do
-          stub_feature_flags(autoflow_enabled: true)
-
-          expect(Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub).to receive(:new)
-            .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
-            .and_return(stub)
-
-          expect(Gitlab::Agent::Event::Project).to receive(:new)
-            .with(id: project.id, full_path: project.full_path)
-            .and_return(project_param)
-
-          expect(Gitlab::Agent::Event::CloudEvent).to receive(:new)
-            .with(id: 'any-id', source: "GitLab", spec_version: "v1", type: 'any-type',
-              attributes: {
-                datacontenttype: Gitlab::Agent::Event::CloudEvent::CloudEventAttributeValue.new(
-                  ce_string: "application/json"
-                )
-              },
-              text_data: '{"any-data-key":"any-data-value"}'
-            )
-            .and_return(event_param)
-
-          expect(Gitlab::Agent::AutoFlow::Rpc::CloudEventRequest).to receive(:new)
-            .with(
-              event: event_param,
-              flow_project: project_param,
-              variables: {
-                "test_key_1" => "test-value-1",
-                "test_key_2" => "test-value-2"
-              }
-            )
-            .and_return(request)
-
-          expect(stub).to receive(:cloud_event)
-            .with(request, metadata: { 'authorization' => 'bearer test-token', **feature_flags })
-            .and_return(response)
-        end
-
-        it { expect(subject).to eq(response) }
-      end
-    end
-
     describe '#publish_events' do
       let(:topic) { 'test.topic' }
       let(:event) do

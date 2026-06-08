@@ -327,10 +327,6 @@ RSpec.configure do |config|
       # Default to false, since switching the finders over is still a WIP
       stub_feature_flags(use_namespace_id_for_issue_and_work_item_finders: false)
 
-      # AutoFlow is disabled by default to prevent timing-dependent test failures.
-      # Enable explicitly in tests that need it.
-      stub_feature_flags(autoflow_enabled: false)
-
       stub_feature_flags(merge_widget_stop_polling: false)
 
       # This feature has global impact and most tests aren't ready for it yet

@@ -299,7 +299,7 @@ RSpec.shared_examples 'web-hook API endpoints' do |prefix|
         expect(json_response[k.to_s]).to eq(v)
       end
       event_names.each do |name|
-        expect(json_response[name.to_s]).to eq(true), name.to_s
+        expect(json_response[name.to_s]).to be(true), name.to_s
       end
       expect(json_response['url_variables']).to match_array [
         { 'key' => 'token' },

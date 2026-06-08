@@ -2077,6 +2077,7 @@ paths:
     patch:
       operationId: patchApiV4GroupsIdProtectedBranchesName
       summary: Update a protected branch
+      description: Updates a protected branch for a specified group.
       tags:
       - Protected branches
       responses:
@@ -15708,7 +15709,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/todo":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidTodo
-      summary: Create a to-do item on an issuable
+      summary: Create a to-do item
+      description: Creates a to-do item.
       tags:
       - To-dos
       responses:
@@ -15739,7 +15741,8 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/todo":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidTodo
-      summary: Create a to-do item on an issuable
+      summary: Create a to-do item
+      description: Creates a to-do item.
       tags:
       - To-dos
       responses:
@@ -16212,7 +16215,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{subscribable_id}/subscribe":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsSubscribableIdSubscribe
-      summary: Subscribe to a resource
+      summary: Subscribe to a merge request
+      description: Subscribes the currently authenticated user to a specified merge
+        request. They will receive notifications on changes to this item.
       tags:
       - Resource subscriptions
       responses:
@@ -16242,7 +16247,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{subscribable_id}/unsubscribe":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsSubscribableIdUnsubscribe
-      summary: Unsubscribe from a resource
+      summary: Unsubscribe to a merge request
+      description: Unsubscribes the currently authenticated user from a specified
+        merge request. They will no longer receive notifications on changes to this
+        item.
       tags:
       - Resource subscriptions
       responses:
@@ -16272,7 +16280,9 @@ paths:
   "/api/v4/projects/{id}/issues/{subscribable_id}/subscribe":
     post:
       operationId: postApiV4ProjectsIdIssuesSubscribableIdSubscribe
-      summary: Subscribe to a resource
+      summary: Subscribe to an issue
+      description: Subscribes the currently authenticated user to a specified issue.
+        They will receive notifications on changes to this item.
       tags:
       - Resource subscriptions
       responses:
@@ -16302,7 +16312,9 @@ paths:
   "/api/v4/projects/{id}/issues/{subscribable_id}/unsubscribe":
     post:
       operationId: postApiV4ProjectsIdIssuesSubscribableIdUnsubscribe
-      summary: Unsubscribe from a resource
+      summary: Unsubscribe to an issue
+      description: Unsubscribes the currently authenticated user from a specified
+        issue. They will no longer receive notifications on changes to this item.
       tags:
       - Resource subscriptions
       responses:
@@ -16332,7 +16344,9 @@ paths:
   "/api/v4/projects/{id}/labels/{subscribable_id}/subscribe":
     post:
       operationId: postApiV4ProjectsIdLabelsSubscribableIdSubscribe
-      summary: Subscribe to a resource
+      summary: Subscribe to a project label
+      description: Subscribes the currently authenticated user to a specified project
+        label. They will receive notifications on changes to this item.
       tags:
       - Resource subscriptions
       responses:
@@ -16362,7 +16376,10 @@ paths:
   "/api/v4/projects/{id}/labels/{subscribable_id}/unsubscribe":
     post:
       operationId: postApiV4ProjectsIdLabelsSubscribableIdUnsubscribe
-      summary: Unsubscribe from a resource
+      summary: Unsubscribe to a project label
+      description: Unsubscribes the currently authenticated user from a specified
+        project label. They will no longer receive notifications on changes to this
+        item.
       tags:
       - Resource subscriptions
       responses:
@@ -16392,7 +16409,9 @@ paths:
   "/api/v4/groups/{id}/labels/{subscribable_id}/subscribe":
     post:
       operationId: postApiV4GroupsIdLabelsSubscribableIdSubscribe
-      summary: Subscribe to a resource
+      summary: Subscribe to a group label
+      description: Subscribes the currently authenticated user to a specified group
+        label. They will receive notifications on changes to this item.
       tags:
       - Resource subscriptions
       responses:
@@ -16422,7 +16441,10 @@ paths:
   "/api/v4/groups/{id}/labels/{subscribable_id}/unsubscribe":
     post:
       operationId: postApiV4GroupsIdLabelsSubscribableIdUnsubscribe
-      summary: Unsubscribe from a resource
+      summary: Unsubscribe to a group label
+      description: Unsubscribes the currently authenticated user from a specified
+        group label. They will no longer receive notifications on changes to this
+        item.
       tags:
       - Resource subscriptions
       responses:
@@ -26155,7 +26177,9 @@ paths:
   "/api/v4/suggestions/{id}/apply":
     put:
       operationId: putApiV4SuggestionsIdApply
-      summary: Apply suggestion patch in the Merge Request it was created
+      summary: Apply a suggestion to a merge request
+      description: Applies a suggested patch in a merge request. You must have the
+        Developer, Maintainer, or Owner role.
       tags:
       - Suggestions
       responses:
@@ -26185,8 +26209,9 @@ paths:
   "/api/v4/suggestions/batch_apply":
     put:
       operationId: putApiV4SuggestionsBatchApply
-      summary: Apply multiple suggestion patches in the Merge Request where they were
-        created
+      summary: Apply multiple suggestions to a merge request
+      description: Applies multiple suggested patches in a merge request. You must
+        have the Developer, Maintainer, or Owner role.
       tags:
       - Suggestions
       responses:
@@ -37748,8 +37773,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/versions":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidVersions
-      summary: Get a list of merge request diff versions
-      description: This feature was introduced in GitLab 8.12.
+      summary: Retrieve merge request diff versions
+      description: Retrieves merge request diff versions.
       tags:
       - Merge requests
       responses:
@@ -37799,8 +37824,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/versions/{version_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidVersionsVersionId
-      summary: Get a single merge request diff version
-      description: This feature was introduced in GitLab 8.12.
+      summary: Retrieve a merge request diff version
+      description: Retrieves a merge request diff version.
       tags:
       - Merge requests
       responses:
@@ -37845,7 +37870,11 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approvals":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidApprovals
-      summary: List approvals for merge request
+      summary: Retrieve approval state for a merge request
+      description: Retrieves the approval state for a specified merge request. In
+        the response, `approved_by` contains information about all approvers of the
+        merge request, regardless of whether those approvals satisfy any approval
+        rule.
       tags:
       - Merge request approvals
       responses:
@@ -37915,7 +37944,11 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approve":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidApprove
-      summary: Approve a merge request
+      summary: Approve merge request
+      description: Approves a specified merge request. The currently authenticated
+        user must be an eligible approver. The `sha` parameter ensures you are approving
+        the current version of the merge request. If defined, the value must match
+        the merge request’s HEAD commit SHA. A mismatch returns a `409 Conflict` response.
       tags:
       - Merge request approvals
       responses:
@@ -37954,7 +37987,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/unapprove":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidUnapprove
-      summary: Remove an approval from a merge request
+      summary: Unapprove a merge request
+      description: Unapproves a merge request. Removes the approval for the currently
+        authenticated user from a specified merge request.
       tags:
       - Merge request approvals
       responses:
@@ -37987,9 +38022,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/reset_approvals":
     put:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidResetApprovals
-      summary: Remove all merge request approvals
-      description: Clear all approvals of merge request. This feature was added in
-        GitLab 15.4
+      summary: Reset approvals for a merge request
+      description: Resets all approvals for a specified merge request. Available only
+        to bot users with a valid project or group token. Human users receive a `401
+        Unauthorized` response.
       tags:
       - Merge request approvals
       responses:
@@ -38018,7 +38054,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approval_state":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidApprovalState
-      summary: Get approval state of merge request
+      summary: Retrieve approval details for a merge request
+      description: Retrieves approval details for a specified merge request. If a
+        user has modified the approval rules for the merge request, the response includes
+        `approval_rules_overwritten`.
       tags:
       - Merge request approvals
       responses:
@@ -42081,8 +42120,8 @@ paths:
   "/api/v4/markdown":
     post:
       operationId: postApiV4Markdown
-      summary: Render an arbitrary Markdown document
-      description: This feature was introduced in GitLab 11.0.
+      summary: Render Markdown content
+      description: Renders Markdown content as HTML.
       tags:
       - Markdown
       responses:
@@ -52608,8 +52647,8 @@ paths:
   "/api/v4/glql":
     post:
       operationId: postApiV4Glql
-      summary: Execute GLQL query
-      description: Execute a GLQL (GitLab Query Language) query
+      summary: Execute a GLQL query
+      description: Executes a GLQL query to search and filter GitLab resources.
       tags:
       - GLQL
       responses:
@@ -68291,7 +68330,8 @@ paths:
   "/api/v4/groups/{id}/ssh_certificates":
     get:
       operationId: getApiV4GroupsIdSshCertificates
-      summary: Get a list of ssh certificates created for a group.
+      summary: List all group SSH certificates
+      description: Lists all SSH certificates for a specified group.
       tags:
       - Keys
       responses:
@@ -68336,7 +68376,8 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdSshCertificates
-      summary: Create a ssh certificate for a group.
+      summary: Add a group SSH certificate
+      description: Adds a group SSH certificate for a specified group.
       tags:
       - Keys
       responses:
@@ -68372,8 +68413,8 @@ paths:
   "/api/v4/groups/{id}/ssh_certificates/{ssh_certificates_id}":
     delete:
       operationId: deleteApiV4GroupsIdSshCertificatesSshCertificatesId
-      summary: Removes an ssh certificate from a group.
-      description: Removes a Groups::SshCertificate
+      summary: Delete a group SSH certificate
+      description: Deletes a specified group SSH certificate.
       tags:
       - Keys
       responses:

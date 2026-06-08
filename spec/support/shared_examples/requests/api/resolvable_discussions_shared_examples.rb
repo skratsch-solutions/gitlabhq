@@ -21,10 +21,10 @@ RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_typ
               "discussions/#{note.discussion_id}", user), params: { resolved: true }
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response['resolvable']).to eq(true)
-      expect(json_response['resolved']).to eq(true)
+      expect(json_response['resolvable']).to be(true)
+      expect(json_response['resolved']).to be(true)
       expect(json_response['notes'].size).to eq(1)
-      expect(json_response['notes'][0]['resolved']).to eq(true)
+      expect(json_response['notes'][0]['resolved']).to be(true)
       expect(Time.parse(json_response['notes'][0]['resolved_at'])).to be_like_time(note.reload.resolved_at)
     end
 
@@ -36,10 +36,10 @@ RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_typ
               "discussions/#{note.discussion_id}", user), params: { resolved: false }
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response['resolvable']).to eq(true)
-      expect(json_response['resolved']).to eq(false)
+      expect(json_response['resolvable']).to be(true)
+      expect(json_response['resolved']).to be(false)
       expect(json_response['notes'].size).to eq(1)
-      expect(json_response['notes'][0]['resolved']).to eq(false)
+      expect(json_response['notes'][0]['resolved']).to be(false)
       expect(json_response['notes'][0]['resolved_at']).to be_nil
     end
 
@@ -108,7 +108,7 @@ RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_typ
               "discussions/#{note.discussion_id}/notes/#{note.id}", user), params: { resolved: true }
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response['resolved']).to eq(true)
+      expect(json_response['resolved']).to be(true)
     end
 
     it 'returns a 404 error when note id not found' do

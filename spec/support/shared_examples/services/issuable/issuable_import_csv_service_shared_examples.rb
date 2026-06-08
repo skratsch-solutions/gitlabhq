@@ -35,7 +35,7 @@ RSpec.shared_examples 'issuable import csv service' do |issuable_type|
       it 'imports the CSV without errors' do
         expect(subject[:success]).to eq(4)
         expect(subject[:error_lines]).to eq([])
-        expect(subject[:parse_error]).to eq(false)
+        expect(subject[:parse_error]).to be(false)
       end
 
       it 'correctly sets the issuable attributes' do
@@ -66,7 +66,7 @@ RSpec.shared_examples 'issuable import csv service' do |issuable_type|
       it 'imports CSV without errors' do
         expect(subject[:success]).to eq(3)
         expect(subject[:error_lines]).to eq([])
-        expect(subject[:parse_error]).to eq(false)
+        expect(subject[:parse_error]).to be(false)
       end
 
       it 'correctly sets the issuable attributes' do
@@ -85,7 +85,7 @@ RSpec.shared_examples 'issuable import csv service' do |issuable_type|
       it 'imports CSV with some error rows' do
         expect(subject[:success]).to eq(2)
         expect(subject[:error_lines]).to eq([3])
-        expect(subject[:parse_error]).to eq(false)
+        expect(subject[:parse_error]).to be(false)
       end
 
       it 'correctly sets the issuable attributes' do
@@ -104,7 +104,7 @@ RSpec.shared_examples 'issuable import csv service' do |issuable_type|
       it 'imports CSV with a blank row' do
         expect(subject[:success]).to eq(3)
         expect(subject[:error_lines]).to eq([4])
-        expect(subject[:parse_error]).to eq(false)
+        expect(subject[:parse_error]).to be(false)
       end
 
       it 'correctly sets the issuable attributes' do

@@ -2575,7 +2575,7 @@ DEPENDENCIES
   opentelemetry-instrumentation-ethon
   opentelemetry-instrumentation-excon
   opentelemetry-instrumentation-faraday
-  opentelemetry-instrumentation-grape
+  opentelemetry-instrumentation-grape (~> 0.5.1)
   opentelemetry-instrumentation-graphql
   opentelemetry-instrumentation-http
   opentelemetry-instrumentation-http_client

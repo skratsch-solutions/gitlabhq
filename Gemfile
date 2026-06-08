@@ -468,7 +468,9 @@ group :opentelemetry do
   gem 'opentelemetry-instrumentation-ethon', feature_category: :observability
   gem 'opentelemetry-instrumentation-excon', feature_category: :observability
   gem 'opentelemetry-instrumentation-faraday', feature_category: :observability
-  gem 'opentelemetry-instrumentation-grape', feature_category: :observability
+  # Floor 0.5.1 fixes Grape 3.1 instrumentation (PR #1969); cap <0.6 avoids
+  # 0.6.0's stable HTTP semantic-convention default that can break dashboards/alerts.
+  gem 'opentelemetry-instrumentation-grape', '~> 0.5.1', feature_category: :observability
   gem 'opentelemetry-instrumentation-graphql', feature_category: :observability
   gem 'opentelemetry-instrumentation-http_client', feature_category: :observability
   gem 'opentelemetry-instrumentation-net_http', feature_category: :observability

@@ -68,6 +68,7 @@ const NON_ACTIONABLE_ERROR_PATTERNS = [
   /Response not successful: Received status code \d+/,
   /Request aborted/,
   /signal is aborted/i,
+  /Timeout on validation of query/,
 ];
 
 export function isNonActionableError(event, hint) {

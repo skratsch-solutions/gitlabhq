@@ -87,6 +87,7 @@ describe('SentryConfig', () => {
               /Response not successful: Received status code \d+/,
               /Request aborted/,
               /signal is aborted/i,
+              /Timeout on validation of query/,
             ],
             tracePropagationTargets: [/^\//],
             tracesSampleRate: mockSentryClientsideTracesSampleRate,
@@ -469,6 +470,11 @@ describe('SentryConfig', () => {
 
     it('returns true for AbortError: signal is aborted without reason (Chromium navigation abort)', () => {
       const error = new DOMException('signal is aborted without reason', 'AbortError');
+      expect(isNonActionableError({}, { originalException: error })).toBe(true);
+    });
+
+    it('returns true for GraphQL server-side validation timeout errors', () => {
+      const error = new Error('Timeout on validation of query');
       expect(isNonActionableError({}, { originalException: error })).toBe(true);
     });
 

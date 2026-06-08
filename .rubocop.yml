@@ -1635,6 +1635,14 @@ Gitlab/TokenWithoutPrefix:
     - 'ee/app/**/*'
     - 'ee/lib/**/*'
 
+Gitlab/TokenWithoutRoutable:
+  Enabled: true
+  Include:
+    - 'app/**/*'
+    - 'lib/**/*'
+    - 'ee/app/**/*'
+    - 'ee/lib/**/*'
+
 Rake/TopLevelMethodDefinition:
   Enabled: true
   Include:

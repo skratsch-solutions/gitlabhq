@@ -57,38 +57,6 @@
     }
   }
 
-  // Content adjustments within panels
-  .paneled-view {
-    // Issue sticky header
-    .issue-sticky-header:not(.merge-request-sticky-header) {
-      @apply gl-w-full gl-border-b-subtle;
-    }
-
-    .work-item-detail-panel .issue-sticky-header:not(.merge-request-sticky-header) {
-      top: $panel-header-inner-height !important;
-    }
-
-    // Legacy merge request sticky header (Firefox)
-    .issue-sticky-header.merge-request-sticky-header .issue-sticky-header-text {
-      @apply gl-px-3;
-    }
-
-    // MR sidebar
-    .issuable-sidebar.is-merge-request .issuable-context-form {
-      @include media-breakpoint-up(lg) {
-        top: calc(#{$mr-sticky-header-height} - 1px) !important;
-        @apply gl-pr-4 #{!important};
-      }
-    }
-
-    // Sticky flash alert
-    // stylelint-disable-next-line gitlab/no-has -- scoped to flash-container element
-    .flash-container:has(.gl-alert) {
-      top: auto !important;
-    }
-
-  }
-
   // AI panel
   .ai-panels .ai-panel {
     @include media-breakpoint-down(md) {

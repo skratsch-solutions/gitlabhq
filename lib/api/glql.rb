@@ -123,8 +123,8 @@ module API
     end
 
     resource :glql do
-      desc 'Execute GLQL query' do
-        detail 'Execute a GLQL (GitLab Query Language) query'
+      desc 'Execute a GLQL query' do
+        detail 'Executes a GLQL query to search and filter GitLab resources.'
         success code: 200, model: ::API::Entities::Glql::Result
         failure [
           { code: 400, message: 'Bad request' },
