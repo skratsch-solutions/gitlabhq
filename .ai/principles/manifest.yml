@@ -217,8 +217,6 @@ principles:
         url: https://docs.gitlab.com/development/permissions/granular_access/graphql_implementation_guide/
       - path: doc/development/permissions/granular_access/graphql_architecture.md
         url: https://docs.gitlab.com/development/permissions/granular_access/graphql_architecture/
-      - path: doc/development/permissions/granular_access/graphql_granular_token_authorization.md
-        url: https://docs.gitlab.com/development/permissions/granular_access/graphql_granular_token_authorization/
       - path: doc/development/permissions/granular_access/permission_definitions.md
         url: https://docs.gitlab.com/development/permissions/granular_access/permission_definitions/
       - path: doc/development/permissions/granular_access/assignable_permissions.md

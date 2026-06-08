@@ -20,6 +20,7 @@ ALWAYS load Database principles regardless of which files you are editing.
 
 **Security:**
 - **Security vulnerabilities and secure coding**: Read .ai/principles/distilled/security.md
+- **Authentication, authorization, token handling, OAuth, SAML, identity linking, composite identity, session management, 2FA, MFA, password management**: Read .ai/principles/distilled/authentication.md
 
 **Permissions:**
 - **Where to check permissions, naming conventions, role definitions**: Read .ai/principles/distilled/permissions-fundamentals.md *(load for any permissions work)*

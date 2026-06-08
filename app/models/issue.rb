@@ -86,10 +86,20 @@ class Issue < ApplicationRecord
 
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
-  has_many :merge_requests_closing_issues,
+  has_many :merge_request_issues,
     class_name: 'MergeRequestsClosingIssues',
     inverse_of: :issue,
     dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
+
+  # Sibling association scoped to closes-type rows so readers (e.g.
+  # WorkItems::Widgets::Development) and GraphQL preloaders can eager-load
+  # exactly the rows they consume. Chaining `.link_type_closes` on the
+  # unscoped association above bypasses Rails' preload cache and causes
+  # an N+1 per work item.
+  has_many :merge_request_closing_issues,
+    -> { link_type_closes },
+    class_name: 'MergeRequestsClosingIssues',
+    inverse_of: :issue
 
   has_many :issue_assignees
   has_many :issue_email_participants

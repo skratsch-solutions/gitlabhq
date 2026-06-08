@@ -557,30 +557,36 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         captured
       end
 
+      # Capture the URL argument passed to `system(env, 'git', ..., 'push', <url>, ...)`.
+      def capture_push_url
+        captured = nil
+        allow(sync).to receive(:system).and_call_original
+        allow(sync).to receive(:system).and_return(true)
+        allow(sync).to receive(:system) do |*args, **|
+          captured = args.find { |a| a.is_a?(String) && a.start_with?('https://') } if args.include?('push')
+
+          true
+        end
+        create_branch_and_mr
+        captured
+      end
+
       context 'with no existing GIT_CONFIG_COUNT in the environment' do
-        it 'passes a single PRIVATE-TOKEN header scoped to the push URL via env vars' do
+        it 'passes a single host-scoped HTTP Basic Authorization header via env vars' do
+          # 'b2F1dGgyOnRva2Vu' == Base64("oauth2:token").
           expect(capture_push_env).to eq(
             'GIT_CONFIG_COUNT' => '1',
-            'GIT_CONFIG_KEY_0' => 'http.https://gitlab.com/gitlab-org/gitlab.extraHeader',
-            'GIT_CONFIG_VALUE_0' => 'PRIVATE-TOKEN: token'
+            'GIT_CONFIG_KEY_0' => 'http.https://gitlab.com.extraHeader',
+            'GIT_CONFIG_VALUE_0' => 'Authorization: Basic b2F1dGgyOnRva2Vu'
           )
         end
 
         it 'does not embed the token in the push URL' do
-          captured_url = nil
-          allow(sync).to receive(:system).and_call_original
-          allow(sync).to receive(:system).and_return(true)
-          allow(sync).to receive(:system) do |*args, **|
-            if args.size > 1 && args[0].is_a?(Hash) && args.include?('push')
-              captured_url = args.find { |a| a.is_a?(String) && a.start_with?('https://') }
-            end
+          expect(capture_push_url).to eq('https://gitlab.com/gitlab-org/gitlab.git')
+        end
 
-            true
-          end
-          create_branch_and_mr
-
-          expect(captured_url).to eq('https://gitlab.com/gitlab-org/gitlab.git')
-          expect(captured_url).not_to include('token')
+        it 'does not include the raw token in the header value' do
+          expect(capture_push_env['GIT_CONFIG_VALUE_0']).not_to include('token')
         end
       end
 
@@ -605,10 +611,22 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         it 'appends at the next index without clobbering the existing count' do
           expect(capture_push_env).to eq(
             'GIT_CONFIG_COUNT' => '3',
-            'GIT_CONFIG_KEY_2' => 'http.https://gitlab.com/gitlab-org/gitlab.extraHeader',
-            'GIT_CONFIG_VALUE_2' => 'PRIVATE-TOKEN: token'
+            'GIT_CONFIG_KEY_2' => 'http.https://gitlab.com.extraHeader',
+            'GIT_CONFIG_VALUE_2' => 'Authorization: Basic b2F1dGgyOnRva2Vu'
           )
         end
+      end
+
+      it 'aborts when the API token is empty' do
+        stub_const('ENV', {
+          'GITLAB_API_TOKEN' => '',
+          'CI_PROJECT_ID' => 'gitlab-org/gitlab',
+          'CI_DEFAULT_BRANCH' => 'master',
+          'CI_PROJECT_PATH' => 'gitlab-org/gitlab',
+          'CI_PROJECT_DIR' => '/tmp/workspace'
+        })
+
+        expect { capture_push_env }.to raise_error(SystemExit)
       end
     end
 

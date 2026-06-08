@@ -11,6 +11,19 @@ RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
     let(:doc) { Nokogiri::HTML.fragment(rendered) }
     let(:pre) { doc.css('pre').first }
 
+    context 'with auto-linking' do
+      let(:input) { 'See https://example.com for details.' }
+
+      it 'auto-links bare URLs', :aggregate_failures do
+        link = doc.at_css('a')
+
+        expect(link[:href]).to eq('https://example.com')
+        expect(link[:rel]).to eq('nofollow noreferrer noopener')
+        expect(link[:target]).to eq('_blank')
+        expect(link.text).to eq('https://example.com')
+      end
+    end
+
     context 'with a source code block' do
       let(:input) do
         <<~ORG

@@ -1,6 +1,6 @@
 ---
-source_checksum: 9335084d6e27dd9e
-distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
+source_checksum: 4245f8c78c51bf39
+distilled_at_sha: 186bab0afd636fbcfc444beff09e9b796060fcea
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -55,6 +55,7 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 - Ensure `boundary_type` matches at least one boundary declared in the corresponding assignable permission's `boundaries` field; the Lefthook pre-push validation catches mismatches.
 - Apply the directive at only one level per field (field, owner type, implementing type, or return type) to avoid ambiguity; the `DirectiveFinder` stops at the first match in that priority order.
 - DO NOT declare `permissions: []` on a directive; the authorization service returns `"Unable to determine permissions for authorization"` when the permissions array is empty.
+- Use `traversal: true` on entry-point fields (e.g., `Query.group(fullPath:)`, `Query.project(fullPath:)`) that resolve a boundary from a path argument but do not expose data themselves; this causes the authorization service to verify only that the token is scoped to the boundary, not the listed permission. Note: `traversal: true` only applies to `project` and `group` boundary types.
 
 ### Directive Discovery and Boundary Extraction
 
@@ -62,6 +63,12 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 - Understand that `BoundaryExtractor` uses Strategy A (`boundary_argument`) for mutations and query fields with path arguments, Strategy B (`boundary` method on resolved object) for type fields, Strategy C (ID fallback via GlobalID) for query fields with an `:id` argument when the object is nil, and Strategy D (standalone `NilBoundary`) for `user` or `instance` boundaries.
 - Be aware that the ID fallback strategy (Strategy C) fetches the record twice — once for authorization and once during field resolution — though the query is cached.
 - Ensure that `boundary` method values are one of the valid accessor methods: `project`, `group`, or `itself`; any other value raises `ArgumentError: "Invalid boundary method: '<value>'"`.
+
+### Traversal Between Authorized Types
+
+- Understand that when a field on an authorized type returns another type that also declares `authorize_granular_token`, the owner type's directive is automatically skipped; the child type's directive enforces authorization when fields on the child object are resolved.
+- DO NOT rely on the automatic traversal skip for leaf types (types whose fields all return plain scalars, e.g., `RepositoryLanguageType`, `PushRulesType`); for leaf types the collection-level check always fires and must not be bypassed.
+- Add an explicit field-level directive using `directives: granular_scope_directive(...)` to any field where the automatic traversal skip should not apply; an explicit field-level directive always wins.
 
 ### Authorization Caching and Performance
 
@@ -87,7 +94,6 @@ For the full picture, see:
 - doc/development/permissions/granular_access/_index.md
 - doc/development/permissions/granular_access/graphql_implementation_guide.md
 - doc/development/permissions/granular_access/graphql_architecture.md
-- doc/development/permissions/granular_access/graphql_granular_token_authorization.md
 - doc/development/permissions/granular_access/permission_definitions.md
 - doc/development/permissions/granular_access/assignable_permissions.md
 

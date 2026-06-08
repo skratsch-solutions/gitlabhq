@@ -24165,6 +24165,7 @@ CREATE TABLE merge_requests_closing_issues (
     updated_at timestamp without time zone NOT NULL,
     from_mr_description boolean DEFAULT true NOT NULL,
     project_id bigint,
+    link_type smallint DEFAULT 0 NOT NULL,
     CONSTRAINT check_8532dd8dc4 CHECK ((project_id IS NOT NULL))
 );
 
@@ -48534,10 +48535,6 @@ CREATE INDEX index_merge_requests_approval_rules_on_project_id ON merge_requests
 
 CREATE INDEX index_merge_requests_approval_rules_on_source_rule_id ON merge_requests_approval_rules USING btree (source_rule_id);
 
-CREATE INDEX index_merge_requests_closing_issues_on_issue_id ON merge_requests_closing_issues USING btree (issue_id);
-
-CREATE INDEX index_merge_requests_closing_issues_on_merge_request_id ON merge_requests_closing_issues USING btree (merge_request_id);
-
 CREATE INDEX index_merge_requests_closing_issues_on_project_id ON merge_requests_closing_issues USING btree (project_id);
 
 CREATE INDEX index_merge_requests_compliance_violations_on_violating_user_id ON merge_requests_compliance_violations USING btree (violating_user_id);
@@ -48689,6 +48686,12 @@ CREATE UNIQUE INDEX index_mr_approval_metrics_on_project_id_and_mr_id ON merge_r
 CREATE UNIQUE INDEX index_mr_blocks_on_blocking_and_blocked_mr_ids ON merge_request_blocks USING btree (blocking_merge_request_id, blocked_merge_request_id);
 
 CREATE INDEX index_mr_cleanup_schedules_timestamps_status ON merge_request_cleanup_schedules USING btree (scheduled_at) WHERE ((completed_at IS NULL) AND (status = 0));
+
+CREATE INDEX index_mr_closing_issues_on_issue_id_and_link_type ON merge_requests_closing_issues USING btree (issue_id, link_type);
+
+CREATE INDEX index_mr_closing_issues_on_merge_request_id_and_link_type ON merge_requests_closing_issues USING btree (merge_request_id, link_type);
+
+CREATE UNIQUE INDEX index_mr_closing_issues_on_mr_id_issue_id_link_type ON merge_requests_closing_issues USING btree (merge_request_id, issue_id, link_type) WHERE (link_type <> 0);
 
 CREATE UNIQUE INDEX index_mr_context_commits_on_merge_request_id_and_sha ON merge_request_context_commits USING btree (merge_request_id, sha);
 

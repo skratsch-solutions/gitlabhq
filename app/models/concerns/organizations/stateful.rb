@@ -4,6 +4,10 @@ module Organizations
   module Stateful
     extend ActiveSupport::Concern
 
+    # States in which an organization is being deleted. These are hidden from
+    # non-admin users (see Organizations::OrganizationsFinder).
+    DELETION_STATES = %i[soft_deleted deletion_in_progress].freeze
+
     included do
       include ::Gitlab::TenantContainerLifecycle::Stateful::TransitionContext
       include ::Gitlab::TenantContainerLifecycle::Stateful::TransitionCallbacks
@@ -19,6 +23,8 @@ module Organizations
         confirmed: 3,
         active: 4
       }, instance_methods: false
+
+      scope :excluding_deletion_states, -> { where.not(state: DELETION_STATES) }
 
       state_machine :state, initial: :unconfirmed do
         before_transition :update_state_metadata

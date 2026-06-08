@@ -21,7 +21,7 @@ module WorkItems
         current_user_todos: [:todos],
         description: [:description_versions],
         designs: [:designs, :design_versions], # DesignManagement::Action ???
-        development: [:merge_requests_closing_issues],
+        development: [:merge_request_issues, :merge_request_closing_issues],
         email_participants: [:issue_email_participants, :email],
         hierarchy: [
           :work_item_parent, :work_item_children, :work_item_children_by_relative_position, :parent_link, :child_links

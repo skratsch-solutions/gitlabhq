@@ -182,63 +182,67 @@ describe('CommitListItem', () => {
   });
 
   describe('row click to show/hide description', () => {
-    it('shows description when row is clicked and commit has description', async () => {
-      await findCommitRow().trigger('click');
-      expect(findDescription().isVisible()).toBe(true);
+    describe('when commit has description', () => {
+      it('shows description when row is clicked', async () => {
+        await findCommitRow().trigger('click');
+        expect(findDescription().isVisible()).toBe(true);
+      });
+
+      it('hides description on second click', async () => {
+        await findCommitRow().trigger('click');
+        expect(findActionButtons().props('isCollapsed')).toBe(false);
+
+        await findCommitRow().trigger('click');
+        expect(findActionButtons().props('isCollapsed')).toBe(true);
+      });
+
+      it('toggles via keyboard Enter key', async () => {
+        await findCommitRow().trigger('keydown.enter');
+        expect(findDescription().isVisible()).toBe(true);
+      });
+
+      it('toggles via keyboard Space key', async () => {
+        await findCommitRow().trigger('keydown.space');
+        expect(findDescription().isVisible()).toBe(true);
+      });
+
+      it('applies cursor-pointer class', () => {
+        expect(findCommitRow().classes()).toContain('gl-cursor-pointer');
+      });
+
+      it('sets tabindex="0"', () => {
+        expect(findCommitRow().attributes('tabindex')).toBe('0');
+      });
+
+      it('sets aria-expanded to false initially and true after click', async () => {
+        expect(findCommitRow().attributes('aria-expanded')).toBe('false');
+
+        await findCommitRow().trigger('click');
+        expect(findCommitRow().attributes('aria-expanded')).toBe('true');
+      });
     });
 
-    it('hides description on second click', async () => {
-      await findCommitRow().trigger('click');
-      expect(findActionButtons().props('isCollapsed')).toBe(false);
+    describe('when commit has no description', () => {
+      beforeEach(() => {
+        createComponent({ commit: { ...mockCommit, description: null } });
+      });
 
-      await findCommitRow().trigger('click');
-      expect(findActionButtons().props('isCollapsed')).toBe(true);
-    });
+      it('does not show description on click', async () => {
+        await findCommitRow().trigger('click');
+        expect(findActionButtons().props('isCollapsed')).toBe(true);
+      });
 
-    it('does not show description when commit has no description', async () => {
-      createComponent({ commit: { ...mockCommit, description: null } });
-      await findCommitRow().trigger('click');
-      expect(findActionButtons().props('isCollapsed')).toBe(true);
-    });
+      it('does not apply cursor-pointer class', () => {
+        expect(findCommitRow().classes()).not.toContain('gl-cursor-pointer');
+      });
 
-    it('toggles via keyboard Enter key', async () => {
-      await findCommitRow().trigger('keydown.enter');
-      expect(findDescription().isVisible()).toBe(true);
-    });
+      it('sets tabindex="-1"', () => {
+        expect(findCommitRow().attributes('tabindex')).toBe('-1');
+      });
 
-    it('toggles via keyboard Space key', async () => {
-      await findCommitRow().trigger('keydown.space');
-      expect(findDescription().isVisible()).toBe(true);
-    });
-
-    it('applies cursor-pointer class when commit has description', () => {
-      expect(findCommitRow().classes()).toContain('gl-cursor-pointer');
-    });
-
-    it('does not apply cursor-pointer class when commit has no description', () => {
-      createComponent({ commit: { ...mockCommit, description: null } });
-      expect(findCommitRow().classes()).not.toContain('gl-cursor-pointer');
-    });
-
-    it('sets tabindex="0" when commit has description', () => {
-      expect(findCommitRow().attributes('tabindex')).toBe('0');
-    });
-
-    it('sets tabindex="-1" when commit has no description', () => {
-      createComponent({ commit: { ...mockCommit, description: null } });
-      expect(findCommitRow().attributes('tabindex')).toBe('-1');
-    });
-
-    it('sets aria-expanded when commit has description', async () => {
-      expect(findCommitRow().attributes('aria-expanded')).toBe('false');
-
-      await findCommitRow().trigger('click');
-      expect(findCommitRow().attributes('aria-expanded')).toBe('true');
-    });
-
-    it('does not set aria-expanded when commit has no description', () => {
-      createComponent({ commit: { ...mockCommit, description: null } });
-      expect(findCommitRow().attributes('aria-expanded')).toBeUndefined();
+      it('does not set aria-expanded', () => {
+        expect(findCommitRow().attributes('aria-expanded')).toBeUndefined();
+      });
     });
   });
 

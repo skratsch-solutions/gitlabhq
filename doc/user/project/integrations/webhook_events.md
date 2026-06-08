@@ -2516,10 +2516,12 @@ An emoji event is triggered when an [emoji reaction](../../emoji_reactions.md) i
 - Issues
 - Merge requests
 - Project snippets
+- Wiki pages
 - Comments on:
   - Issues
   - Merge requests
   - Project snippets
+  - Wiki pages
   - Commits
 
 The available values for `object_attributes.action` in the payload are:

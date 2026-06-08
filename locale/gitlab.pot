@@ -13333,6 +13333,9 @@ msgstr ""
 msgid "BlobViewer|Copy contents"
 msgstr ""
 
+msgid "BlobViewer|Download as Markdown"
+msgstr ""
+
 msgid "BlobViewer|If you delete the file, it will be removed from the branch %{branch}."
 msgstr ""
 
@@ -14207,7 +14210,7 @@ msgstr ""
 msgid "Branches|This may include merged branches that are not visible on the current screen."
 msgstr ""
 
-msgid "Branches|To discard the local changes and overwrite the branch with the upstream version, delete it here and choose 'Update Now' above."
+msgid "Branches|To discard the local changes and overwrite the branch with the upstream version, delete it here and choose 'Update now' above."
 msgstr ""
 
 msgid "Branches|Unable to load branches"
@@ -66855,6 +66858,9 @@ msgstr ""
 msgid "SecurityOrchestration|Advisory"
 msgstr ""
 
+msgid "SecurityOrchestration|Advisory mode. Violations are flagged but progress is not blocked."
+msgstr ""
+
 msgid "SecurityOrchestration|After dismissing the alert, the information will never be shown again."
 msgstr ""
 
@@ -67508,6 +67514,9 @@ msgstr ""
 msgid "SecurityOrchestration|Enforced"
 msgstr ""
 
+msgid "SecurityOrchestration|Enforcement mode"
+msgstr ""
+
 msgid "SecurityOrchestration|Enforcement type"
 msgstr ""
 
@@ -67679,6 +67688,9 @@ msgstr ""
 msgid "SecurityOrchestration|HIPAA"
 msgstr ""
 
+msgid "SecurityOrchestration|Hard enforcement. Violations are blocked as defined."
+msgstr ""
+
 msgid "SecurityOrchestration|Help us improve scheduled pipeline execution policies by sharing your thoughts and suggestions."
 msgstr ""
 
@@ -67719,9 +67731,6 @@ msgid "SecurityOrchestration|Impact estimate"
 msgstr ""
 
 msgid "SecurityOrchestration|In each pipeline, a %{boldStart}maximum of 1000%{boldEnd} vulnerabilities that are %{italicStart}no longer detected%{italicEnd} will be set to status %{italicStart}Resolved%{italicEnd} until all have been auto-resolved."
-msgstr ""
-
-msgid "SecurityOrchestration|In warn mode, project approval settings are not overridden by policy and violations are reported, but fixes for the violations are not mandatory. %{linkStart}Learn more%{linkEnd}"
 msgstr ""
 
 msgid "SecurityOrchestration|Include subgroups"
@@ -68117,9 +68126,6 @@ msgid "SecurityOrchestration|Policy definition"
 msgstr ""
 
 msgid "SecurityOrchestration|Policy editor"
-msgstr ""
-
-msgid "SecurityOrchestration|Policy enforcement"
 msgstr ""
 
 msgid "SecurityOrchestration|Policy exceeds the maximum of %{limit} actions"
@@ -68751,9 +68757,6 @@ msgstr ""
 msgid "SecurityOrchestration|Status"
 msgstr ""
 
-msgid "SecurityOrchestration|Strictly enforced"
-msgstr ""
-
 msgid "SecurityOrchestration|Summary"
 msgstr ""
 
@@ -68914,9 +68917,6 @@ msgid "SecurityOrchestration|This policy is inherited from %{linkStart}namespace
 msgstr ""
 
 msgid "SecurityOrchestration|This policy is inherited from %{namespace}"
-msgstr ""
-
-msgid "SecurityOrchestration|This policy was previously in warn mode, which was an experimental feature. Due to changes in the feature, warn mode is now disabled. To enable the new warn mode setting, update this property."
 msgstr ""
 
 msgid "SecurityOrchestration|This policy will be enabled for 247 projects in Audit mode. Events will be logged only."
@@ -69106,9 +69106,6 @@ msgid "SecurityOrchestration|Warn"
 msgstr ""
 
 msgid "SecurityOrchestration|Warn in merge request"
-msgstr ""
-
-msgid "SecurityOrchestration|Warn mode"
 msgstr ""
 
 msgid "SecurityOrchestration|Warn mode (bypass eligible)"
@@ -85181,6 +85178,9 @@ msgid "Work items"
 msgstr ""
 
 msgid "Work items with this label were imported with a work item type name that could not be resolved in this namespace. They were assigned the default issue type instead."
+msgstr ""
+
+msgid "WorkItemBoard|An error occurred while fetching more work items."
 msgstr ""
 
 msgid "WorkItemBoard|An error occurred while fetching work items for this column."

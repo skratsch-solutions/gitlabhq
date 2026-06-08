@@ -34,7 +34,8 @@ issues:
 - moved_from
 - duplicated_to
 - events
-- merge_requests_closing_issues
+- merge_request_issues
+- merge_request_closing_issues
 - metrics
 - metric_images
 - timelogs
@@ -226,7 +227,8 @@ merge_requests:
 - merge_request_stage_events
 - merge_schedule
 - events
-- merge_requests_closing_issues
+- merge_request_issues
+- merge_request_closing_issues
 - cached_closes_issues
 - metrics
 - timelogs

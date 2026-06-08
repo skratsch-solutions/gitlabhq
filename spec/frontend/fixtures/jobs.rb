@@ -10,7 +10,7 @@ RSpec.describe 'Jobs (JavaScript fixtures)', feature_category: :continuous_integ
   let(:namespace) { create(:namespace, name: 'frontend-fixtures') }
   let(:project) { create(:project, :repository, namespace: namespace, path: 'builds-project') }
   let(:user) { project.first_owner }
-  let(:pipeline) { create(:ci_empty_pipeline, project: project, sha: project.commit.id) }
+  let(:pipeline) { create(:ci_pipeline, project: project, sha: project.commit.id) }
 
   after do
     remove_repository(project)

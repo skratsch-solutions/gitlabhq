@@ -143,7 +143,7 @@ RSpec.describe Milestoneable do
         let_it_be(:mrc_issue_2, freeze: false) { create(:merge_requests_closing_issues, issue: issue_2, merge_request: merge_request_2) }
 
         it 'returns merge request closing issues of any milestone' do
-          relation = items.joins(merge_requests_closing_issues: :issue).any_milestone
+          relation = items.joins(merge_request_closing_issues: :issue).any_milestone
 
           expect(relation).to contain_exactly(issue_1, issue_2)
         end

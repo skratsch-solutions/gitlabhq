@@ -95,6 +95,7 @@ export default {
       @keydown.enter="onRowClick"
       @keydown.space.prevent="onRowClick"
     >
+      <!-- Prevent the description toggle -->
       <user-avatar-link
         v-if="commit.author"
         :link-href="commit.author.webPath"
@@ -113,6 +114,7 @@ export default {
       <div class="gl-inline-block gl-w-full gl-min-w-0 gl-items-center @md/panel:gl-flex">
         <h3 class="gl-m-0 gl-min-w-0 gl-grow gl-pt-1 gl-text-base @md/panel:gl-pt-0">
           <div class="gl-flex">
+            <!-- Prevent the description toggle -->
             <gl-link
               :href="commit.webPath"
               class="gl-inline-block gl-min-w-0 gl-max-w-full gl-font-bold gl-text-default hover:gl-text-default @md/panel:gl-truncate"
@@ -133,6 +135,7 @@ export default {
               data-testid="commit-user-popover"
               class="js-user-popover"
             >
+              <!-- Prevent the description toggle -->
               <gl-link
                 :href="commit.author.webPath"
                 class="js-user-link gl-text-default"
@@ -156,6 +159,7 @@ export default {
             }}</span>
           </div>
         </h3>
+        <!-- Prevent the description toggle -->
         <div class="gl-flex gl-items-center gl-gap-4" @click.stop>
           <badges :commit="commit" />
           <action-buttons
@@ -166,6 +170,7 @@ export default {
           />
         </div>
       </div>
+      <!-- Prevent the description toggle -->
       <div
         v-if="commit.description"
         class="gl-block @md/panel:gl-hidden"
@@ -180,6 +185,7 @@ export default {
           @click="onClick"
         />
       </div>
+      <!-- Prevent the description toggle -->
       <overflow-menu
         :commit="commit"
         class="gl-block @md/panel:gl-hidden"

@@ -4758,6 +4758,36 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
         build.drop!(:server_timeout_running)
         expect(build.reload.finished_at).to eq(build.started_at + timeout.seconds)
       end
+
+      context 'with a pending_state' do
+        let(:pending_state_created_at) { build.started_at + 1.second }
+
+        before do
+          build.create_pending_state(
+            state: 'failed',
+            trace_checksum: 'crc32:12345678',
+            created_at: pending_state_created_at
+          )
+        end
+
+        it 'preserves the pending_state anchor' do
+          build.drop!(:server_timeout_running)
+
+          expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
+        end
+
+        context 'when ci_anchor_finished_at_to_pending_state is disabled' do
+          before do
+            stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
+          end
+
+          it 'preserves existing server timeout behavior' do
+            build.drop!(:server_timeout_running)
+
+            expect(build.reload.finished_at).to eq(build.started_at + timeout.seconds)
+          end
+        end
+      end
     end
 
     context 'when the failure reason is not server_timeout_running' do
@@ -4777,6 +4807,37 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       it 'overwrites finished_at' do
         build.drop!(:server_timeout_canceling)
         expect(build.reload.finished_at).to eq(build.started_at + timeout.seconds)
+      end
+
+      context 'with a pending_state' do
+        let(:pending_state_created_at) { build.started_at + 1.second }
+
+        before do
+          build.create_pending_state(
+            state: 'canceled',
+            trace_checksum: 'crc32:12345678',
+            created_at: pending_state_created_at
+          )
+        end
+
+        it 'preserves the pending_state anchor' do
+          build.drop!(:server_timeout_canceling)
+
+          expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
+          expect(build.failure_reason).to eq('server_timeout_canceling')
+        end
+
+        context 'when ci_anchor_finished_at_to_pending_state is disabled' do
+          before do
+            stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
+          end
+
+          it 'preserves existing server timeout behavior' do
+            build.drop!(:server_timeout_canceling)
+
+            expect(build.reload.finished_at).to eq(build.started_at + timeout.seconds)
+          end
+        end
       end
     end
 
@@ -4813,6 +4874,187 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
           build.drop(reason)
           expect(build.reload.finished_at).not_to eq(build.started_at + timeout.seconds)
         end
+      end
+    end
+  end
+
+  describe 'state transition: running => terminal anchors finished_at to pending_state', :freeze_time do
+    let_it_be(:pipeline) { create(:ci_pipeline, :running) }
+
+    let(:pending_state_created_at) { 90.seconds.ago }
+    let(:build) { create(:ci_build, :running, pipeline: pipeline) }
+
+    before do
+      build.create_pending_state(
+        state: 'success',
+        trace_checksum: 'crc32:12345678',
+        created_at: pending_state_created_at
+      )
+    end
+
+    context 'when ci_anchor_finished_at_to_pending_state is enabled' do
+      it 'anchors finished_at to pending_state.created_at on running => success' do
+        build.success!
+
+        expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
+      end
+
+      it 'anchors finished_at to pending_state.created_at on running => failed' do
+        build.drop!(:script_failure)
+
+        expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
+      end
+
+      context 'when no pending_state exists' do
+        before do
+          build.pending_state.delete
+          build.reload
+        end
+
+        it 'falls back to Time.current via the CommitStatus before_transition' do
+          build.success!
+
+          expect(build.reload.finished_at).to be_like_time(Time.current)
+        end
+      end
+
+      context 'when transitioning running => failed via server_timeout_running' do
+        let(:timeout) { 1000 }
+        let(:build) { create(:ci_build, :running, pipeline: pipeline, timeout: timeout) }
+        let(:pending_state_created_at) { build.started_at + 1.second }
+
+        it 'preserves the pending_state anchor as the runner-reported completion time' do
+          build.drop!(:server_timeout_running)
+
+          expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
+        end
+      end
+    end
+
+    context 'when ci_anchor_finished_at_to_pending_state is disabled' do
+      before do
+        stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
+      end
+
+      it 'preserves the existing Time.current behavior' do
+        build.success!
+
+        expect(build.reload.finished_at).to be_like_time(Time.current)
+      end
+    end
+  end
+
+  describe '#set_finished_at', :freeze_time do
+    let(:timeout_finished_at) { Time.current }
+    let(:pending_state_created_at) { 90.seconds.ago }
+    let(:build) { create(:ci_build, :running) }
+    let(:transition) { instance_double(StateMachines::Transition, args: [], from: 'running', to: 'success') }
+
+    context 'with a pending_state' do
+      before do
+        build.create_pending_state(
+          state: 'failed',
+          trace_checksum: 'crc32:12345678',
+          created_at: pending_state_created_at
+        )
+      end
+
+      it 'sets pending_state.created_at independently of the current finished_at value' do
+        build.finished_at = 1.hour.from_now
+
+        build.set_finished_at(transition)
+
+        expect(build.finished_at).to be_like_time(pending_state_created_at)
+      end
+
+      context 'when ci_anchor_finished_at_to_pending_state is disabled' do
+        before do
+          stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
+        end
+
+        it 'sets the given timestamp' do
+          build.set_finished_at(transition)
+
+          expect(build.finished_at).to be_like_time(timeout_finished_at)
+        end
+      end
+    end
+
+    context 'without a pending_state' do
+      it 'sets the given timestamp' do
+        build.set_finished_at(transition)
+
+        expect(build.finished_at).to be_like_time(timeout_finished_at)
+      end
+    end
+
+    context 'for a running server-timeout transition' do
+      let(:build) { create(:ci_build, :running, timeout: 1000, started_at: 30.minutes.ago) }
+      let(:transition) do
+        instance_double(StateMachines::Transition, args: [failure_reason], from: 'running', to: 'failed')
+      end
+
+      shared_examples 'returns the running timeout cap' do
+        it 'sets the timeout cap' do
+          build.set_finished_at(transition)
+
+          expect(build.finished_at).to be_like_time(build.started_at + build.timeout.seconds)
+        end
+      end
+
+      context 'when the failure reason is a symbol' do
+        let(:failure_reason) { :server_timeout_running }
+
+        it_behaves_like 'returns the running timeout cap'
+      end
+
+      context 'when the failure reason is a string' do
+        let(:failure_reason) { 'server_timeout_running' }
+
+        it_behaves_like 'returns the running timeout cap'
+      end
+
+      context 'when the failure reason is a Reason object' do
+        let(:failure_reason) do
+          ::Gitlab::Ci::Build::Status::Reason.fabricate(build, :server_timeout_running)
+        end
+
+        it_behaves_like 'returns the running timeout cap'
+      end
+    end
+
+    context 'for a canceling server-timeout transition' do
+      let(:build) { create(:ci_build, :canceling, timeout: 1000, started_at: 30.minutes.ago) }
+      let(:transition) do
+        instance_double(StateMachines::Transition, args: [failure_reason], from: 'canceling', to: 'canceled')
+      end
+
+      shared_examples 'returns the canceling timeout cap' do
+        it 'sets the timeout cap' do
+          build.set_finished_at(transition)
+
+          expect(build.finished_at).to be_like_time(build.started_at + build.timeout.seconds)
+        end
+      end
+
+      context 'when the failure reason is a symbol' do
+        let(:failure_reason) { :server_timeout_canceling }
+
+        it_behaves_like 'returns the canceling timeout cap'
+      end
+
+      context 'when the failure reason is a string' do
+        let(:failure_reason) { 'server_timeout_canceling' }
+
+        it_behaves_like 'returns the canceling timeout cap'
+      end
+
+      context 'when the failure reason is a Reason object' do
+        let(:failure_reason) do
+          ::Gitlab::Ci::Build::Status::Reason.fabricate(build, :server_timeout_canceling)
+        end
+
+        it_behaves_like 'returns the canceling timeout cap'
       end
     end
   end

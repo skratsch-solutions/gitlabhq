@@ -107,16 +107,23 @@ class MergeRequest < ApplicationRecord
 
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
-  has_many :merge_requests_closing_issues,
+  has_many :merge_request_issues,
     class_name: 'MergeRequestsClosingIssues',
     inverse_of: :merge_request,
     dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
+
+  has_many :merge_request_closing_issues,
+    -> { link_type_closes },
+    class_name: 'MergeRequestsClosingIssues',
+    inverse_of: :merge_request
 
   has_one :approval_metrics,
     class_name: 'MergeRequest::ApprovalMetrics',
     inverse_of: :merge_request
 
-  has_many :cached_closes_issues, through: :merge_requests_closing_issues, source: :issue
+  has_many :cached_closes_issues,
+    through: :merge_request_closing_issues,
+    source: :issue
   has_many :pipelines_for_merge_request, foreign_key: 'merge_request_id', class_name: 'Ci::Pipeline', inverse_of: :merge_request
   has_many :suggestions, through: :notes
   has_many :unresolved_notes, -> { unresolved }, as: :noteable, class_name: 'Note', inverse_of: :noteable
@@ -1826,7 +1833,7 @@ class MergeRequest < ApplicationRecord
 
     transaction do
       update_cached_closing_issues_from_description!(squash_and_merge_commit_issue_ids)
-      existing_issue_ids = merge_requests_closing_issues.pluck(:issue_id)
+      existing_issue_ids = merge_request_closing_issues.pluck(:issue_id)
       issue_ids_to_create = squash_and_merge_commit_issue_ids - existing_issue_ids
 
       bulk_insert_cached_closing_issues(issue_ids_to_create)
@@ -1844,7 +1851,7 @@ class MergeRequest < ApplicationRecord
     issues_to_close_ids = closes_issues(current_user).reject { |issue| issue.is_a?(ExternalIssue) }.map(&:id)
 
     transaction do
-      merge_requests_closing_issues.from_mr_description.delete_all
+      merge_request_closing_issues.from_mr_description.delete_all
 
       updated_issue_ids = update_cached_closing_issues_from_description!(issues_to_close_ids)
       issue_ids_to_create = issues_to_close_ids - updated_issue_ids
@@ -3008,12 +3015,14 @@ class MergeRequest < ApplicationRecord
 
   def update_cached_closing_issues_from_description!(issues_to_close_ids)
     # These might have been created manually from the work item interface
-    issue_ids_to_update = merge_requests_closing_issues
+    issue_ids_to_update = merge_request_closing_issues
       .where(from_mr_description: false, issue_id: issues_to_close_ids)
       .pluck(:issue_id)
 
     if issue_ids_to_update.any?
-      merge_requests_closing_issues.where(issue_id: issue_ids_to_update).update_all(from_mr_description: true)
+      merge_request_closing_issues
+        .where(issue_id: issue_ids_to_update)
+        .update_all(from_mr_description: true)
     end
 
     issue_ids_to_update
@@ -3026,6 +3035,7 @@ class MergeRequest < ApplicationRecord
         issue_id: issue_id,
         merge_request_id: id,
         from_mr_description: true,
+        link_type: :closes,
         created_at: now,
         updated_at: now
       )

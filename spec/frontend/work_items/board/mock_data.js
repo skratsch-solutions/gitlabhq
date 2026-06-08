@@ -106,7 +106,7 @@ export const buildWorkItemNode = (id, overrides = {}) => ({
   ...overrides,
 });
 
-export const buildBoardWorkItemsResponse = (nodes = []) => ({
+export const buildBoardWorkItemsResponse = (nodes = [], pageInfo = {}) => ({
   data: {
     namespace: {
       __typename: 'Group',
@@ -120,6 +120,7 @@ export const buildBoardWorkItemsResponse = (nodes = []) => ({
           hasPreviousPage: false,
           startCursor: null,
           endCursor: null,
+          ...pageInfo,
         },
         nodes,
       },

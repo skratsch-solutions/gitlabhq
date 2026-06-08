@@ -28,10 +28,8 @@ RSpec.describe WorkItems::Widgets::Development, feature_category: :team_planning
 
     it { is_expected.to be_a(ActiveRecord::Relation) }
 
-    it 'returns calls the correct scope' do
-      expect(work_item).to receive(:merge_requests_closing_issues)
-
-      closing_merge_requests
+    it 'scopes the relation to link_type closes' do
+      expect(closing_merge_requests.to_sql).to include('"link_type"')
     end
   end
 

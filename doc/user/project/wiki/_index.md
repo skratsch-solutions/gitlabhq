@@ -22,6 +22,7 @@ Wiki pages:
 - Support custom navigation and organization through sidebar customization.
 - Export content as PDF files for offline access and sharing.
 - Maintain your content separately from your codebase while keeping them in the same project.
+- Support emoji reactions on pages for feedback and engagement.
 
 Each wiki is a separate Git repository.
 You can create and edit wiki pages through the GitLab web interface or
@@ -308,6 +309,29 @@ section in the sidebar.
 You can also choose to optionally display a separate table of contents section on the page
 itself. To generate a table of contents from a wiki page's subheadings, use the
 `[[_TOC_]]` tag. For an example, see [table of contents](../../markdown.md#table-of-contents).
+
+## React to a wiki page
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/510116) in GitLab 19.1.
+
+{{< /history >}}
+
+You can add emoji reactions directly to a wiki page. Reactions appear below the page content,
+above the comments section.
+
+To react to a wiki page:
+
+1. In the top bar, select **Search or go to** and find your project or group.
+1. In the left sidebar, select **Plan** > **Wiki**.
+1. Go to the page you want to react to.
+1. Below the page content, select an existing emoji to add your reaction, or select
+   **Add reaction** ({{< icon name="slight-smile" >}}) to choose a different emoji.
+
+To remove a reaction, select the emoji again. Each user can add only one reaction of each type per page.
+
+When you add your first reaction to a page, GitLab subscribes you to notifications for that page.
 
 ## Delete a wiki page
 

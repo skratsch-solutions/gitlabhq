@@ -322,6 +322,41 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
       end
     end
 
+    describe '.with_states' do
+      let_it_be(:active_org) { create(:organization) }
+
+      let_it_be(:soft_deleted_org) do
+        create(:organization).tap do |o|
+          o.update_column(:state, described_class.states['soft_deleted'])
+        end
+      end
+
+      let_it_be(:deletion_in_progress_org) do
+        create(:organization).tap do |o|
+          o.update_column(:state, described_class.states['deletion_in_progress'])
+        end
+      end
+
+      it 'returns organizations matching a single state' do
+        expect(described_class.with_states('soft_deleted')).to include(soft_deleted_org)
+        expect(described_class.with_states('soft_deleted')).not_to include(active_org, deletion_in_progress_org)
+      end
+
+      it 'returns organizations matching multiple states' do
+        result = described_class.with_states(%w[soft_deleted deletion_in_progress])
+
+        expect(result).to include(soft_deleted_org, deletion_in_progress_org)
+        expect(result).not_to include(active_org)
+      end
+
+      it 'ignores invalid states' do
+        result = described_class.with_states(%w[active invalid_state])
+
+        expect(result).to include(active_org)
+        expect(result).not_to include(soft_deleted_org, deletion_in_progress_org)
+      end
+    end
+
     describe '.by_path' do
       let_it_be(:other_organization) { create(:organization, path: 'other-org') }
 

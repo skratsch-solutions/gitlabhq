@@ -85,7 +85,7 @@ module MergeRequests
     attr_reader :target_branch_was_deleted
 
     def trigger_updated_work_item_on_closing_issues(merge_request, old_closing_issues_ids)
-      new_issue_ids = merge_request.merge_requests_closing_issues.limit(1000).pluck(:issue_id) # rubocop:disable CodeReuse/ActiveRecord -- Implementation would be the same in the model
+      new_issue_ids = merge_request.merge_request_closing_issues.limit(1000).pluck(:issue_id) # rubocop:disable CodeReuse/ActiveRecord -- Implementation would be the same in the model
       all_issue_ids = new_issue_ids | old_closing_issues_ids
       return if all_issue_ids.blank?
 
@@ -97,7 +97,7 @@ module MergeRequests
     override :associations_before_update
     def associations_before_update(merge_request)
       super.merge(
-        closing_issues_ids: merge_request.merge_requests_closing_issues.limit(1000).pluck(:issue_id) # rubocop:disable CodeReuse/ActiveRecord -- Implementation would be the same in the model
+        closing_issues_ids: merge_request.merge_request_closing_issues.limit(1000).pluck(:issue_id) # rubocop:disable CodeReuse/ActiveRecord -- Implementation would be the same in the model
       )
     end
 

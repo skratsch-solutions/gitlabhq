@@ -3717,6 +3717,17 @@
   rules:
     - <<: *if-default-branch-refs
 
+####################################
+# AI principles sync rules #
+####################################
+.ai-principles-sync:rules:weekly:
+  rules:
+    - if: '$CI_PROJECT_PATH != "gitlab-org/gitlab"'
+      when: never
+    - if: '$AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == null || $AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == ""'
+      when: never
+    - <<: *if-default-branch-schedule-weekly
+
 ###################
 # Benchmark rules #
 ###################

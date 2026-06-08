@@ -27,6 +27,7 @@ module Organizations
     }
     scope :by_path, ->(path) { where(path: path) }
     scope :with_isolation_record, -> { eager_load(:isolated_record) }
+    scope :with_states, ->(states) { where(state: states) }
 
     before_destroy :check_if_default_organization
     before_destroy :check_if_last_organization

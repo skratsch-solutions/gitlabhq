@@ -113,8 +113,8 @@ RSpec.shared_examples 'show and render proper snippet blob' do
           # shows a raw button
           expect(page).to have_link('Open raw')
 
-          # shows a download button
-          expect(page).to have_link('Download')
+          # shows a download dropdown
+          expect(page).to have_css('[data-testid="download-dropdown"]')
         end
       end
 

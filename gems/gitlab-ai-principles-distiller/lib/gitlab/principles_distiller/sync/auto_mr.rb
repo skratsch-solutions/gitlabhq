@@ -234,8 +234,8 @@ module Gitlab
 
         # Returns the plain HTTPS push URL with no embedded credentials.
         # Authentication is supplied separately via `git_push_env`, which
-        # injects a `PRIVATE-TOKEN` header through `GIT_CONFIG_*` env vars
-        # so the token never lands in argv, the URL, or git's reflog.
+        # injects an `Authorization: Bearer` header through `GIT_CONFIG_*`
+        # env vars so the token never lands in argv, the URL, or git's reflog.
         def push_remote_url(project_path_or_id)
           host = URI(workflow.gitlab_host).host || 'gitlab.com'
           # CI_PROJECT_ID is numeric, not usable as a URL path.
@@ -252,25 +252,42 @@ module Gitlab
           "https://#{host}/#{project_path}.git"
         end
 
-        # Injects the API token as a `PRIVATE-TOKEN` HTTP header scoped to
-        # the push URL via `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_*`/`GIT_CONFIG_VALUE_*`
-        # env vars
+        # Injects the API token as an HTTP Basic `Authorization` header via
+        # `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_*`/`GIT_CONFIG_VALUE_*` env vars
         # (https://git-scm.com/docs/git-config#Documentation/git-config.txt-GITCONFIGCOUNT).
         # This keeps the token out of:
-        # - argv (no `git -c http.extraHeader=...`).
-        # - the remote URL (no `https://oauth2:TOKEN@host/...`).
-        # - git's reflog and trace output.
+        # - argv (no `git -c http.extraHeader=...` and no credentialed URL).
+        # - the remote URL and git's reflog.
         # The env hash is block-local and goes out of scope on return.
+        #
+        # The header is scoped to the host (`http.https://<host>.extraHeader`),
+        # not the full repo URL. git matches `http.<url>.*` by URL prefix on
+        # whole path segments, so a key scoped to `.../gitlab` does NOT match a
+        # request to `.../gitlab.git`. That mismatch left the header unapplied
+        # and the push fell back to anonymous, yielding a 403. A host-scoped
+        # key applies to every request to that host, which is what we want for
+        # a single-remote push.
+        #
+        # The scheme must be HTTP Basic (`oauth2:<token>`, base64-encoded), not
+        # `Bearer`: GitLab's smart-HTTP git endpoint authenticates PATs via
+        # Basic auth. A `Bearer` header is silently ignored, so the request
+        # falls through to git's Basic challenge with no credentials and the
+        # remote returns `HTTP Basic: Access denied`. (`PRIVATE-TOKEN` is
+        # REST-only and also rejected on git push.)
         #
         # Appends to any existing `GIT_CONFIG_*` entries injected by the parent
         # environment (e.g. GitLab Runner) rather than overwriting them.
         def git_push_env(api_token, push_url)
-          scope = push_url.delete_suffix('.git')
+          abort Rainbow("ERROR: #{Env::GITLAB_API_TOKEN} is empty, cannot push").red if api_token.to_s.empty?
+
+          host_scope = URI(push_url).then { |u| "#{u.scheme}://#{u.host}" }
+          # `pack('m0')`: strict base64 with no trailing newline.
+          basic_credentials = ["oauth2:#{api_token}"].pack('m0')
           next_index = ENV.fetch('GIT_CONFIG_COUNT', '0').to_i
           env = {
             'GIT_CONFIG_COUNT' => (next_index + 1).to_s,
-            "GIT_CONFIG_KEY_#{next_index}" => "http.#{scope}.extraHeader",
-            "GIT_CONFIG_VALUE_#{next_index}" => "PRIVATE-TOKEN: #{api_token}"
+            "GIT_CONFIG_KEY_#{next_index}" => "http.#{host_scope}.extraHeader",
+            "GIT_CONFIG_VALUE_#{next_index}" => "Authorization: Basic #{basic_credentials}"
           }
           yield env
         end
