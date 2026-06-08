@@ -30071,6 +30071,7 @@ CREATE TABLE scan_result_policies (
     licenses jsonb DEFAULT '{}'::jsonb NOT NULL,
     namespace_id bigint,
     approval_policy_rule_id bigint,
+    malicious_rule boolean,
     CONSTRAINT age_value_null_or_positive CHECK (((age_value IS NULL) OR (age_value >= 0))),
     CONSTRAINT check_2c600018b6 CHECK ((num_nonnulls(namespace_id, project_id) >= 1)),
     CONSTRAINT check_scan_result_policies_rule_idx_positive CHECK (((rule_idx IS NULL) OR (rule_idx >= 0))),
