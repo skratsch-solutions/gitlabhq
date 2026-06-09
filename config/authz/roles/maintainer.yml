@@ -73,6 +73,7 @@ project:
   - create_ai_catalog_third_party_flow
   - create_ai_catalog_third_party_flow_item_consumer
   - create_ai_foundational_flow_item_consumer
+  - create_approval_rule
   - create_ascp_component
   - create_ascp_scan
   - create_ascp_security_context
@@ -90,6 +91,7 @@ project:
   - create_service_account
   - create_squash_option
   - create_web_ide_terminal
+  - delete_approval_rule
   - delete_branch_rule
   - delete_external_status_check
   - delete_freeze_period
@@ -163,6 +165,7 @@ project:
   - set_license_information_source
   - stop_environment
   - toggle_license_scanning_for_cyclonedx
+  - update_approval_rule
   - update_approvers
   - update_branch_rule
   - update_cluster

@@ -35,6 +35,7 @@ project:
   - read_alert_management_alert
   - read_analytics
   - read_any_audit_event
+  - read_approval_rule
   - read_approvers
   - read_ascp_component
   - read_ascp_scan
@@ -165,6 +166,7 @@ group:
   - read_add_on_purchase
   - read_ai_domain_settings
   - read_any_audit_event
+  - read_approval_rule
   - read_audit_event
   - read_billable_member
   - read_billing

@@ -71,6 +71,11 @@ To turn Agent Platform on or off for an instance:
 When Agent Platform is turned off, related settings for flows and
 [foundational agents](agents/foundational_agents/_index.md#turn-foundational-agents-on-or-off) are hidden.
 
+## Configure tools governance
+
+For information on configuring governance of tools that can be used by GitLab Duo, see
+[Agent tool governance](tool_governance.md).
+
 ## Turn GitLab Duo on or off
 
 GitLab Duo is on by default.

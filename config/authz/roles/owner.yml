@@ -91,12 +91,14 @@ group:
   - change_seat_control
   - change_share_with_group_lock
   - change_visibility_level
+  - create_approval_rule
   - create_deploy_token
   - create_group_link
   - create_placeholder_reassignment
   - create_runners
   - create_secrets_manager_enrollment
   - create_service_account
+  - delete_approval_rule
   - delete_enterprise_user
   - delete_group_link
   - delete_secrets_manager_enrollment

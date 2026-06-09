@@ -361,8 +361,6 @@ $command-palette-spacing: px-to-rem(14px);
  * Page with super sidebar
  */
 .page-with-super-sidebar {
-  padding-left: 0;
-
   @media (prefers-reduced-motion: no-preference) {
     @apply gl-transition-padding;
   }
@@ -385,8 +383,6 @@ $command-palette-spacing: px-to-rem(14px);
   }
 
   @include media-breakpoint-up(xl) {
-    padding-left: $super-sidebar-width;
-
     .super-sidebar-toggle {
       display: none;
     }

@@ -12,13 +12,6 @@
     --ai-panel-height: 0px; // stylelint-disable-line length-zero-no-unit
   }
 
-  // Layout
-  &.page-with-panels .layout-page {
-    @apply gl-flex gl-gap-0 lg:gl-gap-3 gl-items-stretch gl-justify-start lg:gl-justify-center gl-flex-col lg:gl-flex-row lg:gl-pb-3 sm:gl-px-3;
-    min-height: 0;
-    flex: 1;
-  }
-
   // AI panel
   .ai-panels {
     overflow: inherit;

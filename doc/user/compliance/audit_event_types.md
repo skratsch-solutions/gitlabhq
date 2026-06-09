@@ -70,6 +70,7 @@ Audit event types belong to the following product categories.
 |:----------|:---------------------|:------------------|:--------------|:------|
 | [`ai_tool_rule_created`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/238788) | An AI tool rule is created | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/work_items/601301) | Group |
 | [`ai_tool_rule_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/238788) | An AI tool rule is updated | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/work_items/601301) | Group |
+| [`ai_tool_rules_bulk_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/239017) | AI tool rules are bulk updated | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/work_items/601473) | Group |
 
 ### AI framework
 

@@ -32,7 +32,7 @@ RSpec.describe 'groups/group_members/index', :aggregate_failures, feature_catego
     it 'renders as expected', :aggregate_failures do
       render
 
-      expect(rendered).not_to have_content('Group members')
+      expect(rendered).to have_content('Group members')
       expect(rendered).not_to have_content('You can invite a new member')
     end
   end

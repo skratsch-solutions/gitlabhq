@@ -2781,6 +2781,18 @@ msgstr ""
 msgid "AICatalog|Custom"
 msgstr ""
 
+msgid "AICatalog|Custom agents are inactive for all projects. To create or use custom agents, %{linkStart}turn on custom agents%{linkEnd}."
+msgstr ""
+
+msgid "AICatalog|Custom agents are inactive for all projects. To create or use custom agents, contact group owner."
+msgstr ""
+
+msgid "AICatalog|Custom flows are inactive for all projects. To create or use custom flows, %{linkStart}turn on custom flows%{linkEnd}."
+msgstr ""
+
+msgid "AICatalog|Custom flows are inactive for all projects. To create or use custom flows, contact group owner."
+msgstr ""
+
 msgid "AICatalog|Define the agent's personality, expertise, and behavior. This changes how the agent solves problems and responds to requests."
 msgstr ""
 
@@ -2844,6 +2856,15 @@ msgstr ""
 msgid "AICatalog|Enable experiment and beta features in admin settings to use this tool."
 msgstr ""
 
+msgid "AICatalog|Enabling custom agents is turned off. Contact an administrator to change this."
+msgstr ""
+
+msgid "AICatalog|Enabling custom flows is turned off. Contact an administrator to change this."
+msgstr ""
+
+msgid "AICatalog|Enabling external agents is turned off. Contact an administrator to change this."
+msgstr ""
+
 msgid "AICatalog|Excessive resource usage"
 msgstr ""
 
@@ -2860,6 +2881,12 @@ msgid "AICatalog|Explore your GitLab Duo and SDLC trends"
 msgstr ""
 
 msgid "AICatalog|External"
+msgstr ""
+
+msgid "AICatalog|External agents are inactive for all projects. To create or use external agents, %{linkStart}turn on external agents%{linkEnd}."
+msgstr ""
+
+msgid "AICatalog|External agents are inactive for all projects. To create or use external agents, contact group owner."
 msgstr ""
 
 msgid "AICatalog|Failed projects:"

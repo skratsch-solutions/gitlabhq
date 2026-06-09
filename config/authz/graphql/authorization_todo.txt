@@ -85,6 +85,7 @@ mutation:BranchRuleSquashOptionDelete
 mutation:BranchRuleSquashOptionUpdate
 mutation:BulkEnableDevopsAdoptionNamespaces
 mutation:BulkRunnerDelete
+mutation:BulkUpdateAiToolRules
 mutation:BulkSetVulnerabilityFindingsDueDates
 mutation:BulkUpdateSecurityAttributes
 mutation:ClusterAgentTokenRevoke
@@ -568,6 +569,7 @@ type:AvailableModels
 type:AwardEmoji
 type:BaseService
 type:Blame
+type:BulkToolRuleResult
 type:BlobSearch
 type:BlobViewer
 type:BlockingMergeRequests
