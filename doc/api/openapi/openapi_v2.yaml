@@ -9491,7 +9491,8 @@ paths:
       operationId: postApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImagesAuthorize
   "/api/v4/projects/{id}/alert_management_alerts/{alert_iid}/metric_images":
     post:
-      description: Upload a metric image for an alert
+      summary: Upload a metric image
+      description: Uploads a metric image for a specified alert.
       produces:
       - application/json
       consumes:
@@ -9529,7 +9530,7 @@ paths:
         example: An example metric
       responses:
         '200':
-          description: Upload a metric image for an alert
+          description: Upload a metric image
           schema:
             "$ref": "#/definitions/API_Entities_MetricImage"
         '403':
@@ -9538,7 +9539,8 @@ paths:
       - alert_management
       operationId: postApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImages
     get:
-      description: Metric Images for alert
+      summary: List all metric images
+      description: Lists all metric images for a specified alert.
       produces:
       - application/json
       parameters:
@@ -9557,7 +9559,7 @@ paths:
         example: 23
       responses:
         '200':
-          description: Metric Images for alert
+          description: List all metric images
           schema:
             type: array
             items:
@@ -9569,7 +9571,8 @@ paths:
       operationId: getApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImages
   "/api/v4/projects/{id}/alert_management_alerts/{alert_iid}/metric_images/{metric_image_id}":
     put:
-      description: Update a metric image for an alert
+      summary: Update a metric image
+      description: Updates a specified metric image for an alert.
       produces:
       - application/json
       consumes:
@@ -9609,7 +9612,7 @@ paths:
         example: An example metric
       responses:
         '200':
-          description: Update a metric image for an alert
+          description: Update a metric image
           schema:
             "$ref": "#/definitions/API_Entities_MetricImage"
         '403':
@@ -9620,7 +9623,8 @@ paths:
       - alert_management
       operationId: putApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImagesMetricImageId
     delete:
-      description: Remove a metric image for an alert
+      summary: Delete a metric image
+      description: Deletes a specified metric image for an alert.
       produces:
       - application/json
       parameters:
@@ -9646,7 +9650,7 @@ paths:
         example: 42
       responses:
         '204':
-          description: Remove a metric image for an alert
+          description: Delete a metric image
           schema:
             "$ref": "#/definitions/API_Entities_MetricImage"
         '403':
@@ -19355,8 +19359,9 @@ paths:
       operationId: postApiV4ProjectsIdEnvironmentsStopStale
   "/api/v4/projects/{id}/error_tracking/client_keys":
     get:
-      summary: List project client keys
-      description: List all client keys. This feature was introduced in GitLab 14.3.
+      summary: List all project client keys
+      description: Lists all integrated error tracking client keys for a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -19368,7 +19373,7 @@ paths:
         required: true
       responses:
         '200':
-          description: List project client keys
+          description: List all project client keys
           schema:
             type: array
             items:
@@ -19378,8 +19383,8 @@ paths:
       operationId: getApiV4ProjectsIdErrorTrackingClientKeys
     post:
       summary: Create a client key
-      description: Creates a new client key for a project. The public key attribute
-        is generated automatically.This feature was introduced in GitLab 14.3.
+      description: Creates a client key for integrated error tracking in a specified
+        project. The public key attribute is generated automatically.
       produces:
       - application/json
       consumes:
@@ -19402,8 +19407,8 @@ paths:
   "/api/v4/projects/{id}/error_tracking/client_keys/{key_id}":
     delete:
       summary: Delete a client key
-      description: Removes a client key from the project. This feature was introduced
-        in GitLab 14.3.
+      description: Deletes an integrated error tracking client key from a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -19430,9 +19435,8 @@ paths:
       operationId: deleteApiV4ProjectsIdErrorTrackingClientKeysKeyId
   "/api/v4/projects/{id}/error_tracking/settings":
     get:
-      summary: Get Error Tracking settings
-      description: Get error tracking settings for the project. This feature was introduced
-        in GitLab 12.7.
+      summary: Retrieve Error Tracking settings for a project
+      description: Retrieves the Error Tracking settings for a specified project.
       produces:
       - application/json
       parameters:
@@ -19444,16 +19448,16 @@ paths:
         required: true
       responses:
         '200':
-          description: Get Error Tracking settings
+          description: Retrieve Error Tracking settings for a project
           schema:
             "$ref": "#/definitions/API_Entities_ErrorTracking_ProjectSetting"
       tags:
       - error_tracking
       operationId: getApiV4ProjectsIdErrorTrackingSettings
     patch:
-      summary: Enable or disable the Error Tracking project settings
-      description: The API allows you to enable or disable the Error Tracking settings
-        for a project.Only for users with the Maintainer role for the project.
+      summary: Update Error Tracking settings for a project
+      description: Updates Error Tracking settings for a specified project. You must
+        have the Maintainer or Owner role for the project.
       produces:
       - application/json
       consumes:
@@ -19472,7 +19476,7 @@ paths:
           "$ref": "#/definitions/patchApiV4ProjectsIdErrorTrackingSettings"
       responses:
         '200':
-          description: Enable or disable the Error Tracking project settings
+          description: Update Error Tracking settings for a project
           schema:
             "$ref": "#/definitions/API_Entities_ErrorTracking_ProjectSetting"
         '400':
@@ -19485,10 +19489,9 @@ paths:
       - error_tracking
       operationId: patchApiV4ProjectsIdErrorTrackingSettings
     put:
-      summary: Update Error Tracking project settings. Available in GitLab 15.10 and
-        later.
-      description: Update Error Tracking settings for a project. Only for users with
-        Maintainer role for the project.
+      summary: Create Error Tracking settings for a project
+      description: Creates Error Tracking settings for a specified project. You must
+        have the Maintainer or Owner role for the project.
       produces:
       - application/json
       consumes:
@@ -19507,8 +19510,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdErrorTrackingSettings"
       responses:
         '200':
-          description: Update Error Tracking project settings. Available in GitLab
-            15.10 and later.
+          description: Create Error Tracking settings for a project
           schema:
             "$ref": "#/definitions/API_Entities_ErrorTracking_ProjectSetting"
         '400':
@@ -40483,7 +40485,8 @@ paths:
       operationId: postApiV4AdminClustersAdd
   "/api/v4/admin/migrations/pending":
     get:
-      description: List pending database migrations
+      summary: List all pending migrations
+      description: Lists all pending migrations for the instance.
       produces:
       - application/json
       parameters:
@@ -40511,7 +40514,10 @@ paths:
       operationId: getApiV4AdminMigrationsPending
   "/api/v4/admin/migrations/{timestamp}/mark":
     post:
-      description: Mark the migration as successfully executed
+      summary: Update status of a migration
+      description: Updates the status of a migration to indicate a successful execution.
+        This prevent them from being executed by the `db:migrate` tasks. Use this
+        API to skip failing migrations after you determine they are safe to skip.
       produces:
       - application/json
       consumes:
@@ -40544,8 +40550,8 @@ paths:
       operationId: postApiV4AdminMigrationsTimestampMark
   "/api/v4/broadcast_messages":
     get:
-      summary: Get all broadcast messages
-      description: This feature was introduced in GitLab 8.12.
+      summary: List all broadcast messages
+      description: Lists all broadcast messages for the instance.
       produces:
       - application/json
       parameters:
@@ -40567,7 +40573,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get all broadcast messages
+          description: List all broadcast messages
           schema:
             "$ref": "#/definitions/API_Entities_System_BroadcastMessage"
       tags:
@@ -40596,8 +40602,8 @@ paths:
       operationId: postApiV4BroadcastMessages
   "/api/v4/broadcast_messages/{id}":
     get:
-      summary: Get a specific broadcast message
-      description: This feature was introduced in GitLab 8.12.
+      summary: Retrieve a broadcast message
+      description: Retrieves a specified broadcast message.
       produces:
       - application/json
       parameters:
@@ -40609,7 +40615,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a specific broadcast message
+          description: Retrieve a broadcast message
           schema:
             "$ref": "#/definitions/API_Entities_System_BroadcastMessage"
       tags:
@@ -40617,7 +40623,7 @@ paths:
       operationId: getApiV4BroadcastMessagesId
     put:
       summary: Update a broadcast message
-      description: This feature was introduced in GitLab 8.12.
+      description: Updates a specified broadcast message.
       produces:
       - application/json
       consumes:
@@ -40644,7 +40650,7 @@ paths:
       operationId: putApiV4BroadcastMessagesId
     delete:
       summary: Delete a broadcast message
-      description: This feature was introduced in GitLab 8.12.
+      description: Deletes a specified broadcast message.
       produces:
       - application/json
       parameters:
@@ -59707,7 +59713,7 @@ definitions:
           in GitLab 14.2 and later.
     required:
     - active
-    description: Enable or disable the Error Tracking project settings
+    description: Update Error Tracking settings for a project
   putApiV4ProjectsIdErrorTrackingSettings:
     type: object
     properties:
@@ -59721,8 +59727,7 @@ definitions:
     required:
     - active
     - integrated
-    description: Update Error Tracking project settings. Available in GitLab 15.10
-      and later.
+    description: Create Error Tracking settings for a project
   API_Entities_FeatureFlag:
     type: object
     properties:
@@ -72138,7 +72143,7 @@ definitions:
         - embedding
         - geo
         default: main
-    description: Mark the migration as successfully executed
+    description: Update status of a migration
   API_Entities_System_BroadcastMessage:
     type: object
     properties:

@@ -223,10 +223,9 @@ RSpec.describe Gitlab::Pagination::GitalyKeysetPager, feature_category: :source_
 
           it 'calls execute with gitaly_pagination: true and uses offset headers' do
             allow(request_context).to receive(:request).and_return(fake_request)
-            allow(project.repository).to receive(:branch_count).and_return(branches.size)
+            allow(git_finder).to receive(:total).and_return(branches.size)
 
             expect(git_finder).to receive(:execute).with(gitaly_pagination: true).and_return(branches)
-            expect(git_finder).not_to receive(:total)
             expect(request_context).to receive(:header).with('X-Per-Page', '2')
             expect(request_context).to receive(:header).with('X-Page', '1')
             expect(request_context).to receive(:header).with('X-Next-Page', '2')
@@ -245,7 +244,7 @@ RSpec.describe Gitlab::Pagination::GitalyKeysetPager, feature_category: :source_
 
           before do
             allow(request_context).to receive(:request).and_return(fake_request)
-            allow(project.repository).to receive(:branch_count).and_return(5)
+            allow(git_finder).to receive(:total).and_return(5)
           end
 
           it 'returns finder results directly and sets correct pagination headers' do
@@ -269,7 +268,7 @@ RSpec.describe Gitlab::Pagination::GitalyKeysetPager, feature_category: :source_
 
           before do
             allow(request_context).to receive(:request).and_return(fake_request)
-            allow(project.repository).to receive(:branch_count).and_return(5)
+            allow(git_finder).to receive(:total).and_return(5)
           end
 
           it 'returns finder results directly and sets correct headers with no next page' do
@@ -283,6 +282,74 @@ RSpec.describe Gitlab::Pagination::GitalyKeysetPager, feature_category: :source_
             expect(request_context).to have_received(:header).with('X-Page', '3')
             expect(request_context).to have_received(:header).with('X-Prev-Page', '2')
             expect(request_context).to have_received(:header).with('X-Next-Page', '')
+          end
+        end
+
+        context 'when search parameter is present' do
+          context 'when first page is requested and next cursor exists' do
+            let(:query) { { per_page: 2, search: 'feature' } }
+            let(:branches) { [branch1, branch2] }
+
+            before do
+              allow(request_context).to receive(:request).and_return(fake_request)
+              allow(git_finder).to receive_messages(next_cursor: 'some_cursor', total: nil)
+            end
+
+            it 'excludes X-Total and X-Total-Pages headers and uses next_cursor for next page', :aggregate_failures do
+              expect(git_finder).to receive(:execute).with(gitaly_pagination: true).and_return(branches)
+
+              pager.paginate(git_finder)
+
+              expect(request_context).to have_received(:header).with('X-Per-Page', '2')
+              expect(request_context).to have_received(:header).with('X-Page', '1')
+              expect(request_context).to have_received(:header).with('X-Next-Page', '2')
+              expect(request_context).to have_received(:header).with('X-Prev-Page', '')
+              expect(request_context).to have_received(:header).with('Link', kind_of(String))
+              expect(request_context).not_to have_received(:header).with('X-Total', anything)
+              expect(request_context).not_to have_received(:header).with('X-Total-Pages', anything)
+            end
+          end
+
+          context 'when search returns no more results (no next cursor)' do
+            let(:query) { { per_page: 2, search: 'feature' } }
+            let(:branches) { [branch1] }
+
+            before do
+              allow(request_context).to receive(:request).and_return(fake_request)
+              allow(git_finder).to receive_messages(next_cursor: nil, total: nil)
+            end
+
+            it 'does not set X-Next-Page and excludes total headers', :aggregate_failures do
+              expect(git_finder).to receive(:execute).with(gitaly_pagination: true).and_return(branches)
+
+              pager.paginate(git_finder)
+
+              expect(request_context).to have_received(:header).with('X-Next-Page', '')
+              expect(request_context).not_to have_received(:header).with('X-Total', anything)
+              expect(request_context).not_to have_received(:header).with('X-Total-Pages', anything)
+            end
+          end
+
+          context 'when page 2 is requested with search' do
+            let(:query) { { per_page: 2, page: 2, search: 'feature' } }
+            let(:branches) { [branch3] }
+
+            before do
+              allow(request_context).to receive(:request).and_return(fake_request)
+              allow(git_finder).to receive_messages(next_cursor: nil, total: nil)
+            end
+
+            it 'sets correct page headers without totals', :aggregate_failures do
+              expect(git_finder).to receive(:execute).with(gitaly_pagination: true).and_return(branches)
+
+              pager.paginate(git_finder)
+
+              expect(request_context).to have_received(:header).with('X-Page', '2')
+              expect(request_context).to have_received(:header).with('X-Prev-Page', '1')
+              expect(request_context).to have_received(:header).with('X-Next-Page', '')
+              expect(request_context).not_to have_received(:header).with('X-Total', anything)
+              expect(request_context).not_to have_received(:header).with('X-Total-Pages', anything)
+            end
           end
         end
       end

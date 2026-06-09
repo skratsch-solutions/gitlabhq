@@ -15,8 +15,8 @@ module API
           end
         end
 
-        desc 'Get all broadcast messages' do
-          detail 'This feature was introduced in GitLab 8.12.'
+        desc 'List all broadcast messages' do
+          detail 'Lists all broadcast messages for the instance.'
           success Entities::System::BroadcastMessage
           tags ['broadcast_messages']
         end
@@ -64,8 +64,8 @@ module API
           end
         end
 
-        desc 'Get a specific broadcast message' do
-          detail 'This feature was introduced in GitLab 8.12.'
+        desc 'Retrieve a broadcast message' do
+          detail 'Retrieves a specified broadcast message.'
           success Entities::System::BroadcastMessage
           tags ['broadcast_messages']
         end
@@ -80,7 +80,7 @@ module API
         end
 
         desc 'Update a broadcast message' do
-          detail 'This feature was introduced in GitLab 8.12.'
+          detail 'Updates a specified broadcast message.'
           success Entities::System::BroadcastMessage
           tags ['broadcast_messages']
         end
@@ -116,7 +116,7 @@ module API
         end
 
         desc 'Delete a broadcast message' do
-          detail 'This feature was introduced in GitLab 8.12.'
+          detail 'Deletes a specified broadcast message.'
           success Entities::System::BroadcastMessage
           tags ['broadcast_messages']
         end

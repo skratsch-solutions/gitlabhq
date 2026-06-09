@@ -303,6 +303,7 @@ module ApplicationSettingsHelper
       :container_expiration_policies_enable_historic_entries,
       :container_registry_expiration_policies_caching,
       :container_registry_token_expire_delay,
+      :oauth_access_token_expires_in,
       :decompress_archive_file_timeout,
       :default_artifacts_expire_in,
       :default_branch_name,

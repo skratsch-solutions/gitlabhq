@@ -432,6 +432,38 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
       expect(response).to have_gitlab_http_status(:bad_request)
     end
 
+    context 'with oauth_access_token_expires_in' do
+      it 'updates the setting' do
+        put api("/application/settings", admin), params: { oauth_access_token_expires_in: 900 }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['oauth_access_token_expires_in']).to eq(900)
+      end
+
+      it 'allows nil to restore the default fallback' do
+        put api("/application/settings", admin), params: { oauth_access_token_expires_in: nil }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['oauth_access_token_expires_in']).to be_nil
+      end
+
+      it 'rejects values below the minimum (300)' do
+        put api("/application/settings", admin), params: { oauth_access_token_expires_in: 299 }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']['oauth_access_token_expires_in'])
+          .to include(a_string_matching('must be greater than or equal to 300'))
+      end
+
+      it 'rejects values above the maximum (7200)' do
+        put api("/application/settings", admin), params: { oauth_access_token_expires_in: 7201 }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']['oauth_access_token_expires_in'])
+          .to include(a_string_matching('must be less than or equal to 7200'))
+      end
+    end
+
     it 'does not allow zero diff_max_commits' do
       put api("/application/settings", admin), params: { diff_max_commits: 0 }
 

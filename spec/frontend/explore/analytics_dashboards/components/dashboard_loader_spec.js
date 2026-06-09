@@ -21,7 +21,7 @@ jest.mock('~/sentry/sentry_browser_wrapper');
 describe('DashboardLoader', () => {
   let wrapper;
 
-  const mockBreadcrumbState = { name: '', updateName: jest.fn() };
+  const mockBreadcrumbState = { name: '', slug: '', update: jest.fn() };
 
   const mockResolvedQuery = (queryResponse = mockDashboardResponse) =>
     createMockApollo([[getDashboardQuery, jest.fn().mockResolvedValue({ data: queryResponse })]]);
@@ -78,8 +78,6 @@ describe('DashboardLoader', () => {
   });
 
   describe('with data loaded', () => {
-    const { config } = mockDashboardResponse.customDashboard;
-
     beforeEach(async () => {
       createComponent();
       await waitForPromises();
@@ -93,8 +91,11 @@ describe('DashboardLoader', () => {
       expect(findDashboardSlot().exists()).toBe(true);
     });
 
-    it('updates the breadcrumb state with the dashboard title', () => {
-      expect(mockBreadcrumbState.updateName).toHaveBeenCalledWith(config.title);
+    it('updates the breadcrumb state with the dashboard title and slug', () => {
+      expect(mockBreadcrumbState.update).toHaveBeenCalledWith({
+        name: 'Fake trend dashboard',
+        slug: '3',
+      });
     });
 
     it('replaces original panel ids with unique ids', () => {

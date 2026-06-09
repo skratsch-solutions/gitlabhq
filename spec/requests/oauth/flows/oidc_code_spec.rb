@@ -80,6 +80,7 @@ RSpec.describe 'Gitlab OIDC Authorization Code Flow', feature_category: :system_
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(tokens).to include('access_token', 'id_token', 'expires_in')
+        expect(json_response['expires_in']).to be(Gitlab::CurrentSettings.oauth_access_token_expires_in)
       end
 
       it 'validates ID token structure' do

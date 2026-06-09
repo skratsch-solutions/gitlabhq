@@ -15969,7 +15969,10 @@ paths:
   "/api/v4/groups/{id}/epics/{epic_iid}/todo":
     post:
       operationId: postApiV4GroupsIdEpicsEpicIidTodo
-      summary: Create a to-do item for the current user on an epic
+      summary: Create a to-do item for an epic
+      description: Creates a to-do item for the current user on a specified epic.
+        If a to-do item already exists for the user on that epic, status code 304
+        is returned.
       tags:
       - Epics
       responses:
@@ -16786,7 +16789,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_6771bcb1120a"
+              "$ref": "#/components/schemas/RequestBody_49fd916f1fa9"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -23702,8 +23705,8 @@ paths:
   "/api/v4/projects/{id}/boards":
     get:
       operationId: getApiV4ProjectsIdBoards
-      summary: Get all project boards
-      description: This feature was introduced in 8.13
+      summary: List all project issue boards
+      description: Lists all issue boards in a specified project.
       tags:
       - Boards
       responses:
@@ -23746,8 +23749,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdBoards
-      summary: Create a project board
-      description: This feature was introduced in 10.4
+      summary: Create an issue board
+      description: Creates an issue board in a specified project.
       tags:
       - Boards
       responses:
@@ -23779,8 +23782,8 @@ paths:
   "/api/v4/projects/{id}/boards/{board_id}":
     get:
       operationId: getApiV4ProjectsIdBoardsBoardId
-      summary: Find a project board
-      description: This feature was introduced in 10.4
+      summary: Retrieve an issue board
+      description: Retrieves a specified issue board in a project.
       tags:
       - Boards
       responses:
@@ -23811,8 +23814,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdBoardsBoardId
-      summary: Update a project board
-      description: This feature was introduced in 11.0
+      summary: Update an issue board
+      description: Updates a specified issue board in a project.
       tags:
       - Boards
       responses:
@@ -23849,8 +23852,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_b7568ec0593b"
     delete:
       operationId: deleteApiV4ProjectsIdBoardsBoardId
-      summary: Delete a project board
-      description: This feature was introduced in 10.4
+      summary: Delete an issue board
+      description: Deletes a specified issue board in a project.
       tags:
       - Boards
       responses:
@@ -23882,8 +23885,9 @@ paths:
   "/api/v4/projects/{id}/boards/{board_id}/lists":
     get:
       operationId: getApiV4ProjectsIdBoardsBoardIdLists
-      summary: Get the lists of a project board
-      description: Does not include `done` list. This feature was introduced in 8.13
+      summary: List all board lists in an issue board
+      description: Lists all lists in a specified issue board. Does not include `open`
+        and `closed` lists.
       tags:
       - Boards
       responses:
@@ -23932,8 +23936,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdBoardsBoardIdLists
-      summary: Create a new board list
-      description: This feature was introduced in 8.13
+      summary: Create an issue board list
+      description: Creates an issue board list.
       tags:
       - Boards
       responses:
@@ -23971,8 +23975,8 @@ paths:
   "/api/v4/projects/{id}/boards/{board_id}/lists/{list_id}":
     get:
       operationId: getApiV4ProjectsIdBoardsBoardIdListsListId
-      summary: Get a list of a project board
-      description: This feature was introduced in 8.13
+      summary: Retrieve a board list
+      description: Retrieves a specified list from an issue board.
       tags:
       - Boards
       responses:
@@ -24009,8 +24013,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdBoardsBoardIdListsListId
-      summary: Moves a board list to a new position
-      description: This feature was introduced in 8.13
+      summary: Update position of a board list
+      description: Updates the position of a specified list from an issue board.
       tags:
       - Boards
       responses:
@@ -24053,8 +24057,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_9463da96bbc1"
     delete:
       operationId: deleteApiV4ProjectsIdBoardsBoardIdListsListId
-      summary: Delete a board list
-      description: This feature was introduced in 8.13
+      summary: Delete a list from an issue board
+      description: Deletes a specified list from an issue board.
       tags:
       - Boards
       responses:
@@ -55438,9 +55442,8 @@ paths:
   "/api/v4/projects/{id}/error_tracking/settings":
     get:
       operationId: getApiV4ProjectsIdErrorTrackingSettings
-      summary: Get Error Tracking settings
-      description: Get error tracking settings for the project. This feature was introduced
-        in GitLab 12.7.
+      summary: Retrieve Error Tracking settings for a project
+      description: Retrieves the Error Tracking settings for a specified project.
       tags:
       - Error tracking
       responses:
@@ -55466,9 +55469,9 @@ paths:
         in: path
     patch:
       operationId: patchApiV4ProjectsIdErrorTrackingSettings
-      summary: Enable or disable the Error Tracking project settings
-      description: The API allows you to enable or disable the Error Tracking settings
-        for a project.Only for users with the Maintainer role for the project.
+      summary: Update Error Tracking settings for a project
+      description: Updates Error Tracking settings for a specified project. You must
+        have the Maintainer or Owner role for the project.
       tags:
       - Error tracking
       responses:
@@ -55502,10 +55505,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_1532ebdca15d"
     put:
       operationId: putApiV4ProjectsIdErrorTrackingSettings
-      summary: Update Error Tracking project settings. Available in GitLab 15.10 and
-        later.
-      description: Update Error Tracking settings for a project. Only for users with
-        Maintainer role for the project.
+      summary: Create Error Tracking settings for a project
+      description: Creates Error Tracking settings for a specified project. You must
+        have the Maintainer or Owner role for the project.
       tags:
       - Error tracking
       responses:
@@ -55540,8 +55542,9 @@ paths:
   "/api/v4/projects/{id}/error_tracking/client_keys":
     get:
       operationId: getApiV4ProjectsIdErrorTrackingClientKeys
-      summary: List project client keys
-      description: List all client keys. This feature was introduced in GitLab 14.3.
+      summary: List all project client keys
+      description: Lists all integrated error tracking client keys for a specified
+        project.
       tags:
       - Error tracking
       responses:
@@ -55568,8 +55571,8 @@ paths:
     post:
       operationId: postApiV4ProjectsIdErrorTrackingClientKeys
       summary: Create a client key
-      description: Creates a new client key for a project. The public key attribute
-        is generated automatically.This feature was introduced in GitLab 14.3.
+      description: Creates a client key for integrated error tracking in a specified
+        project. The public key attribute is generated automatically.
       tags:
       - Error tracking
       responses:
@@ -55597,8 +55600,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdErrorTrackingClientKeysKeyId
       summary: Delete a client key
-      description: Removes a client key from the project. This feature was introduced
-        in GitLab 14.3.
+      description: Deletes an integrated error tracking client key from a specified
+        project.
       tags:
       - Error tracking
       responses:
@@ -71532,7 +71535,8 @@ paths:
   "/api/v4/projects/{id}/alert_management_alerts/{alert_iid}/metric_images":
     post:
       operationId: postApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImages
-      summary: Upload a metric image for an alert
+      summary: Upload a metric image
+      description: Uploads a metric image for a specified alert.
       tags:
       - Alert management
       responses:
@@ -71569,7 +71573,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_127c7c206a2b"
     get:
       operationId: getApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImages
-      summary: Metric Images for alert
+      summary: List all metric images
+      description: Lists all metric images for a specified alert.
       tags:
       - Alert management
       responses:
@@ -71601,7 +71606,8 @@ paths:
   "/api/v4/projects/{id}/alert_management_alerts/{alert_iid}/metric_images/{metric_image_id}":
     put:
       operationId: putApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImagesMetricImageId
-      summary: Update a metric image for an alert
+      summary: Update a metric image
+      description: Updates a specified metric image for an alert.
       tags:
       - Alert management
       responses:
@@ -71647,7 +71653,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_8fd83e60a1a0"
     delete:
       operationId: deleteApiV4ProjectsIdAlertManagementAlertsAlertIidMetricImagesMetricImageId
-      summary: Remove a metric image for an alert
+      summary: Delete a metric image
+      description: Deletes a specified metric image for an alert.
       tags:
       - Alert management
       responses:
@@ -71752,7 +71759,8 @@ paths:
   "/api/v4/admin/migrations/pending":
     get:
       operationId: getApiV4AdminMigrationsPending
-      summary: List pending database migrations
+      summary: List all pending migrations
+      description: Lists all pending migrations for the instance.
       tags:
       - Migrations
       responses:
@@ -71780,7 +71788,10 @@ paths:
   "/api/v4/admin/migrations/{timestamp}/mark":
     post:
       operationId: postApiV4AdminMigrationsTimestampMark
-      summary: Mark the migration as successfully executed
+      summary: Update status of a migration
+      description: Updates the status of a migration to indicate a successful execution.
+        This prevent them from being executed by the `db:migrate` tasks. Use this
+        API to skip failing migrations after you determine they are safe to skip.
       tags:
       - Migrations
       responses:
@@ -72101,8 +72112,8 @@ paths:
   "/api/v4/broadcast_messages":
     get:
       operationId: getApiV4BroadcastMessages
-      summary: Get all broadcast messages
-      description: This feature was introduced in GitLab 8.12.
+      summary: List all broadcast messages
+      description: Lists all broadcast messages for the instance.
       tags:
       - Broadcast messages
       responses:
@@ -72157,8 +72168,8 @@ paths:
   "/api/v4/broadcast_messages/{id}":
     get:
       operationId: getApiV4BroadcastMessagesId
-      summary: Get a specific broadcast message
-      description: This feature was introduced in GitLab 8.12.
+      summary: Retrieve a broadcast message
+      description: Retrieves a specified broadcast message.
       tags:
       - Broadcast messages
       responses:
@@ -72182,7 +72193,7 @@ paths:
     put:
       operationId: putApiV4BroadcastMessagesId
       summary: Update a broadcast message
-      description: This feature was introduced in GitLab 8.12.
+      description: Updates a specified broadcast message.
       tags:
       - Broadcast messages
       responses:
@@ -72212,7 +72223,7 @@ paths:
     delete:
       operationId: deleteApiV4BroadcastMessagesId
       summary: Delete a broadcast message
-      description: This feature was introduced in GitLab 8.12.
+      description: Deletes a specified broadcast message.
       tags:
       - Broadcast messages
       responses:
@@ -80194,6 +80205,8 @@ components:
         container_registry_expiration_policies_caching:
           type: string
         container_registry_token_expire_delay:
+          type: string
+        oauth_access_token_expires_in:
           type: string
         decompress_archive_file_timeout:
           type: string
@@ -93529,7 +93542,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_6771bcb1120a:
+    RequestBody_49fd916f1fa9:
       type: object
       properties:
         admin_mode:
@@ -93599,6 +93612,10 @@ components:
         container_registry_token_expire_delay:
           type: integer
           description: Authorization token duration (minutes)
+          nullable: true
+        oauth_access_token_expires_in:
+          type: integer
+          description: Lifetime of OAuth access tokens in seconds.
           nullable: true
         decompress_archive_file_timeout:
           type: integer

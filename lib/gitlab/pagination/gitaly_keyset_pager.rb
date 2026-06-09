@@ -75,19 +75,25 @@ module Gitlab
       end
 
       def build_offset_headers(finder)
-        total = total_count(finder)
+        total = finder.total
         per_page = (params[:per_page].presence || Kaminari.config.default_per_page).to_i
         page = (params[:page].presence || 1).to_i
-        total_pages = (total / per_page.to_f).ceil
+        without_counts = total.nil?
 
-        next_page = page < total_pages ? page + 1 : nil
+        total_pages = without_counts ? nil : (total / per_page.to_f).ceil
+        next_page = if without_counts
+                      finder.respond_to?(:next_cursor) && finder.next_cursor.present? ? page + 1 : nil
+                    else
+                      (page < total_pages ? page + 1 : nil)
+                    end
+
         prev_page = page > 1 ? page - 1 : nil
 
         Gitlab::Pagination::OffsetHeaderBuilder.new(
           request_context: request_context, per_page: per_page, page: page,
           next_page: next_page, prev_page: prev_page,
           total: total, total_pages: total_pages
-        ).execute
+        ).execute(data_without_counts: without_counts)
       end
 
       def paginate_via_gitaly(finder)
@@ -103,15 +109,6 @@ module Gitlab
             .add_next_page_header(
               query_params_for(next_cursor)
             )
-        end
-      end
-
-      def total_count(finder)
-        case finder
-        when Gitlab::Git::Finders::BranchesFinder
-          project.repository.branch_count
-        else
-          finder.total
         end
       end
 

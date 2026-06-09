@@ -44,6 +44,8 @@ module Gitlab
         end
 
         def total
+          return if search.present?
+
           repository.branch_count
         end
 

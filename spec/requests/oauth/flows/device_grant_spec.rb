@@ -60,6 +60,7 @@ RSpec.describe 'Gitlab OAuth2 Device Authorization Grant', feature_category: :sy
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(response_body).to include('device_code', 'user_code', 'verification_uri', 'expires_in')
+        expect(json_response['expires_in']).to be(300) # device_code_expires_in default
       end
     end
 
@@ -126,6 +127,7 @@ RSpec.describe 'Gitlab OAuth2 Device Authorization Grant', feature_category: :sy
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(token_response).to include('access_token', 'token_type', 'expires_in', 'refresh_token')
+        expect(json_response['expires_in']).to be(Gitlab::CurrentSettings.oauth_access_token_expires_in)
       end
     end
 

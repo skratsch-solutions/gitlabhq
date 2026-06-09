@@ -339,5 +339,13 @@ RSpec.describe Gitlab::Git::Finders::BranchesFinder, feature_category: :source_c
       expect(total).to be_an(Integer)
       expect(total).to eq(repository.branch_count)
     end
+
+    context 'when search is active' do
+      let(:params) { { search: 'feature' } }
+
+      it 'returns nil' do
+        expect(total).to be_nil
+      end
+    end
   end
 end

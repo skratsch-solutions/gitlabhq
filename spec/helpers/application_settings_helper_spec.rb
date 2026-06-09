@@ -112,6 +112,13 @@ RSpec.describe ApplicationSettingsHelper, feature_category: :shared do
         ])
     end
 
+    it 'contains oauth parameters' do
+      expected_fields = %i[
+        oauth_access_token_expires_in
+      ]
+      expect(helper.visible_attributes).to include(*expected_fields)
+    end
+
     it 'contains search parameters' do
       expected_fields = %i[
         global_search_snippet_titles_enabled

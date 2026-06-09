@@ -19,6 +19,7 @@ module Gitlab
       CI_COMMIT_REF_NAME         = 'CI_COMMIT_REF_NAME'
       CI_PROJECT_PATH            = 'CI_PROJECT_PATH'
       CI_PROJECT_ID              = 'CI_PROJECT_ID'
+      CI_JOB_URL                 = 'CI_JOB_URL'
     end
   end
 end

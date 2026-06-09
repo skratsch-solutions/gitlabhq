@@ -77,6 +77,7 @@ RSpec.describe 'Gitlab OAuth2 Authorization Code Flow with PKCE', feature_catego
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to include('access_token', 'token_type', 'expires_in', 'refresh_token')
+        expect(json_response['expires_in']).to be(Gitlab::CurrentSettings.oauth_access_token_expires_in)
       end
     end
 

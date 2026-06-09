@@ -15,6 +15,11 @@ module Resolvers
         description: 'Excludes the Default organization from results.',
         experiment: { milestone: '19.1' }
 
+      argument :state, Types::Organizations::OrganizationStateEnum,
+        required: false,
+        description: 'Filter organizations by state.',
+        experiment: { milestone: '19.1' }
+
       def resolve(**args)
         ::Organizations::OrganizationsFinder
           .new(context[:current_user], args)

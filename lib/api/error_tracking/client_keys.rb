@@ -19,8 +19,8 @@ module API
           authorize! :admin_operations, user_project
         end
 
-        desc 'List project client keys' do
-          detail 'List all client keys. This feature was introduced in GitLab 14.3.'
+        desc 'List all project client keys' do
+          detail 'Lists all integrated error tracking client keys for a specified project.'
           success Entities::ErrorTracking::ClientKey
           is_array true
           tags ERROR_TRACKING_CLIENT_KEYS_TAGS
@@ -32,8 +32,8 @@ module API
         end
 
         desc 'Create a client key' do
-          detail 'Creates a new client key for a project. The public key attribute is generated automatically.'\
-            'This feature was introduced in GitLab 14.3.'
+          detail 'Creates a client key for integrated error tracking in a specified project. The public key ' \
+            'attribute is generated automatically.'
           success Entities::ErrorTracking::ClientKey
           tags ERROR_TRACKING_CLIENT_KEYS_TAGS
         end
@@ -44,7 +44,7 @@ module API
         end
 
         desc 'Delete a client key' do
-          detail 'Removes a client key from the project. This feature was introduced in GitLab 14.3.'
+          detail 'Deletes an integrated error tracking client key from a specified project.'
           success Entities::ErrorTracking::ClientKey
           failure [
             { code: 400, message: 'Bad request' },

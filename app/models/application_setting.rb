@@ -51,6 +51,10 @@ class ApplicationSetting < ApplicationRecord
 
   SEARCH_SCOPE_SYSTEM_DEFAULT = 'system default'
 
+  # OAuth Time (seconds)
+  DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN = 7200 # 2hrs
+  MIN_OAUTH_ACCESS_TOKEN_EXPIRES_IN = 300 # 5 mins
+
   enum :whats_new_variant, { all_tiers: 0, current_tier: 1, disabled: 2 }, prefix: true
   enum :email_confirmation_setting, { off: 0, soft: 1, hard: 2 }, prefix: true
 
@@ -782,6 +786,20 @@ class ApplicationSetting < ApplicationRecord
     diff_max_commits: [:integer, { default: 1_000_000 }]
 
   validates :diff_limits, json_schema: { filename: "application_setting_diff_limits" }
+
+  jsonb_accessor :oauth_settings,
+    oauth_access_token_expires_in: [:integer, { default: DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN }]
+
+  validates :oauth_settings,
+    json_schema: { filename: "application_setting_oauth_settings" }
+
+  validates :oauth_access_token_expires_in,
+    numericality: {
+      only_integer: true,
+      greater_than_or_equal_to: MIN_OAUTH_ACCESS_TOKEN_EXPIRES_IN,
+      less_than_or_equal_to: DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN
+    },
+    allow_nil: true
 
   jsonb_accessor :mcp_server_settings,
     mcp_server_enabled: [:boolean, { default: true }]

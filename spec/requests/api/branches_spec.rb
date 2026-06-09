@@ -503,6 +503,16 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
 
         expect(json_response).to eq []
       end
+
+      it 'does not return X-Total and X-Total-Pages headers', :aggregate_failures do
+        get api(route, user), params: { per_page: 5, search: branch_name }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response.headers).not_to have_key('X-Total')
+        expect(response.headers).not_to have_key('X-Total-Pages')
+        expect(response.headers['X-Page']).to eq('1')
+        expect(response.headers['X-Per-Page']).to eq('5')
+      end
     end
 
     context 'when sort parameter is passed with new branches finder' do

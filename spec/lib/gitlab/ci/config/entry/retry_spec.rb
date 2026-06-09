@@ -142,6 +142,9 @@ RSpec.describe Gitlab::Ci::Config::Entry::Retry do
           api_failure
           stuck_or_timeout_failure
           runner_system_failure
+          runner_configuration_error
+          runner_external_dependency_failure
+          runner_interrupted
           runner_unsupported
           stale_schedule
           job_execution_timeout

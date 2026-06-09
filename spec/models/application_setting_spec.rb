@@ -324,7 +324,8 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         whats_new_variant: 'all_tiers', # changed from 0 to "all_tiers" due to enum conversion
         wiki_asciidoc_allow_uri_includes: false,
         wiki_page_max_content_bytes: 5.megabytes,
-        pipeline_limit_per_user: 0
+        pipeline_limit_per_user: 0,
+        oauth_access_token_expires_in: ApplicationSetting::DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN
       )
     end
   end
@@ -2277,6 +2278,34 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
             .is_greater_than_or_equal_to(Commit::DEFAULT_MAX_DIFF_LINES_SETTING)
             .is_less_than_or_equal_to(Commit::MAX_DIFF_LINES_SETTING_UPPER_BOUND)
         end
+      end
+    end
+
+    describe 'oauth_settings jsonb settings' do
+      context 'for oauth_settings jsonB schema validation' do
+        it { is_expected.to allow_value({}).for(:oauth_settings) }
+        it { is_expected.to allow_value({ oauth_access_token_expires_in: nil }).for(:oauth_settings) }
+      end
+
+      describe '#oauth_access_token_expires_in' do
+        it 'defaults to ApplicationSetting::DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN' do
+          expect(setting.oauth_access_token_expires_in).to eq(ApplicationSetting::DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN)
+        end
+
+        it { is_expected.to allow_value(nil).for(:oauth_access_token_expires_in) }
+
+        it "allows DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN (7200)" do
+          is_expected.to allow_value(
+          ApplicationSetting::DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN
+        ).for(:oauth_access_token_expires_in)
+        end
+
+        it { is_expected.not_to allow_value(7201).for(:oauth_access_token_expires_in) }
+        it { is_expected.to allow_value(7200).for(:oauth_access_token_expires_in) }
+        it { is_expected.to allow_value(300).for(:oauth_access_token_expires_in) }
+        it { is_expected.not_to allow_value(299).for(:oauth_access_token_expires_in) }
+        it { is_expected.not_to allow_value(0).for(:oauth_access_token_expires_in) }
+        it { is_expected.not_to allow_value(-1).for(:oauth_access_token_expires_in) }
       end
     end
 

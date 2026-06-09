@@ -123,9 +123,19 @@ By default, when you run a pipeline:
 - On a branch:
   - On the **default branch**, the Git working tree is scanned.
     This means the current repository state is scanned as though it were a typical directory.
-  - On a **new, non-default branch**, only the content of the latest commit is scanned. Earlier commits on the branch are not included in the scan.
-  - On an **existing, non-default branch**, the content of all commits after the last pushed commit to the latest commit are scanned.
-  - To scan all commits from the branch divergence point every time, enable [merge request pipelines](../../detect/security_configuration.md#use-security-scanning-tools-with-merge-request-pipelines).
+  - On a **feature branch**:
+    - In analyzer version `v7.35.0` and later, the content of all commits from the merge
+      base to the latest commit (all commits unique to the branch after it diverged) are scanned.
+      This behavior applies to all feature branch pipelines when the merge base is available.
+    - GitLab 19.1 and later exposes the merge base SHA through the [predefined CI variable](../../../../ci/variables/predefined_variables.md) `CI_COMMIT_DEFAULT_BRANCH_BASE_SHA`.
+    - On GitLab versions earlier than 19.1, or when the merge base is unavailable, the analyzer
+      falls back to the previous behavior:
+      - On new feature branches, only the latest commit is scanned. Earlier commits on the branch are not included in the scan.
+      - On existing feature branches, all commits after the last pushed commit to the latest commit are scanned.
+
+    > [!note]
+    > To scan all commits from the branch divergence point every time, enable
+    > [merge request pipelines](../../../../ci/pipelines/merge_request_pipelines.md).
 - On a **merge request**, the content of all commits on the branch is scanned. If the analyzer can't access every commit,
   the content of all commits from the parent to the latest commit is scanned. To scan all commits, you must enable
   [merge request pipelines](../../detect/security_configuration.md#use-security-scanning-tools-with-merge-request-pipelines).

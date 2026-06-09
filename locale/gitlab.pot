@@ -6595,6 +6595,9 @@ msgstr ""
 msgid "AdminSettings|Manage which integrations can be enabled on this instance."
 msgstr ""
 
+msgid "AdminSettings|Maximum allowable lifetime for OAuth access tokens"
+msgstr ""
+
 msgid "AdminSettings|Maximum caches per job"
 msgstr ""
 
@@ -6605,6 +6608,9 @@ msgid "AdminSettings|Maximum duration of a session for Git operations when 2FA i
 msgstr ""
 
 msgid "AdminSettings|Maximum includes"
+msgstr ""
+
+msgid "AdminSettings|Maximum lifetime of OAuth access tokens in seconds. Minimum 300 (5 minutes). If blank, defaults to 7200 (2 hours). Does not change the lifetime of any existing tokens."
 msgstr ""
 
 msgid "AdminSettings|Maximum number of Instance-level CI/CD variables that can be defined"
@@ -74910,6 +74916,9 @@ msgid "TargetedMessages|Namespace IDs"
 msgstr ""
 
 msgid "TargetedMessages|New targeted message"
+msgstr ""
+
+msgid "TargetedMessages|Roles"
 msgstr ""
 
 msgid "TargetedMessages|Scheduled deletion of targeted message with id: %{id}."

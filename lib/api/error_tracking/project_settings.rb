@@ -24,8 +24,8 @@ module API
         authorize! :admin_operations, user_project
       end
 
-      desc 'Get Error Tracking settings' do
-        detail 'Get error tracking settings for the project. This feature was introduced in GitLab 12.7.'
+      desc 'Retrieve Error Tracking settings for a project' do
+        detail 'Retrieves the Error Tracking settings for a specified project.'
         success Entities::ErrorTracking::ProjectSetting
         tags ERROR_TRACKING_PROJECT_SETTINGS_TAGS
       end
@@ -35,9 +35,9 @@ module API
         present project_setting, with: Entities::ErrorTracking::ProjectSetting
       end
 
-      desc 'Enable or disable the Error Tracking project settings' do
-        detail 'The API allows you to enable or disable the Error Tracking settings for a project.'\
-          'Only for users with the Maintainer role for the project.'
+      desc 'Update Error Tracking settings for a project' do
+        detail 'Updates Error Tracking settings for a specified project. You must have the Maintainer or Owner ' \
+          'role for the project.'
         success Entities::ErrorTracking::ProjectSetting
         failure [
           { code: 400, message: 'Bad request' },
@@ -75,9 +75,9 @@ module API
         end
       end
 
-      desc 'Update Error Tracking project settings. Available in GitLab 15.10 and later.' do
-        detail 'Update Error Tracking settings for a project. ' \
-               'Only for users with Maintainer role for the project.'
+      desc 'Create Error Tracking settings for a project' do
+        detail 'Creates Error Tracking settings for a specified project. You must have the ' \
+          'Maintainer or Owner role for the project.'
         success Entities::ErrorTracking::ProjectSetting
         failure [
           { code: 400, message: 'Bad request' },

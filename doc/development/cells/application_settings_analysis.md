@@ -14,7 +14,7 @@ title: Application Settings analysis
 
 ## Statistics
 
-- Number of attributes: 517
+- Number of attributes: 518
 - Number of encrypted attributes: 42 (8.0%)
 - Number of attributes documented: 298 (57.99999999999999%)
 - Number of attributes on GitLab.com different from the defaults: 223 (43.0%)
@@ -325,6 +325,7 @@ title: Application Settings analysis
 | `notes_create_limit_allowlist` | `false` | `text[]` | `` | `true` | `'{}'::text[]` | `true` | `true`| `false` |
 | `notify_on_unknown_sign_in` | `false` | `boolean` | `boolean` | `true` | `true` | `false` | `false`| `true` |
 | `oauth_provider` | `false` | `jsonb` | `` | `true` | `'{}'::jsonb` | `true` | `true`| `false` |
+| `oauth_settings` | `false` | `jsonb` | `` | `true` | `'{}'::jsonb` | `false` | `true`| `false` |
 | `observability_backend_ssl_verification_enabled` | `false` | `boolean` | `` | `true` | `true` | `false` | `false`| `false` |
 | `observability_settings` | `false` | `jsonb` | `` | `true` | `'{}'::jsonb` | `true` | `false`| `false` |
 | `outbound_local_requests_whitelist` | `false` | `character` | `array of strings` | `true` | `'{}'::character` | `true` | `true`| `true` |

@@ -15,7 +15,7 @@ Vue.use(VueApollo);
 describe('ExploreAnalyticsDashboardEdit', () => {
   let wrapper;
 
-  const mockBreadcrumbState = { name: '', updateName: jest.fn() };
+  const mockBreadcrumbState = { name: '', slug: '', update: jest.fn() };
 
   const mockResolvedQuery = (queryResponse = mockDashboardResponse) =>
     createMockApollo([[getDashboardQuery, jest.fn().mockResolvedValue({ data: queryResponse })]]);

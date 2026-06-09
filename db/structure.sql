@@ -14926,6 +14926,7 @@ CREATE TABLE application_settings (
     secrets_manager_instance_enrolled boolean DEFAULT false NOT NULL,
     duo_template_project_id bigint,
     default_security_tracked_context_quota integer DEFAULT 2,
+    oauth_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     CONSTRAINT app_settings_container_reg_cleanup_tags_max_list_size_positive CHECK ((container_registry_cleanup_tags_service_max_list_size >= 0)),
     CONSTRAINT app_settings_dep_proxy_ttl_policies_worker_capacity_positive CHECK ((dependency_proxy_ttl_group_policy_worker_capacity >= 0)),
     CONSTRAINT app_settings_ext_pipeline_validation_service_url_text_limit CHECK ((char_length(external_pipeline_validation_service_url) <= 255)),
@@ -14995,6 +14996,7 @@ CREATE TABLE application_settings (
     CONSTRAINT check_application_settings_markdown_settings_is_hash CHECK ((jsonb_typeof(markdown_settings) = 'object'::text)),
     CONSTRAINT check_application_settings_mcp_server_settings_is_hash CHECK ((jsonb_typeof(mcp_server_settings) = 'object'::text)),
     CONSTRAINT check_application_settings_o11y_settings_is_hash CHECK ((jsonb_typeof(observability_settings) = 'object'::text)),
+    CONSTRAINT check_application_settings_oauth_settings_is_hash CHECK ((jsonb_typeof(oauth_settings) = 'object'::text)),
     CONSTRAINT check_application_settings_package_registry_is_hash CHECK ((jsonb_typeof(package_registry) = 'object'::text)),
     CONSTRAINT check_application_settings_pat_settings_is_hash CHECK ((jsonb_typeof(personal_access_token_settings) = 'object'::text)),
     CONSTRAINT check_application_settings_rate_limits_is_hash CHECK ((jsonb_typeof(rate_limits) = 'object'::text)),
@@ -31754,6 +31756,7 @@ CREATE TABLE targeted_messages (
     target_type smallint DEFAULT 0 NOT NULL,
     starts_at timestamp with time zone NOT NULL,
     ends_at timestamp with time zone NOT NULL,
+    roles smallint[] DEFAULT '{}'::smallint[] NOT NULL,
     CONSTRAINT check_targeted_messages_starts_at_before_ends_at CHECK ((starts_at < ends_at))
 );
 

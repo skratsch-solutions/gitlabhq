@@ -5072,9 +5072,14 @@ Use `retry:when` with `retry:max` to retry jobs for only specific failure cases.
 - `script_failure`: Retry when:
   - The script failed.
   - The runner failed to pull the Docker image. For `docker`, `docker+machine`, `kubernetes` [executors](https://docs.gitlab.com/runner/executors/).
+  - Introduced in GitLab 19.1, some failures are changed from `script_failure` to the more accurate `runner_configuration_error`.
 - `api_failure`: Retry on API failure.
 - `stuck_or_timeout_failure`: Retry when the job got stuck or timed out.
 - `runner_system_failure`: Retry if there is a runner system failure (for example, job setup failed).
+  - Introduced in GitLab 19.1, some failures are changed from `runner_system_failure` to the more accurate `runner_external_dependency_failure` or `runner_interrupted`.
+- `runner_configuration_error`: Retry if the job failed because of a CI/CD or runner configuration error, for example an invalid image or tag, an incompatible pull policy, or a misconfigured runner.
+- `runner_external_dependency_failure`: Retry if the runner could not reach an external dependency like an image registry because of a network or DNS problem.
+- `runner_interrupted`: Retry if the runner was interrupted while the job was running, for example by a restart, shutdown, or host reclamation.
 - `runner_unsupported`: Retry if the runner is unsupported.
 - `stale_schedule`: Retry if a delayed job could not be executed.
 - `job_execution_timeout`: Retry if the script exceeded the maximum execution time set for the job.

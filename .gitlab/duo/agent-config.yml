@@ -22,6 +22,32 @@ setup_script:
   # Node deps — --ignore-scripts avoids arbitrary postinstall network calls.
   - yarn install --frozen-lockfile --ignore-scripts
 
+  # Lint tooling for lefthook hooks (markdownlint, vale, lychee, gitleaks).
+  # These are managed by .tool-versions, not bundle/yarn, so install them via
+  # mise. setup_script runs outside the SRT sandbox, so these downloads are
+  # not subject to network_policy.
+  - export MISE_DATA_DIR="$CI_PROJECT_DIR/.cache/mise/data"
+  - export MISE_CACHE_DIR="$CI_PROJECT_DIR/.cache/mise/cache"
+  # Ignore the repo's mise.toml (its ruby plugin is unneeded — the image
+  # already ships Ruby — and it requires interactive trust). Tool versions
+  # still come from .tool-versions, which we trust non-interactively.
+  - export MISE_IGNORED_CONFIG_PATHS="$CI_PROJECT_DIR/mise.toml"
+  - export MISE_TRUSTED_CONFIG_PATHS="$CI_PROJECT_DIR"
+  # Pin the mise version (the install script still auto-detects arch and
+  # checksum-verifies the downloaded binary).
+  - curl -sSL https://mise.run | MISE_VERSION=v2026.6.1 sh
+  - export PATH="$HOME/.local/bin:$MISE_DATA_DIR/shims:$PATH"
+  # Versions are pinned in .tool-versions.
+  - mise install markdownlint-cli2 vale lychee gitleaks
+  - eval "$(mise env)"
+
+  # yamllint (pre-push hook) is a pip package; ~/.local/bin is on PATH above.
+  - pip install --user --quiet yamllint==1.37.1
+
+  # The gitleaks hook compares config/gitleaks-local.toml against
+  # config/gitleaks.toml; regenerate it to keep them in sync.
+  - scripts/generate-gitleaks-local-config.sh
+
   - bundle exec lefthook install
 
 cache:
@@ -29,9 +55,11 @@ cache:
     files:
       - Gemfile.lock
       - yarn.lock
+      - .tool-versions
   paths:
     - vendor/bundle
     - node_modules
+    - .cache/mise
 
 network_policy:
   # Deny-by-default. The recommended allowlist exposes ~100+ domains —

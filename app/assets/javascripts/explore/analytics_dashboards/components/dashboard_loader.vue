@@ -64,7 +64,7 @@ export default {
   },
   watch: {
     dashboard() {
-      this.breadcrumbState.updateName(this.config.title);
+      this.breadcrumbState.update({ name: this.config.title, slug: this.slug });
     },
   },
   apollo: {
