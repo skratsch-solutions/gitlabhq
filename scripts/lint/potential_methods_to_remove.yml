@@ -175,8 +175,6 @@ app/models/concerns/user_mention_behaviour.rb:
 - has_mentions?
 - mentioned_groups
 - mentioned_projects
-app/models/event.rb:
-- note_target_id
 app/models/group.rb:
 - get_ids_by_ids_or_paths
 - blocked_owners

@@ -216,7 +216,7 @@ RSpec.shared_examples 'includes ::AuditEvents::CommonModel concern' do
         end
 
         it 'returns nil' do
-          expect(subject.author_name).to eq nil
+          expect(subject.author_name).to be_nil
         end
       end
     end

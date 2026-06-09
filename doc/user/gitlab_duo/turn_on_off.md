@@ -29,7 +29,7 @@ You can turn GitLab Duo on or off:
 - On GitLab.com: For top-level groups, other groups or subgroups, and projects.
 - On GitLab Self-Managed: For instances, groups or subgroups, and projects.
 
-## Lock GitLab Duo on for all users
+## Lock GitLab Duo on
 
 {{< history >}}
 
@@ -37,7 +37,7 @@ You can turn GitLab Duo on or off:
 
 {{< /history >}}
 
-Ensure GitLab Duo remains turned on for all users, regardless of group or project settings.
+Turn GitLab Duo on for all users, regardless of group or project settings.
 
 {{< tabs >}}
 
@@ -56,7 +56,7 @@ To lock GitLab Duo on for a top-level group:
 1. Select **Save changes**.
 
 GitLab Duo is locked on for all subgroups and projects.
-Subgroup and project owners cannot turn it off.
+Users with the Owner role for a subgroup or project cannot turn GitLab Duo off.
 
 {{< /tab >}}
 
@@ -75,7 +75,7 @@ To lock GitLab Duo on for an instance:
 1. Select **Save changes**.
 
 GitLab Duo is locked on for all groups, subgroups, and projects.
-Group, subgroup, and project owners cannot turn it off.
+Users with the Owner role for a group, subgroup, or project cannot turn GitLab Duo off.
 
 {{< /tab >}}
 

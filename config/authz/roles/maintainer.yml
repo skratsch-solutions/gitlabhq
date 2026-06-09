@@ -162,6 +162,7 @@ project:
   - read_work_item_setting
   - remove_pages
   - rename_project
+  - restore_ai_catalog_item
   - set_license_information_source
   - stop_environment
   - toggle_license_scanning_for_cyclonedx

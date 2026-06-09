@@ -34,7 +34,15 @@ RSpec.describe Banzai::UploadsController, feature_category: :markdown do
           expect(response).to have_gitlab_http_status(:ok)
         end
 
-        it 'returns 404 when user does not have access' do
+        it 'redirects anonymous user to sign-in' do
+          get "/-/project/#{project.id}/uploads/#{secret}/doc_sample.txt"
+
+          expect(response).to redirect_to(new_user_session_path)
+        end
+
+        it 'returns 404 when authenticated user does not have access' do
+          sign_in(create(:user))
+
           get "/-/project/#{project.id}/uploads/#{secret}/doc_sample.txt"
 
           expect(response).to have_gitlab_http_status(:not_found)
@@ -63,7 +71,15 @@ RSpec.describe Banzai::UploadsController, feature_category: :markdown do
             project.update!(enforce_auth_checks_on_uploads: true)
           end
 
-          it 'returns 404 when user does not have access' do
+          it 'redirects anonymous user to sign-in' do
+            get "/-/project/#{project.id}/uploads/#{secret}/rails_sample.jpg"
+
+            expect(response).to redirect_to(new_user_session_path)
+          end
+
+          it 'returns 404 when authenticated user does not have access' do
+            sign_in(create(:user))
+
             get "/-/project/#{project.id}/uploads/#{secret}/rails_sample.jpg"
 
             expect(response).to have_gitlab_http_status(:not_found)
@@ -96,7 +112,15 @@ RSpec.describe Banzai::UploadsController, feature_category: :markdown do
           expect(response).to have_gitlab_http_status(:ok)
         end
 
-        it 'returns 404 when user does not have access' do
+        it 'redirects anonymous user to sign-in' do
+          get "/-/group/#{group.id}/uploads/#{secret}/doc_sample.txt"
+
+          expect(response).to redirect_to(new_user_session_path)
+        end
+
+        it 'returns 404 when authenticated user does not have access' do
+          sign_in(create(:user))
+
           get "/-/group/#{group.id}/uploads/#{secret}/doc_sample.txt"
 
           expect(response).to have_gitlab_http_status(:not_found)

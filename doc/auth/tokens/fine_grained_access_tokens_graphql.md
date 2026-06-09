@@ -274,9 +274,17 @@ Grants the ability to create, delete, read, and update triggers.
 
 ### Duo resources
 
+#### AI catalog item
+
+Grants the ability to restore AI catalog items.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Restore | Project | Mutation | `AiCatalogItemVersionRestore` |
+
 #### Model Selection Allowlist
 
-Grants the ability to read model selection allowlists.
+Grants the ability to read and update model selection allowlists.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
@@ -284,6 +292,7 @@ Grants the ability to read model selection allowlists.
 | Read | Group | Type | `AiModelSelectionAllowListModel` |
 | Read | Instance | Type | `AiModelSelectionAllowList` |
 | Read | Instance | Type | `AiModelSelectionAllowListModel` |
+| Update | Instance | Mutation | `AiFeatureSettingModelAllowlistUpdate` |
 
 ### Groups resources
 

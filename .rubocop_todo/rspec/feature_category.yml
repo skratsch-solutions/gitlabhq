@@ -183,7 +183,6 @@ RSpec/FeatureCategory:
     - 'ee/spec/lib/gitlab/custom_file_templates_spec.rb'
     - 'ee/spec/lib/gitlab/customers_dot/jwt_spec.rb'
     - 'ee/spec/lib/gitlab/doctor/secrets_spec.rb'
-    - 'ee/spec/lib/gitlab/elastic/elasticsearch_enabled_cache_spec.rb'
     - 'ee/spec/lib/gitlab/email/handler/create_note_handler_spec.rb'
     - 'ee/spec/lib/gitlab/exclusive_lease_spec.rb'
     - 'ee/spec/lib/gitlab/expiring_subscription_message_spec.rb'

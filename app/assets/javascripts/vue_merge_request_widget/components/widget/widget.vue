@@ -192,6 +192,7 @@ export default {
       default: false,
     },
   },
+  emits: ['is-loading', 'toggle'],
   data() {
     return {
       isExpandedForTheFirstTime: true,

@@ -2643,6 +2643,9 @@ msgstr ""
 msgid "AICatalog|Basic information"
 msgstr ""
 
+msgid "AICatalog|Beta"
+msgstr ""
+
 msgid "AICatalog|Build a custom agent in GitLab or connect to an AI model provider you already use."
 msgstr ""
 
@@ -2668,6 +2671,9 @@ msgid "AICatalog|Can't be made private if enabled in a project."
 msgstr ""
 
 msgid "AICatalog|Can't be shared, even within your organization."
+msgstr ""
+
+msgid "AICatalog|Cannot restore a deprecated version."
 msgstr ""
 
 msgid "AICatalog|Choose what events in this project trigger the %{itemType}. You can change this later."
@@ -2871,9 +2877,6 @@ msgstr ""
 msgid "AICatalog|Existing agent chats will continue to reference content already retrieved from this server. However, agents will no longer be able to fetch new content or perform any actions. You can reconnect at any time."
 msgstr ""
 
-msgid "AICatalog|Experimental"
-msgstr ""
-
 msgid "AICatalog|Explore the AI Catalog"
 msgstr ""
 
@@ -2997,6 +3000,12 @@ msgstr ""
 msgid "AICatalog|GitLab"
 msgstr ""
 
+msgid "AICatalog|GitLab MCP"
+msgstr ""
+
+msgid "AICatalog|GitLab MCP tool, beta"
+msgstr ""
+
 msgid "AICatalog|GitLab-managed"
 msgstr ""
 
@@ -3040,6 +3049,9 @@ msgid "AICatalog|Is visible only to users with at least the Developer role for t
 msgstr ""
 
 msgid "AICatalog|Is visible to everyone, including users outside your organization."
+msgstr ""
+
+msgid "AICatalog|Item must have a current latest released version to restore."
 msgstr ""
 
 msgid "AICatalog|Learn more about composite identity"
@@ -3282,6 +3294,12 @@ msgstr ""
 msgid "AICatalog|Something went wrong on our end whilst processing this project"
 msgstr ""
 
+msgid "AICatalog|Source version is already the current latest version."
+msgstr ""
+
+msgid "AICatalog|Source version must be a released version."
+msgstr ""
+
 msgid "AICatalog|Spam or low quality"
 msgstr ""
 
@@ -3355,6 +3373,9 @@ msgid "AICatalog|This agent specializes in... It can help you with... Best suite
 msgstr ""
 
 msgid "AICatalog|This catalog contains third-party content that may be subject to additional terms. GitLab does not control or assume liability for third-party content."
+msgstr ""
+
+msgid "AICatalog|This feature is not available."
 msgstr ""
 
 msgid "AICatalog|This flow can be viewed only by members of this project, or by users with the Owner role for the top-level group. This flow can't be shared with other projects."
@@ -3541,6 +3562,9 @@ msgid "AICatalog|You must have the Maintainer or Owner role to enable a flow in 
 msgstr ""
 
 msgid "AICatalog|You must have the Maintainer or Owner role to enable an agent in a project."
+msgstr ""
+
+msgid "AICatalog|You must provide a source version."
 msgstr ""
 
 msgid "AICatalog|You must sign in to star this item"
@@ -7942,6 +7966,9 @@ msgstr ""
 msgid "AiGovernance|Control how your AI-powered features are used."
 msgstr ""
 
+msgid "AiGovernance|Could not load group-level rules. Restriction enforcement may be incomplete."
+msgstr ""
+
 msgid "AiGovernance|Destroy"
 msgstr ""
 
@@ -7949,6 +7976,9 @@ msgid "AiGovernance|Failed to load tool rules."
 msgstr ""
 
 msgid "AiGovernance|Failed to update tool rule. Please try again."
+msgstr ""
+
+msgid "AiGovernance|Inherited from group"
 msgstr ""
 
 msgid "AiGovernance|Local access"
@@ -7960,10 +7990,16 @@ msgstr ""
 msgid "AiGovernance|No tool rules found."
 msgstr ""
 
+msgid "AiGovernance|Overrides group"
+msgstr ""
+
 msgid "AiGovernance|Read"
 msgstr ""
 
 msgid "AiGovernance|Search or filter tool rules..."
+msgstr ""
+
+msgid "AiGovernance|Set at the group level. Projects can only apply stricter rules."
 msgstr ""
 
 msgid "AiGovernance|Source"
@@ -36184,6 +36220,9 @@ msgstr ""
 msgid "Group milestone"
 msgstr ""
 
+msgid "Group name"
+msgstr ""
+
 msgid "Group name can contain only letters, digits, dashes, spaces, dots, underscores, parenthesis, and emojis."
 msgstr ""
 
@@ -39118,6 +39157,12 @@ msgstr ""
 msgid "In use"
 msgstr ""
 
+msgid "InProductMarketing|A group is your workspace for managing members and settings"
+msgstr ""
+
+msgid "InProductMarketing|A project is a Git repository plus extra features for collaboration"
+msgstr ""
+
 msgid "InProductMarketing|Accelerate delivery with GitLab Ultimate + GitLab Duo Agent Platform"
 msgstr ""
 
@@ -39142,7 +39187,13 @@ msgstr ""
 msgid "InProductMarketing|Invite unlimited colleagues"
 msgstr ""
 
+msgid "InProductMarketing|Let's get set up"
+msgstr ""
+
 msgid "InProductMarketing|No credit card required."
+msgstr ""
+
+msgid "InProductMarketing|Set up your GitLab environment."
 msgstr ""
 
 msgid "InProductMarketing|Ship software faster"
@@ -39161,6 +39212,9 @@ msgid "InProductMarketing|Try our most advanced features, including GitLab Duo A
 msgstr ""
 
 msgid "InProductMarketing|Want to host GitLab on your servers?"
+msgstr ""
+
+msgid "InProductMarketing|Welcome to GitLab"
 msgstr ""
 
 msgid "Inactive"
@@ -47241,6 +47295,9 @@ msgid "Modal updated"
 msgstr ""
 
 msgid "Modal|Close"
+msgstr ""
+
+msgid "Model allowlists are not supported for the feature '%{feature}'."
 msgstr ""
 
 msgid "Model description"

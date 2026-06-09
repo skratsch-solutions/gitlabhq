@@ -4,6 +4,7 @@ description: Grants the ability to read duo workflows, including WebSocket conne
 available_for:
   - granular_access_token
 permissions:
+  - read_duo_workflow
   - read_duo_workflow_websocket
   - read_duo_workflow_tool
   - read_duo_workflow_agent_privilege

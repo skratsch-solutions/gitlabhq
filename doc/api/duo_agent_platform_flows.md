@@ -162,6 +162,61 @@ Example response:
 }
 ```
 
+## Get workflow trace as JSONL
+
+{{< details >}}
+
+- Status: Experiment
+
+{{< /details >}}
+
+Returns the `ui_chat_log` entries from the most recent checkpoint of a workflow session
+as [JSON Lines](https://jsonlines.org/) (JSONL).
+Each line is a valid JSON object representing one entry from the `ui_chat_log` array.
+Use this endpoint to parse or pipe the trace into tools like `jq`.
+
+> [!note]
+> LangGraph checkpoints are cumulative snapshots. Each checkpoint row contains the full
+> accumulated state, so the most recent checkpoint has the complete `ui_chat_log`.
+
+```plaintext
+GET /ai/duo_workflows/workflows/:workflow_id/trace.jsonl
+```
+
+Supported attributes:
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `workflow_id` | integer | Yes | ID of the workflow. |
+
+If successful, returns [`200 OK`](rest/troubleshooting.md#status-codes) with:
+
+- **Content-Type**: `application/x-ndjson`
+- **Body**: One JSON object per line, each representing a `ui_chat_log` entry from the most recent checkpoint.
+  Returns an empty body if the workflow has no checkpoints or the latest checkpoint has no `ui_chat_log`.
+
+Example request:
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/ai/duo_workflows/workflows/1/trace.jsonl"
+```
+
+Example response (each line is a separate JSON object):
+
+```jsonl
+{"status":"success","content":"Analyze the issue","message_type":"human"}
+{"status":"success","content":"I'll start by reading the codebase.","message_type":"ai"}
+```
+
+You can pipe the output into `jq` to filter entries by type:
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/ai/duo_workflows/workflows/1/trace.jsonl" \
+  | jq 'select(.message_type == "ai")'
+```
+
 ## List all agent privileges
 
 Lists all available agent privileges with their IDs, names, descriptions, and whether each is enabled

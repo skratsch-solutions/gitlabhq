@@ -24,6 +24,7 @@ export default {
       required: true,
     },
   },
+  emits: ['loaded'],
   data() {
     return {
       hasError: false,

@@ -93,6 +93,7 @@
       background-color: var(--application-chrome-nav-item-selected-background-color-focus);
       border: 0;
       box-shadow: none;
+      @apply gl-focus;
     }
 
     &:active,

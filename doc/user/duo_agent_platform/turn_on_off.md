@@ -21,6 +21,8 @@ You can turn Agent Platform on or off:
 - On GitLab.com: For top-level groups.
 - On GitLab Self-Managed: For instances.
 
+To configure tool governance for Agent Platform, see [agent tool governance](tool_governance.md).
+
 ## Turn GitLab Duo Agent Platform on or off
 
 ### On GitLab.com
@@ -71,10 +73,57 @@ To turn Agent Platform on or off for an instance:
 When Agent Platform is turned off, related settings for flows and
 [foundational agents](agents/foundational_agents/_index.md#turn-foundational-agents-on-or-off) are hidden.
 
-## Configure tools governance
+## Lock GitLab Duo on
 
-For information on configuring governance of tools that can be used by GitLab Duo, see
-[Agent tool governance](tool_governance.md).
+{{< history >}}
+
+- [Introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21844) in GitLab 19.1.
+
+{{< /history >}}
+
+Turn GitLab Duo on for all users, regardless of group or project settings.
+
+{{< tabs >}}
+
+{{< tab title="On GitLab.com" >}}
+
+Prerequisites:
+
+- The Owner role for the top-level group.
+
+To lock GitLab Duo on for a top-level group:
+
+1. In the top bar, select **Search or go to** and find your top-level group.
+1. In the left sidebar, select **Settings** > **GitLab Duo**.
+1. Select **Change configuration**.
+1. Under **GitLab Duo availability**, select **Always on**.
+1. Select **Save changes**.
+
+GitLab Duo is locked on for all subgroups and projects.
+Users with the Owner role for a subgroup or project cannot turn GitLab Duo off.
+
+{{< /tab >}}
+
+{{< tab title="On GitLab Self-Managed" >}}
+
+Prerequisites:
+
+- Administrator access.
+
+To lock GitLab Duo on for an instance:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **GitLab Duo**.
+1. Select **Change configuration**.
+1. Under **GitLab Duo availability**, select **Always on**.
+1. Select **Save changes**.
+
+GitLab Duo is locked on for all groups, subgroups, and projects.
+Users with the Owner role for a group, subgroup, or project cannot turn GitLab Duo off.
+
+{{< /tab >}}
+
+{{< /tabs >}}
 
 ## Turn GitLab Duo on or off
 

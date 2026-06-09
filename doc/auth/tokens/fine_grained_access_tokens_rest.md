@@ -569,6 +569,7 @@ Grants the ability to create, read, and resume duo workflows.
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/ai/duo_workflows/workflows` |
 | Read | User | `GET` | `/ai/duo_workflows/list_tools` |
+| Read | User | `GET` | `/ai/duo_workflows/workflows/:workflow_id/trace.jsonl` |
 | Read | User | `GET` | `/ai/duo_workflows/workflows/agent_privileges` |
 | Read | User | `GET` | `/ai/duo_workflows/ws` |
 | Resume | User | `POST` | `/ai/duo_workflows/workflows/:workflow_id/resume` |

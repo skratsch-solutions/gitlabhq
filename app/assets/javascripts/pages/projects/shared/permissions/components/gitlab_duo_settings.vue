@@ -1,5 +1,5 @@
 <script>
-import { GlToggle, GlLink, GlButton, GlSprintf } from '@gitlab/ui';
+import { GlToggle, GlLink, GlButton, GlCard, GlSprintf } from '@gitlab/ui';
 import CascadingLockIcon from '~/namespaces/cascading_settings/components/cascading_lock_icon.vue';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { __, s__ } from '~/locale';
@@ -15,12 +15,18 @@ export default {
     GlSprintf,
     GlLink,
     GlButton,
+    GlCard,
     ProjectSettingRow,
     CascadingLockIcon,
     ExclusionSettings,
   },
   mixins: [glFeatureFlagMixin()],
   props: {
+    governancePath: {
+      type: String,
+      required: false,
+      default: '',
+    },
     duoAvailabilityCascadingSettings: {
       type: Object,
       required: false,
@@ -210,6 +216,9 @@ export default {
   i18n: {
     saveChanges: __('Save changes'),
     saveChangesAriaLabel: __('Save changes for GitLab Duo'),
+    governanceTitle: s__('AiPowered|Governance'),
+    governanceDescription: s__('AiPowered|Control how your AI-powered features are used.'),
+    governanceAction: s__('AiPowered|Change governance'),
   },
 };
 </script>
@@ -476,6 +485,35 @@ export default {
         :value="null"
       />
     </div>
+
+    <gl-card
+      v-if="governancePath"
+      class="gl-mt-5"
+      header-class="gl-heading-scale-300"
+      footer-class="gl-bg-transparent gl-border-none gl-flex gl-justify-end"
+      data-testid="duo-governance-info-card"
+    >
+      <template #header>
+        <h3 class="gl-m-0" data-testid="duo-governance-info-card-header">
+          {{ $options.i18n.governanceTitle }}
+        </h3>
+      </template>
+      <template #default>
+        <p class="gl-mb-0" data-testid="duo-governance-info-card-description">
+          {{ $options.i18n.governanceDescription }}
+        </p>
+      </template>
+      <template #footer>
+        <gl-button
+          category="primary"
+          variant="default"
+          :href="governancePath"
+          data-testid="duo-governance-link"
+        >
+          {{ $options.i18n.governanceAction }}
+        </gl-button>
+      </template>
+    </gl-card>
 
     <gl-button
       variant="confirm"

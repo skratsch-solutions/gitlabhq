@@ -744,6 +744,21 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
           should_email(user3)
         end
 
+        it 'passes the previous reviewers to the notification service' do
+          merge_request.reviewers = [user2, user3]
+          async_notification_service = instance_double(NotificationService)
+
+          expect_next_instance_of(NotificationService) do |notification_service|
+            expect(notification_service).to receive(:async).and_return(async_notification_service)
+          end
+
+          expect(async_notification_service)
+            .to receive(:changed_reviewer_of_merge_request)
+            .with(merge_request, current_user, contain_exactly(user2, user3))
+
+          update_merge_request({ reviewer_ids: [user2.id] })
+        end
+
         it 'updates open merge request counter for reviewers', :use_clean_rails_memory_store_caching do
           merge_request.reviewers = [user3]
 

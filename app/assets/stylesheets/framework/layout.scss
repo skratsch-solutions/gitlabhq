@@ -122,6 +122,23 @@ html {
   }
 }
 
+.ai-navigation-rail {
+  @apply gl-flex;
+  @apply gl-flex-1;
+  @apply lg:gl-flex-col;
+  @apply gl-items-center;
+  @apply gl-gap-5;
+  @apply lg:gl-gap-4;
+  @apply gl-mt-3;
+  @apply gl-px-3;
+  @apply lg:gl-px-0;
+  @apply lg:gl-py-3;
+  @apply lg:gl-mt-0;
+  @apply gl-h-[var(--ai-navigation-rail-size)];
+  @apply lg:gl-h-full;
+  @apply lg:gl-w-[var(--ai-navigation-rail-size)];
+}
+
 // When the AI panel is maximized
 .layout-page.ai-panel-maximized {
   .ai-panels {

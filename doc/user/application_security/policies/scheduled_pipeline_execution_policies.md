@@ -272,10 +272,10 @@ This setting applies to any user who triggers a pipeline with pipeline execution
 1. Turn on **Grant security policy project access to CI/CD configuration**.
 1. Select **Save changes**.
 
-### Option 2: Allow Security Policy Bot access to private projects
+### Option 2: Allow Security Policy Bot access to private or internal projects
 
-If your policy `include:` value references a CI/CD configuration file stored in a private project
-other than the security policy project, use this option.
+If your policy `include:` value references a CI/CD configuration file stored in a private or internal
+project other than the security policy project, use this option.
 This setting applies only to Security Policy Bot users and can be enabled on any project.
 
 1. Enable the `pipeline_execution_policy_bot_access` experiment in your security policy project.
@@ -288,11 +288,12 @@ This setting applies only to Security Policy Bot users and can be enabled on any
    ```
 
    > [!note]
-   > Your private project or one of its parent groups must be linked to this security policy project.
-   > If it is not already linked, you must [link the security policy project](enforcement/security_policy_projects.md#link-to-a-security-policy-project).
+   > Your private or internal project, or one of its parent groups, must be linked to this security
+   > policy project. If it is not already linked, you must
+   > [link the security policy project](enforcement/security_policy_projects.md#link-to-a-security-policy-project).
 
-1. In the private project that stores CI/CD files, in the left sidebar, select **Settings** >
-   **General**.
+1. In the private or internal project that stores CI/CD files, in the left sidebar, select
+   **Settings** > **General**.
 1. Expand **Visibility, project features, permissions**.
 1. In **Security policy bot access**, select
    **Allow security policy bots to access CI/CD configuration files in this project**.
@@ -311,20 +312,21 @@ Scheduled pipelines are executed by the Security Policy Bot User, a dedicated sy
 To ensure that policy execution remains isolated and secure, the bot user has the following security restrictions:
 
 - The bot user is a member of that specific project only. It cannot be added to groups or other projects.
+- The bot user is treated as an external user and cannot access internal projects by default.
 - The bot user can access files in the security policy project and public projects.
-- The bot user can access files in private projects only if those projects explicitly enable
-  **Security policy bot access** and the file path matches the pattern specified in the project.
+- The bot user can access files in private or internal projects only if those projects explicitly
+  enable **Security policy bot access** and the file path matches the pattern specified in the project.
 
 Because the bot user is not a member of other projects, it cannot complete any of the following actions:
 
-- Access CI/CD configuration files from private projects that do not allow bot access or do not
-  match allowed file patterns.
-- Start multi-project child pipelines that target private projects.
-- Access artifacts or resources from private projects.
+- Access CI/CD configuration files from private or internal projects that do not allow bot access
+  or do not match allowed file patterns.
+- Start multi-project child pipelines that target private or internal projects.
+- Access artifacts or resources from private or internal projects.
 
 > [!important]
-> When you include files from a private project, enable **Security policy bot access** in that
-> private project and set matching file patterns. Without these settings, pipeline execution fails
+> When you include files from a private or internal project, enable **Security policy bot access**
+> in that project and set matching file patterns. Without these settings, pipeline execution fails
 > with an access error.
 
 ## Scheduling limits
@@ -345,7 +347,7 @@ If your scheduled pipelines are not running as expected, follow these troublesho
 1. **Verify experimental flag**: Ensure that the `pipeline_execution_schedule_policy: enabled: true` flag is set in the `experiments` section of your `policy.yml` file.
 1. **Check policy access**: Verify that:
    - The CI/CD configuration file is in the security policy project, in a public project, or in a
-     private project with bot access enabled and matching file patterns.
+     private or internal project with bot access enabled and matching file patterns.
    - The **Pipeline execution policies** setting is enabled in the security policy project (**Settings** > **General** > **Visibility, project features, permissions**).
 1. **Validate CI configuration**:
    - Check that the CI/CD configuration file exists at the specified path.

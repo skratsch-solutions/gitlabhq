@@ -112,7 +112,6 @@ Search/NamespacedClass:
     - 'ee/lib/gem_extensions/elasticsearch/model/indexing/instance_methods.rb'
     - 'ee/lib/gem_extensions/elasticsearch/model/response/records.rb'
     - 'ee/lib/gitlab/elastic/bulk_indexer.rb'
-    - 'ee/lib/gitlab/elastic/elasticsearch_enabled_cache.rb'
     - 'ee/lib/gitlab/elastic/helper.rb'
     - 'ee/lib/gitlab/elastic/search_results.rb'
     - 'ee/lib/gitlab/metrics/global_search_indexing_slis.rb'

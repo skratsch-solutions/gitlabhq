@@ -90,4 +90,4 @@ Bot access has these limits:
   the root ancestor group.
 
 To set up Security Policy Bot access, see
-[scheduled pipeline execution policies](../user/application_security/policies/scheduled_pipeline_execution_policies.md#option-2-allow-security-policy-bot-access-to-private-projects).
+[scheduled pipeline execution policies](../user/application_security/policies/scheduled_pipeline_execution_policies.md#option-2-allow-security-policy-bot-access-to-private-or-internal-projects).

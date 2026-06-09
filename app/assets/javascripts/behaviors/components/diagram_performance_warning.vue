@@ -3,6 +3,7 @@ import { GlAlert } from '@gitlab/ui';
 import { __ } from '~/locale';
 
 export default {
+  name: 'DiagramPerformanceWarning',
   i18n: {
     bodyText: __('Warning: Displaying this diagram might cause performance issues on this page.'),
     buttonText: __('Display'),

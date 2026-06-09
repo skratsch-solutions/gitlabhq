@@ -34,6 +34,7 @@ export default {
       default: false,
     },
   },
+  emits: ['input'],
   computed: {
     tooltipTitle() {
       return this.isDisabled ? this.$options.i18n.tooltipTitle : null;

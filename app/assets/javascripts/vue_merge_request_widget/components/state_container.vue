@@ -59,6 +59,7 @@ export default {
       default: __('Collapse merge details'),
     },
   },
+  emits: ['toggle'],
   computed: {
     wrapperClasses() {
       if (this.status === STATUS_MERGED) return 'gl-bg-feedback-info widget-merge-status';

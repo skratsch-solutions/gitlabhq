@@ -2,36 +2,6 @@
 @import 'framework/variables';
 
 /*
- * Panels
- */
-
-.page-with-panels {
-  --ai-panel-height: 3rem; //= 48px
-
-  @include media-breakpoint-up(lg) {
-    --ai-panel-height: 0px; // stylelint-disable-line length-zero-no-unit
-  }
-
-  // AI panel
-  .ai-panels .ai-panel {
-    @include media-breakpoint-down(md) {
-      @apply gl-fixed -gl-mt-2 gl-shadow-lg;
-      @apply gl-left-5 #{!important};
-      top: var(--header-height);
-      width: calc(100% - #{$gl-spacing-scale-5 * 2});
-      height: calc(100% - var(--system-header-height) - var(--performance-bar-height) - var(--header-height) - var(--ai-panel-height) + 1rem); // 1rem is to balance the -0.25rem top margin
-      z-index: 999;
-    }
-
-    @include media-breakpoint-down(xs) {
-      @apply gl-left-3 #{!important};
-      width: calc(100% - #{$gl-spacing-scale-3 * 2});
-    }
-  }
-
-}
-
-/*
  * Themes
  */
 

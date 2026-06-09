@@ -6,6 +6,7 @@ import { keybindingGroups } from './keybindings';
 import Shortcut from './shortcut.vue';
 
 export default {
+  name: 'ShortcutsHelp',
   components: {
     GlModal,
     GlSearchBoxByType,

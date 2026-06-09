@@ -3190,7 +3190,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
       it 'sends emails to relevant users only', :aggregate_failures do
         expect do
-          notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer])
+          notification.changed_reviewer_of_merge_request(merge_request, current_user, [])
         end.to enqueue_mail_with(Notify, :changed_reviewer_of_merge_request_email, reviewer, any_args)
           .and(enqueue_mail_with(Notify, :changed_reviewer_of_merge_request_email, merge_request.author, any_args))
           .and(enqueue_mail_with(Notify, :changed_reviewer_of_merge_request_email, u_watcher, any_args))
@@ -3207,7 +3207,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       end
 
       it 'adds "review requested" reason for new reviewer', :deliver_mails_inline do
-        notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer])
+        notification.changed_reviewer_of_merge_request(merge_request, current_user, [])
 
         merge_request.reviewers.each do |assignee|
           email = find_email_for(assignee)
@@ -3219,7 +3219,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       context 'participating notifications with reviewers' do
         let(:participant) { create(:user, username: 'user-participant') }
         let(:issuable) { merge_request }
-        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer]) }
+        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, []) }
 
         it_behaves_like 'participating by reviewer notification'
       end
@@ -3227,12 +3227,39 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       it_behaves_like 'participating notifications' do
         let(:participant) { create(:user, username: 'user-participant') }
         let(:issuable) { merge_request }
-        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer]) }
+        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, []) }
       end
 
       it_behaves_like 'project emails are disabled', check_delivery_jobs_queue: true do
         let(:notification_target)  { merge_request }
-        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer]) }
+        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, []) }
+      end
+
+      context 'when an existing reviewer has unsubscribed but is not in the affected reviewer list' do
+        let(:unsubscribed_reviewer) { create(:user) }
+        let(:merge_request) { create(:merge_request, author: author, source_project: project, reviewers: [reviewer, unsubscribed_reviewer]) }
+
+        it 'does not send email to the unsubscribed existing reviewer', :deliver_mails_inline do
+          merge_request.subscriptions.create!(user: unsubscribed_reviewer, subscribed: false)
+          # unsubscribed_reviewer was already a reviewer (unchanged); only reviewer is newly added.
+          notification.changed_reviewer_of_merge_request(merge_request, current_user, [unsubscribed_reviewer])
+
+          should_not_email(unsubscribed_reviewer)
+          should_email(reviewer)
+        end
+      end
+
+      context 'when a reviewer is removed' do
+        let(:removed_reviewer) { create(:user) }
+
+        it 'notifies the removed reviewer without the "review requested" reason', :deliver_mails_inline, :aggregate_failures do
+          notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer, removed_reviewer])
+
+          email = find_email_for(removed_reviewer)
+
+          expect(email).to be_present
+          expect(email).not_to have_header('X-GitLab-NotificationReason', NotificationReason::REVIEW_REQUESTED)
+        end
       end
     end
 
@@ -3741,6 +3768,15 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       it_behaves_like 'project emails are disabled', check_delivery_jobs_queue: true do
         let(:notification_target)  { merge_request }
         let(:notification_trigger) { notification.review_requested_of_merge_request(merge_request, current_user, reviewer) }
+      end
+
+      context 'when the reviewer has unsubscribed from the merge request' do
+        it 'still sends email to the reviewer', :deliver_mails_inline do
+          merge_request.subscriptions.create!(user: reviewer, subscribed: false)
+          notification.review_requested_of_merge_request(merge_request, current_user, reviewer)
+
+          should_email(reviewer)
+        end
       end
     end
   end

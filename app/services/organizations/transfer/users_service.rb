@@ -173,6 +173,7 @@ module Organizations
           relation.where(user_id: user_ids)
         end
       end
+
       # rubocop:enable CodeReuse/ActiveRecord
 
       def new_organization_bots
@@ -244,6 +245,17 @@ module Organizations
 
             notes_batch.update_all(update_attributes)
           end
+
+        [
+          SnippetRepository,
+          SnippetStatistics,
+          SnippetUserMention,
+          Snippets::RepositoryStorageMove
+        ].each do |snippet_class|
+          update_organization_id_for(snippet_class, organization_key: :snippet_organization_id) do |relation|
+            relation.where(snippet_id: personal_snippets)
+          end
+        end
       end
 
       def note_transfer_attributes(transferring_user_ids)

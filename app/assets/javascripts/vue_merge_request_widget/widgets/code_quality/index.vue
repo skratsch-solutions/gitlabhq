@@ -32,6 +32,7 @@ export default {
       required: true,
     },
   },
+  emits: ['loaded'],
   data() {
     return {
       pollingFinished: false,

@@ -1768,8 +1768,8 @@
       when: never
     - <<: *if-merge-request-labels-frontend-and-feature-flag
       changes: *setup-test-env-patterns
-    # For tier-1 pipelines, only run when jest predictive jobs would
-    - <<: *if-merge-request-tier-1-or-no-tier
+    # For tier-2+ pipelines, only run when relevant files change. See https://gitlab.com/gitlab-org/gitlab/-/work_items/602170
+    - <<: *if-merge-request-tier-2-or-above
       changes:
         - '{,ee/}app/**/*.vue'
         - '{,ee/}app/**/*.stories.js'
@@ -3214,6 +3214,12 @@
       when: never
     - if: $SAST_EXCLUDED_ANALYZERS =~ /gitlab-advanced-sast/
       when: never
+    # Only run on tier-3 MR pipelines to save CI minutes. A merge request runs a
+    # tier-3 pipeline before it is merged, so pre-merge coverage is preserved.
+    # Default branch / scheduled pipelines are unaffected (the tier prevent rules
+    # only match merge_request_event pipelines).
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/602388.
+    - !reference [".prevent-tier-2-and-below", rules]
     - <<: *if-default-refs
       changes:
         # this list should match https://gitlab.com/gitlab-org/gitlab/blob/aa896069360f/lib/gitlab/ci/templates/Jobs/SAST.gitlab-ci.yml#L53-53

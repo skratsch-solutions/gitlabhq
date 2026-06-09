@@ -58,10 +58,10 @@ module MergeRequests
       return unless merge_request.instance_of?(MergeRequest)
 
       args = {
-        mentionable_type: 'MergeRequest',
-        mentionable_id: merge_request.id,
-        hook_data: merge_data,
-        is_confidential: false
+        'mentionable_type' => 'MergeRequest',
+        'mentionable_id' => merge_request.id,
+        'hook_data' => merge_data,
+        'is_confidential' => false
       }
 
       merge_request.run_after_commit_or_now do

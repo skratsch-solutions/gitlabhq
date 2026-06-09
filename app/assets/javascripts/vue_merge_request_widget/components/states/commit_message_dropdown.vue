@@ -26,6 +26,7 @@ export default {
       default: null,
     },
   },
+  emits: ['append', 'input'],
   computed: {
     dropdownItems() {
       return this.commits.map((commit) => ({

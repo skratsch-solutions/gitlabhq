@@ -74,6 +74,8 @@ describe('GitlabDuoSettings', () => {
   const findToolApprovalCascadingLockIcon = () =>
     wrapper.findByTestId('tool-approval-cascading-lock-icon');
   const findDapSessionTrackingToggle = () => wrapper.findByTestId('dap-session-tracking-enabled');
+  const findGovernanceCard = () => wrapper.findByTestId('duo-governance-info-card-header');
+  const findGovernanceLink = () => wrapper.findByTestId('duo-governance-link');
 
   beforeEach(() => {
     wrapper = createWrapper();
@@ -823,6 +825,23 @@ describe('GitlabDuoSettings', () => {
 
       // Verify that exclusion rules were updated
       expect(wrapper.vm.exclusionRules).toEqual(newRules);
+    });
+  });
+
+  describe('governance card', () => {
+    const governancePath = '/group/project/-/settings/gitlab_duo/governance';
+
+    it('is hidden when no governancePath is provided', () => {
+      wrapper = createWrapper();
+
+      expect(findGovernanceCard().exists()).toBe(false);
+    });
+
+    it('renders the governance card before the save button when governancePath is set', () => {
+      wrapper = createWrapper({ governancePath });
+
+      expect(findGovernanceCard().exists()).toBe(true);
+      expect(findGovernanceLink().attributes('href')).toBe(governancePath);
     });
   });
 });

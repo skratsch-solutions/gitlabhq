@@ -142,6 +142,17 @@ type stopCoordinator struct {
 	// this before tearing down the gRPC stream so that a pending Recv can
 	// observe the DWS stop acknowledgment before the connection is destroyed.
 	agentDone sync.WaitGroup
+
+	// shutdownStarted is set to true at the start of Shutdown. Close only
+	// waits on shutdownDone when this is set, since Shutdown is only invoked
+	// during server shutdown and never in the normal request path.
+	shutdownStarted atomic.Bool
+
+	// shutdownDone is closed by Shutdown when it finishes. Close waits on
+	// this before calling closeWebSocketConnection so that Shutdown always
+	// gets to send CloseGoingAway (1001) before Close sends CloseNormalClosure
+	// (1000).
+	shutdownDone chan struct{}
 }
 
 type runner struct {
@@ -201,7 +212,8 @@ func newRunner(conn websocketConn, rails *api.API, backend http.Handler, r *http
 		streamManager:      streamManager,
 		mcpManager:         mcpManager,
 		stop: stopCoordinator{
-			acked: make(chan struct{}),
+			acked:        make(chan struct{}),
+			shutdownDone: make(chan struct{}),
 		},
 	}, nil
 }
@@ -357,6 +369,16 @@ func (r *runner) Close() error {
 	// This ensures a pending Recv can observe the DWS stop acknowledgment
 	// (Unavailable) before the connection is torn down.
 	r.stop.agentDone.Wait()
+
+	// When a server shutdown is in progress, wait for Shutdown to finish before
+	// closing the WebSocket connection. Shutdown sends CloseGoingAway (1001) to
+	// signal the client to reconnect; if Close races ahead and sends
+	// CloseNormalClosure (1000) first, the client never sees the 1001 and won't
+	// reconnect to the new instance. In the normal request path Shutdown is
+	// never called, so we must not block on shutdownDone there.
+	if r.stop.shutdownStarted.Load() {
+		<-r.stop.shutdownDone
+	}
 
 	streamManagerCloseErr := r.logClose("stream manager", r.streamManager.Close())
 	wsCloseErr := r.logClose("websocket connection", r.closeWebSocketConnection())
@@ -596,6 +618,10 @@ func (r *runner) stopWorkflow(reason string, closeErr error) error {
 // last DWS checkpoint.
 // Errors during shutdown are logged but not returned to allow other runners to proceed.
 func (r *runner) Shutdown(ctx context.Context) error {
+	// Signal Close that a shutdown is in progress so it waits for shutdownDone
+	// before closing the WebSocket connection.
+	r.stop.shutdownStarted.Store(true)
+
 	// requestContextDone is set to true when the original request context fires
 	// first. In that case the client is already gone, so we skip sending
 	// CloseGoingAway — there is no one to receive it.
@@ -637,7 +663,15 @@ func (r *runner) Shutdown(ctx context.Context) error {
 		closeMsg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutdown")
 		if wsErr := r.conn.WriteControl(websocket.CloseMessage, closeMsg, deadline); wsErr != nil {
 			log.WithRequest(r.originalReq).WithError(wsErr).Info("Shutdown: failed to send CloseGoingAway to client")
+		} else {
+			// Mark the WebSocket as closed so that Close() skips sending
+			// CloseNormalClosure (1000) on top of the 1001 we just sent.
+			r.websocketClosed.Store(true)
 		}
+	}
+
+	if r.stop.shutdownDone != nil {
+		close(r.stop.shutdownDone)
 	}
 
 	return nil

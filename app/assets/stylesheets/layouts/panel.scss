@@ -132,7 +132,36 @@
   }
 }
 
+// AI panel
+.paneled-view.ai-panel {
+  @apply gl-grow;
+  @apply max-lg:gl-fixed;
+  @apply max-lg:gl-shadow-lg;
+  @apply gl-left-3;
+  @apply -gl-mt-2;
+  top: $calc-application-bars-height;
+  width: calc(100% - (var(--gl-spacing-scale-3) * 2));
+  // Since the element is fixed-positioned, subtract the header heights and navigation rail from the
+  // viewport height. The trailing spacing scale offsets the negative top margin set above.
+  height: calc(100% - #{$calc-application-bars-height} - var(--ai-navigation-rail-size) - #{$gl-spacing-scale-2});
+  z-index: 999;
+
+  @include media-breakpoint-up(sm) {
+    @apply gl-left-5;
+    width: calc(100% - (var(--gl-spacing-scale-5) * 2));
+  }
+
+  @include media-breakpoint-up(lg) {
+    @apply gl-top-0;
+    @apply gl-left-0;
+    @apply gl-mt-0;
+    width: var(--ai-panel-width);
+    height: auto;
+    z-index: auto;
+  }
+}
+
 /* stylelint-disable-next-line gitlab/no-gl-class -- scoped to a specific panel-content use */
 .page-with-panels .gl-drawer {
-  width: min(calc(100% - #{$gl-spacing-scale-6}), 400px);
+  width: min(calc(100% - var(--gl-spacing-scale-6)), 400px);
 }

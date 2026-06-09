@@ -139,7 +139,7 @@ RSpec.shared_examples_for "member creation" do
         expect(source.reload).to have_user(project_bot)
         expect(member).to be_persisted
         expect(member.access_level).to eq(Gitlab::Access::DEVELOPER)
-        expect(member.errors.added?(:base, :unauthorized)).to eq(true)
+        expect(member.errors.added?(:base, :unauthorized)).to be(true)
         expect(member.errors.full_messages).to include(/not authorized to update member/)
       end
     end
@@ -170,7 +170,7 @@ RSpec.shared_examples_for "member creation" do
 
       expect(member).not_to be_persisted
       expect(source).not_to have_user(user)
-      expect(member.errors.added?(:base, :unauthorized)).to eq(true)
+      expect(member.errors.added?(:base, :unauthorized)).to be(true)
       expect(member.errors.full_messages).to include(/not authorized to create member/)
     end
   end
@@ -239,12 +239,12 @@ RSpec.shared_examples_for "member creation" do
 
       it 'adds the requester as a member', :aggregate_failures do
         expect(source.reload).not_to have_user(user)
-        expect(source.requesters.exists?(user_id: user)).to eq(true)
+        expect(source.requesters.exists?(user_id: user)).to be(true)
 
         described_class.add_member(source, user, :maintainer)
 
         expect(source.reload).to have_user(user)
-        expect(source.requesters.exists?(user_id: user)).to eq(false)
+        expect(source.requesters.exists?(user_id: user)).to be(false)
       end
     end
 

@@ -387,14 +387,6 @@ class Event < ApplicationRecord
     target.noteable
   end
 
-  def note_target_id
-    if commit_note?
-      target.commit_id
-    else
-      target.noteable_id.to_s
-    end
-  end
-
   def note_target_reference
     return unless note_target
 

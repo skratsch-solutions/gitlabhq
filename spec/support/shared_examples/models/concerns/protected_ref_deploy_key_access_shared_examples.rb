@@ -152,12 +152,12 @@ RSpec.shared_examples 'protected ref deploy_key access' do
           perform_access_check
         end
 
-        it { is_expected.to eq(false) }
+        it { is_expected.to be(false) }
 
         context 'when user has inherited membership' do
           let!(:inherited_membership) { create(:group_member, group: project.group, user: user) }
 
-          it { is_expected.to eq(true) }
+          it { is_expected.to be(true) }
         end
       end
 
@@ -167,7 +167,7 @@ RSpec.shared_examples 'protected ref deploy_key access' do
         end
 
         context 'when the deploy key is among the active keys for this project' do
-          it { is_expected.to eq(true) }
+          it { is_expected.to be(true) }
         end
 
         context 'when the deploy key is not among the active keys of this project' do
@@ -179,7 +179,7 @@ RSpec.shared_examples 'protected ref deploy_key access' do
             deploy_keys_project.update!(can_push: true)
           end
 
-          it { is_expected.to eq(false) }
+          it { is_expected.to be(false) }
         end
 
         context 'when user cannot access the project' do
@@ -187,7 +187,7 @@ RSpec.shared_examples 'protected ref deploy_key access' do
             allow(user).to receive(:can?).with(:read_project, project).and_return(false)
           end
 
-          it { is_expected.to eq(false) }
+          it { is_expected.to be(false) }
         end
 
         context 'when deploy key does not belong to the user' do
@@ -195,14 +195,14 @@ RSpec.shared_examples 'protected ref deploy_key access' do
             create(:deploy_keys_project, :write_access, project: project).deploy_key
           end
 
-          it { is_expected.to eq(false) }
+          it { is_expected.to be(false) }
         end
       end
 
       context 'when user is nil' do
         let(:user) { nil }
 
-        it { is_expected.to eq(false) }
+        it { is_expected.to be(false) }
       end
     end
   end

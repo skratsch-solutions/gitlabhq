@@ -24,6 +24,7 @@ export default {
       required: true,
     },
   },
+  emits: ['clickedAction'],
   data() {
     return {
       timeout: null,

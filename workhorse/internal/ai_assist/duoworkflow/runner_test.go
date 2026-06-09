@@ -1848,6 +1848,81 @@ func TestRunner_Close_waitsForAgentDone(t *testing.T) {
 	}
 }
 
+func TestRunner_Close_shutdownCoordination(t *testing.T) {
+	newRunnerForClose := func(t *testing.T) *runner {
+		t.Helper()
+		server := setupTestServer(t)
+
+		mainClient, err := NewClient(&api.DuoWorkflowServiceConfig{
+			URI:     server.Addr,
+			Headers: map[string]string{},
+			Secure:  false,
+		}, "test-agent", "")
+		require.NoError(t, err)
+
+		return &runner{
+			conn: &mockWebSocketConn{},
+			streamManager: &streamManager{
+				wf:     &mockWorkflowStream{},
+				client: mainClient,
+			},
+			mcpManager: &mockMcpManager{},
+			stop: stopCoordinator{
+				acked:        make(chan struct{}),
+				shutdownDone: make(chan struct{}),
+			},
+		}
+	}
+
+	t.Run("returns without waiting for shutdownDone when no shutdown is in progress", func(t *testing.T) {
+		r := newRunnerForClose(t)
+		// shutdownStarted is false and shutdownDone is never closed, simulating
+		// the normal request path where Shutdown is never invoked. Close must
+		// not block on shutdownDone.
+		closeDone := make(chan error, 1)
+		go func() {
+			closeDone <- r.Close()
+		}()
+
+		select {
+		case err := <-closeDone:
+			require.NoError(t, err)
+		case <-time.After(2 * time.Second):
+			t.Fatal("Close should not block on shutdownDone when no shutdown is in progress")
+		}
+	})
+
+	t.Run("waits for shutdownDone before closing when a shutdown is in progress", func(t *testing.T) {
+		r := newRunnerForClose(t)
+		// Simulate a shutdown in progress: shutdownStarted is set but
+		// shutdownDone has not been closed yet.
+		r.stop.shutdownStarted.Store(true)
+
+		closeDone := make(chan error, 1)
+		go func() {
+			closeDone <- r.Close()
+		}()
+
+		// Close should block until shutdownDone is closed.
+		select {
+		case <-closeDone:
+			t.Fatal("Close should not return before shutdownDone is closed")
+		case <-time.After(100 * time.Millisecond):
+			// expected: Close is still waiting
+		}
+
+		// Signal that Shutdown has finished.
+		close(r.stop.shutdownDone)
+
+		select {
+		case err := <-closeDone:
+			require.NoError(t, err)
+		case <-time.After(2 * time.Second):
+			t.Fatal("Close should return after shutdownDone is closed")
+		}
+	})
+}
+
 func TestRunner_AcquireWorkflowLock_ConcurrentAttempts(t *testing.T) {
 	rdb := initRdb(t)
 	mockConn1 := &mockWebSocketConn{}
