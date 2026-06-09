@@ -3,6 +3,7 @@
 import { GlSkeletonLoader } from '@gitlab/ui';
 
 export default {
+  name: 'VueMergeRequestWidgetLoading',
   components: {
     GlSkeletonLoader,
   },

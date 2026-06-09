@@ -486,6 +486,7 @@ describe('WorkItemParent component', () => {
             parentId: 'gid://gitlab/WorkItem/716',
           },
         },
+        useWorkItemFeatures: false,
       });
       expect(updateParent).toHaveBeenCalledWith({
         cache: expect.anything(Object),
@@ -517,6 +518,7 @@ describe('WorkItemParent component', () => {
             parentId: null,
           },
         },
+        useWorkItemFeatures: false,
       });
       expect(updateParent).toHaveBeenCalledWith({
         cache: expect.anything(Object),

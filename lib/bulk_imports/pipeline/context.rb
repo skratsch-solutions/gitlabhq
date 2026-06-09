@@ -66,7 +66,7 @@ module BulkImports
         @source_user_mapper ||= Gitlab::Import::SourceUserMapper.new(
           namespace: portable.root_ancestor,
           import_type: Import::SOURCE_DIRECT_TRANSFER,
-          source_hostname: configuration.url
+          source_hostname: offline? ? offline_configuration.source_hostname : configuration.url
         )
       end
 

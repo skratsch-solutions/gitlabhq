@@ -4,6 +4,7 @@ import { __, s__ } from '~/locale';
 import { MAX_LIST_COUNT, MAX_CONFIGS_SHOWN } from '../constants';
 
 export default {
+  name: 'AgentsConfigsTable',
   i18n: {
     registerActionText: s__('ClusterAgents|Register an agent'),
     actionsLabel: __('Actions'),

@@ -5,6 +5,7 @@ import SafeHtml from '~/vue_shared/directives/safe_html';
 import { SQUASH_BEFORE_MERGE } from '../../i18n';
 
 export default {
+  name: 'SquashBeforeMerge',
   components: {
     GlFormCheckbox,
     GlLink,

@@ -936,4 +936,31 @@ RSpec.describe AuthHelper, feature_category: :system_access do
 
     provider_config_for_scope&.dig('params')&.transform_values { |v| v.is_a?(Hash) ? v.to_json : v }
   end
+
+  describe 'service account token expiry helpers', unless: Gitlab.ee? do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:setting, :expected) do
+      true  | true
+      false | false
+    end
+
+    with_them do
+      before do
+        stub_application_setting(require_personal_access_token_expiry: setting)
+      end
+
+      it '#admin_sa_token_expiry_enforced? delegates to require_personal_access_token_expiry?' do
+        expect(helper.admin_sa_token_expiry_enforced?).to eq(expected)
+      end
+
+      it '#group_sa_token_expiry_enforced? delegates to require_personal_access_token_expiry?' do
+        expect(helper.group_sa_token_expiry_enforced?(nil)).to eq(expected)
+      end
+
+      it '#project_sa_token_expiry_enforced? delegates to require_personal_access_token_expiry?' do
+        expect(helper.project_sa_token_expiry_enforced?(nil)).to eq(expected)
+      end
+    end
+  end
 end

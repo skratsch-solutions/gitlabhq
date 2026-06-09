@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'production_change_lock_window'
+require_relative 'database_change_lock_window'
 
 module Tooling
   module Danger
     module DatabaseUpgradeDdlLock
-      include ProductionChangeLockWindow
+      include DatabaseChangeLockWindow
 
       BACKGROUND_ISSUE_URL = 'https://gitlab.com/gitlab-org/gitlab/-/issues/579388'
       SCHEMA_FILE_PATTERN = %r{\Adb/structure\.sql}
@@ -16,6 +16,9 @@ module Tooling
         warn warning_message if should_warn?
         fail lock_message if should_fail?
       end
+
+      # Uniform entry point used by Tooling::Danger::DatabaseChangeLock.
+      alias_method :check_database_lock, :check_ddl_lock_contention
 
       private
 

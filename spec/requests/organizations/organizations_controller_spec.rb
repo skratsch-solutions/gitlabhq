@@ -283,17 +283,43 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
   describe 'GET #new' do
     subject(:gitlab_request) { get new_organization_path }
 
-    it_behaves_like 'controller action that requires authentication by any user'
+    context 'when on GitLab.com', :saas do
+      it_behaves_like 'controller action that requires authentication by any user'
 
-    context 'when user is signed in and `organization_switching` feature flag is disabled' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      context 'when user is signed in and `organization_switching` feature flag is disabled' do
+        let_it_be(:user, freeze: false) { create(:user) }
 
-      before do
-        stub_feature_flags(organization_switching: false)
-        sign_in(user)
+        before do
+          stub_feature_flags(organization_switching: false)
+          sign_in(user)
+        end
+
+        it_behaves_like 'organization - not found response'
+      end
+    end
+
+    context 'when on self-managed' do
+      context 'when the user is not signed in' do
+        it_behaves_like 'organization - redirects to sign in page'
+
+        context 'when `ui_for_organizations` feature flag is disabled' do
+          before do
+            stub_feature_flags(ui_for_organizations: false)
+          end
+
+          it_behaves_like 'organization - redirects to sign in page'
+        end
       end
 
-      it_behaves_like 'organization - not found response'
+      context 'when the user is signed in' do
+        let_it_be(:user, freeze: false) { create(:user) }
+
+        before do
+          sign_in(user)
+        end
+
+        it_behaves_like 'organization - not found response'
+      end
     end
   end
 

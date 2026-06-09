@@ -58,9 +58,11 @@ RSpec.describe API::Organizations, feature_category: :organization do
 
     let(:params) { base_params }
 
-    it_behaves_like 'authorizing granular token permissions', :create_organization do
-      let(:boundary_object) { :instance }
-      let(:request) { post api('/organizations', personal_access_token: pat), params: base_params }
+    context 'when on GitLab.com', :saas do
+      it_behaves_like 'authorizing granular token permissions', :create_organization do
+        let(:boundary_object) { :instance }
+        let(:request) { post api('/organizations', personal_access_token: pat), params: base_params }
+      end
     end
 
     context 'when user is not authorized' do
@@ -83,7 +85,15 @@ RSpec.describe API::Organizations, feature_category: :organization do
       end
     end
 
-    context 'when user is authorized' do
+    context 'when on self-managed' do
+      it 'returns forbidden' do
+        post api("/organizations", user), params: params
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
+
+    context 'when user is authorized', :saas do
       it_behaves_like 'organization avatar upload' do
         def make_upload_request
           params_with_file_upload = params.merge(avatar: fixture_file_upload(file_path))

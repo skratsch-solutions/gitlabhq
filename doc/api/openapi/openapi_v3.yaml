@@ -6519,7 +6519,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
+              "$ref": "#/components/schemas/RequestBody_7154c08fcde4"
   "/api/v4/groups/{id}/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4GroupsIdMemberRolesMemberRoleId
@@ -6589,7 +6589,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
+              "$ref": "#/components/schemas/RequestBody_7154c08fcde4"
   "/api/v4/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4MemberRolesMemberRoleId
@@ -40685,9 +40685,9 @@ paths:
   "/api/v4/groups/{id}/members":
     get:
       operationId: getApiV4GroupsIdMembers
-      summary: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  excluding those with inherited membership from ancestor groups.
+      summary: List all direct members of a group
+      description: Lists all direct members of a specified group viewable by the authenticated
+        user. Does not return inherited members from ancestor groups or invited groups.
       tags:
       - Members
       responses:
@@ -40801,9 +40801,13 @@ paths:
   "/api/v4/groups/{id}/members/all":
     get:
       operationId: getApiV4GroupsIdMembersAll
-      summary: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  including those with inherited membership from ancestor groups.
+      summary: List all members of a group
+      description: Lists all members of a specified group viewable by the authenticated
+        user. Also returns inherited members from ancestor groups or invited groups.
+        If a user is a member of this group and one or more ancestor groups, only
+        returns the highest `access_level`. Members from an invited group are returned
+        if the invited group is public, the requester is a member of an invited group,
+        or the requester is a member of the shared group or project.
       tags:
       - Members
       responses:
@@ -41017,9 +41021,10 @@ paths:
   "/api/v4/projects/{id}/members":
     get:
       operationId: getApiV4ProjectsIdMembers
-      summary: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  excluding those with inherited membership from ancestor groups.
+      summary: List all direct members of a project
+      description: Lists all direct members of a specified project viewable by the
+        authenticated user. Does not return inherited members from ancestor groups
+        or invited groups.
       tags:
       - Members
       responses:
@@ -41133,9 +41138,13 @@ paths:
   "/api/v4/projects/{id}/members/all":
     get:
       operationId: getApiV4ProjectsIdMembersAll
-      summary: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  including those with inherited membership from ancestor groups.
+      summary: List all members of a project
+      description: Lists all members of a specified project viewable by the authenticated
+        user. Also returns inherited members from ancestor groups or invited groups.
+        If a user is a member of this project and one or more ancestor groups, only
+        returns the highest `access_level`. Members from an invited group are returned
+        if the invited group is public, the requester is a member of an invited group,
+        or the requester is a member of the shared group or project.
       tags:
       - Members
       responses:
@@ -41735,7 +41744,8 @@ paths:
   "/api/v4/projects/{id}/uploads":
     post:
       operationId: postApiV4ProjectsIdUploads
-      summary: Upload a file
+      summary: Create an upload
+      description: Creates an upload.
       tags:
       - Projects
       responses:
@@ -41765,7 +41775,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_af152d162585"
     get:
       operationId: getApiV4ProjectsIdUploads
-      summary: Get the list of uploads of a project
+      summary: List all uploads
+      description: Lists all uploads of a project sorted by `created_at` in descending
+        order. You must have the Maintainer or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -41810,7 +41822,9 @@ paths:
   "/api/v4/projects/{id}/uploads/{upload_id}":
     get:
       operationId: getApiV4ProjectsIdUploadsUploadId
-      summary: Download a single project upload by ID
+      summary: Download an uploaded file by ID
+      description: Downloads an uploaded file by ID. You must have the Maintainer
+        or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -41838,7 +41852,9 @@ paths:
         example: 1
     delete:
       operationId: deleteApiV4ProjectsIdUploadsUploadId
-      summary: Delete a single project upload by ID
+      summary: Delete an uploaded file by ID
+      description: Deletes an uploaded file by ID. You must have the Maintainer or
+        Owner role for the project.
       tags:
       - Projects
       responses:
@@ -41869,7 +41885,8 @@ paths:
   "/api/v4/projects/{id}/uploads/{secret}/{filename}":
     get:
       operationId: getApiV4ProjectsIdUploadsSecretFilename
-      summary: Download a single project upload by secret and filename
+      summary: Download an uploaded file by secret and filename
+      description: Downloads an uploaded file by secret and filename.
       tags:
       - Projects
       responses:
@@ -41903,7 +41920,9 @@ paths:
         example: 1
     delete:
       operationId: deleteApiV4ProjectsIdUploadsSecretFilename
-      summary: Delete a single project upload by secret and filename
+      summary: Delete an uploaded file by secret and filename
+      description: Deletes an uploaded file by secret and filename. You must have
+        the Maintainer or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -41994,7 +42013,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_4f329622643f"
     get:
       operationId: getApiV4GroupsIdUploads
-      summary: Get the list of uploads of a group
+      summary: List all uploads for a group
+      description: Lists all uploads for a specified group sorted by `created_at`
+        in descending order. You must have the Maintainer or Owner role for the group.
       tags:
       - Groups
       responses:
@@ -42038,7 +42059,9 @@ paths:
   "/api/v4/groups/{id}/uploads/{upload_id}":
     get:
       operationId: getApiV4GroupsIdUploadsUploadId
-      summary: Download a single group upload by ID
+      summary: Download an uploaded file by ID
+      description: Downloads an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the group.
       tags:
       - Groups
       responses:
@@ -42065,7 +42088,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4GroupsIdUploadsUploadId
-      summary: Delete a single group upload
+      summary: Delete an uploaded file by ID
+      description: Deletes an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the group.
       tags:
       - Groups
       responses:
@@ -42095,7 +42120,10 @@ paths:
   "/api/v4/groups/{id}/uploads/{secret}/{filename}":
     get:
       operationId: getApiV4GroupsIdUploadsSecretFilename
-      summary: Download a single group upload by secret and filename
+      summary: Download an uploaded file by secret and filename
+      description: Downloads an uploaded file with a specified secret and filename.
+        You must have the Guest, Planner, Reporter, Developer, Maintainer, or Owner
+        role for the group.
       tags:
       - Groups
       responses:
@@ -42128,7 +42156,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4GroupsIdUploadsSecretFilename
-      summary: Delete a single group upload by secret and filename
+      summary: Delete an uploaded file by secret and filename
+      description: Deletes an uploaded file with a specified secret and filename.
+        You must have the Maintainer or Owner role for the group.
       tags:
       - Groups
       responses:
@@ -42188,10 +42218,8 @@ paths:
   "/api/v4/projects/{id}/ci/lint":
     get:
       operationId: getApiV4ProjectsIdCiLint
-      summary: Validates a CI YAML configuration with a namespace
-      description: |-
-        Checks if a project’s .gitlab-ci.yml configuration in a given commit (by default HEAD of the
-                project’s default branch) is valid
+      summary: Validate existing CI/CD configuration
+      description: Validates the `.gitlab-ci.yml` configuration for a specified project.
       tags:
       - CI lint
       responses:
@@ -42297,10 +42325,8 @@ paths:
   "/api/v4/keys/{id}":
     get:
       operationId: getApiV4KeysId
-      summary: Get single ssh key by id. Only available to admin users
-      description: |-
-        Get SSH key with user by ID of an SSH key. Note only administrators can lookup SSH key with user by ID\
-                of an SSH key
+      summary: Retrieve user by SSH key ID
+      description: Retrieves user by SSH key ID. Administrators only.
       tags:
       - Keys
       responses:
@@ -42327,10 +42353,8 @@ paths:
   "/api/v4/keys":
     get:
       operationId: getApiV4Keys
-      summary: Get user by fingerprint of SSH key
-      description: |-
-        You can search for a user that owns a specific SSH key. Note only administrators can lookup SSH key\
-                with the fingerprint of an SSH key
+      summary: Retrieve user by SSH key fingerprint
+      description: Retrieves user by SSH key fingerprint. Administrators only.
       tags:
       - Keys
       responses:
@@ -45192,7 +45216,11 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/participants":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidParticipants
-      summary: List participants for an issue
+      summary: List all participants in an issue
+      description: Lists all users that are participants in a specified issue. If
+        the project is private or the issue is confidential, you need to provide credentials
+        to authorize. In most cases, you should authenticate with a personal access
+        token.
       tags:
       - Issues
       responses:
@@ -74825,7 +74853,7 @@ components:
         read_virtual_registry:
           type: boolean
           default: false
-        update_sast_vulnerability_resolution_setting:
+        update_sec_ai_workflow_settings:
           type: boolean
           default: false
         read_admin_cicd:
@@ -90861,7 +90889,7 @@ components:
           nullable: true
       required:
       - extern_uid
-    RequestBody_d75fa79afa6e:
+    RequestBody_7154c08fcde4:
       type: object
       properties:
         base_access_level:
@@ -91019,10 +91047,10 @@ components:
             requiring broader group membership permissions. Only works on top level
             groups.
           nullable: true
-        update_sast_vulnerability_resolution_setting:
+        update_sec_ai_workflow_settings:
           type: boolean
-          description: Turn SAST Vulnerability Resolution on or off for a project.
-            Also requires the `read_vulnerability` permission.
+          description: Update security AI workflow settings such as SAST Vulnerability
+            Resolution. Also requires the `read_vulnerability` permission.
           nullable: true
         read_admin_cicd:
           type: boolean

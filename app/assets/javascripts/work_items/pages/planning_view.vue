@@ -10,7 +10,7 @@ import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { InternalEvents } from '~/tracking';
 import { createAlert, VARIANT_INFO } from '~/alert';
 import { TYPENAME_USER, TYPENAME_NAMESPACE } from '~/graphql_shared/constants';
-import { getParameterByName } from '~/lib/utils/url_utility';
+import { getParameterByName, removeParams, updateHistory } from '~/lib/utils/url_utility';
 import {
   STATUS_ALL,
   STATUS_OPEN,
@@ -92,6 +92,7 @@ import {
   convertNumberToGid,
   getSortOptions,
   getInitialPageParams,
+  isCursorCompatibleWithApi,
   subscribeToSavedView,
   convertToApiParams,
   convertToUrlParams,
@@ -498,6 +499,11 @@ export default {
     },
     isPlanningViewBoardEnabled() {
       return Boolean(this.glFeatures.planningViewBoards);
+    },
+    useRestApi() {
+      return Boolean(
+        this.glFeatures.workItemRestApiFrontendUsers && this.glFeatures.workItemRestApi,
+      );
     },
     workItemDetailPanelEnabled() {
       return this.displaySettings?.commonPreferences?.shouldOpenItemsInSidePanel ?? true;
@@ -1410,12 +1416,30 @@ export default {
         this.filterTokens = tokens;
       }
 
+      let afterCursor = getParameterByName(PARAM_PAGE_AFTER) ?? undefined;
+      let beforeCursor = getParameterByName(PARAM_PAGE_BEFORE) ?? undefined;
+
+      // REST keyset cursors include a `_kd` direction marker that GraphQL cursors omit.
+      // When a bookmarked URL is opened under a different API mode than the one that
+      // produced its cursor the cursor is unusable. Reset pagination to page 1.
+      const afterCompatible = isCursorCompatibleWithApi(afterCursor, this.useRestApi);
+      const beforeCompatible = isCursorCompatibleWithApi(beforeCursor, this.useRestApi);
+
+      if (!afterCompatible || !beforeCompatible) {
+        afterCursor = undefined;
+        beforeCursor = undefined;
+        updateHistory({
+          url: removeParams([PARAM_PAGE_AFTER, PARAM_PAGE_BEFORE]),
+          replace: true,
+        });
+      }
+
       const newPageParams = getInitialPageParams(
         this.pageSize,
         isPositiveInteger(firstPageSize) ? parseInt(firstPageSize, 10) : undefined,
         isPositiveInteger(lastPageSize) ? parseInt(lastPageSize, 10) : undefined,
-        getParameterByName(PARAM_PAGE_AFTER) ?? undefined,
-        getParameterByName(PARAM_PAGE_BEFORE) ?? undefined,
+        afterCursor,
+        beforeCursor,
       );
 
       // Only update pageParams if they actually changed to avoid triggering duplicate queries

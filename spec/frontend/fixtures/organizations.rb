@@ -233,7 +233,7 @@ RSpec.describe 'Organizations (GraphQL fixtures)', feature_category: :organizati
       end
     end
 
-    describe 'organization create' do
+    describe 'organization create', :saas do
       base_input_path = 'organizations/new/graphql/mutations/'
       base_output_path = 'graphql/organizations/'
       mutation_name = 'organization_create.mutation.graphql'

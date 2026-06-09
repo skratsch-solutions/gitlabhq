@@ -110,6 +110,23 @@ RSpec.describe BulkImports::Pipeline::Context, feature_category: :importers do
 
       subject.source_user_mapper
     end
+
+    context 'when offline' do
+      before do
+        entity.update!(bulk_import: offline_bulk_import)
+        offline_bulk_import.offline_configuration.update!(source_hostname: 'https://offline.example.com')
+      end
+
+      it 'uses the offline configuration source_hostname' do
+        expect(Gitlab::Import::SourceUserMapper).to receive(:new).with(
+          namespace: group.root_ancestor,
+          import_type: Import::SOURCE_DIRECT_TRANSFER,
+          source_hostname: 'https://offline.example.com'
+        )
+
+        subject.source_user_mapper
+      end
+    end
   end
 
   describe '#importer_user_mapping_enabled?' do

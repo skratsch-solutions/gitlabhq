@@ -48,7 +48,7 @@ project:
   - update_cvs_for_container_scanning
   - update_cvs_for_dependency_scanning
   - update_on_demand_dast_scan
-  - update_sast_vulnerability_resolution_setting
+  - update_sec_ai_workflow_settings
   - update_security_setting
 group:
   permissions: []

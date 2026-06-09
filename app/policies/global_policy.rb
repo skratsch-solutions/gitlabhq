@@ -136,6 +136,8 @@ class GlobalPolicy < BasePolicy
     enable :create_organization
   end
 
+  rule { ~is_gitlab_com }.prevent :create_organization
+
   rule { can?(:create_group) }.policy do
     enable :create_group_with_default_branch_protection
   end

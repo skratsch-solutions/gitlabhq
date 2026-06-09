@@ -5,6 +5,7 @@ import ArtifactsList from './artifacts_list.vue';
 import MrCollapsibleExtension from './mr_collapsible_extension.vue';
 
 export default {
+  name: 'ArtifactsListApp',
   components: {
     ArtifactsList,
     MrCollapsibleExtension,

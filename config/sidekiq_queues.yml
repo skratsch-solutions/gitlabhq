@@ -1129,6 +1129,8 @@
   - 1
 - - security_pipeline_analyzers_status_update
   - 1
+- - security_pipeline_execution_policies_cancel_policy_pipelines
+  - 1
 - - security_pipeline_execution_policies_run_schedule
   - 1
 - - security_pipeline_execution_schedule_policies_test_run_completion

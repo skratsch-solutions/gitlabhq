@@ -2,6 +2,7 @@
 import { GlFormTextarea } from '@gitlab/ui';
 
 export default {
+  name: 'CommitEdit',
   components: {
     GlFormTextarea,
   },

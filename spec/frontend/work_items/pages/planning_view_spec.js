@@ -17,7 +17,7 @@ import setWindowLocation from 'helpers/set_window_location_helper';
 import { isLoggedIn } from '~/lib/utils/common_utils';
 import { useLocalStorageSpy } from 'helpers/local_storage_helper';
 import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
-import { getParameterByName } from '~/lib/utils/url_utility';
+import { getParameterByName, removeParams, updateHistory } from '~/lib/utils/url_utility';
 import {
   planningViewAllItemsFilters,
   planningViewSavedViewFilterTokens,
@@ -2740,6 +2740,105 @@ describe('planning-view', () => {
 
         it('renders the error in a GlAlert', () => {
           expect(wrapper.findComponent(GlAlert).text()).toBe(message);
+        });
+      });
+    });
+  });
+
+  describe('cursor compatibility between GraphQL and REST API modes', () => {
+    const graphqlCursor = btoa(
+      JSON.stringify({ created_at: '2025-12-14 17:09:52.000000000 +0000', id: '203' }),
+    );
+    const restCursor = btoa(
+      JSON.stringify({
+        created_at: '2025-12-14 17:09:52.000000000 +0000',
+        id: '203',
+        _kd: 'n',
+      }),
+    );
+
+    beforeEach(() => {
+      updateHistory.mockClear();
+      removeParams.mockClear();
+      removeParams.mockReturnValue('/work_items');
+    });
+
+    describe('when REST API feature flags are enabled', () => {
+      const restProvide = {
+        glFeatures: {
+          workItemRestApi: true,
+          workItemRestApiFrontendUsers: true,
+        },
+      };
+
+      it('passes the cursor through unchanged when it is a REST-style cursor', async () => {
+        setWindowLocation(`?page_after=${encodeURIComponent(restCursor)}`);
+        await mountComponent({ provide: restProvide });
+
+        expect(findListView().props('queryVariables')).toMatchObject({
+          afterCursor: restCursor,
+        });
+        expect(updateHistory).not.toHaveBeenCalled();
+      });
+
+      it('resets pagination to page 1 when the cursor is a GraphQL-style cursor', async () => {
+        setWindowLocation(`?page_after=${graphqlCursor}`);
+        await mountComponent({ provide: restProvide });
+
+        const queryVariables = findListView().props('queryVariables');
+        expect(queryVariables.afterCursor).toBeUndefined();
+        expect(queryVariables.beforeCursor).toBeUndefined();
+      });
+
+      it('resets pagination to page 1 when page_before cursor is a GraphQL-style cursor', async () => {
+        setWindowLocation(`?page_before=${graphqlCursor}&last_page_size=20`);
+        await mountComponent({ provide: restProvide });
+
+        const queryVariables = findListView().props('queryVariables');
+        expect(queryVariables.afterCursor).toBeUndefined();
+        expect(queryVariables.beforeCursor).toBeUndefined();
+      });
+
+      it('removes page_after and page_before params from URL when cursor is incompatible', async () => {
+        setWindowLocation(`?page_after=${graphqlCursor}`);
+        await mountComponent({ provide: restProvide });
+
+        expect(removeParams).toHaveBeenCalledWith(['page_after', 'page_before']);
+        expect(updateHistory).toHaveBeenCalledWith({
+          url: '/work_items',
+          replace: true,
+        });
+      });
+    });
+
+    describe('when REST API feature flags are disabled (GraphQL mode)', () => {
+      it('passes the cursor through unchanged when it is a GraphQL-style cursor', async () => {
+        setWindowLocation(`?page_after=${graphqlCursor}`);
+        await mountComponent();
+
+        expect(findListView().props('queryVariables')).toMatchObject({
+          afterCursor: graphqlCursor,
+        });
+        expect(updateHistory).not.toHaveBeenCalled();
+      });
+
+      it('resets pagination to page 1 when the cursor is a REST-style cursor', async () => {
+        setWindowLocation(`?page_after=${encodeURIComponent(restCursor)}`);
+        await mountComponent();
+
+        const queryVariables = findListView().props('queryVariables');
+        expect(queryVariables.afterCursor).toBeUndefined();
+        expect(queryVariables.beforeCursor).toBeUndefined();
+      });
+
+      it('removes page_after and page_before params from URL when cursor is incompatible', async () => {
+        setWindowLocation(`?page_after=${encodeURIComponent(restCursor)}`);
+        await mountComponent();
+
+        expect(removeParams).toHaveBeenCalledWith(['page_after', 'page_before']);
+        expect(updateHistory).toHaveBeenCalledWith({
+          url: '/work_items',
+          replace: true,
         });
       });
     });

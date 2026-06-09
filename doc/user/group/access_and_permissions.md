@@ -394,11 +394,10 @@ To set the default minimum role:
 After a new project is created, project members with the Maintainer or Owner role
 can change the project setting to another value if needed.
 
-## Control MCP server access
+## Allow access to the MCP server
 
 {{< details >}}
 
-- Tier: Free, Premium, Ultimate
 - Offering: GitLab.com
 
 {{< /details >}}
@@ -416,16 +415,13 @@ can change the project setting to another value if needed.
 > For more information, see the history.
 > This feature is available for testing, but not ready for production use.
 
-This setting applies only to top-level groups, not subgroups.
-
 Prerequisites:
 
-- You must have the Owner role for the group.
-- The group must be a top-level group, not a subgroup.
+- The Owner role for the top-level group.
 
-To turn on MCP server access for your group:
+To allow access to the MCP server for a top-level group:
 
-1. In the top bar, select **Search or go to** and find your group.
+1. In the top bar, select **Search or go to** and find your top-level group.
 1. In the left sidebar, select **Settings** > **General**.
 1. Expand **Permissions and group features**.
 1. In the **MCP client access** section, select the **Allow connection to GitLab** checkbox.

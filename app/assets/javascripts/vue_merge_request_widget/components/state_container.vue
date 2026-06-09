@@ -7,6 +7,7 @@ import StatusIcon from './mr_widget_status_icon.vue';
 import Actions from './action_buttons.vue';
 
 export default {
+  name: 'StateContainer',
   components: {
     GlButton,
     GlAnimatedChevronLgDownUpIcon,

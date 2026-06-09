@@ -33,6 +33,7 @@ const LOADING_STATE_EXPANDED = 'expanded';
 const LOADING_STATE_STATUS_ICON = 'status_icon';
 
 export default {
+  name: 'MrWidget',
   MISSING_RESPONSE_HEADERS,
   LOADING_STATE_COLLAPSED,
   LOADING_STATE_EXPANDED,

@@ -319,32 +319,41 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
           end
         end
 
-        let(:expected_menu_item_groups) do
-          [
-            menu_item(
-              href: new_project_path,
-              text: "New project/repository",
-              id: "general_new_project"
-            ),
-            menu_item(
-              href: new_group_path,
-              text: "New group",
-              id: "general_new_group"
-            ),
-            menu_item(
-              href: new_organization_path,
-              text: s_('Organization|New organization'),
-              id: "general_new_organization"
-            ),
-            menu_item(
-              href: new_snippet_path,
-              text: "New snippet",
-              id: "general_new_snippet"
-            )
-          ]
+        let(:new_project_menu_item) do
+          menu_item(href: new_project_path, text: "New project/repository", id: "general_new_project")
         end
 
-        include_examples '"Create new" menu groups without headers'
+        let(:new_group_menu_item) do
+          menu_item(href: new_group_path, text: "New group", id: "general_new_group")
+        end
+
+        let(:new_organization_menu_item) do
+          menu_item(
+            href: new_organization_path,
+            text: s_('Organization|New organization'),
+            id: "general_new_organization"
+          )
+        end
+
+        let(:new_snippet_menu_item) do
+          menu_item(href: new_snippet_path, text: "New snippet", id: "general_new_snippet")
+        end
+
+        context 'when on GitLab.com', :saas do
+          let(:expected_menu_item_groups) do
+            [new_project_menu_item, new_group_menu_item, new_organization_menu_item, new_snippet_menu_item]
+          end
+
+          include_examples '"Create new" menu groups without headers'
+        end
+
+        context 'when on self-managed' do
+          let(:expected_menu_item_groups) do
+            [new_project_menu_item, new_group_menu_item, new_snippet_menu_item]
+          end
+
+          include_examples '"Create new" menu groups without headers'
+        end
       end
 
       context 'with headers' do

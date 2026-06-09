@@ -7200,7 +7200,9 @@ paths:
       - groups
       operationId: postApiV4GroupsIdUploads
     get:
-      description: Get the list of uploads of a group
+      summary: List all uploads for a group
+      description: Lists all uploads for a specified group sorted by `created_at`
+        in descending order. You must have the Maintainer or Owner role for the group.
       produces:
       - application/json
       parameters:
@@ -7227,7 +7229,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the list of uploads of a group
+          description: List all uploads for a group
           schema:
             type: array
             items:
@@ -7241,7 +7243,9 @@ paths:
       operationId: getApiV4GroupsIdUploads
   "/api/v4/groups/{id}/uploads/{upload_id}":
     get:
-      description: Download a single group upload by ID
+      summary: Download an uploaded file by ID
+      description: Downloads an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the group.
       produces:
       - application/json
       parameters:
@@ -7258,7 +7262,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download a single group upload by ID
+          description: Download an uploaded file by ID
           schema:
             type: file
         '403':
@@ -7269,7 +7273,9 @@ paths:
       - groups
       operationId: getApiV4GroupsIdUploadsUploadId
     delete:
-      description: Delete a single group upload
+      summary: Delete an uploaded file by ID
+      description: Deletes an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the group.
       produces:
       - application/json
       parameters:
@@ -7286,7 +7292,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a single group upload
+          description: Delete an uploaded file by ID
         '400':
           description: Bad request
         '403':
@@ -7298,7 +7304,10 @@ paths:
       operationId: deleteApiV4GroupsIdUploadsUploadId
   "/api/v4/groups/{id}/uploads/{secret}/{filename}":
     get:
-      description: Download a single group upload by secret and filename
+      summary: Download an uploaded file by secret and filename
+      description: Downloads an uploaded file with a specified secret and filename.
+        You must have the Guest, Planner, Reporter, Developer, Maintainer, or Owner
+        role for the group.
       produces:
       - application/json
       parameters:
@@ -7319,7 +7328,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download a single group upload by secret and filename
+          description: Download an uploaded file by secret and filename
           schema:
             type: file
         '403':
@@ -7330,7 +7339,9 @@ paths:
       - groups
       operationId: getApiV4GroupsIdUploadsSecretFilename
     delete:
-      description: Delete a single group upload by secret and filename
+      summary: Delete an uploaded file by secret and filename
+      description: Deletes an uploaded file with a specified secret and filename.
+        You must have the Maintainer or Owner role for the group.
       produces:
       - application/json
       parameters:
@@ -7351,7 +7362,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a single group upload by secret and filename
+          description: Delete an uploaded file by secret and filename
         '400':
           description: Bad request
         '403':
@@ -7401,9 +7412,9 @@ paths:
       operationId: getApiV4GroupsIdPackagesMaven*pathFileName
   "/api/v4/groups/{id}/members":
     get:
-      description: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  excluding those with inherited membership from ancestor groups.
+      summary: List all direct members of a group
+      description: Lists all direct members of a specified group viewable by the authenticated
+        user. Does not return inherited members from ancestor groups or invited groups.
       produces:
       - application/json
       parameters:
@@ -7461,9 +7472,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: |-
-            Gets a list of group or project members viewable by the authenticated user,
-                      excluding those with inherited membership from ancestor groups.
+          description: List all direct members of a group
           schema:
             type: array
             items:
@@ -7498,9 +7507,13 @@ paths:
       operationId: postApiV4GroupsIdMembers
   "/api/v4/groups/{id}/members/all":
     get:
-      description: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  including those with inherited membership from ancestor groups.
+      summary: List all members of a group
+      description: Lists all members of a specified group viewable by the authenticated
+        user. Also returns inherited members from ancestor groups or invited groups.
+        If a user is a member of this group and one or more ancestor groups, only
+        returns the highest `access_level`. Members from an invited group are returned
+        if the invited group is public, the requester is a member of an invited group,
+        or the requester is a member of the shared group or project.
       produces:
       - application/json
       parameters:
@@ -7553,9 +7566,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: |-
-            Gets a list of group or project members viewable by the authenticated user,
-                      including those with inherited membership from ancestor groups.
+          description: List all members of a group
           schema:
             type: array
             items:
@@ -26004,7 +26015,11 @@ paths:
       operationId: getApiV4ProjectsIdIssuesIssueIidClosedBy
   "/api/v4/projects/{id}/issues/{issue_iid}/participants":
     get:
-      description: List participants for an issue
+      summary: List all participants in an issue
+      description: Lists all users that are participants in a specified issue. If
+        the project is private or the issue is confidential, you need to provide credentials
+        to authorize. In most cases, you should authenticate with a personal access
+        token.
       produces:
       - application/json
       parameters:
@@ -26021,7 +26036,7 @@ paths:
         required: true
       responses:
         '200':
-          description: List participants for an issue
+          description: List all participants in an issue
           schema:
             "$ref": "#/definitions/API_Entities_UserBasic"
       tags:
@@ -26203,10 +26218,8 @@ paths:
       operationId: deleteApiV4ProjectsIdIssuesIssueIidMetricImagesMetricImageId
   "/api/v4/projects/{id}/ci/lint":
     get:
-      summary: Validates a CI YAML configuration with a namespace
-      description: |-
-        Checks if a project’s .gitlab-ci.yml configuration in a given commit (by default HEAD of the
-                project’s default branch) is valid
+      summary: Validate existing CI/CD configuration
+      description: Validates the `.gitlab-ci.yml` configuration for a specified project.
       produces:
       - application/json
       parameters:
@@ -26253,7 +26266,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Validates a CI YAML configuration with a namespace
+          description: Validate existing CI/CD configuration
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Lint_Result"
         '404':
@@ -26312,7 +26325,8 @@ paths:
       operationId: postApiV4ProjectsIdUploadsAuthorize
   "/api/v4/projects/{id}/uploads":
     post:
-      description: Upload a file
+      summary: Create an upload
+      description: Creates an upload.
       produces:
       - application/json
       consumes:
@@ -26330,7 +26344,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdUploads"
       responses:
         '201':
-          description: Upload a file
+          description: Create an upload
           schema:
             "$ref": "#/definitions/API_Entities_ProjectUpload"
         '404':
@@ -26339,7 +26353,9 @@ paths:
       - projects
       operationId: postApiV4ProjectsIdUploads
     get:
-      description: Get the list of uploads of a project
+      summary: List all uploads
+      description: Lists all uploads of a project sorted by `created_at` in descending
+        order. You must have the Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -26366,7 +26382,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the list of uploads of a project
+          description: List all uploads
           schema:
             type: array
             items:
@@ -26380,7 +26396,9 @@ paths:
       operationId: getApiV4ProjectsIdUploads
   "/api/v4/projects/{id}/uploads/{upload_id}":
     get:
-      description: Download a single project upload by ID
+      summary: Download an uploaded file by ID
+      description: Downloads an uploaded file by ID. You must have the Maintainer
+        or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -26397,7 +26415,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download a single project upload by ID
+          description: Download an uploaded file by ID
           schema:
             type: file
         '403':
@@ -26408,7 +26426,9 @@ paths:
       - projects
       operationId: getApiV4ProjectsIdUploadsUploadId
     delete:
-      description: Delete a single project upload by ID
+      summary: Delete an uploaded file by ID
+      description: Deletes an uploaded file by ID. You must have the Maintainer or
+        Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -26425,7 +26445,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a single project upload by ID
+          description: Delete an uploaded file by ID
         '400':
           description: Bad request
         '403':
@@ -26437,7 +26457,8 @@ paths:
       operationId: deleteApiV4ProjectsIdUploadsUploadId
   "/api/v4/projects/{id}/uploads/{secret}/{filename}":
     get:
-      description: Download a single project upload by secret and filename
+      summary: Download an uploaded file by secret and filename
+      description: Downloads an uploaded file by secret and filename.
       produces:
       - application/json
       parameters:
@@ -26458,7 +26479,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download a single project upload by secret and filename
+          description: Download an uploaded file by secret and filename
           schema:
             type: file
         '403':
@@ -26469,7 +26490,9 @@ paths:
       - projects
       operationId: getApiV4ProjectsIdUploadsSecretFilename
     delete:
-      description: Delete a single project upload by secret and filename
+      summary: Delete an uploaded file by secret and filename
+      description: Deletes an uploaded file by secret and filename. You must have
+        the Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -26490,7 +26513,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a single project upload by secret and filename
+          description: Delete an uploaded file by secret and filename
         '400':
           description: Bad request
         '403':
@@ -26619,9 +26642,10 @@ paths:
       operationId: putApiV4ProjectsIdPackagesMaven*pathFileNameAuthorize
   "/api/v4/projects/{id}/members":
     get:
-      description: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  excluding those with inherited membership from ancestor groups.
+      summary: List all direct members of a project
+      description: Lists all direct members of a specified project viewable by the
+        authenticated user. Does not return inherited members from ancestor groups
+        or invited groups.
       produces:
       - application/json
       parameters:
@@ -26679,9 +26703,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: |-
-            Gets a list of group or project members viewable by the authenticated user,
-                      excluding those with inherited membership from ancestor groups.
+          description: List all direct members of a project
           schema:
             type: array
             items:
@@ -26716,9 +26738,13 @@ paths:
       operationId: postApiV4ProjectsIdMembers
   "/api/v4/projects/{id}/members/all":
     get:
-      description: |-
-        Gets a list of group or project members viewable by the authenticated user,
-                  including those with inherited membership from ancestor groups.
+      summary: List all members of a project
+      description: Lists all members of a specified project viewable by the authenticated
+        user. Also returns inherited members from ancestor groups or invited groups.
+        If a user is a member of this project and one or more ancestor groups, only
+        returns the highest `access_level`. Members from an invited group are returned
+        if the invited group is public, the requester is a member of an invited group,
+        or the requester is a member of the shared group or project.
       produces:
       - application/json
       parameters:
@@ -26771,9 +26797,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: |-
-            Gets a list of group or project members viewable by the authenticated user,
-                      including those with inherited membership from ancestor groups.
+          description: List all members of a project
           schema:
             type: array
             items:
@@ -45189,10 +45213,8 @@ paths:
       operationId: getApiV4IssuesId
   "/api/v4/keys/{id}":
     get:
-      summary: Get single ssh key by id. Only available to admin users
-      description: |-
-        Get SSH key with user by ID of an SSH key. Note only administrators can lookup SSH key with user by ID\
-                of an SSH key
+      summary: Retrieve user by SSH key ID
+      description: Retrieves user by SSH key ID. Administrators only.
       produces:
       - application/json
       parameters:
@@ -45204,7 +45226,7 @@ paths:
         example: '2'
       responses:
         '200':
-          description: Get single ssh key by id. Only available to admin users
+          description: Retrieve user by SSH key ID
           schema:
             "$ref": "#/definitions/API_Entities_SSHKeyWithUser"
       tags:
@@ -45212,10 +45234,8 @@ paths:
       operationId: getApiV4KeysId
   "/api/v4/keys":
     get:
-      summary: Get user by fingerprint of SSH key
-      description: |-
-        You can search for a user that owns a specific SSH key. Note only administrators can lookup SSH key\
-                with the fingerprint of an SSH key
+      summary: Retrieve user by SSH key fingerprint
+      description: Retrieves user by SSH key fingerprint. Administrators only.
       produces:
       - application/json
       parameters:
@@ -45227,7 +45247,7 @@ paths:
         example: ba:81:59:68:d7:6c:cd:02:02:bf:6a:9b:55:4e:af:d1
       responses:
         '200':
-          description: Get user by fingerprint of SSH key
+          description: Retrieve user by SSH key fingerprint
           schema:
             "$ref": "#/definitions/API_Entities_UserWithAdmin"
       tags:
@@ -48758,7 +48778,7 @@ definitions:
         type: boolean
       read_virtual_registry:
         type: boolean
-      update_sast_vulnerability_resolution_setting:
+      update_sec_ai_workflow_settings:
         type: boolean
       read_admin_cicd:
         type: boolean
@@ -48817,7 +48837,7 @@ definitions:
     - read_compliance_dashboard
     - read_security_scan_profiles
     - read_virtual_registry
-    - update_sast_vulnerability_resolution_setting
+    - update_sec_ai_workflow_settings
     - read_admin_cicd
     - read_crm_contact
     - read_dependency
@@ -64881,7 +64901,7 @@ definitions:
         description: The attachment file to be uploaded
     required:
     - file
-    description: Upload a file
+    description: Create an upload
   API_Entities_ProjectUpload:
     type: object
     properties:

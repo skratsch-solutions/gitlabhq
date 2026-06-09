@@ -2,8 +2,8 @@
 
 module Tooling
   module Danger
-    module ProductionChangeLockWindow
-      LOCK_CONFIG_PATH = 'config/database_upgrade_ddl_lock.yml'
+    module DatabaseChangeLockWindow
+      LOCK_CONFIG_PATH = 'config/database_change_lock.yml'
       SECONDS_PER_DAY = 86400
       DEFAULT_MERGE_BUFFER_DAYS = 2
 

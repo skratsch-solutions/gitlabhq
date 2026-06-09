@@ -2,6 +2,7 @@
 import { GlDisclosureDropdown, GlButtonGroup } from '@gitlab/ui';
 
 export default {
+  name: 'CommitMessageDropdown',
   components: {
     GlButtonGroup,
     GlDisclosureDropdown,

@@ -8,6 +8,7 @@ import {
 } from '@gitlab/ui';
 
 export default {
+  name: 'ActionButtons',
   components: {
     GlButton,
     GlDisclosureDropdown,

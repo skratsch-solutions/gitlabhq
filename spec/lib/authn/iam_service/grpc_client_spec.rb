@@ -124,6 +124,21 @@ RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access d
       end
     end
 
+    context 'with a tcp:// address' do
+      let(:iam_service_address) { 'tcp://iam.example.com:5004' }
+
+      it 'builds the stub with insecure credentials and a stripped address' do
+        client.health(request)
+
+        expect(::Auth::Auth::Stub).to have_received(:new).with(
+          'iam.example.com:5004',
+          :this_channel_is_insecure,
+          interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
+          timeout: described_class::TIMEOUT_SECONDS
+        )
+      end
+    end
+
     context 'with a dns+tls:// address' do
       let(:iam_service_address) { 'dns+tls:///iam.example.com:5004' }
       let(:tls_credentials) { instance_double(GRPC::Core::ChannelCredentials) }

@@ -22089,6 +22089,8 @@ CREATE TABLE import_offline_configurations (
     object_storage_credentials jsonb NOT NULL,
     bulk_import_id bigint,
     entity_prefix_mapping jsonb DEFAULT '{}'::jsonb NOT NULL,
+    source_hostname text,
+    CONSTRAINT check_58a018230e CHECK ((char_length(source_hostname) <= 255)),
     CONSTRAINT check_94d334d71c CHECK ((char_length(bucket) <= 256)),
     CONSTRAINT check_9c4751c29c CHECK ((num_nonnulls(bulk_import_id, offline_export_id) = 1)),
     CONSTRAINT check_f28fa120fe CHECK ((char_length(export_prefix) <= 255))
@@ -45630,7 +45632,7 @@ CREATE INDEX idx_sec_inv_filters_traversal_project_ids_aggregate_booleans ON sec
 
 CREATE INDEX idx_sec_inv_filters_traversals_unarchived_proj_severities_sort ON security_inventory_filters USING btree (traversal_ids, project_id, id DESC) WHERE ((NOT archived) AND ((critical > 0) OR (high > 0)));
 
-CREATE INDEX idx_sec_pol_sched_pipes_on_policy_id ON security_policy_schedule_pipelines USING btree (security_policy_id);
+CREATE INDEX idx_sec_pol_sched_pipes_on_policy_project_id_desc ON security_policy_schedule_pipelines USING btree (security_policy_id, project_id, id DESC);
 
 CREATE INDEX idx_sec_pol_sched_pipes_on_project_id ON security_policy_schedule_pipelines USING btree (project_id);
 

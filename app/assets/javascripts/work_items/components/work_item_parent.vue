@@ -288,6 +288,7 @@ export default {
                   this.localSelectedItem === NO_WORK_ITEM_IID ? null : this.localSelectedItem,
               },
             },
+            useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
           },
           update: (cache) =>
             updateParent({
