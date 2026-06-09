@@ -45833,6 +45833,8 @@ CREATE INDEX idx_vuln_detection_transitions_on_occurrence_id_id ON vulnerability
 
 CREATE INDEX idx_vuln_flip_guards_on_project_and_finding_id ON vulnerability_flip_guards USING btree (project_id, vulnerability_finding_id);
 
+CREATE UNIQUE INDEX idx_vuln_ns_stats_on_traversal_ids_and_namespace_id ON vulnerability_namespace_statistics USING btree (traversal_ids, namespace_id);
+
 CREATE INDEX idx_vuln_reads_for_filtering ON vulnerability_reads USING btree (project_id, state, dismissal_reason, severity DESC, vulnerability_id DESC NULLS LAST);
 
 CREATE UNIQUE INDEX idx_vuln_signatures_uniqueness_signature_sha ON vulnerability_finding_signatures USING btree (finding_id, algorithm_type, signature_sha);
@@ -50838,8 +50840,6 @@ CREATE UNIQUE INDEX index_vuln_mgmt_policy_rules_on_unique_policy_rule_index ON 
 CREATE INDEX index_vuln_namespace_hist_statistics_for_traversal_ids_update ON vulnerability_namespace_historical_statistics USING btree (namespace_id, id);
 
 CREATE UNIQUE INDEX index_vuln_namespace_historical_statistics_traversal_ids_date ON vulnerability_namespace_historical_statistics USING btree (traversal_ids, date);
-
-CREATE UNIQUE INDEX index_vuln_namespace_statistics_btree_traversal_ids ON vulnerability_namespace_statistics USING btree (traversal_ids);
 
 CREATE INDEX index_vuln_namespace_statistics_gin_traversal_ids ON vulnerability_namespace_statistics USING gin (traversal_ids);
 

@@ -343,7 +343,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response).to be_an Array
           expect(project_response['container_registry_access_level']).to eq('disabled')
-          expect(project_response['container_registry_enabled']).to eq(false)
+          expect(project_response['container_registry_enabled']).to be(false)
         end
       end
 
@@ -417,7 +417,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to be_an Array
-        expect(project_response['container_registry_enabled']).to eq(false)
+        expect(project_response['container_registry_enabled']).to be(false)
       end
 
       it 'includes project topics' do
@@ -1608,7 +1608,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
       post api(path, user), params: project
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(json_response['container_registry_enabled']).to eq(true)
+      expect(json_response['container_registry_enabled']).to be(true)
       expect(json_response['container_registry_access_level']).to eq('enabled')
       expect(Project.find_by(path: project[:path]).container_registry_access_level).to eq(ProjectFeature::ENABLED)
     end
@@ -1619,7 +1619,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
       post api(path, user), params: project
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(json_response['container_registry_enabled']).to eq(true)
+      expect(json_response['container_registry_enabled']).to be(true)
       expect(Project.find_by(path: project[:path]).container_registry_access_level).to eq(ProjectFeature::ENABLED)
     end
 
@@ -2320,7 +2320,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
       post api(path, admin, admin_mode: true), params: project
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(json_response['container_registry_enabled']).to eq(true)
+      expect(json_response['container_registry_enabled']).to be(true)
       expect(Project.find_by(path: project[:path]).container_registry_access_level).to eq(ProjectFeature::ENABLED)
     end
 
@@ -4530,7 +4530,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(project.reload.protect_merge_request_pipelines).to be_falsey
-        expect(json_response['protect_merge_request_pipelines']).to eq(false)
+        expect(json_response['protect_merge_request_pipelines']).to be(false)
       end
     end
 
@@ -4544,7 +4544,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(project.reload.ci_display_pipeline_variables).to be_truthy
-        expect(json_response['ci_display_pipeline_variables']).to eq(true)
+        expect(json_response['ci_display_pipeline_variables']).to be(true)
       end
     end
 
@@ -4558,7 +4558,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(project.reload.ci_push_repository_for_job_token_allowed).to be_truthy
-        expect(json_response['ci_push_repository_for_job_token_allowed']).to eq(true)
+        expect(json_response['ci_push_repository_for_job_token_allowed']).to be(true)
       end
     end
 
@@ -4572,7 +4572,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(project.reload.packages_enabled).to be false
-        expect(json_response['packages_enabled']).to eq(false)
+        expect(json_response['packages_enabled']).to be(false)
       end
     end
 
@@ -4598,7 +4598,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
       put(api(path, user), params: { container_registry_enabled: true })
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response['container_registry_enabled']).to eq(true)
+      expect(json_response['container_registry_enabled']).to be(true)
       expect(project.reload.container_registry_access_level).to eq(ProjectFeature::ENABLED)
     end
 
@@ -4719,7 +4719,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
         put api(path, user), params: project_param
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['request_access_enabled']).to eq(false)
+        expect(json_response['request_access_enabled']).to be(false)
       end
 
       it 'updates path & name to existing path & name in different namespace' do
@@ -4785,7 +4785,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
 
-        expect(json_response['emails_disabled']).to eq(true)
+        expect(json_response['emails_disabled']).to be(true)
       end
 
       it 'updates emails_enabled?' do
@@ -4795,7 +4795,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
 
-        expect(json_response['emails_enabled']).to eq(false)
+        expect(json_response['emails_enabled']).to be(false)
       end
 
       it 'updates show_diff_preview_in_email?' do
@@ -4804,8 +4804,8 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
         put api("/projects/#{project3.id}", user), params: project_param
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['show_diff_preview_in_email']).to eq(false)
-        expect(project3.reload.show_diff_preview_in_email?).to eq(false)
+        expect(json_response['show_diff_preview_in_email']).to be(false)
+        expect(project3.reload.show_diff_preview_in_email?).to be(false)
       end
 
       it 'updates build_git_strategy' do
@@ -5140,7 +5140,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect(response).to have_gitlab_http_status(:ok)
 
-        expect(json_response['auto_devops_enabled']).to eq(false)
+        expect(json_response['auto_devops_enabled']).to be(false)
       end
 
       it 'updates topics using tag_list (deprecated)' do
@@ -5174,7 +5174,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
           .to(true)
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['enforce_auth_checks_on_uploads']).to eq(true)
+        expect(json_response['enforce_auth_checks_on_uploads']).to be(true)
       end
 
       it 'updates squash_option' do
@@ -5438,7 +5438,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
           end.not_to change { Projects::UpdateRepositoryStorageWorker.jobs.size }
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['issues_enabled']).to eq(false)
+          expect(json_response['issues_enabled']).to be(false)
           expect(new_project.reload.repository.storage).to eq('default')
         end
       end
@@ -5560,7 +5560,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
           put api("/projects/#{forked_project.id}", user), params: { mr_default_target_self: true }
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['mr_default_target_self']).to eq(true)
+          expect(json_response['mr_default_target_self']).to be(true)
         end
       end
     end
@@ -6372,7 +6372,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
         expect(json_response['description']).to eq('A description')
         expect(json_response['visibility']).to eq('private')
         expect(json_response['import_status']).to eq('scheduled')
-        expect(json_response['mr_default_target_self']).to eq(true)
+        expect(json_response['mr_default_target_self']).to be(true)
         expect(json_response).to include("import_error")
       end
 

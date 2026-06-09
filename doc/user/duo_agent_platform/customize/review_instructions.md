@@ -63,8 +63,9 @@ To configure custom merge request review instructions:
          <your_custom_review_instructions>
    ```
 
-   The `fileFilters` section is mandatory. Use glob patterns in this section to target specific
-   files for the custom review rules.
+   The `fileFilters` section is optional. Use glob patterns in this section to target the rule
+   to specific files. If you omit `fileFilters` or leave it empty, GitLab Duo applies the
+   instruction to every file in the merge request.
 
    For example:
 
@@ -826,6 +827,108 @@ For more custom review instructions use cases, see the following production exam
 - [GitLab handbook](https://gitlab.com/gitlab-com/content-sites/handbook/-/blob/main/.gitlab/duo/mr-review-instructions.yaml)
 - [GitLab website](https://gitlab.com/gitlab-com/marketing/digital-experience/about-gitlab-com/-/blob/main/.gitlab/duo/mr-review-instructions.yaml)
 - [Developer Advocacy: Tanuki IoT Platform](https://gitlab.com/gitlab-da/use-cases/ai/gitlab-duo-agent-platform/demo-environments/tanuki-iot-platform/-/blob/main/.gitlab/duo/mr-review-instructions.yaml)
+
+## Troubleshooting
+
+When working with `mr-review-instructions.yaml`, you might encounter the following issues.
+
+### Code Review Flow skips instructions or returns a generic review
+
+If Code Review Flow skips your custom instructions or returns a generic review,
+the file might have a structural problem. Use the custom instructions linter to
+identify any issues.
+
+#### Run the custom instructions linter
+
+The custom instructions linter helps you validate your `mr-review-instructions.yaml` file.
+
+The linter checks for:
+
+- Invalid YAML syntax.
+- Missing or unexpected top-level keys.
+- Missing or blank required fields (`name`, `instructions`).
+- Unknown keys in an instruction entry, such as `rules` instead of `instructions`.
+- `fileFilters` values that are not lists or contain non-string or blank entries.
+- Missing or empty `fileFilters`, which causes the instruction to apply to every file (info).
+- Duplicate `name` values across instruction entries.
+
+> [!note]
+> The linter reads the file only and does not modify it.
+> It has no GitLab or Rails dependencies and runs anywhere with Ruby installed.
+
+Prerequisites:
+
+- Ruby 3.0 or later.
+
+To run the linter as a Rake task on a GitLab server, replace `<path>` with the path to
+your `mr-review-instructions.yaml` file. For example:
+
+```shell
+sudo gitlab-rake "gitlab:duo:lint_review_instructions[<path>]"
+```
+
+To run the linter as a standalone script on any machine with Ruby installed:
+
+1. Download [`review_instructions_linter.rb`](https://gitlab.com/gitlab-org/gitlab/-/raw/master/ee/lib/gitlab/duo/administration/review_instructions_linter.rb).
+1. Run the linter. Replace `<path>` with the path to your `mr-review-instructions.yaml` file.
+
+   ```shell
+   ruby -r ./review_instructions_linter.rb -e '
+     linter = Gitlab::Duo::Administration::ReviewInstructionsLinter.new(ARGV[0]).run
+     linter.issues.each { |issue| puts issue }
+     exit(linter.valid? ? 0 : 1)
+   ' <path>
+   ```
+
+If you omit the path, the linter defaults to `.gitlab/duo/mr-review-instructions.yaml`
+in the working directory. The linter exits with status `0` if no errors are found, or
+`1` otherwise. Warnings and info messages do not cause a non-zero exit.
+
+For example, this invalid file uses `rules` instead of `instructions` and omits
+`fileFilters`:
+
+```yaml
+instructions:
+  - name: "General"
+    rules: "Do something"
+```
+
+The linter reports:
+
+```plaintext
+[ERROR E009] Field 'instructions' must be a non-empty string at instructions[0]
+[WARNING W003] Unknown keys: "rules"; expected name, instructions, fileFilters at instructions[0]
+[INFO I001] Missing 'fileFilters'; the instruction applies to every file at instructions[0]
+```
+
+Fix the reported errors and re-run the linter until it reports no errors.
+
+#### Linter message codes
+
+Each message includes a stable code that you can refer to when you ask for help.
+Codes that start with `E` are errors, codes that start with `W` are warnings, and
+codes that start with `I` are informational notes about valid but worth-knowing behavior.
+
+| Code | Description |
+| ---- | ----------- |
+| `E001` | The file does not exist at the given path. |
+| `E003` | The file contains invalid YAML syntax. |
+| `E004` | The top-level YAML value is not a mapping. |
+| `E005` | The top-level `instructions` key is missing. |
+| `E006` | The `instructions` value is not a list. |
+| `E007` | An entry under `instructions` is not a mapping. |
+| `E008` | An entry's `name` field is missing, blank, or not a string. |
+| `E009` | An entry's `instructions` field is missing, blank, or not a string. |
+| `E011` | An entry's `fileFilters` value is not a list. |
+| `E013` | An entry's `fileFilters` contains a non-string value, such as a number. |
+| `E014` | An entry's `fileFilters` contains a blank string. |
+| `W001` | The file contains an unknown top-level key. |
+| `W002` | The `instructions` list is empty, so no rules apply. |
+| `W003` | An entry contains keys other than `name`, `instructions`, and `fileFilters`. |
+| `W004` | Two or more entries share the same `name`. |
+| `W007` | The file is empty, so no rules apply. |
+| `I001` | An entry is missing the `fileFilters` field, so the instruction applies to every file. |
+| `I002` | An entry's `fileFilters` list is empty, so the instruction applies to every file. |
 
 ## Related topics
 

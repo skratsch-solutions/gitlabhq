@@ -147,7 +147,7 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
       get api("/projects/#{project.id}/releases", maintainer)
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response.first['upcoming_release']).to eq(true)
+      expect(json_response.first['upcoming_release']).to be(true)
     end
 
     it 'returns an upcoming_release status for a past release' do
@@ -157,7 +157,7 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
       get api("/projects/#{project.id}/releases", maintainer)
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response.first['upcoming_release']).to eq(false)
+      expect(json_response.first['upcoming_release']).to be(false)
     end
 
     it 'filters by updated_at' do
@@ -395,7 +395,7 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
       it 'does not include description_html' do
         get api("/projects/#{project.id}/releases/v0.1", maintainer)
 
-        expect(json_response['description_html']).to eq(nil)
+        expect(json_response['description_html']).to be_nil
       end
 
       context 'with evidence' do
@@ -951,7 +951,7 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
 
       expect(project.releases.last.name).to eq('New release without description')
       expect(project.releases.last.tag).to eq('v0.1')
-      expect(project.releases.last.description).to eq(nil)
+      expect(project.releases.last.description).to be_nil
     end
 
     it 'sets the released_at to the current time if the released_at parameter is not provided' do

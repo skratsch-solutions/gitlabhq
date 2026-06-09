@@ -191,7 +191,7 @@ RSpec.describe API::Integrations, feature_category: :integrations do
             params: params.merge(notify_only_broken_pipelines: true)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['properties']['notify_only_broken_pipelines']).to eq(true)
+          expect(json_response['properties']['notify_only_broken_pipelines']).to be(true)
         end
 
         it 'accepts `use_inherited_settings` for inheritance' do
@@ -201,7 +201,7 @@ RSpec.describe API::Integrations, feature_category: :integrations do
           end.to change { project_integrations_map[integration_name.underscore].reload.inherit_from_id }.from(nil)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['inherited']).to eq(true)
+          expect(json_response['inherited']).to be(true)
         end
       end
 
@@ -269,7 +269,7 @@ RSpec.describe API::Integrations, feature_category: :integrations do
           it 'returns boolean values for notify_only_broken_pipelines' do
             get api("/projects/#{project.id}/#{endpoint}/#{integration_name}", user)
 
-            expect(json_response['properties']['notify_only_broken_pipelines']).to eq(true)
+            expect(json_response['properties']['notify_only_broken_pipelines']).to be(true)
           end
         end
       end

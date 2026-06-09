@@ -421,7 +421,7 @@ RSpec.describe API::GroupExport, feature_category: :importers do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response.pluck('relation')).to contain_exactly('labels', 'milestones', 'badges')
         expect(json_response.pluck('status')).to contain_exactly(-1, 0, 1)
-        expect(json_response.pluck('batched')).to all(eq(false))
+        expect(json_response.pluck('batched')).to all(be(false))
         expect(json_response.pluck('batches_count')).to all(eq(0))
       end
 

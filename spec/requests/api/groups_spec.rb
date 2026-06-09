@@ -1262,18 +1262,18 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         expect(json_response['name']).to eq(new_group_name)
         expect(json_response['description']).to be_nil
         expect(json_response['visibility']).to eq('public')
-        expect(json_response['share_with_group_lock']).to eq(false)
-        expect(json_response['require_two_factor_authentication']).to eq(false)
+        expect(json_response['share_with_group_lock']).to be(false)
+        expect(json_response['require_two_factor_authentication']).to be(false)
         expect(json_response['two_factor_grace_period']).to eq(48)
-        expect(json_response['auto_devops_enabled']).to eq(nil)
-        expect(json_response['emails_disabled']).to eq(false)
-        expect(json_response['emails_enabled']).to eq(true)
-        expect(json_response['show_diff_preview_in_email']).to eq(true)
-        expect(json_response['mentions_disabled']).to eq(nil)
+        expect(json_response['auto_devops_enabled']).to be_nil
+        expect(json_response['emails_disabled']).to be(false)
+        expect(json_response['emails_enabled']).to be(true)
+        expect(json_response['show_diff_preview_in_email']).to be(true)
+        expect(json_response['mentions_disabled']).to be_nil
         expect(json_response['project_creation_level']).to eq("noone")
         expect(json_response['subgroup_creation_level']).to eq("maintainer")
-        expect(json_response['request_access_enabled']).to eq(true)
-        expect(json_response['parent_id']).to eq(nil)
+        expect(json_response['request_access_enabled']).to be(true)
+        expect(json_response['parent_id']).to be_nil
         expect(json_response['created_at']).to be_present
         expect(json_response['projects']).to be_an Array
         expect(json_response['projects'].length).to eq(4)
@@ -1282,8 +1282,8 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         expect(json_response['default_branch_protection']).to eq(::Gitlab::Access::MAINTAINER_PROJECT_ACCESS)
         expect(json_response['default_branch_protection_defaults']).to eq(::Gitlab::Access::BranchProtection.protected_after_initial_push.stringify_keys)
         expect(json_response['avatar_url']).to end_with('dk.png')
-        expect(json_response['math_rendering_limits_enabled']).to eq(false)
-        expect(json_response['lock_math_rendering_limits_enabled']).to eq(true)
+        expect(json_response['math_rendering_limits_enabled']).to be(false)
+        expect(json_response['lock_math_rendering_limits_enabled']).to be(true)
         expect(json_response['step_up_auth_required_oauth_provider']).to be_nil
       end
 
@@ -1293,7 +1293,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
             put api("/groups/#{group1.id}", user1), params: { emails_disabled: true }
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['emails_enabled']).to eq(false)
+            expect(json_response['emails_enabled']).to be(false)
           end
         end
 
@@ -1302,7 +1302,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
             put api("/groups/#{group1.id}", user1), params: { emails_disabled: nil }
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['emails_enabled']).to eq(true)
+            expect(json_response['emails_enabled']).to be(true)
           end
         end
 
@@ -1311,7 +1311,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
             put api("/groups/#{group1.id}", user1), params: { emails_disabled: "true" }
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['emails_enabled']).to eq(false)
+            expect(json_response['emails_enabled']).to be(false)
           end
         end
       end
@@ -1320,8 +1320,8 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         put api("/groups/#{group1.id}", user1), params: { show_diff_preview_in_email: false }
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['show_diff_preview_in_email']).to eq(false)
-        expect(group1.reload.show_diff_preview_in_email).to eq(false)
+        expect(json_response['show_diff_preview_in_email']).to be(false)
+        expect(group1.reload.show_diff_preview_in_email).to be(false)
       end
 
       context 'when default_branch_protection_defaults set to No one' do
@@ -1558,7 +1558,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.keys).not_to include('prevent_sharing_groups_outside_hierarchy')
-          expect(subgroup.reload.prevent_sharing_groups_outside_hierarchy).to eq(false)
+          expect(subgroup.reload.prevent_sharing_groups_outside_hierarchy).to be(false)
           expect(json_response['description']).to eq('it works')
         end
       end
@@ -2794,7 +2794,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         expect(response).to have_gitlab_http_status(:success)
         expect(json_response['id']).to eq(group.id)
         expect(json_response['archived']).to be true
-        expect(group.namespace_settings.reload.archived).to eq(true)
+        expect(group.namespace_settings.reload.archived).to be(true)
       end
     end
 
@@ -2854,7 +2854,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         expect(response).to have_gitlab_http_status(:success)
         expect(json_response['id']).to eq(group.id)
         expect(json_response['archived']).to be false
-        expect(group.namespace_settings.reload.archived).to eq(false)
+        expect(group.namespace_settings.reload.archived).to be(false)
       end
     end
 
@@ -3469,7 +3469,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
           subject
 
           expect(response).to have_gitlab_http_status(:created)
-          expect(json_response['enabled_git_access_protocol']).to eq(nil)
+          expect(json_response['enabled_git_access_protocol']).to be_nil
         end
       end
 

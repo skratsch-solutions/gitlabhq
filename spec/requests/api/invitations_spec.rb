@@ -603,7 +603,7 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
         expect(json_response.count).to eq(1)
         expect(json_response.first['invite_email']).to eq(email)
         expect(json_response.first['created_by_name']).to eq(maintainer.name)
-        expect(json_response.first['user_name']).to eq(nil)
+        expect(json_response.first['user_name']).to be_nil
       end
     end
   end

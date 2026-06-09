@@ -1332,7 +1332,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
           get api("/projects/#{project.id}/issues/#{issue_closed_as_dup.iid}", user)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response.dig('_links', 'closed_as_duplicate_of')).to eq(nil)
+          expect(json_response.dig('_links', 'closed_as_duplicate_of')).to be_nil
         end
       end
 

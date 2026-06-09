@@ -791,7 +791,7 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
       post api("/projects/#{project.id}/issues/#{issue.iid}/subscribe", user2)
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(json_response['subscribed']).to eq(true)
+      expect(json_response['subscribed']).to be(true)
     end
 
     it 'returns 304 if already subscribed' do
@@ -824,7 +824,7 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
       post api("/projects/#{project.id}/issues/#{issue.iid}/unsubscribe", user)
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(json_response['subscribed']).to eq(false)
+      expect(json_response['subscribed']).to be(false)
     end
 
     it 'returns 304 if not subscribed' do

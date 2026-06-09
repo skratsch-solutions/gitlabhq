@@ -1293,9 +1293,6 @@ msgstr ""
 msgid "%{openedIssues} open, %{closedIssues} closed"
 msgstr ""
 
-msgid "%{over_limit_message} To get more seats, %{link_start}upgrade to a paid tier%{link_end}."
-msgstr ""
-
 msgid "%{owner} %{created_date} ago."
 msgstr ""
 
@@ -1461,6 +1458,9 @@ msgid "%{selectedProjectsCount} project"
 msgid_plural "%{selectedProjectsCount} projects"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "%{selected} of %{total} selected"
+msgstr ""
 
 msgid "%{service_url} is not a valid URL."
 msgstr ""
@@ -7858,6 +7858,9 @@ msgstr ""
 msgid "AgentPlan|Choose a workplan template"
 msgstr ""
 
+msgid "AgentPlan|Create manually"
+msgstr ""
+
 msgid "AgentPlan|Create workplan"
 msgstr ""
 
@@ -7870,7 +7873,10 @@ msgstr ""
 msgid "AgentPlan|Edit"
 msgstr ""
 
-msgid "AgentPlan|Generate workplan with Duo"
+msgid "AgentPlan|Generate with GitLab Duo"
+msgstr ""
+
+msgid "AgentPlan|More options"
 msgstr ""
 
 msgid "AgentPlan|No workplan"
@@ -18072,6 +18078,9 @@ msgid "Code review"
 msgstr ""
 
 msgid "Code review analytics"
+msgstr ""
+
+msgid "Code security"
 msgstr ""
 
 msgid "Code snippet"
@@ -40928,6 +40937,9 @@ msgstr ""
 msgid "Italic text"
 msgstr ""
 
+msgid "Item"
+msgstr ""
+
 msgid "Item - %d"
 msgid_plural "Items - %d"
 msgstr[0] ""
@@ -50826,8 +50838,8 @@ msgstr ""
 msgid "On"
 msgstr ""
 
-msgid "On %{end_date}, your trial will end and %{namespace_name} will be limited to %{free_user_limit} member"
-msgid_plural "On %{end_date}, your trial will end and %{namespace_name} will be limited to %{free_user_limit} members"
+msgid "On %{end_date}, your trial will end and %{namespace_name} will be limited to %{free_user_limit} user"
+msgid_plural "On %{end_date}, your trial will end and %{namespace_name} will be limited to %{free_user_limit} users"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -64834,6 +64846,9 @@ msgstr ""
 msgid "Scanner profile not found for given parameters"
 msgstr ""
 
+msgid "Scanners"
+msgstr ""
+
 msgid "Schedule"
 msgstr ""
 
@@ -65664,6 +65679,9 @@ msgstr ""
 msgid "Security and compliance"
 msgstr ""
 
+msgid "Security attributes"
+msgstr ""
+
 msgid "Security capabilities"
 msgstr ""
 
@@ -65985,6 +66003,9 @@ msgstr ""
 msgid "SecurityConfiguration|Advanced setup"
 msgstr ""
 
+msgid "SecurityConfiguration|All uncovered projects are selected."
+msgstr ""
+
 msgid "SecurityConfiguration|An error occurred managing scan profiles."
 msgstr ""
 
@@ -66010,6 +66031,9 @@ msgid "SecurityConfiguration|Configuration guide"
 msgstr ""
 
 msgid "SecurityConfiguration|Configuration history"
+msgstr ""
+
+msgid "SecurityConfiguration|Configuration profile"
 msgstr ""
 
 msgid "SecurityConfiguration|Configure %{feature}"
@@ -66043,6 +66067,12 @@ msgid "SecurityConfiguration|Define security settings once and reuse them everyw
 msgstr ""
 
 msgid "SecurityConfiguration|Disable profile-based scanning"
+msgstr ""
+
+msgid "SecurityConfiguration|Edit project scope"
+msgstr ""
+
+msgid "SecurityConfiguration|Edit scanners"
 msgstr ""
 
 msgid "SecurityConfiguration|Enable %{feature}"
@@ -66094,6 +66124,9 @@ msgid "SecurityConfiguration|Go to security configuration"
 msgstr ""
 
 msgid "SecurityConfiguration|How %{scannerName} is configured for each project. Management actions on this page are only available for projects using profile-based configuration. Other sources must be managed at their origin."
+msgstr ""
+
+msgid "SecurityConfiguration|Items impacted"
 msgstr ""
 
 msgid "SecurityConfiguration|Last scan"
@@ -66194,7 +66227,13 @@ msgstr ""
 msgid "SecurityConfiguration|Scanner"
 msgstr ""
 
+msgid "SecurityConfiguration|Scanner coverage"
+msgstr ""
+
 msgid "SecurityConfiguration|Scanners"
+msgstr ""
+
+msgid "SecurityConfiguration|Scanners configured"
 msgstr ""
 
 msgid "SecurityConfiguration|Scanners enabled"
@@ -66221,6 +66260,9 @@ msgstr ""
 msgid "SecurityConfiguration|Security training"
 msgstr ""
 
+msgid "SecurityConfiguration|Select a profile"
+msgstr ""
+
 msgid "SecurityConfiguration|Select approach"
 msgstr ""
 
@@ -66228,6 +66270,9 @@ msgid "SecurityConfiguration|Select projects"
 msgstr ""
 
 msgid "SecurityConfiguration|Select scanners"
+msgstr ""
+
+msgid "SecurityConfiguration|Shows scanner coverage across all configuration methods, including security policies and CI configuration."
 msgstr ""
 
 msgid "SecurityConfiguration|Something went wrong. Please refresh the page, or try again later."
@@ -70896,6 +70941,9 @@ msgid "Select all"
 msgstr ""
 
 msgid "Select all items"
+msgstr ""
+
+msgid "Select all scanners"
 msgstr ""
 
 msgid "Select all vulnerabilities on current page"
@@ -82200,9 +82248,6 @@ msgstr ""
 msgid "Verification status"
 msgstr ""
 
-msgid "Verifications status"
-msgstr ""
-
 msgid "Verified"
 msgstr ""
 
@@ -82421,6 +82466,9 @@ msgid "View page @ "
 msgstr ""
 
 msgid "View phone number matches"
+msgstr ""
+
+msgid "View project"
 msgstr ""
 
 msgid "View project in admin area"
@@ -84875,10 +84923,8 @@ msgstr ""
 msgid "When you transfer your project to a group, you can easily manage multiple projects, view usage quotas for storage, compute minutes, and users, and start a trial or upgrade to a paid tier."
 msgstr ""
 
-msgid "When your trial ends, you'll move to the Free tier, which has a limit of %{free_user_limit} seat. %{free_user_limit} seat will remain active, and members not occupying a seat will have the %{link_start}Over limit status%{link_end} and lose access to this group."
-msgid_plural "When your trial ends, you'll move to the Free tier, which has a limit of %{free_user_limit} seats. %{free_user_limit} seats will remain active, and members not occupying a seat will have the %{link_start}Over limit status%{link_end} and lose access to this group."
-msgstr[0] ""
-msgstr[1] ""
+msgid "When your trial ends, you'll move to the Free tier. Free top-level namespaces with private visibility can have only %{free_user_limit} users. If your namespace exceeds this limit, it will become %{read_only_start}read-only%{read_only_end}. To prevent this, %{upgrade_start}upgrade to a paid tier%{upgrade_end}."
+msgstr ""
 
 msgid "When:"
 msgstr ""
@@ -87725,6 +87771,9 @@ msgid "You can only merge once the items above are resolved."
 msgstr ""
 
 msgid "You can only transfer the project to namespaces you manage."
+msgstr ""
+
+msgid "You can select up to %{maximumCount} items at once"
 msgstr ""
 
 msgid "You can specify notification level per group or per project."

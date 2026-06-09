@@ -221,7 +221,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
 
               expect(response).to have_gitlab_http_status(:success)
               expect(json_response.first).to have_key('created_by')
-              expect(json_response.first['created_by']).to eq(nil)
+              expect(json_response.first['created_by']).to be_nil
             end
 
             it 'is created_by a user and has those details' do
@@ -1475,8 +1475,8 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       expect(response).to have_gitlab_http_status(:created)
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user.admin).to eq(true)
-      expect(new_user.can_create_group).to eq(true)
+      expect(new_user.admin).to be(true)
+      expect(new_user.can_create_group).to be(true)
       expect(new_user.namespace.organization).to eq(current_organization)
     end
 
@@ -1494,8 +1494,8 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       expect(response).to have_gitlab_http_status(:created)
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user.admin).to eq(false)
-      expect(new_user.can_create_group).to eq(false)
+      expect(new_user.admin).to be(false)
+      expect(new_user.can_create_group).to be(false)
     end
 
     it "creates non-admin users by default" do
@@ -1503,7 +1503,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       expect(response).to have_gitlab_http_status(:created)
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user.admin).to eq(false)
+      expect(new_user.admin).to be(false)
     end
 
     it "returns 201 Created on success" do
@@ -1538,7 +1538,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       user_id = json_response['id']
       new_user = User.find(user_id)
 
-      expect(new_user.recently_sent_password_reset?).to eq(true)
+      expect(new_user.recently_sent_password_reset?).to be(true)
     end
 
     it "creates user with random password" do
@@ -1562,8 +1562,8 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       user_id = json_response['id']
       new_user = User.find(user_id)
 
-      expect(new_user).not_to eq(nil)
-      expect(new_user.private_profile?).to eq(true)
+      expect(new_user).not_to be_nil
+      expect(new_user.private_profile?).to be(true)
     end
 
     it "creates user with view_diffs_file_by_file" do
@@ -1574,8 +1574,8 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       user_id = json_response['id']
       new_user = User.find(user_id)
 
-      expect(new_user).not_to eq(nil)
-      expect(new_user.user_preference.view_diffs_file_by_file?).to eq(true)
+      expect(new_user).not_to be_nil
+      expect(new_user.user_preference.view_diffs_file_by_file?).to be(true)
     end
 
     it "creates user with avatar" do
@@ -1590,7 +1590,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
 
       new_user = User.find_by(id: json_response['id'])
 
-      expect(new_user).not_to eq(nil)
+      expect(new_user).not_to be_nil
       expect(json_response['avatar_url']).to include(new_user.avatar_path)
     end
 
@@ -1928,7 +1928,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
           update_password(admin, admin)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(admin.reload.password_expired?).to eq(false)
+          expect(admin.reload.password_expired?).to be(false)
         end
 
         it 'does not enqueue the `admin changed your password` email' do
@@ -1947,7 +1947,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
           update_password(user, admin)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(user.reload.password_expired?).to eq(true)
+          expect(user.reload.password_expired?).to be(true)
         end
 
         it 'enqueues the `admin changed your password` email' do
@@ -2211,14 +2211,14 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       put api(path, admin, admin_mode: true), params: { admin: true }
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(user.reload.admin).to eq(true)
+      expect(user.reload.admin).to be(true)
     end
 
     it "updates external status" do
       put api(path, admin, admin_mode: true), params: { external: true }
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response['external']).to eq(true)
+      expect(json_response['external']).to be(true)
       expect(user.reload.external?).to be_truthy
     end
 
@@ -2233,7 +2233,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       put api(path, admin, admin_mode: true), params: { view_diffs_file_by_file: true }
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(user.reload.user_preference.view_diffs_file_by_file?).to eq(true)
+      expect(user.reload.user_preference.view_diffs_file_by_file?).to be(true)
     end
 
     context 'updating `private_profile`' do
@@ -2258,7 +2258,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
           put api(path, admin, admin_mode: true), params: { private_profile: nil }
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(user.reload.private_profile).to eq(true)
+          expect(user.reload.private_profile).to be(true)
         end
       end
 
@@ -2268,7 +2268,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
         put api(path, admin, admin_mode: true), params: {}
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(user.reload.private_profile).to eq(true)
+        expect(user.reload.private_profile).to be(true)
       end
     end
 
@@ -2291,8 +2291,8 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       put api("/users/#{admin_user.id}", admin, admin_mode: true), params: { can_create_group: false }
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(admin_user.reload.admin).to eq(true)
-      expect(admin_user.can_create_group).to eq(false)
+      expect(admin_user.reload.admin).to be(true)
+      expect(admin_user.can_create_group).to be(false)
     end
 
     it "does not allow invalid update" do
@@ -3765,8 +3765,8 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
         }
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response["view_diffs_file_by_file"]).to eq(true)
-        expect(json_response["show_whitespace_in_diffs"]).to eq(false)
+        expect(json_response["view_diffs_file_by_file"]).to be(true)
+        expect(json_response["show_whitespace_in_diffs"]).to be(false)
 
         user.reload
 

@@ -33,7 +33,7 @@ import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
 import getPipelineCreationRequests from '~/ci/merge_requests/graphql/queries/get_pipeline_creation_requests.query.graphql';
 import pipelineCreationRequestsUpdatedSubscription from '~/ci/merge_requests/graphql/subscriptions/pipeline_creation_requests_updated.subscription.graphql';
 import { createSubscriptionsCollection, updateDownstreamPipelineInList } from '../utils';
-import { MR_PIPELINE_TYPE_DETACHED } from '../constants';
+import { MR_PIPELINE_TYPE_DETACHED, MR_PIPELINE_TYPE_MERGED_RESULT } from '../constants';
 
 const MAX_DOWNSTREAM_SUBSCRIPTIONS = 3;
 
@@ -236,14 +236,15 @@ export default {
       return !this.hasPipelines && !this.shouldRenderErrorState;
     },
     /**
-     * The "Run pipeline" button can only be rendered when:
-     * - In MR view -  we use `canCreatePipelineInTargetProject` for that purpose
-     * - If the latest pipeline has the `detached_merge_request_pipeline` flag
+     * The "Run pipeline" button is rendered when the latest pipeline is a
+     * merge request pipeline (detached or merged-results). When the latest
+     * pipeline is sourced from a push/branch, we hide the button to avoid
+     * suggesting an action the project's CI config may not support.
      *
      * @returns {Boolean}
      */
     canRenderPipelineButton() {
-      return this.latestPipelineDetachedFlag;
+      return this.isLatestPipelineDetachedOrMergeResultPipeline;
     },
     isForkMergeRequest() {
       return this.sourceProjectFullPath !== this.targetProjectFullPath;
@@ -259,16 +260,15 @@ export default {
       );
     },
     /**
-     * Checks if either `detached_merge_request_pipeline` or
-     * `merge_request_pipeline` are true in the first
-     * object in the pipelines array.
+     * Checks if the latest pipeline is a detached merge request pipeline
+     * or a merged-results pipeline.
      *
      * @returns {Boolean}
      */
-    latestPipelineDetachedFlag() {
-      return Boolean(
-        this.latestPipeline?.mergeRequestEventType &&
-          this.latestPipeline?.mergeRequestEventType === MR_PIPELINE_TYPE_DETACHED,
+    isLatestPipelineDetachedOrMergeResultPipeline() {
+      const eventType = this.latestPipeline?.mergeRequestEventType;
+      return (
+        eventType === MR_PIPELINE_TYPE_DETACHED || eventType === MR_PIPELINE_TYPE_MERGED_RESULT
       );
     },
     showPagination() {

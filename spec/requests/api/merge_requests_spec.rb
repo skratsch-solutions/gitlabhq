@@ -1959,8 +1959,8 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
         get api("/projects/#{project.id}/merge_requests/#{merge_request_draft.iid}", user)
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['draft']).to eq(true)
-        expect(json_response['work_in_progress']).to eq(true)
+        expect(json_response['draft']).to be(true)
+        expect(json_response['work_in_progress']).to be(true)
       end
     end
 
@@ -3831,7 +3831,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
         put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user), params: params
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['merge_when_pipeline_succeeds']).to eq(true)
+        expect(json_response['merge_when_pipeline_succeeds']).to be(true)
         expect(merge_request.reload.state).to eq('opened')
       end
 
@@ -3843,7 +3843,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['title']).to eq('Test')
-        expect(json_response['merge_when_pipeline_succeeds']).to eq(true)
+        expect(json_response['merge_when_pipeline_succeeds']).to be(true)
       end
 
       it 'merges when the pipeline succeeds' do
@@ -3859,7 +3859,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
         put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user), params: params
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['merge_when_pipeline_succeeds']).to eq(true)
+        expect(json_response['merge_when_pipeline_succeeds']).to be(true)
         expect(merge_request.reload.state).to eq('opened')
       end
 
@@ -3933,7 +3933,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
           put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user), params: params
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['merge_when_pipeline_succeeds']).to eq(true)
+          expect(json_response['merge_when_pipeline_succeeds']).to be(true)
           expect(merge_request.reload.state).to eq('opened')
         end
       end
@@ -3947,7 +3947,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['title']).to eq('Test')
         expect(json_response['state']).to eq('opened')
-        expect(json_response['merge_when_pipeline_succeeds']).to eq(true)
+        expect(json_response['merge_when_pipeline_succeeds']).to be(true)
       end
     end
   end
@@ -4094,7 +4094,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['title']).to eq('Draft: 1234')
-      expect(json_response['merge_when_pipeline_succeeds']).to eq(true)
+      expect(json_response['merge_when_pipeline_succeeds']).to be(true)
     end
 
     context 'when the pipeline failed' do
@@ -4108,7 +4108,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['title']).to eq('Test')
-        expect(json_response['merge_when_pipeline_succeeds']).to eq(true)
+        expect(json_response['merge_when_pipeline_succeeds']).to be(true)
       end
     end
 
@@ -4844,7 +4844,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
       post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/subscribe", admin, admin_mode: true)
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(json_response['subscribed']).to eq(true)
+      expect(json_response['subscribed']).to be(true)
     end
 
     it 'returns 304 if already subscribed' do
@@ -4880,7 +4880,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
       post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/unsubscribe", user)
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(json_response['subscribed']).to eq(false)
+      expect(json_response['subscribed']).to be(false)
     end
 
     it 'returns 304 if not subscribed' do

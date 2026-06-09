@@ -21,7 +21,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
         ci_lint
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['valid']).to eq(true)
+        expect(json_response['valid']).to be(true)
         expect(json_response['errors']).to eq([])
         expect(json_response['warnings']).not_to be_empty
       end
@@ -49,7 +49,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             'context_sha' => project.commit.sha
           }
         )
-        expect(json_response['valid']).to eq(true)
+        expect(json_response['valid']).to be(true)
         expect(json_response['warnings']).to eq([])
         expect(json_response['errors']).to eq([])
       end
@@ -62,7 +62,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['merged_yaml']).to eq(yaml_content)
         expect(json_response['includes']).to eq([])
-        expect(json_response['valid']).to eq(false)
+        expect(json_response['valid']).to be(false)
         expect(json_response['warnings']).to eq([])
         expect(json_response['errors']).to eq(['jobs config should contain at least one visible job'])
       end
@@ -114,9 +114,9 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             ci_lint
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['merged_yaml']).to eq(nil)
-            expect(json_response['includes']).to eq(nil)
-            expect(json_response['valid']).to eq(false)
+            expect(json_response['merged_yaml']).to be_nil
+            expect(json_response['includes']).to be_nil
+            expect(json_response['valid']).to be(false)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq(['Insufficient permissions to create a new pipeline'])
           end
@@ -324,7 +324,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
               'context_sha' => project.repository.head_commit.sha
             }
           )
-          expect(json_response['valid']).to eq(true)
+          expect(json_response['valid']).to be(true)
           expect(json_response['warnings']).to eq([])
           expect(json_response['errors']).to eq([])
         end
@@ -374,7 +374,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
               'context_sha' => project.repository.head_commit.sha
             }
           )
-          expect(json_response['valid']).to eq(true)
+          expect(json_response['valid']).to be(true)
           expect(json_response['warnings']).to eq([])
           expect(json_response['errors']).to eq([])
         end
@@ -420,7 +420,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
               'context_sha' => project.repository.head_commit.sha
             }
           )
-          expect(json_response['valid']).to eq(true)
+          expect(json_response['valid']).to be(true)
           expect(json_response['warnings']).to eq([])
           expect(json_response['errors']).to eq([])
         end
@@ -455,7 +455,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
               'context_sha' => project.repository.head_commit.sha
             }
           )
-          expect(json_response['valid']).to eq(true)
+          expect(json_response['valid']).to be(true)
           expect(json_response['warnings']).to eq([])
           expect(json_response['errors']).to eq([])
         end
@@ -560,7 +560,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response).to be_an Hash
             expect(json_response['merged_yaml']).to eq(second_edit)
-            expect(json_response['valid']).to eq(true)
+            expect(json_response['valid']).to be(true)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq([])
           end
@@ -575,7 +575,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response).to be_an Hash
             expect(json_response['merged_yaml']).to eq(first_edit)
-            expect(json_response['valid']).to eq(false)
+            expect(json_response['valid']).to be(false)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq(['jobs config should contain at least one visible job'])
           end
@@ -590,7 +590,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response).to be_an Hash
             expect(json_response['merged_yaml']).to eq(original_content)
-            expect(json_response['valid']).to eq(true)
+            expect(json_response['valid']).to be(true)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq([])
           end
@@ -615,7 +615,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response).to be_an Hash
             expect(json_response['merged_yaml']).to eq(second_edit)
-            expect(json_response['valid']).to eq(true)
+            expect(json_response['valid']).to be(true)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq([])
           end
@@ -652,7 +652,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response).to be_an Hash
             expect(json_response['merged_yaml']).to eq(first_edit)
-            expect(json_response['valid']).to eq(false)
+            expect(json_response['valid']).to be(false)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq(["jobs config should contain at least one visible job"])
           end
@@ -667,7 +667,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response).to be_an Hash
             expect(json_response['merged_yaml']).to eq(second_edit)
-            expect(json_response['valid']).to eq(true)
+            expect(json_response['valid']).to be(true)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq([])
           end
@@ -698,7 +698,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             ci_lint
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['valid']).to eq(true)
+            expect(json_response['valid']).to be(true)
             expect(json_response['warnings']).to eq([])
             expect(json_response['errors']).to eq([])
           end
@@ -771,7 +771,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
             'context_sha' => project.commit.sha
           }
         )
-        expect(json_response['valid']).to eq(true)
+        expect(json_response['valid']).to be(true)
         expect(json_response['errors']).to eq([])
       end
     end
@@ -783,7 +783,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['merged_yaml']).to eq(yaml_content)
         expect(json_response['includes']).to eq([])
-        expect(json_response['valid']).to eq(false)
+        expect(json_response['valid']).to be(false)
         expect(json_response['errors']).to eq(['jobs config should contain at least one visible job'])
       end
     end
@@ -801,7 +801,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
       it 'passes validation without errors' do
         post api("/projects/#{empty_project.id}/ci/lint", api_user), params: { content: yaml_content }
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['valid']).to eq(true)
+        expect(json_response['valid']).to be(true)
         expect(json_response['errors']).to eq([])
       end
     end

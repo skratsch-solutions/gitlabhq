@@ -3,9 +3,15 @@
 require 'spec_helper'
 
 RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :code_review_workflow do
-  context 'with feature flag `mr_pipelines_graphql turned off`' do
+  using RSpec::Parameterized::TableSyntax
+
+  where(:mr_pipelines_graphql) do
+    [true, false]
+  end
+
+  with_them do
     before do
-      stub_feature_flags(mr_pipelines_graphql: false)
+      stub_feature_flags(mr_pipelines_graphql: mr_pipelines_graphql)
     end
 
     describe 'pipeline tab' do
@@ -67,9 +73,7 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
               click_link('Pipelines')
             end
 
-            wait_for_requests
-
-            expect(find_by_testid('run_pipeline_button')).to have_text('Run pipeline')
+            expect(page).to have_testid('run_pipeline_button', text: 'Run pipeline')
           end
         end
 
@@ -83,9 +87,7 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
               click_link('Pipelines')
             end
 
-            wait_for_requests
-
-            expect(find_by_testid('run_pipeline_button')).to have_text('Run pipeline')
+            expect(page).to have_testid('run_pipeline_button', text: 'Run pipeline')
           end
         end
       end

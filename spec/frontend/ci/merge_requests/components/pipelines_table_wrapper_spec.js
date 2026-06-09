@@ -14,7 +14,10 @@ import PipelinesTable from '~/ci/common/pipelines_table.vue';
 import { DEFAULT_MANUAL_ACTIONS_LIMIT } from '~/ci/constants';
 import PipelinesTableWrapper from '~/ci/merge_requests/components/pipelines_table_wrapper.vue';
 import RunPipelineButton from '~/ci/common/run_pipeline_button.vue';
-import { MR_PIPELINE_TYPE_DETACHED } from '~/ci/merge_requests/constants';
+import {
+  MR_PIPELINE_TYPE_DETACHED,
+  MR_PIPELINE_TYPE_MERGED_RESULT,
+} from '~/ci/merge_requests/constants';
 import getMergeRequestsPipelines from '~/ci/merge_requests/graphql/queries/get_merge_request_pipelines.query.graphql';
 import getSinglePipeline from '~/ci/pipelines_page/graphql/queries/get_single_pipeline.query.graphql';
 import cancelPipelineMutation from '~/ci/pipeline_details/graphql/mutations/cancel_pipeline.mutation.graphql';
@@ -371,10 +374,14 @@ describe('PipelinesTableWrapper component', () => {
     });
   });
 
-  describe('when latest pipeline has detached flag', () => {
+  describe.each`
+    eventType                         | description
+    ${MR_PIPELINE_TYPE_DETACHED}      | ${'detached merge request pipeline'}
+    ${MR_PIPELINE_TYPE_MERGED_RESULT} | ${'merged-results pipeline'}
+  `('when latest pipeline is a $description', ({ eventType }) => {
     beforeEach(async () => {
       const response = generateMRPipelinesResponse({
-        mergeRequestEventType: MR_PIPELINE_TYPE_DETACHED,
+        mergeRequestEventType: eventType,
       });
 
       mergeRequestPipelinesRequest.mockResolvedValue(response);

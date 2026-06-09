@@ -46,7 +46,7 @@ To create a feature release note:
    - Assign the merge request to an Engineering Manager and Technical Writer for review.
 
 > [!note]
-> All release notes should be merged by 00:00 (midnight) UTC on the Friday before the release day to be included in the appropriate release.
+> All release notes should be merged by 23:59 UTC on the Friday before the release day to be included in the appropriate release.
 
 If your item is primary, review the instructions for What's new.
 

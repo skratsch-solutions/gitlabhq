@@ -739,6 +739,10 @@ offenses:
   deprecated_field: user_id
   standard_field: Labkit::Fields::GL_USER_ID
 - logger_class: Gitlab::ActiveContext::Logger
+  callsite: ee/app/services/ai/active_context/code/indexer_base.rb
+  deprecated_field: class
+  standard_field: Labkit::Fields::CLASS_NAME
+- logger_class: Gitlab::ActiveContext::Logger
   callsite: ee/app/services/ai/active_context/code/indexing_service_base.rb
   deprecated_field: class
   standard_field: Labkit::Fields::CLASS_NAME

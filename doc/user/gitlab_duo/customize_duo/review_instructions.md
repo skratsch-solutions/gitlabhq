@@ -53,8 +53,9 @@ To configure custom merge request review instructions:
          <your_custom_review_instructions>
    ```
 
-   The `fileFilters` section is mandatory. Use glob patterns in this section to target specific files for
-   the custom review rules.
+   The `fileFilters` section is optional. Use glob patterns in this section to target the rule
+   to specific files. If you omit `fileFilters` or leave it empty, GitLab Duo applies the
+   instruction to every file in the merge request.
 
    For example:
 

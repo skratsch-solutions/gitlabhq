@@ -43,6 +43,8 @@ apply only to that method. All other items apply to all installation methods.
 
 Before upgrading to GitLab 19.0, review the following:
 
+- [19.0.0 - 19.0.1] - [Container registry metadata database enabled by default in prefer mode](#container-registry-metadata-database-enabled-by-default-in-prefer-mode) (Linux package, self-compiled)
+- [19.0.0] - [Container registry S3 storage driver replaced by s3_v2](#container-registry-s3-storage-driver-replaced-by-s3_v2) (Linux package, self-compiled)
 - [19.0.0] - [PostgreSQL 17 minimum requirement](#postgresql-17-minimum-requirement)
 - [19.0.0] - [Linux package support for Ubuntu 20.04 discontinued](#linux-package-support-for-ubuntu-2004-discontinued) (Linux package)
 - [19.0.0] - [Redis 6 support removed](#redis-6-support-removed) (Linux package)
@@ -57,6 +59,105 @@ Before upgrading to GitLab 19.0, review the following:
 ## Upgrade notes
 
 Specific upgrade notes for GitLab 19.
+
+### Container registry metadata database enabled by default in prefer mode
+
+- Affects: Linux package, self-compiled
+- Affected versions: 19.0.0, 19.0.1
+
+In GitLab 19.0, the container registry metadata database defaults to `prefer` mode for
+existing installations that do not have `registry['database']['enabled']` explicitly set
+in `/etc/gitlab/gitlab.rb`. In prefer mode, the registry attempts to use the metadata
+database. If the existing registry data has not been imported into the database, the
+registry falls back to legacy filesystem metadata at startup.
+
+Due to a bug ([issue 600955](https://gitlab.com/gitlab-org/gitlab/-/work_items/600955)),
+the registry router was initialized before the prefer-fallback detection ran. This caused
+nil pointer dereference panics on all `/gitlab/v1/` routes, resulting in `HTTP 500` errors
+when the registry UI polls for group-level storage size. The actual Docker push and pull
+protocol (`/v2/`) is not affected by this bug.
+
+The bug is fixed in GitLab 19.0.2, which includes container registry `v4.40.1-gitlab`.
+
+If you are running 19.0.0 or 19.0.1 and see repeated
+`runtime error: invalid memory address or nil pointer dereference` panics in
+`/var/log/gitlab/registry/current` at `handlers.(*repositoryHandler).HandleGetRepository`,
+apply the following workaround:
+
+1. Add the following to `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   registry['database'] = {
+     'enabled' => false
+   }
+   ```
+
+1. Reconfigure and restart the registry:
+
+   ```shell
+   sudo gitlab-ctl reconfigure
+   sudo gitlab-ctl restart registry
+   ```
+
+After upgrading to 19.0.2 or later, remove the override and reconfigure again to restore
+default behavior.
+
+For more information, see
+[the container registry metadata database documentation](../../administration/packages/container_registry_metadata_database.md).
+
+### Container registry S3 storage driver replaced by s3_v2
+
+- Affects: Linux package, self-compiled
+- Affected versions: 19.0.0
+
+In GitLab 19.0, the legacy `s3` container registry storage driver (AWS SDK v1) is removed
+and aliased to the new `s3_v2` driver (AWS SDK v2). This change affects installations
+using S3-compatible object storage backends such as Ceph RGW, MinIO, or OVH S3.
+
+The `s3_v2` driver introduces two breaking changes for non-AWS S3-compatible backends:
+
+- `regionendpoint` requires a full URI including scheme. The `s3_v2` driver requires
+  `https://` (or `http://`) in the `regionendpoint` value. A bare hostname such as
+  `storage.example.com` is no longer valid and causes a startup error:
+
+  ```plaintext
+  endpoint rule error, Custom endpoint `storage.example.com` was not a valid URI
+  ```
+
+  Update your configuration to include the scheme:
+
+  ```ruby
+  registry['storage'] = {
+    's3_v2' => {
+      'regionendpoint' => 'https://storage.example.com',
+      # ...
+    }
+  }
+  ```
+
+- AWS SDK v2 sends enhanced checksums by default. The `s3_v2` driver sends
+  `x-amz-content-sha256` and CRC64NVME checksums on uploads. Ceph RGW, older MinIO
+  versions, OVH S3, and other S3-compatible backends may reject these with HTTP 400
+  (`XAmzContentSHA256Mismatch`). Add `'checksum_disabled' => true` to disable this behavior.
+
+For Ceph RGW and most S3-compatible backends, update your configuration as follows:
+
+```ruby
+registry['storage'] = {
+  's3_v2' => {
+    'accesskey' => '<your-access-key>',
+    'secretkey' => '<your-secret-key>',
+    'bucket' => '<your-bucket>',
+    'region' => '<your-region>',
+    'regionendpoint' => 'https://<your-s3-endpoint>',
+    'pathstyle' => true,
+    'checksum_disabled' => true
+  }
+}
+```
+
+For more information, see
+[the container registry object storage documentation](../../administration/packages/container_registry.md#use-object-storage).
 
 ### Geo design management replication `NoMethodError` when project is `nil`
 
