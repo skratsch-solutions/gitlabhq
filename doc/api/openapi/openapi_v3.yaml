@@ -24307,7 +24307,8 @@ paths:
   "/api/v4/groups/{id}/wikis":
     get:
       operationId: getApiV4GroupsIdWikis
-      summary: Get a list of wiki pages
+      summary: List all wiki pages for a group
+      description: Lists all wiki pages for a specified group.
       tags:
       - Wikis
       responses:
@@ -24337,7 +24338,9 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdWikis
-      summary: Create a wiki page
+      summary: Create a wiki page for a group
+      description: Creates a wiki page for a specified group. Requests can define
+        the title, slug, and content.
       tags:
       - Wikis
       responses:
@@ -24371,7 +24374,8 @@ paths:
   "/api/v4/groups/{id}/wikis/{slug}":
     get:
       operationId: getApiV4GroupsIdWikisSlug
-      summary: Get a wiki page
+      summary: Retrieve a wiki page for a group
+      description: Retrieves a specified wiki page for a group.
       tags:
       - Wikis
       responses:
@@ -24414,7 +24418,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdWikisSlug
-      summary: Update a wiki page
+      summary: Update a wiki page for a group
+      description: Updates a specified wiki page for a group.
       tags:
       - Wikis
       responses:
@@ -24453,7 +24458,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_5205692130b1"
     delete:
       operationId: deleteApiV4GroupsIdWikisSlug
-      summary: Delete a wiki page
+      summary: Delete a wiki page for a group
+      description: Deletes a specified wiki page for a group.
       tags:
       - Wikis
       responses:
@@ -24481,8 +24487,9 @@ paths:
   "/api/v4/groups/{id}/wikis/attachments":
     post:
       operationId: postApiV4GroupsIdWikisAttachments
-      summary: Upload an attachment to the wiki repository
-      description: This feature was introduced in GitLab 11.3.
+      summary: Upload an attachment to a group wiki
+      description: Uploads a file to the `uploads` directory in a specified group
+        wiki.
       tags:
       - Wikis
       responses:
@@ -24512,7 +24519,8 @@ paths:
   "/api/v4/projects/{id}/wikis":
     get:
       operationId: getApiV4ProjectsIdWikis
-      summary: Get a list of wiki pages
+      summary: List all wiki pages for a project
+      description: Lists all wiki pages for a specified project.
       tags:
       - Wikis
       responses:
@@ -24543,7 +24551,9 @@ paths:
         example: 1
     post:
       operationId: postApiV4ProjectsIdWikis
-      summary: Create a wiki page
+      summary: Create a wiki page for a project
+      description: Creates a wiki page for a specified project. Requests can define
+        the title, slug, and content.
       tags:
       - Wikis
       responses:
@@ -24578,7 +24588,8 @@ paths:
   "/api/v4/projects/{id}/wikis/{slug}":
     get:
       operationId: getApiV4ProjectsIdWikisSlug
-      summary: Get a wiki page
+      summary: Retrieve a wiki page for a project
+      description: Retrieves a specified wiki page for a project.
       tags:
       - Wikis
       responses:
@@ -24622,7 +24633,8 @@ paths:
         example: 1
     put:
       operationId: putApiV4ProjectsIdWikisSlug
-      summary: Update a wiki page
+      summary: Update a wiki page for a project
+      description: Updates a specified wiki page for a project.
       tags:
       - Wikis
       responses:
@@ -24662,7 +24674,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_5205692130b1"
     delete:
       operationId: deleteApiV4ProjectsIdWikisSlug
-      summary: Delete a wiki page
+      summary: Delete a wiki page for a project
+      description: Deletes a specified wiki page for a project.
       tags:
       - Wikis
       responses:
@@ -24691,8 +24704,9 @@ paths:
   "/api/v4/projects/{id}/wikis/attachments":
     post:
       operationId: postApiV4ProjectsIdWikisAttachments
-      summary: Upload an attachment to the wiki repository
-      description: This feature was introduced in GitLab 11.3.
+      summary: Upload an attachment to a project wiki
+      description: Uploads a file to the `uploads` directory in a specified project
+        wiki.
       tags:
       - Wikis
       responses:
@@ -29570,8 +29584,8 @@ paths:
   "/api/v4/projects/{id}/protected_tags":
     get:
       operationId: getApiV4ProjectsIdProtectedTags
-      summary: Get a project's protected tags
-      description: This feature was introduced in GitLab 11.3.
+      summary: List all protected tags
+      description: Lists all protected tags for a specified project.
       tags:
       - Protected tags
       responses:
@@ -29614,8 +29628,9 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdProtectedTags
-      summary: Protect a single tag or wildcard
-      description: This feature was introduced in GitLab 11.3.
+      summary: Protect a repository tag
+      description: Protects a specified repository tag using a wildcard protected
+        tag.
       tags:
       - Protected tags
       responses:
@@ -29649,8 +29664,8 @@ paths:
   "/api/v4/projects/{id}/protected_tags/{name}":
     get:
       operationId: getApiV4ProjectsIdProtectedTagsName
-      summary: Get a single protected tag
-      description: This feature was introduced in GitLab 11.3.
+      summary: Retrieve a protected tag or wildcard protected tag
+      description: Retrieves a specified protected tag or wildcard protected tag.
       tags:
       - Protected tags
       responses:
@@ -29682,8 +29697,8 @@ paths:
         example: release*
     delete:
       operationId: deleteApiV4ProjectsIdProtectedTagsName
-      summary: Unprotect a single tag
-      description: This feature was introduced in GitLab 11.3.
+      summary: Unprotect repository tags
+      description: Unprotects a specified protected tag or wildcard protected tag.
       tags:
       - Protected tags
       responses:
@@ -29714,7 +29729,8 @@ paths:
   "/api/v4/projects/{id}/protected_branches":
     get:
       operationId: getApiV4ProjectsIdProtectedBranches
-      summary: Get a project's protected branches
+      summary: List all protected branches
+      description: Lists all protected branches for a specified project.
       tags:
       - Protected branches
       responses:
@@ -29766,7 +29782,9 @@ paths:
         example: mai
     post:
       operationId: postApiV4ProjectsIdProtectedBranches
-      summary: Protect a single branch
+      summary: Protect repository branches
+      description: Protects a specified repository branch or several project repository
+        branches using a wildcard protected branch.
       tags:
       - Protected branches
       responses:
@@ -29803,7 +29821,8 @@ paths:
   "/api/v4/projects/{id}/protected_branches/{name}":
     get:
       operationId: getApiV4ProjectsIdProtectedBranchesName
-      summary: Get a single protected branch
+      summary: Retrieve a protected branch or wildcard protected branch
+      description: Retrieves a specified protected branch or wildcard protected branch.
       tags:
       - Protected branches
       responses:
@@ -29837,6 +29856,7 @@ paths:
     patch:
       operationId: patchApiV4ProjectsIdProtectedBranchesName
       summary: Update a protected branch
+      description: Updates a protected branch for a specified project.
       tags:
       - Protected branches
       responses:
@@ -29879,7 +29899,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_a8db8c5327e1"
     delete:
       operationId: deleteApiV4ProjectsIdProtectedBranchesName
-      summary: Unprotect a single branch
+      summary: Unprotect repository branches
+      description: Unprotects a specified protected branch or wildcard protected branch.
       tags:
       - Protected branches
       responses:
@@ -32500,8 +32521,8 @@ paths:
   "/api/v4/projects/{id}/templates/{type}":
     get:
       operationId: getApiV4ProjectsIdTemplatesType
-      summary: Get a list of templates available to this project
-      description: This endpoint was introduced in GitLab 11.4
+      summary: List all templates of a particular type
+      description: Lists all templates of a specified type for a project.
       tags:
       - Project templates
       responses:
@@ -32560,8 +32581,8 @@ paths:
   "/api/v4/projects/{id}/templates/{type}/{name}":
     get:
       operationId: getApiV4ProjectsIdTemplatesTypeName
-      summary: Download a template available to this project
-      description: This endpoint was introduced in GitLab 11.4
+      summary: Retrieve a template of a particular type
+      description: Retrieves a template of a specified type for a project.
       tags:
       - Project templates
       responses:
@@ -32636,7 +32657,9 @@ paths:
   "/api/v4/projects/{id}/statistics":
     get:
       operationId: getApiV4ProjectsIdStatistics
-      summary: Get the list of project fetch statistics for the last 30 days
+      summary: Retrieve the statistics of the last 30 days
+      description: Retrieves the clone and pull statistics for the last 30 days from
+        a specified project.
       tags:
       - Projects
       responses:
@@ -36248,7 +36271,9 @@ paths:
   "/api/v4/pages/domains":
     get:
       operationId: getApiV4PagesDomains
-      summary: Get all pages domains
+      summary: List all Pages domains
+      description: Lists all Pages domains on the instance. You must have administrator
+        access to the instance.
       tags:
       - GitLab Pages
       responses:
@@ -36289,7 +36314,9 @@ paths:
   "/api/v4/projects/{id}/pages/domains":
     get:
       operationId: getApiV4ProjectsIdPagesDomains
-      summary: Get all pages domains
+      summary: List all Pages domains in a project
+      description: Lists all Pages domains in a specified project. You must have permissions
+        to view Pages domains.
       tags:
       - GitLab Pages
       responses:
@@ -36333,7 +36360,9 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdPagesDomains
-      summary: Create a new pages domain
+      summary: Create Pages domain
+      description: Creates a Pages domain in a specified project. You must have permissions
+        to create Pages domains.
       tags:
       - GitLab Pages
       responses:
@@ -36366,7 +36395,9 @@ paths:
   "/api/v4/projects/{id}/pages/domains/{domain}":
     get:
       operationId: getApiV4ProjectsIdPagesDomainsDomain
-      summary: Get a single pages domain
+      summary: Retrieve a Pages domain
+      description: Retrieves a Pages domain from a specified project. You must have
+        permissions to view Pages domains.
       tags:
       - GitLab Pages
       responses:
@@ -36398,7 +36429,9 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdPagesDomainsDomain
-      summary: Updates a pages domain
+      summary: Update Pages domain
+      description: Updates a specified Pages domain in a project. You must have permissions
+        to change an existing Pages domain.
       tags:
       - GitLab Pages
       responses:
@@ -36432,7 +36465,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_f9dd251a5b26"
     delete:
       operationId: deleteApiV4ProjectsIdPagesDomainsDomain
-      summary: Delete a pages domain
+      summary: Delete Pages domain
+      description: Deletes a specified Pages domain in a project.
       tags:
       - GitLab Pages
       responses:
@@ -36461,7 +36495,9 @@ paths:
   "/api/v4/projects/{id}/pages/domains/{domain}/verify":
     put:
       operationId: putApiV4ProjectsIdPagesDomainsDomainVerify
-      summary: Verify a pages domain
+      summary: Verify Pages domain
+      description: Verifies a specified Pages domain in a project. You must have permissions
+        to update Pages domains.
       tags:
       - GitLab Pages
       responses:
@@ -36494,9 +36530,9 @@ paths:
   "/api/v4/projects/{id}/pages":
     delete:
       operationId: deleteApiV4ProjectsIdPages
-      summary: Unpublish pages
-      description: Remove pages. The user must have the Maintainer or Owner role for
-        the project. This feature was introduced in GitLab 12.6
+      summary: Unpublish Pages
+      description: Unpublishes Pages from a specified project. You must have the Maintainer
+        or Owner role for the project.
       tags:
       - GitLab Pages
       responses:
@@ -36518,9 +36554,9 @@ paths:
         in: path
     patch:
       operationId: patchApiV4ProjectsIdPages
-      summary: Update pages settings
-      description: Update page settings for a project. The user must have the Maintainer
-        or Owner role for the project.
+      summary: Update Pages settings for a project
+      description: Updates Pages settings for a specified project. You must have the
+        Maintainer or Owner role for the project.
       tags:
       - GitLab Pages
       responses:
@@ -36548,9 +36584,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_48e89df6b887"
     get:
       operationId: getApiV4ProjectsIdPages
-      summary: Get pages settings
-      description: Get pages URL and other settings. The user must have the Maintainer
-        or Owner role for the project. This feature was introduced in GitLab 16.8
+      summary: Retrieve Pages settings for a project
+      description: Retrieves Pages settings for a specified project. You must have
+        the Maintainer or Owner role for the project.
       tags:
       - GitLab Pages
       responses:

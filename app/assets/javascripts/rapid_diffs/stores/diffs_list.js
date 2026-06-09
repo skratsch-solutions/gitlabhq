@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { debounce } from 'lodash-es';
-import { renderHtmlStreams } from '~/streaming/render_html_streams';
+import { renderHtmlStreams } from '~/rapid_diffs/streaming/render_html_streams';
 import { toPolyfillReadable } from '~/streaming/polyfills';
 import { DiffFile } from '~/rapid_diffs/web_components/diff_file';
 import { performanceMarkAndMeasure } from '~/performance/utils';

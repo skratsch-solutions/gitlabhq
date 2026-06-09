@@ -753,10 +753,15 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
 
     context 'when the adapter does not apply' do
       it 'does not dispatch when the key is not handled by the adapter' do
+        # Every rate_limits key now has a registry entry, so stub the registry
+        # empty to exercise the "key absent from SupportedRateLimits" branch.
+        allow(Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits)
+          .to receive(:all).and_return({})
+
         expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
         expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run_peek!)
 
-        described_class.throttled?(:project_generate_new_export, scope: user)
+        described_class.throttled?(:users_get_by_id, scope: user)
       end
 
       it 'does not dispatch when a resource is provided for an INCR-mode key' do

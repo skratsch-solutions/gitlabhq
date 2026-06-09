@@ -150,6 +150,7 @@ import {
   WORK_ITEM_CREATE_SOURCES,
   CREATION_CONTEXT_LIST_ROUTE,
   DETAIL_VIEW_QUERY_PARAM_NAME,
+  DETAIL_VIEW_DESIGN_VERSION_PARAM_NAME,
   VIEW_CONTEXT,
 } from '../constants';
 
@@ -1547,7 +1548,21 @@ export default {
         return;
       }
 
-      this.$router.push({ query: this.urlParams }).catch((error) => {
+      // Preserve the detail panel params
+      // so navigating between pages or changing the page size does not
+      // close an open detail panel.
+      const query = {
+        ...this.urlParams,
+        [DETAIL_VIEW_QUERY_PARAM_NAME]:
+          getParameterByName(DETAIL_VIEW_QUERY_PARAM_NAME, undefined, { preservePlus: true }) ??
+          undefined,
+        [DETAIL_VIEW_DESIGN_VERSION_PARAM_NAME]:
+          getParameterByName(DETAIL_VIEW_DESIGN_VERSION_PARAM_NAME, undefined, {
+            preservePlus: true,
+          }) ?? undefined,
+      };
+
+      this.$router.push({ query }).catch((error) => {
         if (error.name !== 'NavigationDuplicated') {
           throw error;
         }

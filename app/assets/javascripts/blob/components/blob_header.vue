@@ -103,7 +103,7 @@ export default {
 </script>
 <template>
   <div
-    class="js-file-title file-title-flex-parent gl-flex-wrap gl-justify-between gl-gap-3 gl-px-4 gl-py-3 @xl/panel:gl-flex-nowrap"
+    class="js-file-title file-title-flex-parent gl-sticky -gl-top-1 gl-z-2 gl-flex-wrap gl-justify-between gl-gap-3 gl-px-4 gl-py-3 @xl/panel:gl-flex-nowrap"
   >
     <div class="gl-flex gl-gap-3 @xl/panel:gl-mb-0">
       <blob-filepath

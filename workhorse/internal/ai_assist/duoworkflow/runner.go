@@ -52,9 +52,10 @@ const (
 	capabilityWebSearch            capability = "web_search"
 
 	// Server capabilities
-	capabilityAdvancedSearch     capability = "advanced_search"
-	capabilityToolCallApproval   capability = "tool_call_approval"
-	capabilityJobTracePagination capability = "job_trace_pagination"
+	capabilityAdvancedSearch          capability = "advanced_search"
+	capabilityToolCallApproval        capability = "tool_call_approval"
+	capabilityToolCallPatternApproval capability = "tool_call_pattern_approval"
+	capabilityJobTracePagination      capability = "job_trace_pagination"
 )
 
 // ClientCapabilities is how gitlab-lsp -> workhorse -> Duo Workflow Service communicates
@@ -84,6 +85,7 @@ var ClientCapabilities = []capability{
 var ServerCapabilities = []capability{
 	capabilityAdvancedSearch,
 	capabilityToolCallApproval,
+	capabilityToolCallPatternApproval,
 	capabilityJobTracePagination,
 }
 

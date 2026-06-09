@@ -184,32 +184,6 @@ RSpec.describe Integrations::PropagateService, feature_category: :integrations d
           described_class.new(group_integration).execute
         end
       end
-
-      context 'when integration_propagation_simplified_batching is disabled' do
-        before do
-          stub_feature_flags(integration_propagation_simplified_batching: false)
-        end
-
-        context 'for project propagation' do
-          let_it_be(:project_in_group, freeze: false) { create(:project, group: group) }
-
-          it 'propagates integration to projects using subquery path' do
-            expect(PropagateIntegrationProjectWorker).to receive(:perform_async)
-              .with(group_integration.id, project_in_group.id, project_in_group.id)
-
-            described_class.new(group_integration).execute
-          end
-        end
-
-        context 'for group propagation' do
-          it 'propagates integration to descendant groups using subquery path' do
-            expect(PropagateIntegrationGroupWorker).to receive(:perform_async)
-              .with(group_integration.id, subgroup.id, subgroup.id)
-
-            described_class.new(group_integration).execute
-          end
-        end
-      end
     end
   end
 end

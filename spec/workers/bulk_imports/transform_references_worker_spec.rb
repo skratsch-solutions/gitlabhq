@@ -295,7 +295,7 @@ RSpec.describe BulkImports::TransformReferencesWorker, feature_category: :import
       )
     end
 
-    let(:expected_body) { "Invalid: http://[127.0.0.1] Valid: http://localhost:80/#{object.namespace.full_path}/-/issues/1" }
+    let(:expected_body) { "Invalid: http://[127.0.0.1] Valid: http://localhost:80/#{project.full_path}/-/issues/1" }
 
     let(:object) { note_with_bad_uri }
     let(:body) { object.reload.note }

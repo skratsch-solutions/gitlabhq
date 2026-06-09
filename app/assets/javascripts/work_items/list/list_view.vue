@@ -345,6 +345,14 @@ export default {
 
       const params = JSON.parse(atob(queryParam));
       if (params.id) {
+        if (
+          this.activeItem &&
+          getIdFromGraphQLId(this.activeItem.id) === params.id &&
+          this.isIssuableActive(params)
+        ) {
+          return;
+        }
+
         const issue = this.workItems.find((i) => getIdFromGraphQLId(i.id) === params.id);
         if (issue) {
           this.$emit('set-active-item', {

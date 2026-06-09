@@ -441,6 +441,13 @@ module Gitlab
               action: :block,
               flag_scope: :cohort_2
             },
+            project_generate_new_export: {
+              limiter_name: 'applimiter_project_generate_new_export',
+              rule_name: 'limit_project_export_generations_by_user',
+              characteristics: %i[user],
+              action: :block,
+              flag_scope: :cohort_2
+            },
             project_import: {
               limiter_name: 'applimiter_project_import',
               rule_name: 'limit_project_imports_by_user_action',
@@ -565,6 +572,13 @@ module Gitlab
               characteristics: %i[email],
               action: :block,
               flag_scope: :cohort_3
+            },
+            token_exchange: {
+              limiter_name: 'applimiter_token_exchange',
+              rule_name: 'limit_token_exchanges_by_user',
+              characteristics: %i[user],
+              action: :block,
+              flag_scope: :cohort_6
             },
             update_environment_canary_ingress: {
               limiter_name: 'applimiter_update_environment_canary_ingress',

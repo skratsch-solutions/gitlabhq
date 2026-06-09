@@ -238,7 +238,7 @@ RSpec.describe Gitlab::Email::Handler::CreateNoteHandler, feature_category: :sha
         new_note = noteable.notes.last
 
         expect(new_note.note_metadata.external_author).to eq('jake@adventuretime.ooo')
-        expect(new_note.note_metadata.namespace_id).to eq(new_note.namespace_id)
+        expect(new_note.note_metadata.namespace_id).to eq(new_note.project.project_namespace_id)
       end
     end
   end

@@ -927,7 +927,7 @@ Grants the ability to read knowledge graph data.
 
 #### Organization
 
-Grants the ability to create, read, and update organizations.
+Grants the ability to create, delete, read, and update organizations.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |

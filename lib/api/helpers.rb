@@ -727,7 +727,7 @@ module API
           '500 Internal Server Error'
         end
 
-      rack_response({ 'message' => response_message }.to_json, 500)
+      error!({ 'message' => response_message }, 500)
     end
 
     # project helpers

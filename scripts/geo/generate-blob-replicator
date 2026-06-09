@@ -29,6 +29,9 @@
 #                         that overrides the composite PK (id, model_type) to use
 #                         just `id`, avoiding the need for composite PK support
 #                         in the Geo SSF. Also generates the model spec.
+#   --parent-factory      Factory name for the parent model in upload partition mode.
+#                         Defaults to replicable_name with '_upload' stripped.
+#                         Example: --parent-factory=topic (for Projects::Topic)
 #   --dry-run             Print file paths without writing (default: false)
 #   --help                Show this help message
 #
@@ -52,7 +55,7 @@ module Geo
     MIGRATION_VERSION = '2.3'
 
     attr_reader :replicable_name, :model_class, :table_name, :sharding_keys, :milestone, :dry_run,
-      :upload_partition
+      :upload_partition, :parent_factory
 
     def initialize(options)
       @replicable_name = options[:replicable_name]
@@ -62,6 +65,7 @@ module Geo
       @milestone = options[:milestone]
       @dry_run = options[:dry_run] || false
       @upload_partition = options[:upload_partition] || false
+      @parent_factory = options[:parent_factory]
       @files_created = []
       @files_modified = []
     end
@@ -486,7 +490,7 @@ module Geo
     end
 
     def parent_model_factory_name
-      replicable_name.sub(/_upload$/, '')
+      parent_factory || replicable_name.sub(/_upload$/, '')
     end
 
     def generate_upload_partition_model_factory
@@ -725,7 +729,7 @@ module Geo
     end
 
     def upload_model_validation_include
-      upload_partition ? "\n            include ::Geo::Concerns::UploadReplicatorBehavior" : ''
+      upload_partition ? "\n    include ::Geo::Concerns::UploadReplicatorBehavior" : ''
     end
 
     def generate_replicator
@@ -2390,6 +2394,12 @@ OptionParser.new do |opts|
 
   opts.on('--upload-partition', 'Generate a dedicated model for an upload partition table') do
     options[:upload_partition] = true
+  end
+
+  opts.on('--parent-factory=NAME',
+    'Factory name for the parent model (upload partition mode). ' \
+      'Defaults to replicable_name minus _upload suffix.') do |v|
+    options[:parent_factory] = v
   end
 
   opts.on('--dry-run', 'Print file paths without writing') do

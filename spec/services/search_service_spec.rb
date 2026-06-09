@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SearchService, feature_category: :global_search do
+RSpec.describe SearchService, :with_current_organization, feature_category: :global_search do
   let_it_be(:user, freeze: false) { create(:user) }
 
   let_it_be(:accessible_group) { create(:group, :private) }
@@ -386,7 +386,8 @@ RSpec.describe SearchService, feature_category: :global_search do
         search_objects = described_class.new(
           user,
           snippets: 'true',
-          search: snippet.title).search_objects
+          search: snippet.title,
+          organization_id: current_organization.id).search_objects
 
         expect(search_objects.first).to eq snippet
       end

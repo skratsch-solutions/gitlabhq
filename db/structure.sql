@@ -26419,6 +26419,7 @@ CREATE TABLE packages_helm_metadata_cache_states (
     verification_checksum bytea,
     verification_failure text,
     project_id bigint,
+    CONSTRAINT check_4afb385a32 CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_8912e42599 CHECK ((char_length(verification_failure) <= 255))
 );
 
@@ -28580,8 +28581,7 @@ CREATE TABLE project_secrets_manager_maintenance_tasks (
     parent_group_id bigint,
     CONSTRAINT check_45ce4a99c6 CHECK ((organization_id IS NOT NULL)),
     CONSTRAINT check_76326d1035 CHECK ((project_id IS NOT NULL)),
-    CONSTRAINT check_9ccf54455e CHECK ((root_namespace_id IS NOT NULL)),
-    CONSTRAINT check_db6a86fc4d CHECK ((parent_group_id IS NOT NULL))
+    CONSTRAINT check_9ccf54455e CHECK ((root_namespace_id IS NOT NULL))
 );
 
 CREATE SEQUENCE project_secrets_manager_maintenance_tasks_id_seq
@@ -45595,8 +45595,6 @@ CREATE INDEX idx_protected_branch_merge_access_levels_protected_branch_proje ON 
 CREATE INDEX idx_protected_branch_unprotect_access_levels_on_member_role_id ON protected_branch_unprotect_access_levels USING btree (member_role_id);
 
 CREATE INDEX idx_psm_maintenance_tasks_on_organization_id ON project_secrets_manager_maintenance_tasks USING btree (organization_id);
-
-CREATE INDEX idx_psm_maintenance_tasks_on_parent_group_id ON project_secrets_manager_maintenance_tasks USING btree (parent_group_id);
 
 CREATE INDEX idx_psm_maintenance_tasks_on_processed_at_retry_count ON project_secrets_manager_maintenance_tasks USING btree (last_processed_at, retry_count);
 

@@ -258,7 +258,7 @@ RSpec.describe DiffNote, feature_category: :code_review_workflow do
 
                 it 'syncs namespace_id sharding key for `note_diff_file`' do
                   subject.save!
-                  subject.update_column(:project_id, nil)
+                  subject.update_columns(namespace_id: project.project_namespace_id, project_id: nil)
 
                   expect(subject.note_diff_file.reload.namespace_id).to eq(subject.namespace_id)
                 end

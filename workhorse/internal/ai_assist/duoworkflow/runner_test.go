@@ -1372,9 +1372,9 @@ func Test_intersectServerCapabilities(t *testing.T) {
 			expected:   []string{},
 		},
 		{
-			name:       "all whitelisted capabilities pass through",
-			fromServer: []string{"advanced_search"},
-			expected:   []string{"advanced_search"},
+			name:       "all allowlisted capabilities pass through",
+			fromServer: []string{"advanced_search", "tool_call_approval", "tool_call_pattern_approval", "job_trace_pagination"},
+			expected:   []string{"advanced_search", "tool_call_approval", "tool_call_pattern_approval", "job_trace_pagination"},
 		},
 	}
 

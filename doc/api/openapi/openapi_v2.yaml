@@ -9149,7 +9149,8 @@ paths:
       operationId: getApiV4GroupsId(-)search
   "/api/v4/groups/{id}/wikis":
     get:
-      description: Get a list of wiki pages
+      summary: List all wiki pages for a group
+      description: Lists all wiki pages for a specified group.
       produces:
       - application/json
       parameters:
@@ -9166,7 +9167,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of wiki pages
+          description: List all wiki pages for a group
           schema:
             type: array
             items:
@@ -9177,7 +9178,9 @@ paths:
       - wikis
       operationId: getApiV4GroupsIdWikis
     post:
-      description: Create a wiki page
+      summary: Create a wiki page for a group
+      description: Creates a wiki page for a specified group. Requests can define
+        the title, slug, and content.
       produces:
       - application/json
       consumes:
@@ -9195,7 +9198,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdWikis"
       responses:
         '201':
-          description: Create a wiki page
+          description: Create a wiki page for a group
           schema:
             "$ref": "#/definitions/API_Entities_WikiPage"
         '400':
@@ -9209,7 +9212,8 @@ paths:
       operationId: postApiV4GroupsIdWikis
   "/api/v4/groups/{id}/wikis/{slug}":
     get:
-      description: Get a wiki page
+      summary: Retrieve a wiki page for a group
+      description: Retrieves a specified wiki page for a group.
       produces:
       - application/json
       parameters:
@@ -9236,7 +9240,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a wiki page
+          description: Retrieve a wiki page for a group
           schema:
             "$ref": "#/definitions/API_Entities_WikiPage"
         '404':
@@ -9245,7 +9249,8 @@ paths:
       - wikis
       operationId: getApiV4GroupsIdWikisSlug
     put:
-      description: Update a wiki page
+      summary: Update a wiki page for a group
+      description: Updates a specified wiki page for a group.
       produces:
       - application/json
       consumes:
@@ -9268,7 +9273,7 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdWikisSlug"
       responses:
         '200':
-          description: Update a wiki page
+          description: Update a wiki page for a group
           schema:
             "$ref": "#/definitions/API_Entities_WikiPage"
         '400':
@@ -9281,7 +9286,8 @@ paths:
       - wikis
       operationId: putApiV4GroupsIdWikisSlug
     delete:
-      description: Delete a wiki page
+      summary: Delete a wiki page for a group
+      description: Deletes a specified wiki page for a group.
       produces:
       - application/json
       parameters:
@@ -9297,7 +9303,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a wiki page
+          description: Delete a wiki page for a group
         '400':
           description: Validation error
         '404':
@@ -9307,8 +9313,9 @@ paths:
       operationId: deleteApiV4GroupsIdWikisSlug
   "/api/v4/groups/{id}/wikis/attachments":
     post:
-      summary: Upload an attachment to the wiki repository
-      description: This feature was introduced in GitLab 11.3.
+      summary: Upload an attachment to a group wiki
+      description: Uploads a file to the `uploads` directory in a specified group
+        wiki.
       produces:
       - application/json
       consumes:
@@ -9326,7 +9333,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdWikisAttachments"
       responses:
         '201':
-          description: Upload an attachment to the wiki repository
+          description: Upload an attachment to a group wiki
           schema:
             "$ref": "#/definitions/API_Entities_WikiAttachment"
         '404':
@@ -29712,9 +29719,9 @@ paths:
       operationId: getApiV4ProjectsIdPackagesPackageIdPackageFilesPackageFileIdDownload
   "/api/v4/projects/{id}/pages":
     delete:
-      summary: Unpublish pages
-      description: Remove pages. The user must have the Maintainer or Owner role for
-        the project. This feature was introduced in GitLab 12.6
+      summary: Unpublish Pages
+      description: Unpublishes Pages from a specified project. You must have the Maintainer
+        or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -29726,7 +29733,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Unpublish pages
+          description: Unpublish Pages
         '401':
           description: Unauthorized
         '404':
@@ -29735,9 +29742,9 @@ paths:
       - gitlab_pages
       operationId: deleteApiV4ProjectsIdPages
     patch:
-      summary: Update pages settings
-      description: Update page settings for a project. The user must have the Maintainer
-        or Owner role for the project.
+      summary: Update Pages settings for a project
+      description: Updates Pages settings for a specified project. You must have the
+        Maintainer or Owner role for the project.
       produces:
       - application/json
       consumes:
@@ -29756,7 +29763,7 @@ paths:
           "$ref": "#/definitions/patchApiV4ProjectsIdPages"
       responses:
         '200':
-          description: Update pages settings
+          description: Update Pages settings for a project
         '401':
           description: Unauthorized
         '404':
@@ -29765,9 +29772,9 @@ paths:
       - gitlab_pages
       operationId: patchApiV4ProjectsIdPages
     get:
-      summary: Get pages settings
-      description: Get pages URL and other settings. The user must have the Maintainer
-        or Owner role for the project. This feature was introduced in GitLab 16.8
+      summary: Retrieve Pages settings for a project
+      description: Retrieves Pages settings for a specified project. You must have
+        the Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -29779,7 +29786,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get pages settings
+          description: Retrieve Pages settings for a project
         '401':
           description: Unauthorized
         '404':
@@ -29789,7 +29796,9 @@ paths:
       operationId: getApiV4ProjectsIdPages
   "/api/v4/projects/{id}/pages/domains":
     get:
-      description: Get all pages domains
+      summary: List all Pages domains in a project
+      description: Lists all Pages domains in a specified project. You must have permissions
+        to view Pages domains.
       produces:
       - application/json
       parameters:
@@ -29817,7 +29826,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get all pages domains
+          description: List all Pages domains in a project
           schema:
             type: array
             items:
@@ -29826,7 +29835,9 @@ paths:
       - gitlab_pages
       operationId: getApiV4ProjectsIdPagesDomains
     post:
-      description: Create a new pages domain
+      summary: Create Pages domain
+      description: Creates a Pages domain in a specified project. You must have permissions
+        to create Pages domains.
       produces:
       - application/json
       consumes:
@@ -29845,7 +29856,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdPagesDomains"
       responses:
         '201':
-          description: Create a new pages domain
+          description: Create Pages domain
           schema:
             "$ref": "#/definitions/API_Entities_PagesDomain"
       tags:
@@ -29853,7 +29864,9 @@ paths:
       operationId: postApiV4ProjectsIdPagesDomains
   "/api/v4/projects/{id}/pages/domains/{domain}":
     get:
-      description: Get a single pages domain
+      summary: Retrieve a Pages domain
+      description: Retrieves a Pages domain from a specified project. You must have
+        permissions to view Pages domains.
       produces:
       - application/json
       parameters:
@@ -29870,14 +29883,16 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single pages domain
+          description: Retrieve a Pages domain
           schema:
             "$ref": "#/definitions/API_Entities_PagesDomain"
       tags:
       - gitlab_pages
       operationId: getApiV4ProjectsIdPagesDomainsDomain
     put:
-      description: Updates a pages domain
+      summary: Update Pages domain
+      description: Updates a specified Pages domain in a project. You must have permissions
+        to change an existing Pages domain.
       produces:
       - application/json
       consumes:
@@ -29901,12 +29916,13 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPagesDomainsDomain"
       responses:
         '200':
-          description: Updates a pages domain
+          description: Update Pages domain
       tags:
       - gitlab_pages
       operationId: putApiV4ProjectsIdPagesDomainsDomain
     delete:
-      description: Delete a pages domain
+      summary: Delete Pages domain
+      description: Deletes a specified Pages domain in a project.
       produces:
       - application/json
       parameters:
@@ -29929,7 +29945,9 @@ paths:
       operationId: deleteApiV4ProjectsIdPagesDomainsDomain
   "/api/v4/projects/{id}/pages/domains/{domain}/verify":
     put:
-      description: Verify a pages domain
+      summary: Verify Pages domain
+      description: Verifies a specified Pages domain in a project. You must have permissions
+        to update Pages domains.
       produces:
       - application/json
       consumes:
@@ -29948,7 +29966,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Verify a pages domain
+          description: Verify Pages domain
           schema:
             "$ref": "#/definitions/API_Entities_PagesDomain"
       tags:
@@ -35009,7 +35027,9 @@ paths:
       operationId: getApiV4ProjectsIdSnippetsSnippetIdUserAgentDetail
   "/api/v4/projects/{id}/statistics":
     get:
-      description: Get the list of project fetch statistics for the last 30 days
+      summary: Retrieve the statistics of the last 30 days
+      description: Retrieves the clone and pull statistics for the last 30 days from
+        a specified project.
       produces:
       - application/json
       parameters:
@@ -35020,7 +35040,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the list of project fetch statistics for the last 30 days
+          description: Retrieve the statistics of the last 30 days
           schema:
             "$ref": "#/definitions/API_Entities_ProjectDailyStatistics"
         '404':
@@ -35032,8 +35052,8 @@ paths:
       operationId: getApiV4ProjectsIdStatistics
   "/api/v4/projects/{id}/templates/{type}":
     get:
-      summary: Get a list of templates available to this project
-      description: This endpoint was introduced in GitLab 11.4
+      summary: List all templates of a particular type
+      description: Lists all templates of a specified type for a project.
       produces:
       - application/json
       parameters:
@@ -35073,7 +35093,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get a list of templates available to this project
+          description: List all templates of a particular type
           schema:
             type: array
             items:
@@ -35087,8 +35107,8 @@ paths:
       operationId: getApiV4ProjectsIdTemplatesType
   "/api/v4/projects/{id}/templates/{type}/{name}":
     get:
-      summary: Download a template available to this project
-      description: This endpoint was introduced in GitLab 11.4
+      summary: Retrieve a template of a particular type
+      description: Retrieves a template of a specified type for a project.
       produces:
       - application/json
       parameters:
@@ -35140,7 +35160,7 @@ paths:
         example: GitLab B.V.
       responses:
         '200':
-          description: Download a template available to this project
+          description: Retrieve a template of a particular type
           schema:
             "$ref": "#/definitions/API_Entities_License"
         '401':
@@ -36774,7 +36794,8 @@ paths:
       operationId: getApiV4ProjectsIdAuditEventsAuditEventId
   "/api/v4/projects/{id}/protected_branches":
     get:
-      description: Get a project's protected branches
+      summary: List all protected branches
+      description: Lists all protected branches for a specified project.
       produces:
       - application/json
       parameters:
@@ -36808,7 +36829,7 @@ paths:
         example: mai
       responses:
         '200':
-          description: Get a project's protected branches
+          description: List all protected branches
           schema:
             type: array
             items:
@@ -36821,7 +36842,9 @@ paths:
       - protected_branches
       operationId: getApiV4ProjectsIdProtectedBranches
     post:
-      description: Protect a single branch
+      summary: Protect repository branches
+      description: Protects a specified repository branch or several project repository
+        branches using a wildcard protected branch.
       produces:
       - application/json
       consumes:
@@ -36840,7 +36863,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdProtectedBranches"
       responses:
         '201':
-          description: Protect a single branch
+          description: Protect repository branches
           schema:
             "$ref": "#/definitions/API_Entities_ProtectedBranch"
         '422':
@@ -36856,7 +36879,8 @@ paths:
       operationId: postApiV4ProjectsIdProtectedBranches
   "/api/v4/projects/{id}/protected_branches/{name}":
     get:
-      description: Get a single protected branch
+      summary: Retrieve a protected branch or wildcard protected branch
+      description: Retrieves a specified protected branch or wildcard protected branch.
       produces:
       - application/json
       parameters:
@@ -36874,7 +36898,7 @@ paths:
         example: main
       responses:
         '200':
-          description: Get a single protected branch
+          description: Retrieve a protected branch or wildcard protected branch
           schema:
             "$ref": "#/definitions/API_Entities_ProtectedBranch"
         '404':
@@ -36885,7 +36909,8 @@ paths:
       - protected_branches
       operationId: getApiV4ProjectsIdProtectedBranchesName
     patch:
-      description: Update a protected branch
+      summary: Update a protected branch
+      description: Updates a protected branch for a specified project.
       produces:
       - application/json
       consumes:
@@ -36925,7 +36950,8 @@ paths:
       - protected_branches
       operationId: patchApiV4ProjectsIdProtectedBranchesName
     delete:
-      description: Unprotect a single branch
+      summary: Unprotect repository branches
+      description: Unprotects a specified protected branch or wildcard protected branch.
       produces:
       - application/json
       parameters:
@@ -36943,7 +36969,7 @@ paths:
         example: main
       responses:
         '204':
-          description: Unprotect a single branch
+          description: Unprotect repository branches
         '404':
           description: 404 Project Not Found
         '401':
@@ -36953,8 +36979,8 @@ paths:
       operationId: deleteApiV4ProjectsIdProtectedBranchesName
   "/api/v4/projects/{id}/protected_tags":
     get:
-      summary: Get a project's protected tags
-      description: This feature was introduced in GitLab 11.3.
+      summary: List all protected tags
+      description: Lists all protected tags for a specified project.
       produces:
       - application/json
       parameters:
@@ -36981,7 +37007,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get a project's protected tags
+          description: List all protected tags
           schema:
             type: array
             items:
@@ -36994,8 +37020,9 @@ paths:
       - protected_tags
       operationId: getApiV4ProjectsIdProtectedTags
     post:
-      summary: Protect a single tag or wildcard
-      description: This feature was introduced in GitLab 11.3.
+      summary: Protect a repository tag
+      description: Protects a specified repository tag using a wildcard protected
+        tag.
       produces:
       - application/json
       consumes:
@@ -37013,7 +37040,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdProtectedTags"
       responses:
         '201':
-          description: Protect a single tag or wildcard
+          description: Protect a repository tag
           schema:
             "$ref": "#/definitions/API_Entities_ProtectedTag"
         '403':
@@ -37027,8 +37054,8 @@ paths:
       operationId: postApiV4ProjectsIdProtectedTags
   "/api/v4/projects/{id}/protected_tags/{name}":
     get:
-      summary: Get a single protected tag
-      description: This feature was introduced in GitLab 11.3.
+      summary: Retrieve a protected tag or wildcard protected tag
+      description: Retrieves a specified protected tag or wildcard protected tag.
       produces:
       - application/json
       parameters:
@@ -37045,7 +37072,7 @@ paths:
         example: release*
       responses:
         '200':
-          description: Get a single protected tag
+          description: Retrieve a protected tag or wildcard protected tag
           schema:
             "$ref": "#/definitions/API_Entities_ProtectedTag"
         '403':
@@ -37056,8 +37083,8 @@ paths:
       - protected_tags
       operationId: getApiV4ProjectsIdProtectedTagsName
     delete:
-      summary: Unprotect a single tag
-      description: This feature was introduced in GitLab 11.3.
+      summary: Unprotect repository tags
+      description: Unprotects a specified protected tag or wildcard protected tag.
       produces:
       - application/json
       parameters:
@@ -37074,7 +37101,7 @@ paths:
         example: release-1-0
       responses:
         '204':
-          description: Unprotect a single tag
+          description: Unprotect repository tags
         '403':
           description: Unauthenticated
         '404':
@@ -39755,7 +39782,8 @@ paths:
       operationId: deleteApiV4ProjectsIdTerraformStateNameVersionsSerial
   "/api/v4/projects/{id}/wikis":
     get:
-      description: Get a list of wiki pages
+      summary: List all wiki pages for a project
+      description: Lists all wiki pages for a specified project.
       produces:
       - application/json
       parameters:
@@ -39772,7 +39800,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of wiki pages
+          description: List all wiki pages for a project
           schema:
             type: array
             items:
@@ -39783,7 +39811,9 @@ paths:
       - wikis
       operationId: getApiV4ProjectsIdWikis
     post:
-      description: Create a wiki page
+      summary: Create a wiki page for a project
+      description: Creates a wiki page for a specified project. Requests can define
+        the title, slug, and content.
       produces:
       - application/json
       consumes:
@@ -39801,7 +39831,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdWikis"
       responses:
         '201':
-          description: Create a wiki page
+          description: Create a wiki page for a project
           schema:
             "$ref": "#/definitions/API_Entities_WikiPage"
         '400':
@@ -39815,7 +39845,8 @@ paths:
       operationId: postApiV4ProjectsIdWikis
   "/api/v4/projects/{id}/wikis/{slug}":
     get:
-      description: Get a wiki page
+      summary: Retrieve a wiki page for a project
+      description: Retrieves a specified wiki page for a project.
       produces:
       - application/json
       parameters:
@@ -39842,7 +39873,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a wiki page
+          description: Retrieve a wiki page for a project
           schema:
             "$ref": "#/definitions/API_Entities_WikiPage"
         '404':
@@ -39851,7 +39882,8 @@ paths:
       - wikis
       operationId: getApiV4ProjectsIdWikisSlug
     put:
-      description: Update a wiki page
+      summary: Update a wiki page for a project
+      description: Updates a specified wiki page for a project.
       produces:
       - application/json
       consumes:
@@ -39874,7 +39906,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdWikisSlug"
       responses:
         '200':
-          description: Update a wiki page
+          description: Update a wiki page for a project
           schema:
             "$ref": "#/definitions/API_Entities_WikiPage"
         '400':
@@ -39887,7 +39919,8 @@ paths:
       - wikis
       operationId: putApiV4ProjectsIdWikisSlug
     delete:
-      description: Delete a wiki page
+      summary: Delete a wiki page for a project
+      description: Deletes a specified wiki page for a project.
       produces:
       - application/json
       parameters:
@@ -39903,7 +39936,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a wiki page
+          description: Delete a wiki page for a project
         '400':
           description: Validation error
         '404':
@@ -39913,8 +39946,9 @@ paths:
       operationId: deleteApiV4ProjectsIdWikisSlug
   "/api/v4/projects/{id}/wikis/attachments":
     post:
-      summary: Upload an attachment to the wiki repository
-      description: This feature was introduced in GitLab 11.3.
+      summary: Upload an attachment to a project wiki
+      description: Uploads a file to the `uploads` directory in a specified project
+        wiki.
       produces:
       - application/json
       consumes:
@@ -39932,7 +39966,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdWikisAttachments"
       responses:
         '201':
-          description: Upload an attachment to the wiki repository
+          description: Upload an attachment to a project wiki
           schema:
             "$ref": "#/definitions/API_Entities_WikiAttachment"
         '404':
@@ -46071,7 +46105,9 @@ paths:
       operationId: postApiV4Organizations
   "/api/v4/pages/domains":
     get:
-      description: Get all pages domains
+      summary: List all Pages domains
+      description: Lists all Pages domains on the instance. You must have administrator
+        access to the instance.
       produces:
       - application/json
       parameters:
@@ -46098,7 +46134,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get all pages domains
+          description: List all Pages domains
           schema:
             "$ref": "#/definitions/API_Entities_PagesDomainBasic"
       tags:
@@ -56052,7 +56088,7 @@ definitions:
     required:
     - title
     - content
-    description: Create a wiki page
+    description: Create a wiki page for a group
   putApiV4GroupsIdWikisSlug:
     type: object
     properties:
@@ -56079,7 +56115,7 @@ definitions:
         - asciidoc
         - org
         default: markdown
-    description: Update a wiki page
+    description: Update a wiki page for a group
   postApiV4GroupsIdWikisAttachments:
     type: object
     properties:
@@ -56091,7 +56127,7 @@ definitions:
         description: The name of the branch
     required:
     - file
-    description: Upload an attachment to the wiki repository
+    description: Upload an attachment to a group wiki
   API_Entities_WikiAttachment:
     type: object
     properties:
@@ -66306,7 +66342,7 @@ definitions:
       pages_primary_domain:
         type: string
         description: Set pages primary domain
-    description: Update pages settings
+    description: Update Pages settings for a project
   API_Entities_PagesDomain:
     type: object
     properties:
@@ -66371,7 +66407,7 @@ definitions:
         type: string
     required:
     - domain
-    description: Create a new pages domain
+    description: Create Pages domain
   putApiV4ProjectsIdPagesDomainsDomain:
     type: object
     properties:
@@ -66385,7 +66421,7 @@ definitions:
         type: boolean
         description: Enables automatic generation of SSL certificates issued by Let's
           Encrypt for custom domains.
-    description: Updates a pages domain
+    description: Update Pages domain
   API_Entities_ClusterProject:
     type: object
     properties:
@@ -70595,7 +70631,7 @@ definitions:
         description: Prevent pushes to this branch if it matches an item in CODEOWNERS
     required:
     - name
-    description: Protect a single branch
+    description: Protect repository branches
   patchApiV4ProjectsIdProtectedBranchesName:
     type: object
     properties:
@@ -70783,7 +70819,7 @@ definitions:
               description: ID of a group
     required:
     - name
-    description: Protect a single tag or wildcard
+    description: Protect a repository tag
   postApiV4ProjectsIdPackagesPypi:
     type: object
     properties:
@@ -71747,7 +71783,7 @@ definitions:
     required:
     - title
     - content
-    description: Create a wiki page
+    description: Create a wiki page for a project
   putApiV4ProjectsIdWikisSlug:
     type: object
     properties:
@@ -71774,7 +71810,7 @@ definitions:
         - asciidoc
         - org
         default: markdown
-    description: Update a wiki page
+    description: Update a wiki page for a project
   postApiV4ProjectsIdWikisAttachments:
     type: object
     properties:
@@ -71786,7 +71822,7 @@ definitions:
         description: The name of the branch
     required:
     - file
-    description: Upload an attachment to the wiki repository
+    description: Upload an attachment to a project wiki
   API_Entities_BatchedBackgroundMigration:
     type: object
     properties:

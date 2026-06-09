@@ -19,7 +19,7 @@ RSpec.describe Sidebars::Projects::Menus::WorkItemsMenu, feature_category: :navi
         ] },
         pill_count: menu.pill_count,
         pill_count_field: menu.pill_count_field,
-        has_pill: menu.has_pill?,
+        has_pill: true,
         super_sidebar_parent: Sidebars::Projects::SuperSidebarMenus::PlanMenu
       }
     end
@@ -37,24 +37,6 @@ RSpec.describe Sidebars::Projects::Menus::WorkItemsMenu, feature_category: :navi
 
       it 'returns false' do
         expect(subject.render?).to be false
-      end
-    end
-  end
-
-  describe '#has_pill?' do
-    context 'when show_work_items_sidebar_count is enabled' do
-      it 'returns true' do
-        stub_feature_flags(show_work_items_sidebar_count: true)
-
-        expect(subject.has_pill?).to be true
-      end
-    end
-
-    context 'when show_work_items_sidebar_count is disabled' do
-      it 'returns false' do
-        stub_feature_flags(show_work_items_sidebar_count: false)
-
-        expect(subject.has_pill?).to be false
       end
     end
   end

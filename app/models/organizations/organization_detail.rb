@@ -19,6 +19,7 @@ module Organizations
 
     belongs_to :organization, inverse_of: :organization_detail
 
+    scope :with_organization_ids, ->(organization_ids) { where(organization_id: organization_ids) }
     validates :organization, presence: true
     validates :description, length: { maximum: 1024 }
     validates :state_metadata,

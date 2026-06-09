@@ -358,11 +358,12 @@ Grants the ability to create, delete, merge, read, and update topics.
 
 #### Organization
 
-Grants the ability to create, read, and update organizations.
+Grants the ability to create, delete, read, and update organizations.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `OrganizationCreate` |
+| Delete | Instance | Mutation | `OrganizationDelete` |
 | Read | Instance | Type | `Organization` |
 | Read | Instance | Type | `OrganizationUser` |
 | Read | Instance | Field | `Query.organization` |

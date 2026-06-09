@@ -49,7 +49,6 @@ RSpec.describe Note, feature_category: :team_planning do
 
   describe 'validation' do
     it { is_expected.to validate_presence_of(:project) }
-    it { is_expected.to validate_presence_of(:namespace) }
 
     context 'when note is on a personal snippet' do
       before do
@@ -61,6 +60,22 @@ RSpec.describe Note, feature_category: :team_planning do
       it { is_expected.not_to validate_presence_of(:namespace) }
 
       it { is_expected.not_to validate_presence_of(:project) }
+    end
+
+    context 'when note is on a group-level noteable' do
+      before do
+        allow(subject).to receive_messages(for_personal_snippet?: false, for_project_noteable?: false)
+      end
+
+      it { is_expected.to validate_presence_of(:namespace) }
+    end
+
+    context 'when note is on a project-scoped noteable' do
+      before do
+        allow(subject).to receive_messages(for_personal_snippet?: false, for_project_noteable?: true)
+      end
+
+      it { is_expected.not_to validate_presence_of(:namespace) }
     end
 
     context 'when note is on commit' do
@@ -449,15 +464,16 @@ RSpec.describe Note, feature_category: :team_planning do
     end
 
     describe '#ensure_namespace_id' do
-      context 'for issues' do
+      context 'for project-level issues' do
         let_it_be(:issue) { create(:issue) }
 
-        it 'copies the namespace_id of the issue' do
-          note = build(:note, noteable: issue)
+        it 'does not set namespace_id and keeps project_id set', :aggregate_failures do
+          note = build(:note, noteable: issue, project: issue.project)
 
           note.valid?
 
-          expect(note.namespace_id).to eq(issue.namespace_id)
+          expect(note.namespace_id).to be_nil
+          expect(note.project_id).to eq(issue.project.id)
         end
       end
 
@@ -477,25 +493,27 @@ RSpec.describe Note, feature_category: :team_planning do
       context 'for a project noteable' do
         let_it_be(:merge_request, freeze: false) { create(:merge_request) }
 
-        it 'copies the project_namespace_id of the project' do
+        it 'does not set namespace_id and keeps project_id set', :aggregate_failures do
           note = build(:note, noteable: merge_request, project: merge_request.project)
 
           note.valid?
 
-          expect(note.namespace_id).to eq(merge_request.project.project_namespace_id)
+          expect(note.namespace_id).to be_nil
+          expect(note.project_id).to eq(merge_request.project.id)
         end
 
         context 'when noteable is changed' do
           let_it_be(:another_mr) { create(:merge_request) }
 
-          it 'updates the namespace_id' do
+          it 'keeps namespace_id nil and updates project_id', :aggregate_failures do
             note = create(:note, noteable: merge_request, project: merge_request.project)
 
             note.noteable = another_mr
             note.project = another_mr.project
             note.valid?
 
-            expect(note.namespace_id).to eq(another_mr.project.project_namespace_id)
+            expect(note.namespace_id).to be_nil
+            expect(note.project_id).to eq(another_mr.project.id)
           end
         end
 
@@ -505,6 +523,21 @@ RSpec.describe Note, feature_category: :team_planning do
 
             expect { note.valid? }.not_to raise_error
           end
+        end
+      end
+
+      # Regression spec: ensure no dual-write on the update path either.
+      # See https://gitlab.com/gitlab-org/gitlab/-/issues/601435
+      context 'for a project noteable on the update path' do
+        let_it_be(:merge_request) { create(:merge_request) }
+
+        it 'keeps namespace_id nil and project_id set after a subsequent save', :aggregate_failures do
+          note = create(:note, noteable: merge_request, project: merge_request.project)
+
+          note.update!(note: note.note)
+
+          expect(note.namespace_id).to be_nil
+          expect(note.project_id).to eq(merge_request.project.id)
         end
       end
 

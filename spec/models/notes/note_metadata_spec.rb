@@ -116,17 +116,20 @@ RSpec.describe Notes::NoteMetadata, feature_category: :team_planning do
   describe 'ensure sharding key is set' do
     let_it_be(:note, freeze: false) { create(:note, project: project) }
 
-    it 'inherits the sharding key from the note' do
-      note_metadata = create(:note_metadata, note: note)
+    context 'when note has a namespace_id' do
+      before do
+        note.update_column(:namespace_id, project.project_namespace_id)
+        note.reload
+      end
 
-      expect(note_metadata.reload.namespace_id).to eq(note.namespace_id)
+      it 'inherits the sharding key from the note' do
+        note_metadata = create(:note_metadata, note: note)
+
+        expect(note_metadata.reload.namespace_id).to eq(note.namespace_id)
+      end
     end
 
     context 'when note namespace_id is not set' do
-      before do
-        note.update_column(:namespace_id, nil)
-      end
-
       it 'sets namespace_id to the project namespace_id' do
         note_metadata = create(:note_metadata, note: note)
 

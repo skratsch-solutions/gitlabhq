@@ -8,7 +8,6 @@ import { useDiffsView } from '~/rapid_diffs/stores/diffs_view';
 import { initHiddenFilesWarning } from '~/rapid_diffs/app/init_hidden_files_warning';
 import { createAlert } from '~/alert';
 import { __ } from '~/locale';
-import { fixWebComponentsStreamingOnSafari } from '~/rapid_diffs/app/quirks/safari_fix';
 import { DIFF_FILE_MOUNTED } from '~/rapid_diffs/dom_events';
 import { VIEWER_ADAPTERS } from '~/rapid_diffs/app/adapter_configs/base';
 import { camelizeKeys } from '~/lib/utils/object_utils';
@@ -114,11 +113,6 @@ export class RapidDiffsFacade {
     window.customElements.define('diff-file', this.#DiffFileImplementation);
     window.customElements.define('diff-file-mounted', this.#DiffFileMounted);
     window.customElements.define('streaming-error', StreamingError);
-    fixWebComponentsStreamingOnSafari(
-      this.root,
-      this.#DiffFileImplementation,
-      this.#DiffFileMounted,
-    );
   }
 
   #initHeader() {

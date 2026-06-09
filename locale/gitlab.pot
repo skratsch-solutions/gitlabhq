@@ -15457,6 +15457,9 @@ msgstr ""
 msgid "Cannot delete a candidate associated to a model version"
 msgstr ""
 
+msgid "Cannot delete the compliance framework because it is referenced by a security policy. Remove it from the policy scope first."
+msgstr ""
+
 msgid "Cannot delete the default framework"
 msgstr ""
 
@@ -31989,6 +31992,9 @@ msgid "Failed to load authors. Please try again."
 msgstr ""
 
 msgid "Failed to load branches. Please try again."
+msgstr ""
+
+msgid "Failed to load code quality findings. Try reloading the page."
 msgstr ""
 
 msgid "Failed to load deploy keys."
@@ -70119,6 +70125,9 @@ msgstr ""
 msgid "SecurityReports|Container scanning for registry scans the latest tag of each image. It scans for vulnerabilities in the container registry when an image or database is updated."
 msgstr ""
 
+msgid "SecurityReports|Could not start Vulnerability Resolution. Please try again."
+msgstr ""
+
 msgid "SecurityReports|Create Jira issue"
 msgstr ""
 
@@ -70448,6 +70457,9 @@ msgstr ""
 msgid "SecurityReports|Report type"
 msgstr ""
 
+msgid "SecurityReports|Resolve vulnerability"
+msgstr ""
+
 msgid "SecurityReports|Results show vulnerability findings from the latest successful %{helpPageLinkStart}pipeline%{helpPageLinkEnd}."
 msgstr ""
 
@@ -70511,6 +70523,12 @@ msgid "SecurityReports|Sorry, your filter produced no results"
 msgstr ""
 
 msgid "SecurityReports|Starting 2025-05-15, we will gradually migrate vulnerabilities that have not been updated in the last 12 months to the vulnerability archive. Archived vulnerabilities are stored for 3 years before deletion. To access the archive, on the left sidebar, select Secure &gt; Security Configuration &gt; Vulnerability Management."
+msgstr ""
+
+msgid "SecurityReports|Starting Vulnerability Resolution agent session..."
+msgstr ""
+
+msgid "SecurityReports|Starting session"
 msgstr ""
 
 msgid "SecurityReports|Status"
@@ -70603,10 +70621,19 @@ msgstr ""
 msgid "SecurityReports|Undo dismiss"
 msgstr ""
 
+msgid "SecurityReports|Use AI to create a merge request with a proposed fix."
+msgstr ""
+
+msgid "SecurityReports|VR available"
+msgstr ""
+
 msgid "SecurityReports|Validity check"
 msgstr ""
 
 msgid "SecurityReports|Validity check couldn't confirm whether the secret is active or inactive."
+msgstr ""
+
+msgid "SecurityReports|View session"
 msgstr ""
 
 msgid "SecurityReports|Vulnerabilities by age"
@@ -70622,6 +70649,9 @@ msgid "SecurityReports|Vulnerability Resolution unavailable"
 msgstr ""
 
 msgid "SecurityReports|Vulnerability report"
+msgstr ""
+
+msgid "SecurityReports|Vulnerability resolution is running. Open the agent session for live progress."
 msgstr ""
 
 msgid "SecurityReports|Vulnerability will be archived on %{date}"

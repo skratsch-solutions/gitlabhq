@@ -140,7 +140,8 @@ To add a self-hosted model:
      | Deployment method | Format | Example |
      |-------------|---------|---------|
      | [vLLM](supported_llm_serving_platforms.md#find-the-model-name)        | `custom_openai/<name of the model served through vLLM>` | `custom_openai/Mixtral-8x7B-Instruct-v0.1` |
-     | [Amazon Bedrock](#set-the-model-identifier-for-amazon-bedrock-models) | `bedrock/<model ID of the model>`                       | `bedrock/mistral.mixtral-8x7b-instruct-v0:1` |
+     | [Amazon Bedrock - Set the model identifier](#set-the-model-identifier) | `bedrock/<model ID of the model>` | `bedrock/mistral.mixtral-8x7b-instruct-v0:1` |
+     | [Amazon Bedrock - Use an application inference profile ARN](#use-an-application-inference-profile-arn) | `bedrock/converse/<application inference profile ARN>` | `bedrock/converse/arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/abcd1234efgh` |
      | [Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude) | `vertex_ai/<model ID of the model>` | `vertex_ai/claude-sonnet-4-6@default` |
      | [Anthropic](https://platform.claude.com/docs/en/about-claude/models/overview)                                                             | `anthropic/<model ID of the model>`                     | `anthropic/claude-opus-4-6` |
      | [OpenAI](https://developers.openai.com/api/docs/models)                                                                | `openai/<model ID of the model>`                        | `openai/gpt-5` |
@@ -148,7 +149,14 @@ To add a self-hosted model:
 
 1. Select **Add self-hosted model**.
 
-### Set the model identifier for Amazon Bedrock models
+### Add an Amazon Bedrock model
+
+When you add an Amazon Bedrock self-hosted model, you can do either of the following:
+
+- Set the model identifier. This is the default method.
+- Use an [application inference profile](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-create.html) ARN. Use this method when you want to track cost allocation or spend per team or project.
+
+#### Set the model identifier
 
 To set a model identifier for an Amazon Bedrock model:
 
@@ -166,6 +174,23 @@ Some regions are not supported by cross-region inferencing. For these regions, d
 
 - The `AWS_REGION` is `eu-west-2`.
 - The model identifier is `anthropic.claude-sonnet-4-5-20250929-v1:0`.
+
+#### Use an application inference profile ARN
+
+To use an application inference profile ARN as the model identifier, use the following format:
+
+```plaintext
+bedrock/converse/arn:aws:bedrock:<region>:<account-id>:application-inference-profile/<id>
+```
+
+For example:
+
+```plaintext
+bedrock/converse/arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/abcd1234efgh
+```
+
+The `converse/` prefix routes the request through the Amazon Bedrock Converse API, which is
+required for ARN-based identifiers.
 
 ## Turn on self-hosted beta models and features
 

@@ -518,7 +518,7 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
 
   describe '.handle_api_exception' do
     before do
-      allow_any_instance_of(self.class).to receive(:rack_response)
+      allow_any_instance_of(self.class).to receive(:error!)
 
       stub_sentry_settings
 

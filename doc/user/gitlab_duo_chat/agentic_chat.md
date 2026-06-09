@@ -402,6 +402,14 @@ once for the entire session instead.
 
 Session approvals apply to Chat only, not to flows.
 
+> [!warning]
+> When you approve a tool with a wildcard pattern (for example, `git checkout *`),
+> the `*` matches any branch name or argument string. Commands that contain shell
+> metacharacters (`;`, `&&`, `|`, `$`, and others) are automatically rejected
+> during pattern matching, but a broad pattern still approves a wide range of
+> commands. Use specific patterns and avoid trailing wildcards on command tools
+> when possible.
+
 ### Manage tool approvals
 
 Owners and administrators can control whether users can approve tools for a session. Settings cascade from instance to group to project.

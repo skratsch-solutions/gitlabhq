@@ -1415,7 +1415,7 @@ export default {
                       <duo-work-item-to-mr-action
                         v-if="showGenerateMrWithDuoButton"
                         :project-path="workItemFullPath"
-                        :work-item-id="workItem.iid"
+                        :work-item-iid="workItem.iid"
                         :work-item-type="workItemType"
                         :work-item-web-url="workItem.webUrl"
                       />
