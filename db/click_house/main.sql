@@ -1095,12 +1095,7 @@ CREATE TABLE siphon_events
     `personal_namespace_id` Nullable(Int64),
     `path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), coalesce(group_id, 0) != 0, dictGetOrDefault('namespace_traversal_paths_dict', 'traversal_path', group_id, '0/'), coalesce(personal_namespace_id, 0) != 0, dictGetOrDefault('namespace_traversal_paths_dict', 'traversal_path', personal_namespace_id, '0/'), '0/') CODEC(ZSTD(3)),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY id
-    )
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PARTITION BY toYear(created_at)
@@ -1411,14 +1406,7 @@ CREATE TABLE siphon_merge_request_diff_files
     `project_id` Nullable(Int64),
     `traversal_path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/') CODEC(ZSTD(3)),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY
-            merge_request_diff_id,
-            relative_order
-    )
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, merge_request_diff_id, relative_order)
@@ -1754,12 +1742,7 @@ CREATE TABLE siphon_notes
     `organization_id` Nullable(Int64),
     `traversal_path` String DEFAULT multiIf(coalesce(namespace_id, 0) != 0, dictGetOrDefault('namespace_traversal_paths_dict', 'traversal_path', namespace_id, '0/'), coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/') CODEC(ZSTD(3)),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY id
-    )
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, noteable_type, noteable_id, id)
@@ -1851,14 +1834,7 @@ CREATE TABLE siphon_p_ci_builds
     `debug_trace_enabled` Nullable(Bool) CODEC(ZSTD(1)),
     `traversal_path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/') CODEC(ZSTD(3)),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY
-            id,
-            partition_id
-    )
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, id, partition_id)
@@ -1883,14 +1859,7 @@ CREATE TABLE siphon_p_ci_builds_metadata
     `exit_code` Nullable(Int16),
     `traversal_path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/') CODEC(ZSTD(3)),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY
-            id,
-            partition_id
-    )
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, id, partition_id)
@@ -1959,14 +1928,7 @@ CREATE TABLE siphon_p_ci_pipelines
     `trigger_id` Nullable(Int64),
     `traversal_path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/') CODEC(ZSTD(3)),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY
-            id,
-            partition_id
-    )
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, id, partition_id)
@@ -2000,14 +1962,7 @@ CREATE TABLE siphon_p_ci_stages
     `pipeline_id` Nullable(Int64),
     `traversal_path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/') CODEC(ZSTD(3)),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY
-            id,
-            partition_id
-    )
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, id, partition_id)
@@ -2070,15 +2025,7 @@ CREATE TABLE siphon_project_authorizations
     `is_unique` Nullable(Bool),
     `traversal_path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/'),
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC'),
-    `_siphon_deleted` Bool DEFAULT false,
-    PROJECTION pg_pkey_ordered
-    (
-        SELECT *
-        ORDER BY
-            user_id,
-            project_id,
-            access_level
-    )
+    `_siphon_deleted` Bool DEFAULT false
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, user_id, project_id, access_level)

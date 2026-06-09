@@ -460,7 +460,7 @@ GEM
       cork
       nap
       open4 (~> 1.3)
-    click_house-client (0.8.8)
+    click_house-client (0.10.0)
       activerecord (>= 7.0, < 9.0)
       activesupport (>= 7.0, < 9.0)
       addressable (~> 2.8)
@@ -2362,7 +2362,7 @@ DEPENDENCIES
   carrierwave (~> 1.3)
   charlock_holmes (~> 0.7.9)
   circuitbox (= 2.0.0)
-  click_house-client (= 0.8.8)
+  click_house-client (= 0.10.0)
   commonmarker (~> 0.23.10)
   concurrent-ruby (~> 1.1)
   connection_pool (~> 2.5.3)
@@ -2785,7 +2785,7 @@ CHECKSUMS
   citrus (3.0.2) sha256=4ec2412fc389ad186735f4baee1460f7900a8e130ffe3f216b30d4f9c684f650
   claide (1.1.0) sha256=6d3c5c089dde904d96aa30e73306d0d4bd444b1accb9b3125ce14a3c0183f82e
   claide-plugins (0.9.2) sha256=c7ea78bc067ab23bce8515497cdcdcb8f01c86dadfbe13c44644e382922c1c2e
-  click_house-client (0.8.8) sha256=ee5e508a08390c3c46aa5818409e17eb60368c05a5142fbb63e611d35d1a5eef
+  click_house-client (0.10.0) sha256=f8f69bad9a3059cf8df9aee7daf77673b8ae494920589b4f9f5cb74dd9975a90
   coderay (1.1.3) sha256=dc530018a4684512f8f38143cd2a096c9f02a1fc2459edcfe534787a7fc77d4b
   coercible (1.0.0) sha256=5081ad24352cc8435ce5472bc2faa30260c7ea7f2102cc6a9f167c4d9bffaadc
   colored2 (3.1.2) sha256=b13c2bd7eeae2cf7356a62501d398e72fde78780bd26aec6a979578293c28b4a

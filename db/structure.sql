@@ -15718,6 +15718,7 @@ CREATE TABLE audit_events_group_streaming_event_type_filters (
     external_streaming_destination_id bigint NOT NULL,
     namespace_id bigint NOT NULL,
     audit_event_type text NOT NULL,
+    kind smallint DEFAULT 0 NOT NULL,
     CONSTRAINT check_389708af23 CHECK ((char_length(audit_event_type) <= 255))
 );
 

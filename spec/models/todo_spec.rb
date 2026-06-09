@@ -889,44 +889,4 @@ RSpec.describe Todo, feature_category: :notifications do
       end
     end
   end
-
-  describe '#access_request_url' do
-    shared_examples 'returns member access requests tab url/path' do
-      it 'returns group access requests tab url/path if target is group' do
-        subject.target = group
-
-        expect(subject.access_request_url(only_path: only_path)).to eq(Gitlab::Routing.url_helpers.group_group_members_url(group, tab: 'access_requests', only_path: only_path))
-      end
-
-      it 'returns project access requests tab url/path if target is project' do
-        subject.target = project
-
-        expect(subject.access_request_url(only_path: only_path)).to eq(Gitlab::Routing.url_helpers.project_project_members_url(project, tab: 'access_requests', only_path: only_path))
-      end
-
-      it 'returns empty string if target is neither group nor project' do
-        subject.target = issue
-
-        expect(subject.access_request_url(only_path: only_path)).to eq("")
-      end
-    end
-
-    context 'when only_path param is false' do
-      it_behaves_like 'returns member access requests tab url/path' do
-        let_it_be(:only_path) { false }
-      end
-    end
-
-    context 'when only_path param is nil' do
-      it_behaves_like 'returns member access requests tab url/path' do
-        let_it_be(:only_path) { nil }
-      end
-    end
-
-    context 'when only_path param is true' do
-      it_behaves_like 'returns member access requests tab url/path' do
-        let_it_be(:only_path) { true }
-      end
-    end
-  end
 end

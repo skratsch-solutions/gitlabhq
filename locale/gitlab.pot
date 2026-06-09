@@ -22583,6 +22583,9 @@ msgstr ""
 msgid "Couldn't fetch the linked file."
 msgstr ""
 
+msgid "Couldn't find denylist event type filters where audit event type(s): %{missing_filters}"
+msgstr ""
+
 msgid "Couldn't find event type filters where audit event type(s): %{missing_filters}"
 msgstr ""
 
@@ -31106,6 +31109,12 @@ msgid "Event tracking"
 msgstr ""
 
 msgid "Event type '%{type}' is not yet supported"
+msgstr ""
+
+msgid "Event type(s) already on the allowlist and cannot be added to the denylist: %{filters}"
+msgstr ""
+
+msgid "Event type(s) already on the denylist: %{filters}"
 msgstr ""
 
 msgid "EventFilterBy|Filter by all"

@@ -12,12 +12,6 @@ title: Runner fleet dashboard for administrators
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/424495) in GitLab 16.6
-
-{{< /history >}}
-
 As a GitLab administrator, you can use the runner fleet dashboard to assess the health of your instance runners.
 The runner fleet dashboard shows:
 

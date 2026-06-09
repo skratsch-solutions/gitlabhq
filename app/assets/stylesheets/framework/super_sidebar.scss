@@ -178,12 +178,14 @@ $command-palette-spacing: px-to-rem(14px);
  * Super sidebar wrapper
  */
 .super-sidebar-wrapper {
+  @apply gl-absolute;
+  @apply xl:gl-static;
   @apply gl-w-0;
   @apply gl-h-0;
-  @apply lg:gl-h-auto;
+  @apply xl:gl-h-auto;
   @apply xl:gl-w-auto;
-  @apply lg:-gl-ml-3;
   @apply xl:gl-ml-0;
+  @apply gl-min-h-0;
 }
 
 /**

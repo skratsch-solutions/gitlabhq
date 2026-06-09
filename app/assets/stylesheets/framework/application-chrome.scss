@@ -13,44 +13,6 @@
   }
 
   // AI panel
-  .ai-panels {
-    overflow: inherit;
-    @apply gl-px-0 sm:gl-px-3 lg:gl-px-2 lg:-gl-mx-2;
-    --ai-panel-width: clamp(25rem, 20vw, 35rem);
-    --ai-panels-gap: var(--gl-spacing-scale-2);
-    --ai-navigation-rail-size: #{$gl-button-small-size};
-    --ai-navigation-rail-size-with-gap: calc(var(--ai-navigation-rail-size) + var(--ai-panels-gap));
-
-    @media (min-width: $breakpoint-xl) {
-      min-width: var(--ai-navigation-rail-size-with-gap);
-    }
-
-    @media (max-width: $breakpoint-lg - 1) {
-      --ai-navigation-rail-size: calc(#{$gl-button-small-size} + var(--gl-spacing-scale-3) * 2);
-    }
-  }
-
-  .ai-panel-maximized .ai-panels {
-    flex-grow: 1;
-  }
-
-  // Hiding all other panels when DAP is maximized
-  .ai-panel-maximized .panels-container {
-    display: none;
-  }
-
-  // Preserving other panels when DAP is maximized on bigger screens
-  @media(min-width: #{$paneled-layout-ultra-wide-breakpoint}) {
-    .ai-panel-maximized .ai-panels {
-      width: auto;
-    }
-
-    .ai-panel-maximized .panels-container {
-      display: flex;
-    }
-  }
-
-  // AI panel
   .ai-panels .ai-panel {
     @include media-breakpoint-down(md) {
       @apply gl-fixed -gl-mt-2 gl-shadow-lg;

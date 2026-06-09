@@ -98,12 +98,6 @@ To set the maximum job timeout:
 
 ## Set `script` and `after_script` timeouts
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/4335) in GitLab Runner 16.4.
-
-{{< /history >}}
-
 To control the amount of time `script` and `after_script` runs before it terminates, specify a timeout value in the `.gitlab-ci.yml` file.
 
 For example, you can specify a timeout to terminate a long-running `script` early. This ensures artifacts and caches can still be uploaded

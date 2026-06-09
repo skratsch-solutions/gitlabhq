@@ -1,9 +1,7 @@
 <script>
 import { GlDrawer, GlButton, GlAlert } from '@gitlab/ui';
 import { getContentWrapperHeight } from '~/lib/utils/dom_utils';
-import { visitUrl } from '~/lib/utils/url_utility';
 import { s__ } from '~/locale';
-import DashboardDeleteModal from '../../../vue_shared/components/dashboards_list/dashboard_delete_modal.vue';
 import updateCustomDashboardMutation from '../graphql/update_custom_dashboard.mutation.graphql';
 import DashboardSettingsForm from './dashboard_settings_form.vue';
 
@@ -13,10 +11,8 @@ export default {
     GlDrawer,
     GlButton,
     GlAlert,
-    DashboardDeleteModal,
     DashboardSettingsForm,
   },
-  inject: ['exploreAnalyticsDashboardsPath'],
   props: {
     open: {
       type: Boolean,
@@ -121,12 +117,6 @@ export default {
         this.isLoading = false;
       }
     },
-    showDeleteModal() {
-      this.$refs.deleteModal.show();
-    },
-    handleDeleteSuccess() {
-      visitUrl(this.exploreAnalyticsDashboardsPath);
-    },
   },
 };
 </script>
@@ -173,19 +163,11 @@ export default {
             category="secondary"
             :disabled="isLoading"
             data-testid="settings-delete-button"
-            @click="showDeleteModal"
           >
             {{ s__('AnalyticsDashboards|Delete dashboard') }}
           </gl-button>
         </div>
       </template>
     </gl-drawer>
-
-    <dashboard-delete-modal
-      ref="deleteModal"
-      :dashboard-id="dashboardId"
-      data-testid="settings-delete-modal"
-      @delete="handleDeleteSuccess"
-    />
   </div>
 </template>

@@ -410,6 +410,8 @@ Gitlab/Authz/PermissionCheck:
     - 'ee/app/graphql/mutations/audit_events/group/audit_event_streaming_destinations/base.rb'
     - 'ee/app/graphql/mutations/audit_events/group/event_type_filters/create.rb'
     - 'ee/app/graphql/mutations/audit_events/group/event_type_filters/delete.rb'
+    - 'ee/app/graphql/mutations/audit_events/group/event_type_filters/denylist_create.rb'
+    - 'ee/app/graphql/mutations/audit_events/group/event_type_filters/denylist_delete.rb'
     - 'ee/app/graphql/mutations/audit_events/group/namespace_filters/base.rb'
     - 'ee/app/graphql/mutations/audit_events/instance/amazon_s3_configurations/base.rb'
     - 'ee/app/graphql/mutations/audit_events/instance/audit_event_streaming_destinations/base.rb'

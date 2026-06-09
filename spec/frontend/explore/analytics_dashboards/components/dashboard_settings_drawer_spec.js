@@ -1,21 +1,14 @@
 import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
 import { GlDrawer, GlAlert } from '@gitlab/ui';
-import { shallowMountExtended, mountExtended } from 'helpers/vue_test_utils_helper';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
-import { visitUrl } from '~/lib/utils/url_utility';
 import DashboardSettingsDrawer from '~/explore/analytics_dashboards/components/dashboard_settings_drawer.vue';
 import DashboardSettingsForm from '~/explore/analytics_dashboards/components/dashboard_settings_form.vue';
-import DashboardDeleteModal from '~/vue_shared/components/dashboards_list/dashboard_delete_modal.vue';
 import updateCustomDashboardMutation from '~/explore/analytics_dashboards/graphql/update_custom_dashboard.mutation.graphql';
 
 Vue.use(VueApollo);
-
-jest.mock('~/lib/utils/url_utility', () => ({
-  ...jest.requireActual('~/lib/utils/url_utility'),
-  visitUrl: jest.fn(),
-}));
 
 jest.mock('~/lib/utils/dom_utils', () => ({
   getContentWrapperHeight: () => '123',
@@ -76,7 +69,6 @@ describe('DashboardSettingsDrawer', () => {
   const findSaveButton = () => wrapper.findByTestId('settings-save-button');
   const findCancelButton = () => wrapper.findByTestId('settings-cancel-button');
   const findDeleteButton = () => wrapper.findByTestId('settings-delete-button');
-  const findDeleteModal = () => wrapper.findComponent(DashboardDeleteModal);
   const findErrorAlert = () => wrapper.findComponent(GlAlert);
 
   it('emits close when GlDrawer emits close', async () => {
@@ -287,27 +279,6 @@ describe('DashboardSettingsDrawer', () => {
       it('stops the loading state', () => {
         expect(findFormSettings().props('isLoading')).toBe(false);
       });
-    });
-  });
-
-  describe('delete functionality', () => {
-    beforeEach(() => {
-      createComponent({ open: true }, mountExtended);
-    });
-
-    it('shows the delete modal when Delete dashboard is pressed', async () => {
-      const showSpy = jest.spyOn(findDeleteModal().vm, 'show');
-      findDeleteButton().vm.$emit('click');
-      await nextTick();
-
-      expect(showSpy).toHaveBeenCalled();
-    });
-
-    it('redirects back to the list view when delete is successful', async () => {
-      findDeleteModal().vm.$emit('delete');
-      await nextTick();
-
-      expect(visitUrl).toHaveBeenCalledWith('/dashboards/');
     });
   });
 

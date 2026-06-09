@@ -112,6 +112,39 @@ html {
   }
 }
 
+.ai-panels {
+  overflow: inherit;
+  --ai-panel-width: clamp(25rem, 20vw, 35rem);
+  --ai-navigation-rail-size: #{$gl-button-small-size};
+
+  @include media-breakpoint-up(xl) {
+    min-width: var(--ai-navigation-rail-size);
+  }
+}
+
+// When the AI panel is maximized
+.layout-page.ai-panel-maximized {
+  .ai-panels {
+    flex-grow: 1;
+  }
+
+  // Hiding all other panels when DAP is maximized
+  .panels-container {
+    display: none;
+  }
+
+  // Preserving other panels when DAP is maximized on bigger screens
+  @media(min-width: #{$paneled-layout-ultra-wide-breakpoint}) {
+    .ai-panels {
+      width: auto;
+    }
+
+    .panels-container {
+      display: flex;
+    }
+  }
+}
+
 .content-wrapper {
   padding-top: var(--top-bar-height);
   padding-bottom: $content-wrapper-padding;

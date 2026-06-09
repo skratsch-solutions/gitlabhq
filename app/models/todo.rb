@@ -309,16 +309,6 @@ class Todo < ApplicationRecord
     target.class.name.downcase
   end
 
-  def access_request_url(only_path: false)
-    if target.instance_of? Group
-      Gitlab::Routing.url_helpers.group_group_members_url(self.target, tab: 'access_requests', only_path: only_path)
-    elsif target.instance_of? Project
-      Gitlab::Routing.url_helpers.project_project_members_url(self.target, tab: 'access_requests', only_path: only_path)
-    else
-      ""
-    end
-  end
-
   def done?
     state == 'done'
   end
