@@ -2922,9 +2922,8 @@ paths:
   "/api/v4/projects/{id}/protected_environments":
     get:
       operationId: getApiV4ProjectsIdProtectedEnvironments
-      summary: List protected environments
-      description: Gets a list of protected environments from a project. This feature
-        was introduced in GitLab 12.8.
+      summary: List all protected environments for a project
+      description: Lists all protected environments for a specified project.
       tags:
       - Protected environments
       responses:
@@ -2966,9 +2965,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdProtectedEnvironments
-      summary: Protect a single environment
-      description: Protects a single environment. This feature was introduced in GitLab
-        12.8.
+      summary: Protect an environment for a project
+      description: Protects a specified environment for a project.
       tags:
       - Protected environments
       responses:
@@ -3003,9 +3001,8 @@ paths:
   "/api/v4/projects/{id}/protected_environments/{name}":
     get:
       operationId: getApiV4ProjectsIdProtectedEnvironmentsName
-      summary: Get a single protected environment
-      description: Gets a single protected environment. This feature was introduced
-        in GitLab 12.8.
+      summary: Retrieve a protected environment for a project
+      description: Retrieves a specified protected environment for a project.
       tags:
       - Protected environments
       responses:
@@ -3035,9 +3032,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdProtectedEnvironmentsName
-      summary: Update a protected environment
-      description: Updates a single environment. This feature was introduced in GitLab
-        15.4
+      summary: Update a protected environment for a project
+      description: Updates a specified protected environment for a project.
       tags:
       - Protected environments
       responses:
@@ -3075,9 +3071,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_d2c7e5dcd065"
     delete:
       operationId: deleteApiV4ProjectsIdProtectedEnvironmentsName
-      summary: Unprotect a single environment
-      description: Unprotects the given protected environment. This feature was introduced
-        in GitLab 12.8.
+      summary: Unprotect a protected environment for a project
+      description: Unprotects a specified protected environment for a project.
       tags:
       - Protected environments
       responses:
@@ -3106,9 +3101,8 @@ paths:
   "/api/v4/groups/{id}/protected_environments":
     get:
       operationId: getApiV4GroupsIdProtectedEnvironments
-      summary: List group-level protected environments
-      description: Gets a list of protected environments from a group. This feature
-        was introduced in GitLab 14.0.
+      summary: List all protected environments for a group
+      description: Lists all protected environments for a specified group.
       tags:
       - Protected environments
       responses:
@@ -3150,9 +3144,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdProtectedEnvironments
-      summary: Protect a single environment
-      description: Protects a single environment. This feature was introduced in GitLab
-        14.0.
+      summary: Protect an environment for a group
+      description: Protects a specified environment for a group.
       tags:
       - Protected environments
       responses:
@@ -3187,9 +3180,8 @@ paths:
   "/api/v4/groups/{id}/protected_environments/{name}":
     get:
       operationId: getApiV4GroupsIdProtectedEnvironmentsName
-      summary: Get a single protected environment
-      description: Gets a single protected environment. This feature was introduced
-        in GitLab 14.0.
+      summary: Retrieve a protected environment for a group
+      description: Retrieves a specified protected environment for a group.
       tags:
       - Protected environments
       responses:
@@ -3220,9 +3212,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdProtectedEnvironmentsName
-      summary: Update a protected environment
-      description: Updates a single environment. This feature was introduced in GitLab
-        15.4.
+      summary: Update a protected environment for a group
+      description: Updates a specified protected environment for a group.
       tags:
       - Protected environments
       responses:
@@ -3261,8 +3252,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_e1ff56309b07"
     delete:
       operationId: deleteApiV4GroupsIdProtectedEnvironmentsName
-      summary: Unprotect a single environment
-      description: This feature was introduced in GitLab 14.0.
+      summary: Unprotect a group environment
+      description: Unprotects a specified protected environment for a group.
       tags:
       - Protected environments
       responses:
@@ -10306,8 +10297,9 @@ paths:
   "/api/v4/projects/{id}/security_settings":
     get:
       operationId: getApiV4ProjectsIdSecuritySettings
-      summary: Get project security settings
-      description: Returns a JSON object of the project security setting
+      summary: List all project security settings
+      description: Lists all security settings for the project. You must have the
+        Security Manager, Developer, Maintainer, or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -10328,9 +10320,9 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdSecuritySettings
-      summary: Update project security settings
-      description: Updates secret_push_protection_enabled to the new value & returns
-        new project security setting
+      summary: Update the `secret_push_protection_enabled` setting
+      description: Updates the `secret_push_protection_enabled` setting for a specified
+        project. You must have the Maintainer or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -10542,8 +10534,10 @@ paths:
   "/api/v4/projects/{id}/cluster_agents/{agent_id}/url_configurations":
     get:
       operationId: getApiV4ProjectsIdClusterAgentsAgentIdUrlConfigurations
-      summary: List agent url configurations
-      description: This feature was introduced in GitLab 17.4. List agent url configurations
+      summary: List all agent URL configurations
+      description: Lists all agent URL configurations for a specified agent. You must
+        have the Developer, Maintainer, or Owner role to use this endpoint. This feature
+        was introduced in GitLab 17.4.
       tags:
       - Cluster agents
       responses:
@@ -10574,9 +10568,10 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdClusterAgentsAgentIdUrlConfigurations
-      summary: Create an agent url configuration for a receptive agent
-      description: This feature was introduced in GitLab 17.4. Creates a new url configuration
-        for a receptive agent.
+      summary: Create an agent URL configuration
+      description: Creates an agent URL configuration. You must have the Maintainer
+        or Owner role to use this endpoint. An agent can have only one URL configuration
+        at the time. This feature was introduced in GitLab 17.4.
       tags:
       - Cluster agents
       responses:
@@ -10614,9 +10609,10 @@ paths:
   "/api/v4/projects/{id}/cluster_agents/{agent_id}/url_configurations/{url_configuration_id}":
     get:
       operationId: getApiV4ProjectsIdClusterAgentsAgentIdUrlConfigurationsUrlConfigurationId
-      summary: Get a single agent url configuration
-      description: This feature was introduced in GitLab 17.4. Gets a single agent
-        url configuration.
+      summary: Retrieve an agent URL configuration
+      description: Retrieves an agent URL configuration. You must have the Developer,
+        Maintainer, or Owner role to use this endpoint. This feature was introduced
+        in GitLab 17.4.
       tags:
       - Cluster agents
       responses:
@@ -10653,9 +10649,10 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdClusterAgentsAgentIdUrlConfigurationsUrlConfigurationId
-      summary: Delete an agent url configuration
-      description: This feature was introduced in GitLab 17.4. Deletes an agent url
-        configuration.
+      summary: Delete an agent URL configuration
+      description: Deletes an agent URL configuration. You must have the Maintainer
+        or Owner role to use this endpoint. This feature was introduced in GitLab
+        17.4.
       tags:
       - Cluster agents
       responses:
@@ -10689,8 +10686,8 @@ paths:
   "/api/v4/runner_controllers/{runner_controller_id}/tokens":
     get:
       operationId: getApiV4RunnerControllersRunnerControllerIdTokens
-      summary: List runner controller tokens
-      description: Get all tokens for a specific runner controller.
+      summary: List all runner controller tokens
+      description: Lists all runner controller tokens.
       tags:
       - Runners
       responses:
@@ -10766,9 +10763,9 @@ paths:
   "/api/v4/runner_controllers/{runner_controller_id}/tokens/{id}":
     get:
       operationId: getApiV4RunnerControllersRunnerControllerIdTokensId
-      summary: Get single runner controller token
-      description: Get a token for a specific runner controller by using the ID of
-        the token.
+      summary: Retrieve a single runner controller token
+      description: Retrieves details of a specified runner controller token by its
+        ID.
       tags:
       - Runner controller tokens
       responses:
@@ -10799,7 +10796,7 @@ paths:
     delete:
       operationId: deleteApiV4RunnerControllersRunnerControllerIdTokensId
       summary: Revoke a runner controller token
-      description: Revoke a token for a specific runner controller.
+      description: Revokes an existing runner controller token.
       tags:
       - Runner controller tokens
       responses:
@@ -10829,7 +10826,7 @@ paths:
     post:
       operationId: postApiV4RunnerControllersRunnerControllerIdTokensIdRotate
       summary: Rotate a runner controller token
-      description: Rotate an existing token for a specific runner controller.
+      description: Rotates an existing runner controller token.
       tags:
       - Runner controller tokens
       responses:
@@ -10862,8 +10859,8 @@ paths:
   "/api/v4/runner_controllers/{id}/scopes":
     get:
       operationId: getApiV4RunnerControllersIdScopes
-      summary: List runner controller scopes
-      description: Get all scopes for a specific runner controller.
+      summary: List all scopes for a runner controller
+      description: Lists all scopes for a runner controller.
       tags:
       - Runner controllers
       responses:
@@ -10972,7 +10969,7 @@ paths:
     delete:
       operationId: deleteApiV4RunnerControllersIdScopesRunnersRunnerId
       summary: Remove runner scope
-      description: Remove a runner scope from a runner controller.
+      description: Removes a runner scope from a runner controller.
       tags:
       - Runner controllers
       responses:
@@ -10998,8 +10995,8 @@ paths:
   "/api/v4/runner_controllers":
     get:
       operationId: getApiV4RunnerControllers
-      summary: List runner controllers
-      description: Get all runner controllers.
+      summary: List all runner controllers
+      description: Lists all runner controllers.
       tags:
       - Runners
       responses:
@@ -11034,7 +11031,7 @@ paths:
     post:
       operationId: postApiV4RunnerControllers
       summary: Register a runner controller
-      description: Register a new runner controller.
+      description: Registers a runner controller.
       tags:
       - Runner controllers
       responses:
@@ -11058,8 +11055,8 @@ paths:
   "/api/v4/runner_controllers/{id}":
     get:
       operationId: getApiV4RunnerControllersId
-      summary: Get single runner controller
-      description: Get a runner controller by using the ID of the controller.
+      summary: Retrieve a single runner controller
+      description: Retrieves details of a specified runner controller.
       tags:
       - Runner controllers
       responses:
@@ -11084,7 +11081,7 @@ paths:
     put:
       operationId: putApiV4RunnerControllersId
       summary: Update a runner controller
-      description: Update a runner controller by using the ID of the controller.
+      description: Updates the details of an existing runner controller by its ID.
       tags:
       - Runner controllers
       responses:
@@ -11117,7 +11114,7 @@ paths:
     delete:
       operationId: deleteApiV4RunnerControllersId
       summary: Delete a runner controller
-      description: Delete a runner controller by using the ID of the controller.
+      description: Deletes a specified runner controller. Administrators only.
       tags:
       - Runner controllers
       responses:
@@ -16762,7 +16759,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_a677006fd27b"
+              "$ref": "#/components/schemas/RequestBody_6771bcb1120a"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -29402,9 +29399,8 @@ paths:
   "/api/v4/projects/{id}/releases/{tag_name}/evidence":
     post:
       operationId: postApiV4ProjectsIdReleasesTagNameEvidence
-      summary: Collect release evidence
-      description: Creates an evidence for an existing Release. This feature was introduced
-        in GitLab 12.10.
+      summary: Generate release evidence
+      description: Generates an evidence for an existing release.
       tags:
       - Releases
       responses:
@@ -56883,8 +56879,8 @@ paths:
   "/api/v4/projects/{id}/deployments/{deployment_id}/approval":
     post:
       operationId: postApiV4ProjectsIdDeploymentsDeploymentIdApproval
-      summary: Approve or reject a blocked deployment
-      description: This feature was introduced in GitLab 14.8.
+      summary: Approve or reject a deployment
+      description: Approves or rejects a deployment.
       tags:
       - Deploy resources
       responses:
@@ -66811,7 +66807,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_5f076d7d8e3f"
+              "$ref": "#/components/schemas/RequestBody_c3e33f2431c7"
   "/api/v4/groups/{id}":
     put:
       operationId: putApiV4GroupsId
@@ -66841,7 +66837,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_a035b1aeb571"
+              "$ref": "#/components/schemas/RequestBody_33213db8c315"
     get:
       operationId: getApiV4GroupsId
       summary: Get a single group, with containing projects.
@@ -80778,6 +80774,8 @@ components:
           type: string
         ci_max_includes:
           type: string
+        ci_max_caches_per_job:
+          type: string
         allow_account_deletion:
           type: string
         gitlab_shell_operation_limit:
@@ -93440,7 +93438,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_a677006fd27b:
+    RequestBody_6771bcb1120a:
       type: object
       properties:
         admin_mode:
@@ -94246,6 +94244,11 @@ components:
         ci_max_includes:
           type: integer
           description: Maximum number of includes per pipeline
+          nullable: true
+        ci_max_caches_per_job:
+          type: integer
+          description: Maximum number of caches that can be defined in a single CI/CD
+            job
           nullable: true
         ci_job_live_trace_enabled:
           type: boolean
@@ -109019,7 +109022,7 @@ components:
           example:
             environment: production
           nullable: true
-    RequestBody_5f076d7d8e3f:
+    RequestBody_c3e33f2431c7:
       type: object
       properties:
         name:
@@ -109222,7 +109225,9 @@ components:
           - default_on
           - default_off
           - never_on
-          description: Duo availability. One of `default_on`, `default_off` or `never_on`
+          - always_on
+          description: Duo availability. One of `default_on`, `default_off`, `never_on`
+            or `always_on`
           nullable: true
         duo_remote_flows_availability:
           type: boolean
@@ -109374,7 +109379,7 @@ components:
       required:
       - name
       - path
-    RequestBody_a035b1aeb571:
+    RequestBody_33213db8c315:
       type: object
       properties:
         name:
@@ -109578,7 +109583,9 @@ components:
           - default_on
           - default_off
           - never_on
-          description: Duo availability. One of `default_on`, `default_off` or `never_on`
+          - always_on
+          description: Duo availability. One of `default_on`, `default_off`, `never_on`
+            or `always_on`
           nullable: true
         duo_remote_flows_availability:
           type: boolean

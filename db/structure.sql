@@ -32060,7 +32060,11 @@ CREATE TABLE user_achievements (
     priority integer,
     namespace_id bigint,
     show_on_profile boolean DEFAULT false NOT NULL,
-    CONSTRAINT check_2236a10887 CHECK ((namespace_id IS NOT NULL))
+    award_message text,
+    award_message_html text,
+    cached_markdown_version integer,
+    CONSTRAINT check_2236a10887 CHECK ((namespace_id IS NOT NULL)),
+    CONSTRAINT check_b69390a473 CHECK ((char_length(award_message) <= 200))
 );
 
 CREATE SEQUENCE user_achievements_id_seq

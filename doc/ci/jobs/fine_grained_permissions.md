@@ -72,7 +72,7 @@ CI/CD job tokens can access the following REST API endpoints:
 | List all merge requests associated with a deployment | `GET /projects/:id/deployments/:deployment_id/merge_requests` | `READ_DEPLOYMENTS` | Read |
 | List all project deployments | `GET /projects/:id/deployments` | `READ_DEPLOYMENTS` | Read |
 | Retrieve a deployment | `GET /projects/:id/deployments/:deployment_id` | `READ_DEPLOYMENTS` | Read |
-| Approve or reject a blocked deployment | `POST /projects/:id/deployments/:deployment_id/approval` | `ADMIN_DEPLOYMENTS` | Read and write |
+| Approve or reject a deployment | `POST /projects/:id/deployments/:deployment_id/approval` | `ADMIN_DEPLOYMENTS` | Read and write |
 | Create a deployment | `POST /projects/:id/deployments` | `ADMIN_DEPLOYMENTS`, `ADMIN_ENVIRONMENTS` | Read and write |
 | Delete a deployment | `DELETE /projects/:id/deployments/:deployment_id` | `ADMIN_DEPLOYMENTS` | Read and write |
 | Update a deployment | `PUT /projects/:id/deployments/:deployment_id` | `ADMIN_DEPLOYMENTS` | Read and write |
@@ -230,11 +230,11 @@ CI/CD job tokens can access the following REST API endpoints:
 | List all releases in a project | `GET /projects/:id/releases` | `READ_RELEASES` | Read |
 | Retrieve a release by tag name | `GET /projects/:id/releases/:tag_name` | `READ_RELEASES` | Read |
 | Retrieve a release link | `GET /projects/:id/releases/:tag_name/assets/links/:link_id` | `READ_RELEASES` | Read |
-| Collect release evidence | `POST /projects/:id/releases/:tag_name/evidence` | `ADMIN_RELEASES` | Read and write |
 | Create a release | `POST /projects/:id/releases` | `ADMIN_RELEASES` | Read and write |
 | Create a release link | `POST /projects/:id/releases/:tag_name/assets/links` | `ADMIN_RELEASES` | Read and write |
 | Delete a release | `DELETE /projects/:id/releases/:tag_name` | `ADMIN_RELEASES` | Read and write |
 | Delete a release link | `DELETE /projects/:id/releases/:tag_name/assets/links/:link_id` | `ADMIN_RELEASES` | Read and write |
+| Generate release evidence | `POST /projects/:id/releases/:tag_name/evidence` | `ADMIN_RELEASES` | Read and write |
 | Publish a new component project release as version to the CI/CD catalog | `POST /projects/:id/catalog/publish` | `ADMIN_RELEASES` | Read and write |
 | Update a release | `PUT /projects/:id/releases/:tag_name` | `ADMIN_RELEASES` | Read and write |
 | Update a release link | `PUT /projects/:id/releases/:tag_name/assets/links/:link_id` | `ADMIN_RELEASES` | Read and write |

@@ -946,7 +946,6 @@ RSpec/NamedSubject:
     - 'qa/spec/support/wait_for_requests_spec.rb'
     - 'qa/spec/support/waiter_spec.rb'
     - 'qa/spec/vendor/smocker_api_spec.rb'
-    - 'spec/bin/feature_flag_spec.rb'
     - 'spec/components/diffs/overflow_warning_component_spec.rb'
     - 'spec/components/diffs/stats_component_spec.rb'
     - 'spec/components/pajamas/banner_component_spec.rb'

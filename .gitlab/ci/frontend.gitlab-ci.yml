@@ -209,7 +209,6 @@ rspec-all frontend_fixture clickhouse:
     - .frontend:rules:frontend_fixture
   script:
     - !reference [.clickhouse-setup, script]
-    - !reference [.frontend-fixtures-base, script]
     - rspec_parallelized_job "--tag click_house"
 
 # Uploads fixtures to package registry if running in canonical project

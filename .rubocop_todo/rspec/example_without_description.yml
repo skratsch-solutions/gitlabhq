@@ -190,8 +190,6 @@ RSpec/ExampleWithoutDescription:
     - 'qa/qa/specs/features/browser_ui/9_tenant_scale/project/dashboard_images_spec.rb'
     - 'qa/spec/specs/helpers/feature_flag_spec.rb'
     - 'spec/bin/audit_event_type_spec.rb'
-    - 'spec/bin/feature_flag_spec.rb'
-    - 'spec/bin/saas_feature_spec.rb'
     - 'spec/controllers/concerns/record_user_last_activity_spec.rb'
     - 'spec/controllers/groups/labels_controller_spec.rb'
     - 'spec/controllers/profiles/two_factor_auths_controller_spec.rb'

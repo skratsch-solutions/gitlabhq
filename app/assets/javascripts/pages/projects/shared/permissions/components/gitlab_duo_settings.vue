@@ -293,7 +293,7 @@ export default {
           <gl-toggle
             v-model="duoRemoteFlowsAvailability"
             class="gl-mt-2"
-            :disabled="duoFeaturesLocked || !duoEnabled || showRemoteFlowsCascadingLock"
+            :disabled="!duoEnabled || showRemoteFlowsCascadingLock"
             :label="s__('DuoAgentPlatform|Remote GitLab Duo Flows')"
             label-position="hidden"
             name="project[project_setting_attributes][duo_remote_flows_enabled]"
@@ -330,12 +330,7 @@ export default {
           <gl-toggle
             v-model="duoFoundationalFlowsAvailability"
             class="gl-mt-2"
-            :disabled="
-              duoFeaturesLocked ||
-              !duoEnabled ||
-              !duoRemoteFlowsAvailability ||
-              areFoundationalFlowsLocked
-            "
+            :disabled="!duoEnabled || !duoRemoteFlowsAvailability || areFoundationalFlowsLocked"
             :label="s__('DuoAgentPlatform|Foundational GitLab Duo Flows')"
             label-position="hidden"
             name="project[project_setting_attributes][duo_foundational_flows_enabled]"
@@ -367,7 +362,7 @@ export default {
           <gl-toggle
             v-model="toolApprovalForSessionEnabled"
             class="gl-mt-2"
-            :disabled="duoFeaturesLocked || !duoEnabled || showToolApprovalCascadingLock"
+            :disabled="!duoEnabled || showToolApprovalCascadingLock"
             :label="s__('AiPowered|Tool approval for sessions')"
             label-position="hidden"
             name="project[project_setting_attributes][tool_approval_for_session_enabled]"
@@ -405,7 +400,7 @@ export default {
           <gl-toggle
             v-model="duoSastFpDetectionEnabled"
             class="gl-mt-2"
-            :disabled="duoFeaturesLocked || !duoEnabled"
+            :disabled="!duoEnabled"
             :label="s__('DuoSAST|Turn on SAST false positive detection')"
             label-position="hidden"
             name="project[project_setting_attributes][duo_sast_fp_detection_enabled]"
@@ -425,7 +420,7 @@ export default {
           <gl-toggle
             v-model="duoSecretDetectionFpEnabled"
             class="gl-mt-2"
-            :disabled="duoFeaturesLocked || !duoEnabled"
+            :disabled="!duoEnabled"
             :label="s__('DuoSecretDetection|Turn on Secret Detection false positive detection')"
             label-position="hidden"
             name="project[project_setting_attributes][duo_secret_detection_fp_enabled]"
@@ -445,7 +440,7 @@ export default {
           <gl-toggle
             v-model="duoSastVrWorkflowEnabled"
             class="gl-mt-2"
-            :disabled="duoFeaturesLocked || !duoEnabled"
+            :disabled="!duoEnabled"
             :label="s__('DuoSAST|Turn on SAST vulnerability resolution workflow')"
             label-position="hidden"
             name="project[project_setting_attributes][duo_sast_vr_workflow_enabled]"
@@ -488,7 +483,6 @@ export default {
       class="gl-mt-6"
       :aria-label="$options.i18n.saveChangesAriaLabel"
       data-testid="gitlab-duo-save-button"
-      :disabled="duoFeaturesLocked"
     >
       {{ $options.i18n.saveChanges }}
     </gl-button>

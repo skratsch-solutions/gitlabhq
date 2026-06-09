@@ -8,7 +8,7 @@ RSpec.describe BranchRules::BaseService, feature_category: :source_code_manageme
   let_it_be(:protected_branch) { create(:protected_branch) }
 
   describe '#execute' do
-    subject(:execute) { described_class.new(branch_rule, user).execute(skip_authorization: skip_authorization) }
+    subject(:execute) { described_class.new(branch_rule, user: user).execute(skip_authorization: skip_authorization) }
 
     let(:branch_rule) { Projects::BranchRule.new(project, protected_branch) }
 

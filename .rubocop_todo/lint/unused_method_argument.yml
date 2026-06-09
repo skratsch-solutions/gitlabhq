@@ -38,7 +38,6 @@ Lint/UnusedMethodArgument:
     - 'app/graphql/types/issuable_type.rb'
     - 'app/graphql/types/member_interface.rb'
     - 'app/graphql/types/merge_requests/interacts_with_merge_request.rb'
-    - 'app/graphql/types/noteable_type.rb'
     - 'app/graphql/types/notes/noteable_interface.rb'
     - 'app/graphql/types/packages/dependency_link_metadata_type.rb'
     - 'app/graphql/types/packages/file_metadata_type.rb'

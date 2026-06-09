@@ -19,23 +19,11 @@ module Bitbucket
     end
 
     def get(path, extra_query = {})
-      response = retry_with_exponential_backoff do
-        refresh! if expired?
-
-        connection.get(build_url(path), params: @default_query.merge(extra_query))
-      end
-
-      response.parsed
+      get_with_retry(path, extra_query).parsed
     end
 
     def get_response_code(path, extra_query = {})
-      response = retry_with_exponential_backoff do
-        refresh! if expired?
-
-        connection.get(build_url(path), params: @default_query.merge(extra_query))
-      end
-
-      response.status
+      get_with_retry(path, extra_query).status
     rescue OAuth2::Error => e
       e.response.status
     end
@@ -67,6 +55,14 @@ module Bitbucket
     end
 
     private
+
+    def get_with_retry(path, extra_query = {})
+      retry_with_exponential_backoff do
+        refresh! if expired?
+
+        connection.get(build_url(path), params: @default_query.merge(extra_query))
+      end
+    end
 
     def client
       @client ||= OAuth2::Client.new(provider.app_id, provider.app_secret, options)

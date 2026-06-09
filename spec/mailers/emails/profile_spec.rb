@@ -919,5 +919,15 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
     it 'includes the ignore message' do
       is_expected.to have_body_text('simply ignore this email')
     end
+
+    context 'when award message is present' do
+      let_it_be(:user_achievement) do
+        create(:user_achievement, user: user, achievement: achievement, award_message: 'For outstanding work')
+      end
+
+      it 'includes the award message in the email body' do
+        is_expected.to have_body_text('For outstanding work')
+      end
+    end
   end
 end

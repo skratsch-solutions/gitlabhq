@@ -23,6 +23,7 @@ RSpec.describe 'Admin updates CI/CD settings', :request_store, :enable_admin_mod
       click_checked_field(s_('AdminSettings|Enable pipeline suggestion banner'))
       click_checked_field(s_('AdminSettings|Show the migrate from Jenkins banner'))
       fill_field_with_new_value(s_('AdminSettings|Maximum includes'), '200')
+      fill_field_with_new_value(s_('AdminSettings|Maximum caches per job'), '8')
       fill_field_with_new_value(s_('AdminSettings|Maximum downstream pipeline trigger rate'), '500')
 
       expect_save_settings
@@ -34,6 +35,7 @@ RSpec.describe 'Admin updates CI/CD settings', :request_store, :enable_admin_mod
       expect_field_unchecked(s_('AdminSettings|Enable pipeline suggestion banner'))
       expect_field_unchecked(s_('AdminSettings|Show the migrate from Jenkins banner'))
       expect_field_value(s_('AdminSettings|Maximum includes'), '200')
+      expect_field_value(s_('AdminSettings|Maximum caches per job'), '8')
       expect_field_value(s_('AdminSettings|Maximum downstream pipeline trigger rate'), '500')
     end
   end

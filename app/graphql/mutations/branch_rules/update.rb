@@ -29,7 +29,7 @@ module Mutations
       def resolve(id:, **params)
         branch_rule = authorized_find!(id: id)
 
-        response = ::BranchRules::UpdateService.new(branch_rule, current_user, params).execute
+        response = ::BranchRules::UpdateService.new(branch_rule, user: current_user, params: params).execute
 
         { branch_rule: (branch_rule if response.success?), errors: response.errors }
       end

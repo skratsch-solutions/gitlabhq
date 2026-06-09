@@ -7,11 +7,6 @@ module Search
       popularity_desc: %w[issues work_items]
     }.freeze
 
-    DOC_TYPE_ONLY_SORT = {
-      popularity_asc: %w[issue work_item],
-      popularity_desc: %w[issue work_item]
-    }.freeze
-
     SORT_MAPPINGS = {
       # order_by + sort combinations
       %w[created_at asc] => :created_at_asc,

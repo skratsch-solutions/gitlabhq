@@ -18732,8 +18732,8 @@ paths:
       operationId: getApiV4ProjectsIdDeploymentsDeploymentIdMergeRequests
   "/api/v4/projects/{id}/deployments/{deployment_id}/approval":
     post:
-      summary: Approve or reject a blocked deployment
-      description: This feature was introduced in GitLab 14.8.
+      summary: Approve or reject a deployment
+      description: Approves or rejects a deployment.
       produces:
       - application/json
       consumes:
@@ -18758,7 +18758,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdDeploymentsDeploymentIdApproval"
       responses:
         '201':
-          description: Approve or reject a blocked deployment
+          description: Approve or reject a deployment
           schema:
             "$ref": "#/definitions/API_Entities_Deployments_Approval"
       tags:
@@ -37499,9 +37499,8 @@ paths:
       operationId: getApiV4ProjectsIdReleasesPermalinkLatest()(*suffixPath)
   "/api/v4/projects/{id}/releases/{tag_name}/evidence":
     post:
-      summary: Collect release evidence
-      description: Creates an evidence for an existing Release. This feature was introduced
-        in GitLab 12.10.
+      summary: Generate release evidence
+      description: Generates an evidence for an existing release.
       produces:
       - application/json
       consumes:
@@ -37519,7 +37518,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Collect release evidence
+          description: Generate release evidence
           schema:
             "$ref": "#/definitions/API_Entities_Release"
         '401':
@@ -49451,11 +49450,13 @@ definitions:
         - enabled
       duo_availability:
         type: string
-        description: Duo availability. One of `default_on`, `default_off` or `never_on`
+        description: Duo availability. One of `default_on`, `default_off`, `never_on`
+          or `always_on`
         enum:
         - default_on
         - default_off
         - never_on
+        - always_on
       duo_remote_flows_availability:
         type: boolean
         description: Enable GitLab Duo remote flows for this group
@@ -49757,11 +49758,13 @@ definitions:
         - enabled
       duo_availability:
         type: string
-        description: Duo availability. One of `default_on`, `default_off` or `never_on`
+        description: Duo availability. One of `default_on`, `default_off`, `never_on`
+          or `always_on`
         enum:
         - default_on
         - default_off
         - never_on
+        - always_on
       duo_remote_flows_availability:
         type: boolean
         description: Enable GitLab Duo remote flows for this group
@@ -59148,7 +59151,7 @@ definitions:
           the user belongs to multiple approval rules
     required:
     - status
-    description: Approve or reject a blocked deployment
+    description: Approve or reject a deployment
   API_Entities_DraftNote:
     type: object
     properties:

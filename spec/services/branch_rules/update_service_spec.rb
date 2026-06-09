@@ -29,7 +29,7 @@ RSpec.describe BranchRules::UpdateService, feature_category: :source_code_manage
     end
 
     subject(:execute) do
-      described_class.new(branch_rule, user, params).execute(skip_authorization: skip_authorization)
+      described_class.new(branch_rule, user: user, params: params).execute(skip_authorization: skip_authorization)
     end
 
     before do

@@ -19,7 +19,7 @@ module Mutations
       def resolve(id:)
         branch_rule = authorized_find!(id: id)
 
-        response = ::BranchRules::DestroyService.new(branch_rule, current_user).execute
+        response = ::BranchRules::DestroyService.new(branch_rule, user: current_user).execute
 
         { branch_rule: (branch_rule if response.error?), errors: response.errors }
       rescue Gitlab::Access::AccessDeniedError

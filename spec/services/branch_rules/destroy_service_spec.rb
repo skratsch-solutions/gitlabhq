@@ -13,7 +13,7 @@ RSpec.describe BranchRules::DestroyService, feature_category: :source_code_manag
     let(:destroy_service) { ProtectedBranches::DestroyService }
     let(:destroy_service_instance) { instance_double(destroy_service) }
 
-    subject(:execute) { described_class.new(branch_rule, user).execute }
+    subject(:execute) { described_class.new(branch_rule, user: user).execute }
 
     before do
       # We need to stub the call inside the nested services first

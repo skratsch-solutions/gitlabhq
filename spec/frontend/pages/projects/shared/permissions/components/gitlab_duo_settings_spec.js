@@ -48,6 +48,7 @@ describe('GitlabDuoSettings', () => {
   const findSaveButton = () => wrapper.findByTestId('gitlab-duo-save-button');
   const findDuoSettings = () => wrapper.findByTestId('duo-settings');
   const findDuoCascadingLockIcon = () => wrapper.findByTestId('duo-cascading-lock-icon');
+  const findDuoFeaturesEnabledToggle = () => wrapper.findByTestId('duo_features_enabled_toggle');
   const findExclusionSettings = () => wrapper.findComponent(ExclusionSettings);
   const findExclusionRulesHiddenInputs = () =>
     wrapper.findAll(
@@ -197,6 +198,16 @@ describe('GitlabDuoSettings', () => {
           wrapper = createWrapper({ duoFeaturesEnabled: true, amazonQAvailable: false }, {});
         });
 
+        it('is not disabled when Duo features are locked on', () => {
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            duoFeaturesLocked: true,
+            amazonQAvailable: false,
+          });
+
+          expect(findDuoRemoteFlowsToggle().props('disabled')).toBe(false);
+        });
+
         it('clicking on the remote flows checkbox and submitting passes along the data', async () => {
           const duoRemoteFlowsToggle = findDuoRemoteFlowsToggle();
           const hiddenInput = findDuoRemoteFlowsHiddenInput();
@@ -267,7 +278,7 @@ describe('GitlabDuoSettings', () => {
           expect(parseBoolean(hiddenInput.attributes('value'))).toBe(true);
         });
 
-        it('is disabled when Duo features are locked', () => {
+        it('is not disabled when Duo features are locked on', () => {
           wrapper = createWrapper(
             {
               duoFeaturesEnabled: true,
@@ -277,7 +288,7 @@ describe('GitlabDuoSettings', () => {
             { duoFoundationalFlows: true },
           );
 
-          expect(findDuoFoundationalFlowsToggle().props('disabled')).toBe(true);
+          expect(findDuoFoundationalFlowsToggle().props('disabled')).toBe(false);
         });
 
         it('is disabled when cascading lock is active', () => {
@@ -327,7 +338,7 @@ describe('GitlabDuoSettings', () => {
           expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
         });
 
-        it('disables SAST FP Detection toggle when Duo features are locked', () => {
+        it('does not disable SAST FP Detection toggle when Duo features are locked on', () => {
           wrapper = createWrapper(
             {
               duoFeaturesEnabled: true,
@@ -337,7 +348,7 @@ describe('GitlabDuoSettings', () => {
             { aiExperimentSastFpDetection: true },
           );
 
-          expect(findDuoSastFpDetectionToggle().props('disabled')).toBe(true);
+          expect(findDuoSastFpDetectionToggle().props('disabled')).toBe(false);
         });
 
         it('does not render SAST FP Detection toggle when Duo features are not enabled', () => {
@@ -395,7 +406,7 @@ describe('GitlabDuoSettings', () => {
           expect(findDuoSecretDetectionFpToggle().exists()).toBe(false);
         });
 
-        it('disables Secret Detection FP Detection toggle when Duo features are locked', () => {
+        it('does not disable Secret Detection FP Detection toggle when Duo features are locked on', () => {
           wrapper = createWrapper(
             {
               duoFeaturesEnabled: true,
@@ -405,7 +416,7 @@ describe('GitlabDuoSettings', () => {
             { duoSecretDetectionFalsePositive: true },
           );
 
-          expect(findDuoSecretDetectionFpToggle().props('disabled')).toBe(true);
+          expect(findDuoSecretDetectionFpToggle().props('disabled')).toBe(false);
         });
 
         it('does not render Secret Detection FP Detection toggle when Duo features are not enabled', () => {
@@ -463,14 +474,14 @@ describe('GitlabDuoSettings', () => {
           expect(findToolApprovalToggle().exists()).toBe(false);
         });
 
-        it('disables the toggle when Duo features are locked', () => {
+        it('does not disable the toggle when Duo features are locked on', () => {
           wrapper = createWrapper({
             duoFeaturesEnabled: true,
             duoFeaturesLocked: true,
             amazonQAvailable: false,
           });
 
-          expect(findToolApprovalToggle().props('disabled')).toBe(true);
+          expect(findToolApprovalToggle().props('disabled')).toBe(false);
         });
 
         it('disables the toggle when cascading lock is active', () => {
@@ -583,7 +594,7 @@ describe('GitlabDuoSettings', () => {
           expect(findDuoSastVrWorkflowToggle().exists()).toBe(false);
         });
 
-        it('disables SAST VR Workflow toggle when Duo features are locked', () => {
+        it('does not disable SAST VR Workflow toggle when Duo features are locked on', () => {
           wrapper = createWrapper(
             {
               duoFeaturesEnabled: true,
@@ -593,7 +604,7 @@ describe('GitlabDuoSettings', () => {
             { enableVulnerabilityResolution: true },
           );
 
-          expect(findDuoSastVrWorkflowToggle().props('disabled')).toBe(true);
+          expect(findDuoSastVrWorkflowToggle().props('disabled')).toBe(false);
         });
 
         it('does not render SAST VR Workflow toggle when Duo features are not enabled', () => {
@@ -638,9 +649,19 @@ describe('GitlabDuoSettings', () => {
       wrapper = createWrapper({ duoFeaturesLocked: false });
       expect(findDuoCascadingLockIcon().exists()).toBe(false);
     });
+
+    it('does not disable the main Duo toggle', () => {
+      wrapper = createWrapper({ duoFeaturesLocked: false });
+      expect(findDuoFeaturesEnabledToggle().props('disabled')).toBe(false);
+    });
   });
 
   describe('when areDuoSettingsLocked is true', () => {
+    it('disables the main Duo toggle', () => {
+      wrapper = createWrapper({ duoFeaturesEnabled: true, duoFeaturesLocked: true });
+      expect(findDuoFeaturesEnabledToggle().props('disabled')).toBe(true);
+    });
+
     it('shows CascadingLockIcon when duoAvailabilityCascadingSettings is provided', () => {
       wrapper = createWrapper({
         duoAvailabilityCascadingSettings: {
