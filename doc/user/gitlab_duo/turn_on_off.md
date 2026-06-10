@@ -39,6 +39,11 @@ You can turn GitLab Duo on or off:
 
 Turn GitLab Duo on for all users, regardless of group or project settings.
 
+When you set GitLab Duo availability to **Always on**,
+experimental features are not automatically enabled.
+To use experimental features, you must manually enable them separately
+through the [feature preview settings](#turn-on-beta-and-experimental-features).
+
 {{< tabs >}}
 
 {{< tab title="On GitLab.com" >}}

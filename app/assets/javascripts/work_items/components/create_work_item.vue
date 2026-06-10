@@ -237,6 +237,14 @@ export default {
       default: null,
     },
   },
+  emits: [
+    'changeType',
+    'confirmCancel',
+    'discardDraft',
+    'error',
+    'updateType',
+    'work-item-created',
+  ],
   data() {
     return {
       isTitleValid: true,

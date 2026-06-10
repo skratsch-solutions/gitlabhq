@@ -112,6 +112,7 @@ export default {
       default: false,
     },
   },
+  emits: ['dismissError', 'error', 'upload'],
   apollo: {
     designCollection: {
       query: getWorkItemDesignListQuery,

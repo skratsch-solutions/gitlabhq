@@ -3268,10 +3268,6 @@ class Project < ApplicationRecord
       end
   end
 
-  def storage_upgradable?
-    storage_version != LATEST_STORAGE_VERSION
-  end
-
   def snippets_visible?(user = nil)
     Ability.allowed?(user, :read_snippet, self)
   end

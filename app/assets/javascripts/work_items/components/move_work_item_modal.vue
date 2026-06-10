@@ -42,6 +42,7 @@ export default {
       required: true,
     },
   },
+  emits: ['hideModal'],
   actionCancel: {
     text: __('Cancel'),
   },
