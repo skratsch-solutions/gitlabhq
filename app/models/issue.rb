@@ -52,9 +52,6 @@ class Issue < ApplicationRecord
   # https://gitlab.com/gitlab-org/gitlab/-/blob/1379c2d7bffe2a8d809f23ac5ef9b4114f789c07/app/assets/javascripts/issues/list/constants.js#L154-158
   TYPES_FOR_LIST = %w[issue incident test_case task objective key_result ticket].freeze
 
-  # This default came from the enum `issue_type` column. Defined as default in the DB
-  DEFAULT_ISSUE_TYPE = :issue
-
   # A list of types user can change between - both original and new
   # type must be included in this list. This is needed for legacy issues
   # where it's possible to switch between issue and incident.

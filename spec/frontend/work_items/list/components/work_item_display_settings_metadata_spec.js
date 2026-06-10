@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
-import { GlDisclosureDropdownItem, GlToggle } from '@gitlab/ui';
-import { mount, shallowMount } from '@vue/test-utils';
+import { GlDisclosureDropdownItem, GlSearchBoxByType, GlToggle } from '@gitlab/ui';
 import { createAlert } from '~/alert';
 import createMockApollo from 'helpers/mock_apollo_helper';
+import { mountExtended, shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import WorkItemDisplaySettingsMetadata from '~/work_items/list/components/work_item_display_settings_metadata.vue';
 import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_item_list_user_preferences.mutation.graphql';
@@ -40,7 +40,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
   });
 
   const createComponent = ({
-    mountFn = shallowMount,
+    mountFn = shallowMountExtended,
     props = {},
     namespaceHandler = namespacePreferencesHandler,
     routeName = ROUTES.index,
@@ -64,11 +64,13 @@ describe('WorkItemDisplaySettingsMetadata', () => {
     });
   };
 
-  const findShownSection = () => wrapper.find('[data-testid="shown-preferences"]');
-  const findHiddenSection = () => wrapper.find('[data-testid="hidden-preferences"]');
+  const findShownSection = () => wrapper.findByTestId('shown-preferences');
+  const findHiddenSection = () => wrapper.findByTestId('hidden-preferences');
   const findDropdownItems = () => wrapper.findAllComponents(GlDisclosureDropdownItem);
   const findToggles = () => wrapper.findAllComponents(GlToggle);
   const findFirstDropdownItem = () => findDropdownItems().at(0);
+  const findSearchBox = () => wrapper.findComponent(GlSearchBoxByType);
+  const findNoFieldsFound = () => wrapper.findByTestId('no-fields-found');
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -91,7 +93,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
   describe('shown/hidden grouping', () => {
     it('renders only the shown section when no fields are hidden', () => {
-      createComponent({ mountFn: mount });
+      createComponent({ mountFn: mountExtended });
 
       expect(findShownSection().exists()).toBe(true);
       expect(findHiddenSection().exists()).toBe(false);
@@ -99,7 +101,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
     it('renders both sections when at least one field is hidden', () => {
       createComponent({
-        mountFn: mount,
+        mountFn: mountExtended,
         props: { namespacePreferences: { hiddenMetadataKeys: [firstAlphabeticalKey] } },
       });
 
@@ -109,7 +111,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
     it('renders only the hidden section when every field is hidden', () => {
       createComponent({
-        mountFn: mount,
+        mountFn: mountExtended,
         props: {
           namespacePreferences: {
             hiddenMetadataKeys: WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS.map((f) => f.key),
@@ -126,7 +128,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
         (f) => f.key,
       );
       createComponent({
-        mountFn: mount,
+        mountFn: mountExtended,
         props: { namespacePreferences: { hiddenMetadataKeys: hidden } },
       });
 
@@ -139,6 +141,38 @@ describe('WorkItemDisplaySettingsMetadata', () => {
       ).map((f) => f.label);
 
       expect(labelsInOrder).toEqual([...expectedShownLabels, ...expectedHiddenLabels]);
+    });
+  });
+
+  describe('fields search', () => {
+    it('correctly filters toggles', async () => {
+      createComponent({ mountFn: mountExtended });
+
+      await findSearchBox().vm.$emit('input', 'lab');
+
+      const labels = findToggles().wrappers.map((t) => t.props('label'));
+      expect(labels).toEqual(['Labels']);
+    });
+
+    it('restores the full list when the search is cleared', async () => {
+      createComponent({ mountFn: mountExtended });
+      const totalFields = findToggles().length;
+
+      await findSearchBox().vm.$emit('input', 'lab');
+      expect(findToggles()).toHaveLength(1);
+
+      await findSearchBox().vm.$emit('input', '');
+      expect(findToggles()).toHaveLength(totalFields);
+    });
+
+    it('shows the no fields found state when no matches exist', async () => {
+      createComponent({ mountFn: mountExtended });
+
+      await findSearchBox().vm.$emit('input', 'no-match');
+
+      expect(findNoFieldsFound().exists()).toBe(true);
+      expect(findShownSection().exists()).toBe(false);
+      expect(findHiddenSection().exists()).toBe(false);
     });
   });
 

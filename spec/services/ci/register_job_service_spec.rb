@@ -1091,6 +1091,85 @@ module Ci
         end
       end
 
+      context 'when build is on a burned project path' do
+        let!(:runner) { create(:ci_runner, :project, projects: [project]) }
+        let(:id_tokens) { { 'TEST_ID_TOKEN' => { aud: 'https://example.com' } } }
+
+        before do
+          create(:burned_project_route,
+            organization: project.organization,
+            path: project.full_path,
+            project_id: non_existing_record_id)
+        end
+
+        context 'and the build uses id_tokens with project_path in sub_claim_components' do
+          let!(:pending_job) do
+            create(:ci_build, :pending, :queued, pipeline: pipeline, id_tokens: id_tokens)
+          end
+
+          before do
+            project.ci_cd_settings.update!(
+              id_token_sub_claim_components: %w[project_path ref_type ref])
+            pending_job.create_queuing_entry!
+          end
+
+          it 'drops the build with id_token_burned_project_path failure reason' do
+            expect(build_on(runner)).to be_nil
+
+            expect(pending_job.reload).to be_failed
+            expect(pending_job.failure_reason).to eq('id_token_burned_project_path')
+            expect(pending_job).to be_id_token_burned_project_path
+          end
+        end
+
+        context 'and the build has no id_tokens defined' do
+          before do
+            pending_job.reload.create_queuing_entry!
+          end
+
+          it 'picks the build' do
+            expect(build_on(runner)).not_to be_nil
+            expect(pending_job.reload).to be_running
+          end
+        end
+
+        context 'and sub_claim_components excludes project_path (customer escape)' do
+          let!(:pending_job) do
+            create(:ci_build, :pending, :queued, pipeline: pipeline, id_tokens: id_tokens)
+          end
+
+          before do
+            project.ci_cd_settings.update!(
+              id_token_sub_claim_components: %w[project_id ref_type ref])
+            pending_job.create_queuing_entry!
+          end
+
+          it 'picks the build' do
+            expect(build_on(runner)).not_to be_nil
+            expect(pending_job.reload).to be_running
+          end
+        end
+      end
+
+      context 'when the project path is not burned' do
+        let!(:runner) { create(:ci_runner, :project, projects: [project]) }
+        let!(:pending_job) do
+          create(:ci_build, :pending, :queued, pipeline: pipeline,
+            id_tokens: { 'TEST_ID_TOKEN' => { aud: 'https://example.com' } })
+        end
+
+        before do
+          project.ci_cd_settings.update!(
+            id_token_sub_claim_components: %w[project_path ref_type ref])
+          pending_job.create_queuing_entry!
+        end
+
+        it 'picks the build' do
+          expect(build_on(runner)).not_to be_nil
+          expect(pending_job.reload).to be_running
+        end
+      end
+
       context 'when using pending builds table' do
         let_it_be(:runner) { create(:ci_runner, :project, projects: [project], tag_list: %w[conflict]) }
 

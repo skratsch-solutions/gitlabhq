@@ -56,7 +56,8 @@ module Enums
           duo_workflow_not_allowed: 1_013,
           job_router_failure: 1_014,
           job_token_expired: 1_015,
-          downstream_project_trigger_resolved_to_empty: 1_016
+          id_token_burned_project_path: 1_016,
+          downstream_project_trigger_resolved_to_empty: 1_017
         }
       end
 

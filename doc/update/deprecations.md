@@ -109,6 +109,23 @@ It will be replaced by a **Go virtual registry**, which will provide a more comp
 
 **Action required:** If you are using GitLab as a Go module proxy, plan to migrate to the Go virtual registry once it becomes available. In the interim, you may configure an alternative proxy (such as `proxy.golang.org` or a self-hosted solution) by updating your `GOPROXY` environment variable.
 
+### Legacy `retry:when` failure reasons `stuck_or_timeout_failure` and `job_execution_timeout` are deprecated
+
+- Announced in GitLab 19.1
+- Removal in GitLab 20.0 ([breaking change](https://docs.gitlab.com/update/terminology/#breaking-change))
+- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/issues/602133).
+
+In GitLab 19.0, the generic `stuck_or_timeout_failure` and `job_execution_timeout` job failure reasons were split into a set of more specific reasons (for example, `stuck_pending_no_matching_runners`, `no_updates_running`, and `server_timeout_running`). New builds are no longer recorded with the old reasons.
+
+These old reasons remain valid values for [`retry:when`](https://docs.gitlab.com/ci/yaml/#retrywhen) in `.gitlab-ci.yml`. To avoid silently breaking existing configuration, when you list `stuck_or_timeout_failure` or `job_execution_timeout` under `retry:when`, GitLab treats them as aliases that match the full set of specific reasons that replaced them. GitLab also shows a non-blocking warning in CI lint output and the pipeline editor when these values are used.
+
+Both values are deprecated and scheduled for removal in GitLab 20.0.
+
+**Action required:** Update `retry:when` to use the specific failure reasons instead:
+
+- Replace `stuck_or_timeout_failure` with the relevant subset of `stuck_pending_with_matching_runners`, `stuck_pending_no_matching_runners`, `no_updates_running`, and `no_updates_canceling`.
+- Replace `job_execution_timeout` with `server_timeout_running` and/or `server_timeout_canceling`.
+
 ### Legacy group-level audit event streaming destination GraphQL APIs
 
 - Announced in GitLab 18.10

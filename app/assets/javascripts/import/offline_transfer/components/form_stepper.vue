@@ -23,7 +23,7 @@ export default {
       required: true,
     },
   },
-  emits: ['validation-failed', 'complete', 'stepped-back'],
+  emits: ['validation-failed', 'complete', 'stepped-back', 'stepped-forward'],
 
   data() {
     return {
@@ -90,6 +90,7 @@ export default {
       }
 
       this.currentStepIndex += 1;
+      this.$emit('stepped-forward');
     },
 
     goToPreviousStep() {

@@ -3546,6 +3546,22 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION trigger_7d206f446d34() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."organization_id" IS NULL THEN
+  SELECT "organization_id"
+  INTO NEW."organization_id"
+  FROM "snippet_uploads"
+  WHERE "snippet_uploads"."id" = NEW."personal_snippet_upload_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION trigger_7de792ddbc05() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -16789,6 +16805,26 @@ CREATE SEQUENCE bulk_imports_id_seq
 
 ALTER SEQUENCE bulk_imports_id_seq OWNED BY bulk_imports.id;
 
+CREATE TABLE burned_project_routes (
+    id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    burned_at timestamp with time zone NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    path text NOT NULL,
+    CONSTRAINT check_7e5d3f66e0 CHECK ((char_length(path) <= 255))
+);
+
+CREATE SEQUENCE burned_project_routes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE burned_project_routes_id_seq OWNED BY burned_project_routes.id;
+
 CREATE TABLE catalog_resource_component_last_usages (
     id bigint NOT NULL,
     component_id bigint NOT NULL,
@@ -27106,6 +27142,29 @@ CREATE SEQUENCE personal_access_tokens_id_seq
 
 ALTER SEQUENCE personal_access_tokens_id_seq OWNED BY personal_access_tokens.id;
 
+CREATE TABLE personal_snippet_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    personal_snippet_upload_id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_1fcb96a5aa CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE personal_snippet_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE personal_snippet_upload_states_id_seq OWNED BY personal_snippet_upload_states.id;
+
 CREATE TABLE snippet_repositories (
     snippet_id bigint NOT NULL,
     shard_id bigint,
@@ -36223,6 +36282,8 @@ ALTER TABLE ONLY bulk_import_trackers ALTER COLUMN id SET DEFAULT nextval('bulk_
 
 ALTER TABLE ONLY bulk_imports ALTER COLUMN id SET DEFAULT nextval('bulk_imports_id_seq'::regclass);
 
+ALTER TABLE ONLY burned_project_routes ALTER COLUMN id SET DEFAULT nextval('burned_project_routes_id_seq'::regclass);
+
 ALTER TABLE ONLY catalog_resource_component_last_usages ALTER COLUMN id SET DEFAULT nextval('catalog_resource_component_last_usages_id_seq'::regclass);
 
 ALTER TABLE ONLY catalog_resource_components ALTER COLUMN id SET DEFAULT nextval('catalog_resource_components_id_seq'::regclass);
@@ -37028,6 +37089,8 @@ ALTER TABLE ONLY personal_access_token_granular_scopes ALTER COLUMN id SET DEFAU
 ALTER TABLE ONLY personal_access_token_last_used_ips ALTER COLUMN id SET DEFAULT nextval('personal_access_token_last_used_ips_id_seq'::regclass);
 
 ALTER TABLE ONLY personal_access_tokens ALTER COLUMN id SET DEFAULT nextval('personal_access_tokens_id_seq'::regclass);
+
+ALTER TABLE ONLY personal_snippet_upload_states ALTER COLUMN id SET DEFAULT nextval('personal_snippet_upload_states_id_seq'::regclass);
 
 ALTER TABLE ONLY plan_limits ALTER COLUMN id SET DEFAULT nextval('plan_limits_id_seq'::regclass);
 
@@ -39413,6 +39476,9 @@ ALTER TABLE ONLY bulk_import_trackers
 ALTER TABLE ONLY bulk_imports
     ADD CONSTRAINT bulk_imports_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY burned_project_routes
+    ADD CONSTRAINT burned_project_routes_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY catalog_resource_component_last_usages
     ADD CONSTRAINT catalog_resource_component_last_usages_pkey PRIMARY KEY (id);
 
@@ -41083,6 +41149,9 @@ ALTER TABLE ONLY personal_access_token_last_used_ips
 
 ALTER TABLE ONLY personal_access_tokens
     ADD CONSTRAINT personal_access_tokens_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY personal_snippet_upload_states
+    ADD CONSTRAINT personal_snippet_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY pipl_users
     ADD CONSTRAINT pipl_users_pkey PRIMARY KEY (user_id);
@@ -45487,6 +45556,8 @@ CREATE INDEX idx_pat_last_used_ips_on_pat_id ON personal_access_token_last_used_
 
 CREATE INDEX idx_personal_access_tokens_on_previous_personal_access_token_id ON personal_access_tokens USING btree (previous_personal_access_token_id);
 
+CREATE UNIQUE INDEX idx_personal_snippet_upload_states_on_ps_upload_id ON personal_snippet_upload_states USING btree (personal_snippet_upload_id);
+
 CREATE INDEX idx_piere_upload_upload_states_failed_verification ON project_import_export_relation_export_upload_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
 
 CREATE INDEX idx_piere_upload_upload_states_needs_verification_id ON project_import_export_relation_export_upload_upload_states USING btree (project_import_export_relation_export_upload_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
@@ -45704,6 +45775,8 @@ CREATE UNIQUE INDEX idx_security_sep_schedules_on_rule_schedule_id_and_project_i
 CREATE INDEX idx_security_sep_schedules_on_security_policy_id_and_project_id ON security_scan_execution_project_schedules USING btree (security_policy_id, project_id);
 
 CREATE INDEX idx_slack_integrations_scopes_on_slack_api_scope_id ON slack_integrations_scopes USING btree (slack_api_scope_id);
+
+CREATE UNIQUE INDEX idx_snippet_uploads_on_id ON snippet_uploads USING btree (id);
 
 CREATE UNIQUE INDEX idx_software_license_policies_unique_on_custom_license_project ON software_license_policies USING btree (project_id, custom_software_license_id, scan_result_policy_id);
 
@@ -46694,6 +46767,8 @@ CREATE INDEX index_bulk_imports_on_terminated_status ON bulk_imports USING btree
 CREATE INDEX index_bulk_imports_on_updated_at_and_id_for_stale_status ON bulk_imports USING btree (updated_at, id) WHERE (status = ANY (ARRAY[0, 1]));
 
 CREATE INDEX index_bulk_imports_on_user_id ON bulk_imports USING btree (user_id);
+
+CREATE UNIQUE INDEX index_burned_project_routes_on_org_id_lower_path ON burned_project_routes USING btree (organization_id, lower(path));
 
 CREATE INDEX index_ca_enabled_incomplete_aggregation_stages_on_last_run_at ON analytics_cycle_analytics_stage_aggregations USING btree (last_run_at NULLS FIRST) WHERE ((last_completed_at IS NULL) AND (enabled = true));
 
@@ -49444,6 +49519,18 @@ CREATE INDEX index_personal_access_tokens_on_organization_id ON personal_access_
 CREATE UNIQUE INDEX index_personal_access_tokens_on_token_digest ON personal_access_tokens USING btree (token_digest);
 
 CREATE INDEX index_personal_access_tokens_on_user_id_and_id ON personal_access_tokens USING btree (user_id, id);
+
+CREATE INDEX index_personal_snippet_upload_states_failed_verification ON personal_snippet_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX index_personal_snippet_upload_states_needs_verification_id ON personal_snippet_upload_states USING btree (personal_snippet_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE INDEX index_personal_snippet_upload_states_on_organization_id ON personal_snippet_upload_states USING btree (organization_id);
+
+CREATE INDEX index_personal_snippet_upload_states_on_verification_started ON personal_snippet_upload_states USING btree (personal_snippet_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE INDEX index_personal_snippet_upload_states_on_verification_state ON personal_snippet_upload_states USING btree (verification_state);
+
+CREATE INDEX index_personal_snippet_upload_states_pending_verification ON personal_snippet_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
 CREATE INDEX index_pipeline_metadata_on_name_text_pattern_pipeline_id ON ci_pipeline_metadata USING btree (name text_pattern_ops, pipeline_id);
 
@@ -56177,6 +56264,8 @@ CREATE TRIGGER trigger_7b21c87a1f91 BEFORE INSERT OR UPDATE ON bulk_import_failu
 
 CREATE TRIGGER trigger_7b378a0c402b BEFORE INSERT OR UPDATE ON issue_user_mentions FOR EACH ROW EXECUTE FUNCTION trigger_7b378a0c402b();
 
+CREATE TRIGGER trigger_7d206f446d34 BEFORE INSERT OR UPDATE ON personal_snippet_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_7d206f446d34();
+
 CREATE TRIGGER trigger_7d6a4f5b82c2 BEFORE UPDATE OF all_unarchived_project_ids ON namespace_descendants FOR EACH ROW EXECUTE FUNCTION function_for_trigger_7d6a4f5b82c2();
 
 CREATE TRIGGER trigger_7de792ddbc05 BEFORE INSERT OR UPDATE ON dast_site_validations FOR EACH ROW EXECUTE FUNCTION trigger_7de792ddbc05();
@@ -58587,6 +58676,9 @@ ALTER TABLE ONLY merge_request_merge_schedules
 ALTER TABLE ONLY merge_requests
     ADD CONSTRAINT fk_a6963e8447 FOREIGN KEY (target_project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY personal_snippet_upload_states
+    ADD CONSTRAINT fk_a7280feb75 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY security_pipeline_execution_project_schedules
     ADD CONSTRAINT fk_a766128d99 FOREIGN KEY (security_policy_id) REFERENCES security_policies(id) ON DELETE CASCADE;
 
@@ -59087,6 +59179,9 @@ ALTER TABLE ONLY ci_sources_pipelines
 
 ALTER TABLE ONLY operations_strategies_user_lists
     ADD CONSTRAINT fk_d4f7076369 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY personal_snippet_upload_states
+    ADD CONSTRAINT fk_d59f12fd53 FOREIGN KEY (personal_snippet_upload_id) REFERENCES snippet_uploads(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY incident_management_timeline_events
     ADD CONSTRAINT fk_d606a2a890 FOREIGN KEY (promoted_from_note_id) REFERENCES notes(id) ON DELETE SET NULL;
@@ -61724,6 +61819,9 @@ ALTER TABLE ONLY work_item_current_statuses
 
 ALTER TABLE ONLY project_security_settings
     ADD CONSTRAINT fk_rails_ed4abe1338 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY burned_project_routes
+    ADD CONSTRAINT fk_rails_ed84d818a2 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY packages_debian_group_distributions
     ADD CONSTRAINT fk_rails_ede0bb937f FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE SET NULL;

@@ -44,6 +44,8 @@ module Gitlab
           true
         when ::Repositories::TreeFinder
           true
+        when ::Repositories::CommitsFinder
+          Feature.enabled?(:commits_keyset_pagination, project)
         end
       end
 

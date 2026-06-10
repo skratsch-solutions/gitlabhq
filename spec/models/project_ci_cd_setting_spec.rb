@@ -31,11 +31,21 @@ RSpec.describe ProjectCiCdSetting, feature_category: :continuous_integration do
       expect(subject.errors[:id_token_sub_claim_components]).to include("is too short (minimum is 1 character)")
     end
 
-    it 'validates id_token_sub_claim_components with project_path in the beginning' do
+    it 'validates id_token_sub_claim_components requires project_path or project_id as the first element' do
       subject.id_token_sub_claim_components = ['ref']
       expect(subject).not_to be_valid
       expect(subject.errors[:id_token_sub_claim_components])
-        .to include("project_path must be the first element of the sub claim")
+        .to include("project_path or project_id must be the first element of the sub claim")
+    end
+
+    it 'is valid when project_path is the first element' do
+      subject.id_token_sub_claim_components = %w[project_path ref_type ref]
+      expect(subject).to be_valid
+    end
+
+    it 'is valid when project_id is the first element' do
+      subject.id_token_sub_claim_components = %w[project_id ref_type ref]
+      expect(subject).to be_valid
     end
 
     it 'validates invalid claim name' do

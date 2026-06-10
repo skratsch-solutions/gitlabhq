@@ -75954,6 +75954,28 @@ components:
           type: string
         alert_management_metric_image_uploads_oldest_unsynced_time:
           type: string
+        personal_snippet_uploads_count:
+          type: string
+        personal_snippet_uploads_checksum_total_count:
+          type: string
+        personal_snippet_uploads_checksummed_count:
+          type: string
+        personal_snippet_uploads_checksum_failed_count:
+          type: string
+        personal_snippet_uploads_synced_count:
+          type: string
+        personal_snippet_uploads_failed_count:
+          type: string
+        personal_snippet_uploads_registry_count:
+          type: string
+        personal_snippet_uploads_verification_total_count:
+          type: string
+        personal_snippet_uploads_verified_count:
+          type: string
+        personal_snippet_uploads_verification_failed_count:
+          type: string
+        personal_snippet_uploads_oldest_unsynced_time:
+          type: string
         vulnerability_archive_export_uploads_count:
           type: string
         vulnerability_archive_export_uploads_checksum_total_count:
@@ -76365,6 +76387,10 @@ components:
         alert_management_metric_image_uploads_synced_in_percentage:
           type: string
         alert_management_metric_image_uploads_verified_in_percentage:
+          type: string
+        personal_snippet_uploads_synced_in_percentage:
+          type: string
+        personal_snippet_uploads_verified_in_percentage:
           type: string
         vulnerability_archive_export_uploads_synced_in_percentage:
           type: string
@@ -77030,6 +77056,28 @@ components:
           type: string
         alert_management_metric_image_uploads_oldest_unsynced_time:
           type: string
+        personal_snippet_uploads_count:
+          type: string
+        personal_snippet_uploads_checksum_total_count:
+          type: string
+        personal_snippet_uploads_checksummed_count:
+          type: string
+        personal_snippet_uploads_checksum_failed_count:
+          type: string
+        personal_snippet_uploads_synced_count:
+          type: string
+        personal_snippet_uploads_failed_count:
+          type: string
+        personal_snippet_uploads_registry_count:
+          type: string
+        personal_snippet_uploads_verification_total_count:
+          type: string
+        personal_snippet_uploads_verified_count:
+          type: string
+        personal_snippet_uploads_verification_failed_count:
+          type: string
+        personal_snippet_uploads_oldest_unsynced_time:
+          type: string
         vulnerability_archive_export_uploads_count:
           type: string
         vulnerability_archive_export_uploads_checksum_total_count:
@@ -77441,6 +77489,10 @@ components:
         alert_management_metric_image_uploads_synced_in_percentage:
           type: string
         alert_management_metric_image_uploads_verified_in_percentage:
+          type: string
+        personal_snippet_uploads_synced_in_percentage:
+          type: string
+        personal_snippet_uploads_verified_in_percentage:
           type: string
         vulnerability_archive_export_uploads_synced_in_percentage:
           type: string

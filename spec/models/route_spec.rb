@@ -406,4 +406,85 @@ RSpec.describe Route do
       end
     end
   end
+
+  describe 'project path burn hooks', feature_category: :system_access do
+    describe 'before_destroy' do
+      context 'for a Project route' do
+        let(:project) { create(:project) }
+
+        it 'writes a tombstone for the project path' do
+          expect { project.destroy! }
+            .to change { Authn::BurnedProjectRoute.for_path(project.full_path).count }.by(1)
+
+          row = Authn::BurnedProjectRoute.for_path(project.full_path).order(:id).first
+          expect(row).to have_attributes(
+            project_id: project.id,
+            organization_id: project.organization_id
+          )
+        end
+
+        # Regression: project teardown may detach the polymorphic association
+        # in memory (nulling source_id) before the route's own before_destroy
+        # fires. The burn hook must still capture the original project id
+        # from the persisted column so the tombstone is not orphaned.
+        it 'captures source_id from the database even when the in-memory attribute is nil' do
+          route = project.route
+          route.assign_attributes(source_id: nil)
+
+          expect { route.destroy! }
+            .to change { Authn::BurnedProjectRoute.for_path(project.full_path).count }.by(1)
+
+          row = Authn::BurnedProjectRoute.for_path(project.full_path).order(:id).first
+          expect(row.project_id).to eq(project.id)
+        end
+      end
+
+      context 'for a Group route' do
+        let(:group) { create(:group) }
+
+        it 'does not write a tombstone (project scope only)' do
+          expect { group.destroy! }
+            .not_to change { Authn::BurnedProjectRoute.count }
+        end
+      end
+    end
+
+    describe 'after_update when path changes' do
+      context 'for a Project route' do
+        let(:project) { create(:project, path: 'original-name') }
+
+        it 'writes a tombstone for the old path' do
+          old_full_path = project.full_path
+
+          project.update!(path: 'new-name')
+
+          expect(Authn::BurnedProjectRoute.for_path(old_full_path)).to exist
+        end
+
+        it 'does not write a tombstone for the new path' do
+          project.update!(path: 'new-name')
+
+          expect(Authn::BurnedProjectRoute.for_path(project.full_path)).not_to exist
+        end
+      end
+
+      context 'for a Group route' do
+        let(:group) { create(:group, path: 'original-group') }
+
+        it 'does not write a tombstone (project scope only)' do
+          expect { group.update!(path: 'new-group') }
+            .not_to change { Authn::BurnedProjectRoute.count }
+        end
+      end
+    end
+
+    describe 'after_update when only the name changes' do
+      let(:project) { create(:project) }
+
+      it 'does not write a tombstone' do
+        expect { project.update!(name: 'Renamed Project') }
+          .not_to change { Authn::BurnedProjectRoute.count }
+      end
+    end
+  end
 end

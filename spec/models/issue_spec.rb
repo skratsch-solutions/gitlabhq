@@ -1759,7 +1759,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       it 'uses the default work item type' do
         non_persisted_issue = build(:issue, work_item_type: nil)
 
-        expect(non_persisted_issue.issue_type).to eq(described_class::DEFAULT_ISSUE_TYPE.to_s)
+        expect(non_persisted_issue.issue_type).to eq(WorkItems::TypesFramework::Provider.new.default_issue_type.name.downcase)
       end
     end
   end

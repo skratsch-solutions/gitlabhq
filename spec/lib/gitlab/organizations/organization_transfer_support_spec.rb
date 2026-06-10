@@ -25,6 +25,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       analytics_cycle_analytics_stage_event_hashes
       background_operation_jobs
       background_operation_workers
+      burned_project_routes
       cd_application_flow_definitions
       cd_applications
       cd_environments
@@ -65,6 +66,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       slack_integrations
       slack_integrations_scopes
       snippet_uploads
+      personal_snippet_upload_states
       topics
       upcoming_reconciliations
       user_agent_details

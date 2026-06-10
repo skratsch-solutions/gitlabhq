@@ -355,6 +355,100 @@ RSpec.describe Gitlab::Pagination::GitalyKeysetPager, feature_category: :source_
       end
     end
 
+    context 'with ::Repositories::CommitsFinder' do
+      let(:commit1) { double 'commit', id: 'commit1' }
+      let(:commit2) { double 'commit', id: 'commit2' }
+
+      before do
+        allow(::Repositories::CommitsFinder).to receive(:===).with(finder).and_return(true)
+      end
+
+      shared_examples 'falls back to offset pagination without calling total' do
+        it 'uses offset pagination and does not call total', :aggregate_failures do
+          expect(finder).not_to receive(:total)
+          expect(finder).to receive(:execute).and_return([commit1])
+          expect(Kaminari).to receive(:paginate_array).with([commit1]).and_return(double('paginated array'))
+          expect_next_instance_of(Gitlab::Pagination::OffsetPagination) do |offset_pagination|
+            expect(offset_pagination).to receive(:paginate)
+          end
+
+          pager.paginate(finder)
+        end
+      end
+
+      context 'with commits_keyset_pagination feature on' do
+        before do
+          stub_feature_flags(commits_keyset_pagination: project)
+        end
+
+        context 'with keyset pagination option' do
+          let(:fake_request) { double(url: "#{incoming_api_projects_url}?#{query.to_query}") }
+          let(:query) { base_query.merge(pagination: 'keyset') }
+
+          before do
+            allow(request_context).to receive(:request).and_return(fake_request)
+            allow(finder).to receive(:next_cursor)
+          end
+
+          context 'when next page could be available' do
+            let(:next_cursor) { commit2.id }
+            let(:expected_next_page_link) { %(<#{incoming_api_projects_url}?#{query.merge(page_token: next_cursor).to_query}>; rel="next") }
+
+            before do
+              allow(finder).to receive(:next_cursor).and_return(next_cursor)
+            end
+
+            it 'calls execute with gitaly_pagination: true and adds link headers', :aggregate_failures do
+              commits = [commit1, commit2]
+
+              expect(finder).to receive(:execute).with(gitaly_pagination: true).and_return(commits)
+              expect(request_context).to receive(:header).with('Link', expected_next_page_link)
+
+              pager.paginate(finder)
+            end
+          end
+
+          context 'when the current page is the last page' do
+            it 'calls execute with gitaly_pagination: true and does not add link headers', :aggregate_failures do
+              commits = [commit1]
+
+              expect(finder).to receive(:execute).with(gitaly_pagination: true).and_return(commits)
+              expect(request_context).not_to receive(:header).with('Link', anything)
+
+              pager.paginate(finder)
+            end
+          end
+
+          context 'when the page is full but the cursor is nil' do
+            it 'calls execute with gitaly_pagination: true and does not add link headers', :aggregate_failures do
+              commits = [commit1, commit2]
+
+              expect(finder).to receive(:execute).with(gitaly_pagination: true).and_return(commits)
+              expect(request_context).not_to receive(:header).with('Link', anything)
+
+              pager.paginate(finder)
+            end
+          end
+        end
+
+        context 'without keyset pagination option' do
+          it_behaves_like 'falls back to offset pagination without calling total'
+        end
+      end
+
+      context 'with commits_keyset_pagination feature off' do
+        before do
+          stub_feature_flags(commits_keyset_pagination: false)
+        end
+
+        context 'with keyset pagination option' do
+          let(:query) { base_query.merge(pagination: 'keyset') }
+
+          it_behaves_like 'falls back to offset pagination without calling total'
+        end
+      end
+    end
+
     context "with 'none' pagination option" do
       let(:expected_result) { double(:result) }
       let(:query) { { pagination: 'none' } }

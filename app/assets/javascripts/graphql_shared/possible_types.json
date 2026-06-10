@@ -287,6 +287,7 @@
     "PackagesHelmMetadataCacheRegistry",
     "PackagesNugetSymbolRegistry",
     "PagesDeploymentRegistry",
+    "PersonalSnippetUploadRegistry",
     "PipelineArtifactRegistry",
     "ProjectImportExportRelationExportUploadUploadRegistry",
     "ProjectRepositoryRegistry",

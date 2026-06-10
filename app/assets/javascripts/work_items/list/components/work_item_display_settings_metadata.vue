@@ -1,5 +1,5 @@
 <script>
-import { GlDisclosureDropdownItem, GlIcon, GlToggle } from '@gitlab/ui';
+import { GlDisclosureDropdownItem, GlIcon, GlSearchBoxByType, GlToggle } from '@gitlab/ui';
 import produce from 'immer';
 import { __, s__ } from '~/locale';
 import { createAlert } from '~/alert';
@@ -17,6 +17,7 @@ export default {
   components: {
     GlDisclosureDropdownItem,
     GlIcon,
+    GlSearchBoxByType,
     GlToggle,
   },
   mixins: [InternalEvents.mixin()],
@@ -24,6 +25,8 @@ export default {
     fields: s__('WorkItems|Fields'),
     shown: s__('WorkItems|Shown'),
     hidden: s__('WorkItems|Hidden'),
+    searchPlaceholder: s__('WorkItems|Search fields'),
+    noFieldsFound: s__('WorkItems|No fields match your search.'),
   },
   props: {
     workItemTypeId: {
@@ -55,6 +58,11 @@ export default {
     },
   },
   emits: ['update-settings'],
+  data() {
+    return {
+      searchQuery: '',
+    };
+  },
   computed: {
     isSavedView() {
       return this.$route?.name === ROUTES.savedView;
@@ -70,15 +78,25 @@ export default {
         return !this.isGroup || item.isPresentInGroup;
       });
     },
+    filteredMetadataPreferences() {
+      const query = this.searchQuery.trim().toLowerCase();
+      if (!query) return this.applicableMetadataPreferences;
+      return this.applicableMetadataPreferences.filter((item) =>
+        item.label.toLowerCase().includes(query),
+      );
+    },
     shownPreferences() {
-      return this.applicableMetadataPreferences.filter(
+      return this.filteredMetadataPreferences.filter(
         (item) => !this.hiddenMetadataKeys.includes(item.key),
       );
     },
     hiddenPreferences() {
-      return this.applicableMetadataPreferences.filter((item) =>
+      return this.filteredMetadataPreferences.filter((item) =>
         this.hiddenMetadataKeys.includes(item.key),
       );
+    },
+    noFieldsAvailable() {
+      return this.filteredMetadataPreferences.length === 0;
     },
   },
   methods: {
@@ -172,7 +190,20 @@ export default {
 <template>
   <div data-testid="display-settings-metadata" class="gl-pb-3">
     <span class="gl-pl-4">{{ $options.i18n.fields }}</span>
-    <div v-if="shownPreferences.length" data-testid="shown-preferences" class="gl-mt-3">
+    <gl-search-box-by-type
+      v-model="searchQuery"
+      :placeholder="$options.i18n.searchPlaceholder"
+      class="gl-mx-3 gl-mt-3"
+      data-testid="display-settings-metadata-search"
+    />
+    <p
+      v-if="noFieldsAvailable"
+      data-testid="no-fields-found"
+      class="gl-mb-0 gl-mt-3 gl-px-4 gl-text-sm gl-text-subtle"
+    >
+      {{ $options.i18n.noFieldsFound }}
+    </p>
+    <div v-if="shownPreferences.length" data-testid="shown-preferences" class="gl-mt-4">
       <span class="gl-pl-4 gl-text-sm gl-font-bold">{{ $options.i18n.shown }}</span>
       <ul class="gl-m-0 gl-mt-2 gl-list-none gl-p-0">
         <gl-disclosure-dropdown-item
@@ -195,7 +226,7 @@ export default {
         </gl-disclosure-dropdown-item>
       </ul>
     </div>
-    <div v-if="hiddenPreferences.length" data-testid="hidden-preferences" class="gl-mt-3">
+    <div v-if="hiddenPreferences.length" data-testid="hidden-preferences" class="gl-mt-4">
       <span class="gl-pl-4 gl-text-sm gl-font-bold">{{ $options.i18n.hidden }}</span>
       <ul class="gl-m-0 gl-mt-2 gl-list-none gl-p-0">
         <gl-disclosure-dropdown-item

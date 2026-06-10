@@ -107,7 +107,7 @@ The condition is validated against the JWT to create a trust specifically agains
       - echo $OIDC_TOKEN
   ```
 
-- Subject or `sub`: A concatenation of metadata describing the GitLab CI/CD workflow including the group, project, branch, and tag. The `sub` field is in the following format:
+- Subject or `sub`: A concatenation of metadata describing the GitLab CI/CD workflow including the group, project, branch, and tag. The `sub` field is in the following format by default:
   - `project_path:{group}/{project}:ref_type:{type}:ref:{branch_name}`
 
 | Filter type                                        | Example |
@@ -116,6 +116,19 @@ The condition is validated against the JWT to create a trust specifically agains
 | Filter to specific project, main branch            | `project_path:mygroup/myproject:ref_type:branch:ref:main` |
 | Filter to all projects under a group               | Wildcard supported. `project_path:mygroup/*:ref_type:branch:ref:main` |
 | Filter to a Git tag                                | Wildcard supported. `project_path:mygroup/*:ref_type:tag:ref:1.0` |
+
+### Use the project ID as the subject
+
+To bind cloud trust policies to an immutable identifier, use `project_id` as the
+first component of the `sub` claim.
+Use this option to keep cloud access stable when a project is renamed or moved.
+
+To enable it, set `ci_id_token_sub_claim_components` to a value similar to
+`["project_id", "ref_type", "ref"]` by using the
+[projects API endpoint](../../api/projects.md#update-a-project) API.
+The `sub` field then has the following format:
+
+- `project_id:{id}:ref_type:{type}:ref:{branch_name}`
 
 ## OIDC authorization with your cloud provider
 

@@ -48,6 +48,7 @@ ActiveSupport::Inflector.inflections do |inflect|
     WikiPage::Meta
     packages_nuget_symbol_registry
     packages_helm_metadata_cache_registry
+    personal_snippet_upload_registry
     vulnerability_export_upload_registry
     issuable_metric_image_upload_registry
     vulnerability_export_part_upload_registry

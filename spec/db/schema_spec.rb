@@ -66,6 +66,7 @@ RSpec.describe 'Database schema',
       award_emoji: %w[awardable_id user_id],
       aws_roles: %w[role_external_id],
       boards: %w[milestone_id iteration_id],
+      burned_project_routes: %w[project_id], # No FK constraint: tombstones must outlive the project they reference.
       catalog_resource_component_last_usages: %w[used_by_project_id], # No FK constraint because we want to preserve usage data even if project is deleted.
       chat_names: %w[chat_id team_id],
       chat_teams: %w[team_id],

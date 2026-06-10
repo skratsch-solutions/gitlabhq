@@ -84,19 +84,21 @@ export default {
 </script>
 
 <template>
-  <div class="discussion-with-resolve-btn gl-clearfix">
-    <discussion-reply-placeholder @focus="$emit('showReplyForm')" />
+  <div class="gl-flex gl-flex-wrap gl-gap-4" data-testid="discussion-with-resolve-btn">
+    <discussion-reply-placeholder
+      class="!gl-mb-0 gl-min-w-0 gl-flex-1 gl-basis-full @sm/panel:gl-basis-0"
+      @focus="$emit('showReplyForm')"
+    />
 
-    <div v-if="userCanResolveDiscussion" class="btn-group discussion-actions" role="group">
-      <div class="btn-group">
-        <resolve-discussion-button
-          v-if="discussion.resolvable"
-          data-testid="resolve-discussion-button"
-          :is-resolving="isResolving"
-          :button-title="resolveButtonTitle"
-          @on-click="$emit('resolve')"
-        />
-      </div>
+    <div v-if="userCanResolveDiscussion" class="btn-group gl-w-auto gl-min-w-0" role="group">
+      <resolve-discussion-button
+        v-if="discussion.resolvable"
+        data-testid="resolve-discussion-button"
+        :is-resolving="isResolving"
+        :button-title="resolveButtonTitle"
+        class="!gl-m-0"
+        @on-click="$emit('resolve')"
+      />
       <gl-disclosure-dropdown
         v-if="showSecondaryActionsDropdown"
         :icon="isDuoLoading ? undefined : 'chevron-down'"

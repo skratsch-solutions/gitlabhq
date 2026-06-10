@@ -751,6 +751,11 @@ msgid_plural "%{count} archived projects"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%{count} attribute"
+msgid_plural "%{count} attributes"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%{count} bypass %{configurations} defined:"
 msgstr ""
 
@@ -875,6 +880,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "%{count} selected"
+msgstr ""
+
+msgid "%{count} stale"
 msgstr ""
 
 msgid "%{count} star"
@@ -32157,9 +32165,6 @@ msgstr ""
 msgid "Failed to regenerate new work item email address"
 msgstr ""
 
-msgid "Failed to regenerate unique domain"
-msgstr ""
-
 msgid "Failed to remove a Zoom meeting"
 msgstr ""
 
@@ -33926,6 +33931,12 @@ msgstr ""
 msgid "Geo|Pending"
 msgstr ""
 
+msgid "Geo|Personal Snippet Upload"
+msgstr ""
+
+msgid "Geo|Personal Snippet Uploads"
+msgstr ""
+
 msgid "Geo|Pipeline Artifact"
 msgstr ""
 
@@ -34886,6 +34897,9 @@ msgstr ""
 msgid "GitLabPages|Edit domain"
 msgstr ""
 
+msgid "GitLabPages|Failed to regenerate unique domain"
+msgstr ""
+
 msgid "GitLabPages|Force HTTPS (requires valid certificates)"
 msgstr ""
 
@@ -34905,6 +34919,9 @@ msgid "GitLabPages|Pages"
 msgstr ""
 
 msgid "GitLabPages|Pages public access"
+msgstr ""
+
+msgid "GitLabPages|Pages were scheduled for removal"
 msgstr ""
 
 msgid "GitLabPages|Primary domain"
@@ -34932,6 +34949,9 @@ msgid "GitLabPages|Something went wrong while obtaining the Let's Encrypt certif
 msgstr ""
 
 msgid "GitLabPages|Start over"
+msgstr ""
+
+msgid "GitLabPages|Successfully regenerated unique domain"
 msgstr ""
 
 msgid "GitLabPages|Support for domains and certificates is disabled. Ask your GitLab administrator to enable it."
@@ -34968,6 +34988,9 @@ msgid "GitLabPages|With GitLab Pages you can host your static website directly f
 msgstr ""
 
 msgid "GitLabPages|Your Pages site is not configured yet. See the %{docs_link_start}GitLab Pages documentation%{link_end} to learn how to upload your static site and have GitLab serve it. You can also take some inspiration from the %{samples_link_start}sample Pages projects%{link_end}."
+msgstr ""
+
+msgid "GitLabPages|Your changes have been saved"
 msgstr ""
 
 msgid "GitLabPages|Your project is configured for GitLab Pages and the pipeline is running…"
@@ -36210,6 +36233,9 @@ msgid "Group access token creation is disabled in this group."
 msgstr ""
 
 msgid "Group access tokens"
+msgstr ""
+
+msgid "Group and project created successfully"
 msgstr ""
 
 msgid "Group application: %{name}"
@@ -49405,6 +49431,9 @@ msgstr ""
 msgid "Notify|%{committed_by_start} by %{author_name} %{committed_by_end} %{committed_at_start} at %{committed_date} %{committed_at_end}"
 msgstr ""
 
+msgid "Notify|%{external_author} via %{outgoing_name}"
+msgstr ""
+
 msgid "Notify|%{invite_email}, now known as %{user_name}, has accepted your invitation to join the %{target_name} %{target_model_name}."
 msgstr ""
 
@@ -49421,6 +49450,9 @@ msgid "Notify|%{mr_highlight}Merge request%{highlight_end} %{mr_link} %{reviewer
 msgstr ""
 
 msgid "Notify|%{mr_highlight}Merge request%{highlight_end} %{mr_link} %{reviewer_highlight}was unapproved by%{highlight_end} %{reviewer_avatar} %{reviewer_link}"
+msgstr ""
+
+msgid "Notify|%{p_start}Hi %{name}!%{p_end}%{p_start}The SAML authentication identifier (extern_uid) linked to your account was changed by an owner of the %{group_name} group.%{p_end}%{p_start}As a security measure, you must sign in with your GitLab credentials and re-link your SAML identity before you can use SAML single sign-on again.%{p_end}%{p_start}If you did not expect this change, contact your group owner or a GitLab administrator immediately.%{p_end}"
 msgstr ""
 
 msgid "Notify|%{p_start}To update the remote url in your local repository run (for ssh):%{p_end} %{ssh_url_to_repo} %{p_start}or for http(s):%{p_end} %{http_url_to_repo}"
@@ -60809,6 +60841,9 @@ msgstr ""
 msgid "Register with two-factor app"
 msgstr ""
 
+msgid "Registration unsuccessful"
+msgstr ""
+
 msgid "RegistrationFeatures|Enable Service Ping and register for this feature."
 msgstr ""
 
@@ -63766,6 +63801,9 @@ msgid "SAML"
 msgstr ""
 
 msgid "SAML SSO"
+msgstr ""
+
+msgid "SAML authentication identifier changed"
 msgstr ""
 
 msgid "SAML discovery tokens"
@@ -67812,6 +67850,9 @@ msgstr ""
 msgid "SecurityOrchestration|Excluded projects"
 msgstr ""
 
+msgid "SecurityOrchestration|Excluding:"
+msgstr ""
+
 msgid "SecurityOrchestration|Exclusions"
 msgstr ""
 
@@ -67984,6 +68025,9 @@ msgid "SecurityOrchestration|In each pipeline, a %{boldStart}maximum of 1000%{bo
 msgstr ""
 
 msgid "SecurityOrchestration|Include subgroups"
+msgstr ""
+
+msgid "SecurityOrchestration|Including:"
 msgstr ""
 
 msgid "SecurityOrchestration|Increase by one level"
@@ -74467,9 +74511,6 @@ msgid "Successfully deleted requirement statuses."
 msgstr ""
 
 msgid "Successfully linked ID(s): %{item_ids}."
-msgstr ""
-
-msgid "Successfully regenerated unique domain"
 msgstr ""
 
 msgid "Successfully removed email."
@@ -81819,6 +81860,21 @@ msgstr ""
 msgid "UserMapping|The invitation could not be declined."
 msgstr ""
 
+msgid "UserMapping|The provided CSV file could not be processed."
+msgstr ""
+
+msgid "UserMapping|The provided CSV file exceeds the maximum number of columns (%{max_columns})."
+msgstr ""
+
+msgid "UserMapping|The provided CSV file exceeds the maximum number of rows (%{max_rows})."
+msgstr ""
+
+msgid "UserMapping|The provided CSV file exceeds the maximum size of %{max_size}."
+msgstr ""
+
+msgid "UserMapping|The provided CSV file has too many rows or columns to be processed."
+msgstr ""
+
 msgid "UserMapping|The provided CSV was not correctly formatted."
 msgstr ""
 
@@ -84427,6 +84483,9 @@ msgstr ""
 msgid "We're experiencing difficulties and this tab content is currently unavailable."
 msgstr ""
 
+msgid "We're sorry, your registration could not be completed. Please resubmit below to complete your setup."
+msgstr ""
+
 msgid "We're sorry, your trial could not be created because our system did not respond successfully."
 msgstr ""
 
@@ -85671,10 +85730,16 @@ msgstr ""
 msgid "WorkItems|How do I use statuses?"
 msgstr ""
 
+msgid "WorkItems|No fields match your search."
+msgstr ""
+
 msgid "WorkItems|Open items in side panel"
 msgstr ""
 
 msgid "WorkItems|Options applied to all views"
+msgstr ""
+
+msgid "WorkItems|Search fields"
 msgstr ""
 
 msgid "WorkItems|Shown"
@@ -91318,7 +91383,7 @@ msgstr ""
 msgid "project's path"
 msgstr ""
 
-msgid "project_path must be the first element of the sub claim"
+msgid "project_path or project_id must be the first element of the sub claim"
 msgstr ""
 
 msgid "projects"

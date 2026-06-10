@@ -270,6 +270,54 @@ RSpec.describe Routes::RenameDescendantsService, feature_category: :groups_and_p
       end
     end
 
+    context 'when burning vacated descendant project paths' do
+      let(:burns_for_descendants) do
+        Authn::BurnedProjectRoute.where(project_id: subgroup_projects.map(&:id))
+      end
+
+      context 'when the path changes' do
+        let!(:changes) do
+          {
+            path: { saved: true, old_value: 'old-path' },
+            name: { saved: false, old_value: 'old-name' }
+          }
+        end
+
+        it 'writes one tombstone per descendant project route, scoped to the project organization' do
+          expect { execute }.to change { burns_for_descendants.count }.from(0).to(4)
+
+          subgroup_projects.each do |project|
+            row = Authn::BurnedProjectRoute.for_path(project.full_path).order(:id).first
+            expect(row).to have_attributes(
+              project_id: project.id,
+              organization_id: project.organization_id
+            )
+          end
+        end
+
+        it 'does not burn the descendant group paths' do
+          execute
+
+          subgroups.each do |subgroup|
+            expect(Authn::BurnedProjectRoute.for_path(subgroup.full_path)).to be_empty
+          end
+        end
+      end
+
+      context 'when only the name changes' do
+        let!(:changes) do
+          {
+            path: { saved: false, old_value: 'old-path' },
+            name: { saved: true, old_value: 'old-name' }
+          }
+        end
+
+        it 'does not burn any descendant project path' do
+          expect { execute }.not_to change { Authn::BurnedProjectRoute.count }
+        end
+      end
+    end
+
     context 'for batching' do
       before do
         stub_const("#{described_class.name}::BATCH_SIZE", 2)

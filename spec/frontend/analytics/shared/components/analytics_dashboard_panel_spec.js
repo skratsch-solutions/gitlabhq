@@ -260,6 +260,16 @@ describe('AnalyticsDashboardPanel', () => {
         '/help/user/analytics/analytics_dashboards.md',
       );
     });
+
+    it('still shows the error state when changing filters', async () => {
+      await wrapper.setProps({ filters: { startDate: new Date() } });
+
+      expect(findExtendedDashboardPanel().props()).toMatchObject({
+        loading: false,
+        showAlertState: true,
+        alertPopoverTitle: 'Invalid visualization configuration',
+      });
+    });
   });
 
   describe('when fetching the data', () => {

@@ -1015,6 +1015,7 @@ type:PathLockPermissions
 type:PendingGroupMember
 type:PendingProjectMember
 type:PersonalAccessToken
+type:PersonalSnippetUploadRegistry
 type:PipelineAnalytics
 type:PipelineAnalyticsPeriod
 type:PipelineArtifactRegistry

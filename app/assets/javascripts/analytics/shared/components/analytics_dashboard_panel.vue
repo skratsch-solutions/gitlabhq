@@ -200,7 +200,7 @@ export default {
   },
   watch: {
     currentVisualization: {
-      handler: 'onVisualizationChange',
+      handler: 'fetchData',
       immediate: true,
     },
     queryOverrides: 'fetchData',
@@ -215,7 +215,13 @@ export default {
     isValidAlertMessage(message) {
       return isString(message) || (isString(message.link) && isString(message.description));
     },
-    onVisualizationChange() {
+    onUpdateQuery(queryOverrides) {
+      this.visualizationQueryOverrides = {
+        ...this.visualizationQueryOverrides,
+        ...queryOverrides,
+      };
+    },
+    async fetchData() {
       if (this.hasValidationErrors) {
         this.setAlerts({
           errors: this.validationErrors,
@@ -228,15 +234,6 @@ export default {
         return;
       }
 
-      this.fetchData();
-    },
-    onUpdateQuery(queryOverrides) {
-      this.visualizationQueryOverrides = {
-        ...this.visualizationQueryOverrides,
-        ...queryOverrides,
-      };
-    },
-    async fetchData() {
       const { aggregatedQuery, filters } = this;
       const { type: dataType } = this.currentVisualization.data;
       this.loading = true;
