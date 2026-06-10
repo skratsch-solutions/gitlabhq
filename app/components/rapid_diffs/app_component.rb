@@ -23,7 +23,8 @@ module RapidDiffs
     def diff_collection
       return [linked_file] if linked_file
 
-      diffs_slice || []
+      result = diffs_slice || []
+      file_by_file_mode? ? result.first(1) : result
     end
 
     def parallel_view?

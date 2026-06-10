@@ -67,15 +67,6 @@ RSpec.describe Gitlab::Git::Tag, feature_category: :source_code_management do
       it { expect(tag.user_name).to eq(gitaly_commit_author.name) }
       it { expect(tag.user_email).to eq(gitaly_commit_author.email) }
       it { expect(tag.date).to eq(Time.at(1574261780).utc) }
-
-      context 'when render_gpg_signed_tags_verification_status is not enabled' do
-        before do
-          stub_feature_flags(render_gpg_signed_tags_verification_status: false)
-        end
-
-        it { expect(tag.signature).to be_nil }
-        it { expect(tag.lazy_cached_signature).to be_nil }
-      end
     end
 
     describe 'ssh signed tag' do
@@ -279,14 +270,6 @@ RSpec.describe Gitlab::Git::Tag, feature_category: :source_code_management do
       let(:stubbed_signature_type) { :PGP }
 
       it { is_expected.to be_truthy }
-
-      context 'when render_gpg_signed_tags_verification_status is not enabled' do
-        before do
-          stub_feature_flags(render_gpg_signed_tags_verification_status: false)
-        end
-
-        it { is_expected.to be_falsey }
-      end
     end
 
     context 'when signed with ssh' do

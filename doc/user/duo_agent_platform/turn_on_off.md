@@ -83,6 +83,11 @@ When Agent Platform is turned off, related settings for flows and
 
 Turn GitLab Duo on for all users, regardless of group or project settings.
 
+When you set GitLab Duo availability to **Always on**,
+experiment and beta features are not automatically turned on.
+To use experiment and beta features, you must
+[turn them on separately](#turn-on-beta-and-experimental-features).
+
 {{< tabs >}}
 
 {{< tab title="On GitLab.com" >}}

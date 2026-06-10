@@ -5821,6 +5821,9 @@ msgstr ""
 msgid "AdminAIPoweredFeatures|Select a model"
 msgstr ""
 
+msgid "AdminAIPoweredFeatures|This is the current default model, and users always have access to it. To restrict users' access to it, change the default to another model."
+msgstr ""
+
 msgid "AdminAIPoweredFeatures|When turned on, users can only use the models selected below. When turned off, users can use all available %{linkStart}GitLab managed models%{linkEnd}, including those added in the future."
 msgstr ""
 
@@ -48734,6 +48737,9 @@ msgid "No more seats in subscription"
 msgstr ""
 
 msgid "No more than %{max_frameworks} compliance frameworks can be updated at the same time."
+msgstr ""
+
+msgid "No more than %{max_source_types} source work item types can be provided at a time."
 msgstr ""
 
 msgid "No more than %{max_work_items} work items can be loaded at the same time"

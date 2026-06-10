@@ -633,7 +633,13 @@ module Feature
     end
 
     def projects
-      find_targets(:project) { |arg| Project.find_by_full_path(arg) }
+      find_targets(:project) do |arg|
+        if arg.match?(/\A\d+\z/)
+          Project.find_by_id(arg)
+        else
+          Project.find_by_full_path(arg)
+        end
+      end
     end
 
     def groups

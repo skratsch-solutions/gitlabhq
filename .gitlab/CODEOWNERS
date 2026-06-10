@@ -12,6 +12,11 @@
 [Maintainers] @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops @gitlab-org/maintainers/kas-version-maintainers
 *
 
+# Top-level files that have no more specific owner below.
+# These files are safe to be approved by any maintainer group.
+# Critical runtime files (such as `config.ru`) are overridden below.
+/* @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
+
 # All maintainer groups can approve /scripts/ and /.gitlab/
 # https://gitlab.com/gitlab-org/gitlab/-/work_items/594402#note_3249020797
 /scripts/ @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
@@ -33,6 +38,10 @@ Gemfile.next @gitlab-org/maintainers/rails-backend
 Gemfile.next.lock @gitlab-org/maintainers/rails-backend
 Gemfile.next.checksum @gitlab-org/maintainers/rails-backend
 Rakefile @gitlab-org/maintainers/rails-backend
+config.ru @gitlab-org/maintainers/rails-backend
+/.license_encryption_key.pub @gitlab-org/maintainers/rails-backend
+/.rubocop.yml @gitlab-org/maintainers/rails-backend
+/.ruby-version @gitlab-org/maintainers/rails-backend
 # By default Backend owns these directories.
 # Further lines in this [Maintainers] section may override these.
 /.rubocop/ @gitlab-org/maintainers/rails-backend
@@ -62,6 +71,7 @@ Rakefile @gitlab-org/maintainers/rails-backend
 # HAML markup is considered ~frontend code.
 # However, Ruby code in HAML templates is considered ~backend code
 *.haml @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
+/.haml-lint.yml @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
 /public/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
 /app/views/**/*.erb @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
 /ee/app/views/**/*.erb @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
@@ -76,6 +86,12 @@ Rakefile @gitlab-org/maintainers/rails-backend
 *.graphql @gitlab-org/maintainers/frontend
 package.json @gitlab-org/maintainers/frontend
 yarn.lock @gitlab-org/maintainers/frontend
+/.browserslistrc @gitlab-org/maintainers/frontend
+/.nvmrc @gitlab-org/maintainers/frontend
+/.prettierignore @gitlab-org/maintainers/frontend
+/.prettierrc @gitlab-org/maintainers/frontend
+/.stylelintrc @gitlab-org/maintainers/frontend
+/axe-linter.yml @gitlab-org/maintainers/frontend
 /.eslint_todo/ @gitlab-org/maintainers/frontend
 /storybook/ @gitlab-org/maintainers/frontend
 # Overrides above BE directory assignments
@@ -104,6 +120,7 @@ yarn.lock @gitlab-org/maintainers/frontend
 
 .gitlab/CODEOWNERS @gitlab-org/development-leaders @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops
 
+/VERSION @gitlab-org/maintainers/rails-backend @gitlab-org/delivery
 /*_VERSION @gitlab-org/maintainers/rails-backend @gitlab-org/delivery
 
 ## Allows release tooling and Gitaly team members to update the Gitaly Version

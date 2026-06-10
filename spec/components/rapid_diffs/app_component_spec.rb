@@ -103,6 +103,21 @@ RSpec.describe RapidDiffs::AppComponent, type: :component, feature_category: :co
       data = Gitlab::Json.parse(app['data-app-data'])
       expect(data['file_by_file_mode']).to be(true)
     end
+
+    it "renders only the first diff file" do
+      render_component
+      expect(page.all('diff-file').size).to eq(1)
+    end
+
+    it "does not render the stream container" do
+      render_component
+      expect(page).not_to have_css('[data-stream-remaining-diffs]')
+    end
+
+    it "does not add the stream preload to startup JS" do
+      render_component
+      expect(vc_test_controller.view_context.content_for?(:startup_js)).to be_falsey
+    end
   end
 
   context "with extra_app_data" do

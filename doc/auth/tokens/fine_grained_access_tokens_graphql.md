@@ -517,6 +517,7 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Read | Group | Type | `Iteration` |
 | Read | Group | Type | `IterationCadence` |
 | Read | Group | Type | `Milestone` |
+| Read | Group | Type | `WorkItemMoveTarget` |
 | Update | Project | Mutation | `IssueLinkAlerts` |
 | Update | Project | Mutation | `IssueMove` |
 | Update | Project | Mutation | `IssueSetAssignees` |

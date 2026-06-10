@@ -1731,6 +1731,26 @@ RSpec.describe Feature, :clean_gitlab_redis_feature_flag, stub_feature_flags: fa
         end
       end
 
+      context 'when project is specified by numeric ID' do
+        let_it_be(:project) { create(:project) }
+
+        subject { described_class.new(project: project.id.to_s) }
+
+        it 'returns the project as a target' do
+          expect(subject.targets).to eq([project])
+        end
+      end
+
+      context 'when project is specified by full path' do
+        let_it_be(:project) { create(:project) }
+
+        subject { described_class.new(project: project.full_path) }
+
+        it 'returns the project as a target' do
+          expect(subject.targets).to eq([project])
+        end
+      end
+
       context 'when repository target works with different types of repositories' do
         let_it_be(:group) { create(:group) }
         let_it_be(:project) { create(:project, :wiki_repo, group: group) }

@@ -11,7 +11,7 @@ GitLab Duo uses generative AI to help increase your velocity and make you more p
 GitLab uses the right large language models (LLMs) for specific tasks.
 These LLMs are [Anthropic Claude](https://claude.com/product/overview),
 [Fireworks AI-hosted Codestral](https://mistral.ai/news/codestral),
-[Google Vertex AI models](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/overview),
+[Gemini Enterprise Agent Platform models](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/beginners-guide),
 and [OpenAI models](https://platform.openai.com/docs/models).
 
 ## Progressive enhancement
@@ -34,14 +34,12 @@ The below reflects the current retention periods of GitLab AI model
 [sub-processors](https://about.gitlab.com/privacy/subprocessors/#third-party-sub-processors):
 
 For GitLab Duo requests, GitLab has a zero data retention policy
-with Anthropic, AWS, Fireworks AI, and Google.
+with Fireworks AI. Fireworks AI discards model input and output data immediately after the output is
+provided and does not store input and output data for abuse monitoring. The exception
+to this policy is when prompt caching is enabled for
+Code Suggestions and GitLab Duo Agentic Chat. For OpenAI models, you cannot turn off prompt caching.
 
-These vendors discard model input and output data immediately after the output is
-provided and do not store input and output data for abuse monitoring. The exception
-to this policy is when Fireworks AI and Vertex AI prompt caching is enabled for
-Code Suggestions and GitLab Duo Agentic Chat.
-
-For OpenAI models, you cannot turn off prompt caching. Certain OpenAI models, including GPT-5.5 and GPT-5.5 Pro, are subject to [limited vendor-side data retention](https://developers.openai.com/api/docs/guides/your-data#safety-retention). Models subject to this limited vendor-side data retention are designated in the [GitLab Duo supported models documentation](model_selection.md#supported-models).
+Certain Anthropic and OpenAI models, including when hosted on Amazon Bedrock and Gemini Enterprise Agent Platform (formerly Vertex AI Platform), are subject to limited vendor-side data retention. Models subject to this limited vendor-side data retention are designated in the [GitLab Duo supported models documentation](../duo_agent_platform/model_selection.md#supported-models).
 
 All GitLab AI model sub-processors are restricted from using model input and
 output to train models and are under data protection agreements with GitLab that
