@@ -863,7 +863,7 @@ export default {
                     no-caret
                     fluid-width
                   >
-                    <div class="p-3 gl-min-w-md gl-w-md gl-flex gl-flex-col">
+                    <div class="gl-min-w-md gl-w-md gl-flex gl-flex-col !gl-p-5">
                       <gl-form-group
                         v-if="!isCustomSidebar"
                         :label="$options.i18n.path.label"

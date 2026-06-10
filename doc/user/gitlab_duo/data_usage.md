@@ -64,7 +64,7 @@ GitLab does not train generative AI models.
 
 For more information on our AI [sub-processors](https://about.gitlab.com/privacy/subprocessors/#third-party-sub-processors), see:
 
-- Google Vertex AI models API [data governance](https://cloud.google.com/vertex-ai/generative-ai/docs/data-governance), [responsible AI](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/responsible-ai), [details about foundation model training](https://cloud.google.com/vertex-ai/generative-ai/docs/data-governance#foundation_model_training), Google [Secure AI Framework (SAIF)](https://safety.google/cybersecurity-advancements/saif/), and [release notes](https://cloud.google.com/vertex-ai/docs/release-notes).
+- Gemini Enterprise Agent Platform models API [data governance](https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/zero-data-retention), [responsible AI](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/responsible-ai), and Google [Secure AI Framework (SAIF)](https://safety.google/safety/saif/).
 - Anthropic Claude's [constitution](https://www.anthropic.com/news/claudes-constitution), training data [FAQ](https://support.anthropic.com/en/articles/7996885-how-do-you-use-personal-data-in-model-training), [models overview](https://docs.anthropic.com/en/docs/about-claude/models), and [data recency article](https://support.anthropic.com/en/articles/8114494-how-up-to-date-is-claude-s-training-data).
 
 ## Telemetry

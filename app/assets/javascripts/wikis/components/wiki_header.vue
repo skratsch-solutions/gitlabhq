@@ -104,7 +104,7 @@ export default {
     },
     subscribeItem() {
       return {
-        text: this.wikiPage?.subscribed ? __('Notifications On') : __('Notifications Off'),
+        text: this.wikiPage?.subscribed ? __('Notifications are on') : __('Notifications are off'),
         icon: this.wikiPage?.subscribed ? 'notifications' : 'notifications-off',
       };
     },

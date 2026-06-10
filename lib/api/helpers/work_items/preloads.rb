@@ -20,7 +20,8 @@ module API
           start_and_due_date: [:dates_source],
           time_tracking: [{ timelogs: :user }],
           error_tracking: [:sentry_issue],
-          hierarchy: [{ work_item_parent: WORK_ITEM_REFERENCE_PRELOADS }]
+          hierarchy: [{ work_item_parent: WORK_ITEM_REFERENCE_PRELOADS }],
+          notifications: [:issue_assignees]
         }.freeze
 
         PROJECT_FEATURE_PRELOADS = {
@@ -159,6 +160,18 @@ module API
             .with_notes_filter(notes_filter)
             .preload(NOTE_REFERENCE_PRELOADS) # rubocop:disable CodeReuse/ActiveRecord -- Preloading associations for API response
             .reorder(order_options_with_tie_breaker) # rubocop:disable CodeReuse/ActiveRecord -- needed for stable ordering on `order_by` + `sort`
+        end
+
+        # Bulk-fetches Subscription rows for the given work items and current user so the
+        # notifications feature entity can read each work item's subscribed state from memory
+        # rather than triggering one query per item.
+        def preload_notifications_subscriptions(work_items, feature_keys)
+          return {} unless current_user && feature_keys.include?(:notifications) && work_items.present?
+
+          ::Subscription
+            .for_subscribables(work_items.map(&:id), ::WorkItem.polymorphic_name)
+            .for_user(current_user)
+            .index_by(&:subscribable_id)
         end
 
         # Preloads the project / group membership associated with the work items so the :read_project and :read_group

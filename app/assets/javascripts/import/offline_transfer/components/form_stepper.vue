@@ -143,11 +143,7 @@ export default {
     </ul>
 
     <div v-for="(step, index) in steps" :key="index">
-      <div
-        v-if="index === currentStepIndex"
-        class="gl-min-h-26 gl-py-6"
-        :data-testid="'step-content-' + index"
-      >
+      <div v-if="index === currentStepIndex" class="gl-pt-6" :data-testid="'step-content-' + index">
         <slot :name="`step-${index}`" :step-data="step" :step-index="index"></slot>
       </div>
     </div>

@@ -48,6 +48,10 @@ export const CVS_CONTAINER_SCANNING = 'cvs_for_container_scanning';
 
 export const CVS_DEPENDENCY_SCANNING = 'cvs_for_dependency_scanning';
 
+export const FEATURE_DISABLED_TOOLTIP = s__(
+  'SecurityConfiguration|Only security managers, maintainers, and owners can toggle this feature.',
+);
+
 export const featureToMutationMap = {
   [REPORT_TYPE_SAST]: {
     mutationId: 'configureSast',

@@ -541,7 +541,7 @@ You can now view timestamps on each CI job log line to identify performance bott
 
 - Tier: Free, Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated, GitLab Dedicated for Government
-- Links: [Documentation](../../ci/components/_index.md#view-catalog-resource-analytics) | [Related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/579458)
+- Links: [Documentation](../../ci/components/_index.md#view-cicd-catalog-project-analytics) | [Related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/579458)
 
 {{< /details >}}
 

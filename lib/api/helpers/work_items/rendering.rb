@@ -34,18 +34,23 @@ module API
             requested_features: feature_keys,
             fields: field_keys,
             resource_parent: resource_parent,
+            notifications_subscriptions: preload_notifications_subscriptions(work_items, feature_keys),
             **count_preloads_for(work_items, field_keys, feature_keys)
         end
 
-        def render_work_item_response(result, status:)
+        def render_work_item_response(result, status:, notifications_subscriptions: nil)
           if result[:status] == :success
             feature_keys = requested_feature_keys(params[:features]&.keys&.join(','))
+            work_item = result[:work_item]
 
-            present result[:work_item],
+            present work_item,
               with: Entities::WorkItemBasic,
               current_user: current_user,
               requested_features: feature_keys,
               fields: requested_field_keys(params[:fields]),
+              notifications_subscriptions: notifications_subscriptions,
+              # Single-item render path: opt into the participant? fallback so the entity matches GraphQL's `subscribed`
+              notifications_allow_participant_fallback: true,
               status: status
           else
             render_api_error!(Array(result[:message]).join(', '), result[:http_status] || :unprocessable_entity)
@@ -108,7 +113,8 @@ module API
             access_token: access_token,
             requested_features: feature_keys,
             fields: field_keys,
-            resource_parent: resource_parent
+            resource_parent: resource_parent,
+            notifications_subscriptions: preload_notifications_subscriptions(visible, feature_keys)
         end
 
         def render_work_item_for(resource_parent, work_item_iid)
@@ -138,6 +144,9 @@ module API
             access_token: access_token,
             requested_features: feature_keys,
             fields: field_keys,
+            notifications_subscriptions: preload_notifications_subscriptions([work_item], feature_keys),
+            # Single-item render path: opt into the participant? fallback so the entity matches GraphQL's `subscribed`
+            notifications_allow_participant_fallback: true,
             **count_preloads_for([work_item], field_keys, feature_keys)
         end
 

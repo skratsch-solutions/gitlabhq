@@ -7,8 +7,8 @@ import eventHub from '../../event_hub';
 
 const ICON_ON = 'notifications';
 const ICON_OFF = 'notifications-off';
-const LABEL_ON = __('Notifications on');
-const LABEL_OFF = __('Notifications off');
+const LABEL_ON = __('Notifications are on');
+const LABEL_OFF = __('Notifications are off');
 
 export default {
   directives: {

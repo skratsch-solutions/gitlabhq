@@ -260,7 +260,7 @@ export default {
             v-if="shouldRenderAttestationWarning"
             :title="s__('Job|Attestation Generation Error')"
             variant="warning"
-            class="mb-2 gl-mt-3"
+            class="!gl-mb-3 gl-mt-3"
             :dismissible="false"
           >
             <div>

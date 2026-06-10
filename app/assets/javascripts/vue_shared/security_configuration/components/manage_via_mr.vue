@@ -1,6 +1,9 @@
 <script>
-import { GlButton } from '@gitlab/ui';
-import { featureToMutationMap } from 'ee_else_ce/security_configuration/constants';
+import { GlButton, GlTooltipDirective } from '@gitlab/ui';
+import {
+  featureToMutationMap,
+  FEATURE_DISABLED_TOOLTIP,
+} from 'ee_else_ce/security_configuration/constants';
 import { parseErrorMessage } from '~/lib/utils/error_message';
 import { visitUrl } from '~/lib/utils/url_utility';
 import { sprintf, s__ } from '~/locale';
@@ -25,6 +28,9 @@ export default {
   components: {
     GlButton,
   },
+  directives: {
+    GlTooltip: GlTooltipDirective,
+  },
   inject: ['projectFullPath'],
   props: {
     feature: {
@@ -41,6 +47,9 @@ export default {
   computed: {
     mutationSettings() {
       return mutationSettingsForFeatureType(this.feature.type);
+    },
+    disabledTooltip() {
+      return this.feature.canUserConfigure ? null : FEATURE_DISABLED_TOOLTIP;
     },
   },
   methods: {
@@ -96,11 +105,9 @@ export default {
 </script>
 
 <template>
-  <gl-button
-    v-if="!feature.configured"
-    :disabled="!feature.canUserConfigure"
-    :loading="isLoading"
-    @click="mutate"
-    >{{ $options.i18n.buttonLabel }}</gl-button
-  >
+  <span v-if="!feature.configured" v-gl-tooltip :title="disabledTooltip">
+    <gl-button :disabled="!feature.canUserConfigure" :loading="isLoading" @click="mutate">{{
+      $options.i18n.buttonLabel
+    }}</gl-button>
+  </span>
 </template>

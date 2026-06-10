@@ -90,3 +90,5 @@ ee/app/models/concerns/ai/model_selection/model_allowlist.rb:
 ee/app/models/ee/organizations/organization_setting.rb:
   - security_tracked_context_quota_with_default: Will be used in #598087 for quota enforcement service
   - security_tracked_context_quota_explicitly_set?: Will be used in #598087 for quota enforcement service
+ee/app/models/cd/application_flow_definition.rb:
+  - revert_to_previous_version: Will be called from the CD application flow definition revert API/mutation in a follow-up MR

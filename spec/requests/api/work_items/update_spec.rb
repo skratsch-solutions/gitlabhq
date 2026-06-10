@@ -246,6 +246,17 @@ RSpec.describe API::WorkItems::Update, feature_category: :portfolio_management d
         expect(response).to have_gitlab_http_status(:ok)
         expect(work_item.subscribed?(user, project)).to be(true)
       end
+
+      it 'returns the underlying error without raising when the update fails via a callback error' do
+        patch api(api_request_path, user), params: {
+          features: {
+            notifications: { subscribed: true },
+            time_tracking: { time_estimate: 'not a duration' }
+          }
+        }
+
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+      end
     end
 
     context 'with current_user_todos feature' do

@@ -21,7 +21,20 @@ module API
         end
 
         def render_work_item_update(result)
-          render_work_item_response(result, status: 200)
+          # Update can flip subscription state via subscription_event in the same request, so the renderer needs the
+          # newly loaded subscription row to report the right `subscribed` value. Create doesn't flip subscriptions, so
+          # it skips this. Skipped on failure: WorkItems::UpdateService passes back the work item on validation errors,
+          # but render_work_item_response calls render_api_error! on those, so the cache would be discarded.
+          feature_keys = requested_feature_keys(params[:features]&.keys&.join(','))
+          work_item = result[:work_item]
+          subscriptions =
+            if result[:status] == :success && work_item
+              preload_notifications_subscriptions([work_item], feature_keys)
+            else
+              {}
+            end
+
+          render_work_item_response(result, status: 200, notifications_subscriptions: subscriptions)
         end
 
         private

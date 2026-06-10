@@ -482,6 +482,22 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     end
   end
 
+  describe 'Projects::NetworkController' do
+    include_context 'when Gitlab::Git::Commit.find raises Gitaly error'
+
+    describe '#show' do
+      let(:make_request) { get project_network_path(project, 'master') }
+
+      it_behaves_like 'handles Gitaly errors for request specs'
+
+      context 'with JSON format' do
+        let(:make_request) { get project_network_path(project, 'master', format: :json) }
+
+        it_behaves_like 'handles Gitaly errors for json format'
+      end
+    end
+  end
+
   describe 'Projects::MergeRequests::DiffsController' do
     let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 

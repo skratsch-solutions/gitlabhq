@@ -50,7 +50,7 @@ export default {
       <p class="gl-heading-5 gl-mb-0">{{ name }}</p>
       <p
         v-if="description"
-        class="gl-mb-0 gl-mt-2 gl-truncate gl-text-sm gl-leading-1 gl-text-secondary"
+        class="gl-mb-0 gl-mt-2 gl-truncate gl-text-sm gl-leading-1 gl-text-tertiary"
       >
         {{ description }}
       </p>

@@ -174,6 +174,35 @@ export default {
       return isValidDate(date) ? localeDateFormat.asDate.format(date) : dateTime;
     },
     syncRefFromRoute(route) {
+      // The static routes ('commitsPath' / 'commitsPathDecoded') are
+      // hardcoded to the initial ref.  For refs containing '/' the route
+      // path has literal slashes, so extractFirstPathSegment would split
+      // incorrectly.  Use the injected escapedRef which is always the
+      // correct, complete ref for these routes.
+      if (
+        route.name === 'commitsPath' ||
+        route.name === 'commitsPathDecoded' ||
+        route.name === 'commitsPathEncoded'
+      ) {
+        const newRef = decodeURIComponent(this.escapedRef);
+        if (this.currentRef === newRef) return false;
+        this.currentRef = newRef;
+        return true;
+      }
+
+      // The wildcard fallback ('commitsAnyRef') fires after an in-app ref
+      // switch and during browser back/forward navigation.  The ref is
+      // encoded with encodeURIComponent (slashes become %2F), so
+      // route.params.ref is a single, unambiguous segment.  Vue Router
+      // auto-decodes params, so the value is already the full ref name.
+      if (route.name === 'commitsAnyRef') {
+        const newRef = route.params.ref || decodeURIComponent(this.escapedRef);
+        if (this.currentRef === newRef) return false;
+        this.currentRef = newRef;
+        return true;
+      }
+
+      // Unknown or unnamed route — best-effort extraction from the path.
       const refSegment = extractFirstPathSegment(route.path);
       const newRef = refSegment
         ? safeDecodeURIComponent(refSegment)
@@ -184,11 +213,6 @@ export default {
       return true;
     },
     syncPathFromRoute(route) {
-      // The wildcard fallback route ('commitsAnyRef') matches after a ref switch
-      // but its params.path may include ref segments for refs containing slashes,
-      // so we skip the update here — handleRefChange already preserves currentPath.
-      if (route.name === 'commitsAnyRef') return false;
-
       const rawPath = route.params?.path;
       const normalizedPath = Array.isArray(rawPath) ? rawPath.join('/') : rawPath || null;
       if (this.currentPath === normalizedPath) return false;

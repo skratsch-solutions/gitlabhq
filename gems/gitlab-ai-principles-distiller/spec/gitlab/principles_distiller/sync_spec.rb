@@ -84,10 +84,32 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do
       end
     end
 
+    # Regression: a re-distillation that produces the same checklist must be
+    # skipped, not emitted as a frontmatter-only MR (new source_checksum /
+    # distilled_at_sha but an identical body). In production `current` is read
+    # from disk WITH the auto-generated header and authoritative sources footer
+    # intact (strip_frontmatter removes only the YAML block), while `updated`
+    # is the raw LLM checklist WITHOUT that footer. The meaningful? gate must
+    # therefore compare the fully-assembled body against `current`; hence
+    # `existing_on_disk` includes the footer to mirror real on-disk content.
     context 'when content has no meaningful diff from existing file' do
+      let(:header) do
+        "<!-- Auto-generated from docs.gitlab.com by " \
+          "gitlab-ai-principles-distiller — do not edit manually -->\n\n"
+      end
+
+      let(:footer) do
+        config = manifest.dig('principles', 'qa')
+        sync.manifest.sources_footer(config)
+      end
+
+      let(:existing_on_disk) do
+        "#{header}#{distilled_content.rstrip}\n\n#{footer}"
+      end
+
       before do
         allow(sync).to receive(:parallel_distill)
-          .and_return({ 'qa' => [distilled_content, distilled_content] })
+          .and_return({ 'qa' => [existing_on_disk, distilled_content] })
       end
 
       it 'skips the file', :aggregate_failures do

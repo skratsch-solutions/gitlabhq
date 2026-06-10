@@ -6,7 +6,6 @@ import {
   GlIcon,
 } from '@gitlab/ui';
 import { joinPaths } from '~/lib/utils/url_utility';
-import { generateRouterParams } from '~/repository/utils/ref_switcher_utils';
 import RefSelector from '~/ref/components/ref_selector.vue';
 import { __ } from '~/locale';
 import OpenMrBadge from '~/badges/components/open_mr_badge/open_mr_badge.vue';
@@ -88,12 +87,24 @@ export default {
   },
   methods: {
     onRefChange(selectedRef) {
-      const routeWithPath = {
-        ...this.$route,
-        params: { ...this.$route.params, path: this.filePath },
-      };
-      const { path, query, ref } = generateRouterParams(selectedRef, routeWithPath);
-      this.$emit('ref-change', ref);
+      const matches = selectedRef.match(/^refs\/(heads|tags)\/(.+)/) || [];
+      const [, refType = null, actualRef = selectedRef] = matches;
+
+      const query = { ...this.$route.query };
+      if (refType) {
+        query.ref_type = refType.toLowerCase();
+      } else {
+        delete query.ref_type;
+      }
+
+      // Use encodeURIComponent so the ref becomes a single path segment.
+      // Slashes inside the ref are encoded as %2F, which lets the Vue
+      // Router /:ref/:path* pattern parse the ref unambiguously — even
+      // during browser back/forward navigation.
+      const encodedRef = encodeURIComponent(actualRef);
+      const path = `/${encodedRef}/${this.filePath || ''}`;
+
+      this.$emit('ref-change', actualRef);
       this.$router.push({ path, query });
     },
   },

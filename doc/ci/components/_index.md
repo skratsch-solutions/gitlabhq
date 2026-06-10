@@ -667,7 +667,11 @@ Visibility of components in the CI/CD catalog follows the component source proje
 - Internal are visible only to users logged into the GitLab instance.
 - Public are visible to anyone with access to the GitLab instance.
 
-### View catalog resource analytics
+Each CI/CD Catalog project in the listing displays a usage count.
+This count represents the total number of unique projects that used any component
+from the Catalog project in a pipeline in the last 30 days.
+
+### View CI/CD Catalog project analytics
 
 {{< details >}}
 
@@ -729,6 +733,10 @@ You can use this information to:
 
 If you maintain CI/CD catalog component projects, you can view detailed component usage information to understand which projects use the components and which versions they use.
 This helps you plan upgrades, communicate deprecations, and identify projects that use outdated versions.
+
+The detail page also displays a usage count next to each component name.
+This count is version-specific and shows the number of unique projects that
+used that component version in the last 30 days.
 
 Prerequisites:
 

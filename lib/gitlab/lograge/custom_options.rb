@@ -32,6 +32,9 @@ module Gitlab
 
         ::Gitlab::InstrumentationHelper.add_instrumentation_data(payload)
 
+        apdex_duration = ::Gitlab::RequestContext.apdex_duration_s
+        payload[:apdex_duration_s] = apdex_duration if apdex_duration
+
         payload[Labkit::Fields::CORRELATION_ID] = event.payload[Labkit::Fields::CORRELATION_ID] || Labkit::Correlation::CorrelationId.current_id
 
         duo_workflow_id = Gitlab::SafeRequestStore[Gitlab::Middleware::DuoWorkflowId::STORE_KEY]

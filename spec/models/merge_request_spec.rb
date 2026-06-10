@@ -63,7 +63,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     describe '#reviewed_by_users' do
-      let!(:merge_request) { create(:merge_request) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request) }
 
       context 'when the same user has several reviews' do
         before do
@@ -77,7 +77,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     describe '#merge_request_diff' do
-      let!(:merge_request) { create(:merge_request) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request) }
 
       context 'when a merge_head_diff was previously loaded' do
         before do
@@ -799,10 +799,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when feature flag is enabled' do
-      before do
-        stub_feature_flags(log_merged_mr_approval_deletion: true)
-      end
-
       shared_examples 'logs for protected states' do |state_trait|
         let(:merge_request) { create(:merge_request, state_trait, source_project: project) }
 
@@ -1289,7 +1285,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     describe '#reload_diff_if_branch_changed' do
       subject(:update_mr) { merge_request.update!(update_params) }
 
-      let(:merge_request) { create(:merge_request, target_branch: 'fix', merge_status: :cannot_be_merged) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, target_branch: 'fix', merge_status: :cannot_be_merged) }
 
       context 'when the source branch changes' do
         let(:update_params) { { source_branch: 'feature' } }
@@ -1329,10 +1325,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         context 'when async_keep_around_refs_for_merge_request_diffs is enabled' do
-          before do
-            stub_feature_flags(async_keep_around_refs_for_merge_request_diffs: true)
-          end
-
           it 'enqueues KeepAroundRefsWorker' do
             expect(MergeRequests::KeepAroundRefsWorker).to receive(:perform_async).with(
               [merge_request.project.id],
@@ -1396,7 +1388,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     describe '#set_draft_status' do
-      let(:merge_request) { create(:merge_request) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request) }
 
       context 'MR is a draft' do
         before do
@@ -1560,7 +1552,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be(:project) { create(:project) }
     let(:shas) { %w[sha1 sha2 sha3] }
     let(:expected_merge_requests) { create_list(:merge_request, shas.length, :merged, source_project: project, target_project: project) }
-    let(:extra_merge_request) { create(:merge_request, target_project: project) }
+    let!(:extra_merge_request) { create(:merge_request, source_project: project, target_project: project) }
 
     it 'returns the merge requests for the shas' do
       expect(described_class.by_generated_ref_commit_sha(shas)).to match_array(expected_merge_requests)
@@ -1568,8 +1560,8 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '.by_latest_merge_request_diffs' do
-    let!(:merge_request) { create(:merge_request, merge_commit_sha: nil) }
-    let!(:merge_request_diff) { create(:merge_request_diff, merge_request: merge_request) }
+    let_it_be(:merge_request) { create(:merge_request, merge_commit_sha: nil) }
+    let_it_be(:merge_request_diff) { create(:merge_request_diff, merge_request: merge_request) }
 
     subject(:by_latest_merge_request_diffs) { described_class.by_latest_merge_request_diffs(merge_request_diff_id) }
 
@@ -1612,42 +1604,41 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     subject { described_class.by_related_commit_sha(project, sha) }
 
     context 'when commit is a squash commit' do
-      let!(:merge_request) { create(:merge_request, :merged, source_project: project, squash_commit_sha: sha) }
+      let_it_be(:merge_request) { create(:merge_request, :merged, source_project: project, squash_commit_sha: '123abc') }
       let(:sha) { '123abc' }
 
       it { is_expected.to eq([merge_request]) }
     end
 
     context 'when commit is a part of the merge request' do
-      let!(:merge_request) { create(:merge_request, source_project: project) }
+      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
       let(:sha) { 'b83d6e391c22777fca1ed3012fce84f633d7fed0' }
 
       it { is_expected.to eq([merge_request]) }
     end
 
     context 'when commit is a merge commit' do
-      let!(:merge_request) { create(:merge_request, :merged, source_project: project, merge_commit_sha: sha) }
+      let_it_be(:merge_request) { create(:merge_request, :merged, source_project: project, merge_commit_sha: '123abc') }
       let(:sha) { '123abc' }
 
       it { is_expected.to eq([merge_request]) }
     end
 
     context 'when commit is a rebased fast-forward commit' do
-      let!(:merge_request) { create(:merge_request, :merged, source_project: project, merged_commit_sha: sha) }
+      let_it_be(:merge_request) { create(:merge_request, :merged, source_project: project, merged_commit_sha: '123abc') }
       let(:sha) { '123abc' }
 
       it { is_expected.to eq([merge_request]) }
     end
 
     context 'when commit is a generated ref commit' do
+      let_it_be(:merge_request) { create(:merge_request, :merged, project: project, merged_commit_sha: 'generated-ref-commit-sha') }
+      let(:sha) { 'generated-ref-commit-sha' }
+      let(:shas) { %w[generated-ref-commit-sha] }
+
       before do
         create(:merge_request_generated_ref_commit, commit_sha: sha, merge_request: merge_request, project: project)
       end
-
-      let!(:merge_request) { create(:merge_request, :merged, project: project, merged_commit_sha: sha) }
-
-      let(:sha) { 'generated-ref-commit-sha' }
-      let(:shas) { %w[generated-ref-commit-sha] }
 
       it 'returns the merge requests for the shas' do
         expect(described_class.by_related_commit_sha(project, shas)).to eq([merge_request])
@@ -1661,7 +1652,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when commit is part of the merge request and a squash commit at the same time' do
-      let!(:merge_request) { create(:merge_request, source_project: project) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project) }
       let(:sha) { merge_request.commits.first.id }
 
       before do
@@ -1741,12 +1732,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
     end
 
-    let(:project) { create(:project) }
-    let!(:merge_request1) { create_mr('source1', 'target1', :opened) }
-    let!(:merge_request2) { create_mr('source2', 'target2', :closed) }
-    let!(:merge_request3) { create_mr('source3', 'target3', :opened) }
-    let!(:merge_request4) { create_mr('source4', 'target1', :closed) }
-    let!(:merge_request5) { create_mr('source5', 'target4', :merged, true) }
+    let_it_be(:project) { create(:project) }
+    let_it_be_with_reload(:merge_request1) { create_mr('source1', 'target1', :opened) }
+    let_it_be_with_reload(:merge_request2) { create_mr('source2', 'target2', :closed) }
+    let_it_be_with_reload(:merge_request3) { create_mr('source3', 'target3', :opened) }
+    let_it_be_with_reload(:merge_request4) { create_mr('source4', 'target1', :closed) }
+    let_it_be_with_reload(:merge_request5) { create_mr('source5', 'target4', :merged, true) }
 
     before do
       merge_request1.update_columns(updated_at: 1.day.since)
@@ -1816,9 +1807,9 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe 'time to merge calculations' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project) { create(:project, developers: user) }
 
-    let!(:mr1) do
+    let_it_be_with_reload(:mr1) do
       create(
         :merge_request,
         :with_merged_metrics,
@@ -1827,7 +1818,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       )
     end
 
-    let!(:mr2) do
+    let_it_be_with_reload(:mr2) do
       create(
         :merge_request,
         :with_merged_metrics,
@@ -1836,7 +1827,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       )
     end
 
-    let!(:mr3) do
+    let_it_be_with_reload(:mr3) do
       create(
         :merge_request,
         :with_merged_metrics,
@@ -1845,16 +1836,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       )
     end
 
-    let!(:unmerged_mr) do
+    let_it_be(:unmerged_mr) do
       create(
         :merge_request,
         source_project: project,
         target_project: project
       )
-    end
-
-    before do
-      project.add_member(user, :developer)
     end
 
     describe '.total_time_to_merge' do
@@ -1944,7 +1931,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#assignee_or_author?' do
-    let(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     it 'returns true for a user that is assigned to a merge request' do
       subject.assignees = [user]
@@ -1964,19 +1951,17 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#visible_closing_issues_for' do
-    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:group) { create(:group, :public, developers: project.creator) }
     let_it_be(:project_without_auto_close) { create(:project, :public, group: group, autoclose_referenced_issues: false) }
     let_it_be(:group_issue) { create(:issue, :group_level, namespace: group) }
     let_it_be(:no_close_issue) { create(:issue, project: project_without_auto_close) }
-    let(:guest) { create(:user) }
-    let(:developer) { create(:user) }
-    let(:issue_1) { create(:issue, project: subject.source_project) }
-    let(:issue_2) { create(:issue, project: subject.source_project) }
-    let(:confidential_issue) { create(:issue, :confidential, project: subject.source_project) }
+    let_it_be(:guest) { create(:user) }
+    let_it_be(:developer) { create(:user) }
+    let_it_be(:issue_1) { create(:issue, project: project) }
+    let_it_be(:issue_2) { create(:issue, project: project) }
+    let_it_be(:confidential_issue) { create(:issue, :confidential, project: project) }
 
     before do
-      group.add_developer(subject.author) # -- Subject can't be referenced in a before context
-      subject.project.add_developer(subject.author)
       subject.target_branch = subject.project.default_branch
       commit = double(
         'commit1',
@@ -2113,8 +2098,11 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be_with_reload(:issue3) { create(:issue, project: project) }
     let_it_be_with_reload(:issue4) { create(:issue, project: project) }
 
+    before_all do
+      project.add_developer(project.creator)
+    end
+
     before do
-      project.add_developer(subject.author) # -- Does not work in before_all
       subject.target_branch = subject.project.default_branch
       create(
         :merge_requests_closing_issues,
@@ -2201,8 +2189,11 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   describe '#cache_merge_request_closes_issues!', :aggregate_failures do
     let_it_be_with_reload(:issue) { create(:issue, project: project) }
 
+    before_all do
+      project.add_developer(project.creator)
+    end
+
     before do
-      project.add_developer(subject.author) # -- Does not work in before_all
       subject.target_branch = subject.project.default_branch
     end
 
@@ -2497,14 +2488,14 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#note_positions_for_paths' do
-    let(:user) { create(:user) }
-    let(:merge_request) { create(:merge_request) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:merge_request) { create(:merge_request) }
     let(:project) { merge_request.project }
-    let!(:diff_note) do
-      create(:diff_note_on_merge_request, project: project, noteable: merge_request)
+    let_it_be(:diff_note) do
+      create(:diff_note_on_merge_request, project: merge_request.project, noteable: merge_request)
     end
 
-    let!(:draft_note) do
+    let_it_be(:draft_note) do
       create(:draft_note_on_text_diff, author: user, merge_request: merge_request)
     end
 
@@ -2845,7 +2836,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe "#related_notes" do
-    let!(:merge_request) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
 
     before do
       allow(merge_request).to receive(:commits) { [merge_request.source_project.repository.commit] }
@@ -3170,13 +3161,10 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#can_remove_source_branch?' do
     let_it_be(:user) { create(:user) }
-    let_it_be_with_reload(:merge_request) { create(:merge_request, :simple) }
+    let_it_be(:source_project) { create(:project, :repository, maintainers: user) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, :simple, source_project: source_project) }
 
     subject { merge_request }
-
-    before do
-      subject.source_project.add_maintainer(user)
-    end
 
     it "can't be removed when its a protected branch" do
       allow(ProtectedBranch).to receive(:protected?).and_return(true)
@@ -3219,7 +3207,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   describe "#source_branch_exists?" do
     let(:project) { create(:project, :repository) }
     let(:merge_request) { create(:merge_request, source_project: project) }
-    let(:repository) { merge_request.source_project.repository }
 
     context 'when the source project is set' do
       it 'returns true when the branch exists' do
@@ -4113,7 +4100,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     context 'when the MR is merged and there is a pipeline schedule source' do
       let(:sha)               { subject.target_project.commit.id }
       let(:pipeline)          { create(:ci_empty_pipeline, sha: sha, ref: subject.target_branch, project: subject.target_project) }
-      let(:schedule_pipeline) { create(:ci_empty_pipeline, sha: sha, ref: subject.target_branch, project: subject.target_project, source: :schedule) }
+      let!(:schedule_pipeline) { create(:ci_empty_pipeline, sha: sha, ref: subject.target_branch, project: subject.target_project, source: :schedule) }
 
       before do
         subject.mark_as_merged!
@@ -4175,9 +4162,9 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#head_pipeline' do
-    let(:merge_request) { create(:merge_request) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request) }
 
-    let!(:pipeline) do
+    let_it_be(:pipeline) do
       create(:ci_empty_pipeline, project: merge_request.project, sha: merge_request.diff_head_sha)
     end
 
@@ -4212,10 +4199,10 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   describe '#update_head_pipeline' do
     subject { merge_request.update_head_pipeline }
 
-    let(:merge_request) { create(:merge_request) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request) }
 
     context 'when there is a pipeline with the diff head sha' do
-      let!(:pipeline) do
+      let_it_be(:pipeline) do
         create(
           :ci_empty_pipeline,
           project: merge_request.project,
@@ -4473,7 +4460,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#calculate_reactive_cache' do
-    let(:merge_request) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
 
     subject { merge_request.calculate_reactive_cache(service_class_name) }
 
@@ -4652,10 +4639,10 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   describe '#compare_test_reports' do
     subject { merge_request.compare_test_reports }
 
-    let(:project) { create(:project, :repository) }
-    let(:merge_request) { create(:merge_request, source_project: project) }
+    let_it_be(:project) { create(:project, :repository) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project) }
 
-    let!(:base_pipeline) do
+    let_it_be(:base_pipeline) do
       create(
         :ci_pipeline,
         :with_test_reports,
@@ -4670,7 +4657,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when head pipeline has test reports' do
-      let!(:head_pipeline) do
+      let_it_be(:head_pipeline) do
         create(
           :ci_pipeline,
           :with_test_reports,
@@ -4712,7 +4699,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when head pipeline does not have test reports' do
-      let!(:head_pipeline) do
+      let_it_be(:head_pipeline) do
         create(
           :ci_pipeline,
           project: project,
@@ -4736,12 +4723,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     subject { merge_request.compare_accessibility_reports }
 
     context 'when head pipeline has accessibility reports' do
-      let(:job) do
-        create(:ci_build, options: { artifacts: { reports: { pa11y: ['accessibility.json'] } } }, pipeline: pipeline)
-      end
-
-      let(:artifacts_metadata) { create(:ci_job_artifact, :metadata, job: job) }
-
       context 'when reactive cache worker is parsing results asynchronously' do
         it 'returns parsing status' do
           expect(subject[:status]).to eq(:parsing)
@@ -4792,12 +4773,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     subject { merge_request.compare_codequality_reports }
 
     context 'when head pipeline has codequality report' do
-      let(:job) do
-        create(:ci_build, options: { artifacts: { reports: { codeclimate: ['codequality.json'] } } }, pipeline: pipeline)
-      end
-
-      let(:artifacts_metadata) { create(:ci_job_artifact, :metadata, job: job) }
-
       context 'when reactive cache worker is parsing results asynchronously' do
         it 'returns parsing status' do
           expect(subject[:status]).to eq(:parsing)
@@ -4841,7 +4816,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#all_commit_shas' do
-    let(:merge_request) { create(:merge_request, source_project: project) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project) }
     let(:shas_from_commits) do
       merge_request.merge_request_diffs.flat_map(&:commits).map(&:sha).uniq
     end
@@ -5038,7 +5013,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         before do
-          project.add_maintainer(current_user) # -- Does not work in before_all
+          project.add_maintainer(current_user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- `project` and `current_user` are per-example `let`, not `let_it_be`, so `before_all` cannot access them
 
           ProcessCommitWorker.new.perform(
             project.id,
@@ -5177,15 +5152,15 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#participants' do
-    let(:mr) do
+    let_it_be(:mr) do
       create(:merge_request, source_project: project, target_project: project)
     end
 
-    let!(:note1) do
+    let_it_be(:note1) do
       create(:note_on_merge_request, noteable: mr, project: project, note: 'a')
     end
 
-    let!(:note2) do
+    let_it_be(:note2) do
       create(:note_on_merge_request, noteable: mr, project: project, note: 'b')
     end
 
@@ -5237,7 +5212,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#rebase_async' do
-    let(:merge_request) { create(:merge_request) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request) }
     let(:user_id) { double(:user_id) }
     let(:rebase_jid) { 'rebase-jid' }
 
@@ -5754,12 +5729,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '.batch_mark_as_unchecked' do
-    let(:mr_can_be_merged) { create(:merge_request, :unique_branches, merge_status: 'can_be_merged') }
-    let(:mr_checking) { create(:merge_request, :unique_branches, merge_status: 'checking') }
-    let(:mr_preparing) { create(:merge_request, :unique_branches, merge_status: 'preparing') }
-    let(:mr_cannot_be_merged) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged') }
-    let(:mr_cannot_be_merged_rechecking) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged_rechecking') }
-    let(:mr_unchecked) { create(:merge_request, :unique_branches, merge_status: 'unchecked') }
+    let_it_be_with_reload(:mr_can_be_merged) { create(:merge_request, :unique_branches, merge_status: 'can_be_merged') }
+    let_it_be_with_reload(:mr_checking) { create(:merge_request, :unique_branches, merge_status: 'checking') }
+    let_it_be_with_reload(:mr_preparing) { create(:merge_request, :unique_branches, merge_status: 'preparing') }
+    let_it_be_with_reload(:mr_cannot_be_merged) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged') }
+    let_it_be_with_reload(:mr_cannot_be_merged_rechecking) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged_rechecking') }
+    let_it_be_with_reload(:mr_unchecked) { create(:merge_request, :unique_branches, merge_status: 'unchecked') }
 
     it 'batch transitions merge statuses according to mark_as_unchecked event' do
       mr_ids = [
@@ -5819,11 +5794,11 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '.batch_mark_as_checking' do
-    let(:mr_unchecked) { create(:merge_request, :unique_branches, merge_status: 'unchecked') }
-    let(:mr_cannot_be_merged_recheck) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged_recheck') }
-    let(:mr_can_be_merged) { create(:merge_request, :unique_branches, merge_status: 'can_be_merged') }
-    let(:mr_cannot_be_merged) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged') }
-    let(:mr_checking) { create(:merge_request, :unique_branches, merge_status: 'checking') }
+    let_it_be_with_reload(:mr_unchecked) { create(:merge_request, :unique_branches, merge_status: 'unchecked') }
+    let_it_be_with_reload(:mr_cannot_be_merged_recheck) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged_recheck') }
+    let_it_be_with_reload(:mr_can_be_merged) { create(:merge_request, :unique_branches, merge_status: 'can_be_merged') }
+    let_it_be_with_reload(:mr_cannot_be_merged) { create(:merge_request, :unique_branches, merge_status: 'cannot_be_merged') }
+    let_it_be_with_reload(:mr_checking) { create(:merge_request, :unique_branches, merge_status: 'checking') }
 
     it 'batch transitions merge statuses according to mark_as_checking event' do
       mr_ids = [
@@ -5861,8 +5836,8 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '.batch_clear_merge_error' do
-    let(:mr1) { create(:merge_request, :unique_branches, merge_error: 'Something went wrong') }
-    let(:mr2) { create(:merge_request, :unique_branches, merge_error: 'Another error') }
+    let_it_be_with_reload(:mr1) { create(:merge_request, :unique_branches, merge_error: 'Something went wrong') }
+    let_it_be_with_reload(:mr2) { create(:merge_request, :unique_branches, merge_error: 'Another error') }
 
     it 'clears merge_error for specified MRs' do
       described_class.batch_clear_merge_error([mr1.id, mr2.id])
@@ -6749,7 +6724,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#merged_in_repository?' do
     let_it_be(:project) { create(:project, :repository) }
-    let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 
     subject { merge_request.merged_in_repository? }
 
@@ -6830,7 +6805,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#squash_commit_reachable_from_target_branch?' do
     let_it_be(:project) { create(:project, :repository) }
-    let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 
     subject { merge_request.squash_commit_reachable_from_target_branch? }
 
@@ -7038,7 +7013,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   context 'state machine transitions' do
-    let(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
 
     shared_examples_for 'transition not triggering mergeRequestMergeStatusUpdated GraphQL subscription' do
       specify do
@@ -7441,7 +7416,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       context 'when it is a first contribution' do
-        let(:new_user) { create(:user) }
+        let_it_be(:new_user) { create(:user) }
 
         before do
           subject.update!(author: new_user)
@@ -7801,7 +7776,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
     describe 'when merge_when_pipeline_succeeds? is true' do
       describe 'when merge user is author' do
-        let(:user) { create(:user) }
+        let_it_be(:user) { create(:user) }
 
         subject do
           create(:merge_request, merge_when_pipeline_succeeds: true, merge_user: user, author: user)
@@ -7825,7 +7800,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       describe 'when merge user and author are different users' do
-        let(:merge_user) { create(:user) }
+        let_it_be(:merge_user) { create(:user) }
 
         subject do
           create(:merge_request, merge_when_pipeline_succeeds: true, merge_user: merge_user)
@@ -8055,9 +8030,9 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '.with_auto_merge_enabled' do
-    let!(:project) { create(:project) }
+    let_it_be(:project) { create(:project) }
     let!(:fork) { fork_project(project) }
-    let!(:merge_request1) do
+    let_it_be(:merge_request1) do
       create(
         :merge_request,
         :merge_when_checks_pass,
@@ -8165,7 +8140,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#recent_visible_deployments' do
-    let(:merge_request) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
 
     it 'returns visible deployments' do
       envs = create_list(:environment, 3, project: merge_request.target_project)
@@ -8217,7 +8192,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#diffable_merge_ref?' do
-    let(:merge_request) { create(:merge_request) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request) }
 
     context 'merge request can be merged' do
       context 'merge_head diff is not created' do
@@ -8409,10 +8384,10 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '.from_fork' do
-    let!(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let!(:forked_project) { fork_project(project) }
     let!(:fork_mr) { create(:merge_request, source_project: forked_project, target_project: project) }
-    let!(:regular_mr) { create(:merge_request, source_project: project) }
+    let_it_be(:regular_mr) { create(:merge_request, source_project: project) }
 
     it 'returns merge requests from forks only' do
       expect(described_class.from_fork).to eq([fork_mr])
@@ -9210,7 +9185,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#first_diffs_slice' do
     let_it_be(:project) { create(:project, :repository) }
-    let(:merge_request) { create(:merge_request, target_project: project, source_project: project) }
+    let_it_be_with_refind(:merge_request) { create(:merge_request, target_project: project, source_project: project) }
     let_it_be(:limit) { 5 }
 
     subject { merge_request.first_diffs_slice(limit) }
@@ -9322,10 +9297,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when the feature flag is enabled' do
-      before do
-        stub_feature_flags(diffs_batch_cache_with_max_age: true)
-      end
-
       context 'when the merge request cannot be merged' do
         before do
           allow(merge_request).to receive(:cannot_be_merged?).and_return(true)

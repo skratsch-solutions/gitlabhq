@@ -7,6 +7,7 @@ offering: [ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_gov
 documentation_link: "../../../user/application_security/vulnerabilities/secret_false_positive_detection/"
 work_item: "https://gitlab.com/groups/gitlab-org/-/work_items/21233"
 categories: [ Vulnerability Management ]
+weight: 10
 ---
 
 <!-- categories: Vulnerability Management -->

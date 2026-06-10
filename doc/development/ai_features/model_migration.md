@@ -420,7 +420,7 @@ See an example in our [Claude 3.7 Model Upgrade](https://gitlab.com/gitlab-org/g
 
 - **Model Documentation**
   - [Anthropic Model Documentation](https://docs.anthropic.com/claude/reference/versions)
-  - [Google Vertex AI Documentation](https://cloud.google.com/vertex-ai/docs/reference)
+  - [Gemini Enterprise Agent Platform Documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/apis)
 - **GitLab Resources**
   - [GitLab AI Features - Default GitLab AI Vendor Models](https://duo-feature-list-754252.gitlab.io/)
   - [AI Gateway Repository](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist)

@@ -836,7 +836,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       let_it_be(:deploy_token) { create(:deploy_token, expires_at: 5.days.from_now.iso8601) }
       let_it_be(:project_deploy_token) { create(:project_deploy_token, project: project, deploy_token: deploy_token) }
 
-      before do
+      before_all do
         project.add_owner(project_owner)
         project.add_maintainer(project_maintainer)
       end
@@ -885,7 +885,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       end
 
       context 'when user is neither owner nor maintainer' do
-        let(:regular_user) { create(:user) }
+        let_it_be(:regular_user) { create(:user) }
 
         it 'does not send email to users without proper permissions' do
           expect do
@@ -2989,7 +2989,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
       describe 'Approvals' do
         let(:notification_target)  { merge_request }
-        let(:maintainer) { create(:user) }
+        let_it_be(:maintainer) { create(:user) }
 
         describe '#approve_mr' do
           it 'notifies the author, subscribers, and assigned users' do
@@ -3129,7 +3129,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
     describe '#reassigned_merge_request' do
       let(:mailer_method) { :reassigned_merge_request_email }
-      let(:current_user) { create(:user) }
+      let_it_be(:current_user) { create(:user) }
 
       before do
         update_custom_notification(:reassign_merge_request, u_guest_custom, resource: project)
@@ -4033,7 +4033,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'GroupMember' do
-    let(:added_user) { create(:user) }
+    let_it_be(:added_user) { create(:user) }
 
     describe '#new_access_request' do
       context 'recipients' do
@@ -4079,7 +4079,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'ProjectMember' do
-    let(:added_user) { create(:user) }
+    let_it_be(:added_user) { create(:user) }
 
     describe '#new_access_request' do
       context 'for a project in a user namespace' do
@@ -4200,18 +4200,20 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   context 'guest user in private project' do
-    let(:private_project) { create(:project, :private) }
-    let(:guest) { create(:user) }
-    let(:developer) { create(:user) }
+    let_it_be(:private_project) { create(:project, :private) }
+    let_it_be(:guest) { create(:user) }
+    let_it_be(:developer) { create(:user) }
     let(:merge_request) { create(:merge_request, source_project: private_project, assignees: [assignee]) }
     let(:merge_request1) { create(:merge_request, source_project: private_project, assignees: [assignee], description: "cc @#{guest.username}") }
     let(:note) { create(:note, noteable: merge_request, project: private_project) }
 
-    before do
+    before_all do
       private_project.add_developer(assignee)
       private_project.add_developer(developer)
       private_project.add_guest(guest)
+    end
 
+    before do
       reset_delivered_emails!
     end
 
@@ -4722,7 +4724,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     let_it_be(:u_maintainer2) { create(:user) }
     let_it_be(:u_developer) { create(:user) }
 
-    before do
+    before_all do
       project.add_maintainer(u_blocked)
       project.add_maintainer(u_silence)
       project.add_maintainer(u_maintainer1)
@@ -4793,7 +4795,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'Repository rewrite history' do
-    let(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     describe '#repository_rewrite_history_success' do
       it 'emails the specified user only' do
@@ -4823,7 +4825,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'Repository cleanup' do
-    let(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     describe '#repository_cleanup_success' do
       it 'emails the specified user only' do
@@ -4856,11 +4858,11 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     describe '#remote_mirror_update_failed' do
       let(:remote_mirror) { create(:remote_mirror, project: project) }
       let(:u_blocked) { blocked_user }
-      let(:u_silence) { create_user_with_notification(:disabled, 'silent-maintainer', project) }
-      let(:u_owner)   { project.first_owner }
-      let(:u_maintainer1) { create(:user) }
-      let(:u_maintainer2) { create(:user) }
-      let(:u_developer) { create(:user) }
+      let_it_be(:u_silence) { create_user_with_notification(:disabled, 'silent-maintainer', project) }
+      let(:u_owner) { project.first_owner }
+      let_it_be(:u_maintainer1) { create(:user) }
+      let_it_be(:u_maintainer2) { create(:user) }
+      let_it_be(:u_developer) { create(:user) }
 
       before do
         project.add_maintainer(u_blocked)
@@ -4937,7 +4939,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     let_it_be(:developer) { create(:user) }
     let_it_be(:alert) { create(:alert_management_alert, project: project) }
 
-    before do
+    before_all do
       project.add_maintainer(master)
     end
 

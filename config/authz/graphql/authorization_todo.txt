@@ -1388,6 +1388,7 @@ type:X509Issuer
 type:X509Signature
 type:agentPlatformMetrics
 type:agentPlatformUserMetrics
+type:aiCatalogUserMetrics
 type:chatUserMetrics
 type:codeReviewMetrics
 type:codeReviewUserMetrics

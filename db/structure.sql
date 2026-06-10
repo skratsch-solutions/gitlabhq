@@ -16899,6 +16899,27 @@ CREATE SEQUENCE catalog_verified_namespaces_id_seq
 
 ALTER SEQUENCE catalog_verified_namespaces_id_seq OWNED BY catalog_verified_namespaces.id;
 
+CREATE TABLE cd_application_flow_definitions (
+    id bigint NOT NULL,
+    application_id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    version integer DEFAULT 1 NOT NULL,
+    file_store smallint DEFAULT 1 NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    file text NOT NULL,
+    CONSTRAINT check_c26b703248 CHECK ((char_length(file) <= 255))
+);
+
+CREATE SEQUENCE cd_application_flow_definitions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_application_flow_definitions_id_seq OWNED BY cd_application_flow_definitions.id;
+
 CREATE TABLE cd_applications (
     id bigint NOT NULL,
     group_id bigint,
@@ -36212,6 +36233,8 @@ ALTER TABLE ONLY catalog_resources ALTER COLUMN id SET DEFAULT nextval('catalog_
 
 ALTER TABLE ONLY catalog_verified_namespaces ALTER COLUMN id SET DEFAULT nextval('catalog_verified_namespaces_id_seq'::regclass);
 
+ALTER TABLE ONLY cd_application_flow_definitions ALTER COLUMN id SET DEFAULT nextval('cd_application_flow_definitions_id_seq'::regclass);
+
 ALTER TABLE ONLY cd_applications ALTER COLUMN id SET DEFAULT nextval('cd_applications_id_seq'::regclass);
 
 ALTER TABLE ONLY cd_artifact_sources ALTER COLUMN id SET DEFAULT nextval('cd_artifact_sources_id_seq'::regclass);
@@ -39404,6 +39427,9 @@ ALTER TABLE ONLY catalog_resources
 
 ALTER TABLE ONLY catalog_verified_namespaces
     ADD CONSTRAINT catalog_verified_namespaces_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_application_flow_definitions
+    ADD CONSTRAINT cd_application_flow_definitions_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY cd_applications
     ADD CONSTRAINT cd_applications_pkey PRIMARY KEY (id);
@@ -46698,6 +46724,10 @@ CREATE INDEX index_catalog_resources_on_search_vector ON catalog_resources USING
 CREATE INDEX index_catalog_resources_on_state ON catalog_resources USING btree (state);
 
 CREATE UNIQUE INDEX index_catalog_verified_namespaces_on_namespace_id ON catalog_verified_namespaces USING btree (namespace_id);
+
+CREATE UNIQUE INDEX index_cd_app_flow_definitions_on_application_id_and_version ON cd_application_flow_definitions USING btree (application_id, version);
+
+CREATE INDEX index_cd_application_flow_definitions_on_organization_id ON cd_application_flow_definitions USING btree (organization_id);
 
 CREATE INDEX index_cd_artifact_sources_on_group_id ON cd_artifact_sources USING btree (group_id);
 
@@ -57291,6 +57321,9 @@ ALTER TABLE ONLY ml_model_versions
 ALTER TABLE ONLY keys
     ADD CONSTRAINT fk_3a0e3d4776 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_application_flow_definitions
+    ADD CONSTRAINT fk_3a3a2c41e8 FOREIGN KEY (application_id) REFERENCES cd_applications(id) ON DELETE CASCADE;
+
 ALTER TABLE p_ci_builds
     ADD CONSTRAINT fk_3a9eaa254d_p FOREIGN KEY (partition_id, stage_id) REFERENCES p_ci_stages(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -59426,6 +59459,9 @@ ALTER TABLE ONLY board_user_preferences
 
 ALTER TABLE ONLY cluster_providers_aws
     ADD CONSTRAINT fk_f1c5a1b10f FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_application_flow_definitions
+    ADD CONSTRAINT fk_f1cc85cde4 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY observability_metrics_issues_connections
     ADD CONSTRAINT fk_f218d84a14 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;

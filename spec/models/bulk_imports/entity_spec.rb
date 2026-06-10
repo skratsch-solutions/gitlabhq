@@ -360,7 +360,13 @@ RSpec.describe BulkImports::Entity, type: :model, feature_category: :importers d
 
           expect(pipelines).to contain_exactly(
             hash_including(pipeline: Import::Offline::Groups::Pipelines::GroupPipeline, stage: 0),
-            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 1)
+            hash_including(pipeline: BulkImports::Common::Pipelines::MaxIidsPipeline, stage: 1),
+            hash_including(pipeline: BulkImports::Groups::Pipelines::NamespaceSettingsPipeline, stage: 1),
+            hash_including(pipeline: BulkImports::Common::Pipelines::LabelsPipeline, stage: 1),
+            hash_including(pipeline: BulkImports::Common::Pipelines::MilestonesPipeline, stage: 1),
+            hash_including(pipeline: BulkImports::Common::Pipelines::BoardsPipeline, stage: 2),
+            hash_including(pipeline: BulkImports::Common::Pipelines::UploadsPipeline, stage: 2),
+            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 3)
           )
         end
       end

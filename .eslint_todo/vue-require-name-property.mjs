@@ -154,8 +154,6 @@ export default {
     'app/assets/javascripts/ci_secure_files/components/metadata/modal.vue',
     'app/assets/javascripts/ci_secure_files/components/metadata/table.vue',
     'app/assets/javascripts/ci_secure_files/components/secure_files_list.vue',
-    'app/assets/javascripts/ci_settings_pipeline_triggers/components/edit_trigger_modal.vue',
-    'app/assets/javascripts/ci_settings_pipeline_triggers/components/triggers_list.vue',
     'app/assets/javascripts/clusters/agents/components/activity_events_list.vue',
     'app/assets/javascripts/clusters/agents/components/activity_history_item.vue',
     'app/assets/javascripts/clusters/agents/components/agent_integration_status_row.vue',

@@ -830,6 +830,38 @@ describe('CommitListApp', () => {
 
         expect(handler).toHaveBeenCalledWith(expect.objectContaining({ ref: 'feature/my-branch' }));
       });
+
+      it('resolves the full ref when escapedRef contains an unencoded slash', async () => {
+        // The backend sends escapedRef without encoding '/' (escape_path
+        // preserves it), so the static route contains literal slashes.
+        // syncRefFromRoute must use the injected escapedRef instead of
+        // parsing the route path segments.
+        const escapedRef = 'feature/my-branch';
+        const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+        const router = new VueRouter({
+          mode: 'abstract',
+          routes: [
+            { path: `/${escapedRef}/:path*`, name: 'commitsPath', component: CommitListApp },
+            {
+              path: `/${decodeURI(escapedRef)}/:path*`,
+              name: 'commitsPathDecoded',
+              component: CommitListApp,
+            },
+            { path: '/:ref/:path*', name: 'commitsAnyRef', component: CommitListApp },
+          ],
+        });
+        await router.push('/feature/my-branch/');
+
+        wrapper = shallowMountExtended(CommitListApp, {
+          apolloProvider: createMockApollo([[commitsQuery, handler]]),
+          provide: { ...defaultProvide, escapedRef },
+          router,
+        });
+        await waitForPromises();
+
+        // Must send the full ref, not just 'feature'
+        expect(handler).toHaveBeenCalledWith(expect.objectContaining({ ref: 'feature/my-branch' }));
+      });
     });
   });
 
@@ -904,11 +936,63 @@ describe('CommitListApp', () => {
       await waitForPromises();
 
       // Navigate to a different ref — matches the 'commitsAnyRef' wildcard route.
-      // syncPathFromRoute skips the update because params.path is unreliable here.
+      // The ref is a single segment so params.path is reliable.
       await wrapper.vm.$router.push('/develop/app/models/user.rb');
       await waitForPromises();
 
       expect(wrapper.vm.currentPath).toBe('app/models/user.rb');
+    });
+
+    it('correctly parses ref with slashes via the wildcard fallback route', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithPath(handler, 'app/models/user.rb');
+      await waitForPromises();
+
+      handler.mockClear();
+
+      // Refs containing '/' are encoded with encodeURIComponent so the
+      // ref becomes a single path segment (feature%2Ffoo).
+      await wrapper.vm.$router.push(`/${encodeURIComponent('feature/foo')}/app/models/user.rb`);
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({ ref: 'feature/foo', path: 'app/models/user.rb' }),
+      );
+    });
+
+    it('resolves ref on browser back to a previously visited slashed ref', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithPath(handler);
+      await waitForPromises();
+
+      // Simulate switching to a slashed ref, then switching away, then
+      // navigating back (browser back).  The back navigation is a plain
+      // router.push without a ref-change emit — only the route watcher fires.
+      const refA = 'feature/foo';
+      const refB = 'bugfix/bar';
+
+      // Switch to refA (in-app: ref-change + router push)
+      findCommitHeader().vm.$emit('ref-change', refA);
+      await wrapper.vm.$router.push(`/${encodeURIComponent(refA)}/`);
+      await waitForPromises();
+
+      // Switch to refB
+      findCommitHeader().vm.$emit('ref-change', refB);
+      await wrapper.vm.$router.push(`/${encodeURIComponent(refB)}/`);
+      await waitForPromises();
+
+      // Verify we're on refB
+      expect(wrapper.vm.currentRef).toBe(refB);
+
+      handler.mockClear();
+
+      // Browser back to refA — only the route changes, no ref-change event.
+      // This is the scenario that broke before: syncRefFromRoute must parse
+      // the encoded ref from route.params.ref.
+      wrapper.vm.$router.back();
+      await waitForPromises();
+
+      expect(wrapper.vm.currentRef).toBe(refA);
     });
 
     it('resets pagination when route path changes', async () => {

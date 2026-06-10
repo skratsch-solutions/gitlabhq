@@ -189,6 +189,16 @@ describe('CommitListHeader', () => {
       });
     });
 
+    it('sets ref_type query param for symbolic refs', async () => {
+      findRefSelector().vm.$emit('input', 'refs/tags/v1.0');
+      await nextTick();
+
+      expect(mockRouter.push).toHaveBeenCalledWith({
+        path: '/v1.0/README.md',
+        query: { ref_type: 'tags' },
+      });
+    });
+
     it('emits ref-change event with the actual ref name', async () => {
       findRefSelector().vm.$emit('input', 'refs/heads/new-branch');
       await nextTick();
@@ -208,8 +218,18 @@ describe('CommitListHeader', () => {
       await nextTick();
 
       expect(mockRouter.push).toHaveBeenCalledWith({
-        path: '/feat/selected-%23-ref-%23/README.md',
+        path: '/feat%2Fselected-%23-ref-%23/README.md',
         query: {},
+      });
+    });
+
+    it('encodes slashes in ref so it becomes a single path segment', async () => {
+      findRefSelector().vm.$emit('input', 'refs/heads/feature/my-branch');
+      await nextTick();
+
+      expect(mockRouter.push).toHaveBeenCalledWith({
+        path: '/feature%2Fmy-branch/README.md',
+        query: { ref_type: 'heads' },
       });
     });
   });

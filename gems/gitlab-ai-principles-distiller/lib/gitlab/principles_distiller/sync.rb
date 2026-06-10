@@ -216,17 +216,20 @@ module Gitlab
 
           updated = Diff.reduce_noise(current, updated) if current
 
-          unless Diff.meaningful?(current, updated)
+          config = manifest.principle_config(name)
+
+          # Assemble the full body (header + prerequisite note + sources
+          # footer) BEFORE the meaningful? gate. `current` is read from disk
+          # with its footer intact (strip_frontmatter removes only the YAML),
+          # so comparing the raw checklist against it always looked
+          # "meaningful" and produced frontmatter-only MRs. Comparing the
+          # fully-assembled body against `current` makes the gate symmetric.
+          assembled = assemble_distilled_body(updated, config, name, header)
+
+          unless Diff.meaningful?(current, assembled)
             puts "  #{name}: #{Rainbow('no meaningful changes').faint}"
             next
           end
-
-          config = manifest.principle_config(name)
-          note = manifest.prerequisite_note(name)
-
-          updated = "#{header}#{updated}" unless updated.start_with?('<!-- Auto-generated')
-          updated = updated.sub(/^(<!-- Auto-generated.*-->)\n\n*/, "\\1\n\n#{note}") if note
-          updated = "#{updated.rstrip}\n\n#{manifest.sources_footer(config)}"
 
           checksum = manifest.compute_checksum(config)
           contents[name] = <<~CONTENT
@@ -234,11 +237,24 @@ module Gitlab
         source_checksum: #{checksum}
         distilled_at_sha: #{distillation_base_sha}
         ---
-        #{updated}
+        #{assembled}
           CONTENT
         end
 
         [contents, failed]
+      end
+
+      # Builds the full distilled body: auto-generated header, optional
+      # prerequisite note, the distilled checklist, and the authoritative
+      # sources footer. Matches what read_principles_file returns for an
+      # already-published file (sans YAML frontmatter), so the result can be
+      # compared against `current` by Diff.meaningful?.
+      def assemble_distilled_body(updated, config, name, header)
+        note = manifest.prerequisite_note(name)
+
+        updated = "#{header}#{updated}" unless updated.start_with?('<!-- Auto-generated')
+        updated = updated.sub(/^(<!-- Auto-generated.*-->)\n\n*/, "\\1\n\n#{note}") if note
+        "#{updated.rstrip}\n\n#{manifest.sources_footer(config)}"
       end
 
       # `mutex` serialises log output and writes to `results`.

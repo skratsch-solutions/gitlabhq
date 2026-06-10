@@ -28,6 +28,7 @@ You can configure GitLab Duo to use:
 - [Your instance is activated with an activation code](../../license.md#activate-gitlab-ee).
   - You cannot use a license key.
   - You cannot use GitLab Duo with an offline license, with the exception of [GitLab Duo Self-Hosted](../../gitlab_duo_self_hosted/_index.md).
+- The host that runs your instance can resolve public hostnames with DNS, even when using an HTTP/S proxy server.
 
 ## Allow outbound connections from the GitLab instance to GitLab Duo
 
@@ -35,6 +36,11 @@ You can configure GitLab Duo to use:
 - For GitLab Duo Agent Platform features your firewalls and HTTP/S proxy servers must allow outbound
   connections to `duo-workflow-svc.runway.gitlab.net` on port `443` with `https://` and support for
   HTTP/2 traffic.
+- If your instance connects through an HTTP/S proxy server, the host must still be
+  able to resolve public hostnames with DNS. If hostnames can be resolved only
+  through the proxy server, GitLab Duo features like the GitLab Duo health check,
+  the GitLab Credits dashboard, and GitLab Duo Agent Platform might time out or fail.
+  For more information, see [issue 602538](https://gitlab.com/gitlab-org/gitlab/-/issues/602538).
 
 ## Allow inbound connections from clients to the GitLab instance
 

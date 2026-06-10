@@ -70,6 +70,43 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
         end
       end
 
+      describe 'notifications feature N+1 prevention' do
+        # Pair notifications with web_url so the project / namespace preloads are also active,
+        # isolating the assertion to the notifications preloads rather than unrelated lookups.
+        let(:request_params) { { features: 'notifications', fields: 'web_url' } }
+
+        before do
+          create(:subscription, user: user, subscribable: project_work_item, project: nil, subscribed: true)
+        end
+
+        it 'bulk-loads subscriptions and assignees so adding work items does not issue per-item queries',
+          :aggregate_failures do
+          api_path = "/namespaces/#{CGI.escape(namespace_record.full_path)}/-/work_items"
+
+          baseline = ActiveRecord::QueryRecorder.new(skip_cached: false) do
+            get api(api_path, user), params: request_params
+          end
+
+          # Mix all three resolution paths to make sure none re-introduces an N+1:
+          # - explicit subscription row (cache hit)
+          # - no row, current user is the author (author fallback)
+          # - no row, current user is an assignee (assignee fallback)
+          authored = create(:work_item, project: project, author: user)
+          assigned = create(:work_item, project: project)
+          create(:issue_assignee, issue: assigned, assignee: user)
+          unrelated = create(:work_item, project: project)
+          create(:subscription, user: user, subscribable: unrelated, project: nil, subscribed: false)
+
+          expect { get api(api_path, user), params: request_params }.to issue_same_number_of_queries_as(baseline)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(features_json_for(project_work_item)).to include('notifications' => { 'subscribed' => true })
+          expect(features_json_for(authored)).to include('notifications' => { 'subscribed' => true })
+          expect(features_json_for(assigned)).to include('notifications' => { 'subscribed' => true })
+          expect(features_json_for(unrelated)).to include('notifications' => { 'subscribed' => false })
+        end
+      end
+
       describe 'hierarchy feature N+1 prevention' do
         let_it_be(:hierarchy_parent, freeze: false) { create(:work_item, project: project) }
         let_it_be(:child_task, freeze: false) { create(:work_item, :task, project: project) }
@@ -84,9 +121,6 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
 
         it 'preloads the parent association so adding children does not cause N+1 queries' do
           api_path = "/namespaces/#{CGI.escape(namespace_record.full_path)}/-/work_items"
-
-          # Warmup so first-request lazy writes don't skew the baseline.
-          get api(api_path, user), params: request_params
 
           baseline = ActiveRecord::QueryRecorder.new(skip_cached: false) do
             get api(api_path, user), params: request_params
@@ -227,6 +261,68 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
       end
     end
 
+    context 'when the notifications feature is requested' do
+      it 'returns subscribed=true when the user has an explicit subscription row', :aggregate_failures do
+        create(:subscription, user: user, subscribable: primary_work_item, project: nil, subscribed: true)
+
+        get api("/projects/#{project.id}/-/work_items/#{primary_work_item.iid}", user),
+          params: { features: 'notifications' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['features']['notifications']).to eq('subscribed' => true)
+      end
+
+      it 'returns subscribed=true for the work item author with no explicit row' do
+        # The cheap author / assignee fallback covers the common participant cases without the per-item participant?
+        # lookup (which would N+1 on the listing path).
+        author = primary_work_item.author
+        stub_feature_flags(work_item_rest_api: author)
+        project.add_reporter(author)
+
+        get api("/projects/#{project.id}/-/work_items/#{primary_work_item.iid}", author),
+          params: { features: 'notifications' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['features']['notifications']).to eq('subscribed' => true)
+      end
+
+      it 'returns subscribed=false for a non-participant with no explicit row' do
+        bystander = create(:user, reporter_of: project)
+        stub_feature_flags(work_item_rest_api: bystander)
+
+        get api("/projects/#{project.id}/-/work_items/#{primary_work_item.iid}", bystander),
+          params: { features: 'notifications' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['features']['notifications']).to eq('subscribed' => false)
+      end
+
+      it 'returns subscribed=false when the user has an explicit unsubscribed row' do
+        create(:subscription, user: user, subscribable: primary_work_item, project: nil, subscribed: false)
+
+        get api("/projects/#{project.id}/-/work_items/#{primary_work_item.iid}", user),
+          params: { features: 'notifications' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['features']['notifications']).to eq('subscribed' => false)
+      end
+
+      it 'returns subscribed=true for a note author via the participant? fallback' do
+        # Note authors are participants via Issuable#participant? but aren't covered by the cheap author / assignee
+        # fallback. The show render path enables the participant? lookup so this case matches the GraphQL widget's
+        # behavior
+        note_author = create(:user, reporter_of: project)
+        stub_feature_flags(work_item_rest_api: note_author)
+        create(:note, project: project, noteable: primary_work_item, author: note_author)
+
+        get api("/projects/#{project.id}/-/work_items/#{primary_work_item.iid}", note_author),
+          params: { features: 'notifications' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['features']['notifications']).to eq('subscribed' => true)
+      end
+    end
+
     context 'when the hierarchy feature is requested' do
       let_it_be(:other_project, freeze: false) { create(:project, :private) }
 
@@ -267,8 +363,8 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
         end
 
         it 'does not expose the private work item title in title_html to a user without access' do
-          # Banzai renders cross-project references at write time without a user context, so the
-          # raw cached column contains the private title in an <a title="..."> attribute.
+          # Banzai renders cross-project references at write time without a user context, so the raw cached column
+          # contains the private title in an <a title="..."> attribute.
           expect(work_item_with_reference.title_html).to include('Secret')
 
           get api("/projects/#{project.id}/-/work_items/#{work_item_with_reference.iid}", user),

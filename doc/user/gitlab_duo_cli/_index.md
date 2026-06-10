@@ -98,7 +98,7 @@ To use the GitLab Duo CLI as a standalone tool, install it and then authenticate
 
 #### Install
 
-Install the GitLab Duo CLI as a compiled binary or an npm package.
+Install the GitLab Duo CLI as a compiled binary.
 
 {{< tabs >}}
 
@@ -120,7 +120,11 @@ irm "https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/raw/main/packa
 
 {{< /tab >}}
 
-{{< tab title="npm package" >}}
+{{< tab title="npm package (deprecated)" >}}
+
+> [!warning]
+> The GitLab Duo CLI npm package was [deprecated](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/work_items/2399) in GitLab 19.1.
+> Install using the GitLab CLI (`glab`) or the compiled binary instead.
 
 Prerequisites:
 

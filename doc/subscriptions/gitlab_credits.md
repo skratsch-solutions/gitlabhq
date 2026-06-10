@@ -285,15 +285,20 @@ For premium models with optimized integration:
 | `claude-sonnet-4` | 2.0 |
 | `claude-sonnet-4.5` | 2.0 |
 | `claude-sonnet-4.6` | 2.0 |
-| `gpt-5.4` (short context) | 2.0 |
+| `gpt-5.4` <sup>1</sup> | 2.0 |
 | `claude-opus-4.5` | 1.2 |
-| `gpt-5.4` (long context) | 1.11 |
+| `gpt-5.4` <sup>2</sup> | 1.11 |
 | `claude-opus-4.6` | 1.1 |
 | `claude-opus-4.7` | 1.1 |
 | `claude-opus-4.8` | 1.1 |
-| `gpt-5.5` (short context) | 1.0 |
+| `gpt-5.5` <sup>1</sup> | 1.0 |
 | `claude-fable-5` | 0.6 |
-| `gpt-5.5` (long context) | 0.57 |
+| `gpt-5.5` <sup>2</sup> | 0.57 |
+
+**Footnotes**:
+
+1. Short context window of up to 272,000 tokens.
+1. Long context window of more than 272,000 tokens.
 
 ### Features
 

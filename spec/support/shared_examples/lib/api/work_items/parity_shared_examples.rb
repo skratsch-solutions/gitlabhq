@@ -68,7 +68,6 @@ RSpec.shared_examples 'work item API field parity' do
         email_participants
         linked_resources
         notes
-        notifications
         participants
       ]).merge(extra_graphql_feature_exceptions)
     end

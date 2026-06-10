@@ -342,6 +342,11 @@ msgid_plural "%d issues successfully imported with the label"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%d item found"
 msgid_plural "%d items found"
 msgstr[0] ""
@@ -39253,6 +39258,9 @@ msgstr ""
 msgid "InProductMarketing|Start a Self-Managed trial"
 msgstr ""
 
+msgid "InProductMarketing|Start your free %{duration} day trial today, no credit card required. You'll have full access to our most advanced features, including GitLab Duo Agent Platform."
+msgstr ""
+
 msgid "InProductMarketing|Support compliance"
 msgstr ""
 
@@ -48224,6 +48232,9 @@ msgstr ""
 msgid "Network"
 msgstr ""
 
+msgid "Network|Unable to load repository graph"
+msgstr ""
+
 msgid "Never"
 msgstr ""
 
@@ -49326,22 +49337,16 @@ msgstr ""
 msgid "Notifications"
 msgstr ""
 
-msgid "Notifications Off"
+msgid "Notifications are off"
 msgstr ""
 
-msgid "Notifications On"
+msgid "Notifications are on"
 msgstr ""
 
 msgid "Notifications for %{project_or_group} are rate-limited due to the high volume of notifications sent."
 msgstr ""
 
 msgid "Notifications have been disabled by the project or group owner"
-msgstr ""
-
-msgid "Notifications off"
-msgstr ""
-
-msgid "Notifications on"
 msgstr ""
 
 msgid "Notifications temporarily disabled"
@@ -50766,7 +50771,16 @@ msgstr ""
 msgid "Offline nodes automatically deleted after"
 msgstr ""
 
-msgid "OfflineTransferExport|Each selected group is exported with all of its subgroups and projects."
+msgid "OfflineTransferExport|%{selectedCount} of %{totalCount} selected"
+msgstr ""
+
+msgid "OfflineTransferExport|Could not load groups. Please try again."
+msgstr ""
+
+msgid "OfflineTransferExport|Deselect all"
+msgstr ""
+
+msgid "OfflineTransferExport|Each group is exported with all of its subgroups and projects."
 msgstr ""
 
 msgid "OfflineTransferExport|Export"
@@ -50790,6 +50804,9 @@ msgstr ""
 msgid "OfflineTransferExport|Review export"
 msgstr ""
 
+msgid "OfflineTransferExport|Select all"
+msgstr ""
+
 msgid "OfflineTransferExport|Select groups to export"
 msgstr ""
 
@@ -50800,6 +50817,9 @@ msgid "OfflineTransferExport|The offline export you started on %{start_date} fro
 msgstr ""
 
 msgid "OfflineTransferExport|The offline export you started on %{start_date} from %{strong_open}%{source_hostname}%{strong_close} is complete. Find the export at %{strong_open}%{export_prefix}%{strong_close} in the configured object storage bucket."
+msgstr ""
+
+msgid "OfflineTransferExport|You have no groups available to export"
 msgstr ""
 
 msgid "OfflineTransferImport|Import an offline transfer"
@@ -66069,6 +66089,9 @@ msgstr ""
 msgid "SecurityConfiguration|Choose exactly which projects and scanners to enable and which profiles to apply. We'll guide you through each step."
 msgstr ""
 
+msgid "SecurityConfiguration|Configuration applied"
+msgstr ""
+
 msgid "SecurityConfiguration|Configuration guide"
 msgstr ""
 
@@ -66380,7 +66403,10 @@ msgstr ""
 msgid "SecurityConfiguration|Warning"
 msgstr ""
 
-msgid "SecurityConfiguration|Your configuration has been applied and is rolling out to projects in batches. This may take a few minutes."
+msgid "SecurityConfiguration|Your configuration has been applied and is rolling out to projects in batches. Profiles will be applied to %{strongStart}%{itemCount}%{strongEnd} as each batch completes — this may take a few minutes."
+msgstr ""
+
+msgid "SecurityConfiguration|Your configuration has been applied and is rolling out to projects in batches. Profiles will be applied to %{strongStart}all uncovered projects%{strongEnd} as each batch completes — this may take a few minutes."
 msgstr ""
 
 msgid "SecurityConfiguration|~3 min"
@@ -71297,6 +71323,21 @@ msgstr ""
 msgid "SemanticSearch|Switching to: %{model_name}"
 msgstr ""
 
+msgid "SemanticSearch|Test failed"
+msgstr ""
+
+msgid "SemanticSearch|Test model configuration"
+msgstr ""
+
+msgid "SemanticSearch|Test successful!"
+msgstr ""
+
+msgid "SemanticSearch|Testing model configuration..."
+msgstr ""
+
+msgid "SemanticSearch|Testing..."
+msgstr ""
+
 msgid "SemanticSearch|The URLs for connecting to the Elasticsearch cluster. For clustering, add the URLs separated by commas."
 msgstr ""
 
@@ -71304,6 +71345,9 @@ msgid "SemanticSearch|This action is destructive. Disabling semantic search will
 msgstr ""
 
 msgid "SemanticSearch|This process can take several hours depending on your codebase size. Semantic search will remain available during the backfill."
+msgstr ""
+
+msgid "SemanticSearch|Unexpected server response. Please refresh the page and try again."
 msgstr ""
 
 msgid "SemanticSearch|Update embeddings and start backfill process"

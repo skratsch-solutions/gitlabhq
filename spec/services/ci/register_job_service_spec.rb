@@ -35,10 +35,10 @@ module Ci
       end
 
       context 'when queue size exceeds MAX_QUEUE_DEPTH' do
-        let(:runner) { create(:ci_runner, :instance) }
-        let!(:pending_job_1) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
-        let!(:pending_job_2) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
-        let!(:pending_job_3) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
+        let_it_be(:runner) { create(:ci_runner, :instance) }
+        let_it_be_with_reload(:pending_job_1) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
+        let_it_be_with_reload(:pending_job_2) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
+        let_it_be_with_reload(:pending_job_3) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
 
         before do
           project.update!(shared_runners_enabled: true)
@@ -186,7 +186,7 @@ module Ci
               end
 
               context 'with runner manager specified' do
-                let(:project_runner_manager) { create(:ci_runner_machine, runner: project_runner) }
+                let_it_be(:project_runner_manager) { create(:ci_runner_machine, runner: project_runner) }
 
                 it 'picks build and assigns runner manager' do
                   expect(build).to eq(pending_job)
@@ -294,7 +294,7 @@ module Ci
             end
 
             context 'with runner manager specified' do
-              let(:project_runner_manager) { create(:ci_runner_machine, runner: project_runner) }
+              let_it_be(:project_runner_manager) { create(:ci_runner_machine, runner: project_runner) }
 
               it 'does not pick a build' do
                 expect(build).to be_nil
@@ -315,7 +315,7 @@ module Ci
           end
 
           context 'when build owner has been blocked' do
-            let(:user) { create(:user, :blocked) }
+            let_it_be(:user) { create(:user, :blocked) }
 
             before do
               pending_job.update!(user: user)
@@ -330,7 +330,7 @@ module Ci
             end
 
             context 'with runner manager specified' do
-              let(:runner_manager) { create(:ci_runner_machine, runner: runner) }
+              let_it_be(:runner_manager) { create(:ci_runner_machine, runner: runner) }
 
               it 'does not pick the build and does not create join record' do
                 expect(build_on(shared_runner, runner_manager: runner_manager)).to be_falsey
@@ -342,9 +342,9 @@ module Ci
 
           context 'for multiple builds' do
             let_it_be(:project2) { create(:project, :repository, shared_runners_enabled: true) }
-            let!(:pipeline2) { create(:ci_pipeline, project: project2) }
+            let_it_be(:pipeline2) { create(:ci_pipeline, project: project2) }
             let_it_be(:project3) { create(:project, :repository, shared_runners_enabled: true) }
-            let!(:pipeline3) { create(:ci_pipeline, project: project3) }
+            let_it_be(:pipeline3) { create(:ci_pipeline, project: project3) }
             let!(:build1_project1) { pending_job }
             let!(:build2_project1) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
             let!(:build3_project1) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
@@ -630,7 +630,7 @@ module Ci
         end
 
         context 'when access_level of runner is not_protected' do
-          let!(:project_runner) { create(:ci_runner, :project, projects: [project]) }
+          let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project]) }
 
           context 'when a job is protected' do
             let!(:pending_job) { create(:ci_build, :pending, :queued, :protected, pipeline: pipeline) }
@@ -662,7 +662,7 @@ module Ci
         end
 
         context 'when access_level of runner is ref_protected' do
-          let!(:project_runner) { create(:ci_runner, :project, :ref_protected, projects: [project]) }
+          let_it_be(:project_runner) { create(:ci_runner, :project, :ref_protected, projects: [project]) }
 
           context 'when a job is protected' do
             let!(:pending_job) { create(:ci_build, :pending, :queued, :protected, pipeline: pipeline) }
@@ -958,7 +958,7 @@ module Ci
         end
 
         context 'when only some builds can be matched by runner' do
-          let!(:project_runner) { create(:ci_runner, :project, projects: [project], tag_list: %w[matching]) }
+          let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project], tag_list: %w[matching]) }
           let!(:pending_job) { create(:ci_build, :pending, :queued, pipeline: pipeline, tag_list: %w[matching]) }
 
           before do
@@ -1092,7 +1092,7 @@ module Ci
       end
 
       context 'when using pending builds table' do
-        let!(:runner) { create(:ci_runner, :project, projects: [project], tag_list: %w[conflict]) }
+        let_it_be(:runner) { create(:ci_runner, :project, projects: [project], tag_list: %w[conflict]) }
 
         include_examples 'handles runner assignment'
 
@@ -1252,7 +1252,7 @@ module Ci
           pending_job_2.create_queuing_entry!
         end
 
-        let(:runner) { create(:ci_runner, :instance, :ref_protected, tag_list: %w[tag1 tag2]) }
+        let_it_be(:runner) { create(:ci_runner, :instance, :ref_protected, tag_list: %w[tag1 tag2]) }
         let(:expected_shared_runner) { true }
         let(:expected_shard) { ::Gitlab::Ci::Queue::Metrics::DEFAULT_METRICS_SHARD }
         let(:expected_jobs_running_for_project_first_job) { '0' }
@@ -1263,7 +1263,7 @@ module Ci
         it_behaves_like 'queue metrics presenter'
 
         context 'when metrics_shard tag is defined' do
-          let(:runner) { create(:ci_runner, :instance, :ref_protected, tag_list: %w[tag1 metrics_shard::shard_tag tag2]) }
+          let_it_be(:runner) { create(:ci_runner, :instance, :ref_protected, tag_list: %w[tag1 metrics_shard::shard_tag tag2]) }
           let(:expected_shard) { 'shard_tag' }
 
           it_behaves_like 'metrics collector'
@@ -1271,7 +1271,7 @@ module Ci
         end
 
         context 'when multiple metrics_shard tag is defined' do
-          let(:runner) { create(:ci_runner, :instance, :ref_protected, tag_list: %w[tag1 metrics_shard::shard_tag metrics_shard::shard_tag_2 tag2]) }
+          let_it_be(:runner) { create(:ci_runner, :instance, :ref_protected, tag_list: %w[tag1 metrics_shard::shard_tag metrics_shard::shard_tag_2 tag2]) }
           let(:expected_shard) { 'shard_tag' }
 
           it_behaves_like 'metrics collector'
@@ -1309,7 +1309,7 @@ module Ci
       end
 
       context 'when project runner is used' do
-        let(:runner) { create(:ci_runner, :project, :ref_protected, projects: [project], tag_list: %w[tag1 metrics_shard::shard_tag tag2]) }
+        let_it_be(:runner) { create(:ci_runner, :project, :ref_protected, projects: [project], tag_list: %w[tag1 metrics_shard::shard_tag tag2]) }
         let(:expected_shared_runner) { false }
         let(:expected_shard) { ::Gitlab::Ci::Queue::Metrics::DEFAULT_METRICS_SHARD }
         let(:expected_jobs_running_for_project_first_job) { '+Inf' }
@@ -1335,9 +1335,9 @@ module Ci
     end
 
     context 'when max queue depth is reached' do
-      let!(:pending_job) { create(:ci_build, :pending, :queued, :degenerated, pipeline: pipeline) }
-      let!(:pending_job_2) { create(:ci_build, :pending, :queued, :degenerated, pipeline: pipeline) }
-      let!(:pending_job_3) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
+      let_it_be(:pending_job) { create(:ci_build, :pending, :queued, :degenerated, pipeline: pipeline) }
+      let_it_be(:pending_job_2) { create(:ci_build, :pending, :queued, :degenerated, pipeline: pipeline) }
+      let_it_be(:pending_job_3) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
 
       before do
         stub_const("#{described_class}::MAX_QUEUE_DEPTH", 2)
@@ -1453,7 +1453,7 @@ module Ci
       end
 
       context 'when build has environment_key for a different runner' do
-        let(:other_runner) { create(:ci_runner, :project, projects: [resume_project]) }
+        let_it_be(:other_runner) { create(:ci_runner, :project, projects: [resume_project]) }
         let(:env_key) { "#{other_runner.id}/s_testmachine/executor-specific-data" }
 
         it 'does not pick the build because the key belongs to a different runner' do
@@ -1462,7 +1462,7 @@ module Ci
       end
 
       context 'when feature flag is disabled' do
-        let(:other_runner) { create(:ci_runner, :project, projects: [resume_project]) }
+        let_it_be(:other_runner) { create(:ci_runner, :project, projects: [resume_project]) }
         let(:env_key) { "#{other_runner.id}/s_testmachine/executor-specific-data" }
 
         before do
