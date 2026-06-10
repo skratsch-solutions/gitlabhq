@@ -19,7 +19,7 @@
 # details: "Contention due to Postgres 17 upgrade"
 #   An explanation shown to developers when their MR is blocked. Be specific about why the lock is in place.
 #
-# upgrade_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/12345"
+# change_request_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/12345"
 #   Link to the issue tracking the upgrade or PCL.
 #
 # warning_days: 7
@@ -48,13 +48,13 @@
 #      - start_date: "2025-12-09T09:00:00Z"
 #        end_date: "2025-12-09T09:00:00Z"
 #        details: "Contention due to Postgres 17 upgrade"
-#        upgrade_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/12345"
+#        change_request_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/12345"
 #        warning_days: 7
 #        block_level: only_ddl
 #      - start_date: "2026-06-10T00:00:00Z"
 #        end_date: "2026-06-10T18:00:00Z"
 #        details: "Soft Production Change Lock for an important GitLab event"
-#        upgrade_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078"
+#        change_request_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078"
 #        warning_days: 7
 #        merge_buffer: 0
 #        block_level: only_pdm
@@ -63,13 +63,13 @@ locks:
   - start_date: "2026-02-04T16:00:00Z"
     end_date: "2026-02-10T09:00:00Z"
     details: "Upgrading Patroni clusters from PostgreSQL 16 to PostgreSQL 17. Window includes a 2 day window ahead of the upgrade to ensure all merged migrations are deployed ahead of the upgrade, as well as a 2 day rollback window. This lock is in lieu of a Hard PCL."
-    upgrade_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/20991"
+    change_request_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/20991"
     warning_days: 7
     block_level: only_ddl
   - start_date: "2026-06-10T00:00:00Z"
     end_date: "2026-06-10T18:00:00Z"
     details: "Soft Production Change Lock for an important GitLab event. PDMs are not executed during the soft PCL, so new PDMs are blocked from merging to avoid piling up the post-PCL migration backlog."
-    upgrade_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078"
+    change_request_issue_url: "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078"
     warning_days: 7
     merge_buffer: 0
     block_level: only_pdm

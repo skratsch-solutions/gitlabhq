@@ -81,9 +81,8 @@ Advanced search is compatible with the following versions of Elasticsearch.
 | 15.0 to 18.0   | 7.x and 8.x           |
 | 14.0 to 14.10  | 6.8 to 7.x            |
 
-GitLab.com uses Elasticsearch 8.x.
-On GitLab Self-Managed, you should use Elasticsearch 9.x
-for optimal performance and forward compatibility.
+GitLab.com uses Elasticsearch 9.x.
+On GitLab Self-Managed, you should use Elasticsearch 9.x for optimal performance and forward compatibility.
 
 Advanced search follows the [Elasticsearch end-of-life policy](https://www.elastic.co/support/eol).
 

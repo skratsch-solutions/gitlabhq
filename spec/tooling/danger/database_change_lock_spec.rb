@@ -3,15 +3,13 @@
 require 'fast_spec_helper'
 require 'gitlab/dangerfiles/spec_helper'
 require_relative '../../../tooling/danger/database_change_lock'
-require_relative '../../../danger/plugins/database_upgrade_ddl_lock'
-require_relative '../../../danger/plugins/post_deployment_migration_lock'
 
 RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database do
   include_context "with dangerfile"
 
   let(:fake_danger) { DangerSpecHelper.fake_danger.include(described_class) }
-  let(:fake_ddl_plugin) { instance_double(Danger::DatabaseUpgradeDdlLock, check_database_lock: nil) }
-  let(:fake_pdm_plugin) { instance_double(Danger::PostDeploymentMigrationLock, check_database_lock: nil) }
+  let(:fake_ddl_rule) { instance_double(Tooling::Danger::DatabaseUpgradeDdlLock, check_lock: nil) }
+  let(:fake_pdm_rule) { instance_double(Tooling::Danger::PostDeploymentMigrationLock, check_lock: nil) }
 
   subject(:database_change_lock) { fake_danger.new(helper: fake_helper) }
 
@@ -23,7 +21,7 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
         'start_date' => "2025-11-03T09:00:00Z",
         'end_date' => "2025-11-05T09:00:00Z",
         'details' => "Postgres 17 upgrade",
-        'upgrade_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
+        'change_request_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
         'warning_days' => 7,
         'merge_buffer' => 2,
         'block_level' => 'only_ddl'
@@ -35,7 +33,7 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
         'start_date' => "2025-11-03T09:00:00Z",
         'end_date' => "2025-11-05T09:00:00Z",
         'details' => "Soft PCL",
-        'upgrade_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078",
+        'change_request_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078",
         'warning_days' => 7,
         'merge_buffer' => 2,
         'block_level' => 'only_pdm'
@@ -48,16 +46,16 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
     before do
       allow(File).to receive(:exist?).and_return(file_exists)
       allow(YAML).to receive(:safe_load_file).and_return(config)
-      allow(database_change_lock).to receive_messages(database_upgrade_ddl_lock: fake_ddl_plugin,
-        post_deployment_migration_lock: fake_pdm_plugin)
+      allow(Tooling::Danger::DatabaseUpgradeDdlLock).to receive(:new).and_return(fake_ddl_rule)
+      allow(Tooling::Danger::PostDeploymentMigrationLock).to receive(:new).and_return(fake_pdm_rule)
     end
 
     context 'when there is no config file' do
       let(:file_exists) { false }
 
       it 'does not invoke any rule' do
-        expect(fake_ddl_plugin).not_to receive(:check_database_lock)
-        expect(fake_pdm_plugin).not_to receive(:check_database_lock)
+        expect(fake_ddl_rule).not_to receive(:check_lock)
+        expect(fake_pdm_rule).not_to receive(:check_lock)
 
         check_database_lock_contention
       end
@@ -67,8 +65,8 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
       let(:config) { { 'locks' => [] } }
 
       it 'does not invoke any rule' do
-        expect(fake_ddl_plugin).not_to receive(:check_database_lock)
-        expect(fake_pdm_plugin).not_to receive(:check_database_lock)
+        expect(fake_ddl_rule).not_to receive(:check_lock)
+        expect(fake_pdm_rule).not_to receive(:check_lock)
 
         check_database_lock_contention
       end
@@ -77,9 +75,10 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
     context 'when active lock has block_level: only_ddl' do
       let(:config) { { 'locks' => [active_ddl_lock] } }
 
-      it 'runs only the DDL check' do
-        expect(fake_ddl_plugin).to receive(:check_database_lock)
-        expect(fake_pdm_plugin).not_to receive(:check_database_lock)
+      it 'runs only the DDL rule with the dispatcher as context', :aggregate_failures do
+        expect(Tooling::Danger::DatabaseUpgradeDdlLock).to receive(:new).with(database_change_lock)
+        expect(fake_ddl_rule).to receive(:check_lock)
+        expect(fake_pdm_rule).not_to receive(:check_lock)
 
         check_database_lock_contention
       end
@@ -88,9 +87,10 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
     context 'when active lock has block_level: only_pdm' do
       let(:config) { { 'locks' => [active_pcl_lock] } }
 
-      it 'runs only the PDM check' do
-        expect(fake_ddl_plugin).not_to receive(:check_database_lock)
-        expect(fake_pdm_plugin).to receive(:check_database_lock)
+      it 'runs only the PDM rule with the dispatcher as context', :aggregate_failures do
+        expect(Tooling::Danger::PostDeploymentMigrationLock).to receive(:new).with(database_change_lock)
+        expect(fake_ddl_rule).not_to receive(:check_lock)
+        expect(fake_pdm_rule).to receive(:check_lock)
 
         check_database_lock_contention
       end
@@ -104,8 +104,8 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
       let(:config) { { 'locks' => [active_legacy_lock] } }
 
       it 'defaults to only_ddl' do
-        expect(fake_ddl_plugin).to receive(:check_database_lock)
-        expect(fake_pdm_plugin).not_to receive(:check_database_lock)
+        expect(fake_ddl_rule).to receive(:check_lock)
+        expect(fake_pdm_rule).not_to receive(:check_lock)
 
         check_database_lock_contention
       end
@@ -119,8 +119,8 @@ RSpec.describe Tooling::Danger::DatabaseChangeLock, feature_category: :database 
       let(:config) { { 'locks' => [active_unknown_lock] } }
 
       it 'falls back to only_ddl' do
-        expect(fake_ddl_plugin).to receive(:check_database_lock)
-        expect(fake_pdm_plugin).not_to receive(:check_database_lock)
+        expect(fake_ddl_rule).to receive(:check_lock)
+        expect(fake_pdm_rule).not_to receive(:check_lock)
 
         check_database_lock_contention
       end

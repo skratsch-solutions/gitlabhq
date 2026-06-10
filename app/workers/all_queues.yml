@@ -2937,8 +2937,8 @@
   :worker_name: Ci::ResourceGroups::AssignResourceFromResourceGroupWorker
   :feature_category: :continuous_delivery
   :has_external_dependencies: false
-  :urgency: :low
-  :resource_boundary: :unknown
+  :urgency: :high
+  :resource_boundary: :cpu
   :weight: 5
   :idempotent: true
   :tags: []

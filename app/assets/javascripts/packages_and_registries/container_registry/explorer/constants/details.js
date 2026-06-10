@@ -174,6 +174,9 @@ export const PACKAGE_DELETE_HELP_PAGE_PATH = helpPagePath(
 export const DOCKER_LIST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json';
 export const OCI_INDEX_MEDIA_TYPE = 'application/vnd.oci.image.index.v1+json';
 
+export const OS_VERSION_LABEL = s__(
+  'ContainerRegistry|%{strongStart}OS Version:%{strongEnd} %{osVersion}',
+);
 export const SUPPORTED_PLATFORMS_ROW_TEXT = s__(
   'ContainerRegistry|Supported platforms: %{supportedPlatforms}',
 );

@@ -3,16 +3,16 @@
 require 'fast_spec_helper'
 require 'gitlab/dangerfiles/spec_helper'
 require_relative '../../../tooling/danger/post_deployment_migration_lock'
+require_relative 'support/database_change_lock_rule_context'
 
 RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :database do
   include_context "with dangerfile"
+  include_context 'with database change lock rule context'
 
-  let(:fake_danger) { DangerSpecHelper.fake_danger.include(described_class) }
+  subject(:post_deployment_migration_lock) { described_class.new(context) }
 
-  subject(:post_deployment_migration_lock) { fake_danger.new(helper: fake_helper) }
-
-  describe '#check_pdm_lock_contention', time_travel_to: '2025-11-01 09:00:00 UTC' do
-    subject(:check_pdm_lock_contention) { post_deployment_migration_lock.check_pdm_lock_contention }
+  describe '#check_lock', time_travel_to: '2025-11-01 09:00:00 UTC' do
+    subject(:check_lock) { post_deployment_migration_lock.check_lock }
 
     let(:file_exists) { false }
 
@@ -21,7 +21,7 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
         'start_date' => "2023-11-14T09:00:00Z",
         'end_date' => "2023-11-15T09:00:00Z",
         'details' => "Contention due to Postgres 15 upgrade",
-        'upgrade_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/1",
+        'change_request_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/1",
         'warning_days' => 7,
         'merge_buffer' => 2
       }
@@ -32,7 +32,7 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
         'start_date' => "2025-12-03T09:00:00Z",
         'end_date' => "2025-12-05T09:00:00Z",
         'details' => "Contention due to Postgres 17 upgrade",
-        'upgrade_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
+        'change_request_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
         'warning_days' => 7,
         'merge_buffer' => 2
       }
@@ -43,7 +43,7 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
         'start_date' => "2025-11-03T09:00:00Z",
         'end_date' => "2025-11-05T09:00:00Z",
         'details' => "Contention due to Postgres 17 upgrade",
-        'upgrade_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
+        'change_request_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
         'warning_days' => 7,
         'merge_buffer' => 2
       }
@@ -54,7 +54,7 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
         'start_date' => "2025-11-14T09:00:00Z",
         'end_date' => "2025-11-15T09:00:00Z",
         'details' => "Contention due to Postgres 17 upgrade",
-        'upgrade_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
+        'change_request_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3",
         'warning_days' => 13,
         'merge_buffer' => 2
       }
@@ -67,19 +67,20 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
     before do
       allow(File).to receive(:exist?).and_return(file_exists)
       allow(YAML).to receive(:safe_load_file).and_return(config)
-      allow(post_deployment_migration_lock).to receive(:fail)
+      allow(context).to receive(:warn)
+      allow(context).to receive(:fail)
       allow(fake_helper).to receive_messages(added_files: added_files, ci?: ci)
     end
 
     shared_examples 'skipping warning and fail' do
       it 'does not warn' do
-        expect(post_deployment_migration_lock).not_to receive(:warn)
-        check_pdm_lock_contention
+        expect(context).not_to receive(:warn)
+        check_lock
       end
 
       it 'does not fail' do
-        expect(post_deployment_migration_lock).not_to receive(:fail)
-        check_pdm_lock_contention
+        expect(context).not_to receive(:fail)
+        check_lock
       end
     end
 
@@ -102,7 +103,7 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
               'start_date' => nil,
               'end_date' => nil,
               'details' => nil,
-              'upgrade_issue_url' => nil,
+              'change_request_issue_url' => nil,
               'warning_days' => nil
             }
           ]
@@ -149,13 +150,11 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
       let(:config) { { 'locks' => [past_lock, warning_lock] } }
 
       it 'warns about upcoming pdm lock' do
-        expect(post_deployment_migration_lock).to receive(:warn).with(
+        expect(context).to receive(:warn).with(
           <<~MSG
             A post-deployment migration (PDM) lock will be active in 11 day(s). Starting at 2025-11-12 09:00:00 UTC,
             merging new PDMs will be disabled because PDMs are not executed during the upcoming soft Production Change Lock (PCL),
             and merging them anyway would pile them up into a larger, riskier post-PCL migration run.
-            The soft PCL is scheduled for 2025-11-14 09:00:00 UTC, but merges are blocked 2 day(s) earlier
-            so already-merged PDMs deploy ahead of the PCL.
 
             See change request: https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3
 
@@ -168,12 +167,12 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
           MSG
         )
 
-        check_pdm_lock_contention
+        check_lock
       end
 
       it 'does not fail' do
-        expect(post_deployment_migration_lock).not_to receive(:fail)
-        check_pdm_lock_contention
+        expect(context).not_to receive(:fail)
+        check_lock
       end
     end
 
@@ -184,12 +183,12 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
       let(:config) { { 'locks' => [past_lock, active_lock] } }
 
       it 'does not warn' do
-        expect(post_deployment_migration_lock).not_to receive(:warn)
-        check_pdm_lock_contention
+        expect(context).not_to receive(:warn)
+        check_lock
       end
 
       it 'fails about effective pdm lock in place' do
-        expect(post_deployment_migration_lock).to(
+        expect(context).to(
           receive(:fail).with(
             <<~MSG
               Merging post-deployment migrations (PDMs) is currently disabled because a soft Production Change Lock (PCL)
@@ -209,7 +208,7 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
           )
         )
 
-        check_pdm_lock_contention
+        check_lock
       end
     end
 
@@ -220,8 +219,8 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
       let(:config) { { 'locks' => [past_lock, active_lock] } }
 
       it 'fails' do
-        expect(post_deployment_migration_lock).to receive(:fail)
-        check_pdm_lock_contention
+        expect(context).to receive(:fail)
+        check_lock
       end
     end
 
@@ -241,13 +240,13 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
       let(:config) { { 'locks' => [past_lock, active_lock] } }
 
       it 'does not warn' do
-        expect(post_deployment_migration_lock).not_to receive(:warn)
-        check_pdm_lock_contention
+        expect(context).not_to receive(:warn)
+        check_lock
       end
 
       it 'does not fail' do
-        expect(post_deployment_migration_lock).not_to receive(:fail)
-        check_pdm_lock_contention
+        expect(context).not_to receive(:fail)
+        check_lock
       end
     end
 
@@ -260,7 +259,7 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
           'start_date' => "2025-11-02T09:00:00Z",
           'end_date' => "2025-11-03T09:00:00Z",
           'details' => "Soft PCL",
-          'upgrade_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078",
+          'change_request_issue_url' => "https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/29078",
           'warning_days' => 7,
           'merge_buffer' => 0
         }
@@ -268,10 +267,19 @@ RSpec.describe Tooling::Danger::PostDeploymentMigrationLock, feature_category: :
 
       let(:config) { { 'locks' => [zero_buffer_lock] } }
 
-      it 'warns but does not fail (lock starts exactly at start_date)' do
-        expect(post_deployment_migration_lock).to receive(:warn)
-        expect(post_deployment_migration_lock).not_to receive(:fail)
-        check_pdm_lock_contention
+      it 'warns but does not fail (lock starts exactly at start_date)', :aggregate_failures do
+        expect(context).to receive(:warn)
+        expect(context).not_to receive(:fail)
+        check_lock
+      end
+
+      it 'collapses the schedule to a single line when there is no merge buffer' do
+        expect(context).to receive(:warn) do |message|
+          expect(message).to include('Soft PCL starts at: 2025-11-02 09:00:00 UTC')
+          expect(message).not_to include('Merge lock starts at')
+        end
+
+        check_lock
       end
     end
   end

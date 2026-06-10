@@ -66,8 +66,8 @@ module Tooling
         @details ||= config['details'].to_s
       end
 
-      def upgrade_issue_url
-        @upgrade_issue_url ||= config['upgrade_issue_url'].to_s
+      def change_request_issue_url
+        @change_request_issue_url ||= config['change_request_issue_url'].to_s
       end
 
       def warning_days
@@ -107,7 +107,7 @@ module Tooling
           merge_lock_start_date: merge_lock_start_date,
           end_date: end_date,
           details: details,
-          upgrade_issue_url: upgrade_issue_url,
+          change_request_issue_url: change_request_issue_url,
           merge_buffer_days: merge_buffer_days
         }
       end

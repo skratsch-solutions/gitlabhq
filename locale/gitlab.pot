@@ -21267,6 +21267,9 @@ msgstr[1] ""
 msgid "ContainerRegistry|%{strongStart}Next cleanup on%{strongEnd} %{cleanupTime}"
 msgstr ""
 
+msgid "ContainerRegistry|%{strongStart}OS Version:%{strongEnd} %{osVersion}"
+msgstr ""
+
 msgid "ContainerRegistry|%{title} was successfully scheduled for deletion"
 msgstr ""
 
@@ -70548,6 +70551,9 @@ msgid "SecurityReports|Risk score"
 msgstr ""
 
 msgid "SecurityReports|Risk score formula"
+msgstr ""
+
+msgid "SecurityReports|SAST triage and remediation funnel"
 msgstr ""
 
 msgid "SecurityReports|Scan details"
