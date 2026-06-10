@@ -8,13 +8,9 @@ RSpec.describe Emails::Groups do
   include_context 'gitlab email notification'
 
   # rubocop:disable RSpec/FactoryBot/AvoidCreate -- Need associations
-  let(:group) { create(:group) }
-  let(:user) { create(:user) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:group) { create(:group, owners: user) }
   # rubocop:enable RSpec/FactoryBot/AvoidCreate
-
-  before do
-    group.add_owner(user)
-  end
 
   describe '#group_was_transferred_email' do
     let(:old_path_with_namespace) { 'old-parent/test-group' }
@@ -80,8 +76,6 @@ RSpec.describe Emails::Groups do
 
   describe '#group_scheduled_for_deletion', :freeze_time do
     # rubocop:disable RSpec/FactoryBot/AvoidCreate -- Need associations
-    let_it_be(:user) { create(:user) }
-    let_it_be(:group) { create(:group, owners: user) }
     let_it_be(:sub_group) do
       create(:group_with_deletion_schedule, :deletion_scheduled, parent: group, deleting_user: user)
     end

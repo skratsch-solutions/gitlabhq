@@ -19,7 +19,8 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
 
   describe 'for new users, the email' do
     let(:example_site_path) { root_path }
-    let(:new_user) { create(:user, email: new_user_address, created_by_id: 1) }
+    let_it_be(:new_user_address) { 'newguy@example.com' }
+    let_it_be(:new_user) { create(:user, email: new_user_address, created_by_id: 1) }
     let(:token) { 'kETLwRaayvigPq_x3SNM' }
 
     subject { Notify.new_user_email(new_user.id, token) }
@@ -66,7 +67,8 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
 
   describe 'for users that signed up, the email' do
     let(:example_site_path) { root_path }
-    let(:new_user) { create(:user, email: new_user_address) }
+    let_it_be(:new_user_address) { 'newguy@example.com' }
+    let_it_be(:new_user) { create(:user, email: new_user_address) }
 
     subject { Notify.new_user_email(new_user.id) }
 
@@ -82,7 +84,7 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
   end
 
   describe 'user added ssh key' do
-    let(:key) { create(:personal_key) }
+    let_it_be(:key, freeze: false) { create(:personal_key) }
 
     subject { Notify.new_ssh_key_email(key.id) }
 
@@ -112,7 +114,7 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
   end
 
   describe 'user added gpg key' do
-    let(:gpg_key) { create(:gpg_key) }
+    let_it_be(:gpg_key, freeze: false) { create(:gpg_key) }
 
     subject { Notify.new_gpg_key_email(gpg_key.id) }
 
@@ -270,13 +272,8 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
     context 'when access token belongs to a group' do
       let_it_be(:project_bot) { create(:user, :project_bot) }
       let_it_be(:expiring_token) { create(:personal_access_token, user: project_bot, expires_at: 5.days.from_now) }
-      let_it_be(:resource) { create(:group) }
+      let_it_be(:resource) { create(:group, owners: user, developers: project_bot) }
       let_it_be(:resource_access_tokens_path) { group_settings_access_tokens_path(resource) }
-
-      before_all do
-        resource.add_owner(user)
-        resource.add_developer(project_bot)
-      end
 
       subject { Notify.bot_resource_access_token_about_to_expire_email(user, resource, expiring_token.name) }
 
@@ -301,13 +298,8 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
     context 'when access token belongs to a project' do
       let_it_be(:project_bot) { create(:user, :project_bot) }
       let_it_be(:expiring_token) { create(:personal_access_token, user: project_bot, expires_at: 5.days.from_now) }
-      let_it_be(:resource) { create(:project) }
+      let_it_be(:resource) { create(:project, maintainers: user, reporters: project_bot) }
       let_it_be(:resource_access_tokens_path) { project_settings_access_tokens_path(resource) }
-
-      before_all do
-        resource.add_maintainer(user)
-        resource.add_reporter(project_bot)
-      end
 
       subject { Notify.bot_resource_access_token_about_to_expire_email(user, resource, expiring_token.name) }
 
@@ -595,7 +587,7 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
   end
 
   describe 'user unknown sign in email' do
-    let(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
     let(:ip) { '169.0.0.1' }
     let(:current_time) { Time.current }
     let(:country) { 'Germany' }
@@ -789,8 +781,6 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
     end
 
     describe 'Passkey' do
-      let_it_be(:user, freeze: false) { create(:user) }
-
       subject { Notify.disabled_two_factor_webauthn_email(user, 'MacBook Touch ID', :passkey) }
 
       it_behaves_like 'an email sent from GitLab'
@@ -815,8 +805,6 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
     end
 
     describe 'OTP' do
-      let_it_be(:user, freeze: false) { create(:user) }
-
       subject { Notify.disabled_two_factor_otp_email(user) }
 
       it_behaves_like 'an email sent from GitLab'
@@ -837,8 +825,6 @@ RSpec.describe Emails::Profile, feature_category: :user_profile do
     end
 
     describe 'WebAuthn' do
-      let_it_be(:user, freeze: false) { create(:user) }
-
       subject { Notify.disabled_two_factor_webauthn_email(user, 'MacBook Touch ID') }
 
       it_behaves_like 'an email sent from GitLab'

@@ -10,22 +10,19 @@ title: Automatic reviewer assignment
 
 - Tier: Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-- Status: Beta
 
 {{< /details >}}
 
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224175) in GitLab 18.10 [with a flag](../../../../administration/feature_flags/_index.md) named `auto_assign_code_owner_reviewers`. Disabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/239965) in GitLab 19.1. Feature flag `auto_assign_code_owner_reviewers` removed.
 
 {{< /history >}}
 
 When you enable automatic reviewer assignment, GitLab assigns the
 [Code Owners](../../codeowners/_index.md) of changed files as reviewers on a merge request.
 You don't have to select reviewers from the `CODEOWNERS` file by hand.
-
-This feature is in [beta](../../../../policy/development_stages_support.md#beta).
-To leave feedback, comment on [issue 589700](https://gitlab.com/gitlab-org/gitlab/-/issues/589700).
 
 ## Prerequisites
 

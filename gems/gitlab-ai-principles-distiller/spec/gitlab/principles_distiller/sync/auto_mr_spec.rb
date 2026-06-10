@@ -458,11 +458,25 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
 
       # Stub git invocations and the MR-create REST call so the test
       # exercises the full method body without touching the network or
-      # the working tree.
+      # the working tree. `git_has_staged_changes?` returns true so the
+      # tooling MR is exercised too; `regenerate_static_artifacts` is a
+      # no-op (its own unit tests live in manifest_spec). TOOLING_PATHS are
+      # reported as present so the empty-guard in publish_tooling_branch
+      # doesn't short-circuit (overridden in the no-tooling-files context).
       allow(File).to receive(:write)
+      allow(File).to receive(:exist?).and_call_original
+      # Treat the TOOLING_PATHS parent dirs as non-symlinked so
+      # stageable_tooling_path? keeps them (realpath == dir).
+      allow(File).to receive(:realpath) { |arg| arg }
+      described_class::Manifest::TOOLING_PATHS.each do |path|
+        allow(File).to receive(:exist?)
+          .with(Gitlab::PrinciplesDistiller::Workspace.safe_join(path)).and_return(true)
+      end
       allow(sync).to receive_messages(
         system: true,
-        distillation_base_sha: 'abcdef1234567890abcdef1234567890abcdef12'
+        distillation_base_sha: 'abcdef1234567890abcdef1234567890abcdef12',
+        regenerate_static_artifacts: nil,
+        git_has_staged_changes?: true
       )
       allow(sync.workflow).to receive_messages(
         post_json: mock_response,
@@ -470,12 +484,25 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         catalog_project_path: 'gitlab-org/gitlab',
         default_branch: 'master'
       )
+
+      # Drive the real grouping logic from a minimal manifest fixture so
+      # team/branch derivation is exercised end-to-end.
+      sync.manifest.data = {
+        'principles' => {
+          'qa' => { 'group' => 'Testing', 'sources' => [{ 'path' => 'doc/development/qa.md' }] }
+        }
+      }
+      allow(sync.manifest).to receive(:principles_path) { |n| ".ai/principles/distilled/#{n}.md" }
+      # Keep the idempotency lookup hermetic (no network); nil => create path.
+      allow(sync).to receive(:find_open_mr_iid).and_return(nil)
     end
 
+    # Captures the team MR body (the one whose title is NOT the tooling MR),
+    # since the fan-out now also opens a separate tooling MR.
     def capture_post_body
       captured = nil
       allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
-        captured = body
+        captured = body unless body[:title].to_s.end_with?('tooling')
         mock_response
       end
       create_branch_and_mr
@@ -491,10 +518,183 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       expect { create_branch_and_mr }.not_to raise_error
     end
 
-    it 'invokes the MR-create REST call exactly once' do
+    it 'opens one team MR plus the tooling MR' do
       create_branch_and_mr
 
-      expect(sync.workflow).to have_received(:post_json).once
+      expect(sync.workflow).to have_received(:post_json).twice
+    end
+
+    context 'with principles spanning multiple teams' do
+      let(:distilled_contents) do
+        {
+          'qa' => "---\nsource_checksum: a\n---\n# QA\n",
+          'security' => "---\nsource_checksum: b\n---\n# Security\n"
+        }
+      end
+
+      let(:affected) do
+        {
+          'qa' => { config: { 'sources' => [{ 'path' => 'doc/development/qa.md' }] },
+                    changed_sources: [{ 'path' => 'doc/development/qa.md' }], prior_sha: nil },
+          'security' => { config: { 'sources' => [{ 'path' => 'doc/development/secure.md' }] },
+                          changed_sources: [{ 'path' => 'doc/development/secure.md' }], prior_sha: nil }
+        }
+      end
+
+      before do
+        sync.manifest.data = {
+          'principles' => {
+            'qa' => { 'group' => 'Testing', 'sources' => [{ 'path' => 'doc/development/qa.md' }] },
+            'security' => { 'group' => 'Security', 'sources' => [{ 'path' => 'doc/development/secure.md' }] }
+          }
+        }
+      end
+
+      # Capture every MR body keyed by title for per-team assertions.
+      def capture_all_bodies
+        [].tap do |bodies|
+          allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
+            bodies << body
+            mock_response
+          end
+        end
+      end
+
+      it 'opens one MR per team plus a tooling MR (3 total)' do
+        create_branch_and_mr
+
+        expect(sync.workflow).to have_received(:post_json).exactly(3).times
+      end
+
+      it 'gives each team MR a team-suffixed title and scoped content', :aggregate_failures do
+        bodies = capture_all_bodies
+        create_branch_and_mr
+        titles = bodies.map { |b| b[:title] }
+
+        expect(titles).to include(
+          a_string_ending_with('— Testing'),
+          a_string_ending_with('— Security'),
+          a_string_ending_with('— tooling')
+        )
+
+        testing = bodies.find { |b| b[:title].end_with?('— Testing') }
+        security = bodies.find { |b| b[:title].end_with?('— Security') }
+
+        expect(testing[:description]).to include('#### `qa`')
+        expect(testing[:description]).not_to include('#### `security`')
+        expect(security[:description]).to include('#### `security`')
+        expect(security[:description]).not_to include('#### `qa`')
+      end
+
+      it 'pushes a distinct per-team branch for each team', :aggregate_failures do
+        today = Time.now.utc.strftime('%Y%m%d')
+        pushed = []
+        allow(sync).to receive(:system) do |*args, **|
+          pushed << args.last if args.include?('push')
+          true
+        end
+        create_branch_and_mr
+
+        expect(pushed).to include(
+          "docs-sync/principles-#{today}-testing:docs-sync/principles-#{today}-testing",
+          "docs-sync/principles-#{today}-security:docs-sync/principles-#{today}-security",
+          "docs-sync/principles-#{today}-tooling:docs-sync/principles-#{today}-tooling"
+        )
+      end
+    end
+
+    context 'when the tooling files are already up to date' do
+      before do
+        # The team branch has staged principle changes; the tooling branch
+        # does not. git_has_staged_changes? is consulted once per branch
+        # (team first, then tooling).
+        allow(sync).to receive(:git_has_staged_changes?).and_return(true, false)
+      end
+
+      it 'skips the tooling MR but still opens the team MR' do
+        bodies = []
+        allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
+          bodies << body
+          mock_response
+        end
+
+        create_branch_and_mr
+
+        # Exactly the team MR; the tooling MR is skipped (no staged changes).
+        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_ending_with('— Testing'))
+      end
+    end
+
+    context "when a team's principles are unchanged on re-run" do
+      before do
+        # No staged changes on the team branch (same-day re-run, identical
+        # content); tooling branch does have changes.
+        allow(sync).to receive(:git_has_staged_changes?).and_return(false, true)
+      end
+
+      it 'skips the team MR without recording a failure, still opening the tooling MR' do
+        bodies = []
+        allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
+          bodies << body
+          mock_response
+        end
+
+        expect { create_branch_and_mr }.not_to raise_error
+        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_ending_with('— tooling'))
+      end
+    end
+
+    context 'when no tooling files exist on disk' do
+      before do
+        # None of the TOOLING_PATHS were generated (e.g. AGENTS.md absent), so
+        # `git add -f` would have no paths. The tooling MR must be skipped
+        # rather than raising and recording a spurious failure.
+        allow(File).to receive(:exist?).and_call_original
+        described_class::Manifest::TOOLING_PATHS.each do |path|
+          allow(File).to receive(:exist?).with(Gitlab::PrinciplesDistiller::Workspace.safe_join(path))
+            .and_return(false)
+        end
+      end
+
+      it 'skips the tooling MR without raising, still opening the team MR' do
+        expect { create_branch_and_mr }.not_to raise_error
+        expect(sync.workflow).to have_received(:post_json).once
+      end
+
+      it 'warns instead of failing silently when the base checkout fails' do
+        allow(sync).to receive(:system).and_return(true)
+        allow(sync).to receive(:system)
+          .with('git', '-C', anything, 'checkout', 'master').and_return(false)
+
+        expect { create_branch_and_mr }.to output(/checkout to master failed/).to_stderr
+      end
+    end
+
+    context 'when a tooling path is beyond a symlink' do
+      before do
+        # Simulate `.agents/skills` being a symlink (-> .claude/skills): the
+        # file exists but `git add` would reject it as "beyond a symbolic
+        # link". stageable_tooling_path? must skip it, leaving the real
+        # `.claude/...` copy to carry the change.
+        agents_skill = Gitlab::PrinciplesDistiller::Workspace.safe_join(
+          described_class::Manifest::AGENTS_SKILL_PATH
+        )
+        allow(File).to receive(:realpath).and_call_original
+        allow(File).to receive(:realpath) do |arg|
+          arg.to_s == File.dirname(agents_skill) ? '/elsewhere/.claude/skills/gitlab-coding-principles' : arg
+        end
+      end
+
+      it 'still opens the tooling MR (the symlinked alias is skipped, not fatal)' do
+        bodies = []
+        allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
+          bodies << body
+          mock_response
+        end
+
+        expect { create_branch_and_mr }.not_to raise_error
+        expect(bodies.map { |b| b[:title] }).to include(a_string_ending_with('— tooling'))
+      end
     end
 
     context 'with a stubbed per-principle diff' do
@@ -511,12 +711,9 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       end
     end
 
-    it 'links the manifest and the CI job YAML in the "How this works" section',
-      :aggregate_failures do
+    it 'links the manifest and the CI job YAML in the "How this works" section', :aggregate_failures do
       expect(received_body[:description]).to include(
-        '[`.ai/principles/manifest.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.ai/principles/manifest.yml)'
-      )
-      expect(received_body[:description]).to include(
+        '[`.ai/principles/manifest.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.ai/principles/manifest.yml)',
         '[scheduled CI job](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/ci/sync-principles.gitlab-ci.yml)'
       )
     end
@@ -542,6 +739,10 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       expect(received_body[:description]).not_to include('This MR was generated by')
     end
 
+    it 'does not leave runs of blank lines when CI_JOB_URL is unset' do
+      expect(received_body[:description]).not_to match(/\n{3,}/)
+    end
+
     context 'with a custom auto_mr_cfg' do
       let(:auto_mr_cfg) do
         {
@@ -552,50 +753,42 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         }
       end
 
-      it 'applies auto_mr_cfg values to the MR title, labels, and remove_source_branch flag',
-        :aggregate_failures do
+      it 'applies auto_mr_cfg values to the MR title (with team suffix), labels, and flag', :aggregate_failures do
         today = Time.now.utc.strftime('%Y%m%d')
 
-        expect(received_body[:title]).to eq("Custom title #{today}")
+        expect(received_body[:title]).to eq("Custom title #{today} — Testing")
         expect(received_body[:labels]).to eq('label-a,label-b')
         expect(received_body[:remove_source_branch]).to be(false)
       end
     end
 
     describe 'git push token handling' do
-      # Capture the env hash passed to `system(env, 'git', ..., 'push', ...)`
-      # without invoking the actual push.
-      def capture_push_env
-        captured = nil
-        allow(sync).to receive(:system).and_call_original
-        allow(sync).to receive(:system).and_return(true)
-        allow(sync).to receive(:system) do |*args, **|
-          captured = args[0] if args.size > 1 && args[0].is_a?(Hash) && args.include?('push')
-
-          true
-        end
+      # Record every `system(env, 'git', ..., 'push', ...)` invocation the
+      # publish flow makes, so assertions can inspect the first push's env
+      # hash and URL without re-stubbing per example.
+      let(:pushes) { [] }
+      let(:first_push) do
         create_branch_and_mr
-        captured
+        pushes.first
       end
 
-      # Capture the URL argument passed to `system(env, 'git', ..., 'push', <url>, ...)`.
-      def capture_push_url
-        captured = nil
-        allow(sync).to receive(:system).and_call_original
-        allow(sync).to receive(:system).and_return(true)
+      before do
         allow(sync).to receive(:system) do |*args, **|
-          captured = args.find { |a| a.is_a?(String) && a.start_with?('https://') } if args.include?('push')
+          if args.include?('push')
+            pushes << {
+              env: (args[0] if args[0].is_a?(Hash)),
+              url: args.find { |a| a.is_a?(String) && a.start_with?('https://') }
+            }
+          end
 
           true
         end
-        create_branch_and_mr
-        captured
       end
 
       context 'with no existing GIT_CONFIG_COUNT in the environment' do
         it 'passes a single host-scoped HTTP Basic Authorization header via env vars' do
           # 'b2F1dGgyOnRva2Vu' == Base64("oauth2:token").
-          expect(capture_push_env).to eq(
+          expect(first_push[:env]).to eq(
             'GIT_CONFIG_COUNT' => '1',
             'GIT_CONFIG_KEY_0' => 'http.https://gitlab.com.extraHeader',
             'GIT_CONFIG_VALUE_0' => 'Authorization: Basic b2F1dGgyOnRva2Vu'
@@ -603,11 +796,11 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         end
 
         it 'does not embed the token in the push URL' do
-          expect(capture_push_url).to eq('https://gitlab.com/gitlab-org/gitlab.git')
+          expect(first_push[:url]).to eq('https://gitlab.com/gitlab-org/gitlab.git')
         end
 
         it 'does not include the raw token in the header value' do
-          expect(capture_push_env['GIT_CONFIG_VALUE_0']).not_to include('token')
+          expect(first_push[:env]['GIT_CONFIG_VALUE_0']).not_to include('token')
         end
       end
 
@@ -630,7 +823,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         end
 
         it 'appends at the next index without clobbering the existing count' do
-          expect(capture_push_env).to eq(
+          expect(first_push[:env]).to eq(
             'GIT_CONFIG_COUNT' => '3',
             'GIT_CONFIG_KEY_2' => 'http.https://gitlab.com.extraHeader',
             'GIT_CONFIG_VALUE_2' => 'Authorization: Basic b2F1dGgyOnRva2Vu'
@@ -638,80 +831,77 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         end
       end
 
-      it 'aborts when the API token is empty' do
-        stub_const('ENV', {
-          'GITLAB_API_TOKEN' => '',
-          'CI_PROJECT_ID' => 'gitlab-org/gitlab',
-          'CI_DEFAULT_BRANCH' => 'master',
-          'CI_PROJECT_PATH' => 'gitlab-org/gitlab',
-          'CI_PROJECT_DIR' => '/tmp/workspace'
-        })
+      context 'when the API token is empty' do
+        before do
+          stub_const('ENV', {
+            'GITLAB_API_TOKEN' => '',
+            'CI_PROJECT_ID' => 'gitlab-org/gitlab',
+            'CI_DEFAULT_BRANCH' => 'master',
+            'CI_PROJECT_PATH' => 'gitlab-org/gitlab',
+            'CI_PROJECT_DIR' => '/tmp/workspace'
+          })
+        end
 
-        expect { capture_push_env }.to raise_error(SystemExit)
+        it 'aborts rather than pushing without credentials' do
+          expect { create_branch_and_mr }.to raise_error(SystemExit)
+        end
       end
     end
 
-    context 'when create_mr fails mid-flow' do
-      # Inject the failure at the REST POST that builds the MR. By this
-      # point the publish branch has been created+checked out+pushed, so
-      # the rescue path has real cleanup to do.
+    context 'when an MR submission fails mid-flow' do
+      # Inject the failure at the REST POST. By this point the team branch has
+      # been created+checked out+pushed, so the per-team rescue has real
+      # cleanup to do. The run then aborts with the aggregate failure list
+      # rather than continuing silently.
       before do
         allow(sync.workflow).to receive(:post_json).and_raise(StandardError, 'boom')
       end
 
-      it 're-raises the original error' do
-        expect { create_branch_and_mr }.to raise_error(StandardError, 'boom')
+      it 'aborts with the aggregate failure list (team + tooling)' do
+        # Assert on the final aggregate abort line specifically (not just the
+        # per-team warn, which also contains "Testing"), so the test fails if
+        # the abort doesn't fire.
+        expect { create_branch_and_mr }.to raise_error(SystemExit)
+          .and output(/MR\(s\) failed:.*Testing/).to_stderr
       end
 
-      it 'attempts to check out the base branch during cleanup' do
-        expect { create_branch_and_mr }.to raise_error(StandardError)
+      it 'attempts to check out the base branch during per-team cleanup' do
+        expect { create_branch_and_mr }.to raise_error(SystemExit)
 
         expect(sync).to have_received(:system)
-          .with('git', '-C', anything, 'checkout', 'master')
+          .with('git', '-C', anything, 'checkout', 'master').at_least(:once)
       end
 
-      it 'attempts to delete the publish branch during cleanup' do
-        expect { create_branch_and_mr }.to raise_error(StandardError)
+      it 'attempts to delete the team branch during cleanup' do
+        expect { create_branch_and_mr }.to raise_error(SystemExit)
 
         today = Time.now.utc.strftime('%Y%m%d')
         expect(sync).to have_received(:system)
-          .with('git', '-C', anything, 'branch', '-D', "docs-sync/principles-#{today}")
+          .with('git', '-C', anything, 'branch', '-D', "docs-sync/principles-#{today}-testing")
       end
 
       context 'when the cleanup checkout itself fails' do
         before do
-          # `system: true` is the default from the outer `before`. Override
-          # it so the checkout step (the first cleanup `system` call after
-          # the rescue) returns false, simulating "still on the publish
-          # branch".
-          allow(sync).to receive(:system).and_call_original
+          allow(sync).to receive(:system).and_return(true)
           allow(sync).to receive(:system)
             .with('git', '-C', anything, 'checkout', 'master').and_return(false)
-          allow(sync).to receive(:system)
-            .with(anything, anything, anything, anything, anything, anything, any_args).and_return(true)
-          allow(sync).to receive(:system)
-            .with('git', '-C', anything, 'branch', '-D', anything).and_return(true)
         end
 
-        it 'warns about the failed checkout and still re-raises the original error' do
-          expect { create_branch_and_mr }.to raise_error(StandardError, 'boom')
-            .and output(/cleanup checkout to master failed/).to_stderr
+        it 'warns about the failed checkout and still aborts' do
+          expect { create_branch_and_mr }.to raise_error(SystemExit)
+            .and output(/checkout to master failed/).to_stderr
         end
       end
 
       context 'when the cleanup branch deletion itself fails' do
         before do
-          allow(sync).to receive(:system).and_call_original
-          allow(sync).to receive(:system)
-            .with(anything, anything, anything, anything, anything, anything, any_args).and_return(true)
-          allow(sync).to receive(:system)
-            .with('git', '-C', anything, 'checkout', 'master').and_return(true)
+          allow(sync).to receive(:system).and_return(true)
           allow(sync).to receive(:system)
             .with('git', '-C', anything, 'branch', '-D', anything).and_return(false)
         end
 
-        it 'warns about the failed branch deletion and still re-raises the original error' do
-          expect { create_branch_and_mr }.to raise_error(StandardError, 'boom')
+        it 'warns about the failed branch deletion and still aborts' do
+          expect { create_branch_and_mr }.to raise_error(SystemExit)
             .and output(/cleanup deletion of branch.+failed/).to_stderr
         end
       end

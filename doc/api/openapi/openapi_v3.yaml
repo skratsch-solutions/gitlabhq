@@ -16789,7 +16789,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_49fd916f1fa9"
+              "$ref": "#/components/schemas/RequestBody_cacbc7948474"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -24270,6 +24270,13 @@ paths:
           nullable: true
         in: query
       - name: kubernetes_agent_id
+        required: false
+        description: Metadata key to match
+        schema:
+          type: string
+          nullable: true
+        in: query
+      - name: mvcc_manifest
         required: false
         description: Metadata key to match
         schema:
@@ -81237,6 +81244,8 @@ components:
           type: string
         zoekt_max_projects_for_legacy_search:
           type: string
+        zoekt_max_restarts_15m:
+          type: string
         duo_workflow_oauth_application_id:
           type: string
         scan_execution_policies_action_limit:
@@ -93587,7 +93596,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_49fd916f1fa9:
+    RequestBody_cacbc7948474:
       type: object
       properties:
         admin_mode:
@@ -95844,6 +95853,9 @@ components:
           type: string
           nullable: true
         zoekt_max_projects_for_legacy_search:
+          type: string
+          nullable: true
+        zoekt_max_restarts_15m:
           type: string
           nullable: true
         duo_workflow_oauth_application_id:

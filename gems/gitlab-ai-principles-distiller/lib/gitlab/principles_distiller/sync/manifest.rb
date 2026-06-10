@@ -14,6 +14,18 @@ module Gitlab
         PRINCIPLES_DIR = '.ai/principles/distilled'
         CLAUDE_SKILL_DIR = '.claude/skills/gitlab-coding-principles'
         CLAUDE_SKILL_PATH = "#{CLAUDE_SKILL_DIR}/SKILL.md".freeze
+        AGENTS_SKILL_PATH = '.agents/skills/gitlab-coding-principles/SKILL.md'
+
+        # Global, cross-cutting files regenerated from the manifest on every
+        # run. They embed the full routing table for ALL principles, so SSOT
+        # teams have no stake in their content; the per-team MR fan-out routes
+        # them to a separate "tooling" MR (see Sync::AutoMr).
+        TOOLING_PATHS = [
+          'AGENTS.md',
+          'CLAUDE.md',
+          AGENTS_SKILL_PATH,
+          CLAUDE_SKILL_PATH
+        ].freeze
 
         AUTO_MR_REQUIRED_KEYS = %w[branch_prefix title_template labels remove_source_branch].freeze
 
@@ -73,6 +85,36 @@ module Gitlab
 
         def principles_path(name)
           File.join(PRINCIPLES_DIR, principles_filename(name))
+        end
+
+        # The team-grouping label for a principle. Defaults to the `group`
+        # field; principles without a group fall back to "Other" so they
+        # still get their own MR rather than being silently dropped.
+        #
+        # TODO: `group` is an interim grouping axis. The dedicated `owner_team`
+        # field (mapping each principle to its SSOT-owning CODEOWNERS team) is
+        # tracked as Phase 2 in
+        # https://gitlab.com/gitlab-org/gitlab/-/issues/599920.
+        def principle_team(name)
+          principle_config(name)&.dig('group') || 'Other'
+        end
+
+        # URL/branch-safe slug derived from the team label, used as the
+        # per-team branch suffix (e.g. "Code Review" -> "code-review").
+        #
+        # TODO: an explicit `team_slug` manifest field is deferred to Phase 2
+        # of https://gitlab.com/gitlab-org/gitlab/-/issues/599920.
+        def team_slug(team)
+          team.to_s.downcase.strip.gsub(/[^a-z0-9]+/, '-').gsub(/\A-+|-+\z/, '')
+        end
+
+        # Groups the given principle names by team label, preserving the
+        # manifest's declaration order for both teams and members.
+        def group_principles_by_team(names)
+          ordered = principles.keys & names.to_a
+          ordered.each_with_object({}) do |name, by_team|
+            (by_team[principle_team(name)] ||= []) << name
+          end
         end
 
         def build_diff_hint(sha, source_paths)
@@ -232,7 +274,7 @@ module Gitlab
 
           written = []
           [
-            Workspace.safe_join('.agents/skills/gitlab-coding-principles/SKILL.md'),
+            Workspace.safe_join(AGENTS_SKILL_PATH),
             Workspace.safe_join(CLAUDE_SKILL_PATH)
           ].each do |path|
             next if File.exist?(path) && File.read(path) == skill_content

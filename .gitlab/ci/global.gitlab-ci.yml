@@ -179,7 +179,7 @@
 
 .es9-services:
   services:
-    - name: elasticsearch:9.4.1
+    - name: elasticsearch:9.4.2
 
 .es9-variables:
   variables:

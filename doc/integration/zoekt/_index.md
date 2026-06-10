@@ -208,24 +208,25 @@ The `gitlab:zoekt:info` Rake task returns an output similar to the following:
 
 ```console
 Exact Code Search
-GitLab version:                                      19.1.0
-Enable indexing:                                     yes
-Enable searching:                                    yes
-Pause indexing:                                      no
-Index root namespaces automatically:                 yes
-Cache search results for five minutes:               yes
-Indexing CPU to tasks multiplier:                    1.0
-Probability of random force reindexing (percentage): 0.25
-Number of parallel processes per indexing task:      1
-Number of namespaces per indexing rollout:           32
-Offline nodes automatically deleted after:           20m
-Indexing timeout per project:                        30m
-Maximum number of files per project to be indexed:   500000
-Maximum file size for indexing:                      1MB
-Maximum trigrams per file:                           20000
-Retry interval for failed namespaces:                1d
-Number of replicas per namespace:                    1
-Maximum projects for legacy search:                  1000
+GitLab version:                                                 19.1.0
+Enable indexing:                                                yes
+Enable searching:                                               yes
+Pause indexing:                                                 no
+Index root namespaces automatically:                            yes
+Cache search results for five minutes:                          yes
+Indexing CPU to tasks multiplier:                               1.0
+Probability of random force reindexing (percentage):            0.25
+Number of parallel processes per indexing task:                 1
+Number of namespaces per indexing rollout:                      32
+Offline nodes automatically deleted after:                      20m
+Indexing timeout per project:                                   30m
+Maximum number of files per project to be indexed:              500000
+Maximum file size for indexing:                                 1MB
+Maximum trigrams per file:                                      20000
+Retry interval for failed namespaces:                           1d
+Number of replicas per namespace:                               1
+Maximum projects for legacy search:                             1000
+Maximum number of process restarts within 15 minutes for nodes: 3
 
 Nodes
 # Number of Zoekt nodes and their status
@@ -478,6 +479,33 @@ To define the probability of random force reindexing:
 1. Expand **Exact code search**.
 1. In the **Probability of random force reindexing (percentage)** text box,
    enter a number between `0` and `100`.
+1. Select **Save changes**.
+
+## Set the maximum number of process restarts for nodes
+
+Prerequisites:
+
+- Administrator access.
+
+You can set the maximum number of process restarts within 15 minutes
+before a node is excluded from search routing.
+The default value is `2`.
+
+GitLab uses this setting to detect crashlooping indexer or webserver processes.
+When a node has more process restarts within 15 minutes, the node
+is excluded from search until the restart count returns to range.
+A value of `0` means the node is excluded after a single restart.
+
+If all online nodes are excluded, GitLab falls back to the full set of
+online nodes to avoid a search outage.
+
+To set the maximum number of process restarts for nodes:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **Search**.
+1. Expand **Exact code search**.
+1. In the **Maximum number of process restarts within 15 minutes for nodes**
+   text box, enter a number greater than or equal to zero.
 1. Select **Save changes**.
 
 ## Set the number of parallel processes per indexing task

@@ -1004,19 +1004,6 @@ RSpec.describe TodoService, feature_category: :notifications do
 
         expect(todo.reload).to be_pending
       end
-
-      context 'when merge_request_resolve_all_user_todos feature flag is disabled' do
-        before do
-          stub_feature_flags(merge_request_resolve_all_user_todos: false)
-        end
-
-        it 'does not mark todos with qualifying actions as done for other users' do
-          todo = create(:todo, :assigned, user: author, project: project, target: mentioned_mr, author: john_doe)
-          service.close_merge_request(mentioned_mr, john_doe)
-
-          expect(todo.reload).to be_pending
-        end
-      end
     end
 
     describe '#merge_merge_request' do
@@ -1068,19 +1055,6 @@ RSpec.describe TodoService, feature_category: :notifications do
         service.merge_merge_request(mentioned_mr, john_doe)
 
         expect(todo.reload).to be_pending
-      end
-
-      context 'when merge_request_resolve_all_user_todos feature flag is disabled' do
-        before do
-          stub_feature_flags(merge_request_resolve_all_user_todos: false)
-        end
-
-        it 'does not mark todos with qualifying actions as done for other users' do
-          todo = create(:todo, :assigned, user: author, project: project, target: mentioned_mr, author: john_doe)
-          service.merge_merge_request(mentioned_mr, john_doe)
-
-          expect(todo.reload).to be_pending
-        end
       end
     end
 

@@ -338,8 +338,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Workflow do
 
     context 'when both env vars are set' do
       before do
-        stub_const('ENV', env_double('GITLAB_TOKEN' => 'token',
-          'AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID' => '123'))
+        stub_const('ENV',
+          env_double('GITLAB_TOKEN' => 'token', 'AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID' => '123'))
       end
 
       it 'does not abort' do
@@ -349,8 +349,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Workflow do
 
     context 'when GITLAB_TOKEN is missing' do
       before do
-        stub_const('ENV', env_double('GITLAB_TOKEN' => '',
-          'AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID' => '123'))
+        stub_const('ENV',
+          env_double('GITLAB_TOKEN' => '', 'AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID' => '123'))
       end
 
       it 'aborts' do
@@ -360,8 +360,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Workflow do
 
     context 'when AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID is missing' do
       before do
-        stub_const('ENV', env_double('GITLAB_TOKEN' => 'token',
-          'AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID' => ''))
+        stub_const('ENV',
+          env_double('GITLAB_TOKEN' => 'token', 'AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID' => ''))
       end
 
       it 'aborts' do

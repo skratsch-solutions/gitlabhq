@@ -18041,7 +18041,7 @@ msgstr ""
 msgid "Code Coverage|No code coverage data"
 msgstr ""
 
-msgid "Code Intelligence"
+msgid "Code Navigation"
 msgstr ""
 
 msgid "Code Owner"
@@ -44790,6 +44790,9 @@ msgstr ""
 msgid "Maximum number of possible retries for Elasticsearch or OpenSearch search requests."
 msgstr ""
 
+msgid "Maximum number of process restarts within 15 minutes for nodes"
+msgstr ""
+
 msgid "Maximum number of projects."
 msgstr ""
 
@@ -51765,10 +51768,10 @@ msgstr ""
 msgid "Orbit|Close"
 msgstr ""
 
-msgid "Orbit|Close code intelligence panel"
+msgid "Orbit|Close code navigation panel"
 msgstr ""
 
-msgid "Orbit|Code Intelligence"
+msgid "Orbit|Code Navigation"
 msgstr ""
 
 msgid "Orbit|Code Review"
@@ -51882,7 +51885,7 @@ msgstr ""
 msgid "Orbit|Failed to expand node neighbors."
 msgstr ""
 
-msgid "Orbit|Failed to load code intelligence data."
+msgid "Orbit|Failed to load code navigation data."
 msgstr ""
 
 msgid "Orbit|Failed to load group. Please try again."
@@ -51910,6 +51913,9 @@ msgid "Orbit|Filter"
 msgstr ""
 
 msgid "Orbit|Filter by type"
+msgstr ""
+
+msgid "Orbit|Find definitions and references for functions and other symbols in this file. Click a symbol to see where it is defined and called."
 msgstr ""
 
 msgid "Orbit|Finding"
@@ -52156,6 +52162,9 @@ msgid "Orbit|Search entities and relationships"
 msgstr ""
 
 msgid "Orbit|Search groups"
+msgstr ""
+
+msgid "Orbit|Search this project for %{name}"
 msgstr ""
 
 msgid "Orbit|Security"
@@ -79957,6 +79966,9 @@ msgid "UpdateProject|The `pages_primary_domain` attribute is missing from the do
 msgstr ""
 
 msgid "UpdateProject|Updating default branch is blocked by security policy"
+msgstr ""
+
+msgid "UpdateRepositoryStorage|Repository storage move was interrupted"
 msgstr ""
 
 msgid "UpdateRepositoryStorage|Timeout waiting for %{type} repository pushes"

@@ -20,7 +20,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
   let_it_be_with_reload(:assignee) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
   let_it_be_with_reload(:reviewer) { create(:user, email: 'reviewer@example.com', name: 'Jane Doe') }
 
-  let(:previous_assignee1) { create(:user, name: 'Previous Assignee 1') }
+  let_it_be(:previous_assignee1) { create(:user, name: 'Previous Assignee 1') }
   let(:previous_assignee_ids) { [previous_assignee1.id] }
 
   let_it_be_with_reload(:merge_request) do
@@ -73,7 +73,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
     end
 
     context 'with multiple previous assignees' do
-      let(:previous_assignee2) { create(:user, name: 'Previous Assignee 2') }
+      let_it_be(:previous_assignee2) { create(:user, name: 'Previous Assignee 2') }
       let(:previous_assignee_ids) { [previous_assignee1.id, previous_assignee2.id] }
 
       it_behaves_like 'email with default notification reason'
@@ -104,7 +104,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
   context 'for a project' do
     context 'for merge requests' do
-      let(:push_user) { create(:user) }
+      let_it_be(:push_user) { create(:user) }
       let(:commit_limit) { NotificationService::NEW_COMMIT_EMAIL_DISPLAY_LIMIT }
 
       describe 'that are new' do
@@ -482,8 +482,8 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
     end
 
     context 'for snippet notes' do
-      let(:project_snippet) { create(:project_snippet, project: project) }
-      let(:project_snippet_note) { create(:note_on_project_snippet, project: project, noteable: project_snippet) }
+      let_it_be_with_reload(:project_snippet) { create(:project_snippet, project: project) }
+      let_it_be_with_reload(:project_snippet_note) { create(:note_on_project_snippet, project: project, noteable: project_snippet) }
 
       subject { described_class.note_snippet_email(project_snippet_note.author_id, project_snippet_note.id) }
 
@@ -593,8 +593,8 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
     end
 
     context 'items that are noteable, the email for a note' do
-      let(:note_author) { create(:user, name: 'author_name') }
-      let(:note) { create(:note, project: project, author: note_author) }
+      let_it_be(:note_author) { create(:user, name: 'author_name') }
+      let_it_be(:note) { create(:note, project: project, author: note_author) }
 
       before do
         allow(Note).to receive(:find).with(note.id).and_return(note)
@@ -661,7 +661,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
     end
 
     context 'items that are noteable, the email for a discussion note' do
-      let(:note_author) { create(:user, name: 'author_name') }
+      let_it_be(:note_author) { create(:user, name: 'author_name') }
 
       before do
         allow(Note).to receive(:find).with(note.id).and_return(note)
@@ -835,8 +835,8 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
 
       describe 'on a wiki_page' do
-        let(:wiki_page_meta) { create(:wiki_page_meta, canonical_slug: 'slug', container: project) }
-        let(:note) { create_note }
+        let_it_be_with_reload(:wiki_page_meta) { create(:wiki_page_meta, canonical_slug: 'slug', container: project) }
+        let_it_be_with_reload(:note) { create_note }
 
         let(:note_on_wiki_path) { project_wiki_page_url(wiki_page_meta, anchor: "note_#{note.id}") }
 
@@ -879,7 +879,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
     end
 
     context 'items that are noteable, the email for a diff discussion note' do
-      let(:note_author) { create(:user, name: 'author_name') }
+      let_it_be(:note_author) { create(:user, name: 'author_name') }
 
       before do
         allow(Note).to receive(:find).with(note.id).and_return(note)
@@ -949,7 +949,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
       describe 'on a commit' do
         let(:commit) { project.commit }
-        let(:note) { create(:diff_note_on_commit, author: note_author, project: project) }
+        let_it_be(:note) { create(:diff_note_on_commit, author: note_author, project: project) }
 
         subject { described_class.note_commit_email(recipient.id, note.id) }
 
@@ -961,7 +961,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
 
       describe 'on a merge request' do
-        let(:note) { create(:diff_note_on_merge_request, author: note_author, noteable: merge_request, project: project) }
+        let_it_be(:note) { create(:diff_note_on_merge_request, author: note_author, noteable: merge_request, project: project) }
 
         subject { described_class.note_merge_request_email(recipient.id, note.id) }
 
@@ -985,7 +985,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
       let_it_be(:support_bot) { create(:support_bot) }
 
-      before do
+      before_all do
         issue.update!(external_author: 'service.desk@example.com')
       end
 
@@ -1523,7 +1523,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       describe 'that are due soon' do
         subject { described_class.issue_due_email(recipient.id, issue.id) }
 
-        before do
+        before_all do
           issue.update!(due_date: Date.tomorrow)
         end
 
@@ -1645,7 +1645,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
 
       describe 'moved to another project' do
-        let(:new_issue) { create(:issue) }
+        let_it_be(:new_issue) { create(:issue) }
 
         subject { described_class.issue_moved_email(recipient, issue, new_issue, current_user) }
 
@@ -1791,13 +1791,11 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
             end
 
             context 'with private references accessible to the recipient' do
-              let_it_be(:private_project) { create(:project, :private) }
+              let_it_be(:private_project) { create(:project, :private, guests: recipient) }
               let_it_be(:private_issue) { create(:issue, :closed, project: private_project) }
               let(:html_part) { subject.body.parts.last.to_s }
 
               before_all do
-                private_project.add_guest(recipient)
-
                 note.update!(note: private_issue.to_reference(full: true).to_s)
               end
 
@@ -1869,7 +1867,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
     describe 'admin notification' do
       let(:example_site_path) { root_path }
-      let(:user) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       subject { @email = described_class.send_admin_notification(user.id, 'Admin announcement', 'Text') }
 
@@ -1894,7 +1892,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
   end
 
   describe 'admin unsubscribe notification' do
-    let(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     subject { @email = described_class.send_unsubscribed_notification(user.id) }
 

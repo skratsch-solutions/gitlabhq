@@ -1631,6 +1631,67 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
       end
     end
 
+    context 'with an MVCC manifest pin' do
+      let(:manifest_sha) { '1234567890abcdef1234567890abcdef12345678' }
+      let(:valid_params) do
+        {
+          gl_repository: gl_repository,
+          identifier: identifier,
+          changes: changes,
+          push_options: push_options,
+          mvcc_manifest: manifest_sha
+        }
+      end
+
+      it 'pushes the MVCC manifest pin onto the application context', :aggregate_failures do
+        allow(Gitlab::ApplicationContext).to receive(:push).and_call_original
+        expect(Gitlab::ApplicationContext).to receive(:push).with(mvcc_manifest: manifest_sha).and_call_original
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      context 'when no MVCC manifest pin is present' do
+        let(:valid_params) do
+          {
+            gl_repository: gl_repository,
+            identifier: identifier,
+            changes: changes,
+            push_options: push_options
+          }
+        end
+
+        it 'does not push an MVCC manifest pin onto the application context', :aggregate_failures do
+          expect(Gitlab::ApplicationContext).not_to receive(:push).with(hash_including(:mvcc_manifest))
+
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
+      context 'when the MVCC manifest pin is malformed' do
+        let(:valid_params) do
+          {
+            gl_repository: gl_repository,
+            identifier: identifier,
+            changes: changes,
+            push_options: push_options,
+            mvcc_manifest: 'not-a-valid-sha'
+          }
+        end
+
+        it 'does not push the malformed pin onto the application context', :aggregate_failures do
+          expect(Gitlab::ApplicationContext).not_to receive(:push).with(hash_including(:mvcc_manifest))
+
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+    end
+
     context 'with PersonalSnippet' do
       it_behaves_like 'runs post-receive hooks' do
         let(:container) { personal_snippet }

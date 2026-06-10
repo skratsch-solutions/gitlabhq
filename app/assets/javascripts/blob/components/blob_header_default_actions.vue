@@ -160,6 +160,7 @@ export default {
     class="gl-hidden @sm/panel:gl-inline-flex"
     data-testid="default-actions-container"
   >
+    <slot name="prepend"></slot>
     <gl-button
       v-if="!isEmpty && showCopyButton"
       v-gl-tooltip.hover

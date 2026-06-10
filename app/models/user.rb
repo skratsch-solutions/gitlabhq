@@ -2995,6 +2995,15 @@ class User < ApplicationRecord
     @composite_identity_enforced_override = true
   end
 
+  def authorization_user
+    return self unless service_account? && composite_identity_enforced?
+
+    identity = ::Gitlab::Auth::Identity.currently_linked
+    return self unless identity&.linked?
+
+    identity.scoped_user
+  end
+
   def immutable_username_with_enforced_composite_identity
     if composite_identity_enforced?
       errors.add(:base, _('You cannot update the username of a service account associated with a composite identity.'))

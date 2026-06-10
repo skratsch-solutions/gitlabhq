@@ -262,7 +262,6 @@ RSpec.describe Emails::MergeRequests do
   end
 
   describe '#merge_requests_csv_email' do
-    let(:merge_requests) { create_list(:merge_request, 10) }
     let(:export_status) do
       {
         rows_expected: 10,

@@ -35,11 +35,19 @@ module Gitlab
           [result, truncated]
         end
 
+        # Fans out the distilled changes into one MR per team group plus
+        # a separate "tooling" MR for the global routing-table files. Each
+        # team's MR touches only that team's distilled files, so CODEOWNERS
+        # routes the approval to the right reviewers (the global tooling files
+        # would otherwise pull every MR back to the broad `/.ai/` owners).
+        #
+        # Teams are published independently: one team's failure is logged and
+        # the run continues with the rest, then a non-zero exit is raised at
+        # the end so the scheduled job surfaces the partial failure.
         def create_branch_and_mr(distilled_contents, affected, auto_mr_cfg)
-          # UTC date as identifier; same-day re-runs reuse the branch and
+          # UTC date as identifier; same-day re-runs reuse each branch and
           # update the existing MR (see find_open_mr_iid).
           date = Time.now.utc.strftime('%Y%m%d')
-          branch = "#{auto_mr_cfg['branch_prefix']}-#{date}"
           project_id = ENV.fetch(Env::CI_PROJECT_ID) do
             abort Rainbow("ERROR: #{Env::CI_PROJECT_ID} env var is required when --push is given").red
           end
@@ -47,60 +55,199 @@ module Gitlab
             abort Rainbow("ERROR: #{Env::GITLAB_API_TOKEN} not set, cannot create MR").red
           end
 
-          # Branch off origin/<default_branch> (not the current HEAD) so the
-          # MR diff contains only the distilled files. The CI before_script
-          # fetches origin/<default_branch> for us.
           base_branch = workflow.default_branch
-          base_ref = "origin/#{base_branch}"
-          system('git', '-C', Workspace.path, 'checkout', '--no-track', '-b', branch, base_ref, exception: true)
+
+          # Fetch every prior SHA once up front so each team branch can embed
+          # its SSOT diffs without re-fetching.
+          prefetch_prior_shas!(affected)
+
+          teams = manifest.group_principles_by_team(distilled_contents.keys)
+          failures = []
+
+          teams.each do |team, names|
+            team_contents = distilled_contents.slice(*names)
+            team_affected = affected.slice(*names)
+            publish_team_branch(
+              team, team_contents, team_affected, base_branch, project_id, api_token, date, auto_mr_cfg
+            )
+          rescue StandardError => e
+            warn Rainbow("ERROR: team '#{team}' failed: #{e.message}").red
+            cleanup_branch(base_branch, team_branch_name(auto_mr_cfg, date, team))
+            failures << team
+          end
+
+          begin
+            publish_tooling_branch(base_branch, project_id, api_token, date, auto_mr_cfg)
+          rescue StandardError => e
+            warn Rainbow("ERROR: tooling MR failed: #{e.message}").red
+            cleanup_branch(base_branch, tooling_branch_name(auto_mr_cfg, date))
+            failures << 'tooling'
+          end
+
+          return if failures.empty?
+
+          abort Rainbow("\nERROR: #{failures.size} MR(s) failed: #{failures.join(', ')}").red
+        end
+
+        # Builds, pushes, and opens/updates a single team's MR. Raises on any
+        # git/API failure so the caller can record the team and continue.
+        def publish_team_branch(team, contents, affected, base_branch, project_id, api_token, date, auto_mr_cfg)
+          branch = team_branch_name(auto_mr_cfg, date, team)
+
+          checkout_fresh_branch(branch, base_branch)
 
           # Writes deferred to here so the publish branch is the only diff.
-          paths_to_commit = distilled_contents.map do |name, content|
-            path = manifest.principles_path(name)
-            File.write(Workspace.safe_join(path), content)
-            path
+          paths_to_commit = contents.map do |name, content|
+            manifest.principles_path(name).tap do |path|
+              File.write(Workspace.safe_join(path), content)
+            end
           end
 
           system('git', '-C', Workspace.path, 'add', '-f', *paths_to_commit, exception: true)
 
-          commit_msg = <<~MSG.chomp
-        Update AI development principles from SSOT
+          # A same-day re-run can reset the branch to identical content; in
+          # that case `git commit` would exit non-zero ("nothing to commit")
+          # and the per-team rescue would record a spurious failure. Skip the
+          # team MR instead (mirrors the guard in publish_tooling_branch).
+          unless git_has_staged_changes?
+            puts Rainbow("  #{team}: principles already up to date; skipping team MR.").faint
+            cleanup_branch(base_branch, branch)
+            return
+          end
 
-        Updated: #{distilled_contents.keys.join(', ')}
+          commit_and_push(branch, project_id, api_token, <<~MSG.chomp)
+        Update #{team} AI development principles from SSOT
+
+        Updated: #{contents.keys.join(', ')}
 
         This commit was auto-generated by gitlab-ai-principles-distiller
         based on recent changes to development documentation.
           MSG
 
+          title = "#{format(auto_mr_cfg['title_template'], date: date)} — #{team}"
+          create_mr(branch, project_id, api_token, contents, affected, auto_mr_cfg, team: team, title: title)
+        end
+
+        # Builds, pushes, and opens/updates the tooling MR carrying the global
+        # routing-table files (AGENTS.md, CLAUDE.md, both SKILL.md). These are
+        # regenerated in-branch so they never leak into the per-team branches.
+        def publish_tooling_branch(base_branch, project_id, api_token, date, auto_mr_cfg)
+          branch = tooling_branch_name(auto_mr_cfg, date)
+
+          checkout_fresh_branch(branch, base_branch)
+
+          # Regenerate the global artifacts now that we're on the tooling
+          # branch, so the diff lands here rather than in any team branch.
+          regenerate_static_artifacts
+
+          existing = Manifest::TOOLING_PATHS.select { |p| stageable_tooling_path?(p) }
+
+          # `git add -f` with no paths errors out (and `exception: true` would
+          # raise), so skip the tooling MR when none of the routing-table files
+          # exist on disk (e.g. AGENTS.md is absent, so nothing was generated).
+          if existing.empty?
+            puts Rainbow('  No tooling files found on disk; skipping tooling MR.').faint
+            cleanup_branch(base_branch, branch)
+            return
+          end
+
+          system('git', '-C', Workspace.path, 'add', '-f', *existing, exception: true)
+
+          unless git_has_staged_changes?
+            puts Rainbow('  Tooling files already up to date; skipping tooling MR.').faint
+            cleanup_branch(base_branch, branch)
+            return
+          end
+
+          commit_and_push(branch, project_id, api_token, <<~MSG.chomp)
+        Update AI principles routing tables (tooling)
+
+        Regenerates AGENTS.md, CLAUDE.md, and the gitlab-coding-principles
+        SKILL.md files from the principles manifest.
+
+        This commit was auto-generated by gitlab-ai-principles-distiller.
+          MSG
+
+          title = "#{format(auto_mr_cfg['title_template'], date: date)} — tooling"
+          create_tooling_mr(branch, project_id, api_token, auto_mr_cfg, title)
+        end
+
+        def team_branch_name(auto_mr_cfg, date, team)
+          "#{auto_mr_cfg['branch_prefix']}-#{date}-#{manifest.team_slug(team)}"
+        end
+
+        def tooling_branch_name(auto_mr_cfg, date)
+          "#{auto_mr_cfg['branch_prefix']}-#{date}-tooling"
+        end
+
+        # Branch off origin/<default_branch> (not the current HEAD) so the MR
+        # diff contains only our files. The CI before_script fetches
+        # origin/<default_branch> for us. `-B` resets the branch if a prior
+        # team iteration left it around.
+        def checkout_fresh_branch(branch, base_branch)
+          base_ref = "origin/#{base_branch}"
+          system('git', '-C', Workspace.path, 'checkout', '--no-track', '-B', branch, base_ref, exception: true)
+        end
+
+        def commit_and_push(branch, project_id, api_token, commit_msg)
           system('git', '-C', Workspace.path, 'commit', '-m', commit_msg, exception: true)
           # --force is safe here: the branch is auto-generated and always
           # rebuilt from origin/<default_branch>, so only our own prior
           # commit can be lost. (--force-with-lease would require a prefetch.)
           push_url = push_remote_url(project_id)
-          git_push_env(api_token, push_url) do |env|
-            system(env, 'git', '-C', Workspace.path, 'push', '--force', push_url,
-              "#{branch}:#{branch}", exception: true)
-          end
+          env = git_push_env(api_token, push_url)
+          system(env, 'git', '-C', Workspace.path, 'push', '--force', push_url,
+            "#{branch}:#{branch}", exception: true)
+        end
 
-          prefetch_prior_shas!(affected)
+        def git_has_staged_changes?
+          !system('git', '-C', Workspace.path, 'diff', '--cached', '--quiet')
+        end
 
-          create_mr(branch, base_branch, project_id, api_token, distilled_contents, affected, date, auto_mr_cfg)
-        rescue StandardError => e
-          warn Rainbow("ERROR: #{e.message}").red
+        # A tooling path is stageable only if it exists AND no directory
+        # *within the workspace* on the way to it is a symlink. `git add`
+        # refuses paths "beyond a symbolic link", which happens here because
+        # some repos symlink `.agents/skills` -> `.claude/skills`: the file is
+        # real but its canonical location is staged via the `.claude/...`
+        # entry, so skipping the symlinked alias avoids the `exit 128` without
+        # losing content.
+        #
+        # The comparison is anchored at the resolved workspace root so a
+        # symlink *in the workspace path itself* (e.g. macOS `/tmp` ->
+        # `/private/tmp`, or a CI runner mounting the workspace through a
+        # symlink) does not cause every tooling path to be filtered out.
+        def stageable_tooling_path?(relative_path)
+          full = Workspace.safe_join(relative_path)
+          return false unless File.exist?(full)
 
+          dir = File.dirname(full)
+          relative_dir = File.dirname(relative_path)
+          workspace_path = File.realpath(Workspace.path)
+          expected = relative_dir == '.' ? workspace_path : File.join(workspace_path, relative_dir)
+
+          File.realpath(dir) == expected
+        rescue Errno::ENOENT
+          false
+        end
+
+        # Returns to the base branch, warning (rather than failing silently) if
+        # the checkout does not succeed so a stuck working tree is visible.
+        def checkout_base_or_warn(base_branch)
+          return if system('git', '-C', Workspace.path, 'checkout', base_branch)
+
+          warn Rainbow("  WARNING: checkout to #{base_branch} failed; " \
+            'the working tree may still be on the publish branch').yellow
+        end
+
+        def cleanup_branch(base_branch, branch)
           base_branch ||= workflow.default_branch
 
-          unless system('git', '-C', Workspace.path, 'checkout', base_branch)
-            warn Rainbow("  WARNING: cleanup checkout to #{base_branch} failed; " \
-              "you may still be on #{branch}").yellow
-          end
+          checkout_base_or_warn(base_branch)
 
-          unless system('git', '-C', Workspace.path, 'branch', '-D', branch)
-            warn Rainbow("  WARNING: cleanup deletion of branch #{branch} failed; " \
-              'remove it manually if unwanted').yellow
-          end
+          return if system('git', '-C', Workspace.path, 'branch', '-D', branch)
 
-          raise
+          warn Rainbow("  WARNING: cleanup deletion of branch #{branch} failed; " \
+            'remove it manually if unwanted').yellow
         end
 
         # Renders the per-principle section embedded in the auto-MR
@@ -165,8 +312,7 @@ module Gitlab
         def resolve_distillation_base_sha
           branch = workflow.default_branch
           ["origin/#{branch}", branch].each do |ref|
-            out = IO.popen(['git', '-C', Workspace.path, 'merge-base', 'HEAD', ref],
-              err: File::NULL, &:read).strip
+            out = IO.popen(['git', '-C', Workspace.path, 'merge-base', 'HEAD', ref], err: File::NULL, &:read).strip
             return out unless out.empty?
           end
           IO.popen(['git', '-C', Workspace.path, 'rev-parse', 'HEAD'], err: File::NULL, &:read).strip
@@ -258,7 +404,7 @@ module Gitlab
         # This keeps the token out of:
         # - argv (no `git -c http.extraHeader=...` and no credentialed URL).
         # - the remote URL and git's reflog.
-        # The env hash is block-local and goes out of scope on return.
+        # Returns the env hash to pass to the push `system` call.
         #
         # The header is scoped to the host (`http.https://<host>.extraHeader`),
         # not the full repo URL. git matches `http.<url>.*` by URL prefix on
@@ -284,17 +430,16 @@ module Gitlab
           # `pack('m0')`: strict base64 with no trailing newline.
           basic_credentials = ["oauth2:#{api_token}"].pack('m0')
           next_index = ENV.fetch('GIT_CONFIG_COUNT', '0').to_i
-          env = {
+
+          {
             'GIT_CONFIG_COUNT' => (next_index + 1).to_s,
             "GIT_CONFIG_KEY_#{next_index}" => "http.#{host_scope}.extraHeader",
             "GIT_CONFIG_VALUE_#{next_index}" => "Authorization: Basic #{basic_credentials}"
           }
-          yield env
         end
 
-        def create_mr(
-          branch, default_branch, project_id, api_token, changed_principles, affected, date,
-          auto_mr_cfg)
+        def create_mr(branch, project_id, api_token, changed_principles, affected, auto_mr_cfg, team:, title:)
+          default_branch = workflow.default_branch
           sections = changed_principles.keys.map do |name|
             principle_diff_section(name, affected[name], default_branch)
           end.join("\n\n")
@@ -303,14 +448,13 @@ module Gitlab
           manifest_url = "#{project_url}/-/blob/#{default_branch}/.ai/principles/manifest.yml"
           ci_yml_url = "#{project_url}/-/blob/#{default_branch}/.gitlab/ci/sync-principles.gitlab-ci.yml"
 
-          job_url = ENV.fetch(Env::CI_JOB_URL, nil)
-          job_line = job_url && !job_url.empty? ? "\nThis MR was generated by #{job_url}\n" : ''
-
           description = <<~DESC
         ## Summary
 
-        This MR updates AI development principles based on recent changes
-        to the development documentation (SSOT).
+        This MR updates the **#{team}** AI development principles based on
+        recent changes to the development documentation (SSOT). It is one of
+        several team-scoped MRs from this run; the global routing tables
+        (AGENTS.md, CLAUDE.md, SKILL.md) are updated in a separate tooling MR.
 
         ### Updated principles and their source-doc changes
 
@@ -327,14 +471,50 @@ module Gitlab
         reflect the documentation updates.
           DESC
 
-          encoded_project = URI.encode_www_form_component(project_id)
+          submit_mr(branch, default_branch, project_id, api_token, auto_mr_cfg, title, description)
+        end
 
-          # Same-day re-runs update the existing MR in place rather than
-          # failing on the 409.
+        # Opens/updates the tooling MR carrying the regenerated global routing
+        # tables. Routed to the broad `/.ai/` owners (no SSOT-team content).
+        def create_tooling_mr(branch, project_id, api_token, auto_mr_cfg, title)
+          default_branch = workflow.default_branch
+          project_url = "#{workflow.gitlab_host}/#{workflow.catalog_project_path}"
+          manifest_url = "#{project_url}/-/blob/#{default_branch}/.ai/principles/manifest.yml"
+
+          description = <<~DESC
+        ## Summary
+
+        This MR regenerates the global AI-principles routing tables from
+        [`.ai/principles/manifest.yml`](#{manifest_url}): `AGENTS.md`,
+        `CLAUDE.md`, and the `gitlab-coding-principles` SKILL.md files.
+
+        These files embed the routing table for **all** principles, so they
+        are kept separate from the per-team principle MRs in this run.
+        #{job_line}
+        No distilled principle content changes here — only the generated
+        routing tables.
+          DESC
+
+          submit_mr(branch, default_branch, project_id, api_token, auto_mr_cfg, title, description)
+        end
+
+        def job_line
+          job_url = ENV.fetch(Env::CI_JOB_URL, nil)
+          return '' if job_url.nil? || job_url.empty?
+
+          "\nThis MR was generated by #{job_url}\n"
+        end
+
+        # Shared create-or-update with same-day idempotency: an open MR for the
+        # same source branch is updated in place rather than failing on a 409.
+        def submit_mr(branch, default_branch, project_id, api_token, auto_mr_cfg, title, description)
+          encoded_project = URI.encode_www_form_component(project_id)
           existing_mr_iid = find_open_mr_iid(encoded_project, branch, api_token)
           body = {
-            title: format(auto_mr_cfg['title_template'], date: date),
-            description: description,
+            title: title,
+            # Collapse runs of blank lines so an empty `job_line` (when
+            # CI_JOB_URL is unset) doesn't leave a spurious gap mid-paragraph.
+            description: description.gsub(/\n{3,}/, "\n\n"),
             labels: Array(auto_mr_cfg['labels']).join(','),
             remove_source_branch: auto_mr_cfg.fetch('remove_source_branch', true)
           }
@@ -356,12 +536,13 @@ module Gitlab
             action = 'created'
           end
 
-          if response.is_a?(Net::HTTPSuccess)
-            puts "\n#{Rainbow("MR #{action}: #{JSON.parse(response.body)['web_url']}").green}"
-          else
-            abort Rainbow("\nERROR: Failed to #{action.delete_suffix('ed')} MR: " \
-              "#{response.code} #{response.body.slice(0, 200)}").red
+          unless response.is_a?(Net::HTTPSuccess)
+            # Raise (not abort) so the per-team rescue in create_branch_and_mr
+            # can record this team and continue with the others.
+            raise "Failed to #{action.delete_suffix('ed')} MR: #{response.code} #{response.body.slice(0, 200)}"
           end
+
+          puts "\n#{Rainbow("MR #{action}: #{JSON.parse(response.body)['web_url']}").green}"
         end
       end
     end

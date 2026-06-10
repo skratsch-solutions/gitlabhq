@@ -321,10 +321,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
 
     context 'when file_filters change' do
       it 'changes the checksum' do
-        with_filters_a = manifest.compute_checksum({ 'sources' => [],
-'file_filters' => ['app/**/*.rb'] })
-        with_filters_b = manifest.compute_checksum({ 'sources' => [],
-'file_filters' => ['lib/**/*.rb'] })
+        with_filters_a = manifest.compute_checksum({ 'sources' => [], 'file_filters' => ['app/**/*.rb'] })
+        with_filters_b = manifest.compute_checksum({ 'sources' => [], 'file_filters' => ['lib/**/*.rb'] })
 
         expect(with_filters_a).not_to eq(with_filters_b)
       end
@@ -517,6 +515,69 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       it 'aborts' do
         expect { auto_mr_config }.to raise_error(SystemExit)
       end
+    end
+  end
+
+  describe '.team_slug' do
+    it 'lowercases and hyphenates the team label', :aggregate_failures do
+      expect(manifest.team_slug('Database')).to eq('database')
+      expect(manifest.team_slug('Code Review')).to eq('code-review')
+      expect(manifest.team_slug('Feature Flags')).to eq('feature-flags')
+    end
+
+    it 'collapses non-alphanumeric runs and trims edge hyphens', :aggregate_failures do
+      expect(manifest.team_slug('  API / GraphQL  ')).to eq('api-graphql')
+      expect(manifest.team_slug('Other')).to eq('other')
+    end
+  end
+
+  describe '.principle_team' do
+    before do
+      manifest.data = {
+        'principles' => {
+          'qa' => { 'group' => 'Testing' },
+          'orphan' => {}
+        }
+      }
+    end
+
+    it 'returns the principle group' do
+      expect(manifest.principle_team('qa')).to eq('Testing')
+    end
+
+    it 'falls back to "Other" when no group is set' do
+      expect(manifest.principle_team('orphan')).to eq('Other')
+    end
+  end
+
+  describe '.group_principles_by_team' do
+    before do
+      manifest.data = {
+        'principles' => {
+          'database-fundamentals' => { 'group' => 'Database' },
+          'security' => { 'group' => 'Security' },
+          'database-queries' => { 'group' => 'Database' },
+          'orphan' => {}
+        }
+      }
+    end
+
+    it 'groups names by team, preserving manifest declaration order' do
+      result = manifest.group_principles_by_team(
+        %w[security database-queries database-fundamentals orphan]
+      )
+
+      expect(result).to eq(
+        'Database' => %w[database-fundamentals database-queries],
+        'Security' => %w[security],
+        'Other' => %w[orphan]
+      )
+    end
+
+    it 'ignores names not present in the manifest' do
+      result = manifest.group_principles_by_team(%w[security unknown-principle])
+
+      expect(result).to eq('Security' => ['security'])
     end
   end
 end

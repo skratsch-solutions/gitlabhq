@@ -142,7 +142,11 @@ export default {
         :is-empty="isEmpty"
         :override-copy="overrideCopy"
         @copy="proxyCopyRequest"
-      />
+      >
+        <template #prepend>
+          <slot name="orbit-action"></slot>
+        </template>
+      </default-actions>
     </div>
   </div>
 </template>

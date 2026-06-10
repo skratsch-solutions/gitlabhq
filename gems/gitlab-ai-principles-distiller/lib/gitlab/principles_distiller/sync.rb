@@ -57,7 +57,12 @@ module Gitlab
 
         banner("Loading manifest from #{Manifest::MANIFEST_PATH}...")
         manifest.load
-        regenerate_static_artifacts
+
+        # In --push mode the static artifacts (AGENTS.md, CLAUDE.md, both
+        # SKILL.md files) are regenerated inside the dedicated tooling branch
+        # during publish, so they don't leak into the per-team branches.
+        # Outside --push we write them straight to the working tree as before.
+        regenerate_static_artifacts unless options[:push]
 
         banner("\nScanning principles for stale SSOT sources...")
         affected = manifest.affected_principles(force: options[:force], only: options[:only])

@@ -101,6 +101,29 @@ module ClickHouseHelpers
     expect(result).to eq(true)
   end
 
+  def insert_ci_stages_to_siphon(stages, replicated_at: Time.current, deleted: false)
+    result = clickhouse_fixture(:siphon_p_ci_stages, stages.map do |stage|
+      project = stage.project
+
+      {
+        id: stage.id,
+        partition_id: stage.try(:partition_id) || 100,
+        project_id: project&.id || 0,
+        pipeline_id: stage.pipeline_id,
+        name: stage.name,
+        status: stage.try(:status_value) || 0,
+        position: stage.try(:position),
+        created_at: stage.created_at,
+        updated_at: stage.try(:updated_at) || stage.created_at,
+        traversal_path: project&.project_namespace&.traversal_path(with_organization: true) || '0/',
+        _siphon_replicated_at: replicated_at,
+        _siphon_deleted: deleted
+      }
+    end)
+
+    expect(result).to eq(true)
+  end
+
   def self.default_timezone
     ActiveRecord.default_timezone
   end
