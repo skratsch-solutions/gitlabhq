@@ -772,8 +772,8 @@ msgid_plural "%{count} files"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "%{count} file is expanded by default."
-msgid_plural "%{count} files are expanded by default."
+msgid "%{count} file is collapsed"
+msgid_plural "%{count} files are collapsed"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -832,6 +832,11 @@ msgstr ""
 
 msgid "%{count} of %{total}"
 msgstr ""
+
+msgid "%{count} of these files is collapsed."
+msgid_plural "%{count} of these files are collapsed."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "%{count} project"
 msgid_plural "%{count} projects"
@@ -4578,6 +4583,12 @@ msgid "AccessTokens|Generate legacy token"
 msgstr ""
 
 msgid "AccessTokens|Generate token"
+msgstr ""
+
+msgid "AccessTokens|Global"
+msgstr ""
+
+msgid "AccessTokens|Global permissions"
 msgstr ""
 
 msgid "AccessTokens|Group and project"
@@ -51508,8 +51519,8 @@ msgstr ""
 msgid "Only the author can change visibility settings"
 msgstr ""
 
-msgid "Only the first %{count} file is listed on this page."
-msgid_plural "Only the first %{count} files are listed on this page."
+msgid "Only the first %{count} file is listed on this page"
+msgid_plural "Only the first %{count} files are listed on this page"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -67174,6 +67185,9 @@ msgstr ""
 msgid "SecurityOrchestration|And scans to be performed:"
 msgstr ""
 
+msgid "SecurityOrchestration|Any"
+msgstr ""
+
 msgid "SecurityOrchestration|Any Merge Request"
 msgstr ""
 
@@ -67516,6 +67530,9 @@ msgstr ""
 msgid "SecurityOrchestration|Custom Agent Lifecycle Event"
 msgstr ""
 
+msgid "SecurityOrchestration|Custom Rego Rule"
+msgstr ""
+
 msgid "SecurityOrchestration|Custom roles"
 msgstr ""
 
@@ -67760,6 +67777,9 @@ msgid "SecurityOrchestration|Estimated events and violations within the initial 
 msgstr ""
 
 msgid "SecurityOrchestration|Estimated violations"
+msgstr ""
+
+msgid "SecurityOrchestration|Evaluated server-side when scan reports are published. Maximum 32 KB."
 msgstr ""
 
 msgid "SecurityOrchestration|Event"
@@ -68462,6 +68482,9 @@ msgstr[1] ""
 msgid "SecurityOrchestration|Recommended selection"
 msgstr ""
 
+msgid "SecurityOrchestration|Rego Policy"
+msgstr ""
+
 msgid "SecurityOrchestration|Release Created"
 msgstr ""
 
@@ -68472,6 +68495,9 @@ msgid "SecurityOrchestration|Remove"
 msgstr ""
 
 msgid "SecurityOrchestration|Remove row %{number}"
+msgstr ""
+
+msgid "SecurityOrchestration|Report Types"
 msgstr ""
 
 msgid "SecurityOrchestration|Request Type"
@@ -68535,6 +68561,9 @@ msgid "SecurityOrchestration|Roles (%{count})"
 msgstr ""
 
 msgid "SecurityOrchestration|Rule %{number}"
+msgstr ""
+
+msgid "SecurityOrchestration|Rule Name"
 msgstr ""
 
 msgid "SecurityOrchestration|Rule mode"
@@ -68727,6 +68756,9 @@ msgid "SecurityOrchestration|Security Attributes"
 msgstr ""
 
 msgid "SecurityOrchestration|Security Baseline"
+msgstr ""
+
+msgid "SecurityOrchestration|Security Report Published"
 msgstr ""
 
 msgid "SecurityOrchestration|Security baseline"
@@ -69260,6 +69292,9 @@ msgstr ""
 msgid "SecurityOrchestration|Users can't skip pipelines"
 msgstr ""
 
+msgid "SecurityOrchestration|Validate scan reports against custom OPA/Rego policy code"
+msgstr ""
+
 msgid "SecurityOrchestration|Validating branch names, which might take a while."
 msgstr ""
 
@@ -69405,6 +69440,9 @@ msgid "SecurityOrchestration|When a new vulnerability is detected or state chang
 msgstr ""
 
 msgid "SecurityOrchestration|When a push rule is triggered (commit signing, message format, author restrictions)"
+msgstr ""
+
+msgid "SecurityOrchestration|When a security scan report is published by a pipeline — triggers validation against Rego rules"
 msgstr ""
 
 msgid "SecurityOrchestration|When a user submits a prompt to an AI assistant (Duo Chat, code suggestions, agent)"
@@ -69684,6 +69722,9 @@ msgid "SecurityOrchestration|e.g., main, v*"
 msgstr ""
 
 msgid "SecurityOrchestration|e.g., my-org/*, my-org/production/*"
+msgstr ""
+
+msgid "SecurityOrchestration|e.g., no_critical_vulnerabilities"
 msgstr ""
 
 msgid "SecurityOrchestration|e.g., security-*, compliance-*"
@@ -71218,6 +71259,21 @@ msgstr ""
 msgid "SemanticSearch|%{collection} embeddings"
 msgstr ""
 
+msgid "SemanticSearch|AWS Access Key"
+msgstr ""
+
+msgid "SemanticSearch|AWS OpenSearch IAM credentials"
+msgstr ""
+
+msgid "SemanticSearch|AWS Role ARN"
+msgstr ""
+
+msgid "SemanticSearch|AWS Secret Access Key"
+msgstr ""
+
+msgid "SemanticSearch|AWS region"
+msgstr ""
+
 msgid "SemanticSearch|Advanced Search cluster"
 msgstr ""
 
@@ -71245,10 +71301,16 @@ msgstr ""
 msgid "SemanticSearch|Custom Elasticsearch settings"
 msgstr ""
 
+msgid "SemanticSearch|Custom OpenSearch settings"
+msgstr ""
+
 msgid "SemanticSearch|Disable"
 msgstr ""
 
 msgid "SemanticSearch|Disabled"
+msgstr ""
+
+msgid "SemanticSearch|Elasticsearch"
 msgstr ""
 
 msgid "SemanticSearch|Embedding model configuration is unavailable - Collection record not present"
@@ -71266,7 +71328,13 @@ msgstr ""
 msgid "SemanticSearch|Enter the password for password-protected Elasticsearch servers."
 msgstr ""
 
+msgid "SemanticSearch|Enter the password for password-protected OpenSearch servers."
+msgstr ""
+
 msgid "SemanticSearch|Enter the username for password-protected Elasticsearch servers."
+msgstr ""
+
+msgid "SemanticSearch|Enter the username for password-protected OpenSearch servers."
 msgstr ""
 
 msgid "SemanticSearch|Failed to connect: %{error}."
@@ -71287,16 +71355,34 @@ msgstr ""
 msgid "SemanticSearch|Next model"
 msgstr ""
 
+msgid "SemanticSearch|OpenSearch"
+msgstr ""
+
+msgid "SemanticSearch|OpenSearch's region."
+msgstr ""
+
+msgid "SemanticSearch|Required only if you are not using role instance credentials."
+msgstr ""
+
+msgid "SemanticSearch|Required only if you are using AssumeRole for authorization across accounts."
+msgstr ""
+
 msgid "SemanticSearch|Reuse your existing Advanced Search configuration."
 msgstr ""
 
 msgid "SemanticSearch|Save changes"
 msgstr ""
 
+msgid "SemanticSearch|Search adapter"
+msgstr ""
+
 msgid "SemanticSearch|Select embedding dimensions"
 msgstr ""
 
 msgid "SemanticSearch|Select embedding model"
+msgstr ""
+
+msgid "SemanticSearch|Select the search adapter to use for vector storage."
 msgstr ""
 
 msgid "SemanticSearch|Semantic search %{collection} embeddings"
@@ -71341,6 +71427,9 @@ msgstr ""
 msgid "SemanticSearch|The URLs for connecting to the Elasticsearch cluster. For clustering, add the URLs separated by commas."
 msgstr ""
 
+msgid "SemanticSearch|The URLs for connecting to the OpenSearch cluster. For clustering, add the URLs separated by commas."
+msgstr ""
+
 msgid "SemanticSearch|This action is destructive. Disabling semantic search will remove all indexed data. If you reconnect in the future, a full index will be performed."
 msgstr ""
 
@@ -71351,6 +71440,9 @@ msgid "SemanticSearch|Unexpected server response. Please refresh the page and tr
 msgstr ""
 
 msgid "SemanticSearch|Update embeddings and start backfill process"
+msgstr ""
+
+msgid "SemanticSearch|Use AWS OpenSearch Service with IAM credentials"
 msgstr ""
 
 msgid "SemanticSearch|Vector storage"

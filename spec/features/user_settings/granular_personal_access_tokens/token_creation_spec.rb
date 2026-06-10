@@ -140,9 +140,9 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
     end
   end
 
-  it 'creates a token spanning both group and user-scoped permissions' do
+  it 'creates a token spanning group, user, and global (instance) permissions' do
     fill_in 'Name', with: 'Multi-tab PAT'
-    fill_in 'Description', with: 'PAT spanning namespace and user scopes'
+    fill_in 'Description', with: 'PAT spanning namespace, user, and instance scopes'
 
     choose 'All groups and projects that I\'m a member of'
 
@@ -166,6 +166,20 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
     end
 
     within(find_by_testid('selected-resource', text: 'User')) do
+      click_button 'Select permissions'
+      select_listbox_item 'Read'
+    end
+
+    page.within('.gl-tabs-nav') do
+      click_on 'Global'
+    end
+
+    page.within('.tab-pane.active') do
+      click_button 'CI/CD'
+      check 'Cluster'
+    end
+
+    within(find_by_testid('selected-resource', text: 'Cluster')) do
       click_button 'Select permissions'
       select_listbox_item 'Read'
     end

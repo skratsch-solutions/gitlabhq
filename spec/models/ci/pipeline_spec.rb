@@ -358,6 +358,19 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
             )
         end
       end
+
+      context 'when the project has an AI-generated CI config' do
+        let!(:metric) { create(:ci_project_metric, :ai_generated, project: project) }
+
+        it 'includes the ci_config_generated_by value as author_source' do
+          expect { pipeline.succeed! }.to trigger_internal_events('completed_pipeline_execution')
+            .with(
+              project: project,
+              user: user,
+              additional_properties: { label: 'success', author_source: 'ci_expert_agent/v1' }
+            )
+        end
+      end
     end
   end
 

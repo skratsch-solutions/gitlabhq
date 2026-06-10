@@ -125,8 +125,6 @@ module Gitlab
           inputs:
             - from: context:goal
               as: goal
-            - from: context:project_id
-              as: project
           toolset:
       #{indented_tools}
           ui_log_events:

@@ -1,9 +1,8 @@
 <script>
 import { GlAlert, GlButton, GlSprintf } from '@gitlab/ui';
-import { __, n__ } from '~/locale';
+import { __, n__, sprintf } from '~/locale';
 
 export const i18n = {
-  title: __('Some changes are not shown.'),
   plainDiff: __('Plain diff'),
   emailPatch: __('Patches'),
   download: __('To view all changes, download the diff.'),
@@ -42,18 +41,34 @@ export default {
       // Accepts a number or a "N+" string; pluralization and display use the integer.
       return parseInt(this.total, 10) || 0;
     },
-    listedMessage() {
-      return n__(
-        'Only the first %{count} file is listed on this page.',
-        'Only the first %{count} files are listed on this page.',
-        this.listedCount,
+    hasUnlistedFiles() {
+      return String(this.total).includes('+');
+    },
+    collapsedCount() {
+      return this.listedCount - this.visible;
+    },
+    title() {
+      if (this.hasUnlistedFiles) {
+        return sprintf(
+          n__(
+            'Only the first %{count} file is listed on this page',
+            'Only the first %{count} files are listed on this page',
+            this.listedCount,
+          ),
+          { count: this.listedCount },
+        );
+      }
+
+      return sprintf(
+        n__('%{count} file is collapsed', '%{count} files are collapsed', this.collapsedCount),
+        { count: this.collapsedCount },
       );
     },
-    expandedMessage() {
+    collapsedNote() {
       return n__(
-        '%{count} file is expanded by default.',
-        '%{count} files are expanded by default.',
-        this.visible,
+        '%{count} of these files is collapsed.',
+        '%{count} of these files are collapsed.',
+        this.collapsedCount,
       );
     },
   },
@@ -61,15 +76,10 @@ export default {
 </script>
 
 <template>
-  <gl-alert variant="warning" class="gl-mb-5" :title="$options.i18n.title" :dismissible="false">
-    <gl-sprintf :message="listedMessage">
+  <gl-alert variant="warning" class="gl-mb-5" :title="title" :dismissible="false">
+    <gl-sprintf v-if="hasUnlistedFiles && collapsedCount > 0" :message="collapsedNote">
       <template #count>
-        <strong>{{ listedCount }}</strong>
-      </template>
-    </gl-sprintf>
-    <gl-sprintf :message="expandedMessage">
-      <template #count>
-        <strong>{{ visible }}</strong>
+        <strong>{{ collapsedCount }}</strong>
       </template>
     </gl-sprintf>
     {{ $options.i18n.download }}

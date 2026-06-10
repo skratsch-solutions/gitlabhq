@@ -28,7 +28,7 @@ export default {
     scope: {
       type: String,
       required: true,
-      validator: (value) => ['namespace', 'user'].includes(value),
+      validator: (value) => ['namespace', 'user', 'instance'].includes(value),
     },
   },
   emits: ['input', 'remove-resource'],
@@ -79,6 +79,9 @@ export default {
     },
     user: {
       permissionsTitle: s__('AccessTokens|User'),
+    },
+    instance: {
+      permissionsTitle: s__('AccessTokens|Global'),
     },
     noResourcesSelected: s__('AccessTokens|No resources added'),
     selectPermissions: s__('AccessTokens|Select permissions'),

@@ -28,7 +28,7 @@ RSpec.describe 'getting an issue list for a project', feature_category: :team_pl
     )
   end
 
-  let_it_be(:issue_b) do
+  let_it_be(:issue_b, freeze: false) do
     create(
       :issue,
       :with_alert,

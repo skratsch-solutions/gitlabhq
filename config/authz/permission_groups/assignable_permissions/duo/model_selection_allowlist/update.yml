@@ -7,3 +7,4 @@ permissions:
   - update_model_selection_allowlist
 boundaries:
   - instance
+  - group

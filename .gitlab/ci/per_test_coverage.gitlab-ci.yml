@@ -18,20 +18,25 @@ per-test-coverage:pipeline-generate:
     - .rails-job-base
     - .per-test-coverage:rules:delta
   stage: prepare
+  # Capture is data collection, not a release gate; a failure must not redden
+  # the maintenance pipeline.
+  allow_failure: true
   needs:
     - job: "retrieve-tests-metadata"
     - job: "detect-tests"
       optional: true
   variables:
     SKIP_PIPELINE_YML_FILE: ".gitlab/ci/overrides/skip.yml"
-    # This job renders child pipeline YAML; it does not touch the database.
-    SETUP_DB: "false"
+    SETUP_DB: "false"  # renders child pipeline YAML only; no rails DB needed
+    CLICKHOUSE_URL: $GLCI_DA_CLICKHOUSE_URL
+    CLICKHOUSE_DATABASE: $GLCI_CLICKHOUSE_CODE_COVERAGE_DB
+    CLICKHOUSE_USERNAME: $GLCI_CLICKHOUSE_METRICS_USERNAME
   script:
     # Step 1: select the test queue for this slot (weekday delta + stale-rescue,
     # or weekend bucket). Exits 2 if the merged queue is empty.
     - |
       set +e
-      ruby scripts/per_test_coverage/select_tests.rb --output-dir tmp
+      bundle exec ruby scripts/per_test_coverage/select_tests.rb --output-dir tmp
       select_exit=$?
       set -e
       if [ "$select_exit" -eq 2 ]; then

@@ -409,7 +409,8 @@ module Ci
             user: pipeline.user,
             additional_properties: {
               label: pipeline.status,
-              failure_reason: pipeline.failure_reason
+              failure_reason: pipeline.failure_reason,
+              author_source: Ci::ProjectMetric.ci_config_generated_by_for(pipeline.project_id)
             }.compact
           )
         end

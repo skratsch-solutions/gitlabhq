@@ -76,6 +76,18 @@ RSpec.describe Gitlab::PrinciplesDistiller::ProvisionFlow do
       expect(component['toolset']).to match_array(described_class::TOOL_NAMES)
     end
 
+    it 'declares only the goal input that the template references', :aggregate_failures do
+      # The flow validator rejects declared inputs that the prompt
+      # template does not reference. Only `goal` (used as {{goal}}) may be
+      # declared; an unused `project` input made flow releases fail with
+      # "extra input variables not present in template: ['project']".
+      parsed = YAML.safe_load(instance.send(:build_flow_yaml, 'x'))
+
+      component = parsed.fetch('components').first
+
+      expect(component['inputs']).to eq([{ 'from' => 'context:goal', 'as' => 'goal' }])
+    end
+
     it 'routes the single component to end' do
       parsed = YAML.safe_load(instance.send(:build_flow_yaml, 'x'))
 

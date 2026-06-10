@@ -463,7 +463,6 @@ RSpec/NamedSubject:
     - 'ee/spec/models/sbom/occurrence_spec.rb'
     - 'ee/spec/models/sca/license_policy_spec.rb'
     - 'ee/spec/models/security/orchestration_policy_configuration_spec.rb'
-    - 'ee/spec/models/security/training_provider_spec.rb'
     - 'ee/spec/models/security/training_spec.rb'
     - 'ee/spec/models/snippet_spec.rb'
     - 'ee/spec/models/software_license_policy_spec.rb'

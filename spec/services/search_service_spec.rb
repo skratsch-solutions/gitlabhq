@@ -94,6 +94,20 @@ RSpec.describe SearchService, :with_current_organization, feature_category: :glo
     it { is_expected.to eq('basic') }
   end
 
+  describe '#user_requested_scope' do
+    it 'returns the scope param as provided by the user' do
+      service = described_class.new(user, scope: 'blobs', search: valid_search)
+
+      expect(service.user_requested_scope).to eq('blobs')
+    end
+
+    it 'returns nil when no scope param is provided' do
+      service = described_class.new(user, search: valid_search)
+
+      expect(service.user_requested_scope).to be_nil
+    end
+  end
+
   describe '#show_snippets?' do
     context 'when :snippets is \'true\'' do
       it 'returns true' do

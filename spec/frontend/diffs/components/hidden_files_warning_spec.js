@@ -42,25 +42,26 @@ describe('HiddenFilesWarning', () => {
 
   const renderedText = () => wrapper.text().replace(/\s+/g, ' ').trim();
 
-  it('renders the listed, expanded and download sentences', () => {
-    createComponent();
-    expect(renderedText()).toContain(
-      'Only the first 10 files are listed on this page. 5 files are expanded by default. To view all changes, download the diff.',
-    );
+  it('shows the collapsed count in the title when every file is listed', () => {
+    createComponent({ total: '10', visible: 4 });
+
+    expect(renderedText()).toContain('6 files are collapsed');
+    expect(renderedText()).toContain('To view all changes, download the diff.');
+    expect(renderedText()).not.toContain('listed on this page');
   });
 
-  it('declines the listed sentence in the singular form', () => {
-    createComponent({ total: 1 });
-    expect(renderedText()).toContain('Only the first 1 file is listed on this page.');
+  it('titles with the listed count and notes the collapsed count when the diff is truncated', () => {
+    createComponent({ total: '10+', visible: 4 });
+
+    expect(renderedText()).toContain('Only the first 10 files are listed on this page');
+    expect(renderedText()).toContain('6 of these files are collapsed.');
+    expect(renderedText()).not.toContain('10+');
   });
 
-  it('declines the expanded sentence in the singular form', () => {
-    createComponent({ visible: 1 });
-    expect(renderedText()).toContain('1 file is expanded by default.');
-  });
+  it('omits the collapsed note when the diff is truncated but nothing is collapsed', () => {
+    createComponent({ total: '3+', visible: 3 });
 
-  it('drops the "+" suffix when total is passed as a "N+" string', () => {
-    createComponent({ total: '10+' });
-    expect(renderedText()).toContain('Only the first 10 files are listed on this page.');
+    expect(renderedText()).toContain('Only the first 3 files are listed on this page');
+    expect(renderedText()).not.toContain('collapsed');
   });
 });

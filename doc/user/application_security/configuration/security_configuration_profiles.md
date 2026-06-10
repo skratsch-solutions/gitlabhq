@@ -104,6 +104,12 @@ To view technical details about the secret detection profile:
    - **Scan triggers**: The triggers that the profile supports (for example, **Push Protection**, **Merge Request Pipelines**, **Branch Pipelines**).
    - **Status**: Displays whether the profile is currently **Active** or **Disabled** for the current context using coverage status indicators.
 
+## Enable scanners with the Scanner Enablement Wizard
+
+To apply profiles to projects that lack scanner coverage, use the
+[scanner enablement wizard](scanner_enablement_wizard.md). The wizard identifies uncovered projects
+and lets you apply default or custom profiles across your group.
+
 ## Coverage status indicators
 
 The system uses visual cues in the inventory to indicate whether your projects are protected:

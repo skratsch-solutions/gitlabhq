@@ -599,12 +599,41 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
       DIFF
     end
 
+    # Simulates what Gitaly returns for a rename with a single-line content change.
+    # stats reports the full file size (10 additions / 15 deletions) because Gitaly
+    # treats a rename+edit as a full rewrite, but diff_lines only sees the actual delta.
+    let(:renamed_diff) do
+      <<~DIFF
+        diff --git a/old_name.rb b/new_name.rb
+        similarity index 80%
+        rename from old_name.rb
+        rename to new_name.rb
+        --- a/old_name.rb
+        +++ b/new_name.rb
+        @@ -1,3 +1,3 @@
+         line1
+        -line2
+        +line2-modified
+         line3
+      DIFF
+    end
+
     describe '#added_lines' do
       context 'when stats argument given' do
         let(:stats) { double(Gitaly::DiffStats, additions: 10, deletions: 15) }
 
         it 'returns added lines from stats' do
           expect(diff_file.added_lines).to eq(stats.additions)
+        end
+
+        context 'when file is renamed' do
+          it 'ignores stats and parses diff lines instead' do
+            allow(diff_file).to receive(:renamed_file?).and_return(true)
+            allow(diff_file).to receive(:raw_diff) { renamed_diff }
+
+            # stats.additions is 10, but the actual diff has only 1 added line
+            expect(diff_file.added_lines).to eq(1)
+          end
         end
       end
 
@@ -625,6 +654,16 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
 
         it 'returns removed lines from stats' do
           expect(diff_file.removed_lines).to eq(stats.deletions)
+        end
+
+        context 'when file is renamed' do
+          it 'ignores stats and parses diff lines instead' do
+            allow(diff_file).to receive(:renamed_file?).and_return(true)
+            allow(diff_file).to receive(:raw_diff) { renamed_diff }
+
+            # stats.deletions is 15, but the actual diff has only 1 removed line
+            expect(diff_file.removed_lines).to eq(1)
+          end
         end
       end
 

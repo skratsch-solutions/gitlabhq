@@ -36,7 +36,7 @@ export default {
     scope: {
       type: String,
       required: true,
-      validator: (value) => ['namespace', 'user'].includes(value),
+      validator: (value) => ['namespace', 'user', 'instance'].includes(value),
     },
     isFiltering: {
       type: Boolean,

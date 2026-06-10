@@ -200,18 +200,31 @@ from the gem directory so Bundler resolves dependencies:
 cd gems/gitlab-ai-principles-distiller
 bundle install
 
+# These env vars are normally set by the CI pipeline. For local runs,
+# export them explicitly (they are repeated in every example below):
+#   - AGENT_PRINCIPLES_CATALOG_PROJECT: project that owns the AI Catalog
+#     flow; required by both binaries.
+#   - CI_DEFAULT_BRANCH: the repo default branch; required by the sync
+#     binary to resolve the workflow source branch.
+#   - CI_PROJECT_ID: numeric project ID; required by the sync binary only
+#     when --push is given (used to create the MR). 278964 = gitlab-org/gitlab.
+
 # Step 1 (one-time, or whenever distillation_prompt.md changes):
 GITLAB_TOKEN=<personal-access-token> \
+AGENT_PRINCIPLES_CATALOG_PROJECT=gitlab-org/gitlab \
   bundle exec bin/gitlab-ai-principles-distiller-provision-flow \
     --workspace "$(git rev-parse --show-toplevel)"
 # Note the printed AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID value.
 
 # Step 2: dry run (show what would change without writing or pushing)
-bundle exec bin/gitlab-ai-principles-distiller-sync \
-  --workspace "$(git rev-parse --show-toplevel)" --dry-run
+AGENT_PRINCIPLES_CATALOG_PROJECT=gitlab-org/gitlab \
+  bundle exec bin/gitlab-ai-principles-distiller-sync \
+    --workspace "$(git rev-parse --show-toplevel)" --dry-run
 
 # Step 3: distill only specific principles
 GITLAB_TOKEN=<token> \
+CI_DEFAULT_BRANCH=master \
+AGENT_PRINCIPLES_CATALOG_PROJECT=gitlab-org/gitlab \
 AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID=<id> \
   bundle exec bin/gitlab-ai-principles-distiller-sync \
     --workspace "$(git rev-parse --show-toplevel)" \
@@ -219,6 +232,8 @@ AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID=<id> \
 
 # Force re-distillation (ignore checksum cache)
 GITLAB_TOKEN=<token> \
+CI_DEFAULT_BRANCH=master \
+AGENT_PRINCIPLES_CATALOG_PROJECT=gitlab-org/gitlab \
 AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID=<id> \
   bundle exec bin/gitlab-ai-principles-distiller-sync \
     --workspace "$(git rev-parse --show-toplevel)" --force
@@ -226,6 +241,9 @@ AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID=<id> \
 # End-to-end: distill, branch, commit, push, open MR
 GITLAB_TOKEN=<token> \
 GITLAB_API_TOKEN=<token> \
+CI_DEFAULT_BRANCH=master \
+CI_PROJECT_ID=278964 \
+AGENT_PRINCIPLES_CATALOG_PROJECT=gitlab-org/gitlab \
 AGENT_PRINCIPLES_CATALOG_ITEM_CONSUMER_ID=<id> \
   bundle exec bin/gitlab-ai-principles-distiller-sync \
     --workspace "$(git rev-parse --show-toplevel)" --push

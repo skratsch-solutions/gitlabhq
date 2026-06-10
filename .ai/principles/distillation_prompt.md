@@ -73,10 +73,13 @@ adds those wrappers automatically.
 7. **No preamble.** Start your response directly with the first line of
    the file. No "Here is …", no thinking blocks, no trailing notes.
 8. **Preserve meaning, rephrase to imperative.** Preserve the meaning of
-   every existing item that survives rule 2. Do not reorder or interleave
-   new items (append instead). You MUST rewrite every item to comply with
-   rule 10, regardless of whether the SSOT changed — this is not optional
-   and does not count as diff noise. Specifically:
+   every existing item that survives rule 2, UNLESS the SSOT has changed
+   that item's guidance (then rule 16 applies — revise it). Do not reorder
+   or interleave genuinely new items (append instead); "append instead"
+   governs ordering of new items only and NEVER licenses keeping an
+   outdated rule. You MUST rewrite every item to comply with rule 10,
+   regardless of whether the SSOT changed — this is not optional and does
+   not count as diff noise. Specifically:
    - Every item starting with "No " MUST become "DO NOT `<verb>` …"
      (e.g., "No business logic in controllers" → "DO NOT put business
      logic in controllers").
@@ -166,6 +169,32 @@ adds those wrappers automatically.
 15. **Baseline rules.** When a baseline file is provided, include its rules
     verbatim — they are exempt from the rephrasing rule (rule 8 / 10).
     Add a dedicated subsection if needed. Do not rephrase or omit them.
+16. **Reconcile against the SSOT — capture new, revise changed.** The
+    current distilled file is the PRIOR version; the SSOT is the current
+    truth. Do not simply re-emit the prior checklist. On every invocation,
+    compare the current file against the SSOT and reconcile in three ways:
+    a) **Capture new content.** If the SSOT added a section, rule, tool,
+       workflow step, or enforcement (for example a new RuboCop cop), add
+       a corresponding checklist item or subsection. Read the WHOLE source
+       file, not just the parts that match existing checklist items — new
+       top-level (`##`) sections are the most commonly missed content.
+    b) **Revise changed rules.** If the SSOT narrowed, broadened, or
+       redirected an existing rule, rewrite that item to match the current
+       SSOT. DO NOT keep the prior wording when it now conflicts with the
+       SSOT. Examples:
+       - SSOT now mandates a generator over manual steps:
+         - STALE: "Create the YAML definition manually in `config/foo/`"
+         - CORRECT: "Run `bin/foo.rb <name>` to generate the YAML
+           definition in `config/foo/`"
+       - SSOT narrowed a technique's scope:
+         - STALE: "Use `wait: 0` for absence assertions"
+         - CORRECT: "Use `wait: 0` only in conditional logic; DO NOT use it
+           for regular absence assertions"
+    c) **Drop removed content** per rule 2.
+
+    Capturing new SSOT content and revising changed rules is REQUIRED work,
+    not diff noise — a re-run that misses new sections or leaves a rule
+    stale is a defect, even if it produces a smaller diff.
 
 ## How to read inputs
 

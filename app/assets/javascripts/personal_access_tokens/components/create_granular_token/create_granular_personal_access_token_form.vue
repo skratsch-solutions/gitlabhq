@@ -27,6 +27,7 @@ import {
   MAX_NAME_LENGTH,
   MAX_DESCRIPTION_LENGTH,
   ACCESS_USER_ENUM,
+  ACCESS_INSTANCE_ENUM,
   ACCESS_NAMESPACE_ENUMS,
   NAMESPACE_ACCESS_TYPES,
 } from '~/personal_access_tokens/constants';
@@ -78,6 +79,7 @@ export default {
         permissions: {
           namespace: [],
           user: [],
+          instance: [],
         },
       },
       errors: {
@@ -139,6 +141,7 @@ export default {
       return {
         namespace: ACCESS_NAMESPACE_ENUMS,
         user: [ACCESS_USER_ENUM],
+        instance: [ACCESS_INSTANCE_ENUM],
       };
     },
     granularScopes() {
@@ -156,6 +159,13 @@ export default {
         scopes.push({
           access: ACCESS_USER_ENUM,
           permissions: this.form.permissions.user,
+        });
+      }
+
+      if (this.form.permissions.instance.length) {
+        scopes.push({
+          access: ACCESS_INSTANCE_ENUM,
+          permissions: this.form.permissions.instance,
         });
       }
 
@@ -183,6 +193,7 @@ export default {
 
       let namespacePermissions = [];
       let userPermissions = [];
+      let instancePermissions = [];
 
       for (const scope of token.scopes) {
         const scopePermissions = scope.permissions.map((p) => p.name);
@@ -193,6 +204,8 @@ export default {
           namespacePermissions = union(namespacePermissions, scopePermissions);
         } else if (scope.access === ACCESS_USER_ENUM) {
           userPermissions = union(userPermissions, scopePermissions);
+        } else if (scope.access === ACCESS_INSTANCE_ENUM) {
+          instancePermissions = union(instancePermissions, scopePermissions);
         }
       }
 
@@ -205,6 +218,7 @@ export default {
         permissions: {
           namespace: namespacePermissions,
           user: userPermissions,
+          instance: instancePermissions,
         },
       };
     },
@@ -239,7 +253,11 @@ export default {
         this.errors.namespaces = this.$options.i18n.namespaceError;
       }
 
-      if (!this.form.permissions.namespace.length && !this.form.permissions.user.length) {
+      if (
+        !this.form.permissions.namespace.length &&
+        !this.form.permissions.user.length &&
+        !this.form.permissions.instance.length
+      ) {
         this.errors.permissions = this.$options.i18n.permissionsError;
       }
 
@@ -441,6 +459,13 @@ export default {
               v-model="form.permissions.user"
               :error="errors.permissions"
               :target-boundaries="targetBoundaries.user"
+              :ai-permissions="aiPermissions"
+            />
+
+            <personal-access-token-permissions-selector
+              v-model="form.permissions.instance"
+              :error="errors.permissions"
+              :target-boundaries="targetBoundaries.instance"
               :ai-permissions="aiPermissions"
             />
           </gl-tabs>

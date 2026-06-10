@@ -90,8 +90,8 @@ module API
         search_type_errors = search_service.search_type_errors
         bad_request!(search_type_errors) if search_type_errors
 
-        if search_service.scope != params[:scope]
-          bad_request!("Scope '#{params[:scope]}' is not available for this search")
+        if search_service.scope != user_requested_search_scope
+          bad_request!("Scope '#{user_requested_search_scope}' is not available for this search")
         end
 
         @search_duration_s = Benchmark.realtime do
@@ -130,28 +130,29 @@ module API
       end
 
       def project_scope_allowed?
-        ::Search::Navigation.new(user: current_user, project: @project).tab_enabled_for_project?(params[:scope].to_sym)
+        ::Search::Navigation.new(user: current_user, project: @project)
+          .tab_enabled_for_project?(user_requested_search_scope.to_sym)
       end
 
       def unavailable_work_item_types?
         # If user requested specific work item types but none are available, return true
         # This prevents returning all work items when unavailable types (e.g., epic on CE) are requested
-        return false unless params[:type].present? && params[:scope] == 'work_items'
+        return false unless params[:type].present? && user_requested_search_scope == 'work_items'
 
         processed_params = ::Search::Params.new(params)
         processed_params[:work_item_type_ids].blank?
       end
 
       def snippets?
-        %w[snippet_titles].include?(params[:scope]).to_s
+        %w[snippet_titles].include?(user_requested_search_scope).to_s
       end
 
       def entity
-        SCOPE_ENTITY[params[:scope].to_sym]
+        SCOPE_ENTITY[user_requested_search_scope.to_sym]
       end
 
       def preload_method
-        scope_preload_method[params[:scope].to_sym]
+        scope_preload_method[user_requested_search_scope.to_sym]
       end
 
       def verify_search_scope_for_ee!(_); end

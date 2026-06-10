@@ -80,6 +80,17 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Diff do
       end
     end
 
+    context 'when a new top-level (##) section is added' do
+      let(:old_content) { "## Checklist\n\n### Section A\n\n- Item 1\n" }
+      let(:new_content) { "## Checklist\n\n### Section A\n\n- Item 1\n\n## New Topic\n\n- Brand new rule\n" }
+
+      it 'keeps the new ## section and its content', :aggregate_failures do
+        expect(result).to include('## New Topic')
+        expect(result).to include('- Brand new rule')
+        expect(result).to include('- Item 1')
+      end
+    end
+
     context 'when sections are removed' do
       let(:old_content) { "### Section A\n\n- Item 1\n\n### Section B\n\n- Item 2\n" }
       let(:new_content) { "### Section A\n\n- Item 1\n" }
@@ -133,17 +144,26 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Diff do
   describe '.parse_sections (private helper)' do
     subject(:sections) { described_class.send(:parse_sections, content) }
 
-    context 'with multiple ### headings' do
+    context 'with ## and ### headings' do
       let(:content) { "# Title\n\n## Checklist\n\n### Section A\n\n- Item 1\n\n### Section B\n\n- Item 2\n" }
 
-      it 'splits content by ### headings', :aggregate_failures do
-        expect(sections.keys).to eq([nil, '### Section A', '### Section B'])
+      it 'splits content by both ## and ### headings', :aggregate_failures do
+        expect(sections.keys).to eq([nil, '## Checklist', '### Section A', '### Section B'])
         expect(sections['### Section A']).to include('- Item 1')
         expect(sections['### Section B']).to include('- Item 2')
       end
     end
 
-    context 'with preamble before first ### heading' do
+    context 'with a new top-level ## section after subsections' do
+      let(:content) { "## Checklist\n\n### Section A\n\n- Item 1\n\n## Feature flag events\n\n- New rule\n" }
+
+      it 'splits the new ## section into its own key', :aggregate_failures do
+        expect(sections.keys).to include('## Feature flag events')
+        expect(sections['## Feature flag events']).to include('- New rule')
+      end
+    end
+
+    context 'with preamble before first heading' do
       let(:content) { "# Title\n\n### Section\n\n- Item" }
 
       it 'puts preamble under nil key' do

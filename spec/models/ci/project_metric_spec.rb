@@ -21,18 +21,32 @@ RSpec.describe Ci::ProjectMetric, feature_category: :pipeline_composition do
     end
   end
 
-  describe 'scopes' do
-    describe '.ai_generated' do
-      it 'returns records with non-nil ci_config_generated_by' do
-        metric = create(:ci_project_metric, :ai_generated)
+  describe '.ci_config_generated_by_for' do
+    let_it_be(:project) { create(:project) }
 
-        expect(described_class.ai_generated).to include(metric)
+    context 'when a ci_project_metrics record exists with a stored value' do
+      before do
+        create(:ci_project_metric, :ai_generated, project: project)
       end
 
-      it 'excludes records with nil ci_config_generated_by' do
-        metric = create(:ci_project_metric, ci_config_generated_by: nil)
+      it 'returns the stored ci_config_generated_by value' do
+        expect(described_class.ci_config_generated_by_for(project.id)).to eq('ci_expert_agent/v1')
+      end
+    end
 
-        expect(described_class.ai_generated).not_to include(metric)
+    context 'when no ci_project_metrics record exists' do
+      it 'returns nil' do
+        expect(described_class.ci_config_generated_by_for(project.id)).to be_nil
+      end
+    end
+
+    context 'when a record exists with nil ci_config_generated_by' do
+      before do
+        create(:ci_project_metric, project: project, ci_config_generated_by: nil)
+      end
+
+      it 'returns nil' do
+        expect(described_class.ci_config_generated_by_for(project.id)).to be_nil
       end
     end
   end

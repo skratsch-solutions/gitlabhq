@@ -23,7 +23,7 @@ Fine-grained personal access tokens are scoped to only access the specific resou
 you define. When creating the token, you define the following attributes:
 
 - Resources: A collection of API operations. Resources are grouped into larger boundaries (
-  `Group and project` and `User`).
+  `Group and project`, `User`, and `Global`).
 - Permissions: The specific actions the token can perform on a resource. Generally, this conforms to
   Create, Read, Update, and Delete actions.
 

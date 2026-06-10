@@ -54,7 +54,7 @@ RSpec.describe Search::Worker, feature_category: :global_search do
         ElasticIndexBulkCronWorker,
         # advanced search framework operations
         Elastic::MigrationWorker,
-        ElasticClusterReindexingCronWorker,
+        Search::Elastic::ClusterReindexingCronWorker,
         Search::Elastic::TriggerIndexingWorker,
         Search::Elastic::MetricsUpdateCronWorker,
         Elastic::ProjectTransferWorker,

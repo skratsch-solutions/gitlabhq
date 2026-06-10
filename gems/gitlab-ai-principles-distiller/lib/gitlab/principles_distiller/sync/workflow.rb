@@ -87,8 +87,15 @@ module Gitlab
             updated checklist file (start your response with "# <Title> Principles")
             following the rules in your system prompt.
 
-            Current distilled file (treat as the prior version; rewrite items per
-            the imperative-mood rule, even if SSOT is unchanged):
+            First reconcile the prior checklist against the SSOT (system prompt
+            rule 16): read each SSOT source file in full, ADD checklist items for
+            new SSOT content (new sections, rules, tooling, enforcement), REVISE
+            any item whose SSOT guidance changed, and DROP items no longer
+            supported. Then apply the imperative-mood rule to every item. Do not
+            simply re-emit the prior checklist.
+
+            Current distilled file (the PRIOR version — reconcile it against the
+            SSOT, do not assume it is still complete or correct):
             - #{distilled_path}
 
             SSOT source files (the documentation to distill from):

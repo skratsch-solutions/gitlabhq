@@ -41,6 +41,9 @@ RSpec.describe Gitlab::Diff::FileCollection::Base, feature_category: :code_revie
       instance_double(Gitlab::Diff::DiffRefs, base_sha: 'base', head_sha: 'head')
     end
 
+    # Gitaly reports inflated stats because it treats the rename as a full rewrite:
+    # 57 additions (entire new file) and 13 deletions (entire old file).
+    # These should be ignored in favour of parsing the actual diff lines.
     let(:new_path_stats) { Gitaly::DiffStats.new(path: 'new.py', additions: 57, deletions: 0) }
     let(:old_path_stats) { Gitaly::DiffStats.new(path: 'old.py', additions: 0, deletions: 13) }
     let(:diff_stats_collection) { Gitlab::Git::DiffStatsCollection.new([new_path_stats, old_path_stats]) }
@@ -51,7 +54,14 @@ RSpec.describe Gitlab::Diff::FileCollection::Base, feature_category: :code_revie
         renamed_file: true,
         new_file: false,
         deleted_file: false,
-        diff: ''
+        diff: <<~DIFF
+          @@ -1,4 +1,5 @@
+          def hello
+          -    print("world")
+          +    print("world!")
+          +    print("done")
+          end
+        DIFF
       }
     end
 
@@ -64,12 +74,14 @@ RSpec.describe Gitlab::Diff::FileCollection::Base, feature_category: :code_revie
       )
     end
 
-    it 'combines split rename stats for renamed files' do
+    it 'ignores Gitaly stats and counts actual diff lines for renamed files' do
       diff_file = described_class.new(diffable, project: project, diff_refs: diff_refs).diff_files.first
 
       expect(diff_file.renamed_file?).to be(true)
-      expect(diff_file.added_lines).to eq(57)
-      expect(diff_file.removed_lines).to eq(13)
+      # Gitaly stats report 57 additions and 13 deletions (full-file rewrite),
+      # but the actual diff has only 2 added lines and 1 removed line.
+      expect(diff_file.added_lines).to eq(2)
+      expect(diff_file.removed_lines).to eq(1)
     end
   end
 end

@@ -505,7 +505,7 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
     include_examples 'diffs stats' do
       let(:expected_stats) do
         {
-          added_lines: 119,
+          added_lines: 120,
           removed_lines: 9,
           diffs_count: 21
         }
@@ -543,7 +543,7 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
       it_behaves_like 'diffs stats' do
         let(:expected_stats) do
           {
-            added_lines: 119,
+            added_lines: 120,
             removed_lines: 9,
             diffs_count: 21
           }

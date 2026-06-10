@@ -37,10 +37,14 @@ test-coverage:export-rspec-and-e2e:
     - echo "Merging E2E test mappings with Crystalball mappings..."
     - ruby scripts/coverage/merge_e2e_backend_test_mapping.rb
     - ruby scripts/coverage/backend_coverage_exporter.rb || true
+    - echo "Exporting E2E per-test coverage (Coverband backend + Istanbul frontend)..."
+    - bundle exec test-coverage --per-test-coverage 'coverage-e2e-backend/coverband-coverage-*.json' || true
+    - bundle exec test-coverage --per-test-coverage 'coverage-e2e-per-test-frontend/per-test-coverage-e2e-frontend-*.json' || true
   artifacts:
     paths:
       - coverage-backend/
       - coverage-e2e-backend/
+      - coverage-e2e-per-test-frontend/
       - coverage/
       - crystalball/
       - rspec/

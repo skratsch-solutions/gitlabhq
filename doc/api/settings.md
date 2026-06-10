@@ -103,6 +103,7 @@ Example response:
   "container_registry_expiration_policies_caching": true,
   "container_registry_expiration_policies_worker_capacity": 4,
   "container_registry_token_expire_delay": 5,
+  "oauth_access_token_expires_in": 7200,
   "decompress_archive_file_timeout": 210,
   "repository_storages_weighted": {"default": 100},
   "plantuml_enabled": false,
@@ -326,6 +327,7 @@ Example response:
   "container_registry_expiration_policies_caching": true,
   "container_registry_expiration_policies_worker_capacity": 4,
   "container_registry_token_expire_delay": 5,
+  "oauth_access_token_expires_in": 7200,
   "decompress_archive_file_timeout": 210,
   "package_registry_cleanup_policies_worker_capacity": 2,
   "plantuml_enabled": false,
@@ -700,6 +702,7 @@ to configure other related settings. These requirements are in the `Required` co
 | `maven_package_requests_forwarding`      | boolean          | no                                   | Use repo.maven.apache.org as a default remote repository when the package is not found in the GitLab package registry for Maven. Premium and Ultimate only. |
 | `npm_package_requests_forwarding`        | boolean          | no                                   | Use npmjs.org as a default remote repository when the package is not found in the GitLab package registry for npm. Premium and Ultimate only. |
 | `pypi_package_requests_forwarding`       | boolean          | no                                   | Use pypi.org as a default remote repository when the package is not found in the GitLab package registry for PyPI. Premium and Ultimate only. |
+| `oauth_access_token_expires_in`          | integer          | no                                   | Maximum lifetime in seconds of all new OAuth access tokens issued by the instance. Minimum value: `300` (5 minutes). Default value: `7200` (2 hours). If blank or `null`, uses default value. Does not affect existing OAuth access tokens. |
 | `outbound_local_requests_whitelist`      | array of strings | no                                   | Define a list of trusted domains or IP addresses to which local requests are allowed when local requests for webhooks and integrations are disabled. Currently, this attribute can not be updated. For details, see [issue 569729](https://gitlab.com/gitlab-org/gitlab/-/issues/569729). |
 | `package_registry_allow_anyone_to_pull_option` | boolean    | no                                   | Enable to [allow anyone to pull from package registry](../user/packages/package_registry/_index.md#allow-anyone-to-pull-from-package-registry) visible and changeable. |
 | `package_metadata_purl_types`            | array of integers | no                                  | List of [package registry metadata to sync](../administration/settings/security_and_compliance.md#choose-package-registry-metadata-to-sync). See [the list](https://gitlab.com/gitlab-org/gitlab/-/blob/ace16c20d5da7c4928dd03fb139692638b557fe3/app/models/concerns/enums/package_metadata.rb#L5) of the available values. GitLab Self-Managed, Ultimate only. |

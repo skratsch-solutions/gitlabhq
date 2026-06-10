@@ -67,14 +67,18 @@ module Gitlab
         # reworded"; keep the old wording to suppress diff noise.
         MATCH_THRESHOLD = 0.6
 
-        # Parse into { heading => [lines] } preserving order; preamble before first ### uses nil as key.
+        # Parse into { heading => [lines] } preserving order; preamble before the
+        # first heading uses nil as key. Splits on both `## ` (h2) and `### `
+        # (h3) so a newly-added top-level section becomes its own section
+        # instead of being absorbed into the preceding section's lines (which
+        # let reduce_noise drop or mishandle whole new `## ` sections).
         def parse_sections(content)
           sections = {}
           current_heading = nil
           current_lines = []
 
           content.each_line(chomp: true) do |line|
-            if line.start_with?('### ')
+            if section_heading?(line)
               sections[current_heading] = current_lines
               current_heading = line
               current_lines = []
@@ -85,6 +89,10 @@ module Gitlab
 
           sections[current_heading] = current_lines
           sections
+        end
+
+        def section_heading?(line)
+          line.start_with?('## ', '### ')
         end
 
         # Jaccard similarity over word tokens.

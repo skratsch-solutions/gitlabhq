@@ -13,6 +13,7 @@ import {
   mockAccessTokenPermissionsQueryResponse,
   mockGroupPermissions,
   mockUserPermissions,
+  mockInstancePermissions,
 } from '../../mock_data';
 
 jest.mock('~/alert');
@@ -58,6 +59,12 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
       createComponent({ props: { targetBoundaries: ['USER'] } });
 
       expect(findTab().attributes('title')).toBe('User');
+    });
+
+    it('renders global tab', () => {
+      createComponent({ props: { targetBoundaries: ['INSTANCE'] } });
+
+      expect(findTab().attributes('title')).toBe('Global');
     });
 
     it('renders tab with an initial count', () => {
@@ -134,6 +141,18 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
 
       expect(findPermissionsList().props('permissions')).toStrictEqual(mockUserPermissions);
       expect(findPermissionsList().props('scope')).toEqual('user');
+    });
+
+    it('filters instance permissions correctly', async () => {
+      createComponent({ props: { targetBoundaries: ['INSTANCE'] } });
+
+      await waitForPromises();
+
+      expect(findResourcesList().props('scope')).toBe('instance');
+      expect(findResourcesList().props('permissions')).toStrictEqual(mockInstancePermissions);
+
+      expect(findPermissionsList().props('permissions')).toStrictEqual(mockInstancePermissions);
+      expect(findPermissionsList().props('scope')).toEqual('instance');
     });
 
     it('searches by permission description', async () => {

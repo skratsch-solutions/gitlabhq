@@ -60,7 +60,7 @@ RSpec.describe 'getting an issue list at root level', feature_category: :team_pl
     )
   end
 
-  let_it_be(:issue_d) do
+  let_it_be(:issue_d, freeze: false) do
     create(
       :issue,
       :with_alert,
@@ -72,7 +72,7 @@ RSpec.describe 'getting an issue list at root level', feature_category: :team_pl
     )
   end
 
-  let_it_be(:issue_e) do
+  let_it_be(:issue_e, freeze: false) do
     create(
       :issue,
       :confidential,

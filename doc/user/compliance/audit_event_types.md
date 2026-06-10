@@ -918,6 +918,7 @@ Audit event types belong to the following product categories.
 
 | Type name | Event triggered when | Saved to database | Introduced in | Scope |
 |:----------|:---------------------|:------------------|:--------------|:------|
+| [`duo_sast_vr_workflow_enabled_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/238854) | GitLab Duo SAST Vulnerability Resolution Feature enabled setting on project changed | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/work_items/599650) | Project |
 | [`project_feature_infrastructure_access_level_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/106919) | A project's infrastructure access level setting is updated | {{< yes >}} | GitLab [15.7](https://gitlab.com/gitlab-org/gitlab/-/issues/369305) | Project |
 | [`remove_vulnerability_false_positive_flag`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/213091) | A user removes a false positive flag from a vulnerability. | {{< yes >}} | GitLab [18.7](https://gitlab.com/gitlab-org/gitlab/-/issues/578903) | Project |
 

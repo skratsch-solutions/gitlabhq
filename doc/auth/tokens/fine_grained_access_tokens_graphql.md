@@ -292,6 +292,7 @@ Grants the ability to read and update model selection allowlists.
 | Read | Group | Type | `AiModelSelectionAllowListModel` |
 | Read | Instance | Type | `AiModelSelectionAllowList` |
 | Read | Instance | Type | `AiModelSelectionAllowListModel` |
+| Update | Group | Mutation | `AiModelSelectionNamespaceModelAllowlistUpdate` |
 | Update | Instance | Mutation | `AiFeatureSettingModelAllowlistUpdate` |
 
 ### Groups resources

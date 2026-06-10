@@ -309,7 +309,7 @@ if $PROGRAM_NAME == __FILE__
     url: ENV.fetch('CLICKHOUSE_URL'),
     database: ENV.fetch('CLICKHOUSE_DATABASE'),
     username: ENV['CLICKHOUSE_USERNAME'],
-    password: ENV['CLICKHOUSE_PASSWORD']
+    password: ENV['GLCI_CLICKHOUSE_METRICS_PASSWORD']
   )
   gitlab_api = PerTestCoverage::SelectTests::GitlabApi.new
 
