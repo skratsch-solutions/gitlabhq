@@ -6546,7 +6546,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_7154c08fcde4"
+              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
   "/api/v4/groups/{id}/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4GroupsIdMemberRolesMemberRoleId
@@ -6616,7 +6616,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_7154c08fcde4"
+              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
   "/api/v4/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4MemberRolesMemberRoleId
@@ -25338,6 +25338,51 @@ paths:
           - type: string
           - type: integer
         in: path
+  "/api/v4/projects/{id}/terraform/state_protection_rules/{terraform_state_protection_rule_id}":
+    patch:
+      operationId: patchApiV4ProjectsIdTerraformStateProtectionRulesTerraformStateProtectionRuleId
+      summary: Update a Terraform state protection rule for a project
+      description: This feature was introduced in GitLab 19.0.
+      tags:
+      - Projects
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesTerraformStateProtectionRule"
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '422':
+          description: Unprocessable Entity
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+      - name: terraform_state_protection_rule_id
+        required: true
+        description: The ID of the Terraform state protection rule
+        schema:
+          type: integer
+        in: path
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_54644993ae17"
   "/api/v4/projects/{id}/terraform/state/{name}":
     get:
       operationId: getApiV4ProjectsIdTerraformStateName
@@ -65931,7 +65976,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_b91d36b0df89"
+              "$ref": "#/components/schemas/RequestBody_2f1c2f6502d6"
   "/api/v4/jobs/{id}/artifacts":
     post:
       operationId: postApiV4JobsIdArtifacts
@@ -65963,7 +66008,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_785e5579e292"
+              "$ref": "#/components/schemas/RequestBody_574ced25d3f6"
     get:
       operationId: getApiV4JobsIdArtifacts
       summary: Download the artifacts file for job
@@ -74927,7 +74972,7 @@ components:
         read_virtual_registry:
           type: boolean
           default: false
-        update_sec_ai_workflow_settings:
+        update_sast_vulnerability_resolution_setting:
           type: boolean
           default: false
         read_admin_cicd:
@@ -90965,7 +91010,7 @@ components:
           nullable: true
       required:
       - extern_uid
-    RequestBody_7154c08fcde4:
+    RequestBody_d75fa79afa6e:
       type: object
       properties:
         base_access_level:
@@ -91123,10 +91168,10 @@ components:
             requiring broader group membership permissions. Only works on top level
             groups.
           nullable: true
-        update_sec_ai_workflow_settings:
+        update_sast_vulnerability_resolution_setting:
           type: boolean
-          description: Update security AI workflow settings such as SAST Vulnerability
-            Resolution. Also requires the `read_vulnerability` permission.
+          description: Turn SAST Vulnerability Resolution on or off for a project.
+            Also requires the `read_vulnerability` permission.
           nullable: true
         read_admin_cicd:
           type: boolean
@@ -97047,6 +97092,31 @@ components:
       required:
       - source_topic_id
       - target_topic_id
+    RequestBody_54644993ae17:
+      type: object
+      properties:
+        state_name:
+          type: string
+          description: Terraform state name to protect.
+          nullable: true
+        minimum_access_level_for_write:
+          type: string
+          enum:
+          - developer
+          - maintainer
+          - owner
+          - admin
+          description: If defined, sets the minimum GitLab access level required to
+            write to the Terraform state.
+          nullable: true
+        allowed_from:
+          type: string
+          enum:
+          - anywhere
+          - ci_only
+          - ci_on_protected_branch_only
+          description: If defined, write requests must be made from the specific source.
+          nullable: true
     RequestBody_e3f669b4b551:
       type: object
       properties:
@@ -108944,7 +109014,7 @@ components:
           type: boolean
           description: Enable or disable the debug trace
           nullable: true
-    RequestBody_b91d36b0df89:
+    RequestBody_2f1c2f6502d6:
       type: object
       properties:
         token:
@@ -108990,12 +109060,11 @@ components:
           - annotations
           - repository_xray
           - jacoco
-          - scip
           - sarif
           default: archive
           description: The type of artifact
           nullable: true
-    RequestBody_785e5579e292:
+    RequestBody_574ced25d3f6:
       type: object
       properties:
         file:
@@ -109046,7 +109115,6 @@ components:
           - annotations
           - repository_xray
           - jacoco
-          - scip
           - sarif
           default: archive
           description: The type of artifact

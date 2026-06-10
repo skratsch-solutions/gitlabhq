@@ -2744,7 +2744,7 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
     end
 
     let(:maintainer_permissions) do
-      developer_permissions + [:create_cluster, :read_cluster, :update_cluster, :admin_cluster, :admin_terraform_state, :admin_project_google_cloud]
+      developer_permissions + [:create_cluster, :read_cluster, :update_cluster, :admin_cluster, :admin_terraform_state, :update_terraform_state_protection_rule, :admin_project_google_cloud]
     end
 
     shared_context 'with permission matrix' do
@@ -2830,7 +2830,7 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
         end
 
         let(:maintainer_permissions) do
-          developer_permissions + [:admin_terraform_state]
+          developer_permissions + [:admin_terraform_state, :update_terraform_state_protection_rule]
         end
 
         it 'always disallows the terraform_state feature' do

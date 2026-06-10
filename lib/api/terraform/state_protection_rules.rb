@@ -33,6 +33,53 @@ module API
             present user_project.terraform_state_protection_rules,
               with: Entities::Terraform::StateProtectionRule
           end
+
+          params do
+            requires :terraform_state_protection_rule_id, type: Integer,
+              desc: 'The ID of the Terraform state protection rule'
+          end
+          resource ':terraform_state_protection_rule_id' do
+            desc 'Update a Terraform state protection rule for a project' do
+              detail 'This feature was introduced in GitLab 19.0.'
+              success Entities::Terraform::StateProtectionRule
+              failure [
+                { code: 400, message: 'Bad Request' },
+                { code: 401, message: 'Unauthorized' },
+                { code: 403, message: 'Forbidden' },
+                { code: 404, message: 'Not Found' },
+                { code: 422, message: 'Unprocessable Entity' }
+              ]
+              tags %w[projects]
+            end
+            params do
+              optional :state_name, type: String,
+                desc: 'Terraform state name to protect.'
+              optional :minimum_access_level_for_write, type: String,
+                values: ::Terraform::StateProtectionRule.minimum_access_level_for_writes.keys,
+                desc: 'If defined, sets the minimum GitLab access level required to write to the Terraform state.'
+              optional :allowed_from, type: String,
+                values: ::Terraform::StateProtectionRule.allowed_froms.keys,
+                desc: 'If defined, write requests must be made from the specific source.'
+            end
+            route_setting :authorization, permissions: :update_terraform_state_protection_rule, boundary_type: :project
+            patch do
+              authorize! :update_terraform_state_protection_rule, user_project
+
+              protection_rule = user_project.terraform_state_protection_rules
+                .find(params[:terraform_state_protection_rule_id])
+
+              response = ::Terraform::StateProtectionRules::UpdateRuleService.new(
+                protection_rule,
+                current_user: current_user,
+                params: declared_params(include_missing: false)
+              ).execute
+
+              render_api_error!({ error: response.message }, :unprocessable_entity) if response.error?
+
+              present response.payload[:terraform_state_protection_rule],
+                with: Entities::Terraform::StateProtectionRule
+            end
+          end
         end
       end
     end

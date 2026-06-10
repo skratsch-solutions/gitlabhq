@@ -356,7 +356,6 @@ RSpec.describe API::Admin::PlanLimits, 'PlanLimits', feature_category: :shared d
         ci_max_artifact_size_requirements_v2
         ci_max_artifact_size_sarif
         ci_max_artifact_size_sast
-        ci_max_artifact_size_scip
         ci_max_artifact_size_secret_detection
         ci_max_artifact_size_slsa_provenance_statement
         ci_max_artifact_size_terraform

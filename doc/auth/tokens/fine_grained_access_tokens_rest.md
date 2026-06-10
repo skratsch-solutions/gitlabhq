@@ -451,6 +451,14 @@ Grants the ability to create, delete, lock, read, and update Terraform state.
 | Read | Project | `GET` | `/projects/:id/terraform/state/:name/versions/:serial` |
 | Read | Project | `GET` | `/projects/:id/terraform/state_protection_rules` |
 
+#### Terraform State Protection Rule
+
+Grants the ability to create, delete, and update Terraform state protection rules.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Update | Project | `PATCH` | `/projects/:id/terraform/state_protection_rules/:terraform_state_protection_rule_id` |
+
 #### Trigger
 
 Grants the ability to create, delete, read, and update triggers.

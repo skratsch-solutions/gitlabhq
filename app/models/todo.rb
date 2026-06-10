@@ -335,10 +335,6 @@ class Todo < ApplicationRecord
     target_type == DesignManagement::Design.name
   end
 
-  def for_issue_or_work_item?
-    [Issue.name, WorkItem.name].any?(target_type)
-  end
-
   def parentless_type?
     self.class.parentless_action_types.include?(action)
   end

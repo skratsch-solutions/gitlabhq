@@ -37,7 +37,6 @@ module Enums
         load_performance: 'load-performance.json',
         metrics: 'metrics.txt',
         lsif: 'lsif.json',
-        scip: 'index.scip',
         dotenv: '.env',
         cobertura: 'cobertura-coverage.xml',
         jacoco: 'jacoco-coverage.xml',
@@ -69,7 +68,6 @@ module Enums
         jacoco: :gzip,
         cluster_applications: :gzip, # DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/361094
         lsif: :zip,
-        scip: :zip,
         cyclonedx: :gzip,
         annotations: :gzip,
         repository_xray: :gzip, # DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/500146
@@ -114,7 +112,6 @@ module Enums
         junit
         license_scanning
         lsif
-        scip
         metrics
         performance
         browser_performance
@@ -211,7 +208,7 @@ module Enums
           annotations: 30,
           repository_xray: 31, ## EE-specific, DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/500146
           jacoco: 32,
-          scip: 33, # SCIP data for code navigation
+          # 33 was scip, removed in 19.1 - do not reuse
           sarif: 34 ## EE-specific
           # 35 was environment_key, removed in 19.1 - do not reuse
         }

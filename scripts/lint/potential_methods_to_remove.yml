@@ -200,8 +200,6 @@ app/models/project.rb:
 - enable_ci
 - valid_runners_token?
 - storage_upgradable?
-app/models/todo.rb:
-- for_issue_or_work_item?
 app/models/user.rb:
 - legacy_otp_secret
 ee/app/models/ai/duo_code_review.rb:

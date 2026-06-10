@@ -24856,7 +24856,16 @@ msgstr ""
 msgid "DatabaseDiagnostics|Contact support"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Current"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Current Owner"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Current user:"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Database information"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Database: %{name}"
@@ -24901,7 +24910,13 @@ msgstr ""
 msgid "DatabaseDiagnostics|No schema issues detected."
 msgstr ""
 
+msgid "DatabaseDiagnostics|Owner"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Ownership issues"
+msgstr ""
+
+msgid "DatabaseDiagnostics|PostgreSQL configuration and metadata for each database connection."
 msgstr ""
 
 msgid "DatabaseDiagnostics|Run collation check"
@@ -24910,7 +24925,16 @@ msgstr ""
 msgid "DatabaseDiagnostics|Run schema check"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Schema"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Schema health check"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Schemas"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Search path:"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Sequence Name"

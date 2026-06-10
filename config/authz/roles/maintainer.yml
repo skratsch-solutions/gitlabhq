@@ -180,11 +180,12 @@ project:
   - update_protected_branch
   - update_protected_tags
   - update_runners_registration_token
-  - update_sec_ai_workflow_settings
+  - update_sast_vulnerability_resolution_setting
   - update_secret_detection_validity_check
   - update_security_setting
   - update_snippet
   - update_squash_option
+  - update_terraform_state_protection_rule
   - update_work_item_type_visibility
   - use_protected_cache
   - view_edit_page

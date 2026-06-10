@@ -254,7 +254,7 @@ Grants the ability to create, delete, lock, read, and update Terraform state.
 
 #### Terraform State Protection Rule
 
-Grants the ability to create and delete Terraform state protection rules.
+Grants the ability to create, delete, and update Terraform state protection rules.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |

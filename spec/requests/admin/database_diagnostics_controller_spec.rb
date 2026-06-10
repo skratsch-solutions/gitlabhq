@@ -51,6 +51,19 @@ RSpec.describe 'Admin::DatabaseDiagnostics', feature_category: :database do
 
         expect(response).to have_gitlab_http_status(:ok)
       end
+
+      it 'embeds database information as a data attribute', :aggregate_failures do
+        information_payload = {
+          databases: { 'main' => { search_path: '"$user", public', schemas: [] } }
+        }
+
+        expect(::Gitlab::Database::DatabaseInformation).to receive(:execute).and_return(information_payload)
+
+        send_request
+
+        expect(response.body).to include('data-database-information')
+        expect(response.body).to include('&quot;search_path&quot;:&quot;\&quot;$user\&quot;, public&quot;')
+      end
     end
   end
 
