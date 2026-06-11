@@ -815,11 +815,19 @@ module Ci
     end
 
     def triggered_pipelines_with_preloads
-      triggered_pipelines.preload(
-        :source_job,
-        :retryable_builds,
-        project: [:route, { namespace: :route }]
-      )
+      retried_source_jobs = CommitStatus.retried.in_partition(partition_id)
+        .where(CommitStatus.arel_table[:id].eq(Ci::Sources::Pipeline.arel_table[:source_job_id]))
+
+      pairs = sourced_pipelines.where_not_exists(retried_source_jobs).pluck(:pipeline_id, :partition_id)
+
+      Ci::Pipeline
+        .id_and_partition_in(pairs)
+        .order(id: :desc)
+        .preload(
+          :source_job,
+          :retryable_builds,
+          project: [:route, { namespace: :route }]
+        )
     end
 
     def valid_commit_sha

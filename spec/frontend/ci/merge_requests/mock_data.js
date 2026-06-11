@@ -122,6 +122,7 @@ export const generateMockPipeline = ({
     __typename: 'Project',
   },
   downstream: {
+    count: 0,
     nodes: [],
     __typename: 'PipelineConnection',
   },
@@ -304,6 +305,7 @@ export const mockPipelineUpdateResponse = {
       failedJobsCount: 0,
       __typename: 'Pipeline',
       downstream: {
+        count: 0,
         nodes: [],
         __typename: 'PipelineConnection',
       },
@@ -376,7 +378,7 @@ export const mockPipelines = [
     path: '/root/ci-project/-/pipelines/701',
     retryable: true,
     cancelable: false,
-    downstream: { __typename: 'PipelineConnection', nodes: [] },
+    downstream: { count: 0, __typename: 'PipelineConnection', nodes: [] },
     stages: {
       nodes: [
         {
@@ -494,7 +496,7 @@ export const mockPipelines = [
     path: '/root/ci-project/-/pipelines/699',
     retryable: true,
     cancelable: false,
-    downstream: { __typename: 'PipelineConnection', nodes: [] },
+    downstream: { count: 0, __typename: 'PipelineConnection', nodes: [] },
     stages: {
       nodes: [
         {
@@ -664,6 +666,7 @@ export const generateMockDownstreamResponse = (pipelinesWithDownstream = []) => 
           nodes: pipelinesWithDownstream.map(({ pipelineId, downstreamNodes }) => ({
             id: `gid://gitlab/Ci::Pipeline/${pipelineId}`,
             downstream: {
+              count: downstreamNodes.length,
               nodes: downstreamNodes,
               __typename: 'PipelineConnection',
             },

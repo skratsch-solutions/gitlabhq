@@ -129,6 +129,7 @@ project:
   - provision_gke_runner
   - push_code_to_protected_branches
   - push_to_delete_protected_branch
+  - read_ai_tool_rule
   - read_any_audit_event
   - read_approvers
   - read_branch_rule
@@ -166,6 +167,7 @@ project:
   - set_license_information_source
   - stop_environment
   - toggle_license_scanning_for_cyclonedx
+  - update_ai_tool_rule
   - update_approval_rule
   - update_approvers
   - update_branch_rule

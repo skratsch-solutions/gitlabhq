@@ -933,6 +933,7 @@ describe('PipelinesTableWrapper component', () => {
           {
             ...generateMockPipeline({ id: '1', status: 'RUNNING' }),
             downstream: {
+              count: 1,
               nodes: [downstream],
               __typename: 'PipelineConnection',
             },
@@ -992,6 +993,7 @@ describe('PipelinesTableWrapper component', () => {
           {
             ...generateMockPipeline({ id: '1', status: parentStatus }),
             downstream: {
+              count: downstreamPipelines.length,
               nodes: downstreamPipelines,
               __typename: 'PipelineConnection',
             },

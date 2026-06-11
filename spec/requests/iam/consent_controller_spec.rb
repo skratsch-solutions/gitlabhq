@@ -8,6 +8,7 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
   let_it_be(:oauth_application) { create(:oauth_application) }
 
   let(:iam_service_url) { 'https://iam.example.com' }
+  let(:iam_grpc_address) { 'localhost:5004' }
   let(:iam_secret) { 'test-secret-token' }
   let(:challenge) { 'a' * 64 }
   let(:client_id) { oauth_application.uid }
@@ -16,47 +17,74 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
   let(:requested_scopes) { %w[openid profile] }
   let(:client_name) { 'Test App' }
   let(:client_scopes) { %w[openid profile email] }
-
-  let(:consent_response_body) do
-    {
-      skip: false,
-      subject: user.id.to_s,
-      requested_scope: requested_scopes,
-      client: {
-        'client_id' => client_id,
-        'client_name' => client_name,
-        'owner' => 'GitLab User',
-        'created_at' => '2025-01-01T00:00:00Z',
-        'scopes' => client_scopes
-      }
-    }
-  end
-
-  let(:get_response) do
-    instance_double(Gitlab::HTTP::Response, success?: true, code: 200, body: consent_response_body.to_json)
-  end
-
-  let(:accept_response) do
-    instance_double(Gitlab::HTTP::Response, success?: true, code: 200,
-      body: { redirect_to: redirect_url }.to_json)
-  end
-
-  let(:reject_response) do
-    instance_double(Gitlab::HTTP::Response, success?: true, code: 200,
-      body: { redirect_to: reject_redirect_url }.to_json)
-  end
-
   let(:cache_key) { "iam:consent_data:#{user.id}:#{challenge}" }
 
-  before do
-    stub_feature_flags(iam_svc_login: true)
-    allow(Authn::IamAuthService).to receive_messages(
-      enabled?: true,
-      url: iam_service_url,
-      secret: iam_secret
+  let(:grpc_client) { instance_double(Authn::IamService::GrpcClient) }
+
+  let(:created_at_time) { Time.zone.parse('2025-01-01T00:00:00Z') }
+  let(:created_at_timestamp) { Google::Protobuf::Timestamp.new(seconds: created_at_time.to_i) }
+
+  let(:client_message) do
+    ::Auth::Client.new(
+      client_id: client_id,
+      client_name: client_name,
+      client_owner: 'GitLab User',
+      scopes: client_scopes,
+      created_at: created_at_timestamp
     )
-    sign_in(user)
-    allow(Gitlab::HTTP).to receive_messages(get: get_response, put: accept_response)
+  end
+
+  let(:get_consent_response) do
+    ::Auth::GetConsentChallengeResponse.new(
+      skip: false,
+      subject: user.id.to_s,
+      requested_scopes: requested_scopes,
+      client: client_message
+    )
+  end
+
+  let(:accept_consent_response) do
+    ::Auth::AcceptConsentChallengeResponse.new(redirect_to: redirect_url)
+  end
+
+  let(:reject_consent_response) do
+    ::Auth::RejectConsentChallengeResponse.new(redirect_to: reject_redirect_url)
+  end
+
+  shared_examples 'controller renders failed service result' do |service_class|
+    context 'when the service returns a :service_unavailable error' do
+      before do
+        allow_next_instance_of(service_class) do |service|
+          allow(service).to receive(:execute).and_return(
+            ServiceResponse.error(message: 'upstream down', reason: :service_unavailable)
+          )
+        end
+      end
+
+      it 'renders the error page with 502', :aggregate_failures do
+        request
+
+        expect(response).to have_gitlab_http_status(:bad_gateway)
+        expect(response.body).to include('An error has occurred')
+      end
+    end
+
+    context 'when the service returns an :invalid_request error' do
+      before do
+        allow_next_instance_of(service_class) do |service|
+          allow(service).to receive(:execute).and_return(
+            ServiceResponse.error(message: 'invalid challenge', reason: :invalid_request)
+          )
+        end
+      end
+
+      it 'renders the error page with 400', :aggregate_failures do
+        request
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(response.body).to include('An error has occurred')
+      end
+    end
   end
 
   shared_examples 'isolates cached consent by user' do
@@ -73,7 +101,8 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
 
       expect(response).to have_gitlab_http_status(:bad_request)
       expect(response.body).to include('An error has occurred')
-      expect(Gitlab::HTTP).not_to have_received(:put)
+      expect(grpc_client).not_to have_received(:accept_consent_challenge)
+      expect(grpc_client).not_to have_received(:reject_consent_challenge)
       expect(Gitlab::AuthLogger).to have_received(:error).with(
         hash_including(message: 'Consent session expired or already used')
       )
@@ -95,6 +124,23 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
     end
   end
 
+  before do
+    stub_feature_flags(iam_svc_login: true)
+    allow(Authn::IamAuthService).to receive_messages(
+      enabled?: true,
+      url: iam_service_url,
+      grpc_address: iam_grpc_address,
+      secret: iam_secret
+    )
+    sign_in(user)
+    allow(Authn::IamService::GrpcClient).to receive(:new).and_return(grpc_client)
+    allow(grpc_client).to receive_messages(
+      get_consent_challenge: get_consent_response,
+      accept_consent_challenge: accept_consent_response,
+      reject_consent_challenge: reject_consent_response
+    )
+  end
+
   describe 'GET #show' do
     subject(:request) { get iam_consent_path, params: { consent_challenge: challenge } }
 
@@ -103,11 +149,11 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(response.body).to include('is requesting access to your account')
-      expect(response.body).to include('Test App')
+      expect(response.body).to include(client_name)
       expect(response.body).to include('GitLab User added this OAuth application')
     end
 
-    it 'writes consent data to the cache keyed by challenge', :aggregate_failures do
+    it 'writes consent data to the cache keyed by user and challenge', :aggregate_failures do
       request
 
       cached = Rails.cache.read(cache_key)
@@ -123,7 +169,14 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
     end
 
     context 'when the IAM subject does not match the current user' do
-      let(:consent_response_body) { super().merge(subject: 'someone-else') }
+      let(:get_consent_response) do
+        ::Auth::GetConsentChallengeResponse.new(
+          skip: false,
+          subject: 'someone-else',
+          requested_scopes: requested_scopes,
+          client: client_message
+        )
+      end
 
       it 'returns 400', :aggregate_failures do
         request
@@ -144,7 +197,14 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
     end
 
     context 'when skip_consent is true' do
-      let(:consent_response_body) { super().merge(skip: true) }
+      let(:get_consent_response) do
+        ::Auth::GetConsentChallengeResponse.new(
+          skip: true,
+          subject: user.id.to_s,
+          requested_scopes: requested_scopes,
+          client: client_message
+        )
+      end
 
       it 'auto-accepts and redirects without caching', :aggregate_failures do
         expect { request }.to change { Authn::OauthConsent.count }.by(1)
@@ -198,18 +258,7 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
       end
     end
 
-    context 'when the IAM service returns an upstream error' do
-      let(:get_response) do
-        instance_double(Gitlab::HTTP::Response, success?: false, code: 400, body: '{}')
-      end
-
-      it 'returns 502', :aggregate_failures do
-        request
-
-        expect(response).to have_gitlab_http_status(:bad_gateway)
-        expect(response.body).to include('An error has occurred')
-      end
-    end
+    include_examples 'controller renders failed service result', Authn::IamService::GetConsentChallengeService
   end
 
   describe 'POST #accept' do
@@ -238,24 +287,11 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
         expect(consent).to be_authorized
       end
 
-      context 'when the IAM accept request returns an upstream error' do
-        let(:accept_response) do
-          instance_double(Gitlab::HTTP::Response, success?: false, code: 500, body: '{}')
-        end
-
-        it 'returns 502 without persisting a record', :aggregate_failures do
-          request
-
-          expect(response).to have_gitlab_http_status(:bad_gateway)
-          expect(response.body).to include('An error has occurred')
-          expect(Authn::OauthConsent.count).to eq(0)
-        end
-      end
+      include_examples 'controller renders failed service result', Authn::IamService::AcceptConsentChallengeService
 
       context 'when the IAM accept response has an invalid redirect URL' do
-        let(:accept_response) do
-          instance_double(Gitlab::HTTP::Response, success?: true, code: 200,
-            body: { redirect_to: 'https://untrusted.example.com/oauth2/authorize' }.to_json)
+        let(:accept_consent_response) do
+          ::Auth::AcceptConsentChallengeResponse.new(redirect_to: 'https://untrusted.example.com/oauth2/authorize')
         end
 
         it 'returns 400', :aggregate_failures do
@@ -310,7 +346,6 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
 
     context 'when the consent form was rendered first' do
       before do
-        allow(Gitlab::HTTP).to receive(:put).and_return(reject_response)
         get iam_consent_path, params: { consent_challenge: challenge }
       end
 
@@ -342,32 +377,7 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
         expect(response).to have_gitlab_http_status(:bad_request)
       end
 
-      context 'when the IAM reject request returns an upstream error' do
-        let(:reject_response) do
-          instance_double(Gitlab::HTTP::Response, success?: false, code: 500, body: '')
-        end
-
-        it 'returns 502', :aggregate_failures do
-          request
-
-          expect(response).to have_gitlab_http_status(:bad_gateway)
-          expect(response.body).to include('An error has occurred')
-        end
-      end
-
-      context 'when the IAM reject request raises a transport failure' do
-        before do
-          allow(Gitlab::HTTP).to receive(:put).and_raise(Errno::ECONNREFUSED)
-          allow(Gitlab::ErrorTracking).to receive(:track_exception)
-        end
-
-        it 'returns 502', :aggregate_failures do
-          request
-
-          expect(response).to have_gitlab_http_status(:bad_gateway)
-          expect(response.body).to include('An error has occurred')
-        end
-      end
+      include_examples 'controller renders failed service result', Authn::IamService::RejectConsentChallengeService
     end
 
     context 'when a different signed-in user attempts to consume the cached challenge' do

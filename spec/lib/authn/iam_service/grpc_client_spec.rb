@@ -3,14 +3,16 @@
 require 'spec_helper'
 
 RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access do
+  using RSpec::Parameterized::TableSyntax
+
   subject(:client) { described_class.new }
 
   let(:iam_service_address) { 'localhost:5004' }
   let(:iam_secret) { 'test-secret-token' }
 
-  let(:stub_double) do
-    instance_double(::Auth::Auth::Stub)
-  end
+  let(:auth_stub) { instance_double(::Auth::Auth::Stub) }
+  let(:login_stub) { instance_double(::Auth::Login::Stub) }
+  let(:consent_stub) { instance_double(::Auth::Consent::Stub) }
 
   before do
     allow(Authn::IamAuthService).to receive_messages(
@@ -18,155 +20,92 @@ RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access d
       secret: iam_secret
     )
 
-    allow(::Auth::Auth::Stub).to receive(:new).and_return(stub_double)
+    allow(::Auth::Auth::Stub).to receive(:new).and_return(auth_stub)
+    allow(::Auth::Login::Stub).to receive(:new).and_return(login_stub)
+    allow(::Auth::Consent::Stub).to receive(:new).and_return(consent_stub)
   end
 
-  describe '#health' do
-    subject(:do_request) { client.health(request) }
-
-    let(:request) { instance_double(::Auth::HealthRequest) }
-    let(:response) { instance_double(::Auth::HealthResponse) }
-
-    it 'returns health status' do
-      expect(stub_double).to receive(:health).with(
-        request,
-        metadata: a_hash_including(
-          "gitlab-iam-auth-token" => iam_secret
-        )
-      ).and_return(response)
-
-      expect(do_request).to eq(response)
+  describe 'gRPC calls' do
+    where(:method, :rpc_method, :stub_let, :request_class, :response_class, :params) do
+      :health                   | :health | :auth_stub    | ::Auth::HealthRequest                 | ::Auth::HealthResponse                 | {}
+      :accept_login_challenge   | :accept | :login_stub   | ::Auth::AcceptLoginChallengeRequest   | ::Auth::AcceptLoginChallengeResponse   | { challenge: 'test-challenge', subject: '42', name: 'Jane Doe', email: 'jane.doe@example.com' }
+      :get_consent_challenge    | :get    | :consent_stub | ::Auth::GetConsentChallengeRequest    | ::Auth::GetConsentChallengeResponse    | { challenge: 'test-challenge' }
+      :accept_consent_challenge | :accept | :consent_stub | ::Auth::AcceptConsentChallengeRequest | ::Auth::AcceptConsentChallengeResponse | { challenge: 'test-challenge', granted_scopes: %w[openid profile] }
+      :reject_consent_challenge | :reject | :consent_stub | ::Auth::RejectConsentChallengeRequest | ::Auth::RejectConsentChallengeResponse | { challenge: 'test-challenge' }
     end
 
-    it 'raises RequestError on misconfiguration' do
-      config_error = Authn::IamAuthService::ConfigurationError.new("test error message")
+    with_them do
+      let(:stub) { send(stub_let) }
+      let(:response) { response_class.new }
 
-      expect(stub_double).to receive(:health).with(
-        request,
-        metadata: a_hash_including(
-          "gitlab-iam-auth-token" => iam_secret
-        )
-      ).and_raise(config_error)
+      it 'sends the request with IAM auth metadata and returns the response', :aggregate_failures do
+        expect(stub).to receive(rpc_method).with(
+          an_instance_of(request_class),
+          metadata: a_hash_including('gitlab-iam-auth-token' => iam_secret)
+        ).and_return(response)
 
-      expect { do_request }.to raise_error(described_class::RequestError, "test error message")
+        expect(client.public_send(method, **params)).to eq(response)
+      end
+    end
+  end
+
+  describe 'error handling' do
+    before do
+      allow(Gitlab::ErrorTracking).to receive(:track_exception)
+      allow(auth_stub).to receive(:health).and_raise(error)
     end
 
-    it 'rescues GRPC::BadStatus and raises a sanitized RequestError' do
-      grpc_error = GRPC::Unavailable.new("test error message")
+    context 'when the IAM service is misconfigured' do
+      let(:error) { Authn::IamAuthService::ConfigurationError.new('IAM service is not configured') }
 
-      expect(stub_double).to receive(:health).with(
-        request,
-        metadata: a_hash_including(
-          "gitlab-iam-auth-token" => iam_secret
-        )
-      ).and_raise(grpc_error)
-
-      expect(Gitlab::ErrorTracking).to receive(:track_exception).with(grpc_error)
-
-      expect { do_request }.to raise_error(described_class::RequestError, 'Failed to connect to IAM service')
+      it 'raises RequestError with the configuration message and skips Sentry', :aggregate_failures do
+        expect { client.health }.to raise_error(described_class::RequestError, 'IAM service is not configured')
+        expect(Gitlab::ErrorTracking).not_to have_received(:track_exception)
+      end
     end
 
-    it 'rescues GRPC::Unauthenticated without leaking IAM service details' do
-      grpc_error = GRPC::Unauthenticated.new("invalid token: internal details")
+    context 'when the gRPC stub raises GRPC::BadStatus' do
+      where(:error_class) do
+        [GRPC::Unavailable, GRPC::Unauthenticated, GRPC::InvalidArgument]
+      end
 
-      expect(stub_double).to receive(:health).with(
-        request,
-        metadata: a_hash_including(
-          "gitlab-iam-auth-token" => iam_secret
-        )
-      ).and_raise(grpc_error)
+      with_them do
+        let(:error) { error_class.new('upstream details') }
 
-      expect(Gitlab::ErrorTracking).to receive(:track_exception).with(grpc_error)
-
-      expect { do_request }.to raise_error(described_class::RequestError, 'Failed to connect to IAM service')
+        it 'raises a sanitized RequestError and tracks the exception', :aggregate_failures do
+          expect { client.health }.to raise_error(described_class::RequestError, 'Failed to connect to IAM service')
+          expect(Gitlab::ErrorTracking).to have_received(:track_exception).with(error)
+        end
+      end
     end
   end
 
   describe 'channel credentials' do
-    let(:request) { instance_double(::Auth::HealthRequest) }
-    let(:response) { instance_double(::Auth::HealthResponse) }
-
-    before do
-      allow(stub_double).to receive(:health).and_return(response)
+    where(:address, :expected_endpoint, :expects_tls) do
+      'localhost:5004'                  | 'localhost:5004'              | false
+      'tls://iam.example.com:5004'      | 'iam.example.com:5004'        | true
+      'tcp://iam.example.com:5004'      | 'iam.example.com:5004'        | false
+      'dns+tls:///iam.example.com:5004' | 'dns:///iam.example.com:5004' | true
+      ':::invalid'                      | ':::invalid'                  | false
     end
 
-    context 'with a plain host:port address' do
-      let(:iam_service_address) { 'localhost:5004' }
-
-      it 'builds the stub with insecure credentials and the address unchanged' do
-        client.health(request)
-
-        expect(::Auth::Auth::Stub).to have_received(:new).with(
-          'localhost:5004',
-          :this_channel_is_insecure,
-          interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
-          timeout: described_class::TIMEOUT_SECONDS
-        )
-      end
-    end
-
-    context 'with a tls:// address' do
-      let(:iam_service_address) { 'tls://iam.example.com:5004' }
+    with_them do
+      let(:iam_service_address) { address }
       let(:tls_credentials) { instance_double(GRPC::Core::ChannelCredentials) }
 
-      it 'builds the stub with TLS credentials and a stripped address' do
+      before do
         allow(::Gitlab::X509::Certificate).to receive(:ca_certs_bundle).and_return('cert-data')
         allow(GRPC::Core::ChannelCredentials).to receive(:new).with('cert-data').and_return(tls_credentials)
-
-        client.health(request)
-
-        expect(::Auth::Auth::Stub).to have_received(:new).with(
-          'iam.example.com:5004',
-          tls_credentials,
-          interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
-          timeout: described_class::TIMEOUT_SECONDS
-        )
+        allow(auth_stub).to receive(:health).and_return(::Auth::HealthResponse.new)
       end
-    end
 
-    context 'with a tcp:// address' do
-      let(:iam_service_address) { 'tcp://iam.example.com:5004' }
+      it 'configures the gRPC channel with the expected endpoint and credentials' do
+        client.health
 
-      it 'builds the stub with insecure credentials and a stripped address' do
-        client.health(request)
-
+        expected_credentials = expects_tls ? tls_credentials : :this_channel_is_insecure
         expect(::Auth::Auth::Stub).to have_received(:new).with(
-          'iam.example.com:5004',
-          :this_channel_is_insecure,
-          interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
-          timeout: described_class::TIMEOUT_SECONDS
-        )
-      end
-    end
-
-    context 'with a dns+tls:// address' do
-      let(:iam_service_address) { 'dns+tls:///iam.example.com:5004' }
-      let(:tls_credentials) { instance_double(GRPC::Core::ChannelCredentials) }
-
-      it 'builds the stub with TLS credentials and rewrites the scheme to dns:' do
-        allow(::Gitlab::X509::Certificate).to receive(:ca_certs_bundle).and_return('cert-data')
-        allow(GRPC::Core::ChannelCredentials).to receive(:new).with('cert-data').and_return(tls_credentials)
-
-        client.health(request)
-
-        expect(::Auth::Auth::Stub).to have_received(:new).with(
-          'dns:///iam.example.com:5004',
-          tls_credentials,
-          interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
-          timeout: described_class::TIMEOUT_SECONDS
-        )
-      end
-    end
-
-    context 'with an unparseable address' do
-      let(:iam_service_address) { ':::invalid' }
-
-      it 'falls back to insecure credentials' do
-        client.health(request)
-
-        expect(::Auth::Auth::Stub).to have_received(:new).with(
-          ':::invalid',
-          :this_channel_is_insecure,
+          expected_endpoint,
+          expected_credentials,
           interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
           timeout: described_class::TIMEOUT_SECONDS
         )

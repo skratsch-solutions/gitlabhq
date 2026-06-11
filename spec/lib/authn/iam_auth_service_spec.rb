@@ -27,7 +27,37 @@ RSpec.describe Authn::IamAuthService, feature_category: :system_access do
       end
     end
 
-    context 'when not configured' do
+    context 'when host is blank' do
+      before do
+        stub_config(iam_auth_service: {
+          enabled: true,
+          grpc: { host: '', port: 5444 }
+        })
+      end
+
+      it 'raises ConfigurationError' do
+        expect { grpc_address }.to raise_error(
+          described_class::ConfigurationError, 'IAM gRPC service is not configured'
+        )
+      end
+    end
+
+    context 'when port is blank' do
+      before do
+        stub_config(iam_auth_service: {
+          enabled: true,
+          grpc: { host: 'iam.example.com', port: '' }
+        })
+      end
+
+      it 'raises ConfigurationError' do
+        expect { grpc_address }.to raise_error(
+          described_class::ConfigurationError, 'IAM gRPC service is not configured'
+        )
+      end
+    end
+
+    context 'when both host and port are blank' do
       before do
         stub_config(iam_auth_service: {
           enabled: true,
@@ -35,7 +65,7 @@ RSpec.describe Authn::IamAuthService, feature_category: :system_access do
         })
       end
 
-      it 'raises error' do
+      it 'raises ConfigurationError' do
         expect { grpc_address }.to raise_error(
           described_class::ConfigurationError, 'IAM gRPC service is not configured'
         )

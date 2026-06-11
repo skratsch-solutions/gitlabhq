@@ -92,11 +92,6 @@ describe('PipelineMiniGraph', () => {
         });
       });
 
-      it('keeps the latest downstream pipelines', () => {
-        createComponent();
-        expect(findDownstream().props('pipelines')).toHaveLength(2);
-      });
-
       it('does not render downstream if not available', () => {
         createComponent({
           props: { downstreamPipelines: [] },

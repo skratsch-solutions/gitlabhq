@@ -32,6 +32,7 @@ project:
   - download_wiki_code
   - export_work_items
   - read_ai_catalog_item_consumer
+  - read_ai_tool_rule
   - read_alert_management_alert
   - read_analytics
   - read_any_audit_event

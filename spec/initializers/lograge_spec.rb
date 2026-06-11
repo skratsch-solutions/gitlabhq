@@ -38,31 +38,28 @@ RSpec.describe 'lograge', type: :request, feature_category: :observability do
       get("/api/v4/endpoint", params: large_params, headers: headers)
     end
 
-    it 'logs the core fields and excludes request_id, which correlation_id already covers', :aggregate_failures do
-      logged_fields = nil
-      allow(Lograge.formatter).to receive(:call).and_wrap_original do |original, data|
-        logged_fields = data
+    it 'logs the core fields and excludes request_id, which correlation_id already covers' do
+      expect(Lograge.formatter).to receive(:call).and_wrap_original do |original, data|
+        field_names = data.keys.map(&:to_s)
+
+        # grape_logging 2.1.0+ adds a `request_id` field sourced from
+        # `action_dispatch.request_id` -- the same value GitLab already logs as
+        # `correlation_id` (Labkit::Middleware::Rack derives one from the other).
+        # The grape_logging 3.0.0 upgrade must keep it suppressed so api_json.log
+        # output does not change. See gitlab-org/gitlab#596161.
+        expect(field_names).not_to include('request_id')
+
+        # Lock the stable core of the api_json.log schema. Volatile fields
+        # (db_* counters, cpu_s, pid, worker_id) are intentionally excluded.
+        expect(field_names).to include(
+          'status', 'method', 'path', 'params', 'host', 'route',
+          'correlation_id', 'time', 'duration_s', 'db_duration_s', 'view_duration_s'
+        )
+
         original.call(data)
       end
 
       get("/api/v4/endpoint", params: {}, headers: headers)
-
-      expect(logged_fields).not_to be_nil, 'Lograge formatter was never called -- check the route and stub'
-      field_names = logged_fields.keys.map(&:to_s)
-
-      # grape_logging 2.1.0+ adds a `request_id` field sourced from
-      # `action_dispatch.request_id` -- the same value GitLab already logs as
-      # `correlation_id` (Labkit::Middleware::Rack derives one from the other).
-      # The grape_logging 3.0.0 upgrade must keep it suppressed so api_json.log
-      # output does not change. See gitlab-org/gitlab#596161.
-      expect(field_names).not_to include('request_id')
-
-      # Lock the stable core of the api_json.log schema. Volatile fields
-      # (db_* counters, cpu_s, pid, worker_id) are intentionally excluded.
-      expect(field_names).to include(
-        'status', 'method', 'path', 'params', 'host', 'route',
-        'correlation_id', 'time', 'duration_s', 'db_duration_s', 'view_duration_s'
-      )
     end
   end
 

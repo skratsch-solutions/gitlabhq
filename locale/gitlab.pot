@@ -2817,6 +2817,9 @@ msgstr ""
 msgid "AICatalog|Custom flows are inactive for all projects. To create or use custom flows, contact group owner."
 msgstr ""
 
+msgid "AICatalog|Default"
+msgstr ""
+
 msgid "AICatalog|Define the agent's personality, expertise, and behavior. This changes how the agent solves problems and responds to requests."
 msgstr ""
 
@@ -3324,6 +3327,9 @@ msgstr ""
 msgid "AICatalog|Star"
 msgstr ""
 
+msgid "AICatalog|Star count"
+msgstr ""
+
 msgid "AICatalog|Star toggle failed. Try again later."
 msgstr ""
 
@@ -3502,6 +3508,9 @@ msgid "AICatalog|Updating a flow in this group does not update the flows enabled
 msgstr ""
 
 msgid "AICatalog|Updating an agent in this group does not update the agents enabled in this group's projects."
+msgstr ""
+
+msgid "AICatalog|Usage (last 30 days)"
 msgstr ""
 
 msgid "AICatalog|Use agents in your %{namespaceType}."
@@ -10816,6 +10825,9 @@ msgid "Apply a template"
 msgstr ""
 
 msgid "Apply default profile to all"
+msgstr ""
+
+msgid "Apply filter globally to all notification events"
 msgstr ""
 
 msgid "Apply selected attributes to projects (keeps existing attributes)"
@@ -20948,6 +20960,9 @@ msgstr ""
 msgid "Configuration help"
 msgstr ""
 
+msgid "Configuration saved successfully!"
+msgstr ""
+
 msgid "Configure"
 msgstr ""
 
@@ -21012,6 +21027,9 @@ msgid "Configure Secret Detection in `.gitlab-ci.yml`, creating this file if it 
 msgstr ""
 
 msgid "Configure Sentry integration for error tracking"
+msgstr ""
+
+msgid "Configure Users for Slack Notifications"
 msgstr ""
 
 msgid "Configure advanced permissions"
@@ -30085,6 +30103,9 @@ msgstr ""
 msgid "Enable searching"
 msgstr ""
 
+msgid "Enable the add-on"
+msgstr ""
+
 msgid "Enable to allow %{docs_link_start}Device authorization grant flow%{docs_link_end}."
 msgstr ""
 
@@ -31439,6 +31460,9 @@ msgstr[1] ""
 msgid "Exceptions"
 msgstr ""
 
+msgid "Exclude Users"
+msgstr ""
+
 msgid "Excluded users"
 msgstr ""
 
@@ -32217,6 +32241,9 @@ msgid "Failed to request a review because no user was specified."
 msgstr ""
 
 msgid "Failed to retrieve page"
+msgstr ""
+
+msgid "Failed to save configuration"
 msgstr ""
 
 msgid "Failed to save dismissal"
@@ -38761,6 +38788,9 @@ msgstr ""
 msgid "If this was a mistake, you can retain the project before %{deletion_date}: %{retention_url}"
 msgstr ""
 
+msgid "If unchecked, configure different filters for different event types"
+msgstr ""
+
 msgid "If using GitHub, you’ll see pipeline statuses on GitHub for your commits and pull requests. %{more_info_link}"
 msgstr ""
 
@@ -39635,6 +39665,9 @@ msgid "Incident|Timeline text"
 msgstr ""
 
 msgid "Incident|Timeline text…"
+msgstr ""
+
+msgid "Include Users"
 msgstr ""
 
 msgid "Include additional optional data in Service Ping. To enable optional data, first enable Service Ping."
@@ -51606,6 +51639,9 @@ msgid "Only the first %{count} file is listed on this page"
 msgid_plural "Only the first %{count} files are listed on this page"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "Only these users will trigger Slack notifications"
+msgstr ""
 
 msgid "Only track method calls that take longer to complete than the given duration."
 msgstr ""
@@ -64016,6 +64052,9 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
+msgid "Save Configuration"
+msgstr ""
+
 msgid "Save application"
 msgstr ""
 
@@ -65673,6 +65712,9 @@ msgstr ""
 msgid "SecretsManager|Charges may be incurred at the end of open beta"
 msgstr ""
 
+msgid "SecretsManager|Configure OpenBao"
+msgstr ""
+
 msgid "SecretsManager|Delete secret"
 msgstr ""
 
@@ -65707,6 +65749,9 @@ msgid "SecretsManager|GitLab Secrets Manager"
 msgstr ""
 
 msgid "SecretsManager|GitLab Secrets Manager is free during open beta, but will consume %{linkStart}GitLab Credits%{linkEnd} when released as generally available (GA). Credits will only be consumed if you opt in, and we'll give you advance notice before GA."
+msgstr ""
+
+msgid "SecretsManager|Introducing GitLab Secrets Manager"
 msgstr ""
 
 msgid "SecretsManager|Learn more about GitLab Secrets Manager."
@@ -65779,6 +65824,9 @@ msgid "SecretsManager|This field is required and must be 200 characters or less.
 msgstr ""
 
 msgid "SecretsManager|To confirm, enter %{secretName}:"
+msgstr ""
+
+msgid "SecretsManager|Use the GitLab Secrets Manager to securely store and manage secrets and credentials for your projects and groups."
 msgstr ""
 
 msgid "SecretsManager|Use the secrets manager to store your sensitive credentials, and then safely use them in your processes."
@@ -70571,6 +70619,9 @@ msgstr ""
 msgid "SecurityReports|Image"
 msgstr ""
 
+msgid "SecurityReports|In GitLab 19.2 and later, vulnerabilities that are no longer detected are excluded from vulnerability counts in the security dashboard."
+msgstr ""
+
 msgid "SecurityReports|Inactive secret"
 msgstr ""
 
@@ -71356,7 +71407,16 @@ msgstr ""
 msgid "Select type"
 msgstr ""
 
+msgid "Select users to exclude..."
+msgstr ""
+
+msgid "Select users to include..."
+msgstr ""
+
 msgid "Select vulnerability"
+msgstr ""
+
+msgid "Select which users should be included or excluded from triggering Slack notifications."
 msgstr ""
 
 msgid "Selected"
@@ -76866,6 +76926,9 @@ msgid "These merge requests need a review from you."
 msgstr ""
 
 msgid "These runners are shared across projects in this group."
+msgstr ""
+
+msgid "These users will NOT trigger Slack notifications"
 msgstr ""
 
 msgid "These variables are inherited from the parent group."

@@ -374,6 +374,85 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
   end
 
+  describe '#triggered_pipelines_with_preloads' do
+    let_it_be(:parent) { create(:ci_pipeline, project: project) }
+    let_it_be(:latest_child) { create(:ci_pipeline, project: project) }
+    let_it_be(:retried_child) { create(:ci_pipeline, project: project) }
+    let_it_be(:nil_retried_child) { create(:ci_pipeline, project: project) }
+    let_it_be(:build_triggered_child) { create(:ci_pipeline, project: project) }
+
+    before_all do
+      latest_bridge = create(:ci_bridge, pipeline: parent)
+      retried_bridge = create(:ci_bridge, :retried, pipeline: parent)
+      nil_bridge = create(:ci_bridge, pipeline: parent)
+      nil_bridge.update_column(:retried, nil)
+      build_source_job = create(:ci_build, pipeline: parent)
+
+      create(:ci_sources_pipeline, source_job: latest_bridge, pipeline: latest_child)
+      create(:ci_sources_pipeline, source_job: retried_bridge, pipeline: retried_child)
+      create(:ci_sources_pipeline, source_job: nil_bridge, pipeline: nil_retried_child)
+      create(:ci_sources_pipeline, source_job: build_source_job, pipeline: build_triggered_child)
+    end
+
+    subject(:triggered) { parent.triggered_pipelines_with_preloads }
+
+    it 'returns only downstreams whose source job is not retried' do
+      expect(triggered).to match_array([latest_child, nil_retried_child, build_triggered_child])
+    end
+
+    it 'orders the downstreams by id descending (latest first)' do
+      expect(triggered).to eq([build_triggered_child, nil_retried_child, latest_child])
+    end
+
+    it 'prunes partitions by filtering partition_id on both partitioned tables' do
+      recorder = ActiveRecord::QueryRecorder.new { triggered.to_a }
+
+      expect(recorder.log).to include(
+        a_string_matching(/"p_ci_builds"\."partition_id" =/),
+        a_string_matching(/"p_ci_pipelines"\."partition_id" =/)
+      )
+    end
+
+    context 'when the trigger job lives in a different partition than the downstream pipeline' do
+      let_it_be(:source_partition) { Ci::Partition::INITIAL_PARTITION_VALUE }
+      let_it_be(:downstream_partition) { Ci::Partition::INITIAL_PARTITION_VALUE + 1 }
+
+      let_it_be(:cross_parent) { create(:ci_pipeline, project: project, partition_id: source_partition) }
+      let_it_be(:cross_child) { create(:ci_pipeline, project: project, partition_id: downstream_partition) }
+      let_it_be(:cross_superseded_child) do
+        create(:ci_pipeline, project: project, partition_id: downstream_partition)
+      end
+
+      before_all do
+        latest = create(:ci_bridge, pipeline: cross_parent, partition_id: source_partition)
+        retried = create(:ci_bridge, :retried, pipeline: cross_parent, partition_id: source_partition)
+
+        create(:ci_sources_pipeline, source_job: latest, pipeline: cross_child)
+        create(:ci_sources_pipeline, source_job: retried, pipeline: cross_superseded_child)
+      end
+
+      subject(:cross_triggered) { cross_parent.triggered_pipelines_with_preloads }
+
+      it 'returns only the cross-partition downstream whose source job is not retried' do
+        expect(cross_triggered).to match_array([cross_child])
+      end
+    end
+
+    context 'when a legacy row has a null source_job_id' do
+      let_it_be(:null_source_child) { create(:ci_pipeline, project: project) }
+
+      before_all do
+        source = create(:ci_sources_pipeline, source_job: create(:ci_bridge, pipeline: parent),
+          pipeline: null_source_child)
+        source.update_column(:source_job_id, nil)
+      end
+
+      it 'includes the downstream pipeline' do
+        expect(triggered).to include(null_source_child)
+      end
+    end
+  end
+
   describe 'callbacks' do
     describe '#keep_around_commits' do
       let(:pipeline) { build(:ci_pipeline, user: user, project: project) }

@@ -33871,6 +33871,7 @@ CREATE TABLE vulnerability_occurrence_identifiers (
     occurrence_id bigint NOT NULL,
     identifier_id bigint NOT NULL,
     project_id bigint,
+    partition_id bigint DEFAULT 1,
     CONSTRAINT check_67fe772bae CHECK ((project_id IS NOT NULL))
 );
 
@@ -46035,6 +46036,8 @@ CREATE INDEX idx_vuln_detection_transitions_on_occurrence_id_id ON vulnerability
 CREATE INDEX idx_vuln_flip_guards_on_project_and_finding_id ON vulnerability_flip_guards USING btree (project_id, vulnerability_finding_id);
 
 CREATE UNIQUE INDEX idx_vuln_ns_stats_on_traversal_ids_and_namespace_id ON vulnerability_namespace_statistics USING btree (traversal_ids, namespace_id);
+
+CREATE INDEX idx_vuln_occurrence_identifiers_on_partition_id_identifier_id ON vulnerability_occurrence_identifiers USING btree (partition_id, identifier_id);
 
 CREATE INDEX idx_vuln_reads_for_filtering ON vulnerability_reads USING btree (project_id, state, dismissal_reason, severity DESC, vulnerability_id DESC NULLS LAST);
 
@@ -61573,6 +61576,9 @@ ALTER TABLE ONLY elasticsearch_indexed_namespaces
 
 ALTER TABLE ONLY vulnerability_occurrence_identifiers
     ADD CONSTRAINT fk_rails_be2e49e1d0 FOREIGN KEY (identifier_id) REFERENCES vulnerability_identifiers(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY vulnerability_occurrence_identifiers
+    ADD CONSTRAINT fk_rails_be2e49e1d0_p FOREIGN KEY (partition_id, identifier_id) REFERENCES vulnerability_identifiers(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
 
 ALTER TABLE ONLY bulk_import_export_batches
     ADD CONSTRAINT fk_rails_be479792f6 FOREIGN KEY (export_id) REFERENCES bulk_import_exports(id) ON DELETE CASCADE;

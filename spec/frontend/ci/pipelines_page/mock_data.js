@@ -62,7 +62,7 @@ export const mockPipelinesData = {
             path: '/root/ci-project/-/pipelines/701',
             retryable: true,
             cancelable: false,
-            downstream: { __typename: 'PipelineConnection', nodes: [] },
+            downstream: { count: 0, __typename: 'PipelineConnection', nodes: [] },
             upstream: null,
             stages: {
               nodes: [
@@ -181,7 +181,7 @@ export const mockPipelinesData = {
             path: '/root/ci-project/-/pipelines/699',
             retryable: true,
             cancelable: false,
-            downstream: { __typename: 'PipelineConnection', nodes: [] },
+            downstream: { count: 0, __typename: 'PipelineConnection', nodes: [] },
             upstream: null,
             stages: {
               nodes: [
@@ -507,6 +507,7 @@ export const mockBatchResponse = {
             failedJobsCount: 0,
             __typename: 'Pipeline',
             downstream: {
+              count: 1,
               nodes: [
                 {
                   id: 'gid://gitlab/Ci::Pipeline/924',
@@ -559,6 +560,7 @@ export const mockPipelineWithDownstream = {
           {
             __typename: 'Pipeline',
             downstream: {
+              count: 1,
               __typename: 'PipelineConnection',
               nodes: [
                 {
@@ -729,7 +731,7 @@ export const mockPipelineWithUpstream = {
         nodes: [
           {
             __typename: 'Pipeline',
-            downstream: { __typename: 'PipelineConnection', nodes: [] },
+            downstream: { count: 0, __typename: 'PipelineConnection', nodes: [] },
             upstream: {
               __typename: 'Pipeline',
               id: 'gid://gitlab/Ci::Pipeline/977',
@@ -979,6 +981,7 @@ export const mockSinglePipelineResponse = {
         failedJobsCount: 0,
         __typename: 'Pipeline',
         downstream: {
+          count: 0,
           nodes: [],
           __typename: 'PipelineConnection',
         },
@@ -992,6 +995,7 @@ export const mockSinglePipelineResponse = {
 export const mockBranchPipeline = {
   __typename: 'Pipeline',
   downstream: {
+    count: 1,
     __typename: 'PipelineConnection',
     nodes: [
       {

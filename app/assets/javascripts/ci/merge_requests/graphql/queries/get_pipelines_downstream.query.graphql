@@ -10,6 +10,7 @@ query getPipelineDownstream($fullPath: ID!, $mergeRequestIid: String!, $ids: [ID
         nodes {
           id
           downstream(first: 3) {
+            count
             nodes {
               ...PipelineDownstreamItem
             }

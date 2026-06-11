@@ -19,6 +19,36 @@ module Auth
 
     Stub = Service.rpc_stub_class
   end
+  module Login
+    class Service
+
+      include ::GRPC::GenericService
+
+      self.marshal_class_method = :encode
+      self.unmarshal_class_method = :decode
+      self.service_name = 'auth.Login'
+
+      rpc :Accept, ::Auth::AcceptLoginChallengeRequest, ::Auth::AcceptLoginChallengeResponse
+    end
+
+    Stub = Service.rpc_stub_class
+  end
+  module Consent
+    class Service
+
+      include ::GRPC::GenericService
+
+      self.marshal_class_method = :encode
+      self.unmarshal_class_method = :decode
+      self.service_name = 'auth.Consent'
+
+      rpc :Get, ::Auth::GetConsentChallengeRequest, ::Auth::GetConsentChallengeResponse
+      rpc :Accept, ::Auth::AcceptConsentChallengeRequest, ::Auth::AcceptConsentChallengeResponse
+      rpc :Reject, ::Auth::RejectConsentChallengeRequest, ::Auth::RejectConsentChallengeResponse
+    end
+
+    Stub = Service.rpc_stub_class
+  end
   module InternalOAuthSessions
     class Service
 

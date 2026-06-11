@@ -7,17 +7,47 @@ module Authn
 
       TIMEOUT_SECONDS = 5
 
-      def health(request)
-        call(:health, request)
+      REQUEST_TYPES = {
+        health: ::Auth::HealthRequest,
+        accept_login_challenge: ::Auth::AcceptLoginChallengeRequest,
+        get_consent_challenge: ::Auth::GetConsentChallengeRequest,
+        accept_consent_challenge: ::Auth::AcceptConsentChallengeRequest,
+        reject_consent_challenge: ::Auth::RejectConsentChallengeRequest
+      }.freeze
+
+      def health(**kwargs)
+        call(:health, kwargs)
+      end
+
+      def accept_login_challenge(**kwargs)
+        call(:accept_login_challenge, kwargs)
+      end
+
+      def get_consent_challenge(**kwargs)
+        call(:get_consent_challenge, kwargs)
+      end
+
+      def accept_consent_challenge(**kwargs)
+        call(:accept_consent_challenge, kwargs)
+      end
+
+      def reject_consent_challenge(**kwargs)
+        call(:reject_consent_challenge, kwargs)
       end
 
       private
 
-      def call(method_name, request)
+      def call(method_name, kwargs)
+        request = REQUEST_TYPES.fetch(method_name).new(**kwargs)
         options = { metadata: metadata }
 
         case method_name
         when :health then stub.health(request, **options)
+        when :accept_login_challenge then login_stub.accept(request, **options)
+        when :get_consent_challenge then consent_stub.get(request, **options)
+        when :accept_consent_challenge then consent_stub.accept(request, **options)
+        when :reject_consent_challenge then consent_stub.reject(request, **options)
+        else raise ArgumentError, "Unknown gRPC method: #{method_name}"
         end
       rescue Authn::IamAuthService::ConfigurationError => e
         raise RequestError, e.message
@@ -27,9 +57,20 @@ module Authn
       end
 
       def stub
-        # TODO: add mTLS support when IAM service exposes it
+        build_stub(::Auth::Auth::Stub)
+      end
+
+      def login_stub
+        build_stub(::Auth::Login::Stub)
+      end
+
+      def consent_stub
+        build_stub(::Auth::Consent::Stub)
+      end
+
+      def build_stub(stub_class)
         address = Authn::IamAuthService.grpc_address
-        ::Auth::Auth::Stub.new(
+        stub_class.new(
           strip_scheme(address),
           channel_credentials(address),
           interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],

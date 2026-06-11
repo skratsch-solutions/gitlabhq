@@ -657,6 +657,57 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
         end.to issue_same_number_of_queries_as(control_count)
       end
     end
+
+    context 'with a retried trigger job and more downstream pipelines than the render cap' do
+      let_it_be(:overflow_parent) { create(:ci_pipeline, project: project, user: user) }
+      let_it_be(:visible_children) { create_list(:ci_pipeline, 4, project: downstream_project, user: user) }
+      let_it_be(:superseded_child) { create(:ci_pipeline, project: downstream_project, user: user) }
+
+      before_all do
+        visible_children.each do |child|
+          create(:ci_sources_pipeline,
+            source_pipeline: overflow_parent, pipeline: child,
+            source_job: create(:ci_bridge, pipeline: overflow_parent))
+        end
+
+        create(:ci_sources_pipeline,
+          source_pipeline: overflow_parent, pipeline: superseded_child,
+          source_job: create(:ci_bridge, :retried, pipeline: overflow_parent))
+      end
+
+      def downstream_data(first:)
+        query = %(
+          query {
+            project(fullPath: "#{project.full_path}") {
+              pipeline(iid: "#{overflow_parent.iid}") {
+                downstream(first: #{first}) {
+                  count
+                  nodes { iid }
+                }
+              }
+            }
+          }
+        )
+
+        post_graphql(query, current_user: user)
+        graphql_data.dig('project', 'pipeline', 'downstream')
+      end
+
+      it 'excludes the superseded downstream pipeline from nodes and count' do
+        data = downstream_data(first: 10)
+
+        expect(data['count']).to eq(visible_children.size)
+        expect(data['nodes'].map { |node| node['iid'].to_i })
+          .to match_array(visible_children.map(&:iid))
+      end
+
+      it 'counts all latest downstream pipelines even when nodes are capped (+N overflow)' do
+        data = downstream_data(first: 3)
+
+        expect(data['count']).to eq(visible_children.size)
+        expect(data['nodes'].size).to eq(3)
+      end
+    end
   end
 
   shared_examples 'avoids N+1 queries for merge_request-dependent fields' do
