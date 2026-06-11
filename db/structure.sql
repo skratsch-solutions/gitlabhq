@@ -5661,8 +5661,15 @@ CREATE TABLE ai_usage_events (
 )
 PARTITION BY RANGE ("timestamp");
 
+CREATE SEQUENCE audit_events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE audit_events (
-    id bigint NOT NULL,
+    id bigint DEFAULT nextval('audit_events_id_seq'::regclass) NOT NULL,
     author_id bigint NOT NULL,
     entity_id bigint NOT NULL,
     entity_type character varying NOT NULL,
@@ -6305,15 +6312,8 @@ CREATE TABLE p_ci_workloads (
 )
 PARTITION BY LIST (partition_id);
 
-CREATE SEQUENCE shared_audit_event_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
 CREATE TABLE group_audit_events (
-    id bigint DEFAULT nextval('shared_audit_event_id_seq'::regclass) NOT NULL,
+    id bigint DEFAULT nextval('audit_events_id_seq'::regclass) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     group_id bigint NOT NULL,
     author_id bigint NOT NULL,
@@ -6366,7 +6366,7 @@ CREATE TABLE incident_management_pending_issue_escalations (
 PARTITION BY RANGE (process_at);
 
 CREATE TABLE instance_audit_events (
-    id bigint DEFAULT nextval('shared_audit_event_id_seq'::regclass) NOT NULL,
+    id bigint DEFAULT nextval('audit_events_id_seq'::regclass) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     author_id bigint NOT NULL,
     target_id bigint,
@@ -6652,7 +6652,7 @@ CREATE TABLE p_sent_notifications (
 PARTITION BY LIST (partition);
 
 CREATE TABLE project_audit_events (
-    id bigint DEFAULT nextval('shared_audit_event_id_seq'::regclass) NOT NULL,
+    id bigint DEFAULT nextval('audit_events_id_seq'::regclass) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     project_id bigint NOT NULL,
     author_id bigint NOT NULL,
@@ -6707,7 +6707,7 @@ CREATE TABLE security_findings (
 PARTITION BY LIST (partition_number);
 
 CREATE TABLE user_audit_events (
-    id bigint DEFAULT nextval('shared_audit_event_id_seq'::regclass) NOT NULL,
+    id bigint DEFAULT nextval('audit_events_id_seq'::regclass) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     user_id bigint NOT NULL,
     author_id bigint NOT NULL,
@@ -15748,15 +15748,6 @@ CREATE SEQUENCE audit_events_group_streaming_event_type_filters_id_seq
     CACHE 1;
 
 ALTER SEQUENCE audit_events_group_streaming_event_type_filters_id_seq OWNED BY audit_events_group_streaming_event_type_filters.id;
-
-CREATE SEQUENCE audit_events_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE audit_events_id_seq OWNED BY audit_events.id;
 
 CREATE TABLE audit_events_instance_amazon_s3_configurations (
     id bigint NOT NULL,
@@ -31011,6 +31002,13 @@ CREATE SEQUENCE shards_id_seq
 
 ALTER SEQUENCE shards_id_seq OWNED BY shards.id;
 
+CREATE SEQUENCE shared_audit_event_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE slack_api_scopes (
     id bigint NOT NULL,
     name text NOT NULL,
@@ -36179,8 +36177,6 @@ ALTER TABLE ONLY ascp_security_contexts ALTER COLUMN id SET DEFAULT nextval('asc
 ALTER TABLE ONLY ascp_security_guidelines ALTER COLUMN id SET DEFAULT nextval('ascp_security_guidelines_id_seq'::regclass);
 
 ALTER TABLE ONLY atlassian_identities ALTER COLUMN user_id SET DEFAULT nextval('atlassian_identities_user_id_seq'::regclass);
-
-ALTER TABLE ONLY audit_events ALTER COLUMN id SET DEFAULT nextval('audit_events_id_seq'::regclass);
 
 ALTER TABLE ONLY audit_events_amazon_s3_configurations ALTER COLUMN id SET DEFAULT nextval('audit_events_amazon_s3_configurations_id_seq'::regclass);
 

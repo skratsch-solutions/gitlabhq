@@ -42,8 +42,8 @@ module API
           end
 
           expose_field :author,
-            using: ::API::Entities::UserBasic,
-            documentation: { type: 'Entities::UserBasic' }
+            using: ::API::Entities::WorkItems::Author,
+            documentation: { type: 'Entities::WorkItems::Author' }
 
           expose_field :work_item_type, as: :work_item_type, using: ::API::Entities::WorkItems::Type,
             documentation: { type: 'Entities::WorkItems::Type' },

@@ -321,21 +321,19 @@ RSpec.describe IssuablesHelper, feature_category: :team_planning do
       end
     end
 
-    context 'for service desk issue authored by support bot' do
+    context 'for a ticket' do
       let(:project) { create(:project) }
-      let(:support_bot) { Users::Internal.in_organization(project.organization_id).support_bot }
-      let(:service_desk_issue) { create(:issue, project: project, author: support_bot) }
+      let(:ticket) { create(:issue, :ticket, project: project) }
 
-      it 'sets isServiceDesk to true via from_service_desk? fallback' do
-        @project = service_desk_issue.project
+      it 'sets isServiceDesk to true from the work item type' do
+        @project = ticket.project
 
         expected_data = {
-          issueType: 'issue',
           isIncidentManagement: false,
           isServiceDesk: true
         }
 
-        expect(helper.issuable_initial_data(service_desk_issue)).to match(hash_including(expected_data))
+        expect(helper.issuable_initial_data(ticket)).to match(hash_including(expected_data))
       end
     end
 

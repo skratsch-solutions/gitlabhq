@@ -3101,19 +3101,6 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
         end
       end
 
-      context 'when item is Service Desk issue' do
-        before do
-          item.update!(
-            author: support_bot,
-            service_desk_reply_to: 'user@example.com'
-          )
-        end
-
-        it 'is not part of the available commands' do
-          expect(service.available_commands(item)).not_to include(a_hash_including(name: :convert_to_ticket))
-        end
-      end
-
       context 'when item is ticket' do
         let_it_be_with_reload(:item) { create(:work_item, :ticket, project: project) }
 

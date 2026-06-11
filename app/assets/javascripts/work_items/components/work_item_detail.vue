@@ -988,7 +988,7 @@ export default {
     >
       <!-- Do not remove the element below, it allows for scrolling to top on click of sticky header -->
       <div id="top"></div>
-      <detail-layout :loading="workItemLoading">
+      <detail-layout :loading="workItemLoading" :show-sidebar="showSidebar">
         <template #loading>
           <work-item-loading />
         </template>

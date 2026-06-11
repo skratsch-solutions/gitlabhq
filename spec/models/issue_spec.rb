@@ -1136,22 +1136,6 @@ RSpec.describe Issue, feature_category: :team_planning do
     end
   end
 
-  describe '#from_service_desk?' do
-    subject { issue.from_service_desk? }
-
-    context 'when issue author is support bot' do
-      let(:issue) { create(:issue, project: reusable_project, author: support_bot) }
-
-      it { is_expected.to be_truthy }
-    end
-
-    context 'when issue author is not support bot' do
-      let(:issue) { create(:issue, project: reusable_project) }
-
-      it { is_expected.to be_falsey }
-    end
-  end
-
   describe '#autoclose_by_merged_closing_merge_request?' do
     subject { issue.autoclose_by_merged_closing_merge_request? }
 
@@ -2177,7 +2161,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       [:issue, :task]         | true
       [:issue, :group_level]  | true
       [:issue, :incident]     | false
-      [:issue, :service_desk] | false
+      [:issue, :ticket]       | false
     end
 
     with_them do
@@ -2202,7 +2186,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       :issue                  | true
       [:issue, :task]         | true
       [:issue, :incident]     | false
-      [:issue, :service_desk] | false
+      [:issue, :ticket]       | false
     end
 
     with_them do
@@ -2228,13 +2212,19 @@ RSpec.describe Issue, feature_category: :team_planning do
       [:issue, :task]         | false
       [:issue, :group_level]  | false
       [:issue, :incident]     | true
-      [:issue, :service_desk] | true
+      [:issue, :ticket]       | true
     end
 
     with_them do
       let(:issue) { build_stubbed(*Array(factory)) }
 
       it { is_expected.to be result }
+    end
+
+    context 'when work_item_type is nil' do
+      let(:issue) { build_stubbed(:issue, work_item_type: nil) }
+
+      it { is_expected.to be false }
     end
   end
 

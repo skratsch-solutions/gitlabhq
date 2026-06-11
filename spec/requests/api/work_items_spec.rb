@@ -219,6 +219,36 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
 
       it_behaves_like 'work item N+1 query prevention'
     end
+
+    context 'when unauthenticated' do
+      let_it_be(:public_project, freeze: false) { create(:project, :public) }
+      let_it_be(:public_work_item, freeze: false) { create(:work_item, project: public_project) }
+
+      it 'lists work items in a public project when the flag is enabled', :aggregate_failures do
+        stub_feature_flags(work_item_rest_api: true)
+
+        get api("/projects/#{public_project.id}/-/work_items")
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.pluck('id')).to include(public_work_item.id)
+      end
+
+      it 'returns forbidden while the flag is only rolled out to specific users' do
+        stub_feature_flags(work_item_rest_api: user, work_item_rest_api_index: user)
+
+        get api("/projects/#{public_project.id}/-/work_items")
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+
+      it 'does not expose work items in a private project' do
+        stub_feature_flags(work_item_rest_api: true)
+
+        get api("/projects/#{project.id}/-/work_items")
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
   end
 
   describe 'GET /projects/:id/-/work_items/:work_item_iid' do

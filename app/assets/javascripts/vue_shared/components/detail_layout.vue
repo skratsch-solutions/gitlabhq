@@ -35,6 +35,11 @@ export default {
       required: false,
       default: false,
     },
+    showSidebar: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
 };
 </script>
@@ -74,7 +79,7 @@ export default {
     <div
       v-else
       class="gl-detail-layout-container"
-      :class="{ 'gl-detail-layout-container-has-sidebar': $scopedSlots.sidebar }"
+      :class="{ 'gl-detail-layout-container-has-sidebar': $scopedSlots.sidebar && showSidebar }"
       data-testid="detail-layout-container"
     >
       <div class="gl-detail-layout-content" data-testid="detail-layout-content">
@@ -83,6 +88,7 @@ export default {
       <div
         v-if="$scopedSlots.sidebar"
         class="gl-detail-layout-sidebar"
+        :class="{ 'gl-contents': !showSidebar }"
         data-testid="detail-layout-sidebar"
       >
         <slot name="sidebar"></slot>

@@ -736,10 +736,6 @@ class Issue < ApplicationRecord
     @design_collection ||= DesignManagement::DesignCollection.new(self)
   end
 
-  def from_service_desk?
-    author.support_bot?
-  end
-
   def issue_link_type
     link_class = self.class.related_link_class
     return unless respond_to?(:issue_link_type_value) && respond_to?(:issue_link_source_id)
@@ -908,13 +904,8 @@ class Issue < ApplicationRecord
     !require_legacy_views?
   end
 
-  # Legacy views/workflows only
-  # - Service Desk were not converted to the work items framework.
-  # - Incidents were not converted to the work items framework.
-  #
-  # Overridden in EE for test case check
   def require_legacy_views?
-    from_service_desk? || work_item_type&.incident?
+    work_item_type&.use_legacy_view? || false
   end
 
   def ==(other)

@@ -351,7 +351,11 @@ RSpec.shared_examples 'cloneable and moveable widget data' do
   context "with widget" do
     before do
       enable_design_management
-      allow(original_work_item).to receive(:from_service_desk?).and_return(true)
+      # Exercises the notifications widget's sent_notifications migration without
+      # changing the fixture type (which would alter widget composition). Class-level
+      # stub survives the reload/becomes churn in the data-sync; an instance stub does not.
+      allow_any_instance_of(original_work_item.work_item_type.class) # rubocop:disable RSpec/AnyInstanceOf -- see comment above
+        .to receive(:service_desk?).and_return(true)
     end
 
     it_behaves_like 'for clone and move services'

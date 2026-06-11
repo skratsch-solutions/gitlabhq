@@ -20,6 +20,10 @@ $detail-layout-gap: 2rem;
 }
 
 .gl-detail-layout-container-has-sidebar {
+  // Set explicit minimum grid column size instead of implicit `auto`
+  // so contents don't overflow in smaller viewports
+  grid-template-columns: minmax(0, 1fr);
+
   @include gl-container-width-up(lg) {
     grid-template-columns: minmax(67%, 1fr) $detail-layout-sidebar-width;
     grid-template-rows: auto auto 1fr;

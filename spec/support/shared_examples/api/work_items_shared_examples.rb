@@ -169,7 +169,9 @@ RSpec.shared_examples 'work item listing payload' do
       'moved_to_work_item_url' => nil,
       'user_permissions' => a_hash_including('create_note' => true, 'read_work_item' => true),
       'author' => a_hash_including('id' => primary_work_item.author_id,
-        'username' => primary_work_item.author.username, 'name' => primary_work_item.author.name
+        'username' => primary_work_item.author.username, 'name' => primary_work_item.author.name,
+        'web_url' => Gitlab::Routing.url_helpers.user_url(primary_work_item.author),
+        'web_path' => Gitlab::Routing.url_helpers.user_path(primary_work_item.author)
       ),
       'work_item_type' => a_hash_including(
         'name' => primary_work_item.work_item_type.name,
@@ -225,6 +227,9 @@ RSpec.shared_examples 'avoids N+1 queries' do
     create(:work_items_dates_source, :fixed, work_item: extra_work_item)
     create(:timelog, issue: extra_work_item, user: timelog_user, time_spent: 1800)
     extra_work_item.update_columns(last_edited_by_id: editor.id, last_edited_at: 1.day.ago)
+
+    # Settle first-request queries for any users created by the factories above before comparing
+    get api(api_request_path, user), params: { fields: all_fields_param, features: all_features_param }
 
     expect do
       get api(api_request_path, user), params: { fields: all_fields_param, features: all_features_param }

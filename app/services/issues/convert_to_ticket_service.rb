@@ -66,7 +66,7 @@ module Issues
     end
 
     def ticket?
-      target.from_service_desk? && target.work_item_type.base_type == 'ticket'
+      target.work_item_type.service_desk?
     end
 
     def valid_email?
