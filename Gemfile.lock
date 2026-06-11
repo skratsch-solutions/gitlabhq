@@ -748,12 +748,12 @@ GEM
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
     fuzzyurl (0.9.0)
-    gapic-common (1.2.0)
+    gapic-common (1.1.0)
       faraday (>= 1.9, < 3.a)
       faraday-retry (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
-      google-protobuf (~> 4.26)
+      google-protobuf (>= 3.25, < 5.a)
       googleapis-common-protos (~> 1.6)
       googleapis-common-protos-types (~> 1.15)
       googleauth (~> 1.12)
@@ -807,6 +807,21 @@ GEM
       nokogiri (~> 1, >= 1.10.8)
     gitlab-gkg-proto (0.37.0)
       grpc (~> 1.0)
+    gitlab-glaz (0.0.3)
+      google-protobuf (~> 4.35)
+      rb_sys (~> 0.9.128)
+    gitlab-glaz (0.0.3-aarch64-linux-gnu)
+      google-protobuf (~> 4.35)
+      rb_sys (~> 0.9.128)
+    gitlab-glaz (0.0.3-arm64-darwin)
+      google-protobuf (~> 4.35)
+      rb_sys (~> 0.9.128)
+    gitlab-glaz (0.0.3-x86_64-darwin)
+      google-protobuf (~> 4.35)
+      rb_sys (~> 0.9.128)
+    gitlab-glaz (0.0.3-x86_64-linux-gnu)
+      google-protobuf (~> 4.35)
+      rb_sys (~> 0.9.128)
     gitlab-glfm-markdown (0.0.41)
       rb_sys (~> 0.9.124)
     gitlab-glfm-markdown (0.0.41-aarch64-linux-gnu)
@@ -855,7 +870,7 @@ GEM
       activesupport (>= 5.2.0)
       rake (~> 13.0)
       snowplow-tracker (~> 0.8.0)
-    gitlab-secret_detection (0.41.0)
+    gitlab-secret_detection (0.42.0)
       grpc (>= 1.63.0, < 2)
       grpc_reflection (~> 0.1)
       parallel (~> 1)
@@ -1008,8 +1023,8 @@ GEM
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos-types (~> 1.7)
       grpc (~> 1.41)
-    googleapis-common-protos-types (1.23.0)
-      google-protobuf (~> 4.26)
+    googleapis-common-protos-types (1.20.0)
+      google-protobuf (>= 3.18, < 5.a)
     googleauth (1.14.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
@@ -1082,8 +1097,7 @@ GEM
       googleapis-common-protos (~> 1.7.0)
       grpc (~> 1.41)
     grpc-tools (1.80.0)
-    grpc_reflection (0.4.0)
-      google-protobuf (>= 4.31.0)
+    grpc_reflection (0.2.0)
       grpc
     gssapi (1.3.1)
       ffi (>= 1.0.1)
@@ -1821,13 +1835,12 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.4.2)
-    rake-compiler-dock (1.11.0)
+    rake-compiler-dock (1.12.0)
     rb-fsevent (0.11.2)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    rb_sys (0.9.126)
-      json (>= 2)
-      rake-compiler-dock (= 1.11.0)
+    rb_sys (0.9.128)
+      rake-compiler-dock (= 1.12.0)
     rbs (3.9.5)
       logger
     rbtrace (0.5.3)
@@ -2433,6 +2446,7 @@ DEPENDENCIES
   gitlab-experiment (~> 1.3.0)
   gitlab-fog-azure-rm (~> 2.5.0)
   gitlab-gkg-proto (~> 0.37.0)
+  gitlab-glaz (~> 0.0.3)
   gitlab-glfm-markdown (~> 0.0.41)
   gitlab-grape-openapi (~> 0.1)
   gitlab-housekeeper!
@@ -2911,7 +2925,7 @@ CHECKSUMS
   freezolite (0.6.0) sha256=a1305e324738633a30904b50f085bebe7b43c64ebc1e23ce848ee0eeaf3b1dfd
   fugit (1.11.2) sha256=4c2e234f750c78d4514d0ca343a0b923847eac3846976fdb23ed4245d8fde6fe
   fuzzyurl (0.9.0) sha256=542efa80f2bcaadbdc402c2f0b572f2e335a1d53e375aecad68bbb3d86860c0f
-  gapic-common (1.2.0) sha256=b477ec1eebbed7eed80efc04267369ce623e18b14e573c806e8920f76dc60dde
+  gapic-common (1.1.0) sha256=3270ab3c5135012a4ab4d8848f945cf35014192f24504cdb40c66fc67f1beaa3
   gdk-toogle (0.9.5) sha256=38b8972576d324c0905e5a2935592c21ec36bedb4bf1e6d195257ee20ebad249
   gemoji (3.0.1) sha256=80553f2f4932a7a95fb1b3c7c63f7dd937e7c8c610164bbdea28fd06eba5f36d
   get_process_mem (0.2.7) sha256=4afd3c3641dd6a817c09806c7d6d509d8a9984512ac38dea8b917426bbf77eba
@@ -2931,6 +2945,11 @@ CHECKSUMS
   gitlab-experiment (1.3.0) sha256=747c720edb6bd1a3f6974fbdd389a7f79d26a74a4f7927525104ecfe3281e6be
   gitlab-fog-azure-rm (2.5.0) sha256=f10fd3f6667925e4ce97cea2fa707b926320c7b7fa06978788e2f452ee7f4db0
   gitlab-gkg-proto (0.37.0) sha256=3cbb5eec14158a4122fc0131008989a0eb6d045ead993a0ad9d59b653f6ada71
+  gitlab-glaz (0.0.3) sha256=f484a1eaf28849d7c19cccf2dabc2ee045c7c9fd870af0d4974a638593634829
+  gitlab-glaz (0.0.3-aarch64-linux-gnu) sha256=68f1e940294d2bfef97aad376ab151c8eaf7f821a9b467a3cf04646c577e8de9
+  gitlab-glaz (0.0.3-arm64-darwin) sha256=f04aac78729dc7a98675a63ab871d574c9122ec3d31bc062be9a4d973e54a306
+  gitlab-glaz (0.0.3-x86_64-darwin) sha256=895f6559a0d7a3ed464895908591c35ea83899bce05e5fae68306766c8fb0efa
+  gitlab-glaz (0.0.3-x86_64-linux-gnu) sha256=202d013e388a7303115b13d9537fcff8ee8256a395fae0fcb66c6f0ac5d2f538
   gitlab-glfm-markdown (0.0.41) sha256=f7ea03194aa760913c68bad76dbada3b96735b307453e1c88cbee0f8f90f0124
   gitlab-glfm-markdown (0.0.41-aarch64-linux-gnu) sha256=ff8cfded556277cd8143820657cb8f6490305e8ea0382e87fafbc760662f00bf
   gitlab-glfm-markdown (0.0.41-arm64-darwin) sha256=8589ed60fd91ee564378800926518a581fdb4198c657428af2242c495de2a342
@@ -2952,7 +2971,7 @@ CHECKSUMS
   gitlab-safe_request_store (0.1.0)
   gitlab-schema-validation (0.1.0)
   gitlab-sdk (0.3.1) sha256=48ba49084f4ab92df7c7ef9f347020d9dfdf6ed9c1e782b67264e98ffe6ea710
-  gitlab-secret_detection (0.41.0) sha256=6d64971af2c4b37eda3eb79f61ef6cbe67e841e730fc52e1549a9ceb34c3329c
+  gitlab-secret_detection (0.42.0) sha256=79e320e2cb2165e02508e9fe4e70a218f7b9236a8d1f077c9c66010e5a3844b2
   gitlab-security_report_schemas (0.2.0.min15.0.0.max15.2.4) sha256=7ed47c45096101514327ad512979a672889ac899531bfc948cb5905c816e39bf
   gitlab-sidekiq-fetcher (0.12.1)
   gitlab-styles (14.1.0) sha256=f39bc5619636bad3690d574438d70b865f48e38d57a38d7823bdeff2a90d2d5a
@@ -3001,7 +3020,7 @@ CHECKSUMS
   google-protobuf (4.35.0-x86_64-darwin) sha256=05eb5c8bc9899135befff496fc0a3642e7ff3d0943f043841dcc456f5654fea0
   google-protobuf (4.35.0-x86_64-linux-gnu) sha256=999226f3b00cd9fddb1b26851d16060212fa1d90c406aaad47e574682b716059
   googleapis-common-protos (1.7.0) sha256=b684c0b9e1800c6bb89ad64e0dcabb377a01a31ff7aec1bfebd26c183b2c9241
-  googleapis-common-protos-types (1.23.0) sha256=992e740a523794d9fc5f29a504465d8fc737aaa16c930fe7228e3346860faf0a
+  googleapis-common-protos-types (1.20.0) sha256=5e374b06bcfc7e13556e7c0d87b99f1fa3d42de6396a1de3d8fc13aefb4dd07f
   googleauth (1.14.0) sha256=62e7de11791890c3d3dc70582dfd9ab5516530e4e4f56d96451fd62c76475149
   gpgme (2.0.26) sha256=1aebfd2eb83b745341e6f416f318597568af5ad4d7d1f55bfab4f1078123abaa
   grape (2.0.0) sha256=3aeff94c17e84ccead4ff98833df691e7da0c108878cc128ca31f80c1047494a
@@ -3021,7 +3040,7 @@ CHECKSUMS
   grpc (1.81.0-x86_64-linux-gnu) sha256=9676501f1abd2305ca9bdc1247d4014f59547bef56800064c05a359023331a2c
   grpc-google-iam-v1 (1.11.0) sha256=8f0aa8a8503b3e001cb1561f31e43aa0445752fb675334afa1afac7f023f368c
   grpc-tools (1.80.0) sha256=49076fbc7b34556365694202ed7ffd1e959e68ba8c339e99b437ba2a985a2cf2
-  grpc_reflection (0.4.0) sha256=72d3e743f049821f976a4280b3d1b1a3369775121d75d35954f0e139e4e3f0cf
+  grpc_reflection (0.2.0) sha256=f9c5308216c62185c26cacad764a1bf6cf67515dc110871441bafbb2825333e4
   gssapi (1.3.1) sha256=c51cf30842ee39bd93ce7fc33e20405ff8a04cda9dec6092071b61258284aee1
   guard (2.16.2) sha256=71ba7abaddecc8be91ab77bbaf78f767246603652ebbc7b976fda497ebdc8fbb
   guard-compat (1.2.1) sha256=3ad21ab0070107f92edfd82610b5cdc2fb8e368851e72362ada9703443d646fe
@@ -3298,10 +3317,10 @@ CHECKSUMS
   railties (7.2.3.1) sha256=aea3393ee10243ceedcbeccb45458a0d58b524b6d21bf32eff8b93853baae15a
   rainbow (3.1.1) sha256=039491aa3a89f42efa1d6dec2fc4e62ede96eb6acd95e52f1ad581182b79bc6a
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
-  rake-compiler-dock (1.11.0) sha256=eab51f2cd533eb35cea6b624a75281f047123e70a64c58b607471bb49428f8c2
+  rake-compiler-dock (1.12.0) sha256=f13205c2738f3d2053afcd03491a9e4541b22a59a0bfc53fc8bc883bd8188023
   rb-fsevent (0.11.2) sha256=43900b972e7301d6570f64b850a5aa67833ee7d87b458ee92805d56b7318aefe
   rb-inotify (0.10.1) sha256=050062d4f31d307cca52c3f6a7f4b946df8de25fc4bd373e1a5142e41034a7ca
-  rb_sys (0.9.126) sha256=ba958e0b8b4b89eeae0b3d24b64c809eb2c37e0ab0773a49e9b1c2e22c95aef8
+  rb_sys (0.9.128) sha256=9ab81f4d6d4e1895de18762232362d1264475aa7035756b50441e442130538fd
   rbs (3.9.5) sha256=eabaaf60aee84e38cbf94839c6e1b9cd145c7295fc3cc0e88c92e4069b1119b0
   rbtrace (0.5.3) sha256=c432292f305d9ab12fd47d9722e0d5210d983758a951fe6107c36cc955cb923f
   rchardet (1.8.0) sha256=693acd5253d5ade81a51940697955f6dd4bb2f0d245bda76a8e23deec70a52c7

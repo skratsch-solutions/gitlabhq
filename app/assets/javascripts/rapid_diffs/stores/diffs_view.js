@@ -14,6 +14,7 @@ import { queueRedisHllEvents } from '~/diffs/utils/queue_events';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import axios from '~/lib/utils/axios_utils';
 import { useDiffsList } from '~/rapid_diffs/stores/diffs_list';
+import { useFileBrowser } from '~/diffs/stores/file_browser';
 
 export const useDiffsView = defineStore('diffsView', {
   state() {
@@ -22,7 +23,9 @@ export const useDiffsView = defineStore('diffsView', {
       showWhitespace: true,
       fileByFileMode: false,
       singleFileMode: false,
+      currentFileIndex: 0,
       updateUserEndpoint: undefined,
+      diffFileEndpoint: undefined,
       streamUrl: undefined,
       diffsStatsEndpoint: undefined,
       diffsStats: null,
@@ -61,10 +64,33 @@ export const useDiffsView = defineStore('diffsView', {
     },
     updateDiffView() {
       if (this.singleFileMode) {
-        // TODO: implement single file mode
+        this.loadCurrentFile();
         return;
       }
       useDiffsList().reloadDiffs(mergeUrlParams(this.requestParams, this.streamUrl));
+    },
+    loadCurrentFile() {
+      const file = useFileBrowser().flatBlobsList[this.currentFileIndex];
+      if (!file) return;
+      useDiffsList().loadSingleFile({
+        endpoint: this.diffFileEndpoint,
+        oldPath: file.filePaths.old,
+        newPath: file.filePaths.new,
+        viewType: this.viewType,
+        showWhitespace: this.showWhitespace,
+      });
+    },
+    goToFile(index) {
+      const { flatBlobsList } = useFileBrowser();
+      if (index < 0 || index >= flatBlobsList.length) return;
+      this.currentFileIndex = index;
+      this.loadCurrentFile();
+    },
+    goToNextFile() {
+      this.goToFile(this.currentFileIndex + 1);
+    },
+    goToPrevFile() {
+      this.goToFile(this.currentFileIndex - 1);
     },
     updateViewType(view) {
       this.viewType = view;
@@ -86,6 +112,7 @@ export const useDiffsView = defineStore('diffsView', {
       if (this.updateUserEndpoint) {
         axios.put(this.updateUserEndpoint, { view_diffs_file_by_file: value });
       }
+      this.updateDiffView();
     },
     updateShowWhitespace(value) {
       this.showWhitespace = value;
@@ -104,6 +131,15 @@ export const useDiffsView = defineStore('diffsView', {
     },
     totalFilesCount() {
       return this.diffsStats?.realSize ?? this.diffsStats?.diffsCount;
+    },
+    currentFileNumber() {
+      return this.currentFileIndex + 1;
+    },
+    hasNextFile() {
+      return this.currentFileIndex < useFileBrowser().flatBlobsList.length - 1;
+    },
+    hasPrevFile() {
+      return this.currentFileIndex > 0;
     },
   },
 });

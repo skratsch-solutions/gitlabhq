@@ -35,6 +35,25 @@ RSpec.describe UserRecentEventsFinder do
       end
     end
 
+    context 'when exclude_transferred_events is enabled' do
+      let_it_be(:transferred_event) do
+        create(
+          :event,
+          :transferred,
+          project: public_project,
+          target: public_project,
+          target_type: 'Project',
+          author: project_owner
+        )
+      end
+
+      subject(:finder) { described_class.new(current_user, project_owner, nil, params, exclude_transferred_events: true) }
+
+      it 'does not include transferred events' do
+        expect(finder.execute).not_to include(transferred_event)
+      end
+    end
+
     it 'does not include the events if the user cannot read cross project' do
       allow(Ability).to receive(:allowed?).and_call_original
       expect(Ability).to receive(:allowed?).with(current_user, :read_cross_project) { false }

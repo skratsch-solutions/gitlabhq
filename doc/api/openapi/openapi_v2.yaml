@@ -74838,6 +74838,28 @@ definitions:
         type: string
       packages_helm_metadata_caches_oldest_unsynced_time:
         type: string
+      dependency_list_export_uploads_count:
+        type: string
+      dependency_list_export_uploads_checksum_total_count:
+        type: string
+      dependency_list_export_uploads_checksummed_count:
+        type: string
+      dependency_list_export_uploads_checksum_failed_count:
+        type: string
+      dependency_list_export_uploads_synced_count:
+        type: string
+      dependency_list_export_uploads_failed_count:
+        type: string
+      dependency_list_export_uploads_registry_count:
+        type: string
+      dependency_list_export_uploads_verification_total_count:
+        type: string
+      dependency_list_export_uploads_verified_count:
+        type: string
+      dependency_list_export_uploads_verification_failed_count:
+        type: string
+      dependency_list_export_uploads_oldest_unsynced_time:
+        type: string
       issuable_metric_image_uploads_count:
         type: string
       issuable_metric_image_uploads_checksum_total_count:
@@ -75326,6 +75348,10 @@ definitions:
         type: string
       packages_helm_metadata_caches_verified_in_percentage:
         type: string
+      dependency_list_export_uploads_synced_in_percentage:
+        type: string
+      dependency_list_export_uploads_verified_in_percentage:
+        type: string
       issuable_metric_image_uploads_synced_in_percentage:
         type: string
       issuable_metric_image_uploads_verified_in_percentage:
@@ -75678,6 +75704,17 @@ definitions:
     - packages_helm_metadata_caches_verified_count
     - packages_helm_metadata_caches_verification_failed_count
     - packages_helm_metadata_caches_oldest_unsynced_time
+    - dependency_list_export_uploads_count
+    - dependency_list_export_uploads_checksum_total_count
+    - dependency_list_export_uploads_checksummed_count
+    - dependency_list_export_uploads_checksum_failed_count
+    - dependency_list_export_uploads_synced_count
+    - dependency_list_export_uploads_failed_count
+    - dependency_list_export_uploads_registry_count
+    - dependency_list_export_uploads_verification_total_count
+    - dependency_list_export_uploads_verified_count
+    - dependency_list_export_uploads_verification_failed_count
+    - dependency_list_export_uploads_oldest_unsynced_time
     - issuable_metric_image_uploads_count
     - issuable_metric_image_uploads_checksum_total_count
     - issuable_metric_image_uploads_checksummed_count
@@ -75922,6 +75959,8 @@ definitions:
     - supply_chain_attestations_verified_in_percentage
     - packages_helm_metadata_caches_synced_in_percentage
     - packages_helm_metadata_caches_verified_in_percentage
+    - dependency_list_export_uploads_synced_in_percentage
+    - dependency_list_export_uploads_verified_in_percentage
     - issuable_metric_image_uploads_synced_in_percentage
     - issuable_metric_image_uploads_verified_in_percentage
     - vulnerability_export_part_uploads_synced_in_percentage

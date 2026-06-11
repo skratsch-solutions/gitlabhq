@@ -249,6 +249,25 @@ RSpec.describe Event, feature_category: :user_profile do
       end
     end
 
+    describe '.excluding_transferred' do
+      let_it_be(:transferred_event, freeze: false) do
+        create(
+          :event,
+          :transferred,
+          project: project,
+          target: project,
+          target_type: 'Project'
+        )
+      end
+
+      let_it_be(:non_transferred_event, freeze: false) { create(:event, :created, project: project) }
+
+      it 'excludes transferred events' do
+        expect(described_class.excluding_transferred).to include(non_transferred_event)
+        expect(described_class.excluding_transferred).not_to include(transferred_event)
+      end
+    end
+
     describe '.created_at' do
       it 'can find the right event' do
         time = 1.day.ago
@@ -1555,6 +1574,7 @@ RSpec.describe Event, feature_category: :user_profile do
         :destroyed | 'destroyed'
         :expired   | 'removed due to membership expiration from'
         :approved  | 'approved'
+        :transferred | 'transferred'
       end
 
       with_them do
@@ -1563,6 +1583,30 @@ RSpec.describe Event, feature_category: :user_profile do
 
           expect(event.action_name).to eq(action_name)
         end
+      end
+    end
+
+    context 'for transferred events' do
+      it 'returns true for a transferred project action' do
+        event = build(:event, :transferred, target: project, target_type: 'Project')
+
+        expect(event.transferred_project_action?).to be(true)
+      end
+
+      it 'uses the group as the permission object for target_type-backed transferred group events', :aggregate_failures do
+        group = create(:group)
+        event = create(:event, :transferred, group: group, project: nil, target: group, target_type: 'Group')
+
+        expect(event.transferred_group_action?).to be(true)
+        expect(event.send(:permission_object)).to eq(group)
+      end
+
+      it 'does not treat targetless transferred events as group transfer actions', :aggregate_failures do
+        group = create(:group)
+        event = create(:event, :transferred, group: group, project: nil, target_type: nil, target_id: nil)
+
+        expect(event.transferred_group_action?).to be(false)
+        expect(event.send(:permission_object)).to be_nil
       end
     end
 

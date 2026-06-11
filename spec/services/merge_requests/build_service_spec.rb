@@ -92,13 +92,13 @@ RSpec.describe MergeRequests::BuildService, feature_category: :code_review_workf
 
   shared_examples 'allows the merge request to be created' do
     it do
-      expect(merge_request.can_be_created).to eq(true)
+      expect(merge_request.can_be_created).to be(true)
     end
   end
 
   shared_examples 'forbids the merge request from being created' do
     it 'returns that the merge request cannot be created' do
-      expect(merge_request.can_be_created).to eq(false)
+      expect(merge_request.can_be_created).to be(false)
     end
 
     it 'adds an error message to the merge request' do
@@ -1013,7 +1013,7 @@ RSpec.describe MergeRequests::BuildService, feature_category: :code_review_workf
       let(:description) { nil }
 
       it 'does not update the description' do
-        expect(merge_request.description).to eq(nil)
+        expect(merge_request.description).to be_nil
       end
     end
 

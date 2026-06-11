@@ -133,6 +133,7 @@ module Groups
       propagate_integrations
       update_pending_builds
       send_transfer_instructions(old_path)
+      create_transfer_event
 
       true
     end
@@ -154,6 +155,10 @@ module Groups
       group.run_after_commit_or_now do
         NotificationService.new.group_was_transferred(group, old_path)
       end
+    end
+
+    def create_transfer_event
+      EventCreateService.new.transfer_group(group, current_user)
     end
 
     # Overridden in EE

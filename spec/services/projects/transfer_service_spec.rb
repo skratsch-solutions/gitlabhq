@@ -217,6 +217,12 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
       execute_transfer
     end
 
+    it 'creates a transferred activity event' do
+      expect { execute_transfer }.to change {
+        Event.transferred_action.where(target: project, target_type: 'Project').count
+      }.by(1)
+    end
+
     it 'invalidates the user\'s personal_project_count cache' do
       expect(user).to receive(:invalidate_personal_projects_count)
 

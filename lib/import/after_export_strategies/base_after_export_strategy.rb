@@ -8,6 +8,7 @@ module Import
       extend Forwardable
 
       StrategyError = Class.new(StandardError)
+      ExportNotReadyError = Class.new(StrategyError)
 
       private
 
@@ -46,6 +47,11 @@ module Import
         strategy_execute
 
         true
+      rescue ExportNotReadyError
+        # Re-raise so the calling worker (e.g. ParallelProjectExportWorker) can
+        # retry the whole export. Other StrategyError failures (e.g. a failed
+        # web upload) keep the existing notify-and-return-false behavior below.
+        raise
       rescue StandardError => e
         payload = { message: "After export strategy failed" }
         Gitlab::ExceptionLogFormatter.format!(e, payload)
@@ -78,7 +84,7 @@ module Import
           break if export_ready
 
           retries += 1
-          raise StrategyError if retries > max_retries
+          raise ExportNotReadyError if retries > max_retries
 
           delay = base_delay * (2**(retries - 1))
           log_info({

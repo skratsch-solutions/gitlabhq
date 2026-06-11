@@ -274,6 +274,7 @@ export default {
         query: getWorkItemTreeQuery,
         variables: {
           id,
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
         },
         update: (data) => findHierarchyWidgetChildren(data?.workItem),
         result({ data }) {
@@ -395,6 +396,7 @@ export default {
               id: targetItem.id,
               ...hierarchyWidgetParams,
             },
+            useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
           },
           update: async (
             cache,
@@ -417,7 +419,10 @@ export default {
             } else {
               const queryArgs = {
                 query: getWorkItemTreeQuery,
-                variables: { id: fromParentId },
+                variables: {
+                  id: fromParentId,
+                  useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
+                },
               };
               const sourceData = cache.readQuery(queryArgs);
 
@@ -434,59 +439,77 @@ export default {
               });
             }
           },
-          optimisticResponse: {
-            workItemsHierarchyReorder: {
-              __typename: 'workItemsHierarchyReorderPayload',
-              workItem: {
-                ...targetItem,
-                userPermissions: optimisticUserPermissions,
-                widgets: [
-                  {
-                    __typename: 'WorkItemWidgetHierarchy',
-                    type: 'HIERARCHY',
-                    hasChildren: false,
-                    hasParent: true,
-                    depthLimitReachedByType: [],
-                    rolledUpCountsByType: [],
-                    parent: { id: toParentId },
-                    children: [],
-                  },
-                ],
+          optimisticResponse: (() => {
+            const useFeatures = Boolean(this.glFeatures?.workItemFeaturesField);
+            const targetHierarchy = {
+              __typename: 'WorkItemWidgetHierarchy',
+              type: 'HIERARCHY',
+              hasChildren: false,
+              hasParent: true,
+              depthLimitReachedByType: [],
+              rolledUpCountsByType: [],
+              parent: { id: toParentId },
+              children: [],
+            };
+            const parentHierarchy = {
+              __typename: 'WorkItemWidgetHierarchy',
+              type: 'HIERARCHY',
+              hasChildren: true,
+              hasParent: parentHasParent,
+              depthLimitReachedByType: [],
+              rolledUpCountsByType: [],
+              parent: null,
+              children: {
+                __typename: 'WorkItemConnection',
+                pageInfo: {
+                  __typename: 'PageInfo',
+                  hasNextPage: false,
+                  hasPreviousPage: false,
+                  startCursor: '',
+                  endCursor: '',
+                },
+                count: updatedChildren.length,
+                nodes: [...updatedChildren],
               },
-              parentWorkItem: {
-                __typename: 'WorkItem',
-                id: parentId,
-                userPermissions: optimisticUserPermissions,
-                confidential: this.toParent.confidential || this.parent.confidential,
-                title: toParentTitle,
-                workItemType: this.toParent.workItemType || this.parent.workItemType,
-                widgets: [
-                  {
-                    __typename: 'WorkItemWidgetHierarchy',
-                    type: 'HIERARCHY',
-                    hasChildren: true,
-                    hasParent: parentHasParent,
-                    depthLimitReachedByType: [],
-                    rolledUpCountsByType: [],
-                    parent: null,
-                    children: {
-                      __typename: 'WorkItemConnection',
-                      pageInfo: {
-                        __typename: 'PageInfo',
-                        hasNextPage: false,
-                        hasPreviousPage: false,
-                        startCursor: '',
-                        endCursor: '',
-                      },
-                      count: updatedChildren.length,
-                      nodes: [...updatedChildren],
-                    },
-                  },
-                ],
+            };
+
+            return {
+              workItemsHierarchyReorder: {
+                __typename: 'workItemsHierarchyReorderPayload',
+                workItem: {
+                  ...targetItem,
+                  userPermissions: optimisticUserPermissions,
+                  widgets: useFeatures ? [] : [targetHierarchy],
+                  ...(useFeatures
+                    ? {
+                        features: {
+                          __typename: 'WorkItemFeatures',
+                          hierarchy: targetHierarchy,
+                        },
+                      }
+                    : {}),
+                },
+                parentWorkItem: {
+                  __typename: 'WorkItem',
+                  id: parentId,
+                  userPermissions: optimisticUserPermissions,
+                  confidential: this.toParent.confidential || this.parent.confidential,
+                  title: toParentTitle,
+                  workItemType: this.toParent.workItemType || this.parent.workItemType,
+                  widgets: useFeatures ? [] : [parentHierarchy],
+                  ...(useFeatures
+                    ? {
+                        features: {
+                          __typename: 'WorkItemFeatures',
+                          hierarchy: parentHierarchy,
+                        },
+                      }
+                    : {}),
+                },
+                errors: [],
               },
-              errors: [],
-            },
-          },
+            };
+          })(),
         })
         .then(
           ({

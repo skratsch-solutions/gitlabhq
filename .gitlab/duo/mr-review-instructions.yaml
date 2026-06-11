@@ -64,6 +64,9 @@ instructions:
           - Flag bulk operations on associated records in callbacks (performance concern as associations grow)
           - Acceptable uses: data normalization on current model only (trimming whitespace, setting defaults)
           - Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/backend/ruby_style_guide.md#avoid-activerecord-callbacks
+      13. To exclude records already loaded in memory, prefer `collection.excluding(record)` (alias `without`) over a hand-written `where.not(id: record)`.
+          - Do not pass a relation to `excluding`; for query results use `where.not(id: relation)`, which runs as a single subquery.
+          - Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/backend/ruby_style_guide.md#prefer-excluding-for-records-already-loaded-in-memory
 
   - name: Database Migrations
     fileFilters:

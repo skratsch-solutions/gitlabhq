@@ -30,6 +30,7 @@ import PageHeading from '~/vue_shared/components/page_heading.vue';
 import {
   findAssigneesWidget,
   findCrmContactsWidget,
+  findHierarchyWidget,
   getDisplayReference,
   getNewWorkItemAutoSaveKey,
   getNewWorkItemWidgetsAutoSaveKey,
@@ -439,7 +440,7 @@ export default {
       return findWidget(WIDGET_TYPE_COLOR, this.workItem);
     },
     workItemHierarchy() {
-      return findWidget(WIDGET_TYPE_HIERARCHY, this.workItem);
+      return findHierarchyWidget(this.workItem);
     },
     showParentAttribute() {
       // We use the work item create work flow for incidents although

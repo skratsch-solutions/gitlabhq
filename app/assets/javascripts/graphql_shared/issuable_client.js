@@ -10,7 +10,6 @@ import typeDefs from '~/work_items/graphql/typedefs.graphql';
 import {
   WIDGET_TYPE_NOTES,
   WIDGET_TYPE_AWARD_EMOJI,
-  WIDGET_TYPE_HIERARCHY,
   WIDGET_TYPE_LINKED_ITEMS,
   WIDGET_TYPE_ASSIGNEES,
   WIDGET_TYPE_LABELS,
@@ -200,6 +199,19 @@ export const config = {
           // kills any possibility to handle it on the widget level without hardcoding a string.
           children: {
             keyArgs: false,
+            // Handles paginated children for both;
+            // - `widgets[].hierarchy.children`
+            // - `features.hierarchy.children`
+            // By writing to the same WorkItemWidgetHierarchy type.
+            merge(existing, incoming, { variables }) {
+              if (existing && incoming && variables.endCursor) {
+                return {
+                  ...incoming,
+                  nodes: [...existing.nodes, ...incoming.nodes],
+                };
+              }
+              return incoming;
+            },
           },
         },
       },
@@ -228,6 +240,13 @@ export const config = {
             keyArgs: false,
             merge(existing = {}, incoming = {}) {
               const merged = { ...existing, ...incoming };
+
+              // Deep-merge hierarchy so a partial incoming.hierarchy (e.g. from
+              // an optimistic response that only knows the new parent) preserves
+              // existing fields like children, hasChildren, rolledUpCountsByType.
+              if (incoming.hierarchy && existing.hierarchy) {
+                merged.hierarchy = { ...existing.hierarchy, ...incoming.hierarchy };
+              }
 
               // preserve existing awardEmoji connection when incoming only has summary data
               // (e.g. upvotes/downvotes from main query or subscription)
@@ -293,22 +312,6 @@ export const config = {
                         ...existingWidget.discussions.nodes,
                         ...incomingWidget.discussions.nodes,
                       ],
-                    },
-                  };
-                }
-
-                // we want to concat next page of children work items within Hierarchy widget to the existing ones
-                if (
-                  incomingWidget?.type === WIDGET_TYPE_HIERARCHY &&
-                  context.variables.endCursor &&
-                  incomingWidget.children?.nodes
-                ) {
-                  // concatPagination won't work because we were placing new widget here so we have to do this manually
-                  return {
-                    ...incomingWidget,
-                    children: {
-                      ...incomingWidget.children,
-                      nodes: [...existingWidget.children.nodes, ...incomingWidget.children.nodes],
                     },
                   };
                 }

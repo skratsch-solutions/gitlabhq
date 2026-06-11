@@ -123,6 +123,51 @@ RSpec.describe EventCollection do
 
         expect(events).to match_array(push_events)
       end
+
+      context 'when transferred events exist' do
+        it 'excludes transferred events when exclude_transferred_events is enabled', :aggregate_failures do
+          transferred_event = create(
+            :event,
+            :transferred,
+            project: project,
+            target: project,
+            target_type: 'Project',
+            author: user
+          )
+          non_transferred_event = create(:event, :joined, project: project, author: user)
+
+          events = described_class.new(projects, transfer_options: { exclude_transferred_events: true }).to_a
+
+          expect(events.map(&:id)).to include(non_transferred_event.id)
+          expect(events.map(&:id)).not_to include(transferred_event.id)
+        end
+      end
+
+      context 'when ancestor group transfer events exist' do
+        let_it_be(:source_group, freeze: false) { create(:group) }
+        let_it_be(:target_group) { create(:group) }
+        let_it_be(:source_project) { create(:project_empty_repo, group: source_group) }
+        let(:source_projects) { Project.where(id: source_project.id) }
+
+        it 'includes ancestor group transfer events for project activity' do
+          source_group.update!(parent: target_group)
+          group_transfer_event = create(
+            :event,
+            :transferred,
+            project: nil,
+            group: source_group,
+            target: source_group,
+            target_type: 'Group',
+            author: user
+          )
+          events = described_class.new(
+            source_projects,
+            transfer_options: { ancestor_group_ids: source_group.self_and_ancestors.select(:id) }
+          ).to_a
+
+          expect(events.map(&:id)).to include(group_transfer_event.id)
+        end
+      end
     end
 
     context 'with multiple projects' do
@@ -171,6 +216,53 @@ RSpec.describe EventCollection do
         create(:event, project: nil, group: subgroup, author: user)
 
         expect(subject).to match_array([event1])
+      end
+
+      context 'when transferred project and group events exist' do
+        let_it_be(:subgroup) { create(:group, parent: group) }
+
+        it 'includes transferred project and subgroup events for parent group activity', :aggregate_failures do
+          project_transfer_event = create(
+            :event,
+            :transferred,
+            project: project,
+            target: project,
+            target_type: 'Project',
+            author: user
+          )
+
+          subgroup_group_transfer_event = create(
+            :event,
+            :transferred,
+            project: nil,
+            group: subgroup,
+            target_type: nil,
+            target_id: nil,
+            author: user
+          )
+
+          group_transfer_event = create(
+            :event,
+            :transferred,
+            project: nil,
+            group: group,
+            target_type: nil,
+            target_id: nil,
+            author: user
+          )
+
+          events = described_class.new(
+            projects,
+            groups: groups,
+            transfer_options: { current_group_id: group.id }
+          ).to_a
+
+          expect(events.map(&:id)).to include(
+            project_transfer_event.id,
+            subgroup_group_transfer_event.id,
+            group_transfer_event.id
+          )
+        end
       end
 
       context 'with pagination through events' do

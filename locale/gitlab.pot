@@ -31264,6 +31264,21 @@ msgstr ""
 msgid "Events API"
 msgstr ""
 
+msgid "Event|Transferred group %{group_link} into this group"
+msgstr ""
+
+msgid "Event|Transferred group %{group_link} to a new namespace"
+msgstr ""
+
+msgid "Event|Transferred project %{project_link} into this group"
+msgstr ""
+
+msgid "Event|Transferred project %{project_link} to a new namespace"
+msgstr ""
+
+msgid "Event|Transferred to a new namespace"
+msgstr ""
+
 msgid "Event|accepted"
 msgstr ""
 
@@ -31310,6 +31325,9 @@ msgid "Event|removed"
 msgstr ""
 
 msgid "Event|removed due to membership expiration from"
+msgstr ""
+
+msgid "Event|transferred"
 msgstr ""
 
 msgid "Event|updated"
@@ -33659,6 +33677,12 @@ msgid "Geo|Debian Project Component File"
 msgstr ""
 
 msgid "Geo|Debian Project Component Files"
+msgstr ""
+
+msgid "Geo|Dependency List Export Upload"
+msgstr ""
+
+msgid "Geo|Dependency List Export Uploads"
 msgstr ""
 
 msgid "Geo|Dependency Proxy Blob"
@@ -50172,6 +50196,9 @@ msgstr ""
 msgid "Observability|Allocating compute resources"
 msgstr ""
 
+msgid "Observability|Application monitoring, built into GitLab"
+msgstr ""
+
 msgid "Observability|Application performance monitoring with p99 latency tracking and real-time metrics visualization"
 msgstr ""
 
@@ -50413,6 +50440,9 @@ msgid "Observability|GitLab Observability dashboard - advanced analytics"
 msgstr ""
 
 msgid "Observability|GitLab Observability dashboard - performance metrics"
+msgstr ""
+
+msgid "Observability|GitLab Observability is an application monitoring backend included with your project. It's an alternative to Datadog, New Relic, and Dynatrace. Instrument your application with OpenTelemetry to send traces, metrics, and logs, then explore them alongside your commits, pipelines, and issues."
 msgstr ""
 
 msgid "Observability|GitLab Observability is an open source, OpenTelemetry-native observability platform that unifies logs, metrics, and traces in a single application. Monitor application performance with APM dashboards, visualize distributed traces across microservices, manage centralized logs with powerful querying, and set up intelligent alerts."
@@ -51357,6 +51387,12 @@ msgid "Onboarding|A CI improvement workflow is already in progress."
 msgstr ""
 
 msgid "Onboarding|Blank project (default)"
+msgstr ""
+
+msgid "Onboarding|Code review instructions have already been initialized."
+msgstr ""
+
+msgid "Onboarding|Code review instructions initialization is already in progress."
 msgstr ""
 
 msgid "Onboarding|Continue"
@@ -85387,6 +85423,9 @@ msgstr ""
 msgid "WikiPage|Content"
 msgstr ""
 
+msgid "WikiPage|Convert back to page"
+msgstr ""
+
 msgid "WikiPage|Create %{pageTitle}"
 msgstr ""
 
@@ -85403,6 +85442,9 @@ msgid "WikiPage|Create template %{pageTitle}"
 msgstr ""
 
 msgid "WikiPage|Delete sidebar"
+msgstr ""
+
+msgid "WikiPage|For templates, the path is generated from the title and cannot be edited."
 msgstr ""
 
 msgid "WikiPage|Format"
@@ -85433,6 +85475,9 @@ msgid "WikiPage|Save changes directly"
 msgstr ""
 
 msgid "WikiPage|Save changes with message"
+msgstr ""
+
+msgid "WikiPage|Save template"
 msgstr ""
 
 msgid "WikiPage|Template title"

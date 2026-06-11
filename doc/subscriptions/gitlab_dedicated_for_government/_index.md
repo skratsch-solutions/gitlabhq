@@ -188,10 +188,9 @@ These processes prioritize compliance, security, and stability throughout all ma
 
 ### Maintenance
 
-Your instance receives regular maintenance:
-
-- Monthly upgrades with the latest patch release during your preferred weekly window
-- Emergency maintenance for critical security issues
+Your instance receives maintenance during fixed weekly windows.
+For details, see
+[GitLab Dedicated maintenance operations](../../administration/dedicated/maintenance.md#maintenance-window-schedule).
 
 ### Releases and versions
 

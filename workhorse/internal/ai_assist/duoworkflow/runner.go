@@ -666,6 +666,8 @@ func (r *runner) Shutdown(ctx context.Context) error {
 		if wsErr := r.conn.WriteControl(websocket.CloseMessage, closeMsg, deadline); wsErr != nil {
 			log.WithRequest(r.originalReq).WithError(wsErr).Info("Shutdown: failed to send CloseGoingAway to client")
 		} else {
+			log.WithRequest(r.originalReq).Info("Shutdown: successfully sent CloseGoingAway to client")
+
 			// Mark the WebSocket as closed so that Close() skips sending
 			// CloseNormalClosure (1000) on top of the 1001 we just sent.
 			r.websocketClosed.Store(true)

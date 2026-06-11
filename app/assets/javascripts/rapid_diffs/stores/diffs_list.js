@@ -111,6 +111,23 @@ export const useDiffsList = defineStore('diffsList', {
       }
       return this.reloadDiffs(fetchUrl, true);
     },
+    loadSingleFile({ endpoint, oldPath, newPath, viewType, showWhitespace }) {
+      return this.withDebouncedAbortController(async ({ signal }) => {
+        const url = new URL(endpoint, window.location.origin);
+
+        if (oldPath) url.searchParams.set('old_path', oldPath);
+        if (newPath) url.searchParams.set('new_path', newPath);
+        if (viewType === 'parallel') url.searchParams.set('view', 'parallel');
+
+        url.searchParams.set('ignore_whitespace_changes', !showWhitespace);
+
+        const container = document.querySelector('[data-diffs-list]');
+
+        container.innerHTML = '';
+
+        await this.renderDiffsStream(fetch(url.toString(), { signal }), container, signal);
+      });
+    },
     reloadDiffs(url, initial = false) {
       return this.withDebouncedAbortController(async ({ signal }) => {
         this.loadedFiles = {};

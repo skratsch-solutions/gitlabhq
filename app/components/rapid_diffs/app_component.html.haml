@@ -55,6 +55,7 @@
                     window.performance.mark('rapid-diffs-list-loaded');
                     window.performance.measure('rapid-diffs-list-loading', 'rapid-diffs-first-diff-file-shown', 'rapid-diffs-list-loaded');
                   })
+        %div{ data: { file_by_file_navigation: true } }
         .rd-app-diffs-loading{ data: { list_loading: true }, hidden: !diffs_stream_url || file_by_file_mode? }
           = render Pajamas::SpinnerComponent.new(size: :lg)
         = after_diffs_list

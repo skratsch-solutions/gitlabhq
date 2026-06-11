@@ -20,12 +20,12 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
       allow(service).to receive(:sleep)
     end
 
-    it 'returns if project exported file is not found' do
+    it 'raises ExportNotReadyError and does not run the strategy when the export file is not found' do
       allow(project).to receive(:export_file_exists?).and_return(false)
 
       expect(service).not_to receive(:strategy_execute)
 
-      service.execute(user, project)
+      expect { service.execute(user, project) }.to raise_error(described_class::ExportNotReadyError)
     end
 
     it 'creates a lock file in the export dir' do
@@ -166,7 +166,7 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
 
         expect do
           service.ensure_export_ready!(user, max_retries: 3, base_delay: 0.01)
-        end.to raise_error(described_class::StrategyError)
+        end.to raise_error(described_class::ExportNotReadyError)
       end
 
       it 'respects max_retries parameter' do
@@ -178,7 +178,7 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
 
         expect do
           service.ensure_export_ready!(user, max_retries: 2, base_delay: 0.01)
-        end.to raise_error(described_class::StrategyError)
+        end.to raise_error(described_class::ExportNotReadyError)
 
         expect(call_count).to eq(3) # initial + 2 retries
       end
@@ -210,7 +210,7 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
 
         expect do
           service.ensure_export_ready!(user, max_retries: 2, base_delay: 0.01)
-        end.to raise_error(described_class::StrategyError)
+        end.to raise_error(described_class::ExportNotReadyError)
       end
     end
 
@@ -220,7 +220,7 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
 
         expect do
           service.ensure_export_ready!(user, max_retries: 3, base_delay: 1)
-        end.to raise_error(described_class::StrategyError)
+        end.to raise_error(described_class::ExportNotReadyError)
 
         expect(service).to have_received(:sleep).with(1).once    # 1 * 2^0
         expect(service).to have_received(:sleep).with(2).once    # 1 * 2^1
@@ -233,7 +233,7 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
 
         expect do
           service.ensure_export_ready!(user, max_retries: 2, base_delay: 2)
-        end.to raise_error(described_class::StrategyError)
+        end.to raise_error(described_class::ExportNotReadyError)
 
         expect(service).to have_received(:sleep).with(2).once    # 2 * 2^0
         expect(service).to have_received(:sleep).with(4).once    # 2 * 2^1

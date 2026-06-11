@@ -486,9 +486,11 @@ class ProjectsController < Projects::ApplicationController
   # rubocop: disable CodeReuse/ActiveRecord
   def load_events
     projects = Project.where(id: @project.id)
+    transfer_options = {}
+    transfer_options[:ancestor_group_ids] = @project.group.self_and_ancestors.select(:id) if @project.group
 
     @events = EventCollection
-      .new(projects, offset: params[:offset].to_i, filter: event_filter)
+      .new(projects, offset: params[:offset].to_i, filter: event_filter, transfer_options: transfer_options)
       .to_a
       .map(&:present)
   end

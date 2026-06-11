@@ -174,9 +174,16 @@ $merge-request-sticky-header-height: rem-to-px($mr-sticky-tabs-height) + 1px;
           @apply gl-hidden;
         }
 
-        .merge-request-tabs-container,
         .detail-page-description {
+          @apply gl-z-2;
+        }
+
+        .merge-request-tabs-container {
           @apply gl-z-1;
+        }
+
+        .merge-request-stack-toggle {
+          margin-top: -2px;
         }
       }
     }

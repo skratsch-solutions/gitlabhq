@@ -286,6 +286,7 @@ module Projects
     def post_update_hooks(project, _old_group)
       ensure_personal_project_owner_membership(project)
       invalidate_personal_projects_counts
+      EventCreateService.new.transfer_project(project, current_user)
 
       publish_event
     end

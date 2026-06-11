@@ -31,7 +31,6 @@ import {
   i18n,
   WIDGET_TYPE_CURRENT_USER_TODOS,
   WIDGET_TYPE_DESCRIPTION,
-  WIDGET_TYPE_HIERARCHY,
   WORK_ITEM_TYPE_NAME_OBJECTIVE,
   WIDGET_TYPE_LINKED_ITEMS,
   WIDGET_TYPE_DESIGNS,
@@ -56,6 +55,7 @@ import {
   findAwardEmojiWidget,
   findDevelopmentWidget,
   findErrorTrackingWidget,
+  findHierarchyWidget,
   findLinkedResourcesWidget,
   findHierarchyWidgetDefinition,
   findNotesWidget,
@@ -385,7 +385,7 @@ export default {
       return this.glFeatures.notificationsTodosButtons;
     },
     parentWorkItem() {
-      return this.findWidget(WIDGET_TYPE_HIERARCHY)?.parent;
+      return findHierarchyWidget(this.workItem)?.parent;
     },
     parentWorkItemId() {
       return this.parentWorkItem?.id;
@@ -441,7 +441,7 @@ export default {
       return findLinkedResourcesWidget(this.workItem)?.linkedResources?.nodes ?? [];
     },
     workItemHierarchy() {
-      return this.findWidget(WIDGET_TYPE_HIERARCHY);
+      return findHierarchyWidget(this.workItem);
     },
     workItemNotes() {
       return findNotesWidget(this.workItem);
@@ -470,7 +470,7 @@ export default {
         : this.findWidget(WIDGET_TYPE_LINKED_ITEMS);
     },
     showWorkItemTree() {
-      return this.findWidget(WIDGET_TYPE_HIERARCHY) && this.allowedChildTypes?.length > 0;
+      return findHierarchyWidget(this.workItem) && this.allowedChildTypes?.length > 0;
     },
     titleClassHeader() {
       return {

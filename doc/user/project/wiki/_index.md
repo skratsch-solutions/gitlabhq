@@ -430,7 +430,12 @@ Prerequisites:
 1. In the left sidebar, select **Plan** > **Wiki**.
 1. Select **Wiki actions** ({{< icon name="ellipsis_v" >}}), then **Templates**.
 1. Select **New Template**.
-1. Enter template title, format and content, as if creating a regular wiki page.
+1. Enter the template title, format, and content.
+
+The template path is generated from the title and cannot be edited. To rename a template,
+change its title. The title is stored only as part of the path, so applying the template
+to a page does not insert any title metadata into the page content. To create nested
+templates, use "/" as a path separator in the title.
 
 Templates of a particular format can only be applied to pages of the same format.
 For example, Markdown templates only apply to Markdown pages.

@@ -1181,7 +1181,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
         update_merge_request({ description: "- [ ] Task 1\n- [ ] Task 2" })
       end
 
-      it { expect(@merge_request.tasks?).to eq(true) }
+      it { expect(@merge_request.tasks?).to be(true) }
 
       it_behaves_like 'updating a single task'
 
@@ -1593,7 +1593,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
             .to change { merge_request.reload.target_branch }.from('mr-a').to('master')
 
           expect(merge_request.reload.head_pipeline_id).to be_nil
-          expect(merge_request.retargeted).to eq(true)
+          expect(merge_request.retargeted).to be(true)
         end
 
         it 'tracks the retarget_merge_request_on_target_branch_merge internal event' do

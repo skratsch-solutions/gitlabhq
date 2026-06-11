@@ -40,7 +40,7 @@ const initSettingsApp = (el, pinia) => {
           showWhitespace: this.showWhitespace,
           diffViewType: this.viewType,
           viewDiffsFileByFile: this.singleFileMode,
-          fileByFileSupported: false,
+          fileByFileSupported: true,
           isLoading: this.isLoading,
           addedLines: this.diffsStats?.addedLines,
           removedLines: this.diffsStats?.removedLines,

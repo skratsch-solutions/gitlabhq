@@ -68,6 +68,10 @@ export default {
           </div>
         </div>
       </div>
+
+      <div v-if="$scopedSlots.footer" class="panel-footer" data-testid="panel-footer">
+        <slot name="footer"></slot>
+      </div>
     </div>
   </div>
 </template>

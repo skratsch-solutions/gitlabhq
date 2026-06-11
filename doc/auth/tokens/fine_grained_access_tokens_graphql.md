@@ -41,6 +41,14 @@ Grants the ability to read dependencies.
 | ------ | ------ | ---- | ---- |
 | Read | Project | Type | `DependencyLocation` |
 
+#### Pipeline Execution Project Schedule
+
+Grants the ability to read pipeline execution project schedules.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Project | Type | `PipelineExecutionProjectSchedule` |
+
 #### Vulnerability
 
 Grants the ability to create, read, and update vulnerabilities.

@@ -1099,6 +1099,12 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
         transfer_service.execute(target)
       end
 
+      it 'creates a transferred activity event' do
+        expect { transfer_service.execute(target) }.to change {
+          Event.transferred_action.where(group: group, project: nil).count
+        }.by(1)
+      end
+
       it 'does not send notification when transfer fails' do
         expect(NotificationService).not_to receive(:new)
 

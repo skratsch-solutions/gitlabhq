@@ -134,7 +134,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
     it 'sets auto_merge_enabled' do
       service.execute
 
-      expect(last_mr.auto_merge_enabled).to eq(true)
+      expect(last_mr.auto_merge_enabled).to be(true)
       expect(last_mr.auto_merge_strategy).to eq(AutoMergeService::STRATEGY_MERGE_WHEN_CHECKS_PASS)
       expect(last_mr.merge_user).to eq(user1)
       expect(last_mr.merge_params['sha']).to eq(change[:newrev])
@@ -147,7 +147,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
     it 'returns true to force_remove_source_branch?' do
       service.execute
 
-      expect(last_mr.force_remove_source_branch?).to eq(true)
+      expect(last_mr.force_remove_source_branch?).to be(true)
     end
   end
 

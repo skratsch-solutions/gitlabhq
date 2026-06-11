@@ -69,7 +69,7 @@ RSpec.describe MergeRequests::Mergeability::CheckConflictStatusService, feature_
 
   describe '#cacheable?' do
     it 'returns false' do
-      expect(check_conflict_status.cacheable?).to eq false
+      expect(check_conflict_status.cacheable?).to be false
     end
   end
 end

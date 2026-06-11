@@ -105,7 +105,7 @@ describe('View settings', () => {
     expect(getProp('addedLines')).toBe(1);
     expect(getProp('removedLines')).toBe(2);
     expect(getProp('diffsCount')).toBe(3);
-    expect(getProp('fileByFileSupported')).toBe(false);
+    expect(getProp('fileByFileSupported')).toBe(true);
     expect(getProp('hideOnNarrowScreen')).toBe(false);
   });
 

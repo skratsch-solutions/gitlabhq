@@ -8,6 +8,7 @@ describe('DynamicPanel', () => {
 
   const findPanelActions = () => wrapper.findComponent(PanelActions);
   const findContainer = () => wrapper.findByTestId('layout-container');
+  const findFooter = () => wrapper.findByTestId('panel-footer');
 
   const createComponent = ({ mountFn = shallowMountExtended, ...options } = {}) => {
     wrapper = mountFn(DynamicPanel, options);
@@ -61,6 +62,18 @@ describe('DynamicPanel', () => {
   it('root element has the js-paneled-view class', () => {
     createComponent();
     expect(wrapper.classes()).toContain('js-paneled-view');
+  });
+
+  describe('footer slot', () => {
+    it('does not render the footer when no footer slot is provided', () => {
+      createComponent();
+      expect(findFooter().exists()).toBe(false);
+    });
+
+    it('renders the footer when footer slot content is provided', () => {
+      createComponent({ slots: { footer: 'Panel footer' } });
+      expect(findFooter().text()).toContain('Panel footer');
+    });
   });
 
   describe('maximizeUrl prop', () => {

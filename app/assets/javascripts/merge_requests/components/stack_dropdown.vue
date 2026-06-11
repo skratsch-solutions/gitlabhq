@@ -85,6 +85,7 @@ export default {
         size="small"
         :aria-label="toggleLabel"
         :title="__('Stacked merge requests')"
+        class="merge-request-stack-toggle"
       >
         <gl-icon name="container-image" />
         <span>{{ toggleText }}</span>

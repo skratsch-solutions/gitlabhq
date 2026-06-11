@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import waitForPromises from 'helpers/wait_for_promises';
 import { useDiffsView } from '~/rapid_diffs/stores/diffs_view';
 import { useDiffsList } from '~/rapid_diffs/stores/diffs_list';
+import { useFileBrowser } from '~/diffs/stores/file_browser';
 import { setCookie } from '~/lib/utils/common_utils';
 import {
   DIFF_VIEW_COOKIE_NAME,
@@ -173,6 +174,24 @@ describe('Diffs view store', () => {
       await waitForPromises();
       expect(mockAxios.history.put).toHaveLength(0);
     });
+
+    it('calls loadCurrentFile when enabling', () => {
+      useDiffsList().loadSingleFile.mockResolvedValue();
+      store.diffFileEndpoint = '/diff_file';
+      useFileBrowser().tree = [
+        { type: 'blob', filePaths: { old: 'a.js', new: 'a.js' }, fileHash: 'abc' },
+      ];
+      store.toggleFileByFile(true);
+      expect(useDiffsList().loadSingleFile).toHaveBeenCalled();
+    });
+
+    it('calls reloadDiffs when disabling', () => {
+      store.singleFileMode = true;
+      store.toggleFileByFile(false);
+      expect(useDiffsList().reloadDiffs).toHaveBeenCalledWith(
+        `${defaultState.streamUrl}?view=inline&w=0`,
+      );
+    });
   });
 
   describe('#updateShowWhitespace', () => {
@@ -212,6 +231,136 @@ describe('Diffs view store', () => {
     it('returns real size when provided so the "+" suffix is preserved', () => {
       store.diffsStats = { diffsCount: 10, realSize: '10+' };
       expect(store.totalFilesCount).toBe('10+');
+    });
+  });
+
+  describe('file-by-file navigation', () => {
+    const files = [
+      { type: 'blob', filePaths: { old: 'a.js', new: 'a.js' }, fileHash: 'aaa' },
+      { type: 'blob', filePaths: { old: 'b.js', new: 'b.js' }, fileHash: 'bbb' },
+      { type: 'blob', filePaths: { old: 'c.js', new: 'c.js' }, fileHash: 'ccc' },
+    ];
+
+    beforeEach(() => {
+      store.diffFileEndpoint = '/diff_file';
+      store.singleFileMode = true;
+      useFileBrowser().tree = files;
+      useDiffsList().loadSingleFile.mockResolvedValue();
+    });
+
+    describe('#loadCurrentFile', () => {
+      it('loads the file at currentFileIndex', () => {
+        store.currentFileIndex = 1;
+        store.loadCurrentFile();
+        expect(useDiffsList().loadSingleFile).toHaveBeenCalledWith({
+          endpoint: '/diff_file',
+          oldPath: 'b.js',
+          newPath: 'b.js',
+          viewType: 'inline',
+          showWhitespace: true,
+        });
+      });
+
+      it('does nothing when index is out of bounds', () => {
+        store.currentFileIndex = 5;
+        store.loadCurrentFile();
+        expect(useDiffsList().loadSingleFile).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('#goToFile', () => {
+      it('updates currentFileIndex and loads the file', () => {
+        store.goToFile(2);
+        expect(store.currentFileIndex).toBe(2);
+        expect(useDiffsList().loadSingleFile).toHaveBeenCalledWith({
+          endpoint: '/diff_file',
+          oldPath: 'c.js',
+          newPath: 'c.js',
+          viewType: 'inline',
+          showWhitespace: true,
+        });
+      });
+
+      it('does nothing for negative index', () => {
+        store.goToFile(-1);
+        expect(store.currentFileIndex).toBe(0);
+        expect(useDiffsList().loadSingleFile).not.toHaveBeenCalled();
+      });
+
+      it('does nothing for index beyond file count', () => {
+        store.goToFile(3);
+        expect(store.currentFileIndex).toBe(0);
+        expect(useDiffsList().loadSingleFile).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('#goToNextFile', () => {
+      it('advances to the next file', () => {
+        store.currentFileIndex = 0;
+        store.goToNextFile();
+        expect(store.currentFileIndex).toBe(1);
+      });
+
+      it('does nothing at the last file', () => {
+        store.currentFileIndex = 2;
+        store.goToNextFile();
+        expect(store.currentFileIndex).toBe(2);
+      });
+    });
+
+    describe('#goToPrevFile', () => {
+      it('goes to the previous file', () => {
+        store.currentFileIndex = 2;
+        store.goToPrevFile();
+        expect(store.currentFileIndex).toBe(1);
+      });
+
+      it('does nothing at the first file', () => {
+        store.currentFileIndex = 0;
+        store.goToPrevFile();
+        expect(store.currentFileIndex).toBe(0);
+      });
+    });
+
+    describe('navigation getters', () => {
+      it('currentFileNumber is 1-indexed', () => {
+        store.currentFileIndex = 0;
+        expect(store.currentFileNumber).toBe(1);
+      });
+
+      it('hasNextFile is true when not at the end', () => {
+        store.currentFileIndex = 1;
+        expect(store.hasNextFile).toBe(true);
+      });
+
+      it('hasNextFile is false at the last file', () => {
+        store.currentFileIndex = 2;
+        expect(store.hasNextFile).toBe(false);
+      });
+
+      it('hasPrevFile is true when not at the start', () => {
+        store.currentFileIndex = 1;
+        expect(store.hasPrevFile).toBe(true);
+      });
+
+      it('hasPrevFile is false at the first file', () => {
+        store.currentFileIndex = 0;
+        expect(store.hasPrevFile).toBe(false);
+      });
+    });
+  });
+
+  describe('#updateDiffView in single file mode', () => {
+    it('loads current file instead of reloading all diffs', () => {
+      store.singleFileMode = true;
+      store.diffFileEndpoint = '/diff_file';
+      useFileBrowser().tree = [
+        { type: 'blob', filePaths: { old: 'a.js', new: 'a.js' }, fileHash: 'aaa' },
+      ];
+      useDiffsList().loadSingleFile.mockResolvedValue();
+      store.updateDiffView();
+      expect(useDiffsList().loadSingleFile).toHaveBeenCalled();
+      expect(useDiffsList().reloadDiffs).not.toHaveBeenCalled();
     });
   });
 });

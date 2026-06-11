@@ -150,4 +150,80 @@ RSpec.describe EventsFinder do
       it { is_expected.not_to include(event_with_other_target_type) }
     end
   end
+
+  describe '#by_organization', feature_category: :user_profile do
+    let_it_be(:organization) { create(:organization) }
+    let_it_be(:other_organization) { create(:organization) }
+
+    let_it_be(:org_project) do
+      create(:project, :public, organization: organization, creator_id: user.id)
+    end
+
+    let_it_be(:other_org_project) do
+      create(:project, :public, organization: other_organization, creator_id: user.id)
+    end
+
+    let_it_be(:org_event) do
+      create(:event, :created, project: org_project, author: user)
+    end
+
+    let_it_be(:other_org_event) do
+      create(:event, :created, project: other_org_project, author: user)
+    end
+
+    context 'when organization is provided' do
+      subject(:events) do
+        described_class.new(
+          source: user,
+          current_user: user,
+          organization: organization
+        ).execute
+      end
+
+      it 'returns only events from the specified organization', :aggregate_failures do
+        expect(events).to include(org_event)
+        expect(events).not_to include(other_org_event)
+      end
+
+      it 'returns events from multiple projects in the same organization' do
+        second_org_project = create(:project, :public, organization: organization, creator_id: user.id)
+        second_org_event = create(:event, :created, project: second_org_project, author: user)
+
+        expect(events).to include(org_event, second_org_event)
+      end
+    end
+
+    context 'when organization is not provided' do
+      subject(:events) do
+        described_class.new(
+          source: user,
+          current_user: user
+        ).execute
+      end
+
+      it 'returns events from all organizations', :aggregate_failures do
+        expect(events).to include(org_event)
+        expect(events).to include(other_org_event)
+      end
+    end
+
+    it 'excludes group events due to project join in by_current_user_access', :aggregate_failures do
+      # Group events have project_id = NULL, so they are excluded by the
+      # INNER JOIN on projects in by_current_user_access. The in_organization
+      # scope supports group events, but EventsFinder filters them out earlier.
+      org_group = create(:group, organization: organization)
+      other_org_group = create(:group, organization: other_organization)
+      org_group_event = create(:event, :created, group: org_group, project: nil, author: user)
+      other_org_group_event = create(:event, :created, group: other_org_group, project: nil, author: user)
+
+      events = described_class.new(
+        source: user,
+        current_user: user,
+        organization: organization
+      ).execute
+
+      expect(events).not_to include(org_group_event)
+      expect(events).not_to include(other_org_group_event)
+    end
+  end
 end

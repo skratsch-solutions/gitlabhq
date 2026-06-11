@@ -270,6 +270,72 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
         expect(json_response['count']).to eq(3)
         expect(assigns(:projects).limit_value).to be_nil
       end
+
+      it 'includes transferred group events when group events are unavailable' do
+        transfer_event = create(
+          :event,
+          :transferred,
+          project: nil,
+          group: group,
+          target: group,
+          target_type: 'Group',
+          author: user
+        )
+
+        request.cookies[:event_filter] = EventFilter::ALL
+
+        get :activity, params: { id: group.to_param }, format: :json
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(assigns(:events).map(&:id)).to include(transfer_event.id)
+      end
+
+      it 'includes subgroup group-transfer events in parent group activity' do
+        subgroup = create(:group, :public, parent: group, organization: group.organization)
+        parent_transfer_event = create(
+          :event,
+          :transferred,
+          project: nil,
+          group: group,
+          target: group,
+          target_type: 'Group',
+          author: user
+        )
+        subgroup_transfer_event = create(
+          :event,
+          :transferred,
+          project: nil,
+          group: subgroup,
+          target: subgroup,
+          target_type: 'Group',
+          author: user
+        )
+
+        request.cookies[:event_filter] = EventFilter::ALL
+
+        get :activity, params: { id: group.to_param }, format: :json
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(assigns(:events).map(&:id)).to include(parent_transfer_event.id, subgroup_transfer_event.id)
+      end
+
+      it 'includes project transfer events in group activity' do
+        project_transfer_event = create(
+          :event,
+          :transferred,
+          project: project,
+          target: project,
+          target_type: 'Project',
+          author: user
+        )
+
+        request.cookies[:event_filter] = EventFilter::ALL
+
+        get :activity, params: { id: group.to_param }, format: :json
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(assigns(:events).map(&:id)).to include(project_transfer_event.id)
+      end
     end
 
     context 'when user has no permission to see the event' do

@@ -15,16 +15,17 @@ class UserRecentEventsFinder
 
   requires_cross_project_access
 
-  attr_reader :current_user, :target_user, :params, :event_filter
+  attr_reader :current_user, :target_user, :params, :event_filter, :exclude_transferred_events
 
   DEFAULT_LIMIT = 20
   MAX_LIMIT = 100
 
-  def initialize(current_user, target_user, event_filter, params = {})
+  def initialize(current_user, target_user, event_filter, params = {}, exclude_transferred_events: false)
     @current_user = current_user
     @target_user = target_user
     @params = params
     @event_filter = event_filter || EventFilter.new(EventFilter::ALL)
+    @exclude_transferred_events = exclude_transferred_events
   end
 
   def execute
@@ -40,7 +41,9 @@ class UserRecentEventsFinder
   def execute_single
     return Event.none unless can?(current_user, :read_user_profile, target_user)
 
-    event_filter.apply_filter(target_events
+    events = filter_transferred_events(target_events)
+
+    event_filter.apply_filter(events
       .with_associations
       .limit_recent(limit, offset)
       .order_created_desc)
@@ -62,9 +65,12 @@ class UserRecentEventsFinder
     }
     query_builder_params = event_filter.in_operator_query_builder_params(array_data)
 
-    Gitlab::Pagination::Keyset::InOperatorOptimization::QueryBuilder
+    events = Gitlab::Pagination::Keyset::InOperatorOptimization::QueryBuilder
       .new(**query_builder_params)
       .execute
+
+    events = filter_transferred_events(events)
+    events
       .limit(limit)
       .offset(offset)
   end
@@ -75,6 +81,12 @@ class UserRecentEventsFinder
     Event.where(author: target_user)
   end
   # rubocop: enable CodeReuse/ActiveRecord
+
+  def filter_transferred_events(events)
+    return events unless exclude_transferred_events
+
+    events.excluding_transferred
+  end
 
   def limit
     return DEFAULT_LIMIT unless params[:limit].present? && params[:limit].to_i >= 0

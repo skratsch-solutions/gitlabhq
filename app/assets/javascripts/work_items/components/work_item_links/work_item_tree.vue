@@ -165,6 +165,7 @@ export default {
           id: this.workItemId,
           pageSize: getDefaultHierarchyChildrenCount(),
           endCursor: '',
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
         };
       },
       skip() {

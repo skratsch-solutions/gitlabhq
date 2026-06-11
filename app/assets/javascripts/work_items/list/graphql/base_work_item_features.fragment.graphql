@@ -1,6 +1,7 @@
 #import "~/graphql_shared/fragments/label.fragment.graphql"
 #import "~/graphql_shared/fragments/user.fragment.graphql"
 #import "~/work_items/graphql/milestone.fragment.graphql"
+#import "~/work_items/graphql/work_item_parent_fields.fragment.graphql"
 
 fragment BaseWorkItemFeatures on WorkItemFeatures {
   description {
@@ -49,8 +50,23 @@ fragment BaseWorkItemFeatures on WorkItemFeatures {
     discussionLocked
   }
   hierarchy {
+    type
+    hasChildren
+    hasParent
+    rolledUpCountsByType {
+      countsByState {
+        opened
+        all
+        closed
+      }
+      workItemType {
+        id
+        name
+        iconName
+      }
+    }
     parent {
-      id
+      ...WorkItemParentFields
     }
   }
   errorTracking {

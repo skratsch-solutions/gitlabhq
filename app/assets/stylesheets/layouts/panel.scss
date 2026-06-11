@@ -120,6 +120,19 @@
   @apply gl-px-[--container-padding-x];
 }
 
+// Panel footer
+.panel-footer {
+  @apply gl-bg-default;
+  @apply gl-pl-[--container-padding-x];
+  @apply gl-pr-3;
+  @apply gl-pt-3;
+  @apply gl-border-t;
+
+  @media (forced-colors: active) {
+    border-top: 1px solid;
+  }
+}
+
 // Only display breadcrumb-free panel-header when it has action buttons or feedback badges
 // See `page_breadcrumbs_in_top_bar` feature flag
 .panel-header .panel-header-inner.without-breadcrumbs {
