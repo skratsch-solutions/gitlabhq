@@ -18,7 +18,6 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       admin_roles
       agent_organization_authorizations
       ai_catalog_item_version_dependencies
-      ai_catalog_items
       ai_code_suggestion_events
       ai_conversation_messages
       ai_duo_chat_events

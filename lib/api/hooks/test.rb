@@ -13,6 +13,7 @@ module API
         detail 'Creates a test run for a webhook. Executes the webhook with mock data.'
         tags ['hooks']
       end
+      route_setting :authorization, permissions: :test_webhook, boundary_type: :instance
       post ":hook_id" do
         hook = find_hook
         data = configuration[:data].dup

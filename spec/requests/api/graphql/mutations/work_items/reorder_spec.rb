@@ -70,6 +70,18 @@ RSpec.describe 'Reorder work items', feature_category: :team_planning do
         expect(graphql_errors).to be_blank
         expect(mutation_response['errors']).to be_blank
       end
+
+      it_behaves_like 'authorizing granular token permissions for GraphQL', :update_work_item do
+        let(:user) { current_user }
+        let(:boundary_object) { project }
+        let(:mutation) do
+          graphql_mutation(:work_items_reorder,
+            { id: item2.to_gid.to_s, move_after_id: item1.to_gid.to_s },
+            'errors')
+        end
+
+        let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+      end
     end
   end
 end

@@ -50,9 +50,25 @@ RSpec.describe Gitlab::HookData::MergeRequestBuilder, feature_category: :code_re
         target_branch
         first_contribution
         detailed_merge_status
+        merged_at
       ].freeze
 
       expect(data).to include(*expected_additional_attributes)
+    end
+
+    context 'when the MR is merged' do
+      let_it_be(:merged_mr) { create(:merge_request, :merged) }
+      let(:builder) { described_class.new(merged_mr) }
+
+      it 'includes merged_at from metrics' do
+        expect(data[:merged_at]).to eq(merged_mr.metrics.merged_at)
+      end
+    end
+
+    context 'when the MR is not merged' do
+      it 'includes merged_at as nil' do
+        expect(data[:merged_at]).to be_nil
+      end
     end
 
     context 'when the MR has a squash commit' do

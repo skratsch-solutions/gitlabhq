@@ -68,6 +68,18 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       let(:mutation_class) { ::Mutations::WorkItems::Update }
     end
 
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :update_work_item do
+      let(:user) { current_user }
+      let(:boundary_object) { project }
+      let(:mutation) do
+        graphql_mutation(:workItemUpdate,
+          input.merge('id' => work_item.to_gid.to_s),
+          'errors')
+      end
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
+
     context 'when the work item is open' do
       it 'closes and updates the work item' do
         expect do

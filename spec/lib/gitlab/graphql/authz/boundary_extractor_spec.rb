@@ -241,6 +241,20 @@ RSpec.describe Gitlab::Graphql::Authz::BoundaryExtractor, feature_category: :per
         end
       end
 
+      context 'when object has a namespace method that returns a group' do
+        let_it_be(:work_item) { create(:work_item, :group_level, namespace: group) }
+        let(:arguments) { { resource_id: work_item.to_global_id } }
+
+        it_behaves_like 'extracts group boundary'
+      end
+
+      context 'when the resolved object has a namespace method that returns a user namespace' do
+        let_it_be(:user_namespace_work_item) { create(:work_item, namespace: create(:namespace)) }
+        let(:arguments) { { resource_id: user_namespace_work_item.to_global_id } }
+
+        it_behaves_like 'returns nil'
+      end
+
       context 'when object type has no project or group method' do
         let_it_be(:user) { create(:user) }
         let(:arguments) { { resource_id: user.to_global_id } }

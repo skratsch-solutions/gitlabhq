@@ -505,12 +505,16 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Project | Mutation | `CreateIssue` |
+| Create | Project | Mutation | `WorkItemCreate` |
 | Create | Project | Field | `EpicIssue.createNoteEmail` |
 | Create | Project | Field | `Issue.createNoteEmail` |
 | Create | Project | Field | `WorkItem.createNoteEmail` |
 | Create | Group | Mutation | `IterationCadenceCreate` |
+| Create | Group | Mutation | `WorkItemCreate` |
+| Delete | Project | Mutation | `WorkItemDelete` |
 | Delete | Group | Mutation | `IterationCadenceDestroy` |
 | Delete | Group | Mutation | `IterationDelete` |
+| Delete | Group | Mutation | `WorkItemDelete` |
 | Read | Project | Type | `EpicIssue` |
 | Read | Project | Type | `Issue` |
 | Read | Project | Type | `Milestone` |
@@ -534,8 +538,18 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Update | Project | Mutation | `IssueSetWeight` |
 | Update | Project | Mutation | `IssueUnlinkAlert` |
 | Update | Project | Mutation | `UpdateIssue` |
+| Update | Project | Mutation | `WorkItemAddClosingMergeRequest` |
+| Update | Project | Mutation | `WorkItemConvert` |
+| Update | Project | Mutation | `WorkItemCreateFromTask` |
+| Update | Project | Mutation | `WorkItemUpdate` |
+| Update | Project | Mutation | `workItemsReorder` |
 | Update | Group | Mutation | `IterationCadenceUpdate` |
 | Update | Group | Mutation | `UpdateIteration` |
+| Update | Group | Mutation | `WorkItemAddClosingMergeRequest` |
+| Update | Group | Mutation | `WorkItemConvert` |
+| Update | Group | Mutation | `WorkItemCreateFromTask` |
+| Update | Group | Mutation | `WorkItemUpdate` |
+| Update | Group | Mutation | `workItemsReorder` |
 
 ### Projects resources
 

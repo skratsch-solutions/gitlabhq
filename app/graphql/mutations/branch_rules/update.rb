@@ -31,6 +31,8 @@ module Mutations
 
         response = ::BranchRules::UpdateService.new(branch_rule, user: current_user, params: params).execute
 
+        raise_resource_not_available_error! if response.error? && response.cause.access_denied?
+
         { branch_rule: (branch_rule if response.success?), errors: response.errors }
       end
     end

@@ -108,6 +108,21 @@ module Gitlab
           return obj.group if obj.respond_to?(:group) && obj.group
           return obj.owner if obj.respond_to?(:owner) && obj.owner
 
+          extract_from_namespace(obj)
+        end
+
+        def extract_from_namespace(obj)
+          return unless obj.respond_to?(:namespace)
+
+          boundary_from_namespace(obj.namespace)
+        end
+
+        # A namespace's boundary is decided by its own type. A UserNamespace has no
+        # project/group boundary (and its owner is a User, not a boundary), so deny.
+        def boundary_from_namespace(namespace)
+          return namespace if namespace.is_a?(::Group)
+          return namespace.project if namespace.is_a?(::Namespaces::ProjectNamespace)
+
           nil
         end
 

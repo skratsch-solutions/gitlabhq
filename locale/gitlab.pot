@@ -3468,6 +3468,9 @@ msgstr ""
 msgid "AICatalog|Trigger %{itemType} when service account user is mentioned in an issue or merge request."
 msgstr ""
 
+msgid "AICatalog|Trigger filters are not supported for this item type."
+msgstr ""
+
 msgid "AICatalog|Trigger types are not supported for this item type."
 msgstr ""
 

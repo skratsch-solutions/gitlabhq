@@ -396,6 +396,32 @@ RSpec.describe API::Integrations, feature_category: :integrations do
         expect(response_keys).not_to include(*integration.secret_fields) unless integration.secret_fields.empty?
       end
     end
+
+    describe 'granular token authorization' do
+      let(:boundary_object) { project }
+
+      # The `integrations` and backwards-compatible `services` paths share the same code.
+      %w[integrations services].each do |endpoint|
+        it_behaves_like 'authorizing granular token permissions', :read_integration do
+          let(:request) { get api("/projects/#{project.id}/#{endpoint}", personal_access_token: pat) }
+        end
+
+        it_behaves_like 'authorizing granular token permissions', :read_integration do
+          let(:request) { get api("/projects/#{project.id}/#{endpoint}/mattermost", personal_access_token: pat) }
+        end
+
+        it_behaves_like 'authorizing granular token permissions', :delete_integration do
+          let(:request) { delete api("/projects/#{project.id}/#{endpoint}/mattermost", personal_access_token: pat) }
+        end
+
+        it_behaves_like 'authorizing granular token permissions', :update_integration do
+          let(:request) do
+            put api("/projects/#{project.id}/#{endpoint}/mattermost", personal_access_token: pat),
+              params: { webhook: 'https://example.com', username: 'test' }
+          end
+        end
+      end
+    end
   end
 
   context "Group level integrations" do
@@ -484,6 +510,29 @@ RSpec.describe API::Integrations, feature_category: :integrations do
             let(:integrations_map) { group_integrations_map }
           end
         end
+      end
+    end
+
+    describe 'granular token authorization' do
+      let(:boundary_object) { group }
+
+      it_behaves_like 'authorizing granular token permissions', :read_integration do
+        let(:request) { get api("/groups/#{group.id}/integrations", personal_access_token: pat) }
+      end
+
+      it_behaves_like 'authorizing granular token permissions', :read_integration do
+        let(:request) { get api("/groups/#{group.id}/integrations/mattermost", personal_access_token: pat) }
+      end
+
+      it_behaves_like 'authorizing granular token permissions', :update_integration do
+        let(:request) do
+          put api("/groups/#{group.id}/integrations/mattermost", personal_access_token: pat),
+            params: { webhook: 'https://example.com', username: 'test' }
+        end
+      end
+
+      it_behaves_like 'authorizing granular token permissions', :delete_integration do
+        let(:request) { delete api("/groups/#{group.id}/integrations/mattermost", personal_access_token: pat) }
       end
     end
   end

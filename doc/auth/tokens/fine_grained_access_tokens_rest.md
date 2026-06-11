@@ -530,6 +530,14 @@ Grants the ability to create, delete, read, and update external status check ser
 
 ### Duo resources
 
+#### Ai Catalog Third Party Flow
+
+Grants the ability to create ai catalog third party flows.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/admin/ai_catalog/seed_external_agents` |
+
 #### Chat Completion
 
 Grants the ability to create chat completions.
@@ -590,6 +598,14 @@ Grants the ability to create direct access tokens for duo workflows
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/ai/duo_workflows/direct_access` |
+
+#### Git Command
+
+Grants the ability to create Git commands.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | User | `POST` | `/ai/llm/git_command` |
 
 #### Third Party Agent Direct Access Token
 
@@ -815,6 +831,347 @@ Grants the ability to create, delete, merge, read, and update topics.
 
 ### Integrations resources
 
+#### Integration
+
+Grants the ability to delete, read, and update integrations.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Delete | Project | `DELETE` | `/groups/:id/integrations/:slug` |
+| Delete | Project | `DELETE` | `/projects/:id/integrations/:slug` |
+| Delete | Project | `DELETE` | `/projects/:id/services/:slug` |
+| Delete | Group | `DELETE` | `/groups/:id/integrations/:slug` |
+| Delete | Group | `DELETE` | `/projects/:id/integrations/:slug` |
+| Delete | Group | `DELETE` | `/projects/:id/services/:slug` |
+| Read | Project | `GET` | `/groups/:id/integrations` |
+| Read | Project | `GET` | `/groups/:id/integrations/:slug` |
+| Read | Project | `GET` | `/projects/:id/google_cloud/setup/integrations.sh` |
+| Read | Project | `GET` | `/projects/:id/google_cloud/setup/runner_deployment_project.sh` |
+| Read | Project | `GET` | `/projects/:id/integrations` |
+| Read | Project | `GET` | `/projects/:id/integrations/:slug` |
+| Read | Project | `GET` | `/projects/:id/services` |
+| Read | Project | `GET` | `/projects/:id/services/:slug` |
+| Read | Group | `GET` | `/groups/:id/integrations` |
+| Read | Group | `GET` | `/groups/:id/integrations/:slug` |
+| Read | Group | `GET` | `/projects/:id/integrations` |
+| Read | Group | `GET` | `/projects/:id/integrations/:slug` |
+| Read | Group | `GET` | `/projects/:id/services` |
+| Read | Group | `GET` | `/projects/:id/services/:slug` |
+| Update | Project | `PUT` | `/groups/:id/integrations/apple-app-store` |
+| Update | Project | `PUT` | `/groups/:id/integrations/asana` |
+| Update | Project | `PUT` | `/groups/:id/integrations/assembla` |
+| Update | Project | `PUT` | `/groups/:id/integrations/bamboo` |
+| Update | Project | `PUT` | `/groups/:id/integrations/bugzilla` |
+| Update | Project | `PUT` | `/groups/:id/integrations/buildkite` |
+| Update | Project | `PUT` | `/groups/:id/integrations/campfire` |
+| Update | Project | `PUT` | `/groups/:id/integrations/clickup` |
+| Update | Project | `PUT` | `/groups/:id/integrations/confluence` |
+| Update | Project | `PUT` | `/groups/:id/integrations/custom-issue-tracker` |
+| Update | Project | `PUT` | `/groups/:id/integrations/datadog` |
+| Update | Project | `PUT` | `/groups/:id/integrations/diffblue-cover` |
+| Update | Project | `PUT` | `/groups/:id/integrations/discord` |
+| Update | Project | `PUT` | `/groups/:id/integrations/drone-ci` |
+| Update | Project | `PUT` | `/groups/:id/integrations/emails-on-push` |
+| Update | Project | `PUT` | `/groups/:id/integrations/ewm` |
+| Update | Project | `PUT` | `/groups/:id/integrations/external-wiki` |
+| Update | Project | `PUT` | `/groups/:id/integrations/git-guardian` |
+| Update | Project | `PUT` | `/groups/:id/integrations/github` |
+| Update | Project | `PUT` | `/groups/:id/integrations/gitlab-slack-application` |
+| Update | Project | `PUT` | `/groups/:id/integrations/google-cloud-platform-artifact-registry` |
+| Update | Project | `PUT` | `/groups/:id/integrations/google-cloud-platform-workload-identity-federation` |
+| Update | Project | `PUT` | `/groups/:id/integrations/google-play` |
+| Update | Project | `PUT` | `/groups/:id/integrations/hangouts-chat` |
+| Update | Project | `PUT` | `/groups/:id/integrations/harbor` |
+| Update | Project | `PUT` | `/groups/:id/integrations/irker` |
+| Update | Project | `PUT` | `/groups/:id/integrations/jenkins` |
+| Update | Project | `PUT` | `/groups/:id/integrations/jira` |
+| Update | Project | `PUT` | `/groups/:id/integrations/jira-cloud-app` |
+| Update | Project | `PUT` | `/groups/:id/integrations/linear` |
+| Update | Project | `PUT` | `/groups/:id/integrations/matrix` |
+| Update | Project | `PUT` | `/groups/:id/integrations/mattermost` |
+| Update | Project | `PUT` | `/groups/:id/integrations/mattermost-slash-commands` |
+| Update | Project | `PUT` | `/groups/:id/integrations/microsoft-teams` |
+| Update | Project | `PUT` | `/groups/:id/integrations/mock-ci` |
+| Update | Project | `PUT` | `/groups/:id/integrations/mock-monitoring` |
+| Update | Project | `PUT` | `/groups/:id/integrations/packagist` |
+| Update | Project | `PUT` | `/groups/:id/integrations/phorge` |
+| Update | Project | `PUT` | `/groups/:id/integrations/pipelines-email` |
+| Update | Project | `PUT` | `/groups/:id/integrations/pivotaltracker` |
+| Update | Project | `PUT` | `/groups/:id/integrations/pumble` |
+| Update | Project | `PUT` | `/groups/:id/integrations/pushover` |
+| Update | Project | `PUT` | `/groups/:id/integrations/redmine` |
+| Update | Project | `PUT` | `/groups/:id/integrations/slack` |
+| Update | Project | `PUT` | `/groups/:id/integrations/squash-tm` |
+| Update | Project | `PUT` | `/groups/:id/integrations/teamcity` |
+| Update | Project | `PUT` | `/groups/:id/integrations/telegram` |
+| Update | Project | `PUT` | `/groups/:id/integrations/unify-circuit` |
+| Update | Project | `PUT` | `/groups/:id/integrations/webex-teams` |
+| Update | Project | `PUT` | `/groups/:id/integrations/youtrack` |
+| Update | Project | `PUT` | `/groups/:id/integrations/zentao` |
+| Update | Project | `PUT` | `/projects/:id/integrations/apple-app-store` |
+| Update | Project | `PUT` | `/projects/:id/integrations/asana` |
+| Update | Project | `PUT` | `/projects/:id/integrations/assembla` |
+| Update | Project | `PUT` | `/projects/:id/integrations/bamboo` |
+| Update | Project | `PUT` | `/projects/:id/integrations/bugzilla` |
+| Update | Project | `PUT` | `/projects/:id/integrations/buildkite` |
+| Update | Project | `PUT` | `/projects/:id/integrations/campfire` |
+| Update | Project | `PUT` | `/projects/:id/integrations/clickup` |
+| Update | Project | `PUT` | `/projects/:id/integrations/confluence` |
+| Update | Project | `PUT` | `/projects/:id/integrations/custom-issue-tracker` |
+| Update | Project | `PUT` | `/projects/:id/integrations/datadog` |
+| Update | Project | `PUT` | `/projects/:id/integrations/diffblue-cover` |
+| Update | Project | `PUT` | `/projects/:id/integrations/discord` |
+| Update | Project | `PUT` | `/projects/:id/integrations/drone-ci` |
+| Update | Project | `PUT` | `/projects/:id/integrations/emails-on-push` |
+| Update | Project | `PUT` | `/projects/:id/integrations/ewm` |
+| Update | Project | `PUT` | `/projects/:id/integrations/external-wiki` |
+| Update | Project | `PUT` | `/projects/:id/integrations/git-guardian` |
+| Update | Project | `PUT` | `/projects/:id/integrations/github` |
+| Update | Project | `PUT` | `/projects/:id/integrations/gitlab-slack-application` |
+| Update | Project | `PUT` | `/projects/:id/integrations/google-cloud-platform-artifact-registry` |
+| Update | Project | `PUT` | `/projects/:id/integrations/google-cloud-platform-workload-identity-federation` |
+| Update | Project | `PUT` | `/projects/:id/integrations/google-play` |
+| Update | Project | `PUT` | `/projects/:id/integrations/hangouts-chat` |
+| Update | Project | `PUT` | `/projects/:id/integrations/harbor` |
+| Update | Project | `PUT` | `/projects/:id/integrations/irker` |
+| Update | Project | `PUT` | `/projects/:id/integrations/jenkins` |
+| Update | Project | `PUT` | `/projects/:id/integrations/jira` |
+| Update | Project | `PUT` | `/projects/:id/integrations/jira-cloud-app` |
+| Update | Project | `PUT` | `/projects/:id/integrations/linear` |
+| Update | Project | `PUT` | `/projects/:id/integrations/matrix` |
+| Update | Project | `PUT` | `/projects/:id/integrations/mattermost` |
+| Update | Project | `PUT` | `/projects/:id/integrations/mattermost-slash-commands` |
+| Update | Project | `PUT` | `/projects/:id/integrations/microsoft-teams` |
+| Update | Project | `PUT` | `/projects/:id/integrations/mock-ci` |
+| Update | Project | `PUT` | `/projects/:id/integrations/mock-monitoring` |
+| Update | Project | `PUT` | `/projects/:id/integrations/packagist` |
+| Update | Project | `PUT` | `/projects/:id/integrations/phorge` |
+| Update | Project | `PUT` | `/projects/:id/integrations/pipelines-email` |
+| Update | Project | `PUT` | `/projects/:id/integrations/pivotaltracker` |
+| Update | Project | `PUT` | `/projects/:id/integrations/pumble` |
+| Update | Project | `PUT` | `/projects/:id/integrations/pushover` |
+| Update | Project | `PUT` | `/projects/:id/integrations/redmine` |
+| Update | Project | `PUT` | `/projects/:id/integrations/slack` |
+| Update | Project | `PUT` | `/projects/:id/integrations/squash-tm` |
+| Update | Project | `PUT` | `/projects/:id/integrations/teamcity` |
+| Update | Project | `PUT` | `/projects/:id/integrations/telegram` |
+| Update | Project | `PUT` | `/projects/:id/integrations/unify-circuit` |
+| Update | Project | `PUT` | `/projects/:id/integrations/webex-teams` |
+| Update | Project | `PUT` | `/projects/:id/integrations/youtrack` |
+| Update | Project | `PUT` | `/projects/:id/integrations/zentao` |
+| Update | Project | `PUT` | `/projects/:id/services/apple-app-store` |
+| Update | Project | `PUT` | `/projects/:id/services/asana` |
+| Update | Project | `PUT` | `/projects/:id/services/assembla` |
+| Update | Project | `PUT` | `/projects/:id/services/bamboo` |
+| Update | Project | `PUT` | `/projects/:id/services/bugzilla` |
+| Update | Project | `PUT` | `/projects/:id/services/buildkite` |
+| Update | Project | `PUT` | `/projects/:id/services/campfire` |
+| Update | Project | `PUT` | `/projects/:id/services/clickup` |
+| Update | Project | `PUT` | `/projects/:id/services/confluence` |
+| Update | Project | `PUT` | `/projects/:id/services/custom-issue-tracker` |
+| Update | Project | `PUT` | `/projects/:id/services/datadog` |
+| Update | Project | `PUT` | `/projects/:id/services/diffblue-cover` |
+| Update | Project | `PUT` | `/projects/:id/services/discord` |
+| Update | Project | `PUT` | `/projects/:id/services/drone-ci` |
+| Update | Project | `PUT` | `/projects/:id/services/emails-on-push` |
+| Update | Project | `PUT` | `/projects/:id/services/ewm` |
+| Update | Project | `PUT` | `/projects/:id/services/external-wiki` |
+| Update | Project | `PUT` | `/projects/:id/services/git-guardian` |
+| Update | Project | `PUT` | `/projects/:id/services/github` |
+| Update | Project | `PUT` | `/projects/:id/services/gitlab-slack-application` |
+| Update | Project | `PUT` | `/projects/:id/services/google-cloud-platform-artifact-registry` |
+| Update | Project | `PUT` | `/projects/:id/services/google-cloud-platform-workload-identity-federation` |
+| Update | Project | `PUT` | `/projects/:id/services/google-play` |
+| Update | Project | `PUT` | `/projects/:id/services/hangouts-chat` |
+| Update | Project | `PUT` | `/projects/:id/services/harbor` |
+| Update | Project | `PUT` | `/projects/:id/services/irker` |
+| Update | Project | `PUT` | `/projects/:id/services/jenkins` |
+| Update | Project | `PUT` | `/projects/:id/services/jira` |
+| Update | Project | `PUT` | `/projects/:id/services/jira-cloud-app` |
+| Update | Project | `PUT` | `/projects/:id/services/linear` |
+| Update | Project | `PUT` | `/projects/:id/services/matrix` |
+| Update | Project | `PUT` | `/projects/:id/services/mattermost` |
+| Update | Project | `PUT` | `/projects/:id/services/mattermost-slash-commands` |
+| Update | Project | `PUT` | `/projects/:id/services/microsoft-teams` |
+| Update | Project | `PUT` | `/projects/:id/services/mock-ci` |
+| Update | Project | `PUT` | `/projects/:id/services/mock-monitoring` |
+| Update | Project | `PUT` | `/projects/:id/services/packagist` |
+| Update | Project | `PUT` | `/projects/:id/services/phorge` |
+| Update | Project | `PUT` | `/projects/:id/services/pipelines-email` |
+| Update | Project | `PUT` | `/projects/:id/services/pivotaltracker` |
+| Update | Project | `PUT` | `/projects/:id/services/pumble` |
+| Update | Project | `PUT` | `/projects/:id/services/pushover` |
+| Update | Project | `PUT` | `/projects/:id/services/redmine` |
+| Update | Project | `PUT` | `/projects/:id/services/slack` |
+| Update | Project | `PUT` | `/projects/:id/services/squash-tm` |
+| Update | Project | `PUT` | `/projects/:id/services/teamcity` |
+| Update | Project | `PUT` | `/projects/:id/services/telegram` |
+| Update | Project | `PUT` | `/projects/:id/services/unify-circuit` |
+| Update | Project | `PUT` | `/projects/:id/services/webex-teams` |
+| Update | Project | `PUT` | `/projects/:id/services/youtrack` |
+| Update | Project | `PUT` | `/projects/:id/services/zentao` |
+| Update | Group | `PUT` | `/groups/:id/integrations/apple-app-store` |
+| Update | Group | `PUT` | `/groups/:id/integrations/asana` |
+| Update | Group | `PUT` | `/groups/:id/integrations/assembla` |
+| Update | Group | `PUT` | `/groups/:id/integrations/bamboo` |
+| Update | Group | `PUT` | `/groups/:id/integrations/bugzilla` |
+| Update | Group | `PUT` | `/groups/:id/integrations/buildkite` |
+| Update | Group | `PUT` | `/groups/:id/integrations/campfire` |
+| Update | Group | `PUT` | `/groups/:id/integrations/clickup` |
+| Update | Group | `PUT` | `/groups/:id/integrations/confluence` |
+| Update | Group | `PUT` | `/groups/:id/integrations/custom-issue-tracker` |
+| Update | Group | `PUT` | `/groups/:id/integrations/datadog` |
+| Update | Group | `PUT` | `/groups/:id/integrations/diffblue-cover` |
+| Update | Group | `PUT` | `/groups/:id/integrations/discord` |
+| Update | Group | `PUT` | `/groups/:id/integrations/drone-ci` |
+| Update | Group | `PUT` | `/groups/:id/integrations/emails-on-push` |
+| Update | Group | `PUT` | `/groups/:id/integrations/ewm` |
+| Update | Group | `PUT` | `/groups/:id/integrations/external-wiki` |
+| Update | Group | `PUT` | `/groups/:id/integrations/git-guardian` |
+| Update | Group | `PUT` | `/groups/:id/integrations/github` |
+| Update | Group | `PUT` | `/groups/:id/integrations/gitlab-slack-application` |
+| Update | Group | `PUT` | `/groups/:id/integrations/google-cloud-platform-artifact-registry` |
+| Update | Group | `PUT` | `/groups/:id/integrations/google-cloud-platform-workload-identity-federation` |
+| Update | Group | `PUT` | `/groups/:id/integrations/google-play` |
+| Update | Group | `PUT` | `/groups/:id/integrations/hangouts-chat` |
+| Update | Group | `PUT` | `/groups/:id/integrations/harbor` |
+| Update | Group | `PUT` | `/groups/:id/integrations/irker` |
+| Update | Group | `PUT` | `/groups/:id/integrations/jenkins` |
+| Update | Group | `PUT` | `/groups/:id/integrations/jira` |
+| Update | Group | `PUT` | `/groups/:id/integrations/jira-cloud-app` |
+| Update | Group | `PUT` | `/groups/:id/integrations/linear` |
+| Update | Group | `PUT` | `/groups/:id/integrations/matrix` |
+| Update | Group | `PUT` | `/groups/:id/integrations/mattermost` |
+| Update | Group | `PUT` | `/groups/:id/integrations/mattermost-slash-commands` |
+| Update | Group | `PUT` | `/groups/:id/integrations/microsoft-teams` |
+| Update | Group | `PUT` | `/groups/:id/integrations/mock-ci` |
+| Update | Group | `PUT` | `/groups/:id/integrations/mock-monitoring` |
+| Update | Group | `PUT` | `/groups/:id/integrations/packagist` |
+| Update | Group | `PUT` | `/groups/:id/integrations/phorge` |
+| Update | Group | `PUT` | `/groups/:id/integrations/pipelines-email` |
+| Update | Group | `PUT` | `/groups/:id/integrations/pivotaltracker` |
+| Update | Group | `PUT` | `/groups/:id/integrations/pumble` |
+| Update | Group | `PUT` | `/groups/:id/integrations/pushover` |
+| Update | Group | `PUT` | `/groups/:id/integrations/redmine` |
+| Update | Group | `PUT` | `/groups/:id/integrations/slack` |
+| Update | Group | `PUT` | `/groups/:id/integrations/squash-tm` |
+| Update | Group | `PUT` | `/groups/:id/integrations/teamcity` |
+| Update | Group | `PUT` | `/groups/:id/integrations/telegram` |
+| Update | Group | `PUT` | `/groups/:id/integrations/unify-circuit` |
+| Update | Group | `PUT` | `/groups/:id/integrations/webex-teams` |
+| Update | Group | `PUT` | `/groups/:id/integrations/youtrack` |
+| Update | Group | `PUT` | `/groups/:id/integrations/zentao` |
+| Update | Group | `PUT` | `/projects/:id/integrations/apple-app-store` |
+| Update | Group | `PUT` | `/projects/:id/integrations/asana` |
+| Update | Group | `PUT` | `/projects/:id/integrations/assembla` |
+| Update | Group | `PUT` | `/projects/:id/integrations/bamboo` |
+| Update | Group | `PUT` | `/projects/:id/integrations/bugzilla` |
+| Update | Group | `PUT` | `/projects/:id/integrations/buildkite` |
+| Update | Group | `PUT` | `/projects/:id/integrations/campfire` |
+| Update | Group | `PUT` | `/projects/:id/integrations/clickup` |
+| Update | Group | `PUT` | `/projects/:id/integrations/confluence` |
+| Update | Group | `PUT` | `/projects/:id/integrations/custom-issue-tracker` |
+| Update | Group | `PUT` | `/projects/:id/integrations/datadog` |
+| Update | Group | `PUT` | `/projects/:id/integrations/diffblue-cover` |
+| Update | Group | `PUT` | `/projects/:id/integrations/discord` |
+| Update | Group | `PUT` | `/projects/:id/integrations/drone-ci` |
+| Update | Group | `PUT` | `/projects/:id/integrations/emails-on-push` |
+| Update | Group | `PUT` | `/projects/:id/integrations/ewm` |
+| Update | Group | `PUT` | `/projects/:id/integrations/external-wiki` |
+| Update | Group | `PUT` | `/projects/:id/integrations/git-guardian` |
+| Update | Group | `PUT` | `/projects/:id/integrations/github` |
+| Update | Group | `PUT` | `/projects/:id/integrations/gitlab-slack-application` |
+| Update | Group | `PUT` | `/projects/:id/integrations/google-cloud-platform-artifact-registry` |
+| Update | Group | `PUT` | `/projects/:id/integrations/google-cloud-platform-workload-identity-federation` |
+| Update | Group | `PUT` | `/projects/:id/integrations/google-play` |
+| Update | Group | `PUT` | `/projects/:id/integrations/hangouts-chat` |
+| Update | Group | `PUT` | `/projects/:id/integrations/harbor` |
+| Update | Group | `PUT` | `/projects/:id/integrations/irker` |
+| Update | Group | `PUT` | `/projects/:id/integrations/jenkins` |
+| Update | Group | `PUT` | `/projects/:id/integrations/jira` |
+| Update | Group | `PUT` | `/projects/:id/integrations/jira-cloud-app` |
+| Update | Group | `PUT` | `/projects/:id/integrations/linear` |
+| Update | Group | `PUT` | `/projects/:id/integrations/matrix` |
+| Update | Group | `PUT` | `/projects/:id/integrations/mattermost` |
+| Update | Group | `PUT` | `/projects/:id/integrations/mattermost-slash-commands` |
+| Update | Group | `PUT` | `/projects/:id/integrations/microsoft-teams` |
+| Update | Group | `PUT` | `/projects/:id/integrations/mock-ci` |
+| Update | Group | `PUT` | `/projects/:id/integrations/mock-monitoring` |
+| Update | Group | `PUT` | `/projects/:id/integrations/packagist` |
+| Update | Group | `PUT` | `/projects/:id/integrations/phorge` |
+| Update | Group | `PUT` | `/projects/:id/integrations/pipelines-email` |
+| Update | Group | `PUT` | `/projects/:id/integrations/pivotaltracker` |
+| Update | Group | `PUT` | `/projects/:id/integrations/pumble` |
+| Update | Group | `PUT` | `/projects/:id/integrations/pushover` |
+| Update | Group | `PUT` | `/projects/:id/integrations/redmine` |
+| Update | Group | `PUT` | `/projects/:id/integrations/slack` |
+| Update | Group | `PUT` | `/projects/:id/integrations/squash-tm` |
+| Update | Group | `PUT` | `/projects/:id/integrations/teamcity` |
+| Update | Group | `PUT` | `/projects/:id/integrations/telegram` |
+| Update | Group | `PUT` | `/projects/:id/integrations/unify-circuit` |
+| Update | Group | `PUT` | `/projects/:id/integrations/webex-teams` |
+| Update | Group | `PUT` | `/projects/:id/integrations/youtrack` |
+| Update | Group | `PUT` | `/projects/:id/integrations/zentao` |
+| Update | Group | `PUT` | `/projects/:id/services/apple-app-store` |
+| Update | Group | `PUT` | `/projects/:id/services/asana` |
+| Update | Group | `PUT` | `/projects/:id/services/assembla` |
+| Update | Group | `PUT` | `/projects/:id/services/bamboo` |
+| Update | Group | `PUT` | `/projects/:id/services/bugzilla` |
+| Update | Group | `PUT` | `/projects/:id/services/buildkite` |
+| Update | Group | `PUT` | `/projects/:id/services/campfire` |
+| Update | Group | `PUT` | `/projects/:id/services/clickup` |
+| Update | Group | `PUT` | `/projects/:id/services/confluence` |
+| Update | Group | `PUT` | `/projects/:id/services/custom-issue-tracker` |
+| Update | Group | `PUT` | `/projects/:id/services/datadog` |
+| Update | Group | `PUT` | `/projects/:id/services/diffblue-cover` |
+| Update | Group | `PUT` | `/projects/:id/services/discord` |
+| Update | Group | `PUT` | `/projects/:id/services/drone-ci` |
+| Update | Group | `PUT` | `/projects/:id/services/emails-on-push` |
+| Update | Group | `PUT` | `/projects/:id/services/ewm` |
+| Update | Group | `PUT` | `/projects/:id/services/external-wiki` |
+| Update | Group | `PUT` | `/projects/:id/services/git-guardian` |
+| Update | Group | `PUT` | `/projects/:id/services/github` |
+| Update | Group | `PUT` | `/projects/:id/services/gitlab-slack-application` |
+| Update | Group | `PUT` | `/projects/:id/services/google-cloud-platform-artifact-registry` |
+| Update | Group | `PUT` | `/projects/:id/services/google-cloud-platform-workload-identity-federation` |
+| Update | Group | `PUT` | `/projects/:id/services/google-play` |
+| Update | Group | `PUT` | `/projects/:id/services/hangouts-chat` |
+| Update | Group | `PUT` | `/projects/:id/services/harbor` |
+| Update | Group | `PUT` | `/projects/:id/services/irker` |
+| Update | Group | `PUT` | `/projects/:id/services/jenkins` |
+| Update | Group | `PUT` | `/projects/:id/services/jira` |
+| Update | Group | `PUT` | `/projects/:id/services/jira-cloud-app` |
+| Update | Group | `PUT` | `/projects/:id/services/linear` |
+| Update | Group | `PUT` | `/projects/:id/services/matrix` |
+| Update | Group | `PUT` | `/projects/:id/services/mattermost` |
+| Update | Group | `PUT` | `/projects/:id/services/mattermost-slash-commands` |
+| Update | Group | `PUT` | `/projects/:id/services/microsoft-teams` |
+| Update | Group | `PUT` | `/projects/:id/services/mock-ci` |
+| Update | Group | `PUT` | `/projects/:id/services/mock-monitoring` |
+| Update | Group | `PUT` | `/projects/:id/services/packagist` |
+| Update | Group | `PUT` | `/projects/:id/services/phorge` |
+| Update | Group | `PUT` | `/projects/:id/services/pipelines-email` |
+| Update | Group | `PUT` | `/projects/:id/services/pivotaltracker` |
+| Update | Group | `PUT` | `/projects/:id/services/pumble` |
+| Update | Group | `PUT` | `/projects/:id/services/pushover` |
+| Update | Group | `PUT` | `/projects/:id/services/redmine` |
+| Update | Group | `PUT` | `/projects/:id/services/slack` |
+| Update | Group | `PUT` | `/projects/:id/services/squash-tm` |
+| Update | Group | `PUT` | `/projects/:id/services/teamcity` |
+| Update | Group | `PUT` | `/projects/:id/services/telegram` |
+| Update | Group | `PUT` | `/projects/:id/services/unify-circuit` |
+| Update | Group | `PUT` | `/projects/:id/services/webex-teams` |
+| Update | Group | `PUT` | `/projects/:id/services/youtrack` |
+| Update | Group | `PUT` | `/projects/:id/services/zentao` |
+
+#### Jira Connect Subscription
+
+Grants the ability to create Jira Connect subscriptions.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Group | `POST` | `/integrations/jira_connect/subscriptions` |
+
 #### Webhook
 
 Grants the ability to create, delete, read, trigger, and update webhooks.
@@ -839,6 +1196,7 @@ Grants the ability to create, delete, read, trigger, and update webhooks.
 | Trigger | Project | `POST` | `/projects/:id/hooks/:hook_id/test/:trigger` |
 | Trigger | Group | `POST` | `/groups/:id/hooks/:hook_id/events/:hook_log_id/resend` |
 | Trigger | Group | `POST` | `/groups/:id/hooks/:hook_id/test/:trigger` |
+| Trigger | Instance | `POST` | `/hooks/:hook_id` |
 | Update | Project | `PUT` | `/projects/:id/hooks/:hook_id` |
 | Update | Project | `PUT` | `/projects/:id/hooks/:hook_id/custom_headers/:key` |
 | Update | Project | `PUT` | `/projects/:id/hooks/:hook_id/url_variables/:key` |
@@ -856,6 +1214,34 @@ Grants the ability to create, delete, read, trigger, and update webhooks.
 | Update | Instance | `DELETE` | `/hooks/:hook_id/url_variables/:key` |
 
 ### Monitoring resources
+
+#### Error Tracking Client Key
+
+Grants the ability to create, delete, and read error tracking client keys.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/error_tracking/client_keys` |
+| Delete | Project | `DELETE` | `/projects/:id/error_tracking/client_keys/:key_id` |
+| Read | Project | `GET` | `/projects/:id/error_tracking/client_keys` |
+
+#### Error Tracking Setting
+
+Grants the ability to read and update error tracking settings.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Project | `GET` | `/projects/:id/error_tracking/settings` |
+| Update | Project | `PATCH` | `/projects/:id/error_tracking/settings` |
+| Update | Project | `PUT` | `/projects/:id/error_tracking/settings` |
+
+#### Glql
+
+Grants the ability to read glqls.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | User | `POST` | `/glql` |
 
 #### Sidekiq Job
 
@@ -2944,8 +3330,19 @@ incompatible with personal access tokens.
 | Method | Path | Reason |
 | ------ | ---- | ------ |
 | `POST` | `/ai/duo_workflows/agent_workflows` | AI workflows OAuth token |
+| `POST` | `/ai/duo_workflows/code_review/add_comments` | AI workflows OAuth token |
 | `GET` | `/ai/duo_workflows/code_review/custom_instructions` | AI workflows OAuth token |
+| `POST` | `/ai/duo_workflows/revoke_token` | AI workflows OAuth token |
+| `GET` | `/ai/duo_workflows/workflows/:id` | AI workflows OAuth token |
+| `PATCH` | `/ai/duo_workflows/workflows/:id` | AI workflows OAuth token |
 | `POST` | `/ai/duo_workflows/workflows/:id/audit_events` | AI Workflows OAuth token |
+| `POST` | `/ai/duo_workflows/workflows/:id/checkpoint_writes_batch` | AI workflows OAuth token |
+| `GET` | `/ai/duo_workflows/workflows/:id/checkpoints` | AI workflows OAuth token |
+| `POST` | `/ai/duo_workflows/workflows/:id/checkpoints` | AI workflows OAuth token |
+| `GET` | `/ai/duo_workflows/workflows/:id/checkpoints/:checkpoint_id` | AI workflows OAuth token |
+| `GET` | `/ai/duo_workflows/workflows/:id/events` | AI workflows OAuth token |
+| `POST` | `/ai/duo_workflows/workflows/:id/events` | AI workflows OAuth token |
+| `PUT` | `/ai/duo_workflows/workflows/:id/events/:event_id` | AI workflows OAuth token |
 | `GET` | `/api/scim/:version/application/Groups` | SCIM token |
 | `POST` | `/api/scim/:version/application/Groups` | SCIM token |
 | `GET` | `/api/scim/:version/application/Groups/:id` | SCIM token |
@@ -2982,6 +3379,9 @@ incompatible with personal access tokens.
 | `POST` | `/groups/:id/placeholder_reassignments/authorize` | Workhorse pre-authorization |
 | `POST` | `/groups/:id/uploads/authorize` | Workhorse pre-authorization |
 | `POST` | `/groups/import/authorize` | Workhorse pre-authorization |
+| `POST` | `/integrations/slack/events` | Slack request signature |
+| `POST` | `/integrations/slack/interactions` | Slack request signature |
+| `POST` | `/integrations/slack/options` | Slack request signature |
 | `GET` | `/internal/agents/agentk/agent_info` | Kubernetes agent JWT |
 | `GET` | `/internal/agents/agentw/agent_info` | Kubernetes agent JWT |
 | `GET` | `/internal/agents/agentw/authorize_user_access` | Kubernetes agent JWT |
@@ -3082,6 +3482,7 @@ incompatible with personal access tokens.
 | `POST` | `/projects/:id/(ref/:ref/)trigger/pipeline` | CI trigger token |
 | `POST` | `/projects/:id/alert_management_alerts/:alert_iid/metric_images/authorize` | Workhorse pre-authorization |
 | `PATCH` | `/projects/:id/compliance_external_controls/:control_id/status` | Compliance external control token |
+| `POST` | `/projects/:id/integrations/mattermost_slash_commands/trigger` | Project integration token |
 | `POST` | `/projects/:id/issues/:issue_iid/metric_images/authorize` | Workhorse pre-authorization |
 | `PUT` | `/projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name/authorize` | Workhorse pre-authorization |
 | `PUT` | `/projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name/authorize` | Workhorse pre-authorization |
@@ -3105,6 +3506,7 @@ incompatible with personal access tokens.
 | `POST` | `/projects/:id/repository/commits/authorize` | Workhorse pre-authorization |
 | `POST` | `/projects/:id/repository/files/:file_path/authorize` | Workhorse pre-authorization |
 | `PUT` | `/projects/:id/repository/files/:file_path/authorize` | Workhorse pre-authorization |
+| `POST` | `/projects/:id/services/mattermost_slash_commands/trigger` | Project integration token |
 | `POST` | `/projects/:id/terraform/state/:name/authorize` | Workhorse pre-authorization |
 | `POST` | `/projects/:id/uploads/authorize` | Workhorse pre-authorization |
 | `POST` | `/projects/import-relation/authorize` | Workhorse pre-authorization |
@@ -3115,5 +3517,6 @@ incompatible with personal access tokens.
 | `POST` | `/runners/reset_authentication_token` | Runner token |
 | `GET` | `/runners/router/discovery` | Runner token |
 | `POST` | `/runners/verify` | Runner token |
+| `POST` | `/slack/trigger` | Project integration token |
 | `POST` | `/token_exchange` | Modular service token exchange |
 | `GET` | `/usage_data/metric_definitions` | Usage data token |

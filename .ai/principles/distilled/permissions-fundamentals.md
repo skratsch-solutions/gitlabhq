@@ -1,6 +1,6 @@
 ---
-source_checksum: 861f1af97b1f8f27
-distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
+source_checksum: 397e954034ef7a8e
+distilled_at_sha: 38eec71eeabc7ee15c3c39204fae8e675609f903
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -38,13 +38,14 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 - DO NOT use private permissions for feature flag checks, license checks, or settings-based restrictions — use `prevent` rules instead.
 - Create a definition file for every private permission under `config/authz/permissions/<resource>/_<action>_<qualifier>.yml`.
 - Use qualifiers that correspond to a real attribute or relationship on the resource (e.g., `confidential`, `authored`, `assigned`); DO NOT use qualifiers that describe the actor.
+- Prefer past-participle or adjective forms for qualifiers that read naturally as a description of the resource; introduce qualifiers only when the same action on the same resource requires different access levels depending on the resource's state.
 
 ### Role Definition YAML Files
 
 - Define default roles as YAML files under `config/authz/roles/` with the fields `name`, `description`, `inherits_from`, and optionally `raw_permissions` and `permissions`.
+- Understand that the final permission set for a role is the union of its `raw_permissions`, expanded `permissions` (assignable groups), and all permissions inherited recursively from parent roles.
 - When adding a permission to a role, prefer using an assignable permission group; use `raw_permissions` only for existing permissions that need to be moved into the role definition.
 - When removing a permission from a role, verify it is not depended on by other features; use `GITLAB_DEBUG_POLICIES=true` to trace where a permission is checked.
-- Understand that the final permission set for a role is the union of its `raw_permissions`, expanded `permissions` (assignable groups), and all permissions inherited recursively from parent roles.
 
 ### Custom Roles
 

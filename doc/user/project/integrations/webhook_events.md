@@ -967,6 +967,7 @@ The following fields are deprecated and included for backward compatibility only
 {{< history >}}
 
 - `actioned_at` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224849) in GitLab 18.10.
+- `merged_at` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235360) in GitLab 19.1.
 
 {{< /history >}}
 
@@ -997,6 +998,7 @@ It includes the following fields:
 | `last_edited_at`                | String  | When the merge request was last edited. |
 | `last_edited_by_id`             | Integer | The ID of the user who last edited it. |
 | `merge_commit_sha`              | String  | The SHA of the merge commit. |
+| `merged_at`                     | String  | When the merge request was merged. `null` if not yet merged. |
 | `merge_error`                   | String  | Any merge error message. |
 | `merge_params`                  | Object  | Merge parameters. |
 | `merge_status`                  | String  | Status of the merge request. |
@@ -1244,6 +1246,7 @@ recommended alternatives, see [deprecated fields](#deprecated-fields).
     "last_edited_at": null,
     "last_edited_by_id": null,
     "merge_commit_sha": null,
+    "merged_at": null,
     "merge_error": null,
     "merge_params": {
       "force_remove_source_branch": "1"

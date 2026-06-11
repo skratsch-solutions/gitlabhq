@@ -142,6 +142,7 @@ module API
         optional :after, type: String,
           desc: 'Cursor for forward pagination. Use the `endCursor` from previous response to fetch the next page'
       end
+      route_setting :authorization, permissions: :read_glql, boundary_type: :user
       post do
         parsed_glql = parse_glql_yaml(params[:glql_yaml])
 

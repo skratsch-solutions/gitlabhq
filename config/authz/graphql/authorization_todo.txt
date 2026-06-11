@@ -87,8 +87,8 @@ mutation:BranchRuleSquashOptionDelete
 mutation:BranchRuleSquashOptionUpdate
 mutation:BulkEnableDevopsAdoptionNamespaces
 mutation:BulkRunnerDelete
-mutation:BulkUpdateAiToolRules
 mutation:BulkSetVulnerabilityFindingsDueDates
+mutation:BulkUpdateAiToolRules
 mutation:BulkUpdateSecurityAttributes
 mutation:ClusterAgentTokenRevoke
 mutation:ConfigureContainerScanning
@@ -448,15 +448,10 @@ mutation:VulnerabilityIssueLinkCreate
 mutation:VulnerabilityLinkMergeRequest
 mutation:VulnerabilityUnlinkMergeRequest
 mutation:WikiPageSubscribe
-mutation:WorkItemAddClosingMergeRequest
 mutation:WorkItemAddLinkedItems
 mutation:WorkItemAvailabilityToggle
 mutation:WorkItemBulkMove
 mutation:WorkItemBulkUpdate
-mutation:WorkItemConvert
-mutation:WorkItemCreate
-mutation:WorkItemCreateFromTask
-mutation:WorkItemDelete
 mutation:WorkItemExport
 mutation:WorkItemHierarchyAddChildrenItems
 mutation:WorkItemRemoveLinkedItems
@@ -470,7 +465,6 @@ mutation:WorkItemSettingsUpdate
 mutation:WorkItemSubscribe
 mutation:WorkItemTypeCreate
 mutation:WorkItemTypeUpdate
-mutation:WorkItemUpdate
 mutation:WorkItemUserPreferenceUpdate
 mutation:WorkItemsCsvExport
 mutation:WorkItemsCsvImport
@@ -481,7 +475,6 @@ mutation:projectBlobsRemove
 mutation:projectTextReplace
 mutation:vulnerabilitiesSeverityOverride
 mutation:workItemsHierarchyReorder
-mutation:workItemsReorder
 type:AbuseReport
 type:AbuseReportUploadRegistry
 type:AccessLevel
@@ -571,7 +564,6 @@ type:AvailableModels
 type:AwardEmoji
 type:BaseService
 type:Blame
-type:BulkToolRuleResult
 type:BlobSearch
 type:BlobViewer
 type:BlockingMergeRequests
@@ -583,6 +575,7 @@ type:BooleanExpression
 type:BranchProtection
 type:BranchRule
 type:BulkImportExportUploadUploadRegistry
+type:BulkToolRuleResult
 type:BurnupChartDailyTotals
 type:CarPermissions
 type:CiApplicationSettings

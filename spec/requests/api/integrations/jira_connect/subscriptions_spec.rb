@@ -136,6 +136,14 @@ RSpec.describe API::Integrations::JiraConnect::Subscriptions, :with_current_orga
             group.add_maintainer(user)
           end
 
+          it_behaves_like 'authorizing granular token permissions', :create_jira_connect_subscription do
+            let(:boundary_object) { group }
+            let(:request) do
+              post api('/integrations/jira_connect/subscriptions', personal_access_token: pat),
+                params: { jwt: jwt, namespace_path: group.path }
+            end
+          end
+
           it 'creates a subscription' do
             expect { post_subscriptions }.to change { installation.subscriptions.count }.from(0).to(1)
           end

@@ -62,12 +62,10 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
 
         stub_feature_flags(granular_personal_access_tokens_enforcement_saas: root_ancestor)
 
-        root_ancestor.namespace_settings.update!(
+        ::NamespaceSetting.find_by!(namespace_id: root_ancestor.id).update!(
           enforce_granular_tokens: true,
           granular_tokens_enforced_after: Date.current
         )
-
-        root_ancestor.reload
       end
 
       it_behaves_like 'denying access'

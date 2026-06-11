@@ -42,15 +42,18 @@ RSpec.describe BranchRules::UpdateService, feature_category: :source_code_manage
     context 'when the current_user cannot update the branch rule' do
       let(:ability_allowed) { false }
 
-      it 'raises an access denied error' do
-        expect { execute }.to raise_error(Gitlab::Access::AccessDeniedError)
+      it 'returns an access denied error response', :aggregate_failures do
+        expect(execute).to be_error
+        expect(execute.reason).to eq(:access_denied)
+        expect(execute.message).to eq('Failed to update branch rule')
+        expect(execute.payload[:errors]).to contain_exactly('Not allowed')
       end
 
       context 'and skip_authorization is true' do
         let(:skip_authorization) { true }
 
-        it 'raises an access denied error' do
-          expect { execute }.not_to raise_error
+        it 'does not return an access denied error' do
+          expect(execute).not_to be_error
         end
       end
     end
@@ -83,15 +86,6 @@ RSpec.describe BranchRules::UpdateService, feature_category: :source_code_manage
         it 'returns an error', :aggregate_failures do
           expect(response = execute).to be_error
           expect(response[:message]).to eq(errors)
-        end
-      end
-
-      context 'when unpermitted params are provided' do
-        let(:params) { { name: new_name, not_permitted: 'not_permitted' } }
-
-        it 'removes them' do
-          expect(update_service).to receive(:new).with(project, user, { name: new_name }).and_call_original
-          execute
         end
       end
 
@@ -248,6 +242,15 @@ RSpec.describe BranchRules::UpdateService, feature_category: :source_code_manage
             expect(protected_branch.merge_access_levels.count).to eq(original_merge_levels.count)
           end
         end
+      end
+    end
+
+    context 'when branch_rule is a Projects::AllBranchesRule' do
+      let(:branch_rule) { Projects::AllBranchesRule.new(project) }
+
+      it 'returns an error response', :aggregate_failures do
+        expect(execute).to be_error
+        expect(execute.message).to eq('All branches rules cannot be updated.')
       end
     end
 

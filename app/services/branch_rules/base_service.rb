@@ -52,42 +52,145 @@
 # end
 #
 #
+# Name the services following this format
+# `BranchRules::{SubFeature}::{Action}Service`.
+#
+# BranchRules::ExternalStatusChecks::CreateService
+#
+#
+# Create an `execute_on_{branch_rule_type}` method for each branch rule type
+# available for this subfeature. These can be used to define different logic
+# for each branch rule type.
+#
+# module BranchRules
+#   module ExternalStatusChecks
+#     class CreateService < BaseService
+#       private
+#
+#       def execute_on_branch_rule
+#         params[:protected_branch_ids] = [branch_rule.id]
+#         create_external_status_check
+#       end
+#
+#       def execute_on_all_branches_rule
+#         create_external_status_check
+#       end
+#
+#       def create_external_status_check
+#         ::ExternalStatusChecks::CreateService
+#           .new(container: project, current_user: current_user, params: params)
+#           .execute
+#       end
+#     end
+#   end
+# end
+#
+#
+# Each service class must define `authorized?` to perform authorization
+# during execution of the service. If a service intentionally does not
+# require authorization, define `authorized?` to return `true` so the
+# decision to skip authorization is explicit.
+#
+# module BranchRules
+#   module ExternalStatusChecks
+#     class CreateService < BaseService
+#       private
+#
+#       def authorized?
+#         can?(current_user, :create_external_status_check, branch_rule)
+#       end
+#
+#       def execute_on_branch_rule
+#         create_external_status_check(params.merge(protected_branch_ids: [branch_rule.id]))
+#       end
+#
+#       def execute_on_all_branches_rule
+#         create_external_status_check(params)
+#       end
+#     end
+#   end
+# end
+#
 module BranchRules
   class BaseService
     include Gitlab::Allowable
 
     MISSING_METHOD_ERROR = Class.new(StandardError)
+    ACTION_NAME_MAP = {
+      'CreateService' => 'create',
+      'UpdateService' => 'update',
+      'DestroyService' => 'delete'
+    }.freeze
 
     attr_reader :branch_rule, :current_user, :params
-
-    delegate :project, to: :branch_rule, allow_nil: true
 
     def initialize(branch_rule, user: nil, params: {})
       @branch_rule = branch_rule
       @current_user = user
-      @params = ActionController::Parameters.new(**params).permit(*permitted_params).to_h
+      @params = params
     end
 
     def execute(skip_authorization: false)
-      raise Gitlab::Access::AccessDeniedError unless skip_authorization || authorized?
+      return access_denied unless skip_authorization || authorized?
 
-      return execute_on_branch_rule if branch_rule.instance_of?(Projects::BranchRule)
-
-      ServiceResponse.error(message: 'Unknown branch rule type.')
+      execute_on_branch_rule_type
+    rescue Gitlab::Access::AccessDeniedError
+      access_denied
+    rescue ActiveRecord::RecordNotFound
+      not_found_error
     end
 
     private
 
+    delegate :project, to: :branch_rule, allow_nil: true, private: true
+
+    def execute_on_branch_rule_type
+      case branch_rule
+      when ::Projects::AllBranchesRule then execute_on_all_branches_rule
+      when ::Projects::BranchRule then execute_on_branch_rule
+      else ServiceResponse.error(message: 'Unknown branch rule type.')
+      end
+    end
+
     def execute_on_branch_rule
       missing_method_error('execute_on_branch_rule')
+    end
+
+    def execute_on_all_branches_rule
+      missing_method_error('execute_on_all_branches_rule')
     end
 
     def authorized?
       missing_method_error('authorized?')
     end
 
-    def permitted_params
-      []
+    def access_denied
+      ServiceResponse.error(
+        message: "Failed to #{action} #{object_name}",
+        payload: { errors: ['Not allowed'] },
+        reason: :access_denied
+      )
+    end
+
+    def not_found_error
+      ServiceResponse.error(
+        message: 'Record not found',
+        payload: { errors: ['Not found'] },
+        reason: :not_found
+      )
+    end
+
+    def action
+      ACTION_NAME_MAP.fetch(self.class.name.demodulize) do
+        raise KeyError, "#{self.class.name} is not in ACTION_NAME_MAP. " \
+          "Add an entry for #{self.class.name.demodulize}."
+      end
+    end
+
+    # BranchRules::UpdateService -> `branch rule`
+    # BranchRules::ExternalStatusChecks::CreateService -> `external status check`
+    def object_name
+      self.class.name.deconstantize.demodulize.singularize.underscore.tr('_', ' ')
     end
 
     def missing_method_error(method_name)

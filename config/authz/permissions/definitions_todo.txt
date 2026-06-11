@@ -194,7 +194,6 @@ create_group_with_default_branch_protection
 create_incident
 create_instance_runners
 create_iteration
-create_jira_connect_subscription
 create_key_result
 create_merge_request_approval_rules
 create_merge_request_from

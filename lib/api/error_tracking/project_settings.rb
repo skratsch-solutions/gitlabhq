@@ -30,6 +30,7 @@ module API
         tags ERROR_TRACKING_PROJECT_SETTINGS_TAGS
       end
 
+      route_setting :authorization, permissions: :read_error_tracking_setting, boundary_type: :project
       get ':id/error_tracking/settings' do
         not_found!('Error Tracking Setting') unless project_setting
         present project_setting, with: Entities::ErrorTracking::ProjectSetting
@@ -56,6 +57,7 @@ module API
           desc: 'Pass true to enable the integrated Error Tracking backend. Available in GitLab 14.2 and later.'
       end
 
+      route_setting :authorization, permissions: :update_error_tracking_setting, boundary_type: :project
       patch ':id/error_tracking/settings/' do
         not_found!('Error Tracking Setting') unless project_setting
         update_params = {
@@ -95,6 +97,7 @@ module API
           desc: 'Pass true to enable the integrated Error Tracking backend.'
       end
 
+      route_setting :authorization, permissions: :update_error_tracking_setting, boundary_type: :project
       put ':id/error_tracking/settings' do
         not_found! unless Feature.enabled?(:integrated_error_tracking, user_project)
         update_params = {

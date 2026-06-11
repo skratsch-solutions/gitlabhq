@@ -64,6 +64,11 @@ RSpec.describe API::Glql, feature_category: :custom_dashboards_foundation do
     context 'with valid requests' do
       let(:params) { { glql_yaml: "query: group = \"test-group\" AND state = opened" } }
 
+      it_behaves_like 'authorizing granular token permissions', :read_glql do
+        let(:boundary_object) { :user }
+        let(:request) { post api(endpoint, personal_access_token: pat), params: params }
+      end
+
       it 'returns successful response with opened issues', :aggregate_failures do
         glql_request
 
