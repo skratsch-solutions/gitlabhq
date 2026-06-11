@@ -45,6 +45,7 @@ describe('DashboardLoader', () => {
             <div data-testid="slot-cellHeight">{{ props.cellHeight }}</div>
             <div data-testid="slot-minCellHeight">{{ props.minCellHeight }}</div>
             <div data-testid="slot-hasPanels">{{ props.hasPanels }}</div>
+            <div data-testid="slot-isSystemDashboard">{{ props.isSystemDashboard }}</div>
           </div>
         `,
       },
@@ -123,6 +124,10 @@ describe('DashboardLoader', () => {
 
     it('passes hasPanels as true to the slot when dashboard has panels', () => {
       expect(getSlotProp('hasPanels')).toBe('true');
+    });
+
+    it('passes isSystemDashboard as false to the slot for a custom dashboard', () => {
+      expect(getSlotProp('isSystemDashboard')).toBe('false');
     });
   });
 
@@ -207,6 +212,10 @@ describe('DashboardLoader', () => {
       expect(getSlotProp('config')).toMatchObject(
         mockSystemDashboardResponse.customSystemDashboard.config,
       );
+    });
+
+    it('passes isSystemDashboard as true to the slot', () => {
+      expect(getSlotProp('isSystemDashboard')).toBe('true');
     });
   });
 

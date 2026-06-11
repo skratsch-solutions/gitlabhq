@@ -12,7 +12,7 @@ import { mockDashboardResponse } from '../mock_data';
 
 Vue.use(VueApollo);
 
-describe('ExploreAnalyticsDashboard', () => {
+describe('ExploreAnalyticsDashboardDetails', () => {
   let wrapper;
 
   const mockBreadcrumbState = { name: '', slug: '', update: jest.fn() };

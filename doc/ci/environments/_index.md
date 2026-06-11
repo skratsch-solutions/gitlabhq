@@ -290,13 +290,6 @@ You cannot set deployment tiers in the UI.
 
 ### Rename an environment
 
-{{< history >}}
-
-- Renaming an environment by using the API was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/338897) in GitLab 15.9.
-- Renaming an environment with the API [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/338897) in GitLab 16.0.
-
-{{< /history >}}
-
 You cannot rename an environment.
 
 To achieve the same result as renaming an environment:

@@ -158,9 +158,9 @@ module QA
 
         # To verify whether the user has been directed to a canary web node
         #
-        # Reads the GitLab Next toggle's checked state directly from the DOM
-        # without opening the user menu, so it has no side effects (the toggle
-        # is present but hidden while the dropdown is collapsed).
+        # Opens the user menu and reads the GitLab Next toggle's checked state,
+        # since the toggle is only rendered in the DOM once the user dropdown is
+        # expanded. The menu is closed again afterwards to avoid side effects.
         #
         # @return [Boolean] whether the GitLab Next toggle is on
         # @example:
@@ -168,11 +168,17 @@ module QA
         #     expect(menu.canary?).to be(true)
         #   end
         def canary?
-          return false unless has_element?('gitlab-next-toggle', visible: false)
+          checked = within_user_menu do
+            next false unless has_element?('gitlab-next-toggle', wait: 1)
 
-          within_element('gitlab-next-toggle', visible: false) do
-            find('button.gl-toggle', visible: false)[:class].include?('is-checked')
+            within_element('gitlab-next-toggle') do
+              find('button.gl-toggle')[:class].include?('is-checked')
+            end
           end
+          # close the user menu we opened to read the toggle to avoid side effects
+          click_element 'user-avatar-content' if has_element?('user-profile-link', wait: 0)
+
+          checked
         end
 
         private

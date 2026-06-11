@@ -215,12 +215,6 @@ might not be published in the CI/CD catalog, but could be used for testing.
 
 #### Partial semantic versions
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/450835) in GitLab 16.11
-
-{{< /history >}}
-
 You can use partial semantic version numbers and the keyword `~latest` when referencing
 a CI/CD catalog component to select the latest published version that matches your specification.
 
@@ -840,12 +834,6 @@ is published to the CI/CD catalog.
 
 #### Semantic versioning
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/427286) in GitLab 16.10.
-
-{{< /history >}}
-
 When tagging and [releasing new versions](#publish-a-new-release) of components to the Catalog,
 you must use [semantic versioning](https://semver.org). Semantic versioning is the standard
 for communicating that a change is a major, minor, patch, or other kind of change.
@@ -1045,8 +1033,8 @@ version qualifier to reference a component hosted by a [catalog project](#set-a-
 This GitLab CI configuration is invalid: Component 'gitlab.com/my-namespace/my-project/my-component@~latest' - content not found
 ```
 
-The `~latest` behavior [was updated](https://gitlab.com/gitlab-org/gitlab/-/issues/442238)
-in GitLab 16.10. It now refers to the latest semantic version of the catalog resource. To resolve this issue, [create a new release](#publish-a-new-release).
+The `~latest` qualifier refers to the latest semantic version of the catalog resource.
+To resolve this issue, [create a new release](#publish-a-new-release).
 
 ### Error: `Build component error: Spec must be a valid json schema`
 

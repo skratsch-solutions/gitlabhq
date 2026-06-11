@@ -2678,7 +2678,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3b3038f0ab5c"
+              "$ref": "#/components/schemas/RequestBody_f581e3cee5eb"
   "/api/v4/groups/{id}/saml_group_links/{saml_group_name}":
     get:
       operationId: getApiV4GroupsIdSamlGroupLinksSamlGroupName
@@ -6546,7 +6546,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
+              "$ref": "#/components/schemas/RequestBody_dcd0ccef7c63"
   "/api/v4/groups/{id}/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4GroupsIdMemberRolesMemberRoleId
@@ -6616,7 +6616,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
+              "$ref": "#/components/schemas/RequestBody_dcd0ccef7c63"
   "/api/v4/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4MemberRolesMemberRoleId
@@ -7434,7 +7434,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_d776ddaaa82b"
+              "$ref": "#/components/schemas/RequestBody_0fe3e489e52e"
     delete:
       operationId: deleteApiV4GroupsIdLdapGroupLinks
       summary: Delete an LDAP group link with CN or filter
@@ -27845,7 +27845,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_becaee9a250d"
+              "$ref": "#/components/schemas/RequestBody_2e745d0010cb"
   "/api/v4/projects/{id}/access_tokens/{token_id}":
     get:
       operationId: getApiV4ProjectsIdAccessTokensTokenId
@@ -28097,7 +28097,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_6e7faa13bb50"
+              "$ref": "#/components/schemas/RequestBody_773e12c60f53"
   "/api/v4/groups/{id}/access_tokens/{token_id}":
     get:
       operationId: getApiV4GroupsIdAccessTokensTokenId
@@ -30161,6 +30161,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -30565,6 +30566,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -31019,6 +31021,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -31599,6 +31602,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -32032,7 +32036,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_9a0afeb14bfa"
+              "$ref": "#/components/schemas/RequestBody_74afd0007720"
   "/api/v4/projects/{id}/share/{group_id}":
     delete:
       operationId: deleteApiV4ProjectsIdShareGroupId
@@ -32229,6 +32233,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -32305,6 +32310,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -36126,6 +36132,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -45804,7 +45811,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3db7a8cb169f"
+              "$ref": "#/components/schemas/RequestBody_273db4177dac"
     get:
       operationId: getApiV4GroupsIdInvitations
       summary: Get a list of group or project invitations viewable by the authenticated
@@ -45890,7 +45897,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_468c1f5e4675"
+              "$ref": "#/components/schemas/RequestBody_769d8373d726"
     delete:
       operationId: deleteApiV4GroupsIdInvitationsEmail
       summary: Removes an invitation from a group or project.
@@ -45948,7 +45955,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3db7a8cb169f"
+              "$ref": "#/components/schemas/RequestBody_273db4177dac"
     get:
       operationId: getApiV4ProjectsIdInvitations
       summary: Get a list of group or project invitations viewable by the authenticated
@@ -46034,7 +46041,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_468c1f5e4675"
+              "$ref": "#/components/schemas/RequestBody_769d8373d726"
     delete:
       operationId: deleteApiV4ProjectsIdInvitationsEmail
       summary: Removes an invitation from a group or project.
@@ -66898,6 +66905,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -67208,6 +67216,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -67320,6 +67329,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -67507,6 +67517,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -67664,6 +67675,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -67816,6 +67828,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -67997,6 +68010,7 @@ paths:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -68235,7 +68249,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_03e9708f98a6"
+              "$ref": "#/components/schemas/RequestBody_a5c8ad7d0148"
   "/api/v4/groups/{id}/share/{group_id}":
     delete:
       operationId: deleteApiV4GroupsIdShareGroupId
@@ -89805,7 +89819,7 @@ components:
           type: string
           description: The destination storage shard
           nullable: true
-    RequestBody_3b3038f0ab5c:
+    RequestBody_f581e3cee5eb:
       type: object
       properties:
         saml_group_name:
@@ -89819,6 +89833,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -91103,7 +91118,7 @@ components:
           nullable: true
       required:
       - extern_uid
-    RequestBody_d75fa79afa6e:
+    RequestBody_dcd0ccef7c63:
       type: object
       properties:
         base_access_level:
@@ -91112,6 +91127,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -91564,7 +91580,7 @@ components:
           nullable: true
       required:
       - license
-    RequestBody_d776ddaaa82b:
+    RequestBody_0fe3e489e52e:
       type: object
       properties:
         cn:
@@ -91582,6 +91598,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -97646,7 +97663,7 @@ components:
             required:
             - action
           nullable: true
-    RequestBody_becaee9a250d:
+    RequestBody_2e745d0010cb:
       type: object
       properties:
         name:
@@ -97678,6 +97695,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -97687,7 +97705,7 @@ components:
       required:
       - name
       - scopes
-    RequestBody_6e7faa13bb50:
+    RequestBody_773e12c60f53:
       type: object
       properties:
         name:
@@ -97719,6 +97737,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -99960,7 +99979,7 @@ components:
           type: string
           description: Branches to fork
           nullable: true
-    RequestBody_9a0afeb14bfa:
+    RequestBody_74afd0007720:
       type: object
       properties:
         group_id:
@@ -99974,6 +99993,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -103902,7 +103922,7 @@ components:
       required:
       - target_project_id
       - target_issue_iid
-    RequestBody_3db7a8cb169f:
+    RequestBody_273db4177dac:
       type: object
       properties:
         access_level:
@@ -103911,6 +103931,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -103946,7 +103967,7 @@ components:
           nullable: true
       required:
       - access_level
-    RequestBody_468c1f5e4675:
+    RequestBody_769d8373d726:
       type: object
       properties:
         access_level:
@@ -103955,6 +103976,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50
@@ -110188,7 +110210,7 @@ components:
           nullable: true
       required:
       - organization_id
-    RequestBody_03e9708f98a6:
+    RequestBody_a5c8ad7d0148:
       type: object
       properties:
         group_id:
@@ -110201,6 +110223,7 @@ components:
           - 10
           - 15
           - 20
+          - 25
           - 30
           - 40
           - 50

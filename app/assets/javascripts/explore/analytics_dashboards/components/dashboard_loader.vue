@@ -102,6 +102,7 @@ export default {
       :has-panels="hasPanels"
       :cell-height="cellHeight"
       :min-cell-height="minCellHeight"
+      :is-system-dashboard="isSystemDashboard"
     ></slot>
   </div>
 </template>

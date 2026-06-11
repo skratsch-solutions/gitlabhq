@@ -65,23 +65,29 @@ To use the Code Review Flow on a merge request:
 1. Use one of these methods to request a review:
    - Assign `@GitLabDuo` as a reviewer.
    - In a comment box, enter the quick action `/assign_reviewer @GitLabDuo`.
+   - In a comment box, mention `@GitLabDuo` and ask for a review.
 
 After you request a review, Code Review Flow starts a [session](../../sessions/_index.md) that you
 can monitor until the review is complete.
 
 ## Interact with GitLab Duo in reviews
 
+{{< history >}}
+
+- Comment interactions [updated](https://gitlab.com/gitlab-org/gitlab/-/work_items/601102) to use GitLab Duo Agent Platform in GitLab 19.1.
+
+{{< /history >}}
+
 In addition to assigning GitLab Duo as a reviewer, you can interact with GitLab Duo
 by:
 
-- Replying to its review comments to ask for clarification or alternative approaches.
+- Replying to review comments to ask for clarification or alternative approaches.
 - Mentioning `@GitLabDuo` in any discussion thread to ask follow-up questions.
 
-Interactions with GitLab Duo can help to improve the suggestions and feedback as you work to improve
-your merge request.
+Discussions with GitLab Duo in comments count as Agentic Chat requests and [consume credits](../../../../subscriptions/gitlab_credits.md).
 
 Feedback provided to GitLab Duo does not influence later reviews of other merge requests.
-There is a feature request to add this functionality, see [issue 560116](https://gitlab.com/gitlab-org/gitlab/-/issues/560116).
+Adding this functionality is proposed in [issue 560116](https://gitlab.com/gitlab-org/gitlab/-/issues/560116).
 
 ## Contextual awareness
 

@@ -474,12 +474,6 @@ Ensure that included configuration files do not create a loop of references to e
 
 ### `Failed to pull image` messages
 
-{{< history >}}
-
-- **Allow access to this project with a CI_JOB_TOKEN** setting [renamed to **Limit access to this project**](https://gitlab.com/gitlab-org/gitlab/-/issues/411406) in GitLab 16.3.
-
-{{< /history >}}
-
 A runner might return a `Failed to pull image` message when trying to pull a container image
 in a CI/CD job.
 

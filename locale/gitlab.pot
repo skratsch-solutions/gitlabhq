@@ -47536,6 +47536,9 @@ msgstr ""
 msgid "Monitor and observe AI agent behavior and activities across your group."
 msgstr ""
 
+msgid "Monitor and observe AI agent behavior and activities across your project."
+msgstr ""
+
 msgid "Monitor your errors directly in GitLab."
 msgstr ""
 

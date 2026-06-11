@@ -316,13 +316,6 @@ You can do this for GitLab Self-Managed or for GitLab.com.
 
 #### Filter group runners to show only inherited
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/337838/) in GitLab 15.5.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/101099) in GitLab 15.5. Feature flag `runners_finder_all_available` removed.
-
-{{< /history >}}
-
 You can choose to show all runners in the list, or show only
 those that are inherited from the instance or other groups.
 
@@ -353,12 +346,6 @@ instance. If you pause a group runner that is used by multiple projects, the run
 
 ### Delete a group runner
 
-{{< history >}}
-
-- Multiple runner deletion [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/361721/) in GitLab 15.6.
-
-{{< /history >}}
-
 Prerequisites:
 
 - You must be an administrator or have the Owner role for the group.
@@ -386,12 +373,6 @@ To delete a single or multiple group runners:
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 {{< /details >}}
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/363012) in GitLab 15.1.
-
-{{< /history >}}
 
 Prerequisites:
 
@@ -633,12 +614,6 @@ If a runner contacts the GitLab instance, the connection is recreated.
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/377963) in GitLab 15.8.
-
-{{< /history >}}
-
 As an administrator, you can view runner statistics to learn about the performance of your runner fleet.
 
 The **Median job queued time** value is calculated by sampling the queue duration of the
@@ -663,12 +638,6 @@ To view runner statistics:
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 {{< /details >}}
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/365078) in GitLab 15.3.
-
-{{< /history >}}
 
 Prerequisites:
 
@@ -741,8 +710,7 @@ project.
 
 {{< history >}}
 
-- [Introduced for administrators](https://gitlab.com/gitlab-org/gitlab/-/issues/348299) in GitLab 15.1.
-- [Made available for groups and projects](https://gitlab.com/gitlab-org/gitlab/-/issues/422621) in GitLab 18.2.
+- [Introduced for groups and projects](https://gitlab.com/gitlab-org/gitlab/-/issues/422621) in GitLab 18.2.
 
 {{< /history >}}
 

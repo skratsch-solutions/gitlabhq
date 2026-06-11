@@ -6,7 +6,7 @@ import DashboardFilters from '../components/dashboard_filters.vue';
 import DashboardLoader from '../components/dashboard_loader.vue';
 
 export default {
-  name: 'ExploreAnalyticsDashboard',
+  name: 'ExploreAnalyticsDashboardDetails',
   components: {
     GlDashboardLayout,
     AnalyticsDashboardPanel,
@@ -77,13 +77,17 @@ export default {
 </script>
 <template>
   <dashboard-loader>
-    <template #dashboard="{ config, cellHeight, minCellHeight }">
+    <template #dashboard="{ config, cellHeight, minCellHeight, isSystemDashboard }">
       <gl-dashboard-layout
         :config="config"
         :cell-height="cellHeight"
         :min-cell-height="minCellHeight"
         :filters="filters"
       >
+        <template #actions>
+          <slot name="actions" :is-system-dashboard="isSystemDashboard"></slot>
+        </template>
+
         <template #filters>
           <dashboard-filters
             :group-namespace="selectedGroup?.fullPath || ''"

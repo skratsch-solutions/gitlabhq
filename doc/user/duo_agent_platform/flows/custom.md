@@ -149,7 +149,12 @@ The flow appears in the AI Catalog.
 
 Enable a flow to trigger it from an issue, merge request, or discussion.
 
-When you enable a flow in a project, it is enabled in the top-level group for that project at the same time.
+When you enable a flow in a project:
+
+- The flow is enabled in the top-level group for that project at the same time.
+- You add a [trigger](../triggers/_index.md) to specify which events trigger the
+  flow. Some of the trigger events involve the service account user. For more
+  information, see [composite identity](../composite_identity.md).
 
 Prerequisites:
 
@@ -260,15 +265,6 @@ To disable a flow:
 1. On the confirmation dialog, select **Disable**.
 
 The flow no longer appears in the project or group, and can't be run. Any service accounts or triggers associated with the flow are also removed.
-
-## Create a trigger
-
-You must now [create a trigger](../triggers/_index.md), which determines when the flow runs.
-
-For example, you can specify the flow to be triggered when you mention the flow service account user in a discussion,
-or when you assign the service account as a reviewer.
-
-When you enable a flow in a project, you also create triggers.
 
 ## Use a flow
 

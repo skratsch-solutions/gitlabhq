@@ -137,13 +137,6 @@ export default {
     renderNamespaceSelector() {
       return this.form.access === ACCESS_SELECTED_MEMBERSHIPS_ENUM;
     },
-    targetBoundaries() {
-      return {
-        namespace: ACCESS_NAMESPACE_ENUMS,
-        user: [ACCESS_USER_ENUM],
-        instance: [ACCESS_INSTANCE_ENUM],
-      };
-    },
     granularScopes() {
       const scopes = [];
 
@@ -347,6 +340,11 @@ export default {
   ),
   MAX_NAME_LENGTH,
   MAX_DESCRIPTION_LENGTH,
+  permissionTabs: [
+    { key: 'namespace', boundaries: ACCESS_NAMESPACE_ENUMS },
+    { key: 'user', boundaries: [ACCESS_USER_ENUM] },
+    { key: 'instance', boundaries: [ACCESS_INSTANCE_ENUM] },
+  ],
 };
 </script>
 
@@ -449,23 +447,11 @@ export default {
               />
             </template>
             <personal-access-token-permissions-selector
-              v-model="form.permissions.namespace"
+              v-for="tab in $options.permissionTabs"
+              :key="tab.key"
+              v-model="form.permissions[tab.key]"
               :error="errors.permissions"
-              :target-boundaries="targetBoundaries.namespace"
-              :ai-permissions="aiPermissions"
-            />
-
-            <personal-access-token-permissions-selector
-              v-model="form.permissions.user"
-              :error="errors.permissions"
-              :target-boundaries="targetBoundaries.user"
-              :ai-permissions="aiPermissions"
-            />
-
-            <personal-access-token-permissions-selector
-              v-model="form.permissions.instance"
-              :error="errors.permissions"
-              :target-boundaries="targetBoundaries.instance"
+              :target-boundaries="tab.boundaries"
               :ai-permissions="aiPermissions"
             />
           </gl-tabs>
