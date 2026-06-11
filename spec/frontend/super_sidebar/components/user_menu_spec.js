@@ -10,7 +10,8 @@ import WhatsNewForYouMenuItem from '~/whats_new/components/whats_new_for_you_men
 import SetStatusModal from '~/set_status_modal/set_status_modal_wrapper.vue';
 import { mockTracking } from 'helpers/tracking_helper';
 import { stubExperiments } from 'helpers/experimentation_helper';
-import { visitUrl } from '~/lib/utils/url_utility';
+import { visitUrl, refreshCurrentPage } from '~/lib/utils/url_utility';
+import * as gitlabNext from '~/lib/utils/gitlab_next';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_OK } from '~/lib/utils/http_status';
 import waitForPromises from 'helpers/wait_for_promises';
@@ -60,6 +61,7 @@ describe('UserMenu component', () => {
       },
       provide: {
         isImpersonating: false,
+        isSaas: false,
         ...provide,
       },
     });
@@ -517,32 +519,83 @@ describe('UserMenu component', () => {
   });
 
   describe('GitLab Next item', () => {
-    describe('on gitlab.com', () => {
-      let item;
+    const findGitlabNextItem = () => wrapper.findByTestId('gitlab-next-item');
+    const findGitlabNextToggle = () => wrapper.findByTestId('gitlab-next-toggle');
+    const findGitlabNextLabel = () => findGitlabNextItem().find('.gl-grow');
 
+    let setGitlabNextSpy;
+
+    beforeEach(() => {
+      setGitlabNextSpy = jest.spyOn(gitlabNext, 'setGitlabNext').mockImplementation(() => {});
+    });
+
+    describe('on gitlab.com but not on canary', () => {
       beforeEach(() => {
-        createWrapper({ gitlab_com_but_not_canary: true });
-        item = wrapper.findByTestId('gitlab-next-item');
+        createWrapper({ gitlab_com_and_canary: false }, {}, { isSaas: true });
       });
-      it('should render a link to switch to GitLab Next', () => {
-        expect(item.text()).toBe(UserMenu.i18n.gitlabNext);
-        expect(item.find('a').attributes('href')).toBe(userMenuMockData.canary_toggle_com_url);
+
+      it('renders a GitLab Next toggle in the off position', () => {
+        expect(findGitlabNextLabel().text()).toBe(UserMenu.GITLAB_NEXT_LABEL);
+        expect(findGitlabNextToggle().props('value')).toBe(false);
       });
 
       it('has Snowplow tracking attributes', () => {
-        expect(item.find('a').attributes()).toMatchObject({
+        expect(findGitlabNextToggle().attributes()).toMatchObject({
           'data-track-property': 'nav_user_menu',
-          'data-track-action': 'click_link',
+          'data-track-action': 'toggle',
           'data-track-label': 'switch_to_canary',
+        });
+      });
+
+      describe('when toggled on', () => {
+        beforeEach(() => {
+          findGitlabNextToggle().vm.$emit('change', true);
+        });
+
+        it('enables GitLab Next and reloads', () => {
+          expect(setGitlabNextSpy).toHaveBeenCalledWith(true);
+          expect(refreshCurrentPage).toHaveBeenCalled();
         });
       });
     });
 
-    describe('anywhere else', () => {
-      it('should not render the GitLab Next link', () => {
-        createWrapper({ gitlab_com_but_not_canary: false });
-        const item = wrapper.findByTestId('gitlab-next-item');
-        expect(item.exists()).toBe(false);
+    describe('on gitlab.com and on canary', () => {
+      beforeEach(() => {
+        createWrapper({ gitlab_com_and_canary: true }, {}, { isSaas: true });
+      });
+
+      it('renders a GitLab Next toggle in the on position', () => {
+        expect(findGitlabNextLabel().text()).toBe(UserMenu.GITLAB_NEXT_LABEL);
+        expect(findGitlabNextToggle().props('value')).toBe(true);
+      });
+
+      it('has Snowplow tracking attributes', () => {
+        expect(findGitlabNextToggle().attributes()).toMatchObject({
+          'data-track-property': 'nav_user_menu',
+          'data-track-action': 'toggle',
+          'data-track-label': 'leave_canary',
+        });
+      });
+
+      describe('when toggled off', () => {
+        beforeEach(() => {
+          findGitlabNextToggle().vm.$emit('change', false);
+        });
+
+        it('disables GitLab Next and reloads', () => {
+          expect(setGitlabNextSpy).toHaveBeenCalledWith(false);
+          expect(refreshCurrentPage).toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe('anywhere else (not SaaS)', () => {
+      beforeEach(() => {
+        createWrapper({ gitlab_com_and_canary: false }, {}, { isSaas: false });
+      });
+
+      it('does not render the GitLab Next item', () => {
+        expect(findGitlabNextItem().exists()).toBe(false);
       });
     });
   });

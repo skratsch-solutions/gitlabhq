@@ -80,6 +80,40 @@ module API
                 with: Entities::Terraform::StateProtectionRule
             end
           end
+
+          params do
+            requires :terraform_state_protection_rule_id, type: Integer,
+              desc: 'The ID of the Terraform state protection rule'
+          end
+          resource ':terraform_state_protection_rule_id' do
+            desc 'Delete a Terraform state protection rule' do
+              detail 'This feature was introduced in GitLab 19.0.'
+              success code: 204, message: '204 No Content'
+              failure [
+                { code: 400, message: 'Bad Request' },
+                { code: 401, message: 'Unauthorized' },
+                { code: 403, message: 'Forbidden' },
+                { code: 404, message: 'Not Found' }
+              ]
+              tags %w[projects]
+            end
+            route_setting :authorization, permissions: :delete_terraform_state_protection_rule, boundary_type: :project
+            delete do
+              authorize! :delete_terraform_state_protection_rule, user_project
+
+              protection_rule = user_project.terraform_state_protection_rules
+                .find(params[:terraform_state_protection_rule_id])
+
+              destroy_conditionally!(protection_rule) do |protection_rule|
+                response = ::Terraform::StateProtectionRules::DeleteRuleService.new(
+                  protection_rule,
+                  current_user: current_user
+                ).execute
+
+                render_api_error!({ error: response.message }, :bad_request) if response.error?
+              end
+            end
+          end
         end
       end
     end

@@ -25390,6 +25390,38 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/RequestBody_54644993ae17"
+    delete:
+      operationId: deleteApiV4ProjectsIdTerraformStateProtectionRulesTerraformStateProtectionRuleId
+      summary: Delete a Terraform state protection rule
+      description: This feature was introduced in GitLab 19.0.
+      tags:
+      - Projects
+      responses:
+        '204':
+          description: 204 No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+      - name: terraform_state_protection_rule_id
+        required: true
+        description: The ID of the Terraform state protection rule
+        schema:
+          type: integer
+        in: path
   "/api/v4/projects/{id}/terraform/state/{name}":
     get:
       operationId: getApiV4ProjectsIdTerraformStateName

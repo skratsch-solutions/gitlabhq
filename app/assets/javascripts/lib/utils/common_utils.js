@@ -676,7 +676,7 @@ export const setCookie = (name, value, attributes) => {
 
 export const getCookie = (name) => Cookies.get(name);
 
-export const removeCookie = (name) => Cookies.remove(name);
+export const removeCookie = (name, attributes) => Cookies.remove(name, attributes);
 
 /**
  * This method takes in array with snake_case strings

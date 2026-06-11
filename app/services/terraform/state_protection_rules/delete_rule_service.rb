@@ -15,7 +15,7 @@ module Terraform
       def execute
         unless can?(current_user, :delete_terraform_state_protection_rule, protection_rule.project)
           return service_response_error(
-            message: _('Unauthorized to delete a terraform state protection rule')
+            message: _('Unauthorized to delete a Terraform state protection rule')
           )
         end
 

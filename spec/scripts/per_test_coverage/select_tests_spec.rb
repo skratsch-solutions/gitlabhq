@@ -294,6 +294,76 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
       end
     end
 
+    # GLCI_PER_TEST_COVERAGE_FORCE_BUCKET forces a full-glob bucket sweep on any
+    # day, bypassing the weekday delta and the weekend API decision.
+    describe 'forced bucket override' do
+      let(:now) { Time.utc(2026, 5, 12, 10, 0, 0) } # Tuesday, to prove the day is ignored
+
+      before do
+        stub_env('CI_PIPELINE_ID', nil)
+        allow(gitlab_api).to receive(:count_schedule_pipelines_since)
+        # Weekday-path stubs so that, without the feature, run! completes and the
+        # bucket assertions fail rather than erroring on a nil ClickHouse result.
+        allow(clickhouse_client).to receive(:query).with(/max\(captured_sha\)/, anything)
+          .and_return([{ 'sha' => 'sha' }])
+        allow(git).to receive(:diff_files).and_return([])
+        allow(clickhouse_client).to receive(:query).with(/INTERVAL 14 DAY/, anything)
+          .and_return(all_test_files.map { |t| { 'test_file' => t } })
+      end
+
+      shared_examples 'a forced bucket sweep' do |bucket:|
+        it "queues only hash-bucket #{bucket} files, skipping ClickHouse and the GitLab API",
+          :aggregate_failures do
+          select_tests.run!
+
+          queued = (File.read(foss_queue_path).split("\n") +
+            File.read(ee_queue_path).split("\n") +
+            File.read(jest_queue_path).split("\n")).reject(&:empty?)
+
+          expect(queued).not_to be_empty
+          queued.each { |path| expect(Digest::SHA256.hexdigest(path).to_i(16) % 2).to eq(bucket) }
+          expect(clickhouse_client).not_to have_received(:query)
+          expect(gitlab_api).not_to have_received(:count_schedule_pipelines_since)
+        end
+      end
+
+      context 'when set to 0' do
+        before do
+          stub_env('GLCI_PER_TEST_COVERAGE_FORCE_BUCKET', '0')
+        end
+
+        it_behaves_like 'a forced bucket sweep', bucket: 0
+      end
+
+      context 'when set to 1' do
+        before do
+          stub_env('GLCI_PER_TEST_COVERAGE_FORCE_BUCKET', '1')
+        end
+
+        it_behaves_like 'a forced bucket sweep', bucket: 1
+      end
+
+      context 'when set to an out-of-range value' do
+        before do
+          stub_env('GLCI_PER_TEST_COVERAGE_FORCE_BUCKET', '5')
+        end
+
+        it 'raises a clear error' do
+          expect { select_tests.run! }.to raise_error(/must be 0 or 1/)
+        end
+      end
+
+      context 'when set to a non-integer string' do
+        before do
+          stub_env('GLCI_PER_TEST_COVERAGE_FORCE_BUCKET', 'abc')
+        end
+
+        it 'raises a clear error' do
+          expect { select_tests.run! }.to raise_error(/must be 0 or 1/)
+        end
+      end
+    end
+
     context 'when categorising FOSS vs EE vs jest by path' do
       let(:now) { Time.utc(2026, 5, 12, 10, 0, 0) } # Tuesday
 

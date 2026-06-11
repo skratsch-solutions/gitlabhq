@@ -15,10 +15,8 @@ RSpec.describe Terraform::StateProtectionRules::DeleteRuleService, '#execute',
   subject(:service_execute) { described_class.new(protection_rule, current_user: current_user).execute }
 
   shared_examples 'a successful service response' do
-    it 'returns success' do
-      result = service_execute
-      expect(result).to be_success
-      expect(result.payload[:terraform_state_protection_rule]).to eq(protection_rule)
+    it_behaves_like 'returning a success service response' do
+      it { is_expected.to have_attributes(payload: { terraform_state_protection_rule: protection_rule }) }
     end
 
     it 'deletes the rule' do
@@ -35,6 +33,12 @@ RSpec.describe Terraform::StateProtectionRules::DeleteRuleService, '#execute',
       expect(result.payload[:terraform_state_protection_rule]).to be_nil
     end
 
+    it_behaves_like 'returning an error service response', message: message do
+      it 'returns nil protection rule in payload' do
+        is_expected.to have_attributes(payload: { terraform_state_protection_rule: nil })
+      end
+    end
+
     it 'does not delete the rule' do
       expect { service_execute }.not_to change { Terraform::StateProtectionRule.count }
       expect { protection_rule.reload }.not_to raise_error
@@ -45,11 +49,11 @@ RSpec.describe Terraform::StateProtectionRules::DeleteRuleService, '#execute',
 
   context 'when error occurs during delete operation' do
     before do
+      protection_rule.errors.add(:base, 'Some error')
       allow(protection_rule).to receive(:destroy).and_return(false)
-      allow(protection_rule).to receive_message_chain(:errors, :full_messages).and_return(['Some error'])
     end
 
-    it_behaves_like 'an erroneous service response', message: 'Some error'
+    it_behaves_like 'an erroneous service response', message: ['Some error']
   end
 
   context 'when current user does not have permission' do
@@ -64,7 +68,7 @@ RSpec.describe Terraform::StateProtectionRules::DeleteRuleService, '#execute',
 
     with_them do
       it_behaves_like 'an erroneous service response',
-        message: 'Unauthorized to delete a terraform state protection rule'
+        message: 'Unauthorized to delete a Terraform state protection rule'
     end
   end
 

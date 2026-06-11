@@ -121,10 +121,6 @@ module Gitlab
     'gitlab.com'
   end
 
-  def self.canary_toggle_com_url
-    'https://next.gitlab.com'
-  end
-
   def self.staging_com_url
     'https://staging.gitlab.com'
   end

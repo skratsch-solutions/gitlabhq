@@ -45,6 +45,17 @@ RSpec.describe Gitlab::Email::Handler::CreateNoteOnIssuableHandler do
     it_behaves_like 'checks permissions on noteable examples'
   end
 
+  context 'when everything is fine' do
+    before do
+      setup_attachment
+    end
+
+    it_behaves_like 'an incoming email handler that logs its execution' do
+      let(:expected_log_namespace) { project.project_namespace }
+      let(:expected_additional_log_data) { { Labkit::Fields::GL_PROJECT_ID => project.id } }
+    end
+  end
+
   def email_fixture(path)
     fixture_file(path)
       .gsub('project_id', project.project_id.to_s)

@@ -63,6 +63,11 @@ RSpec.describe Gitlab::Email::Handler::UnsubscribeHandler do
       expect { receiver.execute }.to change { noteable.subscribed?(user, noteable.project) }.from(true).to(false)
     end
 
+    it_behaves_like 'an incoming email handler that logs its execution' do
+      let(:expected_log_namespace) { sent_notification.namespace }
+      let(:expected_additional_log_data) { { Labkit::Fields::GL_SENT_NOTIFICATION_ID => sent_notification.id } }
+    end
+
     context 'when using old style unsubscribe link' do
       let(:email_raw) { fixture_file('emails/valid_reply.eml').gsub(mail_key, "#{mail_key}#{Gitlab::Email::Common::UNSUBSCRIBE_SUFFIX_LEGACY}") }
 

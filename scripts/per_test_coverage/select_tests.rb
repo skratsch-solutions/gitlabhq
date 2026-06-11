@@ -198,19 +198,39 @@ module PerTestCoverage
     def weekend_bucket_index
       return @weekend_bucket_index if defined?(@weekend_bucket_index)
 
-      @weekend_bucket_index =
-        if now.saturday? || now.sunday?
-          prior = gitlab_api.count_schedule_pipelines_since(
-            schedule_id: MAINTENANCE_SCHEDULE_ID,
-            since_time: weekend_start_utc,
-            exclude_pipeline_id: ENV['CI_PIPELINE_ID']&.to_i
-          )
-          info "GitLab API reports #{prior} prior maintenance pipeline(s) since #{weekend_start_utc.iso8601}"
-          case prior
-          when 0 then 0
-          when 1 then 1
-          end
-        end
+      @weekend_bucket_index = forced_bucket_index || automatic_weekend_bucket_index
+    end
+
+    # A GLCI_PER_TEST_COVERAGE_FORCE_BUCKET of 0 or 1 runs that bucket's
+    # full-glob sweep on any day, bypassing both the weekday delta and the
+    # weekend API decision. The capture only runs when
+    # GLCI_PER_TEST_COVERAGE_DELTA is also true (the pipeline-generate job is
+    # gated on it), so both must be set to force a sweep. The force variable
+    # stays unset on normal scheduled runs.
+    def forced_bucket_index
+      raw = ENV['GLCI_PER_TEST_COVERAGE_FORCE_BUCKET'].to_s
+      return if raw.empty?
+
+      bucket = Integer(raw, exception: false)
+      raise "GLCI_PER_TEST_COVERAGE_FORCE_BUCKET must be 0 or 1, got #{raw.inspect}" unless [0, 1].include?(bucket)
+
+      info "Forcing bucket #{bucket} via GLCI_PER_TEST_COVERAGE_FORCE_BUCKET"
+      bucket
+    end
+
+    def automatic_weekend_bucket_index
+      return unless now.saturday? || now.sunday?
+
+      prior = gitlab_api.count_schedule_pipelines_since(
+        schedule_id: MAINTENANCE_SCHEDULE_ID,
+        since_time: weekend_start_utc,
+        exclude_pipeline_id: ENV['CI_PIPELINE_ID']&.to_i
+      )
+      info "GitLab API reports #{prior} prior maintenance pipeline(s) since #{weekend_start_utc.iso8601}"
+      case prior
+      when 0 then 0
+      when 1 then 1
+      end
     end
 
     # Most recent Saturday 00:00 UTC at or before `now`. Used as the anchor for

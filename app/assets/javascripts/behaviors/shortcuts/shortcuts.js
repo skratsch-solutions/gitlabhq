@@ -6,6 +6,7 @@ import { InternalEvents } from '~/tracking';
 import { FIND_FILE_SHORTCUT_CLICK } from '~/tracking/constants';
 import { Mousetrap, addStopCallback, suppressShortcutsUntilInputFocus } from '~/lib/mousetrap';
 import { getCookie, setCookie, parseBoolean } from '~/lib/utils/common_utils';
+import { setGitlabNext, isGitlabNextEnabled } from '~/lib/utils/gitlab_next';
 import { waitForElement } from '~/lib/utils/dom_utils';
 import findAndFollowLink from '~/lib/utils/navigation_utility';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
@@ -266,9 +267,7 @@ export default class Shortcuts {
 
   static onToggleCanary(e) {
     e.preventDefault();
-    const canaryCookieName = 'gitlab_canary';
-    const currentValue = parseBoolean(getCookie(canaryCookieName));
-    setCookie(canaryCookieName, (!currentValue).toString(), { expires: 365, path: '/' });
+    setGitlabNext(!isGitlabNextEnabled());
     refreshCurrentPage();
   }
 

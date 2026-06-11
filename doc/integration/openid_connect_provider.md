@@ -32,7 +32,7 @@ If some users use GitLab only as an OIDC provider and don't need access to
 GitLab projects or groups, consider assigning them the
 [Minimal Access](../user/permissions.md#users-with-minimal-access) role in their
 top-level group.
-Minimal Access users don't consume seats in the subscription, and still have access when [restricted access](../administration/settings/sign_up_restrictions.md#restricted-access) is active and no seats are available.
+Minimal Access users don't consume seats in the subscription, and still have access when [restricted access](../subscriptions/manage_seats.md#restricted-access) is active and no seats are available.
 
 ## Enable OIDC for OAuth applications
 

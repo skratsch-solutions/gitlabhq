@@ -125,6 +125,11 @@ RSpec.describe Gitlab::Email::Handler::ServiceDeskHandler, feature_category: :se
 
       it_behaves_like 'a new ticket request'
 
+      it_behaves_like 'an incoming email handler that logs its execution' do
+        let(:expected_log_namespace) { project.project_namespace }
+        let(:expected_additional_log_data) { { Labkit::Fields::GL_PROJECT_ID => project.id } }
+      end
+
       it 'attaches existing CRM contacts' do
         contact = create(:contact, group: group, email: author_email)
         contact2 = create(:contact, group: group, email: "cc@example.com")

@@ -40,10 +40,10 @@ If a user is in multiple groups or projects that belong to the same top-level gr
 
 Seat usage is reviewed [quarterly or annually](quarterly_reconciliation.md).
 
-To prevent unexpectedly adding new billable users, which may result in overage fees, you should:
+To prevent overage fees from unintended user additions, you should:
 
 - [Prevent inviting groups outside the group hierarchy](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy).
-- Turn on restricted access for a [group](../user/group/manage.md#turn-on-restricted-access) or an [instance](../administration/settings/sign_up_restrictions.md#turn-on-restricted-access).
+- Turn on restricted access.
 
 ## Criteria for non-billable users
 
@@ -125,6 +125,141 @@ confirm that they have no other role assignments in the instance or namespace be
 > On GitLab Self-Managed, if a user creates a project, they are assigned the Maintainer or Owner role.
 > To prevent a user from creating projects, as an administrator, you can mark the user
 > as [external](../administration/external_users.md).
+
+## Seat controls
+
+Seat controls help you manage how users are added to your subscription and prevent unexpected overage fees.
+Seat controls apply to the instance on GitLab Self-Managed, and to the top-level group on GitLab.com.
+
+### User cap
+
+{{< history >}}
+
+- [Enabled on GitLab.com](https://gitlab.com/groups/gitlab-org/-/epics/9263) in GitLab 16.3.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/421693) in GitLab 17.1. Feature flag `saas_user_caps` removed.
+
+{{< /history >}}
+
+The user cap is the maximum number of billable users who can create accounts or be added to a subscription.
+After the user cap is reached, users who create accounts or are added must be approved by a group Owner or administrator.
+After the users have been approved, they can access the group or instance.
+
+You can set a user cap [for a group](../user/group/manage.md#set-a-user-cap-for-a-group)
+and [for an instance](../administration/settings/sign_up_restrictions.md#set-a-user-cap).
+
+If a group Owner or an administrator increases or removes the user cap, users pending approval are automatically approved.
+
+The number of billable users is updated once a day.
+The user cap might take effect only after it has already been exceeded.
+If the cap is set to a value below the current number of billable users (for example, `1`), the cap is enabled immediately.
+
+> [!note]
+> On GitLab Self-Managed, for instances that use LDAP or OmniAuth,
+> when administrator approval for new user accounts is enabled or disabled,
+> downtime might occur due to changes in the Rails configuration.
+> You can set a user cap to enforce approvals for new users.
+
+Groups with the user cap feature enabled have [group sharing](../user/project/members/sharing_projects_groups.md#invite-a-group-to-a-group)
+disabled for the group and its subgroups.
+
+> [!warning]
+> When you specify a user cap, any members added through group sharing lose access to the group.
+
+The user cap cannot be enabled if a group, subgroup, or project is shared externally.
+If a group, subgroup, or project is shared externally, it is shared outside of the namespace hierarchy, regardless of its level
+in the hierarchy.
+
+To ensure that the user cap applies when groups, subgroups, or projects are shared externally,
+[restrict group sharing only in the top-level namespace](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy).
+A top-level namespace restriction allows invitations in the same namespace and prevents new user (seat) additions from external shares.
+
+On GitLab.com Ultimate, you cannot add guest users to a group when billable users exceed the user cap.
+For example, suppose you have a user cap of 5, with 3 developers, and 2 guests. After you add 2 more developers,
+you cannot add any more users, even if they are guest users who don't consume a billable seat.
+For more information, see [issue 441504](https://gitlab.com/gitlab-org/gitlab/-/issues/441504).
+
+### Restricted access
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/442718) in GitLab 17.5.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/523468) in GitLab 18.0.
+- Group sharing settings [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/488451) in GitLab 18.7.
+
+{{< /history >}}
+
+Restricted access blocks new billable users from being added when no seats remain in your subscription.
+Existing users are not removed or blocked.
+However, if user cap is enabled for a group that has pending members, when you enable restricted access all pending members are automatically removed from the group.
+
+You can set restricted access [for a group](../user/group/manage.md#turn-on-restricted-access)
+and [for an instance](../administration/settings/sign_up_restrictions.md#turn-on-restricted-access).
+
+When you turn on restricted access, the setting to [prevent inviting groups outside the group hierarchy](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy) is automatically turned on.
+This setting prevents overage fees caused by unintended billable users.
+
+You can still independently configure [project sharing for the group and its subgroups](../user/project/members/sharing_projects_groups.md#prevent-a-project-from-being-shared-with-groups) as needed.
+
+Restricted access and user cap cannot be used together.
+Enabling restricted access disables user cap.
+Restricted access is also incompatible with external group sharing.
+
+#### Provisioning behavior with SAML, SCIM, and LDAP
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/206932) in GitLab 18.6 [with a flag](../administration/feature_flags/_index.md) named `bso_minimal_access_fallback`. Disabled by default.
+- [Enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/225777) in GitLab 18.10.
+
+{{< /history >}}
+
+When restricted access is enabled and no subscription seats are available, users provisioned through SAML, SCIM, or LDAP are assigned the Minimal Access role instead of their configured access level.
+This behavior ensures that synchronization can continue without consuming billable seats on GitLab.com and Self-Managed Ultimate.
+
+Users with the Minimal Access role can authenticate and access the group, but have [limited permissions](../user/permissions.md#users-with-minimal-access).
+When seats become available, they can be promoted to their intended access level.
+Existing users with billable roles are not affected by this behavior.
+
+You can view seat usage and manage users with Minimal Access.
+
+#### Known issues
+
+When you turn on restricted access, the following known issues might occur and result in overages:
+
+- The number of seats can still be exceeded if:
+  - You use SAML, SCIM, or LDAP to add new members, and have exceeded the number of seats in the subscription. When the Minimal Access fallback feature is enabled, users are assigned Minimal Access instead of being blocked.
+  - Multiple users with the Owner role or administrator access add members simultaneously.
+  - New billable members delay accepting an invitation. When you invite a user, they don't consume a billable seat until they accept the invitation. If an invited user delays accepting, you can invite and add other users during that time. When the delayed user finally accepts, they consume a billable seat, which might cause an overage if you've already reached your seat limit.
+- If you renew your subscription through the GitLab Sales Team for fewer users than your current
+  subscription, you will incur an overage fee. To avoid this fee, remove additional users before your
+  renewal starts. For example, if you have 20 users and renew your subscription for 15 users,
+  you will be charged overages for the five additional users.
+
+Additionally, restricted access might block the standard non-overage flows:
+
+- Service bots that are updated or added to a billable role are incorrectly blocked.
+- Inviting or updating existing billable users through email is blocked unexpectedly.
+
+#### Dormant user reactivation
+
+When restricted access is active and no licensed seats are available,
+dormant users (including [enterprise users](../user/enterprise_user/_index.md))
+who attempt to sign back in are set to pending approval instead of being reactivated.
+Their existing group and project memberships are preserved.
+Non-enterprise dormant members have their group membership removed instead of being deactivated.
+When they rejoin through SAML, SCIM, or LDAP sync, provisioning behavior applies
+and they receive the Minimal Access role if no seats are available.
+
+A group Owner or an administrator can approve the users when seats become available.
+
+Users with only the Minimal Access role are reactivated directly, because they do not consume a billable seat.
+
+You can [automatically remove dormant members](../user/group/moderate_users.md#automatically-remove-dormant-members).
+
+### Changing from user cap to restricted access
+
+When you change from user cap to restricted access, all pending members (both members awaiting approval and invited members) are automatically removed.
+To ensure users are approved as members, you must approve or remove pending members before enabling restricted access.
 
 ## Buy more seats
 
@@ -387,14 +522,14 @@ Initial setup:
 - [Turn off new user account creation](../administration/settings/sign_up_restrictions.md#disable-new-user-account-creation).
 - Automatically block new users through [LDAP](../administration/auth/ldap/_index.md#basic-configuration-settings) or [OmniAuth](../integration/omniauth.md#configure-common-settings).
 - Require approval for [new accounts](../administration/settings/sign_up_restrictions.md#require-administrator-approval-for-new-user-accounts) and [role promotions](../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions) to maintain control over seat allocation from the start.
-- Use seat controls to turn on restricted access, or set a user cap for a [group](../user/group/manage.md#user-cap-for-groups) or an [instance](../administration/settings/sign_up_restrictions.md#user-cap) to prevent unintended seat usage.
+- Use seat controls to turn on restricted access, or set a user cap for a group or an instance to prevent unintended seat usage.
 - Assign non-billable roles like Guest (on Free and Ultimate) or Minimal Access when possible to minimize seat usage.
 
 Regular activities:
 
 - Monitor seat usage and user statistics regularly to identify potential overages.
 - Act on seat usage alerts that notify you when seats are running low.
-- Automatically [deactivate](../administration/moderate_users.md#automatically-deactivate-dormant-users) or [remove](../user/group/moderate_users.md#automatically-remove-dormant-members) dormant members to free up seats for active team members.
+- Automatically deactivate or remove dormant members to free up seats for active team members.
 
 Strategic planning:
 

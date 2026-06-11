@@ -14,10 +14,6 @@ module QA
           element 'super-sidebar', required: true
         end
 
-        view 'app/assets/javascripts/super_sidebar/components/super_topbar.vue' do
-          element 'canary-badge-link'
-        end
-
         view 'app/assets/javascripts/super_sidebar/components/brand_logo.vue' do
           element 'brand-header-default-logo'
         end
@@ -28,6 +24,7 @@ module QA
           element 'sign-out-link'
           element 'edit-profile-link'
           element 'preferences-item'
+          element 'gitlab-next-toggle'
         end
 
         view 'app/assets/javascripts/super_sidebar/components/user_menu_profile_item.vue' do
@@ -160,13 +157,22 @@ module QA
         end
 
         # To verify whether the user has been directed to a canary web node
-        # @return [Boolean] result of checking existence of 'canary-badge-link' element
+        #
+        # Reads the GitLab Next toggle's checked state directly from the DOM
+        # without opening the user menu, so it has no side effects (the toggle
+        # is present but hidden while the dropdown is collapsed).
+        #
+        # @return [Boolean] whether the GitLab Next toggle is on
         # @example:
         #   Menu.perform do |menu|
         #     expect(menu.canary?).to be(true)
         #   end
         def canary?
-          has_element?('canary-badge-link')
+          return false unless has_element?('gitlab-next-toggle', visible: false)
+
+          within_element('gitlab-next-toggle', visible: false) do
+            find('button.gl-toggle', visible: false)[:class].include?('is-checked')
+          end
         end
 
         private

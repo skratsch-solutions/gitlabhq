@@ -457,6 +457,7 @@ Grants the ability to create, delete, and update Terraform state protection rule
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Delete | Project | `DELETE` | `/projects/:id/terraform/state_protection_rules/:terraform_state_protection_rule_id` |
 | Update | Project | `PATCH` | `/projects/:id/terraform/state_protection_rules/:terraform_state_protection_rule_id` |
 
 #### Trigger

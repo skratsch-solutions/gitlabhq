@@ -367,8 +367,8 @@ GEM
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
     aws-partitions (1.1001.0)
-    aws-sdk-cloudformation (1.134.0)
-      aws-sdk-core (~> 3, >= 3.225.0)
+    aws-sdk-cloudformation (1.154.0)
+      aws-sdk-core (~> 3, >= 3.248.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-core (3.250.0)
       aws-eventstream (~> 1, >= 1.3.0)
@@ -823,7 +823,7 @@ GEM
       js_regex (~> 3.8)
     gitlab-kas-grpc (19.1.0.pre.rc2)
       grpc (~> 1.0)
-    gitlab-labkit (2.4.0)
+    gitlab-labkit (2.6.0)
       actionpack (>= 5.0.0, < 8.2.0)
       activesupport (>= 5.0.0, < 8.2.0)
       google-protobuf (>= 3.25, < 5.0)
@@ -2439,7 +2439,7 @@ DEPENDENCIES
   gitlab-http!
   gitlab-iam-grpc!
   gitlab-kas-grpc (~> 19.1.0.pre.rc2)
-  gitlab-labkit (~> 2.4.0)
+  gitlab-labkit (~> 2.6.0)
   gitlab-license (~> 2.6)
   gitlab-mail_room (~> 1.0.0)
   gitlab-markup (~> 2.0.0)
@@ -2747,7 +2747,7 @@ CHECKSUMS
   awesome_print (1.9.2) sha256=e99b32b704acff16d768b3468680793ced40bfdc4537eb07e06a4be11133786e
   aws-eventstream (1.3.0) sha256=f1434cc03ab2248756eb02cfa45e900e59a061d7fbdc4a9fd82a5dd23d796d3f
   aws-partitions (1.1001.0) sha256=2979f3317d3a757508d35d0f322839f422cbc8459589b7cc4a3889d0085a8307
-  aws-sdk-cloudformation (1.134.0) sha256=b851337a36a4e0f917e16db0ea6d8429395beb32cfc7e04fd253134143fdd8ed
+  aws-sdk-cloudformation (1.154.0) sha256=2cf4cf05ce5f7fa5f7a7105efa0e3d026ff8d31a2abb90eec6af3fdb04682cf2
   aws-sdk-core (3.250.0) sha256=8df71164c7e5f2ff411782a3dc3a1ab5c0a73170284409ead111f385e9992963
   aws-sdk-kms (1.76.0) sha256=e7f75013cba9ba357144f66bbc600631c192e2cda9dd572794be239654e2cf49
   aws-sdk-s3 (1.224.0) sha256=7d443c4ae9eda795b60e081d41f49b498e2483f1fc204f3239176ec922ed7879
@@ -2941,7 +2941,7 @@ CHECKSUMS
   gitlab-http (0.1.0)
   gitlab-iam-grpc (0.1.0)
   gitlab-kas-grpc (19.1.0.pre.rc2) sha256=d63d683a7295de4e5f2edd294cb4f1069633859aa496792750604f662f6fe950
-  gitlab-labkit (2.4.0) sha256=d5a34ae40e8e0566140613d8102542dce10cefb69528199ccd1d803d61217d62
+  gitlab-labkit (2.6.0) sha256=7a7ec84c0e2ea6d68ab5a7a1067ce93bad66a60f7c75637e0678baa0b1b17d38
   gitlab-license (2.6.0) sha256=2c1f8ae73835640ec77bf758c1d0c9730635043c01cf77902f7976e826d7d016
   gitlab-mail_room (1.0.0) sha256=00910bc000ff819f8e2030fd2260f7b40f025c410b11b82de8f67de7922c0159
   gitlab-markup (2.0.0) sha256=951a1c871463a8f329e6c002b2da337cd547febcc1e33d84df4a212419fba02e

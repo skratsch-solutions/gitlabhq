@@ -23405,9 +23405,6 @@ msgstr ""
 msgid "CurrentUser|Start an Ultimate trial"
 msgstr ""
 
-msgid "CurrentUser|Switch to GitLab Next"
-msgstr ""
-
 msgid "CurrentUser|Upgrade subscription"
 msgstr ""
 
@@ -79776,6 +79773,9 @@ msgstr ""
 msgid "Unauthorized to create an immutable protection rule for container image tags"
 msgstr ""
 
+msgid "Unauthorized to delete a Terraform state protection rule"
+msgstr ""
+
 msgid "Unauthorized to delete a container registry protection rule"
 msgstr ""
 
@@ -79783,9 +79783,6 @@ msgid "Unauthorized to delete a package protection rule"
 msgstr ""
 
 msgid "Unauthorized to delete a protection rule for container image tags"
-msgstr ""
-
-msgid "Unauthorized to delete a terraform state protection rule"
 msgstr ""
 
 msgid "Unauthorized to update a Terraform state protection rule"

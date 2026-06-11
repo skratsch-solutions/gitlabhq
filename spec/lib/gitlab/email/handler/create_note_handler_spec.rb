@@ -128,6 +128,11 @@ RSpec.describe Gitlab::Email::Handler::CreateNoteHandler, feature_category: :sha
 
     it_behaves_like 'a reply to existing comment'
 
+    it_behaves_like 'an incoming email handler that logs its execution' do
+      let(:expected_log_namespace) { sent_notification.namespace }
+      let(:expected_additional_log_data) { { Labkit::Fields::GL_SENT_NOTIFICATION_ID => sent_notification.id } }
+    end
+
     context 'when sub-addressing is not supported' do
       before do
         stub_incoming_email_setting(enabled: true, address: nil)

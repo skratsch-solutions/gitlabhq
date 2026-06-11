@@ -209,4 +209,52 @@ RSpec.describe API::Terraform::StateProtectionRules, :aggregate_failures,
       let(:request) { patch api(url, personal_access_token: pat), params: params }
     end
   end
+
+  describe 'DELETE /projects/:id/terraform/state_protection_rules/:terraform_state_protection_rule_id' do
+    let(:path) { "terraform/state_protection_rules/#{protection_rule_id}" }
+
+    subject(:destroy_protection_rule) { delete(api(url, api_user)) }
+
+    it_behaves_like 'rejecting project protection rules request when not enough permissions'
+
+    context 'for maintainer' do
+      let(:api_user) { maintainer }
+
+      it 'deletes the terraform state protection rule' do
+        destroy_protection_rule
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        expect { protection_rule.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      it_behaves_like 'rejecting protection rules request when handling rule ids'
+      it_behaves_like 'rejecting terraform state protection rules request when enough permissions'
+    end
+
+    context 'when feature flag :protected_terraform_states is disabled' do
+      let(:api_user) { maintainer }
+
+      before do
+        stub_feature_flags(protected_terraform_states: false)
+      end
+
+      it 'does not delete the rule' do
+        expect { destroy_protection_rule }.not_to change { Terraform::StateProtectionRule.count }
+      end
+
+      it_behaves_like 'returning response status', :not_found
+    end
+
+    context 'with invalid token' do
+      subject(:destroy_protection_rule) { delete(api(url), headers: headers_with_invalid_token) }
+
+      it_behaves_like 'returning response status', :unauthorized
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :delete_terraform_state_protection_rule do
+      let(:user) { maintainer }
+      let(:boundary_object) { project }
+      let(:request) { delete api(url, personal_access_token: pat) }
+    end
+  end
 end

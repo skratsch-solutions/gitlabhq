@@ -6,6 +6,7 @@ import {
   GlDisclosureDropdownGroup,
   GlDisclosureDropdownItem,
   GlButton,
+  GlToggle,
   GlModalDirective,
   GlTooltipDirective,
 } from '@gitlab/ui';
@@ -16,7 +17,8 @@ import { s__, __, sprintf } from '~/locale';
 import Tracking from '~/tracking';
 import { SET_STATUS_MODAL_ID } from '~/set_status_modal/constants';
 import axios from '~/lib/utils/axios_utils';
-import { visitUrl } from '~/lib/utils/url_utility';
+import { visitUrl, refreshCurrentPage } from '~/lib/utils/url_utility';
+import { setGitlabNext } from '~/lib/utils/gitlab_next';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { logError } from '~/lib/logger';
 import GitlabExperiment from '~/experimentation/components/gitlab_experiment.vue';
@@ -32,6 +34,8 @@ const WHATS_NEW_PLACEMENT = 'profile_menu';
 export default {
   SET_STATUS_MODAL_ID,
   WHATS_NEW_EXPERIMENT,
+  // "GitLab Next" is a proper noun, so it is intentionally not translated
+  GITLAB_NEXT_LABEL: 'GitLab Next',
   i18n: {
     setStatus: s__('SetStatusModal|Set status'),
     editStatus: s__('SetStatusModal|Edit status'),
@@ -39,7 +43,6 @@ export default {
     preferences: s__('CurrentUser|Preferences'),
     buyPipelineMinutes: s__('CurrentUser|Buy compute minutes'),
     oneOfGroupsRunningOutOfPipelineMinutes: s__('CurrentUser|One of your groups is running out'),
-    gitlabNext: s__('CurrentUser|Switch to GitLab Next'),
 
     adminArea: s__('Navigation|Admin'),
     enterAdminMode: s__('CurrentUser|Enter Admin Mode'),
@@ -55,6 +58,7 @@ export default {
     GlDisclosureDropdownItem,
     GlButton,
     GitlabExperiment,
+    GlToggle,
     UserCounts,
     UserMenuProfileItem,
     UserMenuUpgradeSubscription,
@@ -70,7 +74,7 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   mixins: [Tracking.mixin({ experiment: WHATS_NEW_EXPERIMENT }), glFeatureFlagsMixin()],
-  inject: ['isImpersonating'],
+  inject: ['isImpersonating', 'isSaas'],
   props: {
     data: {
       required: true,
@@ -148,14 +152,17 @@ export default {
         },
       };
     },
-    gitlabNextItem() {
+    isOnGitlabNext() {
+      return Boolean(this.data.gitlab_com_and_canary);
+    },
+    showGitlabNextItem() {
+      return this.isSaas;
+    },
+    gitlabNextTrackingAttrs() {
       return {
-        text: this.$options.i18n.gitlabNext,
-        href: this.data.canary_toggle_com_url,
-        extraAttrs: {
-          ...USER_MENU_TRACKING_DEFAULTS,
-          'data-track-label': 'switch_to_canary',
-        },
+        ...USER_MENU_TRACKING_DEFAULTS,
+        'data-track-action': 'toggle',
+        'data-track-label': this.isOnGitlabNext ? 'leave_canary' : 'switch_to_canary',
       };
     },
     enterAdminModeItem() {
@@ -291,6 +298,10 @@ export default {
         // visit the URL whether the callout notification is dismissed or not
         visitUrl(href);
       }
+    },
+    toggleGitlabNext(enabled) {
+      setGitlabNext(enabled);
+      refreshCurrentPage();
     },
     trackSignOut() {
       this.track(USER_MENU_TRACKING_DEFAULTS['data-track-action'], {
@@ -470,11 +481,21 @@ export default {
         </gl-disclosure-dropdown-item>
       </gl-disclosure-dropdown-group>
 
-      <gl-disclosure-dropdown-group v-if="data.gitlab_com_but_not_canary" bordered>
-        <gl-disclosure-dropdown-item :item="gitlabNextItem" data-testid="gitlab-next-item">
+      <gl-disclosure-dropdown-group v-if="showGitlabNextItem" bordered>
+        <gl-disclosure-dropdown-item data-testid="gitlab-next-item">
           <template #list-item>
-            <gl-icon name="trigger-source" variant="subtle" class="gl-mr-2" />
-            <span>{{ $options.i18n.gitlabNext }}</span>
+            <span class="gl-flex gl-items-center">
+              <gl-icon name="trigger-source" variant="subtle" class="gl-mr-3" />
+              <span class="gl-grow">{{ $options.GITLAB_NEXT_LABEL }}</span>
+              <gl-toggle
+                :value="isOnGitlabNext"
+                :label="$options.GITLAB_NEXT_LABEL"
+                label-position="hidden"
+                data-testid="gitlab-next-toggle"
+                v-bind="gitlabNextTrackingAttrs"
+                @change="toggleGitlabNext"
+              />
+            </span>
           </template>
         </gl-disclosure-dropdown-item>
       </gl-disclosure-dropdown-group>
