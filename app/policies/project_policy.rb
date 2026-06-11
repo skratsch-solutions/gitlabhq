@@ -873,7 +873,7 @@ class ProjectPolicy < BasePolicy
     prevent :read_security_configuration
     prevent :read_security_settings
     prevent :update_security_setting
-    prevent :update_sast_vulnerability_resolution_setting
+    prevent :update_sec_ai_workflow_settings
     prevent :read_project_security_dashboard
     prevent :read_security_resource
     prevent :read_security_inventory

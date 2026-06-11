@@ -64,7 +64,7 @@ RSpec.describe BulkImports::UserContributionsExportWorker, :freeze_time, feature
         it 'logs an error' do
           expect(logger).to receive(:error).with(
             hash_including(
-              importer: 'gitlab_migration',
+              importer: Import::SOURCE_OFFLINE_TRANSFER,
               offline_export_id: offline_export.id,
               project_id: project.id,
               project_name: project.name,
@@ -299,7 +299,7 @@ RSpec.describe BulkImports::UserContributionsExportWorker, :freeze_time, feature
 
       expect(logger).to receive(:error).with(
         hash_including(
-          importer: 'gitlab_migration',
+          importer: Import::SOURCE_OFFLINE_TRANSFER,
           offline_export_id: offline_export.id,
           project_id: project.id,
           project_name: project.name,

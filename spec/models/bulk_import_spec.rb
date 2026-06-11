@@ -357,16 +357,30 @@ RSpec.describe BulkImport, type: :model, feature_category: :importers do
     end
   end
 
+  describe '#import_source' do
+    context 'when source_type is gitlab (direct transfer)' do
+      let(:bulk_import) { build(:bulk_import) }
+
+      it { expect(bulk_import.import_source).to eq(Import::SOURCE_DIRECT_TRANSFER) }
+    end
+
+    context 'when source_type is offline_export (offline transfer)' do
+      let(:bulk_import) { build(:bulk_import, :with_offline_configuration) }
+
+      it { expect(bulk_import.import_source).to eq(Import::SOURCE_OFFLINE_TRANSFER) }
+    end
+  end
+
   describe '#offline?' do
     subject(:offline) { bulk_import.offline? }
 
-    context 'with an associated offline configuration' do
+    context 'when source_type is offline_export (offline transfer)' do
       let(:bulk_import) { build(:bulk_import, :with_offline_configuration) }
 
       it { is_expected.to be(true) }
     end
 
-    context 'without an associated offline configuration' do
+    context 'when source_type is gitlab (direct transfer)' do
       let(:bulk_import) { build(:bulk_import) }
 
       it { is_expected.to be(false) }

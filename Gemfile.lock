@@ -1059,22 +1059,22 @@ GEM
       logger (~> 1.6)
       ostruct (~> 0.6)
       sass-embedded (~> 1.58)
-    grpc (1.80.0)
+    grpc (1.81.0)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-aarch64-linux-gnu)
+    grpc (1.81.0-aarch64-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-arm64-darwin)
+    grpc (1.81.0-arm64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-x86-linux-gnu)
+    grpc (1.81.0-x86-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-x86_64-darwin)
+    grpc (1.81.0-x86_64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-x86_64-linux-gnu)
+    grpc (1.81.0-x86_64-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
     grpc-google-iam-v1 (1.11.0)
@@ -2487,7 +2487,7 @@ DEPENDENCIES
   graphlyte (~> 1.0.0)
   graphql (= 2.6.3)
   graphql-docs (~> 5.2.0)
-  grpc (~> 1.80.0)
+  grpc (~> 1.81.0)
   grpc-tools (~> 1.80.0)
   gssapi (~> 1.3.1)
   guard-rspec
@@ -3013,12 +3013,12 @@ CHECKSUMS
   graphlyte (1.0.0) sha256=b5af4ab67dde6e961f00ea1c18f159f73b52ed11395bb4ece297fe628fa1804d
   graphql (2.6.3) sha256=31fe845b509fda27db38d09380f27ffc0de1c7ea2f9f3b12fa42bdde8317239b
   graphql-docs (5.2.0) sha256=44d41724529f531adf9265ded7478b74b0c4b927cddc8b9f114337a73f32de08
-  grpc (1.80.0) sha256=2ded0c8bc3a1f3d34b8c790e00dd0120768ba0e9f9fd841e1dc67f7a2566d07d
-  grpc (1.80.0-aarch64-linux-gnu) sha256=1c15048887224575cb38026fea5b9abb14ae955bfce8beb0701e0946959a8520
-  grpc (1.80.0-arm64-darwin) sha256=c4b5871ad7673c526b64e54e70a99d84e35e2c26a1fc9a91f9c3341c7821e0c7
-  grpc (1.80.0-x86-linux-gnu) sha256=b9fbce2480b2f1e965a6241a5df033c0d20a19f99a637e3cb8a12a6f5c3e68c6
-  grpc (1.80.0-x86_64-darwin) sha256=4484d1280a43f94e8f1ab6ae53d282a4832f8ffb61b6996f43fc50716f464f1c
-  grpc (1.80.0-x86_64-linux-gnu) sha256=25ba8beb5438152fb60656161dc729c1258c6963ec568361f601e19b2fb7ac23
+  grpc (1.81.0) sha256=892c57e5accb0da0a8ec0210528e87a168674117d79fa480cf827469d2d342f1
+  grpc (1.81.0-aarch64-linux-gnu) sha256=456708adccce93793508397020e7c15c52cbbc609a2a66a8467202da8e72f8f2
+  grpc (1.81.0-arm64-darwin) sha256=c12a41463d410320ce5f846ee1c96e8761b5c211afd3b7fbc6ca50e6ae3a7e50
+  grpc (1.81.0-x86-linux-gnu) sha256=da12ca5f0670bd88dc93a9ffac56cf78ce7eb91a1c80b3e89c272f32431eb4e1
+  grpc (1.81.0-x86_64-darwin) sha256=0db040e7cb5ce3eba72257bd7cdb12e3123d6cb2f1193f6f8d022b4ee56b0ec1
+  grpc (1.81.0-x86_64-linux-gnu) sha256=9676501f1abd2305ca9bdc1247d4014f59547bef56800064c05a359023331a2c
   grpc-google-iam-v1 (1.11.0) sha256=8f0aa8a8503b3e001cb1561f31e43aa0445752fb675334afa1afac7f023f368c
   grpc-tools (1.80.0) sha256=49076fbc7b34556365694202ed7ffd1e959e68ba8c339e99b437ba2a985a2cf2
   grpc_reflection (0.4.0) sha256=72d3e743f049821f976a4280b3d1b1a3369775121d75d35954f0e139e4e3f0cf

@@ -48909,7 +48909,7 @@ definitions:
         type: boolean
       read_virtual_registry:
         type: boolean
-      update_sast_vulnerability_resolution_setting:
+      update_sec_ai_workflow_settings:
         type: boolean
       read_admin_cicd:
         type: boolean
@@ -48968,7 +48968,7 @@ definitions:
     - read_compliance_dashboard
     - read_security_scan_profiles
     - read_virtual_registry
-    - update_sast_vulnerability_resolution_setting
+    - update_sec_ai_workflow_settings
     - read_admin_cicd
     - read_crm_contact
     - read_dependency

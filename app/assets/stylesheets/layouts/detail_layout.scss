@@ -19,6 +19,10 @@ $detail-layout-gap: 2rem;
   gap: var(--gl-detail-layout-gap);
 }
 
+.gl-detail-layout-widgets {
+  min-width: 0; // Allow grid item to shrink below its content size, preventing overflow of the visible area
+}
+
 .gl-detail-layout-container-has-sidebar {
   // Set explicit minimum grid column size instead of implicit `auto`
   // so contents don't overflow in smaller viewports

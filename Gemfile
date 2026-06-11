@@ -152,7 +152,12 @@ gem 'gitlab_omniauth-ldap', '~> 2.3.0', require: 'omniauth-ldap', feature_catego
 gem 'net-ldap', '~> 0.20.0', feature_category: :system_access
 
 # API
-gem 'grape', '~> 2.0.0', feature_category: :api
+if next?
+  gem 'grape', '~> 2.4', feature_category: :api
+else
+  gem 'grape', '~> 2.0.0', feature_category: :api
+end
+
 gem 'grape-entity', '~> 1.0.1', feature_category: :api
 gem 'grape-swagger', '~> 2.1.2', group: [:development, :test], feature_category: :api
 gem 'grape-swagger-entity', '~> 0.7.0', group: [:development, :test], feature_category: :api
@@ -647,7 +652,7 @@ gem 'gitlab-kas-grpc', '~> 19.1.0-rc2', feature_category: :deployment_management
 # Knowledge Graph GRPC protocol definitions
 gem 'gitlab-gkg-proto', '~> 0.37.0', feature_category: :knowledge_graph
 
-gem 'grpc', '~> 1.80.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
+gem 'grpc', '~> 1.81.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
 gem 'google-protobuf', '>= 3.25', '< 5.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 

@@ -91,6 +91,49 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
                 namespace_id: project.project_namespace_id
               )
           end
+
+          it 'publishes a CreatedEvent cloud event' do
+            expect { result }
+              .to publish_event(::WorkItems::CreatedEvent)
+          end
+
+          context 'when the issue is imported' do
+            before do
+              opts[:imported_from] = :github
+            end
+
+            it 'does not publish a CreatedEvent cloud event' do
+              expect { result }
+                .not_to publish_event(::WorkItems::CreatedEvent)
+            end
+
+            it 'still publishes the legacy WorkItemCreatedEvent' do
+              expect { result }
+                .to publish_event(::WorkItems::WorkItemCreatedEvent)
+            end
+          end
+
+          context 'when the issue has an external author (service desk)' do
+            let(:opts) { { title: 'private issue', description: 'please fix', external_author: 'user@example.com' } }
+
+            it 'does not publish a CreatedEvent cloud event' do
+              expect { result }
+                .not_to publish_event(::WorkItems::CreatedEvent)
+            end
+          end
+
+          context 'when current_user is not human' do
+            let(:user) { create(:user, :service_account) }
+
+            before do
+              project.add_guest(user)
+            end
+
+            it 'does not publish a CreatedEvent cloud event' do
+              expect { result }
+                .not_to publish_event(::WorkItems::CreatedEvent)
+            end
+          end
         end
 
         context 'when the user is not authorized' do

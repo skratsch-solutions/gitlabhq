@@ -77,6 +77,17 @@ module Issues
       issue.run_after_commit_or_now do
         ::Gitlab::EventStore.publish(event)
       end
+
+      return if skip_cloud_event_publish?(issue)
+
+      cloud_event = ::WorkItems::CreatedEvent.build(
+        work_item: issue,
+        current_user: current_user
+      )
+
+      issue.run_after_commit_or_now do
+        ::Gitlab::EventStore.publish(cloud_event) if cloud_event
+      end
     end
 
     def handle_changes(issue, options)
@@ -110,6 +121,15 @@ module Issues
 
     def authorization_action
       :create_issue
+    end
+
+    def skip_cloud_event_publish?(issue)
+      return true if issue.project.nil?
+      return true if issue.imported?
+      return true if external_author.present?
+      return true if current_user.nil? || !current_user.human?
+
+      false
     end
 
     attr_reader :perform_spam_check, :extra_params

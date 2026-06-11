@@ -814,8 +814,8 @@ GEM
       rb_sys (~> 0.9.124)
     gitlab-glfm-markdown (0.0.41-x86_64-linux-gnu)
       rb_sys (~> 0.9.124)
-    gitlab-grape-openapi (0.1.1)
-      grape (~> 2.0.0)
+    gitlab-grape-openapi (0.2.0)
+      grape (~> 2.0)
       grape-entity (~> 1.0.1)
       js_regex (~> 3.8)
     gitlab-kas-grpc (19.1.0.pre.rc2)
@@ -1017,13 +1017,12 @@ GEM
       signet (>= 0.16, < 2.a)
     gpgme (2.0.26)
       mini_portile2 (~> 2.7)
-    grape (2.0.0)
-      activesupport (>= 5)
-      builder
+    grape (2.4.0)
+      activesupport (>= 6.1)
       dry-types (>= 1.1)
-      mustermann-grape (~> 1.0.0)
-      rack (>= 1.3.0)
-      rack-accept
+      mustermann-grape (~> 1.1.0)
+      rack (>= 2)
+      zeitwerk
     grape-entity (1.0.1)
       activesupport (>= 3.0.0)
       multi_json (>= 1.3.2)
@@ -1056,22 +1055,22 @@ GEM
       logger (~> 1.6)
       ostruct (~> 0.6)
       sass-embedded (~> 1.58)
-    grpc (1.80.0)
+    grpc (1.81.0)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-aarch64-linux-gnu)
+    grpc (1.81.0-aarch64-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-arm64-darwin)
+    grpc (1.81.0-arm64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-x86-linux-gnu)
+    grpc (1.81.0-x86-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-x86_64-darwin)
+    grpc (1.81.0-x86_64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.80.0-x86_64-linux-gnu)
+    grpc (1.81.0-x86_64-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
     grpc-google-iam-v1 (1.11.0)
@@ -1318,7 +1317,7 @@ GEM
     murmurhash3 (0.1.7)
     mustermann (3.0.4)
       ruby2_keywords (~> 0.0.1)
-    mustermann-grape (1.0.2)
+    mustermann-grape (1.1.0)
       mustermann (>= 1.0.0)
     mutex_m (0.3.0)
     nap (1.1.0)
@@ -1753,8 +1752,6 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     rack (2.2.23)
-    rack-accept (0.4.5)
-      rack (>= 0.4)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -2474,7 +2471,7 @@ DEPENDENCIES
   google-protobuf (>= 3.25, < 5.0)
   googleauth (~> 1.14)
   gpgme (~> 2.0.24)
-  grape (~> 2.0.0)
+  grape (~> 2.4)
   grape-entity (~> 1.0.1)
   grape-path-helpers (~> 2.0.1)
   grape-swagger (~> 2.1.2)
@@ -2483,7 +2480,7 @@ DEPENDENCIES
   graphlyte (~> 1.0.0)
   graphql (= 2.6.3)
   graphql-docs (~> 5.2.0)
-  grpc (~> 1.80.0)
+  grpc (~> 1.81.0)
   grpc-tools (~> 1.80.0)
   gssapi (~> 1.3.1)
   guard-rspec
@@ -2931,7 +2928,7 @@ CHECKSUMS
   gitlab-glfm-markdown (0.0.41-arm64-darwin) sha256=8589ed60fd91ee564378800926518a581fdb4198c657428af2242c495de2a342
   gitlab-glfm-markdown (0.0.41-x86_64-darwin) sha256=964f5d32d09e47f1055d6b6b70fe67a9b412eb55e9008a8b1c0ba921b3206f2e
   gitlab-glfm-markdown (0.0.41-x86_64-linux-gnu) sha256=66c6b35a496848a89cef8e664854173ae49afbd4ed8fd5026e0955c27cf822ae
-  gitlab-grape-openapi (0.1.1) sha256=09ddbcd22401fcc4a0b6e8b95a63b3b0ced04bb1ac240913a732c79beab2fee8
+  gitlab-grape-openapi (0.2.0) sha256=d23865126f2df189c76440faffca2d83c6f5b3931b91f18760c0bce4dd92da32
   gitlab-housekeeper (0.1.0)
   gitlab-http (0.1.0)
   gitlab-iam-grpc (0.1.0)
@@ -2999,7 +2996,7 @@ CHECKSUMS
   googleapis-common-protos-types (1.23.0) sha256=992e740a523794d9fc5f29a504465d8fc737aaa16c930fe7228e3346860faf0a
   googleauth (1.14.0) sha256=62e7de11791890c3d3dc70582dfd9ab5516530e4e4f56d96451fd62c76475149
   gpgme (2.0.26) sha256=1aebfd2eb83b745341e6f416f318597568af5ad4d7d1f55bfab4f1078123abaa
-  grape (2.0.0) sha256=3aeff94c17e84ccead4ff98833df691e7da0c108878cc128ca31f80c1047494a
+  grape (2.4.0) sha256=3d59673e80f11d49ba86270b78344e5348dc057b318c2bbc1c01f3532f9b6aec
   grape-entity (1.0.1) sha256=e00f9e94e407aff77aa2945d741f544d07e48501927942988799913151d02634
   grape-path-helpers (2.0.1) sha256=ad5216e52c6e796738a9118087352ab4c962900dbad1d8f8c0f96e093c6702d7
   grape-swagger (2.1.2) sha256=8ad7bd53c8baee704575808875dba8c08d269c457db3cf8f1b8a2a1dbf827294
@@ -3008,12 +3005,12 @@ CHECKSUMS
   graphlyte (1.0.0) sha256=b5af4ab67dde6e961f00ea1c18f159f73b52ed11395bb4ece297fe628fa1804d
   graphql (2.6.3) sha256=31fe845b509fda27db38d09380f27ffc0de1c7ea2f9f3b12fa42bdde8317239b
   graphql-docs (5.2.0) sha256=44d41724529f531adf9265ded7478b74b0c4b927cddc8b9f114337a73f32de08
-  grpc (1.80.0) sha256=2ded0c8bc3a1f3d34b8c790e00dd0120768ba0e9f9fd841e1dc67f7a2566d07d
-  grpc (1.80.0-aarch64-linux-gnu) sha256=1c15048887224575cb38026fea5b9abb14ae955bfce8beb0701e0946959a8520
-  grpc (1.80.0-arm64-darwin) sha256=c4b5871ad7673c526b64e54e70a99d84e35e2c26a1fc9a91f9c3341c7821e0c7
-  grpc (1.80.0-x86-linux-gnu) sha256=b9fbce2480b2f1e965a6241a5df033c0d20a19f99a637e3cb8a12a6f5c3e68c6
-  grpc (1.80.0-x86_64-darwin) sha256=4484d1280a43f94e8f1ab6ae53d282a4832f8ffb61b6996f43fc50716f464f1c
-  grpc (1.80.0-x86_64-linux-gnu) sha256=25ba8beb5438152fb60656161dc729c1258c6963ec568361f601e19b2fb7ac23
+  grpc (1.81.0) sha256=892c57e5accb0da0a8ec0210528e87a168674117d79fa480cf827469d2d342f1
+  grpc (1.81.0-aarch64-linux-gnu) sha256=456708adccce93793508397020e7c15c52cbbc609a2a66a8467202da8e72f8f2
+  grpc (1.81.0-arm64-darwin) sha256=c12a41463d410320ce5f846ee1c96e8761b5c211afd3b7fbc6ca50e6ae3a7e50
+  grpc (1.81.0-x86-linux-gnu) sha256=da12ca5f0670bd88dc93a9ffac56cf78ce7eb91a1c80b3e89c272f32431eb4e1
+  grpc (1.81.0-x86_64-darwin) sha256=0db040e7cb5ce3eba72257bd7cdb12e3123d6cb2f1193f6f8d022b4ee56b0ec1
+  grpc (1.81.0-x86_64-linux-gnu) sha256=9676501f1abd2305ca9bdc1247d4014f59547bef56800064c05a359023331a2c
   grpc-google-iam-v1 (1.11.0) sha256=8f0aa8a8503b3e001cb1561f31e43aa0445752fb675334afa1afac7f023f368c
   grpc-tools (1.80.0) sha256=49076fbc7b34556365694202ed7ffd1e959e68ba8c339e99b437ba2a985a2cf2
   grpc_reflection (0.4.0) sha256=72d3e743f049821f976a4280b3d1b1a3369775121d75d35954f0e139e4e3f0cf
@@ -3118,7 +3115,7 @@ CHECKSUMS
   multipart-post (2.2.3) sha256=462979de2971b8df33c2ee797fd497731617241f9dcd93960cc3caccb2dd13d8
   murmurhash3 (0.1.7) sha256=370a2ce2e9ab0711e51554e530b5f63956927a6554a296855f42a1a4a5ed0936
   mustermann (3.0.4) sha256=85fadcb6b3c6493a8b511b42426f904b7f27b282835502233dd154daab13aa22
-  mustermann-grape (1.0.2) sha256=6f5309d6a338f801f211c644e8c2d3cc2577a8693f9cd51dadfdb29c1260f5fe
+  mustermann-grape (1.1.0) sha256=8d258a986004c8f01ce4c023c0b037c168a9ed889cf5778068ad54398fa458c5
   mutex_m (0.3.0) sha256=cfcb04ac16b69c4813777022fdceda24e9f798e48092a2b817eb4c0a782b0751
   nap (1.1.0) sha256=949691660f9d041d75be611bb2a8d2fd559c467537deac241f4097d9b5eea576
   nenv (0.3.0) sha256=d9de6d8fb7072228463bf61843159419c969edb34b3cef51832b516ae7972765
@@ -3275,7 +3272,6 @@ CHECKSUMS
   raabro (1.4.0) sha256=d4fa9ff5172391edb92b242eed8be802d1934b1464061ae5e70d80962c5da882
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
   rack (2.2.23) sha256=a8fe9d7e07064770b8ec123663fded8a59ef7e2b6db5cda7173d45a5718ab69c
-  rack-accept (0.4.5) sha256=66247b5449db64ebb93ae2ec4af4764b87d1ae8a7463c7c68893ac13fa8d4da2
   rack-attack (6.8.0) sha256=f2499fdebf85bcc05573a22dff57d24305ac14ec2e4156cd3c28d47cafeeecf2
   rack-cors (2.0.2) sha256=415d4e1599891760c5dc9ef0349c7fecdf94f7c6a03e75b2e7c2b54b82adda1b
   rack-oauth2 (2.2.1) sha256=c73aa87c508043e2258f02b4fb110cacba9b37d2ccf884e22487d014a120d1a5

@@ -490,6 +490,7 @@ When you turn on this feature flag, the notifications and to-do item buttons mov
 
 - [Protect your repository](../repository/protect.md)
 - [Review a merge request](reviews/_index.md)
+- [Stacked merge requests](reviews/stacked_merge_requests.md)
 - [Authorization for merge requests](authorization_for_merge_requests.md)
 - [Testing and reports](../../../ci/testing/_index.md)
 - [Comments and threads](../../discussions/_index.md)

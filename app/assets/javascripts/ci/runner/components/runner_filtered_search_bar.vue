@@ -25,6 +25,7 @@ const sortOptions = [
 ];
 
 export default {
+  name: 'RunnerFilteredSearchBar',
   components: {
     FilteredSearchBar,
   },

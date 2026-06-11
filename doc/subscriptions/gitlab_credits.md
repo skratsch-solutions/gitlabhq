@@ -370,6 +370,12 @@ The dashboard displays summary cards of key metrics:
 
 ### In GitLab
 
+{{< history >}}
+
+- Secrets Manager usage introduced in GitLab 19.1.
+
+{{< /history >}}
+
 > [!note]
 > This dashboard displays usage of all GitLab Duo Agent Platform features, including non-billable
 > beta and experiment features. For billable usage only, view the dashboard in Customers Portal.
@@ -379,10 +385,14 @@ Use the dashboard to understand which users, groups, or projects are driving usa
 
 The dashboard displays the following information:
 
-- **Organization usage**: Total credit usage across your GitLab instance or group
+- **Organization usage**: Total credit usage, active users, daily credit average, and peak day usage across your GitLab instance or group
 - **Total credit consumption**: Daily credit consumption over all products, displayed as a bar chart
 - **Usage by user**: Number of credits used by each user
 - **User drill-down view**: Individual usage events for each user, with links to GitLab Duo Agent Platform session details
+- **Usage by product**: Number of credits used and percentage of total credits for GitLab Duo Agent Platform and Secrets Manager
+
+> [!note]
+> While [GitLab Secrets Manager](../ci/secrets/secrets_manager/_index.md) is in beta, GitLab does not collect usage events. Secrets Manager appears in the Credits dashboard but displays no usage data until the beta period ends.
 
 ### View the GitLab Credits dashboard
 

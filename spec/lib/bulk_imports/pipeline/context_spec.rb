@@ -6,7 +6,10 @@ RSpec.describe BulkImports::Pipeline::Context, feature_category: :importers do
   let_it_be(:user, freeze: false) { create(:user, :admin) }
   let_it_be(:group, freeze: false) { create(:group) }
   let_it_be(:bulk_import, freeze: false) { create(:bulk_import, :with_configuration, user: user) }
-  let_it_be(:offline_bulk_import, freeze: false) { create(:bulk_import, :with_offline_configuration, user: user) }
+  let_it_be(:offline_bulk_import, freeze: false) do
+    create(:bulk_import, :with_offline_configuration, user: user)
+  end
+
   let_it_be(:project, freeze: false) { create(:project) }
   let_it_be(:project_entity, freeze: false) { create(:bulk_import_entity, :project_entity, project: project) }
   let_it_be(:project_tracker, freeze: false) { create(:bulk_import_tracker, entity: project_entity) }
@@ -114,13 +117,12 @@ RSpec.describe BulkImports::Pipeline::Context, feature_category: :importers do
     context 'when offline' do
       before do
         entity.update!(bulk_import: offline_bulk_import)
-        offline_bulk_import.offline_configuration.update!(source_hostname: 'https://offline.example.com')
       end
 
-      it 'uses the offline configuration source_hostname' do
+      it 'uses the offline configuration attributes' do
         expect(Gitlab::Import::SourceUserMapper).to receive(:new).with(
           namespace: group.root_ancestor,
-          import_type: Import::SOURCE_DIRECT_TRANSFER,
+          import_type: Import::SOURCE_OFFLINE_TRANSFER,
           source_hostname: 'https://offline.example.com'
         )
 

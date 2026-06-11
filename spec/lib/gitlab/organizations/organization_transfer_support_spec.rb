@@ -27,7 +27,14 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       burned_project_routes
       cd_application_flow_definitions
       cd_applications
+      cd_artifact_sources
+      cd_deployments
       cd_environments
+      cd_rollouts
+      cd_services
+      cd_version_set_entries
+      cd_version_sets
+      cd_versions
       cluster_platforms_kubernetes
       cluster_providers_gcp
       clusters

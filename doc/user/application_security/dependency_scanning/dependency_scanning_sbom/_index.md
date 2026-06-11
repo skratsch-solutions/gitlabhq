@@ -1297,7 +1297,7 @@ The dependency scanning report follows the generic process for [security scannin
 - If the dependency scanning report is declared by a CI/CD job on the default branch: vulnerabilities are created,
   and can be seen in the [vulnerability report](../../vulnerability_report/_index.md).
 - If the dependency scanning report is declared by a CI/CD job on a non-default branch: security findings are created,
-  and can be seen in the [security tab of the pipeline view](../../detect/security_scanning_results.md) and MR security widget.
+  and can be seen in the [security tab of the pipeline view](../../detect/security_scanning_results.md) and [merge request reports](../../../project/merge_requests/reports.md).
 
 ## Offline environment
 

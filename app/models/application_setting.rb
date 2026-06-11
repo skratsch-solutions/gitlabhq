@@ -889,6 +889,13 @@ class ApplicationSetting < ApplicationRecord
 
   validates :response_limits, json_schema: { filename: "application_setting_response_limits" }
 
+  jsonb_accessor :logging_settings,
+    logging_field_schema_version: [:integer, { default: 0 }],
+    logging_field_dual_emit_target: [:integer, { default: nil }]
+
+  validates :logging_settings, json_schema: { filename: "application_setting_logging_settings" }
+  validate :validate_logging_field_dual_emit_target
+
   validates :importers, json_schema: { filename: "application_setting_importers" }
 
   jsonb_accessor :package_registry,
@@ -1456,6 +1463,15 @@ class ApplicationSetting < ApplicationRecord
   def should_reset_inactive_project_deletion_warning?
     saved_change_to_inactive_projects_delete_after_months? || saved_change_to_delete_inactive_projects?(from: true,
       to: false)
+  end
+
+  def validate_logging_field_dual_emit_target
+    return if logging_field_dual_emit_target.nil?
+    return if logging_field_dual_emit_target > logging_field_schema_version
+
+    errors.add(:logging_field_dual_emit_target,
+      format(_('must be greater than logging_field_schema_version (%{schema_version})'),
+        schema_version: logging_field_schema_version))
   end
 end
 

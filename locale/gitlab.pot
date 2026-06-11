@@ -3459,6 +3459,9 @@ msgstr ""
 msgid "AICatalog|Trigger %{itemType} when a pipeline status changes."
 msgstr ""
 
+msgid "AICatalog|Trigger %{itemType} when a work item is created (issues, tasks, incidents, and other project-level work item types)."
+msgstr ""
+
 msgid "AICatalog|Trigger %{itemType} when service account user is assigned as a reviewer to a merge request."
 msgstr ""
 
@@ -29415,6 +29418,9 @@ msgid "DuoWorkflow|Review session"
 msgstr ""
 
 msgid "DuoWorkflow|Your Duo session needs your input"
+msgstr ""
+
+msgid "Duo|Custom review instructions for all groups in this instance"
 msgstr ""
 
 msgid "Duo|Custom review instructions for groups"
@@ -66180,6 +66186,9 @@ msgstr ""
 msgid "SecurityConfiguration|Configure with a merge request"
 msgstr ""
 
+msgid "SecurityConfiguration|Continue setup"
+msgstr ""
+
 msgid "SecurityConfiguration|Copy code and open .gitlab-ci.yml file"
 msgstr ""
 
@@ -66244,6 +66253,12 @@ msgid "SecurityConfiguration|Enabled"
 msgstr ""
 
 msgid "SecurityConfiguration|Enforced by administrator"
+msgstr ""
+
+msgid "SecurityConfiguration|Exit scanner setup?"
+msgstr ""
+
+msgid "SecurityConfiguration|Exit setup"
 msgstr ""
 
 msgid "SecurityConfiguration|Failed"
@@ -66480,6 +66495,9 @@ msgid "SecurityConfiguration|Your configuration has been applied and is rolling 
 msgstr ""
 
 msgid "SecurityConfiguration|Your configuration has been applied and is rolling out to projects in batches. Profiles will be applied to %{strongStart}all uncovered projects%{strongEnd} as each batch completes — this may take a few minutes."
+msgstr ""
+
+msgid "SecurityConfiguration|Your progress won't be saved. You'll need to start over if you return."
 msgstr ""
 
 msgid "SecurityConfiguration|~3 min"
@@ -68126,6 +68144,9 @@ msgstr ""
 msgid "SecurityOrchestration|Linked groups"
 msgstr ""
 
+msgid "SecurityOrchestration|Linked projects: %{count}"
+msgstr ""
+
 msgid "SecurityOrchestration|List branches in the format %{boldStart}branch-name@group-name/project-name,%{boldEnd} separated by a comma (,)."
 msgstr ""
 
@@ -68154,6 +68175,14 @@ msgid "SecurityOrchestration|Manual pipeline run"
 msgstr ""
 
 msgid "SecurityOrchestration|Match on Inclusion"
+msgstr ""
+
+msgid "SecurityOrchestration|Max estimated rate: approximately %{rate} pipeline per hour"
+msgid_plural "SecurityOrchestration|Max estimated rate: approximately %{rate} pipelines per hour"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SecurityOrchestration|Max estimated total run time: %{duration}"
 msgstr ""
 
 msgid "SecurityOrchestration|Maximum action limit for scan execution policies exceeded"
@@ -68673,10 +68702,10 @@ msgstr ""
 msgid "SecurityOrchestration|Run a %{scannerStart}%{scanner}%{scannerEnd} scan with the following options:"
 msgstr ""
 
-msgid "SecurityOrchestration|Run a test to understand how this policy will impact your infrastructure before enabling it across all projects. The test executes real pipelines to provide accurate timing and resource estimates."
+msgid "SecurityOrchestration|Run a test to understand how this policy will impact your infrastructure before enabling it across all projects. The test executes a real pipeline and projects estimates across all linked projects."
 msgstr ""
 
-msgid "SecurityOrchestration|Run a test to understand how this policy will impact your infrastructure before enabling it on this project. The test executes real pipelines to provide accurate timing and resource estimates."
+msgid "SecurityOrchestration|Run a test to understand how this policy will impact your infrastructure before enabling it on this project. The test executes a real pipeline and projects estimates across all linked projects."
 msgstr ""
 
 msgid "SecurityOrchestration|Run policy checks on a schedule"
@@ -87277,6 +87306,9 @@ msgstr ""
 msgid "WorkItem|Work item"
 msgstr ""
 
+msgid "WorkItem|Work item created"
+msgstr ""
+
 msgid "WorkItem|Work item not found"
 msgstr ""
 
@@ -91072,6 +91104,9 @@ msgid "must be enabled."
 msgstr ""
 
 msgid "must be false when email confirmation setting is off"
+msgstr ""
+
+msgid "must be greater than logging_field_schema_version (%{schema_version})"
 msgstr ""
 
 msgid "must be greater than or equal to 0"

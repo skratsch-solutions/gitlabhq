@@ -2428,6 +2428,55 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
 
   it_behaves_like 'application settings examples'
 
+  describe '#validate_logging_field_dual_emit_target' do
+    context 'when logging_field_dual_emit_target is nil' do
+      before do
+        setting.logging_field_dual_emit_target = nil
+      end
+
+      it 'is valid' do
+        expect(setting).to be_valid
+      end
+    end
+
+    context 'when logging_field_dual_emit_target is greater than logging_field_schema_version' do
+      before do
+        setting.logging_field_schema_version = 1
+        setting.logging_field_dual_emit_target = 2
+      end
+
+      it 'is valid' do
+        expect(setting).to be_valid
+      end
+    end
+
+    context 'when logging_field_dual_emit_target is equal to logging_field_schema_version' do
+      before do
+        setting.logging_field_schema_version = 1
+        setting.logging_field_dual_emit_target = 1
+      end
+
+      it 'is not valid' do
+        expect(setting).not_to be_valid
+        expect(setting.errors.messages[:logging_field_dual_emit_target].first)
+          .to eq('must be greater than logging_field_schema_version (1)')
+      end
+    end
+
+    context 'when logging_field_dual_emit_target is less than logging_field_schema_version' do
+      before do
+        setting.logging_field_schema_version = 2
+        setting.logging_field_dual_emit_target = 1
+      end
+
+      it 'is not valid' do
+        expect(setting).not_to be_valid
+        expect(setting.errors.messages[:logging_field_dual_emit_target].first)
+          .to eq('must be greater than logging_field_schema_version (2)')
+      end
+    end
+  end
+
   describe 'kroki_format_supported?' do
     it 'returns true when Excalidraw is enabled' do
       setting.kroki_formats_excalidraw = true

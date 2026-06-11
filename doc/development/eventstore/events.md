@@ -40,6 +40,7 @@ To find subscribers, search the subscription files under
 | `Ai::ActiveContext::Code::MarkRepositoryAsReadyEvent` | `global_search` | EE | Published to mark Ai::ActiveContext::Code::Repository records whose embedding indexing has completed as ready, by checking the search index for the presence of expected embedding fields. |
 | `Ai::ActiveContext::Code::ProcessInvalidEnabledNamespaceEvent` | `global_search` | EE | Published to remove Ai::ActiveContext::Code::EnabledNamespace records that are no longer eligible (e.g. expired SaaS subscriptions or instances without AI features). Re-emitted by the subscriber worker to continue batched processing. |
 | `Ai::ActiveContext::Code::ProcessPendingEnabledNamespaceEvent` | `global_search` | EE | Published to process the next pending Ai::ActiveContext::Code::EnabledNamespace by enrolling its eligible projects as Ai::ActiveContext::Code::Repository records. Re-emitted by the subscriber worker while pending namespaces remain. |
+| `Ai::DuoWorkflows::WorkflowStartedEvent` | `duo_agent_platform` | EE | Published when a Duo workflow first transitions to :running (the agent has begun executing). Only emitted for messaging-triggered workflows. Deferred via run_after_commit. |
 
 ## Analytics
 

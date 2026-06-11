@@ -131,6 +131,50 @@ Scopes define the actions available when you authenticate with a personal access
 > personal access tokens cannot access container or package registries. To restore access,
 > turn off external authorization.
 
+## Authenticate with an access token
+
+Use an access token to authenticate with the GitLab REST API, Git over HTTPS, and
+third-party tools that integrate with GitLab.
+
+### Use REST API
+
+Pass your token in the `PRIVATE-TOKEN` header:
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/projects"
+```
+
+For full details, see
+[REST API authentication](../../api/rest/authentication.md#personal-project-and-group-access-tokens).
+
+### Use Git over HTTPS
+
+Use your token as the password when Git prompts for credentials:
+
+- Username: Any non-empty string (GitLab does not validate this value).
+- Password: Your personal access token.
+
+For example:
+
+```shell
+git clone https://oauth2:<your_access_token>@gitlab.example.com/gitlab-org/gitlab.git
+```
+
+### Use third-party tools and IDE extensions
+
+Tools that integrate with GitLab, such as IDE extensions, CI/CD tools, and automation
+scripts, accept a personal access token for authentication. See the documentation for each tool:
+
+- [GitLab CLI (`glab`)](../../editor_extensions/gitlab_cli/_index.md)
+- [GitLab Workflow extension for VS Code](../../editor_extensions/visual_studio_code/_index.md)
+- [GitLab plugin for JetBrains IDEs](../../editor_extensions/jetbrains_ide/_index.md)
+
+For CI/CD pipelines, [CI/CD job tokens](../../ci/jobs/ci_job_token.md) are recommended instead.
+
+For personal access token security guidance, see
+[token security considerations](../../security/tokens/_index.md#security-considerations).
+
 ## View token usage information
 
 {{< history >}}

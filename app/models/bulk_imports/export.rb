@@ -123,6 +123,14 @@ module BulkImports
       offline_export_id.present?
     end
 
+    def import_source
+      if offline?
+        Import::SOURCE_OFFLINE_TRANSFER
+      else
+        Import::SOURCE_DIRECT_TRANSFER
+      end
+    end
+
     def flag_failure_on_offline_export
       offline_export.update_has_failures!
     end

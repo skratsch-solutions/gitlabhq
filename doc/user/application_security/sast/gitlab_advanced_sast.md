@@ -302,7 +302,7 @@ When diff-based scanning is active:
   scanned.
 - The job log includes the output: `Running differential scan`. (If inactive, it outputs: `Running
   full scan`.)
-- In the merge request security widget, a dedicated **Diff-based** tab shows relevant scan findings.
+- In the merge request security scan report, a dedicated **Diff-based** tab shows relevant scan findings.
 - In the pipeline security tab, an alert labeled **Partial SAST report** indicates that only partial
   findings are included.
 

@@ -392,6 +392,20 @@ RSpec.describe BulkImports::Export, type: :model, feature_category: :importers d
     end
   end
 
+  describe '#import_source' do
+    context 'when associated to an offline export' do
+      subject(:export) { create(:bulk_import_export, :offline) }
+
+      it { expect(export.import_source).to eq(Import::SOURCE_OFFLINE_TRANSFER) }
+    end
+
+    context 'when not associated to an offline export' do
+      subject(:export) { create(:bulk_import_export) }
+
+      it { expect(export.import_source).to eq(Import::SOURCE_DIRECT_TRANSFER) }
+    end
+  end
+
   describe '#completed?' do
     where(:status, :expected_result) do
       :pending  | false

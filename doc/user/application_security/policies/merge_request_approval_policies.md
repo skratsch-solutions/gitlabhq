@@ -1080,13 +1080,13 @@ merge request is updated, but not immediately when the vulnerability state chang
 To reflect vulnerability state changes in the policies immediately
 manually run the pipeline or push a new commit to the merge request.
 
-## Understanding security widget and policy bot discrepancies
+## Understanding security report and policy bot discrepancies
 
-You may notice inconsistencies between what the merge request security widget displays and what the security bot comments indicate regarding vulnerabilities. These features use different data sources and comparison methods for security findings, which can result in differences in what they display.
+You may notice inconsistencies between what the merge request security scan report displays and what the security bot comments indicate regarding vulnerabilities. These features use different data sources and comparison methods for security findings, which can result in differences in what they display.
 
 Data sources:
 
-- **Merge request security widget**: Compares results from the latest source branch pipeline with vulnerabilities previously stored in the database for the default branch.
+- **Merge request security scan report**: Compares results from the latest source branch pipeline with vulnerabilities previously stored in the database for the default branch.
 - **Security Bot (and approval policy logic)**: Compares results between actual pipeline artifacts, specifically between the latest successful target branch pipeline and the latest successful source branch pipeline.
 
 ### Common scenarios where inconsistencies occur
@@ -1095,11 +1095,11 @@ The difference in data sources can lead to inconsistent behavior in several scen
 
 #### Missing or failed security scans in target branch
 
-When the latest pipeline on your target branch fails to run security scans properly (for example, due to a misconfiguration or job failures), the security bot might report new findings and require approval as a precautionary measure because it cannot compare results effectively. Meanwhile, the security widget might show no new vulnerabilities because it uses previously stored vulnerability data.
+When the latest pipeline on your target branch fails to run security scans properly (for example, due to a misconfiguration or job failures), the security bot might report new findings and require approval as a precautionary measure because it cannot compare results effectively. Meanwhile, the security scan report might show no new vulnerabilities because it uses previously stored vulnerability data.
 
 #### Changes in target branch between comparisons
 
-If there are multiple commits on the target branch that change the security profile between when the widget makes its comparison and when the bot makes its comparison, results can differ.
+If there are multiple commits on the target branch that change the security profile between when the security scan report makes its comparison and when the bot makes its comparison, results can differ.
 
 ### Best practices for consistent results
 
@@ -1146,7 +1146,7 @@ end
 
 ### Newly detected CVEs
 
-When using `new_needs_triage` and `new_dismissed`, some findings may require approval when they are not introduced by the merge request (such as a new CVE on a related dependency). These findings will not be present within the MR widget, but will be highlighted in the policy bot comment and pipeline report.
+When using `new_needs_triage` and `new_dismissed`, some findings may require approval when they are not introduced by the merge request (such as a new CVE on a related dependency). These findings will not be present within the merge request security scan report, but will be highlighted in the policy bot comment and pipeline report.
 
 ### Policies still have effect after `policy.yml` was manually invalidated
 

@@ -1124,14 +1124,43 @@
 # When adding new runtime dependencies to doctor, add their paths here
 # in the same MR.
 .ai-harness-doctor-patterns: &ai-harness-doctor-patterns
+  # Parity / .ai-reference inputs (check_parity.rb, check_ai_references.rb)
   - "**/AGENTS.md"
   - "**/CLAUDE.md"
   - ".ai/**/*"
   - "**/.ai/**/*"
+  # Doctor implementation
   - "scripts/ai_harness/doctor"
   - "tooling/ai_harness/doctor/**/*"
   - "tooling/ai_harness/config.yml"
   - "lib/gitlab/fp/**/*"
+
+# Paths the doctor reacts to but which (by design) do not match a file
+# currently in the repo. Kept under a non-`-patterns` key name so the
+# `rules_spec.rb` dead-pattern existence check skips this list
+#
+# `.gitignore` is included here despite existing in the repo because the
+# spec's `no_matching_needed_files` exemption removes it from the universe
+# of files before pattern matching, which makes it indistinguishable from
+# an intentionally-absent path for the purposes of that check.
+.ai-harness-doctor-forbidden-paths: &ai-harness-doctor-forbidden-paths
+  # .gitignore coverage (check_gitignore.rb) — see note above
+  - ".gitignore"
+  # Forbidden-files check (check_forbidden_files.rb FORBIDDEN_PATTERNS)
+  - "AGENTS.local.md"
+  - "**/AGENTS.local.md"
+  - "CLAUDE.local.md"
+  - "**/CLAUDE.local.md"
+  - ".claude/rules/**"
+  - ".claude/skills/**"
+  - ".claude/agents/**"
+  - ".claude/commands/**"
+  - ".claude/settings.json"
+  - ".claude/settings.local.json"
+  - ".claude/settings.local.jsonc"
+  - ".opencode/**"
+  - ".gitlab/duo/chat-rules.md"
+  - ".gitlab/duo/mcp.json"
 
 ##################
 # Conditions set #
@@ -3859,6 +3888,8 @@
   rules:
     - <<: *if-default-refs
       changes: *ai-harness-doctor-patterns
+    - <<: *if-default-refs
+      changes: *ai-harness-doctor-forbidden-paths
 
 .test-metadata:rules:export-diff-stats:
   rules:

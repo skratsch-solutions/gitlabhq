@@ -6546,7 +6546,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_dcd0ccef7c63"
+              "$ref": "#/components/schemas/RequestBody_97fedc76a148"
   "/api/v4/groups/{id}/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4GroupsIdMemberRolesMemberRoleId
@@ -6616,7 +6616,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_dcd0ccef7c63"
+              "$ref": "#/components/schemas/RequestBody_97fedc76a148"
   "/api/v4/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4MemberRolesMemberRoleId
@@ -16827,7 +16827,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_cacbc7948474"
+              "$ref": "#/components/schemas/RequestBody_8a70a24bbfcc"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -75063,7 +75063,7 @@ components:
         read_virtual_registry:
           type: boolean
           default: false
-        update_sast_vulnerability_resolution_setting:
+        update_sec_ai_workflow_settings:
           type: boolean
           default: false
         read_admin_cicd:
@@ -81561,6 +81561,8 @@ components:
         lock_duo_external_agents_enabled:
           type: boolean
         duo_workflows_default_image_registry:
+          type: string
+        duo_template_project_id:
           type: string
         ci_telemetry_otel_endpoint:
           type: string
@@ -91156,7 +91158,7 @@ components:
           nullable: true
       required:
       - extern_uid
-    RequestBody_dcd0ccef7c63:
+    RequestBody_97fedc76a148:
       type: object
       properties:
         base_access_level:
@@ -91315,10 +91317,10 @@ components:
             requiring broader group membership permissions. Only works on top level
             groups.
           nullable: true
-        update_sast_vulnerability_resolution_setting:
+        update_sec_ai_workflow_settings:
           type: boolean
-          description: Turn SAST Vulnerability Resolution on or off for a project.
-            Also requires the `read_vulnerability` permission.
+          description: Update security AI workflow settings such as SAST Vulnerability
+            Resolution. Also requires the `read_vulnerability` permission.
           nullable: true
         read_admin_cicd:
           type: boolean
@@ -93735,7 +93737,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_cacbc7948474:
+    RequestBody_8a70a24bbfcc:
       type: object
       properties:
         admin_mode:
@@ -95018,6 +95020,11 @@ components:
         lock_built_in_project_templates_enabled:
           type: boolean
           description: Enforce the built-in project templates setting for all groups
+          nullable: true
+        duo_template_project_id:
+          type: integer
+          description: The ID of a project to use as the Duo Code Review custom instructions
+            template for this instance
           nullable: true
         allow_local_requests_from_web_hooks_and_services:
           type: string
