@@ -6,7 +6,7 @@ module RapidDiffs
     delegator_override_with ::Gitlab::Utils::StrongMemoize
     extend ::Gitlab::Utils::Override
 
-    presents ::MergeRequest, as: :resource
+    presents ::MergeRequests::VersionedMergeRequest, as: :resource
 
     attr_reader :conflicts, :current_user
 
@@ -14,10 +14,7 @@ module RapidDiffs
       subject, diff_view:, diff_options:,
       current_user: nil, request_params: nil, environment: nil, conflicts: nil
     )
-      super(
-        ::MergeRequests::VersionedMergeRequest.from_diff_options(subject, diff_options),
-        diff_view:, diff_options:, current_user:, request_params:, environment:
-      )
+      super(subject, diff_view:, diff_options:, current_user:, request_params:, environment:)
       @conflicts = conflicts
     end
 
@@ -148,6 +145,14 @@ module RapidDiffs
         commit_id: request_params[:commit_id],
         only_context_commits: request_params[:only_context_commits]
       ).as_json
+    end
+
+    override(:empty_state_type)
+    def empty_state_type
+      return :initial_preparation if resource.initial_preparation?
+      return :already_merged if resource.changes_already_in_target?
+
+      super
     end
 
     protected

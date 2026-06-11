@@ -8,7 +8,7 @@ module RapidDiffs
       :noteable_type, :preview_markdown_endpoint, :markdown_docs_path, :register_path, :sign_in_path,
       :report_abuse_path, :versions, :linked_file, :suggestions_help_path,
       :default_suggestion_commit_message, :new_comment_template_paths, :coverage_endpoint, :codequality_endpoint,
-      :initial_preparation?,
+      :initial_preparation?, :empty_state_type,
       to: :presenter
 
     def initialize(presenter)

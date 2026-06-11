@@ -602,12 +602,6 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
       expect(subject).to be_truthy
     end
 
-    it 'returns true when on the "Trending" tab under "Explore projects"' do
-      allow(@request).to receive(:path) { trending_explore_projects_path }
-
-      expect(subject).to be_truthy
-    end
-
     it 'returns false when on the "Your projects" tab' do
       allow(@request).to receive(:path) { dashboard_projects_path }
 

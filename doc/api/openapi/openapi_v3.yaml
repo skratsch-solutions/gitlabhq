@@ -15058,6 +15058,10 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/APIEntitiesUserPublic"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/user/keys":
     get:
       operationId: getApiV4UserKeys
@@ -15404,6 +15408,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/APIEntitiesUserSupportPin"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   "/api/v4/user/preferences":
     put:
       operationId: putApiV4UserPreferences
@@ -15439,6 +15449,10 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/APIEntitiesUserPreferences"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/user/emails/{email_id}":
     get:
       operationId: getApiV4UserEmailsEmailId
@@ -15592,6 +15606,10 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/APIEntitiesUserStatus"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/user/avatar":
     put:
       operationId: putApiV4UserAvatar
@@ -15676,6 +15694,10 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/APIEntitiesApplication"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/user/applications/{id}":
     get:
       operationId: getApiV4UserApplicationsId
@@ -16717,6 +16739,10 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/sidekiq/process_metrics":
     get:
       operationId: getApiV4SidekiqProcessMetrics
@@ -16728,6 +16754,10 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/sidekiq/job_stats":
     get:
       operationId: getApiV4SidekiqJobStats
@@ -16738,6 +16768,10 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/sidekiq/compound_metrics":
     get:
       operationId: getApiV4SidekiqCompoundMetrics
@@ -16749,6 +16783,10 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   "/api/v4/application/settings":
     get:
       operationId: getApiV4ApplicationSettings

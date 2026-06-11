@@ -37,11 +37,7 @@ module Ci
           end
 
           # If @new_collection is already evaluated from new_alive_jobs, we can use it to avoid another call to DB
-          needs_processing = if check_needs_processing_using_new_collection? && @new_collection
-                               @new_collection.processing_jobs.any?
-                             else
-                               pipeline.needs_processing?
-                             end
+          needs_processing = @new_collection ? @new_collection.processing_jobs.any? : pipeline.needs_processing?
 
           # Re-schedule if we need further processing
           PipelineProcessWorker.perform_async(pipeline.id) if needs_processing
@@ -169,7 +165,6 @@ module Ci
 
         return [] if initial_stopped_job_names.empty?
 
-        # Change @new_collection back to local var if `ci_check_needs_processing_using_new_status_collection` reverted
         @new_collection = AtomicProcessingService::StatusCollection.new(pipeline)
         new_alive_job_names = initial_stopped_job_names - @new_collection.stopped_job_names
 
@@ -207,10 +202,6 @@ module Ci
           user_id: jobs.first.user.id,
           jobs_count: jobs.count
         )
-      end
-
-      def check_needs_processing_using_new_collection?
-        Feature.enabled?(:ci_check_needs_processing_using_new_status_collection, project)
       end
     end
   end

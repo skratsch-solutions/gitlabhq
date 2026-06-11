@@ -35,14 +35,6 @@ RSpec.describe Resolvers::MergeRequests::StackResolver, feature_category: :code_
       it 'returns the full stack in order' do
         expect(resolve_stack(merge_request_2)).to eq([merge_request_1, merge_request_2, merge_request_3])
       end
-
-      context 'when feature flag stacked_merge_requests is disabled' do
-        it 'returns an empty list' do
-          stub_feature_flags(stacked_merge_requests: false)
-
-          expect(resolve_stack(merge_request_2)).to eq([])
-        end
-      end
     end
 
     context 'when the merge request is not part of a stack' do

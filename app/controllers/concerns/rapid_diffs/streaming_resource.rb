@@ -143,7 +143,11 @@ module RapidDiffs
     end
 
     def render_empty_state
-      response.stream.write render ::RapidDiffs::EmptyStateComponent.new, layout: false
+      response.stream.write render empty_state_component, layout: false
+    end
+
+    def empty_state_component
+      ::RapidDiffs::EmptyStateComponent.new
     end
 
     class Request < SimpleDelegator

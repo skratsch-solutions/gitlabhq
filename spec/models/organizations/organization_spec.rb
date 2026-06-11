@@ -75,7 +75,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
 
           context 'when no organization exists' do
             before do
-              described_class.without_default.delete_all
+              described_class.delete_all
             end
 
             it 'allows creating the default organization' do
@@ -95,7 +95,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
 
           context 'when no organization exists' do
             before do
-              described_class.without_default.delete_all
+              described_class.delete_all
             end
 
             it 'is valid' do
@@ -417,7 +417,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
       it 'raises an error' do
         expect do
           organization.destroy!
-        end.to raise_error(ActiveRecord::RecordNotDestroyed, _('Cannot delete the last organization'))
+        end.to raise_error(ActiveRecord::RecordNotDestroyed, s_('Organization|Cannot delete the last organization'))
       end
     end
 
@@ -440,8 +440,8 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
     context 'when trying to delete another organization' do
       let(:to_be_removed) { create(:organization) }
 
-      it 'does not raise error' do
-        expect { to_be_removed.destroy! }.not_to raise_error
+      it 'returns true' do
+        expect(to_be_removed.destroy).to eq(to_be_removed)
       end
     end
   end
@@ -738,7 +738,8 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
         it 'raises an error' do
           expect do
             default_organization.destroy!
-          end.to raise_error(ActiveRecord::RecordNotDestroyed, _('Cannot delete the default organization'))
+          end.to raise_error(ActiveRecord::RecordNotDestroyed,
+            s_('Organization|Cannot delete the default organization'))
         end
       end
 

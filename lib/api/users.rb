@@ -1310,6 +1310,7 @@ module API
         desc 'Retrieve current user details' do
           detail 'Retrieves details about your user account.'
           success Entities::UserPublic
+          failure [[401, 'Unauthorized'], [403, 'Forbidden']]
           tags ['users']
         end
         route_setting :authorization, permissions: :read_user, boundary_type: :user
@@ -1591,6 +1592,7 @@ module API
         detail 'Retrieves a Support PIN for the currently authenticated user. GitLab Support may ask for this PIN ' \
           'to validate your identity.'
         success Entities::UserSupportPin
+        failure [[401, 'Unauthorized'], [403, 'Forbidden'], [404, 'Not Found']]
         tags ['users']
       end
       route_setting :authorization, permissions: :read_user_support_pin, boundary_type: :user
@@ -1642,6 +1644,7 @@ module API
       desc 'Retrieve your user preferences' do
         success Entities::UserPreferences
         detail 'Retrieves your user preferences.'
+        failure [[401, 'Unauthorized'], [403, 'Forbidden']]
         tags ['users']
       end
       route_setting :authorization, permissions: :read_user_preference, boundary_type: :user
@@ -1776,6 +1779,7 @@ module API
       desc 'Retrieve your user status' do
         detail 'Retrieves your user status.'
         success Entities::UserStatus
+        failure [[401, 'Unauthorized'], [403, 'Forbidden']]
         tags ['users']
       end
       route_setting :authorization, permissions: :read_user_status, boundary_type: :user

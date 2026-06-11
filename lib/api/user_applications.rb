@@ -52,6 +52,7 @@ module API
           detail 'Lists all applications owned by the authenticated user.'
           success Entities::Application
           is_array true
+          failure [[401, 'Unauthorized'], [403, 'Forbidden']]
           tags ['applications']
         end
         route_setting :authorization, permissions: :read_oauth_application, boundary_type: :user

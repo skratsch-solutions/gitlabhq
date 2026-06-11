@@ -18,6 +18,8 @@ RSpec.describe RapidDiffs::AppComponent, type: :component, feature_category: :co
   let(:extra_prefetch_endpoints) { [] }
 
   let(:linked_file) { nil }
+  let(:empty_state_type) { nil }
+  let(:diff_collection) { linked_file ? [linked_file] : (diffs_slice || []) }
 
   let(:diff_presenter) do
     instance_double(
@@ -31,7 +33,9 @@ RSpec.describe RapidDiffs::AppComponent, type: :component, feature_category: :co
       sorted?: should_sort_metadata_files,
       environment: nil,
       lazy?: lazy,
-      linked_file: linked_file
+      linked_file: linked_file,
+      empty_state_type: empty_state_type,
+      diff_collection: diff_collection
     )
   end
 
@@ -102,11 +106,6 @@ RSpec.describe RapidDiffs::AppComponent, type: :component, feature_category: :co
       app = page.find('[data-rapid-diffs]')
       data = Gitlab::Json.parse(app['data-app-data'])
       expect(data['file_by_file_mode']).to be(true)
-    end
-
-    it "renders only the first diff file" do
-      render_component
-      expect(page.all('diff-file').size).to eq(1)
     end
 
     it "does not render the stream container" do
@@ -282,11 +281,12 @@ RSpec.describe RapidDiffs::AppComponent, type: :component, feature_category: :co
     end
   end
 
-  context "when there are no diffs" do
+  context "when presenter reports a non-nil empty_state_type" do
+    let(:empty_state_type) { :no_changes }
     let(:diffs_slice) { [] }
     let(:diffs_stream_url) { nil }
 
-    it "renders empty state component" do
+    it "renders the default empty state component" do
       render_component
       expect(page).to have_text("There are no changes")
     end
@@ -294,31 +294,31 @@ RSpec.describe RapidDiffs::AppComponent, type: :component, feature_category: :co
     context 'when lazy loading' do
       let(:lazy) { true }
 
-      it "does not render empty state" do
+      it "does not render the empty state server-side" do
         render_component
         expect(page).not_to have_text("There are no changes")
       end
     end
-  end
 
-  context 'with custom empty_state slot' do
-    it 'renders slot content instead of default empty state' do
-      result = render_component do |c|
-        c.with_empty_state do
-          'custom empty state'
+    context 'with a custom empty_state slot' do
+      it 'renders slot content instead of default empty state' do
+        result = render_component do |c|
+          c.with_empty_state do
+            'custom empty state'
+          end
         end
+        expect(result).to have_text('custom empty state')
+        expect(result).not_to have_text('There are no changes')
       end
-      expect(result).to have_text('custom empty state')
-      expect(result).not_to have_text('There are no changes')
-    end
 
-    it 'does not render diff files' do
-      result = render_component do |c|
-        c.with_empty_state do
-          'custom empty state'
+      it 'does not render diff files' do
+        result = render_component do |c|
+          c.with_empty_state do
+            'custom empty state'
+          end
         end
+        expect(result).not_to have_css('diff-file')
       end
-      expect(result).not_to have_css('diff-file')
     end
   end
 

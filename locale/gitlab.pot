@@ -5785,6 +5785,9 @@ msgstr ""
 msgid "AdminAIPoweredFeatures|An error occurred while loading the AI feature settings. Please try again."
 msgstr ""
 
+msgid "AdminAIPoweredFeatures|An error occurred while updating the available models. Please try again."
+msgstr ""
+
 msgid "AdminAIPoweredFeatures|Apply to all sub-features"
 msgstr ""
 
@@ -5846,6 +5849,9 @@ msgid "AdminAIPoweredFeatures|Restrict to specific models"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Select a model"
+msgstr ""
+
+msgid "AdminAIPoweredFeatures|Successfully updated available models for %{title}"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|This is the current default model, and users always have access to it. To restrict users' access to it, change the default to another model."
@@ -8233,9 +8239,6 @@ msgstr ""
 msgid "AiPowered|Allow GitLab to collect prompts, AI responses, and metadata from user interactions with GitLab Duo. This data helps improve service quality and is not used to train models."
 msgstr ""
 
-msgid "AiPowered|Allow GitLab to process your code and project data for AI-native features in this group. Your data is sent to GitLab Duo. Groups, subgroups, and projects can opt out individually."
-msgstr ""
-
 msgid "AiPowered|Allow all Unix sockets"
 msgstr ""
 
@@ -8296,9 +8299,6 @@ msgstr ""
 msgid "AiPowered|Automatic Code Reviews"
 msgstr ""
 
-msgid "AiPowered|Block GitLab from processing your code and project data for AI-native features in this group. Your data stays private unless subgroups or projects opt in individually."
-msgstr ""
-
 msgid "AiPowered|Blocked domains"
 msgstr ""
 
@@ -8356,7 +8356,7 @@ msgstr ""
 msgid "AiPowered|Control whether AI-powered features are available."
 msgstr ""
 
-msgid "AiPowered|Control whether GitLab can process your code and project data for AI-native features."
+msgid "AiPowered|Control whether GitLab Duo is available for this group."
 msgstr ""
 
 msgid "AiPowered|Control whether users can approve tools for a session in the IDE and CLI."
@@ -8491,7 +8491,16 @@ msgstr ""
 msgid "AiPowered|GitLab Duo availability"
 msgstr ""
 
-msgid "AiPowered|GitLab Duo features are always available in this group and cannot be opted out of by subgroups or projects."
+msgid "AiPowered|GitLab Duo is always available. Subgroups and projects cannot opt out."
+msgstr ""
+
+msgid "AiPowered|GitLab Duo is always unavailable. Subgroups and projects cannot opt in."
+msgstr ""
+
+msgid "AiPowered|GitLab Duo is available by default. Subgroups and projects can opt out individually."
+msgstr ""
+
+msgid "AiPowered|GitLab Duo is unavailable by default. Subgroups and projects can opt in individually."
 msgstr ""
 
 msgid "AiPowered|GitLab Duo with Amazon Q"
@@ -8558,9 +8567,6 @@ msgid "AiPowered|Network access"
 msgstr ""
 
 msgid "AiPowered|Network access controls"
-msgstr ""
-
-msgid "AiPowered|Never allow GitLab to process your code and project data for AI-native features in this group. Your data is not sent to GitLab Duo."
 msgstr ""
 
 msgid "AiPowered|No allowlist entries."
@@ -15503,12 +15509,6 @@ msgid "Cannot delete the compliance framework because it is referenced by a secu
 msgstr ""
 
 msgid "Cannot delete the default framework"
-msgstr ""
-
-msgid "Cannot delete the default organization"
-msgstr ""
-
-msgid "Cannot delete the last organization"
 msgstr ""
 
 msgid "Cannot find target namespace."
@@ -46130,6 +46130,9 @@ msgstr ""
 msgid "MergeRequest|%{targetStart}Compare%{targetEnd} %{sourceStart}and%{sourceEnd}"
 msgstr ""
 
+msgid "MergeRequest|All changes from %{sourceStart}%{source}%{sourceEnd} are already present in %{targetStart}%{target}%{targetEnd}."
+msgstr ""
+
 msgid "MergeRequest|Allow merge request pipelines to access protected variables and runners"
 msgstr ""
 
@@ -46161,6 +46164,9 @@ msgid "MergeRequest|Can't show this merge request because the target branch %{br
 msgstr ""
 
 msgid "MergeRequest|Change reviewer"
+msgstr ""
+
+msgid "MergeRequest|Changes already merged"
 msgstr ""
 
 msgid "MergeRequest|Compare %{target} and %{source}"
@@ -52008,6 +52014,9 @@ msgstr ""
 msgid "Orbit|Groups"
 msgstr ""
 
+msgid "Orbit|Hide error details"
+msgstr ""
+
 msgid "Orbit|Hide schema"
 msgstr ""
 
@@ -52027,6 +52036,9 @@ msgid "Orbit|Indexed groups"
 msgstr ""
 
 msgid "Orbit|Invalid JSON query. Please check the syntax."
+msgstr ""
+
+msgid "Orbit|Invalid query. Check query parameters and try again."
 msgstr ""
 
 msgid "Orbit|Job"
@@ -52255,6 +52267,9 @@ msgid "Orbit|Setup Orbit"
 msgstr ""
 
 msgid "Orbit|Setup guide"
+msgstr ""
+
+msgid "Orbit|Show error details"
 msgstr ""
 
 msgid "Orbit|Show in map"
@@ -52552,6 +52567,12 @@ msgid "Organization|An error occurred updating your organization. Please try aga
 msgstr ""
 
 msgid "Organization|Assign top-level groups"
+msgstr ""
+
+msgid "Organization|Cannot delete the default organization"
+msgstr ""
+
+msgid "Organization|Cannot delete the last organization"
 msgstr ""
 
 msgid "Organization|Change organization URL"

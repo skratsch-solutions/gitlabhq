@@ -17,6 +17,10 @@ Gitlab::Database::DataIsolation.configure do |config|
     return unless organization_id
 
     case type
+    when :projects
+      Project.select(:id).in_organization(organization_id)
+    when :namespaces
+      Namespace.select(:id).in_organization(organization_id)
     when :organizations
       organization_id
     when :users

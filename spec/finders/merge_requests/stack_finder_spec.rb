@@ -63,14 +63,6 @@ RSpec.describe MergeRequests::StackFinder, feature_category: :code_review_workfl
           merge_request_1, merge_request_2, merge_request_3
         ])
       end
-
-      context 'when feature flag stacked_merge_requests is disabled' do
-        it 'returns nil' do
-          stub_feature_flags(stacked_merge_requests: false)
-
-          expect(described_class.new(user, merge_request_3).execute.to_a).to be_none
-        end
-      end
     end
 
     context 'when merge requests in the chain are closed' do

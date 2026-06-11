@@ -165,6 +165,59 @@ query getWorkItemsRest(
             }
           }
         }
+        features {
+          labels {
+            allowsScopedLabels
+            labels {
+              nodes {
+                ...Label
+              }
+            }
+          }
+          assignees {
+            assignees {
+              nodes {
+                id
+                avatarUrl
+                name
+                username
+                webUrl
+                webPath
+              }
+            }
+          }
+          milestone {
+            milestone {
+              id
+              dueDate
+              startDate
+              title
+              webPath
+            }
+          }
+          startAndDueDate {
+            dueDate
+            startDate
+          }
+          hierarchy {
+            parent {
+              id
+              iid
+              title
+              confidential
+              webUrl
+              namespace {
+                id
+                fullPath
+              }
+              workItemType {
+                id
+                name
+                iconName
+              }
+            }
+          }
+        }
         workItemType {
           id
           name

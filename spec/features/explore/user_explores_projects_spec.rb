@@ -11,7 +11,6 @@ RSpec.describe 'User explores projects', :js, feature_category: :user_profile do
     where(:tab, :path) do
       'Active'   | active_explore_projects_path
       'Inactive' | inactive_explore_projects_path
-      'Trending' | trending_explore_projects_path
     end
 
     with_them do
@@ -63,8 +62,6 @@ RSpec.describe 'User explores projects', :js, feature_category: :user_profile do
 
       before do
         [archived_project, public_project, internal_project].each { |project| create(:note_on_issue, project: project) }
-
-        TrendingProject.refresh!
       end
 
       context 'when not signed in' do
@@ -102,14 +99,6 @@ RSpec.describe 'User explores projects', :js, feature_category: :user_profile do
           end
 
           include_examples 'shows public and internal projects'
-        end
-
-        context 'when viewing trending projects' do
-          it 'redirects to active projects page' do
-            visit trending_explore_projects_path
-
-            expect(page).to have_current_path(active_explore_projects_path(sort: 'stars_desc'))
-          end
         end
       end
     end

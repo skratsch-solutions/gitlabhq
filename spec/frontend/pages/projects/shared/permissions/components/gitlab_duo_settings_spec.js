@@ -36,7 +36,6 @@ describe('GitlabDuoSettings', () => {
       propsData,
       provide: {
         glFeatures: {
-          aiExperimentSastFpDetection: true,
           duoSecretDetectionFalsePositive: true,
           ...provide,
         },
@@ -312,68 +311,48 @@ describe('GitlabDuoSettings', () => {
       });
 
       describe('Duo SAST FP Detection settings', () => {
-        it('shows SAST FP Detection toggle when feature flag is enabled', () => {
-          wrapper = createWrapper(
-            { duoFeaturesEnabled: true, amazonQAvailable: false },
-            { aiExperimentSastFpDetection: true },
-          );
+        it('shows SAST FP Detection toggle', () => {
+          wrapper = createWrapper({ duoFeaturesEnabled: true, amazonQAvailable: false });
 
           expect(findDuoSastFpDetectionToggle().exists()).toBe(true);
           expect(findDuoSastFpDetectionToggle().props('disabled')).toBe(false);
         });
 
-        it('does not show SAST FP Detection toggle when feature flag is disabled', () => {
-          wrapper = createWrapper(
-            { duoFeaturesEnabled: true, amazonQAvailable: false },
-            { aiExperimentSastFpDetection: false },
-          );
-
-          expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
-        });
-
         it('does not show SAST FP Detection toggle when ultimateFeaturesAvailable is false', () => {
-          wrapper = createWrapper(
-            { duoFeaturesEnabled: true, amazonQAvailable: false, ultimateFeaturesAvailable: false },
-            { aiExperimentSastFpDetection: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            ultimateFeaturesAvailable: false,
+          });
 
           expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
         });
 
         it('does not disable SAST FP Detection toggle when Duo features are locked on', () => {
-          wrapper = createWrapper(
-            {
-              duoFeaturesEnabled: true,
-              duoFeaturesLocked: true,
-              amazonQAvailable: false,
-            },
-            { aiExperimentSastFpDetection: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            duoFeaturesLocked: true,
+            amazonQAvailable: false,
+          });
 
           expect(findDuoSastFpDetectionToggle().props('disabled')).toBe(false);
         });
 
         it('does not render SAST FP Detection toggle when Duo features are not enabled', () => {
-          wrapper = createWrapper(
-            {
-              duoFeaturesEnabled: false,
-              amazonQAvailable: false,
-            },
-            { aiExperimentSastFpDetection: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: false,
+            amazonQAvailable: false,
+          });
 
           expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
         });
 
         it('updates the hidden input value when toggled', async () => {
-          wrapper = createWrapper(
-            {
-              duoFeaturesEnabled: true,
-              amazonQAvailable: false,
-              initialDuoSastFpDetectionEnabled: true,
-            },
-            { aiExperimentSastFpDetection: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            initialDuoSastFpDetectionEnabled: true,
+          });
 
           const findHiddenInput = () =>
             wrapper.find(

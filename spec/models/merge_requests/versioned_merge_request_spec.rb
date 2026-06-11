@@ -207,6 +207,62 @@ RSpec.describe MergeRequests::VersionedMergeRequest, feature_category: :code_rev
     end
   end
 
+  describe '#changes_already_in_target?' do
+    let(:resolved_version) { instance_double(MergeRequestDiff, merge_head?: true, empty?: true) }
+    let(:latest_merge_request_diff) { instance_double(MergeRequestDiff, empty?: false) }
+    let(:diff_version) { instance_double(Gitlab::MergeRequests::DiffResolver, resolve: resolved_version) }
+
+    subject(:result) { versioned.changes_already_in_target? }
+
+    before do
+      allow(Gitlab::MergeRequests::DiffResolver).to receive(:new).and_return(diff_version)
+      allow(merge_request).to receive_messages(
+        diffable_merge_ref?: true,
+        latest_merge_request_diff: latest_merge_request_diff
+      )
+    end
+
+    it { is_expected.to be(true) }
+
+    context 'when the resolved version is not the merge head diff' do
+      let(:resolved_version) { instance_double(MergeRequestDiff, merge_head?: false) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when there is no resolved version' do
+      let(:resolved_version) { nil }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the merge head diff has files' do
+      let(:resolved_version) { instance_double(MergeRequestDiff, merge_head?: true, empty?: false) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the latest merge request diff is empty' do
+      let(:latest_merge_request_diff) { instance_double(MergeRequestDiff, empty?: true) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when there is no persisted merge request diff' do
+      let(:latest_merge_request_diff) { nil }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the merge ref cannot be diffed' do
+      before do
+        allow(merge_request).to receive(:diffable_merge_ref?).and_return(false)
+      end
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   it 'delegates other methods to the merge request', :aggregate_failures do
     expect(versioned.id).to eq(merge_request.id)
     expect(versioned.project).to eq(merge_request.project)

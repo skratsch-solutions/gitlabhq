@@ -102,7 +102,6 @@ module MergeRequests
     end
 
     def execute
-      return MergeRequest.none unless Feature.enabled?(:stacked_merge_requests, current_user, type: :wip)
       return MergeRequest.none unless adjacent_merge_request_exists?
 
       rows = stack_rows

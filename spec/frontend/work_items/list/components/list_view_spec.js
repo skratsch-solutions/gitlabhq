@@ -31,10 +31,12 @@ import { isLoggedIn } from '~/lib/utils/common_utils';
 import {
   workItemsQueryResponseCombined,
   workItemsWithSubChildQueryResponse,
+  workItemsWithSubChildQueryResponseRest,
   namespaceWorkItemTypesQueryResponse,
   workItemsQueryResponseNoLabels,
   workItemsQueryResponseNoAssignees,
   workItemsRestQueryResponse,
+  workItemsRestQueryResponseWithNullFeatures,
 } from '../../mock_data';
 
 jest.mock('~/lib/utils/scroll_utils', () => ({ scrollUp: jest.fn() }));
@@ -233,12 +235,23 @@ const mountComponent = ({
 };
 
 describe.each`
-  description                | useRestApi
-  ${'with GraphQL queries'}  | ${false}
-  ${'with REST API queries'} | ${true}
-`('$description', ({ useRestApi }) => {
+  description                                                         | useRestApi | workItemFeaturesField
+  ${'with GraphQL queries'}                                           | ${false}   | ${false}
+  ${'with REST API queries (work_item_features_field flag disabled)'} | ${true}    | ${false}
+  ${'with REST API queries (work_item_features_field flag enabled)'}  | ${true}    | ${true}
+`('$description', ({ useRestApi, workItemFeaturesField }) => {
+  beforeEach(() => {
+    if (useRestApi) {
+      workItemsRestQueryHandler.mockResolvedValue(
+        workItemFeaturesField
+          ? workItemsRestQueryResponse
+          : workItemsRestQueryResponseWithNullFeatures,
+      );
+    }
+  });
+
   it('renders loading icon while query is in flight', () => {
-    mountComponent({ useRestApi });
+    mountComponent({ useRestApi, workItemFeaturesField });
 
     // Before promises resolve, Apollo queries are loading
     expect(wrapper.findComponent(GlLoadingIcon).exists()).toBe(true);
@@ -246,7 +259,7 @@ describe.each`
 
   describe('when work items are fetched', () => {
     beforeEach(async () => {
-      mountComponent({ useRestApi });
+      mountComponent({ useRestApi, workItemFeaturesField });
       await waitForPromises();
     });
 
@@ -271,9 +284,9 @@ describe.each`
     it('does not show tree icon if not searched parent', async () => {
       workItemsSlimQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponse);
       workItemsFullQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponse);
-      workItemsRestQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponse);
+      workItemsRestQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponseRest);
 
-      mountComponent({ useRestApi });
+      mountComponent({ useRestApi, workItemFeaturesField });
       await waitForPromises();
 
       expect(findSubChildIndicator(findChildItem1()).exists()).toBe(false);
@@ -285,10 +298,11 @@ describe.each`
 
       workItemsSlimQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponse);
       workItemsFullQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponse);
-      workItemsRestQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponse);
+      workItemsRestQueryHandler.mockResolvedValue(workItemsWithSubChildQueryResponseRest);
 
       mountComponent({
         useRestApi,
+        workItemFeaturesField,
         props: {
           apiFilterParams: {
             hierarchyFilters: {
@@ -305,7 +319,7 @@ describe.each`
     });
 
     it('does not display error alert when there is no error', async () => {
-      mountComponent({ useRestApi });
+      mountComponent({ useRestApi, workItemFeaturesField });
       await waitForPromises();
       expect(findGlAlert().exists()).toBe(false);
     });

@@ -25,13 +25,10 @@ const NAMESPACE_KIND_TO_TYPENAME = {
   group: 'Namespaces::GroupNamespace',
 };
 
-export function mapWidgetsFromFeatures(features, sharedNamespace) {
-  const widgets = [];
-
+function mapLabelsFeature(features) {
   const labelsData = features?.labels;
-  widgets.push({
+  return {
     __typename: 'WorkItemWidgetLabels',
-    type: 'LABELS',
     allowsScopedLabels: labelsData?.allows_scoped_labels ?? false,
     labels: {
       nodes: (labelsData?.labels ?? []).map((label) => ({
@@ -43,12 +40,13 @@ export function mapWidgetsFromFeatures(features, sharedNamespace) {
         description: label.description ?? null,
       })),
     },
-  });
+  };
+}
 
+function mapAssigneesFeature(features) {
   const assignees = features?.assignees ?? [];
-  widgets.push({
+  return {
     __typename: 'WorkItemWidgetAssignees',
-    type: 'ASSIGNEES',
     assignees: {
       nodes: assignees.map((user) => ({
         id: user.id ? `gid://gitlab/User/${user.id}` : null,
@@ -61,12 +59,13 @@ export function mapWidgetsFromFeatures(features, sharedNamespace) {
       })),
       __typename: 'UserCoreConnection',
     },
-  });
+  };
+}
 
+function mapMilestoneFeature(features) {
   const milestone = features?.milestone;
-  widgets.push({
+  return {
     __typename: 'WorkItemWidgetMilestone',
-    type: 'MILESTONE',
     milestone: milestone
       ? {
           id: milestone.id ? `gid://gitlab/Milestone/${milestone.id}` : null,
@@ -77,19 +76,22 @@ export function mapWidgetsFromFeatures(features, sharedNamespace) {
           __typename: 'Milestone',
         }
       : null,
-  });
+  };
+}
+
+function mapStartAndDueDateFeature(features) {
   const startAndDueDateData = features?.start_and_due_date;
-  widgets.push({
+  return {
     __typename: 'WorkItemWidgetStartAndDueDate',
-    type: 'START_AND_DUE_DATE',
     dueDate: startAndDueDateData?.due_date ?? null,
     startDate: startAndDueDateData?.start_date ?? null,
-  });
+  };
+}
 
+function mapHierarchyFeature(features, itemNamespace) {
   const hierarchy = features?.hierarchy;
-  widgets.push({
+  return {
     __typename: 'WorkItemWidgetHierarchy',
-    type: 'HIERARCHY',
     parent: hierarchy?.parent
       ? {
           __typename: 'WorkItem',
@@ -98,7 +100,7 @@ export function mapWidgetsFromFeatures(features, sharedNamespace) {
           title: hierarchy.parent.title,
           confidential: hierarchy.parent.confidential ?? false,
           webUrl: hierarchy.parent.web_url ?? null, // eslint-disable-line local-rules/no-web-url
-          namespace: sharedNamespace,
+          namespace: itemNamespace,
           workItemType: hierarchy.parent.work_item_type
             ? {
                 __typename: 'WorkItemType',
@@ -111,12 +113,45 @@ export function mapWidgetsFromFeatures(features, sharedNamespace) {
             : null,
         }
       : null,
-  });
-
-  return widgets;
+  };
 }
 
-export function mapWorkItemToGraphQL(item, sharedNamespace) {
+export function mapWidgetsFromFeatures(features, itemNamespace) {
+  return [
+    { ...mapLabelsFeature(features), type: 'LABELS' },
+    { ...mapAssigneesFeature(features), type: 'ASSIGNEES' },
+    { ...mapMilestoneFeature(features), type: 'MILESTONE' },
+    { ...mapStartAndDueDateFeature(features), type: 'START_AND_DUE_DATE' },
+    { ...mapHierarchyFeature(features, itemNamespace), type: 'HIERARCHY' },
+  ];
+}
+
+export function mapFeaturesFromRestResponse(features, itemNamespace) {
+  return {
+    __typename: 'WorkItemFeatures',
+    labels: mapLabelsFeature(features),
+    assignees: mapAssigneesFeature(features),
+    milestone: mapMilestoneFeature(features),
+    startAndDueDate: mapStartAndDueDateFeature(features),
+    hierarchy: mapHierarchyFeature(features, itemNamespace),
+  };
+}
+
+// Returns a `WorkItemFeatures` placeholder whose every subfield is null. We cannot use `@skip`/`@include`
+// directives inside the @client subtree. To keep widgets as the single source of truth when the
+// work_item_features_field flag is off we return this shape so Apollo's selection set is satisfied with explicit nulls.
+export function nullWorkItemFeatures() {
+  return {
+    __typename: 'WorkItemFeatures',
+    labels: null,
+    assignees: null,
+    milestone: null,
+    startAndDueDate: null,
+    hierarchy: null,
+  };
+}
+
+export function mapWorkItemToGraphQL(item, sharedNamespace, { useWorkItemFeatures = false } = {}) {
   const itemNamespace =
     item.namespace.full_path !== sharedNamespace.fullPath
       ? {
@@ -163,7 +198,10 @@ export function mapWorkItemToGraphQL(item, sharedNamespace) {
           iconName: item.work_item_type.icon_name ?? null,
         }
       : null,
-    widgets: mapWidgetsFromFeatures(item.features, sharedNamespace),
+    widgets: mapWidgetsFromFeatures(item.features, itemNamespace),
+    features: useWorkItemFeatures
+      ? mapFeaturesFromRestResponse(item.features, itemNamespace)
+      : nullWorkItemFeatures(),
   };
 }
 
@@ -201,7 +239,10 @@ export async function workItemsRestResolver(namespace, args) {
     throw error;
   }
 
-  const nodes = (response.data ?? []).map((item) => mapWorkItemToGraphQL(item, namespace));
+  const useWorkItemFeatures = Boolean(window.gon?.features?.workItemFeaturesField);
+  const nodes = (response.data ?? []).map((item) =>
+    mapWorkItemToGraphQL(item, namespace, { useWorkItemFeatures }),
+  );
 
   const pageInfo = parsePageInfo(response.headers);
   return {

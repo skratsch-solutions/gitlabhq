@@ -38,6 +38,13 @@ module MergeRequests
       resolved_version.diff_stats
     end
 
+    def changes_already_in_target?
+      return false unless resolved_version.try(:merge_head?) && diffable_merge_ref?
+      return false if latest_merge_request_diff.nil? || latest_merge_request_diff.empty?
+
+      resolved_version.empty?
+    end
+
     private
 
     def resolved_version

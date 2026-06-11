@@ -1,7 +1,7 @@
 - expanded = expanded_by_default?
 - show_code_owners = @project.licensed_feature_available?(:code_owner_approval_required)
 - show_status_checks = @project.licensed_feature_available?(:external_status_checks)
-- show_approvers = @project.licensed_feature_available?(:merge_request_approvers)
+- show_approvers = can?(current_user, :read_approval_rule, @project) && @project.licensed_feature_available?(:merge_request_approvers)
 - show_enterprise_access_levels = @project.licensed_feature_available?(:protected_refs_for_users)
 - namespace = @project.root_ancestor
 - can_admin_group_protected_branches = namespace.is_a?(Group) && namespace.licensed_feature_available?(:group_protected_branches) && current_user.can?(:admin_group, namespace)

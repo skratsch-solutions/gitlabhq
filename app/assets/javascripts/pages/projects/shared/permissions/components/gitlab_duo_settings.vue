@@ -188,9 +188,6 @@ export default {
           this.toolApprovalForSessionCascadingSettings?.lockedByApplicationSetting)
       );
     },
-    showSastFpDetection() {
-      return this.glFeatures.aiExperimentSastFpDetection && this.ultimateFeaturesAvailable;
-    },
     showSastVrWorkflow() {
       return this.glFeatures.enableVulnerabilityResolution && this.ultimateFeaturesAvailable;
     },
@@ -399,7 +396,7 @@ export default {
           />
         </project-setting-row>
         <project-setting-row
-          v-if="showSastFpDetection"
+          v-if="ultimateFeaturesAvailable"
           :label="s__('DuoSAST|Turn on SAST false positive detection')"
           class="gl-mt-5"
           :help-text="

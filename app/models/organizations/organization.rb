@@ -217,19 +217,22 @@ module Organizations
     def check_if_default_organization
       return unless default?
 
-      raise ActiveRecord::RecordNotDestroyed, _('Cannot delete the default organization')
+      raise ActiveRecord::RecordNotDestroyed, s_('Organization|Cannot delete the default organization')
     end
 
     def check_if_last_organization
       return if self.class.where.not(id: id).exists?
 
-      raise ActiveRecord::RecordNotDestroyed, _('Cannot delete the last organization')
+      raise ActiveRecord::RecordNotDestroyed, s_('Organization|Cannot delete the last organization')
     end
 
     # https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/organization/decisions/007_self_managed_dedicated_single_organization/
     # This is a bridge solution until key features like billing are moved to Organization level for self-managed
     def validate_single_organization_on_self_managed
       return if Gitlab.com? # rubocop:disable Gitlab/AvoidGitlabInstanceChecks -- FOSS has no Saas module
+
+      # Multi-organization support is not available on self-managed for now.
+      # dev and test should follow SaaS and allow multiple organizations
       return if Gitlab.dev_or_test_env?
 
       return unless self.class.exists?

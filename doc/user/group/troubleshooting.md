@@ -41,6 +41,28 @@ service = ::Groups::TransferService.new(group, user)
 service.execute(parent_group)
 ```
 
+## Group transfer stuck in `transfer_in_progress` or `transfer_scheduled` state
+
+A group transfer can stall when the asynchronous transfer job fails, for example due to
+lock contention or statement timeouts. Retrying the transfer returns:
+
+`Unable to initiate transfer. The group may already have a transfer in progress.`
+
+In GitLab 19.1 and later, retry the transfer. GitLab reschedules the transfer even when the
+namespace is still in the `transfer_in_progress` or `transfer_scheduled` state.
+
+In GitLab versions earlier than 19.1, cancel the stale transfer state in a
+[Rails console session](../../administration/operations/rails_console.md#starting-a-rails-console-session)
+before you retry the transfer:
+
+> [!warning]
+> Commands that change data can cause damage if not run correctly or under the right conditions.
+> Always run commands in a test environment first and have a backup instance ready to restore.
+
+```ruby
+Group.find_by_full_path('<group_path>').cancel_transfer!
+```
+
 ## Find groups pending deletion using Rails console
 
 If you need to find all the groups that are pending deletion, you can use the following command in a [Rails console session](../../administration/operations/rails_console.md#starting-a-rails-console-session):

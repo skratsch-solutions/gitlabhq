@@ -28,7 +28,13 @@ module Authn
     end
 
     def self.token_type(plaintext)
-      TOKEN_TYPES.find { |x| x.prefix?(plaintext) }
+      token_types.find { |x| x.prefix?(plaintext) }
+    end
+
+    def self.token_types
+      TOKEN_TYPES
     end
   end
 end
+
+Authn::AgnosticTokenIdentifier.prepend_mod_with('Authn::AgnosticTokenIdentifier')

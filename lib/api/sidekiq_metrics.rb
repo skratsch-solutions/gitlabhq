@@ -85,6 +85,7 @@ module API
 
     desc 'List all job queue metrics' do
       detail 'Lists all details about all Sidekiq job queues, including backlog size and latency.'
+      failure [[401, 'Unauthorized'], [403, 'Forbidden']]
       tags ['sidekiq']
     end
     route_setting :authorization, permissions: :read_sidekiq_metric, boundary_type: :instance
@@ -95,6 +96,7 @@ module API
     desc 'List all Sidekiq processes' do
       detail 'Lists all details about all registered Sidekiq worker processes, including hostname, process ID, ' \
         'queues, and concurrency settings.'
+      failure [[401, 'Unauthorized'], [403, 'Forbidden']]
       tags ['sidekiq']
     end
     route_setting :authorization, permissions: :read_sidekiq_metric, boundary_type: :instance
@@ -104,6 +106,7 @@ module API
 
     desc 'Retrieve job completion metrics' do
       detail 'Retrieves statistics on the completion status of all Sidekiq jobs.'
+      failure [[401, 'Unauthorized'], [403, 'Forbidden']]
       tags ['sidekiq']
     end
     route_setting :authorization, permissions: :read_sidekiq_metric, boundary_type: :instance
@@ -113,6 +116,7 @@ module API
 
     desc 'List all Sidekiq metrics' do
       detail 'Lists all Sidekiq metrics. Includes queue, process, and job completion metrics.'
+      failure [[401, 'Unauthorized'], [403, 'Forbidden']]
       tags ['sidekiq']
     end
     route_setting :authorization, permissions: :read_sidekiq_metric, boundary_type: :instance

@@ -17,16 +17,9 @@ class Explore::ProjectsController < Explore::ApplicationController
   feature_category :groups_and_projects
   # TODO: Set higher urgency after addressing https://gitlab.com/gitlab-org/gitlab/-/issues/357913
   # and https://gitlab.com/gitlab-org/gitlab/-/issues/358945
-  urgency :low, [:index, :topics, :trending, :topic]
+  urgency :low, [:index, :topics, :topic]
 
   def index; end
-
-  def trending
-    respond_to do |format|
-      format.html { redirect_to active_explore_projects_path(sort: 'stars_desc') }
-      format.json { redirect_to active_explore_projects_path(sort: 'stars_desc', format: :json), status: :found }
-    end
-  end
 
   def topics
     load_topics

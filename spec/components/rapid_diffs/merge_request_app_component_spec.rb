@@ -57,7 +57,8 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       linked_file: nil,
       initial_preparation?: false,
       coverage_endpoint: coverage_endpoint,
-      codequality_endpoint: codequality_endpoint
+      codequality_endpoint: codequality_endpoint,
+      empty_state_type: nil
     )
   end
 
@@ -186,9 +187,9 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
     end
   end
 
-  context 'when merge request is in initial preparation' do
+  context 'when presenter reports initial_preparation empty_state_type' do
     before do
-      allow(presenter).to receive(:initial_preparation?).and_return(true)
+      allow(presenter).to receive(:empty_state_type).and_return(:initial_preparation)
       allow(app_component).to receive(:with_empty_state).and_yield
     end
 
@@ -199,10 +200,32 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
     end
   end
 
-  it 'does not render building message when not in initial preparation' do
+  it 'does not render building message when empty_state_type is nil' do
     render_component
 
     expect(page).not_to have_text('Building your merge request')
+  end
+
+  context 'when presenter reports already_merged empty_state_type' do
+    let(:merge_request) { build_stubbed(:merge_request, source_branch: 'feature', target_branch: 'main') }
+
+    before do
+      allow(presenter).to receive(:empty_state_type).and_return(:already_merged)
+      allow(app_component).to receive(:with_empty_state).and_yield
+    end
+
+    it 'renders the already-merged title and description', :aggregate_failures do
+      render_component
+
+      expect(page).to have_text('Changes already merged')
+      expect(page).to have_text('All changes from feature are already present in main.')
+    end
+  end
+
+  it 'does not render the already-merged message when empty_state_type is nil' do
+    render_component
+
+    expect(page).not_to have_text('Changes already merged')
   end
 
   context "when user has permission to create notes" do

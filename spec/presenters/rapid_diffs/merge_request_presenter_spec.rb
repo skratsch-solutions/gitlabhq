@@ -18,9 +18,12 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
   let(:request_params) { {} }
   let(:current_user) { build_stubbed(:user) }
   let(:resource) { presenter.resource }
+  let(:versioned_merge_request) do
+    ::MergeRequests::VersionedMergeRequest.from_diff_options(merge_request, diff_options)
+  end
 
   subject(:presenter) do
-    described_class.new(merge_request, diff_view: diff_view, diff_options: diff_options,
+    described_class.new(versioned_merge_request, diff_view: diff_view, diff_options: diff_options,
       request_params: request_params, current_user: current_user)
   end
 
@@ -144,7 +147,7 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
 
     context 'when request_params is nil' do
       subject(:result) do
-        described_class.new(merge_request, diff_view: diff_view, diff_options: diff_options,
+        described_class.new(versioned_merge_request, diff_view: diff_view, diff_options: diff_options,
           request_params: nil).only_context_commits?
       end
 
@@ -366,7 +369,7 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
     let(:current_user) { build_stubbed(:user) }
     let(:can_create_note) { false }
     let(:presenter_with_user) do
-      described_class.new(merge_request, diff_view: diff_view, diff_options: diff_options,
+      described_class.new(versioned_merge_request, diff_view: diff_view, diff_options: diff_options,
         request_params: request_params, current_user: current_user)
     end
 
@@ -561,7 +564,7 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
     let(:user) { build_stubbed(:user) }
 
     subject(:presenter) do
-      described_class.new(merge_request, diff_view: diff_view, diff_options: diff_options,
+      described_class.new(versioned_merge_request, diff_view: diff_view, diff_options: diff_options,
         request_params: request_params, current_user: user)
     end
 
@@ -593,7 +596,7 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
     end
 
     subject(:presenter) do
-      described_class.new(merge_request, diff_view: diff_view, diff_options: diff_options,
+      described_class.new(versioned_merge_request, diff_view: diff_view, diff_options: diff_options,
         request_params: request_params, conflicts: conflicts)
     end
 
@@ -719,6 +722,45 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
           expect(presenter.reload_stream_url).to eq("#{base_path}/diffs_stream?diff_id=#{resolved_diff_id}")
         end
       end
+    end
+  end
+
+  describe '#empty_state_type' do
+    subject(:type) { presenter.empty_state_type }
+
+    before do
+      allow(merge_request).to receive(:initial_preparation?).and_return(false)
+      allow(resource).to receive(:changes_already_in_target?).and_return(false)
+    end
+
+    context 'when the merge request is in initial preparation' do
+      before do
+        allow(merge_request).to receive(:initial_preparation?).and_return(true)
+      end
+
+      it { is_expected.to eq(:initial_preparation) }
+    end
+
+    context 'when the changes are already in the target branch' do
+      before do
+        allow(resource).to receive(:changes_already_in_target?).and_return(true)
+      end
+
+      it { is_expected.to eq(:already_merged) }
+    end
+
+    context 'when the diff is empty and the presenter is not lazy' do
+      let(:diffs_count) { 0 }
+
+      before do
+        presenter.offset = 0
+      end
+
+      it { is_expected.to eq(:no_changes) }
+    end
+
+    context 'when there is no empty state and the presenter is lazy' do
+      it { is_expected.to be_nil }
     end
   end
 

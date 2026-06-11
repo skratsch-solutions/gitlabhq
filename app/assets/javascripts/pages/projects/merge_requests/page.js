@@ -112,7 +112,7 @@ const initReviewDrawer = () => {
 const initStackedDropdown = () => {
   const el = document.querySelector('.js-stack-dropdown');
 
-  if (!el || !window.gon?.features?.stackedMergeRequests) return;
+  if (!el) return;
 
   const { defaultBranch } = el.dataset;
 

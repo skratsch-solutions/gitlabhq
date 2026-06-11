@@ -1374,18 +1374,6 @@ RSpec.describe Ci::PipelineProcessing::AtomicProcessingService, feature_category
 
             process_pipeline
           end
-
-          context 'when FF `ci_check_needs_processing_using_new_status_collection` is disabled' do
-            before do
-              stub_feature_flags(ci_check_needs_processing_using_new_status_collection: false)
-            end
-
-            it 'does not reschedule the worker because post-processing pipeline.needs_processing? is false' do
-              expect(PipelineProcessWorker).not_to receive(:perform_async)
-
-              process_pipeline
-            end
-          end
         end
 
         context 'and @new_collection.processing_jobs.any? is false' do
@@ -1398,18 +1386,6 @@ RSpec.describe Ci::PipelineProcessing::AtomicProcessingService, feature_category
             expect(PipelineProcessWorker).not_to receive(:perform_async)
 
             process_pipeline
-          end
-
-          context 'when FF `ci_check_needs_processing_using_new_status_collection` is disabled' do
-            before do
-              stub_feature_flags(ci_check_needs_processing_using_new_status_collection: false)
-            end
-
-            it 'reschedules the worker because post-processing pipeline.needs_processing? is true' do
-              expect(PipelineProcessWorker).to receive(:perform_async).with(pipeline.id).once
-
-              process_pipeline
-            end
           end
         end
       end

@@ -10,7 +10,7 @@ module RapidDiffs
     attr_reader :presenter
 
     delegate :diffs_stream_url, :reload_stream_url, :diffs_stats_endpoint, :diff_files_endpoint, :diff_file_endpoint,
-      :sorted?, :diffs_slice, :lazy?, :environment, :linked_file, to: :presenter
+      :sorted?, :diffs_slice, :lazy?, :environment, :linked_file, :diff_collection, :empty_state_type, to: :presenter
 
     delegate :diff_view, to: :helpers
 
@@ -18,13 +18,6 @@ module RapidDiffs
       @presenter = presenter
       @extra_app_data = extra_app_data
       @extra_prefetch_endpoints = extra_prefetch_endpoints
-    end
-
-    def diff_collection
-      return [linked_file] if linked_file
-
-      result = diffs_slice || []
-      file_by_file_mode? ? result.first(1) : result
     end
 
     def parallel_view?
@@ -76,7 +69,7 @@ module RapidDiffs
     end
 
     def empty_state_visible?
-      empty_state? || (!diffs_stream_url && !lazy? && diff_collection.empty?)
+      !lazy? && (empty_state? || empty_state_type)
     end
 
     def browser_visible?

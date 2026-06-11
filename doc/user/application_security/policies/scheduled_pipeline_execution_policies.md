@@ -298,6 +298,10 @@ This setting applies only to Security Policy Bot users and can be enabled on any
 1. In **Security policy bot access**, select
    **Allow security policy bots to access CI/CD configuration files in this project**.
 1. In **Allowed file patterns**, add one or more glob patterns to specify the files that bots can access, separated by commas.
+1. Optional. In **Allowed group**, select a group to allow only security policy bots from projects
+   in that group to access CI/CD configuration files.
+
+   If not specified, bots from any project in the root ancestor group can access the files.
 1. Select **Save changes**.
 
 The glob patterns for the allowed files must match the paths specified in the `include:file:` value. For example:
