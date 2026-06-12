@@ -48,8 +48,6 @@ To create a feature release note:
 > [!note]
 > All release notes should be merged by 23:59 UTC on the Friday before the release day to be included in the appropriate release.
 
-If your item is primary, review the instructions for What's new.
-
 ## Edit or remove a feature release note
 
 If you need to update or entirely remove a feature release note, make a merge request with the requested changes,

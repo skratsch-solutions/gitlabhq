@@ -238,6 +238,12 @@ module API
           Feature.enabled?(:job_router, runner.owner&.root_ancestor)
         end
 
+        def ensure_job_router_enabled_for_runner!(runner)
+          return if ::Gitlab::Kas.enabled? && job_router_enabled?(runner)
+
+          render_api_error!('Job Router is not available. Please contact your administrator.', 501)
+        end
+
         private
 
         # rubocop:disable Gitlab/AvoidCurrentOrganization -- Runner API does not go

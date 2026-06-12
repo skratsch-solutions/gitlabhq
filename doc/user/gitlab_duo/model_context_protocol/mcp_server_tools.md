@@ -181,6 +181,12 @@ Show me all jobs in pipeline 12345 for project gitlab-org/gitlab
 
 ## `get_job_log`
 
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/596588) in GitLab 19.1.
+
+{{< /history >}}
+
 Retrieves the trace (log output) for a specific CI/CD job.
 
 | Parameter | Type    | Required | Description |

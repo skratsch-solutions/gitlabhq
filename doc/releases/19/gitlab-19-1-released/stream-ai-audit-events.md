@@ -6,6 +6,7 @@ stage: software_supply_chain_security
 documentation_link: "../../../administration/compliance/audit_event_streaming/#ai-audit-event-streaming"
 work_item: https://gitlab.com/gitlab-org/gitlab/-/work_items/596268
 categories: [ Audit Events ]
+ignore_in_report: true
 ---
 
 <!-- categories: Audit Events -->

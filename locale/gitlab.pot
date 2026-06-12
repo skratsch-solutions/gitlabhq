@@ -21956,7 +21956,13 @@ msgstr ""
 msgid "ContinuousDeployment|%{applicationCount} applications across %{groupCount} groups"
 msgstr ""
 
+msgid "ContinuousDeployment|%{environmentsCount} of %{totalEnvironmentsCount} environments"
+msgstr ""
+
 msgid "ContinuousDeployment|All"
+msgstr ""
+
+msgid "ContinuousDeployment|All types"
 msgstr ""
 
 msgid "ContinuousDeployment|Applications"
@@ -21974,13 +21980,34 @@ msgstr ""
 msgid "ContinuousDeployment|Environments"
 msgstr ""
 
+msgid "ContinuousDeployment|Environments are places where code gets deployed, such as staging or production."
+msgstr ""
+
 msgid "ContinuousDeployment|Filter applications..."
+msgstr ""
+
+msgid "ContinuousDeployment|Filter environments..."
+msgstr ""
+
+msgid "ContinuousDeployment|Get started with environments"
 msgstr ""
 
 msgid "ContinuousDeployment|New application"
 msgstr ""
 
+msgid "ContinuousDeployment|Production"
+msgstr ""
+
+msgid "ContinuousDeployment|Register environment"
+msgstr ""
+
+msgid "ContinuousDeployment|Register your first environment"
+msgstr ""
+
 msgid "ContinuousDeployment|Running"
+msgstr ""
+
+msgid "ContinuousDeployment|Staging"
 msgstr ""
 
 msgid "Contribute to GitLab"

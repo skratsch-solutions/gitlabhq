@@ -187,6 +187,7 @@ module API
 
       resource :jobs do
         helpers ::API::Helpers::RateLimiter
+        helpers ::API::Ci::Helpers::JobRequest
 
         before { set_application_context }
 
@@ -202,27 +203,7 @@ module API
           tags ['jobs']
         end
         params do
-          requires :token, type: String, desc: "Runner's authentication token"
-          optional :system_id, type: String, desc: "Runner's system identifier"
-          optional :last_update, type: String, desc: "Runner's queue last_update token"
-          optional :info, type: Hash, desc: "Runner's metadata" do
-            optional :name, type: String, desc: "Runner's name"
-            optional :version, type: String, desc: "Runner's version"
-            optional :revision, type: String, desc: "Runner's revision"
-            optional :platform, type: String, desc: "Runner's platform"
-            optional :architecture, type: String, desc: "Runner's architecture"
-            optional :executor, type: String, desc: "Runner's executor"
-            optional :features, type: Hash, desc: "Runner's features"
-            optional :config, type: Hash, desc: "Runner's config" do
-              optional :gpus, type: String, desc: 'GPUs enabled'
-            end
-            optional :labels, type: Hash, desc: "Runner's labels"
-          end
-          optional :session, type: Hash, desc: "Runner's session data" do
-            optional :url, type: String, desc: "Session's url"
-            optional :certificate, type: String, desc: "Session's certificate"
-            optional :authorization, type: String, desc: "Session's authorization"
-          end
+          use :request_job_params
         end
 
         # Since we serialize the build output ourselves to ensure Gitaly
@@ -244,37 +225,10 @@ module API
 
           authenticate_runner!(creation_state: :finished)
 
-          unless current_runner.active?
-            header 'X-GitLab-Last-Update', current_runner.ensure_runner_queue_value
-            break no_content!
-          end
+          result = acquire_ci_job!(declared_params(include_missing: false))
 
-          runner_params = declared_params(include_missing: false)
-
-          if current_runner.runner_queue_value_latest?(runner_params[:last_update])
-            header 'X-GitLab-Last-Update', runner_params[:last_update]
-            Gitlab::Metrics.add_event(:build_not_found_cached)
-            break no_content!
-          end
-
-          new_update = current_runner.ensure_runner_queue_value
-          result = ::Ci::RegisterJobService.new(current_runner, current_runner_manager).execute(runner_params)
-
-          if result.valid?
-            if result.build_json
-              Gitlab::Metrics.add_event(:build_found)
-              env['api.format'] = :build_json
-              body result.build_json
-            else
-              Gitlab::Metrics.add_event(:build_not_found)
-              header 'X-GitLab-Last-Update', new_update
-              no_content!
-            end
-          else
-            # We received build that is invalid due to concurrency conflict
-            Gitlab::Metrics.add_event(:build_invalid)
-            conflict!
-          end
+          env['api.format'] = :build_json
+          body result.build_json
         end
 
         desc 'Update a job' do

@@ -3393,6 +3393,7 @@ incompatible with personal access tokens.
 | `GET` | `/internal/ci/agents/runner/info` | Kubernetes agent JWT |
 | `GET` | `/internal/ci/agents/runnerc/info` | Kubernetes agent JWT |
 | `PUT` | `/internal/ci/job_router/jobs/:id` | CI job token |
+| `POST` | `/internal/ci/job_router/jobs/request` | Kubernetes agent JWT |
 | `GET` | `/internal/ci/job_router/runner_controllers/job_admission` | Kubernetes agent JWT |
 | `POST` | `/internal/dast/site_validations/:id/transition` | CI job token |
 | `GET` | `/internal/discover` | GitLab Shell token |

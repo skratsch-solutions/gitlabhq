@@ -2,6 +2,7 @@
 title: Model selection allowlist
 offering: [ gitlab_com, self_managed, gitlab_dedicated ]
 tier: [ Premium, Ultimate ]
+stage: ai-powered
 documentation_link: "../../user/duo_agent_platform/model_selection/#select-a-model-for-a-feature"
 work_item: https://gitlab.com/groups/gitlab-org/-/work_items/22028
 categories: [ Duo Agent Platform ]
