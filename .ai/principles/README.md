@@ -147,9 +147,10 @@ Compensating controls for the SA-as-invoker shape:
   protected `master` ref.
 - The SA holds Developer role on `gitlab-org/gitlab` — it cannot push
   to `master` directly.
-- Auto-MRs target `master` and currently require ≥1 approval from one
-  of four AI-tooling CODEOWNERS. Routing approvals to the per-domain
-  SSOT-owning teams is tracked as a follow-up; see [Reviewing
+- Auto-MRs target `master`. The weekly sync fans out into one MR per
+  SSOT-owning team (plus a separate tooling MR for the global routing
+  tables); per-file CODEOWNERS rules route each MR's approval to the
+  team that owns the corresponding SSOT doc. See [Reviewing
   auto-generated MRs](#reviewing-auto-generated-mrs).
 
 Revisit this design when DAP supports non-human-bound principals.
@@ -186,9 +187,12 @@ Sync MRs are labelled `ai-agent` and `documentation`. They are not
 auto-merged — a human must verify that the distilled changes faithfully
 reflect the source-doc updates before merging.
 
-CODEOWNERS coverage applies through the `/.ai/` and
-`/gems/gitlab-ai-principles-distiller/` entries in
-[`.gitlab/CODEOWNERS`](../../.gitlab/CODEOWNERS).
+Each per-team MR's approval is routed to the SSOT-owning team via the
+generated per-file rules in
+[`.gitlab/CODEOWNERS`](../../.gitlab/CODEOWNERS) (see [Manifest
+schema](#manifest-schema)). The separate tooling MR, which carries only
+the global routing tables (AGENTS.md, CLAUDE.md, SKILL.md), falls back
+to the broad `/.ai/` and `/.claude/` AI-harness owners.
 
 ## Running the sync locally
 
@@ -253,6 +257,46 @@ The Workflow API runs the agent server-side from the **pushed** state of
 the configured `source_branch`. If you have local edits that haven't been
 pushed, the catalog agent will not see them. Push your branch (or commit
 to it) before triggering a distillation.
+
+## Manifest schema
+
+Each entry under `principles:` in
+[`manifest.yml`](manifest.yml) supports these fields:
+
+- `description` (required) — one-line summary used in the AGENTS.md /
+  SKILL.md routing tables.
+- `sources` (required) — list of SSOT doc paths (`path`, `url`) the
+  principle is distilled from.
+- `owner_team` (required) — the CODEOWNERS handle of the team that owns
+  the SSOT doc(s). This is the axis the weekly sync fans out by: each
+  per-team MR touches only that team's distilled files, and a generated
+  per-file CODEOWNERS rule routes the approval to this team. May be a
+  group handle (`@gitlab-org/maintainers/database`) or one or more
+  individuals (`@abdwdd @alexpooley`) when no group handle exists.
+- `secondary_teams` (optional) — additional CODEOWNERS handles to
+  mention in a "Request a review from" section of the MR description,
+  for SSOT docs whose changes also concern another team. The primary
+  `owner_team` still owns the approval; secondary teams are notified,
+  not required.
+- `team_slug` (optional) — branch/title suffix for the per-team MR.
+  Defaults to the last path segment of `owner_team` (e.g.
+  `@gitlab-org/maintainers/database` → `database`). Set it explicitly
+  when that segment is generic and would **collide** across teams — for
+  example `.../authentication/approvers` and `.../authorization/approvers`
+  both end in `approvers`, so they declare `authentication` and
+  `authorization` respectively. Also set it for individual-handle owners
+  (e.g. `qa`).
+- `group` (optional) — display grouping in the routing tables only; it
+  does **not** affect approval routing (that is `owner_team`).
+- `prerequisite`, `file_filters`, `baseline` — see existing entries.
+
+The per-file CODEOWNERS rules are **generated** from `owner_team` /
+`secondary_teams` into a managed block in
+[`.gitlab/CODEOWNERS`](../../.gitlab/CODEOWNERS) (delimited by
+`# BEGIN/END GENERATED: gitlab-ai-principles-distiller`), inserted right
+after the broad `/.ai/` rule so CODEOWNERS last-match-wins routes each
+file to its owning team. Do not edit that block by hand; re-run the sync
+(or the static-artifact regeneration) to refresh it.
 
 ## Modifying principles
 

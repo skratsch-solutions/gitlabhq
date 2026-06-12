@@ -26,6 +26,7 @@ principles:
   database-fundamentals:
     description: Database fundamentals (model queries, batching, sharding, partitioning, N+1)
     group: Database
+    owner_team: '@gitlab-org/maintainers/database'
     prerequisite: true
     file_filters:
       - 'db/**/*'
@@ -42,6 +43,7 @@ principles:
   database-migrations:
     description: Database migration patterns and zero-downtime safety
     group: Database
+    owner_team: '@gitlab-org/maintainers/database'
     file_filters:
       - 'db/migrate/**/*.rb'
       - 'db/post_migrate/**/*.rb'
@@ -62,6 +64,7 @@ principles:
   database-schema:
     description: Column types, constraints, indexes, naming conventions
     group: Database
+    owner_team: '@gitlab-org/maintainers/database'
     file_filters:
       - 'db/structure.sql'
       - 'db/schema_migrations/**/*'
@@ -95,6 +98,7 @@ principles:
   database-queries:
     description: SQL performance, transactions, batching
     group: Database
+    owner_team: '@gitlab-org/maintainers/database'
     file_filters:
       - 'app/models/**/*.rb'
       - 'app/finders/**/*.rb'
@@ -127,6 +131,7 @@ principles:
   clickhouse:
     description: ClickHouse database concerns
     group: Database
+    owner_team: '@gitlab-org/maintainers/clickhouse'
     file_filters:
       - 'db/siphon/**/*'
       - 'ee/app/models/click_house/**/*.rb'
@@ -143,6 +148,11 @@ principles:
   cells-fundamentals:
     description: Cells architecture sharding keys, organization data ownership, routable requests, and cell isolation when adding tables or customer-owned resources
     group: Cells
+    # Owns /doc/development/cells/ (the SSOT). @gitlab-org/tenant-scale-group
+    # is archived (not an eligible CODEOWNERS approver), so use the verified
+    # individual owner of those docs instead.
+    owner_team: '@bmarjanovic'
+    team_slug: cells
     prerequisite: true
     file_filters:
       - 'db/docs/**/*.yml'
@@ -158,6 +168,10 @@ principles:
   cells-claims:
     description: Cells globally-unique attribute claims (Cells::Claimable), claim rollout lifecycle, and feature flags for cross-cell uniqueness
     group: Cells
+    # See cells-fundamentals: tenant-scale-group is archived; use the verified
+    # SSOT-doc owner instead.
+    owner_team: '@bmarjanovic'
+    team_slug: cells
     file_filters:
       - 'app/models/**/*.rb'
       - 'ee/app/models/**/*.rb'
@@ -170,6 +184,7 @@ principles:
   security:
     description: Security vulnerabilities and secure coding
     group: Security
+    owner_team: '@gitlab-com/gl-security/appsec'
     file_filters:
       - '**/*'
     sources:
@@ -189,6 +204,10 @@ principles:
   authentication:
     description: Authentication, authorization, token handling, OAuth, SAML, identity linking, composite identity, session management, 2FA, MFA, password management
     group: Security
+    owner_team: '@gitlab-org/software-supply-chain-security/authentication/approvers'
+    team_slug: authentication
+    secondary_teams:
+      - '@gitlab-com/gl-security/appsec'
     file_filters:
       - 'app/controllers/**/*.rb'
       - 'app/services/**/*.rb'
@@ -208,6 +227,8 @@ principles:
   permissions-fundamentals:
     description: Where to check permissions, naming conventions, role definitions
     group: Permissions
+    owner_team: '@gitlab-org/software-supply-chain-security/authorization/approvers'
+    team_slug: authorization
     prerequisite: true
     file_filters:
       - 'app/policies/**/*.rb'
@@ -234,6 +255,8 @@ principles:
   permissions-graphql-gpat:
     description: Granular PAT (GPAT) compliance for GraphQL types and mutations
     group: Permissions
+    owner_team: '@gitlab-org/software-supply-chain-security/authorization/approvers'
+    team_slug: authorization
     file_filters:
       - 'app/graphql/**/*.rb'
       - 'ee/app/graphql/**/*.rb'
@@ -254,6 +277,8 @@ principles:
   permissions-rest-gpat:
     description: Granular PAT (GPAT) compliance for REST endpoints and job tokens
     group: Permissions
+    owner_team: '@gitlab-org/software-supply-chain-security/authorization/approvers'
+    team_slug: authorization
     file_filters:
       - 'lib/api/**/*.rb'
       - 'ee/lib/api/**/*.rb'
@@ -276,6 +301,7 @@ principles:
   code-review:
     description: General code review practices and acceptance checklist
     group: Code Review
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     file_filters:
       - '**/*'
     sources:
@@ -287,6 +313,7 @@ principles:
   backend-ruby:
     description: Ruby/Rails style, logging, common pitfalls
     group: Backend
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     prerequisite: true
     file_filters:
       - 'app/**/*.rb'
@@ -331,6 +358,7 @@ principles:
   backend-architecture:
     description: Service patterns, abstractions, design conventions
     group: Backend
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     file_filters:
       - 'app/services/**/*.rb'
       - 'app/finders/**/*.rb'
@@ -356,6 +384,7 @@ principles:
   backend-ee:
     description: EE/CE separation, licensing, code placement
     group: Backend
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     file_filters:
       - 'ee/**/*.rb'
     sources:
@@ -367,6 +396,12 @@ principles:
   rest-api:
     description: REST API design and conventions
     group: API
+    # The DevEx: API Platform team. Individuals rather than the
+    # @gitlab-org/quality/api-platform group handle, because that subgroup
+    # inherits ~1200 members from the gitlab-org/quality ancestry, which
+    # would make approval far broader than the team itself.
+    owner_team: '@mwoolf @cfeick @vwolanyk @abignotti'
+    team_slug: api-platform
     file_filters:
       - 'lib/api/**/*.rb'
       - 'ee/lib/api/**/*.rb'
@@ -381,6 +416,11 @@ principles:
   graphql:
     description: GraphQL API design and conventions
     group: API
+    # DevEx: API Platform team (see rest-api note on why individuals).
+    owner_team: '@mwoolf @cfeick @vwolanyk @abignotti'
+    team_slug: api-platform
+    secondary_teams:
+      - '@gitlab-org/graphql-experts'
     file_filters:
       - 'app/graphql/**/*.rb'
       - 'ee/app/graphql/**/*.rb'
@@ -403,6 +443,7 @@ principles:
   workers:
     description: Sidekiq worker design and reliability
     group: Workers
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     file_filters:
       - 'app/workers/**/*.rb'
       - 'ee/app/workers/**/*.rb'
@@ -425,6 +466,7 @@ principles:
   cicd-internals:
     description: GitLab CI/CD internals — adding pipeline configuration keywords (Ci::Config::Entry classes, feature-flag gating, JSON schema) and creating CI routing/partitioned tables. NOTE this is about GitLab's own CI implementation, not authoring a project's .gitlab-ci.yml
     group: CI/CD
+    owner_team: '@gitlab-org/maintainers/cicd-verify'
     file_filters:
       - 'lib/gitlab/ci/**/*.rb'
       - 'ee/lib/gitlab/ci/**/*.rb'
@@ -441,6 +483,7 @@ principles:
   frontend-vue:
     description: Vue.js components, state management, patterns
     group: Frontend
+    owner_team: '@gitlab-org/maintainers/frontend'
     prerequisite: true
     file_filters:
       - 'app/assets/javascripts/**/*.vue'
@@ -472,6 +515,7 @@ principles:
   frontend-style:
     description: CSS/SCSS, Tailwind, dark mode
     group: Frontend
+    owner_team: '@gitlab-org/maintainers/frontend'
     file_filters:
       - 'app/assets/stylesheets/**/*.scss'
       - 'ee/app/assets/stylesheets/**/*.scss'
@@ -487,6 +531,7 @@ principles:
   frontend-haml:
     description: HAML templates, ViewComponents, Pajamas
     group: Frontend
+    owner_team: '@gitlab-org/maintainers/frontend'
     file_filters:
       - 'app/views/**/*.haml'
       - 'ee/app/views/**/*.haml'
@@ -499,6 +544,7 @@ principles:
   frontend-a11y:
     description: Frontend accessibility patterns and requirements
     group: Frontend
+    owner_team: '@gitlab-org/maintainers/frontend'
     file_filters:
       - 'app/assets/javascripts/**/*.vue'
       - 'app/views/**/*.haml'
@@ -515,6 +561,8 @@ principles:
   qa-rspec:
     description: RSpec patterns, factories, shared examples
     group: Testing
+    owner_team: '@abdwdd @alexpooley'
+    team_slug: qa
     file_filters:
       - 'spec/**/*_spec.rb'
       - 'ee/spec/**/*_spec.rb'
@@ -535,6 +583,9 @@ principles:
   qa-jest:
     description: Jest, jsdom, Vue Test Utils patterns
     group: Testing
+    owner_team: '@gitlab-org/maintainers/frontend'
+    secondary_teams:
+      - '@abdwdd @alexpooley'
     file_filters:
       - 'spec/frontend/**/*'
       - 'ee/spec/frontend/**/*'
@@ -547,6 +598,7 @@ principles:
   performance:
     description: Performance and scalability
     group: Performance
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     file_filters:
       - 'app/**/*.rb'
       - 'ee/app/**/*.rb'
@@ -559,6 +611,7 @@ principles:
   documentation:
     description: Documentation style and completeness
     group: Documentation
+    owner_team: '@gitlab-org/technical-writing/tw-docops'
     file_filters:
       - 'doc/**/*.md'
       - 'locale/**/*'
@@ -572,6 +625,7 @@ principles:
   feature-flags:
     description: Feature flag usage and lifecycle
     group: Feature Flags
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     file_filters:
       - 'config/feature_flags/**/*.yml'
       - 'ee/config/feature_flags/**/*.yml'
@@ -583,6 +637,10 @@ principles:
   analytics:
     description: Analytics instrumentation and metrics
     group: Analytics
+    owner_team: '@gitlab-org/analytics-section/analytics-instrumentation/engineers'
+    team_slug: analytics-instrumentation
+    secondary_teams:
+      - '@gitlab-org/analytics-section/product-analytics/engineers/frontend'
     file_filters:
       - 'config/events/**/*.yml'
       - 'config/metrics/**/*.yml'

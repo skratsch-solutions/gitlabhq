@@ -3,6 +3,9 @@
 module Gitlab
   module Observability
     module CicdSemconv
+      # Shared value mappings for OTel CI/CD Semantic Conventions.
+      # Ref: https://opentelemetry.io/docs/specs/semconv/registry/attributes/cicd/
+
       PIPELINE_RESULT_MAP = {
         "success" => "success",
         "failed" => "failure",
@@ -46,6 +49,12 @@ module Gitlab
         "skipped" => "skip",
         "canceled" => "cancellation"
       }.freeze
+      MR_STATE_MAP = {
+        "opened" => "open",
+        "closed" => "closed",
+        "merged" => "merged",
+        "locked" => "wip"
+      }.freeze
 
       def map_task_run_result(status)
         TASK_RUN_RESULT_MAP[status]
@@ -69,6 +78,14 @@ module Gitlab
 
       def map_pipeline_task_type(stage)
         PIPELINE_TASK_TYPE_MAP[stage]
+      end
+
+      def map_worker_state(active)
+        active ? "available" : "offline"
+      end
+
+      def map_mr_state(state)
+        MR_STATE_MAP[state]
       end
 
       def compact_attributes(attrs)

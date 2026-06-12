@@ -7780,9 +7780,6 @@ msgstr ""
 msgid "AgentArtifacts|Agent audit events"
 msgstr ""
 
-msgid "AgentArtifacts|Agent can't edit/create files without HITL"
-msgstr ""
-
 msgid "AgentArtifacts|Agent output"
 msgstr ""
 
@@ -7798,9 +7795,6 @@ msgstr ""
 msgid "AgentArtifacts|Close"
 msgstr ""
 
-msgid "AgentArtifacts|Control:"
-msgstr ""
-
 msgid "AgentArtifacts|Created after"
 msgstr ""
 
@@ -7808,12 +7802,6 @@ msgid "AgentArtifacts|Created before"
 msgstr ""
 
 msgid "AgentArtifacts|Details"
-msgstr ""
-
-msgid "AgentArtifacts|EU AI Act"
-msgstr ""
-
-msgid "AgentArtifacts|EU-AI-14.4: Human Oversight over high-risk artificial intelligence systems."
 msgstr ""
 
 msgid "AgentArtifacts|Event type"
@@ -7829,12 +7817,6 @@ msgid "AgentArtifacts|Failed to load projects."
 msgstr ""
 
 msgid "AgentArtifacts|Filter agent artifacts"
-msgstr ""
-
-msgid "AgentArtifacts|Framework:"
-msgstr ""
-
-msgid "AgentArtifacts|Go to settings"
 msgstr ""
 
 msgid "AgentArtifacts|IP address"
@@ -7853,9 +7835,6 @@ msgid "AgentArtifacts|No details available for this event."
 msgstr ""
 
 msgid "AgentArtifacts|Project"
-msgstr ""
-
-msgid "AgentArtifacts|Requirement:"
 msgstr ""
 
 msgid "AgentArtifacts|Session"
@@ -7894,9 +7873,6 @@ msgstr ""
 msgid "AgentArtifacts|View full session details"
 msgstr ""
 
-msgid "AgentArtifacts|Violation"
-msgstr ""
-
 msgid "AgentPlan|Are you sure you want to delete this workplan? This action cannot be undone."
 msgstr ""
 
@@ -7918,7 +7894,7 @@ msgstr ""
 msgid "AgentPlan|Edit"
 msgstr ""
 
-msgid "AgentPlan|Generate with GitLab Duo"
+msgid "AgentPlan|Generate workplan"
 msgstr ""
 
 msgid "AgentPlan|More options"
@@ -7936,7 +7912,7 @@ msgstr ""
 msgid "AgentPlan|Ready to view"
 msgstr ""
 
-msgid "AgentPlan|Regenerate workplan with Duo"
+msgid "AgentPlan|Regenerate workplan"
 msgstr ""
 
 msgid "AgentPlan|Select workplan template"
@@ -27711,10 +27687,13 @@ msgstr ""
 msgid "DuoAgentPlatform|Image registry"
 msgstr ""
 
-msgid "DuoAgentPlatform|Implement with GitLab Duo"
+msgid "DuoAgentPlatform|Implement work item"
 msgstr ""
 
 msgid "DuoAgentPlatform|Implement work item with GitLab Duo"
+msgstr ""
+
+msgid "DuoAgentPlatform|Implement workplan"
 msgstr ""
 
 msgid "DuoAgentPlatform|Job IDs"
@@ -66435,6 +66414,12 @@ msgstr ""
 msgid "SecurityConfiguration|Not enabled"
 msgstr ""
 
+msgid "SecurityConfiguration|On-demand DAST scan"
+msgstr ""
+
+msgid "SecurityConfiguration|On-demand DAST validation"
+msgstr ""
+
 msgid "SecurityConfiguration|Once you've enabled a scan for the default branch, any subsequent feature branch you create will include the scan. An enabled scanner will not be reflected as such until the pipeline has been successfully executed and it has generated valid artifacts."
 msgstr ""
 
@@ -66442,6 +66427,9 @@ msgid "SecurityConfiguration|Only security managers, maintainers, and owners can
 msgstr ""
 
 msgid "SecurityConfiguration|Other scanner types, including DAST, Container Scanning, and IaC, can be configured via security policies or at the project level."
+msgstr ""
+
+msgid "SecurityConfiguration|Pipeline execution policy"
 msgstr ""
 
 msgid "SecurityConfiguration|Preview profile"
@@ -66494,6 +66482,9 @@ msgstr ""
 msgid "SecurityConfiguration|SAST configuration"
 msgstr ""
 
+msgid "SecurityConfiguration|Scan execution policy"
+msgstr ""
+
 msgid "SecurityConfiguration|Scanner"
 msgstr ""
 
@@ -66509,6 +66500,9 @@ msgstr ""
 msgid "SecurityConfiguration|Scanners enabled"
 msgstr ""
 
+msgid "SecurityConfiguration|Scheduled pipeline execution policy"
+msgstr ""
+
 msgid "SecurityConfiguration|Secret detection configuration"
 msgstr ""
 
@@ -66519,6 +66513,12 @@ msgid "SecurityConfiguration|Security configuration"
 msgstr ""
 
 msgid "SecurityConfiguration|Security configuration uses merge requests to change the `.gitlab-ci.yml` file. Enable merge requests for this project if you are a maintainer, or ask a maintainer to do this for you."
+msgstr ""
+
+msgid "SecurityConfiguration|Security orchestration policy"
+msgstr ""
+
+msgid "SecurityConfiguration|Security scan profile"
 msgstr ""
 
 msgid "SecurityConfiguration|Security scanning is rolling out"
@@ -66609,6 +66609,9 @@ msgid "SecurityConfiguration|Vulnerability archives"
 msgstr ""
 
 msgid "SecurityConfiguration|Warning"
+msgstr ""
+
+msgid "SecurityConfiguration|YAML configuration"
 msgstr ""
 
 msgid "SecurityConfiguration|Your configuration has been applied and is rolling out to projects in batches. Profiles will be applied to %{strongStart}%{itemCount}%{strongEnd} as each batch completes — this may take a few minutes."

@@ -73,28 +73,6 @@ RSpec.describe Ci::StuckBuilds::DropRunningService, feature_category: :continuou
 
   include_examples 'running builds'
 
-  context 'when the ci_lower_stuck_build_timeouts flag is disabled' do
-    let(:status) { 'running' }
-
-    before do
-      stub_feature_flags(ci_lower_stuck_build_timeouts: false)
-    end
-
-    context 'when idle past the new timeout but within the old one' do
-      let(:created_at) { 45.minutes.ago }
-      let(:updated_at) { 45.minutes.ago }
-
-      it_behaves_like 'job is unchanged'
-    end
-
-    context 'when idle beyond the old timeout' do
-      let(:created_at) { (described_class::OLD_BUILD_RUNNING_OUTDATED_TIMEOUT + 30.minutes).ago }
-      let(:updated_at) { (described_class::OLD_BUILD_RUNNING_OUTDATED_TIMEOUT + 30.minutes).ago }
-
-      it_behaves_like 'job is dropped with failure reason', 'no_updates_running'
-    end
-  end
-
   context 'when job is not running' do
     let!(:job) do
       create(:ci_build, runner: runner, created_at: created_at, updated_at: updated_at, status: status)

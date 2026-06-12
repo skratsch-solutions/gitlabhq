@@ -486,10 +486,14 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       )
 
       # Drive the real grouping logic from a minimal manifest fixture so
-      # team/branch derivation is exercised end-to-end.
+      # team/branch derivation is exercised end-to-end. owner_team is the
+      # fan-out grouping key; team_slug gives a readable branch/title suffix.
       sync.manifest.data = {
         'principles' => {
-          'qa' => { 'group' => 'Testing', 'sources' => [{ 'path' => 'doc/development/qa.md' }] }
+          'qa' => {
+            'owner_team' => '@abdwdd @alexpooley', 'team_slug' => 'qa',
+            'sources' => [{ 'path' => 'doc/development/qa.md' }]
+          }
         }
       }
       allow(sync.manifest).to receive(:principles_path) { |n| ".ai/principles/distilled/#{n}.md" }
@@ -544,8 +548,14 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       before do
         sync.manifest.data = {
           'principles' => {
-            'qa' => { 'group' => 'Testing', 'sources' => [{ 'path' => 'doc/development/qa.md' }] },
-            'security' => { 'group' => 'Security', 'sources' => [{ 'path' => 'doc/development/secure.md' }] }
+            'qa' => {
+              'owner_team' => '@abdwdd @alexpooley', 'team_slug' => 'qa',
+              'sources' => [{ 'path' => 'doc/development/qa.md' }]
+            },
+            'security' => {
+              'owner_team' => '@gitlab-com/gl-security/appsec',
+              'sources' => [{ 'path' => 'doc/development/secure.md' }]
+            }
           }
         }
       end
@@ -566,19 +576,19 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         expect(sync.workflow).to have_received(:post_json).exactly(3).times
       end
 
-      it 'gives each team MR a team-suffixed title and scoped content', :aggregate_failures do
+      it 'gives each team MR an owner_team-suffixed title and scoped content', :aggregate_failures do
         bodies = capture_all_bodies
         create_branch_and_mr
         titles = bodies.map { |b| b[:title] }
 
         expect(titles).to include(
-          a_string_ending_with('— Testing'),
-          a_string_ending_with('— Security'),
+          a_string_ending_with('— @abdwdd @alexpooley'),
+          a_string_ending_with('— @gitlab-com/gl-security/appsec'),
           a_string_ending_with('— tooling')
         )
 
-        testing = bodies.find { |b| b[:title].end_with?('— Testing') }
-        security = bodies.find { |b| b[:title].end_with?('— Security') }
+        testing = bodies.find { |b| b[:title].end_with?('— @abdwdd @alexpooley') }
+        security = bodies.find { |b| b[:title].end_with?('— @gitlab-com/gl-security/appsec') }
 
         expect(testing[:description]).to include('#### `qa`')
         expect(testing[:description]).not_to include('#### `security`')
@@ -586,7 +596,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         expect(security[:description]).not_to include('#### `qa`')
       end
 
-      it 'pushes a distinct per-team branch for each team', :aggregate_failures do
+      it 'pushes a distinct per-team branch using each team slug', :aggregate_failures do
         today = Time.now.utc.strftime('%Y%m%d')
         pushed = []
         allow(sync).to receive(:system) do |*args, **|
@@ -596,10 +606,51 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         create_branch_and_mr
 
         expect(pushed).to include(
-          "docs-sync/principles-#{today}-testing:docs-sync/principles-#{today}-testing",
-          "docs-sync/principles-#{today}-security:docs-sync/principles-#{today}-security",
+          "docs-sync/principles-#{today}-qa:docs-sync/principles-#{today}-qa",
+          "docs-sync/principles-#{today}-appsec:docs-sync/principles-#{today}-appsec",
           "docs-sync/principles-#{today}-tooling:docs-sync/principles-#{today}-tooling"
         )
+      end
+    end
+
+    context 'when an MR has principles with secondary teams' do
+      let(:distilled_contents) do
+        { 'authentication' => "---\nsource_checksum: a\n---\n# Auth\n" }
+      end
+
+      let(:affected) do
+        {
+          'authentication' => {
+            config: { 'sources' => [{ 'path' => 'doc/development/authentication.md' }] },
+            changed_sources: [{ 'path' => 'doc/development/authentication.md' }], prior_sha: nil
+          }
+        }
+      end
+
+      before do
+        sync.manifest.data = {
+          'principles' => {
+            'authentication' => {
+              'owner_team' => '@a/authn', 'team_slug' => 'authentication',
+              'secondary_teams' => ['@gitlab-com/gl-security/appsec'],
+              'sources' => [{ 'path' => 'doc/development/authentication.md' }]
+            }
+          }
+        }
+      end
+
+      it 'lists the secondary teams in a "Request a review from" section', :aggregate_failures do
+        # Capture the team (non-tooling) MR body.
+        captured = nil
+        allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
+          captured = body unless body[:title].to_s.end_with?('tooling')
+          mock_response
+        end
+
+        create_branch_and_mr
+
+        expect(captured[:description]).to include('Request a review from')
+        expect(captured[:description]).to include('@gitlab-com/gl-security/appsec')
       end
     end
 
@@ -621,7 +672,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         create_branch_and_mr
 
         # Exactly the team MR; the tooling MR is skipped (no staged changes).
-        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_ending_with('— Testing'))
+        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_ending_with('— @abdwdd @alexpooley'))
       end
     end
 
@@ -756,7 +807,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       it 'applies auto_mr_cfg values to the MR title (with team suffix), labels, and flag', :aggregate_failures do
         today = Time.now.utc.strftime('%Y%m%d')
 
-        expect(received_body[:title]).to eq("Custom title #{today} — Testing")
+        expect(received_body[:title]).to eq("Custom title #{today} — @abdwdd @alexpooley")
         expect(received_body[:labels]).to eq('label-a,label-b')
         expect(received_body[:remove_source_branch]).to be(false)
       end
@@ -859,10 +910,10 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
 
       it 'aborts with the aggregate failure list (team + tooling)' do
         # Assert on the final aggregate abort line specifically (not just the
-        # per-team warn, which also contains "Testing"), so the test fails if
+        # per-team warn, which also contains the owner handle), so the test fails if
         # the abort doesn't fire.
         expect { create_branch_and_mr }.to raise_error(SystemExit)
-          .and output(/MR\(s\) failed:.*Testing/).to_stderr
+          .and output(/MR\(s\) failed:.*alexpooley/).to_stderr
       end
 
       it 'attempts to check out the base branch during per-team cleanup' do
@@ -877,7 +928,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
 
         today = Time.now.utc.strftime('%Y%m%d')
         expect(sync).to have_received(:system)
-          .with('git', '-C', anything, 'branch', '-D', "docs-sync/principles-#{today}-testing")
+          .with('git', '-C', anything, 'branch', '-D', "docs-sync/principles-#{today}-qa")
       end
 
       context 'when the cleanup checkout itself fails' do

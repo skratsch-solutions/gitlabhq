@@ -44,28 +44,6 @@ RSpec.describe Ci::StuckBuilds::DropCancelingService, feature_category: :continu
 
   include_examples 'canceling builds'
 
-  context 'when the ci_lower_stuck_build_timeouts flag is disabled' do
-    let(:status) { 'canceling' }
-
-    before do
-      stub_feature_flags(ci_lower_stuck_build_timeouts: false)
-    end
-
-    context 'when idle past the new timeout but within the old one' do
-      let(:created_at) { 45.minutes.ago }
-      let(:updated_at) { 45.minutes.ago }
-
-      it_behaves_like 'job is unchanged'
-    end
-
-    context 'when idle beyond the old timeout' do
-      let(:created_at) { (described_class::OLD_TIMEOUT + 30.minutes).ago }
-      let(:updated_at) { (described_class::OLD_TIMEOUT + 30.minutes).ago }
-
-      it_behaves_like 'job is canceled'
-    end
-  end
-
   %w[success skipped failed canceled scheduled pending].each do |status|
     context "when job is #{status}" do
       let(:status) { status }

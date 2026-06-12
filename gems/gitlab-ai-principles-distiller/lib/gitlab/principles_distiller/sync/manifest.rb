@@ -15,6 +15,18 @@ module Gitlab
         CLAUDE_SKILL_DIR = '.claude/skills/gitlab-coding-principles'
         CLAUDE_SKILL_PATH = "#{CLAUDE_SKILL_DIR}/SKILL.md".freeze
         AGENTS_SKILL_PATH = '.agents/skills/gitlab-coding-principles/SKILL.md'
+        CODEOWNERS_PATH = '.gitlab/CODEOWNERS'
+
+        # Markers delimiting the gem-managed per-file CODEOWNERS block. The
+        # block is inserted right after the broad `/.ai/` rule so that, by
+        # CODEOWNERS last-match-wins, each distilled file routes approval to
+        # its SSOT-owning team rather than the broad AI-harness owners.
+        CODEOWNERS_BEGIN = '# BEGIN GENERATED: gitlab-ai-principles-distiller — do not edit manually'
+        CODEOWNERS_END = '# END GENERATED: gitlab-ai-principles-distiller'
+
+        # The broad rule the generated block must follow (and override per
+        # file). Kept in sync with .gitlab/CODEOWNERS.
+        CODEOWNERS_AI_RULE = %r{^/\.ai/ .+$}
 
         # Global, cross-cutting files regenerated from the manifest on every
         # run. They embed the full routing table for ALL principles, so SSOT
@@ -24,7 +36,8 @@ module Gitlab
           'AGENTS.md',
           'CLAUDE.md',
           AGENTS_SKILL_PATH,
-          CLAUDE_SKILL_PATH
+          CLAUDE_SKILL_PATH,
+          CODEOWNERS_PATH
         ].freeze
 
         AUTO_MR_REQUIRED_KEYS = %w[branch_prefix title_template labels remove_source_branch].freeze
@@ -87,28 +100,51 @@ module Gitlab
           File.join(PRINCIPLES_DIR, principles_filename(name))
         end
 
-        # The team-grouping label for a principle. Defaults to the `group`
-        # field; principles without a group fall back to "Other" so they
-        # still get their own MR rather than being silently dropped.
-        #
-        # TODO: `group` is an interim grouping axis. The dedicated `owner_team`
-        # field (mapping each principle to its SSOT-owning CODEOWNERS team) is
-        # tracked as Phase 2 in
-        # https://gitlab.com/gitlab-org/gitlab/-/issues/599920.
+        # The SSOT-owning CODEOWNERS team handle(s) for a principle. This is
+        # the axis the auto-MR fan-out groups by, so each per-team MR touches
+        # only files that team owns and CODEOWNERS routes the approval to the
+        # right reviewers. Required for every principle (see
+        # validate_principles!), so no fallback here.
+        def principle_owner_team(name)
+          principle_config(name)&.dig('owner_team')
+        end
+
+        # Additional teams to mention ("request a review from") in the MR
+        # description for cross-team SSOT docs. The primary owner_team gets the
+        # MR via CODEOWNERS; secondary teams are notified but not required.
+        def principle_secondary_teams(name)
+          Array(principle_config(name)&.dig('secondary_teams'))
+        end
+
+        # The team-grouping key for a principle: its owner_team handle. Used by
+        # the auto-MR fan-out and per-team branch naming.
         def principle_team(name)
-          principle_config(name)&.dig('group') || 'Other'
+          principle_owner_team(name) || 'Other'
         end
 
-        # URL/branch-safe slug derived from the team label, used as the
-        # per-team branch suffix (e.g. "Code Review" -> "code-review").
+        # URL/branch-safe slug for the per-team branch suffix. Prefers the
+        # principle's explicit `team_slug`; otherwise derives it from the
+        # owner_team handle's last path segment (e.g.
+        # "@gitlab-org/maintainers/database" -> "database"). An explicit slug
+        # is needed where the last segment is generic and would collide across
+        # teams (e.g. ".../authentication/approvers" and
+        # ".../authorization/approvers" both end in "approvers").
         #
-        # TODO: an explicit `team_slug` manifest field is deferred to Phase 2
-        # of https://gitlab.com/gitlab-org/gitlab/-/issues/599920.
-        def team_slug(team)
-          team.to_s.downcase.strip.gsub(/[^a-z0-9]+/, '-').gsub(/\A-+|-+\z/, '')
+        # Accepts either a principle name or an owner_team handle (the fan-out
+        # grouping key). Resolution order:
+        #   1. explicit `team_slug` on the principle (when given a name), or on
+        #      any principle owned by the handle (when given a handle);
+        #   2. derived from the handle's last path segment.
+        def team_slug(team_or_name)
+          explicit = principle_config(team_or_name)&.dig('team_slug') ||
+            explicit_slug_for_handle(team_or_name)
+          return slugify(explicit) if explicit
+
+          handle = principle_owner_team(team_or_name) || team_or_name
+          slugify(last_handle_segment(handle))
         end
 
-        # Groups the given principle names by team label, preserving the
+        # Groups the given principle names by owner_team handle, preserving the
         # manifest's declaration order for both teams and members.
         def group_principles_by_team(names)
           ordered = principles.keys & names.to_a
@@ -328,6 +364,35 @@ module Gitlab
             "#{static_entries.size} static entries)"
         end
 
+        # Generates the per-file CODEOWNERS rules that route each distilled
+        # file's approval to its SSOT-owning team. Emits a gem-managed block
+        # (delimited by CODEOWNERS_BEGIN/CODEOWNERS_END) inserted immediately
+        # after the broad `/.ai/` rule, so CODEOWNERS last-match-wins overrides
+        # the broad AI-harness owners on a per-file basis.
+        #
+        # Idempotent: replaces an existing managed block, or inserts one after
+        # the `/.ai/` rule on first run. Aborts if the `/.ai/` anchor is
+        # missing (the placement contract would otherwise silently break).
+        def generate_codeowners
+          path = Workspace.safe_join(CODEOWNERS_PATH)
+          unless File.exist?(path)
+            puts Rainbow("  #{CODEOWNERS_PATH} not found; skipping CODEOWNERS generation").faint
+            return
+          end
+
+          content = File.read(path)
+          block = build_codeowners_block
+          updated = replace_or_insert_codeowners_block(content, block)
+
+          if updated == content
+            puts Rainbow('  CODEOWNERS already up to date').faint
+            return
+          end
+
+          File.write(path, updated)
+          puts "  Updated #{CODEOWNERS_PATH} (#{principles.size} per-file owner rules)"
+        end
+
         # Idempotent. Updates existing notes if wording changed.
         def inject_prerequisite_notes
           principles.each_key do |name|
@@ -384,18 +449,97 @@ module Gitlab
         # Surfaces misconfigured principles at load time. Only invoked
         # from `load`; specs injecting via `data=` skip this.
         def validate_principles!
-          missing = principles.each_with_object([]) do |(name, config), bad|
-            bad << name if Array(config['sources']).empty?
+          missing_sources = []
+          missing_owner = []
+          principles.each do |name, config|
+            missing_sources << name if Array(config['sources']).empty?
+            missing_owner << name if config['owner_team'].to_s.strip.empty?
           end
-          return if missing.empty?
 
-          abort Rainbow(
-            "ERROR: manifest.yml principles missing required `sources:` entries: #{missing.join(', ')}"
-          ).red
+          errors = []
+          errors << "missing required `sources:` entries: #{missing_sources.join(', ')}" if missing_sources.any?
+
+          if missing_owner.any?
+            errors << "missing required `owner_team:` (the SSOT-owning CODEOWNERS team): #{missing_owner.join(', ')}"
+          end
+
+          team_slug_conflicts.each do |handle, slugs|
+            errors << "conflicting `team_slug:` values (#{slugs.join(', ')}) for owner_team #{handle} " \
+              '(principles sharing an owner_team must agree on the branch slug)'
+          end
+
+          return if errors.empty?
+
+          abort Rainbow("ERROR: manifest.yml principles #{errors.join('; ')}").red
+        end
+
+        # Detects principles that share an owner_team handle but declare
+        # different team_slug values. The fan-out groups by owner_team and
+        # derives one branch suffix per handle, so divergent slugs would
+        # silently drop all but the first. Returns { handle => [slugs] }.
+        def team_slug_conflicts
+          principles.values
+            .group_by { |config| config['owner_team'] }
+            .each_with_object({}) do |(handle, configs), conflicts|
+              next if handle.nil?
+
+              slugs = configs.filter_map { |config| config['team_slug'] }.uniq
+              conflicts[handle] = slugs if slugs.size > 1
+            end
         end
 
         def principles_filename(name)
           "#{name}.md"
+        end
+
+        def slugify(label)
+          label.to_s.downcase.strip.gsub(/[^a-z0-9]+/, '-').gsub(/\A-+|-+\z/, '')
+        end
+
+        # "@gitlab-org/maintainers/database" -> "database". A multi-handle
+        # owner_team (e.g. "@abdwdd @alexpooley") has no meaningful segment, so
+        # the caller should provide an explicit team_slug in that case; we fall
+        # back to the first token's last segment to stay deterministic.
+        def last_handle_segment(handle)
+          handle.to_s.split(/\s+/).first.to_s.delete_prefix('@').split('/').last
+        end
+
+        # Returns the explicit team_slug declared by any principle owned by the
+        # given handle, or nil. Lets a handle-keyed lookup (from the fan-out)
+        # pick up a per-principle override.
+        def explicit_slug_for_handle(handle)
+          owner = principles.values.find do |config|
+            config['owner_team'] == handle && config['team_slug']
+          end
+          owner&.dig('team_slug')
+        end
+
+        # Builds the gem-managed CODEOWNERS block body (markers included),
+        # one rule per principle in manifest declaration order:
+        #   /.ai/principles/distilled/<name>.md <owner_team> [<secondary...>]
+        def build_codeowners_block
+          rules = principles.keys.map do |name|
+            owners = [principle_owner_team(name), *principle_secondary_teams(name)]
+              .compact.reject(&:empty?).join(' ')
+            "/#{PRINCIPLES_DIR}/#{name}.md #{owners}"
+          end
+
+          [CODEOWNERS_BEGIN, *rules, CODEOWNERS_END].join("\n")
+        end
+
+        # Replaces an existing managed block in place, or inserts a new one on
+        # the line after the broad `/.ai/` rule. Aborts when neither a managed
+        # block nor the `/.ai/` anchor is present.
+        def replace_or_insert_codeowners_block(content, block)
+          existing = /^#{Regexp.escape(CODEOWNERS_BEGIN)}\n.*?^#{Regexp.escape(CODEOWNERS_END)}$/mo
+          return content.sub(existing, block) if content.match?(existing)
+
+          unless content.match?(CODEOWNERS_AI_RULE)
+            abort Rainbow("ERROR: #{CODEOWNERS_PATH} has no `/.ai/` rule to anchor the " \
+              'generated CODEOWNERS block after').red
+          end
+
+          content.sub(CODEOWNERS_AI_RULE) { |rule| "#{rule}\n#{block}" }
         end
 
         # Routing-table body shared by AGENTS.md and the SKILL.md files.

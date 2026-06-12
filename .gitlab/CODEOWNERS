@@ -177,6 +177,38 @@ yarn.lock @gitlab-org/maintainers/frontend
 ## See https://gitlab.com/groups/gitlab-org/-/work_items/20880+s
 /.agents/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
 /.ai/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
+# BEGIN GENERATED: gitlab-ai-principles-distiller — do not edit manually
+/.ai/principles/distilled/database-fundamentals.md @gitlab-org/maintainers/database
+/.ai/principles/distilled/database-migrations.md @gitlab-org/maintainers/database
+/.ai/principles/distilled/database-schema.md @gitlab-org/maintainers/database
+/.ai/principles/distilled/database-queries.md @gitlab-org/maintainers/database
+/.ai/principles/distilled/clickhouse.md @gitlab-org/maintainers/clickhouse
+/.ai/principles/distilled/cells-fundamentals.md @bmarjanovic
+/.ai/principles/distilled/cells-claims.md @bmarjanovic
+/.ai/principles/distilled/security.md @gitlab-com/gl-security/appsec
+/.ai/principles/distilled/authentication.md @gitlab-org/software-supply-chain-security/authentication/approvers @gitlab-com/gl-security/appsec
+/.ai/principles/distilled/permissions-fundamentals.md @gitlab-org/software-supply-chain-security/authorization/approvers
+/.ai/principles/distilled/permissions-graphql-gpat.md @gitlab-org/software-supply-chain-security/authorization/approvers
+/.ai/principles/distilled/permissions-rest-gpat.md @gitlab-org/software-supply-chain-security/authorization/approvers
+/.ai/principles/distilled/code-review.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/backend-ruby.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/backend-architecture.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/backend-ee.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/rest-api.md @mwoolf @cfeick @vwolanyk @abignotti
+/.ai/principles/distilled/graphql.md @mwoolf @cfeick @vwolanyk @abignotti @gitlab-org/graphql-experts
+/.ai/principles/distilled/workers.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/cicd-internals.md @gitlab-org/maintainers/cicd-verify
+/.ai/principles/distilled/frontend-vue.md @gitlab-org/maintainers/frontend
+/.ai/principles/distilled/frontend-style.md @gitlab-org/maintainers/frontend
+/.ai/principles/distilled/frontend-haml.md @gitlab-org/maintainers/frontend
+/.ai/principles/distilled/frontend-a11y.md @gitlab-org/maintainers/frontend
+/.ai/principles/distilled/qa-rspec.md @abdwdd @alexpooley
+/.ai/principles/distilled/qa-jest.md @gitlab-org/maintainers/frontend @abdwdd @alexpooley
+/.ai/principles/distilled/performance.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/documentation.md @gitlab-org/technical-writing/tw-docops
+/.ai/principles/distilled/feature-flags.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/analytics.md @gitlab-org/analytics-section/analytics-instrumentation/engineers @gitlab-org/analytics-section/product-analytics/engineers/frontend
+# END GENERATED: gitlab-ai-principles-distiller
 /.claude/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
 /AGENTS.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
 /CLAUDE.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah

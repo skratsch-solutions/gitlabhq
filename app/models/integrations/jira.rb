@@ -368,7 +368,7 @@ module Integrations
 
       commit_id = case entity
                   when Commit then entity.id
-                  when MergeRequest then entity.diff_head_sha
+                  when MergeRequest then entity.squash_commit_sha || entity.merge_commit_sha || entity.diff_head_sha
                   end
 
       commit_url = build_entity_url(:commit, commit_id)

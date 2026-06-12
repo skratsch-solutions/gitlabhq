@@ -33,6 +33,7 @@ title: Custom flows
 - **Merge request ready** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592454) in GitLab 19.0 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_ready_flow_trigger`. Disabled by default.
 - **Merge request code conflict** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592455) in GitLab 19.1 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_code_conflict_flow_trigger`. Disabled by default.
 - **Merge request approved** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592456) in GitLab 19.1 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_approved_flow_trigger`. Disabled by default.
+- Feature flag `ai_flow_trigger_pipeline_hooks` [removed](https://gitlab.com/gitlab-org/gitlab/-/work_items/587272) in GitLab 19.1.
 
 {{< /history >}}
 

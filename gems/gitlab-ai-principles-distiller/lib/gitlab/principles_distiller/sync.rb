@@ -190,6 +190,9 @@ module Gitlab
         banner("\nGenerating gitlab-coding-principles skill (.agents/skills/ + .claude/skills/)...")
         manifest.generate_principles_skill
 
+        banner("\nGenerating per-file CODEOWNERS rules...")
+        manifest.generate_codeowners
+
         banner("\nInjecting prerequisite notes into distilled files...")
         manifest.inject_prerequisite_notes
       end

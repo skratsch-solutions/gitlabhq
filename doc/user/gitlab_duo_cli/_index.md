@@ -31,6 +31,8 @@ title: GitLab Duo CLI (`duo`)
 - Environment variable and option to enable user-level Agent Skills [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.83.0) in GitLab Duo CLI 8.83.0 as an [experiment](../../policy/development_stages_support.md#experiment), during the GitLab 19.0 release.
 - Approve tool for session option [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/work_items/2129) in GitLab 19.0.
   - Introduced in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.80.0) 8.80.0.
+- Pattern-based tool approval [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21850) in GitLab 19.1.
+  - Introduced in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.101.0) 8.101.0.
 
 {{< /history >}}
 
@@ -287,11 +289,13 @@ Your options are:
 - **Approve**: GitLab Duo can use the tool once.
 - **Approve for session**: GitLab Duo can use the tool with these arguments for the remainder of the
   session. Different arguments require additional approval.
+- **Approve all uses of this tool for session** (pattern or wildcard approval): GitLab Duo can use
+  this tool for the remainder of the session whenever the arguments match the approved pattern.
 - **Deny**: GitLab Duo cannot use the tool.
 
 > [!note]
-> To use the **Approve for session** option, your administrator must turn it on for your group or
-> instance.
+> To use the **Approve for session** and **Approve all uses of this tool for session** options,
+> your administrator must turn it on for your group or instance.
 > For more information, see [tool approvals](../gitlab_duo_chat/agentic_chat.md#tool-approvals).
 
 ### Headless mode

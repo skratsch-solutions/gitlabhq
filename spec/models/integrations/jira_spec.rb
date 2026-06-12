@@ -1148,6 +1148,29 @@ RSpec.describe Integrations::Jira, feature_category: :integrations do
       let(:commit_id) { resource.diff_head_sha }
 
       it_behaves_like 'close_issue'
+
+      context 'when the merge request was squash-merged' do
+        let(:resource) do
+          build_stubbed(:merge_request, source_project: project,
+            squash_commit_sha: '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b')
+        end
+
+        let(:commit_id) { resource.squash_commit_sha }
+
+        it_behaves_like 'close_issue'
+      end
+
+      context 'when the merge request has a merge commit but no squash commit' do
+        let(:resource) do
+          build_stubbed(:merge_request, source_project: project,
+            squash_commit_sha: nil,
+            merge_commit_sha: 'aabbccddeeff00112233445566778899aabbccdd')
+        end
+
+        let(:commit_id) { resource.merge_commit_sha }
+
+        it_behaves_like 'close_issue'
+      end
     end
 
     context 'when resource is a commit' do

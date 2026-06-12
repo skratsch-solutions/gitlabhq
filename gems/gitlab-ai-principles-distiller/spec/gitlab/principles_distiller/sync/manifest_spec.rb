@@ -64,15 +64,17 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       File.write(File.join(manifest_dir, 'manifest.yml'), manifest_yaml)
     end
 
-    context 'when every principle has sources' do
+    context 'when every principle has sources and an owner_team' do
       let(:manifest_yaml) do
         <<~YAML
           principles:
             backend:
+              owner_team: '@gitlab-org/maintainers/rails-backend'
               sources:
                 - path: doc/backend.md
                   url: https://example.com/backend
             qa:
+              owner_team: '@abdwdd @alexpooley'
               sources:
                 - path: doc/qa.md
         YAML
@@ -88,9 +90,11 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
         <<~YAML
           principles:
             backend:
+              owner_team: '@gitlab-org/maintainers/rails-backend'
               sources:
                 - path: doc/backend.md
             qa:
+              owner_team: '@abdwdd @alexpooley'
               group: Testing
         YAML
       end
@@ -107,6 +111,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
         <<~YAML
           principles:
             backend:
+              owner_team: '@gitlab-org/maintainers/rails-backend'
               sources: []
         YAML
       end
@@ -115,6 +120,91 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
         expect { manifest.load }
           .to raise_error(SystemExit)
           .and output(/backend/).to_stderr
+      end
+    end
+
+    context 'when a principle is missing the owner_team key' do
+      let(:manifest_yaml) do
+        <<~YAML
+          principles:
+            backend:
+              owner_team: '@gitlab-org/maintainers/rails-backend'
+              sources:
+                - path: doc/backend.md
+            qa:
+              sources:
+                - path: doc/qa.md
+        YAML
+      end
+
+      it 'aborts and names the offending principle' do
+        expect { manifest.load }
+          .to raise_error(SystemExit)
+          .and output(/owner_team.*qa/m).to_stderr
+      end
+    end
+
+    context 'when a principle has a blank owner_team' do
+      let(:manifest_yaml) do
+        <<~YAML
+          principles:
+            backend:
+              owner_team: '   '
+              sources:
+                - path: doc/backend.md
+        YAML
+      end
+
+      it 'aborts and names the offending principle' do
+        expect { manifest.load }
+          .to raise_error(SystemExit)
+          .and output(/owner_team.*backend/m).to_stderr
+      end
+    end
+
+    context 'when principles share an owner_team but declare conflicting team_slug values' do
+      let(:manifest_yaml) do
+        <<~YAML
+          principles:
+            authn:
+              owner_team: '@org/ssc/approvers'
+              team_slug: authentication
+              sources:
+                - path: doc/authn.md
+            authz:
+              owner_team: '@org/ssc/approvers'
+              team_slug: authorization
+              sources:
+                - path: doc/authz.md
+        YAML
+      end
+
+      it 'aborts naming the handle and the conflicting slugs', :aggregate_failures do
+        expect { manifest.load }
+          .to raise_error(SystemExit)
+          .and output(%r{conflicting `team_slug:`.*@org/ssc/approvers}m).to_stderr
+      end
+    end
+
+    context 'when principles share an owner_team and agree on team_slug' do
+      let(:manifest_yaml) do
+        <<~YAML
+          principles:
+            authz-a:
+              owner_team: '@org/ssc/approvers'
+              team_slug: authorization
+              sources:
+                - path: doc/a.md
+            authz-b:
+              owner_team: '@org/ssc/approvers'
+              team_slug: authorization
+              sources:
+                - path: doc/b.md
+        YAML
+      end
+
+      it 'does not abort' do
+        expect { manifest.load }.not_to raise_error
       end
     end
   end
@@ -518,16 +608,94 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     end
   end
 
-  describe '.team_slug' do
-    it 'lowercases and hyphenates the team label', :aggregate_failures do
-      expect(manifest.team_slug('Database')).to eq('database')
-      expect(manifest.team_slug('Code Review')).to eq('code-review')
-      expect(manifest.team_slug('Feature Flags')).to eq('feature-flags')
+  describe '.principle_owner_team' do
+    before do
+      manifest.data = {
+        'principles' => {
+          'database' => { 'owner_team' => '@gitlab-org/maintainers/database' },
+          'orphan' => {}
+        }
+      }
     end
 
-    it 'collapses non-alphanumeric runs and trims edge hyphens', :aggregate_failures do
-      expect(manifest.team_slug('  API / GraphQL  ')).to eq('api-graphql')
-      expect(manifest.team_slug('Other')).to eq('other')
+    it 'returns the owner_team handle' do
+      expect(manifest.principle_owner_team('database')).to eq('@gitlab-org/maintainers/database')
+    end
+
+    it 'returns nil when owner_team is absent' do
+      expect(manifest.principle_owner_team('orphan')).to be_nil
+    end
+  end
+
+  describe '.principle_secondary_teams' do
+    before do
+      manifest.data = {
+        'principles' => {
+          'authentication' => {
+            'owner_team' => '@a/auth',
+            'secondary_teams' => ['@gitlab-com/gl-security/appsec']
+          },
+          'database' => { 'owner_team' => '@gitlab-org/maintainers/database' }
+        }
+      }
+    end
+
+    it 'returns the secondary_teams list' do
+      expect(manifest.principle_secondary_teams('authentication'))
+        .to eq(['@gitlab-com/gl-security/appsec'])
+    end
+
+    it 'returns an empty array when none are declared' do
+      expect(manifest.principle_secondary_teams('database')).to eq([])
+    end
+  end
+
+  describe '.team_slug' do
+    before do
+      manifest.data = {
+        'principles' => {
+          'database' => { 'owner_team' => '@gitlab-org/maintainers/database' },
+          'authn' => {
+            'owner_team' => '@gitlab-org/software-supply-chain-security/authentication/approvers',
+            'team_slug' => 'authentication'
+          },
+          'authz' => {
+            'owner_team' => '@gitlab-org/software-supply-chain-security/authorization/approvers',
+            'team_slug' => 'authorization'
+          },
+          'qa' => { 'owner_team' => '@abdwdd @alexpooley', 'team_slug' => 'qa' }
+        }
+      }
+    end
+
+    context 'when given a principle name' do
+      it 'derives the slug from the owner_team handle last segment' do
+        expect(manifest.team_slug('database')).to eq('database')
+      end
+
+      it 'prefers an explicit team_slug override' do
+        expect(manifest.team_slug('authn')).to eq('authentication')
+      end
+
+      it 'uses the explicit slug for a multi-handle (individuals) owner_team' do
+        expect(manifest.team_slug('qa')).to eq('qa')
+      end
+    end
+
+    context 'when given an owner_team handle (the fan-out grouping key)' do
+      it 'derives the slug from the handle last segment' do
+        expect(manifest.team_slug('@gitlab-org/maintainers/database')).to eq('database')
+      end
+
+      it 'resolves an explicit team_slug declared by a principle owned by that handle',
+        :aggregate_failures do
+        # Both authentication and authorization end in "approvers"; without the
+        # explicit override they would collide on the same branch slug.
+        expect(manifest.team_slug('@gitlab-org/software-supply-chain-security/authentication/approvers'))
+          .to eq('authentication')
+        expect(manifest.team_slug('@gitlab-org/software-supply-chain-security/authorization/approvers'))
+          .to eq('authorization')
+      end
     end
   end
 
@@ -535,17 +703,17 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     before do
       manifest.data = {
         'principles' => {
-          'qa' => { 'group' => 'Testing' },
+          'qa' => { 'owner_team' => '@abdwdd @alexpooley', 'group' => 'Testing' },
           'orphan' => {}
         }
       }
     end
 
-    it 'returns the principle group' do
-      expect(manifest.principle_team('qa')).to eq('Testing')
+    it 'returns the owner_team handle (the grouping key, not the group label)' do
+      expect(manifest.principle_team('qa')).to eq('@abdwdd @alexpooley')
     end
 
-    it 'falls back to "Other" when no group is set' do
+    it 'falls back to "Other" when no owner_team is set' do
       expect(manifest.principle_team('orphan')).to eq('Other')
     end
   end
@@ -554,22 +722,22 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     before do
       manifest.data = {
         'principles' => {
-          'database-fundamentals' => { 'group' => 'Database' },
-          'security' => { 'group' => 'Security' },
-          'database-queries' => { 'group' => 'Database' },
+          'database-fundamentals' => { 'owner_team' => '@gitlab-org/maintainers/database' },
+          'security' => { 'owner_team' => '@gitlab-com/gl-security/appsec' },
+          'database-queries' => { 'owner_team' => '@gitlab-org/maintainers/database' },
           'orphan' => {}
         }
       }
     end
 
-    it 'groups names by team, preserving manifest declaration order' do
+    it 'groups names by owner_team, preserving manifest declaration order' do
       result = manifest.group_principles_by_team(
         %w[security database-queries database-fundamentals orphan]
       )
 
       expect(result).to eq(
-        'Database' => %w[database-fundamentals database-queries],
-        'Security' => %w[security],
+        '@gitlab-org/maintainers/database' => %w[database-fundamentals database-queries],
+        '@gitlab-com/gl-security/appsec' => %w[security],
         'Other' => %w[orphan]
       )
     end
@@ -577,7 +745,109 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     it 'ignores names not present in the manifest' do
       result = manifest.group_principles_by_team(%w[security unknown-principle])
 
-      expect(result).to eq('Security' => ['security'])
+      expect(result).to eq('@gitlab-com/gl-security/appsec' => ['security'])
+    end
+  end
+
+  describe '.generate_codeowners' do
+    let(:codeowners_dir) { File.join(tmpdir, '.gitlab') }
+    let(:codeowners_content) do
+      <<~OWNERS
+        /.agents/ @dgruzd @tkuah
+        /.ai/ @dgruzd @tkuah
+        /.claude/ @dgruzd @tkuah
+      OWNERS
+    end
+
+    let(:codeowners_path) { File.join(codeowners_dir, 'CODEOWNERS') }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      FileUtils.mkdir_p(codeowners_dir)
+      File.write(codeowners_path, codeowners_content)
+
+      manifest.data = {
+        'principles' => {
+          'security' => { 'owner_team' => '@gitlab-com/gl-security/appsec' },
+          'authentication' => {
+            'owner_team' => '@a/authn',
+            'secondary_teams' => ['@gitlab-com/gl-security/appsec']
+          },
+          'qa-rspec' => { 'owner_team' => '@abdwdd @alexpooley' }
+        }
+      }
+    end
+
+    it 'inserts a managed block immediately after the /.ai/ rule', :aggregate_failures do
+      manifest.generate_codeowners
+
+      lines = File.read(codeowners_path).lines.map(&:chomp)
+      ai_idx = lines.index('/.ai/ @dgruzd @tkuah')
+      begin_idx = lines.index(described_class::CODEOWNERS_BEGIN)
+      claude_idx = lines.index('/.claude/ @dgruzd @tkuah')
+
+      expect(begin_idx).to eq(ai_idx + 1)
+      expect(claude_idx).to be > lines.index(described_class::CODEOWNERS_END)
+    end
+
+    it 'emits one per-file rule per principle routing to its owner_team', :aggregate_failures do
+      manifest.generate_codeowners
+
+      content = File.read(codeowners_path)
+      expect(content).to include(
+        '/.ai/principles/distilled/security.md @gitlab-com/gl-security/appsec'
+      )
+      expect(content).to include(
+        '/.ai/principles/distilled/qa-rspec.md @abdwdd @alexpooley'
+      )
+    end
+
+    it 'appends secondary_teams after the primary owner on the same rule' do
+      manifest.generate_codeowners
+
+      expect(File.read(codeowners_path)).to include(
+        '/.ai/principles/distilled/authentication.md @a/authn @gitlab-com/gl-security/appsec'
+      )
+    end
+
+    it 'is idempotent: a second run does not change the file' do
+      manifest.generate_codeowners
+      first = File.read(codeowners_path)
+
+      manifest.generate_codeowners
+
+      expect(File.read(codeowners_path)).to eq(first)
+    end
+
+    it 'replaces an existing managed block rather than appending a new one' do
+      manifest.generate_codeowners
+
+      manifest.data['principles'].delete('qa-rspec')
+      manifest.generate_codeowners
+
+      content = File.read(codeowners_path)
+      expect(content.scan(described_class::CODEOWNERS_BEGIN).size).to eq(1)
+      expect(content).not_to include('/.ai/principles/distilled/qa-rspec.md')
+    end
+
+    context 'when CODEOWNERS has no /.ai/ anchor rule' do
+      let(:codeowners_content) { "/.claude/ @dgruzd @tkuah\n" }
+
+      it 'aborts rather than placing the block in an undefined location' do
+        expect { manifest.generate_codeowners }
+          .to raise_error(SystemExit)
+          .and output(%r{no `/\.ai/` rule}).to_stderr
+      end
+    end
+
+    context 'when CODEOWNERS is absent' do
+      before do
+        FileUtils.rm_f(codeowners_path)
+      end
+
+      it 'skips generation without raising' do
+        expect { manifest.generate_codeowners }.not_to raise_error
+      end
     end
   end
 end
