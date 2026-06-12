@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe BulkImports::EntitiesFinder do
+RSpec.describe BulkImports::EntitiesFinder, feature_category: :importers do
   let_it_be(:user, freeze: false) { create(:user) }
 
   let_it_be(:user_import_1, freeze: false) { create(:bulk_import, user: user) }

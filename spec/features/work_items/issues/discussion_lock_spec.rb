@@ -20,6 +20,10 @@ RSpec.describe 'Discussion Lock', :js, feature_category: :team_planning do
       it 'the user can lock and unlock the issue' do
         visit project_issue_path(project, issue)
 
+        page.within('.work-item-notes') do
+          expect(page).not_to have_selector('.gl-animate-skeleton-loader')
+        end
+
         click_button 'More actions', match: :first
         click_button 'Lock discussion'
 

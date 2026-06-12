@@ -525,6 +525,56 @@ To approve members that are pending because they've exceeded the user cap:
 When you change from user cap to restricted access, all pending members (both members awaiting approval and invited members) are automatically removed.
 To ensure users are approved as members, you must approve or remove pending members before enabling restricted access.
 
+## Control built-in project templates
+
+{{< details >}}
+
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+{{< /details >}}
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/230790) in GitLab 19.0 [with a flag](../../administration/feature_flags/_index.md) named `use_built_in_project_templates_enabled`. Disabled by default.
+
+{{< /history >}}
+
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
+> This feature is available for testing, but not ready for production use.
+
+[Built-in project templates](../project/_index.md#create-a-project-from-a-built-in-template)
+populate new projects with starter files.
+You can control whether these templates are available when users create projects in your group. You
+can also enforce your choice for all subgroups.
+
+The setting uses cascading inheritance:
+
+- Your group inherits the setting from its closest ancestor group, or from the instance.
+- A value set for your group overrides the inherited value.
+- When you enforce the setting for your group, all subgroups inherit it and cannot change it.
+- When you change the setting for your group, the new value cascades to all subgroups.
+
+Prerequisites:
+
+- You must have the Owner role for the group.
+
+To control built-in project templates for a group:
+
+1. In the top bar, select **Search or go to** and find your group.
+1. In the left sidebar, select **Settings** > **General**.
+1. Expand **Built-in project templates**.
+1. Select or clear the **Enable built-in project templates** checkbox.
+1. Optional. To prevent subgroups from changing this setting, select the **Enforce for all
+   subgroups** checkbox.
+1. Select **Save changes**.
+
+If an administrator has [enforced this setting](../../administration/project_templates.md#built-in-project-templates)
+for the instance, or a parent group has enforced it for its subgroups, the setting is locked and you
+cannot change it.
+
 ## Group file templates
 
 {{< details >}}

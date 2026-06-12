@@ -1139,80 +1139,6 @@ RETURN NULL;
 END
 $$;
 
-CREATE FUNCTION sync_organization_push_rules_on_delete() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-  BEGIN
-    IF (OLD.organization_id IS NOT NULL AND OLD.is_sample = true) THEN
-      DELETE FROM organization_push_rules WHERE organization_id = OLD.organization_id;
-    END IF;
-    RETURN OLD;
-  END;
-$$;
-
-CREATE FUNCTION sync_organization_push_rules_on_insert_update() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
- BEGIN
-    IF (NEW.organization_id IS NOT NULL AND NEW.is_sample = TRUE) THEN
-      INSERT INTO organization_push_rules (
-        id,
-        organization_id,
-        max_file_size,
-        member_check,
-        prevent_secrets,
-        reject_unsigned_commits,
-        commit_committer_check,
-        deny_delete_tag,
-        reject_non_dco_commits,
-        commit_committer_name_check,
-        commit_message_regex,
-        branch_name_regex,
-        commit_message_negative_regex,
-        author_email_regex,
-        file_name_regex,
-        created_at,
-        updated_at
-      ) VALUES (
-        NEW.id,
-        NEW.organization_id,
-        NEW.max_file_size,
-        NEW.member_check,
-        NEW.prevent_secrets,
-        NEW.reject_unsigned_commits,
-        NEW.commit_committer_check,
-        NEW.deny_delete_tag,
-        NEW.reject_non_dco_commits,
-        NEW.commit_committer_name_check,
-        NEW.commit_message_regex,
-        NEW.branch_name_regex,
-        NEW.commit_message_negative_regex,
-        NEW.author_email_regex,
-        NEW.file_name_regex,
-        NEW.created_at,
-        NEW.updated_at
-      )
-      ON CONFLICT (organization_id) DO UPDATE SET
-        id = NEW.id,
-        max_file_size = NEW.max_file_size,
-        member_check = NEW.member_check,
-        prevent_secrets = NEW.prevent_secrets,
-        reject_unsigned_commits = NEW.reject_unsigned_commits,
-        commit_committer_check = NEW.commit_committer_check,
-        deny_delete_tag = NEW.deny_delete_tag,
-        reject_non_dco_commits = NEW.reject_non_dco_commits,
-        commit_committer_name_check = NEW.commit_committer_name_check,
-        commit_message_regex = NEW.commit_message_regex,
-        branch_name_regex = NEW.branch_name_regex,
-        commit_message_negative_regex = NEW.commit_message_negative_regex,
-        author_email_regex = NEW.author_email_regex,
-        file_name_regex = NEW.file_name_regex,
-        updated_at = NEW.updated_at;
-    END IF;
-   RETURN NEW;
-  END;
- $$;
-
 CREATE FUNCTION sync_packages_composer_with_composer_metadata() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -21869,8 +21795,12 @@ CREATE TABLE group_secrets_managers (
     status smallint DEFAULT 0 NOT NULL,
     group_path text,
     root_namespace_path text,
+    organization_id bigint,
+    root_namespace_id bigint,
+    CONSTRAINT check_06b6f117ae CHECK ((root_namespace_id IS NOT NULL)),
     CONSTRAINT check_7ea8ce3f98 CHECK ((char_length(root_namespace_path) <= 64)),
-    CONSTRAINT check_f88f28737e CHECK ((char_length(group_path) <= 64))
+    CONSTRAINT check_f88f28737e CHECK ((char_length(group_path) <= 64)),
+    CONSTRAINT check_fc46e746ca CHECK ((organization_id IS NOT NULL))
 );
 
 CREATE SEQUENCE group_secrets_managers_id_seq
@@ -28761,8 +28691,12 @@ CREATE TABLE project_secrets_managers (
     status smallint DEFAULT 0 NOT NULL,
     namespace_path text,
     project_path text,
+    organization_id bigint,
+    root_namespace_id bigint,
     CONSTRAINT check_36f529abba CHECK ((char_length(project_path) <= 64)),
-    CONSTRAINT check_bbdf5d083f CHECK ((char_length(namespace_path) <= 64))
+    CONSTRAINT check_b225d5174f CHECK ((organization_id IS NOT NULL)),
+    CONSTRAINT check_bbdf5d083f CHECK ((char_length(namespace_path) <= 64)),
+    CONSTRAINT check_be490407a7 CHECK ((root_namespace_id IS NOT NULL))
 );
 
 CREATE SEQUENCE project_secrets_managers_id_seq
@@ -56684,10 +56618,6 @@ CREATE TRIGGER trigger_projects_parent_id_on_insert AFTER INSERT ON projects FOR
 CREATE TRIGGER trigger_projects_parent_id_on_update AFTER UPDATE ON projects FOR EACH ROW WHEN ((old.namespace_id IS DISTINCT FROM new.namespace_id)) EXECUTE FUNCTION insert_projects_sync_event();
 
 CREATE TRIGGER trigger_sync_issues_dates_with_work_item_dates_sources AFTER INSERT OR UPDATE OF start_date, due_date ON work_item_dates_sources FOR EACH ROW EXECUTE FUNCTION sync_issues_dates_with_work_item_dates_sources();
-
-CREATE TRIGGER trigger_sync_organization_push_rules_delete BEFORE DELETE ON push_rules FOR EACH ROW EXECUTE FUNCTION sync_organization_push_rules_on_delete();
-
-CREATE TRIGGER trigger_sync_organization_push_rules_insert_update AFTER INSERT OR UPDATE ON push_rules FOR EACH ROW EXECUTE FUNCTION sync_organization_push_rules_on_insert_update();
 
 CREATE TRIGGER trigger_sync_packages_composer_with_composer_metadata AFTER INSERT OR UPDATE ON packages_composer_metadata FOR EACH ROW EXECUTE FUNCTION sync_packages_composer_with_composer_metadata();
 

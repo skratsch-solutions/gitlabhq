@@ -32,8 +32,10 @@ RSpec.describe "User sorts work items", feature_category: :portfolio_management 
 
   it 'keeps the sort option', :js do
     visit(project_work_items_path(project))
+    expect(page).to have_content(issue1.title)
+
     pajamas_sort_by 'Milestone due date', from: 'Created date'
-    wait_for_requests
+    expect(page).to have_content(issue1.title)
 
     visit(issues_dashboard_path(assignee_username: user.username))
     visit(project_work_items_path(project))
@@ -41,8 +43,10 @@ RSpec.describe "User sorts work items", feature_category: :portfolio_management 
     expect(page).to have_button 'Milestone'
 
     visit(group_work_items_path(group))
+    expect(page).to have_content(issue1.title)
+
     pajamas_sort_by 'Milestone due date', from: 'Created date'
-    wait_for_requests
+    expect(page).to have_content(issue1.title)
 
     visit(issues_dashboard_path(assignee_username: user.username))
     visit(group_work_items_path(group))

@@ -14,14 +14,13 @@ RSpec.describe 'Issues > User sees live update', :js, feature_category: :team_pl
     it 'updates the title' do
       issue = create(:issue, author: user, assignees: [user], project: project, title: 'new title')
 
+      visit project_issue_path(project, issue)
+
       using_session :other_session do
         visit project_issue_path(project, issue)
 
         expect(page).to have_css('h1', text: 'new title')
       end
-
-      sign_in(user)
-      visit project_issue_path(project, issue)
 
       click_button 'Edit title and description'
       fill_in 'Title', with: 'updated title'

@@ -42196,6 +42196,9 @@ msgstr ""
 msgid "JobSource|Web IDE"
 msgstr ""
 
+msgid "JobToken|Badges"
+msgstr ""
+
 msgid "JobToken|Default permissions"
 msgstr ""
 

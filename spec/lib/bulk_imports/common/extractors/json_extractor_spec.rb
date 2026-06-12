@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'zlib'
 
-RSpec.describe BulkImports::Common::Extractors::JsonExtractor do
+RSpec.describe BulkImports::Common::Extractors::JsonExtractor, feature_category: :importers do
   subject { described_class.new(relation: 'self') }
 
   let_it_be(:tmpdir) { Dir.mktmpdir }

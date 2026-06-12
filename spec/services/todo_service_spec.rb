@@ -17,9 +17,9 @@ RSpec.describe TodoService, feature_category: :notifications do
   let_it_be(:skipped, freeze: false) { create(:user, developer_of: project) }
 
   let(:skip_users) { [skipped] }
-  let(:mentions) { 'FYI: ' + [author, assignee, john_doe, member, guest, non_member, admin, skipped].map(&:to_reference).join(' ') }
-  let(:directly_addressed) { [author, assignee, john_doe, member, guest, non_member, admin, skipped].map(&:to_reference).join(' ') }
-  let(:directly_addressed_and_mentioned) { member.to_reference + ", what do you think? cc: " + [guest, admin, skipped].map(&:to_reference).join(' ') }
+  let_it_be(:mentions) { 'FYI: ' + [author, assignee, john_doe, member, guest, non_member, admin, skipped].map(&:to_reference).join(' ') }
+  let_it_be(:directly_addressed) { [author, assignee, john_doe, member, guest, non_member, admin, skipped].map(&:to_reference).join(' ') }
+  let_it_be(:directly_addressed_and_mentioned) { member.to_reference + ", what do you think? cc: " + [guest, admin, skipped].map(&:to_reference).join(' ') }
   let(:service) { described_class.new }
 
   shared_examples 'reassigned target' do
@@ -525,16 +525,7 @@ RSpec.describe TodoService, feature_category: :notifications do
         end
 
         context 'leaving a note on a commit in a public project with private code' do
-          let_it_be(:project, freeze: false) { create(:project, :repository, :public, :repository_private) }
-
-          before_all do
-            project.add_guest(guest)
-            project.add_developer(author)
-            project.add_developer(assignee)
-            project.add_developer(member)
-            project.add_developer(john_doe)
-            project.add_developer(skipped)
-          end
+          let_it_be(:project, freeze: false) { create(:project, :repository, :public, :repository_private, guests: guest, developers: [author, assignee, member, john_doe, skipped]) }
 
           it 'creates a todo for each valid mentioned user' do
             expected_todo = base_commit_todo_attrs.merge(
@@ -570,16 +561,7 @@ RSpec.describe TodoService, feature_category: :notifications do
         end
 
         context 'leaving a note on a commit in a private project' do
-          let_it_be(:project, freeze: false) { create(:project, :repository, :private) }
-
-          before_all do
-            project.add_guest(guest)
-            project.add_developer(author)
-            project.add_developer(assignee)
-            project.add_developer(member)
-            project.add_developer(john_doe)
-            project.add_developer(skipped)
-          end
+          let_it_be(:project, freeze: false) { create(:project, :repository, :private, guests: guest, developers: [author, assignee, member, john_doe, skipped]) }
 
           it 'creates a todo for each valid mentioned user' do
             expected_todo = base_commit_todo_attrs.merge(
@@ -1217,20 +1199,11 @@ RSpec.describe TodoService, feature_category: :notifications do
     end
 
     describe '#new_note' do
-      let_it_be(:project, freeze: false) { create(:project, :repository) }
+      let_it_be(:project, freeze: false) { create(:project, :repository, guests: guest, developers: [author, assignee, member, john_doe, skipped]) }
       let(:mention) { john_doe.to_reference }
       let(:diff_note_on_merge_request) { create(:diff_note_on_merge_request, project: project, noteable: unassigned_mr, author: author, note: "Hey #{mention}") }
       let(:addressed_diff_note_on_merge_request) { create(:diff_note_on_merge_request, project: project, noteable: unassigned_mr, author: author, note: "#{mention}, hey!") }
       let(:legacy_diff_note_on_merge_request) { create(:legacy_diff_note_on_merge_request, project: project, noteable: unassigned_mr, author: author, note: "Hey #{mention}") }
-
-      before_all do
-        project.add_guest(guest)
-        project.add_developer(author)
-        project.add_developer(assignee)
-        project.add_developer(member)
-        project.add_developer(john_doe)
-        project.add_developer(skipped)
-      end
 
       it 'creates a todo for mentioned user on new diff note' do
         service.new_note(diff_note_on_merge_request, author)
@@ -1381,8 +1354,8 @@ RSpec.describe TodoService, feature_category: :notifications do
   end
 
   shared_examples 'updating todos state' do |state, new_state, new_resolved_by = nil|
-    let!(:first_todo) { create(:todo, state, user: john_doe) }
-    let!(:second_todo) { create(:todo, state, user: john_doe) }
+    let_it_be_with_reload(:first_todo) { create(:todo, state, user: john_doe) }
+    let_it_be_with_reload(:second_todo) { create(:todo, state, user: john_doe) }
     let(:collection) { Todo.all }
 
     it 'updates related todos for the user with the new_state' do
@@ -1448,8 +1421,8 @@ RSpec.describe TodoService, feature_category: :notifications do
   end
 
   describe '#resolve_todo' do
-    let!(:todo) { create(:todo, :assigned, user: john_doe) }
-    let!(:snoozed_todo) { create(:todo, :assigned, user: john_doe, snoozed_until: 1.day.from_now) }
+    let_it_be_with_reload(:todo) { create(:todo, :assigned, user: john_doe) }
+    let_it_be_with_reload(:snoozed_todo) { create(:todo, :assigned, user: john_doe, snoozed_until: 1.day.from_now) }
 
     it 'marks pending todo as done' do
       expect do
@@ -1559,7 +1532,7 @@ RSpec.describe TodoService, feature_category: :notifications do
   end
 
   describe '#restore_todo' do
-    let!(:todo) { create(:todo, :done, user: john_doe) }
+    let_it_be_with_reload(:todo) { create(:todo, :done, user: john_doe) }
 
     it 'marks resolved todo as pending' do
       expect do

@@ -147,12 +147,6 @@ app/models/concerns/milestoneish.rb:
   - elapsed_days
 app/models/concerns/namespaces/stateful/state_querying.rb:
   - effective_state
-app/models/concerns/organizations/isolatable.rb:
-  - not_isolated?
-  - mark_as_isolated!
-  - mark_as_not_isolated!
-app/models/concerns/organizations/sharding.rb:
-  - sharding_organization
 app/models/concerns/partitioned_table.rb:
   - _returning_columns_for_insert
 app/models/concerns/prometheus_adapter.rb:
@@ -191,8 +185,6 @@ app/models/namespace.rb:
   - any_project_with_pages_deployed?
   - saved_change_to_parent?
   - saved_change_to_path_or_parent?
-app/models/organizations/isolation_record.rb:
-  - not_isolated?
 app/models/project.rb:
   - import_scheduled?
   - updating_remote_mirror?

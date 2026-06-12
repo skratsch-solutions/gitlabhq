@@ -803,6 +803,8 @@
   - 1
 - - onboarding_self_managed_create_welcome_product_interaction
   - 1
+- - organizations_check_organization_isolation_status
+  - 1
 - - organizations_groups_transfer
   - 1
 - - organizations_hard_delete

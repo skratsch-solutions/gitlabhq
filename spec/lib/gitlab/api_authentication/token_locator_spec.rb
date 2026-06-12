@@ -91,6 +91,22 @@ RSpec.describe Gitlab::APIAuthentication::TokenLocator, feature_category: :syste
           expect(subject.password).to eq(password)
         end
       end
+
+      context 'when the Authorization header uses a recognized scheme' do
+        where(:description, :authorization_header) do
+          'Basic auth credentials' | "Basic #{::Base64.strict_encode64('user:pass')}"
+          'case-insensitive Basic' | "basic #{::Base64.strict_encode64('user:pass')}"
+          'Bearer credentials'     | "Bearer sometoken"
+        end
+
+        with_them do
+          let(:request) { double(headers: { "Authorization" => authorization_header }) }
+
+          it 'returns nil so the scheme-specific locator can claim the header' do
+            expect(subject).to be_nil
+          end
+        end
+      end
     end
 
     context 'with :http_bearer_token' do

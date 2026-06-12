@@ -8,22 +8,15 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
   include_context 'ProjectPolicy context'
 
   let_it_be_with_reload(:project_with_runner_registration_token) do
-    create(:project, :public, :allow_runner_registration_token)
+    create(:project, :public, :allow_runner_registration_token,
+      guests: guest, planners: planner, reporters: reporter,
+      security_managers: security_manager, developers: developer,
+      maintainers: maintainer, owners: owner)
   end
 
   let(:project) { public_project }
 
   subject { described_class.new(current_user, project) }
-
-  before_all do
-    project_with_runner_registration_token.add_guest(guest)
-    project_with_runner_registration_token.add_planner(planner)
-    project_with_runner_registration_token.add_reporter(reporter)
-    project_with_runner_registration_token.add_security_manager(security_manager)
-    project_with_runner_registration_token.add_developer(developer)
-    project_with_runner_registration_token.add_maintainer(maintainer)
-    project_with_runner_registration_token.add_owner(owner)
-  end
 
   context 'with no project feature' do
     let(:current_user) { owner }
@@ -323,18 +316,11 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
   context 'with self or ancestor archived' do
     let_it_be_with_reload(:group) { create(:group) }
     let_it_be_with_reload(:subgroup) { create(:group, parent: group) }
-    let_it_be_with_reload(:group_project) { create(:project, :repository, group: group) }
-    let_it_be_with_reload(:subgroup_project) { create(:project, :repository, group: subgroup) }
-    let_it_be_with_reload(:user_namespace_project) { create(:project, :repository) }
+    let_it_be_with_reload(:group_project) { create(:project, :repository, group: group, developers: developer, maintainers: maintainer) }
+    let_it_be_with_reload(:subgroup_project) { create(:project, :repository, group: subgroup, developers: developer, maintainers: maintainer) }
+    let_it_be_with_reload(:user_namespace_project) { create(:project, :repository, developers: developer, maintainers: maintainer) }
 
     let(:current_user) { maintainer }
-
-    before_all do
-      [group_project, subgroup_project, user_namespace_project].each do |project|
-        project.add_developer(developer)
-        project.add_maintainer(maintainer)
-      end
-    end
 
     shared_examples 'archived project behavior' do
       it 'disallows write operations' do
@@ -449,16 +435,12 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
 
   context 'when project is scheduled for deletion' do
     let_it_be_with_reload(:group) { create(:group) }
-    let_it_be_with_reload(:group_project) { create(:project, :repository, group: group) }
     let_it_be(:project_owner) { create(:user) }
+    let_it_be_with_reload(:group_project) do
+      create(:project, :repository, group: group, developers: developer, maintainers: maintainer, owners: project_owner)
+    end
 
     let(:current_user) { maintainer }
-
-    before_all do
-      group_project.add_developer(developer)
-      group_project.add_maintainer(maintainer)
-      group_project.add_owner(project_owner)
-    end
 
     shared_examples 'deletion scheduled project behavior' do
       it 'disallows write operations' do
@@ -1524,7 +1506,7 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
   context 'deploy key access' do
     context 'private project' do
       let(:project) { private_project }
-      let!(:deploy_key) { create(:deploy_key, user: owner) }
+      let_it_be(:deploy_key) { create(:deploy_key, user: owner) }
 
       subject { described_class.new(deploy_key, project) }
 
@@ -2176,27 +2158,9 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
     end
 
     context 'with various analytics features' do
-      let_it_be(:project_with_analytics_disabled) { create(:project, :analytics_disabled) }
-      let_it_be(:project_with_analytics_private) { create(:project, :analytics_private) }
-      let_it_be(:project_with_analytics_enabled) { create(:project, :analytics_enabled) }
-
-      before_all do
-        project_with_analytics_disabled.add_guest(guest)
-        project_with_analytics_private.add_guest(guest)
-        project_with_analytics_enabled.add_guest(guest)
-
-        project_with_analytics_disabled.add_guest(planner)
-        project_with_analytics_private.add_guest(planner)
-        project_with_analytics_enabled.add_guest(planner)
-
-        project_with_analytics_disabled.add_reporter(reporter)
-        project_with_analytics_private.add_reporter(reporter)
-        project_with_analytics_enabled.add_reporter(reporter)
-
-        project_with_analytics_disabled.add_developer(developer)
-        project_with_analytics_private.add_developer(developer)
-        project_with_analytics_enabled.add_developer(developer)
-      end
+      let_it_be(:project_with_analytics_disabled) { create(:project, :analytics_disabled, guests: [guest, planner], reporters: reporter, developers: developer) }
+      let_it_be(:project_with_analytics_private) { create(:project, :analytics_private, guests: [guest, planner], reporters: reporter, developers: developer) }
+      let_it_be(:project_with_analytics_enabled) { create(:project, :analytics_enabled, guests: [guest, planner], reporters: reporter, developers: developer) }
 
       context 'when analytics is disabled for the project' do
         let(:project) { project_with_analytics_disabled }
@@ -4221,7 +4185,7 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
 
     context 'with cross-project push via allowlisted project' do
       let(:current_user) { developer }
-      let_it_be(:source_project) { create(:project, :private) }
+      let_it_be(:source_project) { create(:project, :private, developers: developer, reporters: reporter) }
       let(:project) { public_project }
       let(:job) { build_stubbed(:ci_build, project: source_project, user: current_user) }
 
@@ -4244,11 +4208,6 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
           target_project: source_project,
           direction: :inbound,
           **link)
-      end
-
-      before_all do
-        source_project.add_developer(developer)
-        source_project.add_reporter(reporter)
       end
 
       before do

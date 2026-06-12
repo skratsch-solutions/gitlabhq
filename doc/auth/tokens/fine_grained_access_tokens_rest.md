@@ -1504,6 +1504,7 @@ Grants the ability to create, delete, read, and update packages.
 | Read | Project | `GET` | `/projects/:id/packages/pypi/files/:sha256/*file_identifier` |
 | Read | Project | `GET` | `/projects/:id/packages/pypi/simple` |
 | Read | Project | `GET` | `/projects/:id/packages/pypi/simple/*package_name` |
+| Read | Project | `GET` | `/projects/:id/packages/rubygems/:file_name` |
 | Read | Project | `GET` | `/projects/:id/packages/rubygems/api/v1/dependencies` |
 | Read | Project | `GET` | `/projects/:id/packages/rubygems/gems/:file_name` |
 | Read | Project | `GET` | `/projects/:id/packages/rubygems/quick/Marshal.4.8/:file_name` |

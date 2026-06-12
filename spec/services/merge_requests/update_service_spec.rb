@@ -6,11 +6,15 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
   include ProjectForksHelper
 
   let_it_be(:group) { create(:group, :public) }
-  let_it_be(:project, freeze: false) { create(:project, :private, :repository, group: group) }
   let_it_be(:user) { create(:user) }
   let_it_be(:user2) { create(:user) }
   let_it_be(:user3) { create(:user) }
   let_it_be(:service_account) { create(:user, :service_account, composite_identity_enforced: true) }
+  let_it_be(:project, freeze: false) do
+    create(:project, :private, :repository, group: group,
+      maintainers: user, developers: [user2, user3, service_account])
+  end
+
   let_it_be(:label, freeze: false) { create(:label, title: 'a', project: project) }
   let_it_be(:label2, freeze: false) { create(:label) }
   let_it_be(:milestone) { create(:milestone, project: project) }
@@ -29,13 +33,6 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
   end
 
   let(:current_user) { user }
-
-  before_all do
-    project.add_maintainer(user)
-    project.add_developer(user2)
-    project.add_developer(user3)
-    project.add_developer(service_account)
-  end
 
   describe 'execute' do
     def find_note(starting_with)
@@ -392,12 +389,8 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
       end
 
       context 'when current user cannot admin issues in the project' do
-        let_it_be(:guest) { create(:user) }
+        let_it_be(:guest) { create(:user, guest_of: project) }
         let(:current_user) { guest }
-
-        before_all do
-          project.add_guest(guest)
-        end
 
         before do
           update_merge_request(opts)
@@ -822,7 +815,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
       end
 
       context 'when the milestone is removed' do
-        let!(:non_subscriber) { create(:user) }
+        let_it_be(:non_subscriber) { create(:user) }
 
         let!(:subscriber) do
           create(:user) do |u|
@@ -846,7 +839,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
       end
 
       context 'when the milestone is changed' do
-        let!(:non_subscriber) { create(:user) }
+        let_it_be(:non_subscriber) { create(:user) }
 
         let!(:subscriber) do
           create(:user) do |u|
@@ -973,7 +966,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
     end
 
     context 'when the draft status is changed' do
-      let!(:non_subscriber) { create(:user, developer_of: project) }
+      let_it_be(:non_subscriber) { create(:user, developer_of: project) }
       let!(:subscriber) do
         create(:user, developer_of: project) { |u| merge_request.toggle_subscription(u, project) }
       end
@@ -1118,13 +1111,8 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
     end
 
     context 'when the merge request is relabeled' do
-      let_it_be(:non_subscriber) { create(:user) }
-      let_it_be(:subscriber) { create(:user) { |u| label.toggle_subscription(u, project) } }
-
-      before_all do
-        project.add_developer(non_subscriber)
-        project.add_developer(subscriber)
-      end
+      let_it_be(:non_subscriber) { create(:user, developer_of: project) }
+      let_it_be(:subscriber) { create(:user, developer_of: project) { |u| label.toggle_subscription(u, project) } }
 
       it 'sends notifications for subscribers of newly added labels', :sidekiq_inline do
         opts = { label_ids: [label.id] }

@@ -220,6 +220,7 @@ By default, GitLab Advanced SAST scans the entire repository. You can tune code 
 the following methods:
 
 - Exclude repository paths to reduce the amount of code analyzed.
+- Exclude individual lines using inline comments to suppress specific findings.
 - Turn on diff-based scanning to analyze only the files modified in a merge request (and their
   dependent files).
 - Turn on incremental scanning, which caches the results of prior scanning and so reduces the
@@ -270,6 +271,32 @@ To exclude paths:
 
 - List the excluded paths in the [`SAST_EXCLUDED_PATHS`](_index.md#vulnerability-filters) CI/CD
   variable.
+
+#### Exclude lines
+
+To suppress findings on a specific line, add `gitlab-advanced-sast-exclude` to your source code as a
+comment. The tag is case-insensitive and works with any comment syntax, for example `#`, `//`, or `--`.
+
+Place the comment either on the same line as the finding, or on the line immediately before it:
+
+```python
+# Suppress all findings on the next line (previous-line comment):
+# gitlab-advanced-sast-exclude
+result = db.execute(query)
+
+# Suppress all findings inline:
+result = db.execute(query)  # gitlab-advanced-sast-exclude
+```
+
+To suppress findings from specific rules only, append `:` or `=` followed by one or more rule IDs
+separated by commas:
+
+```python
+# gitlab-advanced-sast-exclude: rule-id-1, rule-id-2
+result = db.execute(query)
+```
+
+When no rule IDs are specified, all findings on that line are suppressed.
 
 #### Diff-based scanning
 

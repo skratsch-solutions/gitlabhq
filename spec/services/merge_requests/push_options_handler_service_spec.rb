@@ -17,8 +17,8 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
   let_it_be(:project_milestone) { create(:milestone, project: project, title: 'ProjectMilestone1.0') }
 
   let(:service) { described_class.new(project: project, current_user: user1, changes: changes, push_options: push_options) }
-  let(:source_branch) { 'fix' }
-  let(:target_branch) { 'feature' }
+  let_it_be(:source_branch) { 'fix' }
+  let_it_be(:target_branch) { 'feature' }
   let(:title) { 'my title' }
   let(:draft_title) { 'Draft: my title' }
   let(:draft) { true }
@@ -201,7 +201,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
     end
@@ -295,7 +295,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can set the merge request to auto merge'
@@ -348,7 +348,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can remove the source branch when it is merged'
@@ -418,7 +418,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can set the target of a merge request'
@@ -430,7 +430,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
   describe '`target_project` push option' do
     let(:changes) { new_branch_changes }
-    let(:double_forked_project) { fork_project(forked_project, user1, repository: true) }
+    let_it_be(:double_forked_project) { fork_project(forked_project, user1, repository: true) }
     let(:service) { described_class.new(project: double_forked_project, current_user: user1, changes: changes, push_options: push_options) }
     let(:push_options) { { create: true, target_project: target_project.full_path } }
 
@@ -496,7 +496,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can set the title of a merge request'
@@ -549,7 +549,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can set the description of a merge request'
@@ -609,7 +609,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can set the draft of a merge request'
@@ -682,7 +682,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can set a merge request to be squashed'
@@ -735,7 +735,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can change labels of a merge request', 2
@@ -788,7 +788,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
     context 'with an existing branch that has a merge request open' do
       let(:changes) { existing_branch_changes }
-      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can change labels of a merge request', 1
@@ -843,7 +843,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
       context 'with an existing branch that has a merge request open' do
         let(:changes) { existing_branch_changes }
-        let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+        let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
         it_behaves_like 'a service that does not create a merge request'
         it_behaves_like 'a service that can set the milestone of a merge request'
@@ -884,7 +884,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
 
   shared_examples 'with an existing branch that has a merge request open in foss' do
     let(:changes) { existing_branch_changes }
-    let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch) }
 
     it_behaves_like 'a service that does not create a merge request'
     it_behaves_like 'a service that can change assignees of a merge request', 1
@@ -936,7 +936,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
     let_it_be(:attacker) { create(:user) }
     let(:push_options) { { title: 'PWNED TITLE' } }
     let(:changes) { existing_branch_changes }
-    let!(:upstream_merge_request) do
+    let_it_be_with_reload(:upstream_merge_request) do
       create(:merge_request, source_project: project, source_branch: source_branch, title: 'Original title')
     end
 
@@ -979,7 +979,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
     end
 
     context 'when the fork owner updates their own fork-to-upstream merge request' do
-      let!(:fork_merge_request) do
+      let_it_be_with_reload(:fork_merge_request) do
         create(:merge_request, source_project: forked_project, target_project: project,
           source_branch: source_branch, title: 'Original title')
       end
@@ -1008,7 +1008,7 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
   describe 'when updating a merge request via push options' do
     let(:push_options) { { title: 'Updated title' } }
     let(:changes) { existing_branch_changes }
-    let!(:merge_request) do
+    let_it_be_with_reload(:merge_request) do
       create(:merge_request, source_project: project, source_branch: source_branch, title: 'Original title')
     end
 

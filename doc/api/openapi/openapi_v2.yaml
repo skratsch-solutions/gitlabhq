@@ -737,7 +737,7 @@ paths:
       operationId: deleteApiV4GroupsIdEpicsEpicIidNotesNoteIdAwardEmojiAwardId
   "/api/v4/groups/{id}/badges":
     get:
-      summary: Gets a list of group badges viewable by the authenticated user.
+      summary: List group badges.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -771,7 +771,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Gets a list of group badges viewable by the authenticated user.
+          description: List group badges.
           schema:
             type: array
             items:
@@ -780,7 +780,7 @@ paths:
       - badges
       operationId: getApiV4GroupsIdBadges
     post:
-      summary: Adds a badge to a group.
+      summary: Add a badge to a group.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -800,7 +800,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdBadges"
       responses:
         '201':
-          description: Adds a badge to a group.
+          description: Add a badge to a group.
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
@@ -839,7 +839,7 @@ paths:
       operationId: getApiV4GroupsIdBadgesRender
   "/api/v4/groups/{id}/badges/{badge_id}":
     get:
-      summary: Gets a badge of a group.
+      summary: Get a badge of a group.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -858,14 +858,14 @@ paths:
         required: true
       responses:
         '200':
-          description: Gets a badge of a group.
+          description: Get a badge of a group.
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: getApiV4GroupsIdBadgesBadgeId
     put:
-      summary: Updates a badge of a group.
+      summary: Update a badge of a group.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -890,14 +890,14 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdBadgesBadgeId"
       responses:
         '200':
-          description: Updates a badge of a group.
+          description: Update a badge of a group.
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: putApiV4GroupsIdBadgesBadgeId
     delete:
-      summary: Removes a badge from the group.
+      summary: Remove a badge from the group.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -10629,7 +10629,7 @@ paths:
       operationId: deleteApiV4ProjectsIdSnippetsSnippetIdNotesNoteIdAwardEmojiAwardId
   "/api/v4/projects/{id}/badges":
     get:
-      summary: Gets a list of project badges viewable by the authenticated user.
+      summary: List project badges.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -10663,8 +10663,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Gets a list of project badges viewable by the authenticated
-            user.
+          description: List project badges.
           schema:
             type: array
             items:
@@ -10673,7 +10672,7 @@ paths:
       - badges
       operationId: getApiV4ProjectsIdBadges
     post:
-      summary: Adds a badge to a project.
+      summary: Add a badge to a project.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -10693,7 +10692,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdBadges"
       responses:
         '201':
-          description: Adds a badge to a project.
+          description: Add a badge to a project.
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
@@ -10732,7 +10731,7 @@ paths:
       operationId: getApiV4ProjectsIdBadgesRender
   "/api/v4/projects/{id}/badges/{badge_id}":
     get:
-      summary: Gets a badge of a project.
+      summary: Get a badge of a project.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -10751,14 +10750,14 @@ paths:
         required: true
       responses:
         '200':
-          description: Gets a badge of a project.
+          description: Get a badge of a project.
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: getApiV4ProjectsIdBadgesBadgeId
     put:
-      summary: Updates a badge of a project.
+      summary: Update a badge of a project.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -10783,14 +10782,14 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdBadgesBadgeId"
       responses:
         '200':
-          description: Updates a badge of a project.
+          description: Update a badge of a project.
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: putApiV4ProjectsIdBadgesBadgeId
     delete:
-      summary: Removes a badge from the project.
+      summary: Remove a badge from the project.
       description: This feature was introduced in GitLab 10.6.
       produces:
       - application/json
@@ -38745,7 +38744,8 @@ paths:
   "/api/v4/projects/{id}/packages/rubygems/{file_name}":
     get:
       summary: Download the spec index file
-      description: This feature was introduced in GitLab 13.9
+      description: Downloads a RubyGems spec index file (specs.4.8.gz, latest_specs.4.8.gz,
+        or prerelease_specs.4.8.gz) for a project.
       produces:
       - application/json
       parameters:
@@ -38759,12 +38759,20 @@ paths:
         name: file_name
         description: Spec file name
         type: file
+        enum:
+        - specs.4.8.gz
+        - latest_specs.4.8.gz
+        - prerelease_specs.4.8.gz
         required: true
       responses:
         '200':
           description: Download the spec index file
+        '400':
+          description: Bad Request
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
           description: Not Found
       tags:
@@ -49113,7 +49121,7 @@ definitions:
     required:
     - link_url
     - image_url
-    description: Adds a badge to a group.
+    description: Add a badge to a group.
   putApiV4GroupsIdBadgesBadgeId:
     type: object
     properties:
@@ -49126,7 +49134,7 @@ definitions:
       name:
         type: string
         description: Name for the badge
-    description: Updates a badge of a group.
+    description: Update a badge of a group.
   putApiV4GroupsIdCustomAttributesKey:
     type: object
     properties:
@@ -56365,7 +56373,7 @@ definitions:
     required:
     - link_url
     - image_url
-    description: Adds a badge to a project.
+    description: Add a badge to a project.
   putApiV4ProjectsIdBadgesBadgeId:
     type: object
     properties:
@@ -56378,7 +56386,7 @@ definitions:
       name:
         type: string
         description: Name for the badge
-    description: Updates a badge of a project.
+    description: Update a badge of a project.
   API_Entities_Branch:
     type: object
     properties:

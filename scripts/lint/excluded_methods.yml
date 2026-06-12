@@ -7,6 +7,9 @@ ee/app/helpers/secrets_management/enrollment_helper.rb:
   - allow_secrets_manager_instance_enrollment?: Called from HAML views and controllers via EE::ApplicationHelper
 app/models/ci/catalog/components_project.rb:
   - fetch_component: Public API method for fetching component data by name; part of the model's interface
+app/models/concerns/organizations/isolatable.rb:
+  - not_isolated?: Will be used in follow up MR
+  - mark_as_isolated!: Will be used when setting Isolation Status
 app/models/project_setting.rb:
   - reviewer_auto_assignment_enabled?: Will be used in follow-up MR for reviewer auto-assignment
 app/models/commit_signatures/x509_commit_signature.rb:
@@ -19,6 +22,8 @@ app/models/jira_import_state.rb:
   - owner_class_attribute_default: Used internally by state_machine
 app/models/merge_request_diff.rb:
   - migrate_files_to_database!: Invoked manually (e.g. from a Rails console) to roll back external diffs to the database
+app/models/organizations/isolation_record.rb:
+  - not_isolated?: Will be used in follow up MR
 app/models/project_statistics.rb:
   - update_wiki_size: Called dynamically, and cannot be removed unless column is removed
   - update_snippets_size: Called dynamically, and cannot be removed unless column is removed

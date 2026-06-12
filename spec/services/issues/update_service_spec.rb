@@ -290,8 +290,8 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
       end
 
       context 'changing issue_type' do
-        let!(:label_1) { create(:label, project: project, title: 'incident') }
-        let!(:label_2) { create(:label, project: project, title: 'missed-sla') }
+        let_it_be(:label_1) { create(:label, project: project, title: 'incident') }
+        let_it_be(:label_2) { create(:label, project: project, title: 'missed-sla') }
 
         before do
           stub_licensed_features(quality_management: true)
@@ -855,7 +855,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
       end
 
       context 'when the milestone is removed' do
-        let!(:non_subscriber) { create(:user) }
+        let_it_be(:non_subscriber) { create(:user) }
 
         let!(:subscriber) do
           create(:user) do |u|
@@ -894,7 +894,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
       end
 
       context 'when the milestone is assigned' do
-        let!(:non_subscriber) { create(:user) }
+        let_it_be(:non_subscriber) { create(:user) }
 
         let!(:subscriber) do
           create(:user) do |u|
@@ -982,7 +982,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
     end
 
     context 'when the issue is relabeled' do
-      let!(:non_subscriber) { create(:user) }
+      let_it_be(:non_subscriber) { create(:user) }
 
       let!(:subscriber) do
         create(:user) do |u|
@@ -1148,7 +1148,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
       let(:label_a) { label }
       let(:label_b) { label2 }
       let(:label_c) { label3 }
-      let(:label_locked) { create(:label, title: 'locked', project: project, lock_on_merge: true) }
+      let_it_be(:label_locked) { create(:label, title: 'locked', project: project, lock_on_merge: true) }
       let(:issuable) { issue }
 
       it_behaves_like 'updating issuable labels'
@@ -1575,13 +1575,9 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
 
     context 'move issue to another project or group' do
       shared_examples 'move issue to another project' do
-        let_it_be(:target_project, freeze: false) { create(:project) }
+        let_it_be(:target_project, freeze: false) { create(:project, maintainers: user) }
 
         context 'valid project' do
-          before do
-            target_project.add_maintainer(user)
-          end
-
           it 'calls the move service with the proper issue and project' do
             expect_next_instance_of(::WorkItems::DataSync::MoveService) do |service|
               expect(service).to receive(:execute).and_call_original
@@ -1615,7 +1611,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         context 'clone' do
           let_it_be(:target_project, freeze: false) { create(:project) }
 
-          before do
+          before_all do
             target_project.add_maintainer(user)
           end
 
@@ -1701,8 +1697,8 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
     end
 
     it_behaves_like 'issuable record does not run quick actions when not editing description' do
-      let(:label) { create(:label, project: project) }
-      let(:assignee) { create(:user, maintainer_of: project) }
+      let_it_be(:label) { create(:label, project: project) }
+      let_it_be(:assignee) { create(:user, maintainer_of: project) }
       let(:existing_issue) { create(:issue, project: project, description: old_description) }
       let(:updated_issuable) { described_class.new(container: project, current_user: user, params: params).execute(existing_issue) }
     end

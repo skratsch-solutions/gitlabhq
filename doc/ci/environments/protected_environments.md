@@ -220,13 +220,6 @@ and are protected at the same time.
 
 ### Configure group-level memberships
 
-{{< history >}}
-
-- Operators are required to have Owner+ role from the original Maintainer+ role and this role change is introduced from GitLab 15.3 [with a flag](https://gitlab.com/gitlab-org/gitlab/-/issues/369873) named `group_level_protected_environment_settings_permission`. Enabled by default.
-- [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/369873) in GitLab 15.4.
-
-{{< /history >}}
-
 To maximize the effectiveness of group-level protected environments,
 [group-level memberships](../../user/group/_index.md) must be correctly
 configured:
@@ -270,12 +263,6 @@ To protect a group-level environment, make sure your environments have the corre
 [`deployment_tier`](_index.md#deployment-tier-of-environments) defined in `.gitlab-ci.yml`.
 
 #### Using the UI
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/325249) in GitLab 15.1.
-
-{{< /history >}}
 
 1. In the top bar, select **Search or go to** and find your group.
 1. In the left sidebar, select **Settings** > **CI/CD**.

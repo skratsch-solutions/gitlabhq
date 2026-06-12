@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe UserRecentEventsFinder do
+RSpec.describe UserRecentEventsFinder, feature_category: :user_profile do
   let_it_be_with_reload(:project_owner) { create(:user) }
   let_it_be_with_reload(:current_user)  { create(:user) }
   let_it_be(:private_project)  { create(:project, :private, creator: project_owner) }

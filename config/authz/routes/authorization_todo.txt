@@ -73,7 +73,6 @@ GET /projects/:id/packages/ml_models/:model_version_id/files/(*path/):file_name
 GET /projects/:id/packages/protection/rules
 GET /projects/:id/packages/rpm/*package_file_id/*file_name
 GET /projects/:id/packages/rpm/repodata/*file_name
-GET /projects/:id/packages/rubygems/:file_name
 GET /projects/:id/repository/commits/:sha/statuses
 GET /projects/:id/snippets
 GET /projects/:id/snippets/:snippet_id

@@ -138,6 +138,7 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       # Cell-local table; organization_id is a plain ID column for namespace path resolution, not a sharding key.
       # No FK or LFK is intended - orphaned tasks are handled by the task service.
       "group_secrets_manager_maintenance_tasks" => "https://gitlab.com/gitlab-org/gitlab/-/work_items/597219",
+      "group_secrets_managers" => "https://gitlab.com/gitlab-org/gitlab/-/issues/583654",
       "import_export_upload_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "instance_type_ci_runner_machines" => "https://gitlab.com/gitlab-org/gitlab/-/issues/525293",
       "instance_type_ci_runners" => "https://gitlab.com/gitlab-org/gitlab/-/issues/525293",
@@ -146,6 +147,7 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       "namespace_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "note_diff_files" => "https://gitlab.com/gitlab-org/gitlab/-/issues/550694",
       "project_import_export_relation_export_upload_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
+      "project_secrets_managers" => "https://gitlab.com/gitlab-org/gitlab/-/issues/583654",
       "project_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "push_rules" => "https://gitlab.com/gitlab-org/gitlab/-/issues/476212",
       "slack_integrations_scopes_archived" => "https://gitlab.com/gitlab-org/gitlab/-/issues/584705",

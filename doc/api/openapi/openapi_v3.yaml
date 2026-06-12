@@ -27247,14 +27247,19 @@ paths:
     get:
       operationId: getApiV4ProjectsIdPackagesRubygemsFileName
       summary: Download the spec index file
-      description: This feature was introduced in GitLab 13.9
+      description: Downloads a RubyGems spec index file (specs.4.8.gz, latest_specs.4.8.gz,
+        or prerelease_specs.4.8.gz) for a project.
       tags:
       - Packages
       responses:
         '200':
           description: OK
+        '400':
+          description: Bad Request
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
           description: Not Found
       parameters:
@@ -27271,6 +27276,11 @@ paths:
         description: Spec file name
         schema:
           type: string
+          enum:
+          - specs.4.8.gz
+          - latest_specs.4.8.gz
+          - prerelease_specs.4.8.gz
+          minLength: 1
         in: path
   "/api/v4/projects/{id}/packages/rubygems/quick/Marshal.4.8/{file_name}":
     get:
@@ -69651,7 +69661,7 @@ paths:
   "/api/v4/groups/{id}/badges":
     get:
       operationId: getApiV4GroupsIdBadges
-      summary: Gets a list of group badges viewable by the authenticated user.
+      summary: List group badges.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -69701,7 +69711,7 @@ paths:
         in: query
     post:
       operationId: postApiV4GroupsIdBadges
-      summary: Adds a badge to a group.
+      summary: Add a badge to a group.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -69773,7 +69783,7 @@ paths:
   "/api/v4/groups/{id}/badges/{badge_id}":
     get:
       operationId: getApiV4GroupsIdBadgesBadgeId
-      summary: Gets a badge of a group.
+      summary: Get a badge of a group.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -69804,7 +69814,7 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdBadgesBadgeId
-      summary: Updates a badge of a group.
+      summary: Update a badge of a group.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -69841,7 +69851,7 @@ paths:
               "$ref": "#/components/schemas/RequestBody_4294eea0e484"
     delete:
       operationId: deleteApiV4GroupsIdBadgesBadgeId
-      summary: Removes a badge from the group.
+      summary: Remove a badge from the group.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -69869,7 +69879,7 @@ paths:
   "/api/v4/projects/{id}/badges":
     get:
       operationId: getApiV4ProjectsIdBadges
-      summary: Gets a list of project badges viewable by the authenticated user.
+      summary: List project badges.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -69919,7 +69929,7 @@ paths:
         in: query
     post:
       operationId: postApiV4ProjectsIdBadges
-      summary: Adds a badge to a project.
+      summary: Add a badge to a project.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -69991,7 +70001,7 @@ paths:
   "/api/v4/projects/{id}/badges/{badge_id}":
     get:
       operationId: getApiV4ProjectsIdBadgesBadgeId
-      summary: Gets a badge of a project.
+      summary: Get a badge of a project.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -70022,7 +70032,7 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdBadgesBadgeId
-      summary: Updates a badge of a project.
+      summary: Update a badge of a project.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges
@@ -70059,7 +70069,7 @@ paths:
               "$ref": "#/components/schemas/RequestBody_4294eea0e484"
     delete:
       operationId: deleteApiV4ProjectsIdBadgesBadgeId
-      summary: Removes a badge from the project.
+      summary: Remove a badge from the project.
       description: This feature was introduced in GitLab 10.6.
       tags:
       - Badges

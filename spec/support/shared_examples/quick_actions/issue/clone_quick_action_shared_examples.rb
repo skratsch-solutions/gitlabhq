@@ -153,10 +153,6 @@ RSpec.shared_examples 'clone quick action' do
 
       before do
         target_project.add_maintainer(user)
-
-        sign_in(user)
-        visit project_issue_path(project, issue)
-        wait_for_all_requests
       end
 
       it 'clones the issue after quickcommand note was updated' do
@@ -178,7 +174,6 @@ RSpec.shared_examples 'clone quick action' do
         expect(issue.reload).to be_open
 
         visit project_issue_path(target_project, issue)
-        wait_for_all_requests
 
         expect(page).to have_content issue.title
       end
@@ -200,7 +195,6 @@ RSpec.shared_examples 'clone quick action' do
         expect(issue.reload).to be_open
 
         visit project_issue_path(target_project, issue)
-        wait_for_all_requests
 
         expect(page).to have_content issue.title
       end

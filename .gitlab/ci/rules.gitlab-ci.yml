@@ -442,7 +442,7 @@
 
 .docs-release-note-categories-patterns: &docs-release-note-categories-patterns
   - "doc/releases/**/*"
-  - "scripts/lint/validate_release_categories.py"
+  - "scripts/lint/validate_release_categories.rb"
 
 .nodejs-patterns: &nodejs-patterns
   - '{package.json,*/package.json,*/*/package.json}'

@@ -818,7 +818,7 @@ lib/gitlab/checks/
 /doc/administration/configure.md @axil @eread
 /doc/administration/consul.md @axil @eread
 /doc/administration/credentials_inventory.md @idurham
-/doc/administration/custom_project_templates.md @brendan777
+/doc/administration/project_templates.md @brendan777
 /doc/administration/dedicated/ @lyspin
 /doc/administration/diff_limits.md @brendan777
 /doc/administration/docs_self_host.md @axil @eread

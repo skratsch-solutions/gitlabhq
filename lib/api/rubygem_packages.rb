@@ -7,6 +7,7 @@ module API
     include ::API::Helpers::Authentication
 
     helpers ::API::Helpers::PackagesHelpers
+    helpers ::API::Helpers::Packages::Rubygems
 
     feature_category :package_registry
     urgency :low
@@ -15,6 +16,11 @@ module API
     # Updating the version should require a GitLab API version change.
     MARSHAL_VERSION = '4.8'
     PACKAGE_FILENAME = 'package.gem'
+    SPEC_INDEX_FILE_NAMES = %W[
+      specs.#{MARSHAL_VERSION}.gz
+      latest_specs.#{MARSHAL_VERSION}.gz
+      prerelease_specs.#{MARSHAL_VERSION}.gz
+    ].freeze
     FILE_NAME_REQUIREMENTS = {
       file_name: API::NO_SLASH_URL_PART_REGEX
     }.freeze
@@ -26,7 +32,7 @@ module API
 
     authenticate_with do |accept|
       accept.token_types(:personal_access_token, :deploy_token, :job_token)
-            .sent_through(:http_token)
+            .sent_through(:http_token, :http_basic_auth)
     end
 
     helpers do
@@ -50,19 +56,33 @@ module API
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       namespace ':id/packages/rubygems' do
         desc 'Download the spec index file' do
-          detail 'This feature was introduced in GitLab 13.9'
+          detail 'Downloads a RubyGems spec index file (specs.4.8.gz, latest_specs.4.8.gz, or ' \
+            'prerelease_specs.4.8.gz) for a project.'
+          success code: 200
           failure [
+            { code: 400, message: 'Bad Request' },
             { code: 401, message: 'Unauthorized' },
+            { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
           tags %w[packages]
         end
         params do
-          requires :file_name, type: String, desc: 'Spec file name', documentation: { type: 'file' }
+          requires :file_name, type: String, values: SPEC_INDEX_FILE_NAMES, desc: 'Spec file name', documentation: { type: 'file' }
         end
+        route_setting :authorization, permissions: :read_ruby_gem, boundary_type: :project
         get ":file_name", requirements: FILE_NAME_REQUIREMENTS do
-          # To be implemented in https://gitlab.com/gitlab-org/gitlab/-/issues/299267
-          not_found!
+          authorize_read_package!(project)
+
+          spec_file = ::Packages::Rubygems::SpecFile
+                        .find_by_project_id_and_file_name(project.id, params[:file_name])
+
+          if spec_file
+            present_carrierwave_file!(spec_file.file)
+          else
+            enqueue_create_spec_files_worker(project)
+            not_found!
+          end
         end
 
         desc 'Download a gemspec file' do

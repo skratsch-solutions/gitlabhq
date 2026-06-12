@@ -73,7 +73,7 @@ docs-lint release-note-categories:
   stage: lint
   needs: []
   script:
-    - python3 scripts/lint/validate_release_categories.py --release-notes doc/releases/**/*.md
+    - ruby scripts/lint/validate_release_categories.rb --release-notes doc/releases/**/*.md
 
 docs-lint mermaid:
   extends:

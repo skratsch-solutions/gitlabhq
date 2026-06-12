@@ -422,13 +422,9 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
 
         context 'when the autocomplete filter is added' do
           let(:filters) { { autocomplete: true } }
-          let_it_be(:member_project) { create(:project, :public, name: 'Test member') }
+          let_it_be(:member_project) { create(:project, :public, name: 'Test member', developers: user) }
           let_it_be(:unrelated_public_project) { create(:project, :public, name: 'Test unrelated') }
           let(:limit_projects) { Project.id_in([member_project.id, unrelated_public_project.id]) }
-
-          before_all do
-            member_project.add_developer(user)
-          end
 
           it 'returns only projects visible to the user' do
             expect(results.objects('projects')).to include(member_project)
@@ -531,11 +527,7 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
             end
 
             context 'when the current_user belongs to a child of the group' do
-              let_it_be(:child_group, freeze: false) { create(:group, parent: group) }
-
-              before_all do
-                child_group.add_developer(user)
-              end
+              let_it_be(:child_group, freeze: false) { create(:group, parent: group, developers: user) }
 
               it 'includes the other user' do
                 expect(user_search_result).to match_array([user, another_user])
@@ -545,10 +537,8 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
 
           context 'when another user is a guest of a private group' do
             let_it_be(:public_parent_group, freeze: false) { create(:group, :public) }
-            let_it_be(:private_group, freeze: false) { create(:group, :private, parent: public_parent_group) }
-
-            before_all do
-              private_group.add_guest(another_user)
+            let_it_be(:private_group, freeze: false) do
+              create(:group, :private, parent: public_parent_group, guests: another_user)
             end
 
             it 'does not include the other user' do
@@ -705,7 +695,7 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
 
   context 'for milestones' do
     let_it_be(:archived_project, freeze: false) { create(:project, :public, :archived) }
-    let_it_be(:private_project_1, freeze: false) { create(:project, :private) }
+    let_it_be(:private_project_1, freeze: false) { create(:project, :private, developers: user) }
     let_it_be(:private_project_2, freeze: false) { create(:project, :private) }
     let_it_be(:internal_project, freeze: false) { create(:project, :internal) }
     let_it_be(:public_project_1, freeze: false) { create(:project, :public) }
@@ -737,10 +727,6 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
     let(:limit_projects) { ProjectsFinder.new(current_user: user).execute }
     let(:query) { 'milestone' }
     let(:scope) { 'milestones' }
-
-    before_all do
-      private_project_1.add_developer(user)
-    end
 
     it 'returns correct set of milestones' do
       expect(results.objects(scope)).to match_array([milestone_1, milestone_2, milestone_3])
@@ -780,8 +766,8 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
     context 'when filtering work_items by work_item_type_ids' do
       let(:task_type) { WorkItems::TypesFramework::Provider.new.find_by_base_type(:task) }
 
-      let!(:task_work_item) { create(:work_item, :task, project: project, title: 'foo task') }
-      let!(:issue_work_item) { create(:work_item, project: project, title: 'foo issue') }
+      let_it_be(:task_work_item) { create(:work_item, :task, project: project, title: 'foo task') }
+      let_it_be(:issue_work_item) { create(:work_item, project: project, title: 'foo issue') }
 
       before_all do
         project.add_developer(user)

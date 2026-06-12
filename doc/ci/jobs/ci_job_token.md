@@ -37,6 +37,7 @@ This access can also [be restricted](#limit-job-token-scope-for-public-or-intern
 {{< history >}}
 
 - Permission to get a single tag [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/216463) in GitLab 18.8.
+- Permission to access the Badges API [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/326910) in GitLab 19.1.
 
 {{< /history >}}
 
@@ -44,6 +45,7 @@ CI/CD job tokens can access the following resources:
 
 | Resource                                                                                              | Notes |
 | ----------------------------------------------------------------------------------------------------- | ----- |
+| [Badges API](../../api/project_badges.md)                                                             | Can access all endpoints in this API. |
 | [Branches API](../../api/branches.md)                                                                 | Can access the `GET /projects/:id/repository/branches` endpoint. |
 | [Commits API](../../api/commits.md)                                                                   | Can access the `GET /projects/:id/repository/commits/:sha` and `GET /projects/:id/repository/commits/:sha/merge_requests` endpoints. |
 | [Container registry](../../user/packages/container_registry/build_and_push_images.md#use-gitlab-cicd) | Used as the `$CI_REGISTRY_PASSWORD` [predefined variable](../variables/predefined_variables.md) to authenticate with the container registry associated with the job's project. |

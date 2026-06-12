@@ -51,7 +51,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
   end
 
   shared_examples 'details view as atom' do
-    let!(:event) { create(:event, project: project) }
+    let_it_be(:event) { create(:event, project: project) }
     let(:format) { :atom }
 
     it { is_expected.to render_template('groups/show') }
@@ -225,7 +225,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
 
       [true, false].each do |can_create_group_status|
         context "and can_create_group is #{can_create_group_status}" do
-          before do
+          before_all do
             User.where(id: [admin_with_admin_mode, admin_without_admin_mode, owner, maintainer, developer, guest]).update_all(can_create_group: can_create_group_status)
           end
 
@@ -769,13 +769,12 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
   end
 
   describe 'POST #restore' do
-    let_it_be(:group, freeze: false) { create(:group, :deletion_scheduled) }
+    let_it_be(:group, freeze: false) { create(:group, :deletion_scheduled, owners: user) }
 
     subject { post :restore, params: { group_id: group.to_param } }
 
     context 'when authenticated user can admin the group' do
       before do
-        group.add_owner(user)
         sign_in(user)
       end
 
@@ -914,10 +913,13 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
 
     context 'when a project inside the group has container repositories' do
+      before_all do
+        create(:container_repository, project: project, name: :image)
+      end
+
       before do
         stub_container_registry_config(enabled: true)
         stub_container_registry_tags(repository: /image/, tags: %w[rc1])
-        create(:container_repository, project: project, name: :image)
       end
 
       it 'does allow the group to be renamed' do
@@ -1328,13 +1330,11 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
 
     context 'when transferring an archived group' do
-      let(:group) { create(:group, :public) }
-      let(:new_parent_group) { create(:group, :public) }
+      let(:group) { create(:group, :public, owners: user) }
+      let(:new_parent_group) { create(:group, :public, owners: user) }
 
       before do
         group.update!(archived: true)
-        group.add_owner(user)
-        new_parent_group.add_owner(user)
 
         put :transfer,
           params: {
@@ -1392,13 +1392,11 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
 
     context 'when groups_and_projects_async_transfer feature flag is enabled' do
-      let(:group) { create(:group, :public) }
-      let(:new_parent_group) { create(:group, :public) }
+      let(:group) { create(:group, :public, owners: user) }
+      let(:new_parent_group) { create(:group, :public, owners: user) }
 
       before do
         stub_feature_flags(groups_and_projects_async_transfer: true)
-        group.add_owner(user)
-        new_parent_group.add_owner(user)
       end
 
       context 'when transferring to a new parent group' do
@@ -1443,11 +1441,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
       end
 
       context 'when transferring to root (no parent group)' do
-        let(:group) { create(:group, :public, :nested) }
-
-        before do
-          group.add_owner(user)
-        end
+        let(:group) { create(:group, :public, :nested, owners: user) }
 
         it 'enqueues the worker with nil parent group id' do
           expect(Namespaces::Groups::TransferWorker).to receive(:perform_async).with(

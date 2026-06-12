@@ -262,6 +262,8 @@ RSpec.describe 'Database schema',
       p_knowledge_graph_tasks: %w[partition_id knowledge_graph_replica_id zoekt_node_id namespace_id], # needed for: partitioning, and performance reasons
       project_secrets_manager_maintenance_tasks: %w[user_id project_id root_namespace_id parent_group_id], # plain ID columns for task service path resolution, no FK needed
       group_secrets_manager_maintenance_tasks: %w[user_id group_id root_namespace_id organization_id], # plain ID columns for task service path resolution, no FK needed
+      project_secrets_managers: %w[organization_id root_namespace_id], # denormalized ids for the trigger-based deprovision flow, no FK needed
+      group_secrets_managers: %w[organization_id root_namespace_id], # denormalized ids for the trigger-based deprovision flow, no FK needed
       # TODO: To remove with https://gitlab.com/gitlab-org/gitlab/-/merge_requests/155256
       approval_merge_request_rules: %w[approval_policy_rule_id],
       ai_testing_terms_acceptances: %w[user_id], # testing terms only have 1 entry, and if the user is deleted the record should remain
