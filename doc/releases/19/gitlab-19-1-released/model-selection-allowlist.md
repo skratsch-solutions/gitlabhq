@@ -10,4 +10,4 @@ level: secondary
 ignore_in_report: true
 ---
 
-For GitLab Duo Agentic Chat, users with the Owner role in a top-level group can now configure an allowlist of approved models, and set an organization-wide default. This gives organizations control over which models users can select when using Agentic Chat.
+For GitLab Duo Agentic Chat, GitLab.com top-level group Owners and GitLab Self-Managed instance administrators can now configure an allowlist of approved models, and set an organization-wide default. This gives organizations control over which models users can select when using Agentic Chat.

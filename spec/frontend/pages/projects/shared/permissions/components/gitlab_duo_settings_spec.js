@@ -2,6 +2,7 @@ import { nextTick } from 'vue';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import GitlabDuoSettings from '~/pages/projects/shared/permissions/components/gitlab_duo_settings.vue';
 import ExclusionSettings from '~/pages/projects/shared/permissions/components/exclusion_settings.vue';
+import { ALL_SETTINGS } from '~/pages/projects/shared/permissions/constants';
 import { parseBoolean } from '~/lib/utils/common_utils';
 
 const defaultProps = {
@@ -46,6 +47,7 @@ describe('GitlabDuoSettings', () => {
   const findCard = () => wrapper.findByTestId('gitlab-duo-settings');
   const findSaveButton = () => wrapper.findByTestId('gitlab-duo-save-button');
   const findDuoSettings = () => wrapper.findByTestId('duo-settings');
+  const findDuoEnabledToggle = () => wrapper.findByTestId('duo_features_enabled_toggle');
   const findDuoCascadingLockIcon = () => wrapper.findByTestId('duo-cascading-lock-icon');
   const findDuoFeaturesEnabledToggle = () => wrapper.findByTestId('duo_features_enabled_toggle');
   const findExclusionSettings = () => wrapper.findComponent(ExclusionSettings);
@@ -821,6 +823,54 @@ describe('GitlabDuoSettings', () => {
 
       expect(findGovernanceCard().exists()).toBe(true);
       expect(findGovernanceLink().attributes('href')).toBe(governancePath);
+    });
+  });
+
+  describe('visibleSettings allowlist', () => {
+    describe('when restricted to the SAST VR workflow setting', () => {
+      beforeEach(() => {
+        wrapper = createWrapper(
+          {
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            visibleSettings: ['duoSastVrWorkflowEnabled'],
+          },
+          { enableVulnerabilityResolution: true },
+        );
+      });
+
+      it('renders only the SAST VR workflow toggle and the save button', () => {
+        expect(findDuoSastVrWorkflowToggle().exists()).toBe(true);
+        expect(findSaveButton().exists()).toBe(true);
+      });
+
+      it('hides the Duo enable toggle and every other Duo setting', () => {
+        expect(findDuoEnabledToggle().exists()).toBe(false);
+        expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
+        expect(findDuoSecretDetectionFpToggle().exists()).toBe(false);
+        expect(findToolApprovalToggle().exists()).toBe(false);
+        expect(findDuoRemoteFlowsToggle().exists()).toBe(false);
+        expect(findExclusionSettings().exists()).toBe(false);
+      });
+    });
+
+    describe('when the allowlist contains ALL_SETTINGS', () => {
+      beforeEach(() => {
+        wrapper = createWrapper(
+          {
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            visibleSettings: [ALL_SETTINGS],
+          },
+          { enableVulnerabilityResolution: true },
+        );
+      });
+
+      it('renders the full set of Duo settings', () => {
+        expect(findDuoEnabledToggle().exists()).toBe(true);
+        expect(findDuoSastVrWorkflowToggle().exists()).toBe(true);
+        expect(findExclusionSettings().exists()).toBe(true);
+      });
     });
   });
 });

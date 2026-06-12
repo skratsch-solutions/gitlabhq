@@ -90,6 +90,9 @@ export default {
         class="gl-detail-layout-sidebar"
         :class="{ 'gl-contents': !showSidebar }"
         data-testid="detail-layout-sidebar"
+        tabindex="0"
+        role="region"
+        :aria-label="__('Sidebar')"
       >
         <slot name="sidebar"></slot>
       </div>

@@ -4,7 +4,13 @@ import CascadingLockIcon from '~/namespaces/cascading_settings/components/cascad
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { __, s__ } from '~/locale';
 
-import { amazonQHelpPath, duoFlowHelpPath, duoHelpPath } from '../constants';
+import {
+  amazonQHelpPath,
+  duoFlowHelpPath,
+  duoHelpPath,
+  ALL_SETTINGS,
+  DUO_SAST_VR_WORKFLOW_ENABLED,
+} from '../constants';
 import ProjectSettingRow from './project_setting_row.vue';
 import ExclusionSettings from './exclusion_settings.vue';
 
@@ -128,6 +134,11 @@ export default {
       required: false,
       default: false,
     },
+    visibleSettings: {
+      type: Array,
+      required: false,
+      default: () => [ALL_SETTINGS],
+    },
   },
   data() {
     return {
@@ -191,6 +202,9 @@ export default {
     showSastVrWorkflow() {
       return this.glFeatures.enableVulnerabilityResolution && this.ultimateFeaturesAvailable;
     },
+    showAllSettings() {
+      return this.visibleSettings.includes(ALL_SETTINGS);
+    },
   },
   watch: {
     duoFeaturesEnabled(isEnabled) {
@@ -208,8 +222,12 @@ export default {
         this.$el.closest('form')?.submit();
       });
     },
+    isSettingVisible(name) {
+      return this.showAllSettings || this.visibleSettings.includes(name);
+    },
   },
   duoFlowHelpPath,
+  DUO_SAST_VR_WORKFLOW_ENABLED,
   i18n: {
     saveChanges: __('Save changes'),
     saveChangesAriaLabel: __('Save changes for GitLab Duo'),
@@ -243,6 +261,7 @@ export default {
         />
       </template>
       <gl-toggle
+        v-if="showAllSettings"
         v-model="duoEnabled"
         class="gl-mt-2"
         :disabled="duoFeaturesLocked"
@@ -256,6 +275,7 @@ export default {
         class="project-feature-setting-group gl-flex gl-flex-col gl-gap-5 gl-pl-5 @md/panel:gl-pl-7"
       >
         <project-setting-row
+          v-if="showAllSettings"
           :label="s__('AI|Enable Auto Review')"
           class="gl-mt-5"
           :help-text="
@@ -278,6 +298,7 @@ export default {
         class="project-feature-setting-group gl-flex gl-flex-col gl-gap-5"
       >
         <project-setting-row
+          v-if="showAllSettings"
           :label="s__('DuoAgentPlatform|Allow flow execution')"
           class="gl-mt-5"
           :help-text="
@@ -314,6 +335,7 @@ export default {
           </template>
         </project-setting-row>
         <project-setting-row
+          v-if="showAllSettings"
           :label="s__('DuoAgentPlatform|Allow foundational flows')"
           :help-text="
             s__(
@@ -344,6 +366,7 @@ export default {
           />
         </project-setting-row>
         <project-setting-row
+          v-if="showAllSettings"
           :label="s__('AiPowered|Tool approval for sessions')"
           class="gl-mt-5"
           :help-text="
@@ -376,7 +399,7 @@ export default {
           />
         </project-setting-row>
         <project-setting-row
-          v-if="dapSessionTrackingAvailable"
+          v-if="dapSessionTrackingAvailable && showAllSettings"
           :label="s__('DuoAgentPlatform|Track GitLab Duo Agent Platform sessions in commits')"
           class="gl-mt-5"
           :help-text="
@@ -396,7 +419,7 @@ export default {
           />
         </project-setting-row>
         <project-setting-row
-          v-if="ultimateFeaturesAvailable"
+          v-if="ultimateFeaturesAvailable && showAllSettings"
           :label="s__('DuoSAST|Turn on SAST false positive detection')"
           class="gl-mt-5"
           :help-text="
@@ -414,7 +437,7 @@ export default {
           />
         </project-setting-row>
         <project-setting-row
-          v-if="glFeatures.duoSecretDetectionFalsePositive"
+          v-if="glFeatures.duoSecretDetectionFalsePositive && showAllSettings"
           :label="s__('DuoSecretDetection|Turn on Secret Detection false positive detection')"
           class="gl-mt-5"
           :help-text="
@@ -434,7 +457,7 @@ export default {
           />
         </project-setting-row>
         <project-setting-row
-          v-if="showSastVrWorkflow"
+          v-if="showSastVrWorkflow && isSettingVisible($options.DUO_SAST_VR_WORKFLOW_ENABLED)"
           :label="s__('DuoSAST|Turn on SAST vulnerability resolution workflow')"
           class="gl-mt-5"
           :help-text="
@@ -457,13 +480,14 @@ export default {
     </project-setting-row>
 
     <exclusion-settings
+      v-if="showAllSettings"
       class="gl-mt-6"
       :exclusion-rules="exclusionRules"
       @update="handleExclusionRulesUpdate"
     />
 
     <!-- Hidden inputs for form submission -->
-    <div v-if="exclusionRules.length > 0">
+    <div v-if="exclusionRules.length > 0 && showAllSettings">
       <input
         v-for="(rule, index) in exclusionRules"
         :key="index"
@@ -474,7 +498,7 @@ export default {
     </div>
 
     <!-- need to use a null for empty array due to strong params deep_munge -->
-    <div v-if="exclusionRules.length === 0">
+    <div v-if="exclusionRules.length === 0 && showAllSettings">
       <input
         type="hidden"
         :name="`project[project_setting_attributes][duo_context_exclusion_settings][exclusion_rules]`"

@@ -5914,6 +5914,35 @@ job:
 
 ---
 
+#### `secrets:gitlab_secrets_manager`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21731) in GitLab 19.0. Requires GitLab Runner 19.0 or later.
+
+{{< /history >}}
+
+Use `secrets:gitlab_secrets_manager` to specify secrets from the [GitLab Secrets Manager](../secrets/secrets_manager/_index.md).
+
+**Keyword type**: Job keyword. You can use it only as part of a job.
+
+**Supported values**:
+
+- `name`: Name of the secret.
+- `source`: Optional. Source of the secret. Defaults to the current project when not specified. For a group secret, use `group/<full-path-to-group>`.
+
+**Example of `secrets:gitlab_secrets_manager`**:
+
+```yaml
+job:
+  secrets:
+    MY_DEPLOY_SECRET:
+      gitlab_secrets_manager:
+        name: deployment_token
+```
+
+---
+
 #### `secrets:azure_key_vault`
 
 Use `secrets:azure_key_vault` to specify secrets provided by a [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/).

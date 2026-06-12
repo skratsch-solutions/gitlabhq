@@ -17,8 +17,7 @@ RSpec.shared_examples 'deploy keys with protected branches' do
         visit project_settings_repository_path(project, anchor: 'js-protected-branches-settings')
 
         click_button 'Add protected branch'
-        find(".js-allowed-to-push").click
-        wait_for_requests
+        find('.js-allowed-to-push:not(.disabled)').click
 
         within('[data-testid="allowed-to-push-dropdown"]') do
           dropdown_headers = page.all('.dropdown-header').map(&:text)
@@ -33,8 +32,7 @@ RSpec.shared_examples 'deploy keys with protected branches' do
         visit project_settings_repository_path(project, anchor: 'js-protected-branches-settings')
 
         click_button 'Add protected branch'
-        find(".js-allowed-to-merge").click
-        wait_for_requests
+        find('.js-allowed-to-merge:not(.disabled)').click
 
         within('[data-testid="allowed-to-merge-dropdown"]') do
           dropdown_headers = page.all('.dropdown-header').map(&:text)
@@ -49,8 +47,7 @@ RSpec.shared_examples 'deploy keys with protected branches' do
         visit project_settings_repository_path(project, anchor: 'js-protected-branches-settings')
 
         within(".js-protected-branch-edit-form") do
-          find(".js-allowed-to-push").click
-          wait_for_requests
+          find('.js-allowed-to-push:not(.disabled)').click
 
           dropdown_headers = page.all('.dropdown-header').map(&:text)
 
@@ -69,8 +66,7 @@ RSpec.shared_examples 'deploy keys with protected branches' do
           visit project_settings_repository_path(project, anchor: 'js-protected-branches-settings')
 
           within(".js-protected-branch-edit-form") do
-            find(".js-allowed-to-push").click
-            wait_for_requests
+            find('.js-allowed-to-push:not(.disabled)').click
 
             within('[data-testid="deploy_key-dropdown-item"]') do
               deploy_key_checkbox = find('[data-testid="dropdown-item-checkbox"]')
@@ -90,8 +86,7 @@ RSpec.shared_examples 'deploy keys with protected branches' do
         visit project_settings_repository_path(project, anchor: 'js-protected-branches-settings')
 
         click_button 'Add protected branch'
-        find(".js-allowed-to-push").click
-        wait_for_requests
+        find('.js-allowed-to-push:not(.disabled)').click
 
         within('[data-testid="allowed-to-push-dropdown"]') do
           dropdown_headers = page.all('.dropdown-header').map(&:text)
@@ -106,8 +101,7 @@ RSpec.shared_examples 'deploy keys with protected branches' do
         visit project_settings_repository_path(project, anchor: 'js-protected-branches-settings')
 
         within(".js-protected-branch-edit-form") do
-          find(".js-allowed-to-push").click
-          wait_for_requests
+          find('.js-allowed-to-push:not(.disabled)').click
 
           dropdown_headers = page.all('.dropdown-header').map(&:text)
 

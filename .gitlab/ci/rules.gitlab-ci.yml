@@ -1798,8 +1798,8 @@
       when: never
     - <<: *if-merge-request-labels-frontend-and-feature-flag
       changes: *setup-test-env-patterns
-    # For tier-2+ pipelines, only run when relevant files change. See https://gitlab.com/gitlab-org/gitlab/-/work_items/602170
-    - <<: *if-merge-request-tier-2-or-above
+    # For tier-1 pipelines, only run when relevant storybook files change
+    - <<: *if-merge-request-tier-1-or-no-tier
       changes:
         - '{,ee/}app/**/*.vue'
         - '{,ee/}app/**/*.stories.js'

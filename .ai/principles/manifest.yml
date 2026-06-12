@@ -54,6 +54,8 @@ principles:
         url: https://docs.gitlab.com/development/database/avoiding_downtime_in_migrations/
       - path: doc/development/database/post_deployment_migrations.md
         url: https://docs.gitlab.com/development/database/post_deployment_migrations/
+      - path: doc/development/database/batched_background_migrations.md
+        url: https://docs.gitlab.com/development/database/batched_background_migrations/
       - path: doc/development/database/rename_database_tables.md
         url: https://docs.gitlab.com/development/database/rename_database_tables/
 
@@ -136,6 +138,33 @@ principles:
       - path: doc/development/database/clickhouse/reviewer_guidelines.md
         url: https://docs.gitlab.com/development/database/clickhouse/reviewer_guidelines/
 
+  # ── Cells ─────────────────────────────────────────────────────────────────
+
+  cells-fundamentals:
+    description: Cells architecture sharding keys, organization data ownership, routable requests, and cell isolation when adding tables or customer-owned resources
+    group: Cells
+    prerequisite: true
+    file_filters:
+      - 'db/docs/**/*.yml'
+      - 'db/migrate/**/*.rb'
+      - 'db/post_migrate/**/*.rb'
+      - 'ee/db/geo/migrate/**/*.rb'
+      - 'app/models/**/*.rb'
+      - 'ee/app/models/**/*.rb'
+    sources:
+      - path: doc/development/cells/_index.md
+        url: https://docs.gitlab.com/development/cells/
+
+  cells-claims:
+    description: Cells globally-unique attribute claims (Cells::Claimable), claim rollout lifecycle, and feature flags for cross-cell uniqueness
+    group: Cells
+    file_filters:
+      - 'app/models/**/*.rb'
+      - 'ee/app/models/**/*.rb'
+    sources:
+      - path: doc/development/cells/claims.md
+        url: https://docs.gitlab.com/development/cells/claims/
+
   # ── Security ──────────────────────────────────────────────────────────────
 
   security:
@@ -158,7 +187,7 @@ principles:
         url: https://docs.gitlab.com/development/fe_guide/security/
 
   authentication:
-    description: Authentication, authorization, and composite identity (Duo agents)
+    description: Authentication, authorization, token handling, OAuth, SAML, identity linking, composite identity, session management, 2FA, MFA, password management
     group: Security
     file_filters:
       - 'app/controllers/**/*.rb'
@@ -272,6 +301,14 @@ principles:
         url: https://docs.gitlab.com/development/backend/ruby_style_guide/
       - path: doc/development/gotchas.md
         url: https://docs.gitlab.com/development/gotchas/
+      - path: doc/development/ruby3_gotchas.md
+        url: https://docs.gitlab.com/development/ruby3_gotchas/
+      - path: doc/development/utilities.md
+        url: https://docs.gitlab.com/development/utilities/
+      - path: doc/development/changelog.md
+        url: https://docs.gitlab.com/development/changelog/
+      - path: doc/development/i18n/pluralization.md
+        url: https://docs.gitlab.com/development/i18n/pluralization/
       - path: doc/development/logging.md
         url: https://docs.gitlab.com/development/logging/
       - path: doc/development/json.md
@@ -356,6 +393,10 @@ principles:
         url: https://docs.gitlab.com/development/graphql_guide/authorization/
       - path: doc/development/graphql_guide/batchloader.md
         url: https://docs.gitlab.com/development/graphql_guide/batchloader/
+      - path: doc/development/graphql_guide/pagination.md
+        url: https://docs.gitlab.com/development/graphql_guide/pagination/
+      - path: doc/development/graphql_guide/array_argument_validation.md
+        url: https://docs.gitlab.com/development/graphql_guide/array_argument_validation/
 
   # ── Workers ───────────────────────────────────────────────────────────────
 
@@ -378,6 +419,22 @@ principles:
         url: https://docs.gitlab.com/development/sidekiq/limited_capacity_worker/
       - path: doc/development/sidekiq/logging.md
         url: https://docs.gitlab.com/development/sidekiq/logging/
+
+  # ── CI/CD internals ───────────────────────────────────────────────────────
+
+  cicd-internals:
+    description: GitLab CI/CD internals — adding pipeline configuration keywords (Ci::Config::Entry classes, feature-flag gating, JSON schema) and creating CI routing/partitioned tables. NOTE this is about GitLab's own CI implementation, not authoring a project's .gitlab-ci.yml
+    group: CI/CD
+    file_filters:
+      - 'lib/gitlab/ci/**/*.rb'
+      - 'ee/lib/gitlab/ci/**/*.rb'
+      - 'app/models/ci/**/*.rb'
+      - 'ee/app/models/ci/**/*.rb'
+    sources:
+      - path: doc/development/cicd/configuration.md
+        url: https://docs.gitlab.com/development/cicd/configuration/
+      - path: doc/development/cicd/cicd_tables.md
+        url: https://docs.gitlab.com/development/cicd/cicd_tables/
 
   # ── Frontend (4 sub-domains) ──────────────────────────────────────────────
 
@@ -534,3 +591,7 @@ principles:
     sources:
       - path: doc/development/internal_analytics/review_guidelines.md
         url: https://docs.gitlab.com/development/internal_analytics/review_guidelines/
+      - path: doc/development/internal_analytics/internal_event_instrumentation/quick_start.md
+        url: https://docs.gitlab.com/development/internal_analytics/internal_event_instrumentation/quick_start/
+      - path: doc/development/internal_analytics/metrics/metrics_instrumentation.md
+        url: https://docs.gitlab.com/development/internal_analytics/metrics/metrics_instrumentation/

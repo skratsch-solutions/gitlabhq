@@ -7,7 +7,7 @@ title: 'Tutorial: Build, test, and deploy your Hugo site with GitLab'
 
 <!-- vale gitlab_base.FutureTense = NO -->
 
-This tutorial walks you through creating a CI/CD pipeline to build, test, and deploy a Hugo site.
+In this tutorial, you'll create a CI/CD pipeline to build, test, and deploy a Hugo site.
 
 By the end of the tutorial, you'll have a working pipeline and a Hugo site deployed on GitLab Pages.
 

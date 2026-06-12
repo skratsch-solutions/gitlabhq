@@ -22,11 +22,16 @@ title: Customize review instructions for the Agent Platform
 
 {{< /history >}}
 
-Create custom merge request review instructions to ensure that GitLab Duo applies consistent and
-specific code review standards to your project.
+Create custom review instructions to provide standards for GitLab Duo to reference when reviewing merge requests.
 
-For example, you can enforce Ruby style conventions only on Ruby files, and Go style
-conventions on Go files.
+For example, you can guide GitLab Duo to focus on Ruby style conventions for Ruby files, and Go style
+conventions for Go files.
+
+> [!note]
+> Custom review instructions are guidance for the AI reviewer, not enforced policies.
+> GitLab Duo uses them as context to shape its review, but cannot guarantee every instruction
+> is applied in every case. Do not rely on custom instructions for security controls,
+> compliance obligations, or other requirements where consistent enforcement is needed.
 
 GitLab Duo appends your custom review instructions to its standard review criteria,
 instead of replacing them.
@@ -39,17 +44,6 @@ To configure custom merge request review instructions:
 
 1. In the root of your repository, create a `.gitlab/duo` directory if one doesn't already exist.
 1. In the `.gitlab/duo` directory, create a file named `mr-review-instructions.yaml`.
-1. Optional. Ask [GitLab Duo Agentic Chat](../../gitlab_duo_chat/agentic_chat.md)
-   to analyze the codebase and documentation, and generate custom review instructions.
-
-   Example prompt:
-
-   ```plaintext
-   I need to create custom rules for GitLab Duo Code Review. When you look at the source code,
-   which languages are missing and need to be added to the mr-review-instructions.yaml
-   file?
-   ```
-
 1. Add your custom instructions using the following format:
 
    ```yaml
@@ -63,7 +57,7 @@ To configure custom merge request review instructions:
          <your_custom_review_instructions>
    ```
 
-   The `fileFilters` section is optional. Use glob patterns in this section to target the rule
+   The `fileFilters` section is optional. Use glob patterns in this section to target the instruction
    to specific files. If you omit `fileFilters` or leave it empty, GitLab Duo applies the
    instruction to every file in the merge request.
 
@@ -243,7 +237,7 @@ File reference resolution has the following constraints:
   summaries.
 
 If you want Code Review Flow to use the exact file contents and not a summary,
-include it as a rule in the `instructions:` field instead of referencing the
+include it directly in the `instructions:` field instead of referencing the
 file. Inline instructions are used as written.
 
 ## Best practices
@@ -266,6 +260,9 @@ When writing custom review instructions:
   meaningful names" is usually already covered. Use custom instructions for
   what only your project knows: internal APIs, architectural conventions,
   domain-specific patterns.
+- Write instructions as guidance, not mandates. Instructions are hints that
+  shape review behavior, not policies that GitLab Duo is required to follow. Avoid
+  wording like "always flag" or "never allow". This phrasing can mislead collaborators into thinking the behavior is guaranteed.
 - Make file patterns reflect the actual scope of the rule. Code Review Flow
   reads each instruction alongside each `fileFilters` reference and applies
   the rule only to files that match those patterns. For example, a rule for "Rails
@@ -923,10 +920,10 @@ codes that start with `I` are informational notes about valid but worth-knowing 
 | `E013` | An entry's `fileFilters` contains a non-string value, such as a number. |
 | `E014` | An entry's `fileFilters` contains a blank string. |
 | `W001` | The file contains an unknown top-level key. |
-| `W002` | The `instructions` list is empty, so no rules apply. |
+| `W002` | The `instructions` list is empty, so no instructions apply. |
 | `W003` | An entry contains keys other than `name`, `instructions`, and `fileFilters`. |
 | `W004` | Two or more entries share the same `name`. |
-| `W007` | The file is empty, so no rules apply. |
+| `W007` | The file is empty, so no instructions apply. |
 | `I001` | An entry is missing the `fileFilters` field, so the instruction applies to every file. |
 | `I002` | An entry's `fileFilters` list is empty, so the instruction applies to every file. |
 

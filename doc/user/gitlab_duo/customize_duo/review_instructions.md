@@ -23,11 +23,16 @@ title: Customize review instructions for GitLab Duo
 
 {{< /history >}}
 
-Create custom merge request review instructions to ensure that GitLab Duo applies consistent and
-specific code review standards to your project.
+Create custom review instructions to provide standards for GitLab Duo to reference when reviewing merge requests.
 
-For example, you can enforce Ruby style conventions only on Ruby files, and Go style
-conventions on Go files.
+For example, you can guide GitLab Duo to focus on Ruby style conventions for Ruby files, and Go style
+conventions for Go files.
+
+> [!note]
+> Custom review instructions are guidance for the AI reviewer, not enforced policies.
+> GitLab Duo uses them as context to shape its review, but cannot guarantee every instruction
+> is applied in every case. Do not rely on custom instructions for security controls,
+> compliance obligations, or other requirements where consistent enforcement is needed.
 
 GitLab Duo appends your custom review instructions to its standard review criteria,
 instead of replacing them.
@@ -53,7 +58,7 @@ To configure custom merge request review instructions:
          <your_custom_review_instructions>
    ```
 
-   The `fileFilters` section is optional. Use glob patterns in this section to target the rule
+   The `fileFilters` section is optional. Use glob patterns in this section to target the instruction
    to specific files. If you omit `fileFilters` or leave it empty, GitLab Duo applies the
    instruction to every file in the merge request.
 
@@ -176,6 +181,9 @@ When writing custom review instructions:
 - Focus on the most important standards.
 - Explain the "why" when helpful.
 - Start with straightforward instructions, and add complexity as needed.
+- Write instructions as guidance, not mandates. Instructions are hints that
+  shape review behavior, not policies that GitLab Duo is required to follow. Avoid
+  wording like "always flag" or "never allow". This phrasing can mislead collaborators into thinking the behavior is guaranteed.
 
 For example:
 

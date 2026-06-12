@@ -51000,6 +51000,9 @@ msgstr ""
 msgid "OfflineTransfer|Invalid source version"
 msgstr ""
 
+msgid "OfflineTransfer|Move groups and their contents to any GitLab instance, even with no network connection between this and the destination instance. With offline transfer you can export groups to an object storage you control, then import the files into the destination instance."
+msgstr ""
+
 msgid "OfflineTransfer|Offline export complete"
 msgstr ""
 
@@ -66441,6 +66444,9 @@ msgstr ""
 msgid "SecurityConfiguration|Other scanner types, including DAST, Container Scanning, and IaC, can be configured via security policies or at the project level."
 msgstr ""
 
+msgid "SecurityConfiguration|Preview profile"
+msgstr ""
+
 msgid "SecurityConfiguration|Profile-based scanner configuration"
 msgstr ""
 
@@ -66534,6 +66540,9 @@ msgid "SecurityConfiguration|Select projects"
 msgstr ""
 
 msgid "SecurityConfiguration|Select scanners"
+msgstr ""
+
+msgid "SecurityConfiguration|Showing projects that match this statistic. Dismiss to view all."
 msgstr ""
 
 msgid "SecurityConfiguration|Shows scanner coverage across all configuration methods, including security policies and CI configuration."
@@ -72741,6 +72750,9 @@ msgid "Showing version #%{versionNumber}"
 msgstr ""
 
 msgid "Side-by-side"
+msgstr ""
+
+msgid "Sidebar"
 msgstr ""
 
 msgid "Sidebar|%{name}: %{value}"
@@ -80633,6 +80645,9 @@ msgstr[1] ""
 msgid "UsageBilling|Daily GitLab Credits usage"
 msgstr ""
 
+msgid "UsageBilling|Daily GitLab Credits usage chart"
+msgstr ""
+
 msgid "UsageBilling|Daily average"
 msgstr ""
 
@@ -80673,6 +80688,9 @@ msgid "UsageBilling|GitLab Credits dashboard is not available."
 msgstr ""
 
 msgid "UsageBilling|GitLab Credits usage"
+msgstr ""
+
+msgid "UsageBilling|GitLab Credits usage trends chart"
 msgstr ""
 
 msgid "UsageBilling|Go to Customers Portal"
@@ -84087,6 +84105,9 @@ msgid "VulnerabilityManagement|Something went wrong, could not fetch AI secret d
 msgstr ""
 
 msgid "VulnerabilityManagement|Something went wrong, could not get user."
+msgstr ""
+
+msgid "VulnerabilityManagement|Something went wrong, could not resolve the vulnerability."
 msgstr ""
 
 msgid "VulnerabilityManagement|Something went wrong, could not start Duo agent session."

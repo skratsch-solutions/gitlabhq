@@ -731,7 +731,6 @@ test-storybook:
     - !reference [.repo-from-artifacts, needs]
     - !reference [.with-fixtures-needs, needs]
     - !reference [.with-graphql-schema-dump-needs, needs]
-  allow_failure: true
   timeout: 60m
   artifacts:
     name: storybook-test-results
@@ -743,7 +742,8 @@ test-storybook:
   script:
     - yarn_install_script_storybook
     - yarn --cwd ./storybook playwright install --with-deps chromium
-    - yarn run storybook:start &
+    - yarn run storybook:build  # Build a static Storybook so stories are pre-compiled (avoids dev-server on-demand compile timeouts)
+    - yarn --cwd ./storybook run serve &
     - STORYBOOK_PID=$!
     - until curl -f http://localhost:6006 >/dev/null 2>&1; do sleep 1; done  # Wait for Storybook to start
     - yarn run storybook:dev:test

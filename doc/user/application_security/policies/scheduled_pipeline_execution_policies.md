@@ -9,7 +9,7 @@ title: Scheduled pipeline execution policies
 
 - Tier: Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-- Status: Experiment
+- Status: Beta
 
 {{< /details >}}
 
@@ -45,6 +45,29 @@ experiments:
 
 > [!note]
 > This feature is experimental and may change in future releases. You should test it thoroughly in a non-production environment only. You should not use this feature in production environments as it may be unstable.
+
+## Test a scheduled pipeline execution policy
+
+Before enabling a scheduled pipeline execution policy across all projects, you can run a test to
+verify that the pipeline works and to understand how the policy impacts your infrastructure.
+The test run executes real pipelines to provide accurate timing and resource estimates.
+
+> [!note]
+> Test runs create real pipelines and consume compute minutes against the target project.
+
+To run a test:
+
+1. In the left sidebar, select **Security** > **Policies**.
+1. Select the scheduled pipeline execution policy you want to test.
+1. Select the **Test runs** tab.
+1. If you are viewing the policy at the group level, select a target project from the dropdown list.
+1. Select **Begin test run**.
+
+The test run creates a pipeline on the selected project using the policy's CI/CD configuration.
+You can monitor the test run status in the **Test runs** tab.
+
+After the test run completes, the **Test runs** tab displays the result, including the duration and
+any error messages.
 
 ## Configure schedule pipeline execution policies
 

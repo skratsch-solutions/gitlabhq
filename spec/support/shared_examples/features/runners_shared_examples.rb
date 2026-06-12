@@ -172,7 +172,7 @@ RSpec.shared_examples 'submits edit runner form' do
     it 'redirects to runner page and shows successful update' do
       expect(current_url).to match(runner_page_path)
 
-      expect(page.find('[data-testid="alert-success"]')).to have_content('saved')
+      expect(find_by_testid('alert-success')).to have_content('saved')
       expect(page).to have_content("#{s_('Runners|Description')} new-runner-description")
     end
   end
