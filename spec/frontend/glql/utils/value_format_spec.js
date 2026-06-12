@@ -7,6 +7,11 @@ import {
   formatterFor,
   axisFormatterFor,
   unitFor,
+  labelForUnit,
+  buildFormatterByLabel,
+  buildSharedAxisFormatter,
+  formatValueForLabel,
+  yAxisTitleFor,
 } from '~/glql/utils/value_format';
 
 describe('formatCount', () => {
@@ -164,5 +169,150 @@ describe('unitFor', () => {
 
   it('returns null for unknown field keys', () => {
     expect(unitFor('unknownField')).toBeNull();
+  });
+});
+
+describe('labelForUnit', () => {
+  it.each`
+    unit          | expected
+    ${'count'}    | ${'Count'}
+    ${'rate'}     | ${'Percentage'}
+    ${'duration'} | ${'Duration'}
+  `('maps $unit to $expected', ({ unit, expected }) => {
+    expect(labelForUnit(unit)).toBe(expected);
+  });
+
+  it('returns an empty string for unknown units', () => {
+    expect(labelForUnit('unknown')).toBe('');
+  });
+
+  it('returns an empty string for null', () => {
+    expect(labelForUnit(null)).toBe('');
+  });
+});
+
+describe('buildFormatterByLabel', () => {
+  const TOTAL_COUNT = { key: 'totalCount', label: 'Total count' };
+  const ACCEPTANCE_RATE = { key: 'acceptanceRate', label: 'Acceptance rate' };
+
+  it('returns a map of label to cell formatter', () => {
+    const map = buildFormatterByLabel([TOTAL_COUNT, ACCEPTANCE_RATE]);
+
+    expect(map['Total count'](1234)).toBe('1,234');
+    expect(map['Acceptance rate'](0.75)).toBe('75%');
+  });
+
+  it('returns an empty object for an empty metrics list', () => {
+    expect(buildFormatterByLabel([])).toEqual({});
+  });
+});
+
+describe('formatValueForLabel', () => {
+  const formatterByLabel = buildFormatterByLabel([
+    { key: 'totalCount', label: 'Total count' },
+    { key: 'acceptanceRate', label: 'Acceptance rate' },
+  ]);
+
+  it('applies the correct formatter for a known label', () => {
+    expect(formatValueForLabel(formatterByLabel, 'Total count', 1234)).toBe('1,234');
+    expect(formatValueForLabel(formatterByLabel, 'Acceptance rate', 0.75)).toBe('75%');
+  });
+
+  it('falls back to identity formatting for an unknown label', () => {
+    expect(formatValueForLabel(formatterByLabel, 'Unknown', 42)).toBe('42');
+  });
+
+  it('renders null as an empty string for an unknown label', () => {
+    expect(formatValueForLabel(formatterByLabel, 'Unknown', null)).toBe('');
+  });
+});
+
+describe('buildSharedAxisFormatter', () => {
+  it('returns a formatter when all metrics share the same unit', () => {
+    const metrics = [
+      { key: 'shownCount', label: 'Shown' },
+      { key: 'acceptedCount', label: 'Accepted' },
+    ];
+    const formatter = buildSharedAxisFormatter(metrics);
+
+    expect(formatter).not.toBeNull();
+    expect(formatter(2500000)).toBe('2.5M');
+  });
+
+  it('returns null when metrics have mixed units', () => {
+    const metrics = [
+      { key: 'totalCount', label: 'Total count' },
+      { key: 'acceptanceRate', label: 'Acceptance rate' },
+    ];
+
+    expect(buildSharedAxisFormatter(metrics)).toBeNull();
+  });
+
+  it('returns null when any metric has an unknown unit', () => {
+    const metrics = [
+      { key: 'totalCount', label: 'Total count' },
+      { key: 'unknownField', label: 'Unknown' },
+    ];
+
+    expect(buildSharedAxisFormatter(metrics)).toBeNull();
+  });
+
+  it('returns null for an empty metrics list', () => {
+    expect(buildSharedAxisFormatter([])).toBeNull();
+  });
+});
+
+describe('yAxisTitleFor', () => {
+  it('returns the metric label for a single metric', () => {
+    const metrics = [{ key: 'totalCount', label: 'Total count' }];
+
+    expect(yAxisTitleFor(metrics)).toBe('Total count');
+  });
+
+  it('returns the unit label when multiple metrics share the same unit', () => {
+    const metrics = [
+      { key: 'shownCount', label: 'Shown' },
+      { key: 'acceptedCount', label: 'Accepted' },
+      { key: 'rejectedCount', label: 'Rejected' },
+    ];
+
+    expect(yAxisTitleFor(metrics)).toBe('Count');
+  });
+
+  it('returns the unit label for rate metrics', () => {
+    const metrics = [
+      { key: 'successRate', label: 'Success rate' },
+      { key: 'failureRate', label: 'Failure rate' },
+    ];
+
+    expect(yAxisTitleFor(metrics)).toBe('Percentage');
+  });
+
+  it('returns an empty string when metrics have mixed units', () => {
+    const metrics = [
+      { key: 'totalCount', label: 'Total count' },
+      { key: 'acceptanceRate', label: 'Acceptance rate' },
+    ];
+
+    expect(yAxisTitleFor(metrics)).toBe('');
+  });
+
+  it('returns an empty string when any metric has an unknown unit', () => {
+    const metrics = [
+      { key: 'totalCount', label: 'Total count' },
+      { key: 'unknownField', label: 'Unknown' },
+    ];
+
+    expect(yAxisTitleFor(metrics)).toBe('');
+  });
+
+  it('returns the metric label even when the unit is unknown', () => {
+    const metrics = [{ key: 'unknownField', label: 'Unknown thing' }];
+
+    expect(yAxisTitleFor(metrics)).toBe('Unknown thing');
+  });
+
+  it('returns an empty string for an empty metrics list', () => {
+    expect(yAxisTitleFor([])).toBe('');
   });
 });

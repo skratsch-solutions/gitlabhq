@@ -239,10 +239,10 @@ RSpec.describe SnippetsFinder do
       end
 
       context 'filter by author' do
-        let!(:other_user) { create(:user) }
-        let!(:other_private_project_snippet) { create(:project_snippet, :private, project: project, author: other_user) }
-        let!(:other_internal_project_snippet) { create(:project_snippet, :internal, project: project, author: other_user) }
-        let!(:other_public_project_snippet) { create(:project_snippet, :public, project: project, author: other_user) }
+        let_it_be(:other_user) { create(:user) }
+        let_it_be(:other_private_project_snippet) { create(:project_snippet, :private, project: project, author: other_user) }
+        let_it_be(:other_internal_project_snippet) { create(:project_snippet, :internal, project: project, author: other_user) }
+        let_it_be(:other_public_project_snippet) { create(:project_snippet, :public, project: project, author: other_user) }
 
         it 'returns all snippets for project members' do
           project.add_developer(user)
@@ -271,7 +271,7 @@ RSpec.describe SnippetsFinder do
 
     context 'filter by snippet type' do
       context 'when filtering by only_personal snippet', :enable_admin_mode do
-        let!(:admin_private_personal_snippet) { create(:personal_snippet, :private, author: admin, organization: common_org) }
+        let_it_be(:admin_private_personal_snippet) { create(:personal_snippet, :private, author: admin, organization: common_org) }
         let(:user_without_snippets) { create :user }
 
         it 'returns all personal snippets for the admin' do
@@ -495,14 +495,10 @@ RSpec.describe SnippetsFinder do
   it_behaves_like 'snippet visibility'
 
   context 'external authorization' do
-    let(:org) { create(:organization) }
-    let(:user) { create(:user) }
-    let(:project) { create(:project, organization: org) }
-    let!(:snippet) { create(:project_snippet, :public, project: project) }
-
-    before do
-      project.add_maintainer(user)
-    end
+    let_it_be(:org) { create(:organization) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:project) { create(:project, organization: org, maintainers: user) }
+    let_it_be(:snippet) { create(:project_snippet, :public, project: project) }
 
     it_behaves_like 'a finder with external authorization service' do
       let(:org) { create(:organization) }

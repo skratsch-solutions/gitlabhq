@@ -6,8 +6,14 @@ import {
   buildStackedByMetric,
   tooltipContentFromParams,
 } from '../../../utils/chart_data';
-import { formatterFor, axisFormatterFor, unitFor } from '../../../utils/value_format';
-import FormattedTooltipContent from './formatted_tooltip_content.vue';
+import {
+  axisFormatterFor,
+  buildFormatterByLabel,
+  buildSharedAxisFormatter,
+  formatValueForLabel,
+  yAxisTitleFor,
+} from '../../../utils/value_format';
+import FormattedTooltipContent from '../chart/formatted_tooltip_content.vue';
 
 export default {
   name: 'SingleDimensionColumnChart',
@@ -46,17 +52,11 @@ export default {
     multiMetricData() {
       return buildStackedByMetric(this.data.nodes, this.dimension, this.metrics);
     },
-    // Keyed by `metric.label` because ECharts identifies series by `seriesName`
-    // (= `metric.label`). Two metrics with the same label would collide — labels
-    // come from upstream metric definitions and are expected to be unique.
     formatterByLabel() {
-      return Object.fromEntries(this.metrics.map((m) => [m.label, formatterFor(m.key)]));
+      return buildFormatterByLabel(this.metrics);
     },
     sharedAxisFormatter() {
-      // null when metrics span more than one unit. Fallback to Echart default formatter
-      const units = this.metrics.map((m) => unitFor(m.key));
-      if (units[0] == null || !units.every((u) => u === units[0])) return null;
-      return axisFormatterFor(this.metrics[0]?.key);
+      return buildSharedAxisFormatter(this.metrics);
     },
     chartOptions() {
       // Dual-axis: per-metric formatter on each axis. ECharts deep-merges yAxis
@@ -83,16 +83,13 @@ export default {
       return this.stacked ? stackedPresentationOptions.stacked : stackedPresentationOptions.tiled;
     },
     yAxisTitle() {
-      if (this.useSingleAxisChart) return '';
+      if (this.useSingleAxisChart) return yAxisTitleFor(this.metrics);
       return this.metrics[0]?.label ?? '';
     },
   },
   methods: {
-    // Unknown labels fall back to identity rather than the primary metric's
-    // formatter — otherwise a mixed-unit chart would mis-format e.g. a count
-    // value as a percentage.
     formatValueByLabel(label, value) {
-      return (this.formatterByLabel[label] ?? formatterFor(null))(value);
+      return formatValueForLabel(this.formatterByLabel, label, value);
     },
     contentFromParams: tooltipContentFromParams,
   },

@@ -5863,10 +5863,10 @@ msgstr ""
 msgid "AdminAIPoweredFeatures|Successfully updated available models for %{title}"
 msgstr ""
 
-msgid "AdminAIPoweredFeatures|This is the current default model, and users always have access to it. To restrict users' access to it, change the default to another model."
+msgid "AdminAIPoweredFeatures|This is the currently selected model for Agentic Chat, which is always available to users. To remove it from the list, select a different model."
 msgstr ""
 
-msgid "AdminAIPoweredFeatures|When turned on, users can only use the models selected below. When turned off, users can use all available %{linkStart}GitLab managed models%{linkEnd}, including those added in the future."
+msgid "AdminAIPoweredFeatures|When turned on, users can only use the models selected below, which always includes the currently selected default model. When turned off, users can use all available %{linkStart}GitLab managed models%{linkEnd} (including those added in the future), unless a non-GitLab default model is set as the model for Agentic Chat, in which case users can only use that model."
 msgstr ""
 
 msgid "AdminAiPoweredFeatures|%{selected_model} is incompatible with the %{title} feature"
@@ -90793,6 +90793,15 @@ msgid "line"
 msgid_plural "lines"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "lineChart requires at least one dimension"
+msgstr ""
+
+msgid "lineChart requires at least one metric"
+msgstr ""
+
+msgid "lineChart supports exactly one dimension"
+msgstr ""
 
 msgid "load it anyway"
 msgstr ""

@@ -2,6 +2,7 @@ package duoworkflow
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -1343,6 +1344,42 @@ func TestRunner_sendActionToWs(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Regression guard: the agent_context_usage field is only re-marshaled to the
+// webSocket client if the pinned gopb proto client defines it.
+func TestRunner_sendActionToWs_NewCheckpointAgentContextUsage(t *testing.T) {
+	mockConn := &mockWebSocketConn{}
+	r := &runner{conn: mockConn}
+
+	action := &pb.Action{
+		RequestID: "req-checkpoint",
+		Action: &pb.Action_NewCheckpoint{
+			NewCheckpoint: &pb.NewCheckpoint{
+				Status: "running",
+				AgentContextUsage: map[string]*pb.TokenBreakdown{
+					"chat": {TotalTokens: 1234, MaxTokens: 200000},
+				},
+			},
+		},
+	}
+
+	require.NoError(t, r.sendActionToWs(action))
+	require.Len(t, mockConn.writeMessages, 1)
+
+	var payload struct {
+		NewCheckpoint struct {
+			AgentContextUsage map[string]struct {
+				TotalTokens int `json:"total_tokens"`
+				MaxTokens   int `json:"max_tokens"`
+			} `json:"agent_context_usage"`
+		} `json:"newCheckpoint"`
+	}
+	require.NoError(t, json.Unmarshal(mockConn.writeMessages[0], &payload))
+
+	require.Contains(t, payload.NewCheckpoint.AgentContextUsage, "chat")
+	assert.Equal(t, 1234, payload.NewCheckpoint.AgentContextUsage["chat"].TotalTokens)
+	assert.Equal(t, 200000, payload.NewCheckpoint.AgentContextUsage["chat"].MaxTokens)
 }
 
 func Test_intersectServerCapabilities(t *testing.T) {

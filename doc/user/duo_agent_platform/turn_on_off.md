@@ -53,8 +53,11 @@ To turn Agent Platform on or off for a top-level group:
 
 Agent Platform availability changes for all subgroups and projects.
 
-When Agent Platform is turned off, related settings for flows and
-[foundational agents](agents/foundational_agents/_index.md#turn-foundational-agents-on-or-off) are hidden.
+When Agent Platform is turned off, the following features are hidden:
+
+- Related settings for flows and
+  [foundational agents](agents/foundational_agents/_index.md#turn-foundational-agents-on-or-off).
+- The AI Catalog.
 
 ### On GitLab Self-Managed
 
@@ -70,8 +73,11 @@ To turn Agent Platform on or off for an instance:
 1. Under **GitLab Duo Agent Platform**, select or clear the **Turn on GitLab Duo Agentic Chat, agents, and flows** checkbox.
 1. Select **Save changes**.
 
-When Agent Platform is turned off, related settings for flows and
-[foundational agents](agents/foundational_agents/_index.md#turn-foundational-agents-on-or-off) are hidden.
+When Agent Platform is turned off, the following features are hidden:
+
+- Related settings for flows and
+  [foundational agents](agents/foundational_agents/_index.md#turn-foundational-agents-on-or-off).
+- The AI Catalog.
 
 ## Lock GitLab Duo on
 

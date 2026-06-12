@@ -5,6 +5,7 @@ export const DISPLAY_TYPES = {
   ORDERED_LIST: 'orderedList',
   TABLE: 'table',
   COLUMN_CHART: 'columnChart',
+  LINE_CHART: 'lineChart',
 };
 
 // Display types that opt into the page-size default and the load-more UI.

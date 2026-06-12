@@ -2,7 +2,7 @@
 import { GlStackedColumnChart } from '@gitlab/ui/src/charts';
 import { buildStackedByDimension, tooltipContentFromParams } from '../../../utils/chart_data';
 import { formatterFor, axisFormatterFor } from '../../../utils/value_format';
-import FormattedTooltipContent from './formatted_tooltip_content.vue';
+import FormattedTooltipContent from '../chart/formatted_tooltip_content.vue';
 
 export default {
   name: 'TwoDimensionsColumnChart',

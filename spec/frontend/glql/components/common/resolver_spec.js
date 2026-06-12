@@ -299,7 +299,7 @@ describe('Resolver', () => {
 
     const lastEmittedChange = () => wrapper.emitted('change').slice(-1)[0][0];
 
-    describe.each(['columnChart'])('non-paginated display type: %s', (display) => {
+    describe.each(['columnChart', 'lineChart'])('non-paginated display type: %s', (display) => {
       it('does not set the default limit variable', async () => {
         await setup({ display });
 

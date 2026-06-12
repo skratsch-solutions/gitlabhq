@@ -1,4 +1,4 @@
-import { formatNumber } from '~/locale';
+import { __, formatNumber } from '~/locale';
 import {
   timeIntervalInWords,
   humanizeTimeInterval,
@@ -56,3 +56,57 @@ export const unitFor = (fieldKey) => unitByFieldKey[fieldKey] ?? null;
 export const formatterFor = (fieldKey) => UNITS[unitFor(fieldKey)]?.cell ?? rawString;
 
 export const axisFormatterFor = (fieldKey) => UNITS[unitFor(fieldKey)]?.axis ?? rawString;
+
+const UNIT_LABELS = {
+  count: () => __('Count'),
+  rate: () => __('Percentage'),
+  duration: () => __('Duration'),
+};
+
+/**
+ * Returns a human-readable label for the given unit key.
+ * Used as the Y-axis title when multiple metrics share the same unit.
+ */
+export const labelForUnit = (unit) => UNIT_LABELS[unit]?.() ?? '';
+
+/**
+ * Builds a map of { [metricLabel]: cellFormatter } for tooltip formatting.
+ * Shared across all chart types that display multiple metrics.
+ */
+export const buildFormatterByLabel = (metrics) =>
+  Object.fromEntries(metrics.map((m) => [m.label, formatterFor(m.key)]));
+
+/**
+ * Looks up the cell formatter for a series label and applies it to a value.
+ * Falls back to identity formatting for unknown labels so mixed-unit charts
+ * never mis-format a value (e.g. rendering a count as a percentage).
+ */
+export const formatValueForLabel = (formatterByLabel, label, value) =>
+  (formatterByLabel[label] ?? formatterFor(null))(value);
+
+/**
+ * Returns the compact axis formatter when all metrics share the same unit,
+ * or null when they have mixed units (letting ECharts use its default).
+ */
+export const buildSharedAxisFormatter = (metrics) => {
+  if (metrics.length === 0) return null;
+  const units = metrics.map((m) => unitFor(m.key));
+  if (units[0] == null || !units.every((u) => u === units[0])) return null;
+  return axisFormatterFor(metrics[0]?.key);
+};
+
+/**
+ * Derives a Y-axis title from the metrics list:
+ * - Single metric: the metric's own label (e.g. "Total count")
+ * - Multiple metrics, same unit: the unit label (e.g. "Count")
+ * - Multiple metrics, mixed units: empty string
+ */
+export const yAxisTitleFor = (metrics) => {
+  if (metrics.length === 0) return '';
+  if (metrics.length === 1) return metrics[0].label;
+  const units = metrics.map((m) => unitFor(m.key));
+  if (units[0] != null && units.every((u) => u === units[0])) {
+    return labelForUnit(units[0]);
+  }
+  return '';
+};

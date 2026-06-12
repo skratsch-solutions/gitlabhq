@@ -1,6 +1,6 @@
 import { GlChartSeriesLabel } from '@gitlab/ui/src/charts';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
-import FormattedTooltipContent from '~/glql/components/presenters/column_chart/formatted_tooltip_content.vue';
+import FormattedTooltipContent from '~/glql/components/presenters/chart/formatted_tooltip_content.vue';
 
 describe('FormattedTooltipContent', () => {
   let wrapper;

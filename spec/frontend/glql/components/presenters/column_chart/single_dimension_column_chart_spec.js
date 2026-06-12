@@ -144,8 +144,8 @@ describe('SingleDimensionColumnChart', () => {
       expect(findStackedChart().props('presentation')).toBe('tiled');
     });
 
-    it('leaves the y-axis title empty (axis represents multiple metrics)', () => {
-      expect(findStackedChart().props('yAxisTitle')).toBe('');
+    it('labels the y-axis with the shared unit when all metrics have the same unit', () => {
+      expect(findStackedChart().props('yAxisTitle')).toBe('Count');
     });
 
     it('maps each metric to its own bar series', () => {
@@ -167,7 +167,7 @@ describe('SingleDimensionColumnChart', () => {
       expect(findStackedChart().props('presentation')).toBe('stacked');
     });
 
-    it('leaves the y-axis title empty', () => {
+    it('leaves the y-axis title empty when metrics have mixed units', () => {
       expect(findStackedChart().props('yAxisTitle')).toBe('');
     });
   });
@@ -179,6 +179,10 @@ describe('SingleDimensionColumnChart', () => {
 
     it('renders GlStackedColumnChart in stacked presentation', () => {
       expect(findStackedChart().props('presentation')).toBe('stacked');
+    });
+
+    it('labels the y-axis with the shared unit', () => {
+      expect(findStackedChart().props('yAxisTitle')).toBe('Count');
     });
   });
 
