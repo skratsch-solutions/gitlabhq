@@ -48,12 +48,6 @@ For more information, see [Accessibility testing](../testing/accessibility_testi
 
 ## `artifacts:reports:annotations`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/38337) in GitLab 16.3.
-
-{{< /history >}}
-
 The `annotations` report is used to attach auxiliary data to a job.
 
 An annotations report is a JSON file with annotation sections. Each annotation

@@ -209,7 +209,7 @@ And optionally:
   - Pipeline, the `include` files are fetched again. If they changed after the last
     pipeline run, the new pipeline uses the changed configuration.
 - You can have up to 150 includes per pipeline by default, including [nested](includes.md#use-nested-includes). Additionally:
-  - In [GitLab 16.0 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/207270) users on GitLab Self-Managed can
+  - Users on GitLab Self-Managed can
     change the [maximum includes](../../administration/cicd/limits.md#maximum-number-of-includes) value.
   - In nested includes, the same file can be included multiple times, but duplicated includes
     count towards the limit.
@@ -426,7 +426,6 @@ include:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/391331) in GitLab 15.11 as a beta feature.
 - [Made generally available](https://gitlab.com/gitlab-com/www-gitlab-com/-/merge_requests/134062) in GitLab 17.0.
 
 {{< /history >}}
@@ -1082,7 +1081,6 @@ spec:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/393401) in GitLab 16.6.
 - Support for array type inputs [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/566155) in GitLab 19.0.
 
 {{< /history >}}
@@ -2108,7 +2106,6 @@ job:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/330047) in GitLab 15.0, caches are not shared between protected and unprotected branches.
 - [Updated](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/5543) in GitLab Runner 18.1. During the caching process,
   `symlinks` are no longer followed, which happened in some edge cases with previous GitLab Runner versions.
 
@@ -2406,12 +2403,6 @@ rspec:
 ---
 
 #### `cache:unprotect`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/362114) in GitLab 15.8.
-
-{{< /history >}}
 
 Use `cache:unprotect` to set a cache to be shared between [protected](../../user/project/repository/branches/protected.md)
 and unprotected branches.
@@ -2862,7 +2853,6 @@ stop_review_app:
 
 {{< history >}}
 
-- CI/CD variable support [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/365140) in GitLab 15.4.
 - [Updated](https://gitlab.com/gitlab-org/gitlab/-/issues/437133) to support `prepare`, `access` and `verify` environment actions in GitLab 17.7.
 
 {{< /history >}}
@@ -3123,13 +3113,6 @@ rubocop:
 
 ### `hooks`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/356850) in GitLab 15.6 [with a flag](../../administration/feature_flags/_index.md) named `ci_hooks_pre_get_sources_script`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/381840) in GitLab 15.10. Feature flag `ci_hooks_pre_get_sources_script` removed.
-
-{{< /history >}}
-
 Use `hooks` to specify lists of commands to execute on the runner
 at certain stages of job execution, like before retrieving the Git repository.
 
@@ -3147,13 +3130,6 @@ the job configuration takes precedence and the default configuration is not used
 ---
 
 #### `hooks:pre_get_sources_script`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/356850) in GitLab 15.6 [with a flag](../../administration/feature_flags/_index.md) named `ci_hooks_pre_get_sources_script`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/381840) in GitLab 15.10. Feature flag `ci_hooks_pre_get_sources_script` removed.
-
-{{< /history >}}
 
 Use `hooks:pre_get_sources_script` to specify a list of commands to execute on the runner
 before cloning the Git repository and any submodules.
@@ -3230,12 +3206,6 @@ job_with_workload_identity:
 ---
 
 ### `id_tokens`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/356986) in GitLab 15.7.
-
-{{< /history >}}
 
 Use `id_tokens` to create [ID tokens](../secrets/id_token_authentication.md) to authenticate with third party services. All
 JWTs created this way support OIDC authentication. The required `aud` sub-keyword is used to configure the `aud` claim for the JWT.
@@ -3388,13 +3358,6 @@ test-job:
 
 #### `image:docker`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27919) in GitLab 16.7. Requires GitLab Runner 16.7 or later.
-- `user` input option [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/137907) in GitLab 16.8.
-
-{{< /history >}}
-
 Use `image:docker` to pass options to runners using the [Docker executor](https://docs.gitlab.com/runner/executors/docker/)
 or the [Kubernetes executor](https://docs.gitlab.com/runner/executors/kubernetes/).
 This keyword does not work with other executor types.
@@ -3477,16 +3440,7 @@ arm-sql-job:
 
 #### `image:pull_policy`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/21619) in GitLab 15.1 [with a flag](../../administration/feature_flags/_index.md) named `ci_docker_image_pull_policy`. Disabled by default.
-- [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/363186) in GitLab 15.2.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/363186) in GitLab 15.4. [Feature flag `ci_docker_image_pull_policy`](https://gitlab.com/gitlab-org/gitlab/-/issues/363186) removed.
-- Requires GitLab Runner 15.1 or later.
-
-{{< /history >}}
-
-The pull policy that the runner uses to fetch the Docker image.
+The pull policy that the runner uses to fetch the Docker image. Requires GitLab Runner 15.1 or later.
 
 **Keyword type**: Job keyword. You can use it only as part of a job or in the [`default` section](#default).
 
@@ -3787,12 +3741,6 @@ job2:
 ---
 
 ### `interruptible`
-
-{{< history >}}
-
-- Support for `trigger` jobs [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/138508) in GitLab 16.8.
-
-{{< /history >}}
 
 Use `interruptible` to configure the [auto-cancel redundant pipelines](../pipelines/settings.md#auto-cancel-redundant-pipelines)
 feature to cancel a job before it completes if a new pipeline on the same ref starts for a newer commit. If the feature
@@ -4281,12 +4229,6 @@ upstream_status:
 
 #### `needs:parallel:matrix`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/254821) in GitLab 16.3.
-
-{{< /history >}}
-
 Jobs can use [`parallel:matrix`](#parallelmatrix) to run a job multiple times in parallel in a single pipeline,
 but with different variable values for each instance of the job.
 
@@ -4422,7 +4364,6 @@ It also configures the pages deployment to be unpublished after a week.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/415821) in GitLab 16.1.
 - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/500000) to allow variables when passed to `publish` property in GitLab 17.9.
 - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/428018) the `publish` property under the `pages` keyword in GitLab 17.9.
 - [Appended](https://gitlab.com/gitlab-org/gitlab/-/issues/428018) the `pages.publish` path automatically to `artifacts:paths` in GitLab 17.10.
@@ -4584,12 +4525,6 @@ create-pages:
 
 ### `parallel`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/336576) in GitLab 15.9, the maximum value for `parallel` is increased from 50 to 200.
-
-{{< /history >}}
-
 Use `parallel` to run a job multiple times in parallel in a single pipeline.
 
 Multiple runners must exist, or a single runner must be configured to run multiple jobs concurrently.
@@ -4629,12 +4564,6 @@ This example creates 5 jobs that run in parallel, named `test 1/5` to `test 5/5`
 ---
 
 #### `parallel:matrix`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/336576) in GitLab 15.9, the maximum number of permutations is increased from 50 to 200.
-
-{{< /history >}}
 
 Use `parallel:matrix` to run a job multiple times in parallel in a single pipeline,
 but with different variable values for each instance of the job.
@@ -5355,12 +5284,6 @@ In this example:
 
 ##### `rules:changes:paths`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/90171) in GitLab 15.2.
-
-{{< /history >}}
-
 Use `rules:changes` to specify that a job only be added to a pipeline when specific
 files are changed, and use `rules:changes:paths` to specify the files.
 
@@ -5400,8 +5323,6 @@ In this example, both jobs have the same behavior.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/293645) in GitLab 15.3 [with a flag](../../administration/feature_flags/_index.md) named `ci_rules_changes_compare`. Enabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/366412) in GitLab 15.5. Feature flag `ci_rules_changes_compare` removed.
 - Support for CI/CD variables [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/369916) in GitLab 17.2.
 
 {{< /history >}}
@@ -5452,7 +5373,6 @@ relative to `refs/heads/branch1` and the pipeline source is a merge request even
 
 {{< history >}}
 
-- CI/CD variable support [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/283881) in GitLab 15.6.
 - Maximum number of checks against `exists` patterns or file paths [increased](https://gitlab.com/gitlab-org/gitlab/-/issues/227632) from 10,000 to 50,000 in GitLab 17.7.
 - Support for directory paths [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/327485) in GitLab 18.2.
 
@@ -5688,13 +5608,6 @@ If the rule matches, then the job is a manual job with `allow_failure: true`.
 
 #### `rules:needs`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/31581) in GitLab 16.0 [with a flag](../../administration/feature_flags/_index.md) named `introduce_rules_with_needs`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/408871) in GitLab 16.2. Feature flag `introduce_rules_with_needs` removed.
-
-{{< /history >}}
-
 Use `needs` in rules to update a job's [`needs`](#needs) for specific conditions. When a condition matches a rule, the job's `needs` configuration is completely replaced with the `needs` in the rule.
 
 **Keyword type**: Job-specific. You can use it only as part of a job.
@@ -5773,12 +5686,6 @@ job:
 ---
 
 #### `rules:interruptible`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/194023) in GitLab 16.10.
-
-{{< /history >}}
 
 Use `interruptible` in rules to update a job's [`interruptible`](#interruptible) value for specific conditions.
 
@@ -5931,12 +5838,6 @@ Use `secrets` to specify [CI/CD secrets](../secrets/_index.md) to:
 
 #### `secrets:vault`
 
-{{< history >}}
-
-- `generic` engine option [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/366492) in GitLab Runner 16.11.
-
-{{< /history >}}
-
 Use `secrets:vault` to specify secrets provided by a [HashiCorp Vault](https://www.vaultproject.io/).
 
 **Keyword type**: Job keyword. You can use it only as part of a job.
@@ -5987,12 +5888,6 @@ job:
 
 #### `secrets:gcp_secret_manager`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11739) in GitLab 16.8 and GitLab Runner 16.8.
-
-{{< /history >}}
-
 Use `secrets:gcp_secret_manager` to specify secrets provided by [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager).
 
 **Keyword type**: Job keyword. You can use it only as part of a job.
@@ -6020,12 +5915,6 @@ job:
 ---
 
 #### `secrets:azure_key_vault`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/271271) in GitLab 16.3 and GitLab Runner 16.3.
-
-{{< /history >}}
 
 Use `secrets:azure_key_vault` to specify secrets provided by a [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/).
 
@@ -6088,13 +5977,6 @@ job:
 ---
 
 #### `secrets:token`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/356986) in GitLab 15.8, controlled by the **Limit JSON Web Token (JWT) access** setting.
-- [Made always available and **Limit JSON Web Token (JWT) access** setting removed](https://gitlab.com/gitlab-org/gitlab/-/issues/366798) in GitLab 16.0.
-
-{{< /history >}}
 
 Use `secrets:token` to explicitly select a token to use when authenticating with the external secrets provider by referencing the token's CI/CD variable.
 
@@ -6258,13 +6140,6 @@ services:
 
 #### `services:docker`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27919) in GitLab 16.7. Requires GitLab Runner 16.7 or later.
-- `user` input option [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/137907) in GitLab 16.8.
-
-{{< /history >}}
-
 Use `services:docker` to pass options to the Docker executor of a GitLab Runner.
 
 **Keyword type**: Job keyword. You can use it only as part of a job or in the
@@ -6422,14 +6297,6 @@ services:
 ---
 
 #### `services:pull_policy`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/21619) in GitLab 15.1 [with a flag](../../administration/feature_flags/_index.md) named `ci_docker_image_pull_policy`. Disabled by default.
-- [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/363186) in GitLab 15.2.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/363186) in GitLab 15.4. [Feature flag `ci_docker_image_pull_policy`](https://gitlab.com/gitlab-org/gitlab/-/issues/363186) removed.
-
-{{< /history >}}
 
 The pull policy that the runner uses to fetch the Docker image. Requires GitLab Runner 15.1 or later.
 
@@ -6690,12 +6557,6 @@ test:
 
 ### `trigger`
 
-{{< history >}}
-
-- Support for `environment` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/369061) in GitLab 16.4.
-
-{{< /history >}}
-
 Use `trigger` to declare that a job is a "trigger job" which starts a
 [downstream pipeline](../pipelines/downstream_pipelines.md) that is either:
 
@@ -6948,12 +6809,6 @@ successfully complete before starting.
 ---
 
 #### `trigger:forward`
-
-{{< history >}}
-
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/355572) in GitLab 15.1. [Feature flag `ci_trigger_forward_variables`](https://gitlab.com/gitlab-org/gitlab/-/issues/355572) removed.
-
-{{< /history >}}
 
 Use `trigger:forward` to specify what to forward to the downstream pipeline. You can control
 what is forwarded to both [parent-child pipelines](../pipelines/downstream_pipelines.md#parent-child-pipelines)
@@ -7367,12 +7222,6 @@ variables:
 
 #### `variables:options`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/105502) in GitLab 15.7.
-
-{{< /history >}}
-
 Use `variables:options` to define an array of values that are [selectable in the UI when running a pipeline manually](../pipelines/_index.md#configure-a-list-of-selectable-prefilled-variable-values).
 
 Must be used with `variables: value`, and the string defined for `value`:
@@ -7405,15 +7254,6 @@ variables:
 ---
 
 ### `variables:expand`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/353991) in GitLab 15.6 [with a flag](../../administration/feature_flags/_index.md) named `ci_raw_variables_in_yaml_config`. Disabled by default.
-- [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/375034) in GitLab 15.6.
-- [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/375034) in GitLab 15.7.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/375034) in GitLab 15.8. Feature flag `ci_raw_variables_in_yaml_config` removed.
-
-{{< /history >}}
 
 Use the `expand` keyword to configure a variable to be expandable or not.
 

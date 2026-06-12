@@ -445,12 +445,6 @@ the downstream pipeline. See the [additional details in the `trigger:strategy` r
 
 ### View multi-project pipelines in pipeline graphs
 
-{{< history >}}
-
-- [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/422282) from GitLab Premium to GitLab Free in 16.8.
-
-{{< /history >}}
-
 After you trigger a multi-project pipeline, the downstream pipeline displays
 to the right of the [pipeline graph](_index.md#view-pipelines).
 
@@ -888,12 +882,6 @@ what type of variables to forward to the downstream pipeline. Forwarded variable
 are considered trigger variables, which have the [highest precedence](../variables/_index.md#cicd-variable-precedence).
 
 ## Downstream pipelines for deployments
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/369061) in GitLab 16.4.
-
-{{< /history >}}
 
 You can use the [`environment`](../yaml/_index.md#environment) keyword with [`trigger`](../yaml/_index.md#trigger).
 You might want to use `environment` from a trigger job if your deployment and application projects are separately managed.

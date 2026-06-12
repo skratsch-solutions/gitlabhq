@@ -411,8 +411,6 @@ message that does not disappear after a few minutes, you can try one of these wo
 - If you have already confirmed the merge request is ready to be merged, you can merge
   it with the `/merge` quick action.
 
-This issue is [resolved](https://gitlab.com/gitlab-org/gitlab/-/issues/229352) in GitLab 15.5.
-
 ### `Checking pipeline status` message
 
 This message displays with a spinning status icon ({{< icon name="spinner" >}}) when the merge request
