@@ -5294,6 +5294,9 @@ msgstr ""
 msgid "Add a to-do item"
 msgstr ""
 
+msgid "Add a work item"
+msgstr ""
+
 msgid "Add an SSH key"
 msgstr ""
 
@@ -86261,6 +86264,9 @@ msgstr ""
 msgid "WorkItem|Closed default"
 msgstr ""
 
+msgid "WorkItem|Closes"
+msgstr ""
+
 msgid "WorkItem|Closing %{workItemType}"
 msgstr ""
 
@@ -86319,6 +86325,9 @@ msgid "WorkItem|Create field"
 msgstr ""
 
 msgid "WorkItem|Create lifecycle"
+msgstr ""
+
+msgid "WorkItem|Create new item"
 msgstr ""
 
 msgid "WorkItem|Create new work item by email"
@@ -86668,6 +86677,9 @@ msgstr ""
 msgid "WorkItem|Link to view copied to clipboard."
 msgstr ""
 
+msgid "WorkItem|Link work item"
+msgstr ""
+
 msgid "WorkItem|Linked item removed"
 msgstr ""
 
@@ -86916,10 +86928,19 @@ msgstr ""
 msgid "WorkItem|Purple"
 msgstr ""
 
+msgid "WorkItem|Recently visited"
+msgstr ""
+
 msgid "WorkItem|Related to"
 msgstr ""
 
 msgid "WorkItem|Related vulnerabilities"
+msgstr ""
+
+msgid "WorkItem|Relates to"
+msgstr ""
+
+msgid "WorkItem|Relationship"
 msgstr ""
 
 msgid "WorkItem|Remove"
@@ -87145,6 +87166,9 @@ msgid "WorkItem|Something went wrong while fetching milestones. Please try again
 msgstr ""
 
 msgid "WorkItem|Something went wrong while fetching more related vulnerabilities."
+msgstr ""
+
+msgid "WorkItem|Something went wrong while fetching recently viewed items."
 msgstr ""
 
 msgid "WorkItem|Something went wrong while fetching related vulnerabilities."

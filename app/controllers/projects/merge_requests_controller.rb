@@ -42,6 +42,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   before_action only: [:show, :diffs, :rapid_diffs, :reports] do
     push_frontend_feature_flag(:mr_pipelines_graphql, project)
     push_frontend_feature_flag(:rapid_diffs_on_mr_show, current_user, type: :beta)
+    push_frontend_feature_flag(:explicit_mr_work_item_relations, project)
   end
 
   before_action do

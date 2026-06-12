@@ -366,10 +366,13 @@ RSpec.describe 'Group', :with_current_organization, feature_category: :groups_an
     end
 
     it 'marks the group for deletion' do
-      expect { remove_with_confirm('Delete', group.path) }.to change {
-        group.reload.self_deletion_scheduled?
-      }.from(false).to(true)
+      remove_with_confirm('Delete', group.path)
+
+      # Wait for the redirect to complete before asserting on the database. Reading
+      # `self_deletion_scheduled?` immediately after the Capybara action races the
+      # deletion request and is flaky.
       expect(page).to have_current_path(dashboard_groups_path, ignore_query: true)
+      expect(group.reload.self_deletion_scheduled?).to be(true)
     end
   end
 
