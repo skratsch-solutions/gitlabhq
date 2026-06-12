@@ -527,6 +527,7 @@ RSpec.describe 'Every Sidekiq worker', feature_category: :sidekiq do
         'Ci::Runners::ExportUsageCsvWorker' => 3,
         'ClickHouse::CiFinishedBuildsSyncWorker' => false,
         'AppSec::ContainerScanning::ScanImageWorker' => 3,
+        'Security::PipelineExecutionSchedulePolicies::CreateTestRunPipelineWorker' => 3,
         'Ci::DestroyOldPipelinesWorker' => 0,
         'AuditEvents::AuditEventStreamingWorker' => 3,
         'AuditEvents::AiAuditEventStreamingWorker' => 3,

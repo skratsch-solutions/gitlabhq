@@ -2,7 +2,7 @@
 
 module Users
   class MigrateUserTypeRecordsToGhostUserInBatchesService
-    LIMIT_SIZE = 1000
+    LIMIT_SIZE = 100
 
     def initialize(user_type:)
       @scope = scope_for(user_type)

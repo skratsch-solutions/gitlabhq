@@ -170,20 +170,27 @@ describe('ColumnGroup', () => {
   });
 
   describe('query selection by feature flags', () => {
-    it('uses getWorkItemsRestQuery when both workItemRestApiFrontendUsers and workItemRestApi are enabled', async () => {
-      createComponent({
-        glFeatures: { workItemRestApiFrontendUsers: true, workItemRestApi: true },
-      });
-      await waitForPromises();
+    it.each([
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: false },
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: true },
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: true },
+    ])(
+      'uses getWorkItemsRestQuery when workItemRestApiFrontendUsers is enabled and either workItemRestApiIndex or workItemRestApi is enabled (flags: %o)',
+      async (glFeatures) => {
+        createComponent({ glFeatures });
+        await waitForPromises();
 
-      expect(restQueryHandler).toHaveBeenCalled();
-      expect(boardQueryHandler).not.toHaveBeenCalled();
-    });
+        expect(restQueryHandler).toHaveBeenCalled();
+        expect(boardQueryHandler).not.toHaveBeenCalled();
+      },
+    );
 
     it.each([
-      { workItemRestApiFrontendUsers: true, workItemRestApi: false },
-      { workItemRestApiFrontendUsers: false, workItemRestApi: true },
-      { workItemRestApiFrontendUsers: false, workItemRestApi: false },
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: false },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: true },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: false },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: true },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: false },
     ])('uses getBoardWorkItemsQuery when flags are %o', async (glFeatures) => {
       createComponent({ glFeatures });
       await waitForPromises();

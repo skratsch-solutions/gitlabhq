@@ -1137,6 +1137,8 @@
   - 1
 - - security_pipeline_execution_policies_run_schedule
   - 1
+- - security_pipeline_execution_schedule_policies_create_test_run_pipeline
+  - 1
 - - security_pipeline_execution_schedule_policies_test_run_completion
   - 1
 - - security_policies_dismissal_preserve

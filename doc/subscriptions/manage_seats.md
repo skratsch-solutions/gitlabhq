@@ -140,14 +140,17 @@ Seat controls apply to the instance on GitLab Self-Managed, and to the top-level
 
 {{< /history >}}
 
-The user cap is the maximum number of billable users who can create accounts or be added to a subscription.
-After the user cap is reached, users who create accounts or are added must be approved by a group Owner or administrator.
+The user cap is the maximum number of billable users who can be added to a top-level group on GitLab.com, or create accounts on GitLab Self-Managed.
+After the user cap is reached, a group Owner or administrator must approve the users to be added to a top-level group or create accounts. 
 After the users have been approved, they can access the group or instance.
+If a group Owner or an administrator increases or removes the user cap, users pending approval are automatically approved.
 
-You can set a user cap [for a group](../user/group/manage.md#set-a-user-cap-for-a-group)
+You can set a user cap [for a top-level group](../user/group/manage.md#set-a-user-cap-for-a-group)
 and [for an instance](../administration/settings/sign_up_restrictions.md#set-a-user-cap).
 
-If a group Owner or an administrator increases or removes the user cap, users pending approval are automatically approved.
+> [!note]
+> On GitLab.com, the user cap cannot be enabled if any group, subgroup, or project within the top-level group is shared outside of that namespace hierarchy.
+> While the user cap is enabled, [inviting groups outside the group hierarchy](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy) is prevented automatically and cannot be turned off. Inviting groups within the group and its subgroups is unaffected.
 
 The number of billable users is updated once a day.
 The user cap might take effect only after it has already been exceeded.
@@ -159,23 +162,9 @@ If the cap is set to a value below the current number of billable users (for exa
 > downtime might occur due to changes in the Rails configuration.
 > You can set a user cap to enforce approvals for new users.
 
-Groups with the user cap feature enabled have [group sharing](../user/project/members/sharing_projects_groups.md#invite-a-group-to-a-group)
-disabled for the group and its subgroups.
-
-> [!warning]
-> When you specify a user cap, any members added through group sharing lose access to the group.
-
-The user cap cannot be enabled if a group, subgroup, or project is shared externally.
-If a group, subgroup, or project is shared externally, it is shared outside of the namespace hierarchy, regardless of its level
-in the hierarchy.
-
-To ensure that the user cap applies when groups, subgroups, or projects are shared externally,
-[restrict group sharing only in the top-level namespace](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy).
-A top-level namespace restriction allows invitations in the same namespace and prevents new user (seat) additions from external shares.
-
-On GitLab.com Ultimate, you cannot add guest users to a group when billable users exceed the user cap.
-For example, suppose you have a user cap of 5, with 3 developers, and 2 guests. After you add 2 more developers,
-you cannot add any more users, even if they are guest users who don't consume a billable seat.
+On GitLab.com Ultimate, you cannot add Guest users to a group when billable users exceed the user cap.
+For example, you set the user cap to five when you have three Developers and two Guests. After you add two more Developers,
+you cannot add any more users, even if they are Guest users who don't consume billable seats.
 For more information, see [issue 441504](https://gitlab.com/gitlab-org/gitlab/-/issues/441504).
 
 ### Restricted access
@@ -188,21 +177,21 @@ For more information, see [issue 441504](https://gitlab.com/gitlab-org/gitlab/-/
 
 {{< /history >}}
 
-Restricted access blocks new billable users from being added when no seats remain in your subscription.
-Existing users are not removed or blocked.
-However, if user cap is enabled for a group that has pending members, when you enable restricted access all pending members are automatically removed from the group.
+Restricted access blocks new billable users from being added when no licensed seats remain in your subscription.
+Enabling restricted access on a group or instance that is already over its seat limit does not change the role of, block, or remove any existing members;
+it prevents new billable additions while leaving current members untouched.
+Users who don't need access to projects or groups, such as those authenticating through GitLab as an OIDC provider, can be assigned the non-billable Minimal Access role to not be blocked by seat limits.
 
-You can set restricted access [for a group](../user/group/manage.md#turn-on-restricted-access)
+You can set restricted access [for a top-level group](../user/group/manage.md#turn-on-restricted-access)
 and [for an instance](../administration/settings/sign_up_restrictions.md#turn-on-restricted-access).
 
-When you turn on restricted access, the setting to [prevent inviting groups outside the group hierarchy](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy) is automatically turned on.
+Restricted access is incompatible with external group sharing. When you turn on restricted access on GitLab .com, the setting to [prevent inviting groups outside the group hierarchy](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy) is automatically turned on.
 This setting prevents overage fees caused by unintended billable users.
 
 You can still independently configure [project sharing for the group and its subgroups](../user/project/members/sharing_projects_groups.md#prevent-a-project-from-being-shared-with-groups) as needed.
 
 Restricted access and user cap cannot be used together.
 Enabling restricted access disables user cap.
-Restricted access is also incompatible with external group sharing.
 
 #### Provisioning behavior with SAML, SCIM, and LDAP
 
@@ -258,8 +247,17 @@ You can [automatically remove dormant members](../user/group/moderate_users.md#a
 
 ### Changing from user cap to restricted access
 
-When you change from user cap to restricted access, all pending members (both members awaiting approval and invited members) are automatically removed.
+On GitLab.com, when you change from user cap to restricted access, all pending members (both members awaiting approval and invited members) are automatically removed.
 To ensure users are approved as members, you must approve or remove pending members before enabling restricted access.
+
+On GitLab Self-Managed, the user cap holds new user accounts pending admin approval, instead of blocking group or project members as on GitLab.com.
+When you change from user cap to restricted access, pending new user accounts are not automatically removed.
+The users remain blocked until an administrator approves them.
+
+After you turn on restricted access, it governs whether a pending user approval can proceed:
+
+- On the Premium tier, restricted access blocks the pending approval, because users without any group or project membership are billable.
+- On the Ultimate tier, restricted access does not block the pending approval, because users without any group or project membership are non-billable. However, after an administrator approves them, restricted access prevents adding the user to a group or project with a billable role if no seats are available.
 
 ## Buy more seats
 

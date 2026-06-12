@@ -56,6 +56,22 @@ The list shows every merge request in the stack, ordered from the top of the sta
 bottom. For each merge request, the list shows the title, when it was opened, and the number of
 changed files, additions, and deletions. An arrow marks the merge request you're viewing.
 
+## Merge a stack
+
+GitLab is designed for you to merge a stack from the bottom up. The merge request at the bottom of
+the stack targets the default branch and merges first, even though it's the only merge request that
+targets the default branch directly. The merge requests above it merge in sequence afterward.
+
+To merge a stack from the bottom up:
+
+1. Merge the bottom merge request into the default branch.
+1. GitLab automatically retargets the next merge request to the default branch.
+1. Review and merge the retargeted merge request.
+1. Repeat the previous steps until the stack is empty.
+
+For more information about how GitLab updates the target branch, see
+[update merge requests when target branch merges](../_index.md#update-merge-requests-when-target-branch-merges).
+
 ## Related topics
 
 - [Stacked diffs](../stacked_diffs.md)

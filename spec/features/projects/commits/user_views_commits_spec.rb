@@ -8,6 +8,10 @@ RSpec.describe 'Commit > User views commits', feature_category: :source_code_man
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group, :public) }
 
+  before do
+    stub_feature_flags(project_commits_refactor: false)
+  end
+
   shared_examples 'private project access denied' do
     context 'when project is private' do
       let_it_be(:project, freeze: false) { create_default(:project, :private, :repository, group: group) }

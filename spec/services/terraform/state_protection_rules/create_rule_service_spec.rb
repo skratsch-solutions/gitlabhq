@@ -22,10 +22,12 @@ RSpec.describe Terraform::StateProtectionRules::CreateRuleService, '#execute',
   subject(:service_execute) { service.execute }
 
   shared_examples 'a successful service response' do
-    it 'returns success' do
-      expect(service_execute).to be_success
-      expect(service_execute.payload[:terraform_state_protection_rule]).to be_a(Terraform::StateProtectionRule)
-      expect(service_execute.payload[:terraform_state_protection_rule]).to be_persisted
+    it_behaves_like 'returning a success service response' do
+      it 'returns the created protection rule in payload' do
+        is_expected.to have_attributes(
+          payload: { terraform_state_protection_rule: be_a(Terraform::StateProtectionRule).and(be_persisted) }
+        )
+      end
     end
 
     it 'creates a protection rule' do
@@ -34,11 +36,8 @@ RSpec.describe Terraform::StateProtectionRules::CreateRuleService, '#execute',
   end
 
   shared_examples 'an erroneous service response' do |message: nil|
-    it 'returns error' do
-      result = service_execute
-      expect(result).to be_error
-      expect(result.message).to include(*Array(message)) if message
-      expect(result.payload[:terraform_state_protection_rule]).to be_nil
+    it_behaves_like 'returning an error service response', message: message do
+      it { is_expected.to have_attributes(payload: { terraform_state_protection_rule: nil }) }
     end
 
     it 'does not create a protection rule' do

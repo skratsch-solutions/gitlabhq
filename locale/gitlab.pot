@@ -2571,9 +2571,6 @@ msgstr ""
 msgid "AICatalog|Agent disabled in this %{namespaceType}."
 msgstr ""
 
-msgid "AICatalog|Agent disabled in this project."
-msgstr ""
-
 msgid "AICatalog|Agent does not exist"
 msgstr ""
 
@@ -2968,9 +2965,6 @@ msgid "AICatalog|Flow deleted."
 msgstr ""
 
 msgid "AICatalog|Flow disabled in this %{namespaceType}."
-msgstr ""
-
-msgid "AICatalog|Flow disabled in this project."
 msgstr ""
 
 msgid "AICatalog|Flow does not exist"
@@ -44934,6 +44928,9 @@ msgstr ""
 msgid "Maximum number of process restarts within 15 minutes for nodes"
 msgstr ""
 
+msgid "Maximum number of projects for legacy search"
+msgstr ""
+
 msgid "Maximum number of projects."
 msgstr ""
 
@@ -45004,9 +45001,6 @@ msgid "Maximum project import requests per minute"
 msgstr ""
 
 msgid "Maximum projects allowed in the filter is %{count}"
-msgstr ""
-
-msgid "Maximum projects for legacy search"
 msgstr ""
 
 msgid "Maximum push size"

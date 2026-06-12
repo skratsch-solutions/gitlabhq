@@ -89,7 +89,8 @@ export default {
   apollo: {
     workItemsConnection() {
       const query =
-        this.glFeatures.workItemRestApiFrontendUsers && this.glFeatures.workItemRestApi
+        this.glFeatures.workItemRestApiFrontendUsers &&
+        (this.glFeatures.workItemRestApiIndex || this.glFeatures.workItemRestApi)
           ? getWorkItemsRestQuery
           : getBoardWorkItemsQuery;
       return {

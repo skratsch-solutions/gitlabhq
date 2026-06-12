@@ -1,18 +1,35 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require_relative '../../../app/events/merge_requests/assigned_reviewers_event'
+require_relative '../../../app/events/merge_requests/code_conflict_event'
 require_relative '../../support/shared_examples/events/cloud_event_with_schema_shared_examples'
+require_relative '../../support/shared_examples/events/merge_request_base_cloud_event_shared_examples'
 
 RSpec.describe MergeRequests::CodeConflictEvent, feature_category: :code_review_workflow do
   let_it_be(:user) { create(:user) }
   let_it_be(:merge_request) { create(:merge_request) }
 
   describe '.build' do
-    it 'returns a valid CodeConflictEvent' do
-      event = described_class.build(merge_request: merge_request)
-      expect(event.event_category).to eq(:merge_requests)
+    let(:event) { described_class.build(merge_request: merge_request) }
+
+    it_behaves_like 'a merge request base cloud event'
+
+    it 'sets event_type to :code_conflict' do
       expect(event.event_type).to eq(:code_conflict)
+    end
+
+    it 'uses the merge request author as current_user' do
+      expect(event.data[:gitlab_user_id]).to eq(merge_request.author.id)
+    end
+
+    context 'when the merge request author is nil' do
+      before do
+        allow(merge_request).to receive(:author).and_return(nil)
+      end
+
+      it 'returns nil' do
+        expect(described_class.build(merge_request: merge_request)).to be_nil
+      end
     end
   end
 

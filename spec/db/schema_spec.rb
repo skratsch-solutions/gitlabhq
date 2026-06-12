@@ -478,6 +478,59 @@ RSpec.describe 'Database schema',
     end
   end
 
+  context 'for partition foreign keys' do
+    # Validates that foreign keys on partitions have supporting indexes.
+    # This catches cases where add_concurrent_partitioned_foreign_key creates FKs
+    # on partitions only (before validation), which the main table check misses.
+    Gitlab::Database::EachDatabase.each_connection do |connection, _|
+      Gitlab::Database::PostgresPartition.all.find_each do |partition|
+        # Get non-inherited FKs on this partition (inherited FKs are covered by parent table check)
+        partition_fks = Gitlab::Database::PostgresForeignKey
+          .by_constrained_table_identifier(partition.identifier)
+          .not_inherited
+          .to_a
+
+        next if partition_fks.empty?
+
+        describe partition.identifier do
+          let(:partition_indexes) do
+            schema, table_name = partition.identifier.split('.')
+            # A partial index is not suitable for a foreign key column, unless
+            # the only condition is for the presence of the first column itself.
+            # This matches the Ruby logic at line 372 for parent tables.
+            connection.execute(<<~SQL).map { |row| row['column_names'].split(',') }
+              SELECT string_agg(a.attname, ',' ORDER BY array_position(i.indkey, a.attnum)) AS column_names
+              FROM pg_index i
+              JOIN pg_class c ON c.oid = i.indrelid
+              JOIN pg_namespace n ON n.oid = c.relnamespace
+              JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = ANY(i.indkey)
+              WHERE n.nspname = '#{schema}'
+                AND c.relname = '#{table_name}'
+                AND (
+                  i.indpred IS NULL
+                  OR pg_get_expr(i.indpred, i.indrelid) = '(' || (
+                    SELECT a2.attname FROM pg_attribute a2
+                    WHERE a2.attrelid = c.oid AND a2.attnum = i.indkey[0]
+                  ) || ' IS NOT NULL)'
+                )
+              GROUP BY i.indexrelid
+            SQL
+          end
+
+          let(:foreign_keys) { to_foreign_keys(partition_fks) }
+
+          it 'has indexes for all foreign keys', :aggregate_failures do
+            required_fks = foreign_keys.reject { |fk| ci_partitioned_foreign_key?(fk) }
+
+            required_fks.each do |fk| # rubocop:disable RSpec/IteratedExpectation -- We want to aggregate all failures
+              expect(fk).to be_indexed_by(partition_indexes)
+            end
+          end
+        end
+      end
+    end
+  end
+
   context 'for enums', :eager_load do
     # These pre-existing enums have limits > 2 bytes
     let(:ignored_limit_enums_map) do

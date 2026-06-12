@@ -11,6 +11,7 @@ RSpec.describe 'User browses commits', feature_category: :source_code_management
 
   before do
     stub_feature_flags(rapid_diffs_on_commit_show: false)
+    stub_feature_flags(project_commits_refactor: false)
     sign_in(user)
   end
 

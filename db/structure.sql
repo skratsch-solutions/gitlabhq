@@ -15179,6 +15179,8 @@ CREATE TABLE approval_merge_request_rules (
     approval_policy_rule_id bigint,
     role_approvers integer[] DEFAULT '{}'::integer[] NOT NULL,
     approval_policy_action_idx smallint DEFAULT 0 NOT NULL,
+    coverage_minimum_threshold double precision,
+    CONSTRAINT check_501a843588 CHECK (((coverage_minimum_threshold IS NULL) OR ((coverage_minimum_threshold >= (0)::double precision) AND (coverage_minimum_threshold <= (100)::double precision)))),
     CONSTRAINT check_6fca5928b2 CHECK ((char_length(section) <= 255)),
     CONSTRAINT check_90caab37e0 CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_approval_m_r_rules_allowed_role_approvers_valid_entries CHECK (((role_approvers = '{}'::integer[]) OR (role_approvers <@ ARRAY[20, 30, 40, 50, 60])))
@@ -15316,7 +15318,9 @@ CREATE TABLE approval_project_rules (
     security_orchestration_policy_configuration_id bigint,
     scan_result_policy_id bigint,
     approval_policy_rule_id bigint,
-    approval_policy_action_idx smallint DEFAULT 0 NOT NULL
+    approval_policy_action_idx smallint DEFAULT 0 NOT NULL,
+    coverage_minimum_threshold double precision,
+    CONSTRAINT check_1e3855a4ef CHECK (((coverage_minimum_threshold IS NULL) OR ((coverage_minimum_threshold >= (0)::double precision) AND (coverage_minimum_threshold <= (100)::double precision))))
 );
 
 CREATE TABLE approval_project_rules_groups (

@@ -248,7 +248,7 @@ Maximum file size for indexing:                                 1MB
 Maximum trigrams per file:                                      20000
 Retry interval for failed namespaces:                           1d
 Number of replicas per namespace:                               1
-Maximum projects for legacy search:                             1000
+Maximum number of projects for legacy search:                   1000
 Maximum number of process restarts within 15 minutes for nodes: 3
 
 Nodes
@@ -740,11 +740,41 @@ To set the number of replicas per namespace:
    enter a number greater than zero.
 1. Select **Save changes**.
 
+## Set the maximum number of projects for legacy search
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224337) in GitLab 18.10.
+
+{{< /history >}}
+
+Prerequisites:
+
+- Administrator access.
+
+You can set the maximum number of projects to search in a group
+when traversal ID indexing is still in progress.
+The default value is `1,000`.
+
+When you search in a group before traversal ID indexing is complete,
+GitLab searches only the first projects (by project ID) up to this limit and shows
+a warning that some projects are not included in the results.
+After traversal ID indexing is complete, GitLab searches all projects in the group.
+
+To set the maximum number of projects for legacy search:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **Search**.
+1. Expand **Exact code search**.
+1. In the **Maximum number of projects for legacy search** text box, enter a number greater than zero.
+1. Select **Save changes**.
+
 ## Set the maximum number of process restarts for nodes
 
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/593556) in GitLab 19.1.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab-zoekt-indexer/-/merge_requests/911) in Zoekt 1.16.0.
 
 {{< /history >}}
 

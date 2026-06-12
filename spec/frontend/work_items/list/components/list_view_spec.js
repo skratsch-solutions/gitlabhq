@@ -118,6 +118,9 @@ const mountComponent = ({
   provide = {},
   workItemFeaturesField = false,
   useRestApi = false,
+  workItemRestApiFrontendUsers = useRestApi,
+  workItemRestApiIndex = useRestApi,
+  workItemRestApi = false,
   props = {},
   additionalHandlers = [],
   canReadCrmOrganization = true,
@@ -132,8 +135,9 @@ const mountComponent = ({
     ...window.gon,
     features: {
       workItemsClientSideBoards: false,
-      workItemRestApiFrontendUsers: useRestApi,
-      workItemRestApi: useRestApi,
+      workItemRestApiFrontendUsers,
+      workItemRestApiIndex,
+      workItemRestApi,
     },
   };
 
@@ -163,8 +167,9 @@ const mountComponent = ({
       glFeatures: {
         okrsMvc: true,
         workItemFeaturesField,
-        workItemRestApiFrontendUsers: useRestApi,
-        workItemRestApi: useRestApi,
+        workItemRestApiFrontendUsers,
+        workItemRestApiIndex,
+        workItemRestApi,
       },
       canReadCrmOrganization,
       canReadCrmContact,
@@ -534,31 +539,33 @@ describe('when service desk list', () => {
 });
 
 describe('query handler selection', () => {
-  describe('when REST API flags are disabled', () => {
-    beforeEach(() => {
-      mountComponent({ useRestApi: false, props: { queryVariables: exampleQueryParams } });
+  describe('REST API flag combinations', () => {
+    it.each([
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: false },
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: true },
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: true },
+    ])('uses REST query when flags are %o', async (flags) => {
+      mountComponent({ ...flags, props: { queryVariables: exampleQueryParams } });
+      await waitForPromises();
 
-      return waitForPromises();
-    });
-
-    it('calls the slim query as well as the full query', () => {
-      expect(workItemsSlimQueryHandler).toHaveBeenCalled();
-      expect(workItemsFullQueryHandler).toHaveBeenCalled();
-      expect(workItemsRestQueryHandler).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('when REST API flags are enabled', () => {
-    beforeEach(() => {
-      mountComponent({ useRestApi: true, props: { queryVariables: exampleQueryParams } });
-
-      return waitForPromises();
-    });
-
-    it('calls the REST query instead of slim and full queries', () => {
       expect(workItemsRestQueryHandler).toHaveBeenCalled();
       expect(workItemsSlimQueryHandler).not.toHaveBeenCalled();
       expect(workItemsFullQueryHandler).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: false },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: true },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: false },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: true },
+      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: false },
+    ])('uses GraphQL queries when flags are %o', async (flags) => {
+      mountComponent({ ...flags, props: { queryVariables: exampleQueryParams } });
+      await waitForPromises();
+
+      expect(workItemsSlimQueryHandler).toHaveBeenCalled();
+      expect(workItemsFullQueryHandler).toHaveBeenCalled();
+      expect(workItemsRestQueryHandler).not.toHaveBeenCalled();
     });
   });
 });

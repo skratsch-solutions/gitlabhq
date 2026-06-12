@@ -34,6 +34,46 @@ module API
               with: Entities::Terraform::StateProtectionRule
           end
 
+          desc 'Create a Terraform state protection rule for a project' do
+            detail 'This feature was introduced in GitLab 19.1.'
+            success Entities::Terraform::StateProtectionRule
+            failure [
+              { code: 400, message: 'Bad Request' },
+              { code: 401, message: 'Unauthorized' },
+              { code: 403, message: 'Forbidden' },
+              { code: 404, message: 'Not Found' },
+              { code: 422, message: 'Unprocessable Entity' }
+            ]
+            tags %w[projects]
+          end
+          params do
+            requires :state_name, type: String, limit: 255,
+              desc: 'Terraform state name to protect. Maximum 255 characters. Must be unique per project.'
+            requires :minimum_access_level_for_write, type: String,
+              values: ::Terraform::StateProtectionRule.minimum_access_level_for_writes.keys,
+              desc: 'Minimum GitLab access level required to write to the Terraform state. ' \
+                "Valid values: #{::Terraform::StateProtectionRule.minimum_access_level_for_writes.keys.join(', ')}."
+            optional :allowed_from, type: String,
+              values: ::Terraform::StateProtectionRule.allowed_froms.keys,
+              desc: 'Source restriction for write requests. Default: anywhere. ' \
+                "Valid values: #{::Terraform::StateProtectionRule.allowed_froms.keys.join(', ')}."
+          end
+          route_setting :authorization, permissions: :create_terraform_state_protection_rule, boundary_type: :project
+          post do
+            authorize! :create_terraform_state_protection_rule, user_project
+
+            response = ::Terraform::StateProtectionRules::CreateRuleService.new(
+              project: user_project,
+              current_user: current_user,
+              params: declared_params(include_missing: false)
+            ).execute
+
+            render_api_error!({ error: response.message }, :unprocessable_entity) if response.error?
+
+            present response.payload[:terraform_state_protection_rule],
+              with: Entities::Terraform::StateProtectionRule
+          end
+
           params do
             requires :terraform_state_protection_rule_id, type: Integer,
               desc: 'The ID of the Terraform state protection rule'

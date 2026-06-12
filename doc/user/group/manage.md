@@ -484,6 +484,10 @@ are not removed. However, you can't add more without approval.
 
 Increasing the user cap does not approve pending members.
 
+When you set a user cap, the setting to
+[prevent inviting groups outside the group hierarchy](../project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy)
+is automatically turned on.
+
 ## Remove the user cap for a group
 
 You can remove the user cap, so there is no limit on the number of members you can add to a group.
@@ -499,8 +503,6 @@ To remove the user cap:
 1. Expand **Permissions and group features**.
 1. From **Seat control**, select **Open access**.
 1. Select **Save changes**.
-
-Decreasing the user cap does not approve pending members.
 
 ## Approve pending members for a group
 
@@ -519,11 +521,6 @@ To approve members that are pending because they've exceeded the user cap:
 1. In the left sidebar, select **Settings** > **Usage quotas**.
 1. On the **Seats** tab, under the alert, select **View pending approvals**.
 1. For each member you want to approve, select **Approve**.
-
-## Changing from user cap to restricted access
-
-When you change from user cap to restricted access, all pending members (both members awaiting approval and invited members) are automatically removed.
-To ensure users are approved as members, you must approve or remove pending members before enabling restricted access.
 
 ## Control built-in project templates
 

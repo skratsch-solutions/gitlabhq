@@ -503,7 +503,8 @@ export default {
     },
     useRestApi() {
       return Boolean(
-        this.glFeatures.workItemRestApiFrontendUsers && this.glFeatures.workItemRestApi,
+        this.glFeatures.workItemRestApiFrontendUsers &&
+          (this.glFeatures.workItemRestApiIndex || this.glFeatures.workItemRestApi),
       );
     },
     workItemDetailPanelEnabled() {

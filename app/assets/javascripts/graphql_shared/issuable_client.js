@@ -570,7 +570,8 @@ export const config = {
 };
 
 const namespaceResolvers =
-  window.gon?.features?.workItemRestApiFrontendUsers && window.gon?.features?.workItemRestApi
+  window.gon?.features?.workItemRestApiFrontendUsers &&
+  (window.gon?.features?.workItemRestApiIndex || window.gon?.features?.workItemRestApi)
     ? { Namespace: { workItems: workItemsRestResolver } }
     : {};
 

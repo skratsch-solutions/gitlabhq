@@ -300,10 +300,6 @@ RSpec.configure do |config|
       # Please see https://gitlab.com/groups/gitlab-org/-/epics/17781 for tracking the progress.
       stub_feature_flags(repository_file_tree_browser: false)
 
-      # Since we are very early in development of this feature, it might cause unexpected behaviors when the flag is enabled
-      # Please see https://gitlab.com/groups/gitlab-org/-/epics/17482 for tracking the progress.
-      stub_feature_flags(project_commits_refactor: false)
-
       # New approval rules cause tests to fail
       # Default false while we make them compatible
       stub_feature_flags(v2_approval_rules: false)

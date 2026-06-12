@@ -22,7 +22,6 @@ With Pages settings, you can:
 - Customize the folder from which your site is published.
 - Generate and manage unique domains for your sites.
 
-This guide explains the settings and configuration options available for your GitLab Pages sites.
 For an introduction to Pages, see [GitLab Pages](_index.md).
 
 ## GitLab Pages requirements
@@ -54,7 +53,7 @@ You can provide your own `403` and `404` error pages by creating `403.html` and
 the root directory of your project, but that may differ
 depending on your static generator configuration.
 
-If the case of `404.html`, there are different scenarios. For example:
+In the case of `404.html`, there are different scenarios. For example:
 
 - If you use project Pages (served under `/project-slug/`) and try to access
   `/project-slug/non/existing_file`, GitLab Pages tries to serve first

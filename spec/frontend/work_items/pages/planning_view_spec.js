@@ -2763,13 +2763,19 @@ describe('planning-view', () => {
       removeParams.mockReturnValue('/work_items');
     });
 
-    describe('when REST API feature flags are enabled', () => {
-      const restProvide = {
-        glFeatures: {
-          workItemRestApi: true,
-          workItemRestApiFrontendUsers: true,
-        },
-      };
+    describe.each([
+      {
+        workItemRestApiFrontendUsers: true,
+        workItemRestApiIndex: true,
+        workItemRestApi: false,
+      },
+      {
+        workItemRestApiFrontendUsers: true,
+        workItemRestApiIndex: false,
+        workItemRestApi: true,
+      },
+    ])('when REST API feature flags are enabled (%o)', (glFeatures) => {
+      const restProvide = { glFeatures };
 
       it('passes the cursor through unchanged when it is a REST-style cursor', async () => {
         setWindowLocation(`?page_after=${encodeURIComponent(restCursor)}`);
@@ -2808,6 +2814,39 @@ describe('planning-view', () => {
           url: '/work_items',
           replace: true,
         });
+      });
+    });
+
+    describe.each([
+      {
+        workItemRestApiFrontendUsers: true,
+        workItemRestApiIndex: false,
+        workItemRestApi: false,
+      },
+      {
+        workItemRestApiFrontendUsers: false,
+        workItemRestApiIndex: true,
+        workItemRestApi: true,
+      },
+      {
+        workItemRestApiFrontendUsers: false,
+        workItemRestApiIndex: true,
+        workItemRestApi: false,
+      },
+      {
+        workItemRestApiFrontendUsers: false,
+        workItemRestApiIndex: false,
+        workItemRestApi: true,
+      },
+    ])('when the REST API flag combination is not satisfied (%o)', (glFeatures) => {
+      it('treats the cursor as a GraphQL-style cursor', async () => {
+        setWindowLocation(`?page_after=${graphqlCursor}`);
+        await mountComponent({ provide: { glFeatures } });
+
+        expect(findListView().props('queryVariables')).toMatchObject({
+          afterCursor: graphqlCursor,
+        });
+        expect(updateHistory).not.toHaveBeenCalled();
       });
     });
 
