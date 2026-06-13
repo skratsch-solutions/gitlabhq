@@ -2049,6 +2049,7 @@ ee/app/workers/ai/repository_xray/
 /ee/lib/search/elastic/aggregations.rb
 /ee/lib/search/elastic/bool_expr.rb
 /ee/lib/search/elastic/indexer.rb
+/ee/lib/search/elastic/helper.rb
 /ee/lib/search/elastic/concerns/
 /ee/lib/search/elastic/dsl/
 /ee/lib/search/elastic/filters.rb
