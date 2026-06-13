@@ -44,6 +44,7 @@ export default {
       default: true,
     },
   },
+  emits: ['toggleSidebar'],
   computed: {
     participantLabel() {
       return sprintf(

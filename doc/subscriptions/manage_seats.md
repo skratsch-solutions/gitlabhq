@@ -174,6 +174,7 @@ For more information, see [issue 441504](https://gitlab.com/gitlab-org/gitlab/-/
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/442718) in GitLab 17.5.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/523468) in GitLab 18.0.
 - Group sharing settings [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/488451) in GitLab 18.7.
+- Automatic restricted access for GitLab Self-Managed [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240092) in GitLab 19.1 [with a flag](../administration/feature_flags/_index.md) named `auto_enable_restricted_access_on_self_managed`. Enabled by default.
 
 {{< /history >}}
 
@@ -192,6 +193,9 @@ You can still independently configure [project sharing for the group and its sub
 
 Restricted access and user cap cannot be used together.
 Enabling restricted access disables user cap.
+
+On GitLab Self-Managed, GitLab turns on restricted access automatically when your subscription does not allow overages.
+You cannot turn off restricted access when your subscription does not allow overages.
 
 #### Provisioning behavior with SAML, SCIM, and LDAP
 

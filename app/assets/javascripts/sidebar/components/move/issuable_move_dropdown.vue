@@ -39,6 +39,7 @@ export default {
       default: false,
     },
   },
+  emits: ['dropdown-close', 'move-issuable', 'toggle-collapse'],
   data() {
     return {
       projects: [],

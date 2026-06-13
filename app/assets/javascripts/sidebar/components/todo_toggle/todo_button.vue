@@ -23,6 +23,7 @@ export default {
       default: 1,
     },
   },
+  emits: ['click'],
   computed: {
     buttonLabel() {
       return todoLabel(this.isTodo);

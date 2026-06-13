@@ -41,6 +41,7 @@ export default {
       default: null,
     },
   },
+  emits: ['toggleSidebar', 'toggleSubscription'],
   computed: {
     // eslint-disable-next-line vue/no-unused-properties -- tracking() is used by the `Tracking` mixin
     tracking() {

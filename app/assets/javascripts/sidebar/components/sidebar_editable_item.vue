@@ -72,6 +72,7 @@ export default {
       default: '',
     },
   },
+  emits: ['close', 'open'],
   data() {
     return {
       edit: false,

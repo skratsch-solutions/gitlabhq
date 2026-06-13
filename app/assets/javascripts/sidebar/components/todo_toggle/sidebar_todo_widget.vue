@@ -46,6 +46,7 @@ export default {
       type: String,
     },
   },
+  emits: ['todoUpdated'],
   data() {
     return {
       todoId: null,

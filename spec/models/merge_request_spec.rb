@@ -7571,15 +7571,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
             .to publish_event(MergeRequests::CodeConflictEvent)
         end
 
-        it 'does not publish a MergeRequests::CodeConflictEvent when the corresponding feature flag is disabled' do
-          stub_feature_flags(merge_request_code_conflict_flow_trigger: false)
-
-          subject.mark_as_checking!
-
-          expect { subject.mark_as_unmergeable! }
-            .not_to publish_event(MergeRequests::CodeConflictEvent)
-        end
-
         it 'builds the event from the merge request' do
           expect(MergeRequests::CodeConflictEvent)
             .to receive(:build)

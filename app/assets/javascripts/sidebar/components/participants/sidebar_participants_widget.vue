@@ -24,6 +24,7 @@ export default {
       type: String,
     },
   },
+  emits: ['fetch-error', 'toggleSidebar'],
   data() {
     return {
       participants: {},

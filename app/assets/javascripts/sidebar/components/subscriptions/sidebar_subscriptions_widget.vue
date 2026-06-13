@@ -52,6 +52,7 @@ export default {
       type: String,
     },
   },
+  emits: ['expandSidebar', 'subscribedUpdated'],
   data() {
     return {
       subscribed: false,

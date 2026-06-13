@@ -32,6 +32,7 @@ export default {
       default: false,
     },
   },
+  emits: ['input'],
   computed: {
     selectedColor: {
       get() {

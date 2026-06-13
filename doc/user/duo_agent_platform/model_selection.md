@@ -78,11 +78,12 @@ in the Agent Platform.
 - LLM [updated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) to Claude Sonnet 4.6 Vertex for Code Review Flow in GitLab 19.1.
 - [Separate model selection](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) from GitLab Duo Code Review introduced for Code Review Flow in GitLab 19.1, using the **Agentic Code Review** setting.
 - GPT-5.2 and GPT-5.3 Codex [added](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/5652) as selectable models for Code Review Flow in GitLab 19.1.
+- Ability to restrict GitLab Duo Agentic Chat to specific models [added](https://gitlab.com/groups/gitlab-org/-/work_items/22028) in GitLab 19.1.
 
 {{< /history >}}
 
-You can select a model for a feature in a top-level group. The model that you select
-applies to that feature for all child groups and projects.
+You can select a model for a feature in a top-level group.
+The model that you select applies to that feature for all child groups and projects.
 
 Prerequisites:
 
@@ -90,7 +91,30 @@ Prerequisites:
 - The group that you select models for is a top-level group.
 - In GitLab 18.3 or later, if you belong to multiple GitLab Duo namespaces, you must [assign a default namespace](../profile/preferences.md#set-a-default-gitlab-duo-namespace).
 
-To select a model for a feature:
+### Select a model for Agentic Chat
+
+To select a model for Agentic Chat:
+
+1. In the top bar, select **Search or go to** and find your group.
+1. In the left sidebar, select **Settings** > **GitLab Duo**.
+1. Select **Configure features**.
+1. Go to the **GitLab Duo Agentic Chat** section.
+1. Select a model from the dropdown list.
+1. Optional. To restrict what other models users can select for Agentic Chat:
+
+   1. Under **Available models**, select **Configure**.
+   1. In the **Available models: Agentic Chat** dialog, select the
+      **Restrict to specific models** checkbox.
+   1. Select the models that you want Agentic Chat to be able to use.
+   1. Select **Save**.
+
+   > [!note]
+   > If you do not restrict Agentic Chat to specific models, users can choose from
+   > all GitLab managed models.
+
+### Select a model for a non-Agentic Chat feature
+
+To select a model for a non-Agentic Chat feature:
 
 1. In the top bar, select **Search or go to** and find your group.
 1. In the left sidebar, select **Settings** > **GitLab Duo**.
@@ -98,8 +122,6 @@ To select a model for a feature:
 1. Go to the **GitLab Duo Agent Platform** section.
 1. Select a model from the dropdown list.
 1. Optional. To apply the model to all features in the section, select **Apply to all**.
-
-In the IDE, model selection for GitLab Duo Agentic Chat is applied only when the connection type is set to WebSocket.
 
 To specify a model for the GitLab Duo CLI, see [select a model](../gitlab_duo_cli/_index.md#select-a-model).
 
@@ -138,3 +160,14 @@ This issue occurs when you belong to multiple GitLab Duo namespaces or work on a
 that does not have a GitLab remote configured.
 
 To resolve this, [set a default GitLab Duo namespace](../profile/preferences.md#set-a-default-gitlab-duo-namespace).
+
+### Model selection for Agentic Chat in IDEs does not work
+
+When selecting a model for Agentic Chat in your IDE, you might find that model
+selection does not work.
+
+To resolve this:
+
+1. Check that the connection type for your IDE is set to WebSocket.
+1. Ask your network administrator to make sure
+   [WebSocket traffic to your GitLab instance is allowed](../../administration/gitlab_duo/configure/_index.md#allow-inbound-connections-from-clients-to-the-gitlab-instance).

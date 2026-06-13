@@ -2969,8 +2969,6 @@ class MergeRequest < ApplicationRecord
   end
 
   def publish_code_conflict_event
-    return unless Feature.enabled?(:merge_request_code_conflict_flow_trigger, self.project)
-
     cloud_event = MergeRequests::CodeConflictEvent.build(merge_request: self)
     Gitlab::EventStore.publish(cloud_event) if cloud_event
   end

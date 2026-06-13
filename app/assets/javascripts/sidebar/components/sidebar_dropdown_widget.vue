@@ -100,6 +100,7 @@ export default {
       default: null,
     },
   },
+  emits: ['attribute-updated'],
   apollo: {
     issuable: {
       query() {

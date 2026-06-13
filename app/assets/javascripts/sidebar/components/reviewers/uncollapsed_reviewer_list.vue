@@ -72,6 +72,7 @@ export default {
       default: false,
     },
   },
+  emits: ['remove-reviewer', 'request-review'],
   data() {
     return {
       loadingStates: {},

@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'avoid N+1 on environments serialization' do
+  before do
+    # Certificate-based clusters are a deprecated, ops-gated feature that
+    # defaults to disabled in production. When enabled (the default in tests),
+    # `Environment#deployment_platform` issues a per-environment cluster lookup
+    # that the serializer does not (and need not) batch, making this N+1 check
+    # order-dependent. Pin the flag to its production default so the test
+    # measures the real code path. See:
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/353410
+    stub_feature_flags(certificate_based_clusters: false)
+  end
+
   it 'avoids N+1 database queries with grouping', :request_store do
     create_environment_with_associations(project)
 

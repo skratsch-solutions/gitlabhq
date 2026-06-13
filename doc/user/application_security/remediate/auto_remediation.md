@@ -63,9 +63,11 @@ with the highest severity finding.
 
 Auto remediation supports the following package managers:
 
-| Language | Package Manager | Files                     |
-| -------- | --------------- | ------------------------- |
-| Ruby     | Bundler         | `Gemfile`, `Gemfile.lock` |
+| Language | Package Manager | Files                                |
+| -------- | --------------- | ------------------------------------ |
+| Ruby     | Bundler         | `Gemfile`, `Gemfile.lock`            |
+| Java     | Maven           | `pom.xml`                            |
+| Java     | Gradle          | `build.gradle`, `build.gradle.kts`   |
 
 Support for additional ecosystems is planned. For details, see
 [epic 21643](https://gitlab.com/groups/gitlab-org/-/work_items/21643).

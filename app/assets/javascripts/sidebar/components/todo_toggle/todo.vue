@@ -40,6 +40,7 @@ export default {
       default: false,
     },
   },
+  emits: ['toggleTodo'],
   computed: {
     buttonClasses() {
       return this.collapsed
