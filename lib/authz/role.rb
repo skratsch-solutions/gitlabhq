@@ -4,7 +4,7 @@ module Authz
   class Role
     BASE_PATH = 'config/authz/roles'
 
-    RESOURCE_SCOPES = %i[project group].freeze
+    RESOURCE_SCOPES = %i[project group organization].freeze
     VALID_SCOPES = (%i[all] + RESOURCE_SCOPES).freeze
 
     class << self
@@ -61,16 +61,17 @@ module Authz
       @role_data = role_data
     end
 
-    # Returns all permissions (project + group) for this role including
-    # permissions from inherited roles. This can be limited to project or group
-    # permissions by supplying the optional scope argument
+    # Returns all permissions (project + group + organization) for this role
+    # including permissions from inherited roles. This can be limited to a
+    # single scope by supplying the optional scope argument
     def permissions(scope)
       raise ArgumentError, "Invalid scope: #{scope}" if VALID_SCOPES.exclude?(scope)
 
       return project_permissions if scope == :project
       return group_permissions if scope == :group
+      return organization_permissions if scope == :organization
 
-      @all_permissions ||= project_permissions | group_permissions
+      @all_permissions ||= project_permissions | group_permissions | organization_permissions
     end
 
     # Returns only the permissions directly defined in this role's YAML file
@@ -80,8 +81,10 @@ module Authz
 
       return direct_project_permissions if scope == :project
       return direct_group_permissions if scope == :group
+      return direct_organization_permissions if scope == :organization
 
-      @all_direct_permissions ||= direct_project_permissions | direct_group_permissions
+      @all_direct_permissions ||= direct_project_permissions | direct_group_permissions |
+        direct_organization_permissions
     end
 
     protected
@@ -126,6 +129,12 @@ module Authz
       @group_permissions ||= resolve_permissions(:group, Set.new)
     end
 
+    # Returns all organization permissions for this role including permissions
+    # from inherited roles and those derived via `conditionally_enables:` expansion.
+    def organization_permissions
+      @organization_permissions ||= resolve_permissions(:organization, Set.new)
+    end
+
     # Returns a new set that includes every permission in `set` plus every
     # permission whose `conditionally_enables:` requirements are all satisfied
     # by the expanding set. Repeats until the set stops growing, which handles
@@ -156,6 +165,11 @@ module Authz
 
     def direct_group_permissions
       @direct_group_permissions ||= raw_permissions(:group) | expand_assignable_permissions(:group)
+    end
+
+    def direct_organization_permissions
+      @direct_organization_permissions ||=
+        raw_permissions(:organization) | expand_assignable_permissions(:organization)
     end
   end
 end

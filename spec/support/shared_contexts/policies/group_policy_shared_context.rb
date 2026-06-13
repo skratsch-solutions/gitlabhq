@@ -171,7 +171,7 @@ RSpec.shared_context 'GroupPolicy context' do
 
   let(:admin_permissions) do
     (owner_permissions + %i[
-      admin_organization
+      update_organization
       read_confidential_issues
       read_internal_note
     ]).uniq

@@ -324,5 +324,98 @@ RSpec.describe PerTestCoverageArtifactDownloader, feature_category: :tooling do
         expect(WebMock).to have_requested(:get, /jobs\?page=2&/).once
       end
     end
+
+    context 'when a process command and output glob are configured (streaming)' do
+      let(:matching_jobs) do
+        [
+          { 'id' => 100, 'name' => 'rspec unit per-test-coverage 1/3' },
+          { 'id' => 101, 'name' => 'rspec unit per-test-coverage 2/3' },
+          { 'id' => 102, 'name' => 'rspec unit per-test-coverage 3/3' }
+        ]
+      end
+
+      let(:pattern) { /per-test-coverage/ }
+      let(:output_glob) { File.join(output_dir, 'shard-*.ndjson') }
+      let(:process_command) { 'echo processing' }
+
+      subject(:downloader) do
+        described_class.new(
+          job_name_pattern: pattern,
+          output_dir: output_dir,
+          process_command: process_command,
+          output_glob: output_glob,
+          batch_size: 2
+        )
+      end
+
+      before do
+        stub_bridges([
+          { 'name' => described_class::BRIDGE_NAME,
+            'downstream_pipeline' => { 'id' => child_pipeline_id } }
+        ])
+        stub_jobs(matching_jobs)
+        stub_request(:get, %r{/projects/#{project_id}/jobs/(100|101|102)/artifacts})
+          .with(headers: { 'JOB-TOKEN' => job_token })
+          .to_return(status: 200, body: 'fake-zip-bytes')
+
+        # Stand in for `unzip` by writing one ndjson per extracted shard, so the
+        # clear step has real files to remove.
+        extracted = 0
+        allow(downloader).to receive(:system).with('unzip', any_args) do
+          extracted += 1
+          File.write(File.join(output_dir, "shard-#{extracted}.ndjson"), "{}\n")
+          true
+        end
+        allow(downloader).to receive(:system).with(process_command).and_return(true)
+      end
+
+      it 'runs the process command once per batch (3 shards, batch size 2 => 2 batches)' do
+        downloader.run
+
+        expect(downloader).to have_received(:system).with(process_command).twice
+      end
+
+      it 'deletes the extracted files after processing so they do not accumulate' do
+        downloader.run
+
+        expect(Dir.glob(output_glob)).to be_empty
+      end
+
+      it 'returns 0 when every shard downloads and processes' do
+        expect(downloader.run).to eq(0)
+      end
+
+      it 'returns 1 when the process command fails for a batch' do
+        allow(downloader).to receive(:system).with(process_command).and_return(false)
+
+        expect(downloader.run).to eq(1)
+      end
+
+      it 'clears each batch before the next, so disk never holds more than one batch' do
+        seen = []
+        allow(downloader).to receive(:system).with(process_command) do
+          seen << Dir.glob(output_glob).map { |path| File.basename(path) }.sort
+          true
+        end
+
+        downloader.run
+
+        # 3 shards, batch size 2 => batches of 2 then 1. Each process call sees
+        # only its own batch's files (the previous batch was cleared), which a
+        # download-everything-then-clear-once model could not satisfy.
+        expect(seen.map(&:size)).to eq([2, 1])
+        expect(seen[1] & seen[0]).to be_empty
+      end
+    end
+
+    context 'when a process command is set without an output glob' do
+      it 'raises so the unbounded-disk misconfiguration fails loudly' do
+        expect do
+          described_class.new(
+            job_name_pattern: pattern, output_dir: output_dir, process_command: 'echo x'
+          )
+        end.to raise_error(ArgumentError, /output_glob/)
+      end
+    end
   end
 end

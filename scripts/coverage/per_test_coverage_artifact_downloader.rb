@@ -20,9 +20,20 @@ class PerTestCoverageArtifactDownloader
   # at the project root (`.`) restores files to their original locations
   # (`tmp/per-test-coverage-rspec-XXX.ndjson`). Passing `tmp` would double-nest
   # to `tmp/tmp/per-test-coverage-rspec-XXX.ndjson`.
-  def initialize(job_name_pattern:, output_dir: '.')
+  def initialize(job_name_pattern:, output_dir: '.', process_command: nil, output_glob: nil, batch_size: 1)
     @job_name_pattern = job_name_pattern
     @output_dir = output_dir
+    # Streaming: when process_command is set, shards are downloaded in batches of
+    # batch_size, the command runs on each batch, then output_glob is cleared
+    # before the next batch. This bounds disk to one batch instead of holding
+    # every shard's artifacts at once (a full-bucket export is tens of GB).
+    @process_command = process_command
+    @output_glob = output_glob
+    @batch_size = batch_size
+    # Without output_glob the processed files are never deleted, so disk would
+    # grow unbounded and silently defeat the streaming. Fail loudly instead.
+    raise ArgumentError, 'output_glob is required when process_command is set' if @process_command && @output_glob.nil?
+
     # Trim any trailing slash so URI concatenation stays well-formed even if the
     # CI variable is set with one.
     @api_url = ENV.fetch('CI_API_V4_URL').chomp('/')
@@ -50,16 +61,55 @@ class PerTestCoverageArtifactDownloader
     end
 
     FileUtils.mkdir_p(@output_dir)
-    successes = matching.count { |job| download_artifacts(job['id'], job['name']) }
-    puts "Per-test coverage: downloaded artifacts from #{successes}/#{matching.size} jobs " \
+
+    all_ok = true
+    downloaded = 0
+    matching.each_slice(@batch_size) do |batch|
+      batch.each do |job|
+        if download_artifacts(job['id'], job['name'])
+          downloaded += 1
+        else
+          all_ok = false
+        end
+      end
+      all_ok = false unless process_batch
+    end
+
+    puts "Per-test coverage: downloaded artifacts from #{downloaded}/#{matching.size} jobs " \
       "in child pipeline #{child_pipeline_id}."
 
-    successes == matching.size ? 0 : 1
+    all_ok ? 0 : 1
   end
 
   private
 
   attr_reader :job_name_pattern, :output_dir, :api_url, :project_id, :pipeline_id, :job_token
+
+  # Runs the configured process command on the current batch's extracted files,
+  # then clears them so the next batch starts from a clean slate. A success
+  # no-op when no process command is set, which preserves the plain
+  # download-everything mode for callers that do their own processing.
+  def process_batch
+    return true unless @process_command
+
+    # system returns nil when the command can't be spawned (e.g. not found),
+    # false on a non-zero exit; distinguish them so the warning is accurate.
+    ok = system(@process_command)
+    if ok.nil?
+      warn "Per-test coverage: process command could not be spawned: #{@process_command}"
+    elsif !ok
+      warn "Per-test coverage: process command exited non-zero: #{@process_command}"
+    end
+
+    clear_output
+    ok
+  end
+
+  def clear_output
+    return unless @output_glob
+
+    Dir.glob(@output_glob).each { |path| File.delete(path) }
+  end
 
   def find_child_pipeline_id
     response = api_get("projects/#{project_id}/pipelines/#{pipeline_id}/bridges")

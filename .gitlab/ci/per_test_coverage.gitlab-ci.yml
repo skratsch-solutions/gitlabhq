@@ -125,8 +125,5 @@ per-test-coverage:trigger:
         job: "per-test-coverage:pipeline-generate"
       - artifact: tmp/per-test-coverage-child-pipeline-ee.yml
         job: "per-test-coverage:pipeline-generate"
-      # Jest is omitted: its child pipeline template includes the full
-      # frontend.gitlab-ci.yml, whose jobs reference stages and anchors a child
-      # pipeline lacks, so the merged child fails to create and takes the rspec
-      # halves down with it. Re-add the jest artifact once that template builds
-      # a child that creates successfully.
+      - artifact: tmp/per-test-coverage-child-pipeline-jest.yml
+        job: "per-test-coverage:pipeline-generate"

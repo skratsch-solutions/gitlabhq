@@ -12,7 +12,7 @@ require_relative 'per_test_coverage_artifact_downloader'
 # then feed the unpacked NDJSON / JSON files into the gem's
 # `--per-test-coverage` flag.
 
-options = { pattern: nil, output_dir: '.' }
+options = { pattern: nil, output_dir: '.', process_command: nil, output_glob: nil, batch_size: 1 }
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: download_per_test_coverage_artifacts.rb -p REGEX [-o PATH]'
@@ -28,6 +28,24 @@ OptionParser.new do |opts|
     options[:output_dir] = value
   end
 
+  opts.on('--process-command CMD', String,
+    'Shell command run on each downloaded batch before the next batch is ' \
+      'fetched (e.g. the test-coverage insert). Enables streaming so disk ' \
+      'stays bounded to one batch.') do |value|
+    options[:process_command] = value
+  end
+
+  opts.on('--output-glob GLOB', String,
+    'Glob of files to delete after each batch is processed (e.g. ' \
+      '"tmp/per-test-coverage-rspec-*.ndjson"). Required with --process-command.') do |value|
+    options[:output_glob] = value
+  end
+
+  opts.on('--batch-size N', Integer,
+    "Shards to download before running --process-command (default: #{options[:batch_size]}).") do |value|
+    options[:batch_size] = value
+  end
+
   opts.on('-h', '--help', 'Print this help and exit') do
     puts opts
     exit
@@ -38,5 +56,8 @@ abort "Missing required --pattern. Run with --help for usage." unless options[:p
 
 exit PerTestCoverageArtifactDownloader.new(
   job_name_pattern: options[:pattern],
-  output_dir: options[:output_dir]
+  output_dir: options[:output_dir],
+  process_command: options[:process_command],
+  output_glob: options[:output_glob],
+  batch_size: options[:batch_size]
 ).run

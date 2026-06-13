@@ -140,7 +140,7 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :organizatio
   describe '#organization_show_app_data' do
     before do
       allow(helper).to receive(:can?).with(user, :read_artifact_registry, organization).and_return(true)
-      allow(helper).to receive(:can?).with(user, :admin_organization, organization).and_return(true)
+      allow(helper).to receive(:can?).with(user, :update_organization, organization).and_return(true)
     end
 
     it 'returns expected json' do

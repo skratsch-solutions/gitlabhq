@@ -18170,12 +18170,6 @@ msgstr ""
 msgid "CodeReviewRequestsByRoleChart|Tracks users who initiated GitLab Duo Code Review. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 
-msgid "CodeSuggestionsAcceptanceByIdeChart|Failed to load code suggestions data by IDE."
-msgstr ""
-
-msgid "CodeSuggestionsAcceptanceByIdeChart|Failed to load metrics for: %{ideNames}"
-msgstr ""
-
 msgid "CodeSuggestionsAcceptanceByIdeChart|Shows accepted GitLab Duo Code Suggestions by IDE. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 

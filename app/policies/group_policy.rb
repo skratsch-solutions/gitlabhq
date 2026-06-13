@@ -41,7 +41,7 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   desc "User owns the group's organization"
   condition(:organization_owner) { owns_organization?(@subject.organization) }
 
-  rule { admin | organization_owner }.enable :admin_organization
+  rule { admin | organization_owner }.enable :update_organization
 
   with_options scope: :subject, score: 0
   condition(:request_access_enabled) { @subject.request_access_enabled }

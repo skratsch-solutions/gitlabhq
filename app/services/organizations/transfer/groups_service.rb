@@ -202,7 +202,7 @@ module Organizations
 
       def has_permission?
         return false unless Ability.allowed?(current_user, :admin_group, group)
-        return false unless Ability.allowed?(current_user, :admin_organization, new_organization)
+        return false unless Ability.allowed?(current_user, :update_organization, new_organization)
 
         true
       end

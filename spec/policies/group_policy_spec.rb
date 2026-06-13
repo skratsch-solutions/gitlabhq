@@ -206,10 +206,10 @@ RSpec.describe GroupPolicy, feature_category: :system_access do
         organization_owner.update!(admin: true)
       end
 
-      it { expect_disallowed(:admin_organization) }
+      it { expect_disallowed(:update_organization) }
 
       context 'with admin mode', :enable_admin_mode do
-        it { expect_allowed(:admin_organization) }
+        it { expect_allowed(:update_organization) }
       end
     end
   end
