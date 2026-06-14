@@ -5,8 +5,6 @@
 # If it turns out that a method you are attempting to remove is in fact in use,
 #   remove it from this file and add it to `excluded_methods.yml`.
 #
-ee/app/models/ai/feature_setting.rb:
-  - compatible_self_hosted_models
 ee/app/models/cloud_connector/keys.rb:
   - create_new_key!
   - trim!
@@ -33,7 +31,6 @@ ee/app/models/ee/ci/runner.rb:
   - cost_factor_for_project
   - allowed_plan_names
 ee/app/models/ee/epic.rb:
-  - elapsed_days
   - valid_parent?
   - issues_readable_by
 ee/app/models/ee/group.rb:
