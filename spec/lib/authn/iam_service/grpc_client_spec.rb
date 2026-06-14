@@ -10,9 +10,9 @@ RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access d
   let(:iam_service_address) { 'localhost:5004' }
   let(:iam_secret) { 'test-secret-token' }
 
-  let(:auth_stub) { instance_double(::Auth::Auth::Stub) }
-  let(:login_stub) { instance_double(::Auth::Login::Stub) }
-  let(:consent_stub) { instance_double(::Auth::Consent::Stub) }
+  let(:auth_stub) { instance_double(::Auth::V1::AuthService::Stub) }
+  let(:login_stub) { instance_double(::Auth::V1::LoginService::Stub) }
+  let(:consent_stub) { instance_double(::Auth::V1::ConsentService::Stub) }
 
   before do
     allow(Authn::IamAuthService).to receive_messages(
@@ -20,18 +20,18 @@ RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access d
       secret: iam_secret
     )
 
-    allow(::Auth::Auth::Stub).to receive(:new).and_return(auth_stub)
-    allow(::Auth::Login::Stub).to receive(:new).and_return(login_stub)
-    allow(::Auth::Consent::Stub).to receive(:new).and_return(consent_stub)
+    allow(::Auth::V1::AuthService::Stub).to receive(:new).and_return(auth_stub)
+    allow(::Auth::V1::LoginService::Stub).to receive(:new).and_return(login_stub)
+    allow(::Auth::V1::ConsentService::Stub).to receive(:new).and_return(consent_stub)
   end
 
   describe 'gRPC calls' do
     where(:method, :rpc_method, :stub_let, :request_class, :response_class, :params) do
-      :health                   | :health | :auth_stub    | ::Auth::HealthRequest                 | ::Auth::HealthResponse                 | {}
-      :accept_login_challenge   | :accept | :login_stub   | ::Auth::AcceptLoginChallengeRequest   | ::Auth::AcceptLoginChallengeResponse   | { challenge: 'test-challenge', subject: '42', name: 'Jane Doe', email: 'jane.doe@example.com' }
-      :get_consent_challenge    | :get    | :consent_stub | ::Auth::GetConsentChallengeRequest    | ::Auth::GetConsentChallengeResponse    | { challenge: 'test-challenge' }
-      :accept_consent_challenge | :accept | :consent_stub | ::Auth::AcceptConsentChallengeRequest | ::Auth::AcceptConsentChallengeResponse | { challenge: 'test-challenge', granted_scopes: %w[openid profile] }
-      :reject_consent_challenge | :reject | :consent_stub | ::Auth::RejectConsentChallengeRequest | ::Auth::RejectConsentChallengeResponse | { challenge: 'test-challenge' }
+      :health                   | :health | :auth_stub    | ::Auth::V1::HealthRequest               | ::Auth::V1::HealthResponse               | {}
+      :accept_login_challenge   | :accept | :login_stub   | ::Auth::V1::LoginServiceAcceptRequest   | ::Auth::V1::LoginServiceAcceptResponse   | { challenge: 'test-challenge', subject: '42', name: 'Jane Doe', email: 'jane.doe@example.com' }
+      :get_consent_challenge    | :get    | :consent_stub | ::Auth::V1::ConsentServiceGetRequest    | ::Auth::V1::ConsentServiceGetResponse    | { challenge: 'test-challenge' }
+      :accept_consent_challenge | :accept | :consent_stub | ::Auth::V1::ConsentServiceAcceptRequest | ::Auth::V1::ConsentServiceAcceptResponse | { challenge: 'test-challenge', granted_scopes: %w[openid profile] }
+      :reject_consent_challenge | :reject | :consent_stub | ::Auth::V1::ConsentServiceRejectRequest | ::Auth::V1::ConsentServiceRejectResponse | { challenge: 'test-challenge' }
     end
 
     with_them do
@@ -96,14 +96,14 @@ RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access d
       before do
         allow(::Gitlab::X509::Certificate).to receive(:ca_certs_bundle).and_return('cert-data')
         allow(GRPC::Core::ChannelCredentials).to receive(:new).with('cert-data').and_return(tls_credentials)
-        allow(auth_stub).to receive(:health).and_return(::Auth::HealthResponse.new)
+        allow(auth_stub).to receive(:health).and_return(::Auth::V1::HealthResponse.new)
       end
 
       it 'configures the gRPC channel with the expected endpoint and credentials' do
         client.health
 
         expected_credentials = expects_tls ? tls_credentials : :this_channel_is_insecure
-        expect(::Auth::Auth::Stub).to have_received(:new).with(
+        expect(::Auth::V1::AuthService::Stub).to have_received(:new).with(
           expected_endpoint,
           expected_credentials,
           interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],

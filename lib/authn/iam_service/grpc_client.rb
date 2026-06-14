@@ -8,11 +8,11 @@ module Authn
       TIMEOUT_SECONDS = 5
 
       REQUEST_TYPES = {
-        health: ::Auth::HealthRequest,
-        accept_login_challenge: ::Auth::AcceptLoginChallengeRequest,
-        get_consent_challenge: ::Auth::GetConsentChallengeRequest,
-        accept_consent_challenge: ::Auth::AcceptConsentChallengeRequest,
-        reject_consent_challenge: ::Auth::RejectConsentChallengeRequest
+        health: ::Auth::V1::HealthRequest,
+        accept_login_challenge: ::Auth::V1::LoginServiceAcceptRequest,
+        get_consent_challenge: ::Auth::V1::ConsentServiceGetRequest,
+        accept_consent_challenge: ::Auth::V1::ConsentServiceAcceptRequest,
+        reject_consent_challenge: ::Auth::V1::ConsentServiceRejectRequest
       }.freeze
 
       def health(**kwargs)
@@ -57,15 +57,15 @@ module Authn
       end
 
       def stub
-        build_stub(::Auth::Auth::Stub)
+        build_stub(::Auth::V1::AuthService::Stub)
       end
 
       def login_stub
-        build_stub(::Auth::Login::Stub)
+        build_stub(::Auth::V1::LoginService::Stub)
       end
 
       def consent_stub
-        build_stub(::Auth::Consent::Stub)
+        build_stub(::Auth::V1::ConsentService::Stub)
       end
 
       def build_stub(stub_class)
