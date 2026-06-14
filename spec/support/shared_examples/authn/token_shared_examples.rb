@@ -51,8 +51,10 @@ RSpec.shared_examples 'rotating already revoked token fails' do
   it "displays an error message" do
     visit resource_settings_access_tokens_path
 
+    expect(page).to have_content(resource_access_token.name)
+    resource_access_token.revoke!
+
     accept_gl_confirm(button_text: s_('AccessTokens|Rotate')) do
-      resource_access_token.revoke!
       click_on s_('AccessTokens|Rotate')
     end
 
@@ -67,8 +69,10 @@ RSpec.shared_examples 'rotating token fails due to missing access rights' do |to
 
     visit resource_settings_access_tokens_path
 
+    expect(page).to have_content(resource_access_token.name)
+    owner_role.destroy!
+
     accept_gl_confirm(button_text: s_('AccessTokens|Rotate')) do
-      owner_role.destroy!
       click_on s_('AccessTokens|Rotate')
     end
 

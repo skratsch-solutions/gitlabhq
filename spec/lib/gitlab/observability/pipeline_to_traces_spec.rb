@@ -233,6 +233,7 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
         pipeline_data[:object_attributes][:tag] = true
         pipeline_data[:object_attributes][:before_sha] = 'def456'
         pipeline_data[:object_attributes][:stages] = %w[build test deploy]
+        pipeline_data[:object_attributes][:iid] = 10
         pipeline_data[:user] = { id: 42, username: 'testuser' }
         pipeline_data[:commit] = { id: 'abc123', message: 'Test commit' }
         pipeline_data[:merge_request] = { id: 100, iid: 10 }
@@ -245,7 +246,13 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
         expect(attributes).to include(
           { key: 'pipeline.tag', value: { boolValue: true } },
           { key: 'pipeline.before_sha', value: { stringValue: 'def456' } },
+          { key: 'gitlab.cicd.pipeline.iid', value: { intValue: 10 } },
           { key: 'pipeline.stages', value: { arrayValue: { values: [
+            { stringValue: 'build' },
+            { stringValue: 'test' },
+            { stringValue: 'deploy' }
+          ] } } },
+          { key: 'gitlab.cicd.pipeline.stages', value: { arrayValue: { values: [
             { stringValue: 'build' },
             { stringValue: 'test' },
             { stringValue: 'deploy' }
@@ -290,6 +297,7 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
           { key: 'job.runner.type', value: { stringValue: 'instance_type' } },
           { key: 'job.runner.active', value: { boolValue: true } },
           { key: 'job.runner.is_shared', value: { boolValue: true } },
+          { key: 'gitlab.cicd.runner.is_shared', value: { boolValue: true } },
           { key: 'job.environment.deployment_tier', value: { stringValue: 'production' } }
         )
       end
@@ -307,6 +315,7 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
         pipeline.commit.id
         pipeline.merge_request.id
         pipeline.source_pipeline.pipeline_id
+        gitlab.cicd.pipeline.stages
       ]
 
       missing_job_attrs = %w[
@@ -315,6 +324,8 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
         job.user.id
         job.artifacts.filename
         job.runner.type
+        job.runner.is_shared
+        gitlab.cicd.runner.is_shared
         job.environment.deployment_tier
       ]
 
@@ -643,7 +654,7 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
 
           it "emits gitlab.cicd.worker.is_shared when is_shared present" do
             pipeline_data[:builds].first[:runner][:is_shared] = true
-            attr = find_attr(job_attrs, "gitlab.cicd.worker.is_shared")
+            attr = find_attr(job_attrs, "gitlab.cicd.runner.is_shared")
             expect(attr[:value][:boolValue]).to be(true)
           end
         end

@@ -3,6 +3,8 @@
 RSpec.shared_examples 'work items title' do
   it 'updates title' do
     click_button 'Edit', match: :first
+    expect(page).to have_content 'Add description templates to help your contributors communicate effectively!'
+
     fill_in 'Title (required)', with: 'Work item title'
     send_keys([:command, :enter])
 
@@ -381,6 +383,7 @@ RSpec.shared_examples 'work items milestone' do
   let(:work_item_milestone_selector) { '[data-testid="work-item-milestone"]' }
 
   it 'passes axe automated accessibility testing in closed state' do
+    expect(page).to have_selector(work_item_milestone_selector)
     expect(page).to be_axe_clean.within(work_item_milestone_selector)
   end
 
@@ -692,6 +695,7 @@ RSpec.shared_examples 'work items iteration' do
   end
 
   it 'passes axe automated accessibility testing in closed state' do
+    expect(page).to have_selector(work_item_iteration_selector)
     expect(page).to be_axe_clean.within(work_item_iteration_selector)
   end
 

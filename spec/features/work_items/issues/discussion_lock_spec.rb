@@ -94,7 +94,10 @@ RSpec.describe 'Discussion Lock', :js, feature_category: :team_planning do
   it 'passes axe automated accessibility testing' do
     project.add_developer(user)
     issue.update_attribute(:discussion_locked, true)
+
     visit project_issue_path(project, issue)
+    expect(page).to have_testid('locked-badge')
+    expect(page).to have_testid('issuable-note-warning')
 
     expect(page).to be_axe_clean.within('[data-testid="locked-badge"]') # rubocop: disable Capybara/TestidFinders -- within_testid does not work here
     expect(page).to be_axe_clean.within('[data-testid="issuable-note-warning"]') # rubocop: disable Capybara/TestidFinders -- within_testid does not work here

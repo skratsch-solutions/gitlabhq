@@ -11,7 +11,7 @@ RSpec.shared_examples 'service account CRUD' do |path_helper_method:|
 
       within '#create-edit-service-account-modal' do
         fill_in _('Name'), with: 'New Bot'
-        click_button s_('AdminUsers|Create')
+        find('button:not([aria-disabled="true"])', text: s_('AdminUsers|Create')).click
       end
 
       expect(page).to have_content(s_('ServiceAccounts|The service account was created.'))

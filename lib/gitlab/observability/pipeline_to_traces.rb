@@ -185,6 +185,7 @@ module Gitlab
 
       def build_pipeline_specific_attributes
         attrs = []
+        attrs << { key: 'gitlab.cicd.pipeline.iid', value: { intValue: pipeline[:iid] } } if pipeline[:iid]
         attrs << { key: 'pipeline.tag', value: { boolValue: pipeline[:tag] || false } } if pipeline.key?(:tag)
 
         if pipeline[:before_sha].present?
@@ -192,16 +193,10 @@ module Gitlab
         end
 
         if pipeline[:stages].present?
-          attrs << { key: 'pipeline.stages', value: { arrayValue: { values: pipeline[:stages]&.map do |stage|
-            { stringValue: stage }
-          end || [] } } }
-          attrs << { key: 'gitlab.cicd.pipeline.stages',
-            value: { arrayValue: { values: pipeline[:stages]&.map do |stage|
-              { stringValue: stage }
-            end || [] } } }
+          stages_values = pipeline[:stages].map { |stage| { stringValue: stage } }
+          attrs << { key: 'pipeline.stages', value: { arrayValue: { values: stages_values } } }
+          attrs << { key: 'gitlab.cicd.pipeline.stages', value: { arrayValue: { values: stages_values } } }
         end
-
-        attrs << { key: 'gitlab.cicd.pipeline.iid', value: { intValue: pipeline[:iid] } } if pipeline[:iid]
 
         attrs
       end
@@ -379,22 +374,39 @@ module Gitlab
       def build_optional_runner_attributes(build)
         attrs = []
 
-        if build.dig(:runner, :runner_type).present?
-          attrs << { key: 'job.runner.type', value: { stringValue: build.dig(:runner, :runner_type) } }
-          attrs << { key: 'cicd.worker.type', value: { stringValue: build.dig(:runner, :runner_type) } }
-        end
-
-        if build[:runner].key?(:active)
-          attrs << { key: 'job.runner.active', value: { boolValue: build.dig(:runner, :active) || false } }
-        end
-
-        if build[:runner].key?(:is_shared)
-          attrs << { key: 'job.runner.is_shared', value: { boolValue: build.dig(:runner, :is_shared) || false } }
-          attrs << { key: 'gitlab.cicd.worker.is_shared',
-value: { boolValue: build.dig(:runner, :is_shared) || false } }
-        end
+        attrs << build_runner_type_attribute(build) if runner_type_present?(build)
+        attrs << build_runner_worker_type_attribute(build) if runner_type_present?(build)
+        attrs << build_runner_active_attribute(build) if runner_key_present?(build, :active)
+        attrs.concat(build_runner_is_shared_attributes(build)) if runner_key_present?(build, :is_shared)
 
         attrs
+      end
+
+      def runner_type_present?(build)
+        build.dig(:runner, :runner_type).present?
+      end
+
+      def runner_key_present?(build, key)
+        build.key?(:runner) && build[:runner].key?(key)
+      end
+
+      def build_runner_type_attribute(build)
+        { key: 'job.runner.type', value: { stringValue: build.dig(:runner, :runner_type) || '' } }
+      end
+
+      def build_runner_worker_type_attribute(build)
+        { key: 'cicd.worker.type', value: { stringValue: build.dig(:runner, :runner_type) || '' } }
+      end
+
+      def build_runner_active_attribute(build)
+        { key: 'job.runner.active', value: { boolValue: build.dig(:runner, :active) || false } }
+      end
+
+      def build_runner_is_shared_attributes(build)
+        [
+          { key: 'job.runner.is_shared', value: { boolValue: build.dig(:runner, :is_shared) || false } },
+          { key: 'gitlab.cicd.runner.is_shared', value: { boolValue: build.dig(:runner, :is_shared) || false } }
+        ]
       end
 
       def build_environment_attributes(build)

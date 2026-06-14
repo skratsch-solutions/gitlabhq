@@ -84,6 +84,10 @@ class Namespace < ApplicationRecord
   has_one :namespace_ldap_settings, inverse_of: :namespace, class_name: 'Namespaces::LdapSetting', autosave: true
 
   has_one :namespace_descendants, class_name: 'Namespaces::Descendants'
+
+  has_one :observability_group_o11y_setting, class_name: 'Observability::GroupO11ySetting',
+    foreign_key: :group_id, inverse_of: :namespace
+
   attribute :description
   accepts_nested_attributes_for :namespace_descendants, allow_destroy: true
 
