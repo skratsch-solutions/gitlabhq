@@ -103,7 +103,7 @@ but you require credits in your Monthly Commitment Pool to access them.
 | Feature | Free | Premium | Ultimate |
 |---------|---|---|---|
 | [Agent tool governance](agents/tool-governance.md) <br /> Configure tool-level approval policies to gate sensitive agent actions with human approval at execution time. | {{< yes >}} | {{< yes >}} | {{< yes >}} |
-| [AI audit event report](ai-audit-events.md) <br /> Browse, filter, and download a unified record of GitLab Duo agent activity for compliance and governance purposes. | {{< no >}} | {{< yes >}} | {{< yes >}} |
+| [AI audit event report](ai-audit-events.md) <br /> Browse and filter a unified record of GitLab Duo agent activity for compliance and governance purposes. | {{< no >}} | {{< yes >}} | {{< yes >}} |
 | [Custom flows](flows/custom.md) <br /> Combine multiple agents to solve your business problems. | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | [Initialize project context](onboarding.md#initialize-project-context) <br /> Automatically generate an `AGENTS.md` file that documents your project conventions for use by AI agents. | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | [Improve CI/CD setup](onboarding.md#improve-cicd-setup) <br /> Analyze your CI/CD configuration and generate a merge request with suggested improvements. | {{< yes >}} | {{< yes >}} | {{< yes >}} |

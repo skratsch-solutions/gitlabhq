@@ -2,7 +2,7 @@
 stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
-description: Browse, filter, and download a unified record of GitLab Duo agent activity for compliance and governance purposes.
+description: Browse and filter a unified record of GitLab Duo agent activity for compliance and governance purposes.
 title: AI audit event report
 ---
 
@@ -26,7 +26,7 @@ title: AI audit event report
 
 The AI audit event report gives security and compliance teams a unified,
 browsable record of GitLab Duo agent activity. Each agent session produces
-a comprehensive audit artifact that you can inspect and download.
+a comprehensive audit artifact that you can inspect.
 
 ## View AI audit events
 
@@ -55,7 +55,6 @@ The tab displays a list of agent sessions. Each row shows:
 
 You can filter the session list to narrow results:
 
-- **Agent**: Filter by workflow definition name, or exclude a specific agent.
 - **Project**: Filter by project path, or exclude a specific project.
 - **Date range**: Filter sessions created after or before a specific date.
 
@@ -67,16 +66,6 @@ To inspect the events within a session:
    The panel shows session metadata and a chronological list of audit events.
 1. Select an individual event to view its full details, including entity
    and target information.
-
-## Download a session artifact
-
-Each session has a downloadable JSON artifact containing the complete
-audit record for that session.
-
-To download a session artifact, open the session details panel for the session you want to download.
-
-The artifact is a JSON document. You can use it for offline analysis,
-long-term retention, or integration with external compliance tooling.
 
 ## Related topics
 
