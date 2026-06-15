@@ -320,6 +320,7 @@ lib/api/entities/group.rb:
 - avatar_url
 - build_artifacts_size
 - created_at
+- crm_enabled
 - custom_attributes
 - default_branch_name
 - default_branch_protection
@@ -330,6 +331,7 @@ lib/api/entities/group.rb:
 - lfs_enabled?
 - lfs_objects_size
 - lock_math_rendering_limits_enabled
+- lock_resource_access_token_notify_inherited
 - marked_for_deletion_on
 - math_rendering_limits_enabled
 - max_artifacts_size
@@ -343,6 +345,7 @@ lib/api/entities/group.rb:
 - repository_size
 - request_access_enabled
 - require_two_factor_authentication
+- resource_access_token_notify_inherited
 - root_storage_statistics
 - share_with_group_lock
 - shared_runners_setting

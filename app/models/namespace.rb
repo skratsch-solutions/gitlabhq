@@ -221,6 +221,7 @@ class Namespace < ApplicationRecord
       delegate :default_branch_protection_defaults
       delegate :archived, :archived=
       delegate :math_rendering_limits_enabled, :lock_math_rendering_limits_enabled
+      delegate :resource_access_token_notify_inherited, :lock_resource_access_token_notify_inherited
       delegate :emails_enabled, :emails_enabled=
       delegate :web_based_commit_signing_enabled?, :lock_web_based_commit_signing_enabled?
       delegate :web_based_commit_signing_enabled, :lock_web_based_commit_signing_enabled

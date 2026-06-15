@@ -67079,7 +67079,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_c3e33f2431c7"
+              "$ref": "#/components/schemas/RequestBody_e83c2a25e7da"
   "/api/v4/groups/{id}":
     put:
       operationId: putApiV4GroupsId
@@ -67109,7 +67109,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_33213db8c315"
+              "$ref": "#/components/schemas/RequestBody_3dcc9961f5b4"
     get:
       operationId: getApiV4GroupsId
       summary: Get a single group, with containing projects.
@@ -73844,6 +73844,12 @@ components:
         math_rendering_limits_enabled:
           type: boolean
         lock_math_rendering_limits_enabled:
+          type: boolean
+        crm_enabled:
+          type: boolean
+        resource_access_token_notify_inherited:
+          type: boolean
+        lock_resource_access_token_notify_inherited:
           type: boolean
         default_branch:
           type: string
@@ -88156,6 +88162,12 @@ components:
         math_rendering_limits_enabled:
           type: boolean
         lock_math_rendering_limits_enabled:
+          type: boolean
+        crm_enabled:
+          type: boolean
+        resource_access_token_notify_inherited:
+          type: boolean
+        lock_resource_access_token_notify_inherited:
           type: boolean
         default_branch:
           type: string
@@ -109504,7 +109516,7 @@ components:
           example:
             environment: production
           nullable: true
-    RequestBody_c3e33f2431c7:
+    RequestBody_e83c2a25e7da:
       type: object
       properties:
         name:
@@ -109672,6 +109684,20 @@ components:
           - http
           - all
           description: Allow only the selected protocols to be used for Git access.
+          nullable: true
+        crm_enabled:
+          type: boolean
+          description: Enable Customer Relations Management for this group
+          nullable: true
+        resource_access_token_notify_inherited:
+          type: boolean
+          description: Send access token expiry notifications to all inherited members
+            of the group
+          nullable: true
+        lock_resource_access_token_notify_inherited:
+          type: boolean
+          description: Prevent subgroups from overriding the access token expiry notification
+            setting
           nullable: true
         membership_lock:
           type: boolean
@@ -109861,7 +109887,7 @@ components:
       required:
       - name
       - path
-    RequestBody_33213db8c315:
+    RequestBody_3dcc9961f5b4:
       type: object
       properties:
         name:
@@ -110030,6 +110056,20 @@ components:
           - http
           - all
           description: Allow only the selected protocols to be used for Git access.
+          nullable: true
+        crm_enabled:
+          type: boolean
+          description: Enable Customer Relations Management for this group
+          nullable: true
+        resource_access_token_notify_inherited:
+          type: boolean
+          description: Send access token expiry notifications to all inherited members
+            of the group
+          nullable: true
+        lock_resource_access_token_notify_inherited:
+          type: boolean
+          description: Prevent subgroups from overriding the access token expiry notification
+            setting
           nullable: true
         membership_lock:
           type: boolean

@@ -18,8 +18,37 @@ the type. For the sake of documentation let's name our feature flag (and experim
 bin/feature-flag pill_color -t experiment
 ```
 
-After you generate the desired feature flag, you can immediately implement an
-experiment in code. A basic experiment implementation can be:
+After you generate the desired feature flag, define an experiment class. Every
+experiment must be declaratively defined as a class in `app/experiments` (or
+`ee/app/experiments` for EE experiments). GitLab sets `config.strict_registration = true`
+in [`config/initializers/gitlab_experiment.rb`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/config/initializers/gitlab_experiment.rb),
+so inline experiments that run without a registered class raise
+`Gitlab::Experiment::UnregisteredExperiment`. Use the Rails generator to create
+the class:
+
+```shell
+rails generate gitlab:experiment pill_color control red blue
+```
+
+This generates `app/experiments/pill_color_experiment.rb` with the variants you
+provide to the generator:
+
+```ruby
+class PillColorExperiment < ApplicationExperiment
+  control { 'control' }
+  variant(:red) { 'red' }
+  variant(:blue) { 'blue' }
+end
+```
+
+After you define the class, run the experiment in code:
+
+```ruby
+experiment(:pill_color, actor: current_user).run
+```
+
+You can also pass a block to override the registered variants at the call site.
+The block form runs the experiment without an explicit `run`:
 
 ```ruby
 experiment(:pill_color, actor: current_user) do |e|
@@ -164,43 +193,8 @@ authenticated users - `{ user: current_user }` would be just as effective.
 
 ### Advanced experimentation
 
-There are two ways to implement an experiment:
-
-1. The basic experiment style described previously.
-1. A more advanced style where an experiment class is provided.
-
-The advanced style is handled by naming convention, and works similar to what you
-would expect in Rails.
-
-To generate a custom experiment class that can override the defaults in
-`ApplicationExperiment` use the Rails generator:
-
-```shell
-rails generate gitlab:experiment pill_color control red blue
-```
-
-This generates an experiment class in `app/experiments/pill_color_experiment.rb`
-with the _behaviors_ we've provided to the generator. Here's an example
-of how that class would look after migrating our previous example into it:
-
-```ruby
-class PillColorExperiment < ApplicationExperiment
-  control { 'control' }
-  variant(:red) { 'red' }
-  variant(:blue) { 'blue' }
-end
-```
-
-We can now simplify where we run our experiment to the following call, instead of
-providing the block we were initially providing, by explicitly calling `run`:
-
-```ruby
-experiment(:pill_color, actor: current_user).run
-```
-
-The _behaviors_ we defined in our experiment class represent the default
-implementation. You can still use the block syntax to override these _behaviors_
-however, so the following would also be valid:
+The block form shown previously can override a single variant while leaving the
+rest to the class defaults:
 
 ```ruby
 experiment(:pill_color, actor: current_user) do |e|
@@ -382,6 +376,35 @@ export default {
 
 > [!note]
 > When there is no experiment data in the `window.gl.experiments` object for the given experiment name, the `control` slot is used, if it exists.
+
+### Tracking with the tracking mixin
+
+Use `Tracking.mixin` to add a `track` method to Vue components that automatically
+includes the experiment context. Call `this.track()` in your component to fire
+events with the correct experiment context.
+
+```vue
+<script>
+import Tracking from '~/tracking';
+
+export default {
+  mixins: [Tracking.mixin({ experiment: 'pill_color' })],
+  mounted() {
+    this.track('show_form', {
+      label: 'pill_color_form',
+    });
+  },
+};
+</script>
+
+<template>
+  <form>
+    <!-- form content -->
+  </form>
+</template>
+```
+
+When the component mounts, the `track` call fires a `show_form` event that includes the `pill_color` experiment context, which the data team can use to join experiment assignment with interaction events.
 
 ## Experiment development best practices
 

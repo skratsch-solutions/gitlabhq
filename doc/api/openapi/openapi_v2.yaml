@@ -49227,6 +49227,12 @@ definitions:
         type: boolean
       lock_math_rendering_limits_enabled:
         type: boolean
+      crm_enabled:
+        type: boolean
+      resource_access_token_notify_inherited:
+        type: boolean
+      lock_resource_access_token_notify_inherited:
+        type: boolean
       default_branch:
         type: string
       default_branch_protection:
@@ -49346,6 +49352,9 @@ definitions:
     - archived
     - math_rendering_limits_enabled
     - lock_math_rendering_limits_enabled
+    - crm_enabled
+    - resource_access_token_notify_inherited
+    - lock_resource_access_token_notify_inherited
     - default_branch
     - default_branch_protection
     - default_branch_protection_defaults
@@ -49618,6 +49627,17 @@ definitions:
         - ssh
         - http
         - all
+      crm_enabled:
+        type: boolean
+        description: Enable Customer Relations Management for this group
+      resource_access_token_notify_inherited:
+        type: boolean
+        description: Send access token expiry notifications to all inherited members
+          of the group
+      lock_resource_access_token_notify_inherited:
+        type: boolean
+        description: Prevent subgroups from overriding the access token expiry notification
+          setting
       membership_lock:
         type: boolean
         description: Prevent adding new members to projects within this group
@@ -49926,6 +49946,17 @@ definitions:
         - ssh
         - http
         - all
+      crm_enabled:
+        type: boolean
+        description: Enable Customer Relations Management for this group
+      resource_access_token_notify_inherited:
+        type: boolean
+        description: Send access token expiry notifications to all inherited members
+          of the group
+      lock_resource_access_token_notify_inherited:
+        type: boolean
+        description: Prevent subgroups from overriding the access token expiry notification
+          setting
       membership_lock:
         type: boolean
         description: Prevent adding new members to projects within this group
@@ -50269,6 +50300,12 @@ definitions:
         type: boolean
       lock_math_rendering_limits_enabled:
         type: boolean
+      crm_enabled:
+        type: boolean
+      resource_access_token_notify_inherited:
+        type: boolean
+      lock_resource_access_token_notify_inherited:
+        type: boolean
       default_branch:
         type: string
       default_branch_protection:
@@ -50439,6 +50476,9 @@ definitions:
     - archived
     - math_rendering_limits_enabled
     - lock_math_rendering_limits_enabled
+    - crm_enabled
+    - resource_access_token_notify_inherited
+    - lock_resource_access_token_notify_inherited
     - default_branch
     - default_branch_protection
     - default_branch_protection_defaults

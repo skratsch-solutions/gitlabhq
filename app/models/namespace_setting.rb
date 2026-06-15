@@ -118,6 +118,8 @@ class NamespaceSetting < ApplicationRecord
     default_branch_protection_defaults
     math_rendering_limits_enabled
     lock_math_rendering_limits_enabled
+    resource_access_token_notify_inherited
+    lock_resource_access_token_notify_inherited
     jwt_ci_cd_job_token_enabled
     enforce_granular_tokens
     granular_tokens_enforced_after

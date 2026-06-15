@@ -1324,6 +1324,30 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         expect(group1.reload.show_diff_preview_in_email).to be(false)
       end
 
+      it 'updates crm_enabled' do
+        put api("/groups/#{group1.id}", user1), params: { crm_enabled: false }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['crm_enabled']).to be(false)
+        expect(group1.reload.crm_enabled?).to be(false)
+      end
+
+      it 'updates resource_access_token_notify_inherited' do
+        put api("/groups/#{group1.id}", user1), params: { resource_access_token_notify_inherited: true }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['resource_access_token_notify_inherited']).to be(true)
+        expect(group1.reload.resource_access_token_notify_inherited).to be(true)
+      end
+
+      it 'updates lock_resource_access_token_notify_inherited' do
+        put api("/groups/#{group1.id}", user1), params: { lock_resource_access_token_notify_inherited: true }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['lock_resource_access_token_notify_inherited']).to be(true)
+        expect(group1.reload.lock_resource_access_token_notify_inherited).to be(true)
+      end
+
       context 'when default_branch_protection_defaults set to No one' do
         it 'updates default branch protection settings for the group' do
           put api("/groups/#{group1.id}", user1),
@@ -3365,6 +3389,34 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         expect(json_response["path"]).to eq(group[:path])
         expect(json_response["request_access_enabled"]).to eq(group[:request_access_enabled])
         expect(json_response["visibility"]).to eq(Gitlab::VisibilityLevel.string_level(Gitlab::CurrentSettings.current_application_settings.default_group_visibility))
+      end
+
+      it 'creates group with crm_enabled set to false', :aggregate_failures do
+        group_params = attributes_for_group_api crm_enabled: false
+
+        post api("/groups", user3), params: group_params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(json_response['crm_enabled']).to be(false)
+        expect(Group.find(json_response['id']).crm_enabled?).to be(false)
+      end
+
+      it 'creates group with resource_access_token_notify_inherited set to true', :aggregate_failures do
+        group_params = attributes_for_group_api resource_access_token_notify_inherited: true
+
+        post api("/groups", user3), params: group_params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(json_response['resource_access_token_notify_inherited']).to be(true)
+      end
+
+      it 'creates group with lock_resource_access_token_notify_inherited set to true', :aggregate_failures do
+        group_params = attributes_for_group_api lock_resource_access_token_notify_inherited: true
+
+        post api("/groups", user3), params: group_params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(json_response['lock_resource_access_token_notify_inherited']).to be(true)
       end
 
       it "creates a nested group", :aggregate_failures do

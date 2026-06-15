@@ -52,7 +52,7 @@ module Groups
 
       set_visibility_level
 
-      except_keys = ::NamespaceSetting.allowed_namespace_settings_params + [:organization_id, :import_export_upload]
+      except_keys = ::NamespaceSetting.allowed_namespace_settings_params + [:organization_id, :import_export_upload, :crm_enabled, :crm_source_group_id]
       @group = Group.new(params.except(*except_keys))
 
       set_organization
@@ -82,7 +82,7 @@ module Groups
     end
 
     def after_successful_creation_hook
-      # overridden in EE
+      handle_crm_settings_update
     end
 
     def remove_unallowed_params

@@ -15,15 +15,6 @@ RSpec.describe ApplicationExperiment, :experiment, feature_category: :acquisitio
     allow(application_experiment).to receive(:enabled?).and_return(true)
   end
 
-  it "registers a default control behavior for anonymous experiments" do
-    # This default control behavior is not inherited, intentionally, but it
-    # does provide anonymous experiments with a base control behavior to keep
-    # them optional there.
-
-    expect(experiment(:example)).to register_behavior(:control).with(nil)
-    expect { experiment(:example) {} }.not_to raise_error
-  end
-
   describe ".available?" do
     it 'is false for foss' do
       expect(described_class).not_to be_available
@@ -196,6 +187,8 @@ RSpec.describe ApplicationExperiment, :experiment, feature_category: :acquisitio
 
   context "when nesting experiments" do
     before do
+      stub_const('TopExperiment', Class.new(ApplicationExperiment) { control { nil } })
+      stub_const('NestedExperiment', Class.new(ApplicationExperiment) { control { nil } })
       stub_experiments(top: :control, nested: :control)
     end
 
