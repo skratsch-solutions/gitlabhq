@@ -51,6 +51,7 @@ RSpec.describe Gitlab::GithubImport::Stage::ImportCollaboratorsWorker, feature_c
         expect(Gitlab::GithubImport::Logger).to receive(:warn)
           .with(a_hash_including(
             project_id: project.id,
+            Labkit::Fields::GL_ORGANIZATION_ID => project.organization_id,
             importer: 'Importer::CollaboratorsImporter',
             message: 'no push access rights to fetch collaborators'
           ))

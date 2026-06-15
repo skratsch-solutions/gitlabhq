@@ -16,8 +16,7 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       'p_ci_pipeline_artifact_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587555
       'packages_nuget_symbol_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587558
       'packages_package_file_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587559
-      'snippet_repository_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587561
-      'supply_chain_attestation_states' # https://gitlab.com/gitlab-org/gitlab/-/work_items/588220
+      'snippet_repository_states' # https://gitlab.com/gitlab-org/gitlab/-/work_items/587561
     ]
   end
 

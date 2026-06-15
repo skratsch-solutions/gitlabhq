@@ -31689,6 +31689,7 @@ CREATE TABLE supply_chain_attestation_states (
     verification_checksum bytea,
     verification_failure text,
     project_id bigint,
+    CONSTRAINT check_290bf08584 CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_ef9d3c1760 CHECK ((char_length(verification_failure) <= 255))
 );
 

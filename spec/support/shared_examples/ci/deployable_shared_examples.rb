@@ -47,7 +47,7 @@ RSpec.shared_examples 'a deployable job' do
       end
 
       it 'returns false to ignore the Build and not take any Deployment-related action' do
-        expect(unpersisted_deployment.job.has_outdated_deployment?).to eq(false)
+        expect(unpersisted_deployment.job.has_outdated_deployment?).to be(false)
       end
     end
 
@@ -92,7 +92,7 @@ RSpec.shared_examples 'a deployable job' do
         end
 
         it 'returns true for disallowing rollback' do
-          expect(subject).to eq(true)
+          expect(subject).to be(true)
         end
       end
     end

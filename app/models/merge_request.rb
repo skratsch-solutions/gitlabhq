@@ -2944,10 +2944,6 @@ class MergeRequest < ApplicationRecord
       .limit(Gitlab::CurrentSettings.diff_max_versions)
   end
 
-  def find_viewable_diff_by_id(diff_id)
-    merge_request_diffs.viewable.find(diff_id)
-  end
-
   def show_context_commits_diff?(diff_options)
     diff_options[:only_context_commits] && context_commits_diff && !context_commits_diff.empty?
   end

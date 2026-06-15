@@ -9987,23 +9987,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
-  describe '#find_viewable_diff_by_id' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
-    let_it_be(:viewable_diff) { merge_request.merge_request_diff }
-    let_it_be(:empty_diff) { create(:merge_request_diff, merge_request: merge_request, state: :empty) }
-
-    it 'returns viewable diff by ID' do
-      expect(merge_request.find_viewable_diff_by_id(viewable_diff.id)).to eq(viewable_diff)
-    end
-
-    context 'when ID is for an empty diff' do
-      it 'raises error' do
-        expect { merge_request.find_viewable_diff_by_id(empty_diff.id) }
-          .to raise_error(ActiveRecord::RecordNotFound)
-      end
-    end
-  end
-
   describe '.mergeable_state_checks_by_tier' do
     it 'returns checks in tier order: trivial, light, heavy' do
       tier_keys = described_class.mergeable_state_checks_by_tier.keys

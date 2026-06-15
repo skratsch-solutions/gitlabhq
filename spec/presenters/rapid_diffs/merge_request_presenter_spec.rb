@@ -189,6 +189,14 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
       it { is_expected.not_to include('diff_id') }
     end
 
+    context 'when resolved diff is an empty (changeless) diff' do
+      # An empty diff is a real version, so its ID is pinned like any other; the
+      # DiffResolver resolves it back to the empty diff rather than 404ing.
+      let(:merge_request_diff) { build_stubbed(:merge_request_diff, state: :empty) }
+
+      it { is_expected.to include("diff_id=#{resolved_diff_id}") }
+    end
+
     context 'when only_context_commits is set' do
       let(:request_params) { { only_context_commits: 'true' } }
 

@@ -152,7 +152,7 @@ RSpec.shared_examples 'value stream analytics flow metrics issueCount examples' 
     let(:current_user) { create(:user) }
 
     it 'returns nil' do
-      expect(result).to eq(nil)
+      expect(result).to be_nil
     end
   end
 
@@ -216,7 +216,7 @@ RSpec.shared_examples 'value stream analytics flow metrics deploymentCount examp
     let(:current_user) { create(:user) }
 
     it 'returns nil' do
-      expect(result).to eq(nil)
+      expect(result).to be_nil
     end
   end
 

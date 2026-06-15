@@ -374,11 +374,11 @@ You can turn them on or off for a top-level group or for an instance.
 
 When custom flows are turned off:
 
-- Users cannot create, enable, disable, modify, or execute custom flows.
+- Users cannot create, enable, disable, or execute custom flows.
 - Existing custom flows are no longer visible
   in the project under **AI** > **Flows** > **Enabled**.
 - Custom flows created in the project appear
-  under **AI** > **Flows** > **Managed**, but cannot be modified or executed.
+  under **AI** > **Flows** > **Managed**, but cannot be executed.
 - [Foundational flows](foundational_flows/_index.md) remain available.
 
 {{< tabs >}}

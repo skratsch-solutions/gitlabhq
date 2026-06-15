@@ -69,6 +69,14 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'cancelEditing',
+    'noteEdited',
+    'startEditing',
+    'startReplying',
+    'stopReplying',
+    'toggleDiscussionReplies',
+  ],
   data() {
     return {
       isLoggedIn: isLoggedIn(),

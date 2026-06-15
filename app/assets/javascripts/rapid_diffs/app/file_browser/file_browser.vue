@@ -22,6 +22,7 @@ export default {
       default: null,
     },
   },
+  emits: ['clickFile'],
   data() {
     return {
       currentFileHash: '',

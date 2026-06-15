@@ -116,7 +116,6 @@ Rails/Date:
     - 'spec/features/projects/members/sorting_spec.rb'
     - 'spec/features/projects/milestones/milestone_editing_spec.rb'
     - 'spec/features/work_items/issues/issue_sidebar_spec.rb'
-    - 'spec/features/work_items/issues/new/user_creates_issue_spec.rb'
     - 'spec/features/work_items/issues/user_edits_issue_spec.rb'
     - 'spec/helpers/application_helper_spec.rb'
     - 'spec/helpers/timeboxes_helper_spec.rb'

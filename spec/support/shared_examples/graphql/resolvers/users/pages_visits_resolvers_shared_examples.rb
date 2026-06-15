@@ -8,7 +8,7 @@ RSpec.shared_examples 'namespace visits resolver' do
       let_it_be(:current_user, freeze: false) { nil }
 
       it 'returns nil' do
-        expect(resolve_items).to eq(nil)
+        expect(resolve_items).to be_nil
       end
     end
 

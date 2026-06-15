@@ -284,6 +284,8 @@ config/bounded_contexts.yml @fabiopitino @grzesiek @stanhu @cwoolley-gitlab @tku
 ^[Database] @gitlab-org/maintainers/database
 /spec/lib/gitlab/background_migration/
 /ee/spec/lib/ee/gitlab/background_migration/
+/spec/migrations/
+/ee/spec/migrations/
 /spec/finders/
 /ee/spec/finders/
 

@@ -89,6 +89,18 @@ RSpec.describe Gitlab::MergeRequests::DiffResolver, feature_category: :code_revi
         end
       end
 
+      context 'when diff_id is for an empty diff' do
+        let_it_be(:empty_diff) do
+          create(:merge_request_diff, merge_request: merge_request, state: :empty)
+        end
+
+        let(:params) { { diff_id: empty_diff.id } }
+
+        it 'returns the empty diff rather than raising' do
+          expect(diff_resolver.resolve).to eq(empty_diff)
+        end
+      end
+
       context 'when diff_id is the latest diff' do
         let(:params) { { diff_id: base_diff_2.id } }
 

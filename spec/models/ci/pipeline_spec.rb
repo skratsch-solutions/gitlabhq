@@ -9,8 +9,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:user, freeze: false) { create(:user, :public_email) }
-  let_it_be(:namespace, freeze: false) { create_default(:namespace).freeze }
+  let_it_be(:user) { create(:user, :public_email) }
+  let_it_be(:namespace) { create_default(:namespace).freeze }
   let_it_be_with_refind(:project) { create_default(:project, :repository).freeze }
 
   it 'paginates 15 pipelines per page' do
@@ -117,7 +117,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   context 'yaml_errors validations' do
-    let_it_be(:invalid_yaml_errors, freeze: false) { 'a' * (described_class::YAML_ERRORS_MAX_LENGTH + 1.kilobyte) }
+    let_it_be(:invalid_yaml_errors) { 'a' * (described_class::YAML_ERRORS_MAX_LENGTH + 1.kilobyte) }
 
     context 'with existing yaml_errors' do
       let(:pipeline) { build(:ci_pipeline, yaml_errors: invalid_yaml_errors) }
@@ -160,7 +160,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe 'associations' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     it 'has a bidirectional relationship with projects' do
       expect(described_class.reflect_on_association(:project).has_inverse?).to eq(:all_pipelines)
@@ -209,10 +209,10 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     describe '#downloadable_artifacts' do
-      let_it_be(:build, freeze: false) { create(:ci_build, pipeline: pipeline) }
-      let_it_be(:downloadable_artifact, freeze: false) { create(:ci_job_artifact, :codequality, job: build) }
-      let_it_be(:expired_artifact, freeze: false) { create(:ci_job_artifact, :junit, :expired, job: build) }
-      let_it_be(:undownloadable_artifact, freeze: false) { create(:ci_job_artifact, :trace, job: build) }
+      let_it_be(:build) { create(:ci_build, pipeline: pipeline) }
+      let_it_be(:downloadable_artifact) { create(:ci_job_artifact, :codequality, job: build) }
+      let_it_be_with_refind(:expired_artifact) { create(:ci_job_artifact, :junit, :expired, job: build) }
+      let_it_be(:undownloadable_artifact) { create(:ci_job_artifact, :trace, job: build) }
 
       context 'when artifacts are locked' do
         it 'returns downloadable artifacts including locked artifacts' do
@@ -230,7 +230,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     describe '#limited_failed_builds' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+      let_it_be(:pipeline) { create(:ci_pipeline) }
 
       before do
         stub_const("#{described_class}::COUNT_FAILED_JOBS_LIMIT", 3)
@@ -256,7 +256,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     describe '#limited_failed_jobs' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+      let_it_be(:pipeline) { create(:ci_pipeline) }
 
       before do
         stub_const("#{described_class}::COUNT_FAILED_JOBS_LIMIT", 3)
@@ -307,7 +307,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
   describe 'state machine transitions' do
     context 'from failed to success' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :failed) }
+      let_it_be_with_reload(:pipeline) { create(:ci_empty_pipeline, :failed) }
 
       it 'schedules CoverageReportWorker' do
         expect(Ci::PipelineArtifacts::CoverageReportWorker).to receive(:perform_async).with(pipeline.id)
@@ -317,7 +317,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'from running to manual' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :running) }
+      let_it_be_with_reload(:pipeline) { create(:ci_pipeline, :running) }
 
       it 'schedules CoverageReportWorker' do
         expect(Ci::PipelineArtifacts::CoverageReportWorker).to receive(:perform_async).with(pipeline.id)
@@ -607,7 +607,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe 'pipeline age metric' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     let(:pipeline_age_histogram) do
       ::Gitlab::Ci::Pipeline::Metrics.pipeline_age_histogram
@@ -708,7 +708,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.with_unlockable_status' do
-    let_it_be(:project, freeze: false) { create(:project) }
+    let_it_be(:project) { create(:project) }
 
     let!(:pipeline) { create(:ci_pipeline, project: project, status: status) }
 
@@ -736,8 +736,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.tag' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
-    let_it_be(:tag_pipeline, freeze: false) { create(:ci_pipeline, :tag) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
+    let_it_be(:tag_pipeline) { create(:ci_pipeline, :tag) }
 
     subject { described_class.tag }
 
@@ -745,8 +745,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.no_tag' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
-    let_it_be(:tag_pipeline, freeze: false) { create(:ci_pipeline, :tag) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
+    let_it_be(:tag_pipeline) { create(:ci_pipeline, :tag) }
 
     subject { described_class.no_tag }
 
@@ -754,7 +754,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.processables' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     before do
       create(:ci_build, name: 'build', pipeline: pipeline)
@@ -822,8 +822,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.for_name' do
     subject { described_class.for_name(name) }
 
-    let_it_be(:pipeline1, freeze: false) { create(:ci_pipeline, name: 'Build pipeline') }
-    let_it_be(:pipeline2, freeze: false) { create(:ci_pipeline, name: 'Chatops pipeline') }
+    let_it_be(:pipeline1) { create(:ci_pipeline, name: 'Build pipeline') }
+    let_it_be(:pipeline2) { create(:ci_pipeline, name: 'Chatops pipeline') }
 
     context 'when name exists' do
       let(:name) { 'Build pipeline' }
@@ -845,8 +845,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.for_status' do
     subject { described_class.for_status(status) }
 
-    let_it_be(:pipeline1, freeze: false) { create(:ci_pipeline, name: 'Build pipeline', status: :created) }
-    let_it_be(:pipeline2, freeze: false) { create(:ci_pipeline, name: 'Chatops pipeline', status: :failed) }
+    let_it_be(:pipeline1) { create(:ci_pipeline, name: 'Build pipeline', status: :created) }
+    let_it_be(:pipeline2) { create(:ci_pipeline, name: 'Chatops pipeline', status: :failed) }
 
     context 'when status exists' do
       let(:status) { :created }
@@ -866,8 +866,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   context 'with created filters' do
-    let_it_be(:old_pipeline, freeze: false) { create(:ci_pipeline, created_at: 1.week.ago) }
-    let_it_be(:new_pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:old_pipeline) { create(:ci_pipeline, created_at: 1.week.ago) }
+    let_it_be(:new_pipeline) { create(:ci_pipeline) }
 
     describe '.created_after' do
       subject { described_class.created_after(1.day.ago) }
@@ -878,7 +878,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     describe '.created_on_or_after', :freeze_time do
-      let_it_be(:new_pipeline_1, freeze: false) { create(:ci_pipeline, created_at: 1.day.ago) }
+      let_it_be(:new_pipeline_1) { create(:ci_pipeline, created_at: 1.day.ago) }
 
       subject { described_class.created_on_or_after(1.day.ago) }
 
@@ -905,8 +905,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   context 'with finished filters' do
-    let_it_be(:old_pipeline, freeze: false) { create(:ci_pipeline, finished_at: 1.week.ago) }
-    let_it_be(:new_pipeline, freeze: false) { create(:ci_pipeline, finished_at: 1.hour.ago) }
+    let_it_be(:old_pipeline) { create(:ci_pipeline, finished_at: 1.week.ago) }
+    let_it_be(:new_pipeline) { create(:ci_pipeline, finished_at: 1.hour.ago) }
 
     describe '.finished_after' do
       subject { described_class.finished_after(1.day.ago) }
@@ -922,7 +922,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     let(:sha) { 'abc' }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, sha: 'abc') }
+    let_it_be(:pipeline) { create(:ci_pipeline, sha: 'abc') }
 
     it 'returns the pipeline' do
       is_expected.to contain_exactly(pipeline)
@@ -947,8 +947,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.where_not_sha' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, sha: 'abcx') }
-    let_it_be(:pipeline_2, freeze: false) { create(:ci_pipeline, sha: 'abc') }
+    let_it_be(:pipeline) { create(:ci_pipeline, sha: 'abcx') }
+    let_it_be(:pipeline_2) { create(:ci_pipeline, sha: 'abc') }
 
     let(:sha) { 'abc' }
 
@@ -973,7 +973,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     let(:source_sha) { 'abc' }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, source_sha: 'abc') }
+    let_it_be(:pipeline) { create(:ci_pipeline, source_sha: 'abc') }
 
     it 'returns the pipeline' do
       is_expected.to contain_exactly(pipeline)
@@ -1032,7 +1032,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     let(:branch) { 'master' }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, ref: 'master') }
+    let_it_be(:pipeline) { create(:ci_pipeline, ref: 'master') }
 
     it 'returns the pipeline' do
       is_expected.to contain_exactly(pipeline)
@@ -1051,9 +1051,9 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.not_ref_protected' do
     subject { described_class.not_ref_protected }
 
-    let_it_be(:protected_pipeline, freeze: false) { create(:ci_pipeline, protected: true) }
-    let_it_be(:unprotected_pipeline, freeze: false) { create(:ci_pipeline, protected: false) }
-    let_it_be(:protected_unspecified_pipeline, freeze: false) { create(:ci_pipeline, protected: nil) }
+    let_it_be(:protected_pipeline) { create(:ci_pipeline, protected: true) }
+    let_it_be(:unprotected_pipeline) { create(:ci_pipeline, protected: false) }
+    let_it_be(:protected_unspecified_pipeline) { create(:ci_pipeline, protected: nil) }
 
     it 'contains all unprotected pipelines' do
       is_expected.to contain_exactly(unprotected_pipeline, protected_unspecified_pipeline)
@@ -1063,8 +1063,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.unlocked' do
     subject { described_class.unlocked }
 
-    let_it_be(:unlocked_pipeline, freeze: false) { create(:ci_pipeline, locked: :unlocked) }
-    let_it_be(:artifacts_locked_pipeline, freeze: false) { create(:ci_pipeline, locked: :artifacts_locked) }
+    let_it_be(:unlocked_pipeline) { create(:ci_pipeline, locked: :unlocked) }
+    let_it_be(:artifacts_locked_pipeline) { create(:ci_pipeline, locked: :artifacts_locked) }
 
     it 'contains all unlocked pipelines' do
       is_expected.to contain_exactly(unlocked_pipeline)
@@ -1076,9 +1076,9 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     let(:source) { 'web' }
 
-    let_it_be(:push_pipeline, freeze: false)   { create(:ci_pipeline, source: :push) }
-    let_it_be(:web_pipeline, freeze: false)    { create(:ci_pipeline, source: :web) }
-    let_it_be(:api_pipeline, freeze: false)    { create(:ci_pipeline, source: :api) }
+    let_it_be(:push_pipeline)   { create(:ci_pipeline, source: :push) }
+    let_it_be(:web_pipeline)    { create(:ci_pipeline, source: :web) }
+    let_it_be(:api_pipeline)    { create(:ci_pipeline, source: :api) }
 
     it 'contains pipelines created due to specified source' do
       expect(subject).to contain_exactly(web_pipeline)
@@ -1086,7 +1086,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.preload_pipeline_metadata' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, project: project, user: user, name: 'Chatops pipeline') }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, project: project, user: user, name: 'Chatops pipeline') }
 
     it 'loads associations' do
       result = described_class.preload_pipeline_metadata.first
@@ -1121,12 +1121,12 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.ci_branch_sources' do
     subject { described_class.ci_branch_sources }
 
-    let_it_be(:push_pipeline, freeze: false)   { create(:ci_pipeline, source: :push) }
-    let_it_be(:web_pipeline, freeze: false)    { create(:ci_pipeline, source: :web) }
-    let_it_be(:api_pipeline, freeze: false)    { create(:ci_pipeline, source: :api) }
-    let_it_be(:webide_pipeline, freeze: false) { create(:ci_pipeline, source: :webide) }
-    let_it_be(:child_pipeline, freeze: false)  { create(:ci_pipeline, source: :parent_pipeline) }
-    let_it_be(:merge_request_pipeline, freeze: false) { create(:ci_pipeline, :detached_merge_request_pipeline) }
+    let_it_be(:push_pipeline)   { create(:ci_pipeline, source: :push) }
+    let_it_be(:web_pipeline)    { create(:ci_pipeline, source: :web) }
+    let_it_be(:api_pipeline)    { create(:ci_pipeline, source: :api) }
+    let_it_be(:webide_pipeline) { create(:ci_pipeline, source: :webide) }
+    let_it_be(:child_pipeline)  { create(:ci_pipeline, source: :parent_pipeline) }
+    let_it_be(:merge_request_pipeline) { create(:ci_pipeline, :detached_merge_request_pipeline) }
 
     it 'contains pipelines having CI only sources' do
       expect(subject).to contain_exactly(push_pipeline, web_pipeline, api_pipeline)
@@ -1142,13 +1142,13 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.ci_and_security_orchestration_sources' do
     subject { described_class.ci_and_security_orchestration_sources }
 
-    let_it_be(:push_pipeline, freeze: false)   { create(:ci_pipeline, source: :push) }
-    let_it_be(:web_pipeline, freeze: false)    { create(:ci_pipeline, source: :web) }
-    let_it_be(:api_pipeline, freeze: false)    { create(:ci_pipeline, source: :api) }
-    let_it_be(:webide_pipeline, freeze: false) { create(:ci_pipeline, source: :webide) }
-    let_it_be(:child_pipeline, freeze: false)  { create(:ci_pipeline, source: :parent_pipeline) }
-    let_it_be(:merge_request_pipeline, freeze: false) { create(:ci_pipeline, :detached_merge_request_pipeline) }
-    let_it_be(:sec_orchestration_pipeline, freeze: false) { create(:ci_pipeline, :security_orchestration_policy) }
+    let_it_be(:push_pipeline)   { create(:ci_pipeline, source: :push) }
+    let_it_be(:web_pipeline)    { create(:ci_pipeline, source: :web) }
+    let_it_be(:api_pipeline)    { create(:ci_pipeline, source: :api) }
+    let_it_be(:webide_pipeline) { create(:ci_pipeline, source: :webide) }
+    let_it_be(:child_pipeline)  { create(:ci_pipeline, source: :parent_pipeline) }
+    let_it_be(:merge_request_pipeline) { create(:ci_pipeline, :detached_merge_request_pipeline) }
+    let_it_be(:sec_orchestration_pipeline) { create(:ci_pipeline, :security_orchestration_policy) }
 
     it 'contains pipelines having CI and security_orchestration_policy sources' do
       expect(subject).to contain_exactly(push_pipeline, web_pipeline, api_pipeline, merge_request_pipeline, sec_orchestration_pipeline)
@@ -1212,8 +1212,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.order_id_desc' do
     subject(:pipelines_ordered_by_id) { described_class.order_id_desc }
 
-    let_it_be(:older_pipeline, freeze: false) { create(:ci_pipeline, project: project) }
-    let_it_be(:newest_pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be(:older_pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:newest_pipeline) { create(:ci_pipeline, project: project) }
 
     it 'only returns the pipelines ordered by id' do
       expect(newest_pipeline.id).to be > older_pipeline.id
@@ -1228,9 +1228,9 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.order_created_at_asc_id_asc', :freeze_time do
     subject(:pipelines_ordered_by_created_at_id) { described_class.order_created_at_asc_id_asc }
 
-    let_it_be(:pipeline1, freeze: false) { create(:ci_pipeline, project: project, created_at: 1.week.ago) }
-    let_it_be(:pipeline2, freeze: false) { create(:ci_pipeline, project: project, created_at: 1.day.ago) }
-    let_it_be(:pipeline3, freeze: false) { create(:ci_pipeline, project: project, created_at: 1.day.ago) }
+    let_it_be(:pipeline1) { create(:ci_pipeline, project: project, created_at: 1.week.ago) }
+    let_it_be(:pipeline2) { create(:ci_pipeline, project: project, created_at: 1.day.ago) }
+    let_it_be(:pipeline3) { create(:ci_pipeline, project: project, created_at: 1.day.ago) }
 
     it 'returns pipelines sorted by created_at ascending and id ascending' do
       expect(pipelines_ordered_by_created_at_id).to eq([pipeline1, pipeline2, pipeline3])
@@ -1259,7 +1259,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#merge_request?' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
     let_it_be_with_reload(:pipeline) do
       create(:ci_pipeline, project: project, merge_request_id: merge_request.id)
     end
@@ -1343,7 +1343,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when merge request is nil' do
-      let_it_be(:non_merge_request_pipeline, freeze: false) do
+      let_it_be(:non_merge_request_pipeline) do
         create(:ci_pipeline, project: project, merge_request_id: nil)
       end
 
@@ -1541,7 +1541,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#legacy_detached_merge_request_pipeline?' do
     subject { pipeline.legacy_detached_merge_request_pipeline? }
 
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
 
     let(:ref) { 'feature' }
     let(:target_sha) { nil }
@@ -1611,7 +1611,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'for workload pipeline' do
-      let_it_be(:workload_ref, freeze: false) { 'refs/workloads/abc123' }
+      let_it_be(:workload_ref) { 'refs/workloads/abc123' }
       let(:pipeline) { create(:ci_pipeline, ref: workload_ref) }
 
       it 'returns the workload ref as-is' do
@@ -2043,7 +2043,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when user is found' do
-      let_it_be(:author, freeze: false) { create(:user, :public_email) }
+      let_it_be_with_reload(:author) { create(:user, :public_email) }
 
       before do
         allow(pipeline).to receive(:commit).and_return(double(author_email: author.public_email))
@@ -2075,7 +2075,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when user has no public_email set' do
-        let_it_be(:author_no_public, freeze: false) { create(:user) }
+        let_it_be_with_reload(:author_no_public) { create(:user) }
 
         before do
           author_no_public.update_column(:public_email, nil)
@@ -2139,7 +2139,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#update_builds_coverage' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline) }
 
     context 'builds with coverage_regex defined' do
       let!(:build_1) { create(:ci_build, :success, :trace_with_coverage, trace_coverage: 60.0, pipeline: pipeline) }
@@ -2177,7 +2177,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#retryable?' do
     subject { pipeline.retryable? }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created, project: project, created_at: 1.day.ago) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created, project: project, created_at: 1.day.ago) }
 
     context 'no failed builds' do
       before do
@@ -2271,7 +2271,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     context 'when pipeline is for a merge request' do
       let(:pipeline) { build_stubbed(:ci_pipeline, source: :merge_request_event, merge_request: merge_request, project: project, user: project.owner, ref: merge_request.ref_path) }
 
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, source_project: project, source_branch: 'feature', target_project: project, target_branch: 'master')
       end
 
@@ -2334,8 +2334,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
         end
 
         context 'when the merge request is from a forked project' do
-          let_it_be(:forked_project, freeze: false) { fork_project(project, nil, repository: true) }
-          let_it_be(:merge_request, freeze: false) do
+          let_it_be(:forked_project) { fork_project(project, nil, repository: true) }
+          let_it_be(:merge_request) do
             create(:merge_request, source_project: forked_project, source_branch: 'feature', target_project: project, target_branch: 'master')
           end
 
@@ -2740,7 +2740,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     describe 'track artifact report' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
       let_it_be_with_reload(:pipeline) { create(:ci_pipeline, :running, :with_test_reports, :with_coverage_reports, status: :running, user: user) }
 
       context 'when transitioning to completed status' do
@@ -3887,7 +3887,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#has_warnings?' do
     subject { pipeline.has_warnings? }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     context 'build which is allowed to fail fails' do
       before do
@@ -3945,7 +3945,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#number_of_warnings' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     it 'returns the number of warnings' do
       create(:ci_build, :allowed_to_fail, :failed, pipeline: pipeline, name: 'rubocop')
@@ -3979,7 +3979,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     subject { pipeline.needs_processing? }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     where(:processed, :result) do
       nil   | true
@@ -4124,11 +4124,11 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     describe '.latest_pipelines_for_ref_by_statuses' do
-      let_it_be(:ref1_success_old, freeze: false) { create(:ci_empty_pipeline, status: :success, ref: 'first_ref') }
-      let_it_be(:ref1_success, freeze: false) { create(:ci_empty_pipeline, status: :success, ref: 'first_ref') }
-      let_it_be(:ref1_failed, freeze: false) { create(:ci_empty_pipeline, status: :failed, ref: 'first_ref') }
-      let_it_be(:ref1_blocked, freeze: false) { create(:ci_empty_pipeline, status: :manual, ref: 'first_ref') }
-      let_it_be(:ref2_success, freeze: false) { create(:ci_empty_pipeline, status: :success, ref: 'second_ref') }
+      let_it_be(:ref1_success_old) { create(:ci_empty_pipeline, status: :success, ref: 'first_ref') }
+      let_it_be(:ref1_success) { create(:ci_empty_pipeline, status: :success, ref: 'first_ref') }
+      let_it_be(:ref1_failed) { create(:ci_empty_pipeline, status: :failed, ref: 'first_ref') }
+      let_it_be(:ref1_blocked) { create(:ci_empty_pipeline, status: :manual, ref: 'first_ref') }
+      let_it_be(:ref2_success) { create(:ci_empty_pipeline, status: :success, ref: 'second_ref') }
 
       context 'when only a ref is passed in' do
         subject(:latest_pipelines_for_ref_by_statuses) { described_class.latest_pipelines_for_ref_by_statuses(ref) }
@@ -4154,7 +4154,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.newest_first' do
-    let_it_be(:merged_commit_pipeline, freeze: false) do
+    let_it_be(:merged_commit_pipeline) do
       create(
         :ci_pipeline,
         status: 'success',
@@ -4174,7 +4174,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.newest_without_schedules' do
-    let_it_be(:merged_commit_pipeline, freeze: false) do
+    let_it_be(:merged_commit_pipeline) do
       create(
         :ci_pipeline,
         status: 'success',
@@ -4184,7 +4184,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       )
     end
 
-    let_it_be(:schedule_pipeline, freeze: false) do
+    let_it_be(:schedule_pipeline) do
       create(
         :ci_pipeline,
         status: 'success',
@@ -4312,42 +4312,42 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '.latest_pipeline_per_ref' do
     let(:refs_with_shas) { [%w[master 234], %w[develop 123]] }
 
-    let_it_be(:develop_123, freeze: false) do
+    let_it_be(:develop_123) do
       create(
         :ci_empty_pipeline, status: :success,
         ref: 'develop', sha: '123'
       )
     end
 
-    let_it_be(:develop_123_2, freeze: false) do
+    let_it_be(:develop_123_2) do
       create(
         :ci_empty_pipeline, status: :success,
         ref: 'develop', sha: '123'
       )
     end
 
-    let_it_be(:master_123, freeze: false) do
+    let_it_be(:master_123) do
       create(
         :ci_empty_pipeline, status: :success,
         ref: 'master', sha: '123'
       )
     end
 
-    let_it_be(:develop_234, freeze: false) do
+    let_it_be(:develop_234) do
       create(
         :ci_empty_pipeline, status: :success,
         ref: 'develop', sha: '234'
       )
     end
 
-    let_it_be(:master_234, freeze: false) do
+    let_it_be(:master_234) do
       create(
         :ci_empty_pipeline, status: :success,
         ref: 'master', sha: '234'
       )
     end
 
-    let_it_be(:master_234_2, freeze: false) do
+    let_it_be(:master_234_2) do
       create(
         :ci_empty_pipeline, status: :success,
         ref: 'master', sha: '234'
@@ -4404,7 +4404,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#status', :sidekiq_inline do
     subject { pipeline.reload.status }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     let(:build) { create(:ci_build, :created, pipeline: pipeline, name: 'test') }
 
@@ -4498,7 +4498,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#detailed_status' do
     subject { pipeline.detailed_status(user) }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     context 'when pipeline is created' do
       let(:pipeline) { create(:ci_pipeline, :created) }
@@ -4578,7 +4578,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#cancelable?' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     %i[created running pending].each do |status0|
       context "when there is a build #{status0}" do
@@ -4733,7 +4733,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#retry_failed' do
     subject(:latest_status) { pipeline.latest_statuses.pluck(:status) }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     before do
       stub_not_protect_default_branch
@@ -4862,7 +4862,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
   describe '#all_merge_requests' do
     let_it_be_with_reload(:project) { create(:project) }
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created, project: project) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created, project: project) }
 
     shared_examples 'a method that returns all merge requests for a given pipeline' do
       let(:pipeline) { create(:ci_empty_pipeline, status: 'created', project: pipeline_project, ref: 'master') }
@@ -5068,7 +5068,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#same_family_pipeline_ids' do
     subject { pipeline.same_family_pipeline_ids.map(&:id) }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     context 'when pipeline is not child nor parent' do
       it 'returns just the pipeline id' do
@@ -5133,7 +5133,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     shared_examples_for 'fetches environments in self and project descendant pipelines' do |factory_type|
       context 'when pipeline is not child nor parent' do
-        let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+        let_it_be(:pipeline) { create(:ci_pipeline, :created) }
         let_it_be_with_refind(:job) { create(factory_type, :with_deployment, :deploy_to_production, pipeline: pipeline) }
 
         it 'returns just the pipeline environment' do
@@ -5175,9 +5175,9 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when an associated environment does not have deployments' do
-        let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
-        let_it_be(:job, freeze: false) { create(factory_type, :stop_review_app, pipeline: pipeline) }
-        let_it_be(:environment, freeze: false) { create(:environment, project: pipeline.project) }
+        let_it_be(:pipeline) { create(:ci_pipeline, :created) }
+        let_it_be(:job) { create(factory_type, :stop_review_app, pipeline: pipeline) }
+        let_it_be(:environment) { create(:environment, project: pipeline.project) }
 
         before_all do
           job.link_to_environment(environment)
@@ -5189,20 +5189,20 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when pipeline is in extended family' do
-        let_it_be(:parent, freeze: false) { create(:ci_pipeline) }
-        let_it_be(:parent_job, freeze: false) { create(factory_type, :with_deployment, environment: 'staging', pipeline: parent) }
+        let_it_be(:parent) { create(:ci_pipeline) }
+        let_it_be(:parent_job) { create(factory_type, :with_deployment, environment: 'staging', pipeline: parent) }
 
-        let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, child_of: parent) }
-        let_it_be(:job, freeze: false) { create(factory_type, :with_deployment, :deploy_to_production, pipeline: pipeline) }
+        let_it_be(:pipeline) { create(:ci_pipeline, child_of: parent) }
+        let_it_be(:job) { create(factory_type, :with_deployment, :deploy_to_production, pipeline: pipeline) }
 
-        let_it_be(:child, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-        let_it_be(:child_job, freeze: false) { create(factory_type, :with_deployment, environment: 'canary', pipeline: child) }
+        let_it_be(:child) { create(:ci_pipeline, child_of: pipeline) }
+        let_it_be(:child_job) { create(factory_type, :with_deployment, environment: 'canary', pipeline: child) }
 
-        let_it_be(:grandchild, freeze: false) { create(:ci_pipeline, child_of: child) }
-        let_it_be(:grandchild_job, freeze: false) { create(factory_type, :with_deployment, environment: 'test', pipeline: grandchild) }
+        let_it_be(:grandchild) { create(:ci_pipeline, child_of: child) }
+        let_it_be(:grandchild_job) { create(factory_type, :with_deployment, environment: 'test', pipeline: grandchild) }
 
-        let_it_be(:sibling, freeze: false) { create(:ci_pipeline, child_of: parent) }
-        let_it_be(:sibling_job, freeze: false) { create(factory_type, :with_deployment, environment: 'review', pipeline: sibling) }
+        let_it_be(:sibling) { create(:ci_pipeline, child_of: parent) }
+        let_it_be(:sibling_job) { create(factory_type, :with_deployment, environment: 'review', pipeline: sibling) }
 
         it 'returns its own environment and from all descendants' do
           expected_environments = [
@@ -5223,13 +5223,13 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when each pipeline has multiple environments' do
-        let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
-        let_it_be(:job1, freeze: false) { create(factory_type, :with_deployment, :deploy_to_production, pipeline: pipeline) }
-        let_it_be(:job2, freeze: false) { create(factory_type, :with_deployment, environment: 'staging', pipeline: pipeline) }
+        let_it_be(:pipeline) { create(:ci_pipeline, :created) }
+        let_it_be(:job1) { create(factory_type, :with_deployment, :deploy_to_production, pipeline: pipeline) }
+        let_it_be(:job2) { create(factory_type, :with_deployment, environment: 'staging', pipeline: pipeline) }
 
-        let_it_be(:child, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-        let_it_be(:child_job1, freeze: false) { create(factory_type, :with_deployment, environment: 'canary', pipeline: child) }
-        let_it_be(:child_job2, freeze: false) { create(factory_type, :with_deployment, environment: 'test', pipeline: child) }
+        let_it_be(:child) { create(:ci_pipeline, child_of: pipeline) }
+        let_it_be(:child_job1) { create(factory_type, :with_deployment, environment: 'canary', pipeline: child) }
+        let_it_be(:child_job2) { create(factory_type, :with_deployment, environment: 'test', pipeline: child) }
 
         it 'returns all related environments' do
           expected_environments = [
@@ -5243,7 +5243,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when pipeline has no environment' do
-        let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+        let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
         it 'returns empty' do
           expect(subject).to be_empty
@@ -5263,7 +5263,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#root_ancestor' do
     subject { pipeline.root_ancestor }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     context 'when pipeline is child of child pipeline' do
       let!(:root_ancestor) { create(:ci_pipeline) }
@@ -5612,7 +5612,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     subject(:builds) { pipeline.builds_in_self_and_project_descendants }
 
     let_it_be_with_refind(:pipeline) { create(:ci_pipeline) }
-    let_it_be(:build, freeze: false) { create(:ci_build, pipeline: pipeline) }
+    let_it_be(:build) { create(:ci_build, pipeline: pipeline) }
 
     context 'when pipeline is standalone' do
       it 'returns the list of builds' do
@@ -5621,16 +5621,16 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline is parent of another pipeline' do
-      let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-      let_it_be(:child_build, freeze: false) { create(:ci_build, pipeline: child_pipeline) }
+      let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
+      let_it_be(:child_build) { create(:ci_build, pipeline: child_pipeline) }
 
       it 'returns the list of builds' do
         expect(builds).to contain_exactly(build, child_build)
       end
 
       context 'when the trigger job for the child pipeline is retried' do
-        let_it_be(:new_child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-        let_it_be(:new_child_build, freeze: false) { create(:ci_build, pipeline: new_child_pipeline) }
+        let_it_be(:new_child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
+        let_it_be(:new_child_build) { create(:ci_build, pipeline: new_child_pipeline) }
 
         before do
           child_pipeline.source_bridge.update!(retried: true)
@@ -5658,8 +5658,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipelines span multiple partitions' do
-      let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-      let_it_be(:cross_partition_pipeline, freeze: false) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
+      let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
+      let_it_be(:cross_partition_pipeline) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
 
       it 'returns builds from all partitions' do
         child_build = create(:ci_build, pipeline: child_pipeline)
@@ -5673,7 +5673,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#bridges_in_self_and_project_descendants' do
     subject(:bridges) { pipeline.bridges_in_self_and_project_descendants }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     context 'when pipeline is standalone' do
       it 'returns an empty relation' do
@@ -5682,7 +5682,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline has child pipelines with trigger bridges' do
-      let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
+      let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
 
       it 'returns bridge jobs from the hierarchy' do
         bridge = child_pipeline.source_pipeline.source_job
@@ -5692,8 +5692,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipelines span multiple partitions' do
-      let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-      let_it_be(:cross_partition_pipeline, freeze: false) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
+      let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
+      let_it_be(:cross_partition_pipeline) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
 
       it 'returns bridges from all partitions' do
         child_bridge = child_pipeline.source_pipeline.source_job
@@ -5705,7 +5705,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#build_with_artifacts_in_self_and_project_descendants' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     let!(:build) { create(:ci_build, name: 'test', pipeline: pipeline) }
     let(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
@@ -5775,8 +5775,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipelines span multiple partitions' do
-      let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-      let_it_be(:cross_partition_pipeline, freeze: false) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
+      let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
+      let_it_be(:cross_partition_pipeline) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
 
       it 'returns jobs from all partitions' do
         job = create(:ci_build, pipeline: pipeline)
@@ -5839,7 +5839,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#latest_report_builds' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
 
     it 'returns build with test artifacts' do
       test_build = create(:ci_build, :test_reports, pipeline: pipeline)
@@ -5865,9 +5865,9 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#latest_report_builds_in_self_and_project_descendants' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
-    let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-    let_it_be(:grandchild_pipeline, freeze: false) { create(:ci_pipeline, child_of: child_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
+    let_it_be(:grandchild_pipeline) { create(:ci_pipeline, child_of: child_pipeline) }
 
     it 'returns builds with reports artifacts from pipelines in the hierarcy' do
       parent_build = create(:ci_build, :test_reports, pipeline: pipeline)
@@ -5892,7 +5892,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipelines span multiple partitions' do
-      let_it_be(:grandchild_pipeline, freeze: false) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
+      let_it_be(:grandchild_pipeline) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
 
       it 'returns builds from all partitions' do
         parent_build = create(:ci_build, :test_reports, pipeline: pipeline)
@@ -5912,18 +5912,18 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#downloadable_artifacts_in_self_and_project_descendants' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :unlocked, project: project) }
-    let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, :unlocked, child_of: pipeline) }
-    let_it_be(:grandchild_pipeline, freeze: false) { create(:ci_pipeline, :unlocked, child_of: child_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline, :unlocked, project: project) }
+    let_it_be(:child_pipeline) { create(:ci_pipeline, :unlocked, child_of: pipeline) }
+    let_it_be(:grandchild_pipeline) { create(:ci_pipeline, :unlocked, child_of: child_pipeline) }
 
-    let_it_be(:parent_build, freeze: false) { create(:ci_build, :test_reports, pipeline: pipeline) }
-    let_it_be(:parent_build_not_downloadable, freeze: false) { create(:ci_build, :trace_artifact, pipeline: pipeline) }
-    let_it_be(:child_build, freeze: false) { create(:ci_build, :coverage_reports, pipeline: child_pipeline) }
-    let_it_be(:child_build_not_downloadable, freeze: false) { create(:ci_build, :trace_artifact, pipeline: child_pipeline) }
-    let_it_be(:grandchild_build, freeze: false) { create(:ci_build, :codequality_reports, pipeline: grandchild_pipeline) }
+    let_it_be(:parent_build) { create(:ci_build, :test_reports, pipeline: pipeline) }
+    let_it_be(:parent_build_not_downloadable) { create(:ci_build, :trace_artifact, pipeline: pipeline) }
+    let_it_be(:child_build) { create(:ci_build, :coverage_reports, pipeline: child_pipeline) }
+    let_it_be(:child_build_not_downloadable) { create(:ci_build, :trace_artifact, pipeline: child_pipeline) }
+    let_it_be_with_refind(:grandchild_build) { create(:ci_build, :codequality_reports, pipeline: grandchild_pipeline) }
 
-    let_it_be(:unrelated_pipeline, freeze: false) { create(:ci_pipeline, project: create(:project)) }
-    let_it_be(:unrelated_build, freeze: false) { create(:ci_build, :test_reports, pipeline: unrelated_pipeline) }
+    let_it_be(:unrelated_pipeline) { create(:ci_pipeline, project: create(:project)) }
+    let_it_be(:unrelated_build) { create(:ci_build, :test_reports, pipeline: unrelated_pipeline) }
 
     let(:parent_artifact) { parent_build.job_artifacts.first }
     let(:child_artifact) { child_build.job_artifacts.first }
@@ -5956,8 +5956,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipelines span multiple partitions' do
-      let_it_be(:cross_partition_pipeline, freeze: false) { create(:ci_pipeline, :unlocked, partition_id: 101, child_of: child_pipeline) }
-      let_it_be(:cross_partition_build, freeze: false) { create(:ci_build, :codequality_reports, pipeline: cross_partition_pipeline) }
+      let_it_be(:cross_partition_pipeline) { create(:ci_pipeline, :unlocked, partition_id: 101, child_of: child_pipeline) }
+      let_it_be(:cross_partition_build) { create(:ci_build, :codequality_reports, pipeline: cross_partition_pipeline) }
 
       let(:cross_partition_artifact) { cross_partition_build.job_artifacts.first }
 
@@ -5968,11 +5968,11 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#builds_with_cte' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
-    let_it_be(:build_1, freeze: false) { create(:ci_build, pipeline: pipeline, project: project) }
-    let_it_be(:build_2, freeze: false) { create(:ci_build, pipeline: pipeline, project: project) }
-    let_it_be(:other_pipeline, freeze: false) { create(:ci_pipeline, project: project) }
-    let_it_be(:other_build, freeze: false) { create(:ci_build, pipeline: other_pipeline, project: project) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:build_1) { create(:ci_build, pipeline: pipeline, project: project) }
+    let_it_be(:build_2) { create(:ci_build, pipeline: pipeline, project: project) }
+    let_it_be(:other_pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:other_build) { create(:ci_build, pipeline: other_pipeline, project: project) }
 
     subject { pipeline.builds_with_cte.pluck(:id) }
 
@@ -5985,7 +5985,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline has no builds' do
-      let_it_be(:empty_pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+      let_it_be(:empty_pipeline) { create(:ci_pipeline, project: project) }
 
       it 'returns an empty result' do
         expect(empty_pipeline.builds_with_cte.pluck(:id)).to be_empty
@@ -5994,8 +5994,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#destroy_job_artifact_associations' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
-    let_it_be(:build, freeze: false) { create(:ci_build, pipeline: pipeline, project: project) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:build) { create(:ci_build, pipeline: pipeline, project: project) }
 
     it 'uses Ci::Pipelines::DestroyAssociationsService' do
       expect_next_instance_of(Ci::Pipelines::DestroyAssociationsService, pipeline) do |service|
@@ -6106,14 +6106,14 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when the child pipeline has reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, :with_test_reports, :success, child_of: pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, :with_test_reports, :success, child_of: pipeline) }
 
         it { is_expected.to be_truthy }
       end
 
       context 'with a nested child pipeline that has reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, :success, child_of: pipeline) }
-        let_it_be(:nested_child_pipeline, freeze: false) { create(:ci_pipeline, :with_test_reports, :success, child_of: child_pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, :success, child_of: pipeline) }
+        let_it_be(:nested_child_pipeline) { create(:ci_pipeline, :with_test_reports, :success, child_of: child_pipeline) }
 
         it { is_expected.to be_truthy }
       end
@@ -6125,14 +6125,14 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       it { is_expected.to be_falsey }
 
       context 'when the child pipeline has reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, :with_test_reports, :success, child_of: pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, :with_test_reports, :success, child_of: pipeline) }
 
         it { is_expected.to be_truthy }
       end
 
       context 'with a nested child pipeline that has reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, :success, child_of: pipeline) }
-        let_it_be(:nested_child_pipeline, freeze: false) { create(:ci_pipeline, :with_test_reports, :success, child_of: child_pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, :success, child_of: pipeline) }
+        let_it_be(:nested_child_pipeline) { create(:ci_pipeline, :with_test_reports, :success, child_of: child_pipeline) }
 
         it { is_expected.to be_truthy }
       end
@@ -6276,12 +6276,12 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
         create(:ci_build, :artifacts, pipeline: pipeline)
       end
 
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :success) }
+      let_it_be(:pipeline) { create(:ci_pipeline, :success) }
 
       it { expect(subject).to be_falsey }
 
       context 'when the child pipeline has code quality reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, :with_codequality_report, child_of: pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, :with_codequality_report, child_of: pipeline) }
 
         it { expect(subject).to be_truthy }
       end
@@ -6338,7 +6338,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#test_reports' do
     subject { pipeline.test_reports }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     context 'when pipeline has multiple builds with test reports' do
       let!(:build_rspec) { create(:ci_build, :success, name: 'rspec', pipeline: pipeline) }
@@ -6371,7 +6371,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'and the child pipeline has test reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
         let!(:build_java2) { create(:ci_build, :success, name: 'java', pipeline: child_pipeline) }
 
         before do
@@ -6420,7 +6420,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'and the child pipeline has test reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
         let!(:build_java2) { create(:ci_build, :success, name: 'java', pipeline: child_pipeline) }
 
         before do
@@ -6439,7 +6439,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#accessibility_reports' do
     subject { pipeline.accessibility_reports }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     context 'when pipeline has multiple builds with accessibility reports' do
       let(:build_rspec) { create(:ci_build, :success, name: 'rspec', pipeline: pipeline) }
@@ -6478,7 +6478,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#codequality_reports' do
     subject(:codequality_reports) { pipeline.codequality_reports }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     context 'when pipeline has multiple builds with codequality reports' do
       let(:build_rspec) { create(:ci_build, :success, name: 'rspec', pipeline: pipeline) }
@@ -6509,7 +6509,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when child pipeline has codequality reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, :with_codequality_report, child_of: pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, :with_codequality_report, child_of: pipeline) }
 
         it 'returns codequality report with collected data' do
           expect(codequality_reports.degradations_count).to eq(3)
@@ -6521,19 +6521,19 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#terraform_reports' do
     subject(:terraform_reports) { pipeline.terraform_reports }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     context 'when pipeline has multiple builds with terraform reports' do
-      let_it_be(:build_tfplan1, freeze: false) { create(:ci_build, :terraform_reports, name: 'tfplan1', pipeline: pipeline) }
-      let_it_be(:build_tfplan2, freeze: false) { create(:ci_build, :terraform_reports, name: 'tfplan2', pipeline: pipeline) }
+      let_it_be(:build_tfplan1) { create(:ci_build, :terraform_reports, name: 'tfplan1', pipeline: pipeline) }
+      let_it_be(:build_tfplan2) { create(:ci_build, :terraform_reports, name: 'tfplan2', pipeline: pipeline) }
 
       it 'returns terraform plan with collected data' do
         expect(terraform_reports.plans.count).to eq(2)
       end
 
       context 'when child pipelines also have reports' do
-        let_it_be(:child_pipeline, freeze: false) { create(:ci_pipeline, child_of: pipeline) }
-        let_it_be(:build_child_tf_plan, freeze: false) { create(:ci_build, :terraform_reports, name: 'child-tf', pipeline: child_pipeline) }
+        let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
+        let_it_be(:build_child_tf_plan) { create(:ci_build, :terraform_reports, name: 'child-tf', pipeline: child_pipeline) }
 
         it 'returns a terraform plan with child data' do
           expect(terraform_reports.plans.count).to eq(3)
@@ -6549,7 +6549,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#uses_needs?' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     context 'when the scheduling type is `dag`' do
       context 'when the processable is a bridge' do
@@ -6650,7 +6650,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe 'fetching a stage by name' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline) }
 
     let(:stage_name) { 'test' }
 
@@ -6731,8 +6731,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     let_it_be_with_reload(:pipeline) { create(:ci_pipeline) }
 
     context 'when pipeline is triggered by a pipeline from the same project' do
-      let_it_be(:upstream_pipeline, freeze: false) { create(:ci_pipeline) }
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, child_of: upstream_pipeline) }
+      let_it_be(:upstream_pipeline) { create(:ci_pipeline) }
+      let_it_be(:pipeline) { create(:ci_pipeline, child_of: upstream_pipeline) }
 
       it 'returns the parent pipeline' do
         expect(pipeline.parent_pipeline).to eq(upstream_pipeline)
@@ -6757,7 +6757,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline is not triggered by a pipeline' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline) }
+      let_it_be(:pipeline) { create(:ci_pipeline) }
 
       it 'returns nil' do
         expect(pipeline.parent_pipeline).to be_nil
@@ -6770,7 +6770,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#child_pipelines' do
-    let_it_be(:project, freeze: false) { create(:project) }
+    let_it_be(:project) { create(:project) }
     let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project) }
 
     context 'when pipeline triggered other pipelines on same project' do
@@ -6905,7 +6905,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline is for a workload' do
-      let_it_be(:workload_ref, freeze: false) { 'refs/workloads/abc123' }
+      let_it_be(:workload_ref) { 'refs/workloads/abc123' }
       let(:pipeline) { create(:ci_pipeline, ref: workload_ref) }
 
       it 'returns the workload ref as-is' do
@@ -6966,7 +6966,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#builds_with_coverage' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
     it 'returns builds with coverage only' do
       rspec = create(:ci_build, name: 'rspec', coverage: 97.1, pipeline: pipeline)
@@ -6993,7 +6993,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#self_and_upstreams' do
     subject(:self_and_upstreams) { pipeline.self_and_upstreams }
 
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
     context 'when pipeline is not child nor parent' do
       it 'returns just the pipeline itself' do
@@ -7028,7 +7028,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline is a child of a child pipeline' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+      let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
       let(:ancestor) { create(:ci_pipeline) }
       let(:parent) { create(:ci_pipeline) }
@@ -7044,7 +7044,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline is a triggered pipeline from a different project' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+      let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
       let(:upstream) { create(:ci_pipeline, project: create(:project)) }
 
@@ -7279,7 +7279,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline is a triggered pipeline from a different project' do
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+      let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
       let(:upstream) { create(:ci_pipeline, project: create(:project)) }
 
@@ -7411,7 +7411,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
 
     context 'when pipeline has a cross-project downstream' do
-      let_it_be(:other_project, freeze: false) { create(:project) }
+      let_it_be(:other_project) { create(:project) }
       let!(:downstream) { create(:ci_pipeline, project: other_project) }
 
       before do
@@ -7440,7 +7440,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#reset_source_bridge!' do
     subject(:reset_source_bridge) { pipeline.reset_source_bridge!(current_user) }
 
-    let_it_be(:owner, freeze: false) { project.first_owner }
+    let_it_be(:owner) { project.first_owner }
 
     let_it_be_with_reload(:pipeline) { create(:ci_pipeline, :created, project: project, user: owner) }
     let!(:upstream_pipeline) { create(:ci_pipeline, user: owner) }
@@ -7525,7 +7525,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     context 'when the downstream has strategy: depend' do
       let!(:bridge) { create(:ci_bridge, :strategy_depend, pipeline: upstream_pipeline, status: 'created', user: current_user, downstream: project) }
-      let_it_be(:current_user, freeze: false) { owner }
+      let_it_be(:current_user) { owner }
 
       before do
         create(:ci_sources_pipeline, pipeline: pipeline, source_job: bridge)
@@ -7554,7 +7554,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     context 'when the downstream has strategy: mirror' do
       let!(:bridge) { create(:ci_bridge, :strategy_mirror, pipeline: upstream_pipeline, status: 'created', user: current_user, downstream: project) }
-      let_it_be(:current_user, freeze: false) { owner }
+      let_it_be(:current_user) { owner }
 
       before do
         create(:ci_sources_pipeline, pipeline: pipeline, source_job: bridge)
@@ -7583,7 +7583,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     context 'without a strategy' do
       let!(:bridge)  { create(:ci_bridge, pipeline: create(:ci_pipeline), user: owner) }
-      let_it_be(:current_user, freeze: false) { owner }
+      let_it_be(:current_user) { owner }
 
       before do
         create(:ci_sources_pipeline, pipeline: pipeline, source_job: bridge)
@@ -7651,7 +7651,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#latest_test_report_builds' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
     it 'returns pipeline builds with test report artifacts' do
       test_build = create(:ci_build, :test_reports, pipeline: pipeline)
@@ -7677,7 +7677,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#builds_with_failed_tests' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
+    let_it_be(:pipeline) { create(:ci_pipeline, :created) }
 
     it 'returns pipeline builds with test report artifacts' do
       failed_build = create(:ci_build, :failed, :test_reports, pipeline: pipeline)
@@ -7710,8 +7710,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#build_matchers' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, user: user) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:pipeline) { create(:ci_pipeline, user: user) }
     let_it_be(:builds, freeze: false) { create_list(:ci_build, 2, pipeline: pipeline, project: pipeline.project, user: user) }
 
     let(:project) { pipeline.project }
@@ -7797,8 +7797,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   context 'loose foreign key on ci_pipelines.user_id' do
     it_behaves_like 'cleanup by a loose foreign key' do
       let(:lfk_column) { :user_id }
-      let_it_be(:model, freeze: false) { create(:ci_pipeline, user: create(:user)) }
-      let_it_be(:parent, freeze: false) { model.user }
+      let_it_be(:model) { create(:ci_pipeline, user: create(:user)) }
+      let_it_be(:parent) { model.user }
     end
   end
 
@@ -7993,21 +7993,21 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.projects_with_variables' do
-    let_it_be(:project_with_ci_pipeline_variable1, freeze: false) do
+    let_it_be(:project_with_ci_pipeline_variable1) do
       create(:project).tap do |project|
         pipeline = create(:ci_pipeline, project: project)
         create_list(:ci_pipeline_variable, 2, pipeline: pipeline) # To ensure only unique project_ids returned
       end
     end
 
-    let_it_be(:project_with_ci_pipeline_variable2, freeze: false) do
+    let_it_be(:project_with_ci_pipeline_variable2) do
       create(:project).tap do |project|
         pipeline = create(:ci_pipeline, project: project)
         create(:ci_pipeline_variable, pipeline: pipeline)
       end
     end
 
-    let_it_be(:project_with_ci_pipeline_variable_and_pipeline_variables_artifact, freeze: false) do
+    let_it_be(:project_with_ci_pipeline_variable_and_pipeline_variables_artifact) do
       create(:project).tap do |project|
         pipeline = create(:ci_pipeline, project: project)
         create(:ci_pipeline_variable, pipeline: pipeline)
@@ -8015,21 +8015,21 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
     end
 
-    let_it_be(:project_with_pipeline_variables_artifact1, freeze: false) do
+    let_it_be(:project_with_pipeline_variables_artifact1) do
       create(:project).tap do |project|
         pipeline = create(:ci_pipeline, project: project)
         create(:ci_pipeline_artifact, :with_pipeline_variables, pipeline: pipeline)
       end
     end
 
-    let_it_be(:project_with_pipeline_variables_artifact2, freeze: false) do
+    let_it_be(:project_with_pipeline_variables_artifact2) do
       create(:project).tap do |project|
         pipeline = create(:ci_pipeline, project: project)
         create(:ci_pipeline_artifact, :with_pipeline_variables, pipeline: pipeline)
       end
     end
 
-    let_it_be(:project_with_code_coverage_artifact, freeze: false) do
+    let_it_be(:project_with_code_coverage_artifact) do
       create(:project).tap do |project|
         pipeline = create(:ci_pipeline, project: project)
         create(:ci_pipeline_artifact, :with_code_coverage_with_multiple_files, pipeline: pipeline)
@@ -8324,8 +8324,8 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.not_archived' do
-    let_it_be(:old_pipeline, freeze: false) { create(:ci_pipeline, created_at: 3.months.ago, project: project) }
-    let_it_be(:fresh_pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be(:old_pipeline) { create(:ci_pipeline, created_at: 3.months.ago, project: project) }
+    let_it_be(:fresh_pipeline) { create(:ci_pipeline, project: project) }
 
     subject { described_class.not_archived }
 

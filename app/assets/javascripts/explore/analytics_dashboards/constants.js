@@ -1,5 +1,3 @@
 export const GRID_HEIGHT_COMPACT = 'COMPACT';
 export const GRID_HEIGHT_COMPACT_CELL_HEIGHT = 10;
 export const GRID_HEIGHT_COMPACT_MIN_CELL_HEIGHT = 10;
-
-export const EDIT_DASHBOARD_PATH = 'edit';

@@ -52,7 +52,7 @@ To select a model for a feature:
 1. For the feature you want to configure, select a model from the dropdown list.
 1. Optional. To apply the model to all features in the section, select **Apply to all**.
 
-### Select a model for GitLab Duo Agentic Chat
+### Select a model for Agentic Chat
 
 {{< history >}}
 

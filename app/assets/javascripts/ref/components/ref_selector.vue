@@ -102,6 +102,7 @@ export default {
       default: null,
     },
   },
+  emits: ['hide', 'input'],
   data() {
     return {
       query: '',

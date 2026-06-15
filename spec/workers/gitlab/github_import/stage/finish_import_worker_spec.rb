@@ -32,6 +32,7 @@ RSpec.describe Gitlab::GithubImport::Stage::FinishImportWorker, feature_category
                     'imported' => {}
                   },
                   project_id: project.id,
+                  Labkit::Fields::GL_ORGANIZATION_ID => project.organization_id,
                   duration_s: 3.01
                 }
               )
@@ -67,7 +68,8 @@ RSpec.describe Gitlab::GithubImport::Stage::FinishImportWorker, feature_category
               message: 'Delaying finalization as placeholder references are pending',
               import_stage: 'Gitlab::GithubImport::Stage::FinishImportWorker',
               placeholder_store_count: 1,
-              project_id: project.id
+              project_id: project.id,
+              Labkit::Fields::GL_ORGANIZATION_ID => project.organization_id
             }
           )
 

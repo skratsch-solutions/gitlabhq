@@ -56,7 +56,7 @@ RSpec.shared_examples_for 'LEFT JOIN-able value stream analytics event' do
     subject(:record) { records.to_a.find { |r| r.id == record_with_data.id } }
 
     it 'contains the timestamp expression' do
-      expect(record.timestamp_column_data).not_to eq(nil)
+      expect(record.timestamp_column_data).not_to be_nil
     end
   end
 
@@ -64,7 +64,7 @@ RSpec.shared_examples_for 'LEFT JOIN-able value stream analytics event' do
     subject(:record) { records.to_a.find { |r| r.id == record_without_data.id } }
 
     it 'returns nil for the timestamp expression' do
-      expect(record.timestamp_column_data).to eq(nil) if record_without_data
+      expect(record.timestamp_column_data).to be_nil if record_without_data
     end
   end
 end

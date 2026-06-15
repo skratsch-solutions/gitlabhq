@@ -358,11 +358,11 @@ You can turn them on or off for a top-level group or for an instance.
 
 When custom agents are turned off:
 
-- Users cannot create, enable, disable, modify, or execute custom agents.
+- Users cannot create, enable, disable, or execute custom agents.
 - Existing custom agents are no longer visible
   in the project under **AI** > **Agents** > **Enabled**.
 - Custom agents created in the project appear
-  under **AI** > **Agents** > **Managed**, but cannot be modified or executed.
+  under **AI** > **Agents** > **Managed**, but cannot be executed.
 - [Foundational agents](foundational_agents/_index.md) and [external agents](external.md) remain available.
 
 {{< tabs >}}

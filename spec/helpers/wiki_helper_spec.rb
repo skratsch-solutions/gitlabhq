@@ -71,6 +71,26 @@ RSpec.describe WikiHelper, feature_category: :wiki do
       )
     end
 
+    it 'capitalizes reserved slug directory segments' do
+      items = helper.wiki_breadcrumb_items('templates/my-template')
+
+      expect(items).to eq(
+        [
+          { text: 'Templates', href: wiki_page_path(wiki, 'templates') }
+        ]
+      )
+    end
+
+    it 'preserves original casing for user-created directory segments' do
+      items = helper.wiki_breadcrumb_items('myProject/some-page')
+
+      expect(items).to eq(
+        [
+          { text: 'myProject', href: wiki_page_path(wiki, 'myProject') }
+        ]
+      )
+    end
+
     it 'returns an empty array when page_slug is empty' do
       items = helper.wiki_breadcrumb_items('')
 

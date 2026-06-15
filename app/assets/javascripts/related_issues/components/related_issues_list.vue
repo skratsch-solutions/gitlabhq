@@ -51,6 +51,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['relatedIssueRemoveRequest', 'saveReorder'],
   mounted() {
     if (this.canReorder) {
       this.sortable = Sortable.create(this.$refs.list, {

@@ -16,7 +16,7 @@ RSpec.shared_examples 'graphql notes subscriptions' do
       end
 
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be_nil
       end
 
       context 'when user is unauthorized' do
