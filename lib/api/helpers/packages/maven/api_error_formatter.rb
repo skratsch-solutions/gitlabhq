@@ -6,6 +6,7 @@ module API
       module Maven
         module ApiErrorFormatter
           extend ::Gitlab::Utils::Override
+          include ::API::Helpers::Packages::ErrorMessage
 
           PROBLEM_DETAILS_CONTENT_TYPE = 'application/problem+json'
 
@@ -50,11 +51,7 @@ module API
             return if message.blank?
             return message unless message.is_a?(String)
 
-            # "NNN StatusPhrase - detail" from render_api_error_with_reason!
-            match = message.match(/\A\d{3}\s.+?\s-\s(.+)\z/)
-            return match[1] if match
-
-            message
+            error_message_detail(message) || message
           end
 
           def build_problem_details_body(status_code, detail)

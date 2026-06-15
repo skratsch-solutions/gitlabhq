@@ -784,6 +784,7 @@ type:DetailedStatus
 type:DevopsAdoptionEnabledNamespace
 type:DevopsAdoptionSnapshot
 type:Diff
+type:DiffLine
 type:DiffPosition
 type:DiffRefs
 type:DiffStats

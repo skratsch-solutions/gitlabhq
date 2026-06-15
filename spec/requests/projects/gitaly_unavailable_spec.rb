@@ -567,4 +567,24 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
       it_behaves_like 'handles Gitaly errors for json format'
     end
   end
+
+  describe 'Projects::RefsController' do
+    include_context 'when Gitlab::Git::Commit.find raises Gitaly error'
+
+    describe '#switch' do
+      let(:make_request) do
+        get switch_project_refs_path(project, id: 'master', destination: 'tree')
+      end
+
+      it_behaves_like 'handles Gitaly errors for request specs'
+    end
+
+    describe '#logs_tree' do
+      let(:make_request) do
+        get logs_tree_project_ref_path(project, id: 'master', format: :json)
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+  end
 end

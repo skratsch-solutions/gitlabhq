@@ -282,7 +282,6 @@ For premium models with optimized integration:
 | `gpt-5.3-codex` | 2.5 |
 | `claude-3.5-sonnet` | 2.0 |
 | `claude-3.7-sonnet` | 2.0 |
-| `claude-sonnet-4` | 2.0 |
 | `claude-sonnet-4.5` | 2.0 |
 | `claude-sonnet-4.6` | 2.0 |
 | `gpt-5.4` <sup>1</sup> | 2.0 |

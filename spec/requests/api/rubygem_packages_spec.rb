@@ -839,4 +839,88 @@ RSpec.describe API::RubygemPackages, feature_category: :package_registry do
       end
     end
   end
+
+  describe 'X-Error-Message header' do
+    let(:auth_headers) { { 'HTTP_AUTHORIZATION' => personal_access_token.token } }
+
+    before_all do
+      project.add_developer(user)
+    end
+
+    context 'with a "NNN StatusPhrase - detail" error (failed package creation)' do
+      include_context 'workhorse headers'
+
+      let(:url) { "/projects/#{project.id}/packages/rubygems/api/v1/gems" }
+      let(:expected_status) { :bad_request }
+      let(:headers) { auth_headers.merge(workhorse_headers) }
+
+      subject do
+        workhorse_finalize(
+          api(url),
+          method: :post,
+          file_key: :file,
+          params: { file: temp_file('package.gem') },
+          headers: headers,
+          send_rewritten_field: true
+        )
+      end
+
+      before do
+        stub_package_file_object_storage(enabled: false)
+        error_response = ServiceResponse.error(message: 'Package creation failed', reason: :bad_request)
+        allow_next_instance_of(::Packages::Rubygems::CreatePackageFileService) do |service|
+          allow(service).to receive(:execute).and_return(error_response)
+        end
+      end
+
+      it_behaves_like 'setting the X-Error-Message header on error responses',
+        expected_message: 'Package creation failed'
+    end
+
+    context 'with a custom error message without a status prefix (dependency resolver)' do
+      # Requesting a gem the project does not have makes the real DependencyResolverService
+      # return ServiceResponse.error(message: "<gem> not found", http_status: :not_found).
+      let(:url) { api("/projects/#{project.id}/packages/rubygems/api/v1/dependencies") }
+      let(:expected_status) { :not_found }
+
+      subject { get(url, headers: auth_headers, params: { gems: 'nonexistent' }) }
+
+      it_behaves_like 'setting the X-Error-Message header on error responses',
+        expected_message: 'nonexistent not found'
+    end
+
+    context 'with a bare status phrase' do
+      context 'on a not found response' do
+        let(:url) { api("/projects/#{project.id}/packages/rubygems/specs.4.8.gz") }
+        let(:expected_status) { :not_found }
+
+        subject { get(url, headers: auth_headers) }
+
+        it_behaves_like 'not setting the X-Error-Message header on the response'
+      end
+
+      context 'on a forbidden response (workhorse-bypassed authorize)' do
+        include_context 'workhorse headers'
+
+        let(:url) { api("/projects/#{project.id}/packages/rubygems/api/v1/gems/authorize") }
+        let(:expected_status) { :forbidden }
+        let(:headers) do
+          auth_headers.merge(workhorse_headers).tap { |h| h.delete(Gitlab::Workhorse::INTERNAL_API_REQUEST_HEADER) }
+        end
+
+        subject { post(url, headers: headers) }
+
+        it_behaves_like 'not setting the X-Error-Message header on the response'
+      end
+    end
+
+    context 'with a successful response' do
+      let(:url) { api("/projects/#{project.id}/packages/rubygems/api/v1/dependencies") }
+      let(:expected_status) { :ok }
+
+      subject { get(url, headers: auth_headers, params: {}) }
+
+      it_behaves_like 'not setting the X-Error-Message header on the response'
+    end
+  end
 end

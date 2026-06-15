@@ -8,6 +8,7 @@ module API
 
     helpers ::API::Helpers::PackagesHelpers
     helpers ::API::Helpers::Packages::Rubygems
+    helpers ::API::Helpers::Packages::Rubygems::ErrorMessageHeader
 
     feature_category :package_registry
     urgency :low

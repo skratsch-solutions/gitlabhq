@@ -51,9 +51,6 @@ The following tables list the models you can select for each feature.
 
 | Model | Code Generation | Code Completion |
 |------------|-----------------|-----------------|
-| Claude Sonnet 4 | {{< yes >}} | {{< yes >}} |
-| Claude Sonnet 4 Vertex | {{< yes >}} | {{< yes >}} |
-| Claude Sonnet 4 Bedrock | {{< yes >}} | {{< yes >}} |
 | Claude Sonnet 4.5 | {{< yes >}} | {{< yes >}} |
 | Codestral 25.01 Fireworks | {{< no >}} | {{< yes >}} |
 | Codestral 25.08 Fireworks | {{< no >}} | {{< yes >}} |
@@ -66,17 +63,15 @@ The following tables list the models you can select for each feature.
 |------------|--------------|------------------|-----------------|---------------|----------|---------------------|
 | Claude Haiku 4.5 | {{< yes >}} | {{< no >}} | | | {{< no >}} | |
 | Claude Sonnet 3 | {{< no >}} | | | {{< no >}} | | {{< yes >}} |
-| Claude Sonnet 4 | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
-| Claude Sonnet 4 Vertex | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | Claude Sonnet 4.5 | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | Claude Sonnet 4.5 Vertex | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |  |
+| Claude Sonnet 4.6 | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
+| Claude Sonnet 4.6 Vertex | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |  |
 
 ### GitLab Duo for merge requests
 
 | Model | Merge Commit Message Generation | Merge Request Summary | Code Review Summary | Code Review |
 |------------|--------------------------------|------------------------|---------------------|-------------|
-| Claude Sonnet 4 | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
-| Claude Sonnet 4 Vertex | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | Claude Sonnet 4.5 | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | Claude Sonnet 4.5 Vertex | {{< no >}} | {{< no >}} | {{< no >}} | {{< yes >}} |
 | Claude Sonnet 4.6 | {{< no >}} | {{< no >}} | {{< no >}} | {{< yes >}} |
@@ -88,10 +83,10 @@ The following tables list the models you can select for each feature.
 |------------|----------------------------|--------------------------|-------------------|---------------------|
 | Claude Haiku 3 | {{< yes >}} | {{< no >}} | {{< yes >}} | {{< no >}} |
 | Claude Haiku 4.5 | {{< no >}} | | {{< yes >}} | {{< no >}} |
-| Claude Sonnet 4 |  | {{< yes >}} | {{< yes >}} | {{< yes >}} |
-| Claude Sonnet 4 Vertex | {{< yes >}} |  | {{< yes >}} | {{< yes >}} |
 | Claude Sonnet 4.5 | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | Claude Sonnet 4.5 Vertex | {{< yes >}} |  |  | {{< yes >}} |
+| Claude Sonnet 4.6 | {{< yes >}} | {{< yes >}} | {{< yes >}} | {{< yes >}} |
+| Claude Sonnet 4.6 Vertex | {{< yes >}} |  |  | {{< yes >}} |
 
 ## Select a model for a feature
 
