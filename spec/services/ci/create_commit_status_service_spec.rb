@@ -592,7 +592,7 @@ RSpec.describe Ci::CreateCommitStatusService, :clean_gitlab_redis_cache, feature
   context 'when updating a protected ref' do
     let(:params) { { state: 'running', ref: 'master' } }
 
-    before do
+    before_all do
       create(:protected_branch, project: project, name: 'master')
     end
 

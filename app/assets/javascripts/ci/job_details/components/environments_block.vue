@@ -8,6 +8,7 @@ const STATUS_LAST = 'last';
 const STATUS_CREATING = 'creating';
 const STATUS_OUT_OF_DATE = 'out_of_date';
 const STATUS_FAILED = 'failed';
+const STATUS_CANCELED = 'canceled';
 const ACTION_START = 'start';
 
 export default {
@@ -48,6 +49,7 @@ export default {
             ? this.failedEnvironmentMessage
             : this.lastEnvironmentMessage,
         [STATUS_CREATING]: this.creatingEnvironmentMessage,
+        [STATUS_CANCELED]: this.canceledEnvironmentMessage,
       };
 
       return statusMessages[this.deploymentStatus.status] || '';
@@ -210,6 +212,12 @@ export default {
       }
       // not a cluster deployment
       return __('This job is creating a deployment to %{environmentLink}.');
+    },
+    canceledEnvironmentMessage() {
+      if (this.environmentAction === ACTION_START) {
+        return __('This job was canceled before deploying to %{environmentLink}.');
+      }
+      return this.lastEnvironmentMessage;
     },
     failedEnvironmentMessage() {
       return __('The deployment of this job to %{environmentLink} did not succeed.');

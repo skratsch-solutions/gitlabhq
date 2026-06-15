@@ -289,6 +289,8 @@ docs-i18n-fix-alert-boxes:
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: never
+    - if: '$GITLAB_ARGO_BOT_TOKEN == null'
+      when: never
     - !reference [.docs:rules:docs-i18n-lint, rules]
   before_script:
     - apk add --no-cache perl

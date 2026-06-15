@@ -17,6 +17,60 @@ RSpec.describe Ci::RunnerManager, feature_category: :fleet_visibility do
   it { is_expected.to have_many(:runner_manager_builds) }
   it { is_expected.to have_many(:builds).through(:runner_manager_builds) }
 
+  describe 'query_constraints' do
+    # `ci_runner_machines` is LIST-partitioned by `runner_type` with composite
+    # primary key `(id, runner_type)`. Including `runner_type` in every
+    # single-record WHERE clause enables PostgreSQL partition pruning.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/594861.
+
+    it 'scopes single-record operations by id and runner_type' do
+      expect(described_class.query_constraints_list).to eq(%w[id runner_type])
+    end
+
+    context 'with a persisted runner_manager' do
+      let_it_be(:runner) { create(:ci_runner, :group, groups: [group]) }
+      let_it_be_with_refind(:runner_manager) { create(:ci_runner_machine, runner: runner) }
+
+      it 'includes id and runner_type in the WHERE clause when reloading' do
+        recorder = ActiveRecord::QueryRecorder.new { runner_manager.reload }
+
+        expect(recorder.log).to include(
+          match(/SELECT.+FROM "ci_runner_machines".+WHERE.+"id" = .+AND.+"runner_type" = /)
+        )
+      end
+
+      it 'includes id and runner_type in the WHERE clause when updating' do
+        recorder = ActiveRecord::QueryRecorder.new do
+          runner_manager.update_columns(architecture: 'amd64')
+        end
+
+        expect(recorder.log).to include(
+          match(/UPDATE "ci_runner_machines".+WHERE.+"id" = .+AND.+"runner_type" = /)
+        )
+      end
+
+      it 'includes id and runner_type in the WHERE clause when destroying' do
+        recorder = ActiveRecord::QueryRecorder.new { runner_manager.destroy! }
+
+        expect(recorder.log).to include(
+          match(/DELETE FROM "ci_runner_machines".+WHERE.+"id" = .+AND.+"runner_type" = /)
+        )
+      end
+
+      context 'with another runner_manager for the same runner' do
+        let_it_be(:other_runner_manager) do
+          create(:ci_runner_machine, runner: runner, system_xid: 'other-system')
+        end
+
+        it 'destroys only the target record, not all managers for the runner' do
+          expect { runner_manager.destroy! }
+            .to change { described_class.where(id: runner_manager.id).count }.from(1).to(0)
+            .and not_change { described_class.where(id: other_runner_manager.id).count }
+        end
+      end
+    end
+  end
+
   describe 'validation' do
     it { is_expected.to validate_presence_of(:runner) }
     it { is_expected.to validate_presence_of(:system_xid) }

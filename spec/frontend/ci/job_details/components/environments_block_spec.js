@@ -165,6 +165,27 @@ describe('Environments block', () => {
     });
   });
 
+  describe('with canceled deployment', () => {
+    it('renders "ran in" message for non-deployment action', () => {
+      createComponent({
+        status: 'canceled',
+        action: 'stop',
+        environment,
+      });
+
+      expect(findText()).toBe('This job ran in environment.');
+    });
+
+    it('renders "was canceled before deploying to" message for deployment action', () => {
+      createComponent({
+        status: 'canceled',
+        environment,
+      });
+
+      expect(findText()).toBe('This job was canceled before deploying to environment.');
+    });
+  });
+
   describe('creating deployment', () => {
     describe('with last deployment', () => {
       it('renders info about creating deployment and overriding latest deployment', () => {

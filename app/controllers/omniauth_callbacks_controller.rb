@@ -108,6 +108,14 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     end
   end
 
+  def chatgpt
+    if oauth.dig('extra', 'raw_info', 'email_verified') == true
+      handle_omniauth
+    else
+      fail_chatgpt_login
+    end
+  end
+
   def atlassian_oauth2
     omniauth_flow(Gitlab::Auth::Atlassian)
   end
@@ -374,6 +382,10 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def fail_salesforce_login
     fail_login_with_message(_('Email not verified. Please verify your email in Salesforce.'))
+  end
+
+  def fail_chatgpt_login
+    fail_login_with_message(_('Email not verified. Please verify your email in your ChatGPT account.'))
   end
 
   def fail_login_with_message(message)

@@ -209,6 +209,7 @@ module Admin
             allowed_to_push: [:access_level]
           }
         ] },
+        { dependency_management_settings: [:security_update_scheduler_max_concurrency] },
         :lets_encrypt_notification_email,
         :lets_encrypt_terms_of_service_accepted,
         :domain_denylist_file,

@@ -154,28 +154,12 @@ Supported parameters:
 | ------------- | --------------------------------------------- | ----------- |
 | `collapsed`   | `false`                                       | Whether to collapse or expand the view. |
 | `description` | None                                          | An optional description to display below the title. |
-| `display`     | `table`                                       | How to display the data. Supported options: `table`, `list`, or `orderedList`. |
+| `display`     | `list`                                        | How to display query results. For the available types, see [Display types](#display-types). |
+| `displayConfig` | None                                        | Display-type-specific options, such as `stacked` for column charts. See [Display types](display_types.md). |
 | `fields`      | `title`                                       | A comma-separated list of [fields](fields.md) to include in the view. |
 | `limit`       | `100`                                         | How many items to display on the first page. The maximum value is `100`. |
 | `sort`        | `updated desc`                                | The [field to sort the data by](fields.md) followed by a sort order (`asc` or `desc`). |
 | `title`       | `Embedded table view` or `Embedded list view` | A title displayed at the top of the embedded view. |
-
-For example, to display the first five issues assigned to the current user in the `gitlab-org/gitlab`
-project as a list, sorted by due date (earliest first) and displaying the `title`, `health`, and `due` fields:
-
-````yaml
-```glql
-display: list
-fields: title, health, due
-limit: 5
-sort: due asc
-query: type = Issue AND group = "gitlab-org" AND assignee = currentUser() AND state = opened
-```
-````
-
-This source should render a list like the one below:
-
-![An embedded view with a list of issues assigned to the current user](img/glql_list_v18_5.png)
 
 #### Pagination
 
@@ -215,6 +199,14 @@ query: type = Issue AND project = "gitlab-org/gitlab" AND assignee = currentUser
 ````
 
 This source displays a view with columns `Title`, `Workflow` and `Priority`.
+
+### Display types
+
+The `display` parameter controls how an embedded view renders query results, for example as a
+list, table, or column chart. By default, results display as a list.
+
+For the full list of display types and their configuration, see
+[GLQL display types](display_types.md).
 
 ### View actions
 

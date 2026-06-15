@@ -28120,6 +28120,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Chat with a specialized agent"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Code review instructions have already been initialized."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Comment on issue"
 msgstr ""
 
@@ -28172,6 +28175,9 @@ msgid "DuoAgentsPlatform|Create triggers to automatically run pipelines when spe
 msgstr ""
 
 msgid "DuoAgentsPlatform|Creates a .gitlab/duo/agent-config.yml file so CI-launched Duo Agent Platform flows run in a container that matches your project tech stack."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Creates a .gitlab/duo/mr-review-instructions.yaml file so the Code Review Flow applies review standards tailored to your project languages and conventions."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Data Analyst"
@@ -28274,6 +28280,9 @@ msgid "DuoAgentsPlatform|Improve CI setup"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Improve your CI setup"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Initialize code review instructions"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Initialize context path not configured."
@@ -28412,6 +28421,9 @@ msgid "DuoAgentsPlatform|Set up your project for Duo Agent Platform"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Something went wrong while fetching Agent Flows"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Something went wrong while initializing code review instructions."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Something went wrong while initializing project context."
@@ -29810,6 +29822,9 @@ msgid "Email must be provided."
 msgstr ""
 
 msgid "Email not verified. Please verify your email in Salesforce."
+msgstr ""
+
+msgid "Email not verified. Please verify your email in your ChatGPT account."
 msgstr ""
 
 msgid "Email notification for unknown sign-ins"
@@ -77481,6 +77496,9 @@ msgid "This job runs in %{environmentLink} using cluster %{clusterNameOrLink}."
 msgstr ""
 
 msgid "This job runs in %{environmentLink}."
+msgstr ""
+
+msgid "This job was canceled before deploying to %{environmentLink}."
 msgstr ""
 
 msgid "This job will automatically run after its timer finishes. Often they are used for incremental roll-out deploys to production environments. When unscheduled it converts into a manual action."

@@ -8,6 +8,7 @@ module AuthHelper
     azure_activedirectory_v2
     azure_oauth2
     bitbucket
+    chatgpt
     github
     gitlab
     google_oauth2

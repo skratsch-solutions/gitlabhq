@@ -321,6 +321,7 @@ module ApplicationSettingsHelper
       :delete_inactive_projects,
       :deletion_adjourned_period,
       :deny_all_requests_except_allowed,
+      :dependency_management_settings,
       :disable_admin_oauth_scopes,
       :disable_feed_token,
       :disable_password_authentication_for_users_with_sso_identities,

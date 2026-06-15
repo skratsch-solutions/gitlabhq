@@ -50,6 +50,8 @@ module Ci
         return successful_deployment_status
       elsif failed?
         return :failed
+      elsif canceled?
+        return :canceled
       end
 
       :creating

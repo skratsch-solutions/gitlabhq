@@ -70,6 +70,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         create_organization_api_limit: 10,
         custom_http_clone_url_root: nil,
         decompress_archive_file_timeout: 210,
+        security_update_scheduler_max_concurrency: 30,
         default_artifacts_expire_in: '30 days',
         default_branch_name: nil,
         default_branch_protection: Settings.gitlab['default_branch_protection'],
@@ -2332,6 +2333,38 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
           it { is_expected.not_to allow_value({ attribute => -1 }).for(:diff_limits) }
           it { is_expected.not_to allow_value({ attribute => 0 }).for(:diff_limits) }
           it { is_expected.not_to allow_value({ attribute => 'abc' }).for(:diff_limits) }
+        end
+      end
+    end
+
+    describe 'dependency_management_settings jsonb settings' do
+      context 'for dependency_management_settings json schema validation' do
+        it 'allows a valid concurrency value' do
+          is_expected.to allow_value({ security_update_scheduler_max_concurrency: 50 })
+            .for(:dependency_management_settings)
+        end
+
+        it 'allows zero to pause scheduling' do
+          is_expected.to allow_value({ security_update_scheduler_max_concurrency: 0 })
+            .for(:dependency_management_settings)
+        end
+
+        it 'allows empty hash' do
+          is_expected.to allow_value({}).for(:dependency_management_settings)
+        end
+
+        it 'does not allow unknown properties' do
+          is_expected.not_to allow_value({ unknown_key: 1 }).for(:dependency_management_settings)
+        end
+
+        it 'does not allow negative values' do
+          is_expected.not_to allow_value({ security_update_scheduler_max_concurrency: -1 })
+            .for(:dependency_management_settings)
+        end
+
+        it 'does not allow non-integer values' do
+          is_expected.not_to allow_value({ security_update_scheduler_max_concurrency: 'abc' })
+            .for(:dependency_management_settings)
         end
       end
     end

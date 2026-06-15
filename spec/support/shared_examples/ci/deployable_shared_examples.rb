@@ -983,6 +983,14 @@ RSpec.shared_examples 'a deployable job' do
       it { expect(job.deployment_status).to eq(:creating) }
     end
 
+    context 'when job with deployment has been canceled' do
+      let(:job) { create(factory_type, :canceled, environment: 'production', pipeline: pipeline) }
+      let(:environment) { create(:environment, name: 'production', project: job.project) }
+      let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: job) }
+
+      it { expect(job.deployment_status).to eq(:canceled) }
+    end
+
     context 'when job interacts with environment via non-deployment action' do
       %w[access prepare verify stop].each do |env_action|
         context "with '#{env_action}' action" do
@@ -1006,6 +1014,12 @@ RSpec.shared_examples 'a deployable job' do
             let(:job) { create(factory_type, :failed, environment: 'production', pipeline: pipeline) }
 
             it { expect(job.deployment_status).to eq(:failed) }
+          end
+
+          context 'when job has been canceled' do
+            let(:job) { create(factory_type, :canceled, environment: 'production', pipeline: pipeline) }
+
+            it { expect(job.deployment_status).to eq(:canceled) }
           end
         end
       end

@@ -400,7 +400,10 @@ ping-appsec-for-sast-findings:
     - !reference [.ping-appsec-for-sast-findings:rules, rules]
   variables:
     # Project Access Token bot ID for /gitlab-com/gl-security/product-security/appsec/sast-custom-rules
-    BOT_USER_ID: 19650678
+    BOT_USER_ID: 26792702
+    # Set SAST_TRIAGE_ENABLED=1 below to opt this job into shadow-mode Duo triage. Can also be set via a project-level CI/CD variable.
+    # See: scripts/sast_triage_classifier.rb and work item gitlab-com/gl-security/product-security/appsec/appsec-team#1448
+    SAST_TRIAGE_ENABLED: "0"
   needs:
     - !reference [.lint-base, needs]
     - semgrep-appsec-custom-rules
@@ -408,6 +411,12 @@ ping-appsec-for-sast-findings:
     - apk update
     - apk add ruby
     - ruby scripts/semgrep_result_processor.rb
+  artifacts:
+    expire_in: 90 days
+    when: always
+    paths:
+      - gl-sast-triage-verdicts.json
+    access: 'developer'
 
 ping-appsec-for-dependency-review:
   stage: lint

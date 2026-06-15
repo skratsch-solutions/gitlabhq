@@ -806,6 +806,12 @@ class ApplicationSetting < ApplicationRecord
 
   validates :mcp_server_settings, json_schema: { filename: "application_setting_mcp_server_settings" }
 
+  jsonb_accessor :dependency_management_settings,
+    security_update_scheduler_max_concurrency: [:integer, { default: 30 }]
+
+  validates :dependency_management_settings,
+    json_schema: { filename: "application_setting_dependency_management_settings" }
+
   jsonb_accessor :group_settings,
     top_level_group_creation_enabled: [:boolean, { default: true }],
     disable_invite_members: [:boolean, { default: false }]

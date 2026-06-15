@@ -981,9 +981,11 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
     let(:variable_attributes) { [] }
     let(:user) { developer }
 
-    before do
+    before_all do
       create(:protected_branch, :developers_can_merge, name: 'protected-branch', project: project)
+    end
 
+    before do
       sign_in(user)
     end
 
@@ -1218,7 +1220,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
     end
 
     context 'when user is forbidden from cancelling the build' do
-      let(:job) { create(:ci_build, :cancelable, pipeline: pipeline) }
+      let_it_be_with_reload(:job) { create(:ci_build, :cancelable, pipeline: pipeline) }
 
       before do
         sign_in(user)
@@ -1246,7 +1248,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
   end
 
   describe 'POST unschedule' do
-    before do
+    before_all do
       create(:protected_branch, :developers_can_merge, name: 'protected-branch', project: project)
     end
 
@@ -1525,7 +1527,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
 
     context 'when job exists' do
       context 'and it has a terminal' do
-        let!(:job) { create(:ci_build, :running, :with_runner_session, pipeline: pipeline, user: user) }
+        let(:job) { create(:ci_build, :running, :with_runner_session, pipeline: pipeline, user: user) }
 
         it 'has a job' do
           get_terminal(id: job.id)
@@ -1536,7 +1538,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
       end
 
       context 'and does not have a terminal' do
-        let!(:job) { create(:ci_build, :running, pipeline: pipeline, user: user) }
+        let(:job) { create(:ci_build, :running, pipeline: pipeline, user: user) }
 
         it 'returns not_found' do
           get_terminal(id: job.id)
@@ -1565,7 +1567,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
   end
 
   describe 'GET #terminal_websocket_authorize' do
-    let!(:job) { create(:ci_build, :running, :with_runner_session, pipeline: pipeline, user: user) }
+    let(:job) { create(:ci_build, :running, :with_runner_session, pipeline: pipeline, user: user) }
 
     let(:user) { developer }
 

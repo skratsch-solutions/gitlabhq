@@ -241,7 +241,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     end
 
     context 'with system note' do
-      before do
+      before_all do
         note.update_column(:system, true)
       end
 
@@ -272,8 +272,8 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     end
 
     context 'webhooks for diff notes' do
-      let(:project) { create(:project, :public, :repository, group: group) }
-      let(:merge_request) { create(:merge_request, source_project: project) }
+      let_it_be(:project) { create(:project, :public, :repository, group: group) }
+      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
 
       context 'when note is on a suggestible line (new)' do
         let(:diff_note) do

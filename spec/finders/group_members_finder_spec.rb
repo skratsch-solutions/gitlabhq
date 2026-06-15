@@ -8,6 +8,7 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
   let_it_be(:sub_sub_group, freeze: false)         { create(:group, parent: sub_group) }
   let_it_be(:public_invited_group, freeze: false)  { create(:group, :public) }
   let_it_be(:private_invited_group, freeze: false) { create(:group, :private) }
+  let_it_be(:dummy_group)                          { create(:group) }
   let_it_be(:user1, freeze: false)                 { create(:user) }
   let_it_be(:user2, freeze: false)                 { create(:user) }
   let_it_be(:user3, freeze: false)                 { create(:user) }
@@ -19,10 +20,10 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
   let_it_be(:link) do
     create(:group_group_link, :maintainer, shared_group: group,     shared_with_group: public_invited_group)
     create(:group_group_link, :maintainer, shared_group: sub_group, shared_with_group: private_invited_group)
-    create(:group_group_link, :owner, shared_with_group: public_invited_group)
-    create(:group_group_link, :owner, shared_with_group: private_invited_group)
-    create(:group_group_link, :owner, shared_group: group)
-    create(:group_group_link, :owner, shared_group: sub_group)
+    create(:group_group_link, :owner, shared_group: dummy_group, shared_with_group: public_invited_group)
+    create(:group_group_link, :owner, shared_group: dummy_group, shared_with_group: private_invited_group)
+    create(:group_group_link, :owner, shared_group: group,       shared_with_group: dummy_group)
+    create(:group_group_link, :owner, shared_group: sub_group,   shared_with_group: dummy_group)
   end
 
   let(:groups) do
@@ -307,7 +308,7 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
   context 'filter by max role' do
     subject(:by_max_role) { described_class.new(group, user1, params: { max_role: max_role }).execute }
 
-    let_it_be(:guest_member, freeze: false) { create(:group_member, :guest, group: group, user: user2) }
+    let_it_be(:guest_member) { create(:group_member, :guest, group: group, user: user2) }
     let_it_be(:owner_member) { create(:group_member, :owner, group: group, user: user3) }
 
     describe 'provided access level is incorrect' do

@@ -6,7 +6,7 @@ import glAbilitiesMixin from '~/vue_shared/mixins/gl_abilities_mixin';
 import glLicensedFeaturesMixin from '~/vue_shared/mixins/gl_licensed_features_mixin';
 import { VARIANT_DANGER, VARIANT_INFO, VARIANT_WARNING } from '~/alert';
 import { HTTP_STATUS_BAD_REQUEST } from '~/lib/utils/http_status';
-import { __, s__, sprintf } from '~/locale';
+import { __, s__ } from '~/locale';
 import ExtendedDashboardPanel from '~/vue_shared/components/customizable_dashboard/extended_dashboard_panel.vue';
 import dataSources from 'ee_else_ce/analytics/analytics_dashboards/data_sources';
 import visualizations from 'ee_else_ce/analytics/analytics_dashboards/components/visualizations';
@@ -32,10 +32,8 @@ export default {
   },
   mixins: [glAbilitiesMixin(), glLicensedFeaturesMixin()],
   inject: [
-    'namespaceId',
     'namespaceFullPath',
     'namespaceName',
-    'isProject',
     'dataSourceClickhouse',
     'overviewCountsAggregationEnabled',
   ],
@@ -129,11 +127,7 @@ export default {
       return this.visualizationOptionOverrides?.subtitle;
     },
     panelTitle() {
-      return sprintf(this.title, {
-        namespaceName: this.namespaceName,
-        namespaceType: this.isProject ? __('project') : __('group'),
-        namespaceFullPath: this.namespaceFullPath,
-      });
+      return this.visualizationOptions?.title ?? this.title;
     },
     visualizationOptions() {
       return merge({}, this.currentVisualization.options, this.visualizationOptionOverrides);
@@ -246,9 +240,7 @@ export default {
 
         const data = await fetch({
           title: this.title,
-          projectId: this.namespaceId,
           namespace: this.namespace,
-          isProject: this.isProject,
           query: aggregatedQuery,
           visualizationType: this.currentVisualization.type,
           visualizationOptions: this.currentVisualization.options,

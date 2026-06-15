@@ -13,7 +13,8 @@
             "last",
             "creating",
             "failed",
-            "out_of_date"
+            "out_of_date",
+            "canceled"
           ]
         },
         {

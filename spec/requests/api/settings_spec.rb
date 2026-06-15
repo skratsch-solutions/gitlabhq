@@ -508,6 +508,19 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
       end
     end
 
+    context 'when updating dependency_management_settings' do
+      it "updates the nested setting and exposes it as a hash" do
+        put api("/application/settings", admin),
+          params: { dependency_management_settings: { security_update_scheduler_max_concurrency: 50 } }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['dependency_management_settings']).to eq(
+          "security_update_scheduler_max_concurrency" => 50
+        )
+        expect(ApplicationSetting.first.security_update_scheduler_max_concurrency).to eq(50)
+      end
+    end
+
     it "supports legacy performance_bar_allowed_group_id" do
       put api("/application/settings", admin),
         params: { performance_bar_allowed_group_id: group.full_path }

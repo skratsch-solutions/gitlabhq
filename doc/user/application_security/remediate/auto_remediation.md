@@ -59,6 +59,14 @@ vulnerabilities with known fix versions. For each eligible vulnerability:
 During the experiment phase, GitLab processes three vulnerabilities at a time, starting
 with the highest severity finding.
 
+## Configure scheduler concurrency
+
+Administrators can limit how many auto remediation scheduler jobs
+run concurrently across the Sidekiq fleet. Use the
+`security_update_scheduler_max_concurrency`
+[application setting](../../../api/settings.md) to set the cap. The default is `30`,
+and the value is capped at `200`. Set the value to `0` to pause scheduling.
+
 ## Supported package managers
 
 Auto remediation supports the following package managers:

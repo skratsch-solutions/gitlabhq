@@ -8,16 +8,6 @@ RSpec.describe Dashboard::MilestonesController do
   let_it_be(:group) { create(:group, developers: user) }
   let_it_be(:project_milestone) { create(:milestone, project: project) }
   let_it_be(:group_milestone) { create(:milestone, group: group) }
-  let_it_be(:issue) { create(:issue, project: project, milestone: project_milestone) }
-  let_it_be(:group_issue) { create(:issue, milestone: group_milestone, project: create(:project, group: group)) }
-  let_it_be(:label) { create(:label, project: project, title: 'Issue Label') }
-  let_it_be(:group_label) { create(:group_label, group: group, title: 'Group Issue Label') }
-  let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project, milestone: project_milestone) }
-
-  before_all do
-    create(:label_link, label: label, target: issue)
-    create(:label_link, label: group_label, target: group_issue)
-  end
 
   before do
     sign_in(user)

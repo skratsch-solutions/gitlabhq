@@ -151,9 +151,7 @@ describe('AnalyticsDashboardPanel', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Daily Active Users',
-          projectId: '1',
           namespace: 'namespace/full/path',
-          isProject: true,
           query: { ...mockPanel.visualization.data.query, ...mockPanel.queryOverrides },
           visualizationType: mockPanel.visualization.type,
           visualizationOptions: mockPanel.visualization.options,
@@ -710,27 +708,23 @@ describe('AnalyticsDashboardPanel', () => {
     });
   });
 
-  describe('title interpolation', () => {
-    it.each`
-      inputTitle                          | renderedTitle
-      ${'title for %{namespaceName}'}     | ${'title for Namespace name'}
-      ${'title for %{namespaceFullPath}'} | ${'title for namespace/full/path'}
-    `('renders $renderedTitle for $inputTitle', ({ inputTitle, renderedTitle }) => {
-      createWrapper({ props: { title: inputTitle } });
-      expect(findExtendedDashboardPanel().props('title')).toBe(renderedTitle);
+  describe('panel title', () => {
+    it('renders the title prop as-is when no visualization options title is set', () => {
+      createWrapper({ props: { title: 'title for %{namespaceName}' } });
+      expect(findExtendedDashboardPanel().props('title')).toBe('title for %{namespaceName}');
     });
 
-    it.each`
-      isProject | renderedTitle
-      ${true}   | ${'title for project'}
-      ${false}  | ${'title for group'}
-    `(
-      'renders $renderedTitle for namespaceType when isProject is $isProject',
-      ({ isProject, renderedTitle }) => {
-        createWrapper({ props: { title: 'title for %{namespaceType}' }, provide: { isProject } });
-        expect(findExtendedDashboardPanel().props('title')).toBe(renderedTitle);
-      },
-    );
+    it('renders the visualization options title when set', () => {
+      createWrapper({
+        props: {
+          visualization: {
+            ...mockPanel.visualization,
+            options: { ...mockPanel.visualization.options, title: 'overridden title' },
+          },
+        },
+      });
+      expect(findExtendedDashboardPanel().props('title')).toBe('overridden title');
+    });
   });
 
   describe('tooltip', () => {

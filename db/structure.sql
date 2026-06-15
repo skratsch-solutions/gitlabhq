@@ -15013,6 +15013,7 @@ CREATE TABLE application_settings (
     default_security_tracked_context_quota integer DEFAULT 2,
     oauth_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     logging_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
+    dependency_management_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     CONSTRAINT app_settings_container_reg_cleanup_tags_max_list_size_positive CHECK ((container_registry_cleanup_tags_service_max_list_size >= 0)),
     CONSTRAINT app_settings_dep_proxy_ttl_policies_worker_capacity_positive CHECK ((dependency_proxy_ttl_group_policy_worker_capacity >= 0)),
     CONSTRAINT app_settings_ext_pipeline_validation_service_url_text_limit CHECK ((char_length(external_pipeline_validation_service_url) <= 255)),
@@ -15061,6 +15062,7 @@ CREATE TABLE application_settings (
     CONSTRAINT check_a5704163cc CHECK ((char_length(secret_detection_revocation_token_types_url) <= 255)),
     CONSTRAINT check_ae53cf7f82 CHECK ((char_length(vertex_ai_host) <= 255)),
     CONSTRAINT check_anti_abuse_settings_is_hash CHECK ((jsonb_typeof(anti_abuse_settings) = 'object'::text)),
+    CONSTRAINT check_app_settings_dependency_management_settings_is_hash CHECK ((jsonb_typeof(dependency_management_settings) = 'object'::text)),
     CONSTRAINT check_app_settings_namespace_storage_forks_cost_factor_range CHECK (((namespace_storage_forks_cost_factor >= (0)::double precision) AND (namespace_storage_forks_cost_factor <= (1)::double precision))),
     CONSTRAINT check_app_settings_sentry_clientside_traces_sample_rate_range CHECK (((sentry_clientside_traces_sample_rate >= (0)::double precision) AND (sentry_clientside_traces_sample_rate <= (1)::double precision))),
     CONSTRAINT check_application_settings_ci_cd_settings_is_hash CHECK ((jsonb_typeof(ci_cd_settings) = 'object'::text)),
@@ -21869,7 +21871,7 @@ ALTER SEQUENCE group_secret_rotation_infos_id_seq OWNED BY group_secret_rotation
 
 CREATE TABLE group_secrets_manager_maintenance_tasks (
     id bigint NOT NULL,
-    user_id bigint NOT NULL,
+    user_id bigint,
     group_id bigint NOT NULL,
     root_namespace_id bigint NOT NULL,
     organization_id bigint NOT NULL,
@@ -28760,8 +28762,8 @@ ALTER SEQUENCE project_saved_replies_id_seq OWNED BY project_saved_replies.id;
 
 CREATE TABLE project_secrets_manager_maintenance_tasks (
     id bigint NOT NULL,
-    user_id bigint NOT NULL,
-    project_secrets_manager_id bigint NOT NULL,
+    user_id bigint,
+    project_secrets_manager_id bigint,
     last_processed_at timestamp with time zone,
     action smallint NOT NULL,
     retry_count smallint DEFAULT 0 NOT NULL,

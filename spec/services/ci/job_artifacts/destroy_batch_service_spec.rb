@@ -21,9 +21,7 @@ RSpec.describe Ci::JobArtifacts::DestroyBatchService, feature_category: :job_art
     create(:ci_job_artifact)
   end
 
-  let_it_be_with_refind(:undeleted_artifact) do
-    create(:ci_job_artifact)
-  end
+  let_it_be(:undeleted_artifact) { create(:ci_job_artifact) }
 
   describe '#execute' do
     subject(:execute) { service.execute }

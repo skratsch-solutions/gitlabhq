@@ -84,6 +84,9 @@ module API
       optional :default_project_visibility, type: String, values: Gitlab::VisibilityLevel.string_values, desc: 'The default project visibility'
       optional :default_projects_limit, type: Integer, desc: 'The maximum number of personal projects'
       optional :default_snippet_visibility, type: String, values: Gitlab::VisibilityLevel.string_values, desc: 'The default snippet visibility'
+      optional :dependency_management_settings, type: Hash, desc: 'Dependency management settings' do
+        optional :security_update_scheduler_max_concurrency, type: Integer, desc: 'Maximum number of dependency management security update scheduler jobs that run concurrently across the Sidekiq fleet'
+      end
       optional :disable_admin_oauth_scopes, type: Boolean, desc: 'Stop administrators from connecting to non-trusted OAuth applications.'
       optional :disable_feed_token, type: Boolean, desc: 'Disable display of RSS/Atom and Calendar `feed_tokens`'
       optional :disabled_oauth_sign_in_sources, type: Array[String], coerce_with: Validations::Types::CommaSeparatedToArray.coerce, desc: 'Disable certain OAuth sign-in sources'

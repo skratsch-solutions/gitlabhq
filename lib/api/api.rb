@@ -379,6 +379,7 @@ module API
         mount ::API::WorkItems::Show
         mount ::API::WorkItems::Children
         mount ::API::WorkItems::LinkedItems
+        mount ::API::WorkItems::LinkedResources
         mount ::API::WorkItems::AwardEmoji
         mount ::API::WorkItems::Notes
         mount ::API::WorkItems::EmailParticipants
