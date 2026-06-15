@@ -2897,7 +2897,7 @@
   :worker_name: Ci::BuildScheduleWorker
   :feature_category: :continuous_integration
   :has_external_dependencies: false
-  :urgency: :low
+  :urgency: :high
   :resource_boundary: :cpu
   :weight: 5
   :idempotent: false
