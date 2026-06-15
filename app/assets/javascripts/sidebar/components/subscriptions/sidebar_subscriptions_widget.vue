@@ -21,6 +21,7 @@ const ICON_ON = 'notifications';
 const ICON_OFF = 'notifications-off';
 
 export default {
+  name: 'SidebarSubscriptionsWidget',
   tracking: {
     event: Tracking.editEvent,
     label: Tracking.rightSidebarLabel,

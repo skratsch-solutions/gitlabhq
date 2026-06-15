@@ -119,7 +119,7 @@ To update the content for the current release:
    description: Summary of features included in <version>
 
    # New
-   desciption: GitLab <version> released with <top feature title>
+   description: GitLab <version> released with <top feature title>
    ```
 
    Replace the version and top feature title with the relevant information.
@@ -280,7 +280,7 @@ values unless a note must absolutely appear first.
 | -------------------- | ------------------------------------------------------------------------------------------------------ | ----------- |
 | `title`              | string                                                                                                 | Feature title. Displayed as a section heading. Ideally seven words or fewer. |
 | `tier`               | array, formatted like `[ Free, Premium, Ultimate ]`                                                    | Feature tier. Requires at least one. Always follow this order. |
-| `offering`           | array, formatted like `[ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government]` | Feature offerings. Formatting matters. Requires at least one. Always follow this order. |
+| `offering`           | array, formatted like `[ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government ]` | Feature offerings. Formatting matters. Requires at least one. Always follow this order. |
 | `documentation_link` | relative URL                                                                                           | Link to the feature documentation. Don't use `https://`-style links, and omit `_index.md` or the `.md` extension. |
 | `work_item`          | absolute URL                                                                                           | Link to the related work item. Must not be confidential. |
 | `categories`         | array                                                                                                  | An array with the `Name` value of one or more [categories](https://gitlab.com/gitlab-com/www-gitlab-com/-/blob/master/data/categories.yml). Values are case-sensitive, separate multiple values with commas. If a related category doesn't exist, make another merge request to add it. For 19.1, also add the categories information to an HTML comment in the body text. For more information, see the [template](#feature-release-note). |
@@ -319,7 +319,7 @@ title:
 tier: [ Free, Premium, Ultimate ]
 offering: [ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government ]
 stage: application_security_testing
-documentation_link: "../../../_index/#popular-topics"
+documentation_link: "../../../user/permissions/#groups"
 work_item: https://gitlab.com/groups/gitlab-org/-/work_items/<work-item-number>
 categories: [ System Access, Permissions ]
 level: primary or secondary

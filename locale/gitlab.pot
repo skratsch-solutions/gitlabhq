@@ -28027,6 +28027,9 @@ msgstr ""
 msgid "DuoAgenticChat|Unable to connect to workflow service. Please try again."
 msgstr ""
 
+msgid "DuoAgenticChat|Upgrade subscription"
+msgstr ""
+
 msgid "DuoAgenticChat|Upgrade to Premium"
 msgstr ""
 
@@ -78820,6 +78823,9 @@ msgid "Todos|you"
 msgstr ""
 
 msgid "Todos|yourself"
+msgstr ""
+
+msgid "Toggle %{category} category"
 msgstr ""
 
 msgid "Toggle GitLab Next"

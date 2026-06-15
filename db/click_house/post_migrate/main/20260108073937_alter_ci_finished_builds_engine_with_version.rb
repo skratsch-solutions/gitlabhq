@@ -23,8 +23,8 @@ class AlterCiFinishedBuildsEngineWithVersion < ClickHouse::Migration
 
   private
 
-  # Clone ci_finished_builds into ci_finished_builds_tmp, preserving columns,
-  # projections, partition key, and sorting key, while swapping the engine.
+  # Clone ci_finished_builds into ci_finished_builds_tmp, preserving columns
+  # and projections, while swapping the engine.
   #
   # Using `CREATE TABLE ... AS source_table ENGINE = ...` keeps the tmp table
   # structurally identical to the live table regardless of which columns or
@@ -32,6 +32,12 @@ class AlterCiFinishedBuildsEngineWithVersion < ClickHouse::Migration
   # because post-deployment migrations are deferred on Self-Managed upgrades,
   # so later-timestamped regular migrations may have already added columns by
   # the time this migration runs (see https://gitlab.com/gitlab-org/gitlab/-/work_items/593129).
+  #
+  # PARTITION BY and ORDER BY are restated explicitly because ClickHouse 23.x
+  # and 24.x do not inherit them from the source table in this CREATE form,
+  # raising `Code: 36 BAD_ARGUMENTS` without an explicit ORDER BY. They are
+  # stable across versions and match the source table by construction, so
+  # restating them is safe.
   def create_tmp_table(engine)
     settings = "index_granularity = 8192, use_async_block_ids_cache = true"
     settings += ", deduplicate_merge_projection_mode = 'rebuild'" if supports_deduplicate_merge_projection_mode?
@@ -39,6 +45,8 @@ class AlterCiFinishedBuildsEngineWithVersion < ClickHouse::Migration
     execute <<~SQL
       CREATE TABLE IF NOT EXISTS ci_finished_builds_tmp AS ci_finished_builds
         ENGINE = #{engine}
+        PARTITION BY toYear(finished_at)
+        ORDER BY (status, runner_type, project_id, finished_at, id)
         SETTINGS #{settings};
     SQL
   end

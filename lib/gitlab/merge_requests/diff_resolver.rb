@@ -19,6 +19,14 @@ module Gitlab
         merge_request_diff_by_id
       end
 
+      def latest?
+        return false if merge_request.compare
+        return false if commit.present?
+        return true if merge_head_diff?
+
+        diff_id.blank? || latest_diff_id?
+      end
+
       private
 
       attr_reader :merge_request, :params

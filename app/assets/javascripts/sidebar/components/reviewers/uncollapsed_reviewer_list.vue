@@ -38,6 +38,7 @@ const REVIEW_STATE_ICONS = {
 };
 
 export default {
+  name: 'UncollapsedReviewerList',
   i18n: {
     reRequestReview: __('Re-request review'),
     removeReviewer: s__('MergeRequest|Remove reviewer'),

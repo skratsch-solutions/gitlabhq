@@ -11,6 +11,7 @@ import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
 import axios from '~/lib/utils/axios_utils';
 
 export default {
+  name: 'IssuableMoveDropdown',
   components: {
     GlIcon,
     GlButton,

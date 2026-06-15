@@ -79,7 +79,7 @@ export default {
   data() {
     return {
       hasError: false,
-      isRunningMergeRequestPipeline: false,
+      isCallingPostMergeRequestPipeline: false,
       pageInfo: {},
       pipelines: [],
       pipelinesCount: 0,
@@ -312,7 +312,7 @@ export default {
       return this.requestLengthByStatus(this.pipelineCreationRequests, 'IN_PROGRESS') > 0;
     },
     showRunPipelineButtonLoader() {
-      return this.hasInProgressCreationRequests;
+      return this.isCallingPostMergeRequestPipeline || this.hasInProgressCreationRequests;
     },
   },
   watch: {
@@ -589,15 +589,17 @@ export default {
      */
 
     async onClickRunPipeline() {
+      if (this.isCallingPostMergeRequestPipeline) return;
+
       try {
-        this.isRunningMergeRequestPipeline = true;
+        this.isCallingPostMergeRequestPipeline = true;
         this.startDebouncedPipelineLoader();
 
         await Api.postMergeRequestPipeline(this.projectId, {
           mergeRequestId: this.mergeRequestId,
         });
       } catch (e) {
-        const unauthorized = e.response.status === HTTP_STATUS_UNAUTHORIZED;
+        const unauthorized = e.response?.status === HTTP_STATUS_UNAUTHORIZED;
         let errorMessage = __(
           'An error occurred while trying to run a new pipeline for this merge request.',
         );
@@ -613,9 +615,9 @@ export default {
             link: helpPagePath('ci/pipelines/merge_request_pipelines.md'),
           },
         });
+      } finally {
+        this.isCallingPostMergeRequestPipeline = false;
       }
-
-      this.isRunningMergeRequestPipeline = false;
     },
     tryRunPipeline() {
       if (!this.shouldShowSecurityWarning) {

@@ -3,6 +3,7 @@ import { GlButton, GlLoadingIcon, GlTooltipDirective } from '@gitlab/ui';
 import { __ } from '~/locale';
 
 export default {
+  name: 'SidebarEditableItem',
   i18n: {
     unassigned: __('Unassigned'),
   },

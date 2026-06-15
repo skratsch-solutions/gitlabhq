@@ -3,6 +3,7 @@ import { GlButton } from '@gitlab/ui';
 import { todoLabel, updateGlobalTodoCount } from '../../utils';
 
 export default {
+  name: 'TodoButton',
   components: {
     GlButton,
   },

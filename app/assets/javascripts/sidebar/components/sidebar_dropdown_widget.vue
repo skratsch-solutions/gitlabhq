@@ -28,6 +28,7 @@ import {
 import { issuableAttributesQueries } from 'ee_else_ce/sidebar/queries/constants';
 
 export default {
+  name: 'SidebarDropdownWidget',
   i18n: {
     expired: __('(expired)'),
     none: __('None'),

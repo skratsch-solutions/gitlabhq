@@ -29,7 +29,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
     end
 
     context "with a standard user" do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       before do
         allow(self).to receive(:current_user).and_return(user)
@@ -67,9 +67,9 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
       end
 
       shared_examples 'for users' do
-        let_it_be(:another_user, freeze: false) { create(:user, name: 'Jane Doe') }
+        let_it_be(:another_user) { create(:user, name: 'Jane Doe') }
         let(:term) { 'jane' }
-        let_it_be(:project, freeze: false) { create(:project, developers: user) }
+        let_it_be_with_refind(:project) { create(:project, developers: user) }
 
         it 'returns users matching the term' do
           project.add_developer(another_user)
@@ -99,7 +99,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
           let(:ids) { search_autocomplete_opts(term).pluck(:id) }
 
           context 'when current_user is an admin', :enable_admin_mode do
-            let_it_be(:admin_user, freeze: false) { create(:admin) }
+            let_it_be(:admin_user) { create(:admin) }
 
             before do
               allow(self).to receive(:current_user).and_return(admin_user)
@@ -166,7 +166,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
         end
 
         context 'with limiting' do
-          let_it_be(:users, freeze: false) { create_list(:user, 6, name: 'Jane Doe') }
+          let_it_be(:users) { create_list(:user, 6, name: 'Jane Doe') }
 
           before_all do
             users.each do |user|
@@ -202,8 +202,8 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
         let(:recent_merge_requests) { instance_double(::Gitlab::Search::RecentMergeRequests) }
         let(:recent_wiki_pages) { instance_double(::Gitlab::Search::RecentWikiPages) }
 
-        let_it_be(:project1, freeze: false) { create(:project, namespace: user.namespace) }
-        let_it_be(:project2, freeze: false) { create(:project) }
+        let_it_be(:project1) { create(:project, namespace: user.namespace) }
+        let_it_be(:project2) { create(:project) }
 
         shared_examples 'recently viewed work items or issues' do |ff_enabled|
           let(:recent_items_class) { ff_enabled ? ::Gitlab::Search::RecentWorkItems : ::Gitlab::Search::RecentIssues }
@@ -560,10 +560,10 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   describe 'resource_results' do
     using RSpec::Parameterized::TableSyntax
 
-    let_it_be(:user, freeze: false) { create(:user, name: 'User') }
-    let_it_be(:group, freeze: false) { create(:group, name: 'Group') }
-    let_it_be(:project, freeze: false) { create(:project, name: 'Project') }
-    let_it_be(:issue, freeze: false) { create(:issue, project: project) }
+    let_it_be(:user) { create(:user, name: 'User') }
+    let_it_be(:group) { create(:group, name: 'Group') }
+    let_it_be(:project) { create(:project, name: 'Project') }
+    let_it_be(:issue) { create(:issue, project: project) }
     let(:issue_iid) { "\##{issue.iid}" }
 
     before_all do
@@ -629,9 +629,9 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   describe 'scope_specific_results' do
     using RSpec::Parameterized::TableSyntax
 
-    let_it_be(:user, freeze: false) { create(:user, name: 'Searched') }
-    let_it_be(:project, freeze: false) { create(:project, name: 'Searched') }
-    let_it_be(:issue, freeze: false) { create(:issue, title: 'Searched', project: project) }
+    let_it_be(:user) { create(:user, name: 'Searched') }
+    let_it_be(:project) { create(:project, name: 'Searched') }
+    let_it_be(:issue) { create(:issue, title: 'Searched', project: project) }
 
     before_all do
       project.add_developer(user)
@@ -678,9 +678,9 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   end
 
   describe 'groups_autocomplete' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:group_1, freeze: false) { create(:group, name: 'test 1') }
-    let_it_be(:group_2, freeze: false) { create(:group, name: 'test 2') }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group_1) { create(:group, name: 'test 1') }
+    let_it_be_with_refind(:group_2) { create(:group, name: 'test 2') }
     let(:search_term) { 'test' }
 
     before do
@@ -713,9 +713,9 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   end
 
   describe 'projects_autocomplete' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:project_1, freeze: false) { create(:project, name: 'test 1', star_count: 5) }
-    let_it_be(:project_2, freeze: false) { create(:project, name: 'test 2', star_count: 2) }
+    let_it_be(:user) { create(:user) }
+    let_it_be_with_refind(:project_1) { create(:project, name: 'test 1', star_count: 5) }
+    let_it_be_with_refind(:project_2) { create(:project, name: 'test 2', star_count: 2) }
     let(:search_term) { 'test' }
 
     before do
@@ -758,8 +758,8 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
       end
 
       context 'when a project namespace matches the search term but the project does not' do
-        let_it_be(:group, freeze: false) { create(:group, name: 'test group') }
-        let_it_be(:project_3, freeze: false) { create(:project, name: 'nothing', namespace: group) }
+        let_it_be(:group) { create(:group, name: 'test group') }
+        let_it_be(:project_3) { create(:project, name: 'nothing', namespace: group) }
 
         before_all do
           group.add_owner(user)
@@ -979,7 +979,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   describe '#repository_ref' do
     using RSpec::Parameterized::TableSyntax
 
-    let_it_be(:project, freeze: false) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let(:default_branch) { project.default_branch }
     let(:params) { { repository_ref: ref, project_id: project_id } }
 
@@ -1123,8 +1123,8 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   describe '#header_search_context' do
     let(:user) { build_stubbed(:user) }
     let(:can_download) { false }
-    let_it_be(:group, freeze: false) { nil }
-    let_it_be(:project, freeze: false) { nil }
+    let_it_be(:group) { nil }
+    let_it_be(:project) { nil }
     let(:scope) { nil }
     let(:ref) { nil }
     let(:snippet) { nil }
@@ -1377,7 +1377,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   end
 
   describe '#wiki_blob_link' do
-    let_it_be(:project, freeze: false) { create :project, :wiki_repo }
+    let_it_be(:project) { create :project, :wiki_repo }
     let(:wiki_blob) do
       Gitlab::Search::FoundBlob.new(path: 'test', basename: 'test', ref: 'master',
         data: 'foo', startline: 2, project: project, project_id: project.id)
@@ -1704,7 +1704,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
     end
 
     context 'with a project container' do
-      let_it_be(:project, freeze: false) { create(:project) }
+      let_it_be(:project) { create(:project) }
 
       before do
         assign(:project, project)
@@ -1752,7 +1752,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
     end
 
     context 'with a group container' do
-      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be(:group) { create(:group) }
 
       before do
         assign(:group, group)

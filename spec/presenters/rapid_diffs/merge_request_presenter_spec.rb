@@ -336,17 +336,17 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
   describe '#coverage_endpoint' do
     subject(:url) { presenter.coverage_endpoint }
 
-    context 'when the merge request has coverage reports' do
+    context 'when the versioned merge request has coverage reports' do
       before do
-        allow(merge_request).to receive(:has_coverage_reports?).and_return(true)
+        allow(presenter.resource).to receive(:has_coverage_reports?).and_return(true)
       end
 
       it { is_expected.to eq("#{base_path}/coverage_reports.json") }
     end
 
-    context 'when the merge request has no coverage reports' do
+    context 'when the versioned merge request has no coverage reports' do
       before do
-        allow(merge_request).to receive(:has_coverage_reports?).and_return(false)
+        allow(presenter.resource).to receive(:has_coverage_reports?).and_return(false)
       end
 
       it { is_expected.to be_nil }
@@ -356,17 +356,17 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
   describe '#codequality_endpoint' do
     subject(:url) { presenter.codequality_endpoint }
 
-    context 'when the merge request has codequality reports' do
+    context 'when the versioned merge request has codequality reports' do
       before do
-        allow(merge_request).to receive(:has_codequality_reports?).and_return(true)
+        allow(presenter.resource).to receive(:has_codequality_reports?).and_return(true)
       end
 
       it { is_expected.to eq("#{base_path}/codequality_reports.json") }
     end
 
-    context 'when the merge request has no codequality reports' do
+    context 'when the versioned merge request has no codequality reports' do
       before do
-        allow(merge_request).to receive(:has_codequality_reports?).and_return(false)
+        allow(presenter.resource).to receive(:has_codequality_reports?).and_return(false)
       end
 
       it { is_expected.to be_nil }

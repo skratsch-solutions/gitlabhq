@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlIcon, GlToggle, GlTooltipDirective } from '@gitlab/ui';
 import { __ } from '~/locale';
@@ -11,6 +10,7 @@ const LABEL_ON = __('Notifications are on');
 const LABEL_OFF = __('Notifications are off');
 
 export default {
+  name: 'SidebarSubscriptions',
   directives: {
     GlTooltip: GlTooltipDirective,
   },

@@ -263,6 +263,94 @@ RSpec.describe MergeRequests::VersionedMergeRequest, feature_category: :code_rev
     end
   end
 
+  describe 'report availability' do
+    let(:head_pipeline) { instance_double(Ci::Pipeline) }
+    let(:latest_diff) { instance_double(MergeRequestDiff, head_commit_sha: 'latest-sha') }
+    let(:diff_resolver) { instance_double(Gitlab::MergeRequests::DiffResolver) }
+
+    before do
+      allow(merge_request).to receive_messages(
+        head_pipeline: head_pipeline,
+        latest_merge_request_diff: latest_diff,
+        show_context_commits_diff?: false
+      )
+      allow(Gitlab::MergeRequests::DiffResolver).to receive(:new).and_return(diff_resolver)
+      allow(diff_resolver).to receive(:latest?).and_return(true)
+      allow(head_pipeline).to receive(:matches_sha_or_source_sha?).with('latest-sha').and_return(true)
+    end
+
+    describe '#has_coverage_reports?' do
+      before do
+        allow(head_pipeline).to receive(:has_coverage_reports?).and_return(true)
+      end
+
+      it 'resolves the head pipeline against the latest diff head, not the current diff head' do
+        expect(versioned.has_coverage_reports?).to be(true)
+        expect(head_pipeline).to have_received(:matches_sha_or_source_sha?).with('latest-sha')
+      end
+
+      context 'when the head pipeline does not match the latest diff head' do
+        before do
+          allow(head_pipeline).to receive(:matches_sha_or_source_sha?).with('latest-sha').and_return(false)
+        end
+
+        it { expect(versioned.has_coverage_reports?).to be(false) }
+      end
+
+      context 'when there is no head pipeline' do
+        before do
+          allow(merge_request).to receive(:head_pipeline).and_return(nil)
+        end
+
+        it { expect(versioned.has_coverage_reports?).to be(false) }
+      end
+
+      context 'when the diff target is not the latest version' do
+        before do
+          allow(diff_resolver).to receive(:latest?).and_return(false)
+        end
+
+        it 'returns false without checking the pipeline' do
+          expect(versioned.has_coverage_reports?).to be(false)
+          expect(head_pipeline).not_to have_received(:has_coverage_reports?)
+        end
+      end
+
+      context 'when viewing context commits' do
+        before do
+          allow(merge_request).to receive(:show_context_commits_diff?).and_return(true)
+        end
+
+        it { expect(versioned.has_coverage_reports?).to be(false) }
+      end
+    end
+
+    describe '#has_codequality_reports?' do
+      before do
+        allow(head_pipeline).to receive(:complete_and_has_self_or_descendant_reports?).and_return(true)
+      end
+
+      it 'resolves the head pipeline against the latest diff head' do
+        expect(versioned.has_codequality_reports?).to be(true)
+        expect(head_pipeline).to have_received(:matches_sha_or_source_sha?).with('latest-sha')
+      end
+
+      it 'returns a boolean when there is no matching head pipeline' do
+        allow(merge_request).to receive(:head_pipeline).and_return(nil)
+
+        expect(versioned.has_codequality_reports?).to be(false)
+      end
+
+      context 'when the diff target is not the latest version' do
+        before do
+          allow(diff_resolver).to receive(:latest?).and_return(false)
+        end
+
+        it { expect(versioned.has_codequality_reports?).to be(false) }
+      end
+    end
+  end
+
   it 'delegates other methods to the merge request', :aggregate_failures do
     expect(versioned.id).to eq(merge_request.id)
     expect(versioned.project).to eq(merge_request.project)

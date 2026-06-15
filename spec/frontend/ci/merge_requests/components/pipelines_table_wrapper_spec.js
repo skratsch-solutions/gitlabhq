@@ -431,6 +431,49 @@ describe('PipelinesTableWrapper component', () => {
           });
         });
       });
+
+      it('shows loading immediately on click, before the POST resolves', async () => {
+        let resolvePost;
+        jest.spyOn(Api, 'postMergeRequestPipeline').mockReturnValue(
+          new Promise((resolve) => {
+            resolvePost = resolve;
+          }),
+        );
+        await createComponent();
+
+        findRunPipelineBtn().vm.$emit('run-pipeline');
+        await nextTick();
+
+        expect(findRunPipelineBtn().props('isLoading')).toBe(true);
+
+        resolvePost();
+        await waitForPromises();
+
+        expect(findRunPipelineBtn().props('isLoading')).toBe(false);
+      });
+
+      it('does not send a second request while one is already in flight', async () => {
+        const postSpy = jest
+          .spyOn(Api, 'postMergeRequestPipeline')
+          .mockReturnValue(new Promise(() => {}));
+        await createComponent();
+
+        findRunPipelineBtn().vm.$emit('run-pipeline');
+        findRunPipelineBtn().vm.$emit('run-pipeline');
+        await nextTick();
+
+        expect(postSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('resets loading state when the POST rejects with a non-HTTP error', async () => {
+        jest.spyOn(Api, 'postMergeRequestPipeline').mockRejectedValue(new Error('network down'));
+        await createComponent();
+
+        await findRunPipelineBtn().vm.$emit('run-pipeline');
+        await waitForPromises();
+
+        expect(findRunPipelineBtn().props('isLoading')).toBe(false);
+      });
     });
 
     describe('on click for fork merge request', () => {

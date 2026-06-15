@@ -504,7 +504,16 @@ instructions:
         if not found. Instead of `all('[data-testid="card"]').find { |node| node.has_selector?('h3', text: title) }`,
         use `find('[data-testid="card"] h3', text: title).ancestor('[data-testid="card"]')` to
         leverage CSS child selectors and walk back to the parent element.
+      12. For native Capybara matchers (`have_content`, `have_link`, `have_text`, etc.),
+        `not_to have_*` and `to have_no_*` are identical — both delegate to the same
+        `assert_no_text` (or equivalent `assert_no_*`) method via Capybara's
+        `element_does_not_match?`. Neither form is faster or slower than the other.
+        The real risk with any negative assertion is a false-pass: if the page returns a
+        500 error or remains blank, the absence check passes instantly because the content
+        was never rendered. Always confirm the page has loaded with a positive assertion
+        before checking for absence.
       - Reference: https://gitlab.com/gitlab-org/gitlab/-/raw/master/doc/development/testing_guide/best_practices.md
+      - Reference: https://docs.gitlab.com/development/testing_guide/best_practices/#avoid-waiting-for-elements-you-expect-to-be-absent
 
   - name: View Templates
     fileFilters:

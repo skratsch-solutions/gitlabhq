@@ -206,9 +206,12 @@
     "AlertManagementAlert",
     "Commit",
     "Design",
+    "Epic",
     "Issue",
     "MergeRequest",
+    "ProjectComplianceViolation",
     "Snippet",
+    "Vulnerability",
     "WikiPage"
   ],
   "OrchestrationPolicy": [

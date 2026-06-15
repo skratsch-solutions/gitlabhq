@@ -163,16 +163,16 @@ This option provides flexibility by allowing you to:
 > - Internet connectivity is required for these features.
 > - This is not a fully self-hosted or isolated configuration.
 
-#### GitLab managed models
+#### GitLab-managed models
 
-Use GitLab managed models to connect to AI models without the need to self-host infrastructure. These models are managed entirely by GitLab.
+Use GitLab-managed models to connect to AI models without the need to self-host infrastructure. These models are managed entirely by GitLab.
 
 You can select the default GitLab model to use with an AI-native feature. For the default model, GitLab uses the best model based on availability, quality, and reliability. The model used for a feature can change without notice.
 
-When you select a specific GitLab managed model, all requests for that feature use that model exclusively. If the model becomes unavailable, requests to the AI Gateway fail and users cannot use that feature until another model is selected.
+When you select a specific GitLab-managed model, all requests for that feature use that model exclusively. If the model becomes unavailable, requests to the AI Gateway fail and users cannot use that feature until another model is selected.
 
 > [!note]
-> When you configure a feature to use GitLab managed models:
+> When you configure a feature to use GitLab-managed models:
 >
 > - Calls to those features use the GitLab-hosted AI Gateway, not the self-hosted AI Gateway.
 > - Internet connectivity is required for these features.

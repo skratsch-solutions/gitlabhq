@@ -2244,7 +2244,11 @@ class MergeRequest < ApplicationRecord
   end
 
   def has_coverage_reports?
-    diff_head_pipeline&.has_coverage_reports?
+    has_coverage_reports_for?(diff_head_pipeline)
+  end
+
+  def has_coverage_reports_for?(pipeline)
+    !!pipeline&.has_coverage_reports?
   end
 
   def has_terraform_reports?
@@ -2288,7 +2292,11 @@ class MergeRequest < ApplicationRecord
   end
 
   def has_codequality_reports?
-    !!diff_head_pipeline&.complete_and_has_self_or_descendant_reports?(Ci::JobArtifact.of_report_type(:codequality))
+    has_codequality_reports_for?(diff_head_pipeline)
+  end
+
+  def has_codequality_reports_for?(pipeline)
+    !!pipeline&.complete_and_has_self_or_descendant_reports?(Ci::JobArtifact.of_report_type(:codequality))
   end
 
   def compare_codequality_reports

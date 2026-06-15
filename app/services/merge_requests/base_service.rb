@@ -160,12 +160,6 @@ module MergeRequests
       super
     end
 
-    def set_issuable_author(issuable)
-      params[:author] ||= Gitlab::Auth::Identity.resolve_composite_identity_actor(current_user)
-
-      super
-    end
-
     def update(merge_request)
       self.params = assign_allowed_merge_params(merge_request, params)
 

@@ -81,7 +81,7 @@ in the Agent Platform.
 
 {{< /history >}}
 
-You can select a model for a feature in a top-level group.
+You can select a model to be the default model for a feature in a top-level group.
 The model that you select applies to that feature for all child groups and projects.
 
 Prerequisites:
@@ -98,7 +98,7 @@ To select a model for Agentic Chat:
 1. In the left sidebar, select **Settings** > **GitLab Duo**.
 1. Select **Configure features**.
 1. Go to the **GitLab Duo Agentic Chat** section.
-1. Select a model from the dropdown list.
+1. Select a model from the dropdown list to set as the default model.
 1. Optional. To restrict what other models users can select for Agentic Chat:
 
    1. Under **Available models**, select **Configure**.
@@ -109,7 +109,7 @@ To select a model for Agentic Chat:
 
    > [!note]
    > If you do not restrict Agentic Chat to specific models, users can choose from
-   > all GitLab managed models.
+   > all GitLab-managed models.
 
 ### Select a model for a non-Agentic Chat feature
 
@@ -119,7 +119,7 @@ To select a model for a non-Agentic Chat feature:
 1. In the left sidebar, select **Settings** > **GitLab Duo**.
 1. Select **Configure features**.
 1. Go to the **GitLab Duo Agent Platform** section.
-1. Select a model from the dropdown list.
+1. Select a model from the dropdown list to set as the default model.
 1. Optional. To apply the model to all features in the section, select **Apply to all**.
 
 To specify a model for the GitLab Duo CLI, see [select a model](../gitlab_duo_cli/_index.md#select-a-model).

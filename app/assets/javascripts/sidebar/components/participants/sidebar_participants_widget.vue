@@ -4,6 +4,7 @@ import { participantsQueries } from '../../queries/constants';
 import SidebarParticipants from './sidebar_participants.vue';
 
 export default {
+  name: 'SidebarParticipantsWidget',
   i18n: {
     fetchingError: __('An error occurred while fetching participants'),
   },

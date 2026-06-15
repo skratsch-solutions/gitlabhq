@@ -38,10 +38,10 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
       end
 
       page.within('.tab-pane.active') do
-        click_button 'Groups'
+        click_button 'Toggle Groups category'
         check 'Avatar'
 
-        click_button 'CI/CD'
+        click_button 'Toggle CI/CD category'
         check 'Runner'
       end
 
@@ -100,7 +100,7 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
       expect(page).not_to have_button 'Add group or project'
 
       page.within('.tab-pane.active') do
-        click_button 'Groups'
+        click_button 'Toggle Groups category'
         check 'Avatar'
       end
 
@@ -125,7 +125,7 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
       expect(page).not_to have_button 'Add group or project'
 
       page.within('.tab-pane.active') do
-        click_button 'Groups'
+        click_button 'Toggle Groups category'
         check 'Avatar'
       end
 
@@ -147,7 +147,7 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
     choose 'All groups and projects that I\'m a member of'
 
     page.within('.tab-pane.active') do
-      click_button 'Groups'
+      click_button 'Toggle Groups category'
       check 'Avatar'
     end
 
@@ -161,7 +161,7 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
     end
 
     page.within('.tab-pane.active') do
-      click_button 'System Access'
+      click_button 'Toggle System Access category'
       check 'User'
     end
 
@@ -187,6 +187,41 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
     click_on 'Generate token'
 
     expect(page).to have_text('Your new token has been created')
+  end
+
+  context 'when selecting all resources in a category' do
+    before do
+      fill_in 'Name', with: 'Select-all PAT'
+      fill_in 'Description', with: 'Token created via category select-all'
+
+      choose 'All groups and projects that I\'m a member of'
+    end
+
+    it 'adds every resource in the category to the selection and creates a token' do
+      check 'Groups'
+
+      expect(selected_resource_names('Groups'))
+        .to include('Avatar', 'Group', 'Member Role', 'SSH Certificate', 'Template')
+
+      within(find_by_testid('selected-resource', text: 'Avatar')) do
+        click_button 'Select permissions'
+        select_listbox_item 'Read'
+      end
+
+      click_on 'Generate token'
+
+      expect(page).to have_text('Your new token has been created')
+    end
+
+    it 'removes the category resources when unchecked' do
+      check 'Groups'
+
+      expect(page).to have_css('[data-testid="selected-resource"]')
+
+      uncheck 'Groups'
+
+      expect(page).to have_text('No resources added')
+    end
   end
 
   context 'with expiration date' do
@@ -289,13 +324,19 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
 
   def select_avatar_read_permission
     page.within('.tab-pane.active') do
-      click_button 'Groups'
+      click_button 'Toggle Groups category'
       check 'Avatar'
     end
 
     within(find_by_testid('selected-resource', text: 'Avatar')) do
       click_button 'Select permissions'
       select_listbox_item 'Read'
+    end
+  end
+
+  def selected_resource_names(category_name)
+    within(find_by_testid('selected-category', text: category_name)) do
+      page.all('[data-testid="selected-resource-name"]').map(&:text)
     end
   end
 end

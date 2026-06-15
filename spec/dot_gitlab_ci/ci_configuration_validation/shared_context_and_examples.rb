@@ -21,6 +21,7 @@ RSpec.shared_context 'with simulated pipeline attributes and shared project and 
   let(:jobs) { pipeline.stages.flat_map { |s| s.statuses.map(&:name) } }
 
   let_it_be(:group) { create(:group, path: 'gitlab-org') }
+  # freeze: false because the `before` block mutates this project via `update!` when it is the `pipeline_project`
   let_it_be(:gitlab_org_gitlab_project, freeze: false) { create(:project, :empty_repo, group: group, path: 'gitlab') }
   let_it_be(:user) { create(:user) }
   let_it_be(:ci_glob) { Dir.glob("{.gitlab-ci.yml,.gitlab/**/*.yml}").freeze }

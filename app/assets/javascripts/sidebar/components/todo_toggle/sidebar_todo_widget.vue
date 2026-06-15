@@ -14,6 +14,7 @@ import TodoButton from './todo_button.vue';
 const trackingMixin = Tracking.mixin();
 
 export default {
+  name: 'SidebarTodoWidget',
   components: {
     GlButton,
     TodoButton,

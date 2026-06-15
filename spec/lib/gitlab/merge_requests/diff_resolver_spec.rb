@@ -195,4 +195,60 @@ RSpec.describe Gitlab::MergeRequests::DiffResolver, feature_category: :code_revi
       end
     end
   end
+
+  describe '#latest?' do
+    let(:diffable_merge_ref?) { false }
+
+    before do
+      allow(merge_request).to receive(:diffable_merge_ref?).and_return(diffable_merge_ref?)
+    end
+
+    context 'when no diff_id is set (default view)' do
+      it { expect(diff_resolver.latest?).to be(true) }
+    end
+
+    context 'when diff_id is the latest diff' do
+      let(:params) { { diff_id: base_diff_2.id } }
+
+      it { expect(diff_resolver.latest?).to be(true) }
+
+      context 'when compared against an older version' do
+        let(:params) { { diff_id: base_diff_2.id, start_sha: base_diff_1.head_commit_sha } }
+
+        it { expect(diff_resolver.latest?).to be(true) }
+      end
+    end
+
+    context 'when diff_id is an older version' do
+      let(:params) { { diff_id: base_diff_1.id } }
+
+      it { expect(diff_resolver.latest?).to be(false) }
+    end
+
+    context 'when the merge-ref diff is shown' do
+      let(:diffable_merge_ref?) { true }
+
+      it { expect(diff_resolver.latest?).to be(true) }
+    end
+
+    context 'when a single commit is shown' do
+      let(:params) { { commit_id: commit_sha } }
+
+      it { expect(diff_resolver.latest?).to be(false) }
+    end
+
+    context 'when compare is present' do
+      let(:compare) { instance_double(Compare) }
+
+      before do
+        merge_request.compare = compare
+      end
+
+      after do
+        merge_request.compare = nil
+      end
+
+      it { expect(diff_resolver.latest?).to be(false) }
+    end
+  end
 end

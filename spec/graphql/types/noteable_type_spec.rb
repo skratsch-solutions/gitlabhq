@@ -4,7 +4,9 @@ require 'spec_helper'
 
 RSpec.describe GitlabSchema.types['NoteableType'], feature_category: :team_planning do
   it 'returns the expected possible types' do
-    expect(described_class.possible_types).to match_array([
+    # `include` rather than `match_array`: EE prepends further noteables
+    # (vulnerabilities, epics, compliance violations) to the union.
+    expect(described_class.possible_types).to include(
       Types::IssueType,
       Types::MergeRequestType,
       Types::SnippetType,
@@ -12,7 +14,7 @@ RSpec.describe GitlabSchema.types['NoteableType'], feature_category: :team_plann
       Types::AlertManagement::AlertType,
       Types::Wikis::WikiPageType,
       Types::Repositories::CommitType
-    ])
+    )
   end
 
   describe '.resolve_type' do

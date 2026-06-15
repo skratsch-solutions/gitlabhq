@@ -35,8 +35,7 @@ OpenBao integrates with GitLab as an optional component that runs in parallel to
 - OpenBao stores data in PostgreSQL.
   The Helm chart configures OpenBao to use a separate logical database on the same PostgreSQL instance.
   Configure the connection using `global.openbao.psql` in the Helm chart.
-- OpenBao gets the unseal key from a secret store.
-- OpenBao reads the unseal key from a Kubernetes secret mounted by the Helm chart.
+- OpenBao gets the unseal key from a configured secret store (by default, a Kubernetes secret mounted by the Helm chart).
 - OpenBao posts audit logs to the Rails backend when audit logs are enabled.
 
 ```mermaid
@@ -386,16 +385,22 @@ Prerequisites:
 - OpenBao must be installed and working on the primary site before you deploy it on the secondary.
   For more information, see [Install OpenBao](#install-openbao).
 
-1. The secondary OpenBao must use the same unseal key as the primary to decrypt replicated data.
-   Copy the `gitlab-openbao-unseal` Kubernetes secret from the primary cluster to the secondary
-   cluster:
+1. The secondary OpenBao must use the same unseal configuration as the primary to decrypt replicated data.
+   The steps depend on your configured unseal method:
 
-   ```shell
-   kubectl --namespace gitlab get secret gitlab-openbao-unseal -o yaml
-   ```
+   - Kubernetes secret (default): Copy the `gitlab-openbao-unseal` Kubernetes secret from the
+     primary cluster to the secondary cluster:
 
-   Apply the exported secret to the secondary cluster. For more information, see
-   [Back up the secrets](https://docs.gitlab.com/charts/backup-restore/backup/#back-up-the-secrets).
+     ```shell
+     kubectl --namespace gitlab get secret gitlab-openbao-unseal -o yaml
+     ```
+
+     Apply the exported secret to the secondary cluster. For more information, see
+     [Back up the secrets](https://docs.gitlab.com/charts/backup-restore/backup/#back-up-the-secrets).
+
+   - KMS-based auto-unseal: Configure the secondary cluster with the same KMS key.
+     For more information, see
+     [Unsealing and initialization options](https://docs.gitlab.com/charts/charts/openbao/#unsealing-and-initialization-options).
 
 1. If you plan to update the DNS record of the primary domain to point to the secondary site during failover,
    you might want to configure OpenBao accordingly ahead of time.

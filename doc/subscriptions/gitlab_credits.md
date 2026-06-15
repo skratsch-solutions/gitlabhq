@@ -291,7 +291,6 @@ For premium models with optimized integration:
 | `claude-opus-4.7` | 1.1 |
 | `claude-opus-4.8` | 1.1 |
 | `gpt-5.5` <sup>1</sup> | 1.0 |
-| `claude-fable-5` | 0.6 |
 | `gpt-5.5` <sup>2</sup> | 0.57 |
 
 **Footnotes**:

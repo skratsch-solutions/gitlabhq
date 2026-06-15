@@ -43,3 +43,5 @@ module Types
     end
   end
 end
+
+Types::NoteableType.prepend_mod

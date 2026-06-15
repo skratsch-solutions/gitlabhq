@@ -4359,6 +4359,30 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
+  describe '#has_coverage_reports_for?' do
+    let(:merge_request) { build_stubbed(:merge_request) }
+
+    subject { merge_request.has_coverage_reports_for?(pipeline) }
+
+    context 'when the pipeline has coverage reports' do
+      let(:pipeline) { instance_double(Ci::Pipeline, has_coverage_reports?: true) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the pipeline has no coverage reports' do
+      let(:pipeline) { instance_double(Ci::Pipeline, has_coverage_reports?: false) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the pipeline is nil' do
+      let(:pipeline) { nil }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#has_codequality_mr_diff_report?' do
     subject { merge_request.has_codequality_mr_diff_report? }
 
@@ -4393,6 +4417,30 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     it_behaves_like 'reports in child pipelines', :codequality_reports
+  end
+
+  describe '#has_codequality_reports_for?' do
+    let(:merge_request) { build_stubbed(:merge_request) }
+
+    subject { merge_request.has_codequality_reports_for?(pipeline) }
+
+    context 'when the pipeline has codequality reports' do
+      let(:pipeline) { instance_double(Ci::Pipeline, complete_and_has_self_or_descendant_reports?: true) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the pipeline has no codequality reports' do
+      let(:pipeline) { instance_double(Ci::Pipeline, complete_and_has_self_or_descendant_reports?: false) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the pipeline is nil' do
+      let(:pipeline) { nil }
+
+      it { is_expected.to be(false) }
+    end
   end
 
   describe '#has_terraform_reports?' do
