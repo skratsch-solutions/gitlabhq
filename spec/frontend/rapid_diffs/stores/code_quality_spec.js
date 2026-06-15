@@ -51,13 +51,13 @@ describe('Code quality store', () => {
       expect(store.loaded).toBe(true);
     });
 
-    it('stores an empty map when there are no new errors', async () => {
+    it('stores null when there are no new errors', async () => {
       mockAxios.onGet(endpoint).reply(HTTP_STATUS_OK, { new_errors: [] }, {});
 
       store.fetchCodeQuality();
       await waitForPromises();
 
-      expect(store.files).toEqual({});
+      expect(store.files).toBeNull();
       expect(store.loaded).toBe(true);
     });
 

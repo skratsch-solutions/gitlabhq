@@ -94,7 +94,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '.preload_latest_diff_commit' do
     let_it_be(:project) { create(:project, :repository) }
-    let_it_be(:merge_request, freeze: false) { create(:merge_request, :unique_branches, source_project: project, target_project: project) }
+    let_it_be(:merge_request) { create(:merge_request, :unique_branches, source_project: project, target_project: project) }
     let_it_be(:commit_author) { create(:merge_request_diff_commit_user) }
     let_it_be(:committer) { create(:merge_request_diff_commit_user) }
 
@@ -286,15 +286,15 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   context 'scopes' do
-    let_it_be(:user1, freeze: false) { create(:user) }
-    let_it_be(:user2, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user1) { create(:user) }
+    let_it_be_with_reload(:user2) { create(:user) }
 
-    let_it_be(:merge_request1, freeze: false) do
+    let_it_be(:merge_request1) do
       create(:merge_request, :prepared, :unique_branches, reviewers: [user1], created_at:
              2.days.ago)
     end
 
-    let_it_be(:merge_request2, freeze: false) do
+    let_it_be(:merge_request2) do
       create(:merge_request, :unprepared, :unique_branches, reviewers: [user1, user2], created_at:
              3.hours.ago)
     end
@@ -625,9 +625,9 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     describe '.author_or_assignee' do
-      let_it_be(:user3, freeze: false) { create(:user) }
+      let_it_be_with_reload(:user3) { create(:user) }
       let_it_be(:authored_mr) { create(:merge_request, :unique_branches, author: user3) }
-      let_it_be(:assigned_mr, freeze: false) { create(:merge_request, :unique_branches, assignees: [user3]) }
+      let_it_be(:assigned_mr) { create(:merge_request, :unique_branches, assignees: [user3]) }
       let_it_be(:unrelated_mr) { create(:merge_request, :unique_branches) }
 
       subject(:result) { described_class.author_or_assignee(user3) }
@@ -2041,7 +2041,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be(:issue_referenced_in_internal_mr_note) { create(:issue) }
     let_it_be(:confidential_issue_in_mr_desc) { create(:issue, :confidential) }
 
-    let_it_be(:merge_request, freeze: false) do
+    let_it_be(:merge_request) do
       create(
         :merge_request,
         title: "MR for #{issue_referenced_in_mr_title.to_reference}",
@@ -3124,7 +3124,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#permits_force_push?' do
-    let_it_be(:merge_request, freeze: false) { build_stubbed(:merge_request) }
+    let_it_be(:merge_request) { build_stubbed(:merge_request) }
 
     subject { merge_request.permits_force_push? }
 
@@ -3642,7 +3642,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with a standard commit via metadata path' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -3659,7 +3659,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with no merge_request_diff' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -3671,7 +3671,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with a commit via direct committer_id (no metadata)' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -3691,7 +3691,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with multiple commits from different committers' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -3723,7 +3723,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with mixed commits: one via metadata, one via direct path' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -3755,7 +3755,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with duplicate committer emails across metadata and direct paths' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -3783,7 +3783,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with a commit whose committer email does not match any user' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -3804,7 +3804,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'with a commit whose committer has nil email in diff_commit_users' do
-      let_it_be(:merge_request, freeze: false) do
+      let_it_be(:merge_request) do
         create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
       end
 
@@ -4290,13 +4290,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   shared_examples_for 'reports in child pipelines' do |report_type|
     context 'when the child pipeline has reports' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
-      let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :success, sha: merge_request.diff_head_sha, merge_requests_as_head_pipeline: [merge_request]) }
+      let_it_be_with_refind(:merge_request) { create(:merge_request, source_project: project) }
+      let_it_be(:pipeline) { create(:ci_pipeline, :success, sha: merge_request.diff_head_sha, merge_requests_as_head_pipeline: [merge_request]) }
       let_it_be(:child_pipeline) { create(:ci_pipeline, :success, child_of: pipeline) }
       let_it_be(:child_build) { create(:ci_build, report_type, pipeline: child_pipeline) }
 
       context 'when the pipeline is still running' do
-        let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :running, sha: merge_request.diff_head_sha, merge_requests_as_head_pipeline: [merge_request]) }
+        let_it_be(:pipeline) { create(:ci_pipeline, :running, sha: merge_request.diff_head_sha, merge_requests_as_head_pipeline: [merge_request]) }
 
         it 'returns false if head pipeline is running' do
           expect(subject).to eq(false)
@@ -4381,13 +4381,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be(:project) { create(:project, :repository) }
 
     context 'when head pipeline has a codequality report' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, :with_codequality_reports, source_project: project) }
+      let_it_be(:merge_request) { create(:merge_request, :with_codequality_reports, source_project: project) }
 
       it { is_expected.to be_truthy }
     end
 
     context 'when head pipeline does not have a codequality report' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
+      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
 
       it { is_expected.to be_falsey }
     end
@@ -4399,7 +4399,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     subject { merge_request.has_terraform_reports? }
 
     context 'when head pipeline has terraform reports' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, :with_terraform_reports, source_project: project) }
+      let_it_be(:merge_request) { create(:merge_request, :with_terraform_reports, source_project: project) }
 
       it 'returns true' do
         expect(subject).to be_truthy
@@ -4407,7 +4407,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when head pipeline does not have terraform reports' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
+      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
 
       it 'returns false' do
         expect(subject).to be_falsey
@@ -4415,7 +4415,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when head pipeline is not finished and has terraform reports' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, :with_terraform_reports, source_project: project) }
+      let_it_be_with_refind(:merge_request) { create(:merge_request, :with_terraform_reports, source_project: project) }
 
       it 'returns true' do
         merge_request.diff_head_pipeline.update!(status: :running)
@@ -4437,7 +4437,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when head pipeline has sast reports' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, :with_sast_reports, source_project: project) }
+      let_it_be_with_refind(:merge_request) { create(:merge_request, :with_sast_reports, source_project: project) }
 
       it { is_expected.to be_truthy }
 
@@ -4451,7 +4451,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     context 'when head pipeline does not have sast reports' do
-      let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
+      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
 
       it { is_expected.to be_falsey }
     end
@@ -6364,7 +6364,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#create_merge_request_diff' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
 
     context 'when preload_gitaly is true' do
       subject(:create_merge_request_diff) { merge_request.create_merge_request_diff(preload_gitaly: true) }
@@ -8476,7 +8476,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#target_default_branch?' do
-    let_it_be(:merge_request, freeze: false) { build(:merge_request, project: project) }
+    let(:merge_request) { build(:merge_request, project: project) }
 
     it 'returns false' do
       expect(merge_request.target_default_branch?).to be false
@@ -8494,7 +8494,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#can_suggest_reviewers?' do
-    let_it_be(:merge_request, freeze: false) { build(:merge_request, :opened, project: project) }
+    let_it_be(:merge_request) { build(:merge_request, :opened, project: project) }
 
     subject(:can_suggest_reviewers) { merge_request.can_suggest_reviewers? }
 
@@ -8504,7 +8504,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#suggested_reviewer_users' do
-    let_it_be(:merge_request, freeze: false) { build(:merge_request, project: project) }
+    let_it_be(:merge_request) { build(:merge_request, project: project) }
 
     subject(:suggested_reviewer_users) { merge_request.suggested_reviewer_users }
 
@@ -8941,7 +8941,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#batch_update_reviewer_state' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request, reviewers: create_list(:user, 2)) }
+    let_it_be(:merge_request) { create(:merge_request, reviewers: create_list(:user, 2)) }
 
     it 'updates all reviewers' do
       user_ids = merge_request.reviewers.map(&:id)
@@ -9273,7 +9273,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#diffs_batch_cache_key' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
 
     subject { merge_request.diffs_batch_cache_key }
 
@@ -9320,7 +9320,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#commit_exists?' do
     let_it_be(:project) { create(:project) }
-    let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project, target_project: project) }
+    let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
     let_it_be(:merge_request_diff) { create(:merge_request_diff, merge_request: merge_request) }
 
     let_it_be(:commits_metadata) do
@@ -9967,7 +9967,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#viewable_recent_merge_request_diffs' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
     let_it_be(:viewable_diff_1) { merge_request.merge_request_diff }
     let_it_be(:viewable_diff_2) { merge_request.create_merge_request_diff }
     let_it_be(:unviewable_diff) { create(:merge_request_diff, merge_request: merge_request, state: :empty) }
@@ -10021,7 +10021,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#show_context_commits_diff?' do
     let_it_be(:project) { create(:project, :repository) }
-    let_it_be(:merge_request, freeze: false) { create(:merge_request, target_project: project, source_project: project) }
+    let_it_be(:merge_request) { create(:merge_request, target_project: project, source_project: project) }
     let(:context_commits_diff) { instance_double(ContextCommitsDiff) }
 
     before do

@@ -30,10 +30,12 @@ title: Custom flows
 - Enabling directly in projects as a maintainer [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/20743) in GitLab 18.10 [with a flag](../../../administration/feature_flags/_index.md) named `ai_catalog_project_level_enablement`. Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated by default.
 - Available on the Free tier on GitLab.com with GitLab Credits in GitLab 18.10.
 - Feature flag `ai_catalog_project_level_enablement` removed in GitLab 18.11.
-- **Merge request ready** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592454) in GitLab 19.0 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_ready_flow_trigger`. Disabled by default. Feature flag `merge_request_ready_flow_trigger` removed in GitLab 19.1.
+- **Merge request ready** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592454) in GitLab 19.0 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_ready_flow_trigger`. Disabled by default.
 - **Merge request code conflict** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592455) in GitLab 19.1.
 - **Merge request approved** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592456) in GitLab 19.1.
 - Feature flag `ai_flow_trigger_pipeline_hooks` [removed](https://gitlab.com/gitlab-org/gitlab/-/work_items/587272) in GitLab 19.1.
+- **Work item created** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/599985) in GitLab 19.1.
+- **Merge request ready** trigger event type [generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/598421) in GitLab 19.1. Feature flag `merge_request_ready_flow_trigger` removed.
 
 {{< /history >}}
 
@@ -184,6 +186,7 @@ To enable a flow:
    - **Merge request ready**: When a draft merge request is marked as ready for review.
    - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
    - **Merge request approved**: When a merge request receives all required approvals.
+   - **Work item created**: When a work item is created in the project.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -207,6 +210,7 @@ To enable a flow:
    - **Merge request ready**: When a draft merge request is marked as ready for review.
    - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
    - **Merge request approved**: When a merge request receives all required approvals.
+   - **Work item created**: When a work item is created in the project.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -244,6 +248,7 @@ To enable a flow in a project:
    - **Merge request ready**: When a draft merge request is marked as ready for review.
    - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
    - **Merge request approved**: When a merge request receives all required approvals.
+   - **Work item created**: When a work item is created in the project.
 1. Select **Enable**.
 
 The flow appears in the project's **AI** > **Flows** list.

@@ -37,10 +37,12 @@ in a discussion, or when you assign them as a reviewer.
 
 - **Assign** and **Assign reviewer** event types [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/567787) in GitLab 18.5.
 - Pipeline events trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/212797) in GitLab 18.9 as an [experiment](../../../policy/development_stages_support.md) with a [flag](../../../administration/feature_flags/_index.md) named `ai_flow_trigger_pipeline_hooks`. Disabled by default.
-- **Merge request ready** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592454) in GitLab 19.0 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_ready_flow_trigger`. Disabled by default. Feature flag `merge_request_ready_flow_trigger` removed in GitLab 19.1.
+- **Merge request ready** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592454) in GitLab 19.0 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_ready_flow_trigger`. Disabled by default.
 - **Merge request code conflict** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/234044) in GitLab 19.1.
 - **Merge request** trigger event type with the **Approved** action [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237081) in GitLab 19.1.
 - Feature flag `ai_flow_trigger_pipeline_hooks` [removed](https://gitlab.com/gitlab-org/gitlab/-/work_items/587272) in GitLab 19.1.
+- **Work item created** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/599985) in GitLab 19.1.
+- **Merge request ready** trigger event type [generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/598421) in GitLab 19.1. Feature flag `merge_request_ready_flow_trigger` removed.
 
 {{< /history >}}
 
@@ -69,6 +71,7 @@ To create a trigger:
    - **Merge request ready**: When a draft merge request is marked as ready for review.
    - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
    - **Merge request**: When a selected merge request action occurs.
+   - **Work item created**: When a work item is created in the project.
 1. Optional. If you selected **Pipeline events**, in the **Pipeline events configuration** section,
    from the **Trigger when** dropdown list, select one or more of the following states:
    **Running**, **Passed**, **Failed**, or **Canceled**.

@@ -85,6 +85,10 @@ module RapidDiffs
       resource.project.full_path
     end
 
+    def project_name
+      resource.project.name_with_namespace
+    end
+
     def user_permissions
       {
         can_create_note: can?(@current_user, :create_note, resource)

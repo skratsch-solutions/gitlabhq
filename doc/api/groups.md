@@ -1320,6 +1320,7 @@ Parameters:
 | `wiki_access_level`                  | string  | no       | The wiki access level. Can be `disabled`, `private`, or `enabled`. Premium and Ultimate only. |
 | `duo_availability` | string | no | GitLab Duo availability setting. Valid values are: `default_on`, `default_off`, `never_on`. Note: In the UI, `never_on` is displayed as "Always Off". |
 | `experiment_features_enabled` | boolean | no | Enable experiment features for this group. |
+| `ai_settings_attributes` | hash | no | AI-related settings for this group. For available options, see [Options for `ai_settings_attributes`](#options-for-ai_settings_attributes). GitLab Duo features must be enabled. |
 
 #### Options for `default_branch_protection`
 
@@ -1817,56 +1818,55 @@ Prerequisites:
 PUT /groups/:id
 ```
 
-| Attribute                                           | Type              | Required | Description |
-|-----------------------------------------------------|-------------------|----------|-------------|
-| `id`                                                | integer           | yes      | The ID of the group. |
-| `name`                                              | string            | no       | The name of the group. |
-| `path`                                              | string            | no       | The path of the group. |
-| `auto_devops_enabled`                               | boolean           | no       | Default to Auto DevOps pipeline for all projects within this group. |
-| `avatar`                                            | mixed             | no       | Image file for avatar of the group. |
-| Attribute                                           | Type              | Required | Description |
-|-----------------------------------------------------|-------------------|----------|-------------|
+| Attribute                                            | Type              | Required | Description |
+|------------------------------------------------------|-------------------|----------|-------------|
+| `id`                                                 | integer           | yes      | The ID of the group. |
+| `name`                                               | string            | no       | The name of the group. |
+| `path`                                               | string            | no       | The path of the group. |
+| `auto_devops_enabled`                                | boolean           | no       | Default to Auto DevOps pipeline for all projects within this group. |
+| `avatar`                                             | mixed             | no       | Image file for avatar of the group. |
 | `built_in_project_templates_enabled`                | boolean           | no       | Enable built-in project templates when users create projects in the group. Premium and Ultimate only. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235504) in GitLab 19.0 [with a flag](../administration/feature_flags/_index.md) named `use_built_in_project_templates_enabled`. Disabled by default. |
 | `lock_built_in_project_templates_enabled`           | boolean           | no       | Enforce the `built_in_project_templates_enabled` setting for all subgroups. Premium and Ultimate only. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235504) in GitLab 19.0 [with a flag](../administration/feature_flags/_index.md) named `use_built_in_project_templates_enabled`. Disabled by default. |
-| `default_branch`                                    | string            | no       | The [default branch](../user/project/repository/branches/default.md) name for group's projects. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/442298) in GitLab 16.11. |
-| `default_branch_protection`                         | integer           | no       | [Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/408314) in GitLab 17.0. Use `default_branch_protection_defaults` instead. |
-| `default_branch_protection_defaults`                | hash              | no       | [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/408314) in GitLab 17.0. For available options, see [Options for `default_branch_protection_defaults`](#options-for-default_branch_protection_defaults). |
-| `description`                                       | string            | no       | The description of the group. |
-| `enabled_git_access_protocol`                       | string            | no       | Enabled protocols for Git access. Allowed values are: `ssh`, `http`, and `all` to allow both protocols. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/436618) in GitLab 16.9. |
-| `emails_disabled`                                   | boolean           | no       | ([Deprecated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127899) in GitLab 16.5.) Disable email notifications. Use `emails_enabled` instead. |
-| `emails_enabled`                                    | boolean           | no       | Enable email notifications. |
-| `lfs_enabled`                                       | boolean           | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
-| `mentions_disabled`                                 | boolean           | no       | Disable the capability of a group from getting mentioned. |
-| `prevent_sharing_groups_outside_hierarchy`          | boolean           | no       | See [Prevent group sharing outside the group hierarchy](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy). This attribute is only available on top-level groups. |
-| `project_creation_level`                            | string            | no       | Determine if developers can create projects in the group. Can be `noone` (No one), `maintainer` (users with the Maintainer role), or `developer` (users with the Developer or Maintainer role). |
-| `request_access_enabled`                            | boolean           | no       | Allow users to request member access. |
-| `require_two_factor_authentication`                 | boolean           | no       | Require all users in this group to set up two-factor authentication. |
-| `shared_runners_setting`                            | string            | no       | See [Options for `shared_runners_setting`](#options-for-shared_runners_setting). Enable or disable instance runners for a group's subgroups and projects. |
-| `share_with_group_lock`                             | boolean           | no       | Prevent sharing a project with another group within this group. |
-| `step_up_auth_required_oauth_provider`              | string            | no       | OAuth provider required for step-up authentication. Pass empty string to disable. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/556943) in GitLab 18.4. Available when `omniauth_step_up_auth_for_namespace` feature flag is enabled. |
-| `subgroup_creation_level`                           | string            | no       | Allowed to [create subgroups](../user/group/subgroups/_index.md#create-a-subgroup). Can be `owner` (users with the Owner role), or `maintainer` (users with the Maintainer role). |
-| `two_factor_grace_period`                           | integer           | no       | Time before Two-factor authentication is enforced (in hours). |
-| `visibility`                                        | string            | no       | The visibility level of the group. Can be `private`, `internal`, or `public`. |
-| `extra_shared_runners_minutes_limit`                | integer           | no       | Can be set by administrators only. Additional compute minutes for this group. GitLab Self-Managed, Premium and Ultimate only. |
-| `file_template_project_id`                          | integer           | no       | The ID of a project to load custom file templates from. Premium and Ultimate only. |
-| `membership_lock`                                   | boolean           | no       | Users cannot be added to projects in this group. Premium and Ultimate only. |
-| `prevent_forking_outside_group`                     | boolean           | no       | When enabled, users can not fork projects from this group to external namespaces. Premium and Ultimate only. |
-| `shared_runners_minutes_limit`                      | integer           | no       | Can be set by administrators only. Maximum number of monthly compute minutes for this group. Can be `nil` (default; inherit system default), `0` (unlimited), or `> 0`. GitLab Self-Managed, Premium and Ultimate only. |
-| `unique_project_download_limit`                     | integer           | no       | Maximum number of unique projects a user can download in the specified time period before they are banned. Available only on top-level groups. Default: 0, Maximum: 10,000. Ultimate only. |
-| `unique_project_download_limit_interval_in_seconds` | integer           | no       | Time period during which a user can download a maximum amount of projects before they are banned. Available only on top-level groups. Default: 0, Maximum: 864,000 seconds (10 days). Ultimate only. |
-| `unique_project_download_limit_allowlist`           | array of strings  | no       | List of usernames excluded from the unique project download limit. Available only on top-level groups. Default: `[]`, Maximum: 100 usernames. Ultimate only. |
-| `unique_project_download_limit_alertlist`           | array of integers | no       | List of user IDs that are emailed when the unique project download limit is exceeded. Available only on top-level groups. Default: `[]`, Maximum: 100 user IDs. Ultimate only. |
-| `auto_ban_user_on_excessive_projects_download`      | boolean           | no       | When enabled, users are automatically banned from the group when they download more than the maximum number of unique projects specified by `unique_project_download_limit` and `unique_project_download_limit_interval_in_seconds`. Ultimate only. |
-| `ip_restriction_ranges`                             | string            | no       | Comma-separated list of IP addresses or subnet masks to restrict group access. Premium and Ultimate only. |
-| `allowed_email_domains_list`                        | string            | no       | Comma-separated list of email address domains to allow group access. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/351494) in 17.4. GitLab Premium and Ultimate only. |
-| `wiki_access_level`                                 | string            | no       | The wiki access level. Can be `disabled`, `private`, or `enabled`. Premium and Ultimate only. |
-| `duo_availability`                                  | string            | no       | GitLab Duo availability setting. Valid values are: `default_on`, `default_off`, `never_on`. Note: In the UI, `never_on` is displayed as "Always Off". |
-| `experiment_features_enabled`                       | boolean           | no       | Enable experiment features for this group. |
-| `math_rendering_limits_enabled`                     | boolean           | no       | Indicates if math rendering limits are used for this group. |
-| `lock_math_rendering_limits_enabled`                | boolean           | no       | Indicates if math rendering limits are locked for all descendent groups. |
-| `duo_features_enabled`                              | boolean           | no       | Indicates whether GitLab Duo features are enabled for this group. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144931) in GitLab 16.10. GitLab Self-Managed, Premium and Ultimate only. |
-| `lock_duo_features_enabled`                         | boolean           | no       | Indicates whether the GitLab Duo features enabled setting is enforced for all subgroups. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144931) in GitLab 16.10. GitLab Self-Managed, Premium and Ultimate only. |
-| `max_artifacts_size`                                | integer           | No       | The maximum file size in megabytes for individual job artifacts. |
+| `default_branch`                                     | string            | no       | The [default branch](../user/project/repository/branches/default.md) name for group's projects. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/442298) in GitLab 16.11. |
+| `default_branch_protection`                          | integer           | no       | [Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/408314) in GitLab 17.0. Use `default_branch_protection_defaults` instead. |
+| `default_branch_protection_defaults`                 | hash              | no       | [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/408314) in GitLab 17.0. For available options, see [Options for `default_branch_protection_defaults`](#options-for-default_branch_protection_defaults). |
+| `description`                                        | string            | no       | The description of the group. |
+| `enabled_git_access_protocol`                        | string            | no       | Enabled protocols for Git access. Allowed values are: `ssh`, `http`, and `all` to allow both protocols. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/436618) in GitLab 16.9. |
+| `emails_disabled`                                    | boolean           | no       | ([Deprecated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127899) in GitLab 16.5.) Disable email notifications. Use `emails_enabled` instead. |
+| `emails_enabled`                                     | boolean           | no       | Enable email notifications. |
+| `lfs_enabled`                                        | boolean           | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
+| `mentions_disabled`                                  | boolean           | no       | Disable the capability of a group from getting mentioned. |
+| `prevent_sharing_groups_outside_hierarchy`           | boolean           | no       | See [Prevent group sharing outside the group hierarchy](../user/project/members/sharing_projects_groups.md#prevent-inviting-groups-outside-the-group-hierarchy). This attribute is only available on top-level groups. |
+| `project_creation_level`                             | string            | no       | Determine if developers can create projects in the group. Can be `noone` (No one), `maintainer` (users with the Maintainer role), or `developer` (users with the Developer or Maintainer role). |
+| `request_access_enabled`                             | boolean           | no       | Allow users to request member access. |
+| `require_two_factor_authentication`                  | boolean           | no       | Require all users in this group to set up two-factor authentication. |
+| `shared_runners_setting`                             | string            | no       | See [Options for `shared_runners_setting`](#options-for-shared_runners_setting). Enable or disable instance runners for a group's subgroups and projects. |
+| `share_with_group_lock`                              | boolean           | no       | Prevent sharing a project with another group within this group. |
+| `step_up_auth_required_oauth_provider`               | string            | no       | OAuth provider required for step-up authentication. Pass empty string to disable. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/556943) in GitLab 18.4. Available when `omniauth_step_up_auth_for_namespace` feature flag is enabled. |
+| `subgroup_creation_level`                            | string            | no       | Allowed to [create subgroups](../user/group/subgroups/_index.md#create-a-subgroup). Can be `owner` (users with the Owner role), or `maintainer` (users with the Maintainer role). |
+| `two_factor_grace_period`                            | integer           | no       | Time before Two-factor authentication is enforced (in hours). |
+| `visibility`                                         | string            | no       | The visibility level of the group. Can be `private`, `internal`, or `public`. |
+| `extra_shared_runners_minutes_limit`                 | integer           | no       | Can be set by administrators only. Additional compute minutes for this group. GitLab Self-Managed, Premium and Ultimate only. |
+| `file_template_project_id`                           | integer           | no       | The ID of a project to load custom file templates from. Premium and Ultimate only. |
+| `membership_lock`                                    | boolean           | no       | Users cannot be added to projects in this group. Premium and Ultimate only. |
+| `prevent_forking_outside_group`                      | boolean           | no       | When enabled, users can not fork projects from this group to external namespaces. Premium and Ultimate only. |
+| `shared_runners_minutes_limit`                       | integer           | no       | Can be set by administrators only. Maximum number of monthly compute minutes for this group. Can be `nil` (default; inherit system default), `0` (unlimited), or `> 0`. GitLab Self-Managed, Premium and Ultimate only. |
+| `unique_project_download_limit`                      | integer           | no       | Maximum number of unique projects a user can download in the specified time period before they are banned. Available only on top-level groups. Default: 0, Maximum: 10,000. Ultimate only. |
+| `unique_project_download_limit_interval_in_seconds`  | integer           | no       | Time period during which a user can download a maximum amount of projects before they are banned. Available only on top-level groups. Default: 0, Maximum: 864,000 seconds (10 days). Ultimate only. |
+| `unique_project_download_limit_allowlist`            | array of strings  | no       | List of usernames excluded from the unique project download limit. Available only on top-level groups. Default: `[]`, Maximum: 100 usernames. Ultimate only. |
+| `unique_project_download_limit_alertlist`            | array of integers | no       | List of user IDs that are emailed when the unique project download limit is exceeded. Available only on top-level groups. Default: `[]`, Maximum: 100 user IDs. Ultimate only. |
+| `auto_ban_user_on_excessive_projects_download`       | boolean           | no       | When enabled, users are automatically banned from the group when they download more than the maximum number of unique projects specified by `unique_project_download_limit` and `unique_project_download_limit_interval_in_seconds`. Ultimate only. |
+| `ip_restriction_ranges`                              | string      | no       | Comma-separated list of IP addresses or subnet masks to restrict group access. Premium and Ultimate only. |
+| `allowed_email_domains_list`                         | string      | no       | Comma-separated list of email address domains to allow group access. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/351494) in 17.4. GitLab Premium and Ultimate only. |
+| `wiki_access_level`                                  | string            | no       | The wiki access level. Can be `disabled`, `private`, or `enabled`. Premium and Ultimate only. |
+| `duo_availability`                                   | string | no | GitLab Duo availability setting. Valid values are: `default_on`, `default_off`, `never_on`. Note: In the UI, `never_on` is displayed as "Always Off". |
+| `experiment_features_enabled`                        | boolean | no | Enable experiment features for this group. |
+| `ai_settings_attributes`                             | hash | no | AI-related settings for this group. For available options, see [Options for `ai_settings_attributes`](#options-for-ai_settings_attributes). GitLab Duo features must be enabled. |
+| `math_rendering_limits_enabled`                      | boolean           | no       | Indicates if math rendering limits are used for this group. |
+| `lock_math_rendering_limits_enabled`                 | boolean           | no       | Indicates if math rendering limits are locked for all descendent groups. |
+| `duo_features_enabled`                               | boolean           | no       | Indicates whether GitLab Duo features are enabled for this group. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144931) in GitLab 16.10. GitLab Self-Managed, Premium and Ultimate only. |
+| `lock_duo_features_enabled`                          | boolean           | no       | Indicates whether the GitLab Duo features enabled setting is enforced for all subgroups. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144931) in GitLab 16.10. GitLab Self-Managed, Premium and Ultimate only. |
+| `max_artifacts_size`                                 | integer           | No       | The maximum file size in megabytes for individual job artifacts. |
 | `web_based_commit_signing_enabled`                  | boolean           | No       | Enables web-based commit signing for commits created from the GitLab UI. Available only for top-level groups on GitLab.com. When enabled for a group, applies to all projects in the group. |
 | `only_allow_merge_if_pipeline_succeeds`             | boolean           | no       | Only allow merging merge requests if the pipeline succeeds. When enabled for a group, applies to all projects in the group. Premium and Ultimate only. |
 | `allow_merge_on_skipped_pipeline`                   | boolean           | no       | Allow merging merge requests when the pipeline is skipped. Only applies when `only_allow_merge_if_pipeline_succeeds` is `true`. Premium and Ultimate only. |
@@ -1974,6 +1974,40 @@ The `shared_runners_setting` attribute determines whether instance runners are e
 | `disabled_and_overridable`   | Disables instance runners for all projects and subgroups in this group, but allows subgroups to override this setting. |
 | `disabled_and_unoverridable` | Disables instance runners for all projects and subgroups in this group, and prevents subgroups from overriding this setting. |
 | `disabled_with_override`     | (Deprecated. Use `disabled_and_overridable`) Disables instance runners for all projects and subgroups in this group, but allows subgroups to override this setting. |
+
+### Options for `ai_settings_attributes`
+
+{{< history >}}
+
+- `duo_workflow_mcp_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/193041) in GitLab 18.1.
+- `foundational_agents_default_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/212111) in GitLab 18.6.
+- `duo_agent_platform_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/216143) in GitLab 18.7.
+- `minimum_access_level_execute`, `minimum_access_level_execute_async`, `minimum_access_level_manage`, and `minimum_access_level_enable_on_projects` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/212521) in GitLab 18.7.
+- `prompt_injection_protection_level` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/216829) in GitLab 18.8.
+- `ai_usage_data_collection_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/222459) in GitLab 18.9.
+- `include_recommended_allowed`, `allow_all_unix_sockets`, and `allow_project_extension` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/234867) in GitLab 19.0.
+- `ai_catalog_restricted_to_group_hierarchy` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/233914) in GitLab 19.0.
+
+{{< /history >}}
+
+The `ai_settings_attributes` hash configures AI-related settings for the group.
+All attributes are optional.
+
+| Attribute | Type | Description |
+|-----|------|-------------|
+| `ai_catalog_restricted_to_group_hierarchy` | boolean | When `true`, restricts the AI Catalog to items in this top-level group hierarchy. Can only be set on top-level groups. Premium and Ultimate only. |
+| `ai_usage_data_collection_enabled` | boolean | When `true`, enables AI usage data collection for this group. GitLab.com only. |
+| `allow_all_unix_sockets` | boolean | When `true`, allows all Unix sockets for GitLab Duo Agent Platform network access. Available when the `dap_group_network_access_controls` feature flag is enabled. |
+| `allow_project_extension` | boolean | When `true`, allows projects to extend the network access domain allowlist for GitLab Duo Agent Platform. Available when the `dap_group_network_access_controls` feature flag is enabled. |
+| `duo_agent_platform_enabled` | boolean | When `true`, enables GitLab Duo Agent Platform features for this group. Available on Premium and Ultimate. Also available on the Free tier on GitLab.com with GitLab Credits. |
+| `duo_workflow_mcp_enabled` | boolean | When `true`, enables MCP support for GitLab Duo Agent Platform. Available on Premium and Ultimate. Also available on the Free tier on GitLab.com with GitLab Credits. |
+| `foundational_agents_default_enabled` | boolean | When `true`, new foundational agents are enabled by default for this group. Available on Premium and Ultimate. Also available on the Free tier on GitLab.com with GitLab Credits. |
+| `include_recommended_allowed` | boolean | When `true`, includes recommended domains in the network access allowlist for GitLab Duo Agent Platform. Available when the `dap_group_network_access_controls` feature flag is enabled. |
+| `minimum_access_level_enable_on_projects` | integer | The minimum access level required to enable GitLab Duo Agent Platform on projects. Valid values: `30` (Developer), `40` (Maintainer), `50` (Owner). Available when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `minimum_access_level_execute` | integer | The minimum access level required for users to use GitLab Duo Agent Platform features. Valid values: `10` (Guest), `15` (Planner), `20` (Reporter), `30` (Developer), `40` (Maintainer), `50` (Owner). Available when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `minimum_access_level_execute_async` | integer | The minimum access level required to execute GitLab Duo Agent Platform features in CI/CD. Valid values: `30` (Developer), `40` (Maintainer), `50` (Owner). Available when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `minimum_access_level_manage` | integer | The minimum access level required to manage GitLab Duo Agent Platform. Valid values: `30` (Developer), `40` (Maintainer), `50` (Owner). Available when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `prompt_injection_protection_level` | string | The prompt injection protection level. Valid values: `no_checks`, `log_only`, `interrupt`. |
 
 ## Update group avatars
 

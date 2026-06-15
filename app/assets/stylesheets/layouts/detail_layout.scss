@@ -28,8 +28,13 @@ $detail-layout-gap: 2rem;
   // so contents don't overflow in smaller viewports
   grid-template-columns: minmax(0, 1fr);
 
-  @include gl-container-width-up(lg) {
-    grid-template-columns: minmax(67%, 1fr) $detail-layout-sidebar-width;
+  @include gl-container-width-down(md, panel) {
+    display: block;
+  }
+
+  @include gl-container-width-up(md) {
+    $detail-layout-sidebar-min-width: 13rem;
+    grid-template-columns: minmax(67%, 1fr) minmax($detail-layout-sidebar-min-width, $detail-layout-sidebar-width);
     grid-template-rows: auto auto 1fr;
     grid-template-areas:
       'content sidebar'

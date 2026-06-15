@@ -5042,6 +5042,9 @@ msgstr ""
 msgid "Achievements|Award achievements"
 msgstr ""
 
+msgid "Achievements|Award message"
+msgstr ""
+
 msgid "Achievements|Awarded %{timeAgo} by %{namespace}"
 msgstr ""
 
@@ -5069,6 +5072,9 @@ msgstr ""
 msgid "Achievements|File is too large. Maximum file size is 200 KiB."
 msgstr ""
 
+msgid "Achievements|For example, Awarded for outstanding contribution"
+msgstr ""
+
 msgid "Achievements|If you do not wish to accept, simply ignore this email."
 msgstr ""
 
@@ -5082,6 +5088,9 @@ msgid "Achievements|New achievement"
 msgstr ""
 
 msgid "Achievements|Not yet awarded."
+msgstr ""
+
+msgid "Achievements|Optional message shown on the recipient's profile (maximum 200 characters)."
 msgstr ""
 
 msgid "Achievements|There are currently no achievements."

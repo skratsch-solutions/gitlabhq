@@ -4,7 +4,7 @@ module RapidDiffs
   class MergeRequestAppComponent < ViewComponent::Base
     attr_reader :presenter
 
-    delegate :mr_path, :project_path, :code_review_enabled, :discussions_endpoint, :user_permissions,
+    delegate :mr_path, :project_path, :project_name, :code_review_enabled, :discussions_endpoint, :user_permissions,
       :noteable_type, :preview_markdown_endpoint, :markdown_docs_path, :register_path, :sign_in_path,
       :report_abuse_path, :versions, :linked_file, :suggestions_help_path,
       :default_suggestion_commit_message, :new_comment_template_paths, :coverage_endpoint, :codequality_endpoint,
@@ -21,6 +21,7 @@ module RapidDiffs
       {
         mr_path: mr_path,
         project_path: project_path,
+        project_name: project_name,
         source_branch: presenter.resource.source_branch,
         iid: presenter.resource.iid,
         code_review_enabled: code_review_enabled,

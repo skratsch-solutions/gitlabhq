@@ -155,69 +155,67 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
   end
 
   context 'filter by two-factor' do
-    it 'returns members with two-factor auth if requested by owner' do
-      group.add_owner(user2)
-      group.add_maintainer(user1)
-      member = group.add_maintainer(user5_2fa)
+    context 'when filtering group members by two-factor auth' do
+      let_it_be(:owner_member)   { group.add_owner(user2) }
+      let_it_be(:maintainer1)    { group.add_maintainer(user1) }
+      let_it_be(:member_with_2fa) { group.add_maintainer(user5_2fa) }
 
-      result = described_class.new(group, user2, params: { two_factor: 'enabled' }).execute
+      it 'returns members with two-factor auth if requested by owner' do
+        result = described_class.new(group, user2, params: { two_factor: 'enabled' }).execute
 
-      expect(result.to_a).to contain_exactly(member)
+        expect(result.to_a).to contain_exactly(member_with_2fa)
+      end
+
+      it 'returns members without two-factor auth if requested by owner' do
+        result = described_class.new(group, user2, params: { two_factor: 'disabled' }).execute
+
+        expect(result.to_a).not_to include(member_with_2fa)
+        expect(result.to_a).to match_array([owner_member, maintainer1])
+      end
     end
 
-    it 'returns members without two-factor auth if requested by owner' do
-      member1 = group.add_owner(user2)
-      member2 = group.add_maintainer(user1)
-      member_with_2fa = group.add_maintainer(user5_2fa)
+    context 'when filtering sub_group members by direct two-factor auth' do
+      let_it_be(:sub_group_member3)    { sub_group.add_maintainer(user3) }
+      let_it_be(:sub_group_member_2fa) { sub_group.add_maintainer(user5_2fa) }
 
-      result = described_class.new(group, user2, params: { two_factor: 'disabled' }).execute
+      before_all do
+        group.add_owner(user1)
+        group.add_maintainer(user2)
+      end
 
-      expect(result.to_a).not_to include(member_with_2fa)
-      expect(result.to_a).to match_array([member1, member2])
+      it 'returns direct members with two-factor auth if requested by owner' do
+        result = described_class.new(sub_group, user1, params: { two_factor: 'enabled' }).execute(include_relations: [:direct])
+
+        expect(result.to_a).to match_array([sub_group_member_2fa])
+      end
+
+      it 'returns direct members without two-factor auth if requested by owner' do
+        result = described_class.new(sub_group, user1, params: { two_factor: 'disabled' }).execute(include_relations: [:direct])
+
+        expect(result.to_a).to match_array([sub_group_member3])
+      end
     end
 
-    it 'returns direct members with two-factor auth if requested by owner' do
-      group.add_owner(user1)
-      group.add_maintainer(user2)
-      sub_group.add_maintainer(user3)
-      member_with_2fa = sub_group.add_maintainer(user5_2fa)
+    context 'when filtering sub_group members by inherited two-factor auth' do
+      let_it_be(:owner_member)    { group.add_owner(user1) }
+      let_it_be(:member_with_2fa) { group.add_maintainer(user5_2fa) }
 
-      result = described_class.new(sub_group, user1, params: { two_factor: 'enabled' }).execute(include_relations: [:direct])
+      before_all do
+        sub_group.add_maintainer(user2)
+        sub_group.add_maintainer(user3)
+      end
 
-      expect(result.to_a).to match_array([member_with_2fa])
-    end
+      it 'returns inherited members with two-factor auth if requested by owner' do
+        result = described_class.new(sub_group, user1, params: { two_factor: 'enabled' }).execute(include_relations: [:inherited])
 
-    it 'returns inherited members with two-factor auth if requested by owner' do
-      group.add_owner(user1)
-      member_with_2fa = group.add_maintainer(user5_2fa)
-      sub_group.add_maintainer(user2)
-      sub_group.add_maintainer(user3)
+        expect(result.to_a).to match_array([member_with_2fa])
+      end
 
-      result = described_class.new(sub_group, user1, params: { two_factor: 'enabled' }).execute(include_relations: [:inherited])
+      it 'returns inherited members without two-factor auth if requested by owner' do
+        result = described_class.new(sub_group, user1, params: { two_factor: 'disabled' }).execute(include_relations: [:inherited])
 
-      expect(result.to_a).to match_array([member_with_2fa])
-    end
-
-    it 'returns direct members without two-factor auth if requested by owner' do
-      group.add_owner(user1)
-      group.add_maintainer(user2)
-      member3 = sub_group.add_maintainer(user3)
-      sub_group.add_maintainer(user5_2fa)
-
-      result = described_class.new(sub_group, user1, params: { two_factor: 'disabled' }).execute(include_relations: [:direct])
-
-      expect(result.to_a).to match_array([member3])
-    end
-
-    it 'returns inherited members without two-factor auth if requested by owner' do
-      member1 = group.add_owner(user1)
-      group.add_maintainer(user5_2fa)
-      sub_group.add_maintainer(user2)
-      sub_group.add_maintainer(user3)
-
-      result = described_class.new(sub_group, user1, params: { two_factor: 'disabled' }).execute(include_relations: [:inherited])
-
-      expect(result.to_a).to match_array([member1])
+        expect(result.to_a).to match_array([owner_member])
+      end
     end
   end
 

@@ -243,6 +243,219 @@ RSpec.describe Gitlab::Kas::Client, feature_category: :deployment_management do
       end
     end
 
+    describe '#subscribe_events' do
+      let(:topic) { 'test.topic' }
+      let(:consumer_group) { 'rails-test' }
+      let(:stub) { instance_double(Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub) }
+      let(:expected_metadata) { { 'authorization' => 'bearer test-token', **feature_flags } }
+
+      let(:event_one) do
+        Gitlab::Agent::Event::CloudEvent.new(
+          id: 'event-1', source: 'test', spec_version: '1.0', type: 'com.example.one'
+        )
+      end
+
+      let(:event_two) do
+        Gitlab::Agent::Event::CloudEvent.new(
+          id: 'event-2', source: 'test', spec_version: '1.0', type: 'com.example.two'
+        )
+      end
+
+      let(:server_responses) do
+        [
+          Gitlab::Agent::EventsPlatform::Rpc::SubscribeResponse.new(
+            message_id: '1747840000-0', event: event_one
+          ),
+          Gitlab::Agent::EventsPlatform::Rpc::SubscribeResponse.new(
+            message_id: '1747840001-0', event: event_two
+          )
+        ]
+      end
+
+      before do
+        allow(client).to receive(:stub_for).with(:events_platform).and_return(stub)
+      end
+
+      # Captures the requests the client sends back so we can assert on the SubscribeConfig and Acks
+      # in order. Drains the first request (SubscribeConfig) eagerly so it's captured even when no
+      # server responses are produced; subsequent requests (Acks) are pulled after each response to
+      # preserve the Config -> Response -> Ack -> Response -> Ack interleaving that exercises the
+      # per-event-ack contract.
+      def capture_subscribe(server_responses:, captured:)
+        allow(stub).to receive(:subscribe) do |requests, **_kwargs|
+          captured << requests.next
+
+          Enumerator.new do |y|
+            server_responses.each do |resp|
+              y << resp
+              captured << requests.next
+            end
+          end
+        end
+      end
+
+      it 'sends SubscribeConfig as the first request' do
+        captured = []
+        capture_subscribe(server_responses: [], captured: captured)
+
+        client.subscribe_events(topic: topic, consumer_group: consumer_group) { |_event| nil }
+
+        expect(captured.first.config).to have_attributes(
+          topic: topic,
+          consumer_group: consumer_group,
+          event_types: []
+        )
+      end
+
+      it 'sends SubscribeConfig exactly once across the stream lifetime', :aggregate_failures do
+        captured = []
+        capture_subscribe(server_responses: server_responses, captured: captured)
+
+        client.subscribe_events(topic: topic, consumer_group: consumer_group) { |_event| nil }
+
+        # The first request is the config; everything after must be an ack, never another config.
+        configs = captured.select { |req| req.request == :config }
+        expect(configs.length).to eq(1)
+        expect(captured.first.request).to eq(:config)
+        expect(captured.drop(1).map(&:request)).to all(eq(:ack))
+      end
+
+      it 'closes the request stream after the response stream ends' do
+        captured_requests_enum = nil
+        allow(stub).to receive(:subscribe) do |requests, **_kwargs|
+          captured_requests_enum = requests
+          # Drain the config message so the client moves into the response loop.
+          requests.next
+          # Empty response stream - the server immediately closes.
+          Enumerator.new { |_y| nil }
+        end
+
+        client.subscribe_events(topic: topic, consumer_group: consumer_group) { |_event| nil }
+
+        # The `ensure` block in #subscribe_events pushes nil into the ack queue,
+        # which breaks the request enumerator's internal loop. Advancing the
+        # enumerator one more time should raise StopIteration.
+        expect { captured_requests_enum.next }.to raise_error(StopIteration)
+      end
+
+      it 'yields each CloudEvent from the server' do
+        capture_subscribe(server_responses: server_responses, captured: [])
+
+        received = []
+        client.subscribe_events(topic: topic, consumer_group: consumer_group) do |event|
+          received << event
+        end
+
+        expect(received).to eq([event_one, event_two])
+      end
+
+      it 'acknowledges each event after the block returns successfully' do
+        captured = []
+        capture_subscribe(server_responses: server_responses, captured: captured)
+
+        client.subscribe_events(topic: topic, consumer_group: consumer_group) { |_event| nil }
+
+        # captured = [config, ack(event_one), ack(event_two)]
+        acks = captured.drop(1).map { |req| req.ack.message_ids.to_a }
+        expect(acks).to eq([['1747840000-0'], ['1747840001-0']])
+      end
+
+      it 'does not acknowledge an event if the block raises' do
+        captured = []
+        capture_subscribe(server_responses: server_responses, captured: captured)
+
+        expect do
+          client.subscribe_events(topic: topic, consumer_group: consumer_group) do |_|
+            raise 'boom'
+          end
+        end.to raise_error(RuntimeError, 'boom')
+
+        # captured = [config] - no ack was sent before the raise
+        expect(captured.length).to eq(1)
+      end
+
+      it 'forwards event_types as a server-side filter' do
+        captured = []
+        capture_subscribe(server_responses: [], captured: captured)
+
+        client.subscribe_events(
+          topic: topic,
+          consumer_group: consumer_group,
+          event_types: ['com.example.one', 'com.example.two']
+        ) { |_event| nil }
+
+        expect(captured.first.config.event_types.to_a).to eq(
+          ['com.example.one', 'com.example.two']
+        )
+      end
+
+      it 'passes the auth metadata and the default deadline to the stub' do
+        capture_subscribe(server_responses: [], captured: [])
+        frozen_now = Time.utc(2026, 6, 10, 12, 0, 0)
+        travel_to(frozen_now) do
+          client.subscribe_events(topic: topic, consumer_group: consumer_group) { |_event| nil }
+        end
+
+        expect(stub).to have_received(:subscribe).with(
+          kind_of(Enumerator),
+          deadline: frozen_now + described_class::DEFAULT_SUBSCRIBE_DEADLINE,
+          metadata: expected_metadata
+        )
+      end
+
+      it 'allows the caller to override the deadline' do
+        capture_subscribe(server_responses: [], captured: [])
+        frozen_now = Time.utc(2026, 6, 10, 12, 0, 0)
+        travel_to(frozen_now) do
+          client.subscribe_events(
+            topic: topic,
+            consumer_group: consumer_group,
+            deadline: 5.minutes
+          ) { |_event| nil }
+        end
+
+        expect(stub).to have_received(:subscribe).with(
+          kind_of(Enumerator),
+          deadline: frozen_now + 5.minutes,
+          metadata: expected_metadata
+        )
+      end
+
+      it 'raises ArgumentError when no block is given' do
+        expect do
+          client.subscribe_events(topic: topic, consumer_group: consumer_group)
+        end.to raise_error(ArgumentError, /block is required/)
+      end
+
+      it 'propagates gRPC errors from the stub' do
+        allow(stub).to receive(:subscribe).and_raise(GRPC::Unavailable.new('relay down'))
+
+        expect do
+          client.subscribe_events(topic: topic, consumer_group: consumer_group) { |_event| nil }
+        end.to raise_error(GRPC::Unavailable)
+      end
+
+      context 'when the subscribe_events_from_relay feature flag is disabled' do
+        before do
+          stub_feature_flags(subscribe_events_from_relay: false)
+        end
+
+        it 'returns nil and skips the RPC call' do
+          expect(stub).not_to receive(:subscribe)
+
+          expect(
+            client.subscribe_events(topic: topic, consumer_group: consumer_group) { |_event| nil }
+          ).to be_nil
+        end
+
+        it 'still raises ArgumentError when no block is given' do
+          expect do
+            client.subscribe_events(topic: topic, consumer_group: consumer_group)
+          end.to raise_error(ArgumentError, /block is required/)
+        end
+      end
+    end
+
     describe '#send_git_push_event' do
       let(:stub) { instance_double(Gitlab::Agent::Notifications::Rpc::Notifications::Stub) }
       let(:request) { instance_double(Gitlab::Agent::Notifications::Rpc::GitPushEventRequest) }

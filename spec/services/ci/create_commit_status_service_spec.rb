@@ -9,8 +9,6 @@ RSpec.describe Ci::CreateCommitStatusService, :clean_gitlab_redis_cache, feature
 
   let_it_be_with_refind(:project) { create(:project, :repository) }
   let_it_be(:commit) { project.repository.commit }
-  let_it_be(:guest) { create_user(:guest) }
-  let_it_be(:reporter) { create_user(:reporter) }
   let_it_be(:developer) { create_user(:developer) }
   let_it_be_with_reload(:plan_limits) { create(:plan_limits, :default_plan) }
 

@@ -11,14 +11,14 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   include LdapHelpers
 
   shared_examples 'checks for groups with project creation permission' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     context 'when user does not belong in a group' do
       it { is_expected.to be(false) }
     end
 
     context 'when user belongs in group allowing project creation' do
-      let_it_be(:group, freeze: false) do
+      let_it_be(:group) do
         create(:group, developers: [user], project_creation_level: Gitlab::Access::DEVELOPER_PROJECT_ACCESS)
       end
 
@@ -26,14 +26,14 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user belongs in group not allowing project creation' do
-      let_it_be(:group, freeze: false) do
+      let_it_be(:group) do
         create(:group, developers: [user], project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS)
       end
 
       it { is_expected.to be(false) }
 
       context 'when group is shared with another group allowing project creation' do
-        let_it_be(:shared_group_link, freeze: false) do
+        let_it_be(:shared_group_link) do
           create(
             :group_group_link,
             :developer,
@@ -304,8 +304,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
     describe '#triggers' do
       let_it_be_with_refind(:user) { create(:user) }
-      let_it_be(:expired_trigger, freeze: false) { create(:ci_trigger, expires_at: 5.years.ago, owner: user, project: create(:project, maintainers: [user])) }
-      let_it_be(:valid_trigger, freeze: false) { create(:ci_trigger, expires_at: 1.month.from_now, owner: user, project: create(:project, maintainers: [user])) }
+      let_it_be(:expired_trigger) { create(:ci_trigger, expires_at: 5.years.ago, owner: user, project: create(:project, maintainers: [user])) }
+      let_it_be(:valid_trigger) { create(:ci_trigger, expires_at: 1.month.from_now, owner: user, project: create(:project, maintainers: [user])) }
 
       it { is_expected.to have_many(:triggers).class_name('Ci::Trigger').with_foreign_key('owner_id') }
 
@@ -333,7 +333,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe 'organizations association' do
-      let_it_be(:organization, freeze: false) { create(:organization) }
+      let_it_be(:organization) { create(:organization) }
 
       it 'does not create a cross-database query' do
         user = create(:user, organizations: [organization])
@@ -345,7 +345,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe 'default values' do
-      let_it_be(:user, freeze: false) { described_class.new }
+      let_it_be(:user) { described_class.new }
 
       it { expect(user.admin).to be_falsey }
       it { expect(user.external).to eq(Gitlab::CurrentSettings.user_default_external) }
@@ -420,8 +420,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '#abuse_reports' do
-      let_it_be(:current_user, freeze: false) { create(:user) }
-      let_it_be(:other_user, freeze: false) { create(:user) }
+      let_it_be_with_reload(:current_user) { create(:user) }
+      let_it_be(:other_user) { create(:user) }
 
       it { is_expected.to have_many(:abuse_reports) }
 
@@ -447,8 +447,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '#abuse_metadata' do
-      let_it_be(:user, freeze: false) { create(:user) }
-      let_it_be(:contribution_calendar, freeze: false) { Gitlab::ContributionsCalendar.new(user) }
+      let_it_be_with_reload(:user) { create(:user) }
+      let(:contribution_calendar) { Gitlab::ContributionsCalendar.new(user) }
 
       before do
         allow(Gitlab::ContributionsCalendar).to receive(:new).and_return(contribution_calendar)
@@ -1786,27 +1786,27 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#sa_provisioned_by_project?' do
     context 'when user is not a service account' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       it { expect(user.sa_provisioned_by_project?).to eq(false) }
     end
 
     context 'when service account has no provisioning source' do
-      let_it_be(:service_account, freeze: false) { create(:user, :service_account) }
+      let_it_be(:service_account) { create(:user, :service_account) }
 
       it { expect(service_account.sa_provisioned_by_project?).to eq(false) }
     end
 
     context 'when service account is provisioned by a group' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:service_account, freeze: false) { create(:user, :service_account, provisioned_by_group: group) }
+      let_it_be(:group) { create(:group) }
+      let_it_be(:service_account) { create(:user, :service_account, provisioned_by_group: group) }
 
       it { expect(service_account.sa_provisioned_by_project?).to eq(false) }
     end
 
     context 'when service account is provisioned by a project' do
-      let_it_be(:project, freeze: false) { create(:project) }
-      let_it_be(:service_account, freeze: false) do
+      let_it_be(:project) { create(:project) }
+      let_it_be(:service_account) do
         create(:user, :service_account).tap do |sa|
           sa.update!(provisioned_by_project: project)
         end
@@ -1818,44 +1818,44 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#sa_provisioned_by_subgroup?' do
     context 'when user is not a service account' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       it { expect(user.sa_provisioned_by_subgroup?).to eq(false) }
     end
 
     context 'when service account has no provisioning source' do
-      let_it_be(:service_account, freeze: false) { create(:user, :service_account) }
+      let_it_be(:service_account) { create(:user, :service_account) }
 
       it { expect(service_account.sa_provisioned_by_subgroup?).to eq(false) }
     end
 
     context 'when service account is provisioned by a root group' do
-      let_it_be(:root_group, freeze: false) { create(:group) }
-      let_it_be(:service_account, freeze: false) { create(:user, :service_account, provisioned_by_group: root_group) }
+      let_it_be(:root_group) { create(:group) }
+      let_it_be(:service_account) { create(:user, :service_account, provisioned_by_group: root_group) }
 
       it { expect(service_account.sa_provisioned_by_subgroup?).to eq(false) }
     end
 
     context 'when service account is provisioned by a subgroup' do
-      let_it_be(:root_group, freeze: false) { create(:group) }
-      let_it_be(:subgroup, freeze: false) { create(:group, parent: root_group) }
-      let_it_be(:service_account, freeze: false) { create(:user, :service_account, provisioned_by_group: subgroup) }
+      let_it_be(:root_group) { create(:group) }
+      let_it_be(:subgroup) { create(:group, parent: root_group) }
+      let_it_be(:service_account) { create(:user, :service_account, provisioned_by_group: subgroup) }
 
       it { expect(service_account.sa_provisioned_by_subgroup?).to eq(true) }
     end
 
     context 'when service account is provisioned by a deeply nested subgroup' do
-      let_it_be(:root_group, freeze: false) { create(:group) }
-      let_it_be(:subgroup, freeze: false) { create(:group, parent: root_group) }
-      let_it_be(:nested_subgroup, freeze: false) { create(:group, parent: subgroup) }
-      let_it_be(:service_account, freeze: false) { create(:user, :service_account, provisioned_by_group: nested_subgroup) }
+      let_it_be(:root_group) { create(:group) }
+      let_it_be(:subgroup) { create(:group, parent: root_group) }
+      let_it_be(:nested_subgroup) { create(:group, parent: subgroup) }
+      let_it_be(:service_account) { create(:user, :service_account, provisioned_by_group: nested_subgroup) }
 
       it { expect(service_account.sa_provisioned_by_subgroup?).to eq(true) }
     end
 
     context 'when provisioning group has been deleted' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:service_account, freeze: false) { create(:user, :service_account, provisioned_by_group: group) }
+      let_it_be(:group) { create(:group) }
+      let_it_be(:service_account) { create(:user, :service_account, provisioned_by_group: group) }
 
       before do
         allow(service_account).to receive(:provisioned_by_group).and_return(nil)
@@ -1954,8 +1954,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe 'scopes' do
     describe '.with_provisioning_group' do
-      let_it_be(:user, freeze: false) { create(:user) }
-      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user) }
+      let_it_be(:group) { create(:group) }
 
       subject(:with_provisioning_group) { described_class.with_provisioning_group(group) }
 
@@ -1982,8 +1982,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.with_provisioning_project' do
-      let_it_be(:user, freeze: false) { create(:user) }
-      let_it_be(:project, freeze: false) { create(:project) }
+      let_it_be_with_reload(:user) { create(:user) }
+      let_it_be(:project) { create(:project) }
 
       subject(:with_provisioning_project) { described_class.with_provisioning_project(project) }
 
@@ -2010,18 +2010,18 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.with_provisioning_project_in' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
-      let_it_be(:project_in_group, freeze: false) { create(:project, namespace: group) }
-      let_it_be(:project_in_subgroup, freeze: false) { create(:project, namespace: subgroup) }
+      let_it_be(:group) { create(:group) }
+      let_it_be(:subgroup) { create(:group, parent: group) }
+      let_it_be(:project_in_group) { create(:project, namespace: group) }
+      let_it_be(:project_in_subgroup) { create(:project, namespace: subgroup) }
 
-      let_it_be(:sa_in_group_project, freeze: false) do
+      let_it_be(:sa_in_group_project) do
         create(:user, :service_account).tap do |user|
           user.user_detail.update!(provisioned_by_project_id: project_in_group.id)
         end
       end
 
-      let_it_be(:sa_in_subgroup_project, freeze: false) do
+      let_it_be(:sa_in_subgroup_project) do
         create(:user, :service_account).tap do |user|
           user.user_detail.update!(provisioned_by_project_id: project_in_subgroup.id)
         end
@@ -2074,11 +2074,11 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'blocked users' do
-      let_it_be(:active_user, freeze: false) { create(:user) }
-      let_it_be(:blocked_user, freeze: false) { create(:user, :blocked) }
-      let_it_be(:ldap_blocked_user, freeze: false) { create(:omniauth_user, :ldap_blocked) }
-      let_it_be(:blocked_pending_approval_user, freeze: false) { create(:user, :blocked_pending_approval) }
-      let_it_be(:banned_user, freeze: false) { create(:user, :banned) }
+      let_it_be(:active_user) { create(:user) }
+      let_it_be(:blocked_user) { create(:user, :blocked) }
+      let_it_be(:ldap_blocked_user) { create(:omniauth_user, :ldap_blocked) }
+      let_it_be(:blocked_pending_approval_user) { create(:user, :blocked_pending_approval) }
+      let_it_be(:banned_user) { create(:user, :banned) }
 
       describe '.blocked' do
         subject { described_class.blocked }
@@ -2109,7 +2109,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     describe '.with_two_factor' do
       subject(:users_with_two_factor) { described_class.with_two_factor.pluck(:id) }
 
-      let_it_be(:user_without_2fa, freeze: false) { create(:user) }
+      let_it_be(:user_without_2fa) { create(:user) }
 
       it 'returns users with 2fa enabled via OTP' do
         user_with_2fa = create(:user, :two_factor_via_otp)
@@ -2144,7 +2144,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     describe '.without_two_factor' do
       subject(:without_two_factor) { described_class.without_two_factor.pluck(:id) }
 
-      let_it_be(:user_without_2fa, freeze: false) { create(:user) }
+      let_it_be(:user_without_2fa) { create(:user) }
 
       it 'excludes users with 2fa enabled via OTP' do
         user_with_2fa = create(:user, :two_factor_via_otp)
@@ -2209,7 +2209,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.reset_password_by_token' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       let(:reset_password_token) { user.send_reset_password_instructions }
       let(:new_password) { Devise.friendly_token(25) }
@@ -2323,17 +2323,17 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.with_personal_access_tokens_expired_today' do
-      let_it_be(:user1, freeze: false) { create(:user) }
-      let_it_be(:expired_today, freeze: false) { create(:personal_access_token, user: user1, expires_at: Date.current) }
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:expired_today) { create(:personal_access_token, user: user1, expires_at: Date.current) }
 
-      let_it_be(:user2, freeze: false) { create(:user) }
-      let_it_be(:revoked_token, freeze: false) { create(:personal_access_token, user: user2, expires_at: Date.current, revoked: true) }
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:revoked_token) { create(:personal_access_token, user: user2, expires_at: Date.current, revoked: true) }
 
-      let_it_be(:user3, freeze: false) { create(:user) }
-      let_it_be(:impersonated_token, freeze: false) { create(:personal_access_token, user: user3, expires_at: Date.current, impersonation: true) }
+      let_it_be(:user3) { create(:user) }
+      let_it_be(:impersonated_token) { create(:personal_access_token, user: user3, expires_at: Date.current, impersonation: true) }
 
-      let_it_be(:user4, freeze: false) { create(:user) }
-      let_it_be(:already_notified, freeze: false) { create(:personal_access_token, user: user4, expires_at: Date.current, after_expiry_notification_delivered: true) }
+      let_it_be(:user4) { create(:user) }
+      let_it_be(:already_notified) { create(:personal_access_token, user: user4, expires_at: Date.current, after_expiry_notification_delivered: true) }
 
       it 'returns users whose token has expired today' do
         expect(described_class.with_personal_access_tokens_expired_today).to contain_exactly(user1)
@@ -2341,12 +2341,12 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'SSH key expiration scopes' do
-      let_it_be(:user1, freeze: false) { create(:user) }
-      let_it_be(:user2, freeze: false) { create(:user) }
-      let_it_be(:expired_today_not_notified, freeze: false) { create(:key, :expired_today, user: user1) }
-      let_it_be(:expired_today_already_notified, freeze: false) { create(:key, :expired_today, user: user2, expiry_notification_delivered_at: Time.current) }
-      let_it_be(:expiring_soon_not_notified, freeze: false) { create(:key, expires_at: 2.days.from_now, user: user2) }
-      let_it_be(:expiring_soon_notified, freeze: false) { create(:key, expires_at: 2.days.from_now, user: user1, before_expiry_notification_delivered_at: Time.current) }
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:expired_today_not_notified) { create(:key, :expired_today, user: user1) }
+      let_it_be(:expired_today_already_notified) { create(:key, :expired_today, user: user2, expiry_notification_delivered_at: Time.current) }
+      let_it_be(:expiring_soon_not_notified) { create(:key, expires_at: 2.days.from_now, user: user2) }
+      let_it_be(:expiring_soon_notified) { create(:key, expires_at: 2.days.from_now, user: user1, before_expiry_notification_delivered_at: Time.current) }
 
       describe '.with_ssh_key_expiring_soon' do
         it 'returns users whose keys will expire soon' do
@@ -2356,10 +2356,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.with_personal_access_tokens_expiring_soon' do
-      let_it_be(:user1, freeze: false) { create(:user) }
-      let_it_be(:user2, freeze: false) { create(:user) }
-      let_it_be(:pat1, freeze: false) { create(:personal_access_token, user: user1, expires_at: 2.days.from_now) }
-      let_it_be(:pat2, freeze: false) { create(:personal_access_token, user: user2, expires_at: 7.days.from_now) }
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:pat1) { create(:personal_access_token, user: user1, expires_at: 2.days.from_now) }
+      let_it_be(:pat2) { create(:personal_access_token, user: user2, expires_at: 7.days.from_now) }
 
       subject(:users) { described_class.with_personal_access_tokens_expiring_soon }
 
@@ -2369,9 +2369,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.with_personal_access_tokens_and_resources' do
-      let_it_be(:user1, freeze: false) { create(:user) }
-      let_it_be(:user2, freeze: false) { create(:user) }
-      let_it_be(:user3, freeze: false) { create(:user) }
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:user3) { create(:user) }
 
       subject(:users) { described_class.with_personal_access_tokens_and_resources }
 
@@ -2389,10 +2389,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.active_without_ghosts' do
-      let_it_be(:user1, freeze: false) { create(:user, :external) }
-      let_it_be(:user2, freeze: false) { create(:user, state: 'blocked') }
-      let_it_be(:user3, freeze: false) { create(:user, :ghost) }
-      let_it_be(:user4, freeze: false) { create(:user) }
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, :ghost) }
+      let_it_be(:user4) { create(:user) }
 
       it 'returns all active users but ghost users' do
         expect(described_class.active_without_ghosts).to contain_exactly(user1, user4)
@@ -2400,11 +2400,11 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.all_without_ghosts' do
-      let_it_be(:user1, freeze: false) { create(:user, :external) }
-      let_it_be(:user2, freeze: false) { create(:user, state: 'blocked') }
-      let_it_be(:user3, freeze: false) { create(:user, :ghost) }
-      let_it_be(:user4, freeze: false) { create(:user) }
-      let_it_be(:user5, freeze: false) { create(:user, :deactivated) }
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, :ghost) }
+      let_it_be(:user4) { create(:user) }
+      let_it_be(:user5) { create(:user, :deactivated) }
 
       it 'returns all users but ghost users' do
         expect(described_class.all_without_ghosts).to contain_exactly(user1, user2, user4, user5)
@@ -2412,9 +2412,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.without_ghosts' do
-      let_it_be(:user1, freeze: false) { create(:user, :external) }
-      let_it_be(:user2, freeze: false) { create(:user, state: 'blocked') }
-      let_it_be(:user3, freeze: false) { create(:user, :ghost) }
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, :ghost) }
 
       it 'returns users without ghosts users' do
         expect(described_class.without_ghosts).to contain_exactly(user1, user2)
@@ -2422,12 +2422,12 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.without_active' do
-      let_it_be(:user1, freeze: false) { create(:user) }
-      let_it_be(:user2, freeze: false) { create(:user, :ghost) }
-      let_it_be(:user3, freeze: false) { create(:user, :external) }
-      let_it_be(:user4, freeze: false) { create(:user, state: 'blocked') }
-      let_it_be(:user5, freeze: false) { create(:user, state: 'banned') }
-      let_it_be(:user6, freeze: false) { create(:user, :deactivated) }
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:user2) { create(:user, :ghost) }
+      let_it_be(:user3) { create(:user, :external) }
+      let_it_be(:user4) { create(:user, state: 'blocked') }
+      let_it_be(:user5) { create(:user, state: 'banned') }
+      let_it_be(:user6) { create(:user, :deactivated) }
 
       it 'returns users who are not active' do
         expect(described_class.without_active).to contain_exactly(user2, user4, user5, user6)
@@ -2435,9 +2435,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.in_organization' do
-      let_it_be(:org1, freeze: false) { create(:organization) }
-      let_it_be(:org2, freeze: false) { create(:organization) }
-      let_it_be(:users, freeze: false) { create_pair(:user, organization: org1) }
+      let_it_be(:org1) { create(:organization) }
+      let_it_be(:org2) { create(:organization) }
+      let_it_be(:users) { create_pair(:user, organization: org1) }
 
       before do
         create(:user, organization: org2)
@@ -2449,13 +2449,13 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.for_todos' do
-      let_it_be(:user1, freeze: false) { create(:user) }
-      let_it_be(:user2, freeze: false) { create(:user) }
-      let_it_be(:issue, freeze: false) { create(:issue) }
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:issue) { create(:issue) }
 
-      let_it_be(:todo1, freeze: false) { create(:todo, target: issue, author: user1, user: user1) }
-      let_it_be(:todo2, freeze: false) { create(:todo, target: issue, author: user1, user: user1) }
-      let_it_be(:todo3, freeze: false) { create(:todo, target: issue, author: user2, user: user2) }
+      let_it_be(:todo1) { create(:todo, target: issue, author: user1, user: user1) }
+      let_it_be(:todo2) { create(:todo, target: issue, author: user1, user: user1) }
+      let_it_be(:todo3) { create(:todo, target: issue, author: user2, user: user2) }
 
       it 'returns users for the given todos' do
         expect(described_class.for_todos(issue.todos))
@@ -2492,8 +2492,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.ordered_by_id_desc' do
-      let_it_be(:first_user, freeze: false) { create(:user) }
-      let_it_be(:second_user, freeze: false) { create(:user) }
+      let_it_be(:first_user) { create(:user) }
+      let_it_be(:second_user) { create(:user) }
 
       it 'generates the order SQL in descending order' do
         expect(described_class.ordered_by_id_desc.to_sql).to include(
@@ -2506,9 +2506,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.trusted' do
-      let_it_be(:trusted_user1, freeze: false) { create(:user, :trusted) }
-      let_it_be(:trusted_user2, freeze: false) { create(:user, :trusted) }
-      let_it_be(:user3, freeze: false) { create(:user) }
+      let_it_be(:trusted_user1) { create(:user, :trusted) }
+      let_it_be(:trusted_user2) { create(:user, :trusted) }
+      let_it_be(:user3) { create(:user) }
 
       it 'returns only the trusted users' do
         expect(described_class.trusted).to contain_exactly(trusted_user1, trusted_user2)
@@ -2516,9 +2516,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.by_ids' do
-      let_it_be(:first_user, freeze: false) { create(:user) }
-      let_it_be(:second_user, freeze: false) { create(:user) }
-      let_it_be(:third_user, freeze: false) { create(:user) }
+      let_it_be(:first_user) { create(:user) }
+      let_it_be(:second_user) { create(:user) }
+      let_it_be(:third_user) { create(:user) }
 
       it 'returns users for the given ids' do
         user_ids = [first_user, second_user].map(&:id)
@@ -2528,13 +2528,13 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.by_bot_namespace_ids' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:project_namespace, freeze: false) { create(:project_namespace) }
-      let_it_be(:other_group, freeze: false) { create(:group) }
+      let_it_be(:group) { create(:group) }
+      let_it_be(:project_namespace) { create(:project_namespace) }
+      let_it_be(:other_group) { create(:group) }
 
-      let_it_be(:other_user, freeze: false) { create(:user, user_type: :project_bot) }
-      let_it_be(:user_with_group, freeze: false) { create(:user, user_type: :project_bot) }
-      let_it_be(:user_with_project, freeze: false) { create(:user, user_type: :project_bot) }
+      let_it_be_with_reload(:other_user) { create(:user, user_type: :project_bot) }
+      let_it_be_with_reload(:user_with_group) { create(:user, user_type: :project_bot) }
+      let_it_be_with_reload(:user_with_project) { create(:user, user_type: :project_bot) }
 
       before do
         user_with_group.update!(bot_namespace: group)
@@ -2549,7 +2549,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.with_incoming_email_token' do
-      let_it_be(:user, freeze: false) { create(:user, incoming_email_token: 'test_token') }
+      let_it_be(:user) { create(:user, incoming_email_token: 'test_token') }
 
       it 'returns user with matching single token' do
         expect(described_class.with_incoming_email_token('test_token')).to contain_exactly(user)
@@ -2565,7 +2565,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.with_feed_token' do
-      let_it_be(:user, freeze: false) { create(:user, feed_token: 'test_feed_token') }
+      let_it_be(:user) { create(:user, feed_token: 'test_feed_token') }
 
       it 'returns user with matching single token' do
         expect(described_class.with_feed_token('test_feed_token')).to contain_exactly(user)
@@ -2581,8 +2581,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe '.member_of_organization' do
-      let_it_be(:other_organization, freeze: false) { create(:organization) }
-      let_it_be(:user, freeze: false) { create(:user, organization: other_organization) }
+      let_it_be(:other_organization) { create(:organization) }
+      let_it_be(:user) { create(:user, organization: other_organization) }
 
       it 'includes the user' do
         expect(described_class.member_of_organization(other_organization)).to contain_exactly(user)
@@ -2591,8 +2591,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.member_of_organization?' do
-    let_it_be(:other_organization, freeze: false) { create(:organization) }
-    let_it_be(:user, freeze: false) { create(:user, organization: other_organization) }
+    let_it_be(:other_organization) { create(:organization) }
+    let_it_be(:user) { create(:user, organization: other_organization) }
 
     it 'includes the user' do
       expect(user.member_of_organization?(other_organization)).to eq(true)
@@ -2769,10 +2769,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when after_update_commit :update_home_organization_user on home organization' do
-      let_it_be(:organization, freeze: false) { create(:organization) }
+      let_it_be(:organization) { create(:organization) }
 
       context 'when user is changed to an instance admin' do
-        let_it_be(:user, freeze: false) { create(:user, organization: organization) }
+        let_it_be_with_reload(:user) { create(:user, organization: organization) }
 
         it 'changes user to owner in the organization' do
           expect(organization.owner?(user)).to be(false)
@@ -2794,8 +2794,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
       context 'when user is changed from admin to regular user' do
         # Can't change access of the last organization owner therefore we need to create two admins
-        let_it_be(:user1, freeze: false) { create(:admin, organization: organization) }
-        let_it_be(:user2, freeze: false) { create(:admin, organization: organization) }
+        let_it_be(:user1) { create(:admin, organization: organization) }
+        let_it_be_with_reload(:user2) { create(:admin, organization: organization) }
 
         it 'changes user to default access_level in organization' do
           user2.update!(admin: false)
@@ -2806,7 +2806,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       end
 
       context 'when user did not already exist in the organization' do
-        let_it_be(:user, freeze: false) { create(:user, organization: organization, organizations: []) }
+        let_it_be_with_reload(:user) { create(:user, organization: organization, organizations: []) }
 
         it 'changes user to owner in the organization' do
           expect(organization.user?(user)).to be(false)
@@ -2891,7 +2891,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe 'name getters' do
-    let_it_be(:user, freeze: false) { create(:user, name: 'Kane Martin William') }
+    let_it_be(:user) { create(:user, name: 'Kane Martin William') }
 
     it 'derives first name from full name, if not present' do
       expect(user.first_name).to eq('Kane')
@@ -3030,8 +3030,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#accessible_deploy_keys' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:project, freeze: false) { create(:project, developers: user) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:project) { create(:project, developers: user) }
     let!(:private_deploy_keys_project) { create(:deploy_keys_project) }
     let!(:public_deploy_keys_project) { create(:deploy_keys_project) }
     let!(:accessible_deploy_keys_project) { create(:deploy_keys_project, project: project) }
@@ -3058,7 +3058,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#add_admin_note' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
     let(:note) { "Some note" }
 
     subject(:add_admin_note) { user.add_admin_note(note) }
@@ -3518,7 +3518,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe 'enabled_static_object_token' do
-    let_it_be(:static_object_token, freeze: false) { 'ilqx6jm1u945macft4eff0nw' }
+    let_it_be(:static_object_token) { 'ilqx6jm1u945macft4eff0nw' }
 
     it 'returns static object token when supported' do
       allow(Gitlab::CurrentSettings).to receive(:static_objects_external_storage_enabled?).and_return(true)
@@ -3538,7 +3538,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe 'enabled_incoming_email_token' do
-    let_it_be(:incoming_email_token, freeze: false) { 'ilqx6jm1u945macft4eff0nw' }
+    let_it_be(:incoming_email_token) { 'ilqx6jm1u945macft4eff0nw' }
 
     it 'returns incoming email token when supported' do
       allow(Gitlab::Email::IncomingEmail).to receive(:supports_issue_creation?).and_return(true)
@@ -3566,9 +3566,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#get_all_webauthn_credential_ids' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:second_factor_authenticator, freeze: false) { create(:webauthn_registration, user: user) }
-    let_it_be(:passkey, freeze: false) { create(:webauthn_registration, :passkey, user: user) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:second_factor_authenticator) { create(:webauthn_registration, user: user) }
+    let_it_be(:passkey) { create(:webauthn_registration, :passkey, user: user) }
 
     it 'returns all webauthn credentials ids' do
       expect(user.get_all_webauthn_credential_ids).to match_array(
@@ -3580,7 +3580,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '#allow_passkey_authentication?' do
     subject(:allow_passkey_authentication?) { user.allow_passkey_authentication? }
 
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     it { is_expected.to be_truthy }
 
@@ -3776,7 +3776,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '#two_factor_otp_enabled?' do
     subject { user.two_factor_otp_enabled? }
 
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     context 'when 2FA is enabled by an MFA Device' do
       let(:user) { create(:user, :two_factor) }
@@ -3871,7 +3871,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     subject { user.needs_new_otp_secret? }
 
     context 'when no OTP is enabled' do
-      let_it_be(:user, freeze: false) { create(:user, :two_factor_via_webauthn) }
+      let_it_be_with_reload(:user) { create(:user, :two_factor_via_webauthn) }
 
       it 'returns true if otp_secret_expires_at is nil' do
         is_expected.to eq(true)
@@ -3891,7 +3891,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when OTP is enabled' do
-      let_it_be(:user, freeze: false) { create(:user, :two_factor_via_otp) }
+      let_it_be_with_reload(:user) { create(:user, :two_factor_via_otp) }
 
       it 'returns false even if ttl is expired' do
         user.otp_secret_expires_at = 10.minutes.ago
@@ -4032,11 +4032,11 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe 'projects' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
-    let_it_be(:project, freeze: false) { create(:project, namespace: user.namespace) }
-    let_it_be(:project_2, freeze: false) { create(:project, maintainers: user, group: create(:group)) }
-    let_it_be(:project_3, freeze: false) { create(:project, developers: user, group: create(:group)) }
+    let_it_be(:project) { create(:project, namespace: user.namespace) }
+    let_it_be(:project_2) { create(:project, maintainers: user, group: create(:group)) }
+    let_it_be(:project_3) { create(:project, developers: user, group: create(:group)) }
 
     it { expect(user.authorized_projects).to include(project) }
     it { expect(user.authorized_projects).to include(project_2) }
@@ -4095,7 +4095,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       describe '#manageable_groups' do
         subject { user.manageable_groups }
 
-        let_it_be(:developer_group, freeze: false) do
+        let_it_be(:developer_group) do
           create(:group, developers: user, project_creation_level: ::Gitlab::Access::DEVELOPER_PROJECT_ACCESS)
         end
 
@@ -4122,8 +4122,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe 'namespaced' do
-    let_it_be(:user, freeze: false) { create :user }
-    let_it_be(:project, freeze: false) { create(:project, namespace: user.namespace) }
+    let_it_be(:user) { create :user }
+    let_it_be(:project) { create(:project, namespace: user.namespace) }
 
     it { expect(user.namespaces).to contain_exactly(user.namespace) }
   end
@@ -4164,7 +4164,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user has active CI pipeline schedules' do
-      let_it_be(:schedule, freeze: false) { create(:ci_pipeline_schedule, active: true, owner: user) }
+      let_it_be(:schedule) { create(:ci_pipeline_schedule, active: true, owner: user) }
 
       it 'disables any pipeline schedules', :sidekiq_inline do
         expect { user.block }.to change { schedule.reload.active? }.to(false)
@@ -4260,14 +4260,14 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe 'starred_projects' do
-    let_it_be(:project, freeze: false) { create(:project) }
+    let_it_be_with_reload(:project) { create(:project) }
 
     before do
       user.toggle_star(project)
     end
 
     context 'when blocking a user' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be_with_reload(:user) { create(:user) }
 
       it 'decrements star count of project' do
         expect { user.block }.to change { project.reload.star_count }.by(-1)
@@ -4275,7 +4275,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
       context 'when star count of project is 0' do
         it 'does not decrement star count of project' do
-          project.update!(star_count: 0)
+          project.reload.update!(star_count: 0)
 
           expect { user.block }.not_to change { project.reload.star_count }
         end
@@ -4283,7 +4283,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when activating a user' do
-      let_it_be(:user, freeze: false) { create(:user, :blocked) }
+      let_it_be_with_reload(:user) { create(:user, :blocked) }
 
       it 'increments star count of project' do
         expect { user.activate }.to change { project.reload.star_count }.by(1)
@@ -4292,7 +4292,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.instance_access_request_approvers_to_be_notified' do
-    let_it_be(:admin_issue_board_list, freeze: false) { create_list(:user, 12, :admin, :with_sign_ins) }
+    let_it_be(:admin_issue_board_list) { create_list(:user, 12, :admin, :with_sign_ins) }
 
     it 'returns up to the ten most recently active instance admins' do
       active_admins_in_recent_sign_in_desc_order = described_class.admins.active.order_recent_sign_in.limit(10)
@@ -4318,7 +4318,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       end
 
       context 'when the user authored todos' do
-        let_it_be(:todo_users, freeze: false) { create_list(:user, 3) }
+        let_it_be(:todo_users) { create_list(:user, 3) }
 
         it 'invalidates the cached todo count for users with pending todos authored by the user', :use_clean_rails_redis_caching do
           todo_users.each do |todo_user|
@@ -4455,9 +4455,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '.without_projects' do
     subject { described_class.without_projects }
 
-    let_it_be(:project, freeze: false) { create(:project, :public) }
-    let_it_be(:user, freeze: false) { create(:user, maintainer_of: project) }
-    let_it_be(:users_without_project, freeze: false) { create_list(:user, 2) }
+    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:user) { create(:user, maintainer_of: project) }
+    let_it_be(:users_without_project) { create_list(:user, 2) }
 
     before_all do
       # create invite to project
@@ -4496,7 +4496,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe 'with default overrides' do
-      let_it_be(:user, freeze: false) { create(:user, projects_limit: 123, can_create_group: false, can_create_team: true) }
+      let_it_be(:user) { create(:user, projects_limit: 123, can_create_group: false, can_create_team: true) }
 
       it 'applies defaults to user' do
         expect(user.projects_limit).to eq(123)
@@ -4809,23 +4809,23 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.search' do
-    let_it_be(:user, freeze: false) { create(:user, name: 'user', username: 'usern', email: 'email@example.com') }
-    let_it_be(:public_email, freeze: false) do
+    let_it_be_with_reload(:user) { create(:user, name: 'user', username: 'usern', email: 'email@example.com') }
+    let_it_be(:public_email) do
       create(:email, :confirmed, user: user, email: 'publicemail@example.com').tap do |email|
         user.update!(public_email: email.email)
       end
     end
 
-    let_it_be(:user2, freeze: false) { create(:user, name: 'user name', username: 'username', email: 'someemail@example.com') }
-    let_it_be(:user3, freeze: false) { create(:user, name: 'us', username: 'se', email: 'foo@example.com') }
-    let_it_be(:unconfirmed_user, freeze: false) { create(:user, :unconfirmed, name: 'not verified', username: 'notverified') }
+    let_it_be(:user2) { create(:user, name: 'user name', username: 'username', email: 'someemail@example.com') }
+    let_it_be(:user3) { create(:user, name: 'us', username: 'se', email: 'foo@example.com') }
+    let_it_be(:unconfirmed_user) { create(:user, :unconfirmed, name: 'not verified', username: 'notverified') }
 
-    let_it_be(:unconfirmed_secondary_email, freeze: false) { create(:email, user: user, email: 'alias@example.com') }
-    let_it_be(:confirmed_secondary_email, freeze: false) { create(:email, :confirmed, user: user, email: 'alias2@example.com') }
+    let_it_be(:unconfirmed_secondary_email) { create(:email, user: user, email: 'alias@example.com') }
+    let_it_be(:confirmed_secondary_email) { create(:email, :confirmed, user: user, email: 'alias2@example.com') }
 
     describe 'name user and email relative ordering' do
-      let_it_be(:named_alexander, freeze: false) { create(:user, name: 'Alexander Person', username: 'abcd', email: 'abcd@example.com') }
-      let_it_be(:username_alexand, freeze: false) { create(:user, name: 'Joao Alexander', username: 'Alexand', email: 'joao@example.com') }
+      let_it_be(:named_alexander) { create(:user, name: 'Alexander Person', username: 'abcd', email: 'abcd@example.com') }
+      let_it_be(:username_alexand) { create(:user, name: 'Joao Alexander', username: 'Alexand', email: 'joao@example.com') }
 
       it 'prioritizes exact matches' do
         expect(described_class.search('Alexand')).to contain_exactly(username_alexand, named_alexander)
@@ -4907,7 +4907,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
           let(:options) { super().merge(partial_email_search: true) }
 
           before do
-            user.emails.each { |email| email.update! confirmed_at: nil }
+            confirmed_ids = [confirmed_secondary_email.id, public_email.id]
+            user.emails.where.not(id: confirmed_ids).find_each { |email| email.update! confirmed_at: nil }
           end
 
           it 'returns users with partially matching private primary email' do
@@ -4946,8 +4947,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     describe 'username matching' do
-      let_it_be(:named_john, freeze: false) { create(:user, name: 'John', username: 'abcd') }
-      let_it_be(:username_john, freeze: false) { create(:user, name: 'John Doe', username: 'john') }
+      let_it_be(:named_john) { create(:user, name: 'John', username: 'abcd') }
+      let_it_be(:username_john) { create(:user, name: 'John Doe', username: 'john') }
 
       it 'returns users with a matching username' do
         expect(described_class.search(user.username)).to contain_exactly(user, user2)
@@ -5002,8 +5003,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.gfm_autocomplete_search' do
-    let_it_be(:user_1, freeze: false) { create(:user, username: 'someuser', name: 'John Doe') }
-    let_it_be(:user_2, freeze: false) { create(:user, username: 'userthomas', name: 'Thomas Person') }
+    let_it_be(:user_1) { create(:user, username: 'someuser', name: 'John Doe') }
+    let_it_be(:user_2) { create(:user, username: 'userthomas', name: 'Thomas Person') }
 
     it 'returns partial matches on username' do
       expect(described_class.gfm_autocomplete_search('some')).to contain_exactly(user_1)
@@ -5029,8 +5030,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.find_by_ssh_key_id' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:key, freeze: false) { create(:key, user: user) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:key) { create(:key, user: user) }
 
     context 'using an existing SSH key ID' do
       it 'returns the corresponding User' do
@@ -5067,8 +5068,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   shared_examples "find user by login" do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:invalid_login, freeze: false) { "#{user.username}-NOT-EXISTS" }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:invalid_login) { "#{user.username}-NOT-EXISTS" }
 
     context 'when login is nil or empty' do
       it 'returns nil' do
@@ -5236,7 +5237,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#clear_avatar_caches' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     it 'clears the avatar cache when saving' do
       allow(user).to receive(:avatar_changed?).and_return(true)
@@ -5321,7 +5322,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#pending_invitations' do
     let_it_be_with_reload(:user) { create(:user, email: 'user@email.com') }
-    let_it_be(:invited_member, freeze: false) do
+    let_it_be(:invited_member) do
       create(:project_member, :invited, invite_email: user.email)
     end
 
@@ -5340,7 +5341,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     subject { user.can_select_namespace? }
 
     context 'when user is admin' do
-      let_it_be(:user, freeze: false) { create(:user, :admin) }
+      let_it_be(:user) { create(:user, :admin) }
 
       it { is_expected.to be(true) }
     end
@@ -5428,21 +5429,21 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#can_leave_group?' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group) { create(:group) }
 
     subject { user.can_leave_group?(group) }
 
     context 'when user is member' do
       context 'when user has permission to leave the group' do
-        let_it_be(:group_owner, freeze: false) { create(:group_member, :owner, group: group, user: create(:user)) }
-        let_it_be(:group_member, freeze: false) { create(:group_member, group: group, user: user) }
+        let_it_be(:group_owner) { create(:group_member, :owner, group: group, user: create(:user)) }
+        let_it_be(:group_member) { create(:group_member, group: group, user: user) }
 
         it { is_expected.to be(true) }
       end
 
       context 'when user has no permission to leave the group' do
-        let_it_be(:group_owner, freeze: false) { create(:group_member, :owner, user: user) }
+        let_it_be(:group_owner) { create(:group_member, :owner, user: user) }
 
         it { is_expected.to be(false) }
       end
@@ -5574,7 +5575,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#verified_detumbled_emails' do
-    let_it_be(:user, freeze: false) { create(:user, email: 'user+1@example.com') }
+    let_it_be(:user) { create(:user, email: 'user+1@example.com') }
 
     it 'returns only confirmed unique detumbled emails' do
       create(:email, :confirmed,  email: 'user+2@example.com', user: user)
@@ -6021,8 +6022,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#following_users_allowed?' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:followee, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
+    let_it_be_with_reload(:followee) { create(:user) }
 
     where(:user_enabled_following, :followee_enabled_following, :result) do
       true  | true  | true
@@ -6060,10 +6061,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#sort_by_attribute' do
-    let_it_be(:user, freeze: false) { create :user, created_at: Date.today, current_sign_in_at: Date.today, username: 'user0' }
-    let_it_be(:user1, freeze: false) { create :user, created_at: Date.today - 1, last_activity_on: Date.today - 1, current_sign_in_at: Date.today - 1, username: 'user1' }
-    let_it_be(:user2, freeze: false) { create :user, created_at: Date.today - 2, username: 'user2' }
-    let_it_be(:user3, freeze: false) { create :user, created_at: Date.today - 3, last_activity_on: Date.today, username: "user3" }
+    let_it_be(:user) { create :user, created_at: Date.today, current_sign_in_at: Date.today, username: 'user0' }
+    let_it_be(:user1) { create :user, created_at: Date.today - 1, last_activity_on: Date.today - 1, current_sign_in_at: Date.today - 1, username: 'user1' }
+    let_it_be(:user2) { create :user, created_at: Date.today - 2, username: 'user2' }
+    let_it_be(:user3) { create :user, created_at: Date.today - 3, last_activity_on: Date.today, username: "user3" }
 
     context 'when sort by recent_sign_in' do
       let(:users) { described_class.sort_by_attribute('recent_sign_in') }
@@ -6322,7 +6323,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       let(:group) { create(:group, owners: user) }
 
       context 'not solo owner' do
-        let_it_be(:user2, freeze: false) { create(:user) }
+        let_it_be(:user2) { create(:user) }
 
         context 'with another direct owner' do
           before do
@@ -6333,7 +6334,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
         end
 
         context 'with an inherited owner' do
-          let_it_be(:group, freeze: false) { create(:group, :nested) }
+          let_it_be(:group) { create(:group, :nested) }
 
           before do
             group.parent.add_owner(user2)
@@ -6361,7 +6362,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#solo_owned_organizations' do
-    let_it_be(:organization_owner, freeze: false) { create(:user) }
+    let_it_be(:organization_owner) { create(:user) }
 
     subject { organization_owner.solo_owned_organizations }
 
@@ -6369,11 +6370,11 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#has_multiple_organizations?' do
-    let_it_be(:organization, freeze: false) { create(:organization) }
+    let_it_be(:organization) { create(:organization) }
 
     context 'when user has multiple organizations' do
-      let_it_be(:organization_2, freeze: false) { create(:organization) }
-      let_it_be(:user, freeze: false) { create(:user, organizations: [organization, organization_2]) }
+      let_it_be(:organization_2) { create(:organization) }
+      let_it_be(:user) { create(:user, organizations: [organization, organization_2]) }
 
       it 'returns true' do
         expect(user.has_multiple_organizations?).to eq(true)
@@ -6381,7 +6382,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user has one organization' do
-      let_it_be(:user, freeze: false) { create(:user, organizations: [organization]) }
+      let_it_be(:user) { create(:user, organizations: [organization]) }
 
       it 'returns false' do
         expect(user.has_multiple_organizations?).to eq(false)
@@ -6420,13 +6421,13 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#authorized_groups' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:private_group, freeze: false) { create(:group, maintainers: user) }
-    let_it_be(:child_group, freeze: false) { create(:group, parent: private_group) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:private_group) { create(:group, maintainers: user) }
+    let_it_be(:child_group) { create(:group, parent: private_group) }
 
-    let_it_be(:project_group_parent, freeze: false) { create(:group) }
-    let_it_be(:project_group, freeze: false) { create(:group, parent: project_group_parent) }
-    let_it_be(:project, freeze: false) { create(:project, group: project_group, maintainers: user) }
+    let_it_be(:project_group_parent) { create(:group) }
+    let_it_be(:project_group) { create(:group, parent: project_group_parent) }
+    let_it_be(:project) { create(:project, group: project_group, maintainers: user) }
 
     subject { user.authorized_groups }
 
@@ -6439,10 +6440,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with shared memberships' do
-      let_it_be(:shared_group, freeze: false) { create(:group) }
-      let_it_be(:shared_group_descendant, freeze: false) { create(:group, parent: shared_group) }
-      let_it_be(:other_group, freeze: false) { create(:group) }
-      let_it_be(:shared_with_project_group, freeze: false) { create(:group) }
+      let_it_be(:shared_group) { create(:group) }
+      let_it_be(:shared_group_descendant) { create(:group, parent: shared_group) }
+      let_it_be(:other_group) { create(:group) }
+      let_it_be(:shared_with_project_group) { create(:group) }
 
       before_all do
         create(:group_group_link, shared_group: shared_group, shared_with_group: private_group)
@@ -6468,7 +6469,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#authorized_root_ancestor_ids' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     subject { user.authorized_root_ancestor_ids }
 
@@ -6491,9 +6492,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#search_on_authorized_groups' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:group_1, freeze: false) { create(:group, name: 'test', path: 'blah') }
-    let_it_be(:group_2, freeze: false) { create(:group, name: 'blah', path: 'test') }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group_1) { create(:group, name: 'test', path: 'blah') }
+    let_it_be(:group_2) { create(:group, name: 'blah', path: 'test') }
     let(:search_term) { 'test' }
 
     subject { user.search_on_authorized_groups(search_term) }
@@ -6538,10 +6539,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#membership_groups' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:parent_group, freeze: false) { create(:group, maintainers: user) }
-    let_it_be(:child_group, freeze: false) { create(:group, parent: parent_group) }
-    let_it_be(:other_group, freeze: false) { create(:group) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:parent_group) { create(:group, maintainers: user) }
+    let_it_be(:child_group) { create(:group, parent: parent_group) }
+    let_it_be(:other_group) { create(:group) }
 
     subject { user.membership_groups }
 
@@ -6552,7 +6553,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     subject { user.first_group_paths }
 
     context 'with less than max allowed direct group memberships' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
       let(:expected_group_paths) { [] }
 
       before do
@@ -6569,7 +6570,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with more than max allowed direct group memberships' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       before do
         stub_const("#{described_class}::FIRST_GROUP_PATHS_LIMIT", 4)
@@ -6582,8 +6583,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#authorizations_for_projects' do
-    let_it_be(:other, freeze: false) { create(:project) }
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:other) { create(:project) }
+    let_it_be(:user) { create(:user) }
 
     subject { Project.where("EXISTS (?)", user.authorizations_for_projects) }
 
@@ -6605,8 +6606,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with min_access_level' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:project, freeze: false) { create(:project, :private, group: group, developers: user) }
+      let_it_be(:group) { create(:group) }
+      let_it_be(:project) { create(:project, :private, group: group, developers: user) }
 
       subject { Project.where("EXISTS (?)", user.authorizations_for_projects(min_access_level: min_access_level)) }
 
@@ -6660,8 +6661,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when project belongs to group that user has been added to' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:project_in_group, freeze: false) { create(:project, group: group) }
+      let_it_be(:group) { create(:group) }
+      let_it_be(:project_in_group) { create(:project, group: group) }
 
       let!(:member) { group.add_developer(user) }
 
@@ -6792,7 +6793,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     shared_examples 'project member' do
-      let_it_be(:another_project_runner, freeze: false) { create(:ci_runner, :project, projects: [another_project, project]) }
+      let_it_be(:another_project_runner) { create(:ci_runner, :project, projects: [another_project, project]) }
 
       before do
         add_user # this method has to be defined in the caller block
@@ -6880,9 +6881,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with runner in a personal project' do
-      let_it_be(:namespace, freeze: false) { create(:user_namespace, owner: user) }
-      let_it_be(:project, freeze: false) { create(:project, namespace: namespace) }
-      let_it_be(:runner, freeze: false) { create(:ci_runner, :project, projects: [project]) }
+      let_it_be(:namespace) { create(:user_namespace, owner: user) }
+      let_it_be(:project) { create(:project, namespace: namespace) }
+      let_it_be(:runner) { create(:ci_runner, :project, projects: [project]) }
 
       context 'when the user is the owner of a project' do
         it 'loads the runner belonging to the project' do
@@ -6892,8 +6893,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with group runner' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:runner, freeze: false) { create(:ci_runner, :group, groups: [group]) }
+      let_it_be_with_refind(:group) { create(:group) }
+      let_it_be(:runner) { create(:ci_runner, :group, groups: [group]) }
 
       context 'when owner is a non-owned group' do
         it_behaves_like 'group member'
@@ -6911,9 +6912,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
         end
 
         context 'and group runner in a different owner subgroup' do
-          let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
-          let_it_be(:group_runner, freeze: false) { create(:ci_runner, :group, groups: [subgroup]) }
-          let_it_be(:another_user, freeze: false) { create(:user) }
+          let_it_be(:subgroup) { create(:group, parent: group) }
+          let_it_be(:group_runner) { create(:ci_runner, :group, groups: [subgroup]) }
+          let_it_be(:another_user) { create(:user) }
 
           before_all do
             subgroup.add_owner(another_user)
@@ -6924,10 +6925,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       end
 
       context 'when in a subgroup of a group owned by another user' do
-        let_it_be(:parent_group, freeze: false) { group }
-        let_it_be(:group, freeze: false) { create(:group, parent: parent_group) }
-        let_it_be(:runner, freeze: false) { create(:ci_runner, :group, groups: [group]) }
-        let_it_be(:another_user, freeze: false) { create(:user) }
+        let_it_be(:parent_group) { group }
+        let_it_be(:group) { create(:group, parent: parent_group) }
+        let_it_be(:runner) { create(:ci_runner, :group, groups: [group]) }
+        let_it_be(:another_user) { create(:user) }
 
         before_all do
           parent_group.add_owner(another_user)
@@ -6938,10 +6939,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with project runner' do
-      let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:project, freeze: false) { create(:project, group: group) }
-      let_it_be(:another_project, freeze: false) { create(:project, group: group) }
-      let_it_be(:runner, freeze: false) { create(:ci_runner, :project, projects: [project, another_project]) }
+      let_it_be_with_refind(:group) { create(:group) }
+      let_it_be(:project) { create(:project, group: group) }
+      let_it_be(:another_project) { create(:project, group: group) }
+      let_it_be(:runner) { create(:ci_runner, :project, projects: [project, another_project]) }
 
       it 'does not load any runner' do
         expect(user.ci_available_runners).to be_empty
@@ -6953,20 +6954,20 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
         end
 
         context 'with a group runner in that same group' do
-          let_it_be(:group_runner, freeze: false) { create(:ci_runner, :group, groups: [group]) }
+          let_it_be(:group_runner) { create(:ci_runner, :group, groups: [group]) }
 
           it_behaves_like 'nested groups owner'
         end
 
         context 'with a group runner in a subgroup' do
-          let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
-          let_it_be(:group_runner, freeze: false) { create(:ci_runner, :group, groups: [subgroup]) }
+          let_it_be(:subgroup) { create(:group, parent: group) }
+          let_it_be(:group_runner) { create(:ci_runner, :group, groups: [subgroup]) }
 
           it_behaves_like 'nested groups owner'
         end
 
         context 'with a project runner owned by inaccessible project' do
-          let_it_be(:another_project_runner, freeze: false) { create(:ci_runner, :project, projects: [another_project, project]) }
+          let_it_be(:another_project_runner) { create(:ci_runner, :project, projects: [another_project, project]) }
 
           it 'returns runner shared from inaccessible project' do
             is_expected.to contain_exactly(runner, another_project_runner)
@@ -6995,7 +6996,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       end
 
       context 'when group member accesses project runner' do
-        let_it_be(:group, freeze: false) { create(:group) }
+        let_it_be(:group) { create(:group) }
 
         it_behaves_like 'group member'
 
@@ -7016,13 +7017,13 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '#ci_available_project_runners', feature_category: :runner_core do
     let_it_be_with_refind(:user) { create(:user) }
 
-    let_it_be(:project1, freeze: false) { create(:project) }
-    let_it_be(:project2, freeze: false) { create(:project) }
-    let_it_be(:project3, freeze: false) { create(:project) } # no access to project 3
+    let_it_be_with_refind(:project1) { create(:project) }
+    let_it_be_with_refind(:project2) { create(:project) }
+    let_it_be_with_refind(:project3) { create(:project) } # no access to project 3
 
-    let_it_be(:runner1, freeze: false) { create(:ci_runner, :project, projects: [project1]) }
-    let_it_be(:runner2, freeze: false) { create(:ci_runner, :project, projects: [project2]) }
-    let_it_be(:runner3, freeze: false) { create(:ci_runner, :project, projects: [project3]) }
+    let_it_be(:runner1) { create(:ci_runner, :project, projects: [project1]) }
+    let_it_be(:runner2) { create(:ci_runner, :project, projects: [project2]) }
+    let_it_be(:runner3) { create(:ci_runner, :project, projects: [project3]) }
 
     subject(:ci_available_project_runners) { user.send :ci_available_project_runners }
 
@@ -7067,8 +7068,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user has access to many projects' do
-      let_it_be(:projects_with_runners, freeze: false) { [project1, project2, project3] }
-      let_it_be(:runners, freeze: false) { Ci::Runner.belonging_to_project(projects_with_runners.pluck(:id)) } # runners created in parent block
+      let_it_be(:projects_with_runners) { [project1, project2, project3] }
+      let(:runners) { Ci::Runner.belonging_to_project(projects_with_runners.pluck(:id)) } # runners created in parent block
 
       before_all do
         projects_with_runners.each { |project| project.add_maintainer(user) }
@@ -7230,8 +7231,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#refresh_authorized_projects', :clean_gitlab_redis_shared_state do
-    let_it_be(:project1, freeze: false) { create(:project) }
-    let_it_be(:project2, freeze: false) { create(:project) }
+    let_it_be(:project1) { create(:project) }
+    let_it_be(:project2) { create(:project) }
     let_it_be_with_refind(:user) { create(:user, guest_of: project2, reporter_of: project1) }
 
     before do
@@ -7429,11 +7430,11 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     let_it_be_with_refind(:user) { create :user }
 
     context 'with 2FA requirement on groups' do
-      let_it_be(:group1, freeze: false) do
+      let_it_be(:group1) do
         create :group, owners: user, require_two_factor_authentication: true, two_factor_grace_period: 23
       end
 
-      let_it_be(:group2, freeze: false) do
+      let_it_be(:group2) do
         create :group, owners: user, require_two_factor_authentication: true, two_factor_grace_period: 32
       end
 
@@ -7532,13 +7533,13 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#source_groups_of_two_factor_authentication_requirement' do
-    let_it_be(:group_not_requiring_2fa, freeze: false) { create :group }
+    let_it_be(:group_not_requiring_2fa) { create :group }
     let_it_be_with_refind(:user) { create(:user, owner_of: [group_not_requiring_2fa]) }
 
     subject { user.source_groups_of_two_factor_authentication_requirement }
 
     context 'when user is direct member of group requiring 2FA' do
-      let_it_be(:group, freeze: false) { create :group, require_two_factor_authentication: true, owners: user }
+      let_it_be(:group) { create :group, require_two_factor_authentication: true, owners: user }
 
       it 'returns group requiring 2FA' do
         is_expected.to contain_exactly(group)
@@ -7546,8 +7547,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user is member of group which parent requires 2FA' do
-      let_it_be(:parent_group, freeze: false) { create :group, require_two_factor_authentication: true }
-      let_it_be(:group, freeze: false) { create :group, parent: parent_group, owners: user }
+      let_it_be(:parent_group) { create :group, require_two_factor_authentication: true }
+      let_it_be(:group) { create :group, parent: parent_group, owners: user }
 
       it 'returns group requiring 2FA' do
         is_expected.to contain_exactly(group)
@@ -7555,8 +7556,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user is member of group which child requires 2FA' do
-      let_it_be(:group, freeze: false) { create :group, owners: user }
-      let_it_be(:child_group, freeze: false) { create :group, require_two_factor_authentication: true, parent: group }
+      let_it_be(:group) { create :group, owners: user }
+      let_it_be(:child_group) { create :group, require_two_factor_authentication: true, parent: group }
 
       it 'returns group requiring 2FA' do
         is_expected.to contain_exactly(group)
@@ -7602,7 +7603,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#invalidate_merge_request_cache_counts' do
-    let_it_be(:user, freeze: false) { build_stubbed(:user) }
+    let_it_be(:user) { build_stubbed(:user) }
 
     subject(:invalidate_merge_request_cache_counts) { user.invalidate_merge_request_cache_counts }
 
@@ -7620,7 +7621,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#invalidate_personal_projects_count' do
-    let_it_be(:user, freeze: false) { build_stubbed(:user) }
+    let_it_be(:user) { build_stubbed(:user) }
 
     subject(:invalidate_personal_projects_count) { user.invalidate_personal_projects_count }
 
@@ -7645,7 +7646,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     subject(:allow_password_authentication_for_web?) { user.allow_password_authentication_for_web? }
 
     context 'with regular user' do
-      let_it_be(:user, freeze: false) { build(:user) }
+      let_it_be(:user) { build(:user) }
 
       it { is_expected.to be_truthy }
 
@@ -7659,7 +7660,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with ldap user' do
-      let_it_be(:user, freeze: false) { create(:omniauth_user, provider: 'ldapmain') }
+      let_it_be(:user) { create(:omniauth_user, provider: 'ldapmain') }
 
       it { is_expected.to be_falsey }
     end
@@ -7901,9 +7902,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '#assigned_open_issues_count' do
     subject { user.assigned_open_issues_count(force: true) }
 
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:project, freeze: false) { create(:project, :public) }
-    let_it_be(:archived_project, freeze: false) { create(:project, :public, :archived) }
+    let_it_be_with_refind(:user) { create(:user) }
+    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:archived_project) { create(:project, :public, :archived) }
 
     it 'returns number of open issues from non-archived projects' do
       create(:issue, project: project, author: user, assignees: [user])
@@ -7915,7 +7916,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#personal_projects_count' do
-    let_it_be(:user, freeze: false) { build(:user) }
+    let_it_be(:user) { build(:user) }
 
     subject(:personal_projects_count) { user.personal_projects_count }
 
@@ -7929,7 +7930,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#projects_limit_left' do
-    let_it_be(:user, freeze: false) { build(:user) }
+    let_it_be(:user) { build(:user) }
 
     subject(:projects_limit_left) { user.projects_limit_left }
 
@@ -8043,7 +8044,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when namespace does not exist' do
-      let_it_be(:organization, freeze: false) { create(:organization) }
+      let_it_be(:organization) { create(:organization) }
       let(:user) { described_class.new attributes_for(:user) }
 
       it 'builds a new namespace using assigned organization' do
@@ -8255,7 +8256,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#delete_async' do
     let_it_be_with_refind(:user) { create(:user, note: "existing note") }
-    let_it_be(:deleted_by, freeze: false) { create(:user) }
+    let_it_be(:deleted_by) { create(:user) }
     let(:delay_user_account_self_deletion_enabled) { true }
 
     before do
@@ -8590,19 +8591,19 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     let_it_be_with_refind(:group) { create(:group) }
 
     context 'when user has no access' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       it { is_expected.to eq(Gitlab::Access::NO_ACCESS) }
     end
 
     context 'when user has access via a single permission' do
-      let_it_be(:user, freeze: false) { create(:user, developer_of: group) }
+      let_it_be(:user) { create(:user, developer_of: group) }
 
       it { is_expected.to eq(Gitlab::Access::DEVELOPER) }
     end
 
     context 'when user has access via multiple permissions' do
-      let_it_be(:user, freeze: false) { create(:user, developer_of: group, maintainer_of: group) }
+      let_it_be(:user) { create(:user, developer_of: group, maintainer_of: group) }
 
       it { is_expected.to eq(Gitlab::Access::MAINTAINER) }
     end
@@ -8818,7 +8819,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.optionally_search' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     context 'using nil as the argument' do
       it 'returns the current relation' do
@@ -8842,7 +8843,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.where_not_in' do
-    let_it_be(:user1, freeze: false) { create(:user) }
+    let_it_be(:user1) { create(:user) }
 
     context 'without an argument' do
       it 'returns the current relation' do
@@ -8869,7 +8870,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#notification_settings_for' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
     let(:source) { nil }
 
     subject { user.notification_settings_for(source) }
@@ -8896,11 +8897,11 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
         end
 
         context 'when group has ancestors' do
-          let_it_be(:ancestor, freeze: false) { create(:group) }
-          let_it_be(:group, freeze: false) { create(:group, parent: ancestor) }
+          let_it_be(:ancestor) { create(:group) }
+          let_it_be(:group) { create(:group, parent: ancestor) }
 
           context 'when an ancestor has a level other than Global' do
-            let_it_be(:email, freeze: false) { create(:email, :confirmed, email: 'ancestor@example.com', user: user) }
+            let_it_be(:email) { create(:email, :confirmed, email: 'ancestor@example.com', user: user) }
 
             before do
               create(:notification_setting, user: user, source: ancestor, level: 'participating', notification_email: email.email)
@@ -8947,8 +8948,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#notification_settings_for_groups' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:groups, freeze: false) { create_list(:group, 2, maintainers: user) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:groups) { create_list(:group, 2, maintainers: user) }
 
     subject(:notification_settings_for_groups) { user.notification_settings_for_groups(arg) }
 
@@ -8960,7 +8961,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when given an ActiveRecord relationship' do
-      let_it_be(:arg, freeze: false) { Group.where(id: groups.map(&:id)) }
+      let(:arg) { Group.where(id: groups.map(&:id)) }
 
       it_behaves_like 'notification_settings_for_groups method'
 
@@ -8972,14 +8973,14 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when given an Array of Groups' do
-      let_it_be(:arg, freeze: false) { groups }
+      let_it_be(:arg) { groups }
 
       it_behaves_like 'notification_settings_for_groups method'
     end
   end
 
   describe '#notification_email_for' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     subject { user.notification_email_for(namespace) }
 
@@ -9326,12 +9327,12 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.active_without_ghosts' do
-    let_it_be(:user1, freeze: false) { create(:user, :external) }
-    let_it_be(:user2, freeze: false) { create(:user, state: 'blocked') }
-    let_it_be(:user3, freeze: false) { create(:user, :ghost) }
-    let_it_be(:user4, freeze: false) { create(:user, user_type: :support_bot) }
-    let_it_be(:user5, freeze: false) { create(:user, state: 'blocked', user_type: :support_bot) }
-    let_it_be(:user6, freeze: false) { create(:user, user_type: :automation_bot) }
+    let_it_be(:user1) { create(:user, :external) }
+    let_it_be(:user2) { create(:user, state: 'blocked') }
+    let_it_be(:user3) { create(:user, :ghost) }
+    let_it_be(:user4) { create(:user, user_type: :support_bot) }
+    let_it_be(:user5) { create(:user, state: 'blocked', user_type: :support_bot) }
+    let_it_be(:user6) { create(:user, user_type: :automation_bot) }
 
     it 'returns all active users including active bots but ghost users' do
       expect(described_class.active_without_ghosts).to contain_exactly(user1, user4, user6)
@@ -9340,7 +9341,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#dismissed_callout?' do
     let_it_be_with_refind(:user) { create(:user) }
-    let_it_be(:feature_name, freeze: false) { Users::Callout.feature_names.each_key.first }
+    let_it_be(:feature_name) { Users::Callout.feature_names.each_key.first }
 
     context 'when no callout dismissal record exists' do
       it 'returns false when no ignore_dismissal_earlier_than provided' do
@@ -9369,7 +9370,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#find_or_initialize_callout' do
     let_it_be_with_refind(:user) { create(:user) }
-    let_it_be(:feature_name, freeze: false) { Users::Callout.feature_names.each_key.first }
+    let_it_be(:feature_name) { Users::Callout.feature_names.each_key.first }
 
     subject(:find_or_initialize_callout) { user.find_or_initialize_callout(feature_name) }
 
@@ -9408,8 +9409,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#dismissed_callout_for_group?' do
     let_it_be_with_refind(:user) { create(:user) }
-    let_it_be(:group, freeze: false) { create(:group) }
-    let_it_be(:feature_name, freeze: false) { Users::GroupCallout.feature_names.each_key.first }
+    let_it_be(:group) { create(:group) }
+    let_it_be(:feature_name) { Users::GroupCallout.feature_names.each_key.first }
 
     context 'when no callout dismissal record exists' do
       it 'returns false when no ignore_dismissal_earlier_than provided' do
@@ -9444,8 +9445,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#dismissed_callout_for_project?' do
     let_it_be_with_refind(:user) { create(:user) }
-    let_it_be(:project, freeze: false) { create(:project) }
-    let_it_be(:feature_name, freeze: false) { Users::ProjectCallout.feature_names.each_key.first }
+    let_it_be(:project) { create(:project) }
+    let_it_be(:feature_name) { Users::ProjectCallout.feature_names.each_key.first }
 
     context 'when no callout dismissal record exists' do
       it 'returns false when no ignore_dismissal_earlier_than provided' do
@@ -9480,8 +9481,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#find_or_initialize_group_callout' do
     let_it_be_with_refind(:user) { create(:user) }
-    let_it_be(:group, freeze: false) { create(:group) }
-    let_it_be(:feature_name, freeze: false) { Users::GroupCallout.feature_names.each_key.first }
+    let_it_be(:group) { create(:group) }
+    let_it_be(:feature_name) { Users::GroupCallout.feature_names.each_key.first }
 
     subject(:callout_with_source) do
       user.find_or_initialize_group_callout(feature_name, group.id)
@@ -9524,8 +9525,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe '#find_or_initialize_project_callout' do
     let_it_be_with_refind(:user) { create(:user) }
-    let_it_be(:project, freeze: false) { create(:project) }
-    let_it_be(:feature_name, freeze: false) { Users::ProjectCallout.feature_names.each_key.first }
+    let_it_be(:project) { create(:project) }
+    let_it_be(:feature_name) { Users::ProjectCallout.feature_names.each_key.first }
 
     subject(:callout_with_source) do
       user.find_or_initialize_project_callout(feature_name, project.id)
@@ -9597,13 +9598,13 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     subject(:webhook_email) { user.webhook_email }
 
     context 'when public email is present' do
-      let_it_be(:user, freeze: false) { build(:user, public_email: "hello@hello.com") }
+      let_it_be(:user) { build(:user, public_email: "hello@hello.com") }
 
       it { is_expected.to eq(user.public_email) }
     end
 
     context 'when public email is nil' do
-      let_it_be(:user, freeze: false) { build(:user, public_email: nil) }
+      let_it_be(:user) { build(:user, public_email: nil) }
 
       it { is_expected.to eq(_('[REDACTED]')) }
     end
@@ -9625,7 +9626,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#current_highest_access_level' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     context 'when no memberships exist' do
       it 'returns nil' do
@@ -9812,7 +9813,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#password_required?' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     shared_examples 'does not require password to be present' do
       it { expect(user).not_to validate_presence_of(:password) }
@@ -9863,7 +9864,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
   describe 'can_trigger_notifications?' do
     context 'when user is not confirmed' do
-      let_it_be(:user, freeze: false) { create(:user, :unconfirmed) }
+      let_it_be(:user) { create(:user, :unconfirmed) }
 
       it 'returns false' do
         expect(user.can_trigger_notifications?).to be(false)
@@ -9871,7 +9872,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user is blocked' do
-      let_it_be(:user, freeze: false) { create(:user, :blocked) }
+      let_it_be(:user) { create(:user, :blocked) }
 
       it 'returns false' do
         expect(user.can_trigger_notifications?).to be(false)
@@ -9879,7 +9880,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user is a ghost' do
-      let_it_be(:user, freeze: false) { create(:user, :ghost) }
+      let_it_be(:user) { create(:user, :ghost) }
 
       it 'returns false' do
         expect(user.can_trigger_notifications?).to be(false)
@@ -9887,7 +9888,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user is confirmed and neither blocked or a ghost' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       it 'returns true' do
         expect(user.can_trigger_notifications?).to be(true)
@@ -9908,7 +9909,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user is not confirmed' do
-      let_it_be(:user, freeze: false) { build_stubbed(:user, :unconfirmed, confirmation_sent_at: Time.current) }
+      let_it_be(:user) { build_stubbed(:user, :unconfirmed, confirmation_sent_at: Time.current) }
 
       context 'when email confirmation setting is set to `off`' do
         before do
@@ -9953,7 +9954,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#confirmation_period_valid?' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     subject(:confirmation_period_valid) { user.send(:confirmation_period_valid?) }
 
@@ -10064,9 +10065,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '.ldap' do
     subject(:ldap) { described_class.ldap }
 
-    let_it_be(:ldap_user, freeze: false) { create(:omniauth_user, provider: "ldapmain") }
-    let_it_be(:gitlab_user, freeze: false) { create(:omniauth_user, provider: "gitlab") }
-    let_it_be(:regular_user, freeze: false) { create(:user) }
+    let_it_be(:ldap_user) { create(:omniauth_user, provider: "ldapmain") }
+    let_it_be(:gitlab_user) { create(:omniauth_user, provider: "gitlab") }
+    let_it_be(:regular_user) { create(:user) }
 
     it 'returns LDAP users' do
       expect(ldap).to include(ldap_user)
@@ -10101,19 +10102,19 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#groups_with_developer_project_access' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:group1, freeze: false) { create(:group) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group1) { create(:group) }
 
-    let_it_be(:developer_group1, freeze: false) { create(:group, developers: user) }
-    let_it_be(:developer_group2, freeze: false) do
+    let_it_be(:developer_group1) { create(:group, developers: user) }
+    let_it_be(:developer_group2) do
       create(:group, developers: user, project_creation_level: ::Gitlab::Access::DEVELOPER_PROJECT_ACCESS)
     end
 
-    let_it_be(:guest_group1, freeze: false) do
+    let_it_be(:guest_group1) do
       create(:group, guests: user, project_creation_level: ::Gitlab::Access::DEVELOPER_PROJECT_ACCESS)
     end
 
-    let_it_be(:developer_group1, freeze: false) do
+    let_it_be(:maintainer_group1) do
       create(:group, maintainers: user, project_creation_level: ::Gitlab::Access::DEVELOPER_PROJECT_ACCESS)
     end
 
@@ -10166,14 +10167,14 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '.without_forbidden_states' do
     subject { described_class.without_forbidden_states }
 
-    let_it_be(:normal_user, freeze: false) { create(:user, username: 'johndoe') }
-    let_it_be(:admin_user, freeze: false) { create(:user, :admin, username: 'iamadmin') }
-    let_it_be(:blocked_user, freeze: false) { create(:user, :blocked, username: 'notsorandom') }
-    let_it_be(:banned_user, freeze: false) { create(:user, :banned, username: 'iambanned') }
-    let_it_be(:external_user, freeze: false) { create(:user, :external) }
-    let_it_be(:unconfirmed_user, freeze: false) { create(:user, confirmed_at: nil) }
-    let_it_be(:omniauth_user, freeze: false) { create(:omniauth_user, provider: 'twitter', extern_uid: '123456') }
-    let_it_be(:internal_user, freeze: false) { Users::Internal.in_organization(normal_user.organization).alert_bot.tap { |u| u.confirm } }
+    let_it_be(:normal_user) { create(:user, username: 'johndoe') }
+    let_it_be(:admin_user) { create(:user, :admin, username: 'iamadmin') }
+    let_it_be(:blocked_user) { create(:user, :blocked, username: 'notsorandom') }
+    let_it_be(:banned_user) { create(:user, :banned, username: 'iambanned') }
+    let_it_be(:external_user) { create(:user, :external) }
+    let_it_be(:unconfirmed_user) { create(:user, confirmed_at: nil) }
+    let_it_be(:omniauth_user) { create(:omniauth_user, provider: 'twitter', extern_uid: '123456') }
+    let_it_be(:internal_user) { Users::Internal.in_organization(normal_user.organization).alert_bot.tap { |u| u.confirm } }
 
     it 'does not return blocked or banned users' do
       is_expected.to contain_exactly(
@@ -10254,7 +10255,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#namespace_commit_email_for_project' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     let(:emails) { user.namespace_commit_email_for_project(project) }
 
@@ -10267,9 +10268,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with a group project' do
-      let_it_be(:root_group, freeze: false) { create(:group) }
-      let_it_be(:group, freeze: false) { create(:group, parent: root_group) }
-      let_it_be(:project, freeze: false) { create(:project, group: group) }
+      let_it_be(:root_group) { create(:group) }
+      let_it_be(:group) { create(:group, parent: root_group) }
+      let_it_be(:project) { create(:project, group: group) }
 
       context 'without a defined root group namespace_commit_email' do
         context 'without a defined project namespace_commit_email' do
@@ -10292,7 +10293,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       end
 
       context 'with a defined root group namespace_commit_email' do
-        let_it_be(:root_group_commit_email, freeze: false) do
+        let_it_be(:root_group_commit_email) do
           create(:namespace_commit_email, user: user, namespace: root_group)
         end
 
@@ -10317,7 +10318,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'with personal project' do
-      let_it_be(:project, freeze: false) { create(:project, namespace: user.namespace) }
+      let_it_be(:project) { create(:project, namespace: user.namespace) }
 
       context 'without a defined project namespace_commit_email' do
         it 'returns nil' do
@@ -10340,12 +10341,12 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#deleted_own_account?' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     subject(:result) { user.deleted_own_account? }
 
     context 'when user has a DELETED_OWN_ACCOUNT_AT custom attribute' do
-      let_it_be(:custom_attr, freeze: false) do
+      let_it_be(:custom_attr) do
         create(:user_custom_attribute, user: user, key: UserCustomAttribute::DELETED_OWN_ACCOUNT_AT, value: 'now')
       end
 
@@ -10353,7 +10354,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user does not have a DELETED_OWN_ACCOUNT_AT custom attribute' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       it { is_expected.to eq false }
     end
@@ -10378,7 +10379,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.username_exists?' do
-    let_it_be(:user, freeze: false) { create(:user, username: 'user_1') }
+    let_it_be(:user) { create(:user, username: 'user_1') }
 
     context 'when user with username exists' do
       it 'returns true' do
@@ -10394,8 +10395,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.id_exists?' do
-    let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:user_id, freeze: false) { user.id }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:user_id) { user.id }
 
     context 'when user with id exists' do
       it 'returns true' do
@@ -10411,7 +10412,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   context 'when email is not unique' do
-    let_it_be(:existing_user, freeze: false) { create(:user) }
+    let_it_be(:existing_user) { create(:user) }
 
     subject(:new_user) { build(:user, email: existing_user.email).tap { |user| user.valid? } }
 
@@ -10447,7 +10448,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#ldap_sync_time' do
-    let_it_be(:user, freeze: false) { build(:user) }
+    let_it_be(:user) { build(:user) }
 
     subject(:ldap_sync_time) { user.ldap_sync_time }
 
@@ -10455,7 +10456,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#readable_by?' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     subject(:readable_by) { user.readable_by?(other_user) }
 
@@ -10473,9 +10474,9 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#can_leave_project?' do
-    let_it_be(:user, freeze: false) { create :user, :with_namespace }
-    let_it_be(:user_namespace_project, freeze: false) { create(:project, namespace: user.namespace) }
-    let_it_be(:user_member_project, freeze: false) { create(:project, :in_group, developers: [user]) }
+    let_it_be(:user) { create :user, :with_namespace }
+    let_it_be(:user_namespace_project) { create(:project, namespace: user.namespace) }
+    let_it_be(:user_member_project) { create(:project, :in_group, developers: [user]) }
 
     subject(:can_leave_project) { user.can_leave_project?(member_or_project) }
 
@@ -10508,7 +10509,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when passing a type other than Project or ProjectMember' do
-      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be(:group) { create(:group) }
 
       let(:member_or_project) { group }
 
@@ -10681,7 +10682,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#uploads_sharding_key' do
-    let_it_be(:user, freeze: false) { build_stubbed(:user) }
+    let_it_be(:user) { build_stubbed(:user) }
 
     subject(:uploads_sharding_key) { user.uploads_sharding_key }
 
@@ -10689,8 +10690,8 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe 'support pin methods', :freeze_time do
-    let_it_be(:user_with_pin, freeze: false) { create(:user) }
-    let_it_be(:user_no_pin, freeze: false) { create(:user) }
+    let_it_be(:user_with_pin) { create(:user) }
+    let_it_be(:user_no_pin) { create(:user) }
     let(:pin_data) { { pin: '123456', expires_at: 7.days.from_now } }
     let(:retrieve_service) { instance_double(Users::SupportPin::RetrieveService) }
 
@@ -10749,7 +10750,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '#merge_request_dashboard_show_drafts?' do
     using RSpec::Parameterized::TableSyntax
 
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     subject { user.merge_request_dashboard_show_drafts? }
 
@@ -10772,7 +10773,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   describe '#all_assigned_merge_requests_count' do
     using RSpec::Parameterized::TableSyntax
 
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     subject { user.all_assigned_merge_requests_count }
 
@@ -10836,7 +10837,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '.unlock_access_by_token' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     let!(:unlock_token) { user.lock_access! }
 
@@ -10863,7 +10864,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#legacy_otp_secret' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     subject(:legacy_otp_secret) { user.send(:legacy_otp_secret) }
 
@@ -10881,7 +10882,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
 
     context 'when user has two factor auth enabled' do
-      let_it_be(:user, freeze: false) { create(:user, :two_factor) }
+      let_it_be_with_reload(:user) { create(:user, :two_factor) }
       let(:otp_secret) { 'my-otp-secret' }
 
       before do

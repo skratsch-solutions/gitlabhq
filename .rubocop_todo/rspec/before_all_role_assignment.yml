@@ -249,7 +249,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'ee/spec/models/dast/profile_schedule_spec.rb'
     - 'ee/spec/models/ee/user_spec.rb'
     - 'ee/spec/models/epic_issue_spec.rb'
-    - 'ee/spec/models/epic_spec.rb'
     - 'ee/spec/models/instance_security_dashboard_spec.rb'
     - 'ee/spec/models/issue_spec.rb'
     - 'ee/spec/models/merge_request_spec.rb'

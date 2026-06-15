@@ -568,6 +568,12 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
     it { is_expected.to eq(project.full_path) }
   end
 
+  describe '#project_name' do
+    subject(:method) { presenter.project_name }
+
+    it { is_expected.to eq(project.name_with_namespace) }
+  end
+
   describe '#current_user' do
     let(:user) { build_stubbed(:user) }
 

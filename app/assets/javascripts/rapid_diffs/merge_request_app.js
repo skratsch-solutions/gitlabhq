@@ -7,7 +7,6 @@ import { adapters } from '~/rapid_diffs/app/adapter_configs/merge_request';
 import { useCodeReview } from '~/diffs/stores/code_review';
 import { useMergeRequestDiscussions } from '~/merge_request/stores/merge_request_discussions';
 import { useTestCoverage } from '~/rapid_diffs/stores/test_coverage';
-import { useCodeQuality } from '~/rapid_diffs/stores/code_quality';
 import { useDiffsList } from '~/rapid_diffs/stores/diffs_list';
 import { useDiffsView } from '~/rapid_diffs/stores/diffs_view';
 import { DiffFile } from '~/rapid_diffs/web_components/diff_file';
@@ -17,7 +16,7 @@ import { initNewDiscussionToggle } from '~/rapid_diffs/app/init_new_discussions_
 import { initLineRangeSelection } from '~/rapid_diffs/app/init_line_range_selection';
 import { initHotkeys } from '~/rapid_diffs/app/init_hotkeys';
 
-class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
+export class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
   adapterConfig = adapters;
 
   async init() {
@@ -26,7 +25,6 @@ class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
     this.#initCompareVersions();
     this.#initCommitWidget();
     this.#initCoverage();
-    this.#initCodeQuality();
     this.#initChangesTabCount();
     await this.#initDiscussions();
     initNewDiscussionToggle(this.root, { allowExpandedLines: true });
@@ -108,14 +106,6 @@ class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
     const store = useTestCoverage(pinia);
     store.endpoint = coverageEndpoint;
     store.fetchCoverage();
-  }
-
-  #initCodeQuality() {
-    const { codequalityEndpoint } = this.appData;
-    if (!codequalityEndpoint) return;
-    const store = useCodeQuality(pinia);
-    store.endpoint = codequalityEndpoint;
-    store.fetchCodeQuality();
   }
 
   // eslint-disable-next-line class-methods-use-this

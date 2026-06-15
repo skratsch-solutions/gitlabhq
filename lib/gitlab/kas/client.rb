@@ -14,6 +14,12 @@ module Gitlab
         events_platform: Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub
       }.freeze
 
+      # Default deadline for a single subscribe stream. Chosen to sit slightly below KAS's
+      # server-side `max_connection_age` (defaults to 2 hours in gitlab-agent's
+      # `defaultAPIListenMaxConnectionAge`), so the client closes the stream cleanly first rather
+      # than depending on the server-side cutoff or any intermediary's idle timeout.
+      DEFAULT_SUBSCRIBE_DEADLINE = 110.minutes
+
       ConfigurationError = Class.new(StandardError)
 
       def initialize
@@ -96,6 +102,88 @@ module Gitlab
           .publish(request, metadata: metadata)
           .message_ids
           .to_a
+      end
+
+      # Subscribes to a topic on Relay's events_platform and yields each received CloudEvent to the
+      # given block. Acknowledges the broker after each successful block return; if the block raises,
+      # the in-flight event is NOT acknowledged and will be redelivered to another consumer in the
+      # group.
+      #
+      # The method loops until the server closes the stream (Relay shutdown, max connection age,
+      # deadline expiration, network error) or the block raises. It does NOT auto-reconnect; callers
+      # that need a long-lived subscription should wrap this method in a reconnect loop (see the
+      # planned `subscribe_events_resilient` wrapper).
+      #
+      # There is no custom stop API; long-running callers signal shutdown by raising a sentinel
+      # exception from inside the block.
+      #
+      # @param topic [String] the topic to subscribe to.
+      # @param consumer_group [String] the consumer group name. Multiple subscribers sharing a
+      #   consumer group share load.
+      # @param event_types [Array<String>] optional server-side filter on CloudEvent type names.
+      # @param deadline [ActiveSupport::Duration, Numeric] maximum time to keep the stream open
+      #   before the client closes it. Defaults to {DEFAULT_SUBSCRIBE_DEADLINE} so the client
+      #   closes slightly before the server's `max_connection_age`. Callers managing their own
+      #   reconnect loop may tune this.
+      # @yield [event] called for each received CloudEvent.
+      # @yieldparam event [Gitlab::Agent::Event::CloudEvent]
+      # @return [void] returns when the stream closes cleanly.
+      def subscribe_events(topic:, consumer_group:, event_types: [], deadline: DEFAULT_SUBSCRIBE_DEADLINE)
+        raise ArgumentError, 'a block is required' unless block_given?
+
+        return unless Feature.enabled?(:subscribe_events_from_relay, :instance)
+
+        ack_queue = SizedQueue.new(1)
+
+        requests = Enumerator.new do |y|
+          # First message must be SubscribeConfig.
+          y << Gitlab::Agent::EventsPlatform::Rpc::SubscribeRequest.new(
+            config: Gitlab::Agent::EventsPlatform::Rpc::SubscribeConfig.new(
+              topic: topic,
+              consumer_group: consumer_group,
+              event_types: event_types
+            )
+          )
+
+          # Then forward acks as the response loop queues them. A nil sentinel
+          # terminates the request stream.
+          loop do
+            msg = ack_queue.pop
+            break if msg.nil?
+
+            y << msg
+          end
+        end
+
+        # Pass an explicit deadline because the stub-level timeout would kill the streaming RPC.
+        responses = stub_for(:events_platform).subscribe(
+          requests,
+          deadline: Time.current + deadline,
+          metadata: metadata
+        )
+
+        begin
+          responses.each do |response|
+            yield response.event
+
+            # Ack only on successful block return so a raising block leaves
+            # the event unacknowledged for redelivery (at-least-once contract).
+            ack_queue.push(
+              Gitlab::Agent::EventsPlatform::Rpc::SubscribeRequest.new(
+                ack: Gitlab::Agent::EventsPlatform::Rpc::Ack.new(
+                  message_ids: [response.message_id]
+                )
+              )
+            )
+          end
+        ensure
+          # Close the request stream so the gRPC client thread can exit, whether
+          # we leave via block-raise, stream close, or normal completion. With
+          # SizedQueue(1), this push blocks briefly if a pending ack hasn't been
+          # drained yet - that is intentional, so the last ack is delivered before
+          # the stream closes.
+          ack_queue.push(nil)
+        end
       end
 
       def get_environment_template(agent:, template_name:)

@@ -93,9 +93,9 @@ $work-item-overview-gap-width: 2rem;
   }
 }
 
-// 2-column layout for attributes at sm/md container widths
-// where the sidebar sits below content full-width. Reverts to single column
-// at lg+ where the sidebar becomes a narrow right column.
+// 2-column layout for attributes at sm container widths, where the sidebar
+// sits below content full-width. Reverts to single column at md+, where the
+// sidebar becomes a narrow right column.
 .work-item-attributes-wrapper {
   @include gl-container-width-up(sm) {
     display: grid;
@@ -110,7 +110,7 @@ $work-item-overview-gap-width: 2rem;
     }
   }
 
-  @include gl-container-width-up(lg) {
+  @include gl-container-width-up(md) {
     display: block;
 
     > .work-item-attributes-item:nth-child(2) {

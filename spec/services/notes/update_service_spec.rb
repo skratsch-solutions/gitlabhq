@@ -12,7 +12,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
   let_it_be(:user3, freeze: false) { create(:user) }
   let_it_be(:issue, freeze: false) { create(:issue, project: project) }
   let_it_be(:issue2, freeze: false) { create(:issue, project: private_project) }
-  let(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note #{user2.to_reference}") }
+  let_it_be_with_refind(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note #{user2.to_reference}") }
   let(:markdown) do
     <<-MARKDOWN.strip_heredoc
       ```suggestion
@@ -150,7 +150,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
       end
 
       context 'when existing note contains quick actions' do
-        let!(:note) { create(:note, project: project, noteable: issue, author: user2, note: "foo\n/close\nbar") }
+        let_it_be_with_reload(:note) { create(:note, project: project, noteable: issue, author: user2, note: "foo\n/close\nbar") }
 
         before do
           update_note(edit_note_text)
@@ -180,7 +180,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     end
 
     context 'when note text was not changed' do
-      let!(:note) { create(:note, project: project, noteable: issue, author: user2, note: "Old note #{user3.to_reference}") }
+      let_it_be_with_reload(:note) { create(:note, project: project, noteable: issue, author: user2, note: "Old note #{user3.to_reference}") }
       let(:does_not_edit_note_text) { update_note({ note: note.note }) }
 
       it 'does not update last_edited_at' do
@@ -207,8 +207,8 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     end
 
     context 'when the notable is a merge request' do
-      let(:merge_request) { create(:merge_request, source_project: project) }
-      let(:note) { create(:note, project: project, noteable: merge_request, author: user, note: "Old note #{user2.to_reference}") }
+      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+      let_it_be_with_reload(:note) { create(:note, project: project, noteable: merge_request, author: user, note: "Old note #{user2.to_reference}") }
 
       it 'does not track usage data when params is blank', :clean_gitlab_redis_shared_state do
         expect { update_note({}) }
@@ -334,7 +334,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
       end
 
       context 'when note includes a user mention' do
-        let!(:todo) { create(:todo, :assigned, user: user, project: project, target: issue, author: user2) }
+        let_it_be_with_reload(:todo) { create(:todo, :assigned, user: user, project: project, target: issue, author: user2) }
 
         context 'when the note does not change mentions' do
           before do
@@ -363,8 +363,8 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
 
       context 'when note includes a group mention' do
         context 'when the group is public' do
-          let(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note #{group.to_reference}") }
-          let!(:todo) { create(:todo, :assigned, user: user, project: project, target: issue, author: user2) }
+          let_it_be_with_reload(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note #{group.to_reference}") }
+          let_it_be_with_reload(:todo) { create(:todo, :assigned, user: user, project: project, target: issue, author: user2) }
 
           context 'when the note does not change mentions' do
             before do
@@ -384,8 +384,8 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
         end
 
         context 'when the group is private' do
-          let(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note #{private_group.to_reference}") }
-          let!(:todo) { create(:todo, :assigned, user: user, project: project, target: issue, author: user2) }
+          let_it_be_with_reload(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note #{private_group.to_reference}") }
+          let_it_be_with_reload(:todo) { create(:todo, :assigned, user: user, project: project, target: issue, author: user2) }
 
           context 'when the note does not change mentions' do
             before do
@@ -448,7 +448,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     context 'for a personal snippet' do
       let_it_be(:snippet, freeze: false) { create(:personal_snippet, :public) }
 
-      let(:note) { create(:note, project: nil, noteable: snippet, author: user, note: "Note on a snippet with reference #{issue.to_reference}") }
+      let_it_be_with_reload(:note) { create(:note, project: nil, noteable: snippet, author: user, note: "Note on a snippet with reference #{issue.to_reference}") }
 
       it 'does not create todos' do
         expect { update_note({ note: "Mentioning user #{user2}" }) }.not_to change { note.todos.count }
@@ -484,8 +484,8 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     end
 
     context 'wiki page note' do
-      let(:wiki_page_meta) { create(:wiki_page_meta, :for_wiki_page, container: project) }
-      let(:note) { create(:note, project: project, noteable: wiki_page_meta, author: user, note: "Old note #{user2.to_reference}") }
+      let_it_be_with_reload(:wiki_page_meta) { create(:wiki_page_meta, :for_wiki_page, container: project) }
+      let_it_be_with_reload(:note) { create(:note, project: project, noteable: wiki_page_meta, author: user, note: "Old note #{user2.to_reference}") }
 
       it_behaves_like 'internal event tracking' do
         let(:event) { 'update_wiki_page_note' }
@@ -502,14 +502,14 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
       end
 
       context 'when note is on an issue' do
-        let(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note") }
+        let_it_be_with_reload(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note") }
 
         it_behaves_like 'tracks work item event', :issue, :user, Gitlab::WorkItems::Instrumentation::EventActions::NOTE_UPDATE, :execute_update_service
       end
 
       context 'when note is not on an issue' do
-        let(:merge_request) { create(:merge_request, source_project: project) }
-        let(:note) { create(:note, project: project, noteable: merge_request, author: user, note: "Old note") }
+        let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+        let_it_be_with_reload(:note) { create(:note, project: project, noteable: merge_request, author: user, note: "Old note") }
 
         it_behaves_like 'does not track work item event', :execute_update_service
 

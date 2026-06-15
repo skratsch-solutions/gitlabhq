@@ -10,7 +10,7 @@ export const useCodeQuality = defineStore('codeQuality', {
   state() {
     return {
       endpoint: null,
-      files: {},
+      files: null,
       loaded: false,
     };
   },
@@ -26,7 +26,7 @@ export const useCodeQuality = defineStore('codeQuality', {
         method: 'getCodeQualityReports',
         successCallback: ({ status, data }) => {
           if (status !== HTTP_STATUS_OK) return;
-          this.files = groupBy(data?.new_errors || [], 'file_path');
+          this.files = data?.new_errors?.length ? groupBy(data.new_errors, 'file_path') : null;
           this.loaded = true;
           poll.stop();
         },
@@ -45,7 +45,10 @@ export const useCodeQuality = defineStore('codeQuality', {
   },
   getters: {
     findingsForFile() {
-      return (filePath) => this.files[filePath] || null;
+      return (filePath) => this.files?.[filePath] || null;
+    },
+    hasFindings() {
+      return this.files !== null;
     },
   },
 });
