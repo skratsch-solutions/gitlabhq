@@ -29,6 +29,8 @@ module Gitlab
           Gitlab::Audit::DeployTokenAuthor.new(name: name)
         elsif id == -3
           Gitlab::Audit::DeployKeyAuthor.new(name: name)
+        elsif id == -4
+          Gitlab::Audit::OrbitIndexerAuthor.new(name: name)
         else
           Gitlab::Audit::DeletedAuthor.new(id: id, name: name)
         end

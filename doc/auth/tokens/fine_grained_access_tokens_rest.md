@@ -1328,6 +1328,7 @@ Grants the ability to create, delete, read, and update organizations.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Create | Instance | `POST` | `/organizations` |
+| Delete | Instance | `DELETE` | `/organizations/:id` |
 
 ### Packages And Registry resources
 

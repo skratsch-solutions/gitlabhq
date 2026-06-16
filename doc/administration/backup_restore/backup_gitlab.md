@@ -57,7 +57,6 @@ This file includes:
 > [!warning]
 > You are highly advised to read about [storing configuration files](#storing-configuration-files) to back up those separately.
 
-- [Mattermost data](../../integration/mattermost/_index.md#back-up-gitlab-mattermost)
 - Redis (and thus Sidekiq jobs)
 - [Object storage](#object-storage) on Linux package (Omnibus) / Docker / Self-compiled installations
 - [Global server hooks](../server_hooks.md#create-global-server-hooks-for-all-repositories)

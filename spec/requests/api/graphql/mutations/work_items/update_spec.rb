@@ -2050,7 +2050,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
     end
 
     context 'when unsupported widget input is sent' do
-      let_it_be(:issue_type, freeze: false) { build(:work_item_system_defined_type, :issue) }
+      let_it_be(:issue_type) { build(:work_item_system_defined_type, :issue) }
       let_it_be(:work_item, freeze: false) { create(:work_item, work_item_type: issue_type, project: project) }
 
       let(:input) do

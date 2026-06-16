@@ -1382,7 +1382,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#allow_possible_spam?' do
-    let_it_be(:issue, freeze: false) { build(:issue) }
+    let_it_be(:issue) { build(:issue) }
 
     subject { issue.allow_possible_spam?(issue.author) }
 

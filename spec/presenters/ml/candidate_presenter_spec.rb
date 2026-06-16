@@ -10,7 +10,7 @@ RSpec.describe Ml::CandidatePresenter, feature_category: :mlops do
 
   let_it_be(:model_version) { build_stubbed(:ml_model_versions, :with_package, project: project) }
   let_it_be(:model_version_candidate) { model_version.candidate }
-  let_it_be(:user) { project.owner }
+  let_it_be(:user, freeze: false) { project.owner }
   let_it_be(:pipeline, freeze: false) { build_stubbed(:ci_pipeline, project: project, user: user) }
   let_it_be(:build, freeze: false) do
     regular_candidate.ci_build = build_stubbed(:ci_build, pipeline: pipeline, user: user)

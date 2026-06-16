@@ -493,7 +493,7 @@ RSpec.describe IssuablesHelper, feature_category: :team_planning do
     let_it_be(:project, freeze: false) { create(:project, :repository) }
 
     context 'with a new issuable' do
-      let_it_be(:issuable, freeze: false) { build(:issue, project: project) }
+      let_it_be(:issuable) { build(:issue, project: project) }
 
       it 'returns the expected data' do
         expect(helper.issuable_label_selector_data(project, issuable)).to match({

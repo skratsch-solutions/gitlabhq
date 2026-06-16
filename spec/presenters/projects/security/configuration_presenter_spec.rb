@@ -6,7 +6,7 @@ RSpec.describe Projects::Security::ConfigurationPresenter, feature_category: :so
   include Gitlab::Routing.url_helpers
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:current_user, freeze: false) { build_stubbed(:user) }
+  let_it_be(:current_user) { build_stubbed(:user) }
 
   let(:presenter) { described_class.new(project, current_user: current_user) }
 

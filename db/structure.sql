@@ -504,7 +504,6 @@ CREATE TABLE namespaces (
     mentions_disabled boolean,
     default_branch_protection smallint,
     max_personal_access_token_lifetime integer,
-    push_rule_id bigint,
     shared_runners_enabled boolean DEFAULT true NOT NULL,
     allow_descendants_override_disabled_shared_runners boolean DEFAULT false NOT NULL,
     traversal_ids bigint[] DEFAULT '{}'::bigint[] NOT NULL,
@@ -25164,6 +25163,24 @@ CREATE TABLE namespace_uploads (
     CONSTRAINT check_dff00b5115 CHECK ((namespace_id IS NOT NULL))
 );
 
+CREATE TABLE namespaces_consents (
+    id bigint NOT NULL,
+    namespace_id bigint NOT NULL,
+    user_id bigint,
+    feature_name smallint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+CREATE SEQUENCE namespaces_consents_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE namespaces_consents_id_seq OWNED BY namespaces_consents.id;
+
 CREATE SEQUENCE namespaces_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -37109,6 +37126,8 @@ ALTER TABLE ONLY namespace_statistics ALTER COLUMN id SET DEFAULT nextval('names
 
 ALTER TABLE ONLY namespaces ALTER COLUMN id SET DEFAULT nextval('namespaces_id_seq'::regclass);
 
+ALTER TABLE ONLY namespaces_consents ALTER COLUMN id SET DEFAULT nextval('namespaces_consents_id_seq'::regclass);
+
 ALTER TABLE ONLY namespaces_storage_limit_exclusions ALTER COLUMN id SET DEFAULT nextval('namespaces_storage_limit_exclusions_id_seq'::regclass);
 
 ALTER TABLE ONLY namespaces_sync_events ALTER COLUMN id SET DEFAULT nextval('namespaces_sync_events_id_seq'::regclass);
@@ -40970,6 +40989,9 @@ ALTER TABLE ONLY namespace_template_settings
 
 ALTER TABLE ONLY namespace_uploads
     ADD CONSTRAINT namespace_uploads_pkey PRIMARY KEY (id, model_type);
+
+ALTER TABLE ONLY namespaces_consents
+    ADD CONSTRAINT namespaces_consents_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY namespaces
     ADD CONSTRAINT namespaces_pkey PRIMARY KEY (id);
@@ -49120,6 +49142,10 @@ CREATE INDEX index_namespace_template_settings_on_file_template_project_id ON na
 
 CREATE UNIQUE INDEX index_namespace_uploads_on_id ON namespace_uploads USING btree (id);
 
+CREATE UNIQUE INDEX index_namespaces_consents_on_namespace_id_and_feature_name ON namespaces_consents USING btree (namespace_id, feature_name);
+
+CREATE INDEX index_namespaces_consents_on_user_id ON namespaces_consents USING btree (user_id);
+
 CREATE UNIQUE INDEX index_namespaces_name_parent_id_type ON namespaces USING btree (name, parent_id, type);
 
 CREATE INDEX index_namespaces_on_created_at ON namespaces USING btree (created_at);
@@ -49141,8 +49167,6 @@ CREATE INDEX index_namespaces_on_path ON namespaces USING btree (path);
 CREATE INDEX index_namespaces_on_path_for_top_level_non_projects ON namespaces USING btree (lower((path)::text)) WHERE ((parent_id IS NULL) AND ((type)::text <> 'Project'::text));
 
 CREATE INDEX index_namespaces_on_path_trigram ON namespaces USING gin (path gin_trgm_ops);
-
-CREATE UNIQUE INDEX index_namespaces_on_push_rule_id ON namespaces USING btree (push_rule_id);
 
 CREATE UNIQUE INDEX index_namespaces_on_runners_token_encrypted ON namespaces USING btree (runners_token_encrypted);
 
@@ -57178,6 +57202,9 @@ ALTER TABLE ONLY ci_runner_namespaces
 ALTER TABLE ONLY incident_management_timeline_event_tag_links
     ADD CONSTRAINT fk_152216ca4f FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY namespaces_consents
+    ADD CONSTRAINT fk_152c3b2e66 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY catalog_resource_versions
     ADD CONSTRAINT fk_15376d917e FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE;
 
@@ -57594,9 +57621,6 @@ ALTER TABLE ONLY projects_branch_rules_squash_options
 
 ALTER TABLE ONLY import_offline_exports
     ADD CONSTRAINT fk_34265d27dc FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY namespaces
-    ADD CONSTRAINT fk_3448c97865 FOREIGN KEY (push_rule_id) REFERENCES push_rules(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY cluster_providers_gcp
     ADD CONSTRAINT fk_34a3a07f46 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;

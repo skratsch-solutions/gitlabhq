@@ -21926,14 +21926,10 @@ msgstr ""
 msgid "Continuous Vulnerability Scanning for Dependency Scanning"
 msgstr ""
 
-msgid "ContinuousDeployment|%{applicationCount} application across %{groupCount} group"
-msgstr ""
-
-msgid "ContinuousDeployment|%{applicationCount} applications across %{groupCount} group"
-msgstr ""
-
-msgid "ContinuousDeployment|%{applicationCount} applications across %{groupCount} groups"
-msgstr ""
+msgid "ContinuousDeployment|%{applicationCount} application"
+msgid_plural "ContinuousDeployment|%{applicationCount} applications"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "ContinuousDeployment|%{environmentsCount} of %{totalEnvironmentsCount} environments"
 msgstr ""
@@ -27937,9 +27933,6 @@ msgstr ""
 msgid "DuoAgenticChat|More active sessions"
 msgstr ""
 
-msgid "DuoAgenticChat|No GitLab Credits remain for this billing period. Turn off the %{agenticModeStart}Agentic mode%{agenticModeEnd} toggle or ask your administrator for more credits. %{linkStart}Learn more%{linkEnd}."
-msgstr ""
-
 msgid "DuoAgenticChat|No credits remain for this billing period"
 msgstr ""
 
@@ -27956,6 +27949,9 @@ msgid "DuoAgenticChat|Prompted to ignore it"
 msgstr ""
 
 msgid "DuoAgenticChat|Purchase credits"
+msgstr ""
+
+msgid "DuoAgenticChat|Purchase credits or turn off the Agentic toggle to start a new conversation."
 msgstr ""
 
 msgid "DuoAgenticChat|Purchase more credits"
@@ -28001,6 +27997,9 @@ msgid "DuoAgenticChat|This chat was deleted."
 msgstr ""
 
 msgid "DuoAgenticChat|This conversation has been archived"
+msgstr ""
+
+msgid "DuoAgenticChat|To continue collaborating with GitLab Duo Agent Platform, purchase credits."
 msgstr ""
 
 msgid "DuoAgenticChat|To continue collaborating with GitLab Duo Agent Platform, purchase more credits."
@@ -71518,10 +71517,10 @@ msgstr ""
 msgid "Selecting a GitLab user will add a link to the GitLab user in the descriptions of issues and comments (e.g. \"By %{link_open}@johnsmith%{link_close}\"). It will also associate and/or assign these issues and comments with the selected user."
 msgstr ""
 
-msgid "Self hosted AI Gateway URL is not set. It can be changed in the Gitlab Duo configuration."
+msgid "Self hosted AI Gateway URL is not set. It can be changed in the GitLab Duo configuration."
 msgstr ""
 
-msgid "Self hosted AI Gateway URL is set to %{url}. It can be changed in the Gitlab Duo configuration."
+msgid "Self hosted AI Gateway URL is set to %{url}. It can be changed in the GitLab Duo configuration."
 msgstr ""
 
 msgid "Semantic search"

@@ -41,7 +41,10 @@ RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access d
       it 'sends the request with IAM auth metadata and returns the response', :aggregate_failures do
         expect(stub).to receive(rpc_method).with(
           an_instance_of(request_class),
-          metadata: a_hash_including('gitlab-iam-auth-token' => iam_secret)
+          metadata: a_hash_including(
+            'gitlab-iam-auth-token' => iam_secret,
+            'x-gitlab-svc' => 'iam-auth-grpc'
+          )
         ).and_return(response)
 
         expect(client.public_send(method, **params)).to eq(response)

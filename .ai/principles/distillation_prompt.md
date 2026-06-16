@@ -132,6 +132,30 @@ adds those wrappers automatically.
     rule appearing in multiple source documents), emit it only once under
     the most relevant subsection. If the duplicate adds a meaningful
     nuance, merge it into the original rule rather than repeating.
+
+    Before emitting your final output, do a dedicated dedup pass: compare
+    every bullet against every other bullet across ALL subsections. Two
+    bullets are duplicates when they mandate or prohibit the same
+    underlying behavior, even when their wording, examples, subsection, or
+    surface subject differ. Keep the bullet in the most relevant
+    subsection; if the other location genuinely needs the pointer, replace
+    the duplicate with a short cross-reference ("generate payloads via the
+    RSpec fixture job — see Test Fixtures") instead of restating the rule.
+    Example:
+    - BAD (same directive stated twice under different subsections):
+      - Under "Test Fixtures": "Generate API fixtures by running
+        `bundle exec rspec spec/frontend/fixtures/foo.rb`; DO NOT
+        hand-write JSON fixture files"
+      - Under "Mocking": "Generate MSW handler response payloads via the
+        RSpec fixture job; DO NOT write the JSON by hand"
+    - GOOD (one canonical rule, cross-reference at the other site):
+      - Under "Test Fixtures": "Generate API fixtures (including MSW
+        handler payloads) by running
+        `bundle exec rspec spec/frontend/fixtures/foo.rb`; DO NOT
+        hand-write JSON fixture files"
+      - Under "Mocking": "Use MSW (Mock Service Worker) to mock network
+        requests (generate handler payloads via the RSpec fixture job —
+        see Test Fixtures)"
 12. **Precedence between rules.** When SSOT presents two related rules
     with a precedence relationship ("use X unless Y", "prefer X but use Z
     when W"), emit a single bullet using "Exception:", "Except when", or
@@ -168,16 +192,50 @@ adds those wrappers automatically.
         scope the update to those IDs (the CTE is dropped otherwise)."
 15. **Baseline rules.** When a baseline file is provided, include its rules
     verbatim — they are exempt from the rephrasing rule (rule 8 / 10).
-    Add a dedicated subsection if needed. Do not rephrase or omit them.
+    Do not rephrase or omit them. Integrate them in place:
+    - If the checklist already has a subsection covering the same topic,
+      put the baseline rules inside THAT subsection. DO NOT emit a second
+      subsection for the same topic (e.g. an "i18n — Baseline" section
+      after an existing "Internationalization (i18n)" section).
+    - If a baseline rule and an SSOT-derived item overlap or conflict,
+      keep the baseline rule verbatim and drop or narrow the SSOT-derived
+      item so the checklist does not state the same topic two different
+      ways. The final checklist must never contain two items that give
+      contradictory guidance.
+    - Add a new subsection only when no existing subsection covers the
+      baseline topic.
 16. **Reconcile against the SSOT — capture new, revise changed.** The
     current distilled file is the PRIOR version; the SSOT is the current
     truth. Do not simply re-emit the prior checklist. On every invocation,
     compare the current file against the SSOT and reconcile in three ways:
-    a) **Capture new content.** If the SSOT added a section, rule, tool,
-       workflow step, or enforcement (for example a new RuboCop cop), add
-       a corresponding checklist item or subsection. Read the WHOLE source
-       file, not just the parts that match existing checklist items — new
-       top-level (`##`) sections are the most commonly missed content.
+    a) **Capture new content — selectively.** If the SSOT added a section,
+       rule, tool, workflow step, or enforcement (for example a new RuboCop
+       cop), add a corresponding checklist item or subsection. Read the
+       WHOLE source file, not just the parts that match existing checklist
+       items — new top-level (`##`) sections are the most commonly missed
+       content. Selectivity bar: this is a distillation, not a transcript.
+       Add an item only when it is a concrete, checkable, GitLab-specific
+       rule that a reviewer would act on (rule 9). DO NOT transcribe every
+       SSOT statement, enumerate long option lists, or restate explanatory
+       background; an SSOT section that is purely conceptual may correctly
+       yield zero checklist items. When the prior checklist already covers
+       a topic at the right level of detail, deepening it is
+       over-distillation, not reconciliation. When the SSOT adds
+       enforcement (a cop, lint rule, or CI job) for a behavior the
+       checklist ALREADY mandates, revise the existing bullet to mention
+       the enforcement (per b) instead of adding a new bullet or
+       subsection that would duplicate the rule — a new SSOT section about
+       enforcing an existing rule is NOT a new topic. Example, where the
+       prior checklist already has "Place widget specs in
+       `spec/frontend/widgets/`" and the SSOT gains a section saying the
+       `Widgets/SpecPlacement` lint rule enforces placement in CI:
+       - BAD (new subsection duplicating the placement mandate):
+         - "### Linting" with "Ensure widget specs pass the
+           `Widgets/SpecPlacement` ESLint rule, which fails CI when a spec
+           is placed outside `spec/frontend/widgets/`"
+       - GOOD (fold enforcement into the existing bullet):
+         - "Place widget specs in `spec/frontend/widgets/` (enforced in CI
+           by the `Widgets/SpecPlacement` ESLint rule)"
     b) **Revise changed rules.** If the SSOT narrowed, broadened, or
        redirected an existing rule, rewrite that item to match the current
        SSOT. DO NOT keep the prior wording when it now conflicts with the
@@ -195,6 +253,48 @@ adds those wrappers automatically.
     Capturing new SSOT content and revising changed rules is REQUIRED work,
     not diff noise — a re-run that misses new sections or leaves a rule
     stale is a defect, even if it produces a smaller diff.
+17. **Ground tooling claims in enforcement, not suggestions.** When the
+    SSOT describes tooling, distinguish what is ENFORCED (CI jobs, linters,
+    RuboCop cops, required scripts) from what is merely SUGGESTED (editor
+    plugins, optional local helpers). Lead with the enforced mechanism and
+    phrase it as the requirement; mention optional aids only as a trailing
+    parenthetical marked as optional, or omit them. DO NOT promote an
+    optional aid (e.g. an IDE extension) into a checklist requirement, and
+    DO NOT omit the CI-enforced check that actually gates the change.
+    Agents consuming the checklist cannot install editor plugins — rules
+    must be actionable in an automated review context. Example:
+    - BAD: "Use the axe Accessibility Linter VS Code extension to catch
+      issues"
+    - GOOD: "Ensure changes pass the CI accessibility checks (Storybook
+      tests run `axe-playwright` and fail on violations); the axe editor
+      extension is an optional local aid"
+
+    Likewise, DO NOT emit checklist items for ongoing production oversight
+    (continuous monitoring, observability dashboards, SLO/alerting, on-call
+    review) — those are operational activities, not actions a contributor
+    takes on a change under review. If the SSOT lists such a step in a
+    workflow or a tool-selection matrix, omit it; an agent cannot act on
+    it during review. Example:
+    - BAD: "For complete pages: apply feature tests + browser extension +
+      monitoring" (monitoring is a continuous production setup, not an MR
+      action)
+    - GOOD: "For complete pages: apply feature tests + browser extension"
+18. **Diff discipline.** Beyond the required reconciliation work (rule 16)
+    and the mandatory imperative rewrite (rules 8/10), keep the diff
+    against the prior checklist minimal:
+    - DO NOT reword, reorder, split, or merge items that already
+      accurately reflect the SSOT.
+    - DO NOT expand an item with extra detail from the SSOT when the
+      existing wording is already a correct and sufficient rule.
+    - DO NOT add items for SSOT content that the prior checklist already
+      covers, or that rule 9 excludes (universal best practices).
+    When in doubt whether a change is required by the SSOT or merely
+    stylistic, leave the prior item untouched. A reviewer should be able to
+    map every changed line in your output to one of: (a) a change in the
+    SSOT, (b) a rule-2 removal, (c) the imperative rewrite, (d) a
+    dedup/cross-reference consolidation (rule 11), (e) a precedence or
+    exception merge (rules 12/14), or (f) baseline integration (rule 15) —
+    anything else is churn and makes the sync MRs impossible to review.
 
 ## How to read inputs
 

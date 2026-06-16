@@ -47,6 +47,36 @@ module API
           render_api_error!(response.message, :bad_request)
         end
       end
+
+      desc 'Soft-delete an organization' do
+        detail 'This feature was introduced in GitLab 19.2.'
+        success code: 202
+        failure [
+          { code: 400, message: 'Bad request' },
+          { code: 401, message: 'Unauthorized' },
+          { code: 403, message: 'Forbidden' },
+          { code: 404, message: 'Not found' }
+        ]
+        tags %w[organizations]
+      end
+      params do
+        requires :id, type: Integer, desc: 'The ID of the organization'
+      end
+      route_setting :lifecycle, :experiment
+      route_setting :authorization, permissions: :delete_organization, boundary_type: :instance
+      delete ':id' do
+        organization = find_organization!(params[:id])
+
+        response = ::Organizations::SoftDeleteService
+          .new(organization, current_user: current_user)
+          .execute
+
+        if response.success?
+          accepted!
+        else
+          render_api_error!(response.message, response.cause.access_denied? ? 403 : 400)
+        end
+      end
     end
   end
 end

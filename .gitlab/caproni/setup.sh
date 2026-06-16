@@ -223,6 +223,12 @@ if [[ -z "$SIDEKIQ_POD_NAME" ]] || [[ "$SIDEKIQ_POD_STATUS" != "Running" ]]; the
 fi
 
 # ---------------------------------------------------------------------------
+# 1c. Remove stale deprecated config files left over from older clusters.
+# ---------------------------------------------------------------------------
+
+rm -f "$GITLAB_DIR/config/redis.action_cable.yml"
+
+# ---------------------------------------------------------------------------
 # 2. Copy CNG-generated config files from the pod into $CONFIG_DIR
 #
 #    These files are written by the Helm chart init containers or the CNG
@@ -239,7 +245,6 @@ CONFIG_FILES=(
   "config/database.yml"
   "config/cable.yml"
   "config/resque.yml"
-  "config/redis.action_cable.yml"
   "config/session_store.yml"
   "config/secrets.yml"
   "config/initializers/smtp_settings.rb"
@@ -364,7 +369,6 @@ ENV_REWRITE_FILES=(
   "config/database.yml"
   "config/cable.yml"
   "config/resque.yml"
-  "config/redis.action_cable.yml"
   "config/session_store.yml"
   "config/secrets.yml"
 )
@@ -542,7 +546,6 @@ TEST_SECTION_FILES=(
   "config/gitlab.yml"
   "config/cable.yml"
   "config/resque.yml"
-  "config/redis.action_cable.yml"
   "config/session_store.yml"
   "config/secrets.yml"
 )

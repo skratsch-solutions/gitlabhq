@@ -7,6 +7,12 @@ module Authn
 
       TIMEOUT_SECONDS = 5
 
+      # Workaround: the GATE sandbox Envoy gateway requires this header to route
+      # gRPC traffic to the IAM backend. Harmless when sent to non-Envoy endpoints.
+      # TODO: remove when direct gRPC routing replaces the Envoy header-based routing.
+      ROUTING_HEADER = 'x-gitlab-svc'
+      ROUTING_HEADER_VALUE = 'iam-auth-grpc'
+
       REQUEST_TYPES = {
         health: ::Auth::V1::HealthRequest,
         accept_login_challenge: ::Auth::V1::LoginServiceAcceptRequest,
@@ -95,7 +101,10 @@ module Authn
       end
 
       def metadata
-        { Authn::IamAuthService::IAM_AUTH_TOKEN_HEADER => Authn::IamAuthService.secret }
+        {
+          Authn::IamAuthService::IAM_AUTH_TOKEN_HEADER => Authn::IamAuthService.secret,
+          ROUTING_HEADER => ROUTING_HEADER_VALUE
+        }
       end
     end
   end

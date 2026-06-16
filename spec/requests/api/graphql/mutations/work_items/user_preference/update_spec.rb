@@ -7,7 +7,7 @@ RSpec.describe 'Update work items user preferences', feature_category: :team_pla
 
   let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:namespace, freeze: false) { create(:group, :private) }
-  let_it_be(:work_item_type, freeze: false) { build(:work_item_system_defined_type, :incident) }
+  let_it_be(:work_item_type) { build(:work_item_system_defined_type, :incident) }
 
   let(:sorting_value) { 'CREATED_ASC' }
   let(:display_settings) { { 'hiddenMetadataKeys' => %w[assignee labels milestone] } }

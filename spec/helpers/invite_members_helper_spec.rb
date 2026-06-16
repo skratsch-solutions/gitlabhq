@@ -195,7 +195,7 @@ RSpec.describe InviteMembersHelper do
   describe '#invite_accepted_notice' do
     context 'for group invites' do
       let_it_be(:group, freeze: false) { create(:group, name: 'My group') }
-      let_it_be(:member, freeze: false) { build(:group_member, :guest, group: group) }
+      let_it_be(:member) { build(:group_member, :guest, group: group) }
 
       it 'returns the expected message' do
         expect(helper.invite_accepted_notice(member))
@@ -205,7 +205,7 @@ RSpec.describe InviteMembersHelper do
 
     context 'for project invites' do
       let_it_be(:project, freeze: false) { create(:project, name: 'My project') }
-      let_it_be(:member, freeze: false) { build(:project_member, :guest, project: project) }
+      let_it_be(:member) { build(:project_member, :guest, project: project) }
 
       it 'returns the expected message' do
         expect(helper.invite_accepted_notice(member))

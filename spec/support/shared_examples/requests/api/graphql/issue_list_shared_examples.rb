@@ -667,7 +667,7 @@ RSpec.shared_examples 'graphql issue list request spec' do
       create(:incident_management_issuable_escalation_status, issue: issue_a)
     end
 
-    let_it_be(:incident_type, freeze: false) { build(:work_item_system_defined_type, :incident) }
+    let_it_be(:incident_type) { build(:work_item_system_defined_type, :incident) }
 
     let(:fields) do
       <<~QUERY

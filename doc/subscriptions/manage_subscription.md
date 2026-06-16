@@ -553,3 +553,4 @@ You cannot transfer:
 - A subscription with a GitLab Duo add-on to a namespace which already has a subscriptions with a GitLab Duo add-on.
 - A subscription with a Premium or Ultimate plan to a personal namespace.
 - A subscription purchased using a discount code.
+- A GitLab Flex subscription.

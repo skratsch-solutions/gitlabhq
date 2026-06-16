@@ -122,6 +122,7 @@ class Namespace < ApplicationRecord
   has_many :timelog_categories, class_name: 'TimeTracking::TimelogCategory'
   has_many :achievements, class_name: 'Achievements::Achievement'
   has_many :namespace_commit_emails, class_name: 'Users::NamespaceCommitEmail'
+  has_many :namespace_consents, class_name: 'Namespaces::Consent', inverse_of: :namespace
   has_many :cycle_analytics_stages, class_name: 'Analytics::CycleAnalytics::Stage', foreign_key: :group_id, inverse_of: :namespace
   has_many :value_streams, class_name: 'Analytics::CycleAnalytics::ValueStream', foreign_key: :group_id, inverse_of: :namespace
 

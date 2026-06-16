@@ -442,7 +442,7 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
         allow(custom_type_without_widgets).to receive(:widget_definitions).and_return([])
       end
 
-      let_it_be(:custom_type_without_widgets, freeze: false) { build(:work_item_system_defined_type, :task) }
+      let_it_be(:custom_type_without_widgets) { build(:work_item_system_defined_type, :task) }
       let_it_be(:custom_work_item_type) { build(:work_item_system_defined_type) }
 
       it_behaves_like "supports quick action commands"

@@ -138,6 +138,7 @@ RSpec.describe 'Database schema',
       # file_template_project_id and custom_project_templates_group_id will be removed from namespaces
       # as part of https://gitlab.com/gitlab-org/gitlab/-/work_items/592091
       namespaces: %w[owner_id file_template_project_id custom_project_templates_group_id],
+      namespaces_consents: %w[user_id], # Uses loose FK for async nullify (config/gitlab_loose_foreign_keys.yml)
       namespace_descendants: %w[namespace_id],
       notes: %w[author_id commit_id noteable_id updated_by_id resolved_by_id discussion_id],
       notification_settings: %w[source_id],
@@ -319,7 +320,7 @@ RSpec.describe 'Database schema',
       issues: 35,
       members: 19,
       merge_requests: 29,
-      namespaces: 24,
+      namespaces: 23,
       notes: 16,
       p_ci_builds: 24,
       p_ci_pipelines: 25,

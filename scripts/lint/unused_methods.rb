@@ -77,6 +77,13 @@ module Lint
 
     private
 
+    # Indents YAML list items that are not already indented.
+    # Ruby's to_yaml outputs list items without indentation (e.g., "- item"),
+    # but our YAML files use 2-space indentation (e.g., "  - item").
+    def indent_yaml_list_items(yaml_string)
+      yaml_string.gsub(/\n-(\s+\S)/, "\n  -\\1")
+    end
+
     def load_source_files
       Dir.glob(file_extensions_glob).each do |filename|
         @source_files[filename] = File.readlines(filename)
@@ -141,7 +148,7 @@ module Lint
 
       if unused_count > 0
         puts "\nFound #{unused_count} unused methods:\n\n"
-        puts unused_method_collection.to_yaml
+        puts indent_yaml_list_items(unused_method_collection.to_yaml)
         puts "\n"
       else
         puts Rainbow('No unused methods were found.').green.bright
@@ -169,7 +176,7 @@ module Lint
       UPDATE_UNUSED
 
       puts Rainbow(error).red.bright
-      puts Rainbow(parse_methods_diff(new_unused_methods).to_yaml).red.bright
+      puts Rainbow(indent_yaml_list_items(parse_methods_diff(new_unused_methods).to_yaml)).red.bright
     end
 
     def print_removed_methods
@@ -180,7 +187,7 @@ module Lint
       UPDATE_UNUSED
 
       print Rainbow(warning).yellow.bright
-      puts Rainbow(parse_methods_diff(removed_methods).to_yaml).yellow.bright
+      puts Rainbow(indent_yaml_list_items(parse_methods_diff(removed_methods).to_yaml)).yellow.bright
     end
 
     def parse_methods_diff(diff_to_parse)

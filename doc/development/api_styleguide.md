@@ -561,21 +561,21 @@ While in the [experiment status](../policy/development_stages_support.md#experim
   - Any added arguments must be ignored.
   - Any added fields must not be exposed.
 - The [API documentation](../api/api_resources.md) must [document the experimental status](documentation/experiment_beta.md) and the feature flag [must be documented](documentation/feature_flags.md).
-- The [OpenAPI documentation](../api/openapi/openapi_interactive.md) must not describe the changes (for example, using [the `hidden` option](https://github.com/ruby-grape/grape-swagger#hiding-an-endpoint-)).
+- The [OpenAPI documentation](../api/openapi/_index.md) must not describe the changes (for example, using [the `hidden` option](https://github.com/ruby-grape/grape-swagger#hiding-an-endpoint-)).
 
 While in the [beta status](../policy/development_stages_support.md#beta):
 
 - Add `route_setting :lifecycle, :beta` before the endpoint. For more information, see [Marking endpoint lifecycle](#marking-endpoint-lifecycle).
 - Use a feature flag that is [on by default](feature_flags/_index.md#beta-type).
 - The [API documentation](../api/api_resources.md) must [document the beta status](documentation/experiment_beta.md) and the feature flag [must be documented](documentation/feature_flags.md).
-- The [OpenAPI documentation](../api/openapi/openapi_interactive.md) must not describe the changes.
+- The [OpenAPI documentation](../api/openapi/_index.md) must not describe the changes.
 
 When the feature becomes [generally available](../policy/development_stages_support.md#generally-available):
 
 - [Remove](feature_flags/controls.md#cleaning-up) the feature flag.
 - Remove `route_setting :lifecycle` from the endpoint.
 - Remove the [experiment or beta status](documentation/experiment_beta.md) from the [API documentation](../api/api_resources.md).
-- Add the [OpenAPI documentation](../api/openapi/openapi_interactive.md) to make the changes programmatically discoverable.
+- Add the [OpenAPI documentation](../api/openapi/_index.md) to make the changes programmatically discoverable.
 
 ## Declared parameters
 

@@ -9,6 +9,7 @@ import {
 } from '@gitlab/ui';
 import { InternalEvents } from '~/tracking';
 import { getParameterByName, setUrlParams, visitUrl } from '~/lib/utils/url_utility';
+import { parseBoolean } from '~/lib/utils/common_utils';
 import { s__ } from '~/locale';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import AccessorUtilities from '~/lib/utils/accessor';
@@ -52,7 +53,7 @@ export default {
   emits: ['toggle-age-indicator'],
   data() {
     return {
-      isIgnoring: getParameterByName('ignore_revs') || false,
+      isIgnoring: parseBoolean(getParameterByName('ignore_revs')),
       isLoading: false,
       showAgeIndicator: false,
     };
@@ -79,6 +80,7 @@ export default {
       this.$emit('toggle-age-indicator', this.showAgeIndicator);
     },
     toggleIgnoreRevs() {
+      this.isIgnoring = !this.isIgnoring;
       this.isLoading = true;
       visitUrl(setUrlParams({ ignore_revs: this.isIgnoring }));
     },
@@ -130,13 +132,16 @@ export default {
     </template>
 
     <template v-else>
-      <gl-form-checkbox
-        v-model="isIgnoring"
-        class="!gl-mx-4 gl-pb-2 gl-pt-4"
-        data-testid="ignore-revs-checkbox"
-        @input="toggleIgnoreRevs"
-        >{{ $options.i18n.ignoreSpecificRevs }}</gl-form-checkbox
-      >
+      <gl-disclosure-dropdown-item data-testid="ignore-revs-item" @action="toggleIgnoreRevs">
+        <template #list-item>
+          <gl-form-checkbox
+            :checked="isIgnoring"
+            class="gl-pointer-events-none -gl-mb-3"
+            data-testid="ignore-revs-checkbox"
+            >{{ $options.i18n.ignoreSpecificRevs }}</gl-form-checkbox
+          >
+        </template>
+      </gl-disclosure-dropdown-item>
 
       <gl-dropdown-divider />
       <gl-disclosure-dropdown-item

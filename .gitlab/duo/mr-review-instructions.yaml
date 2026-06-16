@@ -511,7 +511,18 @@ instructions:
         The real risk with any negative assertion is a false-pass: if the page returns a
         500 error or remains blank, the absence check passes instantly because the content
         was never rendered. Always confirm the page has loaded with a positive assertion
-        before checking for absence.
+        before checking for absence. Keep the two assertions together in the same example,
+        in order — the positive assertion first to confirm the page rendered, immediately
+        followed by the absence check:
+
+        ```ruby
+        # Bad — passes instantly even if the page 500s or never rendered
+        expect(page).to have_no_content('No dashboards found')
+
+        # Good — confirm the page loaded first, then check absence
+        expect(page).to have_link dashboard.name
+        expect(page).to have_no_content('No dashboards found')
+        ```
       - Reference: https://gitlab.com/gitlab-org/gitlab/-/raw/master/doc/development/testing_guide/best_practices.md
       - Reference: https://docs.gitlab.com/development/testing_guide/best_practices/#avoid-waiting-for-elements-you-expect-to-be-absent
 

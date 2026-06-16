@@ -255,12 +255,12 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   describe '.by_commit_sha' do
     include ProjectForksHelper
 
-    let_it_be(:project, freeze: false) { create(:project) }
-    let_it_be(:target_project_id, freeze: false) { project.id }
-    let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project, target_project: project) }
-    let_it_be(:merge_request_diff, freeze: false) { create(:merge_request_diff, merge_request: merge_request) }
+    let_it_be(:project) { create(:project) }
+    let_it_be(:target_project_id) { project.id }
+    let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+    let_it_be(:merge_request_diff) { create(:merge_request_diff, merge_request: merge_request) }
 
-    let_it_be(:commits_metadata, freeze: false) do
+    let_it_be(:commits_metadata) do
       create(
         :merge_request_commits_metadata,
         project: project,
@@ -268,7 +268,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
       )
     end
 
-    let_it_be(:diff_commit_with_metadata, freeze: false) do
+    let_it_be(:diff_commit_with_metadata) do
       create(
         :merge_request_diff_commit,
         merge_request_diff: merge_request_diff,
@@ -277,7 +277,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
       )
     end
 
-    let_it_be(:diff_commit_without_metadata, freeze: false) do
+    let_it_be(:diff_commit_without_metadata) do
       create(
         :diff_commit_without_metadata,
         merge_request_diff: merge_request_diff,
@@ -318,13 +318,13 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     end
 
     context 'with multiple target_project_ids' do
-      let_it_be(:forked_project, freeze: false) { fork_project(project, nil, repository: true) }
-      let_it_be(:forked_project2, freeze: false) { fork_project(project, nil, repository: true) }
-      let_it_be(:forked_mr_diff, freeze: false) do
+      let_it_be(:forked_project) { fork_project(project, nil, repository: true) }
+      let_it_be(:forked_project2) { fork_project(project, nil, repository: true) }
+      let_it_be(:forked_mr_diff) do
         create(:merge_request_diff, merge_request: create(:merge_request, source_project: project, target_project: forked_project))
       end
 
-      let_it_be(:forked_mr_diff_2, freeze: false) do
+      let_it_be(:forked_mr_diff_2) do
         create(:merge_request_diff, merge_request: create(:merge_request, source_project: project, target_project: forked_project2))
       end
 
@@ -376,7 +376,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
 
       context 'when querying for a different project' do
         let(:sha) { 'def456' }
-        let_it_be(:other_project, freeze: false) { create(:project) }
+        let_it_be(:other_project) { create(:project) }
 
         it 'returns empty result' do
           expect(described_class.by_commit_sha(other_project, sha)).to be_empty
@@ -432,21 +432,21 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '.ids_for_external_storage_migration' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
-    let_it_be(:outdated, freeze: false) { merge_request.merge_request_diff }
-    let_it_be(:latest, freeze: false) { merge_request.create_merge_request_diff }
-    let_it_be(:merge_head, freeze: false) { merge_request.create_merge_head_diff }
+    let_it_be_with_reload(:merge_request) { create(:merge_request) }
+    let_it_be(:outdated) { merge_request.merge_request_diff }
+    let_it_be(:latest) { merge_request.create_merge_request_diff }
+    let_it_be(:merge_head) { merge_request.create_merge_head_diff }
 
-    let_it_be(:closed_mr, freeze: false) { create(:merge_request, :closed_last_month) }
+    let_it_be(:closed_mr) { create(:merge_request, :closed_last_month) }
     let(:closed) { closed_mr.merge_request_diff }
 
-    let_it_be(:merged_mr, freeze: false) { create(:merge_request, :merged_last_month) }
+    let_it_be(:merged_mr) { create(:merge_request, :merged_last_month) }
     let(:merged) { merged_mr.merge_request_diff }
 
-    let_it_be(:recently_closed_mr, freeze: false) { create(:merge_request, :closed) }
+    let_it_be_with_refind(:recently_closed_mr) { create(:merge_request, :closed) }
     let(:closed_recently) { recently_closed_mr.merge_request_diff }
 
-    let_it_be(:recently_merged_mr, freeze: false) { create(:merge_request, :merged) }
+    let_it_be_with_refind(:recently_merged_mr) { create(:merge_request, :merged) }
 
     let(:merged_recently) { recently_merged_mr.merge_request_diff }
 
@@ -508,7 +508,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#ensure_project_id' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request, :without_diffs) }
+    let_it_be(:merge_request) { create(:merge_request, :without_diffs) }
 
     let(:diff) { build(:merge_request_diff, merge_request: merge_request, project_id: project_id) }
 
@@ -532,7 +532,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#update_external_diff_store' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be_with_refind(:merge_request) { create(:merge_request) }
 
     let(:diff) { merge_request.merge_request_diff }
     let(:store) { diff.external_diff.object_store }
@@ -1632,7 +1632,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#commit_shas' do
-    let_it_be(:project, freeze: false) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let(:shas_from_commits) do
       diff_with_commits.merge_request.commits.map(&:sha)
     end
@@ -1769,7 +1769,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#files_count' do
-    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be_with_refind(:merge_request) { create(:merge_request) }
 
     let(:diff) { merge_request.merge_request_diff }
     let(:actual_count) { diff.merge_request_diff_files.count }
@@ -1818,12 +1818,12 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#includes_any_commits?' do
-    let_it_be(:project, freeze: false) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let_it_be_with_refind(:merge_request_diff) do
       create(:merge_request, source_project: project, target_project: project).merge_request_diff
     end
 
-    let_it_be(:diff_commit_with_metadata, freeze: false) do
+    let_it_be(:diff_commit_with_metadata) do
       create(:merge_request_diff_commit,
         merge_request_diff: merge_request_diff,
         sha: 'abc123',
@@ -1831,7 +1831,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
       )
     end
 
-    let_it_be(:diff_commit_without_metadata, freeze: false) do
+    let_it_be(:diff_commit_without_metadata) do
       create(:diff_commit_without_metadata,
         merge_request_diff: merge_request_diff,
         relative_order: merge_request_diff.merge_request_diff_commits.count + 1,
@@ -1840,7 +1840,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
       )
     end
 
-    let_it_be(:diff_commit_with_duplicated_data, freeze: false) do
+    let_it_be(:diff_commit_with_duplicated_data) do
       create(:merge_request_diff_commit,
         :with_duplicated_data,
         merge_request_diff: merge_request_diff,
@@ -2046,8 +2046,8 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   describe '#commits' do
     include ProjectForksHelper
 
-    let_it_be(:target, freeze: false) { create(:project, :test_repo) }
-    let_it_be(:forked, freeze: false) { fork_project(target, nil, repository: true) }
+    let_it_be(:target) { create(:project, :test_repo) }
+    let_it_be(:forked) { fork_project(target, nil, repository: true) }
     let(:merge_request) { create(:merge_request, source_project: forked, target_project: target) }
     let(:diff) { merge_request.merge_request_diff }
 
@@ -2113,14 +2113,14 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '.latest_diff_for_merge_requests' do
-    let_it_be(:merge_request_1, freeze: false) { create(:merge_request, :skip_diff_creation) }
-    let_it_be(:merge_request_1_diff_1, freeze: false) { create(:merge_request_diff, merge_request: merge_request_1, created_at: 3.days.ago) }
-    let_it_be(:merge_request_1_diff_2, freeze: false) { create(:merge_request_diff, merge_request: merge_request_1, created_at: 1.day.ago) }
+    let_it_be(:merge_request_1) { create(:merge_request, :skip_diff_creation) }
+    let_it_be(:merge_request_1_diff_1) { create(:merge_request_diff, merge_request: merge_request_1, created_at: 3.days.ago) }
+    let_it_be(:merge_request_1_diff_2) { create(:merge_request_diff, merge_request: merge_request_1, created_at: 1.day.ago) }
 
-    let_it_be(:merge_request_2, freeze: false) { create(:merge_request, :skip_diff_creation) }
-    let_it_be(:merge_request_2_diff_1, freeze: false) { create(:merge_request_diff, merge_request: merge_request_2, created_at: 3.days.ago) }
+    let_it_be(:merge_request_2) { create(:merge_request, :skip_diff_creation) }
+    let_it_be(:merge_request_2_diff_1) { create(:merge_request_diff, merge_request: merge_request_2, created_at: 3.days.ago) }
 
-    let_it_be(:merge_request_3, freeze: false) { create(:merge_request, :skip_diff_creation) }
+    let_it_be(:merge_request_3) { create(:merge_request, :skip_diff_creation) }
 
     subject { described_class.latest_diff_for_merge_requests([merge_request_1, merge_request_2]) }
 

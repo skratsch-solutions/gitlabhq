@@ -13,7 +13,7 @@ RSpec.describe Admin::UserActionsHelper, feature_category: :user_management do
     end
 
     context 'the user is a bot' do
-      let_it_be(:user, freeze: false) { build(:user, :bot) }
+      let_it_be(:user) { build(:user, :bot) }
 
       it { is_expected.to be_empty }
     end
@@ -132,7 +132,7 @@ RSpec.describe Admin::UserActionsHelper, feature_category: :user_management do
     end
 
     context 'the current_user does not have permission to delete the user' do
-      let_it_be(:user, freeze: false) { build(:user) }
+      let_it_be(:user) { build(:user) }
 
       before do
         allow(helper).to receive(:can?).and_call_original

@@ -101,6 +101,10 @@ You should always pin a specific version of the image, like `docker:24.0.5`.
 If you use a tag like `docker:latest`, you have no control over which version is used.
 This can cause incompatibility problems when new versions are released.
 
+> [!note]
+> If Docker-in-Docker jobs hang on outbound network requests or TLS handshakes, see
+> [Docker-in-Docker MTU does not inherit from the runner](https://docs.gitlab.com/runner/executors/docker/#docker-in-docker-mtu-does-not-inherit-from-the-runner).
+
 #### Use the Docker executor with Docker-in-Docker
 
 You can use the Docker executor to run jobs in a Docker container.

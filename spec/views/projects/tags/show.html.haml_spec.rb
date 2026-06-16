@@ -56,7 +56,7 @@ RSpec.describe 'projects/tags/show.html.haml', feature_category: :source_code_ma
   end
 
   context 'for create/edit release button' do
-    let_it_be(:release, freeze: false) { build(:release, project: project, tag: 'v1.1.0') }
+    let_it_be(:release) { build(:release, project: project, tag: 'v1.1.0') }
 
     it 'edit release button is rendered when release is present and user has permission' do
       allow(view).to receive(:can?).with(user, :admin_tag, project).and_return(true)

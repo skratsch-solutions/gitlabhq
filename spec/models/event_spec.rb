@@ -1118,7 +1118,7 @@ RSpec.describe Event, feature_category: :user_profile do
 
   describe 'categorization' do
     let_it_be(:project, freeze: false) { create(:project, :repository) }
-    let_it_be(:all_valid_events, freeze: false) do
+    let_it_be(:all_valid_events) do
       # mapping from factory name to whether we need to supply the project
       valid_target_factories = {
         issue: true,

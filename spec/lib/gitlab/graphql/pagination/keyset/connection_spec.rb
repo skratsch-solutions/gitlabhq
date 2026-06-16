@@ -231,7 +231,7 @@ RSpec.describe Gitlab::Graphql::Pagination::Keyset::Connection do
         let_it_be(:project5, freeze: false) { create(:project, last_repository_check_at: 20.days.ago) }    # Asc: project4  Desc: project4
 
         context 'when ascending' do
-          let_it_be(:order, freeze: false) { Gitlab::Pagination::Keyset::Order.build([column_order_last_repo, column_order_id]) }
+          let_it_be(:order) { Gitlab::Pagination::Keyset::Order.build([column_order_last_repo, column_order_id]) }
           let_it_be(:nodes, freeze: false) { Project.order(order) }
           let_it_be(:ascending_nodes, freeze: false) { [project5, project1, project3, project2, project4] }
 
@@ -255,7 +255,7 @@ RSpec.describe Gitlab::Graphql::Pagination::Keyset::Connection do
         end
 
         context 'when descending' do
-          let_it_be(:order, freeze: false) { Gitlab::Pagination::Keyset::Order.build([column_order_last_repo_desc, column_order_id]) }
+          let_it_be(:order) { Gitlab::Pagination::Keyset::Order.build([column_order_last_repo_desc, column_order_id]) }
           let_it_be(:nodes, freeze: false) { Project.order(order) }
           let_it_be(:descending_nodes, freeze: false) { [project3, project1, project5, project2, project4] }
 
@@ -361,7 +361,7 @@ RSpec.describe Gitlab::Graphql::Pagination::Keyset::Connection do
     describe '#has_previous_page and #has_next_page' do
       # using a list of 5 items with a max_page of 3
       let_it_be(:project_list, freeze: false) { create_list(:project, 5) }
-      let_it_be(:nodes, freeze: false) { Project.order(Gitlab::Pagination::Keyset::Order.build([column_order_id])) }
+      let_it_be(:nodes) { Project.order(Gitlab::Pagination::Keyset::Order.build([column_order_id])) }
 
       context 'when default query' do
         let(:arguments) { {} }

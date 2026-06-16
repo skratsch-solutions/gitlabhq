@@ -89,10 +89,13 @@ module Gitlab
 
             First reconcile the prior checklist against the SSOT (system prompt
             rule 16): read each SSOT source file in full, ADD checklist items for
-            new SSOT content (new sections, rules, tooling, enforcement), REVISE
-            any item whose SSOT guidance changed, and DROP items no longer
+            genuinely new SSOT content (new sections, rules, tooling,
+            enforcement), REVISE any item whose SSOT guidance changed (including
+            new enforcement for behavior an existing item already mandates — fold
+            it into that item, do not add a duplicate), and DROP items no longer
             supported. Then apply the imperative-mood rule to every item. Do not
-            simply re-emit the prior checklist.
+            simply re-emit the prior checklist. Keep all other lines untouched
+            (system prompt rule 18).
 
             Current distilled file (the PRIOR version — reconcile it against the
             SSOT, do not assume it is still complete or correct):
