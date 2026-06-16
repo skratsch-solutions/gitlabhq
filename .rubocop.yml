@@ -994,6 +994,12 @@ API/DescriptionSuccessResponse:
     - 'lib/**/api/**/*.rb'
     - 'ee/lib/**/api/**/*.rb'
 
+API/DescriptionFailureResponse:
+  Enabled: true
+  Include:
+    - 'lib/**/api/**/*.rb'
+    - 'ee/lib/**/api/**/*.rb'
+
 API/DescriptionSummary:
   Enabled: true
   SafeAutoCorrect: false

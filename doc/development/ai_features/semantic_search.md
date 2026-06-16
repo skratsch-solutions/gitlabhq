@@ -304,7 +304,7 @@ Delete the connection and associated records:
 
 ### Setting up MCP locally
 
-To set up the MCP server locally for development and testing, see the [MCP server development guide](../mcp_server.md).
+To set up the MCP server locally for development and testing, see the [MCP server development guide](../duo_agent_platform/mcp/_index.md).
 
 Tip: specifically ask for the `semantic_code_search` tool in your prompt to ensure the tool is used.
 

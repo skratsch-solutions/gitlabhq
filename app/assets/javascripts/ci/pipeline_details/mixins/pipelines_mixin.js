@@ -144,8 +144,8 @@ export default {
         .then((response) => this.successCallback(response))
         .catch((error) => this.errorCallback(error));
     },
-    setCommonData(pipelines, isUsingAsyncPipelineCreation = false) {
-      this.store.storePipelines(pipelines, isUsingAsyncPipelineCreation);
+    setCommonData(pipelines) {
+      this.store.storePipelines(pipelines);
       this.isLoading = false;
       this.updateGraphDropdown = true;
       this.hasMadeRequest = true;
@@ -194,7 +194,9 @@ export default {
      * loading state and re-enable the run pipeline button
      */
     runMergeRequestPipeline(options) {
-      this.store.toggleIsRunningPipeline(true);
+      if (this.state.isRunningMergeRequestPipeline) return; // Guards against duplicate submissions
+
+      this.store.toggleIsRunningMergeRequestPipeline(true);
 
       this.service
         .runMRPipeline(options)
@@ -224,9 +226,7 @@ export default {
           reportToSentry('run_mr_pipeline', e);
         })
         .finally(() => {
-          if (!options.isAsync) {
-            this.store.toggleIsRunningPipeline(false);
-          }
+          this.store.toggleIsRunningMergeRequestPipeline(false);
         });
     },
     onChangePage(page) {

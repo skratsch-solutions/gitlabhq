@@ -202,7 +202,7 @@ offering a ready-to-use AI solution without the need for on-premise infrastructu
 
 For more information, see the [GitLab.com AI Gateway configuration diagram](configuration_types.md#gitlabcom-ai-gateway).
 
-To set up this infrastructure, see [how to configure GitLab Duo on a GitLab Self-Managed instance](../gitlab_duo/configure/gitlab_self_managed.md).
+To set up this infrastructure, see [how to configure GitLab Duo on a GitLab Self-Managed instance](../gitlab_duo/configure/_index.md).
 
 ## Set up private infrastructure
 

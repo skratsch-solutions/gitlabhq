@@ -1,6 +1,6 @@
 ---
-source_checksum: 16f13ec3375e15ef
-distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
+source_checksum: f4d52c00ddf0af9f
+distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -33,6 +33,7 @@ distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
 - Wrap EE extension modules in `module EE` to avoid naming conflicts.
 - Use `ActiveSupport::Concern` with `extend ::Gitlab::Utils::Override` inside `class_methods` when overriding CE class methods.
 - DO NOT override CE methods that contain guard clauses directly; instead refactor the CE method to extract behavior into a separate hookable method, then override that.
+- Use the `prepend_mod_with` pattern to extend class methods used in initializers when `Gitlab.ee?` alone is insufficient (e.g., for SaaS-only initializer behavior); define a stub class method returning a CE default in the CE service, then override it in the EE extension.
 
 ### Feature Guarding
 

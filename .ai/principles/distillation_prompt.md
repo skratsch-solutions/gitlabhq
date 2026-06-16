@@ -148,14 +148,35 @@ adds those wrappers automatically.
         hand-write JSON fixture files"
       - Under "Mocking": "Generate MSW handler response payloads via the
         RSpec fixture job; DO NOT write the JSON by hand"
-    - GOOD (one canonical rule, cross-reference at the other site):
-      - Under "Test Fixtures": "Generate API fixtures (including MSW
-        handler payloads) by running
-        `bundle exec rspec spec/frontend/fixtures/foo.rb`; DO NOT
-        hand-write JSON fixture files"
-      - Under "Mocking": "Use MSW (Mock Service Worker) to mock network
-        requests (generate handler payloads via the RSpec fixture job —
-        see Test Fixtures)"
+     - GOOD (one canonical rule, cross-reference at the other site):
+       - Under "Test Fixtures": "Generate API fixtures (including MSW
+         handler payloads) by running
+         `bundle exec rspec spec/frontend/fixtures/foo.rb`; DO NOT
+         hand-write JSON fixture files"
+       - Under "Mocking": "Use MSW (Mock Service Worker) to mock network
+         requests (generate handler payloads via the RSpec fixture job —
+         see Test Fixtures)"
+
+     Two bullets are still duplicates when they state the SAME requirement
+     at DIFFERENT levels of specificity in different subsections. Keep the
+     MOST specific bullet and replace the other with a cross-reference (or
+     trim it to only the point unique to its section). DO NOT keep both.
+     Example:
+     - BAD (same requirement, two specificity levels, two sections):
+       - Under "Cells Compatibility": "Expose every new plan limit column
+         through the admin Plan Limits API (`PUT /application/plan_limits`)"
+       - Under "Application Limits": "Expose every new plan limit column
+         through the admin Plan Limits API by adding it as an `optional`
+         parameter on `PUT /application/plan_limits` and to the response
+         entity in `lib/api/entities/plan_limit.rb`"
+     - GOOD (keep the specific one; cross-reference from the other):
+       - Under "Cells Compatibility": "`plan_limits` is cell-local
+         configuration; expose new plan limit columns through the admin
+         Plan Limits API (see Application Limits)"
+       - Under "Application Limits": "Expose every new plan limit column
+         through the admin Plan Limits API by adding it as an `optional`
+         parameter on `PUT /application/plan_limits` and to the response
+         entity in `lib/api/entities/plan_limit.rb`"
 12. **Precedence between rules.** When SSOT presents two related rules
     with a precedence relationship ("use X unless Y", "prefer X but use Z
     when W"), emit a single bullet using "Exception:", "Except when", or
@@ -248,11 +269,37 @@ adds those wrappers automatically.
          - STALE: "Use `wait: 0` for absence assertions"
          - CORRECT: "Use `wait: 0` only in conditional logic; DO NOT use it
            for regular absence assertions"
-    c) **Drop removed content** per rule 2.
+     c) **Drop removed content — only when truly absent from the SSOT.**
+        Remove a prior checklist item ONLY when its underlying rule is
+        absent from the FULL current SSOT source files (the ones you read
+        with `read_files`/`grep`). NEVER remove an item based on the SSOT
+        diff alone: the diff (and any truncated diff shown in the user
+        prompt or MR description) is a hint for what to ADD or REVISE — it
+        is NEVER the basis for a DROP. A rule not appearing in the diff is
+        NOT evidence it was removed from the SSOT; the prior checklist
+        captured it from an earlier full read, and it most likely still
+        lives in a source doc the diff does not touch. Before dropping any
+        item, search the full sources (grep for its key identifiers) and
+        drop it only if you confirm it is gone. When unsure, KEEP the item.
+        Specific, actionable rules are especially costly to lose, e.g.:
+        - "Use the Conventional Comment format; mark non-mandatory
+          suggestions as `**non-blocking:**`" — still in `code_review.md`;
+          DO NOT drop it.
+        - "Add `ignore_column` with `remove_with`/`remove_after` when
+          ignoring a column" — still in `avoiding_downtime_in_migrations.md`.
+        - "Remove the entry from `TABLES_TO_BE_RENAMED` when finalizing a
+          table rename" — still in `rename_database_tables.md`.
+        - "Store `encrypts` attributes as `:jsonb`, not `:text`" — still in
+          the strings/encrypted-attributes docs.
+        Each of those was wrongly dropped in a prior run because it was
+        merely absent from the truncated diff — exactly the failure this
+        rule forbids.
 
-    Capturing new SSOT content and revising changed rules is REQUIRED work,
-    not diff noise — a re-run that misses new sections or leaves a rule
-    stale is a defect, even if it produces a smaller diff.
+     Capturing new SSOT content and revising changed rules is REQUIRED work,
+     not diff noise — a re-run that misses new sections or leaves a rule
+     stale is a defect, even if it produces a smaller diff. Equally, an
+     unjustified DROP (removing a rule still present in the SSOT) is a
+     defect even though it shrinks the diff.
 17. **Ground tooling claims in enforcement, not suggestions.** When the
     SSOT describes tooling, distinguish what is ENFORCED (CI jobs, linters,
     RuboCop cops, required scripts) from what is merely SUGGESTED (editor
@@ -269,16 +316,30 @@ adds those wrappers automatically.
       tests run `axe-playwright` and fail on violations); the axe editor
       extension is an optional local aid"
 
-    Likewise, DO NOT emit checklist items for ongoing production oversight
-    (continuous monitoring, observability dashboards, SLO/alerting, on-call
-    review) — those are operational activities, not actions a contributor
-    takes on a change under review. If the SSOT lists such a step in a
-    workflow or a tool-selection matrix, omit it; an agent cannot act on
-    it during review. Example:
+    More broadly, DO NOT emit checklist items for actions an automated
+    reviewer cannot perform on the change under review. These include:
+    - ongoing production oversight (continuous monitoring, observability
+      dashboards, SLO/alerting, on-call review) — operational activities,
+      not MR actions;
+    - human support or escalation channels (e.g. "comment `@gitlab-bot
+      help`", "ask in the Community Discord/Slack", "open a support
+      ticket") — directing a human to a help channel;
+    - other human-only actions ("ask your EM/maintainer", request a manual
+      sign-off, schedule a meeting, "reach out to the team").
+    If the SSOT lists such a step in a workflow or tool-selection matrix,
+    omit it; emit only steps the reviewer can perform on the change itself.
+    Examples:
     - BAD: "For complete pages: apply feature tests + browser extension +
       monitoring" (monitoring is a continuous production setup, not an MR
       action)
     - GOOD: "For complete pages: apply feature tests + browser extension"
+    - BAD: "Use `@gitlab-bot help` on the MR or the Community Discord
+      `contribute` channel for pipeline help" (a human support channel)
+    - GOOD: keep the actionable troubleshooting rules instead, e.g. "For an
+      unrelated failure that also fails on the default branch, wait for the
+      broken-master fix before re-running" and "For a failed
+      `danger-review` job with more than 20 commits, rebase and squash;
+      otherwise re-run the job"
 18. **Diff discipline.** Beyond the required reconciliation work (rule 16)
     and the mandatory imperative rewrite (rules 8/10), keep the diff
     against the prior checklist minimal:

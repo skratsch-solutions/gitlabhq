@@ -200,3 +200,8 @@ columns:
   type: Array(Tuple(label_id UInt64, created_at DateTime64(6, 'UTC')))
 - name: award_emojis
   type: Array(Tuple(name String, user_id UInt64, created_at DateTime64(6, 'UTC')))
+- name: _siphon_watermark
+  type: DateTime64(6, 'UTC')
+  default_kind: DEFAULT
+  default_expression: now64(6, 'UTC')
+  compression_codec: CODEC(ZSTD(1))

@@ -213,7 +213,10 @@ describe('DesignWidget', () => {
       createComponent({ designCollectionQueryHandler: twoDesignsQueryHandler });
       await moveDesigns();
 
-      expect(moveDesignSuccessMutationHandler).toHaveBeenCalled();
+      expect(moveDesignSuccessMutationHandler).toHaveBeenCalledWith({
+        id: mockDesign2.id,
+        next: mockDesign.id,
+      });
 
       await waitForPromises();
 

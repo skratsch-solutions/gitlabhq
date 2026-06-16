@@ -1,6 +1,6 @@
 ---
-source_checksum: 3892981530d704dc
-distilled_at_sha: f61a71870e300699d0cbf5f4ba05fb6666928907
+source_checksum: c0d57d603926f901
+distilled_at_sha: 1d42a0a27fb36cbb3eea0d74cf32fa72493c604a
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -45,6 +45,7 @@ distilled_at_sha: f61a71870e300699d0cbf5f4ba05fb6666928907
 - Use `gitlab_shared_org` for tables with data across multiple databases that have `organization_id` for sharding; DO NOT use auto-incrementing integer primary keys — use composite or UUID primary keys instead.
 - Use `gitlab_shared_cell_local` for cell-local shared tables that do not require sharding and exist across multiple databases (for example, `loose_foreign_keys_deleted_records`).
 - DO NOT use the deprecated `gitlab_main` schema — use `gitlab_main_org` instead.
+- Fix pipeline failures caused by cross-database joins, cross-database transactions, or cross-database foreign keys after assigning a schema (see `doc/development/multiple_databases.md` for remediation guidance).
 
 ### Creating New Schemas
 

@@ -291,7 +291,7 @@ To turn on GitLab Duo experiment and beta features for an instance:
 Prerequisites:
 
 - Administrator access.
-- [Network connectivity](../../administration/gitlab_duo/configure/gitlab_self_managed.md) enabled.
+- [Network connectivity](../../administration/gitlab_duo/configure/_index.md) enabled.
 - [Silent Mode](../../administration/silent_mode/_index.md) turned off.
 
 To turn on GitLab Duo experiment and beta features for an instance:

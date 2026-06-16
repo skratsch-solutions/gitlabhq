@@ -274,7 +274,7 @@ export default {
       const pipelines = resp.data.pipelines || resp.data;
 
       this.store.storePagination(resp.headers);
-      this.setCommonData(pipelines, this.isMergeRequestTable);
+      this.setCommonData(pipelines);
       if (!this.hasInProgressCreationRequests) {
         this.stopDebouncedPipelineLoader();
       }

@@ -16,7 +16,48 @@ module Ci
     module AssociationFinder
       extend ActiveSupport::Concern
 
+      included do
+        class_attribute :partitioned_pipeline_loaders, default: {}
+      end
+
+      module PipelineRelationPreload
+        def preload_associations(records)
+          return super unless Feature.enabled?(:partition_aware_pipeline_preload, :current_request)
+
+          loaders = klass.partitioned_pipeline_loaders
+          requested = loaders.keys & preload_keys
+
+          requested.each do |name|
+            foreign_key = loaders[name]
+            ids = records.filter_map { |record| record.read_attribute(foreign_key) }.uniq
+            next if ids.empty?
+
+            pipelines = ::Gitlab::Ci::Pipeline::BulkByIdLookup.new(ids, fallback: false).execute
+
+            ::ActiveRecord::Associations::Preloader.new(
+              records: records,
+              associations: name,
+              available_records: pipelines
+            ).call
+          end
+
+          super
+        end
+
+        private
+
+        def preload_keys
+          (preload_values + includes_values).flat_map do |value|
+            value.is_a?(Hash) ? value.keys : value
+          end
+        end
+      end
+
       class_methods do
+        def with_partition_aware_preload
+          extending(PipelineRelationPreload)
+        end
+
         def partitionable_belongs_to_loader(name)
           reflection = reflect_on_association(name)
 
@@ -27,6 +68,8 @@ module Ci
           end
 
           foreign_key = reflection.foreign_key
+
+          self.partitioned_pipeline_loaders = partitioned_pipeline_loaders.merge(name => foreign_key)
 
           define_method(name) do
             return super() unless Feature.enabled?(:partitioned_pipeline_association_finder, :current_request)

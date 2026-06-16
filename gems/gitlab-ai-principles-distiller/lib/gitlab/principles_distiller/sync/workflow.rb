@@ -92,10 +92,12 @@ module Gitlab
             genuinely new SSOT content (new sections, rules, tooling,
             enforcement), REVISE any item whose SSOT guidance changed (including
             new enforcement for behavior an existing item already mandates — fold
-            it into that item, do not add a duplicate), and DROP items no longer
-            supported. Then apply the imperative-mood rule to every item. Do not
-            simply re-emit the prior checklist. Keep all other lines untouched
-            (system prompt rule 18).
+            it into that item, do not add a duplicate), and DROP an item ONLY when
+            you confirm its rule is absent from the FULL SSOT sources (grep them).
+            NEVER drop an item just because it is missing from a diff — keep it
+            when unsure (system prompt rule 16c). Then apply the imperative-mood
+            rule to every item. Do not simply re-emit the prior checklist. Keep
+            all other lines untouched (system prompt rule 18).
 
             Current distilled file (the PRIOR version — reconcile it against the
             SSOT, do not assume it is still complete or correct):

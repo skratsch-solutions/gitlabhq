@@ -8,7 +8,7 @@ RSpec.describe Gitlab::GitAccess, :aggregate_failures, feature_category: :system
   include ExternalAuthorizationServiceHelpers
   include Ci::JobTokenScopeHelpers
 
-  let(:user) { create(:user) }
+  let_it_be_with_reload(:user) { create(:user) }
   let(:actor) { user }
   let(:project) { create(:project, :repository) }
   let(:repository_path) { "#{project.full_path}.git" }
@@ -91,7 +91,7 @@ RSpec.describe Gitlab::GitAccess, :aggregate_failures, feature_category: :system
     context 'when the project exists' do
       context 'when actor exists' do
         context 'when actor is a DeployKey' do
-          let(:deploy_key) { create(:deploy_key, user: user) }
+          let_it_be_with_reload(:deploy_key) { create(:deploy_key, user: user) }
           let(:actor) { deploy_key }
 
           context 'when the DeployKey has access to the project' do
@@ -792,7 +792,7 @@ RSpec.describe Gitlab::GitAccess, :aggregate_failures, feature_category: :system
     end
 
     describe 'deploy key permissions' do
-      let(:key) { create(:deploy_key, user: user) }
+      let_it_be_with_reload(:key) { create(:deploy_key, user: user) }
       let(:actor) { key }
 
       context 'pull code' do
@@ -1440,7 +1440,7 @@ RSpec.describe Gitlab::GitAccess, :aggregate_failures, feature_category: :system
   end
 
   describe 'deploy key permissions' do
-    let(:key) { create(:deploy_key, user: user) }
+    let_it_be_with_reload(:key) { create(:deploy_key, user: user) }
     let(:actor) { key }
 
     context 'when deploy_key can push' do

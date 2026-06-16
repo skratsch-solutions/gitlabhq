@@ -39,7 +39,7 @@ With this approach, you can configure your applications to use one virtual regis
 To configure the virtual registry:
 
 - You need a top-level group with the Maintainer or Owner role.
-- Make sure you enable the virtual registries setting. It's enabled by default, but [administrators can turn it off](#turn-off-the-virtual-registry).
+- Make sure you enable the virtual registries setting. It's enabled by default, but [group Owners can turn it off](#turn-off-the-virtual-registry).
 - Make sure you enable the dependency proxy setting. It's enabled by default, but [administrators can turn it off](../../../administration/packages/dependency_proxy.md).
 - You must configure authentication for your supported [package format](#supported-package-formats).
 
@@ -49,7 +49,7 @@ The virtual registry is turned on by default.
 
 Prerequisites:
 
-- To turn off the virtual registry, you must be an administrator.
+- You must have the Owner role for the top-level group.
 
 To turn off the virtual registry:
 

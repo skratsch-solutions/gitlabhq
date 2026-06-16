@@ -199,7 +199,7 @@ $command-palette-spacing: px-to-rem(14px);
   bottom: $calc-application-footer-height;
   left: 0;
   @apply gl-h-full;
-  @apply xl:-gl-mx-3;
+  @apply xl:-gl-ml-3;
   background-color: var(--body-background-color);
   @apply xl:gl-bg-transparent;
   transform: translate3d(0, 0, 0);

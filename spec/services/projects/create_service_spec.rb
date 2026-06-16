@@ -276,11 +276,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
   end
 
   context 'group namespace' do
-    let(:group) do
-      create(:group).tap do |group|
-        group.add_owner(user)
-      end
-    end
+    let_it_be(:group) { create(:group, owners: user) }
 
     before do
       user.refresh_authorized_projects # Ensure cache is warm
@@ -317,11 +313,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     end
 
     context 'when project is an import' do
-      let(:group) do
-        create(:group).tap do |group|
-          group.add_developer(user)
-        end
-      end
+      let_it_be(:group) { create(:group, developers: user) }
 
       context 'and import is from a built-in template' do
         let(:project_template) { Gitlab::ProjectTemplate.find(:rails) }
@@ -361,9 +353,9 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
   end
 
   context 'group sharing', :sidekiq_inline do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:shared_group) { create(:group) }
     let_it_be(:shared_group_user) { create(:user) }
+    let_it_be(:group) { create(:group, developers: user) }
+    let_it_be(:shared_group) { create(:group, maintainers: shared_group_user) }
 
     let(:opts) do
       {
@@ -372,11 +364,8 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
       }
     end
 
-    before do
+    before_all do
       create(:group_group_link, shared_group: shared_group, shared_with_group: group)
-
-      shared_group.add_maintainer(shared_group_user)
-      group.add_developer(user)
     end
 
     it 'updates authorization' do
@@ -408,11 +397,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     end
 
     context 'under group namespace' do
-      let_it_be(:group) do
-        create(:group).tap do |group|
-          group.add_owner(user_with_projects_limit)
-        end
-      end
+      let_it_be(:group) { create(:group, owners: user_with_projects_limit) }
 
       let(:target_namespace) { group }
 
@@ -425,10 +410,10 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
   end
 
   context 'membership overrides', :sidekiq_inline do
-    let_it_be(:group) { create(:group, :private) }
+    let_it_be(:group_maintainer) { create(:user) }
+    let_it_be(:group) { create(:group, :private, maintainers: group_maintainer) }
     let_it_be(:subgroup_for_projects) { create(:group, :private, parent: group) }
     let_it_be(:subgroup_for_access) { create(:group, :private, parent: group) }
-    let_it_be(:group_maintainer) { create(:user) }
 
     let(:group_access_level) { Gitlab::Access::REPORTER }
     let(:subgroup_access_level) { Gitlab::Access::DEVELOPER }
@@ -441,8 +426,6 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     end
 
     before do
-      group.add_maintainer(group_maintainer)
-
       create(
         :group_group_link,
         shared_group: subgroup_for_projects,
@@ -967,7 +950,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     subject(:project) { create_project(user, opts) }
 
     context 'when an instance-level instance specific integration' do
-      let!(:instance_specific_integration) { create(:beyond_identity_integration, :instance) }
+      let_it_be(:instance_specific_integration) { create(:beyond_identity_integration, :instance) }
 
       it 'creates integration inheriting from the instance level integration' do
         expect(project.integrations.count).to eq(1)
@@ -983,13 +966,9 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
           }
         end
 
-        let!(:group) do
-          create(:group).tap do |group|
-            group.add_owner(user)
-          end
-        end
+        let_it_be(:group) { create(:group, owners: user) }
 
-        let!(:group_integration) do
+        let_it_be(:group_integration) do
           create(:beyond_identity_integration, project: nil, group: group, active: false)
         end
 
@@ -1002,7 +981,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     end
 
     context 'with an active instance-level integration' do
-      let!(:instance_integration) { create(:confluence_integration, :instance, confluence_url: 'https://instance.atlassian.net/wiki') }
+      let_it_be(:instance_integration) { create(:confluence_integration, :instance, confluence_url: 'https://instance.atlassian.net/wiki') }
 
       it 'creates an integration from the instance-level integration' do
         expect(project.integrations.count).to eq(1)
@@ -1011,12 +990,8 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
       end
 
       context 'with an active group-level integration' do
-        let!(:group_integration) { create(:confluence_integration, :group, group: group, confluence_url: 'https://group.atlassian.net/wiki') }
-        let!(:group) do
-          create(:group).tap do |group|
-            group.add_owner(user)
-          end
-        end
+        let_it_be(:group) { create(:group, owners: user) }
+        let_it_be(:group_integration) { create(:confluence_integration, :group, group: group, confluence_url: 'https://group.atlassian.net/wiki') }
 
         let(:opts) do
           {
@@ -1032,12 +1007,8 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
         end
 
         context 'with an active subgroup' do
-          let!(:subgroup_integration) { create(:confluence_integration, :group, group: subgroup, confluence_url: 'https://subgroup.atlassian.net/wiki') }
-          let!(:subgroup) do
-            create(:group, parent: group).tap do |subgroup|
-              subgroup.add_owner(user)
-            end
-          end
+          let_it_be(:subgroup) { create(:group, parent: group, owners: user) }
+          let_it_be(:subgroup_integration) { create(:confluence_integration, :group, group: subgroup, confluence_url: 'https://subgroup.atlassian.net/wiki') }
 
           let(:opts) do
             {
@@ -1193,18 +1164,13 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
 
   context 'with specialized project_authorization workers' do
     let_it_be(:other_user) { create(:user) }
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group) { create(:group, maintainers: user, developers: other_user) }
 
     let(:opts) do
       {
         name: project_name,
         namespace_id: group.id
       }
-    end
-
-    before do
-      group.add_maintainer(user)
-      group.add_developer(other_user)
     end
 
     it 'updates authorization for current_user' do
@@ -1250,11 +1216,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     let_it_be(:user) { create :user }
 
     context 'when parent group is present' do
-      let_it_be_with_reload(:group) do
-        create(:group) do |group|
-          group.add_owner(user)
-        end
-      end
+      let_it_be_with_reload(:group) { create(:group, owners: user) }
 
       before do
         group.update!(shared_runners_enabled: shared_runners_enabled,

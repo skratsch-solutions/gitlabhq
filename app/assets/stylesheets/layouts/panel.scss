@@ -155,8 +155,8 @@
   top: $calc-application-bars-height;
   width: calc(100% - (var(--gl-spacing-scale-3) * 2));
   // Since the element is fixed-positioned, subtract the header heights and navigation rail from the
-  // viewport height. The trailing spacing scale offsets the negative top margin set above.
-  height: calc(100% - #{$calc-application-bars-height} - var(--ai-navigation-rail-size) - #{$gl-spacing-scale-2});
+  // viewport height. The trailing spacing scale offsets the vertical margins.
+  height: calc(100% - #{$calc-application-bars-height} - var(--ai-navigation-rail-size) + calc(var(--gl-spacing-scale-2) * 2));
   z-index: 999;
 
   @include media-breakpoint-up(sm) {

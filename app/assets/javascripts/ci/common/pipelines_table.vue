@@ -2,6 +2,7 @@
 import { GlTableLite, GlTooltipDirective } from '@gitlab/ui';
 import DuoWorkflowAction from 'ee_component/ai/shared/widgets/duo_workflow_action.vue';
 import RunPipelineButton from '~/ci/common/run_pipeline_button.vue';
+import { buildFixPipelineContext } from '~/ci/utils';
 import { cleanLeadingSeparator } from '~/lib/utils/url_utility';
 import { s__, __ } from '~/locale';
 import Tracking from '~/tracking';
@@ -211,21 +212,11 @@ export default {
       return this.isFailed(item) && this.mergeRequestPath && this.currentBranch(item);
     },
     getAdditionalContext(item) {
-      return [
-        {
-          Category: 'merge_request',
-          Content: JSON.stringify({
-            url: this.mergeRequestPath,
-          }),
-        },
-        {
-          Category: 'pipeline',
-          Content: JSON.stringify({
-            source_branch: this.currentBranch(item),
-            source: item?.source || '',
-          }),
-        },
-      ];
+      return buildFixPipelineContext({
+        source: item?.source,
+        sourceBranch: this.currentBranch(item),
+        mergeRequestPath: this.mergeRequestPath,
+      });
     },
   },
   TBODY_TR_ATTR: {

@@ -1146,7 +1146,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'spec/services/projects/container_repository/destroy_service_spec.rb'
     - 'spec/services/projects/container_repository/gitlab/cleanup_tags_service_spec.rb'
     - 'spec/services/projects/container_repository/third_party/cleanup_tags_service_spec.rb'
-    - 'spec/services/projects/create_service_spec.rb'
     - 'spec/services/projects/group_links/create_service_spec.rb'
     - 'spec/services/projects/group_links/destroy_service_spec.rb'
     - 'spec/services/projects/group_links/update_service_spec.rb'

@@ -378,6 +378,11 @@ export default {
       this.dragStartPosition = { x: clientX, y: clientY };
     },
     onPointerUp(event) {
+      // Skip `no-drag` elements (i.e. the selection checkbox)
+      if (event.target.closest?.('.no-drag')) {
+        return;
+      }
+
       const { clientX, clientY } = event;
       const deltaX = this.dragStartPosition ? Math.abs(clientX - this.dragStartPosition.x) : 0;
       const deltaY = this.dragStartPosition ? Math.abs(clientY - this.dragStartPosition.y) : 0;
@@ -474,6 +479,8 @@ export default {
     animation: 200,
     ghostClass: 'gl-invisible',
     forceFallback: true,
+    fallbackOnBody: true,
+    fallbackTolerance: 1,
     tag: 'ol',
     filter: '.no-drag',
     draggable: '.js-design-tile',
@@ -610,7 +617,7 @@ export default {
             <li
               v-for="design in designs"
               :key="design.id"
-              class="js-design-tile gl-relative gl-bg-transparent gl-px-3 gl-shadow-none"
+              class="js-design-tile gl-relative gl-list-none gl-bg-transparent gl-px-3 gl-shadow-none"
               @mousedown="onMouseDown"
               @pointerup="onPointerUp"
             >

@@ -1,6 +1,6 @@
 ---
-source_checksum: 0a8c6bd32b663c82
-distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
+source_checksum: 39f86a1ffab6710c
+distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -48,6 +48,7 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 
 - Resolve or justify warnings and errors from Danger bot, code quality, and other reports before merging; post a comment if merging with any failed job.
 - DO NOT merge when the default branch is broken, except for specific approved cases.
+- DO NOT skip a new pipeline if the latest one was created before approval and the MR has backend changes.
 - DO NOT start a new pipeline if the latest merged results pipeline was created less than 16 hours ago (72 hours for stable branches).
 - Use Squash and merge only if the author has already set this option or the commit history is clearly messy; otherwise respect the author's setting.
 - Confirm all required approvers have approved before merging.
@@ -115,6 +116,11 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 - Request maintainer review only when tests pass; if tests are failing, explain why in a comment.
 - Ensure reviewers have access to any projects, snippets, or assets needed to validate the solution.
 - When assigning multiple reviewers, comment to specify which domain each reviewer should focus on.
+
+### Troubleshooting Failing Pipelines
+
+- For an unrelated test failure that also fails on the default branch, wait for the broken-master fix before re-running the pipeline.
+- For a failed `danger-review` job, rebase and squash if the MR has more than 20 commits; otherwise re-run the job.
 
 ## Authoritative sources
 

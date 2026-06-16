@@ -268,7 +268,7 @@ You might get an error that states
 
 Code Review Flow requires authentication tokens to connect to the GitLab AI Gateway and the GitLab API. This error occurs when those tokens cannot be generated, usually due to an incorrect GitLab Duo setup or a transient infrastructure issue.
 
-For self-managed instances, ask your administrator to verify the [GitLab Duo configuration](../../../../administration/gitlab_duo/configure/gitlab_self_managed.md).
+For self-managed instances, ask your administrator to verify the [GitLab Duo configuration](../../../../administration/gitlab_duo/configure/_index.md).
 
 ### `Error DCR4006`
 

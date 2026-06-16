@@ -49,7 +49,7 @@ To use Security Review Agent:
 - If you do not have GitLab Duo Pro or Enterprise,
   [turn on GitLab Duo Core](../../../gitlab_duo/turn_on_off.md#turn-gitlab-duo-core-on-or-off)
   for the top-level group or instance.
-- For GitLab Self-Managed, [configure GitLab Duo](../../../../administration/gitlab_duo/configure/gitlab_self_managed.md)
+- For GitLab Self-Managed, [configure GitLab Duo](../../../../administration/gitlab_duo/configure/_index.md)
   for the instance.
 - In GitLab 18.8 and later, [turn on Agent Platform](../../turn_on_off.md#turn-gitlab-duo-agent-platform-on-or-off)
   for the top-level group. In GitLab 18.7 and earlier,
@@ -184,7 +184,7 @@ Confirm you meet all [prerequisites](#prerequisites), then check that the agent 
 - Verify [**Allow foundational flows**](../../flows/foundational_flows/_index.md#turn-foundational-flows-on-or-off)
   and [**Code Review**](../../flows/foundational_flows/code_review.md) settings are turned on for the top-level group.
 - For GitLab Self-Managed, verify your instance is
-  [configured for GitLab Duo](../../../../administration/gitlab_duo/configure/gitlab_self_managed.md).
+  [configured for GitLab Duo](../../../../administration/gitlab_duo/configure/_index.md).
 
 ### The agent does not review every merge request
 

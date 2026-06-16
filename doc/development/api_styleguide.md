@@ -356,6 +356,27 @@ entity fields, or from field types if no field-level examples are defined.
           }
   ```
 
+### Defining endpoint failures
+
+Every endpoint must declare at least one `failure` response in each `desc` block.
+Use it to document the 4xx and 5xx responses the endpoint can return.
+
+The `failure` option accepts an array of hashes. Each hash accepts the following options:
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `code` | Integer | Required | The HTTP status code. |
+| `message` | String | No | A short description of the failure response. |
+
+```ruby
+failure [
+  { code: 401, message: 'Unauthorized' },
+  { code: 404, message: 'Not found' }
+]
+```
+
+The `API/DescriptionFailureResponse` RuboCop cop enforces this rule.
+
 ### Marking endpoints as deprecated
 
 When deprecating an endpoint, add the following to the `desc` block:

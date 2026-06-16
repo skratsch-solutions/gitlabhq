@@ -4,7 +4,7 @@ module Gitlab
   module Audit
     class OrbitIndexerAuthor < Gitlab::Audit::NullAuthor
       def initialize(name: nil)
-        super(id: -4, name: name)
+        super(id: ORBIT_INDEXER_AUTHOR_ID, name: name)
       end
 
       # The Orbit indexer authenticates with a service JWT and has no current_user,

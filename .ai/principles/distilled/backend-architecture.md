@@ -1,6 +1,6 @@
 ---
-source_checksum: ea3e1208f5193137
-distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
+source_checksum: 64ef2a741c9f57ab
+distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -50,7 +50,8 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 - DO NOT nest feature-specific classes under `Projects::` or `Groups::` namespaces unless the concept is strictly about projects or groups themselves
 - DO NOT use stage or group names as bounded context namespaces (feature categories can be reassigned)
 - Define event classes and publish events within the same bounded context (top-level Ruby namespace) where the triggering feature lives
-- Place FOSS event subscriptions in `lib/gitlab/bounded_contexts/subscriptions/[context]_subscriptions.rb`; EE-only in `ee/lib/gitlab/event_store/subscriptions/[context]_subscriptions.rb`
+- Place FOSS event subscriptions in `lib/gitlab/bounded_contexts/subscriptions/[context]_subscriptions.rb`; for domains that exist in both FOSS and EE, place EE code in `ee/lib/ee/gitlab/event_store/subscriptions/[context]_subscriptions.rb`; EE-only domains in `ee/lib/gitlab/event_store/subscriptions/[context]_subscriptions.rb`
+- Add newly created subscription groups to the `SUBSCRIPTION_GROUPS` constant in `lib/gitlab/event_store.rb` (or `EE_SUBSCRIPTION_GROUPS` in `ee/lib/ee/gitlab/event_store.rb` for EE)
 
 ### Omniscient Classes
 
@@ -65,13 +66,17 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 
 ### EventStore
 
+- Use Cloud Events (inheriting from `Gitlab::EventStore::CloudEvent`) for all new events; DO NOT create new legacy `Gitlab::EventStore::Event` subclasses
+- Define Cloud Event classes under `app/events/<namespace>/`; set `event_category` and `event_type` via class-level methods and implement `data_schema` returning a valid JSON Schema for the `data` field
 - Name events in past tense: `<DomainObject><Action>Event` (e.g., `Ci::PipelineCreatedEvent`, not `Ci::CreatePipelineEvent`); elide the domain object when obvious from the bounded context (e.g., `MergeRequest::ApprovedEvent` not `MergeRequest::MergeRequestApprovedEvent`)
+- Design events to be semantic (describe what occurred, not the intended subscriber action), specific (narrowly defined, use properties for additional info), and scoped (only publish events about domain objects within your bounded context)
 - Define event schemas as valid JSON Schema; mark unique identifiers as `required` and all other properties as optional
 - Publish only properties needed by subscribers; DO NOT tailor the payload to a specific subscriber
 - Dispatch events from service classes; use model state machine transitions as an exception, not `ActiveRecord` callbacks
 - DO NOT publish events about domain objects outside your bounded context
 - Introduce new Sidekiq subscriber workers in a prior deployment (or behind a feature flag) before registering the subscription
 - Use conditional dispatch (`if:` lambda) only for cheap synchronous checks; handle complex conditions inside `handle_event`
+- Access Cloud Event envelope fields (e.g., `current_user`, `organization`) directly on the event object; access custom payload via `event.event_data`
 - Follow the multi-rollout process when renaming events, adding required properties, or removing properties (expand → migrate → contract across separate milestones)
 - Use `publish_event` RSpec matcher to test publishers; use `it_behaves_like 'subscribes to event'` shared example to test subscribers
 - Define CE events and publish them in CE code; define EE events and publish them in EE code; subscribers may cross CE/EE boundaries
@@ -93,6 +98,7 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 
 - Add new plan limits as a column in `plan_limits` with a non-null default, then fine-tune per plan using `create_or_update_plan_limit` in a separate migration
 - Cover all GitLab.com plans (`default`, `free`, `premium`, `premium_trial`, `ultimate`, `ultimate_trial`, `ultimate_trial_paid_customer`, `opensource`) in limit migrations; omitting a plan causes those customers to receive the default (possibly `0`/unlimited)
+- Expose every new plan limit column through the admin Plan Limits API by adding it as an `optional` parameter on `PUT /application/plan_limits` and to the response entity in `lib/api/entities/plan_limit.rb`; `plan_limits` is cell-scoped configuration, so this API is the only way administrators can tune limits per cell
 - Use `PlanLimits#exceeded?` or the `Limitable` concern to enforce limits; DO NOT implement ad-hoc count checks
 - Use `Rack::Attack` for middleware-level rate limiting and `Gitlab::ApplicationRateLimiter` for controller/API-level throttling
 

@@ -311,6 +311,15 @@ describe('Pipelines table in Commits and Merge requests', () => {
           jest.spyOn(Api, 'postMergeRequestPipeline').mockResolvedValue();
         });
 
+        it('does not run a second pipeline while a request is in flight', async () => {
+          findRunPipelineBtn().vm.$emit('run-pipeline');
+          findRunPipelineBtn().vm.$emit('run-pipeline');
+
+          await waitForPromises();
+
+          expect(Api.postMergeRequestPipeline).toHaveBeenCalledTimes(1);
+        });
+
         describe('when the table is a merge request table', () => {
           beforeEach(async () => {
             createComponent({

@@ -12,16 +12,7 @@ export default class PipelinesStore {
     this.state.isRunningMergeRequestPipeline = false;
   }
 
-  storePipelines(pipelines = [], isUsingAsyncPipelineCreation) {
-    if (isUsingAsyncPipelineCreation && pipelines.length) {
-      const firstPipelineFromTable = this.state.pipelines[0];
-      const firstPipelineFromRequest = pipelines[0];
-
-      if (firstPipelineFromTable?.created_at !== firstPipelineFromRequest?.created_at) {
-        this.toggleIsRunningPipeline(false);
-      }
-    }
-
+  storePipelines(pipelines = []) {
     this.state.pipelines = pipelines;
   }
 
@@ -47,7 +38,7 @@ export default class PipelinesStore {
    *
    * @param {Boolean} value
    */
-  toggleIsRunningPipeline(value = false) {
+  toggleIsRunningMergeRequestPipeline(value = false) {
     this.state.isRunningMergeRequestPipeline = value;
   }
 }
