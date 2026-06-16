@@ -109,7 +109,6 @@ Lint/UnusedBlockArgument:
     - 'ee/spec/support/shared_examples/services/build_execute_shared_examples.rb'
     - 'ee/spec/support/shared_examples/services/search_notes_shared_examples.rb'
     - 'ee/spec/views/shared/credentials_inventory/ssh_keys/_ssh_key.html.haml_spec.rb'
-    - 'lib/api/api.rb'
     - 'lib/api/entities/appearance.rb'
     - 'lib/api/entities/basic_project_details.rb'
     - 'lib/api/entities/ci/job.rb'

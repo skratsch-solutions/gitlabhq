@@ -10,6 +10,7 @@ import {
   WIDGET_TYPE_ERROR_TRACKING,
   WIDGET_TYPE_CRM_CONTACTS,
   WIDGET_TYPE_DEVELOPMENT,
+  WIDGET_TYPE_DESIGNS,
   WIDGET_TYPE_LABELS,
   WIDGET_TYPE_LINKED_RESOURCES,
   WIDGET_TYPE_HIERARCHY,
@@ -42,6 +43,7 @@ import {
   findAssigneesWidget,
   findAwardEmojiWidget,
   findBlockerLinkedItems,
+  findDesignsWidget,
   findDevelopmentWidget,
   findErrorTrackingWidget,
   findHierarchyWidget,
@@ -1376,6 +1378,35 @@ describe('findLabelsWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findLabelsWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findDesignsWidget', () => {
+  const designsWidget = {
+    type: WIDGET_TYPE_DESIGNS,
+    designCollection: { copyState: 'READY' },
+  };
+  const featuresDesigns = {
+    designCollection: { copyState: 'IN_PROGRESS' },
+  };
+
+  it('returns features.designs when present', () => {
+    const workItem = {
+      features: { designs: featuresDesigns },
+      widgets: [designsWidget],
+    };
+
+    expect(findDesignsWidget(workItem)).toBe(featuresDesigns);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [designsWidget] };
+
+    expect(findDesignsWidget(workItem)).toBe(designsWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findDesignsWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

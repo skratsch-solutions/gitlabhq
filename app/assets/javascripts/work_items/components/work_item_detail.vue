@@ -514,7 +514,11 @@ export default {
     designCollectionQueryBody() {
       return {
         query: getWorkItemDesignListQuery,
-        variables: { id: this.workItem.id, atVersion: null },
+        variables: {
+          id: this.workItem.id,
+          atVersion: null,
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
+        },
       };
     },
     iid() {

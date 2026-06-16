@@ -2,6 +2,7 @@
 import { GlAlert, GlEmptyState, GlLink, GlLoadingIcon } from '@gitlab/ui';
 
 export default {
+  name: 'EmptyState',
   components: { GlAlert, GlEmptyState, GlLink, GlLoadingIcon },
   inject: ['errorStateSvgPath', 'featureFlagsHelpPagePath'],
   props: {

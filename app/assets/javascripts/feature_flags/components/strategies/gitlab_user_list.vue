@@ -11,6 +11,7 @@ const { mapActions, mapGetters, mapState } = createNamespacedHelpers('userLists'
 const { fetchUserLists, setFilter } = mapActions(['fetchUserLists', 'setFilter']);
 
 export default {
+  name: 'GitlabUserList',
   components: {
     GlCollapsibleListbox,
     ParameterFormGroup,

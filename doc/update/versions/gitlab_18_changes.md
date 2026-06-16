@@ -61,6 +61,7 @@ Before upgrading to GitLab 18.10, review the following:
 - [18.10.0 - 18.10.3] - [Geo secondary throttled jobs not draining](#geo-secondary-throttled-jobs-not-draining) (Geo)
 - [18.10.0 - 18.10.3] - [Sidekiq concurrency limiter causes job backlogs on Helm chart and Operator deployments](#sidekiq-concurrency-limiter-causes-job-backlogs-on-helm-chart-and-operator-deployments) (Helm chart, Operator)
 - [18.10.0] - [Custom webhook template with unquoted placeholders cannot be saved](#custom-webhook-template-with-unquoted-placeholders-cannot-be-saved)
+- [18.10.0] - [Dotenv variables in pipeline execution policies respect `variables_override`](#dotenv-variables-in-pipeline-execution-policies-respect-variables_override)
 
 ### Upgrade to 18.9
 
@@ -165,6 +166,43 @@ Before upgrading to GitLab 18.0, review the following:
 ## Upgrade notes
 
 Specific upgrade notes for GitLab 18.
+
+### Dotenv variables in pipeline execution policies respect `variables_override`
+
+{{< details >}}
+
+- Tier: Ultimate
+
+{{< /details >}}
+
+- Affects: Pipeline execution policies
+- Affected versions:
+
+  | Release     | Affected patch releases |
+  | ----------- | ----------------------- |
+  | 18.10       | 18.10.0 and later       |
+
+In GitLab 18.10 and later, variables from dotenv artifacts
+(`artifacts:reports:dotenv`) are subject to the same `variables_override`
+rules as other variables in a pipeline execution policy (secure by default).
+Previously, dotenv variables could bypass `variables_override` restrictions,
+which undermined the policy's security controls.
+
+If a pipeline relied on dotenv variables to override policy-defined variables,
+that behavior no longer works when `variables_override.allowed: false` is
+set. To restore the previous behavior, set the new `dotenv` option to
+`allow_override`:
+
+```yaml
+variables_override:
+  allowed: false
+  exceptions: []
+  dotenv: allow_override
+```
+
+For more information, see
+[pipeline execution policies](../../user/application_security/policies/pipeline_execution_policies.md)
+and [merge request 214991](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/214991).
 
 ### Geo blob sync failures with `log_error` NoMethodError on file storage
 

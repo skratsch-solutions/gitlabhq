@@ -27,6 +27,7 @@ import searchGroupsWhereUserCanCreateSubgroups from '../queries/search_groups_wh
 const DEBOUNCE_DURATION = 1000;
 
 export default {
+  name: 'GroupNameAndPath',
   i18n: {
     inputs: {
       name: {

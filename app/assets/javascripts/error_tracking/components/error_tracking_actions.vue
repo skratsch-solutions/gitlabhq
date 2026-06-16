@@ -9,6 +9,7 @@ const UNRESOLVED = 'unresolved';
 const statusValidation = [IGNORED, RESOLVED, UNRESOLVED];
 
 export default {
+  name: 'ErrorTrackingActions',
   components: {
     GlButton,
 

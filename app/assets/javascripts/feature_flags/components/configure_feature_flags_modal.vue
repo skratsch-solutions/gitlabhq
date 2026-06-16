@@ -15,6 +15,7 @@ import { s__, __ } from '~/locale';
 import SimpleCopyButton from '~/vue_shared/components/simple_copy_button.vue';
 
 export default {
+  name: 'ConfigureFeatureFlagsModal',
   components: {
     GlFormGroup,
     GlFormInput,

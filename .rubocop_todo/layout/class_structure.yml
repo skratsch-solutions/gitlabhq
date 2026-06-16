@@ -142,7 +142,6 @@ Layout/ClassStructure:
     - 'app/workers/namespaces/process_outdated_namespace_descendants_cron_worker.rb'
     - 'app/workers/object_storage/migrate_uploads_worker.rb'
     - 'app/workers/repository_update_remote_mirror_worker.rb'
-    - 'ee/app/components/namespaces/free_user_cap/base_alert_component.rb'
     - 'ee/app/controllers/projects/integrations/jira/issues_controller.rb'
     - 'ee/app/finders/autocomplete/vulnerabilities_autocomplete_finder.rb'
     - 'ee/app/finders/namespaces/billed_users_finder.rb'

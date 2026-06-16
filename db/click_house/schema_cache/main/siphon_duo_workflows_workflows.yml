@@ -92,3 +92,5 @@ columns:
   type: Nullable(String)
 - name: summary
   type: Nullable(String)
+- name: title
+  type: Nullable(String)

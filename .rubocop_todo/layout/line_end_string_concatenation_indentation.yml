@@ -290,7 +290,6 @@ Layout/LineEndStringConcatenationIndentation:
     - 'lib/api/ci/job_artifacts.rb'
     - 'lib/api/ci/runner.rb'
     - 'lib/api/ci/runners.rb'
-    - 'lib/api/error_tracking/project_settings.rb'
     - 'lib/api/groups.rb'
     - 'lib/api/issue_links.rb'
     - 'lib/api/metadata.rb'

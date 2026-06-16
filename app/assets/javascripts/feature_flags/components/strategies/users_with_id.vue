@@ -5,6 +5,7 @@ import { __, s__ } from '~/locale';
 import ParameterFormGroup from './parameter_form_group.vue';
 
 export default {
+  name: 'UsersWithId',
   components: {
     ParameterFormGroup,
     GlFormTextarea,

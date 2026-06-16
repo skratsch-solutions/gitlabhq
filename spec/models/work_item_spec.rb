@@ -508,6 +508,7 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
         expect { create(:work_item, project: reusable_project, author: user) }
           .to trigger_internal_events('users_creating_work_items').with(
             project: reusable_project,
+            namespace: reusable_project.project_namespace,
             user: user,
             additional_properties: {
               label: 'issue'
@@ -518,6 +519,19 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
           ).and not_increment_usage_metrics(
             'redis_hll_counters.count_distinct_user_id_from_create_work_type_epic_monthly',
             'redis_hll_counters.count_distinct_user_id_from_create_work_type_epic_weekly'
+          )
+      end
+
+      it "triggers an internal event for group-level work items" do
+        group = create(:group)
+        expect { create(:work_item, namespace: group, author: user) }
+          .to trigger_internal_events('users_creating_work_items').with(
+            namespace: group,
+            project: nil,
+            user: user,
+            additional_properties: {
+              label: 'issue'
+            }
           )
       end
 

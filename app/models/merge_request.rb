@@ -394,7 +394,7 @@ class MergeRequest < ApplicationRecord
     :importing_or_transitioning?,
     :closed_or_merged_without_fork?
   ]
-  validate :validate_fork, unless: :closed_or_merged_without_fork?
+  validate :validate_fork, unless: [:closed_or_merged_without_fork?, :allow_broken]
   validate :validate_branch_existence, on: :create, unless: [
     :allow_broken,
     :skip_branch_existence_check,

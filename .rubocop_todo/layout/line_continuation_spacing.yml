@@ -68,8 +68,6 @@ Layout/LineContinuationSpacing:
     - 'ee/spec/services/phone_verification/telesign_client/send_verification_code_service_spec.rb'
     - 'ee/spec/workers/ee/issuable_export_csv_worker_spec.rb'
     - 'lib/api/dependency_proxy.rb'
-    - 'lib/api/error_tracking/client_keys.rb'
-    - 'lib/api/error_tracking/project_settings.rb'
     - 'lib/api/go_proxy.rb'
     - 'lib/api/groups.rb'
     - 'lib/api/issue_links.rb'

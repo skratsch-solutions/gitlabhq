@@ -32,28 +32,12 @@ module AutoMerge
       strategy.to_sym
     end
 
-    def cancel(merge_request)
-      ApplicationRecord.transaction do
-        clear_auto_merge_parameters!(merge_request)
-        yield if block_given?
-      end
-
-      success
-    rescue StandardError => e
-      track_exception(e, merge_request)
-      error("Can't cancel the automatic merge", 406)
+    def cancel(merge_request, &block)
+      clear_auto_merge(merge_request, error_message: "Can't cancel the automatic merge", &block)
     end
 
-    def abort(merge_request, reason)
-      ApplicationRecord.transaction do
-        clear_auto_merge_parameters!(merge_request)
-        yield if block_given?
-      end
-
-      success
-    rescue StandardError => e
-      track_exception(e, merge_request)
-      error("Can't abort the automatic merge", 406)
+    def abort(merge_request, reason, &block)
+      clear_auto_merge(merge_request, error_message: "Can't abort the automatic merge", &block)
     end
 
     def available_for?(merge_request)
@@ -107,13 +91,32 @@ module AutoMerge
       merge_request.save!
     end
 
+    def clear_auto_merge(merge_request, error_message:, &block)
+      ApplicationRecord.transaction do
+        clear_auto_merge_parameters!(merge_request)
+        yield if block
+      end
+
+      success
+    rescue StandardError => e
+      track_exception(e, merge_request)
+      error(error_message, 406)
+    end
+
     def clear_auto_merge_parameters!(merge_request)
       merge_request.auto_merge_enabled = false
       merge_request.merge_user = nil
 
       merge_request.clear_merge_params(clearable_auto_merge_parameters)
 
+      # Clearing auto-merge parameters must succeed even when the merge request is
+      # otherwise broken (e.g. its fork relationship is gone), so we relax the
+      # structural validations that are irrelevant to disabling auto-merge. The flag
+      # is reset afterwards so any later use of this in-memory object validates normally.
+      merge_request.allow_broken = true
       merge_request.save!
+    ensure
+      merge_request.allow_broken = false
     end
 
     # Overridden in EE child classes

@@ -5,6 +5,7 @@ import { PERCENT_ROLLOUT_GROUP_ID } from '../../constants';
 import ParameterFormGroup from './parameter_form_group.vue';
 
 export default {
+  name: 'FlexibleRollout',
   components: {
     GlFormInput,
     GlFormSelect,

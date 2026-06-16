@@ -176,6 +176,21 @@ RSpec.describe AutoMerge::BaseService, feature_category: :code_review_workflow d
         expect { |b| service.execute(merge_request, &b) }.not_to yield_control
       end
     end
+
+    context 'when the merge request is broken (e.g. its fork relationship is gone)' do
+      before do
+        merge_request.source_project = create(:project)
+        allow(merge_request).to receive(:source_project_missing?).and_return(true)
+      end
+
+      it 'still clears the auto-merge parameters and succeeds', :aggregate_failures do
+        expect(subject[:status]).to eq(:success)
+
+        merge_request.reload
+        expect(merge_request).not_to be_auto_merge_enabled
+        expect(merge_request.merge_user).to be_nil
+      end
+    end
   end
 
   describe '#cancel' do

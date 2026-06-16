@@ -9,6 +9,7 @@ import { isLoggedIn } from '~/lib/utils/common_utils';
 import { TYPENAME_DESIGN_VERSION } from '~/graphql_shared/constants';
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { findDesignsWidget, canRouterNav, trackCrudCollapse } from '~/work_items/utils';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import DesignDropzone from '~/vue_shared/components/upload_dropzone/upload_dropzone.vue';
 import {
@@ -47,6 +48,7 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
+  mixins: [glFeatureFlagsMixin()],
   inject: ['fullPath'],
   props: {
     workItemId: {
@@ -120,6 +122,7 @@ export default {
         return {
           id: this.workItemId,
           atVersion: this.designsVersion,
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
         };
       },
       update(data) {
@@ -220,7 +223,11 @@ export default {
     designCollectionQueryBody() {
       return {
         query: getWorkItemDesignListQuery,
-        variables: { id: this.workItemId, atVersion: null },
+        variables: {
+          id: this.workItemId,
+          atVersion: null,
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
+        },
       };
     },
     selectAllButtonText() {

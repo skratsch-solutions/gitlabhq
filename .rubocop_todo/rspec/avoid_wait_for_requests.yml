@@ -1,7 +1,6 @@
 ---
 RSpec/AvoidWaitForRequests:
   Exclude:
-    - 'ee/spec/features/admin/admin_audit_logs_spec.rb'
     - 'ee/spec/features/admin/admin_merge_requests_approvals_spec.rb'
     - 'ee/spec/features/admin/admin_roles_spec.rb'
     - 'ee/spec/features/admin/geo/admin_geo_nodes_spec.rb'
@@ -484,7 +483,6 @@ RSpec/AvoidWaitForRequests:
     - 'spec/features/projects/snippets/user_deletes_snippet_spec.rb'
     - 'spec/features/projects/snippets/user_updates_snippet_spec.rb'
     - 'spec/features/projects/tree/tree_show_spec.rb'
-    - 'spec/features/projects/user_changes_project_visibility_spec.rb'
     - 'spec/features/projects/user_creates_project_spec.rb'
     - 'spec/features/projects/user_sorts_projects_spec.rb'
     - 'spec/features/projects/user_uses_shortcuts_spec.rb'
@@ -533,7 +531,6 @@ RSpec/AvoidWaitForRequests:
     - 'spec/features/work_items/issues/issue_sidebar_spec.rb'
     - 'spec/features/work_items/issues/list/user_bulk_edits_work_items_spec.rb'
     - 'spec/features/work_items/issues/list/user_resets_their_incoming_email_token_spec.rb'
-    - 'spec/features/work_items/issues/list/user_sorts_work_items_spec.rb'
     - 'spec/features/work_items/issues/move_spec.rb'
     - 'spec/features/work_items/issues/note_polling_spec.rb'
     - 'spec/features/work_items/issues/user_scrolls_to_deeplinked_note_spec.rb'
@@ -583,7 +580,6 @@ RSpec/AvoidWaitForRequests:
     - 'spec/support/shared_examples/features/packages_shared_examples.rb'
     - 'spec/support/shared_examples/features/project_upload_files_shared_examples.rb'
     - 'spec/support/shared_examples/features/protected_branches_access_control_ce_shared_examples.rb'
-    - 'spec/support/shared_examples/features/protected_branches_with_deploy_keys_examples.rb'
     - 'spec/support/shared_examples/features/protected_tags_with_deploy_keys_examples.rb'
     - 'spec/support/shared_examples/features/rapid_diffs_shared_examples.rb'
     - 'spec/support/shared_examples/features/rich_text_editor/autocomplete_shared_examples.rb'

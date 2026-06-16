@@ -1,6 +1,6 @@
 ---
 source_checksum: 567f7289621523ac
-distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
+distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -17,12 +17,12 @@ distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
 - DO NOT test that mocks work; use mocks to support tests, not as the target of assertions.
 - DO NOT use imported constants in assertions; use explicit literal values instead.
 - Prefer testing components as close to the user's flow as possible (trigger DOM events, validate markup changes).
+- DO NOT assert against `wrapper.vm` properties; assert against component behaviour through side effects: rendered HTML/components, API calls, etc.
 
 ### DOM Querying
 - Use `findByRole` (DOM Testing Library) as the primary query method to enforce accessibility.
 - Use `findComponent(FooComponent)` or `find('input[name=foo]')` or `find('[data-testid="..."]')` for unit tests.
-- DO NOT use `wrapper.find({ ref: 'foo' })` or `.js-*` class selectors for test queries.
-- DO NOT use Vue template refs to query DOM elements in tests.
+- DO NOT use template refs (`wrapper.find({ ref: 'foo' })`) or any CSS classes (including `.js-*`) for test queries.
 - Use `kebab-case` for `data-testid` attribute values.
 - DO NOT add `.js-*` classes solely for testing purposes.
 
@@ -101,6 +101,9 @@ distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
 - DO NOT add `afterEach` cleanup for wrapper destruction or Apollo client teardown in MSW test files; `test_setup.js` handles this globally.
 - Use `loadFixturesMap` from `fixture_utils.js` to auto-load fixtures from a directory and map them to operation names by `camelCase` conversion.
 - Add EE-suffixed or otherwise mismatched operation names to `OPERATION_NAME_OVERRIDES` in the handler file.
+- Export new test helpers from `test_helpers.js` to make them available globally in all MSW integration tests (auto-imported via `Object.assign(global, testHelpers)` in `test_setup.js`).
+- Name fixture files so that the `camelCase`-converted filename matches the GraphQL operation name (for example, `get_work_item_state_counts.query.graphql.json` maps to `getWorkItemStateCounts`).
+- Place MSW integration fixture generators in `ee/spec/frontend/fixtures/` (see the Test Fixtures section for output location and generation).
 
 ### Capybara Feature Tests
 - Add `:js` to specs or `describe` blocks that require JavaScript execution.
@@ -111,18 +114,23 @@ distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
 - Use `expect_page_to_have_no_console_errors` in an `after` block to assert no unexpected browser console errors.
 - Prefer `data-testid` selectors over CSS class selectors; use `.js-*` or CSS class selectors only as a last resort.
 - Group back-to-back expectations using `:aggregate_failures`.
+- Assert on a visible element before asserting on backend attributes to confirm the operation has completed; DO NOT rely solely on `wait_for_requests` to avoid race conditions.
 
 ### Test Fixtures
 - Import JSON/HTML fixtures using the `test_fixtures` alias.
 - Generate fixtures with `bin/rake frontend:fixtures` or `bin/rspec spec/frontend/fixtures/<file>.rb`.
 - Place CE fixture generators in `spec/frontend/fixtures/` and EE fixture generators in `ee/spec/frontend/fixtures/`.
-- Place MSW integration fixture generators in `ee/spec/frontend/fixtures/` and write JSON output to `tmp/tests/frontend/fixtures-ee/graphql/`.
+- Place MSW integration fixture generators in `ee/spec/frontend/fixtures/`; generate their JSON output to `tmp/tests/frontend/fixtures-ee/graphql/` by running the fixture spec (`bin/rspec ee/spec/frontend/fixtures/<file>.rb`).
 
 ### Test Helpers
 - Place new test helpers in `spec/frontend/__helpers__`.
 - Use `testAction` helper (object argument form) for testing Vuex actions.
 - Use `waitFor(url, callback)` or `waitForAll(callback)` from the Axios mock helper when no direct Promise handle is available.
 - Use `shallowMountExtended` or `mountExtended` to access DOM Testing Library queries (`findByTestId`, `findByRole`, etc.) on VTU wrappers.
+
+### Jest Timeout
+- Eagerly import async-loaded modules in the spec file to force Jest to transpile and cache them at compile time, preventing runtime timeout errors.
+- DO NOT disregard test timeouts; investigate whether the async import reflects a real production bundle issue.
 
 ## Authoritative sources
 

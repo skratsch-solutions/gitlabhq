@@ -14,6 +14,7 @@ import {
 import Strategy from './strategy.vue';
 
 export default {
+  name: 'FeatureFlagsForm',
   i18n: {
     removeLabel: s__('FeatureFlags|Remove'),
     statusLabel: s__('FeatureFlags|Status'),

@@ -18,6 +18,7 @@ import {
 } from '~/vue_shared/components/filtered_search_bar/constants';
 
 export default {
+  name: 'FilteredSearchAndSort',
   components: {
     FilteredSearchBar,
     GlSorting,

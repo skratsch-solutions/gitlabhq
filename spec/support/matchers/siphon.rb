@@ -120,39 +120,14 @@ RSpec::Matchers.define :have_correct_reconcile_config do
 end
 
 RSpec::Matchers.define :have_correct_replication_target do |clickhouse_table_names|
-  def ch_primary_keys(table)
-    query =
-      <<~SQL
-        SELECT primary_key
-        FROM system.tables
-        WHERE database = '#{ch_database_name}' AND name = '#{table}'
-      SQL
-
-    row = ClickHouse::Client.select(query, :main).first
-    raise "Table not found: #{table}" unless row
-
-    row['primary_key']
-      .split(',')
-      .map(&:strip)
-  end
-
+  # `ch_primary_keys` and `ch_column_names` are provided by the including example group
+  # (delegated via the matcher's method_missing), backed by the ClickHouse schema cache.
   def unique_index_prefix?(table, target_keys)
     ApplicationRecord.connection.indexes(table).any? do |index|
       next false unless index.unique
 
       Array(index.columns).take(target_keys.size) == target_keys
     end
-  end
-
-  def ch_column_names(ch_table)
-    query =
-      <<~SQL
-        SELECT name
-        FROM system.columns
-        WHERE table = '#{ch_table}' AND database = '#{ch_database_name}';
-      SQL
-
-    ClickHouse::Client.select(query, :main).pluck("name")
   end
 
   match do |content|

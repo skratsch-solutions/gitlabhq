@@ -3,6 +3,7 @@ import { GlCollapsibleListbox } from '@gitlab/ui';
 import { getDisplayName } from '../utils';
 
 export default {
+  name: 'ProjectDropdown',
   components: {
     GlCollapsibleListbox,
   },

@@ -119,6 +119,7 @@ export default {
         return {
           id: this.workItemId,
           atVersion: null,
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
         };
       },
       update(data) {

@@ -112,7 +112,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   describe 'scopes' do
     let_it_be(:old_project) { create(:project) }
     let_it_be(:new_project) { create(:project) }
-    let_it_be(:old_build, freeze: false) { create(:ci_build, created_at: 1.week.ago, updated_at: 1.week.ago, project: old_project) }
+    let_it_be_with_reload(:old_build) { create(:ci_build, created_at: 1.week.ago, updated_at: 1.week.ago, project: old_project) }
     let_it_be(:new_build) { create(:ci_build, created_at: 1.minute.ago, updated_at: 1.minute.ago, project: new_project) }
 
     describe 'created_after' do
@@ -3963,7 +3963,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       end
 
       context 'when an Apple App Store integration exists' do
-        let_it_be(:apple_app_store_integration, freeze: false) do
+        let_it_be_with_reload(:apple_app_store_integration) do
           create(:apple_app_store_integration, project: project)
         end
 
@@ -4069,7 +4069,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       end
 
       context 'when the google_play integration exists' do
-        let_it_be(:google_play_integration, freeze: false) do
+        let_it_be_with_reload(:google_play_integration) do
           create(:google_play_integration, project: project)
         end
 
@@ -6715,10 +6715,10 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   end
 
   describe 'id_tokens with ci_cd_settings integration' do
-    let_it_be(:project, freeze: false) { create(:project) }
+    let_it_be_with_refind(:project) { create(:project) }
     let_it_be(:user) { create(:user) }
     let_it_be(:pipeline) { create(:ci_pipeline, project: project, ref: 'main') }
-    let_it_be(:environment, freeze: false) { create(:environment, name: 'production', project: project) }
+    let_it_be(:environment) { create(:environment, name: 'production', project: project) }
 
     let(:build) do
       create(
@@ -6953,7 +6953,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
   describe 'partition pruning' do
     describe '.find_by_token' do
-      let_it_be(:project, freeze: false) { create(:project) }
+      let_it_be(:project) { create(:project) }
       let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
       let_it_be(:job) { create(:ci_build, pipeline: pipeline, status: :running) }
       let_it_be(:token) { job.token }
@@ -6970,7 +6970,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     end
 
     describe 'for persisting record' do
-      let_it_be(:project, freeze: false) { create(:project) }
+      let_it_be(:project) { create(:project) }
       let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
       let(:job) { FactoryBot.build(:ci_build, pipeline: pipeline, status: :running) }
 
@@ -6985,7 +6985,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   end
 
   describe '.with_pipeline_iid' do
-    let_it_be(:project, freeze: false) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
 
     let_it_be(:pipeline) do
       create(:ci_pipeline,

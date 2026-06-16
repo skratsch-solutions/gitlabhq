@@ -2,6 +2,8 @@
 
 module MergeRequests
   class AfterCreateService < MergeRequests::BaseService
+    include MergeRequests::PublishesPipelineCreationCompletedEvent
+
     def execute(merge_request)
       merge_request.ensure_merge_request_diff
 
@@ -23,8 +25,13 @@ module MergeRequests
         logger.info(**log_payload(merge_request, 'Pipeline creating async'))
       else
         logger.info(**log_payload(merge_request, 'Creating pipeline'))
-        create_pipeline_for(merge_request, current_user, async: false)
+        result = create_pipeline_for(merge_request, current_user, async: false)
         merge_request.update_head_pipeline
+        publish_pipeline_creation_completed_event(
+          project: project,
+          merge_request_id: merge_request.id,
+          pipeline_id: result&.payload&.id
+        )
         logger.info(**log_payload(merge_request, 'Pipeline created'))
       end
 

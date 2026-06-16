@@ -10,6 +10,7 @@ import { keysFor, ISSUE_CLOSE_DESIGN } from '~/behaviors/shortcuts/keybindings';
 import { updateGlobalTodoCount } from '~/sidebar/utils';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { TYPENAME_ISSUE, TYPENAME_WORK_ITEM } from '~/graphql_shared/constants';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { ROUTES } from '../../../constants';
 import getDesignQuery from '../graphql/design_details.query.graphql';
 import getWorkItemDesignListQuery from '../graphql/design_collection.query.graphql';
@@ -55,6 +56,7 @@ export default {
     GlAlert,
     MountingPortal,
   },
+  mixins: [glFeatureFlagsMixin()],
   inject: ['fullPath'],
   beforeRouteUpdate(to, from, next) {
     // reset scale when the active design changes
@@ -205,7 +207,11 @@ export default {
     designCollectionQueryBody() {
       return {
         query: getWorkItemDesignListQuery,
-        variables: { id: this.workItemId, atVersion: null },
+        variables: {
+          id: this.workItemId,
+          atVersion: null,
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
+        },
       };
     },
     latestVersionId() {

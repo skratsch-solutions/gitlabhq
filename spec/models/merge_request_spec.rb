@@ -1086,6 +1086,33 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
         expect(subject).to be_valid
       end
+
+      context 'when the source project is no longer a fork of the target project' do
+        before do
+          subject.source_project = build_stubbed(:project)
+          subject.target_project = build_stubbed(:project)
+
+          allow(subject).to receive(:source_project_missing?).and_return(true)
+        end
+
+        it 'is invalid' do
+          subject.valid?
+
+          expect(subject.errors[:validate_fork]).to be_present
+        end
+
+        context 'when allow_broken is true' do
+          before do
+            subject.allow_broken = true
+          end
+
+          it 'skips the fork validation' do
+            subject.valid?
+
+            expect(subject.errors[:validate_fork]).to be_empty
+          end
+        end
+      end
     end
 
     describe "#validate_reviewer_size_length" do

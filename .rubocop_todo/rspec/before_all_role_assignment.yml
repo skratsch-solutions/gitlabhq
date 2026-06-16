@@ -1162,7 +1162,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'spec/services/snippets/create_service_spec.rb'
     - 'spec/services/snippets/destroy_service_spec.rb'
     - 'spec/services/todo_service_spec.rb'
-    - 'spec/services/todos/destroy/entity_leave_service_spec.rb'
     - 'spec/services/todos/destroy/unauthorized_features_service_spec.rb'
     - 'spec/services/uploads/destroy_service_spec.rb'
     - 'spec/services/users/set_namespace_commit_email_service_spec.rb'

@@ -22,6 +22,7 @@ const STRATEGIES = Object.freeze({
 });
 
 export default {
+  name: 'StrategyParameters',
   props: {
     strategy: {
       type: Object,

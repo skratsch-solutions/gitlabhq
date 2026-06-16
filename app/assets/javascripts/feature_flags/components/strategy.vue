@@ -14,6 +14,7 @@ import NewEnvironmentsDropdown from './new_environments_dropdown.vue';
 import StrategyParameters from './strategy_parameters.vue';
 
 export default {
+  name: 'FeatureFlagsStrategy',
   components: {
     GlAlert,
     GlButton,

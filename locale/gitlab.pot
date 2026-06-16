@@ -8353,7 +8353,7 @@ msgstr ""
 msgid "AiPowered|Control how your AI-powered features are used."
 msgstr ""
 
-msgid "AiPowered|Control whether AI-powered features are available."
+msgid "AiPowered|Control whether GitLab Duo is available for the instance."
 msgstr ""
 
 msgid "AiPowered|Control whether GitLab Duo is available for this group."
@@ -8440,18 +8440,6 @@ msgstr ""
 msgid "AiPowered|Failed to load groups"
 msgstr ""
 
-msgid "AiPowered|Features are available and cannot be turned off for any group, subgroup, or project."
-msgstr ""
-
-msgid "AiPowered|Features are available. However, any group, subgroup, or project can turn them off."
-msgstr ""
-
-msgid "AiPowered|Features are not available and cannot be turned on for any group, subgroup, or project."
-msgstr ""
-
-msgid "AiPowered|Features are not available. However, any group, subgroup, or project can turn them on."
-msgstr ""
-
 msgid "AiPowered|Features with CI/CD pipelines"
 msgstr ""
 
@@ -8491,13 +8479,25 @@ msgstr ""
 msgid "AiPowered|GitLab Duo availability"
 msgstr ""
 
+msgid "AiPowered|GitLab Duo is always available. Groups, subgroups, and projects cannot opt out."
+msgstr ""
+
 msgid "AiPowered|GitLab Duo is always available. Subgroups and projects cannot opt out."
+msgstr ""
+
+msgid "AiPowered|GitLab Duo is always unavailable. Groups, subgroups, and projects cannot opt in."
 msgstr ""
 
 msgid "AiPowered|GitLab Duo is always unavailable. Subgroups and projects cannot opt in."
 msgstr ""
 
+msgid "AiPowered|GitLab Duo is available by default. Groups, subgroups, and projects can opt out individually."
+msgstr ""
+
 msgid "AiPowered|GitLab Duo is available by default. Subgroups and projects can opt out individually."
+msgstr ""
+
+msgid "AiPowered|GitLab Duo is unavailable by default. Groups, subgroups, and projects can opt in individually."
 msgstr ""
 
 msgid "AiPowered|GitLab Duo is unavailable by default. Subgroups and projects can opt in individually."
@@ -46885,6 +46885,9 @@ msgstr ""
 msgid "Mirror|This mirror is disabled and will not sync."
 msgstr ""
 
+msgid "Mirror|This project is archived and read-only. To resume pull mirroring, unarchive the project."
+msgstr ""
+
 msgid "Mirror|Update now"
 msgstr ""
 
@@ -51569,6 +51572,9 @@ msgstr ""
 msgid "One or more contacts were successfully removed."
 msgstr ""
 
+msgid "One or more groups could not be found"
+msgstr ""
+
 msgid "One or more groups that you don't have access to."
 msgstr ""
 
@@ -52603,6 +52609,9 @@ msgid "Organization must be empty before it can be deleted"
 msgstr ""
 
 msgid "Organization must be soft-deleted first"
+msgstr ""
+
+msgid "Organization not found"
 msgstr ""
 
 msgid "Organization parameter must be specified"
