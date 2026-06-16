@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe API::BulkImports, feature_category: :importers do
+RSpec.describe API::BulkImports, :with_current_organization, feature_category: :importers do
   let_it_be(:user) { create(:user) }
   let_it_be(:import_1, freeze: false) { create(:bulk_import, user: user) }
   let_it_be(:import_2, freeze: false) { create(:bulk_import, user: user) }
@@ -245,7 +245,7 @@ RSpec.describe API::BulkImports, feature_category: :importers do
         end
       end
 
-      context 'when entities do not specify a namespace', :with_current_organization do
+      context 'when entities do not specify a namespace' do
         let(:params) do
           {
             configuration: {

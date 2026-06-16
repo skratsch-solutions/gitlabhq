@@ -7882,10 +7882,16 @@ msgstr ""
 msgid "AgentArtifacts|View full session details"
 msgstr ""
 
+msgid "AgentPlan|A workplan breaks down your work item into a step-by-step implementation guide for GitLab Duo to execute. Create one manually or let Duo generate it for you."
+msgstr ""
+
 msgid "AgentPlan|Are you sure you want to delete this workplan? This action cannot be undone."
 msgstr ""
 
 msgid "AgentPlan|Choose a workplan template"
+msgstr ""
+
+msgid "AgentPlan|Create a workplan"
 msgstr ""
 
 msgid "AgentPlan|Create manually"
@@ -7897,10 +7903,10 @@ msgstr ""
 msgid "AgentPlan|Delete workplan"
 msgstr ""
 
-msgid "AgentPlan|Describe your intent for Duo. A workplan turns your description into an executable plan for autonomous task completion."
+msgid "AgentPlan|Edit"
 msgstr ""
 
-msgid "AgentPlan|Edit"
+msgid "AgentPlan|Generate with GitLab Duo"
 msgstr ""
 
 msgid "AgentPlan|Generate workplan"

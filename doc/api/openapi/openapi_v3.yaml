@@ -75586,6 +75586,116 @@ components:
           type: string
         container_repositories_replication_enabled:
           type: string
+        abuse_report_uploads_count:
+          type: string
+        abuse_report_uploads_checksum_total_count:
+          type: string
+        abuse_report_uploads_checksummed_count:
+          type: string
+        abuse_report_uploads_checksum_failed_count:
+          type: string
+        abuse_report_uploads_synced_count:
+          type: string
+        abuse_report_uploads_failed_count:
+          type: string
+        abuse_report_uploads_registry_count:
+          type: string
+        abuse_report_uploads_verification_total_count:
+          type: string
+        abuse_report_uploads_verified_count:
+          type: string
+        abuse_report_uploads_verification_failed_count:
+          type: string
+        abuse_report_uploads_oldest_unsynced_time:
+          type: string
+        achievement_uploads_count:
+          type: string
+        achievement_uploads_checksum_total_count:
+          type: string
+        achievement_uploads_checksummed_count:
+          type: string
+        achievement_uploads_checksum_failed_count:
+          type: string
+        achievement_uploads_synced_count:
+          type: string
+        achievement_uploads_failed_count:
+          type: string
+        achievement_uploads_registry_count:
+          type: string
+        achievement_uploads_verification_total_count:
+          type: string
+        achievement_uploads_verified_count:
+          type: string
+        achievement_uploads_verification_failed_count:
+          type: string
+        achievement_uploads_oldest_unsynced_time:
+          type: string
+        ai_vectorizable_file_uploads_count:
+          type: string
+        ai_vectorizable_file_uploads_checksum_total_count:
+          type: string
+        ai_vectorizable_file_uploads_checksummed_count:
+          type: string
+        ai_vectorizable_file_uploads_checksum_failed_count:
+          type: string
+        ai_vectorizable_file_uploads_synced_count:
+          type: string
+        ai_vectorizable_file_uploads_failed_count:
+          type: string
+        ai_vectorizable_file_uploads_registry_count:
+          type: string
+        ai_vectorizable_file_uploads_verification_total_count:
+          type: string
+        ai_vectorizable_file_uploads_verified_count:
+          type: string
+        ai_vectorizable_file_uploads_verification_failed_count:
+          type: string
+        ai_vectorizable_file_uploads_oldest_unsynced_time:
+          type: string
+        alert_management_metric_image_uploads_count:
+          type: string
+        alert_management_metric_image_uploads_checksum_total_count:
+          type: string
+        alert_management_metric_image_uploads_checksummed_count:
+          type: string
+        alert_management_metric_image_uploads_checksum_failed_count:
+          type: string
+        alert_management_metric_image_uploads_synced_count:
+          type: string
+        alert_management_metric_image_uploads_failed_count:
+          type: string
+        alert_management_metric_image_uploads_registry_count:
+          type: string
+        alert_management_metric_image_uploads_verification_total_count:
+          type: string
+        alert_management_metric_image_uploads_verified_count:
+          type: string
+        alert_management_metric_image_uploads_verification_failed_count:
+          type: string
+        alert_management_metric_image_uploads_oldest_unsynced_time:
+          type: string
+        bulk_import_export_upload_uploads_count:
+          type: string
+        bulk_import_export_upload_uploads_checksum_total_count:
+          type: string
+        bulk_import_export_upload_uploads_checksummed_count:
+          type: string
+        bulk_import_export_upload_uploads_checksum_failed_count:
+          type: string
+        bulk_import_export_upload_uploads_synced_count:
+          type: string
+        bulk_import_export_upload_uploads_failed_count:
+          type: string
+        bulk_import_export_upload_uploads_registry_count:
+          type: string
+        bulk_import_export_upload_uploads_verification_total_count:
+          type: string
+        bulk_import_export_upload_uploads_verified_count:
+          type: string
+        bulk_import_export_upload_uploads_verification_failed_count:
+          type: string
+        bulk_import_export_upload_uploads_oldest_unsynced_time:
+          type: string
         ci_secure_files_count:
           type: string
         ci_secure_files_checksum_total_count:
@@ -75629,6 +75739,28 @@ components:
         container_repositories_verification_failed_count:
           type: string
         container_repositories_oldest_unsynced_time:
+          type: string
+        dependency_list_export_uploads_count:
+          type: string
+        dependency_list_export_uploads_checksum_total_count:
+          type: string
+        dependency_list_export_uploads_checksummed_count:
+          type: string
+        dependency_list_export_uploads_checksum_failed_count:
+          type: string
+        dependency_list_export_uploads_synced_count:
+          type: string
+        dependency_list_export_uploads_failed_count:
+          type: string
+        dependency_list_export_uploads_registry_count:
+          type: string
+        dependency_list_export_uploads_verification_total_count:
+          type: string
+        dependency_list_export_uploads_verified_count:
+          type: string
+        dependency_list_export_uploads_verification_failed_count:
+          type: string
+        dependency_list_export_uploads_oldest_unsynced_time:
           type: string
         dependency_proxy_blobs_count:
           type: string
@@ -75674,6 +75806,28 @@ components:
           type: string
         dependency_proxy_manifests_oldest_unsynced_time:
           type: string
+        design_management_action_uploads_count:
+          type: string
+        design_management_action_uploads_checksum_total_count:
+          type: string
+        design_management_action_uploads_checksummed_count:
+          type: string
+        design_management_action_uploads_checksum_failed_count:
+          type: string
+        design_management_action_uploads_synced_count:
+          type: string
+        design_management_action_uploads_failed_count:
+          type: string
+        design_management_action_uploads_registry_count:
+          type: string
+        design_management_action_uploads_verification_total_count:
+          type: string
+        design_management_action_uploads_verified_count:
+          type: string
+        design_management_action_uploads_verification_failed_count:
+          type: string
+        design_management_action_uploads_oldest_unsynced_time:
+          type: string
         design_management_repositories_count:
           type: string
         design_management_repositories_checksum_total_count:
@@ -75696,6 +75850,28 @@ components:
           type: string
         design_management_repositories_oldest_unsynced_time:
           type: string
+        group_uploads_count:
+          type: string
+        group_uploads_checksum_total_count:
+          type: string
+        group_uploads_checksummed_count:
+          type: string
+        group_uploads_checksum_failed_count:
+          type: string
+        group_uploads_synced_count:
+          type: string
+        group_uploads_failed_count:
+          type: string
+        group_uploads_registry_count:
+          type: string
+        group_uploads_verification_total_count:
+          type: string
+        group_uploads_verified_count:
+          type: string
+        group_uploads_verification_failed_count:
+          type: string
+        group_uploads_oldest_unsynced_time:
+          type: string
         group_wiki_repositories_count:
           type: string
         group_wiki_repositories_checksum_total_count:
@@ -75717,6 +75893,50 @@ components:
         group_wiki_repositories_verification_failed_count:
           type: string
         group_wiki_repositories_oldest_unsynced_time:
+          type: string
+        import_export_upload_uploads_count:
+          type: string
+        import_export_upload_uploads_checksum_total_count:
+          type: string
+        import_export_upload_uploads_checksummed_count:
+          type: string
+        import_export_upload_uploads_checksum_failed_count:
+          type: string
+        import_export_upload_uploads_synced_count:
+          type: string
+        import_export_upload_uploads_failed_count:
+          type: string
+        import_export_upload_uploads_registry_count:
+          type: string
+        import_export_upload_uploads_verification_total_count:
+          type: string
+        import_export_upload_uploads_verified_count:
+          type: string
+        import_export_upload_uploads_verification_failed_count:
+          type: string
+        import_export_upload_uploads_oldest_unsynced_time:
+          type: string
+        issuable_metric_image_uploads_count:
+          type: string
+        issuable_metric_image_uploads_checksum_total_count:
+          type: string
+        issuable_metric_image_uploads_checksummed_count:
+          type: string
+        issuable_metric_image_uploads_checksum_failed_count:
+          type: string
+        issuable_metric_image_uploads_synced_count:
+          type: string
+        issuable_metric_image_uploads_failed_count:
+          type: string
+        issuable_metric_image_uploads_registry_count:
+          type: string
+        issuable_metric_image_uploads_verification_total_count:
+          type: string
+        issuable_metric_image_uploads_verified_count:
+          type: string
+        issuable_metric_image_uploads_verification_failed_count:
+          type: string
+        issuable_metric_image_uploads_oldest_unsynced_time:
           type: string
         job_artifacts_count:
           type: string
@@ -75806,6 +76026,72 @@ components:
           type: string
         package_files_oldest_unsynced_time:
           type: string
+        packages_debian_project_component_files_count:
+          type: string
+        packages_debian_project_component_files_checksum_total_count:
+          type: string
+        packages_debian_project_component_files_checksummed_count:
+          type: string
+        packages_debian_project_component_files_checksum_failed_count:
+          type: string
+        packages_debian_project_component_files_synced_count:
+          type: string
+        packages_debian_project_component_files_failed_count:
+          type: string
+        packages_debian_project_component_files_registry_count:
+          type: string
+        packages_debian_project_component_files_verification_total_count:
+          type: string
+        packages_debian_project_component_files_verified_count:
+          type: string
+        packages_debian_project_component_files_verification_failed_count:
+          type: string
+        packages_debian_project_component_files_oldest_unsynced_time:
+          type: string
+        packages_helm_metadata_caches_count:
+          type: string
+        packages_helm_metadata_caches_checksum_total_count:
+          type: string
+        packages_helm_metadata_caches_checksummed_count:
+          type: string
+        packages_helm_metadata_caches_checksum_failed_count:
+          type: string
+        packages_helm_metadata_caches_synced_count:
+          type: string
+        packages_helm_metadata_caches_failed_count:
+          type: string
+        packages_helm_metadata_caches_registry_count:
+          type: string
+        packages_helm_metadata_caches_verification_total_count:
+          type: string
+        packages_helm_metadata_caches_verified_count:
+          type: string
+        packages_helm_metadata_caches_verification_failed_count:
+          type: string
+        packages_helm_metadata_caches_oldest_unsynced_time:
+          type: string
+        packages_nuget_symbols_count:
+          type: string
+        packages_nuget_symbols_checksum_total_count:
+          type: string
+        packages_nuget_symbols_checksummed_count:
+          type: string
+        packages_nuget_symbols_checksum_failed_count:
+          type: string
+        packages_nuget_symbols_synced_count:
+          type: string
+        packages_nuget_symbols_failed_count:
+          type: string
+        packages_nuget_symbols_registry_count:
+          type: string
+        packages_nuget_symbols_verification_total_count:
+          type: string
+        packages_nuget_symbols_verified_count:
+          type: string
+        packages_nuget_symbols_verification_failed_count:
+          type: string
+        packages_nuget_symbols_oldest_unsynced_time:
+          type: string
         pages_deployments_count:
           type: string
         pages_deployments_checksum_total_count:
@@ -75827,6 +76113,28 @@ components:
         pages_deployments_verification_failed_count:
           type: string
         pages_deployments_oldest_unsynced_time:
+          type: string
+        personal_snippet_uploads_count:
+          type: string
+        personal_snippet_uploads_checksum_total_count:
+          type: string
+        personal_snippet_uploads_checksummed_count:
+          type: string
+        personal_snippet_uploads_checksum_failed_count:
+          type: string
+        personal_snippet_uploads_synced_count:
+          type: string
+        personal_snippet_uploads_failed_count:
+          type: string
+        personal_snippet_uploads_registry_count:
+          type: string
+        personal_snippet_uploads_verification_total_count:
+          type: string
+        personal_snippet_uploads_verified_count:
+          type: string
+        personal_snippet_uploads_verification_failed_count:
+          type: string
+        personal_snippet_uploads_oldest_unsynced_time:
           type: string
         pipeline_artifacts_count:
           type: string
@@ -75850,6 +76158,28 @@ components:
           type: string
         pipeline_artifacts_oldest_unsynced_time:
           type: string
+        project_import_export_relation_export_upload_uploads_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_checksum_total_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_checksummed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_checksum_failed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_synced_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_failed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_registry_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_verification_total_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_verified_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_verification_failed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_oldest_unsynced_time:
+          type: string
         project_repositories_count:
           type: string
         project_repositories_checksum_total_count:
@@ -75871,6 +76201,28 @@ components:
         project_repositories_verification_failed_count:
           type: string
         project_repositories_oldest_unsynced_time:
+          type: string
+        project_uploads_count:
+          type: string
+        project_uploads_checksum_total_count:
+          type: string
+        project_uploads_checksummed_count:
+          type: string
+        project_uploads_checksum_failed_count:
+          type: string
+        project_uploads_synced_count:
+          type: string
+        project_uploads_failed_count:
+          type: string
+        project_uploads_registry_count:
+          type: string
+        project_uploads_verification_total_count:
+          type: string
+        project_uploads_verified_count:
+          type: string
+        project_uploads_verification_failed_count:
+          type: string
+        project_uploads_oldest_unsynced_time:
           type: string
         project_wiki_repositories_count:
           type: string
@@ -75916,6 +76268,28 @@ components:
           type: string
         snippet_repositories_oldest_unsynced_time:
           type: string
+        supply_chain_attestations_count:
+          type: string
+        supply_chain_attestations_checksum_total_count:
+          type: string
+        supply_chain_attestations_checksummed_count:
+          type: string
+        supply_chain_attestations_checksum_failed_count:
+          type: string
+        supply_chain_attestations_synced_count:
+          type: string
+        supply_chain_attestations_failed_count:
+          type: string
+        supply_chain_attestations_registry_count:
+          type: string
+        supply_chain_attestations_verification_total_count:
+          type: string
+        supply_chain_attestations_verified_count:
+          type: string
+        supply_chain_attestations_verification_failed_count:
+          type: string
+        supply_chain_attestations_oldest_unsynced_time:
+          type: string
         terraform_state_versions_count:
           type: string
         terraform_state_versions_checksum_total_count:
@@ -75960,226 +76334,6 @@ components:
           type: string
         uploads_oldest_unsynced_time:
           type: string
-        packages_nuget_symbols_count:
-          type: string
-        packages_nuget_symbols_checksum_total_count:
-          type: string
-        packages_nuget_symbols_checksummed_count:
-          type: string
-        packages_nuget_symbols_checksum_failed_count:
-          type: string
-        packages_nuget_symbols_synced_count:
-          type: string
-        packages_nuget_symbols_failed_count:
-          type: string
-        packages_nuget_symbols_registry_count:
-          type: string
-        packages_nuget_symbols_verification_total_count:
-          type: string
-        packages_nuget_symbols_verified_count:
-          type: string
-        packages_nuget_symbols_verification_failed_count:
-          type: string
-        packages_nuget_symbols_oldest_unsynced_time:
-          type: string
-        supply_chain_attestations_count:
-          type: string
-        supply_chain_attestations_checksum_total_count:
-          type: string
-        supply_chain_attestations_checksummed_count:
-          type: string
-        supply_chain_attestations_checksum_failed_count:
-          type: string
-        supply_chain_attestations_synced_count:
-          type: string
-        supply_chain_attestations_failed_count:
-          type: string
-        supply_chain_attestations_registry_count:
-          type: string
-        supply_chain_attestations_verification_total_count:
-          type: string
-        supply_chain_attestations_verified_count:
-          type: string
-        supply_chain_attestations_verification_failed_count:
-          type: string
-        supply_chain_attestations_oldest_unsynced_time:
-          type: string
-        packages_helm_metadata_caches_count:
-          type: string
-        packages_helm_metadata_caches_checksum_total_count:
-          type: string
-        packages_helm_metadata_caches_checksummed_count:
-          type: string
-        packages_helm_metadata_caches_checksum_failed_count:
-          type: string
-        packages_helm_metadata_caches_synced_count:
-          type: string
-        packages_helm_metadata_caches_failed_count:
-          type: string
-        packages_helm_metadata_caches_registry_count:
-          type: string
-        packages_helm_metadata_caches_verification_total_count:
-          type: string
-        packages_helm_metadata_caches_verified_count:
-          type: string
-        packages_helm_metadata_caches_verification_failed_count:
-          type: string
-        packages_helm_metadata_caches_oldest_unsynced_time:
-          type: string
-        dependency_list_export_uploads_count:
-          type: string
-        dependency_list_export_uploads_checksum_total_count:
-          type: string
-        dependency_list_export_uploads_checksummed_count:
-          type: string
-        dependency_list_export_uploads_checksum_failed_count:
-          type: string
-        dependency_list_export_uploads_synced_count:
-          type: string
-        dependency_list_export_uploads_failed_count:
-          type: string
-        dependency_list_export_uploads_registry_count:
-          type: string
-        dependency_list_export_uploads_verification_total_count:
-          type: string
-        dependency_list_export_uploads_verified_count:
-          type: string
-        dependency_list_export_uploads_verification_failed_count:
-          type: string
-        dependency_list_export_uploads_oldest_unsynced_time:
-          type: string
-        issuable_metric_image_uploads_count:
-          type: string
-        issuable_metric_image_uploads_checksum_total_count:
-          type: string
-        issuable_metric_image_uploads_checksummed_count:
-          type: string
-        issuable_metric_image_uploads_checksum_failed_count:
-          type: string
-        issuable_metric_image_uploads_synced_count:
-          type: string
-        issuable_metric_image_uploads_failed_count:
-          type: string
-        issuable_metric_image_uploads_registry_count:
-          type: string
-        issuable_metric_image_uploads_verification_total_count:
-          type: string
-        issuable_metric_image_uploads_verified_count:
-          type: string
-        issuable_metric_image_uploads_verification_failed_count:
-          type: string
-        issuable_metric_image_uploads_oldest_unsynced_time:
-          type: string
-        vulnerability_export_part_uploads_count:
-          type: string
-        vulnerability_export_part_uploads_checksum_total_count:
-          type: string
-        vulnerability_export_part_uploads_checksummed_count:
-          type: string
-        vulnerability_export_part_uploads_checksum_failed_count:
-          type: string
-        vulnerability_export_part_uploads_synced_count:
-          type: string
-        vulnerability_export_part_uploads_failed_count:
-          type: string
-        vulnerability_export_part_uploads_registry_count:
-          type: string
-        vulnerability_export_part_uploads_verification_total_count:
-          type: string
-        vulnerability_export_part_uploads_verified_count:
-          type: string
-        vulnerability_export_part_uploads_verification_failed_count:
-          type: string
-        vulnerability_export_part_uploads_oldest_unsynced_time:
-          type: string
-        alert_management_metric_image_uploads_count:
-          type: string
-        alert_management_metric_image_uploads_checksum_total_count:
-          type: string
-        alert_management_metric_image_uploads_checksummed_count:
-          type: string
-        alert_management_metric_image_uploads_checksum_failed_count:
-          type: string
-        alert_management_metric_image_uploads_synced_count:
-          type: string
-        alert_management_metric_image_uploads_failed_count:
-          type: string
-        alert_management_metric_image_uploads_registry_count:
-          type: string
-        alert_management_metric_image_uploads_verification_total_count:
-          type: string
-        alert_management_metric_image_uploads_verified_count:
-          type: string
-        alert_management_metric_image_uploads_verification_failed_count:
-          type: string
-        alert_management_metric_image_uploads_oldest_unsynced_time:
-          type: string
-        personal_snippet_uploads_count:
-          type: string
-        personal_snippet_uploads_checksum_total_count:
-          type: string
-        personal_snippet_uploads_checksummed_count:
-          type: string
-        personal_snippet_uploads_checksum_failed_count:
-          type: string
-        personal_snippet_uploads_synced_count:
-          type: string
-        personal_snippet_uploads_failed_count:
-          type: string
-        personal_snippet_uploads_registry_count:
-          type: string
-        personal_snippet_uploads_verification_total_count:
-          type: string
-        personal_snippet_uploads_verified_count:
-          type: string
-        personal_snippet_uploads_verification_failed_count:
-          type: string
-        personal_snippet_uploads_oldest_unsynced_time:
-          type: string
-        vulnerability_archive_export_uploads_count:
-          type: string
-        vulnerability_archive_export_uploads_checksum_total_count:
-          type: string
-        vulnerability_archive_export_uploads_checksummed_count:
-          type: string
-        vulnerability_archive_export_uploads_checksum_failed_count:
-          type: string
-        vulnerability_archive_export_uploads_synced_count:
-          type: string
-        vulnerability_archive_export_uploads_failed_count:
-          type: string
-        vulnerability_archive_export_uploads_registry_count:
-          type: string
-        vulnerability_archive_export_uploads_verification_total_count:
-          type: string
-        vulnerability_archive_export_uploads_verified_count:
-          type: string
-        vulnerability_archive_export_uploads_verification_failed_count:
-          type: string
-        vulnerability_archive_export_uploads_oldest_unsynced_time:
-          type: string
-        vulnerability_export_uploads_count:
-          type: string
-        vulnerability_export_uploads_checksum_total_count:
-          type: string
-        vulnerability_export_uploads_checksummed_count:
-          type: string
-        vulnerability_export_uploads_checksum_failed_count:
-          type: string
-        vulnerability_export_uploads_synced_count:
-          type: string
-        vulnerability_export_uploads_failed_count:
-          type: string
-        vulnerability_export_uploads_registry_count:
-          type: string
-        vulnerability_export_uploads_verification_total_count:
-          type: string
-        vulnerability_export_uploads_verified_count:
-          type: string
-        vulnerability_export_uploads_verification_failed_count:
-          type: string
-        vulnerability_export_uploads_oldest_unsynced_time:
-          type: string
         user_permission_export_upload_uploads_count:
           type: string
         user_permission_export_upload_uploads_checksum_total_count:
@@ -76201,138 +76355,6 @@ components:
         user_permission_export_upload_uploads_verification_failed_count:
           type: string
         user_permission_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        bulk_import_export_upload_uploads_count:
-          type: string
-        bulk_import_export_upload_uploads_checksum_total_count:
-          type: string
-        bulk_import_export_upload_uploads_checksummed_count:
-          type: string
-        bulk_import_export_upload_uploads_checksum_failed_count:
-          type: string
-        bulk_import_export_upload_uploads_synced_count:
-          type: string
-        bulk_import_export_upload_uploads_failed_count:
-          type: string
-        bulk_import_export_upload_uploads_registry_count:
-          type: string
-        bulk_import_export_upload_uploads_verification_total_count:
-          type: string
-        bulk_import_export_upload_uploads_verified_count:
-          type: string
-        bulk_import_export_upload_uploads_verification_failed_count:
-          type: string
-        bulk_import_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        project_import_export_relation_export_upload_uploads_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_checksum_total_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_checksummed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_checksum_failed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_synced_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_failed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_registry_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_verification_total_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_verified_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_verification_failed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        packages_debian_project_component_files_count:
-          type: string
-        packages_debian_project_component_files_checksum_total_count:
-          type: string
-        packages_debian_project_component_files_checksummed_count:
-          type: string
-        packages_debian_project_component_files_checksum_failed_count:
-          type: string
-        packages_debian_project_component_files_synced_count:
-          type: string
-        packages_debian_project_component_files_failed_count:
-          type: string
-        packages_debian_project_component_files_registry_count:
-          type: string
-        packages_debian_project_component_files_verification_total_count:
-          type: string
-        packages_debian_project_component_files_verified_count:
-          type: string
-        packages_debian_project_component_files_verification_failed_count:
-          type: string
-        packages_debian_project_component_files_oldest_unsynced_time:
-          type: string
-        ai_vectorizable_file_uploads_count:
-          type: string
-        ai_vectorizable_file_uploads_checksum_total_count:
-          type: string
-        ai_vectorizable_file_uploads_checksummed_count:
-          type: string
-        ai_vectorizable_file_uploads_checksum_failed_count:
-          type: string
-        ai_vectorizable_file_uploads_synced_count:
-          type: string
-        ai_vectorizable_file_uploads_failed_count:
-          type: string
-        ai_vectorizable_file_uploads_registry_count:
-          type: string
-        ai_vectorizable_file_uploads_verification_total_count:
-          type: string
-        ai_vectorizable_file_uploads_verified_count:
-          type: string
-        ai_vectorizable_file_uploads_verification_failed_count:
-          type: string
-        ai_vectorizable_file_uploads_oldest_unsynced_time:
-          type: string
-        import_export_upload_uploads_count:
-          type: string
-        import_export_upload_uploads_checksum_total_count:
-          type: string
-        import_export_upload_uploads_checksummed_count:
-          type: string
-        import_export_upload_uploads_checksum_failed_count:
-          type: string
-        import_export_upload_uploads_synced_count:
-          type: string
-        import_export_upload_uploads_failed_count:
-          type: string
-        import_export_upload_uploads_registry_count:
-          type: string
-        import_export_upload_uploads_verification_total_count:
-          type: string
-        import_export_upload_uploads_verified_count:
-          type: string
-        import_export_upload_uploads_verification_failed_count:
-          type: string
-        import_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        design_management_action_uploads_count:
-          type: string
-        design_management_action_uploads_checksum_total_count:
-          type: string
-        design_management_action_uploads_checksummed_count:
-          type: string
-        design_management_action_uploads_checksum_failed_count:
-          type: string
-        design_management_action_uploads_synced_count:
-          type: string
-        design_management_action_uploads_failed_count:
-          type: string
-        design_management_action_uploads_registry_count:
-          type: string
-        design_management_action_uploads_verification_total_count:
-          type: string
-        design_management_action_uploads_verified_count:
-          type: string
-        design_management_action_uploads_verification_failed_count:
-          type: string
-        design_management_action_uploads_oldest_unsynced_time:
           type: string
         user_uploads_count:
           type: string
@@ -76356,93 +76378,71 @@ components:
           type: string
         user_uploads_oldest_unsynced_time:
           type: string
-        achievement_uploads_count:
+        vulnerability_archive_export_uploads_count:
           type: string
-        achievement_uploads_checksum_total_count:
+        vulnerability_archive_export_uploads_checksum_total_count:
           type: string
-        achievement_uploads_checksummed_count:
+        vulnerability_archive_export_uploads_checksummed_count:
           type: string
-        achievement_uploads_checksum_failed_count:
+        vulnerability_archive_export_uploads_checksum_failed_count:
           type: string
-        achievement_uploads_synced_count:
+        vulnerability_archive_export_uploads_synced_count:
           type: string
-        achievement_uploads_failed_count:
+        vulnerability_archive_export_uploads_failed_count:
           type: string
-        achievement_uploads_registry_count:
+        vulnerability_archive_export_uploads_registry_count:
           type: string
-        achievement_uploads_verification_total_count:
+        vulnerability_archive_export_uploads_verification_total_count:
           type: string
-        achievement_uploads_verified_count:
+        vulnerability_archive_export_uploads_verified_count:
           type: string
-        achievement_uploads_verification_failed_count:
+        vulnerability_archive_export_uploads_verification_failed_count:
           type: string
-        achievement_uploads_oldest_unsynced_time:
+        vulnerability_archive_export_uploads_oldest_unsynced_time:
           type: string
-        group_uploads_count:
+        vulnerability_export_part_uploads_count:
           type: string
-        group_uploads_checksum_total_count:
+        vulnerability_export_part_uploads_checksum_total_count:
           type: string
-        group_uploads_checksummed_count:
+        vulnerability_export_part_uploads_checksummed_count:
           type: string
-        group_uploads_checksum_failed_count:
+        vulnerability_export_part_uploads_checksum_failed_count:
           type: string
-        group_uploads_synced_count:
+        vulnerability_export_part_uploads_synced_count:
           type: string
-        group_uploads_failed_count:
+        vulnerability_export_part_uploads_failed_count:
           type: string
-        group_uploads_registry_count:
+        vulnerability_export_part_uploads_registry_count:
           type: string
-        group_uploads_verification_total_count:
+        vulnerability_export_part_uploads_verification_total_count:
           type: string
-        group_uploads_verified_count:
+        vulnerability_export_part_uploads_verified_count:
           type: string
-        group_uploads_verification_failed_count:
+        vulnerability_export_part_uploads_verification_failed_count:
           type: string
-        group_uploads_oldest_unsynced_time:
+        vulnerability_export_part_uploads_oldest_unsynced_time:
           type: string
-        project_uploads_count:
+        vulnerability_export_uploads_count:
           type: string
-        project_uploads_checksum_total_count:
+        vulnerability_export_uploads_checksum_total_count:
           type: string
-        project_uploads_checksummed_count:
+        vulnerability_export_uploads_checksummed_count:
           type: string
-        project_uploads_checksum_failed_count:
+        vulnerability_export_uploads_checksum_failed_count:
           type: string
-        project_uploads_synced_count:
+        vulnerability_export_uploads_synced_count:
           type: string
-        project_uploads_failed_count:
+        vulnerability_export_uploads_failed_count:
           type: string
-        project_uploads_registry_count:
+        vulnerability_export_uploads_registry_count:
           type: string
-        project_uploads_verification_total_count:
+        vulnerability_export_uploads_verification_total_count:
           type: string
-        project_uploads_verified_count:
+        vulnerability_export_uploads_verified_count:
           type: string
-        project_uploads_verification_failed_count:
+        vulnerability_export_uploads_verification_failed_count:
           type: string
-        project_uploads_oldest_unsynced_time:
-          type: string
-        abuse_report_uploads_count:
-          type: string
-        abuse_report_uploads_checksum_total_count:
-          type: string
-        abuse_report_uploads_checksummed_count:
-          type: string
-        abuse_report_uploads_checksum_failed_count:
-          type: string
-        abuse_report_uploads_synced_count:
-          type: string
-        abuse_report_uploads_failed_count:
-          type: string
-        abuse_report_uploads_registry_count:
-          type: string
-        abuse_report_uploads_verification_total_count:
-          type: string
-        abuse_report_uploads_verified_count:
-          type: string
-        abuse_report_uploads_verification_failed_count:
-          type: string
-        abuse_report_uploads_oldest_unsynced_time:
+        vulnerability_export_uploads_oldest_unsynced_time:
           type: string
         git_fetch_event_count_weekly:
           type: string
@@ -76456,6 +76456,26 @@ components:
           type: string
         replication_slots_used_in_percentage:
           type: string
+        abuse_report_uploads_synced_in_percentage:
+          type: string
+        abuse_report_uploads_verified_in_percentage:
+          type: string
+        achievement_uploads_synced_in_percentage:
+          type: string
+        achievement_uploads_verified_in_percentage:
+          type: string
+        ai_vectorizable_file_uploads_synced_in_percentage:
+          type: string
+        ai_vectorizable_file_uploads_verified_in_percentage:
+          type: string
+        alert_management_metric_image_uploads_synced_in_percentage:
+          type: string
+        alert_management_metric_image_uploads_verified_in_percentage:
+          type: string
+        bulk_import_export_upload_uploads_synced_in_percentage:
+          type: string
+        bulk_import_export_upload_uploads_verified_in_percentage:
+          type: string
         ci_secure_files_synced_in_percentage:
           type: string
         ci_secure_files_verified_in_percentage:
@@ -76463,6 +76483,10 @@ components:
         container_repositories_synced_in_percentage:
           type: string
         container_repositories_verified_in_percentage:
+          type: string
+        dependency_list_export_uploads_synced_in_percentage:
+          type: string
+        dependency_list_export_uploads_verified_in_percentage:
           type: string
         dependency_proxy_blobs_synced_in_percentage:
           type: string
@@ -76472,13 +76496,29 @@ components:
           type: string
         dependency_proxy_manifests_verified_in_percentage:
           type: string
+        design_management_action_uploads_synced_in_percentage:
+          type: string
+        design_management_action_uploads_verified_in_percentage:
+          type: string
         design_management_repositories_synced_in_percentage:
           type: string
         design_management_repositories_verified_in_percentage:
           type: string
+        group_uploads_synced_in_percentage:
+          type: string
+        group_uploads_verified_in_percentage:
+          type: string
         group_wiki_repositories_synced_in_percentage:
           type: string
         group_wiki_repositories_verified_in_percentage:
+          type: string
+        import_export_upload_uploads_synced_in_percentage:
+          type: string
+        import_export_upload_uploads_verified_in_percentage:
+          type: string
+        issuable_metric_image_uploads_synced_in_percentage:
+          type: string
+        issuable_metric_image_uploads_verified_in_percentage:
           type: string
         job_artifacts_synced_in_percentage:
           type: string
@@ -76496,17 +76536,41 @@ components:
           type: string
         package_files_verified_in_percentage:
           type: string
+        packages_debian_project_component_files_synced_in_percentage:
+          type: string
+        packages_debian_project_component_files_verified_in_percentage:
+          type: string
+        packages_helm_metadata_caches_synced_in_percentage:
+          type: string
+        packages_helm_metadata_caches_verified_in_percentage:
+          type: string
+        packages_nuget_symbols_synced_in_percentage:
+          type: string
+        packages_nuget_symbols_verified_in_percentage:
+          type: string
         pages_deployments_synced_in_percentage:
           type: string
         pages_deployments_verified_in_percentage:
+          type: string
+        personal_snippet_uploads_synced_in_percentage:
+          type: string
+        personal_snippet_uploads_verified_in_percentage:
           type: string
         pipeline_artifacts_synced_in_percentage:
           type: string
         pipeline_artifacts_verified_in_percentage:
           type: string
+        project_import_export_relation_export_upload_uploads_synced_in_percentage:
+          type: string
+        project_import_export_relation_export_upload_uploads_verified_in_percentage:
+          type: string
         project_repositories_synced_in_percentage:
           type: string
         project_repositories_verified_in_percentage:
+          type: string
+        project_uploads_synced_in_percentage:
+          type: string
+        project_uploads_verified_in_percentage:
           type: string
         project_wiki_repositories_synced_in_percentage:
           type: string
@@ -76516,6 +76580,10 @@ components:
           type: string
         snippet_repositories_verified_in_percentage:
           type: string
+        supply_chain_attestations_synced_in_percentage:
+          type: string
+        supply_chain_attestations_verified_in_percentage:
+          type: string
         terraform_state_versions_synced_in_percentage:
           type: string
         terraform_state_versions_verified_in_percentage:
@@ -76524,93 +76592,25 @@ components:
           type: string
         uploads_verified_in_percentage:
           type: string
-        packages_nuget_symbols_synced_in_percentage:
-          type: string
-        packages_nuget_symbols_verified_in_percentage:
-          type: string
-        supply_chain_attestations_synced_in_percentage:
-          type: string
-        supply_chain_attestations_verified_in_percentage:
-          type: string
-        packages_helm_metadata_caches_synced_in_percentage:
-          type: string
-        packages_helm_metadata_caches_verified_in_percentage:
-          type: string
-        dependency_list_export_uploads_synced_in_percentage:
-          type: string
-        dependency_list_export_uploads_verified_in_percentage:
-          type: string
-        issuable_metric_image_uploads_synced_in_percentage:
-          type: string
-        issuable_metric_image_uploads_verified_in_percentage:
-          type: string
-        vulnerability_export_part_uploads_synced_in_percentage:
-          type: string
-        vulnerability_export_part_uploads_verified_in_percentage:
-          type: string
-        alert_management_metric_image_uploads_synced_in_percentage:
-          type: string
-        alert_management_metric_image_uploads_verified_in_percentage:
-          type: string
-        personal_snippet_uploads_synced_in_percentage:
-          type: string
-        personal_snippet_uploads_verified_in_percentage:
-          type: string
-        vulnerability_archive_export_uploads_synced_in_percentage:
-          type: string
-        vulnerability_archive_export_uploads_verified_in_percentage:
-          type: string
-        vulnerability_export_uploads_synced_in_percentage:
-          type: string
-        vulnerability_export_uploads_verified_in_percentage:
-          type: string
         user_permission_export_upload_uploads_synced_in_percentage:
           type: string
         user_permission_export_upload_uploads_verified_in_percentage:
-          type: string
-        bulk_import_export_upload_uploads_synced_in_percentage:
-          type: string
-        bulk_import_export_upload_uploads_verified_in_percentage:
-          type: string
-        project_import_export_relation_export_upload_uploads_synced_in_percentage:
-          type: string
-        project_import_export_relation_export_upload_uploads_verified_in_percentage:
-          type: string
-        packages_debian_project_component_files_synced_in_percentage:
-          type: string
-        packages_debian_project_component_files_verified_in_percentage:
-          type: string
-        ai_vectorizable_file_uploads_synced_in_percentage:
-          type: string
-        ai_vectorizable_file_uploads_verified_in_percentage:
-          type: string
-        import_export_upload_uploads_synced_in_percentage:
-          type: string
-        import_export_upload_uploads_verified_in_percentage:
-          type: string
-        design_management_action_uploads_synced_in_percentage:
-          type: string
-        design_management_action_uploads_verified_in_percentage:
           type: string
         user_uploads_synced_in_percentage:
           type: string
         user_uploads_verified_in_percentage:
           type: string
-        achievement_uploads_synced_in_percentage:
+        vulnerability_archive_export_uploads_synced_in_percentage:
           type: string
-        achievement_uploads_verified_in_percentage:
+        vulnerability_archive_export_uploads_verified_in_percentage:
           type: string
-        group_uploads_synced_in_percentage:
+        vulnerability_export_part_uploads_synced_in_percentage:
           type: string
-        group_uploads_verified_in_percentage:
+        vulnerability_export_part_uploads_verified_in_percentage:
           type: string
-        project_uploads_synced_in_percentage:
+        vulnerability_export_uploads_synced_in_percentage:
           type: string
-        project_uploads_verified_in_percentage:
-          type: string
-        abuse_report_uploads_synced_in_percentage:
-          type: string
-        abuse_report_uploads_verified_in_percentage:
+        vulnerability_export_uploads_verified_in_percentage:
           type: string
         repositories_count:
           type: string
@@ -76714,6 +76714,116 @@ components:
           type: string
         container_repositories_replication_enabled:
           type: string
+        abuse_report_uploads_count:
+          type: string
+        abuse_report_uploads_checksum_total_count:
+          type: string
+        abuse_report_uploads_checksummed_count:
+          type: string
+        abuse_report_uploads_checksum_failed_count:
+          type: string
+        abuse_report_uploads_synced_count:
+          type: string
+        abuse_report_uploads_failed_count:
+          type: string
+        abuse_report_uploads_registry_count:
+          type: string
+        abuse_report_uploads_verification_total_count:
+          type: string
+        abuse_report_uploads_verified_count:
+          type: string
+        abuse_report_uploads_verification_failed_count:
+          type: string
+        abuse_report_uploads_oldest_unsynced_time:
+          type: string
+        achievement_uploads_count:
+          type: string
+        achievement_uploads_checksum_total_count:
+          type: string
+        achievement_uploads_checksummed_count:
+          type: string
+        achievement_uploads_checksum_failed_count:
+          type: string
+        achievement_uploads_synced_count:
+          type: string
+        achievement_uploads_failed_count:
+          type: string
+        achievement_uploads_registry_count:
+          type: string
+        achievement_uploads_verification_total_count:
+          type: string
+        achievement_uploads_verified_count:
+          type: string
+        achievement_uploads_verification_failed_count:
+          type: string
+        achievement_uploads_oldest_unsynced_time:
+          type: string
+        ai_vectorizable_file_uploads_count:
+          type: string
+        ai_vectorizable_file_uploads_checksum_total_count:
+          type: string
+        ai_vectorizable_file_uploads_checksummed_count:
+          type: string
+        ai_vectorizable_file_uploads_checksum_failed_count:
+          type: string
+        ai_vectorizable_file_uploads_synced_count:
+          type: string
+        ai_vectorizable_file_uploads_failed_count:
+          type: string
+        ai_vectorizable_file_uploads_registry_count:
+          type: string
+        ai_vectorizable_file_uploads_verification_total_count:
+          type: string
+        ai_vectorizable_file_uploads_verified_count:
+          type: string
+        ai_vectorizable_file_uploads_verification_failed_count:
+          type: string
+        ai_vectorizable_file_uploads_oldest_unsynced_time:
+          type: string
+        alert_management_metric_image_uploads_count:
+          type: string
+        alert_management_metric_image_uploads_checksum_total_count:
+          type: string
+        alert_management_metric_image_uploads_checksummed_count:
+          type: string
+        alert_management_metric_image_uploads_checksum_failed_count:
+          type: string
+        alert_management_metric_image_uploads_synced_count:
+          type: string
+        alert_management_metric_image_uploads_failed_count:
+          type: string
+        alert_management_metric_image_uploads_registry_count:
+          type: string
+        alert_management_metric_image_uploads_verification_total_count:
+          type: string
+        alert_management_metric_image_uploads_verified_count:
+          type: string
+        alert_management_metric_image_uploads_verification_failed_count:
+          type: string
+        alert_management_metric_image_uploads_oldest_unsynced_time:
+          type: string
+        bulk_import_export_upload_uploads_count:
+          type: string
+        bulk_import_export_upload_uploads_checksum_total_count:
+          type: string
+        bulk_import_export_upload_uploads_checksummed_count:
+          type: string
+        bulk_import_export_upload_uploads_checksum_failed_count:
+          type: string
+        bulk_import_export_upload_uploads_synced_count:
+          type: string
+        bulk_import_export_upload_uploads_failed_count:
+          type: string
+        bulk_import_export_upload_uploads_registry_count:
+          type: string
+        bulk_import_export_upload_uploads_verification_total_count:
+          type: string
+        bulk_import_export_upload_uploads_verified_count:
+          type: string
+        bulk_import_export_upload_uploads_verification_failed_count:
+          type: string
+        bulk_import_export_upload_uploads_oldest_unsynced_time:
+          type: string
         ci_secure_files_count:
           type: string
         ci_secure_files_checksum_total_count:
@@ -76757,6 +76867,28 @@ components:
         container_repositories_verification_failed_count:
           type: string
         container_repositories_oldest_unsynced_time:
+          type: string
+        dependency_list_export_uploads_count:
+          type: string
+        dependency_list_export_uploads_checksum_total_count:
+          type: string
+        dependency_list_export_uploads_checksummed_count:
+          type: string
+        dependency_list_export_uploads_checksum_failed_count:
+          type: string
+        dependency_list_export_uploads_synced_count:
+          type: string
+        dependency_list_export_uploads_failed_count:
+          type: string
+        dependency_list_export_uploads_registry_count:
+          type: string
+        dependency_list_export_uploads_verification_total_count:
+          type: string
+        dependency_list_export_uploads_verified_count:
+          type: string
+        dependency_list_export_uploads_verification_failed_count:
+          type: string
+        dependency_list_export_uploads_oldest_unsynced_time:
           type: string
         dependency_proxy_blobs_count:
           type: string
@@ -76802,6 +76934,28 @@ components:
           type: string
         dependency_proxy_manifests_oldest_unsynced_time:
           type: string
+        design_management_action_uploads_count:
+          type: string
+        design_management_action_uploads_checksum_total_count:
+          type: string
+        design_management_action_uploads_checksummed_count:
+          type: string
+        design_management_action_uploads_checksum_failed_count:
+          type: string
+        design_management_action_uploads_synced_count:
+          type: string
+        design_management_action_uploads_failed_count:
+          type: string
+        design_management_action_uploads_registry_count:
+          type: string
+        design_management_action_uploads_verification_total_count:
+          type: string
+        design_management_action_uploads_verified_count:
+          type: string
+        design_management_action_uploads_verification_failed_count:
+          type: string
+        design_management_action_uploads_oldest_unsynced_time:
+          type: string
         design_management_repositories_count:
           type: string
         design_management_repositories_checksum_total_count:
@@ -76824,6 +76978,28 @@ components:
           type: string
         design_management_repositories_oldest_unsynced_time:
           type: string
+        group_uploads_count:
+          type: string
+        group_uploads_checksum_total_count:
+          type: string
+        group_uploads_checksummed_count:
+          type: string
+        group_uploads_checksum_failed_count:
+          type: string
+        group_uploads_synced_count:
+          type: string
+        group_uploads_failed_count:
+          type: string
+        group_uploads_registry_count:
+          type: string
+        group_uploads_verification_total_count:
+          type: string
+        group_uploads_verified_count:
+          type: string
+        group_uploads_verification_failed_count:
+          type: string
+        group_uploads_oldest_unsynced_time:
+          type: string
         group_wiki_repositories_count:
           type: string
         group_wiki_repositories_checksum_total_count:
@@ -76845,6 +77021,50 @@ components:
         group_wiki_repositories_verification_failed_count:
           type: string
         group_wiki_repositories_oldest_unsynced_time:
+          type: string
+        import_export_upload_uploads_count:
+          type: string
+        import_export_upload_uploads_checksum_total_count:
+          type: string
+        import_export_upload_uploads_checksummed_count:
+          type: string
+        import_export_upload_uploads_checksum_failed_count:
+          type: string
+        import_export_upload_uploads_synced_count:
+          type: string
+        import_export_upload_uploads_failed_count:
+          type: string
+        import_export_upload_uploads_registry_count:
+          type: string
+        import_export_upload_uploads_verification_total_count:
+          type: string
+        import_export_upload_uploads_verified_count:
+          type: string
+        import_export_upload_uploads_verification_failed_count:
+          type: string
+        import_export_upload_uploads_oldest_unsynced_time:
+          type: string
+        issuable_metric_image_uploads_count:
+          type: string
+        issuable_metric_image_uploads_checksum_total_count:
+          type: string
+        issuable_metric_image_uploads_checksummed_count:
+          type: string
+        issuable_metric_image_uploads_checksum_failed_count:
+          type: string
+        issuable_metric_image_uploads_synced_count:
+          type: string
+        issuable_metric_image_uploads_failed_count:
+          type: string
+        issuable_metric_image_uploads_registry_count:
+          type: string
+        issuable_metric_image_uploads_verification_total_count:
+          type: string
+        issuable_metric_image_uploads_verified_count:
+          type: string
+        issuable_metric_image_uploads_verification_failed_count:
+          type: string
+        issuable_metric_image_uploads_oldest_unsynced_time:
           type: string
         job_artifacts_count:
           type: string
@@ -76934,6 +77154,72 @@ components:
           type: string
         package_files_oldest_unsynced_time:
           type: string
+        packages_debian_project_component_files_count:
+          type: string
+        packages_debian_project_component_files_checksum_total_count:
+          type: string
+        packages_debian_project_component_files_checksummed_count:
+          type: string
+        packages_debian_project_component_files_checksum_failed_count:
+          type: string
+        packages_debian_project_component_files_synced_count:
+          type: string
+        packages_debian_project_component_files_failed_count:
+          type: string
+        packages_debian_project_component_files_registry_count:
+          type: string
+        packages_debian_project_component_files_verification_total_count:
+          type: string
+        packages_debian_project_component_files_verified_count:
+          type: string
+        packages_debian_project_component_files_verification_failed_count:
+          type: string
+        packages_debian_project_component_files_oldest_unsynced_time:
+          type: string
+        packages_helm_metadata_caches_count:
+          type: string
+        packages_helm_metadata_caches_checksum_total_count:
+          type: string
+        packages_helm_metadata_caches_checksummed_count:
+          type: string
+        packages_helm_metadata_caches_checksum_failed_count:
+          type: string
+        packages_helm_metadata_caches_synced_count:
+          type: string
+        packages_helm_metadata_caches_failed_count:
+          type: string
+        packages_helm_metadata_caches_registry_count:
+          type: string
+        packages_helm_metadata_caches_verification_total_count:
+          type: string
+        packages_helm_metadata_caches_verified_count:
+          type: string
+        packages_helm_metadata_caches_verification_failed_count:
+          type: string
+        packages_helm_metadata_caches_oldest_unsynced_time:
+          type: string
+        packages_nuget_symbols_count:
+          type: string
+        packages_nuget_symbols_checksum_total_count:
+          type: string
+        packages_nuget_symbols_checksummed_count:
+          type: string
+        packages_nuget_symbols_checksum_failed_count:
+          type: string
+        packages_nuget_symbols_synced_count:
+          type: string
+        packages_nuget_symbols_failed_count:
+          type: string
+        packages_nuget_symbols_registry_count:
+          type: string
+        packages_nuget_symbols_verification_total_count:
+          type: string
+        packages_nuget_symbols_verified_count:
+          type: string
+        packages_nuget_symbols_verification_failed_count:
+          type: string
+        packages_nuget_symbols_oldest_unsynced_time:
+          type: string
         pages_deployments_count:
           type: string
         pages_deployments_checksum_total_count:
@@ -76955,6 +77241,28 @@ components:
         pages_deployments_verification_failed_count:
           type: string
         pages_deployments_oldest_unsynced_time:
+          type: string
+        personal_snippet_uploads_count:
+          type: string
+        personal_snippet_uploads_checksum_total_count:
+          type: string
+        personal_snippet_uploads_checksummed_count:
+          type: string
+        personal_snippet_uploads_checksum_failed_count:
+          type: string
+        personal_snippet_uploads_synced_count:
+          type: string
+        personal_snippet_uploads_failed_count:
+          type: string
+        personal_snippet_uploads_registry_count:
+          type: string
+        personal_snippet_uploads_verification_total_count:
+          type: string
+        personal_snippet_uploads_verified_count:
+          type: string
+        personal_snippet_uploads_verification_failed_count:
+          type: string
+        personal_snippet_uploads_oldest_unsynced_time:
           type: string
         pipeline_artifacts_count:
           type: string
@@ -76978,6 +77286,28 @@ components:
           type: string
         pipeline_artifacts_oldest_unsynced_time:
           type: string
+        project_import_export_relation_export_upload_uploads_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_checksum_total_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_checksummed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_checksum_failed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_synced_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_failed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_registry_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_verification_total_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_verified_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_verification_failed_count:
+          type: string
+        project_import_export_relation_export_upload_uploads_oldest_unsynced_time:
+          type: string
         project_repositories_count:
           type: string
         project_repositories_checksum_total_count:
@@ -76999,6 +77329,28 @@ components:
         project_repositories_verification_failed_count:
           type: string
         project_repositories_oldest_unsynced_time:
+          type: string
+        project_uploads_count:
+          type: string
+        project_uploads_checksum_total_count:
+          type: string
+        project_uploads_checksummed_count:
+          type: string
+        project_uploads_checksum_failed_count:
+          type: string
+        project_uploads_synced_count:
+          type: string
+        project_uploads_failed_count:
+          type: string
+        project_uploads_registry_count:
+          type: string
+        project_uploads_verification_total_count:
+          type: string
+        project_uploads_verified_count:
+          type: string
+        project_uploads_verification_failed_count:
+          type: string
+        project_uploads_oldest_unsynced_time:
           type: string
         project_wiki_repositories_count:
           type: string
@@ -77044,6 +77396,28 @@ components:
           type: string
         snippet_repositories_oldest_unsynced_time:
           type: string
+        supply_chain_attestations_count:
+          type: string
+        supply_chain_attestations_checksum_total_count:
+          type: string
+        supply_chain_attestations_checksummed_count:
+          type: string
+        supply_chain_attestations_checksum_failed_count:
+          type: string
+        supply_chain_attestations_synced_count:
+          type: string
+        supply_chain_attestations_failed_count:
+          type: string
+        supply_chain_attestations_registry_count:
+          type: string
+        supply_chain_attestations_verification_total_count:
+          type: string
+        supply_chain_attestations_verified_count:
+          type: string
+        supply_chain_attestations_verification_failed_count:
+          type: string
+        supply_chain_attestations_oldest_unsynced_time:
+          type: string
         terraform_state_versions_count:
           type: string
         terraform_state_versions_checksum_total_count:
@@ -77088,226 +77462,6 @@ components:
           type: string
         uploads_oldest_unsynced_time:
           type: string
-        packages_nuget_symbols_count:
-          type: string
-        packages_nuget_symbols_checksum_total_count:
-          type: string
-        packages_nuget_symbols_checksummed_count:
-          type: string
-        packages_nuget_symbols_checksum_failed_count:
-          type: string
-        packages_nuget_symbols_synced_count:
-          type: string
-        packages_nuget_symbols_failed_count:
-          type: string
-        packages_nuget_symbols_registry_count:
-          type: string
-        packages_nuget_symbols_verification_total_count:
-          type: string
-        packages_nuget_symbols_verified_count:
-          type: string
-        packages_nuget_symbols_verification_failed_count:
-          type: string
-        packages_nuget_symbols_oldest_unsynced_time:
-          type: string
-        supply_chain_attestations_count:
-          type: string
-        supply_chain_attestations_checksum_total_count:
-          type: string
-        supply_chain_attestations_checksummed_count:
-          type: string
-        supply_chain_attestations_checksum_failed_count:
-          type: string
-        supply_chain_attestations_synced_count:
-          type: string
-        supply_chain_attestations_failed_count:
-          type: string
-        supply_chain_attestations_registry_count:
-          type: string
-        supply_chain_attestations_verification_total_count:
-          type: string
-        supply_chain_attestations_verified_count:
-          type: string
-        supply_chain_attestations_verification_failed_count:
-          type: string
-        supply_chain_attestations_oldest_unsynced_time:
-          type: string
-        packages_helm_metadata_caches_count:
-          type: string
-        packages_helm_metadata_caches_checksum_total_count:
-          type: string
-        packages_helm_metadata_caches_checksummed_count:
-          type: string
-        packages_helm_metadata_caches_checksum_failed_count:
-          type: string
-        packages_helm_metadata_caches_synced_count:
-          type: string
-        packages_helm_metadata_caches_failed_count:
-          type: string
-        packages_helm_metadata_caches_registry_count:
-          type: string
-        packages_helm_metadata_caches_verification_total_count:
-          type: string
-        packages_helm_metadata_caches_verified_count:
-          type: string
-        packages_helm_metadata_caches_verification_failed_count:
-          type: string
-        packages_helm_metadata_caches_oldest_unsynced_time:
-          type: string
-        dependency_list_export_uploads_count:
-          type: string
-        dependency_list_export_uploads_checksum_total_count:
-          type: string
-        dependency_list_export_uploads_checksummed_count:
-          type: string
-        dependency_list_export_uploads_checksum_failed_count:
-          type: string
-        dependency_list_export_uploads_synced_count:
-          type: string
-        dependency_list_export_uploads_failed_count:
-          type: string
-        dependency_list_export_uploads_registry_count:
-          type: string
-        dependency_list_export_uploads_verification_total_count:
-          type: string
-        dependency_list_export_uploads_verified_count:
-          type: string
-        dependency_list_export_uploads_verification_failed_count:
-          type: string
-        dependency_list_export_uploads_oldest_unsynced_time:
-          type: string
-        issuable_metric_image_uploads_count:
-          type: string
-        issuable_metric_image_uploads_checksum_total_count:
-          type: string
-        issuable_metric_image_uploads_checksummed_count:
-          type: string
-        issuable_metric_image_uploads_checksum_failed_count:
-          type: string
-        issuable_metric_image_uploads_synced_count:
-          type: string
-        issuable_metric_image_uploads_failed_count:
-          type: string
-        issuable_metric_image_uploads_registry_count:
-          type: string
-        issuable_metric_image_uploads_verification_total_count:
-          type: string
-        issuable_metric_image_uploads_verified_count:
-          type: string
-        issuable_metric_image_uploads_verification_failed_count:
-          type: string
-        issuable_metric_image_uploads_oldest_unsynced_time:
-          type: string
-        vulnerability_export_part_uploads_count:
-          type: string
-        vulnerability_export_part_uploads_checksum_total_count:
-          type: string
-        vulnerability_export_part_uploads_checksummed_count:
-          type: string
-        vulnerability_export_part_uploads_checksum_failed_count:
-          type: string
-        vulnerability_export_part_uploads_synced_count:
-          type: string
-        vulnerability_export_part_uploads_failed_count:
-          type: string
-        vulnerability_export_part_uploads_registry_count:
-          type: string
-        vulnerability_export_part_uploads_verification_total_count:
-          type: string
-        vulnerability_export_part_uploads_verified_count:
-          type: string
-        vulnerability_export_part_uploads_verification_failed_count:
-          type: string
-        vulnerability_export_part_uploads_oldest_unsynced_time:
-          type: string
-        alert_management_metric_image_uploads_count:
-          type: string
-        alert_management_metric_image_uploads_checksum_total_count:
-          type: string
-        alert_management_metric_image_uploads_checksummed_count:
-          type: string
-        alert_management_metric_image_uploads_checksum_failed_count:
-          type: string
-        alert_management_metric_image_uploads_synced_count:
-          type: string
-        alert_management_metric_image_uploads_failed_count:
-          type: string
-        alert_management_metric_image_uploads_registry_count:
-          type: string
-        alert_management_metric_image_uploads_verification_total_count:
-          type: string
-        alert_management_metric_image_uploads_verified_count:
-          type: string
-        alert_management_metric_image_uploads_verification_failed_count:
-          type: string
-        alert_management_metric_image_uploads_oldest_unsynced_time:
-          type: string
-        personal_snippet_uploads_count:
-          type: string
-        personal_snippet_uploads_checksum_total_count:
-          type: string
-        personal_snippet_uploads_checksummed_count:
-          type: string
-        personal_snippet_uploads_checksum_failed_count:
-          type: string
-        personal_snippet_uploads_synced_count:
-          type: string
-        personal_snippet_uploads_failed_count:
-          type: string
-        personal_snippet_uploads_registry_count:
-          type: string
-        personal_snippet_uploads_verification_total_count:
-          type: string
-        personal_snippet_uploads_verified_count:
-          type: string
-        personal_snippet_uploads_verification_failed_count:
-          type: string
-        personal_snippet_uploads_oldest_unsynced_time:
-          type: string
-        vulnerability_archive_export_uploads_count:
-          type: string
-        vulnerability_archive_export_uploads_checksum_total_count:
-          type: string
-        vulnerability_archive_export_uploads_checksummed_count:
-          type: string
-        vulnerability_archive_export_uploads_checksum_failed_count:
-          type: string
-        vulnerability_archive_export_uploads_synced_count:
-          type: string
-        vulnerability_archive_export_uploads_failed_count:
-          type: string
-        vulnerability_archive_export_uploads_registry_count:
-          type: string
-        vulnerability_archive_export_uploads_verification_total_count:
-          type: string
-        vulnerability_archive_export_uploads_verified_count:
-          type: string
-        vulnerability_archive_export_uploads_verification_failed_count:
-          type: string
-        vulnerability_archive_export_uploads_oldest_unsynced_time:
-          type: string
-        vulnerability_export_uploads_count:
-          type: string
-        vulnerability_export_uploads_checksum_total_count:
-          type: string
-        vulnerability_export_uploads_checksummed_count:
-          type: string
-        vulnerability_export_uploads_checksum_failed_count:
-          type: string
-        vulnerability_export_uploads_synced_count:
-          type: string
-        vulnerability_export_uploads_failed_count:
-          type: string
-        vulnerability_export_uploads_registry_count:
-          type: string
-        vulnerability_export_uploads_verification_total_count:
-          type: string
-        vulnerability_export_uploads_verified_count:
-          type: string
-        vulnerability_export_uploads_verification_failed_count:
-          type: string
-        vulnerability_export_uploads_oldest_unsynced_time:
-          type: string
         user_permission_export_upload_uploads_count:
           type: string
         user_permission_export_upload_uploads_checksum_total_count:
@@ -77329,138 +77483,6 @@ components:
         user_permission_export_upload_uploads_verification_failed_count:
           type: string
         user_permission_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        bulk_import_export_upload_uploads_count:
-          type: string
-        bulk_import_export_upload_uploads_checksum_total_count:
-          type: string
-        bulk_import_export_upload_uploads_checksummed_count:
-          type: string
-        bulk_import_export_upload_uploads_checksum_failed_count:
-          type: string
-        bulk_import_export_upload_uploads_synced_count:
-          type: string
-        bulk_import_export_upload_uploads_failed_count:
-          type: string
-        bulk_import_export_upload_uploads_registry_count:
-          type: string
-        bulk_import_export_upload_uploads_verification_total_count:
-          type: string
-        bulk_import_export_upload_uploads_verified_count:
-          type: string
-        bulk_import_export_upload_uploads_verification_failed_count:
-          type: string
-        bulk_import_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        project_import_export_relation_export_upload_uploads_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_checksum_total_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_checksummed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_checksum_failed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_synced_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_failed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_registry_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_verification_total_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_verified_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_verification_failed_count:
-          type: string
-        project_import_export_relation_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        packages_debian_project_component_files_count:
-          type: string
-        packages_debian_project_component_files_checksum_total_count:
-          type: string
-        packages_debian_project_component_files_checksummed_count:
-          type: string
-        packages_debian_project_component_files_checksum_failed_count:
-          type: string
-        packages_debian_project_component_files_synced_count:
-          type: string
-        packages_debian_project_component_files_failed_count:
-          type: string
-        packages_debian_project_component_files_registry_count:
-          type: string
-        packages_debian_project_component_files_verification_total_count:
-          type: string
-        packages_debian_project_component_files_verified_count:
-          type: string
-        packages_debian_project_component_files_verification_failed_count:
-          type: string
-        packages_debian_project_component_files_oldest_unsynced_time:
-          type: string
-        ai_vectorizable_file_uploads_count:
-          type: string
-        ai_vectorizable_file_uploads_checksum_total_count:
-          type: string
-        ai_vectorizable_file_uploads_checksummed_count:
-          type: string
-        ai_vectorizable_file_uploads_checksum_failed_count:
-          type: string
-        ai_vectorizable_file_uploads_synced_count:
-          type: string
-        ai_vectorizable_file_uploads_failed_count:
-          type: string
-        ai_vectorizable_file_uploads_registry_count:
-          type: string
-        ai_vectorizable_file_uploads_verification_total_count:
-          type: string
-        ai_vectorizable_file_uploads_verified_count:
-          type: string
-        ai_vectorizable_file_uploads_verification_failed_count:
-          type: string
-        ai_vectorizable_file_uploads_oldest_unsynced_time:
-          type: string
-        import_export_upload_uploads_count:
-          type: string
-        import_export_upload_uploads_checksum_total_count:
-          type: string
-        import_export_upload_uploads_checksummed_count:
-          type: string
-        import_export_upload_uploads_checksum_failed_count:
-          type: string
-        import_export_upload_uploads_synced_count:
-          type: string
-        import_export_upload_uploads_failed_count:
-          type: string
-        import_export_upload_uploads_registry_count:
-          type: string
-        import_export_upload_uploads_verification_total_count:
-          type: string
-        import_export_upload_uploads_verified_count:
-          type: string
-        import_export_upload_uploads_verification_failed_count:
-          type: string
-        import_export_upload_uploads_oldest_unsynced_time:
-          type: string
-        design_management_action_uploads_count:
-          type: string
-        design_management_action_uploads_checksum_total_count:
-          type: string
-        design_management_action_uploads_checksummed_count:
-          type: string
-        design_management_action_uploads_checksum_failed_count:
-          type: string
-        design_management_action_uploads_synced_count:
-          type: string
-        design_management_action_uploads_failed_count:
-          type: string
-        design_management_action_uploads_registry_count:
-          type: string
-        design_management_action_uploads_verification_total_count:
-          type: string
-        design_management_action_uploads_verified_count:
-          type: string
-        design_management_action_uploads_verification_failed_count:
-          type: string
-        design_management_action_uploads_oldest_unsynced_time:
           type: string
         user_uploads_count:
           type: string
@@ -77484,93 +77506,71 @@ components:
           type: string
         user_uploads_oldest_unsynced_time:
           type: string
-        achievement_uploads_count:
+        vulnerability_archive_export_uploads_count:
           type: string
-        achievement_uploads_checksum_total_count:
+        vulnerability_archive_export_uploads_checksum_total_count:
           type: string
-        achievement_uploads_checksummed_count:
+        vulnerability_archive_export_uploads_checksummed_count:
           type: string
-        achievement_uploads_checksum_failed_count:
+        vulnerability_archive_export_uploads_checksum_failed_count:
           type: string
-        achievement_uploads_synced_count:
+        vulnerability_archive_export_uploads_synced_count:
           type: string
-        achievement_uploads_failed_count:
+        vulnerability_archive_export_uploads_failed_count:
           type: string
-        achievement_uploads_registry_count:
+        vulnerability_archive_export_uploads_registry_count:
           type: string
-        achievement_uploads_verification_total_count:
+        vulnerability_archive_export_uploads_verification_total_count:
           type: string
-        achievement_uploads_verified_count:
+        vulnerability_archive_export_uploads_verified_count:
           type: string
-        achievement_uploads_verification_failed_count:
+        vulnerability_archive_export_uploads_verification_failed_count:
           type: string
-        achievement_uploads_oldest_unsynced_time:
+        vulnerability_archive_export_uploads_oldest_unsynced_time:
           type: string
-        group_uploads_count:
+        vulnerability_export_part_uploads_count:
           type: string
-        group_uploads_checksum_total_count:
+        vulnerability_export_part_uploads_checksum_total_count:
           type: string
-        group_uploads_checksummed_count:
+        vulnerability_export_part_uploads_checksummed_count:
           type: string
-        group_uploads_checksum_failed_count:
+        vulnerability_export_part_uploads_checksum_failed_count:
           type: string
-        group_uploads_synced_count:
+        vulnerability_export_part_uploads_synced_count:
           type: string
-        group_uploads_failed_count:
+        vulnerability_export_part_uploads_failed_count:
           type: string
-        group_uploads_registry_count:
+        vulnerability_export_part_uploads_registry_count:
           type: string
-        group_uploads_verification_total_count:
+        vulnerability_export_part_uploads_verification_total_count:
           type: string
-        group_uploads_verified_count:
+        vulnerability_export_part_uploads_verified_count:
           type: string
-        group_uploads_verification_failed_count:
+        vulnerability_export_part_uploads_verification_failed_count:
           type: string
-        group_uploads_oldest_unsynced_time:
+        vulnerability_export_part_uploads_oldest_unsynced_time:
           type: string
-        project_uploads_count:
+        vulnerability_export_uploads_count:
           type: string
-        project_uploads_checksum_total_count:
+        vulnerability_export_uploads_checksum_total_count:
           type: string
-        project_uploads_checksummed_count:
+        vulnerability_export_uploads_checksummed_count:
           type: string
-        project_uploads_checksum_failed_count:
+        vulnerability_export_uploads_checksum_failed_count:
           type: string
-        project_uploads_synced_count:
+        vulnerability_export_uploads_synced_count:
           type: string
-        project_uploads_failed_count:
+        vulnerability_export_uploads_failed_count:
           type: string
-        project_uploads_registry_count:
+        vulnerability_export_uploads_registry_count:
           type: string
-        project_uploads_verification_total_count:
+        vulnerability_export_uploads_verification_total_count:
           type: string
-        project_uploads_verified_count:
+        vulnerability_export_uploads_verified_count:
           type: string
-        project_uploads_verification_failed_count:
+        vulnerability_export_uploads_verification_failed_count:
           type: string
-        project_uploads_oldest_unsynced_time:
-          type: string
-        abuse_report_uploads_count:
-          type: string
-        abuse_report_uploads_checksum_total_count:
-          type: string
-        abuse_report_uploads_checksummed_count:
-          type: string
-        abuse_report_uploads_checksum_failed_count:
-          type: string
-        abuse_report_uploads_synced_count:
-          type: string
-        abuse_report_uploads_failed_count:
-          type: string
-        abuse_report_uploads_registry_count:
-          type: string
-        abuse_report_uploads_verification_total_count:
-          type: string
-        abuse_report_uploads_verified_count:
-          type: string
-        abuse_report_uploads_verification_failed_count:
-          type: string
-        abuse_report_uploads_oldest_unsynced_time:
+        vulnerability_export_uploads_oldest_unsynced_time:
           type: string
         git_fetch_event_count_weekly:
           type: string
@@ -77584,6 +77584,26 @@ components:
           type: string
         replication_slots_used_in_percentage:
           type: string
+        abuse_report_uploads_synced_in_percentage:
+          type: string
+        abuse_report_uploads_verified_in_percentage:
+          type: string
+        achievement_uploads_synced_in_percentage:
+          type: string
+        achievement_uploads_verified_in_percentage:
+          type: string
+        ai_vectorizable_file_uploads_synced_in_percentage:
+          type: string
+        ai_vectorizable_file_uploads_verified_in_percentage:
+          type: string
+        alert_management_metric_image_uploads_synced_in_percentage:
+          type: string
+        alert_management_metric_image_uploads_verified_in_percentage:
+          type: string
+        bulk_import_export_upload_uploads_synced_in_percentage:
+          type: string
+        bulk_import_export_upload_uploads_verified_in_percentage:
+          type: string
         ci_secure_files_synced_in_percentage:
           type: string
         ci_secure_files_verified_in_percentage:
@@ -77591,6 +77611,10 @@ components:
         container_repositories_synced_in_percentage:
           type: string
         container_repositories_verified_in_percentage:
+          type: string
+        dependency_list_export_uploads_synced_in_percentage:
+          type: string
+        dependency_list_export_uploads_verified_in_percentage:
           type: string
         dependency_proxy_blobs_synced_in_percentage:
           type: string
@@ -77600,13 +77624,29 @@ components:
           type: string
         dependency_proxy_manifests_verified_in_percentage:
           type: string
+        design_management_action_uploads_synced_in_percentage:
+          type: string
+        design_management_action_uploads_verified_in_percentage:
+          type: string
         design_management_repositories_synced_in_percentage:
           type: string
         design_management_repositories_verified_in_percentage:
           type: string
+        group_uploads_synced_in_percentage:
+          type: string
+        group_uploads_verified_in_percentage:
+          type: string
         group_wiki_repositories_synced_in_percentage:
           type: string
         group_wiki_repositories_verified_in_percentage:
+          type: string
+        import_export_upload_uploads_synced_in_percentage:
+          type: string
+        import_export_upload_uploads_verified_in_percentage:
+          type: string
+        issuable_metric_image_uploads_synced_in_percentage:
+          type: string
+        issuable_metric_image_uploads_verified_in_percentage:
           type: string
         job_artifacts_synced_in_percentage:
           type: string
@@ -77624,17 +77664,41 @@ components:
           type: string
         package_files_verified_in_percentage:
           type: string
+        packages_debian_project_component_files_synced_in_percentage:
+          type: string
+        packages_debian_project_component_files_verified_in_percentage:
+          type: string
+        packages_helm_metadata_caches_synced_in_percentage:
+          type: string
+        packages_helm_metadata_caches_verified_in_percentage:
+          type: string
+        packages_nuget_symbols_synced_in_percentage:
+          type: string
+        packages_nuget_symbols_verified_in_percentage:
+          type: string
         pages_deployments_synced_in_percentage:
           type: string
         pages_deployments_verified_in_percentage:
+          type: string
+        personal_snippet_uploads_synced_in_percentage:
+          type: string
+        personal_snippet_uploads_verified_in_percentage:
           type: string
         pipeline_artifacts_synced_in_percentage:
           type: string
         pipeline_artifacts_verified_in_percentage:
           type: string
+        project_import_export_relation_export_upload_uploads_synced_in_percentage:
+          type: string
+        project_import_export_relation_export_upload_uploads_verified_in_percentage:
+          type: string
         project_repositories_synced_in_percentage:
           type: string
         project_repositories_verified_in_percentage:
+          type: string
+        project_uploads_synced_in_percentage:
+          type: string
+        project_uploads_verified_in_percentage:
           type: string
         project_wiki_repositories_synced_in_percentage:
           type: string
@@ -77644,6 +77708,10 @@ components:
           type: string
         snippet_repositories_verified_in_percentage:
           type: string
+        supply_chain_attestations_synced_in_percentage:
+          type: string
+        supply_chain_attestations_verified_in_percentage:
+          type: string
         terraform_state_versions_synced_in_percentage:
           type: string
         terraform_state_versions_verified_in_percentage:
@@ -77652,93 +77720,25 @@ components:
           type: string
         uploads_verified_in_percentage:
           type: string
-        packages_nuget_symbols_synced_in_percentage:
-          type: string
-        packages_nuget_symbols_verified_in_percentage:
-          type: string
-        supply_chain_attestations_synced_in_percentage:
-          type: string
-        supply_chain_attestations_verified_in_percentage:
-          type: string
-        packages_helm_metadata_caches_synced_in_percentage:
-          type: string
-        packages_helm_metadata_caches_verified_in_percentage:
-          type: string
-        dependency_list_export_uploads_synced_in_percentage:
-          type: string
-        dependency_list_export_uploads_verified_in_percentage:
-          type: string
-        issuable_metric_image_uploads_synced_in_percentage:
-          type: string
-        issuable_metric_image_uploads_verified_in_percentage:
-          type: string
-        vulnerability_export_part_uploads_synced_in_percentage:
-          type: string
-        vulnerability_export_part_uploads_verified_in_percentage:
-          type: string
-        alert_management_metric_image_uploads_synced_in_percentage:
-          type: string
-        alert_management_metric_image_uploads_verified_in_percentage:
-          type: string
-        personal_snippet_uploads_synced_in_percentage:
-          type: string
-        personal_snippet_uploads_verified_in_percentage:
-          type: string
-        vulnerability_archive_export_uploads_synced_in_percentage:
-          type: string
-        vulnerability_archive_export_uploads_verified_in_percentage:
-          type: string
-        vulnerability_export_uploads_synced_in_percentage:
-          type: string
-        vulnerability_export_uploads_verified_in_percentage:
-          type: string
         user_permission_export_upload_uploads_synced_in_percentage:
           type: string
         user_permission_export_upload_uploads_verified_in_percentage:
-          type: string
-        bulk_import_export_upload_uploads_synced_in_percentage:
-          type: string
-        bulk_import_export_upload_uploads_verified_in_percentage:
-          type: string
-        project_import_export_relation_export_upload_uploads_synced_in_percentage:
-          type: string
-        project_import_export_relation_export_upload_uploads_verified_in_percentage:
-          type: string
-        packages_debian_project_component_files_synced_in_percentage:
-          type: string
-        packages_debian_project_component_files_verified_in_percentage:
-          type: string
-        ai_vectorizable_file_uploads_synced_in_percentage:
-          type: string
-        ai_vectorizable_file_uploads_verified_in_percentage:
-          type: string
-        import_export_upload_uploads_synced_in_percentage:
-          type: string
-        import_export_upload_uploads_verified_in_percentage:
-          type: string
-        design_management_action_uploads_synced_in_percentage:
-          type: string
-        design_management_action_uploads_verified_in_percentage:
           type: string
         user_uploads_synced_in_percentage:
           type: string
         user_uploads_verified_in_percentage:
           type: string
-        achievement_uploads_synced_in_percentage:
+        vulnerability_archive_export_uploads_synced_in_percentage:
           type: string
-        achievement_uploads_verified_in_percentage:
+        vulnerability_archive_export_uploads_verified_in_percentage:
           type: string
-        group_uploads_synced_in_percentage:
+        vulnerability_export_part_uploads_synced_in_percentage:
           type: string
-        group_uploads_verified_in_percentage:
+        vulnerability_export_part_uploads_verified_in_percentage:
           type: string
-        project_uploads_synced_in_percentage:
+        vulnerability_export_uploads_synced_in_percentage:
           type: string
-        project_uploads_verified_in_percentage:
-          type: string
-        abuse_report_uploads_synced_in_percentage:
-          type: string
-        abuse_report_uploads_verified_in_percentage:
+        vulnerability_export_uploads_verified_in_percentage:
           type: string
         repositories_count:
           type: string
