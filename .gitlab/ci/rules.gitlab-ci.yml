@@ -1100,6 +1100,9 @@
   - "doc/ci/jobs/fine_grained_permissions.md"
   - "tooling/ci/job_tokens/docs/templates/fine_grained_permissions.md.erb"
 
+.skills-patterns: &skills-patterns
+  - ".claude/skills/**/*"
+
 .gitlab-orchestrator-patterns: &gitlab-orchestrator-patterns
   - "qa/gems/gitlab-orchestrator/**/*.rb"
   - "qa/gems/gitlab-orchestrator/{Gemfile,Gemfile.lock}"
@@ -1607,6 +1610,14 @@
       when: never
     - <<: *if-default-refs
       changes: *ci-job-token-policies-patterns
+
+################
+# Skills rules #
+################
+.skills:rules:skills-version-bump:
+  rules:
+    - <<: *if-merge-request
+      changes: *skills-patterns
 
 ##################
 # Frontend rules #

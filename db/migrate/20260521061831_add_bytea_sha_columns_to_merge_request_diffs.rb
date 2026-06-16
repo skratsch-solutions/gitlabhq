@@ -3,7 +3,7 @@
 class AddByteaShaColumnsToMergeRequestDiffs < Gitlab::Database::Migration[2.3]
   include Gitlab::Database::SchemaHelpers
 
-  milestone '19.1'
+  milestone '19.2'
   disable_ddl_transaction!
 
   TABLE              = :merge_request_diffs

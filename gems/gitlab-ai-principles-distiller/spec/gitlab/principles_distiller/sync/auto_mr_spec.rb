@@ -506,7 +506,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
     def capture_post_body
       captured = nil
       allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
-        captured = body unless body[:title].to_s.end_with?('tooling')
+        captured = body unless body[:title].to_s.start_with?('tooling: ')
         mock_response
       end
       create_branch_and_mr
@@ -576,19 +576,22 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         expect(sync.workflow).to have_received(:post_json).exactly(3).times
       end
 
-      it 'gives each team MR an owner_team-suffixed title and scoped content', :aggregate_failures do
+      it 'gives each team MR a slug-prefixed title and scoped content', :aggregate_failures do
         bodies = capture_all_bodies
         create_branch_and_mr
         titles = bodies.map { |b| b[:title] }
 
+        # Titles are prefixed with the team_slug (never the @handle), so the
+        # title itself never pings anyone.
         expect(titles).to include(
-          a_string_ending_with('— @abdwdd @alexpooley'),
-          a_string_ending_with('— @gitlab-com/gl-security/appsec'),
-          a_string_ending_with('— tooling')
+          a_string_starting_with('qa: '),
+          a_string_starting_with('appsec: '),
+          a_string_starting_with('tooling: ')
         )
+        expect(titles).to all(satisfy { |t| !t.include?('@') })
 
-        testing = bodies.find { |b| b[:title].end_with?('— @abdwdd @alexpooley') }
-        security = bodies.find { |b| b[:title].end_with?('— @gitlab-com/gl-security/appsec') }
+        testing = bodies.find { |b| b[:title].start_with?('qa: ') }
+        security = bodies.find { |b| b[:title].start_with?('appsec: ') }
 
         expect(testing[:description]).to include('#### `qa`')
         expect(testing[:description]).not_to include('#### `security`')
@@ -639,18 +642,140 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         }
       end
 
-      it 'lists the secondary teams in a "Request a review from" section', :aggregate_failures do
+      it 'lists secondary teams as inline code (no bare mention) in a review section', :aggregate_failures do
         # Capture the team (non-tooling) MR body.
         captured = nil
         allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
-          captured = body unless body[:title].to_s.end_with?('tooling')
+          captured = body unless body[:title].to_s.start_with?('tooling: ')
           mock_response
         end
 
         create_branch_and_mr
 
         expect(captured[:description]).to include('Request a review from')
-        expect(captured[:description]).to include('@gitlab-com/gl-security/appsec')
+        # Inline code, not a bare @mention, so the secondary group is not pinged.
+        expect(captured[:description]).to include('`@gitlab-com/gl-security/appsec`')
+        expect(captured[:description]).not_to match(/^- @gitlab-com/)
+      end
+    end
+
+    context 'when the team opts out of pings (ping_team: false)' do
+      let(:distilled_contents) do
+        { 'backend-ruby' => "---\nsource_checksum: a\n---\n# Ruby\n" }
+      end
+
+      let(:affected) do
+        {
+          'backend-ruby' => {
+            config: { 'sources' => [{ 'path' => 'doc/development/backend/ruby_style_guide.md' }] },
+            changed_sources: [{ 'path' => 'doc/development/backend/ruby_style_guide.md' }], prior_sha: nil
+          }
+        }
+      end
+
+      before do
+        sync.manifest.data = {
+          'principles' => {
+            'backend-ruby' => {
+              'owner_team' => '@gitlab-org/maintainers/rails-backend', 'ping_team' => false,
+              'sources' => [{ 'path' => 'doc/development/backend/ruby_style_guide.md' }]
+            }
+          }
+        }
+      end
+
+      it 'uses the team_slug (not the @handle) in the title, commit, and summary', :aggregate_failures do
+        captured = nil
+        commits = []
+        allow(sync.workflow).to receive(:post_json) do |_url, body:, **|
+          captured = body unless body[:title].to_s.start_with?('tooling: ')
+          mock_response
+        end
+        allow(sync).to receive(:commit_and_push) do |_branch, _pid, _tok, msg|
+          commits << msg
+        end
+
+        create_branch_and_mr
+
+        expect(captured[:title]).to start_with('rails-backend: ')
+        expect(captured[:title]).not_to include('@')
+        expect(captured[:description]).to include('**rails-backend**')
+        expect(captured[:description]).not_to include('@gitlab-org/maintainers/rails-backend')
+        expect(commits).to include(a_string_including('Update rails-backend AI development principles'))
+      end
+    end
+
+    context 'with a long owner_team handle and several principles' do
+      # A long owner_team handle plus several principles is the worst case for
+      # both the subject (handle would overflow) and the body (Updated: list).
+      let(:distilled_contents) do
+        {
+          'authentication' => "---\nsource_checksum: a\n---\n# Auth\n",
+          'permissions-fundamentals' => "---\nsource_checksum: b\n---\n# Perms\n"
+        }
+      end
+
+      let(:affected) do
+        {
+          'authentication' => { config: { 'sources' => [] }, changed_sources: [], prior_sha: nil },
+          'permissions-fundamentals' => { config: { 'sources' => [] }, changed_sources: [], prior_sha: nil }
+        }
+      end
+
+      let(:long_handle) { '@gitlab-org/software-supply-chain-security/authorization/approvers' }
+
+      before do
+        sync.manifest.data = {
+          'principles' => {
+            'authentication' => {
+              'owner_team' => long_handle, 'team_slug' => 'authorization',
+              'sources' => []
+            },
+            'permissions-fundamentals' => {
+              'owner_team' => long_handle, 'team_slug' => 'authorization',
+              'sources' => []
+            }
+          }
+        }
+      end
+
+      it 'keeps every commit line within 72 chars and uses a slug subject + bullet body', :aggregate_failures do
+        commits = []
+        allow(sync).to receive(:commit_and_push).and_wrap_original do |_orig, *args|
+          commits << args.last
+          # Still exercise the guard, but skip the real git/push side effects.
+          sync.send(:assert_commit_lines_within_limit!, args.last)
+        end
+
+        expect { create_branch_and_mr }.not_to raise_error
+
+        team_commit = commits.find { |m| m.start_with?('Update authorization') }
+        expect(team_commit).not_to be_nil
+        expect(team_commit).to start_with('Update authorization AI development principles from SSOT')
+        expect(team_commit).not_to include(long_handle)
+        expect(team_commit).to include("Updated:\n- authentication\n- permissions-fundamentals")
+        expect(team_commit.lines.map(&:chomp)).to all(satisfy { |l| l.length <= 72 })
+      end
+    end
+
+    describe '#assert_commit_lines_within_limit!' do
+      it 'raises when a non-URL line exceeds 72 characters' do
+        msg = "Subject line ok\n\n#{'x' * 73}"
+
+        expect { sync.send(:assert_commit_lines_within_limit!, msg) }
+          .to raise_error(/over 72 chars/)
+      end
+
+      it 'allows long lines that contain a URL' do
+        msg = "Subject line ok\n\nSee https://gitlab.com/#{'a' * 80}"
+
+        expect { sync.send(:assert_commit_lines_within_limit!, msg) }.not_to raise_error
+      end
+
+      it 'passes when all lines are within the limit' do
+        msg = "Update foo AI principles\n\nUpdated:\n- foo"
+
+        expect { sync.send(:assert_commit_lines_within_limit!, msg) }.not_to raise_error
       end
     end
 
@@ -672,7 +797,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         create_branch_and_mr
 
         # Exactly the team MR; the tooling MR is skipped (no staged changes).
-        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_ending_with('— @abdwdd @alexpooley'))
+        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_starting_with('qa: '))
       end
     end
 
@@ -691,7 +816,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         end
 
         expect { create_branch_and_mr }.not_to raise_error
-        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_ending_with('— tooling'))
+        expect(bodies.map { |b| b[:title] }).to contain_exactly(a_string_starting_with('tooling: '))
       end
     end
 
@@ -744,7 +869,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         end
 
         expect { create_branch_and_mr }.not_to raise_error
-        expect(bodies.map { |b| b[:title] }).to include(a_string_ending_with('— tooling'))
+        expect(bodies.map { |b| b[:title] }).to include(a_string_starting_with('tooling: '))
       end
     end
 
@@ -804,10 +929,10 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         }
       end
 
-      it 'applies auto_mr_cfg values to the MR title (with team suffix), labels, and flag', :aggregate_failures do
+      it 'applies auto_mr_cfg values to the MR title (slug-prefixed), labels, and flag', :aggregate_failures do
         today = Time.now.utc.strftime('%Y%m%d')
 
-        expect(received_body[:title]).to eq("Custom title #{today} — @abdwdd @alexpooley")
+        expect(received_body[:title]).to eq("qa: Custom title #{today}")
         expect(received_body[:labels]).to eq('label-a,label-b')
         expect(received_body[:remove_source_branch]).to be(false)
       end

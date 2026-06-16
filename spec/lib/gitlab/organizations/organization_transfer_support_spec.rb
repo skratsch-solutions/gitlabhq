@@ -35,11 +35,6 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       cd_version_set_entries
       cd_version_sets
       cd_versions
-      cluster_platforms_kubernetes
-      cluster_providers_gcp
-      clusters
-      cluster_providers_aws
-      clusters_kubernetes_namespaces
       custom_dashboard_search_data
       custom_dashboards
       dependency_list_export_part_uploads

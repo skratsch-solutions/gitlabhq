@@ -2163,7 +2163,7 @@
 - './ee/spec/workers/ee/repository_check/single_repository_worker_spec.rb'
 - './ee/spec/workers/elastic_delete_project_worker_spec.rb'
 - './ee/spec/workers/elastic_full_index_worker_spec.rb'
-- './ee/spec/workers/elastic_index_initial_bulk_cron_worker_spec.rb'
+- './ee/spec/workers/search/elastic/index_initial_bulk_cron_worker_spec.rb'
 - './ee/spec/workers/elastic_namespace_indexer_worker_spec.rb'
 - './ee/spec/workers/elastic_namespace_rollout_worker_spec.rb'
 - './ee/spec/workers/elastic/project_transfer_worker_spec.rb'

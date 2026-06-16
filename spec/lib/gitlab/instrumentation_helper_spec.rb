@@ -126,6 +126,33 @@ RSpec.describe Gitlab::InstrumentationHelper, :clean_gitlab_redis_repository_cac
       end
     end
 
+    context 'when Gitaly cost is accumulated' do
+      it 'adds cost_score_gitaly to payload' do
+        Gitlab::RequestCost.current.add(10, resource: :gitaly)
+
+        subject
+
+        expect(payload[:cost_score_gitaly]).to eq(10)
+      end
+    end
+
+    context 'when Gitaly cost is zero' do
+      it 'does not add cost_score_gitaly to payload' do
+        subject
+
+        expect(payload).not_to have_key(:cost_score_gitaly)
+      end
+    end
+
+    context 'when SafeRequestStore is not active' do
+      it 'does not fail' do
+        allow(Gitlab::SafeRequestStore).to receive(:active?).and_return(false)
+
+        expect { subject }.not_to raise_error
+        expect(payload).not_to have_key(:cost_score_gitaly)
+      end
+    end
+
     context 'rate-limiting gates' do
       context 'when the request did not pass through any rate-limiting gates' do
         it 'logs an empty array of gates' do

@@ -148,10 +148,7 @@ principles:
   cells-fundamentals:
     description: Cells architecture sharding keys, organization data ownership, routable requests, and cell isolation when adding tables or customer-owned resources
     group: Cells
-    # Owns /doc/development/cells/ (the SSOT). @gitlab-org/tenant-scale-group
-    # is archived (not an eligible CODEOWNERS approver), so use the verified
-    # individual owner of those docs instead.
-    owner_team: '@bmarjanovic'
+    owner_team: '@gitlab-com/gl-infra/tenant-scale/cells-infrastructure/backend-engineers'
     team_slug: cells
     prerequisite: true
     file_filters:
@@ -168,9 +165,7 @@ principles:
   cells-claims:
     description: Cells globally-unique attribute claims (Cells::Claimable), claim rollout lifecycle, and feature flags for cross-cell uniqueness
     group: Cells
-    # See cells-fundamentals: tenant-scale-group is archived; use the verified
-    # SSOT-doc owner instead.
-    owner_team: '@bmarjanovic'
+    owner_team: '@gitlab-com/gl-infra/tenant-scale/cells-infrastructure/backend-engineers'
     team_slug: cells
     file_filters:
       - 'app/models/**/*.rb'
@@ -302,6 +297,7 @@ principles:
     description: General code review practices and acceptance checklist
     group: Code Review
     owner_team: '@gitlab-org/maintainers/rails-backend'
+    ping_team: false
     file_filters:
       - '**/*'
     sources:
@@ -314,6 +310,7 @@ principles:
     description: Ruby/Rails style, logging, common pitfalls
     group: Backend
     owner_team: '@gitlab-org/maintainers/rails-backend'
+    ping_team: false
     prerequisite: true
     file_filters:
       - 'app/**/*.rb'
@@ -359,6 +356,7 @@ principles:
     description: Service patterns, abstractions, design conventions
     group: Backend
     owner_team: '@gitlab-org/maintainers/rails-backend'
+    ping_team: false
     file_filters:
       - 'app/services/**/*.rb'
       - 'app/finders/**/*.rb'
@@ -385,6 +383,7 @@ principles:
     description: EE/CE separation, licensing, code placement
     group: Backend
     owner_team: '@gitlab-org/maintainers/rails-backend'
+    ping_team: false
     file_filters:
       - 'ee/**/*.rb'
     sources:
@@ -444,6 +443,7 @@ principles:
     description: Sidekiq worker design and reliability
     group: Workers
     owner_team: '@gitlab-org/maintainers/rails-backend'
+    ping_team: false
     file_filters:
       - 'app/workers/**/*.rb'
       - 'ee/app/workers/**/*.rb'
@@ -484,6 +484,7 @@ principles:
     description: Vue.js components, state management, patterns
     group: Frontend
     owner_team: '@gitlab-org/maintainers/frontend'
+    ping_team: false
     prerequisite: true
     file_filters:
       - 'app/assets/javascripts/**/*.vue'
@@ -516,6 +517,7 @@ principles:
     description: CSS/SCSS, Tailwind, dark mode
     group: Frontend
     owner_team: '@gitlab-org/maintainers/frontend'
+    ping_team: false
     file_filters:
       - 'app/assets/stylesheets/**/*.scss'
       - 'ee/app/assets/stylesheets/**/*.scss'
@@ -532,6 +534,7 @@ principles:
     description: HAML templates, ViewComponents, Pajamas
     group: Frontend
     owner_team: '@gitlab-org/maintainers/frontend'
+    ping_team: false
     file_filters:
       - 'app/views/**/*.haml'
       - 'ee/app/views/**/*.haml'
@@ -545,6 +548,7 @@ principles:
     description: Frontend accessibility patterns and requirements
     group: Frontend
     owner_team: '@gitlab-org/maintainers/frontend'
+    ping_team: false
     file_filters:
       - 'app/assets/javascripts/**/*.vue'
       - 'app/views/**/*.haml'
@@ -584,6 +588,7 @@ principles:
     description: Jest, jsdom, Vue Test Utils patterns
     group: Testing
     owner_team: '@gitlab-org/maintainers/frontend'
+    ping_team: false
     secondary_teams:
       - '@abdwdd @alexpooley'
     file_filters:
@@ -599,6 +604,7 @@ principles:
     description: Performance and scalability
     group: Performance
     owner_team: '@gitlab-org/maintainers/rails-backend'
+    ping_team: false
     file_filters:
       - 'app/**/*.rb'
       - 'ee/app/**/*.rb'
@@ -626,6 +632,7 @@ principles:
     description: Feature flag usage and lifecycle
     group: Feature Flags
     owner_team: '@gitlab-org/maintainers/rails-backend'
+    ping_team: false
     file_filters:
       - 'config/feature_flags/**/*.yml'
       - 'ee/config/feature_flags/**/*.yml'

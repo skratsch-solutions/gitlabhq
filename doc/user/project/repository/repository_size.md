@@ -2,7 +2,7 @@
 stage: Create
 group: Source Code
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
-description: Understand repository size calculation, limits, and methods to reduce Git repository storage.
+description: Understand how repository size is calculated and displayed, size limits, and methods to reduce Git repository storage.
 title: Repository size
 ---
 
@@ -18,12 +18,27 @@ It can differ slightly from one instance to another due to compression, housekee
 
 ## Size calculation
 
-The project overview page shows the size of all files in the repository, including repository files,
-artifacts, and LFS. This size is updated every 15 minutes.
-
-The size of a repository is determined by computing the accumulated size of all files in the repository.
+The repository size is the accumulated size of all files in the repository.
 This calculation is similar to executing `du --summarize --bytes` on your repository's
 [hashed storage path](../../../administration/repository_storage_paths.md).
+The size is recalculated when the repository changes, but no more than once every 15 minutes.
+
+The repository size is a subset of the project size. The project size, listed on the project overview page under **Project information**, includes the repository along with LFS objects, job artifacts, packages, and the wiki.
+
+### View repository size
+
+Prerequisites:
+
+- The Maintainer or Owner role for the project, or the Owner role for the namespace.
+
+To view the repository size:
+
+1. In the top bar, select **Search or go to** and find your project.
+1. In the left sidebar, select **Settings** > **Usage quotas**.
+1. Select the **Storage** tab.
+1. In the usage breakdown, view the value in the **Repository** row.
+
+For more information about the storage a project uses, see [storage](../../storage_usage_quotas.md).
 
 ## Size and storage limits
 

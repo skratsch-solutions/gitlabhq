@@ -183,8 +183,8 @@ yarn.lock @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/database-schema.md @gitlab-org/maintainers/database
 /.ai/principles/distilled/database-queries.md @gitlab-org/maintainers/database
 /.ai/principles/distilled/clickhouse.md @gitlab-org/maintainers/clickhouse
-/.ai/principles/distilled/cells-fundamentals.md @bmarjanovic
-/.ai/principles/distilled/cells-claims.md @bmarjanovic
+/.ai/principles/distilled/cells-fundamentals.md @gitlab-com/gl-infra/tenant-scale/cells-infrastructure/backend-engineers
+/.ai/principles/distilled/cells-claims.md @gitlab-com/gl-infra/tenant-scale/cells-infrastructure/backend-engineers
 /.ai/principles/distilled/security.md @gitlab-com/gl-security/appsec
 /.ai/principles/distilled/authentication.md @gitlab-org/software-supply-chain-security/authentication/approvers @gitlab-com/gl-security/appsec
 /.ai/principles/distilled/permissions-fundamentals.md @gitlab-org/software-supply-chain-security/authorization/approvers
@@ -2042,7 +2042,6 @@ ee/app/workers/ai/repository_xray/
 /ee/app/workers/elastic_association_indexer_worker.rb
 /ee/app/workers/elastic_delete_project_worker.rb
 /ee/app/workers/elastic_full_index_worker.rb
-/ee/app/workers/elastic_index_initial_bulk_cron_worker.rb
 /ee/app/workers/elastic_namespace_indexer_worker.rb
 /ee/app/workers/elastic_wiki_indexer_worker.rb
 /ee/spec/support/elastic.rb

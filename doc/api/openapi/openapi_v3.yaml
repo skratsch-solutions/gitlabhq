@@ -56408,8 +56408,8 @@ paths:
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesBulkPublish
       summary: Publish all pending draft notes
-      description: Publishes all pending draft notes for a specified merge request
-        that belong to the currently authenticated user.
+      description: Publishes all pending draft notes for the current user on the specified
+        merge request. Optionally sets the reviewer state and posts a summary note.
       tags:
       - Draft notes
       responses:
@@ -56432,6 +56432,12 @@ paths:
         schema:
           type: integer
         in: path
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_99750499a37b"
   "/api/v4/projects/{id}/deployments":
     get:
       operationId: getApiV4ProjectsIdDeployments
@@ -108337,6 +108343,25 @@ components:
           - start_sha
           - head_sha
           - position_type
+          nullable: true
+    RequestBody_99750499a37b:
+      type: object
+      properties:
+        reviewer_state:
+          type: string
+          enum:
+          - requested_changes
+          - reviewed
+          description: Set reviewer review state after publishing. Does not record
+            a formal approval
+          nullable: true
+        note:
+          type: string
+          description: Summary note body to post on the merge request
+          nullable: true
+        internal:
+          type: boolean
+          description: If true, the summary note is internal
           nullable: true
     RequestBody_d170dfe7def6:
       type: object

@@ -16,6 +16,7 @@ title: Scheduled pipeline execution policies
 {{< history >}}
 
 - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/14147) as an experiment in GitLab 18.0 with a flag named `scheduled_pipeline_execution_policy_type` defined in the `policy.yml` file.
+- [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/238197) to beta in GitLab 18.2.
 
 {{< /history >}}
 
@@ -32,19 +33,6 @@ Common use cases include:
 - Check project configurations periodically.
 - Run dependency scans on inactive repositories to detect newly discovered vulnerabilities.
 - Execute compliance reporting scripts on a schedule.
-
-## Enable scheduled pipeline execution policies
-
-Scheduled pipeline execution policies are available as an experimental feature. To enable this feature in your environment, enable the `pipeline_execution_schedule_policy` experiment in the security policy configuration. The `.gitlab/security-policies/policy.yml` YAML configuration file is stored in your Security Policy Project:
-
-```yaml
-experiments:
-  pipeline_execution_schedule_policy:
-    enabled: true
-```
-
-> [!note]
-> This feature is experimental and may change in future releases. You should test it thoroughly in a non-production environment only. You should not use this feature in production environments as it may be unstable.
 
 ## Test a scheduled pipeline execution policy
 
@@ -358,7 +346,8 @@ Because the bot user is not a member of other projects, it cannot complete any o
 
 ## Scheduling limits
 
-This feature is experimental and may change in future releases. Also, be aware of the following limits when creating scheduled pipeline execution policies:
+This feature is in beta and may change in future releases. Be aware of the following limits when
+creating scheduled pipeline execution policies:
 
 - The maximum number of scheduled pipeline execution policies per security policy project is limited to one policy with one schedule.
 - The maximum frequency for schedules is once per day (daily).
@@ -371,7 +360,6 @@ This feature is experimental and may change in future releases. Also, be aware o
 
 If your scheduled pipelines are not running as expected, follow these troubleshooting steps:
 
-1. **Verify experimental flag**: Ensure that the `pipeline_execution_schedule_policy: enabled: true` flag is set in the `experiments` section of your `policy.yml` file.
 1. **Check policy access**: Verify that:
    - The CI/CD configuration file is in the security policy project, in a public project, or in a
      private or internal project with bot access enabled and matching file patterns.

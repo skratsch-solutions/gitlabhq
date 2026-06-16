@@ -379,9 +379,8 @@ export default {
 
 ### Tracking with the tracking mixin
 
-Use `Tracking.mixin` to add a `track` method to Vue components that automatically
-includes the experiment context. Call `this.track()` in your component to fire
-events with the correct experiment context.
+Use `Tracking.mixin` to add a `track` method to Vue components that automatically includes the experiment context.
+Call `this.track()` in your component to fire events with the correct experiment context.
 
 ```vue
 <script>

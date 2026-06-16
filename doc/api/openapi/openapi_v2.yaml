@@ -19008,8 +19008,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes/bulk_publish":
     post:
       summary: Publish all pending draft notes
-      description: Publishes all pending draft notes for a specified merge request
-        that belong to the currently authenticated user.
+      description: Publishes all pending draft notes for the current user on the specified
+        merge request. Optionally sets the reviewer state and posts a summary note.
       produces:
       - application/json
       consumes:
@@ -19026,6 +19026,11 @@ paths:
         type: integer
         format: int32
         required: true
+      - name: postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesBulkPublish
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesBulkPublish"
       responses:
         '204':
           description: Publish all pending draft notes
@@ -59696,6 +59701,24 @@ definitions:
         - head_sha
         - position_type
     description: Update a draft note
+  postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesBulkPublish:
+    type: object
+    properties:
+      reviewer_state:
+        type: string
+        description: Set reviewer review state after publishing. Does not record a
+          formal approval
+        enum:
+        - requested_changes
+        - reviewed
+      note:
+        type: string
+        description: Summary note body to post on the merge request
+      internal:
+        type: boolean
+        description: If true, the summary note is internal
+        default: false
+    description: Publish all pending draft notes
   API_Entities_Environment:
     type: object
     properties:

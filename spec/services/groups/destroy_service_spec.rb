@@ -320,29 +320,12 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
           end
         end
 
-        context 'when group_destroy_update_project_authorizations_per_project is disabled' do
-          before do
-            stub_feature_flags(group_destroy_update_project_authorizations_per_project: false)
-          end
+        it_behaves_like 'updates project authorization'
 
-          it_behaves_like 'updates project authorization'
+        it 'does not make use of a specific service to update project_authorizations records' do
+          expect(AuthorizedProjectUpdate::ProjectAccessChangedService).not_to receive(:new)
 
-          it 'does not make use of a specific service to update project_authorizations records' do
-            expect(UserProjectAccessChangedService)
-              .not_to receive(:new).with(group.user_ids_for_project_authorizations)
-
-            destroy_group(group, user, false)
-          end
-        end
-
-        context 'when group_destroy_update_project_authorizations_per_project is enabled' do
-          it_behaves_like 'updates project authorization'
-
-          it 'does not make use of a specific service to update project_authorizations records' do
-            expect(AuthorizedProjectUpdate::ProjectAccessChangedService).not_to receive(:new)
-
-            destroy_group(group, user, false)
-          end
+          destroy_group(group, user, false)
         end
       end
     end
@@ -400,59 +383,27 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
             end
           end
 
-          context 'when group_destroy_update_project_authorizations_per_project is disabled' do
-            before do
-              stub_feature_flags(group_destroy_update_project_authorizations_per_project: false)
-            end
+          it_behaves_like 'updates project authorizations so users of the destroyed group no longer have access'
 
-            it_behaves_like 'updates project authorizations so users of the destroyed group no longer have access'
+          it 'calls the service to update project authorizations only with necessary project ids' do
+            expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
+              .to receive(:new).with(array_including(group1_project.id)).and_call_original
 
-            it 'calls the service to update project authorizations only with necessary user ids' do
-              expect(UserProjectAccessChangedService)
-                .to receive(:new).with(array_including(group2_user.id)).and_call_original
-
-              destroy_group(group2, group2_user, false)
-            end
-
-            it 'logs the user-based project_authorizations refresh' do
-              allow(Gitlab::AppLogger).to receive(:info).and_call_original
-              expect(Gitlab::AppLogger).to receive(:info).with(
-                hash_including(
-                  message:
-                    "Refreshing project_authorizations of users to projects previously shared with destroyed group",
-                  group_id: group2.id,
-                  user_ids_count: a_value > 0,
-                  project_ids_count: 0
-                )
-              ).and_call_original
-
-              destroy_group(group2, group2_user, false)
-            end
+            destroy_group(group2, group2_user, false)
           end
 
-          context 'when group_destroy_update_project_authorizations_per_project is enabled' do
-            it_behaves_like 'updates project authorizations so users of the destroyed group no longer have access'
+          it 'logs the project-based project_authorizations refresh' do
+            allow(Gitlab::AppLogger).to receive(:info).and_call_original
+            expect(Gitlab::AppLogger).to receive(:info).with(
+              hash_including(
+                message: "Refreshing project_authorizations for projects previously shared with destroyed group",
+                group_id: group2.id,
+                user_ids_count: 0,
+                project_ids_count: a_value > 0
+              )
+            ).and_call_original
 
-            it 'calls the service to update project authorizations only with necessary project ids' do
-              expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
-                .to receive(:new).with(array_including(group1_project.id)).and_call_original
-
-              destroy_group(group2, group2_user, false)
-            end
-
-            it 'logs the project-based project_authorizations refresh' do
-              allow(Gitlab::AppLogger).to receive(:info).and_call_original
-              expect(Gitlab::AppLogger).to receive(:info).with(
-                hash_including(
-                  message: "Refreshing project_authorizations for projects previously shared with destroyed group",
-                  group_id: group2.id,
-                  user_ids_count: 0,
-                  project_ids_count: a_value > 0
-                )
-              ).and_call_original
-
-              destroy_group(group2, group2_user, false)
-            end
+            destroy_group(group2, group2_user, false)
           end
         end
 
@@ -491,30 +442,13 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
             end
           end
 
-          context 'when group_destroy_update_project_authorizations_per_project is disabled' do
-            before do
-              stub_feature_flags(group_destroy_update_project_authorizations_per_project: false)
-            end
+          it_behaves_like 'updates project authorizations so group2 and group3 users no longer have access'
 
-            it_behaves_like 'updates project authorizations so group2 and group3 users no longer have access'
+          it 'calls the service to update project authorizations only with necessary project ids' do
+            expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
+              .to receive(:new).with(array_including(group1_project.id)).and_call_original
 
-            it 'calls the service to update project authorizations only with necessary user ids' do
-              expect(UserProjectAccessChangedService)
-                .to receive(:new).with(array_including(group2_user.id, group3_user.id)).and_call_original
-
-              destroy_group(group2, group2_user, false)
-            end
-          end
-
-          context 'when group_destroy_update_project_authorizations_per_project is enabled' do
-            it_behaves_like 'updates project authorizations so group2 and group3 users no longer have access'
-
-            it 'calls the service to update project authorizations only with necessary project ids' do
-              expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
-                .to receive(:new).with(array_including(group1_project.id)).and_call_original
-
-              destroy_group(group2, group2_user, false)
-            end
+            destroy_group(group2, group2_user, false)
           end
         end
       end
@@ -545,28 +479,12 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
             end
           end
 
-          context 'when group_destroy_update_project_authorizations_per_project is disabled' do
-            before do
-              stub_feature_flags(group_destroy_update_project_authorizations_per_project: false)
-            end
+          it_behaves_like 'updates project authorizations since the project has been deleted with the group'
 
-            it_behaves_like 'updates project authorizations since the project has been deleted with the group'
+          it 'does not call the service to update project authorizations' do
+            expect(AuthorizedProjectUpdate::ProjectAccessChangedService).not_to receive(:new)
 
-            it 'does not call the service to update project authorizations' do
-              expect(UserProjectAccessChangedService).not_to receive(:new)
-
-              destroy_group(group2, group2_user, false)
-            end
-          end
-
-          context 'when group_destroy_update_project_authorizations_per_project is enabled' do
-            it_behaves_like 'updates project authorizations since the project has been deleted with the group'
-
-            it 'does not call the service to update project authorizations' do
-              expect(AuthorizedProjectUpdate::ProjectAccessChangedService).not_to receive(:new)
-
-              destroy_group(group2, group2_user, false)
-            end
+            destroy_group(group2, group2_user, false)
           end
         end
 
@@ -617,30 +535,13 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
             end
           end
 
-          context 'when group_destroy_update_project_authorizations_per_project is disabled' do
-            before do
-              stub_feature_flags(group_destroy_update_project_authorizations_per_project: false)
-            end
+          it_behaves_like 'updates project authorizations so users of both groups lose access'
 
-            it_behaves_like 'updates project authorizations so users of both groups lose access'
+          it 'calls the service to update project authorizations only with necessary project ids' do
+            expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
+              .to receive(:new).with(array_including(group2_project.id, group2_subgroup_project.id)).and_call_original
 
-            it 'calls the service to update project authorizations only with necessary user ids' do
-              expect(UserProjectAccessChangedService)
-                .to receive(:new).with([group1_user.id]).and_call_original
-
-              destroy_group(group1, group1_user, false)
-            end
-          end
-
-          context 'when group_destroy_update_project_authorizations_per_project is enabled' do
-            it_behaves_like 'updates project authorizations so users of both groups lose access'
-
-            it 'calls the service to update project authorizations only with necessary project ids' do
-              expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
-                .to receive(:new).with(array_including(group2_project.id, group2_subgroup_project.id)).and_call_original
-
-              destroy_group(group1, group1_user, false)
-            end
+            destroy_group(group1, group1_user, false)
           end
         end
       end
@@ -670,39 +571,16 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
           end
         end
 
-        context 'when group_destroy_update_project_authorizations_per_project is disabled' do
-          before do
-            stub_feature_flags(group_destroy_update_project_authorizations_per_project: false)
-          end
+        it_behaves_like 'updates project authorization'
 
-          it_behaves_like 'updates project authorization'
+        it 'does not make use of a specific service to update project authorizations' do
+          # The shared_group's own projects are deleted before its children are recursively
+          # destroyed. By the time shared_with_group (nested_group) processes its share links,
+          # shared_group has no remaining projects, so the affected project IDs set is empty
+          # and no refresh service is called.
+          expect(AuthorizedProjectUpdate::ProjectAccessChangedService).not_to receive(:new)
 
-          it 'does not make use of a specific service to update project authorizations' do
-            # Due to the recursive nature of `Groups::DestroyService`, `UserProjectAccessChangedService`
-            # will still be executed for the nested group as they fall under the same hierarchy
-            # and hence we need to account for this scenario.
-            expect(UserProjectAccessChangedService)
-              .to receive(:new).with(shared_with_group.users_ids_of_direct_members).and_call_original
-
-            expect(UserProjectAccessChangedService)
-              .not_to receive(:new).with(shared_group.users_ids_of_direct_members)
-
-            destroy_group(shared_group, user, false)
-          end
-        end
-
-        context 'when group_destroy_update_project_authorizations_per_project is enabled' do
-          it_behaves_like 'updates project authorization'
-
-          it 'does not make use of a specific service to update project authorizations' do
-            # The shared_group's own projects are deleted before its children are recursively
-            # destroyed. By the time shared_with_group (nested_group) processes its share links,
-            # shared_group has no remaining projects, so the affected project IDs set is empty
-            # and no refresh service is called.
-            expect(AuthorizedProjectUpdate::ProjectAccessChangedService).not_to receive(:new)
-
-            destroy_group(shared_group, user, false)
-          end
+          destroy_group(shared_group, user, false)
         end
       end
 
@@ -719,30 +597,13 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
           end
         end
 
-        context 'when group_destroy_update_project_authorizations_per_project is disabled' do
-          before do
-            stub_feature_flags(group_destroy_update_project_authorizations_per_project: false)
-          end
+        it_behaves_like 'updates project authorization'
 
-          it_behaves_like 'updates project authorization'
+        it 'makes use of a specific service to update project authorizations' do
+          expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
+            .to receive(:new).with(array_including(project.id)).and_call_original
 
-          it 'makes use of a specific service to update project authorizations' do
-            expect(UserProjectAccessChangedService)
-              .to receive(:new).with(shared_with_group.users_ids_of_direct_members).and_call_original
-
-            destroy_group(shared_with_group, user, false)
-          end
-        end
-
-        context 'when group_destroy_update_project_authorizations_per_project is enabled' do
-          it_behaves_like 'updates project authorization'
-
-          it 'makes use of a specific service to update project authorizations' do
-            expect(AuthorizedProjectUpdate::ProjectAccessChangedService)
-              .to receive(:new).with(array_including(project.id)).and_call_original
-
-            destroy_group(shared_with_group, user, false)
-          end
+          destroy_group(shared_with_group, user, false)
         end
       end
     end

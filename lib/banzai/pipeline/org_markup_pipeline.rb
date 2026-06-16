@@ -2,9 +2,27 @@
 
 module Banzai
   module Pipeline
-    class OrgMarkupPipeline < MarkupPipeline
+    class OrgMarkupPipeline < BasePipeline
       def self.filters
-        @filters ||= super.dup.insert_after(Filter::AssetProxyFilter, Filter::AutolinkFilter)
+        @filters ||= FilterArray[
+          Filter::MarkupHeadingAnchorFilter,
+          Filter::SanitizationFilter,
+          Filter::SanitizeLinkFilter,
+          Filter::CodeLanguageFilter,
+          Filter::AssetProxyFilter,
+          Filter::AutolinkFilter,
+          Filter::ExternalLinkFilter,
+          Filter::PlantumlFilter,
+          Filter::KrokiFilter,
+          Filter::MathFilter,
+          Filter::MermaidFilter,
+          Filter::HeadingAccessibilityFilter,
+          Filter::SyntaxHighlightFilter # this filter should remain at the end
+        ]
+      end
+
+      def self.transform_context(context)
+        Filter::AssetProxyFilter.transform_context(context)
       end
     end
   end

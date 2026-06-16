@@ -273,19 +273,28 @@ Each entry under `principles:` in
   per-file CODEOWNERS rule routes the approval to this team. May be a
   group handle (`@gitlab-org/maintainers/database`) or one or more
   individuals (`@abdwdd @alexpooley`) when no group handle exists.
-- `secondary_teams` (optional) — additional CODEOWNERS handles to
-  mention in a "Request a review from" section of the MR description,
-  for SSOT docs whose changes also concern another team. The primary
-  `owner_team` still owns the approval; secondary teams are notified,
-  not required.
-- `team_slug` (optional) — branch/title suffix for the per-team MR.
-  Defaults to the last path segment of `owner_team` (e.g.
+- `secondary_teams` (optional) — additional CODEOWNERS handles listed in
+  a "Request a review from" section of the MR description, for SSOT docs
+  whose changes also concern another team. The primary `owner_team` still
+  owns the approval. Secondary handles are rendered as inline code, so
+  they are surfaced without `@`-mentioning (pinging) the secondary group;
+  only the primary team is pinged.
+- `team_slug` (optional) — branch name and title prefix for the per-team
+  MR. Defaults to the last path segment of `owner_team` (e.g.
   `@gitlab-org/maintainers/database` → `database`). Set it explicitly
   when that segment is generic and would **collide** across teams — for
   example `.../authentication/approvers` and `.../authorization/approvers`
   both end in `approvers`, so they declare `authentication` and
   `authorization` respectively. Also set it for individual-handle owners
-  (e.g. `qa`).
+  (e.g. `qa`). The MR **title** always uses the slug (never the
+  `owner_team` handle), so the title never `@`-mentions anyone.
+- `ping_team` (optional, default `true`) — whether to `@`-mention the
+  `owner_team` in the MR commit subject and description summary. Set it
+  to `false` for large groups (e.g. all of `frontend` / `rails-backend`)
+  so the weekly MR does not notify every member; the summary then shows
+  the `team_slug` instead. CODEOWNERS routing always uses the real
+  handle regardless of `ping_team`. A team is pinged unless **every**
+  principle it owns sets `ping_team: false`.
 - `group` (optional) — display grouping in the routing tables only; it
   does **not** affect approval routing (that is `owner_team`).
 - `prerequisite`, `file_filters`, `baseline` — see existing entries.

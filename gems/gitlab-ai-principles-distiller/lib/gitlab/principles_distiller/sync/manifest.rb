@@ -122,6 +122,34 @@ module Gitlab
           principle_owner_team(name) || 'Other'
         end
 
+        # Whether a principle's owner_team should be @-mentioned (pinged) in
+        # the MR commit subject and description summary. Defaults to true;
+        # large groups (e.g. all of frontend/rails-backend) set `ping_team:
+        # false` to avoid mass-notifying every member on each weekly MR.
+        def principle_ping_team?(name)
+          principle_config(name)&.fetch('ping_team', true) != false
+        end
+
+        # Whether the team identified by an owner_team handle should be pinged.
+        # The fan-out groups by handle, so a team is pinged unless *every*
+        # principle it owns opts out (mirrors explicit_slug_for_handle).
+        # Delegates the per-principle check to principle_ping_team? so the
+        # ping_team semantics live in one place.
+        def team_pings?(handle)
+          owned = principles.keys.select { |name| principle_owner_team(name) == handle }
+          return true if owned.empty?
+
+          owned.any? { |name| principle_ping_team?(name) }
+        end
+
+        # The human-facing label for a team in pinging surfaces: the raw
+        # owner_team handle when the team opts into pings (so it notifies), or
+        # the non-mention team_slug when it does not. CODEOWNERS routing always
+        # uses the real handle regardless of this.
+        def team_display(handle)
+          team_pings?(handle) ? handle : team_slug(handle)
+        end
+
         # URL/branch-safe slug for the per-team branch suffix. Prefers the
         # principle's explicit `team_slug`; otherwise derives it from the
         # owner_team handle's last path segment (e.g.

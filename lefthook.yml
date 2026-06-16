@@ -2,6 +2,7 @@ post-commit:
   scripts:
     'lint_commit_message':
       runner: bash
+      skip: rebase
 
 pre-push:
   parallel: true
@@ -162,6 +163,11 @@ pre-push:
       tags: style
       files: git diff --name-only $(git merge-base origin/master HEAD)..HEAD
       run: echo {files} >/dev/null && bundle exec ruby scripts/lint/commit_linter.rb
+    skills-version-bump:
+      tags: claude tooling
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '.claude/skills/**'
+      run: echo {files} >/dev/null && scripts/lint/check-skills-version-bump.sh
     secrets-detection:
       tags: secrets
       run: .lefthook/gitleaks.sh pre-push

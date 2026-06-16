@@ -194,8 +194,46 @@ still add it to their project at which point they can be used through triggers.
 
 ## Versioning
 
-Versioning of agents is not yet supported. Consider potential breaking changes to older GitLab versions
-before doing changes to an agent.
+Pin a foundational agent to a specific flow version with the `flow_version` attribute in
+[`FoundationalChatAgentsDefinitions.rb`](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/lib/ai/foundational_chat_agents_definitions.rb).
+The value is a semantic version constraint that GitLab Duo Workflow Service uses to select a
+flow config from the bundled versions. Use version pinning to iterate on foundational agents
+without breaking existing GitLab Self-Managed and GitLab Dedicated customers.
+
+```ruby
+{
+  id: 2,
+  reference: 'foundational_pirate_agent',
+  version: 'v1',
+  flow_version: '^1.0.0',
+  name: 'Foundational Pirate Agent',
+  description: "A most important agent that speaks like a pirate"
+}
+```
+
+When `flow_version` is set, the monolith sends `flow_config_id`, `flow_config_schema_version`, and
+`flow_version` to GitLab Duo Workflow Service when starting a workflow. The service then resolves
+the matching flow config from its bundled versions.
+
+Use a constraint that matches the compatibility you need:
+
+- `^1.0.0` accepts any `1.x.y` release (recommended for most agents).
+- `~1.2.0` accepts any `1.2.x` release.
+- `1.2.3` pins to an exact version.
+
+Choose the version increment based on the change:
+
+- Increment the major version for breaking changes (for example, expecting a new required input).
+- Increment the minor version for backwards-compatible additions (for example, a new optional parameter).
+- Increment the patch version for bug fixes.
+
+> [!note]
+> Version pinning is only available for agents defined in GitLab Duo Workflow Service.
+> Agents backed by an AI Catalog item resolve their version from the catalog item and
+> ignore `flow_version`.
+
+Without `flow_version`, GitLab Duo Workflow Service falls back to its default resolution.
+Consider potential breaking changes to older GitLab versions before changing an agent.
 
 ## Context variables
 

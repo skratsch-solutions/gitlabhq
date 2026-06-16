@@ -2,6 +2,10 @@
 
 module API
   class DraftNotes < ::API::Base
+    include APIGuard
+
+    allow_access_with_scope :ai_workflows
+
     before { authenticate! }
 
     urgency :low
@@ -46,6 +50,19 @@ module API
       def authorize_admin_draft!(draft_note)
         access_denied! unless can?(current_user, :admin_note, draft_note)
       end
+
+      # rubocop:disable CodeReuse/ActiveRecord -- narrow update scoped to composite identity reviewer
+      def update_composite_identity_reviewer_state(mr, state)
+        composite_actor = ::Gitlab::Auth::Identity.resolve_composite_identity_actor(current_user)
+        return unless composite_actor && composite_actor != current_user
+
+        reviewer_record = mr.merge_request_reviewers.find_by(user_id: composite_actor.id)
+        return unless reviewer_record
+
+        state_value = MergeRequestReviewer.states[state]
+        reviewer_record.update(state: state_value) if state_value
+      end
+      # rubocop:enable CodeReuse/ActiveRecord
 
       params :positional do
         optional :position, type: Hash, desc: 'Position when creating a note' do
@@ -258,8 +275,8 @@ module API
       end
 
       desc 'Publish all pending draft notes' do
-        detail 'Publishes all pending draft notes for a specified merge request that belong to the currently ' \
-          'authenticated user.'
+        detail 'Publishes all pending draft notes for the current user on the specified merge request. ' \
+          'Optionally sets the reviewer state and posts a summary note.'
         success code: 204
         failure [
           { code: 401, message: 'Unauthorized' },
@@ -268,8 +285,14 @@ module API
         tags ['draft_notes']
       end
       params do
-        requires :id,                type: String,  desc: "The ID of a project"
+        requires :id, type: String, desc: "The ID of a project"
         requires :merge_request_iid, type: Integer, desc: "The ID of a merge request"
+        optional :reviewer_state, type: String,
+          desc: "Set reviewer review state after publishing. Does not record a formal approval",
+          values: %w[requested_changes reviewed]
+        optional :note, type: String, desc: "Summary note body to post on the merge request"
+        optional :internal, type: Boolean, desc: "If true, the summary note is internal",
+          default: false
       end
       route_setting :authorization, permissions: :publish_merge_request_draft_note, boundary_type: :project
       post(
@@ -277,12 +300,31 @@ module API
         feature_category: :code_review_workflow) do
         result = publish_draft_notes(params: params)
 
-        if result[:status] == :success
-          status 204
-          body false
-        else
-          status 500
+        render_api_error!(result[:message], :internal_server_error) unless result[:status] == :success
+
+        if params[:note].present?
+          opts = {
+            note: params[:note],
+            noteable_type: 'MergeRequest',
+            noteable_id: merge_request(params: params).id,
+            internal: params[:internal]
+          }
+          note = ::Notes::CreateService.new(user_project, current_user, opts).execute
+          render_api_error!(note.errors.full_messages.join(', '), :unprocessable_entity) unless note.persisted?
         end
+
+        if params[:reviewer_state].present?
+          mr = merge_request(params: params)
+
+          ::MergeRequests::UpdateReviewerStateService
+            .new(project: user_project, current_user: current_user)
+            .execute(mr, params[:reviewer_state])
+
+          update_composite_identity_reviewer_state(mr, params[:reviewer_state])
+        end
+
+        status 204
+        body false
       end
     end
   end

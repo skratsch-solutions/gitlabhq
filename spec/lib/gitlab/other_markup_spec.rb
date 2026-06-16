@@ -11,6 +11,34 @@ RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
     let(:doc) { Nokogiri::HTML.fragment(rendered) }
     let(:pre) { doc.css('pre').first }
 
+    context 'with headings' do
+      let(:input) do
+        <<~ORG
+          * Heading 1
+          ** Heading 2
+          *** Heading 3
+          **** Heading 4
+          ***** Heading 5
+          ****** Heading 6
+          ** Another H2
+        ORG
+      end
+
+      it 'adds heading IDs and anchor links for table of contents' do
+        headings = doc.css('h1, h2, h3, h4, h5, h6')
+
+        expect(headings.size).to eq(7)
+
+        headings.each do |heading|
+          expect(heading['id']).to start_with('user-content-')
+          expect(heading.at_css('a.anchor')).to be_present
+        end
+
+        expect(doc.at_css('h1')['id']).to eq('user-content-heading-1')
+        expect(doc.at_css('h6')['id']).to eq('user-content-heading-6')
+      end
+    end
+
     context 'with auto-linking' do
       let(:input) { 'See https://example.com for details.' }
 

@@ -100,17 +100,19 @@ module ClickHouse # rubocop:disable Gitlab/BoundedContexts -- existing module
 
         # --- date/source/ref filters ---
         #
-        # Pushed to the outer query so they apply to the latest-version values
-        # selected by argMax. This is functionally equivalent to filtering at
-        # the inner level because started_at / source / ref do not change
-        # across versions for a given pipeline, but keeping them outer makes
-        # the semantics explicit and avoids surprises if that ever changes.
+        # started_at is pushed into the inner query so the by_traversal_path_started_at
+        # projection can prune granules on the date range. This is functionally
+        # equivalent to filtering on the outer (post-argMax) value because
+        # started_at does not change across versions for a given pipeline.
+        #
+        # source / ref stay on the outer query - they are tiny enums / strings
+        # not in any projection or PK, so granule pruning would not benefit.
 
         def within_dates(from_time, to_time)
-          query = outer_query
-          query = query.where(query[:started_at].gteq(format_time(from_time))) if from_time
-          query = query.where(query[:started_at].lt(format_time(to_time))) if to_time
-          with_outer(query)
+          inner = inner_query
+          inner = inner.where(inner[:started_at].gteq(format_time(from_time))) if from_time
+          inner = inner.where(inner[:started_at].lt(format_time(to_time))) if to_time
+          with_inner(inner)
         end
 
         def for_source(source)

@@ -61133,6 +61133,18 @@ msgstr ""
 msgid "ReleaseAssetLinkType|Runbooks"
 msgstr ""
 
+msgid "ReleaseCreation|A release is a set of service versions — pick a version for each service. Any built version is eligible, whether or not it's deployed anywhere yet. Where it gets deployed is a separate step taken after the release exists. The release's identity is derived from its set of service versions."
+msgstr ""
+
+msgid "ReleaseCreation|Build new release"
+msgstr ""
+
+msgid "ReleaseCreation|Bundle new release"
+msgstr ""
+
+msgid "ReleaseCreation|Release"
+msgstr ""
+
 msgid "Released"
 msgstr ""
 
@@ -77116,9 +77128,6 @@ msgstr ""
 msgid "This command is used for explaining vulnerabilities and can only be invoked from a vulnerability detail page."
 msgstr ""
 
-msgid "This command is used for troubleshooting jobs and can only be invoked from a failed job log page."
-msgstr ""
-
 msgid "This comment changed after you started editing it. Review the %{startTag}updated comment%{endTag} to ensure information is not lost."
 msgstr ""
 
@@ -79535,6 +79544,9 @@ msgid "Trial|Select a country or region"
 msgstr ""
 
 msgid "Trial|Select state or province"
+msgstr ""
+
+msgid "Trial|Set up your GitLab environment and answer a few questions to personalize your experience."
 msgstr ""
 
 msgid "Trial|Start your free Ultimate trial"

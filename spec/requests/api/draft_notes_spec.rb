@@ -510,5 +510,101 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         expect(response).to have_gitlab_http_status(:internal_server_error)
       end
     end
+
+    context "when reviewer_state is provided" do
+      before do
+        merge_request.reviewers << user
+      end
+
+      it "sets the reviewer state to requested_changes", :aggregate_failures do
+        post api("#{base_url}/bulk_publish", user), params: { reviewer_state: 'requested_changes' }
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        reviewer = merge_request.merge_request_reviewers.find_by(user_id: user.id)
+        expect(reviewer.state).to eq('requested_changes')
+      end
+
+      it "sets the reviewer state to reviewed", :aggregate_failures do
+        post api("#{base_url}/bulk_publish", user), params: { reviewer_state: 'reviewed' }
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        reviewer = merge_request.merge_request_reviewers.find_by(user_id: user.id)
+        expect(reviewer.state).to eq('reviewed')
+      end
+
+      it "rejects invalid reviewer_state values" do
+        post api("#{base_url}/bulk_publish", user), params: { reviewer_state: 'invalid' }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it "rejects the 'approved' reviewer_state and records no approval", :aggregate_failures do
+        expect do
+          post api("#{base_url}/bulk_publish", user), params: { reviewer_state: 'approved' }
+        end.not_to change { merge_request.approvals.count }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+    end
+
+    context "when note is provided" do
+      it "creates a merge request note", :aggregate_failures do
+        expect do
+          post api("#{base_url}/bulk_publish", user), params: { note: '**Summary**' }
+        end.to change { merge_request.notes.count }.by_at_least(1)
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        expect(merge_request.notes.last.note).to eq('**Summary**')
+      end
+
+      it "creates an internal note when internal is true", :aggregate_failures do
+        post api("#{base_url}/bulk_publish", user), params: { note: 'Internal summary', internal: true }
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        note = merge_request.notes.last
+        expect(note.note).to eq('Internal summary')
+        expect(note.internal).to eq(true)
+      end
+
+      it "creates a public note when internal is false", :aggregate_failures do
+        post api("#{base_url}/bulk_publish", user), params: { note: 'Public summary', internal: false }
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        note = merge_request.notes.last
+        expect(note.note).to eq('Public summary')
+        expect(note.internal).to eq(false)
+      end
+    end
+
+    context "when all params are provided together" do
+      before do
+        merge_request.reviewers << user
+      end
+
+      it "publishes drafts, creates a note, and sets reviewer state", :aggregate_failures do
+        expect do
+          post api("#{base_url}/bulk_publish", user),
+            params: { reviewer_state: 'requested_changes', note: 'Review summary', internal: true }
+        end.to change { Note.count }.by_at_least(2)
+
+        expect(response).to have_gitlab_http_status(:no_content)
+
+        reviewer = merge_request.merge_request_reviewers.find_by(user_id: user.id)
+        expect(reviewer.state).to eq('requested_changes')
+
+        summary_note = merge_request.notes.where(note: 'Review summary').last
+        expect(summary_note).to be_present
+        expect(summary_note.internal).to eq(true)
+      end
+    end
+
+    context "when no new params are provided" do
+      it "returns 204 without creating internal notes" do
+        bulk_publish_draft_notes
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        expect(merge_request.notes.where(internal: true).count).to eq(0)
+      end
+    end
   end
 end

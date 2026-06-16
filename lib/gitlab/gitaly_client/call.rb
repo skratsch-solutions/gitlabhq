@@ -24,11 +24,13 @@ module Gitlab
         # Instead, we: check! first, then record success/failure after the response type is known
         circuit_breaker.check!
 
+        operation = nil
         response = recording_request do
-          GitalyClient.execute(@storage, @service, @rpc, @request,
+          operation = GitalyClient.execute(@storage, @service, @rpc, @request,
             remote_storage: @remote_storage,
             timeout: @timeout,
             gitaly_context: @gitaly_context, &block)
+          operation.execute
         end
 
         if response.is_a?(Enumerator)
@@ -36,10 +38,11 @@ module Gitlab
           # responses), we wrap it in order to properly measure the stream
           # consumption as it happens.
           #
-          # store_timings is not called in that scenario as needs to be
-          # handled lazily in the custom Enumerator context.
-          instrument_stream(response)
+          # store_timings and trailer-reading are not called in that scenario
+          # as they need to be handled lazily in the custom Enumerator context.
+          instrument_stream(response, operation)
         else
+          accumulate_cost(operation)
           store_timings
           # Non-streaming successful responses:
           # circuit_breaker.call { response } wraps the final response return to track successful completions in the circuit breaker's metrics,
@@ -49,6 +52,7 @@ module Gitlab
       rescue Gitlab::Git::ResourceExhaustedError
         raise
       rescue StandardError => err
+        accumulate_cost(operation)
         store_timings
         set_gitaly_error_metadata(err) if err.is_a?(::GRPC::BadStatus)
 
@@ -64,7 +68,7 @@ module Gitlab
         @circuit_breaker ||= CircuitBreaker.new(service: @service, rpc: @rpc, storage: @storage)
       end
 
-      def instrument_stream(response)
+      def instrument_stream(response, operation)
         Enumerator.new do |yielder|
           loop do
             # Streaming enumerator path:
@@ -78,8 +82,23 @@ module Gitlab
           set_gitaly_error_metadata(err)
           raise err
         ensure
+          accumulate_cost(operation)
           store_timings
         end
+      end
+
+      def accumulate_cost(operation)
+        return unless Feature.enabled?(:request_cost_headers, :current_request, type: :gitlab_com_derisk)
+        return unless operation
+
+        cost = operation.trailing_metadata&.dig('x-gitaly-cost').to_i
+        Gitlab::RequestCost.current.add(cost, resource: :gitaly) if cost > 0
+      rescue StandardError => e
+        Gitlab::AppLogger.warn(
+          message: "Failed to accumulate Gitaly cost",
+          error_class: e.class.name,
+          error_message: e.message
+        )
       end
 
       def recording_request

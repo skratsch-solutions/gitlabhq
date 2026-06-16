@@ -2,7 +2,7 @@
 
 class PrepareAsyncIndexOnMergeRequestDiffsHeadCommitShaBytea < Gitlab::Database::Migration[2.3]
   disable_ddl_transaction!
-  milestone '19.1'
+  milestone '19.2'
 
   TABLE_NAME = :merge_request_diffs
   INDEX_NAME = :index_merge_request_diffs_on_head_commit_sha_bytea

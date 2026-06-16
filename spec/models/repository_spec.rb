@@ -2909,7 +2909,9 @@ RSpec.describe Repository, feature_category: :source_code_management do
 
           expect_any_instance_of(
             Gitaly::OperationService::Stub
-          ).to receive(:user_rebase_confirmable).and_return(responses.each)
+          ).to receive(:user_rebase_confirmable).and_return(
+            instance_double(GRPC::ActiveCall::Operation, execute: responses.each, trailing_metadata: {})
+          )
         end
 
         it 'does not rollback when there are no errors' do
@@ -2930,7 +2932,9 @@ RSpec.describe Repository, feature_category: :source_code_management do
 
           expect_any_instance_of(
             Gitaly::OperationService::Stub
-          ).to receive(:user_rebase_confirmable).and_return(first_response)
+          ).to receive(:user_rebase_confirmable).and_return(
+            instance_double(GRPC::ActiveCall::Operation, execute: first_response, trailing_metadata: {})
+          )
 
           # Faking second request failure
           allow(request_enum).to receive(:push)

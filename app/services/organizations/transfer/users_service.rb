@@ -114,6 +114,7 @@ module Organizations
           update_granular_scopes(user_ids)
           update_associated_organization_ids(user_ids)
           update_personal_snippet_notes(user_ids)
+          update_clusters(user_ids)
         end
       end
 
@@ -272,6 +273,27 @@ module Organizations
         end
 
         attributes
+      end
+      # rubocop:enable CodeReuse/ActiveRecord
+
+      # rubocop:disable CodeReuse/ActiveRecord -- Query specific to this service
+      def update_clusters(user_ids)
+        cluster_ids = Clusters::Cluster.where(user_id: user_ids).select(:id)
+
+        update_organization_id_for(Clusters::Cluster) do |relation|
+          relation.where(id: cluster_ids)
+        end
+
+        [
+          Clusters::Platforms::Kubernetes,
+          Clusters::Providers::Gcp,
+          Clusters::Providers::Aws,
+          Clusters::KubernetesNamespace
+        ].each do |model_class|
+          update_organization_id_for(model_class) do |relation|
+            relation.where(cluster_id: cluster_ids)
+          end
+        end
       end
       # rubocop:enable CodeReuse/ActiveRecord
 

@@ -1222,7 +1222,6 @@ Style/InlineDisableAnnotation:
     - 'ee/app/workers/create_github_webhook_worker.rb'
     - 'ee/app/workers/elastic/namespace_update_worker.rb'
     - 'ee/app/workers/elastic_full_index_worker.rb'
-    - 'ee/app/workers/elastic_index_initial_bulk_cron_worker.rb'
     - 'ee/app/workers/elastic_namespace_rollout_worker.rb'
     - 'ee/app/workers/epics/update_epics_dates_worker.rb'
     - 'ee/app/workers/geo/container_repository_sync_worker.rb'
