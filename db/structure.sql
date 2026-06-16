@@ -17104,11 +17104,14 @@ CREATE TABLE cd_artifact_sources (
     service_id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    source_type smallint DEFAULT 0 NOT NULL,
+    source_type smallint DEFAULT 0,
     project_id bigint,
     organization_id bigint,
-    CONSTRAINT check_f9ef894005 CHECK ((organization_id IS NOT NULL)),
-    CONSTRAINT check_project_id_present_when_internal_pipeline CHECK ((NOT ((source_type = 0) AND (project_id IS NULL))))
+    source_ref text,
+    source_config jsonb DEFAULT '{}'::jsonb NOT NULL,
+    CONSTRAINT check_cd_artifact_sources_source_config_is_hash CHECK ((jsonb_typeof(source_config) = 'object'::text)),
+    CONSTRAINT check_cec135cb4a CHECK ((char_length(source_ref) <= 255)),
+    CONSTRAINT check_f9ef894005 CHECK ((organization_id IS NOT NULL))
 );
 
 CREATE SEQUENCE cd_artifact_sources_id_seq
@@ -17123,14 +17126,17 @@ ALTER SEQUENCE cd_artifact_sources_id_seq OWNED BY cd_artifact_sources.id;
 CREATE TABLE cd_deployments (
     id bigint NOT NULL,
     group_id bigint,
-    rollout_id bigint NOT NULL,
-    version_set_entry_id bigint NOT NULL,
+    rollout_id bigint,
+    version_set_entry_id bigint,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     started_at timestamp with time zone,
     finished_at timestamp with time zone,
     state smallint DEFAULT 0 NOT NULL,
     organization_id bigint,
+    rollout_environment_id bigint,
+    service_id bigint,
+    CONSTRAINT check_23620cbc66 CHECK ((service_id IS NOT NULL)),
     CONSTRAINT check_ab9ad88512 CHECK ((organization_id IS NOT NULL))
 );
 
@@ -17147,10 +17153,10 @@ CREATE TABLE cd_environments (
     id bigint NOT NULL,
     group_id bigint,
     organization_id bigint,
-    cluster_agent_id bigint NOT NULL,
+    cluster_agent_id bigint,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    platform_type smallint DEFAULT 0 NOT NULL,
+    platform_type smallint DEFAULT 0,
     name text NOT NULL,
     description text,
     region text,
@@ -17173,13 +17179,18 @@ CREATE TABLE cd_rollouts (
     id bigint NOT NULL,
     group_id bigint,
     version_set_id bigint NOT NULL,
-    environment_id bigint NOT NULL,
+    environment_id bigint,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     started_at timestamp with time zone,
     finished_at timestamp with time zone,
     state smallint DEFAULT 0 NOT NULL,
     organization_id bigint,
+    application_id bigint,
+    application_flow_definition_id bigint,
+    workflow_ref text,
+    CONSTRAINT check_311909ffdc CHECK ((char_length(workflow_ref) <= 255)),
+    CONSTRAINT check_4ca25c42db CHECK ((application_id IS NOT NULL)),
     CONSTRAINT check_a1261339a4 CHECK ((organization_id IS NOT NULL))
 );
 
@@ -17224,7 +17235,9 @@ CREATE TABLE cd_version_set_entries (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     organization_id bigint,
-    CONSTRAINT check_7deedbd5f7 CHECK ((organization_id IS NOT NULL))
+    artifact_source_id bigint,
+    CONSTRAINT check_7deedbd5f7 CHECK ((organization_id IS NOT NULL)),
+    CONSTRAINT check_8df183ee48 CHECK ((artifact_source_id IS NOT NULL))
 );
 
 CREATE SEQUENCE cd_version_set_entries_id_seq
@@ -47009,17 +47022,27 @@ CREATE INDEX index_cd_artifact_sources_on_organization_id ON cd_artifact_sources
 
 CREATE INDEX index_cd_artifact_sources_on_project_id ON cd_artifact_sources USING btree (project_id) WHERE (project_id IS NOT NULL);
 
-CREATE UNIQUE INDEX index_cd_artifact_sources_on_service_id ON cd_artifact_sources USING btree (service_id);
+CREATE INDEX index_cd_artifact_sources_on_service_id ON cd_artifact_sources USING btree (service_id);
 
 CREATE INDEX index_cd_deployments_on_group_id ON cd_deployments USING btree (group_id);
 
 CREATE INDEX index_cd_deployments_on_organization_id ON cd_deployments USING btree (organization_id);
 
+CREATE UNIQUE INDEX index_cd_deployments_on_rollout_env_id_and_service_id ON cd_deployments USING btree (rollout_environment_id, service_id);
+
 CREATE UNIQUE INDEX index_cd_deployments_on_rollout_id_and_version_set_entry_id ON cd_deployments USING btree (rollout_id, version_set_entry_id);
+
+CREATE INDEX index_cd_deployments_on_service_id ON cd_deployments USING btree (service_id);
 
 CREATE INDEX index_cd_deployments_on_version_set_entry_id ON cd_deployments USING btree (version_set_entry_id);
 
 CREATE INDEX index_cd_environments_on_cluster_agent_id ON cd_environments USING btree (cluster_agent_id);
+
+CREATE INDEX index_cd_rollouts_on_application_flow_definition_id ON cd_rollouts USING btree (application_flow_definition_id);
+
+CREATE INDEX index_cd_rollouts_on_application_id ON cd_rollouts USING btree (application_id);
+
+CREATE UNIQUE INDEX index_cd_rollouts_on_application_id_non_terminal ON cd_rollouts USING btree (application_id) WHERE (state = ANY (ARRAY[0, 1, 2]));
 
 CREATE INDEX index_cd_rollouts_on_environment_id ON cd_rollouts USING btree (environment_id);
 
@@ -47035,6 +47058,8 @@ CREATE INDEX index_cd_services_on_group_id ON cd_services USING btree (group_id)
 
 CREATE INDEX index_cd_services_on_organization_id ON cd_services USING btree (organization_id);
 
+CREATE INDEX index_cd_version_set_entries_on_artifact_source_id ON cd_version_set_entries USING btree (artifact_source_id);
+
 CREATE INDEX index_cd_version_set_entries_on_group_id ON cd_version_set_entries USING btree (group_id);
 
 CREATE INDEX index_cd_version_set_entries_on_organization_id ON cd_version_set_entries USING btree (organization_id);
@@ -47042,8 +47067,6 @@ CREATE INDEX index_cd_version_set_entries_on_organization_id ON cd_version_set_e
 CREATE INDEX index_cd_version_set_entries_on_service_id ON cd_version_set_entries USING btree (service_id);
 
 CREATE INDEX index_cd_version_set_entries_on_version_id ON cd_version_set_entries USING btree (version_id);
-
-CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_service_id ON cd_version_set_entries USING btree (version_set_id, service_id);
 
 CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_version_id ON cd_version_set_entries USING btree (version_set_id, version_id);
 
@@ -47060,6 +47083,8 @@ CREATE UNIQUE INDEX index_cd_versions_on_artifact_source_id_and_name ON cd_versi
 CREATE INDEX index_cd_versions_on_group_id ON cd_versions USING btree (group_id);
 
 CREATE INDEX index_cd_versions_on_organization_id ON cd_versions USING btree (organization_id);
+
+CREATE UNIQUE INDEX index_cd_vs_entries_on_version_set_id_and_artifact_source_id ON cd_version_set_entries USING btree (version_set_id, artifact_source_id);
 
 CREATE INDEX index_chat_names_on_team_id_and_chat_id ON chat_names USING btree (team_id, chat_id);
 
@@ -57030,6 +57055,9 @@ ALTER TABLE ONLY audit_events_amazon_s3_configurations
 ALTER TABLE ONLY issue_customer_relations_contacts
     ADD CONSTRAINT fk_0c0037f723 FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_deployments
+    ADD CONSTRAINT fk_0c3a41a4a8 FOREIGN KEY (service_id) REFERENCES cd_services(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY namespace_cluster_agent_mappings
     ADD CONSTRAINT fk_0c483ecb9d FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
@@ -57386,6 +57414,9 @@ ALTER TABLE ONLY audit_events_instance_amazon_s3_configurations
 
 ALTER TABLE ONLY group_wiki_repositories
     ADD CONSTRAINT fk_26f867598c FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_rollouts
+    ADD CONSTRAINT fk_274312f6ed FOREIGN KEY (application_flow_definition_id) REFERENCES cd_application_flow_definitions(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY user_namespace_callouts
     ADD CONSTRAINT fk_27a69fd1bd FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
@@ -59601,6 +59632,9 @@ ALTER TABLE ONLY note_duo_metadata
 ALTER TABLE ONLY approval_merge_request_rules
     ADD CONSTRAINT fk_e33a9aaf67 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_version_set_entries
+    ADD CONSTRAINT fk_e3b06cd466 FOREIGN KEY (artifact_source_id) REFERENCES cd_artifact_sources(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY packages_debian_project_component_files
     ADD CONSTRAINT fk_e4ff7d8a8b FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -59870,6 +59904,9 @@ ALTER TABLE ONLY user_project_callouts
 
 ALTER TABLE ONLY ml_model_metadata
     ADD CONSTRAINT fk_f68c7e109c FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_rollouts
+    ADD CONSTRAINT fk_f6a73cac85 FOREIGN KEY (application_id) REFERENCES cd_applications(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY abuse_reports
     ADD CONSTRAINT fk_f748646298 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;

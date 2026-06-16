@@ -364,6 +364,20 @@ RSpec.describe SentNotificationsController, 'routing' do
     expect(get("/-/sent_notifications/4bee17d4a63ed60cf5db53417e9aeb4c/unsubscribe"))
       .to route_to('sent_notifications#unsubscribe', id: '4bee17d4a63ed60cf5db53417e9aeb4c')
   end
+
+  specify 'to #unsubscribe with a namespace scope' do
+    expect(get("/-/namespace/13/sent_notifications/4bee17d4a63ed60cf5db53417e9aeb4c/unsubscribe"))
+      .to route_to(
+        'sent_notifications#unsubscribe',
+        id: '4bee17d4a63ed60cf5db53417e9aeb4c',
+        namespace_id: '13'
+      )
+  end
+
+  specify 'does not route a non-numeric namespace_id' do
+    expect(get("/-/namespace/foo/sent_notifications/4bee17d4a63ed60cf5db53417e9aeb4c/unsubscribe"))
+      .not_to route_to('sent_notifications#unsubscribe')
+  end
 end
 
 RSpec.describe AutocompleteController, 'routing' do

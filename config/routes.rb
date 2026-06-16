@@ -405,6 +405,16 @@ InitializerConnections.warn_if_database_connection do
       @organization_scoped_routes = false
     end
 
+    # Used only for sent_notifications
+    scope(path: '-/namespace/:namespace_id', as: :namespace, constraints: { namespace_id: /\d+/ }) do
+      resources :sent_notifications, only: [], constraints: { id: /[0-9a-z\-]{1,44}/ },
+        controller: 'sent_notifications' do
+        member do
+          match :unsubscribe, via: [:get, :post]
+        end
+      end
+    end
+
     get '*unmatched_route', to: 'application#route_not_found', format: false
 
     # Load all custom URLs definitions via `direct' after the last route

@@ -71,28 +71,29 @@ class SentNotification < ApplicationRecord
       SecureRandom.random_number(2**(REPLY_KEY_BYTE_SIZE * 8)).to_s(INTEGER_CONVERT_BASE).rjust(25, '0')
     end
 
-    def for(reply_key)
+    def for(reply_key, namespace_id = nil)
       matches = FULL_REPLY_KEY_REGEX.match(reply_key)
       return unless matches
 
-      result = if matches[:reply_key]
-                 decoded_partition = matches[:partition].to_i(INTEGER_CONVERT_BASE)
-                 partition_result = where(
-                   partition: decoded_partition, reply_key: matches[:reply_key]
-                 ).to_a
-
-                 if partition_result.any?
-                   partition_result
-                 else
-                   where(reply_key: matches[:reply_key]).to_a
-                 end
-               else
-                 where(reply_key: matches[:legacy_key]).to_a
-               end
+      scope = namespace_id.present? ? where(namespace_id: namespace_id) : all
+      result = matches[:reply_key] ? scope.for_partitioned_key(matches) : scope.for_legacy_key(matches)
 
       # We don't expect collisions, but in the unlikely case of one, behave like the record has been deleted
       # Discussed in https://gitlab.com/gitlab-org/gitlab/-/issues/577844#note_2838135886
       result.one? ? result.first : nil
+    end
+
+    def for_partitioned_key(matches)
+      decoded_partition = matches[:partition].to_i(INTEGER_CONVERT_BASE)
+      partition_result = where(partition: decoded_partition, reply_key: matches[:reply_key]).to_a
+
+      return partition_result if partition_result.any?
+
+      where(reply_key: matches[:reply_key]).to_a
+    end
+
+    def for_legacy_key(matches)
+      where(reply_key: matches[:legacy_key]).to_a
     end
 
     def record(noteable, recipient_id, attrs = {})

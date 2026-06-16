@@ -89492,7 +89492,7 @@ msgstr ""
 msgid "already has a \"created\" issue link"
 msgstr ""
 
-msgid "already has a deployment in this rollout"
+msgid "already has a deployment in this rollout environment"
 msgstr ""
 
 msgid "already has an entry in this version set"
@@ -91407,9 +91407,6 @@ msgid "must belong to same project of the work item."
 msgstr ""
 
 msgid "must belong to the compliance requirement."
-msgstr ""
-
-msgid "must belong to the rollout's version set"
 msgstr ""
 
 msgid "must belong to the same compliance requirement."

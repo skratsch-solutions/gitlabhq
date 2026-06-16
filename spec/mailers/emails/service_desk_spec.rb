@@ -146,7 +146,10 @@ RSpec.describe Emails::ServiceDesk, feature_category: :service_desk do
     end
 
     context 'with an issue id, issue path and unsubscribe url placeholders' do
-      let(:expected_unsubscribe_url) { unsubscribe_sent_notification_url(SentNotification.last) }
+      let(:expected_unsubscribe_url) do
+        unsubscribe_namespace_sent_notification_url(SentNotification.last.namespace_id, SentNotification.last)
+      end
+
       let(:template_content) do
         'thank you, **your new issue:** %{ISSUE_ID}, path: %{ISSUE_PATH}' \
           '[Unsubscribe](%{UNSUBSCRIBE_URL})'
@@ -426,7 +429,8 @@ RSpec.describe Emails::ServiceDesk, feature_category: :service_desk do
 
         it 'renders the note text literally without resolving nested placeholders', :aggregate_failures do
           rendered_html = email.html_part.body.to_s
-          rendered_unsubscribe_url = unsubscribe_sent_notification_url(SentNotification.last)
+          rendered_unsubscribe_url =
+            unsubscribe_namespace_sent_notification_url(SentNotification.last.namespace_id, SentNotification.last)
 
           expect(rendered_html).to include(placeholder_in_note)
           expect(rendered_html).not_to include(rendered_unsubscribe_url)
