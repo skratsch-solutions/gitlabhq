@@ -106,6 +106,7 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
         :active               | :soft_delete         | :soft_deleted
         :soft_deleted         | :hard_delete         | :deletion_in_progress
         :deletion_in_progress | :abort_hard_deletion | :soft_deleted
+        :soft_deleted         | :restore             | :active
       end
 
       with_them do
@@ -247,13 +248,13 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
     end
 
     it 'clears soft_deleted_at' do
-      organization.restore
+      organization.restore(transition_user: user)
 
       expect(organization.organization_detail.soft_deleted_at).to be_nil
     end
 
     it 'removes soft_deletion_scheduled_by_user_id from state_metadata' do
-      organization.restore
+      organization.restore(transition_user: user)
       organization.reload
 
       expect(organization.organization_detail.state_metadata)

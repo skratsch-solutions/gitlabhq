@@ -52,6 +52,7 @@ module API
         use :pagination
       end
       # rubocop: disable CodeReuse/ActiveRecord
+      route_setting :authorization, permissions: :read_commit_status, boundary_type: :project
       get ':id/repository/commits/:sha/statuses' do
         authorize!(:read_commit_status, user_project)
 
@@ -99,6 +100,7 @@ module API
           documentation: { example: 100.0 }
         optional :pipeline_id,  type: Integer, desc: 'An existing pipeline ID, when multiple pipelines on the same commit SHA have been triggered'
       end
+      route_setting :authorization, permissions: :create_commit_status, boundary_type: :project
       post ':id/statuses/:sha' do
         authorize! :create_commit_status, user_project
 

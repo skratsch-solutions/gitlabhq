@@ -66,6 +66,7 @@ project:
   - read_merge_request_reviewer
   - read_merge_request_time_statistic
   - read_milestone
+  - read_model_version
   - read_note
   - read_npm_package
   - read_npm_package_tag

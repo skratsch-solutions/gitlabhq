@@ -32,7 +32,7 @@ RSpec.describe 'Project Environments query', feature_category: :continuous_deliv
 
   subject { post_graphql(query, current_user: user) }
 
-  it_behaves_like 'authorizing granular token permissions for GraphQL', :read_environment do
+  it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_project, :read_environment] do
     let(:boundary_object) { project }
     let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
   end
@@ -50,7 +50,7 @@ RSpec.describe 'Project Environments query', feature_category: :continuous_deliv
       )
     end
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL', :read_environment do
+    it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_project, :read_environment] do
       let(:boundary_object) { project }
       let(:request) { post_graphql(environments_query, token: { personal_access_token: pat }) }
     end

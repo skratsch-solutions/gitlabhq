@@ -25,7 +25,7 @@ RSpec.describe 'getting a repository in a project', feature_category: :source_co
   end
 
   context 'when authorizing granular token permissions' do
-    it_behaves_like 'authorizing granular token permissions for GraphQL', :read_code do
+    it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_project, :read_code] do
       let(:user) { current_user }
       let(:boundary_object) { project }
       let(:query) do
@@ -39,7 +39,8 @@ RSpec.describe 'getting a repository in a project', feature_category: :source_co
       let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
     end
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL', :read_repository_tree do
+    it_behaves_like 'authorizing granular token permissions for GraphQL',
+      [:read_project, :read_code, :read_repository_tree] do
       let(:user) { current_user }
       let(:boundary_object) { project }
       let(:query) do
@@ -57,7 +58,8 @@ RSpec.describe 'getting a repository in a project', feature_category: :source_co
       let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
     end
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL', :read_repository_blob do
+    it_behaves_like 'authorizing granular token permissions for GraphQL',
+      [:read_project, :read_code, :read_repository_tree, :read_repository_blob] do
       let(:user) { current_user }
       let(:boundary_object) { project }
       let(:query) do

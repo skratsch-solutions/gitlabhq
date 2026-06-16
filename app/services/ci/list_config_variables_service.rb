@@ -42,18 +42,12 @@ module Ci
     private
 
     def execute_yaml_processor(sha, ref, config)
-      # The `ref` parameter should be branch or tag name. However, the API also accepts a commit SHA and we can't
-      # change it to not introduce breaking changes. Instead, here we're checking if a commit SHA is passed
-      # as `ref`. If so, we should verify the sha whether it belongs to the project in YamlProcessor.
-      sha_passed_as_ref_parameter = !project.repository.branch_or_tag?(ref)
-
       Gitlab::Ci::YamlProcessor.new(
         config.content,
         project: project,
         user: current_user,
         sha: sha,
-        ref: ref,
-        verify_project_sha: sha_passed_as_ref_parameter
+        ref: ref
       ).execute
     end
 

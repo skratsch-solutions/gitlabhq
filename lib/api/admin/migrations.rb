@@ -30,6 +30,7 @@ module API
               desc: 'The name of the database',
               default: 'main'
           end
+          route_setting :authorization, permissions: :read_database_migration, boundary_type: :instance
           get 'pending' do
             response = Database::ListMigrationsService.new(
               connection: base_model.connection,

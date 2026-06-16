@@ -20,7 +20,12 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
       request
 
       expect(response).to have_gitlab_http_status(expected_success_status)
-      expect(graphql_errors).to be_nil if is_graphql
+
+      if is_graphql
+        expect(graphql_errors).to be_nil
+        expect(graphql_data).to be_present
+        expect(graphql_data.values).to all(be_present)
+      end
     end
   end
 
@@ -30,9 +35,17 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
 
       if is_graphql
         expect(response).to have_gitlab_http_status(:success)
-        expect(graphql_errors).to include(
-          a_hash_including('message' => satisfy { |m| acceptable_messages.any? { |e| m.include?(e) } })
-        )
+
+        # queries return nil values when unauthorized, mutations raise an error
+        if respond_to?(:mutation)
+          expect(graphql_errors).to include(
+            a_hash_including('message' => satisfy { |m| acceptable_messages.any? { |e| m.include?(e) } })
+          )
+        else
+          expect(graphql_data.values).to all(
+            satisfy { |value| value.nil? || value['nodes'] == [] }
+          )
+        end
       else
         expect(response).to have_gitlab_http_status(:forbidden)
 

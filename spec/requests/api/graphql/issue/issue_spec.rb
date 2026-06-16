@@ -48,16 +48,12 @@ RSpec.describe 'Query.issue(id)', feature_category: :team_planning do
   end
 
   context 'when the user does have access' do
-    before_all do
-      project.add_guest(current_user)
+    let(:issue_email) do
+      "p+#{project.full_path_slug}-#{project.project_id}-#{current_user.incoming_email_token}-issue-#{issue.iid}@gl.ab"
     end
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL',
-      [:read_issue, :update_issue, :create_issue_note] do
-      let(:user) { current_user }
-      let(:boundary_object) { project }
-      let(:issue_fields) { all_graphql_fields_for('Issue', max_depth: 1) }
-      let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+    before_all do
+      project.add_guest(current_user)
     end
 
     it_behaves_like 'authorizing granular token permissions for GraphQL', :read_issue do
@@ -66,6 +62,39 @@ RSpec.describe 'Query.issue(id)', feature_category: :team_planning do
       # createNoteEmail requires write permissions since it can be used to create issues and notes.
       let(:issue_fields) { all_graphql_fields_for('Issue', max_depth: 1, excluded: ["createNoteEmail"]) }
       let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+    end
+
+    context 'when using a granular personal access token' do
+      let(:issue_fields) { 'id createNoteEmail' }
+
+      before do
+        stub_incoming_email_setting(enabled: true, address: "p+%{key}@gl.ab")
+        post_graphql(query, token: { personal_access_token: pat })
+      end
+
+      context 'with only read_work_item permission' do
+        let(:pat) do
+          create(:granular_pat, user: current_user, boundary: ::Authz::Boundary.for(project),
+            permissions: [:read_work_item])
+        end
+
+        it 'returns the issue but redacts createNoteEmail' do
+          expect(graphql_errors).to be_nil
+          expect(issue_data).to include('id' => issue.to_gid.to_s, 'createNoteEmail' => nil)
+        end
+      end
+
+      context 'with create_work_item permission' do
+        let(:pat) do
+          create(:granular_pat, user: current_user, boundary: ::Authz::Boundary.for(project),
+            permissions: [:read_work_item, :create_work_item])
+        end
+
+        it 'returns createNoteEmail' do
+          expect(graphql_errors).to be_nil
+          expect(issue_data).to include('id' => issue.to_gid.to_s, 'createNoteEmail' => issue_email)
+        end
+      end
     end
 
     it 'returns the issue' do

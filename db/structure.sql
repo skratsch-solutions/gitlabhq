@@ -46164,6 +46164,8 @@ CREATE INDEX idx_vuln_detection_transitions_on_occurrence_id_id ON vulnerability
 
 CREATE INDEX idx_vuln_flip_guards_on_project_and_finding_id ON vulnerability_flip_guards USING btree (project_id, vulnerability_finding_id);
 
+CREATE UNIQUE INDEX idx_vuln_ns_hist_stats_on_traversal_ids_date_and_ns_id ON vulnerability_namespace_historical_statistics USING btree (traversal_ids, date, namespace_id);
+
 CREATE UNIQUE INDEX idx_vuln_ns_stats_on_traversal_ids_and_namespace_id ON vulnerability_namespace_statistics USING btree (traversal_ids, namespace_id);
 
 CREATE INDEX idx_vuln_occurrence_identifiers_on_partition_id_identifier_id ON vulnerability_occurrence_identifiers USING btree (partition_id, identifier_id);
@@ -51225,8 +51227,6 @@ CREATE INDEX index_vuln_mgmt_policy_rules_on_policy_mgmt_project_id ON vulnerabi
 CREATE UNIQUE INDEX index_vuln_mgmt_policy_rules_on_unique_policy_rule_index ON vulnerability_management_policy_rules USING btree (security_policy_id, rule_index);
 
 CREATE INDEX index_vuln_namespace_hist_statistics_for_traversal_ids_update ON vulnerability_namespace_historical_statistics USING btree (namespace_id, id);
-
-CREATE UNIQUE INDEX index_vuln_namespace_historical_statistics_traversal_ids_date ON vulnerability_namespace_historical_statistics USING btree (traversal_ids, date);
 
 CREATE INDEX index_vuln_namespace_statistics_gin_traversal_ids ON vulnerability_namespace_statistics USING gin (traversal_ids);
 

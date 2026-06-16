@@ -177,7 +177,6 @@ create_bot_pipeline
 create_build
 create_build_service_proxy
 create_build_terminal
-create_commit_status
 create_container_image
 create_container_registry_protection_immutable_tag_rule
 create_coverage_fuzzing_corpus
@@ -466,7 +465,6 @@ read_group_security_dashboard
 read_group_stage
 read_harbor_registry
 read_import_error
-read_incident_management_escalation_policy
 read_incident_management_oncall_schedule
 read_incident_management_timeline_event
 read_incident_management_timeline_event_tag

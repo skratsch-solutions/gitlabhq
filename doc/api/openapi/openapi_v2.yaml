@@ -40332,6 +40332,78 @@ paths:
       tags:
       - batched_background_operations
       operationId: getApiV4AdminBatchedBackgroundOperationsId
+  "/api/v4/admin/batched_background_operations/{id}/stop":
+    put:
+      summary: Stop a batched background operation
+      description: This feature was introduced in GitLab 19.2.
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        description: The batched background operation id
+        type: integer
+        format: int32
+        required: true
+      - name: putApiV4AdminBatchedBackgroundOperationsIdStop
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/putApiV4AdminBatchedBackgroundOperationsIdStop"
+      responses:
+        '200':
+          description: Stop a batched background operation
+          schema:
+            "$ref": "#/definitions/API_Entities_BatchedBackgroundOperation"
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+        '404':
+          description: 404 Not found
+        '422':
+          description: You can stop only `queued`, `active` or `paused` operations.
+      tags:
+      - batched_background_operations
+      operationId: putApiV4AdminBatchedBackgroundOperationsIdStop
+  "/api/v4/admin/batched_background_operations/{id}/restart":
+    put:
+      summary: Restart a batched background operation
+      description: This feature was introduced in GitLab 19.2.
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        description: The batched background operation id
+        type: integer
+        format: int32
+        required: true
+      - name: putApiV4AdminBatchedBackgroundOperationsIdRestart
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/putApiV4AdminBatchedBackgroundOperationsIdRestart"
+      responses:
+        '200':
+          description: Restart a batched background operation
+          schema:
+            "$ref": "#/definitions/API_Entities_BatchedBackgroundOperation"
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+        '404':
+          description: 404 Not found
+        '422':
+          description: You can restart only `stopped` operations.
+      tags:
+      - batched_background_operations
+      operationId: putApiV4AdminBatchedBackgroundOperationsIdRestart
   "/api/v4/admin/ci/variables":
     get:
       summary: List all instance variables
@@ -72224,6 +72296,34 @@ definitions:
     - finished_at
     - on_hold_until
     description: API_Entities_BatchedBackgroundOperation model
+  putApiV4AdminBatchedBackgroundOperationsIdStop:
+    type: object
+    properties:
+      database:
+        type: string
+        description: The name of the database
+        enum:
+        - main
+        - ci
+        - sec
+        - embedding
+        - geo
+        default: main
+    description: Stop a batched background operation
+  putApiV4AdminBatchedBackgroundOperationsIdRestart:
+    type: object
+    properties:
+      database:
+        type: string
+        description: The name of the database
+        enum:
+        - main
+        - ci
+        - sec
+        - embedding
+        - geo
+        default: main
+    description: Restart a batched background operation
   postApiV4AdminCiVariables:
     type: object
     properties:

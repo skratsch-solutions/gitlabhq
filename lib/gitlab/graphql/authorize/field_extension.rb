@@ -57,7 +57,7 @@ module Gitlab
 
         def redact_connection(conn, context)
           type = @field.type.unwrap.node_type
-          return unless has_authorization?(type)
+          return unless has_authorization?(type) || has_granular_authorization?(type)
 
           redactor = Redactor.new(type, context, @field.resolver)
           conn.redactor = redactor if conn.respond_to?(:redactor=)
@@ -78,6 +78,11 @@ module Gitlab
 
           auth = type.try(:authorization)
           auth.nil? || auth.any?
+        end
+
+        def has_granular_authorization?(type)
+          granular_auth = type.try(:granular_scope_authorization)
+          granular_auth.present? && granular_auth.any?
         end
 
         def set_skip_type_authorization(context)

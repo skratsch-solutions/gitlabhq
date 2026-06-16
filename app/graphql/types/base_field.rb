@@ -39,7 +39,7 @@ module Types
       # We want to avoid the overhead of this in prod
       extension ::Gitlab::Graphql::CallsGitaly::FieldExtension if Gitlab.dev_or_test_env?
       extension ::Gitlab::Graphql::Present::FieldExtension
-      extension ::Gitlab::Graphql::Authz::GranularTokenAuthorization
+      extension ::Gitlab::Graphql::Authz::GranularTokenAuthorization if mutation_field?
       extension ::Gitlab::Graphql::Authorize::FieldExtension
 
       after_connection_extensions.each { extension _1 } if after_connection_extensions.any?
@@ -107,10 +107,15 @@ module Types
 
     private
 
+    def mutation_field?
+      @resolver_class && @resolver_class < ::Mutations::BaseMutation
+    end
+
     def field_authorized?(object, ctx)
       object = object.node if object.is_a?(GraphQL::Pagination::Connection::Edge)
 
-      return true if authorization.ok?(object, ctx[:current_user], scope_validator: ctx[:scope_validator])
+      return true if granular_token_authorized?(object, ctx) &&
+        authorization.ok?(object, ctx[:current_user], scope_validator: ctx[:scope_validator])
 
       # Fields on MutationType should populate the 'errors' response when authorization fails
       # for consistency with mutation authorization responses.
@@ -118,6 +123,12 @@ module Types
       return false unless owner == Types::MutationType
 
       raise_resource_not_available_error!
+    end
+
+    def granular_token_authorized?(object, ctx)
+      return true if granular_scope_authorization.empty?
+
+      granular_scope_authorization.ok?(object, ctx)
     end
 
     # Historically our resolvers have used declarative permission checks only
@@ -134,6 +145,11 @@ module Types
 
     def authorization
       @authorization ||= ::Gitlab::Graphql::Authorize::ObjectAuthorization.new(@authorize, @scopes)
+    end
+
+    def granular_scope_authorization
+      @granular_scope_authorization ||=
+        ::Gitlab::Graphql::Authz::GranularScopeAuthorization.new(directives)
     end
 
     def field_complexity(resolver_class, current)

@@ -124,7 +124,6 @@ module SidebarsHelper
     }
   end
 
-  # Overridden in EE
   def super_sidebar_whats_new_data
     return {} unless display_whats_new?
 

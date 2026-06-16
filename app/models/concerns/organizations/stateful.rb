@@ -28,7 +28,7 @@ module Organizations
 
       state_machine :state, initial: :unconfirmed do
         before_transition :update_state_metadata
-        before_transition on: [:soft_delete, :hard_delete, :abort_hard_deletion], do: :ensure_transition_user
+        before_transition on: [:soft_delete, :hard_delete, :abort_hard_deletion, :restore], do: :ensure_transition_user
         before_transition on: [:soft_delete, :hard_delete], do: :ensure_organization_is_empty
         before_transition on: :soft_delete, do: :set_soft_deletion_data
         before_transition on: :restore, do: :clear_soft_deletion_data

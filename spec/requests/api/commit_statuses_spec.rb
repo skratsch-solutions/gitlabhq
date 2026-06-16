@@ -13,6 +13,12 @@ RSpec.describe API::CommitStatuses, :clean_gitlab_redis_cache, feature_category:
   describe "GET /projects/:id/repository/commits/:sha/statuses" do
     let(:get_url) { "/projects/#{project.id}/repository/commits/#{sha}/statuses" }
 
+    it_behaves_like 'authorizing granular token permissions', :read_commit_status do
+      let(:boundary_object) { project }
+      let(:user) { reporter }
+      let(:request) { get api(get_url, personal_access_token: pat) }
+    end
+
     context 'ci commit exists' do
       let_it_be(:master) do
         project.ci_pipelines.build(source: :push, sha: commit.id, ref: 'master', protected: false).tap do |p|
@@ -178,6 +184,12 @@ RSpec.describe API::CommitStatuses, :clean_gitlab_redis_cache, feature_category:
 
   describe 'POST /projects/:id/statuses/:sha' do
     let(:post_url) { "/projects/#{project.id}/statuses/#{sha}" }
+
+    it_behaves_like 'authorizing granular token permissions', :create_commit_status do
+      let(:boundary_object) { project }
+      let(:user) { developer }
+      let(:request) { post api(post_url, personal_access_token: pat), params: { state: 'running' } }
+    end
 
     context 'developer user' do
       context 'uses only required parameters' do

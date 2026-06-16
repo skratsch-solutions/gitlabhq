@@ -2921,6 +2921,7 @@ curl --request DELETE \
   [with a feature flag](../administration/feature_flags/_index.md) named
   `fix_merge_api_train_bypass`. Disabled by default. The merge request is added to the merge
   train instead of merging directly.
+- Feature flag `fix_merge_api_train_bypass` removed in GitLab 19.1.
 
 {{< /history >}}
 

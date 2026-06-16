@@ -128,6 +128,18 @@ RSpec.describe API::Ci::Runners, feature_category: :fleet_visibility do
           ApplicationSetting.current_without_cache.runners_registration_token
         end
       end
+
+      it_behaves_like 'authorizing granular token permissions', :reset_runner_registration_token do
+        let_it_be(:rrt_admin) { create(:user, :admin) }
+        let(:boundary_object) { :instance }
+        let(:user) { rrt_admin }
+
+        before do
+          stub_application_setting(allow_runner_registration_token: true)
+        end
+
+        let(:request) { post api('/runners/reset_registration_token', personal_access_token: pat) }
+      end
     end
   end
 

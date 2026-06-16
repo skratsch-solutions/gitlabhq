@@ -568,7 +568,6 @@ type:BlobSearch
 type:BlobViewer
 type:BlockingMergeRequests
 type:Board
-type:BoardEpic
 type:BoardEpicUserPreferences
 type:BoardList
 type:BooleanExpression
@@ -813,7 +812,6 @@ type:EgressNode
 type:EmailParticipantType
 type:EnabledSecurityScans
 type:EnvironmentPermissions
-type:Epic
 type:EpicBoard
 type:EpicDescendantCount
 type:EpicDescendantWeights
@@ -822,7 +820,6 @@ type:EpicList
 type:EpicListMetadata
 type:EpicPermissions
 type:ErrorTrackingStackTrace
-type:EscalationPolicyType
 type:EscalationRuleType
 type:Event
 type:ExternalAuditEventDestination

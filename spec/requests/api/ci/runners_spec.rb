@@ -74,6 +74,12 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'GET /runners' do
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { :user }
+      let(:user) { admin }
+      let(:request) { get api('/runners', personal_access_token: pat) }
+    end
+
     let(:path) { "/runners?#{query_path}" }
 
     subject(:perform_request) { get api(path, current_user) }
@@ -274,6 +280,24 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'GET /runners/:id/managers' do
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { get api("/runners/#{shared_runner.id}/managers", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { project }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{project_runner.id}/managers", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { group }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{group_runner_a.id}/managers", personal_access_token: pat) }
+    end
+
     let(:path) { "/runners/#{runner.id}/managers" }
 
     subject(:perform_request) { get api(path, current_user) }
@@ -376,6 +400,12 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'GET /runners/all' do
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { get api('/runners/all', personal_access_token: pat) }
+    end
+
     let(:path) { "/runners/all?#{query_path}" }
 
     subject(:perform_request) { get api(path, current_user) }
@@ -655,6 +685,24 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'GET /runners/:id' do
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { get api("/runners/#{shared_runner.id}", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { project }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{project_runner.id}", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { group }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{group_runner_a.id}", personal_access_token: pat) }
+    end
+
     let(:runner_id) { runner.id }
     let(:path) { "/runners/#{runner_id}?#{query_path}" }
 
@@ -866,6 +914,24 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'PUT /runners/:id' do
+    it_behaves_like 'authorizing granular token permissions', :update_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { put api("/runners/#{shared_runner.id}", personal_access_token: pat), params: { description: 'gpat' } }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :update_runner do
+      let(:boundary_object) { project }
+      let(:user) { users.first }
+      let(:request) { put api("/runners/#{project_runner.id}", personal_access_token: pat), params: { description: 'gpat' } }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :update_runner do
+      let(:boundary_object) { group }
+      let(:user) { users.first }
+      let(:request) { put api("/runners/#{group_runner_a.id}", personal_access_token: pat), params: { description: 'gpat' } }
+    end
+
     let(:runner_id) { runner.id }
     let(:path) { "/runners/#{runner_id}?#{query_path}" }
 
@@ -1168,6 +1234,24 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'DELETE /runners/:id' do
+    it_behaves_like 'authorizing granular token permissions', :delete_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { delete api("/runners/#{shared_runner.id}", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :delete_runner do
+      let(:boundary_object) { project }
+      let(:user) { users.first }
+      let(:request) { delete api("/runners/#{project_runner.id}", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :delete_runner do
+      let(:boundary_object) { group }
+      let(:user) { users.first }
+      let(:request) { delete api("/runners/#{group_runner_a.id}", personal_access_token: pat) }
+    end
+
     let(:runner_id) { runner.id }
     let(:path) { "/runners/#{runner_id}?#{query_path}" }
 
@@ -1466,6 +1550,24 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'GET /runners/:id/projects' do
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { get api("/runners/#{shared_runner.id}/projects", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { project }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{project_runner.id}/projects", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { group }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{group_runner_a.id}/projects", personal_access_token: pat) }
+    end
+
     let(:runner_id) { runner.id }
     let(:path) { "/runners/#{runner_id}/projects?#{query_path}" }
 
@@ -1669,6 +1771,24 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'POST /runners/:id/reset_authentication_token' do
+    it_behaves_like 'authorizing granular token permissions', :update_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { post api("/runners/#{shared_runner.id}/reset_authentication_token", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :update_runner do
+      let(:boundary_object) { project }
+      let(:user) { users.first }
+      let(:request) { post api("/runners/#{project_runner.id}/reset_authentication_token", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :update_runner do
+      let(:boundary_object) { group }
+      let(:user) { users.first }
+      let(:request) { post api("/runners/#{group_runner_a.id}/reset_authentication_token", personal_access_token: pat) }
+    end
+
     let(:runner_id) { runner.id }
     let(:path) { "/runners/#{runner_id}/reset_authentication_token?#{query_path}" }
 
@@ -1888,6 +2008,24 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
   end
 
   describe 'GET /runners/:id/jobs' do
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { get api("/runners/#{shared_runner.id}/jobs", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { project }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{project_runner.id}/jobs", personal_access_token: pat) }
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_runner do
+      let(:boundary_object) { group }
+      let(:user) { users.first }
+      let(:request) { get api("/runners/#{group_runner_a.id}/jobs", personal_access_token: pat) }
+    end
+
     let_it_be(:shared_runner_manager1) { create(:ci_runner_machine, runner: shared_runner, system_xid: 'id2') }
     let_it_be(:jobs) do
       project_runner_manager1 = create(:ci_runner_machine, runner: project_runner, system_xid: 'id1')

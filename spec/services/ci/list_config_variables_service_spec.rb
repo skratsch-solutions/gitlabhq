@@ -48,35 +48,6 @@ RSpec.describe Ci::ListConfigVariablesService,
     it 'returns variables list' do
       expect(result).to eq(expected_result)
     end
-
-    context 'when the ref is a sha from a fork' do
-      include_context 'when a project repository contains a forked commit'
-
-      before do
-        allow_next_instance_of(Gitlab::Ci::ProjectConfig) do |instance|
-          allow(instance).to receive(:exists?).and_return(true)
-          allow(instance).to receive(:content).and_return(YAML.dump(ci_config))
-        end
-      end
-
-      let(:ref) { forked_commit_sha }
-
-      context 'when a project ref contains the sha' do
-        before do
-          mock_branch_contains_forked_commit_sha
-        end
-
-        it 'returns variables list' do
-          expect(result).to eq(expected_result)
-        end
-      end
-
-      context 'when a project ref does not contain the sha' do
-        it 'returns empty response' do
-          expect(result).to eq({})
-        end
-      end
-    end
   end
 
   context 'when config has includes' do

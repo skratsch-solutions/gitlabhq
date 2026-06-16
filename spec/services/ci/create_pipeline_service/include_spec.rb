@@ -307,7 +307,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
 
           expect(pipeline).to be_persisted
           expect(pipeline.error_messages.map(&:content)).to include(
-            Gitlab::Ci::Config::TIMEOUT_MESSAGE
+            'Request timed out when fetching configuration files.'
           )
         end
       end

@@ -72541,6 +72541,76 @@ paths:
           default: main
           nullable: true
         in: query
+  "/api/v4/admin/batched_background_operations/{id}/stop":
+    put:
+      operationId: putApiV4AdminBatchedBackgroundOperationsIdStop
+      summary: Stop a batched background operation
+      description: This feature was introduced in GitLab 19.2.
+      tags:
+      - Batched background operations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBatchedBackgroundOperation"
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+        '404':
+          description: 404 Not found
+        '422':
+          description: You can stop only `queued`, `active` or `paused` operations.
+      parameters:
+      - name: id
+        required: true
+        description: The batched background operation id
+        schema:
+          type: integer
+        in: path
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_c5074cc5e01a"
+  "/api/v4/admin/batched_background_operations/{id}/restart":
+    put:
+      operationId: putApiV4AdminBatchedBackgroundOperationsIdRestart
+      summary: Restart a batched background operation
+      description: This feature was introduced in GitLab 19.2.
+      tags:
+      - Batched background operations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBatchedBackgroundOperation"
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+        '404':
+          description: 404 Not found
+        '422':
+          description: You can restart only `stopped` operations.
+      parameters:
+      - name: id
+        required: true
+        description: The batched background operation id
+        schema:
+          type: integer
+        in: path
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_c5074cc5e01a"
   "/api/v4/admin/batched_background_migrations/{id}":
     get:
       operationId: getApiV4AdminBatchedBackgroundMigrationsId

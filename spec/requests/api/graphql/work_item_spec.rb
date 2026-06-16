@@ -69,14 +69,6 @@ RSpec.describe 'Query.work_item(id)', :with_current_organization, feature_catego
 
     it_behaves_like 'a working graphql query'
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL',
-      [:read_work_item, :update_work_item, :create_issue_note] do
-      let(:user) { developer }
-      let(:boundary_object) { project }
-      let(:work_item_fields) { all_graphql_fields_for('WorkItem', max_depth: 1) }
-      let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
-    end
-
     it_behaves_like 'authorizing granular token permissions for GraphQL', :read_work_item do
       let(:user) { developer }
       let(:boundary_object) { project }
@@ -133,6 +125,38 @@ RSpec.describe 'Query.work_item(id)', :with_current_organization, feature_catego
 
       it 'does not return createNoteEmail' do
         expect(work_item_data).to include('createNoteEmail' => nil)
+      end
+    end
+
+    context 'when using a granular personal access token' do
+      let(:work_item_fields) { 'id createNoteEmail' }
+
+      before do
+        post_graphql(query, token: { personal_access_token: pat })
+      end
+
+      context 'with only read_work_item permission' do
+        let(:pat) do
+          create(:granular_pat, user: current_user, boundary: ::Authz::Boundary.for(project),
+            permissions: [:read_work_item])
+        end
+
+        it 'returns the work item but redacts `createNoteEmail`' do
+          expect(graphql_errors).to be_nil
+          expect(work_item_data).to include('id' => work_item.to_gid.to_s, 'createNoteEmail' => nil)
+        end
+      end
+
+      context 'with create_work_item permission' do
+        let(:pat) do
+          create(:granular_pat, user: current_user, boundary: ::Authz::Boundary.for(project),
+            permissions: [:read_work_item, :create_work_item])
+        end
+
+        it 'returns `createNoteEmail`' do
+          expect(graphql_errors).to be_nil
+          expect(work_item_data).to include('id' => work_item.to_gid.to_s, 'createNoteEmail' => work_item_email)
+        end
       end
     end
 

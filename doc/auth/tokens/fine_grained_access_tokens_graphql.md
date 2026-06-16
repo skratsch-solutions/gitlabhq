@@ -213,7 +213,6 @@ Grants the ability to create, delete, read, and update pipeline schedules.
 | Create | Project | Mutation | `PipelineScheduleCreate` |
 | Delete | Project | Mutation | `PipelineScheduleDelete` |
 | Read | Project | Type | `PipelineSchedule` |
-| Read | Project | Field | `Project.pipelineSchedules` |
 | Update | Project | Mutation | `PipelineSchedulePlay` |
 | Update | Project | Mutation | `PipelineScheduleTakeOwnership` |
 | Update | Project | Mutation | `PipelineScheduleUpdate` |
@@ -233,14 +232,8 @@ Grants the ability to assign, create, delete, read, and update runners.
 | Delete | Group | Mutation | `RunnerDelete` |
 | Delete | Instance | Mutation | `RunnerDelete` |
 | Read | Project | Type | `CiRunner` |
-| Read | Project | Field | `Project.runners` |
-| Read | Project | Field | `Query.runner` |
 | Read | Group | Type | `CiRunner` |
-| Read | Group | Field | `Group.runners` |
-| Read | Group | Field | `Query.runner` |
 | Read | Instance | Type | `CiRunner` |
-| Read | Instance | Field | `Query.runner` |
-| Read | Instance | Field | `Query.runners` |
 | Update | Project | Mutation | `RunnerCacheClear` |
 | Update | Project | Mutation | `RunnerUpdate` |
 | Update | Group | Mutation | `RunnerUpdate` |
@@ -323,7 +316,6 @@ Grants the ability to archive, create, delete, read, share, transfer, and update
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Read | Group | Type | `Group` |
-| Read | Group | Field | `Query.group` |
 | Update | Group | Mutation | `GroupUpdate` |
 
 #### LDAP Admin Role Link
@@ -363,6 +355,16 @@ Grants the ability to create, delete, merge, read, and update topics.
 | ------ | ------ | ---- | ---- |
 | Read | Instance | Type | `Topic` |
 
+### Monitoring resources
+
+#### Escalation Policy
+
+Grants the ability to read escalation policies.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Project | Type | `EscalationPolicyType` |
+
 ### Organizations resources
 
 #### Organization
@@ -375,8 +377,6 @@ Grants the ability to create, delete, read, and update organizations.
 | Delete | Instance | Mutation | `OrganizationDelete` |
 | Read | Instance | Type | `Organization` |
 | Read | Instance | Type | `OrganizationUser` |
-| Read | Instance | Field | `Query.organization` |
-| Read | Instance | Field | `Query.organizations` |
 | Update | Instance | Mutation | `OrganizationUpdate` |
 | Update | Instance | Mutation | `OrganizationUserUpdate` |
 
@@ -472,7 +472,7 @@ Grants the ability to create, delete, read, and update snippets.
 
 #### Model Version
 
-Grants the ability to create, delete, and update model versions.
+Grants the ability to create, delete, read, and update model versions.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
@@ -527,6 +527,8 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Read | Project | Type | `Issue` |
 | Read | Project | Type | `Milestone` |
 | Read | Project | Type | `WorkItem` |
+| Read | Group | Type | `BoardEpic` |
+| Read | Group | Type | `Epic` |
 | Read | Group | Type | `Iteration` |
 | Read | Group | Type | `IterationCadence` |
 | Read | Group | Type | `Milestone` |
@@ -593,7 +595,6 @@ Grants the ability to archive, create, delete, fork, read, share, transfer, and 
 | ------ | ------ | ---- | ---- |
 | Read | Project | Type | `Project` |
 | Read | Project | Type | `RepositoryLanguage` |
-| Read | Project | Field | `Query.project` |
 | Update | Project | Mutation | `ProjectSettingsUpdate` |
 | Update | Project | Mutation | `StarProject` |
 

@@ -154,6 +154,7 @@ Grants the ability to create, delete, read, and update clusters.
 | Delete | Instance | `DELETE` | `/admin/clusters/:cluster_id` |
 | Read | Project | `GET` | `/projects/:id/clusters` |
 | Read | Project | `GET` | `/projects/:id/clusters/:cluster_id` |
+| Read | Group | `GET` | `/discover-cert-based-clusters` |
 | Read | Group | `GET` | `/groups/:id/clusters` |
 | Read | Group | `GET` | `/groups/:id/clusters/:cluster_id` |
 | Read | Instance | `GET` | `/admin/clusters` |
@@ -195,6 +196,14 @@ Grants the ability to create, delete, and read cluster agent URL configurations.
 | Read | Project | `GET` | `/projects/:id/cluster_agents/:agent_id/url_configurations` |
 | Read | Project | `GET` | `/projects/:id/cluster_agents/:agent_id/url_configurations/:url_configuration_id` |
 
+#### Commit Status
+
+Grants the ability to create commit statuses.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/statuses/:sha` |
+
 #### Deployment
 
 Grants the ability to approve, create, delete, read, and update deployments.
@@ -210,6 +219,16 @@ Grants the ability to approve, create, delete, read, and update deployments.
 | Update | Project | `PUT` | `/projects/:id/deployments/:deployment_id` |
 
 <sup>1</sup> Also requires the `Read Merge Request` permission.
+
+#### Dora Metric
+
+Grants the ability to read dora metrics.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Project | `GET` | `/projects/:id/analytics/deployment_frequency` |
+| Read | Project | `GET` | `/projects/:id/dora/metrics` |
+| Read | Group | `GET` | `/groups/:id/dora/metrics` |
 
 #### Environment
 
@@ -412,8 +431,60 @@ Grants the ability to assign, create, delete, read, and update runners.
 | Assign | Project | `POST` | `/projects/:id/runners` |
 | Assign | Project | `DELETE` | `/projects/:id/runners/:runner_id` |
 | Create | User | `POST` | `/user/runners` |
+| Delete | Project | `DELETE` | `/runners/:id` |
+| Delete | Group | `DELETE` | `/runners/:id` |
+| Delete | Instance | `DELETE` | `/runners/:id` |
 | Read | Project | `GET` | `/projects/:id/runners` |
+| Read | Project | `GET` | `/runners/:id` |
+| Read | Project | `GET` | `/runners/:id/jobs` |
+| Read | Project | `GET` | `/runners/:id/managers` |
+| Read | Project | `GET` | `/runners/:id/projects` |
 | Read | Group | `GET` | `/groups/:id/runners` |
+| Read | Group | `GET` | `/runners/:id` |
+| Read | Group | `GET` | `/runners/:id/jobs` |
+| Read | Group | `GET` | `/runners/:id/managers` |
+| Read | Group | `GET` | `/runners/:id/projects` |
+| Read | User | `GET` | `/runners` |
+| Read | Instance | `GET` | `/runners/:id` |
+| Read | Instance | `GET` | `/runners/:id/jobs` |
+| Read | Instance | `GET` | `/runners/:id/managers` |
+| Read | Instance | `GET` | `/runners/:id/projects` |
+| Read | Instance | `GET` | `/runners/all` |
+| Update | Project | `POST` | `/runners/:id/reset_authentication_token` |
+| Update | Project | `PUT` | `/runners/:id` |
+| Update | Group | `POST` | `/runners/:id/reset_authentication_token` |
+| Update | Group | `PUT` | `/runners/:id` |
+| Update | Instance | `POST` | `/runners/:id/reset_authentication_token` |
+| Update | Instance | `PUT` | `/runners/:id` |
+
+#### Runner Controller
+
+Grants the ability to create, delete, read, and update runner controllers.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/runner_controllers` |
+| Delete | Instance | `DELETE` | `/runner_controllers/:id` |
+| Read | Instance | `GET` | `/runner_controllers` |
+| Read | Instance | `GET` | `/runner_controllers/:id` |
+| Read | Instance | `GET` | `/runner_controllers/:id/scopes` |
+| Update | Instance | `POST` | `/runner_controllers/:id/scopes/instance` |
+| Update | Instance | `POST` | `/runner_controllers/:id/scopes/runners/:runner_id` |
+| Update | Instance | `PUT` | `/runner_controllers/:id` |
+| Update | Instance | `DELETE` | `/runner_controllers/:id/scopes/instance` |
+| Update | Instance | `DELETE` | `/runner_controllers/:id/scopes/runners/:runner_id` |
+
+#### Runner Controller Token
+
+Grants the ability to create, read, revoke, and rotate runner controller tokens.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/runner_controllers/:runner_controller_id/tokens` |
+| Read | Instance | `GET` | `/runner_controllers/:runner_controller_id/tokens` |
+| Read | Instance | `GET` | `/runner_controllers/:runner_controller_id/tokens/:id` |
+| Revoke | Instance | `DELETE` | `/runner_controllers/:runner_controller_id/tokens/:id` |
+| Rotate | Instance | `POST` | `/runner_controllers/:runner_controller_id/tokens/:id/rotate` |
 
 #### Runner Registration Token
 
@@ -423,6 +494,7 @@ Grants the ability to reset runner registration tokens.
 | ------ | ------ | ------ | ---- |
 | Reset | Project | `POST` | `/projects/:id/runners/reset_registration_token` |
 | Reset | Group | `POST` | `/groups/:id/runners/reset_registration_token` |
+| Reset | Instance | `POST` | `/runners/reset_registration_token` |
 
 #### Secure File
 
@@ -618,6 +690,17 @@ Grants the ability to create direct access tokens for third-party agents
 
 ### Geo resources
 
+#### Admin Data Management
+
+Grants the ability to read and update admin data managements.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Instance | `GET` | `/admin/data_management/:model_name` |
+| Read | Instance | `GET` | `/admin/data_management/:model_name/:record_identifier` |
+| Update | Instance | `PUT` | `/admin/data_management/:model_name/:record_identifier/checksum` |
+| Update | Instance | `PUT` | `/admin/data_management/:model_name/checksum` |
+
 #### Geo Node
 
 Grants the ability to create, delete, read, repair, and update Geo nodes.
@@ -630,6 +713,7 @@ Grants the ability to create, delete, read, repair, and update Geo nodes.
 | Read | Instance | `GET` | `/geo_nodes/:id` |
 | Read | Instance | `GET` | `/geo_nodes/:id/status` |
 | Read | Instance | `GET` | `/geo_nodes/status` |
+| Read | Instance | `POST` | `/geo/node_proxy/:id/graphql` |
 | Repair | Instance | `POST` | `/geo_nodes/:id/repair` |
 | Update | Instance | `PUT` | `/geo_nodes/:id` |
 
@@ -1319,6 +1403,16 @@ Grants the ability to read knowledge graph data.
 | Read | User | `POST` | `/orbit/agent/commands/:name` |
 | Read | User | `POST` | `/orbit/query` |
 
+#### Knowledge Graph Enabled Namespace
+
+Grants the ability to create, delete, and read knowledge graph enabled namespaces.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `PUT` | `/admin/knowledge_graph/namespaces/:id` |
+| Delete | Instance | `DELETE` | `/admin/knowledge_graph/namespaces/:id` |
+| Read | Instance | `GET` | `/admin/knowledge_graph/namespaces` |
+
 ### Organizations resources
 
 #### Organization
@@ -1748,6 +1842,48 @@ Grants the ability to create, delete, log, read, and update MLflow runs.
 | Read | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/search` |
 | Update | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/set-tag` |
 | Update | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/update` |
+
+#### Ml Experiment
+
+Grants the ability to create, delete, read, and update ml experiments.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/experiments/create` |
+| Delete | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/experiments/delete` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/experiments/get` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/experiments/get-by-name` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/experiments/list` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/metrics/get-history` |
+| Read | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/experiments/search` |
+| Update | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/experiments/set-experiment-tag` |
+
+#### Ml Model
+
+Grants the ability to create, delete, read, and update ml models.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/create` |
+| Delete | Project | `DELETE` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/delete` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/alias` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/get` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/search` |
+| Read | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/get-latest-versions` |
+| Update | Project | `PATCH` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/update` |
+
+#### Model Version
+
+Grants the ability to create, delete, read, and update model versions.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/create` |
+| Create | Project | `PUT` | `/projects/:id/packages/ml_models/:model_version_id/files/(*path/):file_name` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/get` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/get-download-uri` |
+| Read | Project | `GET` | `/projects/:id/packages/ml_models/:model_version_id/files/(*path/):file_name` |
+| Update | Project | `PATCH` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/update` |
 
 ### Project Planning resources
 
@@ -2259,6 +2395,7 @@ Grants the ability to create, delete, read, and update commits.
 | Read | Project | `GET` | `/projects/:id/repository/commits/:sha/refs` |
 | Read | Project | `GET` | `/projects/:id/repository/commits/:sha/sequence` |
 | Read | Project | `GET` | `/projects/:id/repository/commits/:sha/signature` |
+| Read | Project | `GET` | `/projects/:id/repository/commits/:sha/statuses` |
 | Update | Project | `POST` | `/projects/:id/repository/commits/:sha/comments` |
 | Update | Project | `PUT` | `/projects/:id/repository/commits/:noteable_id/discussions/:discussion_id/notes/:note_id` |
 
@@ -2429,6 +2566,24 @@ Grants the ability to protect tags.
 
 ### Search resources
 
+#### Active Context Collection
+
+Grants the ability to update active context collections.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Update | Instance | `PUT` | `/admin/active_context/collections/:id` |
+
+#### Active Context Connection
+
+Grants the ability to read and update active context connections.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Instance | `GET` | `/admin/active_context/connections` |
+| Update | Instance | `PUT` | `/admin/active_context/connections/activate` |
+| Update | Instance | `PUT` | `/admin/active_context/connections/deactivate` |
+
 #### Active Context Dead Queue
 
 Grants the ability to clear and replay the ActiveContext dead queue.
@@ -2437,6 +2592,23 @@ Grants the ability to clear and replay the ActiveContext dead queue.
 | ------ | ------ | ------ | ---- |
 | Clear | Instance | `DELETE` | `/admin/active_context/dead_queue` |
 | Replay | Instance | `POST` | `/admin/active_context/dead_queue/replay` |
+
+#### Active Context Enabled Namespace
+
+Grants the ability to update active context enabled namespaces.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Update | Instance | `PUT` | `/admin/active_context/code/enabled_namespaces` |
+
+#### Elasticsearch Indexed Namespace
+
+Grants the ability to update Elasticsearch indexed namespaces.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Update | Instance | `PUT` | `/elasticsearch_indexed_namespaces/rollback` |
+| Update | Instance | `PUT` | `/elasticsearch_indexed_namespaces/rollout` |
 
 #### Global Search
 
@@ -3046,15 +3218,17 @@ Grants the ability to read database dictionaries.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Read | Instance | `GET` | `/admin/databases/:database_name/dictionary/tables/:table_name` |
 | Read | Instance | `GET` | `/databases/:database_name/dictionary/tables` |
 
 #### Database Migration
 
-Grants the ability to mark database migrations.
+Grants the ability to mark and read database migrations.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Mark | Instance | `POST` | `/admin/migrations/:timestamp/mark` |
+| Read | Instance | `GET` | `/admin/migrations/pending` |
 
 #### Export
 
@@ -3118,12 +3292,14 @@ Grants the ability to create and read placeholder reassignments.
 
 #### Batched Background Operation
 
-Grants the ability to read batched background operations.
+Grants the ability to read and run batched background operations.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Read | Instance | `GET` | `/admin/batched_background_operations` |
 | Read | Instance | `GET` | `/admin/batched_background_operations/:id` |
+| Run | Instance | `PUT` | `/admin/batched_background_operations/:id/restart` |
+| Run | Instance | `PUT` | `/admin/batched_background_operations/:id/stop` |
 
 ### Wiki resources
 
@@ -3265,6 +3441,8 @@ feature is enabled.
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/versions/:version_id` |
 | Work Item: Read | `GET` | `/projects/:id/milestones` |
 | Work Item: Read | `GET` | `/projects/:id/milestones/:milestone_id` |
+| Model Version: Read | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/get` |
+| Model Version: Read | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/get-download-uri` |
 | Package: Read | `GET` | `/projects/:id/packages` |
 | Package: Read | `GET` | `/projects/:id/packages/:package_id` |
 | Package: Read | `GET` | `/projects/:id/packages/:package_id/pipelines` |
@@ -3278,6 +3456,7 @@ feature is enabled.
 | Package: Read | `GET` | `/projects/:id/packages/helm/:channel/charts/:file_name.tgz` |
 | Package: Read | `GET` | `/projects/:id/packages/helm/:channel/index.yaml` |
 | Package: Read | `GET` | `/projects/:id/packages/maven/*path/:file_name` |
+| Model Version: Read | `GET` | `/projects/:id/packages/ml_models/:model_version_id/files/(*path/):file_name` |
 | Package: Read | `GET` | `/projects/:id/packages/npm/*package_name` |
 | Package: Read | `GET` | `/projects/:id/packages/npm/*package_name/-/*file_name` |
 | Package: Read | `GET` | `/projects/:id/packages/npm/-/package/*package_name/dist-tags` |
@@ -3310,6 +3489,7 @@ feature is enabled.
 | Commit: Read | `GET` | `/projects/:id/repository/commits/:sha/refs` |
 | Commit: Read | `GET` | `/projects/:id/repository/commits/:sha/sequence` |
 | Commit: Read | `GET` | `/projects/:id/repository/commits/:sha/signature` |
+| Commit: Read | `GET` | `/projects/:id/repository/commits/:sha/statuses` |
 | Repository: Read | `GET` | `/projects/:id/repository/compare` |
 | Repository: Read | `GET` | `/projects/:id/repository/contributors` |
 | Repository: Read | `GET` | `/projects/:id/repository/files/:file_path` |
