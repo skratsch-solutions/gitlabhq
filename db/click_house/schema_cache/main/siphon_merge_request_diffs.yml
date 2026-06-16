@@ -85,3 +85,9 @@ columns:
   default_kind: DEFAULT
   default_expression: 'false'
   compression_codec: CODEC(ZSTD(1))
+- name: base_commit_sha_bytea
+  type: Nullable(String)
+- name: start_commit_sha_bytea
+  type: Nullable(String)
+- name: head_commit_sha_bytea
+  type: Nullable(String)

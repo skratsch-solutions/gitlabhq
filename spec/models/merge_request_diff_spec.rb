@@ -2400,6 +2400,142 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     end
   end
 
+  describe 'bytea SHA sync triggers' do
+    let(:hex_base)  { 'ae73cb07c9eeaf35924a10f713b364d32b2dd34f' }
+    let(:hex_start) { '0b4bc9a49b562e85de7cc9e834518ea6828729b9' }
+    let(:hex_head)  { 'b83d6e391c22777fca1ed3012fce84f633d7fed0' }
+    let(:other_hex) { 'f14ae956369247901117b8b7d237c9dc605898c5' }
+
+    def bin(hex)
+      [hex].pack('H*')
+    end
+
+    context 'on INSERT' do
+      context 'when only the varchar columns are provided' do
+        let(:diff) do
+          create(:merge_request_diff,
+            base_commit_sha: hex_base,
+            start_commit_sha: hex_start,
+            head_commit_sha: hex_head)
+        end
+
+        it 'mirrors each varchar SHA into the corresponding bytea column' do
+          expect(diff.reload).to have_attributes(
+            base_commit_sha_bytea: bin(hex_base),
+            start_commit_sha_bytea: bin(hex_start),
+            head_commit_sha_bytea: bin(hex_head)
+          )
+        end
+      end
+
+      context 'when only the bytea columns are provided' do
+        let(:diff) do
+          diff = build(:merge_request_diff,
+            base_commit_sha: nil,
+            start_commit_sha: nil,
+            head_commit_sha: nil)
+          diff.base_commit_sha_bytea  = bin(hex_base)
+          diff.start_commit_sha_bytea = bin(hex_start)
+          diff.head_commit_sha_bytea  = bin(hex_head)
+          diff.save!
+          diff
+        end
+
+        it 'mirrors each bytea SHA into the corresponding varchar column' do
+          expect(diff.reload).to have_attributes(
+            base_commit_sha: hex_base,
+            start_commit_sha: hex_start,
+            head_commit_sha: hex_head
+          )
+        end
+      end
+    end
+
+    context 'on UPDATE' do
+      let(:diff) do
+        create(:merge_request_diff,
+          base_commit_sha: hex_base,
+          start_commit_sha: hex_start,
+          head_commit_sha: hex_head)
+      end
+
+      it 'updates the bytea column when the varchar column changes' do
+        diff.update_columns(head_commit_sha: other_hex)
+
+        expect(diff.reload.head_commit_sha_bytea).to eq(bin(other_hex))
+      end
+
+      it 'updates the varchar column when the bytea column changes' do
+        diff.update_columns(head_commit_sha_bytea: bin(other_hex))
+
+        expect(diff.reload.head_commit_sha).to eq(other_hex)
+      end
+
+      it 'nulls the bytea column when the varchar column is nulled' do
+        diff.update_columns(head_commit_sha: nil)
+
+        expect(diff.reload.head_commit_sha_bytea).to be_nil
+      end
+
+      it 'nulls the varchar column when the bytea column is nulled' do
+        diff.update_columns(head_commit_sha_bytea: nil)
+
+        # head_commit_sha has a getter override that falls back to last_commit_sha
+        # for pre-8.4 diffs without the column. Read raw to verify the trigger
+        # actually nulled the underlying DB column.
+        expect(diff.reload[:head_commit_sha]).to be_nil
+      end
+    end
+
+    context 'with invalid values' do
+      it 'rejects a non-hex varchar SHA and leaves both columns unchanged' do
+        diff = create(:merge_request_diff, head_commit_sha: hex_head)
+
+        expect(diff.update(head_commit_sha: 'z' * 40)).to be(false)
+        expect(diff.errors[:head_commit_sha]).to include('is not a valid SHA')
+
+        expect(diff.reload).to have_attributes(
+          head_commit_sha: hex_head,
+          head_commit_sha_bytea: bin(hex_head)
+        )
+      end
+
+      it 'rejects a too-short varchar SHA and leaves both columns unchanged' do
+        diff = create(:merge_request_diff, head_commit_sha: hex_head)
+
+        expect(diff.update(head_commit_sha: 'abc')).to be(false)
+        expect(diff.errors[:head_commit_sha]).to include('is not a valid SHA')
+
+        expect(diff.reload).to have_attributes(
+          head_commit_sha: hex_head,
+          head_commit_sha_bytea: bin(hex_head)
+        )
+      end
+
+      it 'lets varchar win when both columns are changed in the same UPDATE' do
+        diff = create(:merge_request_diff, head_commit_sha: hex_head)
+
+        diff.update_columns(head_commit_sha: other_hex, head_commit_sha_bytea: bin(hex_base))
+
+        expect(diff.reload).to have_attributes(
+          head_commit_sha: other_hex,
+          head_commit_sha_bytea: bin(other_hex)
+        )
+      end
+
+      it 'lets varchar win when both columns are provided on INSERT' do
+        diff = build(:merge_request_diff, head_commit_sha: hex_head)
+        diff.head_commit_sha_bytea = bin(hex_base)
+        diff.save!
+
+        expect(diff.reload).to have_attributes(
+          head_commit_sha: hex_head,
+          head_commit_sha_bytea: bin(hex_head)
+        )
+      end
+    end
+  end
+
   it_behaves_like 'it has loose foreign keys' do
     let(:factory_name) { :merge_request_diff }
     let(:worker_class) { LooseForeignKeys::MergeRequestDiffCommitCleanupWorker }

@@ -446,7 +446,7 @@ curl --request DELETE \
 Or via chatops:
 
 ```plaintext
-/chatops run active_context dead_queue clear
+/chatops gitlab run active_context dead_queue clear
 ```
 
 **Replay dead queue items into a processing queue**
@@ -463,7 +463,7 @@ curl --request POST \
 Or via chatops (recommended):
 
 ```plaintext
-/chatops run active_context dead_queue replay --queue=retry_queue
+/chatops gitlab run active_context dead_queue replay --queue=retry_queue
 ```
 
 Valid queue values are `retry_queue`, `code`, and `code_backfill`. Use `retry_queue` to attempt

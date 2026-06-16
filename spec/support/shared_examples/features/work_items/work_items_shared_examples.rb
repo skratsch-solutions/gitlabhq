@@ -650,18 +650,18 @@ RSpec.shared_examples 'work items weight' do
   it 'updates and clears a weight', :aggregate_failures do
     within_testid 'work-item-weight' do
       click_button 'Edit'
-      send_keys(3, :enter)
+      find_field('weight-widget-input').native.send_keys(3, :enter)
 
       expect(page).to have_text(3)
 
       click_button 'Edit'
-      send_keys(:backspace, 0, :enter)
+      find_field('weight-widget-input').native.send_keys(:backspace, 0, :enter)
 
       expect(page).to have_text(0)
       expect(page).not_to have_text('None')
 
       click_button 'Edit'
-      send_keys(:backspace, :enter)
+      find_field('weight-widget-input').native.send_keys(:backspace, :enter)
 
       expect(page).to have_text('None')
     end

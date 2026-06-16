@@ -1010,6 +1010,60 @@ BEGIN
 END;
 $$;
 
+CREATE FUNCTION merge_request_diffs_sync_bytea_sha_on_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW.base_commit_sha IS NOT NULL THEN
+  NEW.base_commit_sha_bytea := decode(NEW.base_commit_sha, 'hex');
+ELSIF NEW.base_commit_sha_bytea IS NOT NULL THEN
+  NEW.base_commit_sha := encode(NEW.base_commit_sha_bytea, 'hex');
+END IF;
+
+IF NEW.start_commit_sha IS NOT NULL THEN
+  NEW.start_commit_sha_bytea := decode(NEW.start_commit_sha, 'hex');
+ELSIF NEW.start_commit_sha_bytea IS NOT NULL THEN
+  NEW.start_commit_sha := encode(NEW.start_commit_sha_bytea, 'hex');
+END IF;
+
+IF NEW.head_commit_sha IS NOT NULL THEN
+  NEW.head_commit_sha_bytea := decode(NEW.head_commit_sha, 'hex');
+ELSIF NEW.head_commit_sha_bytea IS NOT NULL THEN
+  NEW.head_commit_sha := encode(NEW.head_commit_sha_bytea, 'hex');
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
+CREATE FUNCTION merge_request_diffs_sync_bytea_sha_on_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW.base_commit_sha IS DISTINCT FROM OLD.base_commit_sha THEN
+  NEW.base_commit_sha_bytea := decode(NEW.base_commit_sha, 'hex');
+ELSIF NEW.base_commit_sha_bytea IS DISTINCT FROM OLD.base_commit_sha_bytea THEN
+  NEW.base_commit_sha := encode(NEW.base_commit_sha_bytea, 'hex');
+END IF;
+
+IF NEW.start_commit_sha IS DISTINCT FROM OLD.start_commit_sha THEN
+  NEW.start_commit_sha_bytea := decode(NEW.start_commit_sha, 'hex');
+ELSIF NEW.start_commit_sha_bytea IS DISTINCT FROM OLD.start_commit_sha_bytea THEN
+  NEW.start_commit_sha := encode(NEW.start_commit_sha_bytea, 'hex');
+END IF;
+
+IF NEW.head_commit_sha IS DISTINCT FROM OLD.head_commit_sha THEN
+  NEW.head_commit_sha_bytea := decode(NEW.head_commit_sha, 'hex');
+ELSIF NEW.head_commit_sha_bytea IS DISTINCT FROM OLD.head_commit_sha_bytea THEN
+  NEW.head_commit_sha := encode(NEW.head_commit_sha_bytea, 'hex');
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION next_traversal_ids_sibling(traversal_ids bigint[]) RETURNS bigint[]
     LANGUAGE plpgsql IMMUTABLE STRICT
     AS $$
@@ -24023,6 +24077,9 @@ CREATE TABLE merge_request_diffs (
     diff_type smallint DEFAULT 1 NOT NULL,
     patch_id_sha bytea,
     project_id bigint,
+    base_commit_sha_bytea bytea,
+    start_commit_sha_bytea bytea,
+    head_commit_sha_bytea bytea,
     CONSTRAINT check_11c5f029ad CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_93ee616ac9 CHECK ((external_diff_store IS NOT NULL))
 );
@@ -56097,6 +56154,10 @@ CREATE TRIGGER issues_loose_fk_trigger AFTER DELETE ON issues REFERENCING OLD TA
 CREATE TRIGGER lfs_objects_loose_fk_trigger AFTER DELETE ON lfs_objects REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records();
 
 CREATE TRIGGER merge_request_diffs_loose_fk_trigger AFTER DELETE ON merge_request_diffs REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records();
+
+CREATE TRIGGER merge_request_diffs_sync_bytea_sha_on_insert BEFORE INSERT ON merge_request_diffs FOR EACH ROW EXECUTE FUNCTION merge_request_diffs_sync_bytea_sha_on_insert();
+
+CREATE TRIGGER merge_request_diffs_sync_bytea_sha_on_update BEFORE UPDATE OF base_commit_sha, base_commit_sha_bytea, start_commit_sha, start_commit_sha_bytea, head_commit_sha, head_commit_sha_bytea ON merge_request_diffs FOR EACH ROW EXECUTE FUNCTION merge_request_diffs_sync_bytea_sha_on_update();
 
 CREATE TRIGGER merge_requests_loose_fk_trigger AFTER DELETE ON merge_requests REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records();
 
