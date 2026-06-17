@@ -1528,6 +1528,15 @@ paths:
           type: integer
         in: path
         example: 1
+      - name: full
+        required: false
+        description: Include internal channels (conversation history, handover, etc).
+          Restricted to the workflow owner; non-owners receive a 403.
+        schema:
+          type: boolean
+          nullable: true
+        in: query
+        example: false
       x-gitlab-lifecycle: experiment
   "/api/v4/ai/duo_workflows/workflows":
     post:

@@ -19,7 +19,13 @@ default:
   timeout: 90m
   interruptible: true
 
+# per-test-coverage:trigger merges this jest child config and the rspec
+# child config into one pipeline. A later include's `stages:` replaces
+# earlier ones wholesale rather than unioning, so both templates must list
+# the same stages or the other suite's jobs reference a stage that does not
+# exist and the whole child fails to create with zero jobs.
 stages:
+  - test
   - test-frontend
 
 workflow:

@@ -2,6 +2,10 @@
 #   scripts/lint/unused_methods.rb, however subsequent research shows
 #   them to be false positives, and should be ignored when running that script.
 #
+ee/app/models/cloud_connector/keys.rb:
+  - create_new_key!: Called from ee/lib/tasks/cloud_connector/keys.rake (cloud_connector:keys:create task)
+  - trim!: Called from ee/lib/tasks/cloud_connector/keys.rake (cloud_connector:keys:trim task)
+  - truncated_pem: Called from ee/lib/tasks/cloud_connector/keys.rake (cloud_connector:keys:list and create tasks)
 ee/app/helpers/secrets_management/enrollment_helper.rb:
   - allow_secrets_manager_namespace_enrollment?: Called from HAML views and controllers via EE::ApplicationHelper
   - allow_secrets_manager_instance_enrollment?: Called from HAML views and controllers via EE::ApplicationHelper

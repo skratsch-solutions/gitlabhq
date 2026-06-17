@@ -7,7 +7,6 @@ documentation_link: "../../../user/application_security/secret_detection/pipelin
 work_item: https://gitlab.com/gitlab-org/gitlab/-/work_items/588910
 categories: [ Secret Detection ]
 level: primary
-ignore_in_report: true
 ---
 
 <!-- categories: Secret Detection -->

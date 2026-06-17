@@ -62,8 +62,7 @@ Prerequisites:
 
 ### Mention Duo Developer in a discussion
 
-To turn your comment into an actionable task for the Developer Flow, mention it with `@duo-developer-<namespace>`
-in a discussion. Replace `<namespace>` with your GitLab namespace path (for example, `gitlab-org`).
+To turn your comment into an actionable task for the Developer Flow, mention `@duo-developer-<namespace>` in a comment. Replace `<namespace>` with your GitLab namespace path (for example, `gitlab-org`).
 
 Depending on the issue or merge request content and the amount of context you provide, the flow can execute the following tasks:
 

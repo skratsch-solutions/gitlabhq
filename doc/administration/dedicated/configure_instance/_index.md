@@ -30,14 +30,6 @@ GitLab Dedicated engineers do not have direct access to your environment, except
 
 You can use Switchboard to make limited configuration changes to your GitLab Dedicated instance.
 
-The following configuration settings are available in Switchboard:
-
-- [IP allowlist](network_security.md#ip-allowlist)
-- [SAML settings](authentication/saml.md)
-- [Custom certificate authorities](network_security.md#custom-certificate-authorities-for-external-services)
-- [Outbound PrivateLink connections](network_security.md#outbound-privatelink-connections)
-- [Private hosted zones](network_security.md#private-hosted-zones)
-
 Prerequisites:
 
 - You must have the [Admin](users_notifications.md#add-switchboard-users) role.

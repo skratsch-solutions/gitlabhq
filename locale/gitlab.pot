@@ -61088,6 +61088,9 @@ msgstr ""
 msgid "ReleaseAssetLinkType|Runbooks"
 msgstr ""
 
+msgid "ReleaseCreation|A human-readable label. The release identity is the set of service versions below, not this string."
+msgstr ""
+
 msgid "ReleaseCreation|A release is a set of service versions — pick a version for each service. Any built version is eligible, whether or not it's deployed anywhere yet. Where it gets deployed is a separate step taken after the release exists. The release's identity is derived from its set of service versions."
 msgstr ""
 
@@ -61097,7 +61100,16 @@ msgstr ""
 msgid "ReleaseCreation|Bundle new release"
 msgstr ""
 
+msgid "ReleaseCreation|Description"
+msgstr ""
+
+msgid "ReleaseCreation|Description cannot exceed %{maxLength} characters."
+msgstr ""
+
 msgid "ReleaseCreation|Release"
+msgstr ""
+
+msgid "ReleaseCreation|e.g. May production release"
 msgstr ""
 
 msgid "Released"
@@ -61653,6 +61665,9 @@ msgid "ReportAbuse|Add another link"
 msgstr ""
 
 msgid "ReportAbuse|Link to spam"
+msgstr ""
+
+msgid "ReportAbuse|Remove link"
 msgstr ""
 
 msgid "ReportAbuse|Report abuse"

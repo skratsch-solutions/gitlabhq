@@ -5,10 +5,6 @@
 # If it turns out that a method you are attempting to remove is in fact in use,
 #   remove it from this file and add it to `excluded_methods.yml`.
 #
-ee/app/models/cloud_connector/keys.rb:
-  - create_new_key!
-  - trim!
-  - truncated_pem
 ee/app/models/concerns/geo/verifiable_replicator.rb:
   - secondary_checksum
 ee/app/models/concerns/product_analytics_helpers.rb:
@@ -37,8 +33,6 @@ ee/app/models/ee/group.rb:
   - human_ldap_access
   - seat_overage?
   - count_within_namespaces
-ee/app/models/ee/group_member.rb:
-  - provisioned_by_this_group?
 ee/app/models/ee/namespace.rb:
   - old_path_with_namespace_for
   - default_plan?

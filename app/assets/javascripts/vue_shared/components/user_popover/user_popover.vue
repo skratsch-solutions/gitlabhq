@@ -77,6 +77,7 @@ export default {
       default: '',
     },
   },
+  emits: ['follow', 'unfollow'],
   data() {
     return {
       toggleFollowLoading: false,

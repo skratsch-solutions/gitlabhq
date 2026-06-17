@@ -48566,6 +48566,8 @@ CREATE UNIQUE INDEX index_labels_on_group_id_and_title_varchar_unique ON labels 
 
 CREATE INDEX index_labels_on_organization_id ON labels USING btree (organization_id);
 
+CREATE UNIQUE INDEX index_labels_on_organization_id_and_title_varchar_unique ON labels USING btree (organization_id, title varchar_pattern_ops) WHERE (organization_id IS NOT NULL);
+
 CREATE INDEX index_labels_on_project_id ON labels USING btree (project_id);
 
 CREATE UNIQUE INDEX index_labels_on_project_id_and_title_varchar_unique ON labels USING btree (project_id, title varchar_pattern_ops) WHERE (group_id IS NULL);

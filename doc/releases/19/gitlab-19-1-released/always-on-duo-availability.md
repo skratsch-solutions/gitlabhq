@@ -7,7 +7,6 @@ documentation_link: "../../../user/gitlab_duo/turn_on_off/#lock-gitlab-duo-on-fo
 work_item: https://gitlab.com/groups/gitlab-org/-/work_items/22382
 categories: [ AI Abstraction Layer ]
 level: primary
-ignore_in_report: true
 ---
 
 <!-- categories: AI Abstraction Layer -->

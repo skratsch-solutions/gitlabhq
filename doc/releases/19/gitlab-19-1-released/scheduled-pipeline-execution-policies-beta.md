@@ -8,7 +8,6 @@ work_item: "https://gitlab.com/groups/gitlab-org/-/work_items/17875"
 categories: [ Security Policy Management ]
 level: secondary
 weight: 50
-ignore_in_report: true
 ---
 
 <!-- categories: Security Policy Management -->

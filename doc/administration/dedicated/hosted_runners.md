@@ -187,8 +187,7 @@ Two outbound PrivateLink connections exist by default for all runners in the Git
 These connections are pre-configured and cannot be modified. The tenant's Prometheus instance is managed by GitLab and is not accessible to users.
 
 To use an outbound PrivateLink connection with other VPC services for hosted runners,
-[manual configuration is required with a support request](configure_instance/network_security.md#add-an-outbound-privatelink-connection).
-For more information, see [outbound PrivateLink connections](configure_instance/network_security.md#outbound-privatelink-connections).
+[manual configuration is required with a support request](configure_instance/network_security.md#configure-outbound-privatelink-connections-with-a-support-request).
 
 ### IP ranges
 

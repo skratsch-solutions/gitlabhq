@@ -15,6 +15,7 @@ require_relative 'env'
 require_relative 'graphql_client'
 require_relative 'workspace'
 require_relative 'sync/diff'
+require_relative 'sync/links'
 require_relative 'sync/workflow'
 require_relative 'sync/auto_mr'
 require_relative 'sync/manifest'
@@ -255,9 +256,29 @@ module Gitlab
       def assemble_distilled_body(updated, config, name, header)
         note = manifest.prerequisite_note(name)
 
+        updated = absolutize_links(updated, config, name)
         updated = "#{header}#{updated}" unless updated.start_with?('<!-- Auto-generated')
         updated = updated.sub(/^(<!-- Auto-generated.*-->)\n\n*/, "\\1\n\n#{note}") if note
         "#{updated.rstrip}\n\n#{manifest.sources_footer(config)}"
+      end
+
+      # Rewrites source-relative Markdown links to absolute docs.gitlab.com URLs.
+      # The agent copies links verbatim from the SSOT docs, where they resolve
+      # correctly; from `.ai/principles/distilled/` the relative base differs, so
+      # we resolve each link against its source directory and emit the canonical
+      # published URL instead. Unresolved relatives are left intact and logged.
+      def absolutize_links(updated, config, name)
+        exist = ->(repo_path) { File.exist?(Workspace.safe_join(repo_path)) }
+        warn_unresolved = ->(rel_path) do
+          warn Rainbow("  WARNING: #{name}: could not absolutize relative link #{rel_path}").yellow
+        end
+
+        Links.absolutize(
+          updated,
+          sources: config.fetch('sources', []),
+          exist: exist,
+          warn_unresolved: warn_unresolved
+        )
       end
 
       # `mutex` serialises log output and writes to `results`.

@@ -408,6 +408,103 @@ module Gitlab
           mrs.first&.fetch('iid', nil)
         end
 
+        # The MR author's user ID (the service account whose token we use),
+        # memoized for the run. Used as the assignee so Danger's "no assignee"
+        # warning doesn't fire. Returns nil on any failure (best-effort).
+        #
+        # Memoize with `defined?` (not `||=`) so a nil result (any failure
+        # path) is cached too; otherwise every team in a fan-out run would
+        # re-issue the failed lookup. The ivar lives on the Sync instance this
+        # module is mixed into, matching the existing run-scoped memos here.
+        # rubocop:disable Gitlab/ModuleWithInstanceVariables -- run-scoped memo on the host Sync instance
+        def mr_assignee_id(api_token)
+          return @mr_assignee_id if defined?(@mr_assignee_id)
+
+          @mr_assignee_id = fetch_current_user_id(api_token)
+        end
+
+        def fetch_current_user_id(api_token)
+          uri = URI("#{workflow.gitlab_host}/api/v4/user")
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = uri.scheme == 'https'
+          http.read_timeout = 60
+          request = Net::HTTP::Get.new(uri)
+          request['PRIVATE-TOKEN'] = api_token
+          response = http.request(request)
+          unless response.is_a?(Net::HTTPSuccess)
+            warn Rainbow("WARNING: could not resolve current user for assignee (#{response.code}); " \
+              'leaving MR unassigned').yellow
+            return nil
+          end
+
+          JSON.parse(response.body)['id']
+        rescue StandardError => e
+          warn Rainbow("WARNING: could not resolve current user for assignee (#{e.message}); " \
+            'leaving MR unassigned').yellow
+          nil
+        end
+
+        # The numeric ID of the milestone matching the repo's in-development
+        # version (read from the root `VERSION` file, e.g. `19.1.0-pre` ->
+        # `19.1`), looked up among the project's milestones (including
+        # ancestor-group milestones). Memoized for the run. Returns nil when
+        # VERSION is unreadable or no milestone matches (best-effort: the MR
+        # is created without a milestone).
+        def current_milestone_id(encoded_project, api_token)
+          return @current_milestone_id if defined?(@current_milestone_id)
+
+          title = version_milestone_title
+          @current_milestone_id = title && lookup_milestone_id(encoded_project, api_token, title)
+        end
+        # rubocop:enable Gitlab/ModuleWithInstanceVariables
+
+        # Reads the root VERSION file and returns its MAJOR.MINOR (e.g.
+        # `19.1.0-pre` -> `19.1`), or nil if it cannot be read or parsed.
+        def version_milestone_title
+          raw = File.read(Workspace.safe_join('VERSION')).strip
+          major_minor = raw.split('.').first(2).join('.')
+          /\A\d+\.\d+\z/.match?(major_minor) ? major_minor : nil
+        rescue StandardError => e
+          warn Rainbow("WARNING: could not read VERSION for milestone (#{e.message}); " \
+            'leaving MR without a milestone').yellow
+          nil
+        end
+
+        # Resolves a milestone title to its ID. Checks project milestones
+        # first (includes ancestor-group milestones via include_ancestors),
+        # so it works whether the milestone is defined on the project or its
+        # group. Returns nil when no active milestone matches the title.
+        def lookup_milestone_id(encoded_project, api_token, title)
+          uri = URI("#{workflow.gitlab_host}/api/v4/projects/#{encoded_project}/milestones")
+          uri.query = URI.encode_www_form(title: title, include_ancestors: true)
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = uri.scheme == 'https'
+          http.read_timeout = 60
+          request = Net::HTTP::Get.new(uri)
+          request['PRIVATE-TOKEN'] = api_token
+          response = http.request(request)
+          unless response.is_a?(Net::HTTPSuccess)
+            warn Rainbow("WARNING: milestone lookup for #{title} failed (#{response.code}); " \
+              'leaving MR without a milestone').yellow
+            return nil
+          end
+
+          milestone = JSON.parse(response.body).find { |m| m['title'] == title }
+          unless milestone
+            warn Rainbow("WARNING: no milestone titled #{title}; leaving MR without a milestone").yellow
+            return nil
+          end
+
+          milestone['id']
+        rescue StandardError => e
+          # A 2xx-but-non-JSON body (e.g. an HTML proxy/error page) would raise
+          # JSON::ParserError here; keep milestone lookup best-effort so it
+          # never fails the whole team's MR.
+          warn Rainbow("WARNING: milestone lookup for #{title} failed (#{e.message}); " \
+            'leaving MR without a milestone').yellow
+          nil
+        end
+
         # Returns the plain HTTPS push URL with no embedded credentials.
         # Authentication is supplied separately via `git_push_env`, which
         # injects an `Authorization: Bearer` header through `GIT_CONFIG_*`
@@ -577,6 +674,14 @@ module Gitlab
             labels: Array(auto_mr_cfg['labels']).join(','),
             remove_source_branch: auto_mr_cfg.fetch('remove_source_branch', true)
           }
+          # Assign the MR to its author (the service account) and tag the
+          # current milestone so Danger's "no assignee" / "no milestone"
+          # warnings don't fire on every weekly auto-MR. Both are best-effort:
+          # a lookup failure logs and omits the field rather than aborting.
+          assignee_id = mr_assignee_id(api_token)
+          body[:assignee_id] = assignee_id if assignee_id
+          milestone_id = current_milestone_id(encoded_project, api_token)
+          body[:milestone_id] = milestone_id if milestone_id
 
           host = workflow.gitlab_host
           if existing_mr_iid

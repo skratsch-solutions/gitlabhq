@@ -287,7 +287,6 @@ values unless a note must absolutely appear first.
 | `stage`              | string                                                                                                 | Name of the stage that created the feature. Used to [organize](#organization) the section the release note appears in. |
 | `level`              | One of: `primary` or `secondary`                                                                       | Optional. Controls placement in the `Primary features` section. If undefined, defaults to `secondary`. |
 | `weight`             | number                                                                                                 | Optional. Controls ordering in each [section](#organization). Lower numbers go first. To force a feature release note first in a section, use a lower number such as 10. To avoid sorting issues with other feature release notes, avoid using single-digit numbers unless the note must absolutely appear first. |
-| `ignore_in_report`   | boolean                                                                                                | Required to be `true` by internal tooling. Has no impact on rendering the feature release note. |
 
 ## Templates
 
@@ -324,7 +323,6 @@ work_item: https://gitlab.com/groups/gitlab-org/-/work_items/<work-item-number>
 categories: [ System Access, Permissions ]
 level: primary or secondary
 weight: 50
-ignore_in_report: true
 ---
 
 <!-- categories: System Access, Permissions -->

@@ -262,6 +262,179 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
     end
   end
 
+  describe '.mr_assignee_id' do
+    subject(:assignee_id) { sync.send(:mr_assignee_id, 'api-token') }
+
+    let(:fake_response) { instance_double(Net::HTTPResponse, code: '200', body: response_body) }
+    let(:http_instance) { instance_double(Net::HTTP) }
+    let(:captured_request) { [] }
+
+    before do
+      allow(sync.workflow).to receive(:gitlab_host).and_return('https://gitlab.com')
+      allow(Net::HTTP).to receive(:new).and_return(http_instance)
+      allow(http_instance).to receive(:use_ssl=)
+      allow(http_instance).to receive(:read_timeout=)
+      allow(http_instance).to receive(:request) do |request|
+        captured_request << request
+        fake_response
+      end
+      allow(fake_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(http_success)
+    end
+
+    context 'when GET /user succeeds' do
+      let(:http_success) { true }
+      let(:response_body) { '{"id":4242,"username":"service-account"}' }
+
+      it 'returns the current user id', :aggregate_failures do
+        expect(assignee_id).to eq(4242)
+        expect(captured_request.first.uri.to_s).to eq('https://gitlab.com/api/v4/user')
+        expect(captured_request.first['PRIVATE-TOKEN']).to eq('api-token')
+      end
+    end
+
+    context 'when GET /user fails' do
+      let(:http_success) { false }
+      let(:response_body) { 'Too Many Requests' }
+
+      it 'returns nil so the MR is created unassigned' do
+        expect(assignee_id).to be_nil
+      end
+
+      it 'memoizes the nil result so a fan-out run does not re-query', :aggregate_failures do
+        2.times { sync.send(:mr_assignee_id, 'api-token') }
+
+        expect(captured_request.size).to eq(1)
+      end
+    end
+  end
+
+  describe '.version_milestone_title' do
+    subject(:title) { sync.send(:version_milestone_title) }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+    end
+
+    context 'when VERSION holds a pre-release version' do
+      before do
+        File.write(File.join(tmpdir, 'VERSION'), "19.1.0-pre\n")
+      end
+
+      it 'returns MAJOR.MINOR' do
+        expect(title).to eq('19.1')
+      end
+    end
+
+    context 'when VERSION holds a plain version' do
+      before do
+        File.write(File.join(tmpdir, 'VERSION'), "20.10.3\n")
+      end
+
+      it 'returns MAJOR.MINOR' do
+        expect(title).to eq('20.10')
+      end
+    end
+
+    context 'when VERSION is missing' do
+      it 'returns nil' do
+        expect(title).to be_nil
+      end
+    end
+
+    context 'when VERSION is malformed' do
+      before do
+        File.write(File.join(tmpdir, 'VERSION'), "not-a-version\n")
+      end
+
+      it 'returns nil' do
+        expect(title).to be_nil
+      end
+    end
+  end
+
+  describe '.current_milestone_id' do
+    subject(:milestone_id) do
+      sync.send(:current_milestone_id, 'gitlab-org%2Fgitlab', 'api-token')
+    end
+
+    let(:fake_response) { instance_double(Net::HTTPResponse, code: '200', body: response_body) }
+    let(:http_instance) { instance_double(Net::HTTP) }
+    let(:captured_request) { [] }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      File.write(File.join(tmpdir, 'VERSION'), "19.1.0-pre\n")
+      allow(sync.workflow).to receive(:gitlab_host).and_return('https://gitlab.com')
+      allow(Net::HTTP).to receive(:new).and_return(http_instance)
+      allow(http_instance).to receive(:use_ssl=)
+      allow(http_instance).to receive(:read_timeout=)
+      allow(http_instance).to receive(:request) do |request|
+        captured_request << request
+        fake_response
+      end
+      allow(fake_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(http_success)
+    end
+
+    context 'when a milestone matches the VERSION title' do
+      let(:http_success) { true }
+      let(:response_body) { '[{"id":6177882,"title":"19.1","state":"active"}]' }
+
+      it 'returns the milestone id and queries with include_ancestors', :aggregate_failures do
+        expect(milestone_id).to eq(6177882)
+        query = captured_request.first.uri.query
+        expect(query).to include('title=19.1')
+        expect(query).to include('include_ancestors=true')
+      end
+    end
+
+    context 'when no milestone matches the title' do
+      let(:http_success) { true }
+      let(:response_body) { '[{"id":1,"title":"18.0"}]' }
+
+      it 'returns nil so the MR is created without a milestone' do
+        expect(milestone_id).to be_nil
+      end
+
+      it 'memoizes the nil result so a fan-out run does not re-query', :aggregate_failures do
+        2.times { sync.send(:current_milestone_id, 'gitlab-org%2Fgitlab', 'api-token') }
+
+        expect(captured_request.size).to eq(1)
+      end
+    end
+
+    context 'when the API returns a 2xx non-JSON response' do
+      let(:http_success) { true }
+      let(:response_body) { '<html>not json</html>' }
+
+      it 'returns nil so the MR is created without a milestone' do
+        expect(milestone_id).to be_nil
+      end
+    end
+
+    context 'when the milestone lookup fails' do
+      let(:http_success) { false }
+      let(:response_body) { 'Forbidden' }
+
+      it 'returns nil' do
+        expect(milestone_id).to be_nil
+      end
+    end
+
+    context 'when VERSION is missing' do
+      let(:http_success) { true }
+      let(:response_body) { '[]' }
+
+      before do
+        FileUtils.rm_f(File.join(tmpdir, 'VERSION'))
+      end
+
+      it 'returns nil without attempting a milestone lookup', :aggregate_failures do
+        expect(milestone_id).to be_nil
+        expect(captured_request).to be_empty
+      end
+    end
+  end
+
   describe '.prefetch_prior_shas!' do
     # prefetch_prior_shas! is private; reach it via send. We stub
     # `sha_present_locally?` and `system` to avoid touching real git.
@@ -526,6 +699,32 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       create_branch_and_mr
 
       expect(sync.workflow).to have_received(:post_json).twice
+    end
+
+    context 'when the assignee and milestone lookups succeed' do
+      before do
+        allow(sync).to receive_messages(mr_assignee_id: 4242, current_milestone_id: 6177882)
+      end
+
+      it 'sets assignee_id and milestone_id on the MR body', :aggregate_failures do
+        body = capture_post_body
+
+        expect(body[:assignee_id]).to eq(4242)
+        expect(body[:milestone_id]).to eq(6177882)
+      end
+    end
+
+    context 'when the assignee and milestone lookups fail' do
+      before do
+        allow(sync).to receive_messages(mr_assignee_id: nil, current_milestone_id: nil)
+      end
+
+      it 'omits assignee_id and milestone_id so MR creation still proceeds', :aggregate_failures do
+        body = capture_post_body
+
+        expect(body).not_to have_key(:assignee_id)
+        expect(body).not_to have_key(:milestone_id)
+      end
     end
 
     context 'with principles spanning multiple teams' do
