@@ -97,7 +97,7 @@ export default {
     'app/assets/javascripts/analytics/analytics_dashboards/components/visualizations/utils.js',
     'ee/app/assets/javascripts/analytics/analytics_dashboards/data_sources/cube_analytics.js',
     'ee/app/assets/javascripts/analytics/dashboards/components/stories_constants.js',
-    'ee/app/assets/javascripts/analytics/dashboards/constants.js',
+    'app/assets/javascripts/analytics/dashboards/constants.js',
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/constants.js',
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/utils/helpers.js',
     'ee/app/assets/javascripts/analytics/productivity_analytics/utils.js',

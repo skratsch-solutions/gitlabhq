@@ -31,7 +31,10 @@ module Organizations
         Group.transaction do
           groups.each_slice(BATCH_SIZE) do |batch|
             batch_ids = batch.map(&:id)
-            Group.id_in(batch_ids).update_all(organization_id: new_organization.id)
+            Group.id_in(batch_ids).update_all(
+              organization_id: new_organization.id,
+              visibility_level: clamped_visibility_sql
+            )
             transferred_ids.concat(batch_ids)
           end
         end
@@ -83,6 +86,24 @@ module Organizations
 
       def group_is_root?(group)
         group.root?
+      end
+
+      def clamped_visibility_sql
+        if new_organization.visibility_level == Gitlab::VisibilityLevel::PRIVATE
+          Arel.sql(
+            ActiveRecord::Base.sanitize_sql([
+              'CASE WHEN visibility_level = ? THEN ? ELSE visibility_level END',
+              Gitlab::VisibilityLevel::PUBLIC,
+              Gitlab::VisibilityLevel::PRIVATE
+            ])
+          )
+        else
+          Arel.sql(
+            ActiveRecord::Base.sanitize_sql(
+              ['LEAST(?, visibility_level)', new_organization.visibility_level]
+            )
+          )
+        end
       end
 
       def group_not_root_error

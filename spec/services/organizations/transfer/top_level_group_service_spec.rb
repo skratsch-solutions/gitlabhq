@@ -72,6 +72,86 @@ RSpec.describe Organizations::Transfer::TopLevelGroupService, :aggregate_failure
         service.execute
       end
 
+      context 'when new organization has lower visibility than group' do
+        let_it_be(:private_organization) do
+          create(:organization, visibility_level: Gitlab::VisibilityLevel::PRIVATE)
+        end
+
+        let_it_be_with_refind(:public_group) do
+          create(:group, :public, organization: old_organization, owners: user)
+        end
+
+        let_it_be_with_refind(:internal_group) do
+          create(:group, :internal, organization: old_organization, owners: user)
+        end
+
+        let_it_be_with_refind(:private_group) do
+          create(:group, :private, organization: old_organization, owners: user)
+        end
+
+        let(:groups_param) { [public_group, internal_group, private_group] }
+        let(:organization_param) { private_organization }
+
+        before_all do
+          private_organization.add_owner(user)
+        end
+
+        it 'clamps public groups to private but keeps internal groups as internal' do
+          result = service.execute
+
+          expect(result).to be_success
+          expect(public_group.reload.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
+          expect(internal_group.reload.visibility_level).to eq(Gitlab::VisibilityLevel::INTERNAL)
+          expect(private_group.reload.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
+        end
+      end
+
+      context 'when new organization is public' do
+        let_it_be(:public_organization) do
+          create(:organization, visibility_level: Gitlab::VisibilityLevel::PUBLIC)
+        end
+
+        let_it_be_with_refind(:private_group_for_public_org) do
+          create(:group, :private, organization: old_organization, owners: user)
+        end
+
+        let_it_be_with_refind(:internal_group_for_public_org) do
+          create(:group, :internal, organization: old_organization, owners: user)
+        end
+
+        let_it_be_with_refind(:public_group_for_public_org) do
+          create(:group, :public, organization: old_organization, owners: user)
+        end
+
+        let(:groups_param) do
+          [private_group_for_public_org, internal_group_for_public_org, public_group_for_public_org]
+        end
+
+        let(:organization_param) { public_organization }
+
+        before_all do
+          public_organization.add_owner(user)
+        end
+
+        it 'preserves visibility for all groups' do
+          result = service.execute
+
+          expect(result).to be_success
+          expect(private_group_for_public_org.reload.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
+          expect(internal_group_for_public_org.reload.visibility_level).to eq(Gitlab::VisibilityLevel::INTERNAL)
+          expect(public_group_for_public_org.reload.visibility_level).to eq(Gitlab::VisibilityLevel::PUBLIC)
+        end
+      end
+
+      describe 'visibility clamping assumptions' do
+        it 'assumes organizations can only be public or private' do
+          internal_org = build(:organization, visibility_level: Gitlab::VisibilityLevel::INTERNAL)
+
+          expect(internal_org).not_to be_valid
+          expect(internal_org.errors[:visibility_level]).to include(_("must be private or public"))
+        end
+      end
+
       context 'with multiple groups' do
         let_it_be_with_refind(:group2) { create(:group, organization: old_organization) }
         let_it_be_with_refind(:group3) { create(:group, organization: old_organization) }

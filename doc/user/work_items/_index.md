@@ -147,12 +147,13 @@ Sort the list of work items by the following:
 
 To change the sorting criteria:
 
-- On the right of the filter bar, select the **Created date** dropdown list.
+1. On the right of the filter bar, select **Display** ({{< icon name="preferences" >}}) to open the display preferences drawer.
+1. At the top of the drawer, select the **Sort by** dropdown list.
 
-To toggle the sorting order between ascending and descending:
+To change the sort order between ascending and descending:
 
-- On the right of the filter bar, select **Sort direction** ({{< icon name="sort-lowest" >}}
-  or {{< icon name="sort-highest" >}}).
+1. On the right of the filter bar, select **Display** ({{< icon name="preferences" >}}) to open the display preferences drawer.
+1. At the top of the drawer, next to the **Sort by** dropdown list, select **Sort direction** ({{< icon name="sort-lowest" >}} or {{< icon name="sort-highest" >}}).
 
 For more information about sorting logic, see
 [sorting and ordering issue lists](../project/issues/sorting_issue_lists.md).
@@ -181,7 +182,7 @@ To configure display preferences:
 
 1. In the top bar, select **Search or go to** and find your group.
 1. In the left sidebar, select **Plan** > **Work items**.
-1. On the right of the filter bar, select **Display options** ({{< icon name="preferences" >}}).
+1. On the right of the filter bar, select **Display** ({{< icon name="preferences" >}}) to open the display preferences drawer.
 1. Under **Fields**, turn on or turn off the metadata you want to display:
    - Status (for issues)
    - Assignee
@@ -194,8 +195,11 @@ To configure display preferences:
    - Blocked/Blocking: Blocking relationship indicators
    - Comments: Comment counts
    - Popularity: Popularity metrics
+
+   Fields you turn on appear under **Shown**. Fields you turn off appear under **Hidden**.
+1. Optional. To search for a specific field, use the **Search fields** input.
 1. Under **Your preferences**, turn on or turn off **Open items in side panel** to choose how
-   epics open when you select them:
+   work items open when you select them:
    - On (default): Items open in a drawer on the right side of the screen.
    - Off: Items open in a full page view.
 

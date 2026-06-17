@@ -147,6 +147,17 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
       execute_service
     end
 
+    it 'enqueues GroupMentionWorker with native JSON argument types' do
+      expect(Integrations::GroupMentionWorker).to receive(:perform_async) do |args|
+        # Sidekiq rejects job arguments that are not native JSON types (e.g. symbols or
+        # Time objects). `as_json` is idempotent only on fully JSON-native structures, so
+        # equality here proves the enqueued arguments contain no non-JSON types.
+        expect(args).to eq(args.as_json)
+      end
+
+      execute_service
+    end
+
     context 'when merge request is in unchecked state' do
       before do
         merge_request.mark_as_unchecked!

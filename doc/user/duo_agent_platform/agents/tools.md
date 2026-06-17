@@ -22,6 +22,7 @@ The following tools are available to custom agents.
 | Create Issue | `create_issue` | Create issues in a project. |
 | Create Issue Note | `create_issue_note` | Add notes to an issue. |
 | Create Merge Request | `create_merge_request` | Create merge requests in a project. |
+| Create Merge Request Diff Note | `create_merge_request_diff_note` | Add inline diff notes to a merge request. Quick actions are not supported. |
 | Create Merge Request Note | `create_merge_request_note` | Add notes to a merge request. Quick actions are not supported. |
 | Create Plan | `create_plan` | Create a list of tasks. |
 | Create Vulnerability Issue | `create_vulnerability_issue` | Create an issue linked to security vulnerabilities in a project. |

@@ -60,7 +60,7 @@ module MergeRequests
       args = {
         'mentionable_type' => 'MergeRequest',
         'mentionable_id' => merge_request.id,
-        'hook_data' => merge_data,
+        'hook_data' => merge_data.as_json, # ensure sidekiq-compatible (native JSON) hash argument
         'is_confidential' => false
       }
 

@@ -16,7 +16,7 @@ ALWAYS load Database principles regardless of which files you are editing.
 - **Database migration patterns and zero-downtime safety**: Read .ai/principles/distilled/database-migrations.md *(also load: .ai/principles/distilled/database-fundamentals.md)*
 - **Column types, constraints, indexes, naming conventions**: Read .ai/principles/distilled/database-schema.md *(also load: .ai/principles/distilled/database-fundamentals.md)*
 - **SQL performance, transactions, batching**: Read .ai/principles/distilled/database-queries.md *(also load: .ai/principles/distilled/database-fundamentals.md)*
-- **ClickHouse database concerns**: Read .ai/principles/distilled/clickhouse.md *(also load: .ai/principles/distilled/database-fundamentals.md)*
+- **ClickHouse and Siphon CDC concerns, including adding the matching column to the respective siphon_ ClickHouse table when adding a column to a Postgres table replicated by Siphon**: Read .ai/principles/distilled/clickhouse.md *(also load: .ai/principles/distilled/database-fundamentals.md)*
 
 **Cells:**
 - **Cells architecture sharding keys, organization data ownership, routable requests, and cell isolation when adding tables or customer-owned resources**: Read .ai/principles/distilled/cells-fundamentals.md *(load for any cells work)*

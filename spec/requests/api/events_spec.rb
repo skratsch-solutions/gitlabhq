@@ -63,6 +63,27 @@ RSpec.describe API::Events, feature_category: :user_profile do
       end
     end
 
+    context 'when authenticated with a token that has the ai_workflows scope' do
+      let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+      it 'returns users events' do
+        get api('/events?action=closed&target_type=issue&after=2016-12-1&before=2016-12-31',
+          oauth_access_token: oauth_token)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to include_pagination_headers
+        expect(json_response).to be_an Array
+        expect(json_response.size).to eq(1)
+      end
+
+      it 'returns "200" response on head request' do
+        head api('/events?action=closed&target_type=issue&after=2016-12-1&before=2016-12-31',
+          oauth_access_token: oauth_token)
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+
     context 'when the requesting token does not have "read_user" or "api" scope' do
       let(:token_without_scopes) { create(:personal_access_token, scopes: ['read_repository'], user: user) }
 
@@ -75,6 +96,16 @@ RSpec.describe API::Events, feature_category: :user_profile do
   end
 
   describe 'GET /users/:id/events' do
+    context 'when authenticated with a token that has the ai_workflows scope' do
+      let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+      it 'returns a "403" response' do
+        get api("/users/#{user.id}/events", oauth_access_token: oauth_token)
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
+
     context "as a user that cannot see another user" do
       it 'returns a "404" response' do
         allow(Ability).to receive(:allowed?).and_call_original

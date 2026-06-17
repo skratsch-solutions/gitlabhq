@@ -120,8 +120,8 @@ RSpec.describe Projects::MilestonesController, feature_category: :team_planning 
     end
 
     context "as json" do
-      let!(:group) { create(:group, :public) }
-      let!(:group_milestone) { create(:milestone, group: group) }
+      let_it_be(:group) { create(:group, :public) }
+      let_it_be(:group_milestone) { create(:milestone, group: group) }
 
       context 'with a single group ancestor' do
         before do
@@ -138,8 +138,8 @@ RSpec.describe Projects::MilestonesController, feature_category: :team_planning 
       end
 
       context 'with nested groups' do
-        let!(:subgroup) { create(:group, :public, parent: group) }
-        let!(:subgroup_milestone) { create(:milestone, group: subgroup) }
+        let_it_be(:subgroup) { create(:group, :public, parent: group) }
+        let_it_be(:subgroup_milestone) { create(:milestone, group: subgroup) }
 
         before do
           project.update!(namespace: subgroup)
@@ -372,8 +372,8 @@ RSpec.describe Projects::MilestonesController, feature_category: :team_planning 
     render_views
 
     context "when guest user" do
-      let(:issue_assignee) { create(:user) }
-      let(:guest_user) { create(:user) }
+      let_it_be(:issue_assignee) { create(:user) }
+      let_it_be(:guest_user) { create(:user) }
 
       before do
         project.add_guest(guest_user)

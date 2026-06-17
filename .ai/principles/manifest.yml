@@ -129,7 +129,7 @@ principles:
   # ── ClickHouse ────────────────────────────────────────────────────────────
 
   clickhouse:
-    description: ClickHouse database concerns
+    description: ClickHouse and Siphon CDC concerns, including adding the matching column to the siphon_ ClickHouse table when adding a column to a Postgres table replicated by Siphon
     group: Database
     owner_team: '@gitlab-org/maintainers/clickhouse'
     file_filters:
@@ -138,10 +138,15 @@ principles:
       - 'db/click_house/**/*'
       - 'ee/db/click_house/**/*'
       - 'lib/click_house/**/*.rb'
+      - 'db/migrate/**/*.rb'
+      - 'db/post_migrate/**/*.rb'
+      - 'ee/db/geo/migrate/**/*.rb'
     baseline: .ai/principles/baselines/clickhouse.md
     sources:
       - path: doc/development/database/clickhouse/reviewer_guidelines.md
         url: https://docs.gitlab.com/development/database/clickhouse/reviewer_guidelines/
+      - path: doc/development/database/clickhouse/clickhouse_within_gitlab.md
+        url: https://docs.gitlab.com/development/database/clickhouse/clickhouse_within_gitlab/
 
   # ── Cells ─────────────────────────────────────────────────────────────────
 

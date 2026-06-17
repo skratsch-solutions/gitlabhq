@@ -20,8 +20,8 @@ RSpec.describe Projects::UpdateRepositoryStorageService, feature_category: :sour
     end
 
     context 'without wiki and design repository' do
-      let!(:shard_source) { create(:shard, name: storage_source) }
-      let!(:shard_destination) { create(:shard, name: storage_destination) }
+      let_it_be(:shard_source) { create(:shard, name: 'default') }
+      let_it_be(:shard_destination) { create(:shard, name: 'test_second_storage') }
 
       let(:project) { create(:project, :repository, wiki_enabled: false) }
       let!(:checksum) { project.repository.checksum }

@@ -8,11 +8,16 @@ module API
     helpers ::API::Helpers::EventsHelpers
 
     allow_access_with_scope :read_user, if: ->(request) { request.get? || request.head? }
+    allow_access_with_scope :ai_workflows, if: ->(request) { request_current_user_events?(request) }
 
     before { set_current_organization }
 
     feature_category :user_profile
     urgency :low
+
+    def self.request_current_user_events?(request)
+      (request.get? || request.head?) && request.path.match?(%r{/api/v\d+/events$})
+    end
 
     resource :events do
       desc "List currently authenticated user's events" do

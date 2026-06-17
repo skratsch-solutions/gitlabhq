@@ -927,7 +927,6 @@ RSpec/FeatureCategory:
     - 'spec/graphql/types/alert_management/status_enum_spec.rb'
     - 'spec/graphql/types/availability_enum_spec.rb'
     - 'spec/graphql/types/award_emojis/award_emoji_type_spec.rb'
-    - 'spec/graphql/types/blob_viewer_type_spec.rb'
     - 'spec/graphql/types/blob_viewers/type_enum_spec.rb'
     - 'spec/graphql/types/board_type_spec.rb'
     - 'spec/graphql/types/ci/config/include_type_enum_spec.rb'
