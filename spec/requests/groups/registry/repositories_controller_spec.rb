@@ -20,7 +20,6 @@ RSpec.describe Groups::Registry::RepositoriesController, feature_category: :cont
       response
     end
 
-    it_behaves_like 'pushed feature flag', :container_registry_display_supported_platforms
     it { is_expected.to have_gitlab_http_status(:ok) }
 
     it 'avoids N+1 queries' do
@@ -52,7 +51,6 @@ RSpec.describe Groups::Registry::RepositoriesController, feature_category: :cont
       response
     end
 
-    it_behaves_like 'pushed feature flag', :container_registry_display_supported_platforms
     it { is_expected.to have_gitlab_http_status(:ok) }
   end
 end

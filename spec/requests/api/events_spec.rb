@@ -240,4 +240,63 @@ RSpec.describe API::Events, feature_category: :user_profile do
       expect(json_response['message']).to eq('404 User Not Found')
     end
   end
+
+  describe 'organization filtering' do
+    include StubCurrentOrganization
+
+    let_it_be(:organization) { create(:organization) }
+    let_it_be(:other_organization) { create(:organization) }
+
+    let_it_be(:org_user) { create(:user) }
+
+    let_it_be(:org_project) do
+      create(:project, :public, organization: organization, creator: org_user).tap do |project|
+        project.add_developer(org_user)
+      end
+    end
+
+    let_it_be(:other_org_project) do
+      create(:project, :public, organization: other_organization, creator: org_user).tap do |project|
+        project.add_developer(org_user)
+      end
+    end
+
+    let_it_be(:org_event) do
+      create(:event, :created, project: org_project, author: org_user)
+    end
+
+    let_it_be(:other_org_event) do
+      create(:event, :created, project: other_org_project, author: org_user)
+    end
+
+    before do
+      stub_current_organization(organization)
+    end
+
+    describe 'GET /events' do
+      context 'when current organization is set' do
+        it 'returns only events from the current organization' do
+          get api('/events', org_user)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          event_ids = json_response.pluck('id')
+          expect(event_ids).to include(org_event.id)
+          expect(event_ids).not_to include(other_org_event.id)
+        end
+      end
+    end
+
+    describe 'GET /users/:id/events' do
+      context 'when current organization is set' do
+        it 'returns only events from the current organization' do
+          get api("/users/#{org_user.id}/events", org_user)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          event_ids = json_response.pluck('id')
+          expect(event_ids).to include(org_event.id)
+          expect(event_ids).not_to include(other_org_event.id)
+        end
+      end
+    end
+  end
 end

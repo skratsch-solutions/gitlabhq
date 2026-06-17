@@ -382,6 +382,7 @@ module API
         mount ::API::WorkItems::LinkedResources
         mount ::API::WorkItems::AwardEmoji
         mount ::API::WorkItems::Notes
+        mount ::API::WorkItems::Discussions
         mount ::API::WorkItems::EmailParticipants
         mount ::API::Wikis
 

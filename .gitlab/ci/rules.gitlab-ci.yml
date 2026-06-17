@@ -3905,4 +3905,6 @@
 ###############################
 .per-test-coverage:rules:delta:
   rules:
+    - <<: *if-missing-clickhouse-coverage-credentials
+      when: never
     - <<: *if-per-test-coverage-delta

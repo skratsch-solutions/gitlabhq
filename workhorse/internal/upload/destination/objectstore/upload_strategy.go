@@ -14,6 +14,9 @@ type uploadStrategy interface {
 	ETag() string
 	Abort()
 	Delete()
+	// Strategy returns a stable, low-cardinality name identifying the
+	// upload backend (e.g. "gocloud", "presigned_put"), used for logging.
+	Strategy() string
 }
 
 func deleteURL(url string) {

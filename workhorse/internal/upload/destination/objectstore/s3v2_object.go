@@ -108,6 +108,11 @@ func (s *S3v2Object) ETag() string {
 	return ""
 }
 
+// Strategy returns the name identifying the upload backend, used for logging.
+func (s *S3v2Object) Strategy() string {
+	return "s3v2"
+}
+
 // Abort aborts the multipart upload by deleting the object.
 func (s *S3v2Object) Abort() {
 	s.Delete()

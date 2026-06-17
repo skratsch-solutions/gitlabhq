@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"gitlab.com/gitlab-org/labkit/log"
+	"gitlab.com/gitlab-org/labkit/v2/fields"
 )
 
 // uploader consumes an io.Reader and uploads it using a pluggable uploadStrategy.
@@ -21,6 +22,11 @@ type uploader struct {
 	// instantiates uploads for the individual parts. We don't want to
 	// increment metrics for the individual parts, so that is why we have
 	// this boolean flag.
+	//
+	// It also gates the per-upload summary log (see logUploadSummary in
+	// consume): individual parts have metrics=false so that a multipart
+	// upload emits a single summary instead of one per part. Changing this
+	// gating would break that dedup behavior.
 	metrics bool
 
 	// With S3 we compare the MD5 of the data we sent with the ETag returned
@@ -53,14 +59,23 @@ func (u *uploader) ConsumeWithoutDelete(outerCtx context.Context, reader io.Read
 // SkipDelete optionaly call the Delete() function on the strategy once
 // rails is done handling the upload request.
 func (u *uploader) consume(outerCtx context.Context, reader io.Reader, deadLine time.Time, skipDelete bool) (_ int64, err error) {
+	// cr is declared early so the deferred summary log can read cr.n;
+	// cr.r is assigned later, after the optional TeeReader wrapping.
+	cr := &countReader{}
+
 	if u.metrics {
 		objectStorageUploadsOpen.Inc()
 		defer func(started time.Time) {
 			objectStorageUploadsOpen.Dec()
-			objectStorageUploadTime.Observe(time.Since(started).Seconds())
+			elapsed := time.Since(started)
+			objectStorageUploadTime.Observe(elapsed.Seconds())
 			if err != nil {
 				objectStorageUploadRequestsRequestFailed.Inc()
 			}
+
+			// Gated by u.metrics so each top-level upload emits one summary;
+			// per-part uploads have metrics=false (see the metrics field doc).
+			u.logUploadSummary(outerCtx, elapsed, cr.n, err)
 		}(time.Now())
 	}
 
@@ -96,7 +111,7 @@ func (u *uploader) consume(outerCtx context.Context, reader io.Reader, deadLine 
 		reader = io.TeeReader(reader, hasher)
 	}
 
-	cr := &countReader{r: reader}
+	cr.r = reader
 	if err := u.strategy.Upload(uploadCtx, cr); err != nil {
 		return 0, err
 	}
@@ -111,6 +126,20 @@ func (u *uploader) consume(outerCtx context.Context, reader io.Reader, deadLine 
 	objectStorageUploadBytes.Add(float64(cr.n))
 
 	return cr.n, nil
+}
+
+func (u *uploader) logUploadSummary(ctx context.Context, elapsed time.Duration, bytes int64, err error) {
+	logFields := log.Fields{
+		"strategy":       u.strategy.Strategy(),
+		fields.DurationS: elapsed.Seconds(),
+		"uploaded_bytes": bytes,
+	}
+
+	if err != nil {
+		logFields[fields.ErrorMessage] = err.Error()
+	}
+
+	log.WithContextFields(ctx, logFields).Info("object storage upload completed")
 }
 
 func compareMD5(local, remote string) error {

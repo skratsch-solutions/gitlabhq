@@ -9,6 +9,8 @@ module API
 
     allow_access_with_scope :read_user, if: ->(request) { request.get? || request.head? }
 
+    before { set_current_organization }
+
     feature_category :user_profile
     urgency :low
 
