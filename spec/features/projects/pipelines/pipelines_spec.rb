@@ -102,8 +102,8 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
 
               wait_for_requests
 
-              expect(page).not_to have_selector('.js-pipelines-cancel-button')
               expect(page).to have_selector('[data-testid="ci-icon"]', text: 'Canceled')
+              expect(page).not_to have_selector('.js-pipelines-cancel-button')
             end
 
             it 'targets the pipeline the cancel action was invoked on', quarantine: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/issues/9455' do

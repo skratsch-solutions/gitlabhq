@@ -22,6 +22,7 @@ permissions:
   - download_pypi_package
   - download_ruby_gem
   - download_terraform_module
+  - read_cargo_package
   - read_composer_package
   - read_conan_package
   - read_go_module

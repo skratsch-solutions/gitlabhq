@@ -110,6 +110,7 @@ module API
           aggregators: [::Mcp::Tools::PipelineService],
           resource_name: "project"
         route_setting :authorization, permissions: :create_pipeline, boundary_type: :project
+        route_setting :log_safety, { unsafe: %w[inputs] }
         post ':id/pipeline', urgency: :low, feature_category: :pipeline_composition do
           Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/issues/20711')
 

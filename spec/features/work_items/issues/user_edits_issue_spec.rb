@@ -87,8 +87,8 @@ RSpec.describe "Issues > User edits issue", :js, feature_category: :team_plannin
             click_button 'Remove label'
           end
 
-          expect(page).not_to have_link('verisimilitude')
           expect(page).to have_link('syzygy')
+          expect(page).not_to have_link('verisimilitude')
         end
 
         expect(page).to have_text('removed verisimilitude label')

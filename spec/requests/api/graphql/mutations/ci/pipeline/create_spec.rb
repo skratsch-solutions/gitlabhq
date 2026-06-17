@@ -61,6 +61,30 @@ RSpec.describe 'PipelineCreate', feature_category: :pipeline_composition do
       let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
     end
 
+    context 'when inputs contain sensitive values' do
+      let(:operation_name) { 'internalPipelineCreate' }
+      let(:params) do
+        { ref: 'master', inputs: [{ name: 'SECRET', value: 'top-secret-value' }] }
+      end
+
+      let(:logger_instance) { instance_double(Gitlab::GraphqlLogger) }
+      let(:logged_payloads) { [] }
+
+      before do
+        allow(Gitlab::GraphqlLogger).to receive(:build).and_return(logger_instance)
+        allow(logger_instance).to receive(:info) { |payload| logged_payloads << payload }
+      end
+
+      it 'does not log input values in plaintext', :aggregate_failures do
+        post_graphql_mutation(mutation, current_user: user)
+
+        expect(logged_payloads).not_to be_empty
+        logged_variables = logged_payloads.map { |payload| payload[:variables].to_s }
+        expect(logged_variables).to all(exclude('top-secret-value'))
+        expect(logged_variables).to include(a_string_including('[FILTERED]'))
+      end
+    end
+
     context 'when the pipeline creation is not successful' do
       it 'returns error' do
         stub_ci_builds_disabled

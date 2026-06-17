@@ -62615,6 +62615,164 @@ paths:
           - type: string
           - type: integer
         in: path
+  "/api/v4/projects/{id}/packages/cargo/1/{package_name}":
+    get:
+      operationId: getApiV4ProjectsIdPackagesCargo1PackageName
+      summary: Get the sparse index for a Cargo crate (1-character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      tags:
+      - Packages
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+      - name: package_name
+        required: true
+        description: The cargo package name
+        schema:
+          type: string
+        in: path
+  "/api/v4/projects/{id}/packages/cargo/2/{package_name}":
+    get:
+      operationId: getApiV4ProjectsIdPackagesCargo2PackageName
+      summary: Get the sparse index for a Cargo crate (2-character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      tags:
+      - Packages
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+      - name: package_name
+        required: true
+        description: The cargo package name
+        schema:
+          type: string
+        in: path
+  "/api/v4/projects/{id}/packages/cargo/3/{first_char}/{package_name}":
+    get:
+      operationId: getApiV4ProjectsIdPackagesCargo3FirstCharPackageName
+      summary: Get the sparse index for a Cargo crate (3-character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      tags:
+      - Packages
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+      - name: first_char
+        required: true
+        description: First character of the cargo package name
+        schema:
+          type: string
+        in: path
+      - name: package_name
+        required: true
+        description: The cargo package name
+        schema:
+          type: string
+        in: path
+  "/api/v4/projects/{id}/packages/cargo/{prefix_1}/{prefix_2}/{package_name}":
+    get:
+      operationId: getApiV4ProjectsIdPackagesCargoPrefix1Prefix2PackageName
+      summary: Get the sparse index for a Cargo crate (4+ character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      tags:
+      - Packages
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+      - name: prefix_1
+        required: true
+        description: First two characters of the cargo package name
+        schema:
+          type: string
+        in: path
+      - name: prefix_2
+        required: true
+        description: Next two characters of the cargo package name
+        schema:
+          type: string
+        in: path
+      - name: package_name
+        required: true
+        description: The cargo package name
+        schema:
+          type: string
+        in: path
   "/api/v4/projects/{id}/packages/cargo/{package_name}/{package_version}/download":
     get:
       operationId: getApiV4ProjectsIdPackagesCargoPackageNamePackageVersionDownload

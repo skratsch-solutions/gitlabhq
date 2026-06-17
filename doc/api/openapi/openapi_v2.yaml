@@ -14258,6 +14258,153 @@ paths:
       tags:
       - packages
       operationId: getApiV4ProjectsIdPackagesCargoConfigJson
+  "/api/v4/projects/{id}/packages/cargo/1/{package_name}":
+    get:
+      summary: Get the sparse index for a Cargo crate (1-character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      produces:
+      - text/plain
+      parameters:
+      - in: path
+        name: id
+        description: The ID or URL-encoded path of the project
+        type: string
+        required: true
+      - in: path
+        name: package_name
+        description: The cargo package name
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Get the sparse index for a Cargo crate (1-character name)
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      tags:
+      - packages
+      operationId: getApiV4ProjectsIdPackagesCargo1PackageName
+  "/api/v4/projects/{id}/packages/cargo/2/{package_name}":
+    get:
+      summary: Get the sparse index for a Cargo crate (2-character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      produces:
+      - text/plain
+      parameters:
+      - in: path
+        name: id
+        description: The ID or URL-encoded path of the project
+        type: string
+        required: true
+      - in: path
+        name: package_name
+        description: The cargo package name
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Get the sparse index for a Cargo crate (2-character name)
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      tags:
+      - packages
+      operationId: getApiV4ProjectsIdPackagesCargo2PackageName
+  "/api/v4/projects/{id}/packages/cargo/3/{first_char}/{package_name}":
+    get:
+      summary: Get the sparse index for a Cargo crate (3-character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      produces:
+      - text/plain
+      parameters:
+      - in: path
+        name: id
+        description: The ID or URL-encoded path of the project
+        type: string
+        required: true
+      - in: path
+        name: first_char
+        description: First character of the cargo package name
+        type: string
+        required: true
+      - in: path
+        name: package_name
+        description: The cargo package name
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Get the sparse index for a Cargo crate (3-character name)
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      tags:
+      - packages
+      operationId: getApiV4ProjectsIdPackagesCargo3FirstCharPackageName
+  "/api/v4/projects/{id}/packages/cargo/{prefix_1}/{prefix_2}/{package_name}":
+    get:
+      summary: Get the sparse index for a Cargo crate (4+ character name)
+      description: Returns newline-delimited JSON, one line per published version,
+        most recently published first. Limited to the 500 most recently published
+        versions.
+      produces:
+      - text/plain
+      parameters:
+      - in: path
+        name: id
+        description: The ID or URL-encoded path of the project
+        type: string
+        required: true
+      - in: path
+        name: prefix_1
+        description: First two characters of the cargo package name
+        type: string
+        required: true
+      - in: path
+        name: prefix_2
+        description: Next two characters of the cargo package name
+        type: string
+        required: true
+      - in: path
+        name: package_name
+        description: The cargo package name
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Get the sparse index for a Cargo crate (4+ character name)
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      tags:
+      - packages
+      operationId: getApiV4ProjectsIdPackagesCargoPrefix1Prefix2PackageName
   "/api/v4/projects/{id}/packages/cargo/{package_name}/{package_version}/download":
     get:
       summary: Download a Cargo crate
@@ -14265,7 +14412,6 @@ paths:
         version
       produces:
       - application/octet-stream
-      - application/json
       parameters:
       - in: path
         name: id

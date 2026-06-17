@@ -1,6 +1,6 @@
 ---
-source_checksum: 397e954034ef7a8e
-distilled_at_sha: 38eec71eeabc7ee15c3c39204fae8e675609f903
+source_checksum: da5a69585138ce1a
+distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -22,6 +22,7 @@ distilled_at_sha: 38eec71eeabc7ee15c3c39204fae8e675609f903
 ### Permission Naming Conventions
 
 - Introduce a new permission only when no existing permission covers the same subject and action; reuse existing permissions wherever possible.
+- Ensure every new permission enables the principle of least privilege: grant only the access required for a single, well-defined action on a single resource; split permissions that would bundle more than one action or unrelated capabilities. If you cannot scope the permission this narrowly, reconsider the design before introducing it.
 - Follow the naming pattern `action_resource(_subresource)` for all permissions (both assignable and raw).
 - Use only the preferred actions — `create`, `read`, `update`, `delete` — unless a documented exception applies; obtain Authorization team approval for any action outside this set.
 - DO NOT introduce disallowed actions: `admin`, `change`, `configure`, `destroy`, `edit`, `list`, `manage`, `modify`, `set`, `view`, or `write`.
@@ -79,6 +80,7 @@ distilled_at_sha: 38eec71eeabc7ee15c3c39204fae8e675609f903
 - Use `where` table syntax to test each role explicitly, and include every role in the table — DO NOT omit roles expected to be disallowed.
 - Define the subject explicitly inside each `describe` block using `let_it_be`; DO NOT rely on a subject defined at a higher scope.
 - Use descriptively named fixtures that reflect the visibility or state under test (e.g., `private_project`, `archived_project`) rather than a generic `project`.
+- Test both admin mode enabled (`:enable_admin_mode`) and admin mode disabled contexts for permissions that apply to admins.
 - Test both feature flag disabled and licensed feature disabled contexts for every permission that is gated by either.
 
 ## Authoritative sources

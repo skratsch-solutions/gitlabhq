@@ -69,8 +69,8 @@ RSpec.describe 'Projects > Files > User edits files', :js, feature_category: :so
       click_link('.gitignore')
       edit_in_single_file_editor
 
-      expect(page).not_to have_selector('#editor_path')
       expect(page).to have_selector('#editor_ref')
+      expect(page).not_to have_selector('#editor_path')
     end
 
     it 'does not show the edit link if a file is binary' do

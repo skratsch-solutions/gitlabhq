@@ -963,6 +963,15 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
 
           it_behaves_like 'creating a successful pipeline'
         end
+
+        it 'masks input values when logging' do
+          expect(::API::API::LOGGER).to receive(:info).with(
+            include(params: include('inputs' => '[FILTERED]'))
+          )
+
+          post api("/projects/#{project.id}/pipeline", user),
+            params: { ref: project.default_branch, inputs: inputs }
+        end
       end
 
       context 'without gitlab-ci.yml' do

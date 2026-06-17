@@ -1544,7 +1544,11 @@ Grants the ability to create, delete, read, and update packages.
 | Read | Project | `GET` | `/projects/:id/packages` |
 | Read | Project | `GET` | `/projects/:id/packages/:package_id` |
 | Read | Project | `GET` | `/projects/:id/packages/:package_id/pipelines` |
+| Read | Project | `GET` | `/projects/:id/packages/cargo/1/:package_name` |
+| Read | Project | `GET` | `/projects/:id/packages/cargo/2/:package_name` |
+| Read | Project | `GET` | `/projects/:id/packages/cargo/3/:first_char/:package_name` |
 | Read | Project | `GET` | `/projects/:id/packages/cargo/:package_name/:package_version/download` |
+| Read | Project | `GET` | `/projects/:id/packages/cargo/:prefix_1/:prefix_2/:package_name` |
 | Read | Project | `GET` | `/projects/:id/packages/composer/archives/*package_name` |
 | Read | Project | `GET` | `/projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` |
 | Read | Project | `GET` | `/projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/digest` |

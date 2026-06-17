@@ -144,8 +144,8 @@ RSpec.describe 'Pipeline Editor', :js, feature_category: :pipeline_composition d
     it 'does not render the graph in the visualization tab and shows error' do
       click_link "Visualize"
 
-      expect(page).not_to have_selector('[data-testid="graph-container"')
       expect(page).to have_content("Your CI/CD configuration syntax is invalid. Select the Validate tab for more details.")
+      expect(page).not_to have_selector('[data-testid="graph-container"')
     end
 
     it 'gets a simulation error in the validate tab' do
@@ -171,8 +171,8 @@ RSpec.describe 'Pipeline Editor', :js, feature_category: :pipeline_composition d
       click_link "Full configuration"
 
       within_testid('merged-tab') do
-        expect(page).not_to have_content("job_a")
         expect(page).to have_content("Could not load full configuration content")
+        expect(page).not_to have_content("job_a")
       end
     end
   end
@@ -267,8 +267,8 @@ RSpec.describe 'Pipeline Editor', :js, feature_category: :pipeline_composition d
 
         click_button 'Commit changes'
 
-        expect(page).not_to have_content('Pipeline editor')
         expect(page).to have_content('New merge request')
+        expect(page).not_to have_content('Pipeline editor')
       end
     end
   end

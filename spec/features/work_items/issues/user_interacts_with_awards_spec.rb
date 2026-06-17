@@ -27,9 +27,9 @@ RSpec.describe 'User interacts with awards', :js, feature_category: :team_planni
 
         click_button '👍'
 
-        expect(page).not_to have_button '👍 1'
         expect(page).to have_button '👍'
         expect(page).to have_button '👎'
+        expect(page).not_to have_button '👍 1'
 
         click_button '👍'
         find_button('👍').hover
@@ -106,8 +106,8 @@ RSpec.describe 'User interacts with awards', :js, feature_category: :team_planni
         it 'does not allow toggling existing emoji' do
           click_button '😀'
 
-          expect(page).not_to have_button '😀 2'
           expect(page).to have_button '😀 1'
+          expect(page).not_to have_button '😀 2'
         end
       end
     end
@@ -134,8 +134,8 @@ RSpec.describe 'User interacts with awards', :js, feature_category: :team_planni
         it 'does not allow toggling existing emoji' do
           click_button '💯'
 
-          expect(page).not_to have_button '💯 2'
           expect(page).to have_button '💯 1'
+          expect(page).not_to have_button '💯 2'
         end
       end
     end

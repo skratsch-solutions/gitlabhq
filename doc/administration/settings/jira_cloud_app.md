@@ -27,8 +27,8 @@ For an overview, see:
 
 - [Installing the GitLab for Jira Cloud app from the Atlassian Marketplace for a GitLab Self-Managed instance](https://youtu.be/RnDw4PzmdW8?list=PL05JrBw4t0Koazgli_PmMQCER2pVH7vUT)
   <!-- Video published on 2024-10-30 -->
-- [Installing the GitLab for Jira Cloud app manually for a GitLab Self-Managed instance](https://youtu.be/fs02xS8BElA?list=PL05JrBw4t0Koazgli_PmMQCER2pVH7vUT)
-  <!-- Video published on 2024-10-30 -->
+- [Installing the GitLab for Jira Cloud app manually for a GitLab Self-Managed instance (Forge app)](https://youtu.be/hSfiowZSmZA?list=PL05JrBw4t0Koazgli_PmMQCER2pVH7vUT)
+  <!-- Video published on 2026-06-17 -->
 
 The videos above show the older [Universal Plugin Manager interface](https://community.atlassian.com/forums/Community-Announcements-articles/Cloud-admins-we-re-making-app-management-easier/ba-p/2806285) which might be unavailable on newer Jira Cloud instances.
 The following instructions cover both old and new app management interfaces.
