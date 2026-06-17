@@ -46,16 +46,42 @@ module API
 
       before do
         authenticate!
-        not_found! unless feature_available?
+
+        unless feature_available?
+          logger.info(
+            message: 'MCP server not available',
+            event_name: 'permission_denied',
+            ai_component: 'mcp_server',
+            denial_reason: mcp_denial_reason,
+            Labkit::Fields::GL_USER_ID => current_user.id
+          )
+
+          not_found!
+        end
+
         forbidden! unless AccessTokenValidationService.new(access_token).include_any_scope?([Gitlab::Auth::MCP_SCOPE])
       end
 
       helpers do
-        def feature_available?
-          return true unless ::Feature.enabled?(:mcp_server_availability_setting, :instance)
+        include ::Gitlab::Utils::StrongMemoize
 
-          ::Gitlab::CurrentSettings.mcp_server_enabled?
+        def logger
+          Gitlab::Mcp::Logger.build
         end
+        strong_memoize_attr :logger
+
+        def feature_available?
+          mcp_denial_reason.nil?
+        end
+
+        def mcp_denial_reason
+          # SaaS is short-circuited by the EE override; :instance_setting_disabled is self-managed-only.
+          return unless ::Feature.enabled?(:mcp_server_availability_setting, :instance)
+          return :instance_setting_disabled unless ::Gitlab::CurrentSettings.mcp_server_enabled?
+
+          nil
+        end
+        strong_memoize_attr :mcp_denial_reason
 
         # Returns the allowed MCP tool names for this request, as set by the Duo Workflow
         # executor via the `x-gitlab-enabled-mcp-server-tools` header.

@@ -204,17 +204,27 @@ docs-i18n-lint markdown:
     - install_gitlab_gem
     - scripts/i18n_lint_doc.sh
 
-docs-i18n-lint links:
+# Reports on broken links in the localized docs (doc-locale). The localization
+# team is building up translations incrementally, so many crosslinks point to
+# pages that are not translated yet. This job is therefore a report rather than
+# a lint check: it always runs green and writes the lychee output to an artifact
+# that can be reviewed when needed. See #602393.
+docs-i18n-report links:
   extends:
     - .docs:rules:docs-i18n-lint
     - .docs-markdown-lint-image
     - .lint-base
   stage: lint
-  allow_failure: true
+  when: manual
   before_script:
     - source scripts/utils.sh
   script:
-    - lychee --offline --include-fragments --exclude "\.(png|jpg|gif|svg)$" --exclude "(ja-jp|ko-kr|fr-fr)/development" doc-locale
+    - lychee --offline --include-fragments --exclude "\.(png|jpg|gif|svg)$" --exclude "(ja-jp|ko-kr|fr-fr)/development" doc-locale | tee docs-i18n-links-report.txt
+  artifacts:
+    when: always
+    expire_in: 2 weeks
+    paths:
+      - docs-i18n-links-report.txt
 
 # Japanese-specific Vale linting with language-specific rules
 docs-i18n-lint japanese-vale:

@@ -17,6 +17,9 @@ The merge request review process ensures that subject matter experts review your
 before they are merged. Reviewers add review comments to merge requests, and [suggest changes](suggestions.md)
 the author can apply directly from the GitLab UI.
 
+For information on how reviewers relate to assignees, see
+[assignees and reviewers](../_index.md#assignees-and-reviewers).
+
 Reviewers can use any of these tools to review a merge request:
 
 - The GitLab interface.

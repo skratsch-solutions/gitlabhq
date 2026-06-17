@@ -37,6 +37,7 @@ module Gitlab
             variables.concat(predefined_variables(job, environment))
             variables.concat(project.predefined_variables)
             variables.concat(pipeline_variables_builder.predefined_variables)
+            variables.concat(predefined_traceparent_variables(job))
             variables.concat(job.runner.predefined_variables) if job.runnable? && job.runner
             variables.concat(kubernetes_variables_from_job(environment: environment, job: job))
             variables.concat(job.yaml_variables)
@@ -70,6 +71,7 @@ module Gitlab
             variables.concat(predefined_variables(job, environment))
             variables.concat(project.predefined_variables)
             variables.concat(pipeline_variables_builder.predefined_variables)
+            variables.concat(predefined_traceparent_variables(job))
             variables.concat(job.runner.predefined_variables) if job.runnable? && job.runner
             variables.concat(kubernetes_variables_from_job(environment: environment, job: job))
             variables.concat(job.yaml_variables)
@@ -103,6 +105,7 @@ module Gitlab
             variables.concat(predefined_variables_from_job_attr(job_attr, environment, trigger))
             variables.concat(project.predefined_variables)
             variables.concat(pipeline_variables_builder.predefined_variables)
+            # predefined_traceparent_variables: No need because job.id is not available in the Seed step.
             # job.runner.predefined_variables: No need because it's not available in the Seed step.
             variables.concat(kubernetes_variables_from_attr(environment: environment, kubernetes_namespace: kubernetes_namespace))
             variables.concat(job_attr[:yaml_variables])
@@ -263,6 +266,18 @@ module Gitlab
                 variables.append(key: 'CI_ENVIRONMENT_URL', value: environment_url_from_job_options(job_attr[:options], environment))
               end
             end
+          end
+        end
+
+        def predefined_traceparent_variables(job)
+          Gitlab::Ci::Variables::Collection.new.tap do |variables|
+            next if pipeline.id.blank? || job.id.blank?
+
+            root_id = strong_memoize(:root_ancestor_id) { pipeline.root_ancestor&.id || pipeline.id }
+            traceparent = Gitlab::Ci::TraceContext.build_traceparent(root_id, job.id)
+
+            variables.append(key: 'CI_TRACEPARENT', value: traceparent)
+            variables.append(key: 'CI_TRACESTATE', value: "gitlab=pipeline:#{pipeline.id};job:#{job.id}")
           end
         end
 

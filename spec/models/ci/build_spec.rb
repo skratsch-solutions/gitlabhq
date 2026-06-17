@@ -3136,6 +3136,12 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
           { key: 'CI_COMMIT_TIMESTAMP', value: pipeline.git_commit_timestamp, public: true, masked: false },
           { key: 'CI_COMMIT_AUTHOR', value: pipeline.git_author_full_text, public: true, masked: false },
           { key: 'CI_COMMIT_USER_LOGIN', value: pipeline.git_author_login.to_s, public: true, masked: false },
+          { key: 'CI_TRACEPARENT',
+            value: Gitlab::Ci::TraceContext.build_traceparent(pipeline.id, build.id),
+            public: true, masked: false },
+          { key: 'CI_TRACESTATE',
+            value: "gitlab=pipeline:#{pipeline.id};job:#{build.id}",
+            public: true, masked: false },
           { key: 'CI_PAGES_URL', value: pages_url, public: true, masked: false }
         ]
       end
@@ -3203,6 +3209,12 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
                 build_pre_var,
                 project_pre_var,
                 pipeline_pre_var,
+                { key: 'CI_TRACEPARENT',
+                  value: Gitlab::Ci::TraceContext.build_traceparent(pipeline.id, build.id),
+                  public: true, masked: false },
+                { key: 'CI_TRACESTATE',
+                  value: "gitlab=pipeline:#{pipeline.id};job:#{build.id}",
+                  public: true, masked: false },
                 build_yaml_var,
                 job_dependency_var,
                 { key: 'secret', value: 'value', public: false, masked: false },
@@ -3237,7 +3249,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
                 { key: 'CI_ENVIRONMENT_SLUG', value: 'start', public: true, masked: false },
                 { key: 'CI_ENVIRONMENT_URL', value: 'https://gitlab.com', public: true, masked: false }
               ],
-              after: 'CI_COMMIT_USER_LOGIN')
+              after: 'CI_TRACESTATE')
           end
 
           it 'matches explicit variables ordering' do

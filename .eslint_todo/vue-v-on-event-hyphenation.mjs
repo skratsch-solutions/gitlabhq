@@ -41,7 +41,6 @@ export default {
     'app/assets/javascripts/ci/runner/group_register_runner/group_register_runner_app.vue',
     'app/assets/javascripts/ci/runner/group_runners/group_runners_app.vue',
     'app/assets/javascripts/ci/runner/project_register_runner/project_register_runner_app.vue',
-    'app/assets/javascripts/ci_secure_files/components/secure_files_list.vue',
     'app/assets/javascripts/content_editor/components/bubble_menus/link_bubble_menu.vue',
     'app/assets/javascripts/content_editor/components/bubble_menus/media_bubble_menu.vue',
     'app/assets/javascripts/content_editor/components/content_editor.vue',

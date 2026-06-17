@@ -31,7 +31,7 @@ export default {
   metadataModalId: 'metadataModalId',
   methods: {
     selectSecureFile() {
-      this.$emit('selectSecureFile', this.secureFile);
+      this.$emit('select-secure-file', this.secureFile);
     },
     hasMetadata() {
       return this.secureFile.metadata !== null;

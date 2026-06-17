@@ -175,6 +175,21 @@ RSpec.describe API::Mcp::Base, feature_category: :mcp_server do
 
           expect(response).to have_gitlab_http_status(:not_found)
         end
+
+        it 'logs that the MCP server is not available' do
+          expect_next_instance_of(Gitlab::Mcp::Logger) do |logger|
+            expect(logger).to receive(:info).with(
+              message: 'MCP server not available',
+              event_name: 'permission_denied',
+              ai_component: 'mcp_server',
+              denial_reason: :instance_setting_disabled,
+              Labkit::Fields::GL_USER_ID => user.id
+            )
+          end
+
+          post api('/mcp', user, oauth_access_token: access_token),
+            params: { jsonrpc: '2.0', method: 'initialize', id: '1', params: { protocolVersion: '2025-11-25' } }
+        end
       end
     end
 

@@ -234,7 +234,7 @@ export default {
             :secure-file="item"
             :admin="admin"
             modal-id="$options.metadataModalId"
-            @selectSecureFile="updateMetadataSecureFile"
+            @select-secure-file="updateMetadataSecureFile"
           />
           <gl-button
             v-if="admin"

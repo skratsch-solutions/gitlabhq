@@ -197,6 +197,10 @@ RSpec.describe Gitlab::Ci::Variables::Builder, :clean_gitlab_redis_cache, featur
             value: pipeline.git_author_full_text },
           { key: 'CI_COMMIT_USER_LOGIN',
             value: pipeline.git_author_login.to_s },
+          { key: 'CI_TRACEPARENT',
+            value: Gitlab::Ci::TraceContext.build_traceparent(pipeline.root_ancestor.id, job.id) },
+          { key: 'CI_TRACESTATE',
+            value: "gitlab=pipeline:#{pipeline.id};job:#{job.id}" },
           { key: 'YAML_VARIABLE',
             value: 'value' }
         ] + predefined_user_vars
@@ -224,6 +228,7 @@ RSpec.describe Gitlab::Ci::Variables::Builder, :clean_gitlab_redis_cache, featur
         allow(pipeline.project).to receive(:predefined_variables) { [var('B', 2), var('C', 2)] }
         allow(builder).to receive(:pipeline_variables_builder) { pipeline_variables_builder }
         allow(pipeline).to receive(:predefined_variables) { [var('C', 3), var('D', 3)] }
+        allow(builder).to receive(:predefined_traceparent_variables).with(job).and_return([])
         allow(job).to receive(:runner) { double(predefined_variables: [var('D', 4), var('E', 4)]) }
         allow(builder).to receive(:kubernetes_variables) { [var('E', 5), var('F', 5)] }
         allow(job).to receive(:yaml_variables) { [var('G', 7), var('H', 7)] }
@@ -1078,6 +1083,84 @@ RSpec.describe Gitlab::Ci::Variables::Builder, :clean_gitlab_redis_cache, featur
               .to contain_exactly(unprotected_variable_item, scoped_variable_item)
           end
         end
+      end
+    end
+  end
+
+  describe 'traceparent variables' do
+    let(:environment_name) { job.expanded_environment_name }
+    let(:dependencies) { true }
+
+    subject(:scoped_vars) { builder.scoped_variables(job, environment: environment_name, dependencies: dependencies) }
+
+    it 'includes CI_TRACEPARENT in W3C trace context format', :aggregate_failures do
+      traceparent = scoped_vars.to_hash['CI_TRACEPARENT']
+
+      expect(traceparent).to match(/^00-[0-9a-f]{32}-[0-9a-f]{16}-01$/)
+      expect(traceparent).to eq(Gitlab::Ci::TraceContext.build_traceparent(pipeline.root_ancestor.id, job.id))
+    end
+
+    it 'includes CI_TRACESTATE with pipeline and job IDs' do
+      expect(scoped_vars.to_hash).to include(
+        'CI_TRACESTATE' => "gitlab=pipeline:#{pipeline.id};job:#{job.id}"
+      )
+    end
+
+    context 'when two jobs are in the same pipeline' do
+      let(:other_job) { create(:ci_build, pipeline: pipeline, user: user) }
+
+      it 'produces the same trace_id but different span_id' do
+        vars1 = scoped_vars.to_hash
+        vars2 = builder.scoped_variables(other_job, environment: environment_name, dependencies: dependencies).to_hash
+
+        traceparent1 = vars1['CI_TRACEPARENT']
+        traceparent2 = vars2['CI_TRACEPARENT']
+
+        expect(traceparent1.split('-')[1]).to eq(traceparent2.split('-')[1])
+        expect(traceparent1.split('-')[2]).not_to eq(traceparent2.split('-')[2])
+      end
+    end
+
+    context 'when a job is retried' do
+      let(:retried_job) { create(:ci_build, pipeline: pipeline, user: user, name: job.name) }
+
+      it 'produces a different span_id due to different job ID' do
+        original_traceparent = scoped_vars.to_hash['CI_TRACEPARENT']
+        retried_traceparent = builder.scoped_variables(retried_job, environment: environment_name, dependencies: dependencies).to_hash['CI_TRACEPARENT']
+
+        expect(original_traceparent.split('-')[2]).not_to eq(retried_traceparent.split('-')[2])
+      end
+    end
+
+    context 'with a child pipeline' do
+      let(:child_pipeline) { create(:ci_pipeline, project: project, child_of: pipeline) }
+      let(:child_job) { create(:ci_build, pipeline: child_pipeline, user: user) }
+      let(:child_builder) { described_class.new(child_pipeline) }
+
+      it 'uses root ancestor pipeline ID for trace_id' do
+        child_vars = child_builder.scoped_variables(child_job, environment: environment_name, dependencies: dependencies).to_hash
+        expected_trace_id = format("%032x", pipeline.id)
+
+        expect(child_vars['CI_TRACEPARENT'].split('-')[1]).to eq(expected_trace_id)
+      end
+
+      it 'includes CI_TRACESTATE with the child pipeline and job IDs' do
+        child_vars = child_builder.scoped_variables(child_job, environment: environment_name, dependencies: dependencies).to_hash
+
+        expect(child_vars['CI_TRACESTATE']).to eq("gitlab=pipeline:#{child_pipeline.id};job:#{child_job.id}")
+      end
+    end
+
+    context 'when the pipeline is not yet persisted' do
+      let(:unpersisted_pipeline) { build(:ci_pipeline, project: project) }
+      let(:unpersisted_job) { build(:ci_build, pipeline: unpersisted_pipeline, user: user) }
+      let(:unpersisted_builder) { described_class.new(unpersisted_pipeline) }
+
+      it 'does not include trace context variables', :aggregate_failures do
+        vars = unpersisted_builder.scoped_variables(unpersisted_job, environment: environment_name, dependencies: dependencies).to_hash
+
+        expect(vars).not_to have_key('CI_TRACEPARENT')
+        expect(vars).not_to have_key('CI_TRACESTATE')
       end
     end
   end

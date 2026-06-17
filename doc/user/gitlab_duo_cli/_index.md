@@ -596,7 +596,14 @@ To create a hook:
    export GITLAB_ENABLE_PROJECT_HOOKS=true
    ```
 
-## Options
+## Reference
+
+Use these options, commands, and environment variables when you start or run the GitLab Duo CLI.
+
+For more details and the most up-to-date list, see the
+[GitLab Duo CLI reference](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/blob/main/packages/cli/docs/cli-reference.md).
+
+### Options
 
 The GitLab Duo CLI supports these options:
 
@@ -616,7 +623,7 @@ Additional options for headless mode:
 - `--gitlab-auth-token <token>`: Authentication token for a GitLab instance.
 - `--gitlab-base-url <url>`: Base URL of a GitLab instance (default: `https://gitlab.com`).
 
-## Commands
+### Commands
 
 The following commands are available for each setup:
 
@@ -651,7 +658,7 @@ The following commands are available for each setup:
 
 {{< /tabs >}}
 
-## Environment variables
+### Environment variables
 
 You can configure the GitLab Duo CLI using environment variables:
 
@@ -761,6 +768,7 @@ For information on contributing to the GitLab Duo CLI, see the
 ## Related topics
 
 - [Security considerations for editor extensions](../../editor_extensions/security_considerations.md)
+- [GitLab Duo CLI reference](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/blob/main/packages/cli/docs/cli-reference.md)
 - [GitLab CLI](https://docs.gitlab.com/cli/)
 - [Customize GitLab Duo Agent Platform](../duo_agent_platform/customize/_index.md)
 - [GitLab Duo Agent Platform sessions](../duo_agent_platform/sessions/_index.md)

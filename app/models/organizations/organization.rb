@@ -82,6 +82,8 @@ module Organizations
       :state_metadata=,
       :soft_deleted_at,
       :soft_deleted_at=,
+      :read_only_reason,
+      :read_only_reason=,
       to: :organization_detail
 
     accepts_nested_attributes_for :organization_detail

@@ -38,6 +38,21 @@ When viewing a merge request, you see:
 - Comments.
 - The list of commits.
 
+## Assignees and reviewers
+
+A merge request has two roles:
+
+- **Assignee**: Owns the merge request and is responsible for its progress.
+  The assignee is usually the author.
+- **Reviewer**: Reviews the changes and provides feedback.
+  A reviewer can request changes or, if eligible, approve the merge request.
+
+Your project's [approval rules and settings](approvals/_index.md) determine who can approve
+merge requests.
+
+For more information, see [assign an assignee](#assign-a-user-to-a-merge-request) and
+[request a reviewer](reviews/_index.md#request-a-review).
+
 ## Create a merge request
 
 Learn the different ways to [create a merge request](creating_merge_requests.md).

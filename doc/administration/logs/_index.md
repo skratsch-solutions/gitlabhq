@@ -1193,6 +1193,26 @@ The log file is located at:
 - In the `/home/git/gitlab/log/llm.log` file on self-compiled installations.
 - On the Webservice pods under the `subcomponent="llm"` key on Helm chart installations.
 
+## `mcp.log`
+
+{{< details >}}
+
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+{{< /details >}}
+
+The `mcp.log` file logs information related to the
+[GitLab MCP server](../../user/gitlab_duo/model_context_protocol/mcp_server.md). Logging includes
+MCP server availability denials, with a `denial_reason` field that explains why a request was
+refused.
+
+The log file is located at:
+
+- In the `/var/log/gitlab/gitlab-rails/mcp.log` file on Linux package installations.
+- In the `/home/git/gitlab/log/mcp.log` file on self-compiled installations.
+- On the Webservice pods under the `subcomponent="mcp"` key on Helm chart installations.
+
 ## `epic_work_item_sync.log`
 
 {{< details >}}
