@@ -31457,7 +31457,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_b64aa173db03"
+              "$ref": "#/components/schemas/RequestBody_8d4444cd33a2"
     delete:
       operationId: deleteApiV4ProjectsId
       summary: Delete a project
@@ -83721,6 +83721,9 @@ components:
           type: string
         auto_duo_code_review_enabled:
           type: string
+        reviewer_assignment_strategy:
+          type: string
+          example: code_owners
         duo_remote_flows_enabled:
           type: string
         duo_foundational_flows_enabled:
@@ -84126,6 +84129,9 @@ components:
           type: string
         auto_duo_code_review_enabled:
           type: string
+        reviewer_assignment_strategy:
+          type: string
+          example: code_owners
         duo_remote_flows_enabled:
           type: string
         duo_foundational_flows_enabled:
@@ -99729,7 +99735,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_b64aa173db03:
+    RequestBody_8d4444cd33a2:
       type: object
       properties:
         name:
@@ -100388,6 +100394,15 @@ components:
           type: boolean
           description: Require all security policy pipelines to succeed before merge
             requests can be merged
+          nullable: true
+        reviewer_assignment_strategy:
+          type: string
+          enum:
+          - disabled
+          - code_owners
+          - dap_powered
+          description: Strategy used to automatically assign reviewers to merge requests.
+            One of `disabled`, `code_owners`, or `dap_powered`.
           nullable: true
     RequestBody_8ac230459ce6:
       type: object

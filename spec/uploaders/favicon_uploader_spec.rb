@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe FaviconUploader do
+RSpec.describe FaviconUploader, feature_category: :navigation do
   let_it_be(:model) { build_stubbed(:user) }
   let_it_be(:uploader, freeze: false) { described_class.new(model, :favicon) }
 

@@ -15,8 +15,7 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       'project_secrets_managers', # https://gitlab.com/gitlab-org/gitlab/-/work_items/589058
       'p_ci_pipeline_artifact_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587555
       'packages_nuget_symbol_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587558
-      'packages_package_file_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587559
-      'snippet_repository_states' # https://gitlab.com/gitlab-org/gitlab/-/work_items/587561
+      'packages_package_file_states' # https://gitlab.com/gitlab-org/gitlab/-/work_items/587559
     ]
   end
 

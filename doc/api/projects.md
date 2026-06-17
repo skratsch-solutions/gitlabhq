@@ -313,6 +313,7 @@ following response attributes:
 | `only_allow_merge_if_all_status_checks_passed` | boolean | Whether merges are allowed only if all status checks have passed. Ultimate only. |
 | `allow_pipeline_trigger_approve_deployment` | boolean | Whether pipeline triggers can approve deployments. |
 | `prevent_merge_without_jira_issue` | boolean | Indicates if merges require an associated Jira issue. |
+| `reviewer_assignment_strategy` | string | Strategy used to automatically assign reviewers to merge requests. One of `disabled`, `code_owners`, or `dap_powered`. Premium and Ultimate only. |
 | `duo_remote_flows_enabled` | boolean | Indicates if GitLab Duo remote flows are enabled. |
 | `duo_foundational_flows_enabled` | boolean | Indicates if GitLab Duo foundational flows are enabled. |
 | `duo_sast_fp_detection_enabled` | boolean | Indicates if GitLab Duo SAST false positive detection is enabled. |
@@ -750,6 +751,7 @@ following response attributes:
 | `only_allow_merge_if_all_status_checks_passed` | boolean | Whether merges are allowed only if all status checks have passed. Ultimate only. |
 | `allow_pipeline_trigger_approve_deployment` | boolean | Whether pipeline triggers can approve deployments. |
 | `prevent_merge_without_jira_issue` | boolean | Indicates if merges require an associated Jira issue. |
+| `reviewer_assignment_strategy` | string | Strategy used to automatically assign reviewers to merge requests. One of `disabled`, `code_owners`, or `dap_powered`. Premium and Ultimate only. |
 | `duo_remote_flows_enabled` | boolean | Indicates if GitLab Duo remote flows are enabled. |
 | `duo_foundational_flows_enabled` | boolean | Indicates if GitLab Duo foundational flows are enabled. |
 | `duo_sast_fp_detection_enabled` | boolean | Indicates if GitLab Duo SAST false positive detection is enabled. |
@@ -1128,6 +1130,7 @@ following response attributes:
 | `only_allow_merge_if_all_status_checks_passed` | boolean | Whether merges are allowed only if all status checks have passed. Ultimate only. |
 | `allow_pipeline_trigger_approve_deployment` | boolean | Whether pipeline triggers can approve deployments. |
 | `prevent_merge_without_jira_issue` | boolean | Indicates if merges require an associated Jira issue. |
+| `reviewer_assignment_strategy` | string | Strategy used to automatically assign reviewers to merge requests. One of `disabled`, `code_owners`, or `dap_powered`. Premium and Ultimate only. |
 | `duo_remote_flows_enabled` | boolean | Indicates if GitLab Duo remote flows are enabled. |
 | `duo_foundational_flows_enabled` | boolean | Indicates if GitLab Duo foundational flows are enabled. |
 | `duo_sast_fp_detection_enabled` | boolean | Indicates if GitLab Duo SAST false positive detection is enabled. |
@@ -1588,6 +1591,7 @@ following response attributes:
 | `only_allow_merge_if_all_status_checks_passed` | boolean | Whether merges are allowed only if all status checks have passed. Ultimate only. |
 | `allow_pipeline_trigger_approve_deployment` | boolean | Whether pipeline triggers can approve deployments. |
 | `prevent_merge_without_jira_issue` | boolean | Indicates if merges require an associated Jira issue. |
+| `reviewer_assignment_strategy` | string | Strategy used to automatically assign reviewers to merge requests. One of `disabled`, `code_owners`, or `dap_powered`. Premium and Ultimate only. |
 | `duo_remote_flows_enabled` | boolean | Indicates if GitLab Duo remote flows are enabled. |
 | `duo_foundational_flows_enabled` | boolean | Indicates if GitLab Duo foundational flows are enabled. |
 | `duo_sast_fp_detection_enabled` | boolean | Indicates if GitLab Duo SAST false positive detection is enabled. |
@@ -2194,6 +2198,7 @@ Supported general project attributes:
 | `repository_storage`                               | string  | No                             | Which storage shard the repository is on. _(administrator only)_ |
 | `request_access_enabled`                           | boolean | No                             | Allow users to request member access. |
 | `resolve_outdated_diff_discussions`                | boolean | No                             | Automatically resolve merge request diffs discussions on lines changed with a push. |
+| `reviewer_assignment_strategy`                     | string  | No                             | Strategy used to automatically assign reviewers to merge requests. One of `disabled`, `code_owners`, or `dap_powered`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/601621) in GitLab 19.1. Premium and Ultimate only. |
 | `shared_runners_enabled`                           | boolean | No                             | Enable instance runners for this project. |
 | `show_default_award_emojis`                        | boolean | No                             | Show default emoji reactions. |
 | `snippets_enabled`                                 | boolean | No                             | _(Deprecated)_ Enable snippets for this project. Use `snippets_access_level` instead. |

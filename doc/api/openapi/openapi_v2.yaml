@@ -51172,6 +51172,9 @@ definitions:
         type: string
       auto_duo_code_review_enabled:
         type: string
+      reviewer_assignment_strategy:
+        type: string
+        example: code_owners
       duo_remote_flows_enabled:
         type: string
       duo_foundational_flows_enabled:
@@ -69994,6 +69997,9 @@ definitions:
         type: string
       auto_duo_code_review_enabled:
         type: string
+      reviewer_assignment_strategy:
+        type: string
+        example: code_owners
       duo_remote_flows_enabled:
         type: string
       duo_foundational_flows_enabled:
@@ -70720,6 +70726,14 @@ definitions:
         type: boolean
         description: Require all security policy pipelines to succeed before merge
           requests can be merged
+      reviewer_assignment_strategy:
+        type: string
+        description: Strategy used to automatically assign reviewers to merge requests.
+          One of `disabled`, `code_owners`, or `dap_powered`.
+        enum:
+        - disabled
+        - code_owners
+        - dap_powered
     description: Update a project
   postApiV4ProjectsIdShare:
     type: object

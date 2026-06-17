@@ -263,7 +263,7 @@
     "@gitlab/stylelint-config": "6.3.0",
     "@graphql-eslint/eslint-plugin": "4.4.0",
     "@pinia/testing": "^0.1.5",
-    "@testing-library/dom": "^7.16.2",
+    "@testing-library/dom": "^9.3.4",
     "@testing-library/vue": "5",
     "@types/jest": "^29.5.12",
     "@types/lodash-es": "^4.17.12",

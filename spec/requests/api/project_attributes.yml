@@ -211,7 +211,6 @@ project_setting:
     - duo_sast_vr_workflow_enabled
     - duo_secret_detection_fp_enabled
     - enabled_foundational_flows
-    - reviewer_assignment_strategy
     - merge_request_title_regex
     - merge_request_title_regex_description
     - pipeline_execution_policy_bot_access_enabled

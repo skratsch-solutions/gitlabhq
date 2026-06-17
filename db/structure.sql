@@ -31343,7 +31343,8 @@ CREATE TABLE snippet_repository_states (
     verification_failure text,
     snippet_project_id bigint,
     snippet_organization_id bigint,
-    CONSTRAINT check_0dabaefb7f CHECK ((char_length(verification_failure) <= 255))
+    CONSTRAINT check_0dabaefb7f CHECK ((char_length(verification_failure) <= 255)),
+    CONSTRAINT check_234506f573 CHECK ((num_nonnulls(snippet_organization_id, snippet_project_id) = 1))
 );
 
 CREATE SEQUENCE snippet_repository_states_id_seq
@@ -48857,6 +48858,10 @@ CREATE INDEX index_merge_request_diff_details_on_project_id ON merge_request_dif
 CREATE INDEX index_merge_request_diff_details_on_verification_state ON merge_request_diff_details USING btree (verification_state);
 
 CREATE INDEX index_merge_request_diff_details_pending_verification ON merge_request_diff_details USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
+CREATE INDEX index_merge_request_diff_files_99208b8fac_on_mr_diff_id ON ONLY merge_request_diff_files_99208b8fac USING btree (merge_request_diff_id);
+
+CREATE INDEX index_merge_request_diff_files_99208b8fac_on_project_id ON ONLY merge_request_diff_files_99208b8fac USING btree (project_id);
 
 CREATE INDEX index_merge_request_diff_files_on_project_id ON merge_request_diff_files USING btree (project_id);
 

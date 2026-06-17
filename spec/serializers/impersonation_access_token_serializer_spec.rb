@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe ImpersonationAccessTokenSerializer do
+RSpec.describe ImpersonationAccessTokenSerializer, feature_category: :user_management do
   subject(:serializer) { described_class.new }
 
   describe '#represent' do
