@@ -7,7 +7,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
   include BadgesHelper
 
   before do
-    stub_feature_flags(work_item_legacy_url: true, work_items_autocomplete: true)
+    stub_feature_flags(work_item_legacy_url: true)
     # create AI Setting singleton record to prevent N+1
     Ai::Setting.instance if Gitlab.ee?
   end
@@ -205,22 +205,10 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
         let_it_be(:project1) { create(:project, namespace: user.namespace) }
         let_it_be(:project2) { create(:project) }
 
-        shared_examples 'recently viewed work items or issues' do |ff_enabled|
-          let(:recent_items_class) { ff_enabled ? ::Gitlab::Search::RecentWorkItems : ::Gitlab::Search::RecentIssues }
+        shared_examples 'recently viewed work items or issues' do
+          let(:recent_items_class) { ::Gitlab::Search::RecentWorkItems }
           let(:recent_items) { instance_double(recent_items_class) }
-          let(:category_name) { ff_enabled ? 'Recent work items' : 'Recent issues' }
-
-          def item_path(item, ff_enabled)
-            if ff_enabled
-              work_item_path(item)
-            else
-              issue_path(item)
-            end
-          end
-
-          before do
-            stub_feature_flags(work_items_autocomplete: ff_enabled)
-          end
+          let(:category_name) { 'Recent work items' }
 
           it 'includes the users recently viewed items and project with correct order', :aggregate_failures do
             project = create(:project, :with_avatar, title: 'the search term')
@@ -241,7 +229,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
               category: category_name,
               id: issue1.id,
               label: 'issue 1',
-              url: item_path(issue1, ff_enabled),
+              url: work_item_path(issue1),
               avatar_url: project.avatar_url
             })
 
@@ -249,7 +237,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
               category: category_name,
               id: issue2.id,
               label: 'issue 2',
-              url: item_path(issue2, ff_enabled),
+              url: work_item_path(issue2),
               avatar_url: ''
             })
 
@@ -278,7 +266,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
               category: category_name,
               id: issue1.id,
               label: 'issue same_name',
-              url: item_path(issue1, ff_enabled),
+              url: work_item_path(issue1),
               avatar_url: project3.avatar_url
             })
 
@@ -286,7 +274,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
               category: category_name,
               id: issue2.id,
               label: 'issue same_name',
-              url: item_path(issue2, ff_enabled),
+              url: work_item_path(issue2),
               avatar_url: ''
             })
           end
@@ -298,14 +286,14 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
 
             allow(recent_items_class).to receive(:new).with(user: user).and_return(recent_items)
             search_result = Issue.id_in_ordered(issue_ids)
-            search_result = search_result.preload_namespace.preload_routables if ff_enabled
+            search_result = search_result.preload_namespace.preload_routables
             expect(recent_items).to receive(:search).with(search_term).and_return(search_result)
 
             control = ActiveRecord::QueryRecorder.new(skip_cached: true) { search_autocomplete_opts(search_term) }
 
             issue_ids += create_list(:issue, 3).map(&:id)
             search_result = Issue.id_in_ordered(issue_ids)
-            search_result = search_result.preload_namespace.preload_routables if ff_enabled
+            search_result = search_result.preload_namespace.preload_routables
             expect(recent_items).to receive(:search).with(search_term).and_return(search_result)
 
             # Threshold of 6 allows for 2 additional queries per new issue (3 new issues = 6 queries)
@@ -316,13 +304,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
           end
         end
 
-        context 'when work_items_autocomplete is enabled' do
-          it_behaves_like 'recently viewed work items or issues', true
-        end
-
-        context 'when work_items_autocomplete is disabled' do
-          it_behaves_like 'recently viewed work items or issues', false
-        end
+        it_behaves_like 'recently viewed work items or issues'
 
         it 'builds URLs using work_item_path helper for issues', :aggregate_failures do
           project = create(:project, :with_avatar)

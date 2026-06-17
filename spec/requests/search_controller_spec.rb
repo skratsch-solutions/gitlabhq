@@ -326,7 +326,6 @@ RSpec.describe SearchController, :with_current_organization, feature_category: :
     subject(:request) { get search_autocomplete_path, params: { term: 'autocomplete fix' } }
 
     before do
-      stub_feature_flags(work_items_autocomplete: true)
       login_as(user)
       allow_next_instance_of(Gitlab::Search::RecentWorkItems) do |instance|
         allow(instance).to receive(:search).and_return([work_item])

@@ -460,68 +460,38 @@ as the GitLab IDE extensions. For instructions, see [configure MCP servers](../g
 
 ## Hooks
 
+{{< details >}}
+
+- Status: Experiment
+
+{{< /details >}}
+
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/work_items/2209) as an [experiment](../../policy/development_stages_support.md#experiment) in GitLab Duo CLI 8.95.0, during the GitLab 19.1 release.
 
 {{< /history >}}
 
-Hooks let you run custom commands at specific points in the GitLab Duo CLI lifecycle.
+Use hooks to run custom commands at specific points in the GitLab Duo CLI lifecycle.
+
 For example, you can inject additional context into every new chat session by running
 a script that gathers information about your environment.
 
-The CLI supports `SessionStart`, which runs when a new
-session starts or an existing session resumes.
+The GitLab Duo CLI supports hooks at two levels:
 
-### Configure hooks
+- User-level (global): Apply to all of your projects.
+- Project-level: Apply only to a specific project. Project-level hooks are disabled by default to
+  prevent running arbitrary code from checked-out repositories.
 
-Define hooks in a `hooks.json` file. The GitLab Duo CLI loads hooks from two locations:
+When both user-level and project-level `hooks.json` files exist, the CLI merges the hooks and runs
+the user-level ones first.
 
-| Location | Path | Loaded by default |
-|----------|------|-------------------|
-| User-level (global) | `~/.gitlab/duo/hooks.json` | Yes |
-| Project-level | `<project>/.gitlab/duo/hooks.json` | No |
+> [!note]
+> For security reasons, sensitive environment variables (`GITLAB_TOKEN`, `GITLAB_OAUTH_TOKEN`, `CI_JOB_TOKEN`) are excluded from hook processes.
 
-Project-level hooks are disabled by default to prevent running arbitrary code from
-checked-out repositories. To enable them, use the `--enable-project-hooks` option
-or set `GITLAB_ENABLE_PROJECT_HOOKS=true`.
+### Hook execution
 
-When both user-level and project-level files exist, the CLI merges the hooks and runs the user-level (global) hooks first.
-
-### Hook configuration format
-
-A `hooks.json` file contains matcher groups for each event. Each matcher group
-has an optional regex `matcher` and an array of command hooks:
-
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat ~/.my-coding-preferences.md",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-| Field | Description |
-|-------|-------------|
-| `matcher` | Optional. Regex tested against the event source (`startup` or `resume` for `SessionStart`). Omit to match all. |
-| `hooks[].type` | Must be `"command"`. |
-| `hooks[].command` | A shell command to execute. |
-| `hooks[].timeout` | Optional. Timeout in seconds. Default: 30. |
-
-### How `SessionStart` hooks work
-
-When a `SessionStart` hook runs, the GitLab Duo CLI:
+When a hook runs, the GitLab Duo CLI:
 
 1. Sends a JSON object to the command's standard input with session metadata:
 
@@ -553,11 +523,78 @@ The hook can return plain text on standard output, or a JSON object:
 If the hook exits with a non-zero status or times out, it is logged as a warning
 but does not block the session from starting.
 
-### Security considerations
+### Create hooks
 
-Sensitive environment variables (`GITLAB_TOKEN`, `GITLAB_OAUTH_TOKEN`, `CI_JOB_TOKEN`)
-are excluded from hook processes. Project-level hooks require explicit opt-in because
-they may contain untrusted code from a cloned repository.
+The GitLab Duo CLI supports the `SessionStart` event, which runs when a new session starts or an existing
+session resumes.
+
+To create a hook:
+
+1. Create a `hooks.json` file:
+   - For a user-level hook:
+     - On Linux or macOS, create the file at `~/.gitlab/duo/hooks.json`.
+     - On Windows, create the file at `%APPDATA%\GitLab\duo\hooks.json`.
+   - For a project-level hook, create the file in the root of your project: `<project>/.gitlab/duo/hooks.json`.
+1. Define your hooks in the file.
+   - Create a matcher group for each `SessionStart` event source that should trigger the hook (`startup`
+     or `resume`).
+   - Each matcher group has an optional regex `matcher` value and an array of command hooks:
+   
+     | Field | Description |
+     |-------|-------------|
+     | `matcher` | Optional. Regex tested against the event source (`startup` or `resume` for `SessionStart`). Omit to match all. |
+     | `hooks[].type` | Must be `"command"`. |
+     | `hooks[].command` | A shell command to execute. |
+     | `hooks[].timeout` | Optional. Timeout in seconds. Default: 30. |
+
+   - For example:
+
+     ```json
+     {
+       "hooks": {
+         "SessionStart": [
+           {
+             "matcher": "startup",
+             "hooks": [
+               {
+                 "type": "command",
+                 "command": "cat ~/.my-coding-preferences.md",
+                 "timeout": 10
+               }
+             ]
+          }
+         ]
+       }
+     }
+     ```
+
+1. If you have project-level hooks, enable them when you start the GitLab Duo CLI:
+
+   {{< tabs >}}
+
+   {{< tab title="glab" >}}
+
+   ```shell
+   glab duo cli --enable-project-hooks
+   ```
+
+   {{< /tab >}}
+
+   {{< tab title="duo" >}}
+
+   ```shell
+   duo --enable-project-hooks
+   ```
+
+   {{< /tab >}}
+
+   {{< /tabs >}}
+
+   Alternatively, set the environment variable:
+
+   ```shell
+   export GITLAB_ENABLE_PROJECT_HOOKS=true
+   ```
 
 ## Options
 
@@ -569,7 +606,7 @@ The GitLab Duo CLI supports these options:
 - `--log-level <level>`: Set the logging level (`debug`, `info`, `warn`, `error`).
 - `-v`, `--version`: Display version information.
 - `--enable-global-skills`: (Experimental) Enable [user-level Agent Skills](../duo_agent_platform/customize/agent_skills.md#create-user-level-skills).
-- `--enable-project-hooks`: (Experimental) Enable loading project-level [hooks](#hooks) (`.gitlab/duo/hooks.json`).
+- `--enable-project-hooks`: (Experimental) Enable loading project-level [hooks](#hooks).
 - `--model <model>`: Select the AI model to use for the session.
 
 Additional options for headless mode:

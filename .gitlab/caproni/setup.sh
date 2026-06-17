@@ -478,7 +478,23 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 5b. Mirror gitlabhq_development extensions into template1
+# 5b. Grant CREATEDB to the gitlab-dev-stack role so RSpec can create gitlabhq_test
+# ---------------------------------------------------------------------------
+
+echo ""
+echo "==> Granting CREATEDB to the gitlab-dev-stack role..."
+
+if $KUBECTL exec -n "$PG_NAMESPACE" "$PG_POD" -c postgres -- \
+  psql -U postgres -d postgres -c \
+    "ALTER ROLE \"gitlab-dev-stack\" CREATEDB;" >/dev/null; then
+  echo "  ✓ gitlab-dev-stack can now create databases"
+else
+  error "Failed to grant CREATEDB to the gitlab-dev-stack role."
+  exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 5c. Mirror gitlabhq_development extensions into template1
 #
 #     RSpec creates gitlabhq_test by cloning template1 and then replays
 #     db/structure.sql.  Extensions copied from cluster prod (e.g. btree_gist)
@@ -530,7 +546,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 5c. Add test: sections to YAML config files
+# 5d. Add test: sections to YAML config files
 #
 #     RSpec requires a `test` environment.  For each config file that was
 #     rewritten from production → development, append a `test:` block by
@@ -596,7 +612,7 @@ for file in "${TEST_SECTION_FILES[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
-# 5d. Enable pages.local_store only in the test: block of gitlab.yml
+# 5e. Enable pages.local_store only in the test: block of gitlab.yml
 #
 #     The cluster config has pages.local_store.enabled: false because prod
 #     uses object storage. RSpec's TestEnv resolves pages_path via
@@ -618,7 +634,7 @@ if [[ -f "$GITLAB_YML" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 5e. Clear /etc/ paths in the test: block of gitlab.yml
+# 5f. Clear /etc/ paths in the test: block of gitlab.yml
 #
 #     The cluster config points various secret/key/keytab/ca_file settings
 #     at /etc/gitlab/... or /etc/krb5.keytab, none of which exist on local
@@ -647,7 +663,7 @@ if [[ -f "$GITLAB_YML" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 5f. Disable object_store.enabled in every block of the test: section
+# 5g. Disable object_store.enabled in every block of the test: section
 #
 #     The cluster config points uploads/artifacts/LFS/external_diffs/etc. at
 #     the in-cluster minio (gitlab-minio-svc.gitlab.svc:9000) with

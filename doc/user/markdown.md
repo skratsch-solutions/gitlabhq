@@ -780,8 +780,13 @@ When rendered, the example looks similar to:
   - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352861) in GitLab 18.1 [with a flag](../administration/feature_flags/_index.md) named `extensible_reference_filters`. Disabled by default.
   - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/197052) in GitLab 18.2. Feature flag `extensible_reference_filters` removed.
 - Option to reference epics with `[epic:123]` syntax [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352864) in GitLab 18.4.
+- Ability to reference personal snippets [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/217306) in GitLab 19.0 [with a flag](../administration/feature_flags/_index.md) named `personal_snippet_reference_filters`. Disabled by default.
 
 {{< /history >}}
+
+> [!flag]
+> The availability of personal snippet references is controlled by a feature flag.
+> For more information, see the history.
 
 GitLab Flavored Markdown renders GitLab-specific references. For example, you can reference
 an issue, a commit, a team member, or even an entire project team. GitLab Flavored Markdown turns
@@ -805,7 +810,8 @@ GitLab Flavored Markdown recognizes the following:
 | Issue                                                                                | ``#123``, `GL-123`, or `[issue:123]`                  | `namespace/project#123` or `[issue:namespace/project/123]` | `project#123` or `[issue:project/123]` |
 | [Work item](work_items/_index.md)                                                    | `[work_item:123]`                                     | `[work_item:namespace/project/123]`            | `[work_item:project/123]`          |
 | Merge request                                                                        | `!123`                                                | `namespace/project!123`                        | `project!123`                      |
-| Snippet                                                                              | `$123`                                                | `namespace/project$123`                        | `project$123`                      |
+| Snippet <sup>3</sup>                                                                              | `$123`                                                | `namespace/project$123`                        | `project$123`                      |
+| Personal snippet <sup>3</sup>                                                                     | `$123`                                                |                                                |                                    |
 | [Epic](group/epics/_index.md)                                                        | `#123`, `&123`, `[work_item:123]`, or `[epic:123]`    | `group1/subgroup#123`, `group1/subgroup&123`, `[work_item:group1/subgroup/123]`, or `[epic:group1/subgroup/123]` |  |
 | [Iteration](group/iterations/_index.md)                                              | `*iteration:"iteration title"`                        |                                                |                                    |
 | [Iteration cadence](group/iterations/_index.md) by ID<sup>1</sup>                    | `[cadence:123]`                                       |                                                |                                    |
@@ -837,6 +843,8 @@ GitLab Flavored Markdown recognizes the following:
    iterations cadence's ID is `1`.
 1. For labels or milestones, prepend a `/` before `namespace/project` to specify the exact label
    or milestone, removing any possible ambiguity.
+1. Snippet IDs are unique across personal and project snippets, so a given ID always identifies
+   a single snippet.
 
 For example, referencing an issue by using `#123` formats the output as a link
 to issue number 123 with text `#123`. Likewise, a link to issue number 123 is

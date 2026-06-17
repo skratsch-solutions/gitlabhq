@@ -253,7 +253,7 @@ You are charged for model usage based on the following billing methods:
 
 - Variable pricing for GitLab-managed models: A request is equivalent to a single LLM call. One flow makes one or many calls. The credit cost depends on the model used.
 - Variable pricing for self-hosted models: A request is equivalent to a single LLM call. One flow makes one or many calls. You can make eight requests with one credit for any [supported](../administration/gitlab_duo_self_hosted/supported_models_and_hardware_requirements.md#supported-models) or [compatible](../administration/gitlab_duo_self_hosted/supported_models_and_hardware_requirements.md#compatible-models) self-hosted model.
-- Flat pricing for GitLab Duo features: Each successful end-to-end execution consumes a pre-set amount of credits, regardless of how many LLM calls (GitLab-managed and self-hosted models) are made during execution.
+- Flat pricing for GitLab Duo features: Each successful end-to-end execution consumes a pre-set amount of credits, regardless of how many LLM calls (GitLab-managed and self-hosted models) are made during execution. Features that run on a self-hosted model receive a 20% discount on the credits consumed for an execution.
 
 Only completed calls or executions are billed.
 If a call or execution fails, no credits are deducted.
@@ -300,15 +300,27 @@ For premium models with optimized integration:
 
 ### Features
 
+{{< history >}}
+
+- Self-hosted model discount introduced in GitLab 19.1 [with a feature flag](../administration/feature_flags/_index.md) named `self_hosted_flat_pricing_discount`.
+
+{{< /history >}}
+
+> [!flag]
+> The availability of the self-hosted model discount is controlled by a feature flag.
+> For more information, see the history.
+
 The following table lists the number of executions you can make with one GitLab Credit for different features.
 This pricing applies to all models (including self-hosted models) available for the feature.
 
-| Feature | Executions with one credit |
-|---------|---------------------------|
-| [GitLab Duo Code Suggestions](../user/duo_agent_platform/code_suggestions/_index.md) | 50 |
-| Code Review Flow | 4 |
-| SAST False Positive Detection Flow | 1 |
-| SAST Vulnerability Resolution Flow | 0.25 |
+A feature that runs on a [self-hosted model](../administration/gitlab_duo_self_hosted/_index.md) receives a 20% discount.
+
+| Feature | Executions with one credit (GitLab-managed model) | Executions with one credit (self-hosted model) |
+|---------|----------------------------|------------------------------------------------|
+| [GitLab Duo Code Suggestions](../user/duo_agent_platform/code_suggestions/_index.md) | 50 | 62.5 |
+| Code Review Flow | 4 | 5 |
+| SAST False Positive Detection Flow | 1 | 1.25 |
+| SAST Vulnerability Resolution Flow | 0.25 | 0.3125 |
 
 For GitLab Duo Agentic Chat, one sent message counts as one or more billable requests,
 because one or more LLM calls are made to answer the question.
