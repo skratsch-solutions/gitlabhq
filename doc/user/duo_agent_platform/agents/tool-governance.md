@@ -89,7 +89,7 @@ override the defaults. If no rule is configured at any level, the tool
 defaults to Always Allow.
 
 The fail-closed principle applies. If the governance service encounters
-a persistent error when resolving rules, the agent receives no tools rather 
+a persistent error when resolving rules, the agent receives no tools rather
 than silently allowing execution.
 
 ## Configure tool governance for a group

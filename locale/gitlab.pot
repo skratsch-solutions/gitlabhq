@@ -6418,16 +6418,10 @@ msgstr ""
 msgid "AdminSettings|Code search with advanced search"
 msgstr ""
 
-msgid "AdminSettings|Collector host"
-msgstr ""
-
 msgid "AdminSettings|Configure Let's Encrypt"
 msgstr ""
 
 msgid "AdminSettings|Configure limits on the number of repositories users can download, clone, or fork in a given time."
-msgstr ""
-
-msgid "AdminSettings|Configure product analytics to track events within your project applications."
 msgstr ""
 
 msgid "AdminSettings|Configure the Web IDE extension host domain."
@@ -6443,9 +6437,6 @@ msgid "AdminSettings|Control which projects can publish components to the CI/CD 
 msgstr ""
 
 msgid "AdminSettings|Could not update extension host domain"
-msgstr ""
-
-msgid "AdminSettings|Cube API URL"
 msgstr ""
 
 msgid "AdminSettings|Default expiration time for parallel deployments (in seconds)"
@@ -6514,9 +6505,6 @@ msgstr ""
 msgid "AdminSettings|Enable pipeline suggestion banner"
 msgstr ""
 
-msgid "AdminSettings|Enable product analytics"
-msgstr ""
-
 msgid "AdminSettings|Enable single origin fallback"
 msgstr ""
 
@@ -6581,9 +6569,6 @@ msgid "AdminSettings|Groups cannot change this setting."
 msgstr ""
 
 msgid "AdminSettings|I have read and agree to the Let's Encrypt %{link_start}Terms of Service%{link_end} (PDF)."
-msgstr ""
-
-msgid "AdminSettings|If GitLab manages your cluster, then your analytics data is %{link_start}retained for 1 year%{link_end}."
 msgstr ""
 
 msgid "AdminSettings|If exact code search is enabled, you should turn off this setting to save resources."
@@ -6856,16 +6841,10 @@ msgstr ""
 msgid "AdminSettings|Skip confirmation when administrators reassign placeholder users %{link_start}%{icon}%{link_end}"
 msgstr ""
 
-msgid "AdminSettings|The URL of your Cube instance."
-msgstr ""
-
 msgid "AdminSettings|The default domain to use for Auto Review Apps and Auto Deploy stages in all projects."
 msgstr ""
 
 msgid "AdminSettings|The extension host domain provided is not a valid domain name."
-msgstr ""
-
-msgid "AdminSettings|The host of your data collector instance."
 msgstr ""
 
 msgid "AdminSettings|The latest artifacts for all jobs in the most recent successful pipelines in each project are stored and do not expire."
@@ -10292,9 +10271,6 @@ msgid "Analytics|Analytics dashboards"
 msgstr ""
 
 msgid "Analytics|Analytics settings for '%{group_name}' were successfully updated."
-msgstr ""
-
-msgid "Analytics|Analytics settings for '%{project_name}' were successfully updated."
 msgstr ""
 
 msgid "Analytics|Configure analytics reports."
@@ -14531,6 +14507,9 @@ msgstr ""
 msgid "Browse Files"
 msgstr ""
 
+msgid "Browse and download artifacts produced by jobs."
+msgstr ""
+
 msgid "Browse and manage your repository files."
 msgstr ""
 
@@ -14553,6 +14532,9 @@ msgid "Build a new repository or import existing work."
 msgstr ""
 
 msgid "Build cannot be erased"
+msgstr ""
+
+msgid "Build, test, and deploy your code with pipelines."
 msgstr ""
 
 msgid "BuildArtifacts|An error occurred while fetching the artifacts"
@@ -20957,6 +20939,9 @@ msgstr ""
 msgid "Configure %{snowplow_link_start}Snowplow%{snowplow_link_end} to track events. %{help_link_start}Learn more.%{help_link_end}"
 msgstr ""
 
+msgid "Configure AWS integration for your project."
+msgstr ""
+
 msgid "Configure CAPTCHAs, IP address limits, and other anti-spam measures."
 msgstr ""
 
@@ -20985,6 +20970,9 @@ msgid "Configure GitLab"
 msgstr ""
 
 msgid "Configure Gitaly timeouts."
+msgstr ""
+
+msgid "Configure Google Cloud integration for your project."
 msgstr ""
 
 msgid "Configure Integrations"
@@ -21210,6 +21198,9 @@ msgid "Connect a cluster"
 msgstr ""
 
 msgid "Connect all repositories"
+msgstr ""
+
+msgid "Connect and manage your Kubernetes clusters."
 msgstr ""
 
 msgid "Connect repositories from GitHub"
@@ -29587,6 +29578,9 @@ msgid "Edit Release"
 msgstr ""
 
 msgid "Edit Slack integration"
+msgstr ""
+
+msgid "Edit and validate your pipeline configuration."
 msgstr ""
 
 msgid "Edit application"
@@ -55985,6 +55979,9 @@ msgstr ""
 msgid "Plan"
 msgstr ""
 
+msgid "Plan and track test cases for your project."
+msgstr ""
+
 msgid "Plan:"
 msgstr ""
 
@@ -56815,9 +56812,6 @@ msgstr ""
 msgid "Product Manager"
 msgstr ""
 
-msgid "Product analytics"
-msgstr ""
-
 msgid "ProductAnalytics|1. Add the NPM package to your package.json using your preferred package manager"
 msgstr ""
 
@@ -56948,9 +56942,6 @@ msgid "ProductAnalytics|Snowplow configurator connection string"
 msgstr ""
 
 msgid "ProductAnalytics|The Product Analytics Beta on GitLab.com is offered only in the Google Cloud Platform zone %{zone}."
-msgstr ""
-
-msgid "ProductAnalytics|The connection string for your Snowplow configurator instance."
 msgstr ""
 
 msgid "ProductAnalytics|The connection string for your configurator instance."
@@ -58540,9 +58531,6 @@ msgstr ""
 msgid "ProjectSettings|Analytics"
 msgstr ""
 
-msgid "ProjectSettings|Analytics Dashboards"
-msgstr ""
-
 msgid "ProjectSettings|Anyone can pull packages with a package manager API."
 msgstr ""
 
@@ -58567,9 +58555,6 @@ msgstr ""
 msgid "ProjectSettings|By default, webhooks for project access token expiration trigger 7 days before a token expires. Enable this setting to also trigger these webhooks 60 and 30 days before a token expires."
 msgstr ""
 
-msgid "ProjectSettings|Change the location of dashboards?"
-msgstr ""
-
 msgid "ProjectSettings|Checkbox is visible and selected by default."
 msgstr ""
 
@@ -58585,9 +58570,6 @@ msgstr ""
 msgid "ProjectSettings|Choose your merge method, options, checks, and squash options."
 msgstr ""
 
-msgid "ProjectSettings|Collector host"
-msgstr ""
-
 msgid "ProjectSettings|Combine git tags with release notes, release evidence, and assets to create a release."
 msgstr ""
 
@@ -58597,25 +58579,13 @@ msgstr ""
 msgid "ProjectSettings|Commits in earlier merge train pipelines might not be validated against the merged commits. "
 msgstr ""
 
-msgid "ProjectSettings|Configure %{link_start}data sources%{link_end} to be used for your dashboards."
-msgstr ""
-
 msgid "ProjectSettings|Configure GitLab Duo features for this project."
 msgstr ""
 
 msgid "ProjectSettings|Configure your infrastructure."
 msgstr ""
 
-msgid "ProjectSettings|Configure your instance"
-msgstr ""
-
 msgid "ProjectSettings|Container registry"
-msgstr ""
-
-msgid "ProjectSettings|Cube API URL"
-msgstr ""
-
-msgid "ProjectSettings|Data sources"
 msgstr ""
 
 msgid "ProjectSettings|Delete permanently"
@@ -58840,9 +58810,6 @@ msgstr ""
 msgid "ProjectSettings|Only signed commits can be pushed to this repository."
 msgstr ""
 
-msgid "ProjectSettings|Override the instance analytics configuration for this project."
-msgstr ""
-
 msgid "ProjectSettings|Package registry"
 msgstr ""
 
@@ -58862,9 +58829,6 @@ msgid "ProjectSettings|Prevents direct linking to potentially sensitive media fi
 msgstr ""
 
 msgid "ProjectSettings|Private"
-msgstr ""
-
-msgid "ProjectSettings|Product analytics"
 msgstr ""
 
 msgid "ProjectSettings|Project topics"
@@ -58924,22 +58888,13 @@ msgstr ""
 msgid "ProjectSettings|Security policy bot access"
 msgstr ""
 
-msgid "ProjectSettings|Select a project"
-msgstr ""
-
 msgid "ProjectSettings|Select the default branch for this project, and configure the template for branch names."
-msgstr ""
-
-msgid "ProjectSettings|Select the project containing %{link_start}Analytics Dashboards%{link_end} configuration files."
 msgstr ""
 
 msgid "ProjectSettings|Set a default title for merge requests."
 msgstr ""
 
 msgid "ProjectSettings|Set the default behavior of this option in merge requests. Changes to this are also applied to existing merge requests."
-msgstr ""
-
-msgid "ProjectSettings|Set up your project to receive events that are used for %{link_start}product analytics%{link_end}."
 msgstr ""
 
 msgid "ProjectSettings|Share code with others outside the project."
@@ -58972,16 +58927,10 @@ msgstr ""
 msgid "ProjectSettings|Storage name:"
 msgstr ""
 
-msgid "ProjectSettings|Store configuration files for custom dashboards and visualizations. By default the current project is used."
-msgstr ""
-
 msgid "ProjectSettings|Submit changes to be merged upstream."
 msgstr ""
 
 msgid "ProjectSettings|Target project"
-msgstr ""
-
-msgid "ProjectSettings|The URL of your Cube instance."
 msgstr ""
 
 msgid "ProjectSettings|The commit message used when applying merge request suggestions."
@@ -58997,9 +58946,6 @@ msgid "ProjectSettings|The default target project for merge requests created in 
 msgstr ""
 
 msgid "ProjectSettings|The default template will be applied on save."
-msgstr ""
-
-msgid "ProjectSettings|The host of your data collector instance."
 msgstr ""
 
 msgid "ProjectSettings|These checks must pass before merge requests can be merged."
@@ -60296,6 +60242,12 @@ msgid "Public projects are an easy way to allow everyone to have read-only acces
 msgstr ""
 
 msgid "Public projects compute cost factor"
+msgstr ""
+
+msgid "Publish a static website from your repository."
+msgstr ""
+
+msgid "Publish and manage releases of your project."
 msgstr ""
 
 msgid "Publish to status page"
@@ -62585,6 +62537,9 @@ msgid "Roles"
 msgstr ""
 
 msgid "Roles and permissions"
+msgstr ""
+
+msgid "Roll out features gradually with feature flags."
 msgstr ""
 
 msgid "Roll up totals may reflect child items you don’t have access to."
@@ -65131,6 +65086,9 @@ msgid "Schedule"
 msgstr ""
 
 msgid "Schedule a new pipeline"
+msgstr ""
+
+msgid "Schedule pipelines to run automatically."
 msgstr ""
 
 msgid "Schedule-based escalation rules must have a schedule in the same project as the policy"
@@ -74370,6 +74328,9 @@ msgstr ""
 msgid "StorageSize|Unknown"
 msgstr ""
 
+msgid "Store and manage your Terraform state files."
+msgstr ""
+
 msgid "Stored version"
 msgstr ""
 
@@ -79255,6 +79216,9 @@ msgstr ""
 msgid "Tracing|value"
 msgstr ""
 
+msgid "Track and manage your deployment environments."
+msgstr ""
+
 msgid "Track compliance across your projects. Upgrade to GitLab Ultimate to access the Compliance center."
 msgstr ""
 
@@ -82860,6 +82824,9 @@ msgstr ""
 msgid "View branch"
 msgstr ""
 
+msgid "View build provenance attestations."
+msgstr ""
+
 msgid "View card matches"
 msgstr ""
 
@@ -82994,6 +82961,9 @@ msgid "View the commit history of your repository."
 msgstr ""
 
 msgid "View the documentation"
+msgstr ""
+
+msgid "View the jobs run by your pipelines."
 msgstr ""
 
 msgid "View the latest successful deployment to this environment"

@@ -7448,7 +7448,6 @@
 - './spec/workers/disallow_two_factor_for_subgroups_worker_spec.rb'
 - './spec/workers/email_receiver_worker_spec.rb'
 - './spec/workers/emails_on_push_worker_spec.rb'
-- './spec/workers/environments/auto_delete_cron_worker_spec.rb'
 - './spec/workers/environments/auto_stop_cron_worker_spec.rb'
 - './spec/workers/environments/auto_stop_worker_spec.rb'
 - './spec/workers/environments/canary_ingress/update_worker_spec.rb'

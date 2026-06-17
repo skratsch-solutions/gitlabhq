@@ -3,9 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe AuthorizedProjectUpdate::FindRecordsDueForRefreshService, feature_category: :groups_and_projects do
-  # We're using let! here so that any expectations for the service class are not
-  # triggered twice.
-  let!(:project) { create(:project) }
+  let_it_be(:project) { create(:project) }
 
   let(:user) { project.namespace.owner }
   let(:service) { described_class.new(user) }

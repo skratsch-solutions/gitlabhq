@@ -99,6 +99,7 @@ export default {
       required: true,
     },
   },
+  emits: ['openUnassignedLane', 'setActiveList', 'toggleNewForm'],
   data() {
     return {
       showMilestonePopover: false,

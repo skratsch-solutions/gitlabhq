@@ -142,7 +142,6 @@ RSpec/AvoidWaitForRequests:
     - 'ee/spec/features/projects/security/user_views_security_configuration_spec.rb'
     - 'ee/spec/features/projects/security/vulnerability_details_spec.rb'
     - 'ee/spec/features/projects/security/vulnerability_report_spec.rb'
-    - 'ee/spec/features/projects/settings/analytics/user_configures_analytics_instance_settings_spec.rb'
     - 'ee/spec/features/projects/settings/branch_rules/branch_rule_details_spec.rb'
     - 'ee/spec/features/projects/settings/branch_rules/branch_rules_listing_spec.rb'
     - 'ee/spec/features/projects/settings/disable_merge_trains_setting_spec.rb'

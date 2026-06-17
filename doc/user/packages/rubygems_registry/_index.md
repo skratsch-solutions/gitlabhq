@@ -159,7 +159,7 @@ token as the password.
 In the following examples:
 
 - `<token>` is your personal access token, deploy token, or CI/CD job token.
-- `<project_id>` is displayed on the [project overview page](../../project/working_with_projects.md#find-the-project-id). 
+- `<project_id>` is displayed on the [project overview page](../../project/working_with_projects.md#find-the-project-id).
 
 {{< tabs >}}
 

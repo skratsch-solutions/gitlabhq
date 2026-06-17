@@ -471,24 +471,6 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
     end
   end
 
-  describe '.auto_deletable' do
-    subject { described_class.auto_deletable(limit) }
-
-    let(:limit) { 100 }
-
-    context 'when environment is auto-deletable' do
-      let!(:environment) { create(:environment, :auto_deletable) }
-
-      it { is_expected.to eq([environment]) }
-    end
-
-    context 'when environment is not auto-deletable' do
-      let!(:environment) { create(:environment) }
-
-      it { is_expected.to be_empty }
-    end
-  end
-
   describe '.long_stopping' do
     subject { described_class.long_stopping }
 

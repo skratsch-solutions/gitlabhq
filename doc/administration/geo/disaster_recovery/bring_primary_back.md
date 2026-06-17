@@ -78,7 +78,7 @@ To bring the former primary site up to date:
       Cursor stalls and all sync types remain at 0%.
 
       In those cases, on a Rails or Sidekiq node of the secondary site:
-      
+
       1. [Run the tracking database migrations manually](../setup/external_database.md#set-up-the-database-schema).
       1. Restart the Geo Log Cursor so it picks up the new schema:
 

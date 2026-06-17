@@ -19,7 +19,6 @@ export const commonOptions = {
   simulatePipelineHelpPagePath: 'help/ci/simulate',
   totalBranches: '10',
   usesExternalConfig: 'false',
-  validateTabIllustrationPath: 'illustrations/tab',
   ymlHelpPagePath: 'help/ci/yml',
 };
 

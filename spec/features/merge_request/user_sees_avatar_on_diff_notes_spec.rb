@@ -110,12 +110,14 @@ RSpec.describe 'Merge request > User sees avatars on diff notes', :js, feature_c
         expect(page).to have_content "#{note.author.name}: #{note.note.truncate(17)}"
       end
 
-      it 'toggles comments when clicking avatar',
-        quarantine: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/issues/4213' do
+      it 'toggles comments when clicking avatar' do
         page.within find_line(position.line_code(project.repository)) do
           find('.diff-notes-collapse').send_keys(:return)
         end
 
+        # Confirm the collapsed state has settled (the comment avatar is shown
+        # in place of the expanded notes) before asserting the notes are hidden.
+        expect(page).to have_selector('.js-diff-comment-avatar [data-testid="user-avatar-image"]')
         expect(page).not_to have_selector('.notes_holder')
 
         page.within find_line(position.line_code(project.repository)) do

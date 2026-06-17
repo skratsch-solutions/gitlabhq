@@ -37,7 +37,7 @@ RSpec.describe MembersFinder, feature_category: :groups_and_projects do
 
   it 'returns active users and excludes invited users' do
     member1 = project.add_maintainer(user2)
-    create(:project_member, :invited, project: project, invite_email: create(:user).email)
+    create(:project_member, :invited, project: project, invite_email: build_stubbed(:user).email)
     project.add_maintainer(blocked_user)
 
     result = described_class.new(project, user2, params: { active_without_invites_and_requests: true }).execute
@@ -58,7 +58,7 @@ RSpec.describe MembersFinder, feature_category: :groups_and_projects do
   end
 
   it 'includes only non-invite members if user do not have amdin permissions on project' do
-    create(:project_member, :invited, project: project, invite_email: create(:user).email)
+    create(:project_member, :invited, project: project, invite_email: build_stubbed(:user).email)
     member1 = project.add_maintainer(user1)
     member2 = project.add_developer(user2)
 
@@ -68,7 +68,7 @@ RSpec.describe MembersFinder, feature_category: :groups_and_projects do
   end
 
   it 'includes invited members if user have admin permissions on project' do
-    member_invite = create(:project_member, :invited, project: project, invite_email: create(:user).email)
+    member_invite = create(:project_member, :invited, project: project, invite_email: build_stubbed(:user).email)
     member1 = project.add_maintainer(user1)
     member2 = project.add_maintainer(user2)
 
@@ -120,7 +120,7 @@ RSpec.describe MembersFinder, feature_category: :groups_and_projects do
   end
 
   it 'returns the members.access_level when the user is invited', :nested_groups do
-    member_invite = create(:project_member, :invited, project: project, invite_email: create(:user).email)
+    member_invite = create(:project_member, :invited, project: project, invite_email: build_stubbed(:user).email)
     member1 = group.add_maintainer(user2)
 
     result = described_class.new(project, user2).execute(include_relations: [:direct, :descendants])

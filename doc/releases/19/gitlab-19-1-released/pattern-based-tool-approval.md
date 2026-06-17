@@ -19,6 +19,6 @@ commands, such as a series of `git` operations, forced you through a stream of n
 identical prompts.
 
 You can now choose a third approval option, **Approve all uses of this tool for
-session**. This option approves invocations of the tool for the remainder of the session whenever the arguments match the approved pattern. 
+session**. This option approves invocations of the tool for the remainder of the session whenever the arguments match the approved pattern.
 
 Pattern-based approvals are available for Agentic Chat in the GitLab UI, GitLab Duo CLI, GitLab for VS Code, and the GitLab Duo plugin for JetBrains IDEs.

@@ -4,9 +4,9 @@ require 'spec_helper'
 
 RSpec.describe Organizations::ConfirmService, feature_category: :organization do
   let_it_be(:user) { create(:user) }
-  let_it_be_with_reload(:organization) { create(:organization, :unconfirmed) }
-  let_it_be(:top_level_group) { create(:group, organization: organization) }
-  let_it_be(:other_top_level_group) { create(:group, organization: organization) }
+  let_it_be_with_reload(:organization) { create(:organization, :unconfirmed, owners: user) }
+  let_it_be(:top_level_group) { create(:group, organization: organization, owners: user) }
+  let_it_be(:other_top_level_group) { create(:group, organization: organization, owners: user) }
 
   let(:current_user) { user }
   let(:organization_id) { organization.id }
@@ -16,12 +16,6 @@ RSpec.describe Organizations::ConfirmService, feature_category: :organization do
   subject(:response) { described_class.new(current_user, params).execute }
 
   describe '#execute' do
-    before_all do
-      organization.add_owner(user)
-      top_level_group.add_owner(user)
-      other_top_level_group.add_owner(user)
-    end
-
     context 'when all validations pass' do
       it 'transitions the organization state to confirmed' do
         expect { response }.to change { organization.reload.state }.from('unconfirmed').to('confirmed')

@@ -539,7 +539,7 @@ To create a hook:
    - Create a matcher group for each `SessionStart` event source that should trigger the hook (`startup`
      or `resume`).
    - Each matcher group has an optional regex `matcher` value and an array of command hooks:
-   
+
      | Field | Description |
      |-------|-------------|
      | `matcher` | Optional. Regex tested against the event source (`startup` or `resume` for `SessionStart`). Omit to match all. |

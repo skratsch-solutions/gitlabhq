@@ -132,5 +132,4 @@ RSpec/ReturnFromStub:
     - 'spec/views/shared/milestones/_top.html.haml_spec.rb'
     - 'spec/views/shared/projects/_project.html.haml_spec.rb'
     - 'spec/views/shared/snippets/_snippet.html.haml_spec.rb'
-    - 'spec/workers/environments/auto_delete_cron_worker_spec.rb'
     - 'spec/workers/projects/git_garbage_collect_worker_spec.rb'

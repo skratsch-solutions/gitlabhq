@@ -257,6 +257,7 @@ Every endpoint must have a `success` value for each `desc` block.
 The value should accurately describe a success response for the endpoint.
 
 Do not use the `http_codes` option to document the success response.
+Use `success` and `failure` instead. The `API/DeprecatedHttpCodes` RuboCop cop enforces this rule.
 
 The `success` option accepts either:
 

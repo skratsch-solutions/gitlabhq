@@ -52,7 +52,6 @@ SidekiqLoadBalancing/WorkerDataConsistency:
     - 'app/workers/disallow_two_factor_for_subgroups_worker.rb'
     - 'app/workers/email_receiver_worker.rb'
     - 'app/workers/emails_on_push_worker.rb'
-    - 'app/workers/environments/auto_delete_cron_worker.rb'
     - 'app/workers/environments/auto_stop_cron_worker.rb'
     - 'app/workers/environments/auto_stop_worker.rb'
     - 'app/workers/environments/canary_ingress/update_worker.rb'

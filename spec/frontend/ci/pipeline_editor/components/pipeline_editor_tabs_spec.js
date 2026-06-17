@@ -71,7 +71,6 @@ describe('Pipeline editor tabs component', () => {
         currentBranch: 'main',
         projectFullPath: '/path/to/project',
         simulatePipelineHelpPagePath: 'path/to/help/page',
-        validateTabIllustrationPath: 'path/to/svg',
         totalBranches: 1,
         ...provide,
       },

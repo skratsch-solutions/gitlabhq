@@ -152,9 +152,9 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
               wait_for_requests
             end
 
-            it 'indicates that pipeline is canceling', :sidekiq_inline, quarantine: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/issues/9456' do
-              expect(page).not_to have_selector('.js-pipelines-cancel-button')
+            it 'indicates that pipeline is canceling', :sidekiq_inline do
               expect(page).to have_selector('[data-testid="ci-icon"]', text: 'Canceling')
+              expect(page).not_to have_selector('.js-pipelines-cancel-button')
             end
           end
         end

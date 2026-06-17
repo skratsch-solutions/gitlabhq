@@ -1,6 +1,6 @@
 ---
-source_checksum: dd6d88d81e3c3f04
-distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
+source_checksum: e8f9f80126eff090
+distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -35,6 +35,7 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 - Use `route_setting :lifecycle, :experiment` or `route_setting :lifecycle, :beta` for non-GA endpoints
 - Use `deprecated true` in the `desc` block when deprecating an endpoint; DO NOT use `route_setting :lifecycle` for deprecation
 - Assign at least one tag per endpoint; use plural entity names (for example, `audit_events`, `users`); DO NOT use singular or product-category-coupled names
+- Declare at least one `failure` response (4xx/5xx) in every endpoint's `desc` block using an array of hashes with `code` and optional `message` (enforced by the `API/DescriptionFailureResponse` RuboCop cop)
 - Constrain every `String` parameter with `values:`, `limit:`, or `regexp:` to prevent unbounded payloads
 
 ### Endpoint Success Definition

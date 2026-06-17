@@ -9,6 +9,16 @@ FactoryBot.define do
     visibility_level { Organizations::Organization::PUBLIC }
     state { :active }
 
+    transient do
+      # rubocop:disable Lint/EmptyBlock -- block is required by factorybot
+      owners {}
+      # rubocop:enable Lint/EmptyBlock
+    end
+
+    after(:create) do |organization, evaluator|
+      Array.wrap(evaluator.owners).each { |user| organization.add_owner(user) }
+    end
+
     # The default organization ID is for specs that specifically target the default organization.
     # Most specs should just create a normal organization.
     trait :default do

@@ -46,7 +46,6 @@ RSpec.describe Ci::PipelineEditorHelper, feature_category: :pipeline_composition
         "project-namespace" => project.namespace.full_path,
         "simulate-pipeline-help-page-path" => help_page_path('ci/pipeline_editor/_index.md', anchor: 'validate-cicd-configuration'),
         "uses-external-config" => 'false',
-        "validate-tab-illustration-path" => 'illustrations/validate.svg',
         "yml-help-page-path" => help_page_path('ci/yaml/_index.md')
       }
     end
@@ -65,11 +64,6 @@ RSpec.describe Ci::PipelineEditorHelper, feature_category: :pipeline_composition
         .to receive(:image_path)
         .with('illustrations/empty-state/empty-pipeline-md.svg')
         .and_return('illustrations/empty.svg')
-
-      allow(helper)
-        .to receive(:image_path)
-        .with('illustrations/empty-state/empty-devops-md.svg')
-        .and_return('illustrations/validate.svg')
 
       allow(helper)
         .to receive(:current_user)

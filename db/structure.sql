@@ -13322,63 +13322,6 @@ CREATE SEQUENCE ai_active_context_tasks_id_seq
 
 ALTER SEQUENCE ai_active_context_tasks_id_seq OWNED BY ai_active_context_tasks.id;
 
-CREATE TABLE ai_agent_version_attachments (
-    id bigint NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    project_id bigint NOT NULL,
-    ai_agent_version_id bigint NOT NULL,
-    ai_vectorizable_file_id bigint NOT NULL
-);
-
-CREATE SEQUENCE ai_agent_version_attachments_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE ai_agent_version_attachments_id_seq OWNED BY ai_agent_version_attachments.id;
-
-CREATE TABLE ai_agent_versions (
-    id bigint NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    project_id bigint NOT NULL,
-    agent_id bigint NOT NULL,
-    prompt text NOT NULL,
-    model text NOT NULL,
-    CONSTRAINT check_8cda7448e9 CHECK ((char_length(model) <= 255)),
-    CONSTRAINT check_d7a4fc9834 CHECK ((char_length(prompt) <= 5000))
-);
-
-CREATE SEQUENCE ai_agent_versions_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE ai_agent_versions_id_seq OWNED BY ai_agent_versions.id;
-
-CREATE TABLE ai_agents (
-    id bigint NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    project_id bigint NOT NULL,
-    name text NOT NULL,
-    CONSTRAINT check_67934c8e85 CHECK ((char_length(name) <= 255))
-);
-
-CREATE SEQUENCE ai_agents_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE ai_agents_id_seq OWNED BY ai_agents.id;
-
 CREATE SEQUENCE ai_audit_events_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -13587,7 +13530,6 @@ ALTER SEQUENCE ai_code_suggestion_events_id_seq OWNED BY ai_code_suggestion_even
 CREATE TABLE ai_conversation_messages (
     id bigint NOT NULL,
     thread_id bigint NOT NULL,
-    agent_version_id bigint,
     organization_id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
@@ -36251,12 +36193,6 @@ ALTER TABLE ONLY ai_active_context_migrations ALTER COLUMN id SET DEFAULT nextva
 
 ALTER TABLE ONLY ai_active_context_tasks ALTER COLUMN id SET DEFAULT nextval('ai_active_context_tasks_id_seq'::regclass);
 
-ALTER TABLE ONLY ai_agent_version_attachments ALTER COLUMN id SET DEFAULT nextval('ai_agent_version_attachments_id_seq'::regclass);
-
-ALTER TABLE ONLY ai_agent_versions ALTER COLUMN id SET DEFAULT nextval('ai_agent_versions_id_seq'::regclass);
-
-ALTER TABLE ONLY ai_agents ALTER COLUMN id SET DEFAULT nextval('ai_agents_id_seq'::regclass);
-
 ALTER TABLE ONLY ai_audit_events ALTER COLUMN id SET DEFAULT nextval('ai_audit_events_id_seq'::regclass);
 
 ALTER TABLE ONLY ai_catalog_item_consumers ALTER COLUMN id SET DEFAULT nextval('ai_catalog_item_consumers_id_seq'::regclass);
@@ -39232,15 +39168,6 @@ ALTER TABLE ONLY ai_active_context_migrations
 
 ALTER TABLE ONLY ai_active_context_tasks
     ADD CONSTRAINT ai_active_context_tasks_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY ai_agent_version_attachments
-    ADD CONSTRAINT ai_agent_version_attachments_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY ai_agent_versions
-    ADD CONSTRAINT ai_agent_versions_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY ai_agents
-    ADD CONSTRAINT ai_agents_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY ai_audit_events
     ADD CONSTRAINT ai_audit_events_pkey PRIMARY KEY (id, created_at);
@@ -46395,18 +46322,6 @@ CREATE INDEX index_ai_active_context_tasks_on_connection_id ON ai_active_context
 
 CREATE INDEX index_ai_active_context_tasks_on_depends_on_id ON ai_active_context_tasks USING btree (depends_on_id);
 
-CREATE INDEX index_ai_agent_version_attachments_on_ai_agent_version_id ON ai_agent_version_attachments USING btree (ai_agent_version_id);
-
-CREATE INDEX index_ai_agent_version_attachments_on_ai_vectorizable_file_id ON ai_agent_version_attachments USING btree (ai_vectorizable_file_id);
-
-CREATE INDEX index_ai_agent_version_attachments_on_project_id ON ai_agent_version_attachments USING btree (project_id);
-
-CREATE INDEX index_ai_agent_versions_on_agent_id ON ai_agent_versions USING btree (agent_id);
-
-CREATE INDEX index_ai_agent_versions_on_project_id ON ai_agent_versions USING btree (project_id);
-
-CREATE UNIQUE INDEX index_ai_agents_on_project_id_and_name ON ai_agents USING btree (project_id, name);
-
 CREATE INDEX index_ai_catalog_item_consumers_on_ai_catalog_item_id ON ai_catalog_item_consumers USING btree (ai_catalog_item_id);
 
 CREATE INDEX index_ai_catalog_item_consumers_on_group_id ON ai_catalog_item_consumers USING btree (group_id);
@@ -46456,8 +46371,6 @@ CREATE INDEX index_ai_catalog_mcp_servers_users_on_user_id ON ai_catalog_mcp_ser
 CREATE INDEX index_ai_code_suggestion_events_on_organization_id ON ONLY ai_code_suggestion_events USING btree (organization_id);
 
 CREATE INDEX index_ai_code_suggestion_events_on_user_id ON ONLY ai_code_suggestion_events USING btree (user_id);
-
-CREATE INDEX index_ai_conversation_messages_on_agent_version_id ON ai_conversation_messages USING btree (agent_version_id);
 
 CREATE INDEX index_ai_conversation_messages_on_message_xid ON ai_conversation_messages USING btree (message_xid);
 
@@ -57018,9 +56931,6 @@ ALTER TABLE ONLY user_project_member_roles
 ALTER TABLE ONLY sbom_occurrences_vulnerabilities
     ADD CONSTRAINT fk_07b81e3a81 FOREIGN KEY (vulnerability_id) REFERENCES vulnerabilities(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY ai_agent_version_attachments
-    ADD CONSTRAINT fk_07db0a0e5b FOREIGN KEY (ai_agent_version_id) REFERENCES ai_agent_versions(id) ON DELETE CASCADE;
-
 ALTER TABLE ONLY analytics_cycle_analytics_stage_event_hashes
     ADD CONSTRAINT fk_0839874e4f FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
@@ -57308,9 +57218,6 @@ ALTER TABLE ONLY issue_links
 
 ALTER TABLE ONLY agent_project_authorizations
     ADD CONSTRAINT fk_1d30bb4987 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY ai_agent_version_attachments
-    ADD CONSTRAINT fk_1d4253673b FOREIGN KEY (ai_vectorizable_file_id) REFERENCES ai_vectorizable_files(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY merge_requests_approval_rules_merge_requests
     ADD CONSTRAINT fk_1d49645a27 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -58223,9 +58130,6 @@ ALTER TABLE ONLY merge_requests
 
 ALTER TABLE ONLY custom_dashboard_versions
     ADD CONSTRAINT fk_6b53f240d7 FOREIGN KEY (updated_by_id) REFERENCES users(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY ai_agent_versions
-    ADD CONSTRAINT fk_6c2f682587 FOREIGN KEY (agent_id) REFERENCES ai_agents(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY ml_models
     ADD CONSTRAINT fk_6c95e61a6e FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
@@ -59141,9 +59045,6 @@ ALTER TABLE ONLY status_check_responses
 
 ALTER TABLE ONLY packages_dependency_links
     ADD CONSTRAINT fk_b5c56b6ede FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY ai_conversation_messages
-    ADD CONSTRAINT fk_b5d715b1e4 FOREIGN KEY (agent_version_id) REFERENCES ai_agent_versions(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY compliance_framework_security_policies
     ADD CONSTRAINT fk_b5df066d8f FOREIGN KEY (framework_id) REFERENCES compliance_management_frameworks(id) ON DELETE CASCADE;
@@ -60375,9 +60276,6 @@ ALTER TABLE ONLY namespace_secret_counts
 ALTER TABLE ONLY user_statuses
     ADD CONSTRAINT fk_rails_2178592333 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY ai_agent_versions
-    ADD CONSTRAINT fk_rails_2205f8ca20 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
-
 ALTER TABLE ONLY users_ops_dashboard_projects
     ADD CONSTRAINT fk_rails_220a0562db FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
@@ -60521,9 +60419,6 @@ ALTER TABLE ONLY zoom_meetings
 
 ALTER TABLE ONLY container_repositories
     ADD CONSTRAINT fk_rails_32f7bf5aad FOREIGN KEY (project_id) REFERENCES projects(id);
-
-ALTER TABLE ONLY ai_agents
-    ADD CONSTRAINT fk_rails_3328b05449 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY alert_management_alert_metric_images
     ADD CONSTRAINT fk_rails_338e55b408 FOREIGN KEY (alert_id) REFERENCES alert_management_alerts(id) ON DELETE CASCADE;
@@ -61544,9 +61439,6 @@ ALTER TABLE ONLY fork_network_members
 
 ALTER TABLE ONLY customer_relations_organizations
     ADD CONSTRAINT fk_rails_a48597902f FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY ai_agent_version_attachments
-    ADD CONSTRAINT fk_rails_a4ed49efb5 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY duo_workflows_events
     ADD CONSTRAINT fk_rails_a55845e9fa FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;

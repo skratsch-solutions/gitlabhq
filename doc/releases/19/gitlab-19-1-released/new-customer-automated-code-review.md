@@ -12,6 +12,6 @@ ignore_in_report: true
 
 <!-- categories: Duo Agent Platform, Duo Code Review -->
 
-Automatic reviews in Code Review Flow are now turned on by default for new GitLab Duo trial customers on GitLab.com, so you can start getting AI-powered feedback on your merge requests from day one — without any manual setup. 
+Automatic reviews in Code Review Flow are now turned on by default for new GitLab Duo trial customers on GitLab.com, so you can start getting AI-powered feedback on your merge requests from day one — without any manual setup.
 
 With a new flat pricing model, you get immediate value from smarter, faster code reviews right out of the box. If needed, you can opt out in your group settings.

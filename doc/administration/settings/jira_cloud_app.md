@@ -192,7 +192,7 @@ to check if Jira Cloud is linked to:
 > The previous manual install method relied on Atlassian Connect development mode. Atlassian
 > [disabled Connect-based private installs on 2026-03-31](https://www.atlassian.com/blog/developer/announcing-connect-end-of-support-timeline-and-next-steps).
 > If you previously installed the app manually with the **App descriptor URL** workflow,
-> migrate to the Forge-based install described in this section.
+> migrate to the Forge-based install described in [this section](../../integration/jira/connect-app.md#migration-from-atlassian-connect-to-forge).
 
 Install the GitLab for Jira Cloud app manually if you cannot
 [use the official Atlassian Marketplace listing](#install-the-gitlab-for-jira-cloud-app-from-the-atlassian-marketplace).

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe API::Validations::Validators::GitRef do
+RSpec.describe API::Validations::Validators::GitRef, feature_category: :api do
   include ApiValidatorsHelpers
 
   subject do

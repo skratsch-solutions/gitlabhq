@@ -41,7 +41,6 @@ module Ci
           anchor: 'validate-cicd-configuration'),
         "total-branches" => total_branches,
         "uses-external-config" => uses_external_config?(project) ? 'true' : 'false',
-        "validate-tab-illustration-path" => image_path('illustrations/empty-state/empty-devops-md.svg'),
         "yml-help-page-path" => help_page_path('ci/yaml/_index.md')
       }
     end

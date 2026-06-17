@@ -92,6 +92,25 @@ module Gitlab
         exists_in_redis?(rebuild_flag_key(key))
       end
 
+      # Untrust *before* super so a racing #fetch sees an untrusted set and
+      # rebuilds, rather than serving the now-empty set as a trusted cache_hit
+      # (the original incident). mark_untrusted uses a per-key DEL, which is also
+      # cluster-safe (no cross-slot UNLINK). We deliberately leave pending_key
+      # and rebuild_flag_key alone: rebuild_flag_key is an in-flight rebuild
+      # lock, and pending_key holds unrecoverable ref events a concurrent #write
+      # still needs.
+      def expire(*keys)
+        return 0 if keys.empty?
+
+        keys.each { |key| mark_untrusted(key) }
+
+        deleted = super
+
+        keys.each { |key| log_event(:cache_expired, key) }
+
+        deleted
+      end
+
       # Handle individual ref changes (add or remove)
       # This is the entry point for incremental cache updates.
       # @param key [String] Cache key (e.g., 'branch_names', 'tag_names')

@@ -1165,6 +1165,87 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
       expect(cache.exist?(:branch_names)).to be false
       expect(cache.exist?(:tag_names)).to be false
     end
+
+    # Regression for the production incident where branch_names was served as a
+    # trusted cache_hit with 0 members.
+    #
+    # #expire is inherited from Gitlab::SetCache and only UNLINKs the set key.
+    # It has no knowledge of the RebuildableSetCache trust flag. Legacy callers
+    # such as Repository#expire_branches_cache (invoked by after_create_branch /
+    # before_remove_branch, which are NOT gated by the feature flag) therefore
+    # delete the populated set while leaving the trust flag dangling. The next
+    # #fetch then sees an empty set that is still trusted and serves it as a
+    # cache_hit with 0 members instead of rebuilding.
+    context 'when expiring a trusted key (regression)' do
+      it 'clears the set and trust flag but preserves the rebuild lock and pending queue', :aggregate_failures do
+        cache.write(:branch_names, %w[main develop feature])
+
+        Gitlab::Redis::RepositoryCache.with do |redis|
+          redis.set(cache.rebuild_flag_key(:branch_names), '1')
+          redis.lpush(cache.pending_key(:branch_names), '+feature')
+        end
+
+        expect(cache.exist?(:branch_names)).to be(true)
+        expect(cache.trusted?(:branch_names)).to be(true)
+
+        cache.expire(:branch_names)
+
+        rebuild_flag_exists, pending_events = Gitlab::Redis::RepositoryCache.with do |redis|
+          [
+            redis.exists?(cache.rebuild_flag_key(:branch_names)),
+            redis.lrange(cache.pending_key(:branch_names), 0, -1)
+          ]
+        end
+
+        # The set key is gone, and the trust flag must not outlive the set it
+        # vouches for. Otherwise the next #fetch serves a trusted-but-empty set.
+        expect(cache.exist?(:branch_names)).to be(false)
+        expect(cache.trusted?(:branch_names)).to be(false)
+        # The rebuild lock and pending events belong to a concurrent #write and
+        # must survive an expire.
+        expect(rebuild_flag_exists).to be(true)
+        expect(pending_events).to eq(['+feature'])
+      end
+
+      it 'causes a subsequent fetch to rebuild instead of serving an empty set', :aggregate_failures do
+        cache.write(:branch_names, %w[main develop feature])
+        cache.expire(:branch_names)
+
+        block_called = false
+        result = cache.fetch(:branch_names) do
+          block_called = true
+          %w[main develop feature]
+        end
+
+        # Because trust was cleared by #expire, fetch misses and rebuilds from
+        # the canonical source rather than serving the empty stranded set.
+        expect(block_called).to be(true)
+        expect(result).to contain_exactly('main', 'develop', 'feature')
+      end
+
+      it 'logs a cache_expired event for the affected key' do
+        cache.write(:branch_names, %w[main develop feature])
+
+        allow(Gitlab::AppLogger).to receive(:info)
+        expect(Gitlab::AppLogger).to receive(:info).with(
+          hash_including(
+            message: 'cache_expired',
+            rebuildable_cache: hash_including(
+              event: :cache_expired,
+              cache_key: :branch_names
+            )
+          )
+        )
+
+        cache.expire(:branch_names)
+      end
+    end
+
+    context 'when expiring with no keys' do
+      it 'returns 0' do
+        expect(cache.expire).to eq(0)
+      end
+    end
   end
 
   describe 'with extra_namespace' do

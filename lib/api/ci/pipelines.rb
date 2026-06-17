@@ -321,7 +321,6 @@ module API
 
         desc 'Delete a pipeline' do
           detail 'Deletes a specified pipeline for a project.'
-          http_codes [[204, 'Pipeline was deleted'], [403, 'Forbidden']]
           success code: 204, message: 'Pipeline was deleted'
           failure [[403, 'Forbidden']]
           tags ['pipelines']

@@ -141,7 +141,7 @@ Seat controls apply to the instance on GitLab Self-Managed, and to the top-level
 {{< /history >}}
 
 The user cap is the maximum number of billable users who can be added to a top-level group on GitLab.com, or create accounts on GitLab Self-Managed.
-After the user cap is reached, a group Owner or administrator must approve the users to be added to a top-level group or create accounts. 
+After the user cap is reached, a group Owner or administrator must approve the users to be added to a top-level group or create accounts.
 After the users have been approved, they can access the group or instance.
 If a group Owner or an administrator increases or removes the user cap, users pending approval are automatically approved.
 

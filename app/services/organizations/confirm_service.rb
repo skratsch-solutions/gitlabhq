@@ -63,5 +63,3 @@ module Organizations
     end
   end
 end
-
-Organizations::ConfirmService.prepend_mod

@@ -41,7 +41,6 @@ export const createAppOptions = (el) => {
     simulatePipelineHelpPagePath,
     totalBranches,
     usesExternalConfig,
-    validateTabIllustrationPath,
     ymlHelpPagePath,
   } = el.dataset;
 
@@ -135,7 +134,6 @@ export const createAppOptions = (el) => {
       simulatePipelineHelpPagePath,
       totalBranches: parseInt(totalBranches, 10),
       usesExternalConfig: parseBoolean(usesExternalConfig),
-      validateTabIllustrationPath,
       ymlHelpPagePath,
     },
     render(h) {

@@ -14,16 +14,22 @@ RSpec.describe API::Helpers::Authentication do
     subject { Class.new.include(described_class::ClassMethods).new }
 
     describe '.authenticate_with' do
-      it 'sets namespace_inheritable :authentication to correctly when body is empty' do
-        expect(subject).to receive(:namespace_inheritable).with(:authentication, {})
+      let(:inheritable_setting) { Struct.new(:namespace_inheritable).new({}) }
 
-        subject.authenticate_with { |allow| }
+      before do
+        allow(subject).to receive(:inheritable_setting).and_return(inheritable_setting)
       end
 
-      it 'sets namespace_inheritable :authentication to correctly when body is not empty' do
-        expect(subject).to receive(:namespace_inheritable).with(:authentication, { basic: [:pat, :job], oauth: [:pat, :job] })
+      it 'sets namespace_inheritable :authentication correctly when body is empty' do
+        subject.authenticate_with { |allow| }
 
+        expect(inheritable_setting.namespace_inheritable[:authentication]).to eq({})
+      end
+
+      it 'sets namespace_inheritable :authentication correctly when body is not empty' do
         subject.authenticate_with { |allow| allow.token_type(:pat, :job).sent_through(:basic, :oauth) }
+
+        expect(inheritable_setting.namespace_inheritable[:authentication]).to eq({ basic: [:pat, :job], oauth: [:pat, :job] })
       end
     end
   end
@@ -63,15 +69,9 @@ RSpec.describe API::Helpers::Authentication do
             nil
           end
 
-          # Spoof Grape's namespace inheritable system
-          def namespace_inheritable(key, value = nil)
-            return unless key == :authentication
-
-            if value
-              @authentication = value
-            else
-              @authentication
-            end
+          # Spoof Grape's inheritable settings store
+          def inheritable_setting
+            @inheritable_setting ||= Struct.new(:namespace_inheritable).new({})
           end
         end
 
@@ -168,6 +168,18 @@ RSpec.describe API::Helpers::Authentication do
         end
 
         it_behaves_like 'an unauthorized request'
+      end
+
+      context 'with a valid located token' do
+        let(:locators) { [double(extract: token)] }
+        let(:resolvers) { [double(resolve: token)] }
+        let(:token) { double(password: 'secret') }
+
+        it 'reads the strategies via the inheritable_setting accessor', :aggregate_failures do
+          expect(object).to receive(:inheritable_setting).and_call_original
+
+          expect(subject).to be(token)
+        end
       end
     end
 

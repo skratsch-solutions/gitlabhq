@@ -372,7 +372,7 @@ module Gitlab
           # https://gitlab.com/gitlab-org/gitlab/-/issues/406582
           next if current_request.path.starts_with? "/api/v4/internal/kubernetes/"
 
-          if try(:namespace_inheritable, :authentication)
+          if try(:inheritable_setting)&.namespace_inheritable&.[](:authentication)
             access_token_from_namespace_inheritable
           elsif pat_prefix_token?
             # If the token has a PAT prefix (glpat-), skip OAuth lookup entirely.

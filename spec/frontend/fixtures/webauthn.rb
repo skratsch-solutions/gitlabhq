@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.context 'WebAuthn' do
+RSpec.context 'WebAuthn', feature_category: :system_access do
   include JavaScriptFixturesHelpers
 
   let(:user) { create(:user, :two_factor_via_webauthn, otp_secret: 'otpsecret:coolkids') }

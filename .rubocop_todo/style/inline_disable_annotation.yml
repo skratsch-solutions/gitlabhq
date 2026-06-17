@@ -719,7 +719,6 @@ Style/InlineDisableAnnotation:
     - 'app/workers/disallow_two_factor_for_subgroups_worker.rb'
     - 'app/workers/email_receiver_worker.rb'
     - 'app/workers/emails_on_push_worker.rb'
-    - 'app/workers/environments/auto_delete_cron_worker.rb'
     - 'app/workers/environments/auto_stop_cron_worker.rb'
     - 'app/workers/error_tracking_issue_link_worker.rb'
     - 'app/workers/export_csv_worker.rb'
