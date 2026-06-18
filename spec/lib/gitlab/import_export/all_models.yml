@@ -324,6 +324,7 @@ ci_pipelines: &pipeline_definition
 - current_processable_jobs
 - builds
 - bridges
+- latest_bridges
 - processables
 - generic_commit_statuses
 - trigger

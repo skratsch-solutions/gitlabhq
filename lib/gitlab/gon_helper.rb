@@ -110,6 +110,7 @@ module Gitlab
       push_frontend_feature_flag(:work_items_client_side_boards, current_user)
       push_frontend_feature_flag(:editor_sticky_table_headers, current_user)
       push_frontend_feature_flag(:explore_analytics_dashboards, current_user)
+      push_frontend_feature_flag(:feature_library_modal, current_user)
 
       push_force_frontend_feature_flag(:security_manager_role_enabled, Gitlab::Security::SecurityManagerConfig.enabled?)
     end

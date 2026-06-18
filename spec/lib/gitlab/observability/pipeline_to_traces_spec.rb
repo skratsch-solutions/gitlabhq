@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'fast_spec_helper'
+require 'gitlab/ci/trace_context'
 
 RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :observability do
   let(:integration) do
@@ -27,7 +28,8 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
         duration: 300000,
         queued_duration: 30000,
         protected_ref: true,
-        url: 'https://gitlab.com/project/-/pipelines/123'
+        url: 'https://gitlab.com/project/-/pipelines/123',
+        root_pipeline_id: 100
       },
       project: {
         id: 789,
@@ -199,33 +201,110 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
     end
 
     it 'sets up trace and span IDs correctly' do
+      expected_root_pipeline_id = pipeline_data.dig(:object_attributes, :root_pipeline_id)
+      expected_trace_id = format('%032x', expected_root_pipeline_id)
+      expected_pipeline_span_id = Gitlab::Ci::TraceContext.span_id_for_pipeline(
+        expected_root_pipeline_id, pipeline_data.dig(:object_attributes, :id)
+      )
+
       job_spans = spans.select { |span| span[:name].start_with?('job:') }
 
       aggregate_failures do
-        expect(pipeline_span[:traceId]).to match(/\A[0-9a-f]{32}\z/)
+        expect(pipeline_span[:traceId]).to eq(expected_trace_id)
         expect(pipeline_span[:traceId].length).to eq(32)
       end
 
-      job_spans.each do |job_span|
-        expect(job_span[:traceId]).to eq(pipeline_span[:traceId])
+      job_spans.each do |span|
+        expect(span[:traceId]).to eq(pipeline_span[:traceId])
       end
 
       aggregate_failures do
-        expect(pipeline_span[:spanId]).to match(/\A[0-9a-f]{16}\z/)
+        expect(pipeline_span[:spanId]).to eq(expected_pipeline_span_id)
         expect(pipeline_span[:spanId].length).to eq(16)
         expect(pipeline_span[:parentSpanId]).to eq('')
       end
 
-      job_spans.each do |job_span|
+      job_spans.each do |span|
+        build = pipeline_data[:builds].find { |b| span[:name] == "job: #{b[:name]}" }
+        expected_span_id = Gitlab::Ci::TraceContext.span_id_for_job(expected_root_pipeline_id, build[:id], :export)
+
         aggregate_failures do
-          expect(job_span[:spanId]).to match(/\A[0-9a-f]{16}\z/)
-          expect(job_span[:spanId].length).to eq(16)
-          expect(job_span[:parentSpanId]).to eq(pipeline_span[:spanId])
+          expect(span[:spanId]).to eq(expected_span_id)
+          expect(span[:spanId].length).to eq(16)
+          expect(span[:parentSpanId]).to eq(pipeline_span[:spanId])
         end
       end
 
       all_span_ids = [pipeline_span[:spanId]] + job_spans.pluck(:spanId)
       expect(all_span_ids.uniq.length).to eq(all_span_ids.length)
+    end
+
+    it 'produces deterministic output for the same input' do
+      result1 = converter.convert
+      result2 = described_class.new(integration, pipeline_data).convert
+
+      expect(result1).to eq(result2)
+    end
+
+    context 'with root_pipeline_id present' do
+      before do
+        pipeline_data[:object_attributes][:root_pipeline_id] = 999
+      end
+
+      it 'uses root_pipeline_id for trace_id' do
+        expect(pipeline_span[:traceId]).to eq(format('%032x', 999))
+      end
+
+      it 'shares trace_id across sibling pipelines with same root' do
+        sibling_data = pipeline_data.deep_dup
+        sibling_data[:object_attributes][:id] = 456
+        sibling_data[:object_attributes][:root_pipeline_id] = 999
+
+        sibling_converter = described_class.new(integration, sibling_data)
+        sibling_spans = sibling_converter.convert[:resourceSpans].first[:scopeSpans].first[:spans]
+        sibling_pipeline_span = sibling_spans.find { |s| s[:name].start_with?('pipeline:') }
+
+        expect(sibling_pipeline_span[:traceId]).to eq(pipeline_span[:traceId])
+        expect(sibling_pipeline_span[:spanId]).not_to eq(pipeline_span[:spanId])
+      end
+
+      it 'produces different trace_ids for different root_pipeline_ids' do
+        other_data = pipeline_data.deep_dup
+        other_data[:object_attributes][:root_pipeline_id] = 1000
+
+        other_converter = described_class.new(integration, other_data)
+        other_spans = other_converter.convert[:resourceSpans].first[:scopeSpans].first[:spans]
+        other_pipeline_span = other_spans.find { |s| s[:name].start_with?('pipeline:') }
+
+        expect(other_pipeline_span[:traceId]).not_to eq(pipeline_span[:traceId])
+      end
+    end
+
+    context 'without root_pipeline_id' do
+      before do
+        pipeline_data[:object_attributes].delete(:root_pipeline_id)
+      end
+
+      it 'falls back to pipeline id for trace_id' do
+        pipeline_id = pipeline_data.dig(:object_attributes, :id)
+        expect(pipeline_span[:traceId]).to eq(format('%032x', pipeline_id))
+      end
+    end
+
+    context 'when source_pipeline present but root_pipeline_id absent' do
+      before do
+        pipeline_data[:source_pipeline] = { pipeline_id: 999 }
+        pipeline_data[:object_attributes].delete(:root_pipeline_id)
+      end
+
+      it 'logs a warning and falls back to pipeline id' do
+        expect(Gitlab::AppLogger).to receive(:warn).with(
+          hash_including(message: 'root_pipeline_id missing from pipeline webhook payload with source_pipeline present')
+        )
+
+        pipeline_id = pipeline_data.dig(:object_attributes, :id)
+        expect(pipeline_span[:traceId]).to eq(format('%032x', pipeline_id))
+      end
     end
 
     context 'with optional pipeline attributes' do
@@ -335,6 +414,126 @@ RSpec.describe Gitlab::Observability::PipelineToTraces, feature_category: :obser
 
       missing_job_attrs.each do |attr|
         expect(job_attrs).not_to include(attr)
+      end
+    end
+
+    context 'with same-project source pipeline (cross-pipeline linking)' do
+      before do
+        pipeline_data[:source_pipeline] = {
+          project: { id: 789, web_url: 'https://gitlab.com/group/test-project',
+                     path_with_namespace: 'group/test-project' },
+          job_id: 50,
+          pipeline_id: 100,
+          bridge_id: 50
+        }
+      end
+
+      it 'sets parentSpanId to the bridge job deterministic span ID' do
+        expected_span_id = Gitlab::Ci::TraceContext.span_id_for_bridge(50)
+
+        expect(pipeline_span[:parentSpanId]).to eq(expected_span_id)
+      end
+
+      it 'uses deterministic span IDs for job spans' do
+        expected_job_span_id = Gitlab::Ci::TraceContext.span_id_for_job(100, 1, :export)
+
+        expect(job_span[:spanId]).to eq(expected_job_span_id)
+      end
+    end
+
+    context 'with cross-project source pipeline' do
+      before do
+        pipeline_data[:source_pipeline] = {
+          project: { id: 999, web_url: 'https://gitlab.com/other/project', path_with_namespace: 'other/project' },
+          job_id: 50,
+          pipeline_id: 100,
+          bridge_id: 50
+        }
+      end
+
+      it 'does not set parentSpanId when source is a different project' do
+        expect(pipeline_span[:parentSpanId]).to eq('')
+      end
+    end
+
+    context 'with no source pipeline' do
+      it 'leaves parentSpanId empty' do
+        expect(pipeline_span[:parentSpanId]).to eq('')
+      end
+    end
+
+    context 'with source pipeline but no bridge_id' do
+      before do
+        pipeline_data[:source_pipeline] = {
+          project: { id: 789, web_url: 'https://gitlab.com/group/test-project',
+                     path_with_namespace: 'group/test-project' },
+          job_id: 50,
+          pipeline_id: 100,
+          bridge_id: nil
+        }
+      end
+
+      it 'leaves parentSpanId empty' do
+        expect(pipeline_span[:parentSpanId]).to eq('')
+      end
+    end
+
+    context 'with bridge job' do
+      before do
+        pipeline_data[:bridges] = [{
+          id: 2,
+          name: 'trigger-child',
+          stage: 'deploy',
+          status: 'success',
+          started_at: Time.zone.parse('2023-01-01T10:03:00Z'),
+          finished_at: Time.zone.parse('2023-01-01T10:04:00Z'),
+          duration: 60000,
+          manual: false,
+          allow_failure: false,
+          bridge: true
+        }]
+      end
+
+      it 'marks bridge job with job.type attribute' do
+        bridge_span = spans.find { |s| s[:name] == 'job: trigger-child' }
+
+        expect(bridge_span[:attributes]).to include(
+          { key: 'job.type', value: { stringValue: 'bridge' } }
+        )
+      end
+
+      it 'does not mark regular jobs with job.type' do
+        expect(job_span[:attributes].pluck(:key)).not_to include('job.type')
+      end
+
+      it 'uses span_id_for_bridge for the bridge span ID' do
+        bridge_span = spans.find { |s| s[:name] == 'job: trigger-child' }
+
+        expect(bridge_span[:spanId]).to eq(Gitlab::Ci::TraceContext.span_id_for_bridge(2))
+      end
+
+      it 'uses span_id_for_job with :export kind for regular job span IDs' do
+        root_id = pipeline_data.dig(:object_attributes, :root_pipeline_id)
+        expected = Gitlab::Ci::TraceContext.span_id_for_job(root_id, 1, :export)
+
+        expect(job_span[:spanId]).to eq(expected)
+      end
+
+      it 'does not use span_id_for_job for bridge spans' do
+        bridge_span = spans.find { |s| s[:name] == 'job: trigger-child' }
+        root_id = pipeline_data.dig(:object_attributes, :root_pipeline_id)
+        export_derived_id = Gitlab::Ci::TraceContext.span_id_for_job(root_id, 2, :export)
+
+        expect(bridge_span[:spanId]).not_to eq(export_derived_id)
+      end
+
+      it 'produces a bridge spanId that matches a child pipeline parentSpanId' do
+        bridge_span = spans.find { |s| s[:name] == 'job: trigger-child' }
+
+        # Simulate a child pipeline referencing this bridge
+        child_parent_span_id = Gitlab::Ci::TraceContext.span_id_for_bridge(2)
+
+        expect(bridge_span[:spanId]).to eq(child_parent_span_id)
       end
     end
   end

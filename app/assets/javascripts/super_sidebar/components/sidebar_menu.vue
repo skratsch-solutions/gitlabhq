@@ -1,15 +1,19 @@
 <script>
 import { GlBreakpointInstance, breakpoints } from '@gitlab/ui/src/utils'; // eslint-disable-line no-restricted-syntax -- GlBreakpointInstance is used intentionally here. In this case we must obtain viewport breakpoints
+import { GlButton, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
 import superSidebarDataQuery from '~/super_sidebar/graphql/queries/super_sidebar.query.graphql';
-import { s__, sprintf } from '~/locale';
+import { __, s__, sprintf } from '~/locale';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import axios from '~/lib/utils/axios_utils';
 import { userCounts } from '~/super_sidebar/user_counts_manager';
 import { formatAsyncCount } from '~/super_sidebar/utils';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { PANELS_WITH_PINS, PINNED_NAV_STORAGE_KEY, MAX_OPEN_WORK_ITEMS_COUNT } from '../constants';
 import NavItem from './nav_item.vue';
 import PinnedSection from './pinned_section.vue';
 import MenuSection from './menu_section.vue';
+import FeatureLibraryModal from './feature_library/feature_library_modal.vue';
+import { MODAL_ID } from './feature_library/constants';
 
 export default {
   name: 'SidebarMenu',
@@ -17,12 +21,24 @@ export default {
     MenuSection,
     NavItem,
     PinnedSection,
+    GlButton,
+    FeatureLibraryModal,
   },
+  directives: {
+    GlModal: GlModalDirective,
+    GlTooltip: GlTooltipDirective,
+  },
+  mixins: [glFeatureFlagsMixin()],
+  modalId: MODAL_ID,
   i18n: {
+    browseMoreFeatures: __('More features'),
     pinAdded: s__('Navigation|%{title} added to pinned items'),
     pinRemoved: s__('Navigation|%{title} removed from pinned items'),
   },
-  inject: ['currentPath'],
+  inject: {
+    currentPath: {},
+    isIconOnly: { default: false },
+  },
   provide() {
     return {
       pinnedItemIds: this.changedPinnedItemIds,
@@ -215,6 +231,14 @@ export default {
 
       this.updatePins();
     },
+    onModalPinToggle(itemId, nextState, title) {
+      const itemTitle = title || itemId;
+      if (nextState) {
+        this.createPin(itemId, itemTitle);
+      } else {
+        this.destroyPin(itemId, itemTitle);
+      }
+    },
     updatePins() {
       axios
         .put(this.updatePinsUrl, {
@@ -270,6 +294,25 @@ export default {
       :async-count="asyncCount"
       @pin-remove="destroyPin"
       @pin-reorder="movePin"
+    />
+    <gl-button
+      v-if="supportsPins && glFeatures.featureLibraryModal"
+      v-gl-modal="$options.modalId"
+      v-gl-tooltip.right.viewport="isIconOnly ? $options.i18n.browseMoreFeatures : ''"
+      category="tertiary"
+      icon="applications"
+      class="application-chrome-nav-item super-sidebar-nav-item gl-w-full !gl-justify-start gl-gap-3 !gl-px-2-5 !gl-py-2"
+      :button-text-classes="{ '!gl-text-default': !isIconOnly, 'gl-hidden': isIconOnly }"
+      :aria-label="$options.i18n.browseMoreFeatures"
+      data-testid="feature-library-trigger"
+    >
+      {{ $options.i18n.browseMoreFeatures }}
+    </gl-button>
+    <feature-library-modal
+      v-if="supportsPins && glFeatures.featureLibraryModal"
+      :panel-type="panelType"
+      :current-pinned-ids="changedPinnedItemIds.ids"
+      @pin-toggle="onModalPinToggle"
     />
     <hr
       v-if="supportsPins"

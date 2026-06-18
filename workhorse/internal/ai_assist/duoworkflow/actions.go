@@ -38,6 +38,10 @@ type runHTTPActionHandler struct {
 	token                     string
 	originalReq               *http.Request
 	shouldTimeoutHTTPRequests bool
+	// workflowID is set by the runner after StartWorkflowRequest is received
+	// and is forwarded as the X-Gitlab-Duo-Workflow-Id header so the GitLab
+	// API can correlate tool-originated traffic with the originating workflow.
+	workflowID string
 }
 
 type nullResponseWriter struct {
@@ -202,6 +206,10 @@ func (a *runHTTPActionHandler) buildRequest(ctx context.Context, action *pb.Acti
 	}
 	req.Header.Set("Gitlab-Workhorse", version.GetApplicationVersion())
 	req.Header.Set(secret.RequestHeader, tokenString)
+
+	if a.workflowID != "" {
+		req.Header.Set("X-Gitlab-Duo-Workflow-Id", a.workflowID)
+	}
 
 	if clientIP, _, splitHostErr := net.SplitHostPort(a.originalReq.RemoteAddr); splitHostErr == nil {
 		// If we aren't the first proxy retain prior X-Forwarded-For information as a comma+space separated list and fold multiple headers into one.

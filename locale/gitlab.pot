@@ -5549,6 +5549,9 @@ msgstr ""
 msgid "Add your team members and others to GitLab."
 msgstr ""
 
+msgid "Add-on"
+msgstr ""
+
 msgid "Add/remove"
 msgstr ""
 
@@ -10374,6 +10377,9 @@ msgstr ""
 msgid "Analytics|You have insufficient %{linkStart}permissions%{linkEnd} to view this panel."
 msgstr ""
 
+msgid "Analyze"
+msgstr ""
+
 msgid "Analyze your dependencies for known vulnerabilities."
 msgstr ""
 
@@ -12176,6 +12182,9 @@ msgid "AwsDestinationValidator validates only aws external audit event destinati
 msgstr ""
 
 msgid "B"
+msgstr ""
+
+msgid "BETA"
 msgstr ""
 
 msgid "Back"
@@ -14526,6 +14535,9 @@ msgid "Browse files at this commit"
 msgstr ""
 
 msgid "Browse your repository files and folders with the tree view sidebar."
+msgstr ""
+
+msgid "Build"
 msgstr ""
 
 msgid "Build a new repository or import existing work."
@@ -28392,6 +28404,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Select at least one pipeline event."
 msgstr ""
 
+msgid "DuoAgentsPlatform|Select at least one work item action."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Select merge request actions"
 msgstr ""
 
@@ -28399,6 +28414,9 @@ msgid "DuoAgentsPlatform|Select one or multiple event types"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Select pipeline events"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Select work item actions"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Service account"
@@ -28477,6 +28495,9 @@ msgid "DuoAgentsPlatform|Who can grant you access"
 msgstr ""
 
 msgid "DuoAgentsPlatform|With a trial you can chat with AI agents tailored to your development workflow, such as the following agents:"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Work item events configuration"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Workflow started. %{linkStart}View the agent session%{linkEnd} to track progress."
@@ -32625,6 +32646,33 @@ msgid "FeatureFlag|User IDs"
 msgstr ""
 
 msgid "FeatureFlag|User List"
+msgstr ""
+
+msgid "FeatureLibrary|Free · Enhanced with Premium"
+msgstr ""
+
+msgid "FeatureLibrary|Free · Enhanced with Ultimate"
+msgstr ""
+
+msgid "FeatureLibrary|GitLab features"
+msgstr ""
+
+msgid "FeatureLibrary|No features match your search"
+msgstr ""
+
+msgid "FeatureLibrary|Pin %{title}"
+msgstr ""
+
+msgid "FeatureLibrary|Recommended"
+msgstr ""
+
+msgid "FeatureLibrary|Search GitLab features"
+msgstr ""
+
+msgid "FeatureLibrary|Try a different search term or category."
+msgstr ""
+
+msgid "FeatureLibrary|Unpin %{title}"
 msgstr ""
 
 msgid "FeaturedUpdate|%{releaseNumber} release"
@@ -47667,6 +47715,9 @@ msgstr ""
 msgid "More details"
 msgstr ""
 
+msgid "More features"
+msgstr ""
+
 msgid "More info"
 msgstr ""
 
@@ -50405,6 +50456,9 @@ msgstr ""
 msgid "Observability|Enable tracing, metrics, or logs on your project."
 msgstr ""
 
+msgid "Observability|Enabling observability applies to all projects in your personal namespace."
+msgstr ""
+
 msgid "Observability|Encryption key"
 msgstr ""
 
@@ -50519,9 +50573,6 @@ msgstr ""
 msgid "Observability|Group ID"
 msgstr ""
 
-msgid "Observability|Group is required"
-msgstr ""
-
 msgid "Observability|Group name"
 msgstr ""
 
@@ -50618,6 +50669,9 @@ msgstr ""
 msgid "Observability|Monitor application performance with detailed metrics, response times, and system health indicators in real-time dashboards."
 msgstr ""
 
+msgid "Observability|Namespace is required"
+msgstr ""
+
 msgid "Observability|Native Kubernetes monitoring with pod-level metrics and cluster health insights"
 msgstr ""
 
@@ -50669,7 +50723,13 @@ msgstr ""
 msgid "Observability|Observability is already enabled for this group"
 msgstr ""
 
+msgid "Observability|Observability is already enabled for this namespace"
+msgstr ""
+
 msgid "Observability|Observability is enabled for your group. Start by instrumenting your projects below."
+msgstr ""
+
+msgid "Observability|Observability is enabled for your personal namespace. Start by instrumenting your projects below."
 msgstr ""
 
 msgid "Observability|Observability service settings deleted successfully."
@@ -50747,7 +50807,7 @@ msgstr ""
 msgid "Observability|Services"
 msgstr ""
 
-msgid "Observability|Set the %{variable_name} CI/CD variable in your group's %{settings_link_start}CI/CD settings%{settings_link_end} to a comma-separated list of data types to export (e.g., %{all_data_types})."
+msgid "Observability|Set the %{variable_name} CI/CD variable in your %{owner_label} %{settings_link_start}CI/CD settings%{settings_link_end} to a comma-separated list of data types to export (e.g., %{all_data_types})."
 msgstr ""
 
 msgid "Observability|Set the %{variable_name} CI/CD variable to start collecting pipeline metrics, logs, and traces automatically."
@@ -50786,6 +50846,9 @@ msgstr ""
 msgid "Observability|TLS endpoints (recommended): HTTPS on port 14318 and gRPCS on port 14317 provide encrypted transport"
 msgstr ""
 
+msgid "Observability|Telemetry export is auto-wired for this project. Other projects in your personal namespace need the GITLAB_OBSERVABILITY_EXPORT variable set manually."
+msgstr ""
+
 msgid "Observability|Test your endpoints"
 msgstr ""
 
@@ -50807,7 +50870,7 @@ msgstr ""
 msgid "Observability|The observability service is still initializing. Please try again in a few minutes."
 msgstr ""
 
-msgid "Observability|To enable GitLab Observability, please ask your %{strong_start}GitLab administrator%{strong_end} to enable it for this group."
+msgid "Observability|To enable GitLab Observability, please ask your %{strong_start}GitLab administrator%{strong_end} to enable it for %{scope}."
 msgstr ""
 
 msgid "Observability|To widen your search, change or remove filters above"
@@ -50876,13 +50939,13 @@ msgstr ""
 msgid "Observability|You are not authorized to request observability access"
 msgstr ""
 
+msgid "Observability|Your %{owner_label} %{variable_name} variable is set to %{variable_value}. You can adjust which data types are exported in your %{owner_label} %{settings_link_start}CI/CD settings%{settings_link_end}."
+msgstr ""
+
 msgid "Observability|Your CI/CD pipelines are sending telemetry"
 msgstr ""
 
 msgid "Observability|Your endpoints are being provisioned. Once complete, configure your OTel SDK to send to:"
-msgstr ""
-
-msgid "Observability|Your group's %{variable_name} variable is set to %{variable_value}. You can adjust which data types are exported in your group's %{settings_link_start}CI/CD settings%{settings_link_end}."
 msgstr ""
 
 msgid "Observability|allowedMessageType must be a non-empty string"
@@ -50900,7 +50963,19 @@ msgstr ""
 msgid "Observability|gRPCS endpoint"
 msgstr ""
 
+msgid "Observability|group's"
+msgstr ""
+
+msgid "Observability|project's"
+msgstr ""
+
 msgid "Observability|targetPath must be a non-empty string"
+msgstr ""
+
+msgid "Observability|this group"
+msgstr ""
+
+msgid "Observability|this project"
 msgstr ""
 
 msgid "Oct"
@@ -65865,6 +65940,9 @@ msgid "SecretsManager|Use the GitLab Secrets Manager to securely store and manag
 msgstr ""
 
 msgid "SecretsManager|Use the secrets manager to store your sensitive credentials, and then safely use them in your processes."
+msgstr ""
+
+msgid "Secure"
 msgstr ""
 
 msgid "Secure Code Warrior"
@@ -86422,6 +86500,9 @@ msgstr ""
 msgid "WorkItem|Create view"
 msgstr ""
 
+msgid "WorkItem|Created"
+msgstr ""
+
 msgid "WorkItem|Created %{timeago}"
 msgstr ""
 
@@ -87522,9 +87603,6 @@ msgid "WorkItem|Weight"
 msgstr ""
 
 msgid "WorkItem|Work item"
-msgstr ""
-
-msgid "WorkItem|Work item created"
 msgstr ""
 
 msgid "WorkItem|Work item not found"

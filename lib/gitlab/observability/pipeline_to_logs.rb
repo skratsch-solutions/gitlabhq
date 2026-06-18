@@ -4,6 +4,7 @@ module Gitlab
   module Observability
     class PipelineToLogs
       include Gitlab::Utils::StrongMemoize
+      include Gitlab::Observability::TracingHelpers
       include Gitlab::Observability::CicdSemconv
 
       def initialize(integration, pipeline_data)
@@ -82,6 +83,9 @@ module Gitlab
 
       def build_pipeline_log
         {
+          traceId: pipeline_trace_id,
+          spanId: pipeline_span_id,
+          flags: 1,
           timeUnixNano: time_to_nanoseconds(pipeline[:finished_at] || pipeline[:created_at]),
           severityNumber: map_severity(pipeline[:status]),
           severityText: map_severity_text(pipeline[:status]),
@@ -130,6 +134,9 @@ module Gitlab
 
       def build_job_log(build)
         {
+          traceId: pipeline_trace_id,
+          spanId: job_span_id(build),
+          flags: 1,
           timeUnixNano: time_to_nanoseconds(build[:finished_at] || build[:started_at] || build[:created_at]),
           severityNumber: map_severity(build[:status]),
           severityText: map_severity_text(build[:status]),

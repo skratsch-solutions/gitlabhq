@@ -383,6 +383,14 @@ class CommitStatus < Ci::ApplicationRecord
     project
   end
 
+  def prepare_for_bulk_insert(pipeline)
+    self.commit_id = pipeline.id
+    self.partition_id = pipeline.partition_id
+    self.project_id = pipeline.project_id
+    self.processed = false
+    self.stage_id = ci_stage.id if ci_stage
+  end
+
   private
 
   def unrecoverable_failure?

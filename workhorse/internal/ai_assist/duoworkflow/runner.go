@@ -433,6 +433,14 @@ func (r *runner) handleWebSocketMessage(message []byte) error {
 			}
 		}
 
+		// Make the workflow ID available to RunHTTPRequest actions so they can
+		// tag outbound GitLab API calls with X-Gitlab-Duo-Workflow-Id. Runs
+		// outside the lockFlow guard so the header is set even when Redis is
+		// unavailable or LockConcurrentFlow is disabled.
+		if r.httpActionHandler != nil {
+			r.httpActionHandler.workflowID = startReq.WorkflowID
+		}
+
 		r.mcpManager.SetWorkflowID(startReq.WorkflowID)
 
 		startReq.McpTools = append(startReq.McpTools, r.mcpManager.Tools()...)

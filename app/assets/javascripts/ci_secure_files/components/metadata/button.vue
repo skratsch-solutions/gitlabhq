@@ -25,6 +25,7 @@ export default {
       required: true,
     },
   },
+  emits: ['select-secure-file'],
   i18n: {
     metadataLabel: __('View File Metadata'),
   },

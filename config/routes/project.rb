@@ -518,6 +518,10 @@ constraints(Projects::ProjectUrlConstraint.new) do
           end
         end
 
+        namespace :observability do
+          resource :setup, only: [:show], controller: 'setup'
+          resource :access_requests, only: [:create]
+        end
         resources :observability, only: [:show], constraints: { id: %r{[a-zA-Z0-9._-]+} }, format: false
         get 'observability/*sub_path', to: 'observability#show', as: :observability_sub_path, format: false,
           constraints: { sub_path: %r{[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*} }

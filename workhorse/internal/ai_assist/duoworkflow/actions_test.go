@@ -237,6 +237,64 @@ func TestRunHttpActionHandler_Execute(t *testing.T) {
 		require.Nil(t, result)
 	})
 
+	t.Run("forwards X-Gitlab-Duo-Workflow-Id when workflowID is set", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, "wf-abc-123", r.Header.Get("X-Gitlab-Duo-Workflow-Id"))
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, `{}`)
+		}))
+		defer server.Close()
+
+		action := &pb.Action{
+			RequestID: "req-wf",
+			Action: &pb.Action_RunHTTPRequest{
+				RunHTTPRequest: &pb.RunHTTPRequest{
+					Method: "GET",
+					Path:   "/api/projects",
+				},
+			},
+		}
+
+		handler := &runHTTPActionHandler{
+			backend:     createBackendHandler(server.Client(), server.Listener.Addr().String()),
+			token:       "test-token",
+			originalReq: &http.Request{},
+			workflowID:  "wf-abc-123",
+		}
+
+		_, err := handler.Execute(context.Background(), action)
+		require.NoError(t, err)
+	})
+
+	t.Run("omits X-Gitlab-Duo-Workflow-Id when workflowID is empty", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_, exists := r.Header["X-Gitlab-Duo-Workflow-Id"]
+			assert.False(t, exists, "header should not be set when workflowID is empty")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, `{}`)
+		}))
+		defer server.Close()
+
+		action := &pb.Action{
+			RequestID: "req-no-wf",
+			Action: &pb.Action_RunHTTPRequest{
+				RunHTTPRequest: &pb.RunHTTPRequest{
+					Method: "GET",
+					Path:   "/api/projects",
+				},
+			},
+		}
+
+		handler := &runHTTPActionHandler{
+			backend:     createBackendHandler(server.Client(), server.Listener.Addr().String()),
+			token:       "test-token",
+			originalReq: &http.Request{},
+		}
+
+		_, err := handler.Execute(context.Background(), action)
+		require.NoError(t, err)
+	})
+
 	t.Run("request with query parameters", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			assert.Equal(t, "/api/projects", r.URL.Path)

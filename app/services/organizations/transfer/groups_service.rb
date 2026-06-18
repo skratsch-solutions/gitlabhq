@@ -35,11 +35,6 @@ module Organizations
       def execute
         return ServiceResponse.error(message: transfer_error) unless can_transfer?
 
-        # Find or create bot users before transaction to avoid exclusive lease errors.
-        # If the transaction is rolled back, new bots will still exist
-        # but this does not affect data integrity
-        user_transfer_service.prepare_bots
-
         Group.transaction do
           perform_transfer
         end
@@ -57,7 +52,6 @@ module Organizations
 
       def perform_transfer
         transfer_namespaces_and_projects
-        transfer_users
         schedule_ci_runners_transfer
         publish_event
       end
@@ -122,17 +116,6 @@ module Organizations
         end
       end
 
-      def transfer_users
-        user_transfer_service.execute
-      end
-
-      def user_transfer_service
-        @user_transfer_service ||= Organizations::Transfer::UsersService.new(
-          users: users,
-          new_organization: new_organization
-        )
-      end
-
       def schedule_ci_runners_transfer
         group_id = group.id
         old_org_id = old_organization.id
@@ -141,10 +124,6 @@ module Organizations
         group.run_after_commit_or_now do
           ::Ci::Runners::TransferOrganizationWorker.perform_async(group_id, old_org_id, new_org_id)
         end
-      end
-
-      def users
-        group.users_with_descendants
       end
 
       def log_transfer_success
@@ -175,7 +154,7 @@ module Organizations
       end
 
       def can_transfer?
-        return true if group_is_root? && !already_transferred? && has_permission? && can_transfer_users?
+        return true if group_is_root? && !already_transferred? && has_permission?
 
         false
       end
@@ -184,7 +163,6 @@ module Organizations
         error = localized_error_messages[:group_not_root] unless group_is_root?
         error ||= localized_error_messages[:already_transferred] if already_transferred?
         error ||= localized_error_messages[:permission] unless has_permission?
-        error ||= user_transfer_error unless can_transfer_users?
 
         format(
           s_("TransferOrganization|Group organization transfer failed: %{error_message}"),
@@ -205,14 +183,6 @@ module Organizations
         return false unless Ability.allowed?(current_user, :update_organization, new_organization)
 
         true
-      end
-
-      def can_transfer_users?
-        user_transfer_service.can_transfer_users?
-      end
-
-      def user_transfer_error
-        user_transfer_service.transfer_error
       end
 
       def localized_error_messages

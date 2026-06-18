@@ -1,4 +1,4 @@
-import { GlCollapsibleListbox, GlEmptyState, GlLoadingIcon, GlKeysetPagination } from '@gitlab/ui';
+import { GlCollapsibleListbox, GlLoadingIcon, GlKeysetPagination } from '@gitlab/ui';
 import { createMockSubscription } from 'mock-apollo-client';
 import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
@@ -16,6 +16,8 @@ import NavigationControls from '~/ci/pipelines_page/components/nav_controls.vue'
 import NoCiEmptyState from '~/ci/pipelines_page/components/empty_state/no_ci_empty_state.vue';
 import PipelinesFilteredSearch from '~/ci/pipelines_page/components/pipelines_filtered_search.vue';
 import ExternalConfigEmptyState from '~/ci/common/empty_state/external_config_empty_state.vue';
+import PipelinesEmptyState from '~/ci/common/empty_state/pipelines_empty_state.vue';
+import PipelinesErrorState from '~/ci/common/empty_state/pipelines_error_state.vue';
 import PipelinesTable from '~/ci/common/pipelines_table.vue';
 import getPipelinesQuery from '~/ci/pipelines_page/graphql/queries/get_pipelines.query.graphql';
 import getSinglePipelineQuery from '~/ci/pipelines_page/graphql/queries/get_single_pipeline.query.graphql';
@@ -146,7 +148,8 @@ describe('Pipelines App', () => {
 
   const findTable = () => wrapper.findComponent(PipelinesTable);
   const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
-  const findEmptyState = () => wrapper.findComponent(GlEmptyState);
+  const findPipelinesEmptyState = () => wrapper.findComponent(PipelinesEmptyState);
+  const findPipelineErrorState = () => wrapper.findComponent(PipelinesErrorState);
   const findNoCiEmptyState = () => wrapper.findComponent(NoCiEmptyState);
   const findTabs = () => wrapper.findComponent(NavigationTabs);
   const findNavControls = () => wrapper.findComponent(NavigationControls);
@@ -154,7 +157,6 @@ describe('Pipelines App', () => {
   const findPagination = () => wrapper.findComponent(GlKeysetPagination);
   const findPipelineKeyCollapsibleBox = () => wrapper.findComponent(GlCollapsibleListbox);
   const findExternalConfigEmptyState = () => wrapper.findComponent(ExternalConfigEmptyState);
-  const findEmptyStateTab = () => wrapper.findByTestId('empty-state-tab');
 
   const triggerNextPage = async () => {
     findPagination().vm.$emit('next');
@@ -204,8 +206,10 @@ describe('Pipelines App', () => {
 
       await waitForPromises();
 
-      expect(findEmptyState().exists()).toBe(true);
-      expect(findEmptyState().props('title')).toBe('There was an error fetching the pipelines.');
+      expect(findPipelineErrorState().exists()).toBe(true);
+      expect(findPipelineErrorState().props('title')).toBe(
+        'There was an error fetching the pipelines.',
+      );
     });
 
     it('shows tab empty state when not on the All tab', async () => {
@@ -226,15 +230,17 @@ describe('Pipelines App', () => {
 
       await waitForPromises();
 
-      expect(findEmptyState().exists()).toBe(true);
-      expect(findEmptyState().props('title')).toBe('There are currently no pipelines.');
+      expect(findPipelinesEmptyState().exists()).toBe(true);
+      expect(findPipelinesEmptyState().props('title')).toBe('There are currently no pipelines.');
 
       findTabs().vm.$emit('on-change-tab', 'finished');
 
       await waitForPromises();
 
-      expect(findEmptyState().exists()).toBe(true);
-      expect(findEmptyState().props('title')).toBe('There are currently no finished pipelines.');
+      expect(findPipelinesEmptyState().exists()).toBe(true);
+      expect(findPipelinesEmptyState().props('title')).toBe(
+        'There are currently no finished pipelines.',
+      );
     });
 
     it('shows no ci empty state when there are no pipelines and hasGitlabCi is false', async () => {
@@ -261,7 +267,7 @@ describe('Pipelines App', () => {
 
       await waitForPromises();
 
-      expect(findEmptyStateTab().exists()).toBe(true);
+      expect(findPipelinesEmptyState().exists()).toBe(true);
       expect(findTabs().exists()).toBe(true);
       expect(findNavControls().exists()).toBe(true);
       expect(findTable().exists()).toBe(false);

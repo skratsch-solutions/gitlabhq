@@ -22,6 +22,7 @@ project:
   - clone_project_configuration
   - create_container_registry_protection_immutable_tag_rule
   - create_group_link
+  - create_observability_access_request
   - delete_group_link
   - destroy_issue
   - destroy_merge_request

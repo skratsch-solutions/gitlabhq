@@ -40,6 +40,7 @@ RSpec.describe Gitlab::DataBuilder::Pipeline, feature_category: :continuous_inte
       expect(attributes[:ref_status_name]).to eq(pipeline.ref_status_name)
       expect(attributes[:url]).to eq(Gitlab::Routing.url_helpers.project_pipeline_url(pipeline.project, pipeline))
       expect(attributes[:detailed_status]).to eq('passed')
+      expect(attributes[:root_pipeline_id]).to eq(pipeline.root_ancestor.id)
       expect(build_data).to be_a(Hash)
       expect(build_data[:id]).to eq(build.id)
       expect(build_data[:status]).to eq(build.status)
@@ -203,6 +204,16 @@ RSpec.describe Gitlab::DataBuilder::Pipeline, feature_category: :continuous_inte
         builds = data.with_retried_builds[:builds]
 
         expect(builds.pluck(:id)).to contain_exactly(build.id, retried_build.id)
+      end
+    end
+
+    context 'when pipeline is a child pipeline' do
+      let_it_be(:root_pipeline) { create(:ci_pipeline, project: project, user: user) }
+      let_it_be(:pipeline) { create(:ci_pipeline, child_of: root_pipeline) }
+      let!(:build) { create(:ci_build, pipeline: pipeline) }
+
+      it 'sets root_pipeline_id to the root ancestor' do
+        expect(data[:object_attributes][:root_pipeline_id]).to eq(root_pipeline.id)
       end
     end
 

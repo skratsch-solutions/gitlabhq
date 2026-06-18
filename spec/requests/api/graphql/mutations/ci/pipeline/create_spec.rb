@@ -202,15 +202,54 @@ RSpec.describe 'PipelineCreate', feature_category: :pipeline_composition do
         }))
       end
 
-      it 'creates a pipeline linked to the merge request' do
+      it 'creates a pipeline linked to the merge request', :aggregate_failures do
         expect do
           post_graphql_mutation(mutation, current_user: user)
         end.to change { ::Ci::Pipeline.count }.by(1)
 
-        created_pipeline = ::Ci::Pipeline.last
+        created_pipeline = ::Ci::Pipeline.order(:id).last
         expect(created_pipeline.merge_request).to eq(merge_request)
         expect(created_pipeline.source).to eq('merge_request_event')
+        expect(created_pipeline.ref).to eq(merge_request.ref_path)
+        expect(created_pipeline.merge_request_ref?).to be(true)
         expect(mutation_response['pipeline']['id']).to eq(created_pipeline.to_global_id.to_s)
+      end
+
+      context 'when passing variables and inputs (Run pipeline with modified values)' do
+        let(:params) do
+          {
+            ref: merge_request.source_branch,
+            merge_request_iid: merge_request.iid.to_s,
+            variables: [{ key: 'DEPLOY_ENV', value: 'staging', variable_type: 'ENV_VAR' }],
+            inputs: [{ name: 'job_name', value: 'my-input-job' }]
+          }
+        end
+
+        before do
+          stub_ci_pipeline_yaml_file(<<~YAML)
+            spec:
+              inputs:
+                job_name:
+            ---
+            "$[[ inputs.job_name ]]":
+              script: echo test
+              rules:
+                - when: always
+          YAML
+        end
+
+        it 'creates the pipeline on the merge request ref with the overrides applied', :aggregate_failures do
+          expect do
+            post_graphql_mutation(mutation, current_user: user)
+          end.to change { ::Ci::Pipeline.count }.by(1)
+
+          created_pipeline = ::Ci::Pipeline.order(:id).last
+
+          expect(created_pipeline.ref).to eq(merge_request.ref_path)
+          expect(created_pipeline.merge_request).to eq(merge_request)
+          expect(created_pipeline.variables.map(&:key)).to include('DEPLOY_ENV')
+          expect(created_pipeline.builds.map(&:name)).to contain_exactly('my-input-job')
+        end
       end
 
       context 'when merge request does not exist' do

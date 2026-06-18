@@ -221,6 +221,12 @@ module Ci
       preload_metadata(statuses.in_order_of(:status, Ci::HasStatus::ORDERED_STATUSES).retried_ordered)
     end
 
+    def prepare_for_bulk_insert(pipeline)
+      self.pipeline_id = pipeline.id
+      self.partition_id = pipeline.partition_id
+      self.project_id = pipeline.project_id
+    end
+
     private
 
     def preload_metadata(statuses)

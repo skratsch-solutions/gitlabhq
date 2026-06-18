@@ -51,8 +51,7 @@ RSpec.describe Ci::PipelinesHelper, feature_category: :continuous_integration do
         :visibility_pipeline_id_type,
         :show_jenkins_ci_prompt,
         :pipelines_analytics_path,
-        :uses_external_config,
-        :empty_state_illustration_path
+        :uses_external_config
       )
     end
   end

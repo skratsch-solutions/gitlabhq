@@ -1,6 +1,6 @@
 ---
-stage: AI-powered
-group: Agent Foundations
+stage: Verify
+group: Pipeline Execution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 title: Fix CI/CD Pipeline Flow
 ---
@@ -19,23 +19,40 @@ title: Fix CI/CD Pipeline Flow
 - Feature flag `ai_duo_agent_fix_pipeline_button` [enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/205086) in GitLab 18.5.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/585273) in GitLab 18.8. Feature flag `ai_duo_agent_fix_pipeline_button` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/216681). Feature flag `duo_workflow_in_ci` was removed in GitLab 18.9.
 - Available on the Free tier on GitLab.com with GitLab Credits in GitLab 18.10.
+- Fixes to pipelines associated with a merge request [changed](https://gitlab.com/groups/gitlab-org/-/work_items/21837)
+  to apply as code suggestions in GitLab 19.1
+  [with a flag](../../../../administration/feature_flags/_index.md) named `fix_pipeline_next`.
+  Enabled on GitLab.com for a subset of users.
 
 {{< /history >}}
 
-The Fix CI/CD Pipeline Flow helps you automatically diagnose and fix issues in your GitLab CI/CD pipeline. This flow:
+The Fix CI/CD Pipeline Flow diagnoses and proposes fixes issues in your GitLab CI/CD pipeline.
+To diagnose failures, the flow examines:
 
-- Analyzes pipeline failure logs and error messages.
-- Identifies configuration issues and syntax errors.
-- Suggests specific fixes based on the type of failure.
-- Creates a merge request with changes that attempt to fix a failing pipeline.
+- Pipeline logs, including error messages, failed job outputs, and exit codes.
+- Merge request changes that could have caused the failure.
+- Repository contents, for identifying syntax, linting, or import errors.
+- Script errors, including command failures, missing executables, or permission issues.
 
-The flow can automatically fix various pipeline issues, including:
+How the flow applies fixes depends on the pipeline context:
 
-- Syntax and configuration errors.
-- Common job failures.
-- Dependency and workflow issues.
+- If the pipeline is associated with a merge request, the flow applies inline code suggestions
+  on the source branch. You can review and apply the suggestions directly from the merge request.
+  - If the fix requires changes to files outside the current merge request diff, the flow
+    creates a new merge request instead.
+- If the pipeline is not associated with a merge request, the flow creates a new merge request
+  that contains the fix.
 
-This flow is available in the GitLab UI only.
+In some cases, instead of attempting a fix, the flow posts a comment that describes
+the failure and possible next steps.
+This happens when the pipeline is associated with a merge request, for example:
+
+- Insufficient context exists to determine a reliable fix.
+- The failure is security-sensitive and should be reviewed by a person.
+- The failure category is not actionable by the flow.
+
+When a session starts and completes, the flow posts system notes to the merge request
+with a link to the session. This flow is available in the GitLab UI only.
 
 ## Prerequisites
 
@@ -58,7 +75,7 @@ To fix the CI/CD pipeline in a merge request:
 
 1. To monitor progress, select **AI** > **Sessions**.
 
-When the session is complete, a comment shows a link to a merge request that contains the fix,
+When the session is complete, the flow adds code suggestions to the merge request,
 or a comment describes possible next steps.
 
 ## Fix other CI/CD pipelines
@@ -70,20 +87,53 @@ To fix a CI/CD pipeline that is not associated with a merge request:
 1. In the upper-right corner, select **Fix pipeline with Duo**.
 1. To monitor progress, select **AI** > **Sessions**.
 
-## What the flow analyzes
+## Use `AGENTS.md` to customize the flow
 
-The Fix CI/CD Pipeline Flow examines:
+The flow reads repository-specific instructions from an
+[`AGENTS.md`](../../customize/agents_md.md) file in your repository.
+You can use `AGENTS.md` to customize behavior such as:
 
-- Pipeline logs: Error messages, failed job outputs, and exit codes.
-- Merge request changes: Changes that could have caused the failure.
-- The current repository contents: For identifying syntax, linting, or import errors.
-- Script errors: Command failures, missing executables, or permission issues.
+- Commit message format for the changes the flow commits.
+- Merge request metadata, such as labels and description, for merge requests the flow creates.
+- How to classify and treat specific types of failures.
 
-## Flow log processing
+For example:
 
-The Fix CI/CD Pipeline Flow has a known issue related to log processing.
+```markdown
+## Fix pipeline merge requests
 
-The AI gateway processes only the last 150 KiB of job logs. If your job produces extensive output, the flow might not capture relevant failure information that appears earlier in the log.
+When opening a merge request as part of the Fix Pipeline flow (the title contains [FixPipeline]),
+apply labels based on the following failed pipeline scenarios:
+
+- Pipeline failed on merge_request: apply "pipeline::tier-1". This runs the cheaper tier-1
+  pipeline instead of the full default pipeline.
+- Pipeline failed on the default_branch (main): apply both "pipeline::expedited" and
+  "main:broken". Do not apply pipeline::tier-1 in this case.
+- Pipeline failed on other branches: apply "pipeline::tier-1". Same treatment as the
+  merge_request case.
+```
+
+## Known issues
+
+- The AI gateway processes only the last 150 KiB of job logs. If your job produces extensive
+  output, the flow might not capture relevant failure information that appears earlier in the log.
+  See the following section for workarounds.
+- The flow cannot always verify package installation in the sandboxed runtime environment.
+  If dependencies are missing, you can customize the default flow image. See
+  [change the default Docker image](../execution.md#change-the-default-docker-image).
+- Repository instructions in `AGENTS.md` influence the flow's behavior but are not guaranteed
+  to be followed in every case.
+
+## Troubleshooting
+
+When working with the Fix CI/CD Pipeline Flow, you might encounter the following issues.
+
+### Flow cannot identify the root cause of a failure
+
+The flow might not identify the root cause of a pipeline failure.
+
+This issue occurs when job logs exceed 150 KiB. The AI gateway processes only the last 150 KiB,
+so relevant failure information that appears earlier in the log might not be captured.
 
 To work around this issue, try the following:
 

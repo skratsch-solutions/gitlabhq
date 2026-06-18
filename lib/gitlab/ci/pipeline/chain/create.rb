@@ -77,28 +77,10 @@ module Gitlab
             pipeline.destroy!
           end
 
-          def assign_pipeline_references!(records)
-            records.each do |record|
-              record.pipeline_id = pipeline.id
-              record.partition_id = pipeline.partition_id
-              record.project_id = pipeline.project_id
-            end
-          end
-
-          def assign_build_attributes!(builds)
-            builds.each do |build|
-              build.commit_id = pipeline.id
-              build.partition_id = pipeline.partition_id
-              build.project_id = pipeline.project_id
-              build.processed = false
-              build.stage_id = build.ci_stage.id if build.ci_stage
-            end
-          end
-
           def bulk_insert_with_pipeline_refs!(model_class, records, returning: [:id])
             return if records.empty?
 
-            assign_pipeline_references!(records)
+            records.each { |record| record.prepare_for_bulk_insert(pipeline) }
 
             records.each_slice(BULK_INSERT_BATCH_SIZE) do |batch|
               insert_records_and_restore_ids(model_class, batch, returning: returning)
@@ -112,7 +94,7 @@ module Gitlab
           def bulk_insert_statuses!(builds)
             return if builds.empty?
 
-            assign_build_attributes!(builds)
+            builds.each { |build| build.prepare_for_bulk_insert(pipeline) }
 
             builds.each_slice(BULK_INSERT_BATCH_SIZE) do |batch|
               result = insert_records_and_restore_ids(::CommitStatus, batch, returning: [:id, :partition_id])

@@ -142,6 +142,8 @@ class ProjectCiCdSetting < ApplicationRecord
   private
 
   def set_pipeline_variables_secure_defaults
+    return unless project.namespace
+
     self.pipeline_variables_minimum_override_role = project.root_namespace.pipeline_variables_default_role
   end
 

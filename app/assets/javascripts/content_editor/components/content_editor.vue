@@ -138,6 +138,17 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'blur',
+    'change',
+    'enableMarkdownEditor',
+    'focus',
+    'initialized',
+    'keydown',
+    'loading',
+    'loadingError',
+    'loadingSuccess',
+  ],
   data() {
     return {
       focused: false,

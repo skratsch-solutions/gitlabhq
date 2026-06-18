@@ -39,6 +39,6 @@
    * contrast on background.color.strong surface
    */
   .md :not(pre.code) > code {
-    background-color: $gray-200;
+    background-color: var(--gl-color-neutral-700);
   }
 }
