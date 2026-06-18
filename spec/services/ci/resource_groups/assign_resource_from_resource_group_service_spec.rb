@@ -21,20 +21,16 @@ RSpec.describe Ci::ResourceGroups::AssignResourceFromResourceGroupService, featu
     let!(:ci_build) { create(:ci_build, :waiting_for_resource, project: project, user: user, resource_group: resource_group) }
 
     context 'when there is an available resource' do
-      it 'requests resource' do
-        subject
-
-        expect(ci_build.reload).to be_pending
-        expect(ci_build.resource).to be_present
-      end
-
-      it 'pre-computes pending build args outside the transaction' do
+      it 'requests resource and pre-computes pending build args outside the transaction', :aggregate_failures do
         expect(Ci::PendingBuild).to receive(:args_from_build).with(ci_build).and_call_original
         expect(Ci::PendingBuild).to receive(:upsert_from_args!)
           .with(a_hash_including(:build, :project, :namespace))
           .and_call_original
 
         subject
+
+        expect(ci_build.reload).to be_pending
+        expect(ci_build.resource).to be_present
       end
 
       it_behaves_like 'internal event tracking' do
@@ -50,16 +46,12 @@ RSpec.describe Ci::ResourceGroups::AssignResourceFromResourceGroupService, featu
           end
         end
 
-        it 'has a build waiting for resource' do
-          subject
-
-          expect(ci_build.reload).to be_waiting_for_resource
-        end
-
-        it 'does not track the internal event' do
+        it 'has a build waiting for resource and does not track the internal event', :aggregate_failures do
           expect(Gitlab::InternalEvents).not_to receive(:track_event)
 
           subject
+
+          expect(ci_build.reload).to be_waiting_for_resource
         end
       end
 
@@ -217,24 +209,19 @@ RSpec.describe Ci::ResourceGroups::AssignResourceFromResourceGroupService, featu
     end
 
     context 'when there are no available resources' do
-      let!(:other_build) { create(:ci_build) }
+      let!(:other_build) { create(:ci_build, project: project) }
 
       before do
         resource_group.assign_resource_to(other_build)
       end
 
-      it 'does not request resource' do
+      it 'does not request resource or re-spawn the worker', :aggregate_failures do
         expect_any_instance_of(Ci::Build).not_to receive(:enqueue_waiting_for_resource)
+        expect(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).not_to receive(:perform_in)
 
         subject
 
         expect(ci_build.reload).to be_waiting_for_resource
-      end
-
-      it 'does not re-spawn the new worker for assigning a resource' do
-        expect(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).not_to receive(:perform_in)
-
-        subject
       end
 
       context 'when there is a stale build assigned to a resource' do
@@ -254,7 +241,7 @@ RSpec.describe Ci::ResourceGroups::AssignResourceFromResourceGroupService, featu
   end
 
   def create_deploy_job_with_persisted_deployment(user, project, resource_group, environment_name, status)
-    pipeline = create(:ci_empty_pipeline, sha: OpenSSL::Digest::SHA256.hexdigest(SecureRandom.hex))
+    pipeline = create(:ci_empty_pipeline, project: project, sha: OpenSSL::Digest::SHA256.hexdigest(SecureRandom.hex))
 
     deploy_job = create(
       :ci_build,

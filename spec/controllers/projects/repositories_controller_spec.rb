@@ -148,9 +148,10 @@ RSpec.describe Projects::RepositoriesController, feature_category: :source_code_
         expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-archive:")
       end
 
-      context "when the service raises an error" do
+      context "when the repository or ref is not found" do
         before do
-          allow(Gitlab::Workhorse).to receive(:send_git_archive).and_raise("Archive failed")
+          allow(Gitlab::Workhorse).to receive(:send_git_archive)
+            .and_raise(Gitlab::Workhorse::ArchiveNotFoundError, "Repository or ref not found")
         end
 
         it "renders Not Found" do

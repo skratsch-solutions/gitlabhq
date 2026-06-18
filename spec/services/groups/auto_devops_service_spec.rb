@@ -19,7 +19,7 @@ RSpec.describe Groups::AutoDevopsService, '#execute', feature_category: :auto_de
   end
 
   context 'when user has enough privileges' do
-    before do
+    before_all do
       group.add_owner(user)
     end
 

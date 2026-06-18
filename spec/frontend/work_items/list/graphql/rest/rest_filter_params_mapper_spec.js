@@ -30,6 +30,8 @@ describe('convertGraphQLVarsToRestParams', () => {
       ['CLOSED_AT_ASC', 'closed_at', 'asc'],
       ['CLOSED_AT_DESC', 'closed_at', 'desc'],
       ['RELATIVE_POSITION_ASC', 'relative_position', 'asc'],
+      ['LABEL_PRIORITY_ASC', 'label_priority', 'asc'],
+      ['LABEL_PRIORITY_DESC', 'label_priority', 'desc'],
     ])('maps %s to order_by=%s sort=%s', (input, orderBy, sort) => {
       const params = convertGraphQLVarsToRestParams({ sort: input });
 
@@ -244,16 +246,34 @@ describe('convertGraphQLVarsToRestParams', () => {
       expect(params.getAll('milestone_title[]')).toEqual(['v1.0']);
     });
 
-    it('maps types as lowercase repeated params with [] suffix', () => {
-      const params = convertGraphQLVarsToRestParams({ types: ['ISSUE', 'TASK'] });
+    it('maps workItemTypeIds as work_item_type_ids[] with numeric IDs extracted from GIDs', () => {
+      const params = convertGraphQLVarsToRestParams({
+        workItemTypeIds: ['gid://gitlab/WorkItems::Type/1', 'gid://gitlab/WorkItems::Type/2'],
+      });
 
-      expect(params.getAll('types[]')).toEqual(['issue', 'task']);
+      expect(params.getAll('work_item_type_ids[]')).toEqual(['1', '2']);
     });
 
-    it('maps types when provided as a string scalar instead of array', () => {
-      const params = convertGraphQLVarsToRestParams({ types: 'ISSUE' });
+    it('maps workItemTypeIds when provided as a single GID instead of array', () => {
+      const params = convertGraphQLVarsToRestParams({
+        workItemTypeIds: 'gid://gitlab/WorkItems::Type/1',
+      });
 
-      expect(params.getAll('types[]')).toEqual(['issue']);
+      expect(params.getAll('work_item_type_ids[]')).toEqual(['1']);
+    });
+
+    it('omits work_item_type_ids[] when workItemTypeIds is not provided', () => {
+      const params = convertGraphQLVarsToRestParams({});
+
+      expect(params.getAll('work_item_type_ids[]')).toEqual([]);
+    });
+
+    it('maps not.workItemTypeIds as not[work_item_type_ids][] with numeric IDs', () => {
+      const params = convertGraphQLVarsToRestParams({
+        not: { workItemTypeIds: ['gid://gitlab/WorkItems::Type/1'] },
+      });
+
+      expect(params.getAll('not[work_item_type_ids][]')).toEqual(['1']);
     });
 
     it('maps releaseTag as repeated params with [] suffix', () => {
@@ -281,10 +301,36 @@ describe('convertGraphQLVarsToRestParams', () => {
   });
 
   describe('hierarchy filters', () => {
-    it('maps hierarchyFilters.parentId to parent_ids[]', () => {
-      const params = convertGraphQLVarsToRestParams({ hierarchyFilters: { parentId: '123' } });
+    it('maps hierarchyFilters.parentIds to parent_ids[] with numeric IDs', () => {
+      const params = convertGraphQLVarsToRestParams({
+        hierarchyFilters: { parentIds: ['gid://gitlab/WorkItem/123'] },
+      });
 
       expect(params.getAll('parent_ids[]')).toEqual(['123']);
+    });
+
+    it('maps hierarchyFilters.parentWildcardId to parent_wildcard_id', () => {
+      const params = convertGraphQLVarsToRestParams({
+        hierarchyFilters: { parentWildcardId: 'ANY' },
+      });
+
+      expect(params.get('parent_wildcard_id')).toBe('Any');
+    });
+
+    it('maps hierarchyFilters.parentWildcardId NONE', () => {
+      const params = convertGraphQLVarsToRestParams({
+        hierarchyFilters: { parentWildcardId: 'NONE' },
+      });
+
+      expect(params.get('parent_wildcard_id')).toBe('None');
+    });
+
+    it('maps hierarchyFilters.includeDescendantWorkItems', () => {
+      const params = convertGraphQLVarsToRestParams({
+        hierarchyFilters: { includeDescendantWorkItems: true },
+      });
+
+      expect(params.get('include_descendant_work_items')).toBe('true');
     });
 
     it('maps includeDescendants', () => {
@@ -297,6 +343,8 @@ describe('convertGraphQLVarsToRestParams', () => {
       const params = convertGraphQLVarsToRestParams({});
 
       expect(params.getAll('parent_ids[]')).toEqual([]);
+      expect(params.get('parent_wildcard_id')).toBeNull();
+      expect(params.get('include_descendant_work_items')).toBeNull();
       expect(params.get('include_descendants')).toBeNull();
     });
   });
@@ -325,6 +373,30 @@ describe('convertGraphQLVarsToRestParams', () => {
       const keys = [...params.keys()];
 
       expect(keys.some((k) => k.startsWith('not['))).toBe(false);
+    });
+
+    it('maps not[parentIds] with numeric IDs extracted from GIDs', () => {
+      const params = convertGraphQLVarsToRestParams({
+        not: { parentIds: ['gid://gitlab/WorkItem/456'] },
+      });
+
+      expect(params.getAll('not[parent_ids][]')).toEqual(['456']);
+    });
+
+    it('maps not[milestoneWildcardId] to capitalized format', () => {
+      const params = convertGraphQLVarsToRestParams({
+        not: { milestoneWildcardId: 'UPCOMING' },
+      });
+
+      expect(params.get('not[milestone_wildcard_id]')).toBe('Upcoming');
+    });
+
+    it('maps not[milestoneWildcardId] STARTED to capitalized format', () => {
+      const params = convertGraphQLVarsToRestParams({
+        not: { milestoneWildcardId: 'STARTED' },
+      });
+
+      expect(params.get('not[milestone_wildcard_id]')).toBe('Started');
     });
   });
 

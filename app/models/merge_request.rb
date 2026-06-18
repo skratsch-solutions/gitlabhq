@@ -2147,6 +2147,26 @@ class MergeRequest < ApplicationRecord
     remove_from_locked_set unless locked?
   end
 
+  # Recovers a merge request that is stuck `locked` and cannot be unlocked
+  # normally because reopening it now fails a structural validation (most
+  # commonly a newer opened MR occupying the same source branch, a missing
+  # source project, or a broken fork). Those validations are bypassed via
+  # `allow_broken` and the MR is moved locked -> opened -> closed so the
+  # state-machine callbacks (e.g. the head pipeline update on `=> :opened`)
+  # still fire.
+  #
+  # Returns false without persisting a close when the MR is not locked or a
+  # transition fails. The non-bang transitions return false (instead of raising)
+  # on a non-bypassable validation error or a concurrent state change, so a
+  # failure here never aborts the surrounding (cron) batch. Note: if unlock_mr
+  # succeeds but close then fails, the MR is left opened (already a recovered
+  # state); the unstick cron self-heals that on its next run. See #600038.
+  def force_unlock_and_close
+    return false unless locked?
+
+    with_allow_broken { unlock_mr && close }
+  end
+
   def update_and_mark_in_progress_merge_commit_sha(commit_id)
     self.update(in_progress_merge_commit_sha: commit_id)
     # Since another process checks for matching merge request, we need
@@ -2957,6 +2977,18 @@ class MergeRequest < ApplicationRecord
   end
 
   private
+
+  # Runs the block with `allow_broken` enabled, restoring the previous value
+  # afterwards. Used to bypass the structural validations that would otherwise
+  # block recovering a stuck `locked` merge request. Keep this private: a public
+  # generic validation escape hatch would be too easy to misuse.
+  def with_allow_broken
+    previous_allow_broken = allow_broken
+    self.allow_broken = true
+    yield
+  ensure
+    self.allow_broken = previous_allow_broken
+  end
 
   # Returns true when the in-memory state_id no longer matches what the primary
   # database holds. This can happen because the instance was loaded from a

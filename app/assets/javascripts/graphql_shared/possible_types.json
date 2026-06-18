@@ -274,6 +274,7 @@
     "BulkImportExportUploadUploadRegistry",
     "CiSecureFileRegistry",
     "ContainerRepositoryRegistry",
+    "DependencyListExportPartUploadRegistry",
     "DependencyListExportUploadRegistry",
     "DependencyProxyBlobRegistry",
     "DependencyProxyManifestRegistry",

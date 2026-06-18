@@ -42,6 +42,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       cd_versions
       custom_dashboard_search_data
       custom_dashboards
+      dependency_list_export_part_upload_states
       dependency_list_export_part_uploads
       dependency_list_export_parts
       dependency_list_export_upload_states

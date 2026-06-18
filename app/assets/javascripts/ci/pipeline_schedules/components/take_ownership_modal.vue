@@ -21,6 +21,7 @@ export default {
       required: true,
     },
   },
+  emits: ['hideModal', 'takeOwnership'],
   computed: {
     actionCancel() {
       return { text: this.$options.i18n.cancelLabel };

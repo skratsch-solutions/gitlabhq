@@ -27,6 +27,7 @@ export default {
       required: true,
     },
   },
+  emits: ['deleteSchedule', 'hideModal'],
 };
 </script>
 

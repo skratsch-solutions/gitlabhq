@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Releases::Links::CreateService, feature_category: :release_orchestration do
   let(:service) { described_class.new(release, user, params) }
-  let_it_be(:project, freeze: false) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project) }
   let_it_be(:user, freeze: false) { create(:user, developer_of: project) }
   let_it_be(:release, freeze: false) { create(:release, project: project, author: user, tag: 'v1.1.0') }
 

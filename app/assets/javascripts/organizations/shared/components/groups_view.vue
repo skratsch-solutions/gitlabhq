@@ -12,6 +12,7 @@ import NewGroupButton from './new_group_button.vue';
 import GroupsAndProjectsEmptyState from './groups_and_projects_empty_state.vue';
 
 export default {
+  name: 'GroupsView',
   groupsEmptyStateSvgPath,
   i18n: {
     errorMessage: s__(

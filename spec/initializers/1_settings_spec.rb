@@ -280,6 +280,37 @@ RSpec.describe '1_settings', feature_category: :settings do
     end
   end
 
+  describe 'IAM Data Access Service configuration' do
+    context 'with default configuration' do
+      before do
+        stub_config(iam_data_access_service: { grpc: {} })
+        load_settings
+      end
+
+      it { expect(Settings.iam_data_access_service.secret_file).to be_nil }
+      it { expect(Settings.iam_data_access_service.grpc.host).to eq('localhost') }
+      it { expect(Settings.iam_data_access_service.grpc.port).to eq(5005) }
+    end
+
+    context 'with custom configuration' do
+      before do
+        stub_config(iam_data_access_service: {
+          secret_file: '/etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret',
+          grpc: { host: 'iam.example.com', port: 443 }
+        })
+        load_settings
+      end
+
+      it 'reads secret_file from config' do
+        expect(Settings.iam_data_access_service.secret_file)
+          .to eq('/etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret')
+      end
+
+      it { expect(Settings.iam_data_access_service.grpc.host).to eq('iam.example.com') }
+      it { expect(Settings.iam_data_access_service.grpc.port).to eq(443) }
+    end
+  end
+
   describe 'cron jobs', unless: Gitlab.ee? do
     around do |example|
       Gitlab::SidekiqConfig::CronJobs.reset!

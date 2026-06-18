@@ -22,6 +22,7 @@ import { DEFAULT_PAGE_SIZE, issuableListTabs } from '~/vue_shared/issuable/list/
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { fetchPolicies } from '~/lib/graphql';
 import { isPositiveInteger } from '~/lib/utils/number_utils';
+import AccessorUtilities from '~/lib/utils/accessor';
 import { AutocompleteCache } from '~/issues/dashboard/utils';
 import { setPageFullWidth, setPageDefaultWidth, isLoggedIn } from '~/lib/utils/common_utils';
 import { confirmAction } from '~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal';
@@ -387,7 +388,7 @@ export default {
               this.lastTrackedSavedViewId = this.savedViewId;
               this.trackEvent('saved_view_view');
             }
-            const draft = localStorage.getItem(this.savedViewDraftStorageKey);
+            const draft = this.getSavedViewDraft();
             const tokens = this.getFilterTokensFromSavedView(savedView?.filters || {});
             this.initialViewTokens = tokens;
             this.initialViewSortKey = savedView?.sort;
@@ -1129,7 +1130,7 @@ export default {
         const sessionFilters = planningViewSavedViewFilterTokens.value[this.$route.params.view_id];
         this.filterTokens = sessionFilters ?? tokens;
         this.updateState(this.filterTokens);
-        const draft = localStorage.getItem(this.savedViewDraftStorageKey);
+        const draft = this.getSavedViewDraft();
         if (draft) {
           this.restoreViewDraft();
         }
@@ -1251,11 +1252,20 @@ export default {
       );
       return convertLegacyTypeFormat(filteredTokens, this.getWorkItemTypeConfiguration);
     },
+    getSavedViewDraft() {
+      if (!AccessorUtilities.canUseLocalStorage()) return null;
+      return localStorage.getItem(this.savedViewDraftStorageKey);
+    },
     restoreViewDraft() {
-      const draft = localStorage.getItem(this.savedViewDraftStorageKey);
+      const draft = this.getSavedViewDraft();
       if (!draft) return;
 
-      const parsedData = JSON.parse(draft);
+      let parsedData;
+      try {
+        parsedData = JSON.parse(draft);
+      } catch {
+        return;
+      }
 
       this.sortKey = parsedData.sortKey;
       this.localDisplaySettings = parsedData.displaySettings;
@@ -1302,7 +1312,12 @@ export default {
       }
     },
     clearLocalSavedViewsConfig() {
-      localStorage.removeItem(this.savedViewDraftStorageKey);
+      if (!AccessorUtilities.canUseLocalStorage()) return;
+      try {
+        localStorage.removeItem(this.savedViewDraftStorageKey);
+      } catch {
+        // Storage may be unavailable (e.g. quota or private mode); ignore.
+      }
     },
     async updateView() {
       const mutationKey = 'workItemSavedViewUpdate';
@@ -1526,7 +1541,12 @@ export default {
         return;
       }
 
-      localStorage.setItem(this.savedViewDraftStorageKey, JSON.stringify(this.viewDraftData));
+      if (!AccessorUtilities.canUseLocalStorage()) return;
+      try {
+        localStorage.setItem(this.savedViewDraftStorageKey, JSON.stringify(this.viewDraftData));
+      } catch {
+        // Storage may be unavailable (e.g. quota or private mode); ignore.
+      }
     },
     handleAllIssuablesCheckedInput(value) {
       if (value) {

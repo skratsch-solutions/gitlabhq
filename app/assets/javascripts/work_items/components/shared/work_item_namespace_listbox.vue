@@ -3,6 +3,7 @@ import { GlCollapsibleListbox } from '@gitlab/ui';
 import fuzzaldrinPlus from 'fuzzaldrin-plus';
 import { debounce, unionBy } from 'lodash-es';
 import ProjectAvatar from '~/vue_shared/components/project_avatar.vue';
+import AccessorUtilities from '~/lib/utils/accessor';
 import { __, s__ } from '~/locale';
 import { STORAGE_KEY } from '~/super_sidebar/constants';
 import { getTopFrequentItems } from '~/super_sidebar/utils';
@@ -249,6 +250,11 @@ export default {
       const { current_username: currentUsername } = gon;
 
       if (!currentUsername) {
+        this.frequentItems = [];
+        return;
+      }
+
+      if (!AccessorUtilities.canUseLocalStorage()) {
         this.frequentItems = [];
         return;
       }

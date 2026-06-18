@@ -112,7 +112,6 @@ Each claimable model type has its own feature flag, allowing independent rollout
 | `cells_claims_projects` | `Project` | Controls claiming of project IDs |
 | `cells_claims_routes` | `Route`, `RedirectRoute` | Controls claiming of route and redirect route paths |
 | `cells_claims_keys` | `Key`, `GpgKey`, `DeployKey` | Controls claiming of SSH, GPG and Deploy keys |
-| `cells_claims_service_desk_settings` | `ServiceDeskSetting` | Controls claiming of Service Desk custom emails |
 
 ### Verification worker feature flags
 
@@ -314,7 +313,6 @@ class ServiceDeskSetting < ApplicationRecord
 
   cells_claims_attribute :custom_email,
     type: CLAIMS_BUCKET_TYPE::SERVICE_DESK_CUSTOM_EMAILS,
-    feature_flag: :cells_claims_service_desk_settings,
     if: ->(record) { record.custom_email.present? }
 end
 ```

@@ -39,7 +39,7 @@ Embeddings are generated asynchronously through a queue system using reference c
 1. **Batch processing**: References are processed in batches by the `Ai::ActiveContext::BulkProcessWorker`
 1. **Vector storage**: Generated embeddings are stored in the configured vector store
 
-The `BulkProcessWorker` is a cron job that runs every minute and processes embedding references from the queue. It fetches references, generates embeddings, and removes them from the queue. If the queue is not empty after processing, the worker re-enqueues itself to continue processing. If embedding generation fails, it gets retried once and is then placed on a dead queue.
+The `Ai::ActiveContext::BulkProcessWorker` is a cron job that runs every minute and processes embedding references from the queue. It fetches references, generates embeddings, and removes them from the queue. If the queue is not empty after processing, the worker re-enqueues itself to continue processing. If embedding generation fails, it gets retried once and is then placed on a dead queue.
 
 ### Embedding models
 
@@ -85,11 +85,26 @@ For Elasticsearch or OpenSearch clusters used by advanced search:
 
 **Option 2: Using Rails console**
 
+Use one of the following approaches. The `name` field is a user-defined label.
+
+To connect with an explicit URL (for example, OpenSearch):
+
 ```ruby
 connection = Ai::ActiveContext::Connection.create!(
-  name: "os",
+  name: "opensearch",
   options: { url: ["http://localhost:9202"] },
-  adapter_class: "ActiveContext::Databases::OpenSearch::Adapter"
+  adapter_class: "ActiveContext::Databases::Opensearch::Adapter"
+)
+connection.activate!
+```
+
+To reuse credentials from an existing advanced search cluster:
+
+```ruby
+connection = Ai::ActiveContext::Connection.create!(
+  name: "elasticsearch",
+  adapter_class: "ActiveContext::Databases::Elasticsearch::Adapter",
+  options: { use_advanced_search_config: true }
 )
 connection.activate!
 ```
@@ -107,7 +122,7 @@ For PostgreSQL, use the `pgvector` extension:
    ```ruby
    connection = Ai::ActiveContext::Connection.create!(
      name: "postgres",
-     options: { host: 'localhost', port: 5432, user: 'postgres', password: 'password' },
+     options: { host: 'localhost', port: 5432, user: 'postgres', password: 'password', database: 'postgres' },
      adapter_class: "ActiveContext::Databases::Postgresql::Adapter"
    )
    connection.activate!
@@ -118,10 +133,10 @@ For more information, see the [`pgvector` documentation](https://github.com/pgve
 Supported adapter classes:
 
 - `ActiveContext::Databases::Elasticsearch::Adapter`
-- `ActiveContext::Databases::OpenSearch::Adapter`
+- `ActiveContext::Databases::Opensearch::Adapter`
 - `ActiveContext::Databases::Postgresql::Adapter`
 
-The `options` hash should contain the connection details specific to your vector store (URL, credentials, etc.).
+The `options` hash should contain the connection details specific to your vector store (URL, credentials, and other adapter-specific settings).
 
 ### Semantic Code Search Architecture
 
@@ -135,28 +150,28 @@ When the Semantic Code Search tool is invoked for a project that hasn't been ind
 1. **Index worker**: The `Ai::ActiveContext::Code::RepositoryIndexWorker` processes the `pending` repository
 1. **Initial indexing**:
    1. The `Ai::ActiveContext::Code::InitialIndexingService` calls the `Ai::ActiveContext::Code::Indexer`
-   1. The `Indexer` runs the [`gitlab-elasticsearch-indexer`](#gitlab-elasticsearch-indexer) to fetch the repository's files from Gitaly, chunk the code, and index the chunks in the vector store
-   1. The `InitialIndexingService` enqueues the references/IDs of the indexed content for embeddings generation
-1. **Async processing**: Queued content references are picked up for embeddings generation via the asynchronous `Ai::ActiveContext::BulkProcessWorker`.
+   1. The `Ai::ActiveContext::Code::Indexer` runs the [`gitlab-elasticsearch-indexer`](#gitlab-elasticsearch-indexer) to fetch the repository's files from Gitaly, chunk the code, and index the chunks in the vector store
+   1. The `Ai::ActiveContext::Code::InitialIndexingService` enqueues the references/IDs of the indexed content for embeddings generation
+1. **Async processing**: Queued content references are picked up for embeddings generation through the asynchronous `Ai::ActiveContext::BulkProcessWorker`.
 1. **Tool not available**: The user is notified that indexing is in progress and should try again in a few minutes.
-1. **Ready check**: The `Ai::ActiveContext::Code::MarkRepositoryAsReadyEventWorker` runs on a 10-minute cron schedule (via `SchedulingService`) and checks if all embeddings have been generated. Once all embeddings are ready, it marks the repository as `ready`
+1. **Ready check**: The `Ai::ActiveContext::Code::MarkRepositoryAsReadyEventWorker` runs on a 10-minute cron schedule (through `Ai::ActiveContext::Code::SchedulingService`) and checks if all embeddings have been generated. Once all embeddings are ready, it marks the repository as `ready`
 1. **Available for queries**: The next time the tool is invoked, the repository is ready and can be used for semantic search queries
 
 ##### Incremental indexing
 
 When code is merged into the default branch:
 
-1. **Push event**: A push event triggers the incremental indexing process through the `BranchPushService`
+1. **Push event**: A push event triggers the incremental indexing process through the `Git::BranchPushService`
 1. **Index worker**: The `Ai::ActiveContext::Code::RepositoryIndexWorker` processes the `ready` ActiveContext repository
 1. **Incremental Indexing** - only the changed files are processed
    1. The `Ai::ActiveContext::Code::IncrementalIndexingService` calls the `Ai::ActiveContext::Code::Indexer`
-   1. The `Indexer` runs the [`gitlab-elasticsearch-indexer`](#gitlab-elasticsearch-indexer) to fetch the changed files from Gitaly, chunk the code, and index the chunks in the vector store. It also deletes orphaned data from the vector store.
-   1. The `IncrementalIndexingService` enqueues the references/IDs of the indexed content for embeddings generation
-1. **Async processing**: Queued content references are picked up for embeddings generation via the asynchronous `Ai::ActiveContext::BulkProcessWorker`.
+   1. The `Ai::ActiveContext::Code::Indexer` runs the [`gitlab-elasticsearch-indexer`](#gitlab-elasticsearch-indexer) to fetch the changed files from Gitaly, chunk the code, and index the chunks in the vector store. It also deletes orphaned data from the vector store.
+   1. The `Ai::ActiveContext::Code::IncrementalIndexingService` enqueues the references/IDs of the indexed content for embeddings generation
+1. **Async processing**: Queued content references are picked up for embeddings generation through the asynchronous `Ai::ActiveContext::BulkProcessWorker`.
 
 #### Deletion workflow
 
-When a namespace is no longer eligible for indexing, `Ai::ActiveContext::Code::ProcessInvalidEnabledNamespaceEventWorker` picks it up and deletes the `EnabledNamespace` record.
+When a namespace is no longer eligible for indexing, `Ai::ActiveContext::Code::ProcessInvalidEnabledNamespaceEventWorker` picks it up and deletes the `Ai::ActiveContext::Code::EnabledNamespace` record.
 
 When a repository is no longer eligible for indexing, `Ai::ActiveContext::Code::MarkRepositoryAsPendingDeletionEventWorker` marks it as `pending_delete`. The `Ai::ActiveContext::Code::RepositoryIndexWorker` then processes the repository and calls the [`gitlab-elasticsearch-indexer`](#gitlab-elasticsearch-indexer) to delete the project's documents from the vector store and delete the repository record.
 
@@ -176,7 +191,7 @@ The `gitlab-elasticsearch-indexer` makes use of the [`gitlab-code-parser`](https
 
 The chunking process uses a two-stage approach:
 
-1. _AST-aware chunking_: The code chunker parses each file and identifies logical split points (function definitions, class definitions, etc.)
+1. _AST-aware chunking_: The code chunker parses each file and identifies logical split points (function definitions, class definitions, and similar constructs)
 1. _Size-based fallback_: If no AST split points are available, the chunker falls back to splitting on line boundaries while respecting a maximum byte size
 
 This approach ensures chunks are semantically meaningful while staying within size limits for embedding generation.
@@ -185,10 +200,10 @@ This approach ensures chunks are semantically meaningful while staying within si
 
 Not all namespaces are eligible for Semantic Code Search. Eligibility is managed through two workers:
 
-**`Ai::ActiveContext::Code::CreateEnabledNamespaceEventWorker`** (runs daily via `SchedulingService`)
+**`Ai::ActiveContext::Code::CreateEnabledNamespaceEventWorker`** (runs daily through `Ai::ActiveContext::Code::SchedulingService`)
 
 - Identifies and enables eligible namespaces
-- Creates `EnabledNamespace` records for qualifying namespaces
+- Creates `Ai::ActiveContext::Code::EnabledNamespace` records for qualifying namespaces
 
 **On GitLab.com**, a namespace is eligible if:
 
@@ -203,7 +218,7 @@ Not all namespaces are eligible for Semantic Code Search. Eligibility is managed
 
 **`Ai::ActiveContext::Code::MarkRepositoryAsPendingDeletionEventWorker`** marks repositories for deletion when they no longer meet eligibility criteria.
 
-**`Ai::ActiveContext::Code::ProcessInvalidEnabledNamespaceEventWorker`** cleans up `EnabledNamespace` records for namespaces that no longer meet eligibility criteria.
+**`Ai::ActiveContext::Code::ProcessInvalidEnabledNamespaceEventWorker`** cleans up `Ai::ActiveContext::Code::EnabledNamespace` records for namespaces that no longer meet eligibility criteria.
 
 #### Supported file types
 
@@ -233,9 +248,27 @@ See the Semantic Code Search implementation for a complete example of how these 
 
 ### Prerequisites
 
-- Vector store connection configured (Elasticsearch, OpenSearch, or PostgreSQL with pgvector)
-- Gemini Enterprise Agent Platform credentials configured for embedding generation
-- Beta experiment features setting enabled for the instance
+- `ActiveContext` gem configured in `config/initializers/active_context.rb`:
+
+  ```ruby
+  ActiveContext.configure do |config|
+    config.enabled = true
+    config.indexing_enabled = true
+    config.logger = ::Gitlab::ActiveContext::Logger.build
+
+    config.queue_classes = []
+    if Gitlab.ee?
+      config.queue_classes.concat([
+        ::Ai::ActiveContext::Queues::Code,
+        ::Ai::ActiveContext::Queues::CodeBackfill
+      ])
+    end
+  end
+  ```
+
+- Vector store connection configured (Elasticsearch, OpenSearch, or PostgreSQL with pgvector).
+- [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings) credentials configured for embedding generation.
+- [Beta experiment features setting enabled](../../user/gitlab_duo/turn_on_off.md#turn-on-beta-and-experimental-features) for the instance.
 
 ### Verifying prerequisites
 
@@ -384,12 +417,12 @@ In order for a new embedding model to be supported for Semantic Search, it must 
 
 #### Evaluation
 
-Each new model must be evaluated properly. GitLab may refuse to support models for certain reasons (e.g. legal, performance, etc).
+Each new model must be evaluated properly. GitLab might refuse to support models for certain reasons (for example, legal or performance).
 
 After the evaluation, you should have the following information:
 
-- model provider - e.g. Vertex, Anthropic, Fireworks, etc
-- specific model and version - e.g. `gemini-embedding-001`, `all-MiniLM-L6-v2`
+- model provider, for example, Gemini Enterprise Agent Platform, Anthropic, or Fireworks
+- specific model and version, for example, `gemini-embedding-001` or `all-MiniLM-L6-v2`
 
 See [epic 17749](https://gitlab.com/groups/gitlab-org/-/work_items/17749) for further details on model evaluation.
 
@@ -443,7 +476,7 @@ curl --request DELETE \
   "https://gitlab.example.com/api/v4/admin/active_context/dead_queue"
 ```
 
-Or via chatops:
+Or through chatops:
 
 ```plaintext
 /chatops gitlab run active_context dead_queue clear
@@ -460,7 +493,7 @@ curl --request POST \
   "https://gitlab.example.com/api/v4/admin/active_context/dead_queue/replay"
 ```
 
-Or via chatops (recommended):
+Or through chatops (recommended):
 
 ```plaintext
 /chatops gitlab run active_context dead_queue replay --queue=retry_queue

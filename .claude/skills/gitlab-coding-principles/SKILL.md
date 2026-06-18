@@ -64,6 +64,9 @@ ALWAYS load Database principles regardless of which files you are editing.
 
 **Documentation:**
 - **Documentation style and completeness**: Read .ai/principles/distilled/documentation.md
+- **Documentation authoring guidelines per topic type (for example, Concept, Task, Reference, Troubleshooting, Tutorial, etc.)**: Read .ai/principles/distilled/documentation-topics.md
+- **Documenting REST, GraphQL, and CLI APIs (endpoint reference structure, attributes tables, curl examples)**: Read .ai/principles/distilled/documentation-api.md
+- **Documenting feature state and lifecycle (feature flags, experiment/beta status, version history, release notes)**: Read .ai/principles/distilled/documentation-feature-lifecycle.md
 
 **Feature Flags:**
 - **Feature flag usage and lifecycle**: Read .ai/principles/distilled/feature-flags.md

@@ -751,6 +751,7 @@ type:DeletedNote
 type:Dependency
 type:DependencyAggregation
 type:DependencyFirewallPolicyAttributesType
+type:DependencyListExportPartUploadRegistry
 type:DependencyListExportUploadRegistry
 type:DependencyPath
 type:DependencyPathPage

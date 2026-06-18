@@ -61,6 +61,8 @@
   - 1
 - - ai_catalog_flows_execute_work_item_created_workflow_triggers
   - 1
+- - ai_catalog_flows_execute_work_item_status_changed_workflow_triggers
+  - 1
 - - ai_catalog_flows_sync_project_foundational_flows
   - 1
 - - ai_catalog_item_consumers_bulk_create

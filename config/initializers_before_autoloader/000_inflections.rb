@@ -48,6 +48,7 @@ ActiveSupport::Inflector.inflections do |inflect|
     WikiPage::Meta
     packages_nuget_symbol_registry
     packages_helm_metadata_cache_registry
+    dependency_list_export_part_upload_registry
     personal_snippet_upload_registry
     dependency_list_export_upload_registry
     organization_detail_upload_registry

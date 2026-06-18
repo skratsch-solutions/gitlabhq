@@ -27,6 +27,7 @@ const makeRestItem = (overrides = {}) => ({
   closed_at: null,
   reference: 'gitlab-org/gitlab-shell#42',
   web_path: '/gitlab-org/gitlab-shell/-/work_items/42',
+  web_url: 'http://localhost/gitlab-org/gitlab-shell/-/work_items/42',
   user_discussions_count: 0,
   author: {
     id: 1,
@@ -86,6 +87,19 @@ describe('workItemsRestResolver', () => {
       expect(mockAxios.history.get[0].url).toContain(encodedSlashPath);
     });
 
+    it('uses the /groups/:full_path/-/work_items endpoint for group namespaces', async () => {
+      const groupNamespace = makeNamespace('my-group', 'gid://gitlab/Group/7');
+      const encodedGroupPath = encodeURIComponent('my-group');
+      mockAxios
+        .onGet(`/api/v4/groups/${encodedGroupPath}/-/work_items`)
+        .reply(HTTP_STATUS_OK, [], {});
+
+      await workItemsRestResolver(groupNamespace, {});
+
+      expect(mockAxios.history.get).toHaveLength(1);
+      expect(mockAxios.history.get[0].url).toBe(`/api/v4/groups/${encodedGroupPath}/-/work_items`);
+    });
+
     it('maps REST item fields to the GraphQL WorkItem shape', async () => {
       const item = makeRestItem();
       mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
@@ -102,6 +116,7 @@ describe('workItemsRestResolver', () => {
       expect(node.updatedAt).toBe(item.updated_at);
       expect(node.closedAt).toBeNull();
       expect(node.webPath).toBe(item.web_path);
+      expect(node.webUrl).toBe(item.web_url);
       expect(node.userDiscussionsCount).toBe(0);
     });
 
@@ -170,6 +185,37 @@ describe('workItemsRestResolver', () => {
       expect(author.id).toBe(`gid://gitlab/User/${item.author.id}`);
       expect(author.name).toBe(item.author.name);
       expect(author.username).toBe(item.author.username);
+    });
+
+    it('maps author webUrl from REST web_url field', async () => {
+      const item = makeRestItem({
+        author: {
+          id: 1,
+          name: 'Administrator',
+          username: 'root',
+          web_path: '/root',
+          web_url: 'https://gitlab.example.com/root',
+        },
+      });
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+
+      expect(nodes[0].author).toMatchObject({
+        webPath: '/root',
+        webUrl: 'https://gitlab.example.com/root',
+      });
+    });
+
+    it('maps author webUrl to null when web_url is missing', async () => {
+      const item = makeRestItem({
+        author: { id: 1, name: 'Administrator', username: 'root', web_path: '/root' },
+      });
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+
+      expect(nodes[0].author.webUrl).toBeNull();
     });
 
     it('maps namespace from REST API response to Namespace shape', async () => {
@@ -431,7 +477,7 @@ describe('workItemsRestResolver', () => {
             title: 'v1.0',
             due_date: '2024-12-31',
             start_date: '2024-01-01',
-            web_path: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
+            web_url: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
           },
         },
       });
@@ -446,7 +492,8 @@ describe('workItemsRestResolver', () => {
         title: 'v1.0',
         dueDate: '2024-12-31',
         startDate: '2024-01-01',
-        webPath: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
+        webPath: '/groups/my-group/-/milestones/1',
+        webUrl: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
       });
     });
 
@@ -471,6 +518,7 @@ describe('workItemsRestResolver', () => {
         dueDate: null,
         startDate: null,
         webPath: null,
+        webUrl: null,
       });
     });
   });
@@ -536,6 +584,40 @@ describe('workItemsRestResolver', () => {
     });
   });
 
+  describe('AWARD_EMOJI widget mapping', () => {
+    it('includes AWARD_EMOJI widget with zero counts when features.award_emoji is not present', async () => {
+      const item = makeRestItem({ features: null });
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+      const awardEmojiWidget = nodes[0].widgets.find((w) => w.type === 'AWARD_EMOJI');
+
+      expect(awardEmojiWidget).toMatchObject({
+        __typename: 'WorkItemWidgetAwardEmoji',
+        type: 'AWARD_EMOJI',
+        upvotes: 0,
+        downvotes: 0,
+      });
+    });
+
+    it('maps upvotes and downvotes from features.award_emoji', async () => {
+      const item = makeRestItem({
+        features: { award_emoji: { upvotes: 3, downvotes: 1 } },
+      });
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+      const awardEmojiWidget = nodes[0].widgets.find((w) => w.type === 'AWARD_EMOJI');
+
+      expect(awardEmojiWidget).toMatchObject({
+        __typename: 'WorkItemWidgetAwardEmoji',
+        type: 'AWARD_EMOJI',
+        upvotes: 3,
+        downvotes: 1,
+      });
+    });
+  });
+
   describe('error handling', () => {
     it('throws when axios request fails', async () => {
       mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_INTERNAL_SERVER_ERROR);
@@ -575,6 +657,7 @@ describe('workItemsRestResolver', () => {
         milestone: null,
         startAndDueDate: null,
         hierarchy: null,
+        awardEmoji: null,
       });
     });
 
@@ -656,7 +739,7 @@ describe('workItemsRestResolver', () => {
             title: 'v1.0',
             due_date: '2024-12-31',
             start_date: '2024-01-01',
-            web_path: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
+            web_url: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
           },
         },
       });
@@ -672,7 +755,8 @@ describe('workItemsRestResolver', () => {
           title: 'v1.0',
           dueDate: '2024-12-31',
           startDate: '2024-01-01',
-          webPath: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
+          webPath: '/groups/my-group/-/milestones/1',
+          webUrl: 'https://gitlab.example.com/groups/my-group/-/milestones/1',
         },
       });
     });
@@ -733,6 +817,21 @@ describe('workItemsRestResolver', () => {
       });
     });
 
+    it('maps award_emoji to features.awardEmoji', async () => {
+      const item = makeRestItem({
+        features: { award_emoji: { upvotes: 5, downvotes: 2 } },
+      });
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+
+      expect(nodes[0].features.awardEmoji).toMatchObject({
+        __typename: 'WorkItemWidgetAwardEmoji',
+        upvotes: 5,
+        downvotes: 2,
+      });
+    });
+
     it('returns null values for features when REST features are absent', async () => {
       const item = makeRestItem({ features: null });
       mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
@@ -743,6 +842,7 @@ describe('workItemsRestResolver', () => {
       expect(nodes[0].features.assignees.assignees.nodes).toEqual([]);
       expect(nodes[0].features.startAndDueDate.startDate).toBeNull();
       expect(nodes[0].features.hierarchy.parent).toBeNull();
+      expect(nodes[0].features.awardEmoji).toMatchObject({ upvotes: 0, downvotes: 0 });
     });
   });
 });

@@ -664,6 +664,71 @@ principles:
         url: https://docs.gitlab.com/development/documentation/styleguide/
       - path: doc/development/documentation/workflow.md
         url: https://docs.gitlab.com/development/documentation/workflow/
+      - path: doc/development/documentation/styleguide/word_list.md
+        url: https://docs.gitlab.com/development/documentation/styleguide/word_list/
+      - path: doc/development/documentation/styleguide/availability_details.md
+        url: https://docs.gitlab.com/development/documentation/styleguide/availability_details/
+      - path: doc/development/documentation/styleguide/deprecations_and_removals.md
+        url: https://docs.gitlab.com/development/documentation/styleguide/deprecations_and_removals/
+      - path: doc/development/documentation/metadata.md
+        url: https://docs.gitlab.com/development/documentation/metadata/
+
+  documentation-topics:
+    description: Documentation authoring guidelines per topic type (for example, Concept, Task, Reference, Troubleshooting, Tutorial, etc.)
+    group: Documentation
+    owner_team: '@gitlab-org/technical-writing/tw-docops'
+    file_filters:
+      - 'doc/**/*.md'
+    baseline: .ai/principles/baselines/documentation-topics.md
+    sources:
+      - path: doc/development/documentation/topic_types/_index.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/
+      - path: doc/development/documentation/topic_types/concept.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/concept/
+      - path: doc/development/documentation/topic_types/task.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/task/
+      - path: doc/development/documentation/topic_types/reference.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/reference/
+      - path: doc/development/documentation/topic_types/troubleshooting.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/troubleshooting/
+      - path: doc/development/documentation/topic_types/tutorial.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/tutorial/
+      - path: doc/development/documentation/topic_types/get_started.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/get_started/
+      - path: doc/development/documentation/topic_types/glossary.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/glossary/
+      - path: doc/development/documentation/topic_types/top_level_page.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/top_level_page/
+
+  documentation-api:
+    description: Documenting REST, GraphQL, and CLI APIs (endpoint reference structure, attributes tables, curl examples)
+    group: Documentation
+    owner_team: '@gitlab-org/technical-writing/tw-docops'
+    file_filters:
+      - 'doc/api/**/*.md'
+    sources:
+      - path: doc/development/documentation/restful_api_styleguide.md
+        url: https://docs.gitlab.com/development/documentation/restful_api_styleguide/
+      - path: doc/development/documentation/graphql_styleguide.md
+        url: https://docs.gitlab.com/development/documentation/graphql_styleguide/
+
+  documentation-feature-lifecycle:
+    description: Documenting feature state and lifecycle (feature flags, experiment/beta status, version history, release notes)
+    group: Documentation
+    owner_team: '@gitlab-org/technical-writing/tw-docops'
+    file_filters:
+      - 'config/feature_flags/**/*.yml'
+      - 'ee/config/feature_flags/**/*.yml'
+      - 'doc/**/*.md'
+    sources:
+      - path: doc/development/documentation/feature_flags.md
+        url: https://docs.gitlab.com/development/documentation/feature_flags/
+      - path: doc/development/documentation/experiment_beta.md
+        url: https://docs.gitlab.com/development/documentation/experiment_beta/
+      - path: doc/development/documentation/release_notes.md
+        url: https://docs.gitlab.com/development/documentation/release_notes/
+      - path: doc/development/documentation/topic_types/version_specific_changes.md
+        url: https://docs.gitlab.com/development/documentation/topic_types/version_specific_changes/
 
   feature-flags:
     description: Feature flag usage and lifecycle

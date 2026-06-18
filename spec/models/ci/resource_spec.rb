@@ -45,13 +45,13 @@ RSpec.describe Ci::Resource do
   describe '.stale_processables' do
     subject { resource_group.resources.stale_processables }
 
-    let!(:resource_group) { create(:ci_resource_group) }
-    let!(:resource) { create(:ci_resource, processable: build, resource_group: resource_group) }
+    let_it_be(:resource_group) { create(:ci_resource_group) }
 
     context 'when the processable is running' do
-      let!(:build) { create(:ci_build, :running, resource_group: resource_group) }
+      let_it_be_with_reload(:build) { create(:ci_build, :running, resource_group: resource_group) }
+      let_it_be(:resource) { create(:ci_resource, processable: build, resource_group: resource_group) }
 
-      before do
+      before_all do
         # Creating unrelated builds to make sure the `retained` scope is working
         create(:ci_build, :running, resource_group: resource_group)
       end

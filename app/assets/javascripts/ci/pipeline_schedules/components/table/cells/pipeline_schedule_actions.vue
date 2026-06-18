@@ -30,6 +30,7 @@ export default {
       required: true,
     },
   },
+  emits: ['playPipelineSchedule', 'showDeleteModal', 'showTakeOwnershipModal'],
   computed: {
     canPlay() {
       return this.schedule.userPermissions.playPipelineSchedule;

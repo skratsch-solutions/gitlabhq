@@ -10,9 +10,16 @@
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { buildApiUrl } from '~/api/api_utils';
 import axios from '~/lib/utils/axios_utils';
+import { parseUrlPathname } from '~/lib/utils/url_utility';
 import { convertGraphQLVarsToRestParams } from './rest_filter_params_mapper';
 
-const WORK_ITEMS_PATH = '/api/:version/namespaces/:full_path/-/work_items';
+const GROUPS_PATH = '/api/:version/groups/:full_path/-/work_items';
+const NAMESPACES_PATH = '/api/:version/namespaces/:full_path/-/work_items';
+
+export function isGroupNamespace(namespace) {
+  // eslint-disable-next-line @gitlab/no-hardcoded-urls
+  return (namespace?.id ?? '').includes('/Group/');
+}
 
 const REST_STATE_TO_GRAPHQL = {
   opened: 'OPEN',
@@ -54,7 +61,7 @@ function mapAssigneesFeature(features) {
         name: user.name,
         username: user.username,
         webUrl: user.web_url ?? null, // eslint-disable-line local-rules/no-web-url
-        webPath: user.web_path ?? null,
+        webPath: user.web_url ? parseUrlPathname(user.web_url) : null, // eslint-disable-line local-rules/no-web-url
         __typename: 'UserCore',
       })),
       __typename: 'UserCoreConnection',
@@ -72,7 +79,8 @@ function mapMilestoneFeature(features) {
           dueDate: milestone.due_date ?? null,
           startDate: milestone.start_date ?? null,
           title: milestone.title,
-          webPath: milestone.web_path ?? null,
+          webPath: milestone.web_url ? parseUrlPathname(milestone.web_url) : null, // eslint-disable-line local-rules/no-web-url
+          webUrl: milestone.web_url ?? null, // eslint-disable-line local-rules/no-web-url
           __typename: 'Milestone',
         }
       : null,
@@ -116,6 +124,15 @@ function mapHierarchyFeature(features, itemNamespace) {
   };
 }
 
+function mapAwardEmojiFeature(features) {
+  const awardEmojiData = features?.award_emoji;
+  return {
+    __typename: 'WorkItemWidgetAwardEmoji',
+    upvotes: awardEmojiData?.upvotes ?? 0,
+    downvotes: awardEmojiData?.downvotes ?? 0,
+  };
+}
+
 export function mapWidgetsFromFeatures(features, itemNamespace) {
   return [
     { ...mapLabelsFeature(features), type: 'LABELS' },
@@ -123,6 +140,7 @@ export function mapWidgetsFromFeatures(features, itemNamespace) {
     { ...mapMilestoneFeature(features), type: 'MILESTONE' },
     { ...mapStartAndDueDateFeature(features), type: 'START_AND_DUE_DATE' },
     { ...mapHierarchyFeature(features, itemNamespace), type: 'HIERARCHY' },
+    { ...mapAwardEmojiFeature(features), type: 'AWARD_EMOJI' },
   ];
 }
 
@@ -134,6 +152,7 @@ export function mapFeaturesFromRestResponse(features, itemNamespace) {
     milestone: mapMilestoneFeature(features),
     startAndDueDate: mapStartAndDueDateFeature(features),
     hierarchy: mapHierarchyFeature(features, itemNamespace),
+    awardEmoji: mapAwardEmojiFeature(features),
   };
 }
 
@@ -148,6 +167,7 @@ export function nullWorkItemFeatures() {
     milestone: null,
     startAndDueDate: null,
     hierarchy: null,
+    awardEmoji: null,
   };
 }
 
@@ -176,6 +196,7 @@ export function mapWorkItemToGraphQL(item, sharedNamespace, { useWorkItemFeature
     hidden: item.hidden ?? false,
     reference: item.reference ?? null,
     webPath: item.web_path ?? null,
+    webUrl: item.web_url ?? null, // eslint-disable-line local-rules/no-web-url
     userDiscussionsCount: item.user_discussions_count ?? 0,
     author: item.author
       ? {
@@ -185,6 +206,7 @@ export function mapWorkItemToGraphQL(item, sharedNamespace, { useWorkItemFeature
           name: item.author.name,
           username: item.author.username,
           webPath: item.author.web_path ?? null,
+          webUrl: item.author.web_url ?? null, // eslint-disable-line local-rules/no-web-url
         }
       : null,
     namespace: itemNamespace,
@@ -225,11 +247,12 @@ export async function workItemsRestResolver(namespace, args) {
 
   restParams.set(
     'fields',
-    'id,iid,global_id,title,title_html,state,created_at,updated_at,closed_at,reference,web_path,author,work_item_type,confidential,hidden,user_discussions_count,namespace',
+    'id,iid,global_id,title,title_html,state,created_at,updated_at,closed_at,reference,web_path,web_url,author,work_item_type,confidential,hidden,user_discussions_count,namespace',
   );
-  restParams.set('features', 'labels,assignees,milestone,start_and_due_date');
+  restParams.set('features', 'labels,assignees,milestone,start_and_due_date,hierarchy,award_emoji');
 
-  const url = buildApiUrl(WORK_ITEMS_PATH).replace(':full_path', encodeURIComponent(fullPath));
+  const pathTemplate = isGroupNamespace(namespace) ? GROUPS_PATH : NAMESPACES_PATH;
+  const url = buildApiUrl(pathTemplate).replace(':full_path', encodeURIComponent(fullPath));
 
   let response;
   try {

@@ -7957,6 +7957,90 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
+  describe 'force-closing a stuck locked merge request' do
+    let!(:stuck_mr) do
+      create(:merge_request, :locked,
+        source_project: project, target_project: project,
+        source_branch: 'feature', target_branch: 'master')
+    end
+
+    # A newer opened MR occupies the same source branch, so a normal unlock_mr
+    # (locked -> opened) would fail validate_branches.
+    let_it_be(:conflicting_mr) do
+      create(:merge_request,
+        source_project: project, target_project: project,
+        source_branch: 'feature', target_branch: 'master')
+    end
+
+    it 'cannot be unlocked normally because of the conflicting branch', :aggregate_failures do
+      expect(stuck_mr.unlock_mr).to be(false)
+      expect(stuck_mr.reload).to be_locked
+    end
+
+    describe '#force_unlock_and_close' do
+      it 'returns false when the merge request is not locked' do
+        expect(conflicting_mr.force_unlock_and_close).to be(false)
+      end
+
+      it 'force-closes the locked merge request and resets allow_broken', :aggregate_failures do
+        expect(stuck_mr.force_unlock_and_close).to be_truthy
+
+        expect(stuck_mr).to be_closed
+        expect(stuck_mr.allow_broken).to be_falsey
+      end
+
+      it 'preserves the previous allow_broken value', :aggregate_failures do
+        stuck_mr.allow_broken = true
+
+        expect(stuck_mr.force_unlock_and_close).to be_truthy
+
+        expect(stuck_mr).to be_closed
+        expect(stuck_mr.allow_broken).to be_truthy
+      end
+
+      context 'when the source project has been deleted' do
+        # A deleted fork nulls source_project_id (FK ON DELETE SET NULL), which
+        # leaves a locked MR stuck because the source_project presence validation
+        # then fails. allow_broken bypasses it, so the MR is still force-closed.
+        before do
+          stuck_mr.update_column(:source_project_id, nil)
+        end
+
+        it 'force-closes the locked merge request', :aggregate_failures do
+          expect(stuck_mr.force_unlock_and_close).to be_truthy
+
+          expect(stuck_mr.reload).to be_closed
+        end
+      end
+
+      context 'with an unrecoverable validation error' do
+        before do
+          stuck_mr.update_column(:title, '')
+        end
+
+        it 'does not force-close the locked merge request', :aggregate_failures do
+          expect(stuck_mr.force_unlock_and_close).to be(false)
+
+          expect(stuck_mr.reload).to be_locked
+          expect(stuck_mr.allow_broken).to be_falsey
+        end
+      end
+
+      context 'when unlock_mr succeeds but close subsequently fails' do
+        before do
+          allow(stuck_mr).to receive(:close).and_return(false)
+        end
+
+        it 'returns false and leaves the MR opened', :aggregate_failures do
+          expect(stuck_mr.force_unlock_and_close).to be(false)
+
+          expect(stuck_mr.reload).to be_opened
+          expect(stuck_mr.allow_broken).to be_falsey
+        end
+      end
+    end
+  end
+
   describe '#in_locked_state', :clean_gitlab_redis_shared_state do
     let(:merge_request) { create(:merge_request, :opened) }
 

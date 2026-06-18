@@ -869,6 +869,15 @@ production: &base
     # JWT issuer (must match the 'iss' claim in tokens issued by the IAM auth service)
     # jwt_issuer: https://iam.example.com
 
+  iam_data_access_service:
+    # File that contains the secret token for authenticating with the IAM data access service.
+    # secret_file: /etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret
+
+    # IAM data access service gRPC endpoint
+    # grpc:
+    #   host: localhost
+    #   port: 5005
+
   ## LDAP settings
   # You can test connections and inspect a sample of the LDAP users with login
   # access by running:

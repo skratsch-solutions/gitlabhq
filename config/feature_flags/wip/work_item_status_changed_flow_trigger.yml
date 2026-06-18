@@ -1,0 +1,10 @@
+---
+name: work_item_status_changed_flow_trigger
+description: This feature flag controls on Project level whether the new work_item_status_changed trigger event is exposed to customers
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/599983
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237087
+rollout_issue_url:
+milestone: '19.2'
+group: group::ai coding
+type: wip
+default_enabled: false

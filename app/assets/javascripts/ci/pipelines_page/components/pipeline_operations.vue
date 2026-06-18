@@ -27,6 +27,7 @@ export default {
       required: true,
     },
   },
+  emits: ['cancel-pipeline', 'job-action-executed', 'retry-pipeline'],
   data() {
     return {
       isCanceling: false,

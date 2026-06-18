@@ -611,6 +611,15 @@ Settings.iam_auth_service['jwt_audience'] ||= 'gitlab-rails'
 Settings.iam_auth_service['jwt_issuer'] ||= 'http://localhost'
 
 #
+# IAM Data Access Service
+#
+Settings['iam_data_access_service'] ||= {}
+Settings.iam_data_access_service['secret_file'] ||= nil
+Settings.iam_data_access_service['grpc'] ||= {}
+Settings.iam_data_access_service.grpc['host'] ||= 'localhost'
+Settings.iam_data_access_service.grpc['port'] ||= 5005
+
+#
 # Gitlab Secrets Manager Openbao Integration
 #
 Settings['openbao'] ||= {}

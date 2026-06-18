@@ -314,16 +314,6 @@
   :idempotent: true
   :tags: []
   :queue_namespace: :container_repository
-- :name: container_repository:container_registry_record_data_repair_detail
-  :worker_name: ContainerRegistry::RecordDataRepairDetailWorker
-  :feature_category: :container_registry
-  :has_external_dependencies: false
-  :urgency: :low
-  :resource_boundary: :unknown
-  :weight: 1
-  :idempotent: true
-  :tags: []
-  :queue_namespace: :container_repository
 - :name: container_repository_delete:container_registry_delete_container_repository
   :worker_name: ContainerRegistry::DeleteContainerRepositoryWorker
   :feature_category: :container_registry

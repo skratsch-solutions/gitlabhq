@@ -144,7 +144,7 @@ RSpec.describe Gitlab::Workhorse, feature_category: :gitaly do
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
+        expect { subject }.to raise_error(Gitlab::Workhorse::ArchiveNotFoundError)
       end
     end
 

@@ -6,7 +6,7 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
   include ProjectForksHelper
 
   let_it_be_with_refind(:user) { create(:user) }
-  let_it_be_with_refind(:project) { create(:project, :repository) }
+  let_it_be_with_refind(:project) { create(:project, :small_repo) }
 
   let(:sha) { project.repository.commit.sha }
   let(:pipeline) { create(:ci_pipeline, sha: sha, project: project) }
@@ -17,9 +17,11 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
   subject(:service) { described_class.new(project, user) }
 
   context 'when user has full ability to modify pipeline' do
-    before do
+    before_all do
       project.add_developer(user)
+    end
 
+    before do
       create(:protected_branch, :developers_can_merge, name: pipeline.ref, project: project)
     end
 
@@ -84,7 +86,11 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         create_build('spinach 1', :canceled, deploy_stage)
       end
 
-      it 'retries builds failed builds and marks subsequent for processing' do
+      it 'retries failed builds, marks subsequent for processing, and changes ownership', :aggregate_failures do
+        expect(build('rspec 2').user).not_to eq(user)
+        expect(build('rspec 3').user).not_to eq(user)
+        expect(build('spinach 1').user).not_to eq(user)
+
         service.execute(pipeline)
 
         expect(build('rspec 1')).to be_pending
@@ -92,15 +98,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         expect(build('rspec 3')).to be_created
         expect(build('spinach 1')).to be_created
         expect(pipeline.reload).to be_running
-      end
-
-      it 'changes ownership of subsequent builds' do
-        expect(build('rspec 2').user).not_to eq(user)
-        expect(build('rspec 3').user).not_to eq(user)
-        expect(build('spinach 1').user).not_to eq(user)
-
-        service.execute(pipeline)
-
         expect(build('rspec 2').user).to eq(user)
         expect(build('rspec 3').user).to eq(user)
         expect(build('spinach 1').user).to eq(user)
@@ -117,7 +114,7 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         create_build('report 1', :failed, deploy_stage)
       end
 
-      it 'retries builds only in the first stage' do
+      it 'retries builds only in the first stage and creates a new job for report', :aggregate_failures do
         service.execute(pipeline)
 
         expect(build('rspec 1')).to be_pending
@@ -125,11 +122,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         expect(build('rspec 3')).to be_created
         expect(build('report 1')).to be_created
         expect(pipeline.reload).to be_running
-      end
-
-      it 'creates a new job for report job in this case' do
-        service.execute(pipeline)
-
         expect(statuses.find_by(name: 'report 1', status: 'failed')).to be_retried
       end
 
@@ -204,21 +196,16 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
             create_build('rspec 2', :canceled, test_stage)
           end
 
-          it 'retries failed builds and marks subsequent for processing' do
+          it 'retries failed builds, marks subsequent for processing, and changes ownership', :aggregate_failures do
+            expect(build('staging').user).not_to eq(user)
+            expect(build('rspec 2').user).not_to eq(user)
+
             service.execute(pipeline)
 
             expect(build('rspec 1')).to be_pending
             expect(build('staging')).to be_manual
             expect(build('rspec 2')).to be_created
             expect(pipeline.reload).to be_running
-          end
-
-          it 'changes ownership of subsequent builds' do
-            expect(build('staging').user).not_to eq(user)
-            expect(build('rspec 2').user).not_to eq(user)
-
-            service.execute(pipeline)
-
             expect(build('staging').user).to eq(user)
             expect(build('rspec 2').user).to eq(user)
           end
@@ -386,12 +373,10 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
           downstream_pipeline.project.add_maintainer(user)
         end
 
-        it 'marks source bridge as pending' do
-          expect { service.execute(pipeline) }.to change { bridge.reload.status }.to('pending')
-        end
-
-        it 'assigns the current user to the source bridge' do
-          expect { service.execute(pipeline) }.to change { bridge.reload.user }.to(user)
+        it 'marks source bridge as pending and assigns current user', :aggregate_failures do
+          expect { service.execute(pipeline) }
+            .to change { bridge.reload.status }.to('pending')
+            .and change { bridge.reload.user }.to(user)
         end
 
         context 'when the bridge record has been modified by another process' do
@@ -410,7 +395,7 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
     end
 
     context 'when the pipeline is a downstream pipeline and the bridge status has a strategy' do
-      let!(:downstream_pipeline) { create(:ci_pipeline, project: create(:project)) }
+      let_it_be(:downstream_pipeline) { create(:ci_pipeline, project: create(:project)) }
 
       context 'when the strategy is `depend`' do
         let!(:bridge) do
@@ -496,8 +481,11 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
   end
 
   context 'when user is not allowed to trigger manual action' do
-    before do
+    before_all do
       project.add_developer(user)
+    end
+
+    before do
       create(:protected_branch, :maintainers_can_push, name: pipeline.ref, project: project)
     end
 

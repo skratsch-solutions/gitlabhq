@@ -1290,6 +1290,8 @@ wireframing
 Wireshark
 Wordpress
 Workato
+workplan
+workplans
 workstream
 worktree
 worktrees

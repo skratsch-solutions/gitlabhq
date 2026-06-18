@@ -587,4 +587,40 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
       it_behaves_like 'handles Gitaly errors for json format'
     end
   end
+
+  describe 'Projects::RepositoriesController' do
+    describe '#archive' do
+      let(:allow_gitaly_to_raise_error) do
+        allow_next_instance_of(Repository) do |repository|
+          allow(repository).to receive(:archive_metadata)
+            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
+        end
+      end
+
+      context 'with GET request' do
+        let(:make_request) { get project_archive_path(project, id: 'master', format: :zip) }
+
+        it_behaves_like 'handles Gitaly errors for request specs'
+      end
+
+      context 'with HEAD request' do
+        let(:make_request) { head project_archive_path(project, id: 'master', format: :zip) }
+
+        it_behaves_like 'handles Gitaly errors for request specs'
+      end
+
+      context 'when repository or ref is not found' do
+        it 'returns 404 for ArchiveNotFoundError from Workhorse' do
+          allow_next_instance_of(Projects::RepositoriesController) do |controller|
+            allow(controller).to receive(:send_git_archive)
+              .and_raise(Gitlab::Workhorse::ArchiveNotFoundError, 'Repository or ref not found')
+          end
+
+          get project_archive_path(project, id: 'master', format: :zip)
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
+  end
 end

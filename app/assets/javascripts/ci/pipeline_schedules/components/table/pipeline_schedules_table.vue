@@ -89,6 +89,7 @@ export default {
       required: true,
     },
   },
+  emits: ['playPipelineSchedule', 'showDeleteModal', 'showTakeOwnershipModal', 'update-sorting'],
   methods: {
     fetchSortedData({ sortBy, sortDesc }) {
       const field = this.$options.fields.find(({ key }) => key === sortBy);

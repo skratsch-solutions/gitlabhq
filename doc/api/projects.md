@@ -554,15 +554,11 @@ List projects and project attributes.
 {{< history >}}
 
 - `web_based_commit_signing_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/194650) in GitLab 18.2 [with a flag](../administration/feature_flags/_index.md) named `use_web_based_commit_signing_enabled`. Disabled by default.
+- `web_based_commit_signing_enabled` [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/542975) in GitLab 19.1. Feature flag `use_web_based_commit_signing_enabled` removed.
 - `mr_default_title_template` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/228442) in GitLab 18.11 [with a feature flag](../administration/feature_flags/_index.md) named `mr_default_title_template`. Disabled by default.
 - Feature flag `mr_default_title_template` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235642) in GitLab 19.0.
 
 {{< /history >}}
-
-> [!flag]
-> The availability of the `web_based_commit_signing_enabled` attribute is controlled by a feature flag.
-> For more information, see the history.
-> This feature is available for testing, but not ready for production use.
 
 Lists all projects on the instance accessible to the authenticated user. Unauthenticated requests return only public projects with a limited subset of attributes.
 

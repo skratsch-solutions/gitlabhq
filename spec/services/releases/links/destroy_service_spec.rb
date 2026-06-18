@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Releases::Links::DestroyService, feature_category: :release_orchestration do
   let(:service) { described_class.new(release, user, {}) }
-  let_it_be(:project, freeze: false) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :small_repo) }
   let_it_be(:user, freeze: false) { create(:user, developer_of: project) }
   let_it_be(:release, freeze: false) { create(:release, project: project, author: user, tag: 'v1.1.0') }
 

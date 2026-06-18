@@ -414,9 +414,10 @@ export default {
         });
     },
     updateWorkItemsCache(cache, oldIndex, newIndex) {
+      const query = this.useRestApi ? getWorkItemsRestQuery : getWorkItemsQuery;
       cache.updateQuery(
         {
-          query: getWorkItemsQuery,
+          query,
           variables: this.queryVariables,
         },
         (existingData) => {

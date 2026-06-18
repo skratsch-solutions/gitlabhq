@@ -2661,6 +2661,22 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION trigger_39a0715793cf() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."organization_id" IS NULL THEN
+  SELECT "organization_id"
+  INTO NEW."organization_id"
+  FROM "dependency_list_export_part_uploads"
+  WHERE "dependency_list_export_part_uploads"."id" = NEW."dependency_list_export_part_upload_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION trigger_3be1956babdb() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -19912,6 +19928,29 @@ CREATE SEQUENCE dependency_firewall_policy_rules_id_seq
 
 ALTER SEQUENCE dependency_firewall_policy_rules_id_seq OWNED BY dependency_firewall_policy_rules.id;
 
+CREATE TABLE dependency_list_export_part_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    dependency_list_export_part_upload_id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_ac44baee6e CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE dependency_list_export_part_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE dependency_list_export_part_upload_states_id_seq OWNED BY dependency_list_export_part_upload_states.id;
+
 CREATE TABLE dependency_list_export_part_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
     size bigint NOT NULL,
@@ -31108,6 +31147,7 @@ CREATE TABLE security_scan_profiles (
     gitlab_recommended boolean DEFAULT false NOT NULL,
     name text NOT NULL,
     description text,
+    configuration jsonb DEFAULT '{}'::jsonb NOT NULL,
     CONSTRAINT check_58c7066495 CHECK ((char_length(description) <= 2047)),
     CONSTRAINT check_f1e9f004bb CHECK ((char_length(name) <= 255))
 );
@@ -36823,6 +36863,8 @@ ALTER TABLE ONLY dast_sites ALTER COLUMN id SET DEFAULT nextval('dast_sites_id_s
 
 ALTER TABLE ONLY dependency_firewall_policy_rules ALTER COLUMN id SET DEFAULT nextval('dependency_firewall_policy_rules_id_seq'::regclass);
 
+ALTER TABLE ONLY dependency_list_export_part_upload_states ALTER COLUMN id SET DEFAULT nextval('dependency_list_export_part_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY dependency_list_export_parts ALTER COLUMN id SET DEFAULT nextval('dependency_list_export_parts_id_seq'::regclass);
 
 ALTER TABLE ONLY dependency_list_export_upload_states ALTER COLUMN id SET DEFAULT nextval('dependency_list_export_upload_states_id_seq'::regclass);
@@ -40333,6 +40375,9 @@ ALTER TABLE namespace_settings
 
 ALTER TABLE ONLY dependency_firewall_policy_rules
     ADD CONSTRAINT dependency_firewall_policy_rules_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY dependency_list_export_part_upload_states
+    ADD CONSTRAINT dependency_list_export_part_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY dependency_list_export_part_uploads
     ADD CONSTRAINT dependency_list_export_part_uploads_pkey PRIMARY KEY (id, model_type);
@@ -45542,6 +45587,8 @@ CREATE INDEX idx_deletions_on_project_id_and_id_where_pending ON ONLY p_batched_
 
 CREATE INDEX idx_dep_proxy_pkgs_settings_enabled_maven_on_project_id ON dependency_proxy_packages_settings USING btree (project_id) WHERE ((enabled = true) AND (maven_external_registry_url IS NOT NULL));
 
+CREATE UNIQUE INDEX idx_dependency_list_export_part_uploads_on_id ON dependency_list_export_part_uploads USING btree (id);
+
 CREATE UNIQUE INDEX idx_dependency_list_export_uploads_on_id ON dependency_list_export_uploads USING btree (id);
 
 CREATE INDEX idx_deployment_clusters_on_cluster_id_and_kubernetes_namespace ON deployment_clusters USING btree (cluster_id, kubernetes_namespace);
@@ -45577,6 +45624,20 @@ CREATE INDEX idx_dle_upl_states_on_verification_started ON dependency_list_expor
 CREATE INDEX idx_dle_upl_states_on_verification_state ON dependency_list_export_upload_states USING btree (verification_state);
 
 CREATE INDEX idx_dle_upl_states_pending_verification ON dependency_list_export_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
+CREATE INDEX idx_dlep_upl_states_failed_verification ON dependency_list_export_part_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX idx_dlep_upl_states_needs_verification_id ON dependency_list_export_part_upload_states USING btree (dependency_list_export_part_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE UNIQUE INDEX idx_dlep_upl_states_on_dlep_upl_id ON dependency_list_export_part_upload_states USING btree (dependency_list_export_part_upload_id);
+
+CREATE INDEX idx_dlep_upl_states_on_organization_id ON dependency_list_export_part_upload_states USING btree (organization_id);
+
+CREATE INDEX idx_dlep_upl_states_on_verification_started ON dependency_list_export_part_upload_states USING btree (dependency_list_export_part_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE INDEX idx_dlep_upl_states_on_verification_state ON dependency_list_export_part_upload_states USING btree (verification_state);
+
+CREATE INDEX idx_dlep_upl_states_pending_verification ON dependency_list_export_part_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
 CREATE INDEX idx_elastic_reindexing_slices_on_elastic_reindexing_subtask_id ON elastic_reindexing_slices USING btree (elastic_reindexing_subtask_id);
 
@@ -56568,6 +56629,8 @@ CREATE TRIGGER trigger_38bfee591e40 BEFORE INSERT OR UPDATE ON dependency_proxy_
 
 CREATE TRIGGER trigger_397d1b13068e BEFORE INSERT OR UPDATE ON issue_customer_relations_contacts FOR EACH ROW EXECUTE FUNCTION trigger_397d1b13068e();
 
+CREATE TRIGGER trigger_39a0715793cf BEFORE INSERT OR UPDATE ON dependency_list_export_part_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_39a0715793cf();
+
 CREATE TRIGGER trigger_3be1956babdb BEFORE INSERT OR UPDATE ON snippet_repository_storage_moves FOR EACH ROW EXECUTE FUNCTION trigger_3be1956babdb();
 
 CREATE TRIGGER trigger_3c1a5f58a668 BEFORE INSERT OR UPDATE ON incident_management_oncall_shifts FOR EACH ROW EXECUTE FUNCTION trigger_3c1a5f58a668();
@@ -59041,6 +59104,9 @@ ALTER TABLE ONLY packages_conan_recipe_revisions
 ALTER TABLE ONLY epics
     ADD CONSTRAINT fk_9d480c64b2 FOREIGN KEY (start_date_sourcing_epic_id) REFERENCES epics(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY dependency_list_export_part_upload_states
+    ADD CONSTRAINT fk_9d8a46e2c5 FOREIGN KEY (dependency_list_export_part_upload_id) REFERENCES dependency_list_export_part_uploads(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY bulk_import_trackers
     ADD CONSTRAINT fk_9dc0581779 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
@@ -59478,6 +59544,9 @@ ALTER TABLE ONLY user_group_callouts
 
 ALTER TABLE ONLY targeted_message_dismissals
     ADD CONSTRAINT fk_c3ccbe51e2 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY dependency_list_export_part_upload_states
+    ADD CONSTRAINT fk_c4038b8586 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY timelogs
     ADD CONSTRAINT fk_c49c83dd77 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

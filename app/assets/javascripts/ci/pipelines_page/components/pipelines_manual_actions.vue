@@ -41,6 +41,7 @@ export default {
       required: true,
     },
   },
+  emits: ['refresh-pipeline-table'],
   apollo: {
     actions: {
       query: getPipelineActionsQuery,

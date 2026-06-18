@@ -2072,5 +2072,70 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       it_behaves_like 'a mutation that returns top-level errors',
         errors: ["Following widget keys are not supported by Issue type: [:assignees_widget]"]
     end
+
+    context 'when reordering the work item', :aggregate_failures do
+      let_it_be_with_reload(:sibling1) { create(:work_item, :issue, project: project, relative_position: 10) }
+      let_it_be_with_reload(:sibling2) { create(:work_item, :issue, project: project, relative_position: 20) }
+      let_it_be_with_reload(:mutation_work_item) do
+        create(:work_item, :issue, project: project, relative_position: 30)
+      end
+
+      context 'when moving it before another item' do
+        let(:input) { { 'moveBeforeId' => sibling1.to_gid.to_s } }
+
+        it 'positions the work item after the given item' do
+          expect { post_graphql_mutation(mutation, current_user: current_user) }
+            .to change { mutation_work_item.reload.relative_position }.to(be > sibling1.relative_position)
+
+          expect(mutation_response['errors']).to be_blank
+        end
+      end
+
+      context 'when moving it after another item' do
+        let(:input) { { 'moveAfterId' => sibling2.to_gid.to_s } }
+
+        it 'positions the work item before the given item' do
+          expect { post_graphql_mutation(mutation, current_user: current_user) }
+            .to change { mutation_work_item.reload.relative_position }.to(be < sibling2.relative_position)
+
+          expect(mutation_response['errors']).to be_blank
+        end
+      end
+
+      context 'when reordering alongside a regular attribute update' do
+        let(:input) { { 'title' => 'updated title', 'moveAfterId' => sibling2.to_gid.to_s } }
+
+        it 'applies both the reorder and the attribute update' do
+          expect { post_graphql_mutation(mutation, current_user: current_user) }
+            .to change { mutation_work_item.reload.relative_position }.to(be < sibling2.relative_position)
+            .and change { mutation_work_item.title }.to('updated title')
+
+          expect(mutation_response['errors']).to be_blank
+        end
+      end
+
+      context 'when neither move id is given' do
+        let(:input) { { 'title' => 'updated title' } }
+
+        it 'does not change the relative position' do
+          expect { post_graphql_mutation(mutation, current_user: current_user) }
+            .to not_change { mutation_work_item.reload.relative_position }
+
+          expect(mutation_response['errors']).to be_blank
+        end
+      end
+
+      context 'when the user does not have permission to update the work item' do
+        let(:current_user) { guest }
+        let(:input) { { 'moveBeforeId' => sibling1.to_gid.to_s } }
+
+        it_behaves_like 'a mutation that returns a top-level access error'
+
+        it 'does not change the relative position' do
+          expect { post_graphql_mutation(mutation, current_user: current_user) }
+            .to not_change { mutation_work_item.reload.relative_position }
+        end
+      end
+    end
   end
 end

@@ -27,6 +27,7 @@ query getWorkItemsRest(
   $myReactionEmoji: String
   $subscribed: SubscriptionStatus
   $types: [IssueType!]
+  $workItemTypeIds: [WorkItemsTypeID!]
   $updatedAfter: Time
   $updatedBefore: Time
   $crmOrganizationId: String
@@ -68,6 +69,7 @@ query getWorkItemsRest(
       myReactionEmoji: $myReactionEmoji
       subscribed: $subscribed
       types: $types
+      workItemTypeIds: $workItemTypeIds
       updatedAfter: $updatedAfter
       updatedBefore: $updatedBefore
       crmContactId: $crmContactId
@@ -94,6 +96,7 @@ query getWorkItemsRest(
           name
           username
           webPath
+          webUrl
         }
         closedAt
         confidential
@@ -110,8 +113,11 @@ query getWorkItemsRest(
         titleHtml
         updatedAt
         webPath
+        webUrl
         state
-        widgets(onlyTypes: [LABELS, ASSIGNEES, MILESTONE, START_AND_DUE_DATE, HIERARCHY]) {
+        widgets(
+          onlyTypes: [LABELS, ASSIGNEES, MILESTONE, START_AND_DUE_DATE, HIERARCHY, AWARD_EMOJI]
+        ) {
           type
           ... on WorkItemWidgetLabels {
             allowsScopedLabels
@@ -163,6 +169,10 @@ query getWorkItemsRest(
                 iconName
               }
             }
+          }
+          ... on WorkItemWidgetAwardEmoji {
+            upvotes
+            downvotes
           }
         }
         features {
@@ -216,6 +226,10 @@ query getWorkItemsRest(
                 iconName
               }
             }
+          }
+          awardEmoji {
+            upvotes
+            downvotes
           }
         }
         workItemType {

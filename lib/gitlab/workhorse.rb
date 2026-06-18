@@ -7,6 +7,8 @@ require 'uri'
 
 module Gitlab
   class Workhorse
+    ArchiveNotFoundError = Class.new(StandardError)
+
     SEND_DATA_HEADER = 'Gitlab-Workhorse-Send-Data'
     SEND_DEPENDENCY_CONTENT_TYPE_HEADER = 'Workhorse-Proxy-Content-Type'
     VERSION_FILE = 'GITLAB_WORKHORSE_VERSION'
@@ -107,7 +109,7 @@ module Gitlab
           path: path
         )
 
-        raise "Repository or ref not found" if metadata.empty?
+        raise ArchiveNotFoundError, "Repository or ref not found" if metadata.empty?
 
         params = send_git_archive_params(repository, metadata, path, archive_format(format), include_lfs_blobs,
           exclude_paths)

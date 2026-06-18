@@ -9,6 +9,8 @@ RSpec.describe 'issuable list', :js, feature_category: :portfolio_management do
   issuable_types = [:issue, :merge_request]
 
   before do
+    stub_feature_flags(work_item_rest_api_frontend_users: false)
+    stub_feature_flags(work_item_rest_api_index: false)
     project.add_member(user, :developer)
     create(:callout, user: user, feature_name: :work_items_onboarding_modal)
     sign_in(user)

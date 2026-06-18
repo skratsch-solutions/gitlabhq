@@ -2570,6 +2570,9 @@ msgstr ""
 msgid "AICatalog|Agent created."
 msgstr ""
 
+msgid "AICatalog|Agent definition must be validated by Duo Workflow Service before saving"
+msgstr ""
+
 msgid "AICatalog|Agent deleted."
 msgstr ""
 
@@ -2964,6 +2967,9 @@ msgid "AICatalog|Flow configuration"
 msgstr ""
 
 msgid "AICatalog|Flow created."
+msgstr ""
+
+msgid "AICatalog|Flow definition must be validated by Duo Workflow Service before saving"
 msgstr ""
 
 msgid "AICatalog|Flow deleted."
@@ -3648,9 +3654,6 @@ msgid "AICatalog|cannot be enabled because your top-level group settings block e
 msgstr ""
 
 msgid "AICatalog|flow"
-msgstr ""
-
-msgid "AICatalog|flow definition must be validated by Duo Workflow Service before saving"
 msgstr ""
 
 msgid "AICatalog|flows"
@@ -29464,6 +29467,45 @@ msgstr ""
 msgid "DuoSecretDetection|Use false positive detection for Secret Detection vulnerabilities on the default branch"
 msgstr ""
 
+msgid "DuoSlack|Could not set up the service account for the Duo Developer flow. Contact your group owner."
+msgstr ""
+
+msgid "DuoSlack|Could not set up the workspace project. Check that you have access to the namespace and permission to create projects."
+msgstr ""
+
+msgid "DuoSlack|Failed to start the Duo Developer workflow. Try again."
+msgstr ""
+
+msgid "DuoSlack|On it! Working on your request."
+msgstr ""
+
+msgid "DuoSlack|Set your default Duo namespace in your GitLab preferences (%{preferences_url}) to use Duo from Slack."
+msgstr ""
+
+msgid "DuoSlack|Something went wrong while running the task. Try again."
+msgstr ""
+
+msgid "DuoSlack|Something went wrong. Try again."
+msgstr ""
+
+msgid "DuoSlack|The Duo Developer flow is not enabled for your namespace. Ask a group owner to enable it in the Duo Agent Platform settings."
+msgstr ""
+
+msgid "DuoSlack|The task completed but the agent didn't produce a response. Check the CI job logs for details."
+msgstr ""
+
+msgid "DuoSlack|View session in GitLab"
+msgstr ""
+
+msgid "DuoSlack|is getting started…"
+msgstr ""
+
+msgid "DuoSlack|is reviewing your request…"
+msgstr ""
+
+msgid "DuoSlack|is spinning up the agent…"
+msgstr ""
+
 msgid "DuoTrialDiscover|Ask questions, explore concepts, test ideas, and receive instant feedback directly in your workflow."
 msgstr ""
 
@@ -33823,6 +33865,12 @@ msgid "Geo|Debian Project Component File"
 msgstr ""
 
 msgid "Geo|Debian Project Component Files"
+msgstr ""
+
+msgid "Geo|Dependency List Export Part Upload"
+msgstr ""
+
+msgid "Geo|Dependency List Export Part Uploads"
 msgstr ""
 
 msgid "Geo|Dependency List Export Upload"
@@ -71730,6 +71778,12 @@ msgstr ""
 msgid "SemanticSearch|Custom OpenSearch settings"
 msgstr ""
 
+msgid "SemanticSearch|Custom PostgreSQL settings"
+msgstr ""
+
+msgid "SemanticSearch|Database"
+msgstr ""
+
 msgid "SemanticSearch|Disable"
 msgstr ""
 
@@ -71772,10 +71826,19 @@ msgstr ""
 msgid "SemanticSearch|For Self-hosted models, you first need to add a model under the \"Embedding\" model family on the %{add_self_hosted_model_link_start}Add self-hosted model%{add_self_hosted_model_link_end} form."
 msgstr ""
 
+msgid "SemanticSearch|Host"
+msgstr ""
+
+msgid "SemanticSearch|Host name of the PostgreSQL server."
+msgstr ""
+
 msgid "SemanticSearch|In use"
 msgstr ""
 
 msgid "SemanticSearch|Make sure the model allows the value, and your vector store can handle it."
+msgstr ""
+
+msgid "SemanticSearch|Name of the PostgreSQL database."
 msgstr ""
 
 msgid "SemanticSearch|Next model"
@@ -71785,6 +71848,24 @@ msgid "SemanticSearch|OpenSearch"
 msgstr ""
 
 msgid "SemanticSearch|OpenSearch's region."
+msgstr ""
+
+msgid "SemanticSearch|Password"
+msgstr ""
+
+msgid "SemanticSearch|Port"
+msgstr ""
+
+msgid "SemanticSearch|Port for the PostgreSQL server. Default is 5432."
+msgstr ""
+
+msgid "SemanticSearch|PostgreSQL"
+msgstr ""
+
+msgid "SemanticSearch|PostgreSQL password."
+msgstr ""
+
+msgid "SemanticSearch|PostgreSQL username."
 msgstr ""
 
 msgid "SemanticSearch|Required only if you are not using role instance credentials."
@@ -71869,6 +71950,9 @@ msgid "SemanticSearch|Update embeddings and start backfill process"
 msgstr ""
 
 msgid "SemanticSearch|Use AWS OpenSearch Service with IAM credentials"
+msgstr ""
+
+msgid "SemanticSearch|Username"
 msgstr ""
 
 msgid "SemanticSearch|Vector storage"

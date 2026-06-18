@@ -352,11 +352,6 @@ RSpec.configure do |config|
       # See https://gitlab.com/gitlab-org/gitlab/-/issues/591414
       stub_feature_flags(stop_legacy_audit_event_writes: false)
 
-      # Work items list REST API is still in development and not compatible with
-      # all filters yet.
-      # Please see https://gitlab.com/gitlab-org/gitlab/-/work_items/594636 for tracking progress.
-      stub_feature_flags(work_item_rest_api_frontend_users: false)
-
       # This middleware fires use_pat for every PAT-authenticated request
       # enabling it by default breaks existing specs that use strict receive(:track_event) expectations
       stub_feature_flags(track_api_request_from_personal_access_token: false)

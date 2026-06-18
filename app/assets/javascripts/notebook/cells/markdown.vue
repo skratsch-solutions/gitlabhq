@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import katex from 'katex';
 import { marked } from 'marked';
@@ -137,6 +136,7 @@ marked.setOptions({
 });
 
 export default {
+  name: 'NotebookMarkdown',
   components: {
     Prompt,
   },

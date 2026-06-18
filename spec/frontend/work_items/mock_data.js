@@ -6272,6 +6272,11 @@ const emptyRestFeatures = {
     blockingCount: 0,
     blockedByCount: 0,
   },
+  awardEmoji: {
+    __typename: 'WorkItemWidgetAwardEmoji',
+    upvotes: 0,
+    downvotes: 0,
+  },
 };
 
 const subChildBaseNodes = [
@@ -6840,6 +6845,7 @@ const nullRestFeatures = {
   weight: null,
   iteration: null,
   linkedItems: null,
+  awardEmoji: null,
 };
 
 const buildWorkItemsRestQueryResponse = (features) => ({

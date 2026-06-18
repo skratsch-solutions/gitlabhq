@@ -31,6 +31,8 @@ title: GitLab Duo CLI (`duo`)
 - Environment variable and option to enable user-level Agent Skills [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.83.0) in GitLab Duo CLI 8.83.0 as an [experiment](../../policy/development_stages_support.md#experiment), during the GitLab 19.0 release.
 - Approve tool for session option [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/work_items/2129) in GitLab 19.0.
   - Introduced in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.80.0) 8.80.0.
+- `/exit` slash command [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.88.0) in GitLab Duo CLI 8.88.0, during the GitLab 19.0 release.
+- `/doctor` slash command [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.94.0) in GitLab Duo CLI 8.94.0, during the GitLab 19.0 release.
 - Pattern-based tool approval [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21850) in GitLab 19.1.
   - Introduced in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.101.0) 8.101.0.
 
@@ -270,14 +272,16 @@ actions. Enter a slash command at the prompt and press <kbd>Enter</kbd>.
 
 The following slash commands are available:
 
-| Command      | Description                                         |
-|--------------|-----------------------------------------------------|
-| `/copy`      | Copy the last GitLab Duo response to the clipboard. |
-| `/feedback`  | Submit a bug report or feature request.             |
-| `/help`      | Display a list of available slash commands.         |
-| `/model`     | Switch the AI model for the current session.        |
-| `/new`       | Start a new chat session.                           |
-| `/sessions`  | Browse, search, and switch sessions.                |
+| Command     | Description                                          |
+|-------------|------------------------------------------------------|
+| `/copy`     | Copy the last GitLab Duo response to the clipboard.  |
+| `/doctor`   | Show diagnostics for the GitLab Duo CLI environment. |
+| `/exit`     | Exit the GitLab Duo CLI.                             |
+| `/feedback` | Submit a bug report or feature request.              |
+| `/help`     | Display a list of available slash commands.          |
+| `/model`    | Switch the AI model for the current session.         |
+| `/new`      | Start a new chat session.                            |
+| `/sessions` | Browse, search, and switch sessions.                 |
 
 #### Tool approvals
 
