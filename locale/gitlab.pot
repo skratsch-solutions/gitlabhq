@@ -7878,9 +7878,6 @@ msgstr ""
 msgid "AgentPlan|Are you sure you want to delete this workplan? This action cannot be undone."
 msgstr ""
 
-msgid "AgentPlan|Choose a workplan template"
-msgstr ""
-
 msgid "AgentPlan|Create a workplan"
 msgstr ""
 
@@ -7918,9 +7915,6 @@ msgid "AgentPlan|Ready to view"
 msgstr ""
 
 msgid "AgentPlan|Regenerate workplan"
-msgstr ""
-
-msgid "AgentPlan|Select workplan template"
 msgstr ""
 
 msgid "AgentPlan|View workplan"
@@ -10337,9 +10331,6 @@ msgstr ""
 msgid "Analytics|Invalid visualization configuration"
 msgstr ""
 
-msgid "Analytics|Last updated: %{recordedAt}"
-msgstr ""
-
 msgid "Analytics|Learn more about %{docsLinkStart}Duo and SDLC trends%{docsLinkEnd} and %{subscriptionLinkStart}Duo seats%{subscriptionLinkEnd}."
 msgstr ""
 
@@ -10374,6 +10365,9 @@ msgid "Analytics|Unable to update analytics settings. Please try again."
 msgstr ""
 
 msgid "Analytics|Usage data is a cumulative count and is updated monthly."
+msgstr ""
+
+msgid "Analytics|Usage data is a cumulative count and is updated monthly. Last updated: %{recordedAt}"
 msgstr ""
 
 msgid "Analytics|Use ClickHouse for supported analytics reports. Available when %{link_start}ClickHouse is configured%{link_end}."
@@ -18438,6 +18432,9 @@ msgstr ""
 msgid "Cohorts|Returning users"
 msgstr ""
 
+msgid "Collaborate on code changes with built-in review tools"
+msgstr ""
+
 msgid "Collapse"
 msgstr ""
 
@@ -21961,6 +21958,9 @@ msgstr ""
 msgid "ContinuousDeployment|%{environmentsCount} of %{totalEnvironmentsCount} environments"
 msgstr ""
 
+msgid "ContinuousDeployment|Add application"
+msgstr ""
+
 msgid "ContinuousDeployment|All systems healthy"
 msgstr ""
 
@@ -21974,6 +21974,9 @@ msgid "ContinuousDeployment|Approval needed"
 msgstr ""
 
 msgid "ContinuousDeployment|Continuous Deployment"
+msgstr ""
+
+msgid "ContinuousDeployment|Declare the topology of your application — services, environments, integrations — and Deploy will orchestrate rollouts for it."
 msgstr ""
 
 msgid "ContinuousDeployment|Degradation detected"
@@ -22016,6 +22019,9 @@ msgid "ContinuousDeployment|New application"
 msgstr ""
 
 msgid "ContinuousDeployment|Production"
+msgstr ""
+
+msgid "ContinuousDeployment|Register application"
 msgstr ""
 
 msgid "ContinuousDeployment|Register environment"
@@ -22355,6 +22361,9 @@ msgid "Control whether to display customer experience improvement content and th
 msgstr ""
 
 msgid "Control which groups and projects can use CI/CD job tokens to authenticate with this project. Learn more about %{link_start}job token security%{link_end}."
+msgstr ""
+
+msgid "Control who has access to your group and what they can do"
 msgstr ""
 
 msgid "Convert Jenkins to GitLab CI/CD using Duo"
@@ -25944,6 +25953,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "Deploy Token"
+msgstr ""
+
+msgid "Deploy and manage containerized applications across clusters"
 msgstr ""
 
 msgid "Deploy container based web apps on Google managed clusters"
@@ -36528,6 +36540,9 @@ msgstr ""
 msgid "Group invite"
 msgstr ""
 
+msgid "Group issues into time-boxed cycles to plan and track sprints"
+msgstr ""
+
 msgid "Group jobs by"
 msgstr ""
 
@@ -44453,6 +44468,9 @@ msgstr ""
 msgid "Manage %{workspace} labels"
 msgstr ""
 
+msgid "Manage Harbor container registry"
+msgstr ""
+
 msgid "Manage access"
 msgstr ""
 
@@ -50462,6 +50480,12 @@ msgstr ""
 msgid "Observability|ClickHouse performance"
 msgstr ""
 
+msgid "Observability|Configure notification channels"
+msgstr ""
+
+msgid "Observability|Configure observability settings"
+msgstr ""
+
 msgid "Observability|Configure your OpenTelemetry SDK with these resource attributes to link telemetry data back to your GitLab project and code. This enables features like correlating traces to commits and automated issue creation from exceptions."
 msgstr ""
 
@@ -50601,6 +50625,9 @@ msgid "Observability|Experimental"
 msgstr ""
 
 msgid "Observability|Experimental functionality"
+msgstr ""
+
+msgid "Observability|Explore and analyze distributed traces"
 msgstr ""
 
 msgid "Observability|Explore your data"
@@ -50759,6 +50786,12 @@ msgstr ""
 msgid "Observability|Logs"
 msgstr ""
 
+msgid "Observability|Manage API keys for observability ingestion"
+msgstr ""
+
+msgid "Observability|Manage alerts and notifications"
+msgstr ""
+
 msgid "Observability|Manage your o11y service connection settings."
 msgstr ""
 
@@ -50774,7 +50807,19 @@ msgstr ""
 msgid "Observability|Metrics, logs, and traces from your pipeline runs are being collected automatically."
 msgstr ""
 
+msgid "Observability|Monitor API performance"
+msgstr ""
+
 msgid "Observability|Monitor application performance with detailed metrics, response times, and system health indicators in real-time dashboards."
+msgstr ""
+
+msgid "Observability|Monitor infrastructure and hosts"
+msgstr ""
+
+msgid "Observability|Monitor message queues"
+msgstr ""
+
+msgid "Observability|Monitor service health and performance"
 msgstr ""
 
 msgid "Observability|Namespace is required"
@@ -50900,6 +50945,9 @@ msgstr ""
 msgid "Observability|Resource attribute"
 msgstr ""
 
+msgid "Observability|Search and analyze application logs"
+msgstr ""
+
 msgid "Observability|See it in action"
 msgstr ""
 
@@ -50919,6 +50967,9 @@ msgid "Observability|Set the %{variable_name} CI/CD variable in your %{owner_lab
 msgstr ""
 
 msgid "Observability|Set the %{variable_name} CI/CD variable to start collecting pipeline metrics, logs, and traces automatically."
+msgstr ""
+
+msgid "Observability|Set up observability"
 msgstr ""
 
 msgid "Observability|Setup"
@@ -50990,6 +51041,9 @@ msgstr ""
 msgid "Observability|Tracing, Metrics & Logs"
 msgstr ""
 
+msgid "Observability|Track application exceptions"
+msgstr ""
+
 msgid "Observability|Troubleshooting tips"
 msgstr ""
 
@@ -51026,13 +51080,22 @@ msgstr ""
 msgid "Observability|View all supported languages"
 msgstr ""
 
+msgid "Observability|View observability overview"
+msgstr ""
+
 msgid "Observability|View our %{documentation} for further instructions on how to use these features."
 msgstr ""
 
 msgid "Observability|View the %{help_page_link_start}Observability documentation%{help_page_link_end} for:"
 msgstr ""
 
+msgid "Observability|Visualize and monitor application and infrastructure metrics"
+msgstr ""
+
 msgid "Observability|Visualize distributed traces with flamegraphs across microservices and understand request flows"
+msgstr ""
+
+msgid "Observability|Visualize service dependencies"
 msgstr ""
 
 msgid "Observability|We would love to learn more about your experience with GitLab Observability."
@@ -53107,6 +53170,9 @@ msgid "Organization|my-organization"
 msgstr ""
 
 msgid "Organization|sharing your experience"
+msgstr ""
+
+msgid "Organize and categorize work across your group with consistent labels"
 msgstr ""
 
 msgid "Organize work with projects"
@@ -56166,6 +56232,12 @@ msgid "Plan"
 msgstr ""
 
 msgid "Plan and track test cases for your project."
+msgstr ""
+
+msgid "Plan releases and group work into time-based phases"
+msgstr ""
+
+msgid "Plan, track, and manage work in one place"
 msgstr ""
 
 msgid "Plan:"
@@ -60409,6 +60481,9 @@ msgstr ""
 msgid "Proxy PlantUML diagrams through GitLab"
 msgstr ""
 
+msgid "Proxy and cache packages from upstream registries"
+msgstr ""
+
 msgid "Public"
 msgstr ""
 
@@ -60434,6 +60509,9 @@ msgid "Publish a static website from your repository."
 msgstr ""
 
 msgid "Publish and manage releases of your project."
+msgstr ""
+
+msgid "Publish and share packages across your organization"
 msgstr ""
 
 msgid "Publish to status page"
@@ -64331,6 +64409,9 @@ msgid "SbomErrors|The following SBOM reports could not be parsed. Therefore the 
 msgstr ""
 
 msgid "SbomErrors|report-%{index} (%{length})"
+msgstr ""
+
+msgid "Scale your CI/CD pipelines with shared compute resources"
 msgstr ""
 
 msgid "Scan execution policy"
@@ -72780,6 +72861,9 @@ msgstr ""
 msgid "Share"
 msgstr ""
 
+msgid "Share and reuse infrastructure code"
+msgstr ""
+
 msgid "Share the %{strong_open}GitLab single sign-on URL%{strong_close} with members so they can sign in to your group through your identity provider"
 msgstr ""
 
@@ -74101,6 +74185,9 @@ msgstr ""
 msgid "Specify the input values to use in this pipeline. Any inputs left unselected will use their default values."
 msgstr ""
 
+msgid "Speed up builds by caching external dependencies locally"
+msgstr ""
+
 msgid "Spent at can't be a future date and time."
 msgstr ""
 
@@ -74593,6 +74680,9 @@ msgid "Storage:"
 msgstr ""
 
 msgid "StorageSize|Unknown"
+msgstr ""
+
+msgid "Store and deploy container images"
 msgstr ""
 
 msgid "Store and manage your Terraform state files."
@@ -79486,6 +79576,9 @@ msgstr ""
 msgid "Track and manage your deployment environments."
 msgstr ""
 
+msgid "Track and prioritize work across all group projects"
+msgstr ""
+
 msgid "Track compliance across your projects. Upgrade to GitLab Ultimate to access the Compliance center."
 msgstr ""
 
@@ -79505,6 +79598,9 @@ msgid "Track time with quick actions"
 msgstr ""
 
 msgid "Track vulnerabilities in up to %{limit} refs (branches or tags). The default branch is tracked by default on the Security Dashboard and Vulnerability report and cannot be removed."
+msgstr ""
+
+msgid "Track what your team is working on and stay informed of changes"
 msgstr ""
 
 msgid "Tracking"
@@ -83059,6 +83155,9 @@ msgstr ""
 msgid "View Stage: %{title}"
 msgstr ""
 
+msgid "View achievements earned by your group"
+msgstr ""
+
 msgid "View alert details at"
 msgstr ""
 
@@ -84041,6 +84140,9 @@ msgid "Visual Studio Code (HTTPS)"
 msgstr ""
 
 msgid "Visual Studio Code (SSH)"
+msgstr ""
+
+msgid "Visualize and manage work with kanban-style boards"
 msgstr ""
 
 msgid "Visualize the branch and commit graph of your repository."
@@ -87264,9 +87366,6 @@ msgid "WorkItem|Private: only you can see and edit this view."
 msgstr ""
 
 msgid "WorkItem|Progress"
-msgstr ""
-
-msgid "WorkItem|Project Workplan Templates"
 msgstr ""
 
 msgid "WorkItem|Promoted to objective."

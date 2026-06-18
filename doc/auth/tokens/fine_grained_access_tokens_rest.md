@@ -2860,6 +2860,14 @@ Grants the ability to read experiments.
 | ------ | ------ | ------ | ---- |
 | Read | Instance | `GET` | `/experiments` |
 
+#### Experiment Cache
+
+Grants the ability to delete experiment caches.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Delete | Instance | `DELETE` | `/experiments/:name/cache` |
+
 #### Feature
 
 Grants the ability to delete, read, and update features.

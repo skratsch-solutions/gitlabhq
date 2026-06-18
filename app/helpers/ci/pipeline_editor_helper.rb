@@ -18,14 +18,12 @@ module Ci
       total_branches = project.repository_exists? ? project.repository.branch_count : 0
 
       {
-        "ci-catalog-path" => explore_catalog_index_path,
         "ci-config-path": project.ci_config_path_or_default,
         "ci-examples-help-page-path" => help_page_path('ci/examples/_index.md'),
         "ci-help-page-path" => help_page_path('ci/_index.md'),
         "ci-lint-path" => project_ci_lint_path(project),
         "ci-troubleshooting-path" => help_page_path('ci/debugging.md', anchor: 'job-configuration-issues'),
         "default-branch" => project.default_branch_or_main,
-        "empty-state-illustration-path" => image_path('illustrations/empty-state/empty-pipeline-md.svg'),
         "initial-branch-name" => initial_branch,
         "includes-help-page-path" => help_page_path('ci/yaml/includes.md'),
         "lint-help-page-path" => help_page_path('ci/yaml/lint.md', anchor: 'check-cicd-syntax'),

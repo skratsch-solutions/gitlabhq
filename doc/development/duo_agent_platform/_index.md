@@ -72,6 +72,65 @@ Allow users to get access to tools that require approval such as running termina
 
 `"gitlab.duo.workflow.toolApproval": true`
 
+## Trace API requests to a workflow session
+
+Requests that originate from a GitLab Duo workflow carry the `X-Gitlab-Duo-Workflow-Id`
+header. The Rails middleware `Gitlab::Middleware::DuoWorkflowId` reads the header into
+`Gitlab::ApplicationContext`. The workflow ID is then available in application code and
+in structured request logs for the duration of the request.
+
+Two paths set the header automatically:
+
+- Tool API calls. When an agent calls a tool that hits the GitLab API, Workhorse
+  proxies the call and attaches the header.
+- `glab` calls from a runner running an agent. The runner exports
+  `DUO_WORKFLOW_WORKFLOW_ID`, and the `glab` CLI sets the header on every API call it
+  makes.
+
+Read the value from application code:
+
+```ruby
+Gitlab::ApplicationContext.current_context_attribute(:duo_workflow_id)
+```
+
+In structured logs, Grape exposes the value as `meta.duo_workflow_id` (in
+`api_json.log` and `graphql_json.log`) and Lograge exposes it at the top level as
+`duo_workflow_id` (in `development_json.log` and `production_json.log`).
+
+### Filter logs by workflow ID
+
+Filter API and GraphQL logs by `meta.duo_workflow_id`, or Lograge logs by
+`duo_workflow_id`, to see every request a session produced. Use this approach when
+debugging a misbehaving session. For example:
+
+```shell
+jq 'select(."meta.duo_workflow_id" == "<workflow_id>")' log/api_json.log
+```
+
+### Link resources to the session that produced them
+
+Read the workflow ID inside a service that creates or modifies a resource, and persist
+it alongside the resource. The resource can then be traced back to the session that
+produced it.
+
+```ruby
+class CreateService
+  def execute
+    issue = Issue.create!(params)
+
+    if workflow_id = Gitlab::ApplicationContext.current_context_attribute(:duo_workflow_id)
+      # Persist workflow_id alongside the issue.
+    end
+
+    issue
+  end
+end
+```
+
+The value is request-scoped and not propagated to Sidekiq jobs. `:duo_workflow_id`
+belongs to `Gitlab::ApplicationContext::WEB_ONLY_KEYS`, so background jobs do not
+inherit it. To use the value in a job, pass it as an explicit argument.
+
 ## Evaluate flow
 
 ### Running evals

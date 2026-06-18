@@ -72,6 +72,16 @@ RSpec.describe Sidebars::Groups::Menus::WorkItemsMenu, feature_category: :naviga
     it { is_expected.to eq 'issues' }
   end
 
+  describe 'Feature Library metadata' do
+    it 'gives every item a description and a unique library_icon', :aggregate_failures do
+      serialized = menu.renderable_items.map(&:serialize_for_super_sidebar)
+
+      expect(serialized).to all(include(:description, :library_icon))
+      icons = serialized.map { |item| item[:library_icon] }
+      expect(icons).to match_array(icons.uniq)
+    end
+  end
+
   it_behaves_like 'serializable as super_sidebar_menu_args' do
     let(:extra_attrs) do
       {

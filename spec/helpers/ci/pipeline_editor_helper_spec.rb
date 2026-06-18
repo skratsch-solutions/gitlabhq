@@ -26,14 +26,12 @@ RSpec.describe Ci::PipelineEditorHelper, feature_category: :pipeline_composition
     let(:project) { create(:project, :repository) }
     let(:default_helper_data) do
       {
-        "ci-catalog-path" => explore_catalog_index_path,
         "ci-config-path": project.ci_config_path_or_default,
         "ci-examples-help-page-path" => help_page_path('ci/examples/_index.md'),
         "ci-help-page-path" => help_page_path('ci/_index.md'),
         "ci-lint-path" => project_ci_lint_path(project),
         "ci-troubleshooting-path" => help_page_path('ci/debugging.md', anchor: 'job-configuration-issues'),
         "default-branch" => project.default_branch_or_main,
-        "empty-state-illustration-path" => 'illustrations/empty.svg',
         "initial-branch-name" => nil,
         "includes-help-page-path" => help_page_path('ci/yaml/includes.md'),
         "lint-help-page-path" => help_page_path('ci/yaml/lint.md', anchor: 'check-cicd-syntax'),
@@ -59,11 +57,6 @@ RSpec.describe Ci::PipelineEditorHelper, feature_category: :pipeline_composition
         .to receive(:can?)
         .with(user, :create_pipeline, project)
         .and_return(true)
-
-      allow(helper)
-        .to receive(:image_path)
-        .with('illustrations/empty-state/empty-pipeline-md.svg')
-        .and_return('illustrations/empty.svg')
 
       allow(helper)
         .to receive(:current_user)

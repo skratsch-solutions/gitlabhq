@@ -7,7 +7,7 @@ module Types
 
       possible_types Types::IssueType, Types::WorkItemType, Types::MergeRequestType, Types::Wikis::WikiPageType
 
-      def self.resolve_type(object)
+      def self.resolve_type(object, _context)
         case object
         when ::WorkItem
           Types::WorkItemType

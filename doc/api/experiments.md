@@ -85,3 +85,40 @@ Example response:
   }
 ]
 ```
+
+## Delete cached assignments
+
+Removes all cached variant assignments for an experiment from the cache store. Use this endpoint to
+clean up completed experiments whose code is removed from the codebase but whose cached assignments
+remain.
+
+```plaintext
+DELETE /experiments/:name/cache
+```
+
+Supported attributes:
+
+| Attribute | Type   | Required | Description |
+|-----------|--------|----------|-------------|
+| `name`    | string | Yes      | Cache key of the experiment to clear. |
+
+If successful, returns [`204 No Content`](rest/troubleshooting.md#status-codes).
+
+The request returns `204 No Content` even when no cached assignments exist for the given name.
+The request returns `400 Bad Request` when the name references a cache key that is not an experiment.
+The request returns `401 Unauthorized` when the request is not authenticated.
+The request returns `403 Forbidden` when the user is not a GitLab team member.
+
+> [!warning]
+> The `name` value is used directly as the cache key. This endpoint clears any matching cache
+> entry, even one that does not belong to a currently defined experiment. This behavior supports
+> cleaning up orphaned experiments whose code is removed. Verify the name before you call this
+> endpoint.
+
+Example request:
+
+```shell
+curl --request DELETE \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/experiments/code_quality_walkthrough/cache"
+```

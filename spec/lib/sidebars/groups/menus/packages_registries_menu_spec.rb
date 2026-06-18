@@ -215,6 +215,22 @@ RSpec.describe Sidebars::Groups::Menus::PackagesRegistriesMenu, feature_category
     end
   end
 
+  describe 'Feature Library metadata' do
+    before do
+      stub_container_registry_config(enabled: true)
+      stub_config(packages: { enabled: true })
+      stub_config(dependency_proxy: { enabled: true })
+    end
+
+    it 'gives every item a description and a unique library_icon', :aggregate_failures do
+      serialized = menu.renderable_items.map(&:serialize_for_super_sidebar)
+
+      expect(serialized).to all(include(:description, :library_icon))
+      icons = serialized.map { |item| item[:library_icon] }
+      expect(icons).to match_array(icons.uniq)
+    end
+  end
+
   private
 
   def find_menu(menu, item)

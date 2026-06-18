@@ -36,16 +36,20 @@ export default {
       }
       return this.count;
     },
-    countExists() {
-      return this.count.toString();
-    },
   },
 };
 </script>
 
 <template>
-  <gl-button :aria-label="ariaLabel" class="!gl-px-3" :href="href" :icon="icon" category="tertiary">
-    <span v-if="countExists" aria-hidden="true" class="gl-text-sm gl-font-semibold">
+  <gl-button
+    :aria-label="ariaLabel"
+    class="!gl-px-3"
+    :href="href"
+    :icon="icon"
+    category="tertiary"
+    :button-text-classes="['!gl-overflow-visible']"
+  >
+    <span class="gl-text-sm gl-font-semibold">
       {{ formattedCount }}
     </span>
   </gl-button>

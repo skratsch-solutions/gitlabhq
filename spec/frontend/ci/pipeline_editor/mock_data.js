@@ -8,7 +8,6 @@ export const commonOptions = {
   ciLintPath: 'ci/lint',
   ciTroubleshootingPath: 'help/troubleshoot',
   defaultBranch: 'main',
-  emptyStateIllustrationPath: 'illustrations/svg',
   helpPaths: '/ads',
   includesHelpPagePath: 'help/includes',
   needsHelpPagePath: 'help/ci/needs',
@@ -25,7 +24,6 @@ export const commonOptions = {
 export const editorDatasetOptions = {
   initialBranchName: 'production',
   pipelineEtag: 'pipelineEtag',
-  ciCatalogPath: '/explore/catalog',
   ...commonOptions,
 };
 

@@ -33,5 +33,9 @@ FactoryBot.define do
         }
       end
     end
+
+    trait :with_bulk_import do
+      bulk_import { association(:bulk_import, :offline) }
+    end
   end
 end

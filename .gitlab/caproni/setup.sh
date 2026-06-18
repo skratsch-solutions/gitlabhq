@@ -391,29 +391,7 @@ done
 
 echo "Rewrote environment key in ${#MODIFIED_FILES[@]} files."
 
-# ---------------------------------------------------------------------------
-# 4. Patch database.yml: add gssencmode: disable
-#
-#    libpq's GSSAPI negotiation triggers a segfault on macOS when connecting
-#    to a PostgreSQL server that doesn't support GSSAPI (e.g. CloudNativePG).
-#    Setting gssencmode: disable skips the negotiation entirely.
-# ---------------------------------------------------------------------------
-
-echo ""
-echo "==> Patching config/database.yml: adding gssencmode: disable..."
-
 DB_YML="$GITLAB_DIR/config/database.yml"
-if [[ -f "$DB_YML" ]]; then
-  # Insert "gssencmode: disable" on the line after every "adapter: postgresql",
-  # preserving the same leading whitespace.  The sed expression is POSIX-
-  # compatible and works on both GNU sed (Linux) and BSD sed (macOS).
-  #
-  sed -i.bak 's/^\([ \t]*\)adapter: postgresql$/\1adapter: postgresql\n\1gssencmode: disable/' "$DB_YML"
-  rm "$DB_YML.bak"
-  echo "  ✓ config/database.yml"
-else
-  warn "config/database.yml not found – skipping gssencmode patch"
-fi
 
 # ---------------------------------------------------------------------------
 # 5. Copy gitlabhq_production → gitlabhq_development if it does not exist

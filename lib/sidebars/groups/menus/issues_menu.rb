@@ -65,7 +65,9 @@ module Sidebars
             super_sidebar_parent: ::Sidebars::NilMenuItem,
             active_routes: { path: 'groups#issues' },
             container_html_options: { aria: { label: _('Issues') } },
-            item_id: :issue_list
+            item_id: :issue_list,
+            description: _('Track and prioritize work across all group projects'),
+            library_icon: 'work-item-issue'
           )
         end
 
@@ -85,7 +87,9 @@ module Sidebars
             link: group_boards_path(context.group),
             super_sidebar_parent: ::Sidebars::Groups::SuperSidebarMenus::PlanMenu,
             active_routes: { path: %w[boards#index boards#show] },
-            item_id: context.is_super_sidebar ? :issue_boards : :boards
+            item_id: context.is_super_sidebar ? :issue_boards : :boards,
+            description: _('Visualize and manage work with kanban-style boards'),
+            library_icon: 'work-item-issue-boards'
           )
         end
 
@@ -99,7 +103,9 @@ module Sidebars
             link: group_milestones_path(context.group),
             super_sidebar_parent: ::Sidebars::Groups::SuperSidebarMenus::PlanMenu,
             active_routes: { path: 'milestones#index' },
-            item_id: :milestones
+            item_id: :milestones,
+            description: _('Plan releases and group work into time-based phases'),
+            library_icon: 'milestone'
           )
         end
       end

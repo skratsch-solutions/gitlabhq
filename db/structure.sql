@@ -34067,6 +34067,7 @@ CREATE TABLE vulnerability_merge_request_links (
     project_id bigint,
     vulnerability_occurrence_id bigint,
     readiness_score double precision,
+    created_by_ai_workflow boolean DEFAULT false NOT NULL,
     CONSTRAINT check_341035683b CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_7350959ecc CHECK (((readiness_score >= (0)::double precision) AND (readiness_score <= (1)::double precision)))
 );

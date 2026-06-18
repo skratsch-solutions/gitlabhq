@@ -618,6 +618,21 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
       DIFF
     end
 
+    let(:nonewline_diff) do
+      # A diff where a line is added and the file has no trailing newline.
+      # The `\ No newline at end of file` marker must not be counted as an added line.
+      <<~DIFF
+        --- a/files/ruby/popen.rb
+        +++ b/files/ruby/popen.rb
+        @@ -1,3 +1,4 @@
+         line1
+        -line2
+        +line2-modified
+        +added-line
+        \\ No newline at end of file
+      DIFF
+    end
+
     describe '#added_lines' do
       context 'when stats argument given' do
         let(:stats) { double(Gitaly::DiffStats, additions: 10, deletions: 15) }
@@ -642,6 +657,12 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
 
         it 'returns added lines by parsing raw diff' do
           allow(diff_file).to receive(:raw_diff) { raw_diff }
+
+          expect(diff_file.added_lines).to eq(2)
+        end
+
+        it 'does not count the "no newline at end of file" marker as an added line' do
+          allow(diff_file).to receive(:raw_diff) { nonewline_diff }
 
           expect(diff_file.added_lines).to eq(2)
         end
@@ -672,6 +693,13 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
 
         it 'returns removed lines by parsing raw diff' do
           allow(diff_file).to receive(:raw_diff) { raw_diff }
+
+          expect(diff_file.removed_lines).to eq(1)
+        end
+
+        it 'does not count the "no newline at end of file" marker as a removed line' do
+          # Reuse nonewline_diff: it has 1 removed line (-line2) but the marker must not inflate the count
+          allow(diff_file).to receive(:raw_diff) { nonewline_diff }
 
           expect(diff_file.removed_lines).to eq(1)
         end
