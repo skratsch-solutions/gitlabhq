@@ -219,6 +219,21 @@ RSpec::Matchers.define :have_correct_replication_target do |clickhouse_table_nam
           @errors << "ClickHouse table '#{target['target']}' doesn't contain '#{key}' column"
         end
       end
+
+      pg_column_names = ApplicationRecord.connection.columns(content['table']).map(&:name)
+      Array(roc['filters']).each do |filter|
+        column = filter['column']
+        unless pg_column_names.include?(column)
+          @errors << "refresh_on_change.filters column '#{column}' does not exist in the " \
+            "PostgreSQL table '#{content['table']}'"
+        end
+
+        model = filter['value'].to_s.safe_constantize
+        unless model.is_a?(Class) && model < ApplicationRecord
+          @errors << "refresh_on_change.filters value '#{filter['value']}' does not constantize " \
+            "to an ApplicationRecord"
+        end
+      end
     end
 
     @errors << "priority must be a number, got: '#{target['priority']}'" unless (target['priority'] || 1).is_a?(Numeric)

@@ -366,7 +366,8 @@ RSpec.describe BulkImports::Entity, type: :model, feature_category: :importers d
             hash_including(pipeline: BulkImports::Common::Pipelines::MilestonesPipeline, stage: 1),
             hash_including(pipeline: BulkImports::Common::Pipelines::BoardsPipeline, stage: 2),
             hash_including(pipeline: BulkImports::Common::Pipelines::UploadsPipeline, stage: 2),
-            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 3)
+            hash_including(pipeline: Import::Offline::Common::Pipelines::UserContributionsPipeline, stage: 3),
+            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 4)
           )
         end
       end
@@ -399,6 +400,7 @@ RSpec.describe BulkImports::Entity, type: :model, feature_category: :importers d
             hash_including(pipeline: BulkImports::Projects::Pipelines::AutoDevopsPipeline, stage: 5),
             hash_including(pipeline: BulkImports::Projects::Pipelines::PipelineSchedulesPipeline, stage: 5),
             hash_including(pipeline: BulkImports::Projects::Pipelines::ReferencesPipeline, stage: 5),
+            hash_including(pipeline: Import::Offline::Common::Pipelines::UserContributionsPipeline, stage: 6),
             hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 7)
           )
         end

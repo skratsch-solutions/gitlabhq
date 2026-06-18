@@ -52,8 +52,12 @@ RSpec.describe Import::Offline::Imports::Groups::Stage, feature_category: :impor
           stage: 2
         }),
         hash_including({
-          pipeline: BulkImports::Common::Pipelines::EntityFinisher,
+          pipeline: Import::Offline::Common::Pipelines::UserContributionsPipeline,
           stage: 3
+        }),
+        hash_including({
+          pipeline: BulkImports::Common::Pipelines::EntityFinisher,
+          stage: 4
         })
       )
     end

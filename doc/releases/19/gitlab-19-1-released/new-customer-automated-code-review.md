@@ -7,7 +7,6 @@ work_item: https://gitlab.com/gitlab-org/gitlab/-/work_items/592822
 categories: [ Duo Agent Platform, Duo Code Review ]
 level: secondary
 stage: ai-powered
-ignore_in_report: true
 ---
 
 <!-- categories: Duo Agent Platform, Duo Code Review -->

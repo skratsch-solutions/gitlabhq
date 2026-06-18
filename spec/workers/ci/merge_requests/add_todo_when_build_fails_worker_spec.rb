@@ -26,7 +26,7 @@ RSpec.describe Ci::MergeRequests::AddTodoWhenBuildFailsWorker, feature_category:
       let(:job_args) { 0 }
 
       it 'returns nil' do
-        expect(described_class.new.perform(job_args)).to eq(nil)
+        expect(described_class.new.perform(job_args)).to be_nil
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Ci::MergeRequests::AddTodoWhenBuildFailsWorker, feature_category:
       end
 
       it 'returns nil' do
-        expect(described_class.new.perform(job_args)).to eq(nil)
+        expect(described_class.new.perform(job_args)).to be_nil
       end
     end
   end

@@ -1634,6 +1634,44 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
+  describe '#self_and_ancestors_active?' do
+    let_it_be_with_reload(:group) { create(:group) }
+    let_it_be_with_reload(:project) { create(:project, group: group) }
+
+    context 'when the project and its ancestors are active' do
+      specify { expect(project.self_and_ancestors_active?).to be(true) }
+    end
+
+    context 'when the project is archived' do
+      before do
+        project.update!(archived: true)
+      end
+
+      specify { expect(project.self_and_ancestors_active?).to be(false) }
+    end
+
+    context 'when the project is aimed for deletion' do
+      let_it_be(:project) { create(:project, :aimed_for_deletion, group: group) }
+
+      specify { expect(project.self_and_ancestors_active?).to be(false) }
+    end
+
+    context 'when an ancestor group is archived' do
+      before do
+        group.namespace_settings.update!(archived: true)
+      end
+
+      specify { expect(project.self_and_ancestors_active?).to be(false) }
+    end
+
+    context 'when an ancestor group is scheduled for deletion' do
+      let_it_be(:group) { create(:group_with_deletion_schedule) }
+      let_it_be(:project) { create(:project, group: group) }
+
+      specify { expect(project.self_and_ancestors_active?).to be(false) }
+    end
+  end
+
   describe '#self_or_ancestors_transfer_scheduled?' do
     let_it_be(:user) { create(:user) }
     let_it_be_with_reload(:group) { create(:group) }

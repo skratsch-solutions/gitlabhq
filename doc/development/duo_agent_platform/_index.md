@@ -41,7 +41,7 @@ This setup can be used as-is with the [publicly available version of the VS Code
 To test Agentic GitLab Duo Chat in the Web UI of your local GitLab instance, follow these additional setup steps:
 
 1. [Enable NGINX for your GDK](https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/main/doc/howto/nginx.md).
-   A loopback interface and HTTPS are **not** required, only the basic NGINX configuration.
+   A loopback interface and HTTPS are not required, only the basic NGINX configuration.
 1. Access your GDK at `http://gdk.test:8080`. Your GDK is still available
    at port 3000 but accessing it at port 8080 accesses the application through
    NGINX, which is required for Agentic GitLab Duo Chat to work on the web. If you access

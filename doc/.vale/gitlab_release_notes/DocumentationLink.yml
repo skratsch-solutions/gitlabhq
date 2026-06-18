@@ -1,0 +1,44 @@
+---
+name: gitlab_release_notes.DocumentationLink
+description: Ensures feature release notes use a relative `documentation_link` without a file extension.
+message: "The `documentation_link` metadata is required and must be a relative link that starts with `../`, without a `.md` extension or `_index` (for example, `../../../user/feature/`)."
+link: https://docs.gitlab.com/development/documentation/release_notes/#feature-release-note-metadata
+level: error
+extends: script
+scope: raw
+script: |
+  text := import("text")
+  matches := []
+
+  if text.re_match("^---\\n", scope) {
+    fmEnd := text.index(scope, "\n---")
+    if fmEnd > 0 {
+      fm := scope[0:fmEnd]
+      if !text.re_match("(?m)^documentation_link:", fm) {
+        matches = append(matches, {begin: 0, end: 3})
+      } else {
+        m := text.re_find("(?m)^documentation_link:[ \\t]*(.*)$", fm, 1)
+        if !is_undefined(m) {
+          cap := m[0][1]
+          span := {begin: cap.begin, end: cap.begin + len(cap.text)}
+          v := text.trim_space(text.re_replace("[\"']", cap.text, ""))
+          // Compare the path without any "#anchor" so anchors can't trip
+          // the ".md" or "_index" checks.
+          p := v
+          hi := text.index(p, "#")
+          if hi >= 0 { p = p[0:hi] }
+          if v == "" {
+            matches = append(matches, span)
+          } else if !text.has_prefix(v, "../") {
+            // Must climb back to the docs root; rejects absolute "/...",
+            // protocol-relative "//...", and "http..." links.
+            matches = append(matches, span)
+          } else if text.re_match("\\.md/?$", p) {
+            matches = append(matches, span)
+          } else if text.re_match("(^|/)_index(\\.md)?/?$", p) {
+            matches = append(matches, span)
+          }
+        }
+      }
+    }
+  }

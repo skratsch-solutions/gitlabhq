@@ -7,7 +7,6 @@ documentation_link: "../../../user/gitlab_duo_chat/agentic_chat/#approve-tools-i
 work_item: https://gitlab.com/groups/gitlab-org/-/work_items/21850
 categories: [ 'Duo Agent Platform', 'Duo Chat', 'Editor Extensions' ]
 weight: 50
-ignore_in_report: true
 ---
 
 <!-- categories: Duo Agent Platform, Duo Chat, Editor Extensions -->

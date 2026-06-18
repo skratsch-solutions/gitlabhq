@@ -145,5 +145,4 @@ yalc.lock
 # Non-rooted patterns apply at all directory levels. Committed .ai/ modules use git add --force.
 AGENTS.local.md
 CLAUDE.local.md
-/OpenCode.md
 .ai/*

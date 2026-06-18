@@ -209,7 +209,7 @@ RSpec.describe BulkImports::EntityWorker, feature_category: :importers do
 
       described_class.sidekiq_retries_exhausted_block.call({ 'args' => [entity.id] }, exception)
 
-      expect(entity.reload.failed?).to eq(true)
+      expect(entity.reload.failed?).to be(true)
     end
 
     context 'when entity is not found' do

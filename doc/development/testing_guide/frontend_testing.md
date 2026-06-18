@@ -851,7 +851,7 @@ We want our test environment to be strict, so your tests should fail when unexpe
 ### Ignoring console messages from watcher
 
 Since there's a lot of code outside of our control, there are some console messages that
-are ignored by default and will **not** fail a test if used. This list of ignored
+are ignored by default and will not fail a test if used. This list of ignored
 messages can be maintained where we call `setupConsoleWatcher`. Example:
 
 ```javascript

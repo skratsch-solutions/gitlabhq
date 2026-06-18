@@ -2885,6 +2885,22 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION trigger_47b8922fa2f4() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."organization_id" IS NULL THEN
+  SELECT "organization_id"
+  INTO NEW."organization_id"
+  FROM "organization_detail_uploads"
+  WHERE "organization_detail_uploads"."id" = NEW."organization_detail_upload_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION trigger_47c43d40f0d2() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -25855,6 +25871,29 @@ CREATE SEQUENCE organization_cluster_agent_mappings_id_seq
 
 ALTER SEQUENCE organization_cluster_agent_mappings_id_seq OWNED BY organization_cluster_agent_mappings.id;
 
+CREATE TABLE organization_detail_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    organization_detail_upload_id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_39813bd6c5 CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE organization_detail_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE organization_detail_upload_states_id_seq OWNED BY organization_detail_upload_states.id;
+
 CREATE TABLE organization_detail_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
     size bigint NOT NULL,
@@ -37250,6 +37289,8 @@ ALTER TABLE ONLY operations_user_lists ALTER COLUMN id SET DEFAULT nextval('oper
 
 ALTER TABLE ONLY organization_cluster_agent_mappings ALTER COLUMN id SET DEFAULT nextval('organization_cluster_agent_mappings_id_seq'::regclass);
 
+ALTER TABLE ONLY organization_detail_upload_states ALTER COLUMN id SET DEFAULT nextval('organization_detail_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY organization_foundational_agent_statuses ALTER COLUMN id SET DEFAULT nextval('organization_foundational_agent_statuses_id_seq'::regclass);
 
 ALTER TABLE ONLY organization_isolations ALTER COLUMN id SET DEFAULT nextval('organization_isolations_id_seq'::regclass);
@@ -41150,6 +41191,9 @@ ALTER TABLE ONLY operations_user_lists
 
 ALTER TABLE ONLY organization_cluster_agent_mappings
     ADD CONSTRAINT organization_cluster_agent_mappings_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY organization_detail_upload_states
+    ADD CONSTRAINT organization_detail_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY organization_detail_uploads
     ADD CONSTRAINT organization_detail_uploads_pkey PRIMARY KEY (id, model_type);
@@ -45780,6 +45824,18 @@ CREATE INDEX idx_oauth_device_grants_on_organization_id ON oauth_device_grants U
 
 CREATE INDEX idx_oauth_openid_requests_on_organization_id ON oauth_openid_requests USING btree (organization_id);
 
+CREATE INDEX idx_od_upl_states_failed_verification ON organization_detail_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX idx_od_upl_states_needs_verification_id ON organization_detail_upload_states USING btree (organization_detail_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE UNIQUE INDEX idx_od_upl_states_on_od_upl_id ON organization_detail_upload_states USING btree (organization_detail_upload_id);
+
+CREATE INDEX idx_od_upl_states_on_verification_started ON organization_detail_upload_states USING btree (organization_detail_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE INDEX idx_od_upl_states_on_verification_state ON organization_detail_upload_states USING btree (verification_state);
+
+CREATE INDEX idx_od_upl_states_pending_verification ON organization_detail_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
 CREATE UNIQUE INDEX idx_on_approval_group_rules_any_approver_type ON approval_group_rules USING btree (group_id, rule_type) WHERE (rule_type = 4);
 
 CREATE UNIQUE INDEX idx_on_approval_group_rules_group_id_type_name ON approval_group_rules USING btree (group_id, rule_type, name);
@@ -45809,6 +45865,8 @@ CREATE INDEX idx_on_project_id_created_at_for_compliance_framework_settings ON p
 CREATE INDEX idx_on_protected_branch ON approval_group_rules_protected_branches USING btree (protected_branch_id);
 
 CREATE INDEX idx_open_issues_on_project_and_confidential_and_author_and_id ON issues USING btree (project_id, confidential, author_id, id) WHERE (state_id = 1);
+
+CREATE UNIQUE INDEX idx_organization_detail_uploads_on_id ON organization_detail_uploads USING btree (id);
 
 CREATE INDEX idx_p_ai_active_context_code_repositories_enabled_namespace_id ON ONLY p_ai_active_context_code_repositories USING btree (enabled_namespace_id);
 
@@ -49479,6 +49537,8 @@ CREATE UNIQUE INDEX index_operations_user_lists_on_project_id_and_name ON operat
 CREATE UNIQUE INDEX index_ops_feature_flags_issues_on_feature_flag_id_and_issue_id ON operations_feature_flags_issues USING btree (feature_flag_id, issue_id);
 
 CREATE UNIQUE INDEX index_ops_strategies_user_lists_on_strategy_id_and_user_list_id ON operations_strategies_user_lists USING btree (strategy_id, user_list_id);
+
+CREATE INDEX index_organization_detail_upload_states_on_organization_id ON organization_detail_upload_states USING btree (organization_id);
 
 CREATE UNIQUE INDEX index_organization_isolations_on_organization_id ON organization_isolations USING btree (organization_id);
 
@@ -56536,6 +56596,8 @@ CREATE TRIGGER trigger_46ebe375f632 BEFORE INSERT OR UPDATE ON epic_issues FOR E
 
 CREATE TRIGGER trigger_47b402bdab5f BEFORE INSERT OR UPDATE ON bulk_import_export_batches FOR EACH ROW EXECUTE FUNCTION trigger_47b402bdab5f();
 
+CREATE TRIGGER trigger_47b8922fa2f4 BEFORE INSERT OR UPDATE ON organization_detail_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_47b8922fa2f4();
+
 CREATE TRIGGER trigger_47c43d40f0d2 BEFORE INSERT OR UPDATE ON alert_management_alert_metric_image_uploads FOR EACH ROW EXECUTE FUNCTION trigger_47c43d40f0d2();
 
 CREATE TRIGGER trigger_489fffe04425 BEFORE INSERT OR UPDATE ON packages_helm_metadata_cache_states FOR EACH ROW EXECUTE FUNCTION trigger_489fffe04425();
@@ -58277,6 +58339,9 @@ ALTER TABLE ONLY merge_requests
 ALTER TABLE ONLY approval_group_rules
     ADD CONSTRAINT fk_64450bea52 FOREIGN KEY (security_orchestration_policy_configuration_id) REFERENCES security_orchestration_policy_configurations(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY organization_detail_upload_states
+    ADD CONSTRAINT fk_64983a3c33 FOREIGN KEY (organization_detail_upload_id) REFERENCES organization_detail_uploads(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY ci_pipeline_chat_data
     ADD CONSTRAINT fk_64ebfab6b3_p FOREIGN KEY (partition_id, pipeline_id) REFERENCES p_ci_pipelines(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -59332,6 +59397,9 @@ ALTER TABLE ONLY security_policy_dismissals
 
 ALTER TABLE ONLY wiki_page_meta_user_mentions
     ADD CONSTRAINT fk_bc155eba89 FOREIGN KEY (wiki_page_meta_id) REFERENCES wiki_page_meta(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY organization_detail_upload_states
+    ADD CONSTRAINT fk_bc48ea7546 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY work_item_type_visibility_defaults
     ADD CONSTRAINT fk_bcb828da61 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;

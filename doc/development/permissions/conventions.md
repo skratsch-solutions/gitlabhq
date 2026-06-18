@@ -216,7 +216,7 @@ Use a private permission when:
 1. The distinction matters for **privilege escalation checks** or
    **custom role composition**.
 
-Do **not** use private permissions for:
+Do not use private permissions for:
 
 - Feature flag or license checks. Use `prevent` rules instead.
 - Settings-based restrictions. Use `prevent` rules instead.

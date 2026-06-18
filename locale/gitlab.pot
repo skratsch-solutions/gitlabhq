@@ -10164,6 +10164,9 @@ msgstr ""
 msgid "AnalyticsDashboards|Add panels to this dashboard to visualize your analytics data."
 msgstr ""
 
+msgid "AnalyticsDashboards|Add to dashboard"
+msgstr ""
+
 msgid "AnalyticsDashboards|All"
 msgstr ""
 
@@ -34084,6 +34087,12 @@ msgid "Geo|Object Storage replication"
 msgstr ""
 
 msgid "Geo|Offline"
+msgstr ""
+
+msgid "Geo|Organization Detail Upload"
+msgstr ""
+
+msgid "Geo|Organization Detail Uploads"
 msgstr ""
 
 msgid "Geo|Organizations to synchronize"
@@ -70742,6 +70751,9 @@ msgid "SecurityReports|Edit vulnerability"
 msgstr ""
 
 msgid "SecurityReports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
+msgstr ""
+
+msgid "SecurityReports|Enable"
 msgstr ""
 
 msgid "SecurityReports|Ensure that %{trackingStart}issue tracking%{trackingEnd} is enabled for this project and you have %{permissionsStart}permission to create new issues%{permissionsEnd}."

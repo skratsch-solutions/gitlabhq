@@ -104,6 +104,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       import_offline_configurations
       integrations
       labels
+      organization_detail_upload_states
       organization_detail_uploads
       organization_details
       organization_foundational_agent_statuses

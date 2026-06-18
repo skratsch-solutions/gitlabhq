@@ -156,7 +156,7 @@ end
 The allowlist in
 [`api_entity_exposure_baseline.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/rubocop/cop/api/config/api_entity_exposure_baseline.yml)
 records the permitted field names for each protected entity. You should
-**not** manually edit the allowlist to add new fields; instead, create a
+not manually edit the allowlist to add new fields; instead, create a
 feature-bounded entity as described above.
 
 If you believe a field genuinely belongs on a high-impact entity (for example,

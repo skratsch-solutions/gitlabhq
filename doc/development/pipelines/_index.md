@@ -304,7 +304,7 @@ Note that the merge request also needs to have the `master:broken` or `master:fo
 
 ### Revert MRs
 
-To make your Revert MRs faster, use the [revert MR template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/merge_request_templates/Revert%20To%20Resolve%20Incident.md) **before** you create your merge request. It will apply the `pipeline::expedited` label and others that will expedite the pipelines that run on the merge request.
+To make your Revert MRs faster, use the [revert MR template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/merge_request_templates/Revert%20To%20Resolve%20Incident.md) before you create your merge request. It will apply the `pipeline::expedited` label and others that will expedite the pipelines that run on the merge request.
 
 ### The `pipeline::expedited` label
 

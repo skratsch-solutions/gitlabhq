@@ -69,7 +69,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
       describe 'visibility level updates' do
         context 'when new organization has lower visibility than some groups/projects' do
-          let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
+          let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::PRIVATE, owners: user) }
           let_it_be_with_refind(:public_subgroup) do
             create(:group, :public, parent: group, organization: old_organization)
           end
@@ -92,10 +92,6 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
           let_it_be_with_refind(:private_project) do
             create(:project, :private, namespace: group, organization: old_organization)
-          end
-
-          before_all do
-            new_organization.add_owner(user)
           end
 
           it 'updates visibility for groups with higher visibility than organization' do
@@ -144,7 +140,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         end
 
         context 'when new organization has higher visibility than some groups/projects' do
-          let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::PUBLIC) }
+          let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::PUBLIC, owners: user) }
           let_it_be_with_refind(:private_subgroup) do
             create(:group, :private, parent: group, organization: old_organization)
           end
@@ -155,10 +151,6 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
           let_it_be_with_refind(:private_project) do
             create(:project, :private, namespace: group, organization: old_organization)
-          end
-
-          before_all do
-            new_organization.add_owner(user)
           end
 
           it 'does not update visibility for groups with lower visibility' do
@@ -220,7 +212,6 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
     context 'when group is not root' do
       let_it_be(:parent_group) { create(:group, organization: old_organization) }
       let_it_be_with_refind(:subgroup) { create(:group, parent: parent_group, organization: old_organization) }
-      let_it_be_with_refind(:subgroup_user) { create(:user, organization: old_organization) }
       let(:service) { described_class.new(group: subgroup, new_organization: new_organization, current_user: user) }
 
       it 'returns error ServiceResponse' do
@@ -246,13 +237,9 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
     end
 
     context 'when group is already in the target organization' do
-      let_it_be(:group_in_new_org) { create(:group, organization: new_organization) }
+      let_it_be(:group_in_new_org) { create(:group, organization: new_organization, owners: user) }
       let(:service) do
         described_class.new(group: group_in_new_org, new_organization: new_organization, current_user: user)
-      end
-
-      before_all do
-        group_in_new_org.add_owner(user)
       end
 
       it 'returns error ServiceResponse' do
@@ -370,6 +357,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
       context 'when user is an admin without admin mode' do
         let_it_be(:admin_user) { create(:admin) }
+
         let(:service) do
           described_class.new(group: group, new_organization: new_organization, current_user: admin_user)
         end
@@ -398,6 +386,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
     context 'when user is admin with admin mode enabled', :enable_admin_mode do
       let_it_be(:admin_user) { create(:admin) }
+
       let(:service) do
         described_class.new(group: group, new_organization: new_organization, current_user: admin_user)
       end
@@ -531,17 +520,13 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
       end
 
       context "with visibility level changes that would have been made" do
-        let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
+        let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::PRIVATE, owners: user) }
         let_it_be_with_refind(:public_subgroup) do
           create(:group, :public, parent: group, organization: old_organization)
         end
 
         let_it_be_with_refind(:public_project) do
           create(:project, :public, namespace: group, organization: old_organization)
-        end
-
-        before_all do
-          new_organization.add_owner(user)
         end
 
         it 'rolls back visibility level changes for groups due to transaction failure' do
@@ -638,16 +623,12 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
     context 'when disconnecting from gitaly' do
       let_it_be(:project, freeze: false) do
-        create(:project, :repository, namespace: group, organization: old_organization)
+        create(:project, :small_repo, namespace: group, organization: old_organization)
       end
 
       context 'when linked to pool repository' do
         let_it_be(:pool_repository, freeze: false) do
           create(:pool_repository, :ready, source_project: project)
-        end
-
-        before do
-          pool_repository
         end
 
         it 'enqueues Repositories::LeavePoolRepositoryWorker' do
@@ -688,13 +669,12 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
     context 'when group is not root' do
       let_it_be(:parent_group) { create(:group, organization: old_organization) }
-      let_it_be_with_refind(:subgroup) { create(:group, parent: parent_group, organization: old_organization) }
-      let_it_be_with_refind(:subgroup_user) { create(:user, organization: old_organization) }
-      let(:service) { described_class.new(group: subgroup, new_organization: new_organization, current_user: user) }
-
-      before_all do
-        subgroup.add_developer(subgroup_user)
+      let_it_be(:subgroup_user) { create(:user, organization: old_organization) }
+      let_it_be_with_refind(:subgroup) do
+        create(:group, parent: parent_group, organization: old_organization, developers: subgroup_user)
       end
+
+      let(:service) { described_class.new(group: subgroup, new_organization: new_organization, current_user: user) }
 
       it 'returns error ServiceResponse' do
         result = service.async_execute

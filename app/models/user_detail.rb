@@ -23,7 +23,6 @@ class UserDetail < ApplicationRecord
   validate :provisioning_source_mutually_exclusive
 
   ignore_column :email_reset_offered_at, remove_after: '2026-01-16', remove_with: '18.8'
-  ignore_column :organization, remove_after: '2026-06-20', remove_with: '19.2'
 
   DEFAULT_FIELD_LENGTH = 500
 

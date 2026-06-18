@@ -145,6 +145,7 @@ To find subscribers, search the subscription files under
 
 | Event | Feature category | Edition | Description |
 |-------|-----------------|---------|-------------|
+| `Organizations::ConfirmedEvent` | `organization` | CE | Published when an organization transitions from `unconfirmed` to `confirmed`. Emitted by Organizations::ConfirmService after the state transition is committed. Not published if the confirmation fails or is rolled back. |
 | `Organizations::GroupTransferredEvent` | `organization` | CE | Published when a root group is transferred to a different organization. Fired once for the transferred group only — subscribers are responsible for traversing descendants if needed. Published via run_after_commit_or_now inside the transfer transaction, so it is never emitted on rollback. |
 
 ## Package Metadata

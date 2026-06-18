@@ -35,6 +35,12 @@ RSpec.describe Organizations::ConfirmService, feature_category: :organization do
         expect(response.payload[:organization]).to eq(organization)
       end
 
+      it 'publishes an Organizations::ConfirmedEvent' do
+        expect { response }
+          .to publish_event(Organizations::ConfirmedEvent)
+          .with(organization_id: organization.id)
+      end
+
       context 'when group_ids is not provided' do
         let(:params) { { organization_id: organization_id } }
 
@@ -91,6 +97,10 @@ RSpec.describe Organizations::ConfirmService, feature_category: :organization do
 
       it "does'nt change organization confirmatino state" do
         expect { response }.not_to change { organization.reload.state }.from('unconfirmed')
+      end
+
+      it 'does not publish an Organizations::ConfirmedEvent' do
+        expect { response }.to not_publish_event(Organizations::ConfirmedEvent)
       end
     end
 

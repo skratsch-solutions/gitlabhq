@@ -912,7 +912,7 @@ The prefix pattern should be:
 1. lowercase letters abbreviating the token class name
 1. a hyphen (`-`)
 
-Token prefixes must **not** be configurable. These are static prefixes meant for
+Token prefixes must not be configurable. These are static prefixes meant for
 standard identification, and detection. The ability to configure the
 [PAT prefix](../../administration/settings/account_and_limit_settings.md#personal-access-token-prefix)
 contravenes the above guidance, but is allowed as pre-existing behavior.

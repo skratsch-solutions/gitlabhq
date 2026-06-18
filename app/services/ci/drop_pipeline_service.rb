@@ -4,7 +4,7 @@ module Ci
   class DropPipelineService
     # execute service asynchronously for each cancelable pipeline
     def execute_async_for_all(pipelines, failure_reason, context_user, worker_class: Ci::DropPipelineWorker)
-      pipelines.cancelable.select(:id).find_in_batches do |pipelines_batch|
+      pipelines.select(:id).find_in_batches do |pipelines_batch|
         worker_class.bulk_perform_async_with_contexts(
           pipelines_batch,
           arguments_proc: ->(pipeline) { [pipeline.id, failure_reason] },

@@ -7385,11 +7385,11 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
   end
 
-  describe '#can_admin_organization?' do
+  describe '#can_update_organization?' do
     let_it_be_with_refind(:user) { create(:user) }
     let_it_be_with_refind(:organization) { create(:organization) }
 
-    subject(:can_admin_organization) { user.can_admin_organization?(organization) }
+    subject(:can_update_organization) { user.can_update_organization?(organization) }
 
     it_behaves_like 'organization owner'
   end

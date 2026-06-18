@@ -1041,7 +1041,7 @@ export default {
         </template>
 
         <template #heading-wrapper>
-          <div class="gl-grow">
+          <div class="gl-min-w-0 gl-grow">
             <component :is="isModalOrDetailPanel ? 'h2' : 'h1'" v-if="editMode" class="gl-sr-only">
               {{ s__('WorkItem|Edit work item') }}
             </component>

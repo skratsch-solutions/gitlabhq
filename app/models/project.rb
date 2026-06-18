@@ -3136,6 +3136,10 @@ class Project < ApplicationRecord
     ancestors.archived.exists?
   end
 
+  def self_and_ancestors_active?
+    self.class.where(id: id).self_and_ancestors_active.exists?
+  end
+
   def self_or_ancestors_transfer_scheduled?
     project_namespace.transfer_scheduled? || namespace.self_or_ancestors_transfer_scheduled?
   end

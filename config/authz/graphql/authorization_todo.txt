@@ -517,6 +517,7 @@ type:AiConversationsThread
 type:AiFeatureSetting
 type:AiFlowTriggerType
 type:AiFoundationalChatAgent
+type:AiFoundationalChatAgentFlowConfig
 type:AiInstanceUsageData
 type:AiInstanceUsageEvent
 type:AiMessage
@@ -975,6 +976,7 @@ type:ObservabilityMetric
 type:ObservabilityTrace
 type:OncallParticipantType
 type:OncallRotationActivePeriodType
+type:OrganizationDetailUploadRegistry
 type:OrganizationStateCounts
 type:OrganizationUserAccess
 type:OrganizationUserPermissions

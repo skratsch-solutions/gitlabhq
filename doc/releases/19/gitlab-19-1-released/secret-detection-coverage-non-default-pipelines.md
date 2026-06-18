@@ -1,7 +1,7 @@
 ---
 title: Improved secret detection coverage for feature branch pipelines
 tier: [ Free, Premium, Ultimate ]
-offering: [ GitLab.com, Self-managed, GitLab Dedicated, GitLab Dedicated for Government ]
+offering: [ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government ]
 stage: application_security_testing
 documentation_link: "../../../user/application_security/secret_detection/pipeline/#coverage"
 work_item: https://gitlab.com/gitlab-org/gitlab/-/work_items/588910

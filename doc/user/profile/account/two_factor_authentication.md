@@ -139,7 +139,8 @@ account if you lose access.
 > [!flag]
 > The availability of this feature is controlled by a feature flag. For more information, see the history.
 
-Email OTP allows you to verify your identity by sending a six-digit verification code to your email address.
+Email OTP allows you to [verify your identity](../../../security/email_verification.md) by sending a six-digit
+verification code to your email address.
 
 To enable email OTP for your account:
 

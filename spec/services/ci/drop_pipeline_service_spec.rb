@@ -15,7 +15,7 @@ RSpec.describe Ci::DropPipelineService, feature_category: :continuous_integratio
   let!(:commit_status_success) { create(:commit_status, :success, pipeline: cancelable_pipeline) }
 
   describe '#execute_async_for_all' do
-    subject { described_class.new.execute_async_for_all(user.pipelines, failure_reason, user) }
+    subject { described_class.new.execute_async_for_all(user.pipelines.cancelable, failure_reason, user) }
 
     it 'drops only cancelable pipelines asynchronously', :sidekiq_inline do
       subject

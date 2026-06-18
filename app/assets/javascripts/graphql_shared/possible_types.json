@@ -286,6 +286,7 @@
     "JobArtifactRegistry",
     "LfsObjectRegistry",
     "MergeRequestDiffRegistry",
+    "OrganizationDetailUploadRegistry",
     "PackageFileRegistry",
     "PackagesDebianProjectComponentFileRegistry",
     "PackagesHelmMetadataCacheRegistry",

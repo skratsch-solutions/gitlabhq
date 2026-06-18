@@ -425,7 +425,7 @@ When reviewing community MRs:
 
 - Scrutinize new dependencies (e.g. `Gemfile.lock`, `yarn.lock`). They could introduce malicious packages.
 - Review links and images, especially in documentation MRs.
-- When in doubt, ask `@gitlab-com/gl-security/appsec` to review **before** starting any pipeline.
+- When in doubt, ask `@gitlab-com/gl-security/appsec` to review before starting any pipeline.
 - Set the milestone only when the MR is likely to merge in the current milestone.
 
 #### Taking over a community merge request

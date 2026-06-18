@@ -8,7 +8,6 @@ work_item: https://gitlab.com/gitlab-org/gitlab/-/work_items/510116
 categories: [ Wiki ]
 level: secondary
 weight: 50
-ignore_in_report: true
 ---
 
 <!-- categories: Wiki -->

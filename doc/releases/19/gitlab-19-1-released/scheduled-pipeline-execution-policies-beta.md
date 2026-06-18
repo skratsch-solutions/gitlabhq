@@ -1,6 +1,6 @@
 ---
 title: Scheduled pipeline execution policies (beta)
-tier: ultimate
+tier: [ Ultimate ]
 offering: [ gitlab_com, self_managed, gitlab_dedicated ]
 stage: security_risk_management
 documentation_link: "../../../user/application_security/policies/scheduled_pipeline_execution_policies/"

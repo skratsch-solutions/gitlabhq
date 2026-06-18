@@ -97,6 +97,13 @@ module Import
                 pipeline: ::BulkImports::Projects::Pipelines::ReferencesPipeline,
                 stage: 5
               },
+              # UserContributionsPipeline updates source users created by the
+              # preceding relation pipelines. It must run after all relation
+              # pipelines.
+              user_contributions: {
+                pipeline: Import::Offline::Common::Pipelines::UserContributionsPipeline,
+                stage: 6
+              },
               finisher: {
                 pipeline: ::BulkImports::Common::Pipelines::EntityFinisher,
                 stage: 7

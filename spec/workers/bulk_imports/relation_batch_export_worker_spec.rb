@@ -126,7 +126,7 @@ RSpec.describe BulkImports::RelationBatchExportWorker, feature_category: :import
 
           described_class.sidekiq_retries_exhausted_block.call(job, StandardError.new('*' * 300))
 
-          expect(batch.reload.failed?).to eq(true)
+          expect(batch.reload.failed?).to be(true)
           expect(batch.error.size).to eq(255)
         end
 

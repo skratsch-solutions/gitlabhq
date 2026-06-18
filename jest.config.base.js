@@ -129,11 +129,11 @@ module.exports = (path, options = {}) => {
   const moduleNameMapper = {
     [TEST_FIXTURES_PATTERN]: `<rootDir>${TEST_FIXTURES_HOME}$1`,
     '^test_fixtures_static(/.*)$': `<rootDir>${TEST_FIXTURES_STATIC_HOME}$1`,
-    '\\.(svg|gif|png|mp4)(\\?\\w+)?$': '<rootDir>/spec/frontend/__mocks__/file_mock.js',
     '\\.css$': '<rootDir>/spec/frontend/__mocks__/file_mock.js',
-    '^~(/.*)\\?(worker|raw)$': '<rootDir>/app/assets/javascripts$1',
-    '^(.*)\\?(worker|raw)$': '$1',
     '^~(/.*)$': '<rootDir>/app/assets/javascripts$1',
+    '^images/(.*)$': '<rootDir>/app/assets/images/$1',
+    '^ee_images/(.*)$': '<rootDir>/ee/app/assets/images/$1',
+    '^jh_images/(.*)$': '<rootDir>/jh/app/assets/images/$1',
     '^ee_component(/.*)$':
       '<rootDir>/app/assets/javascripts/vue_shared/components/empty_component.js',
     '^jh_component(/.*)$':
@@ -210,6 +210,7 @@ module.exports = (path, options = {}) => {
 
   const transformIgnoreNodeModules = [
     'vue-test-utils-compat',
+    '@gitlab/svgs',
     '@gitlab/ui',
     '@gitlab/duo-ui',
     '@gitlab/favicon-overlay',
@@ -219,6 +220,7 @@ module.exports = (path, options = {}) => {
     'bootstrap-vue',
     'portal-vue',
     'gridstack',
+    'leaflet',
     'three',
     'monaco-editor',
     'monaco-yaml',
@@ -275,6 +277,7 @@ module.exports = (path, options = {}) => {
       '^.+\\.(gql|graphql)$': './spec/frontend/__helpers__/graphql_transformer.js',
       '^.+_worker\\.js$': './spec/frontend/__helpers__/web_worker_transformer.js',
       '^.+\\.m?js$': 'babel-jest',
+      '^.+\\.(svg|gif|png|mp4)$': './spec/frontend/__helpers__/static_file_transformer.js',
       '^.+\\.vue$': VUE_JEST_TRANSFORMER,
       'spec/frontend/editor/schema/ci/yaml_tests/.+\\.(yml|yaml)$':
         './spec/frontend/__helpers__/yaml_transformer.js',

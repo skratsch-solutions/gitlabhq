@@ -98,7 +98,7 @@ In this example:
 - The resource has an unconventional action name that looks ugly in prose (e.g., `renew_secret`)
 - The directory name is uncountable or pluralizes awkwardly (e.g., "code" → "codes", "metadata" → "metadatas")
 
-You do **not** need a metadata file when the directory name titleizes and pluralizes correctly (the majority of resources).
+You do not need a metadata file when the directory name titleizes and pluralizes correctly (the majority of resources).
 
 ### Determining Boundaries
 

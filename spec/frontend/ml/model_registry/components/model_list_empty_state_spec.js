@@ -1,4 +1,5 @@
 import { GlEmptyState, GlButton } from '@gitlab/ui';
+import emptySvgUrl from '@gitlab/svgs/dist/illustrations/status/status-new-md.svg';
 import { shallowMount } from '@vue/test-utils';
 import EmptyState from '~/ml/model_registry/components/model_list_empty_state.vue';
 import { MLFLOW_USAGE_MODAL_ID } from '~/ml/model_registry/constants';
@@ -34,7 +35,7 @@ describe('ml/model_registry/components/model_list_empty_state.vue', () => {
   it('renders empty state', () => {
     expect(findEmptyState().props()).toMatchObject({
       title: 'title',
-      svgPath: 'file-mock',
+      svgPath: emptySvgUrl,
       description: 'description',
     });
   });

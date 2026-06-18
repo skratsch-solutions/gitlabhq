@@ -35,6 +35,9 @@ module Ci
     DEFAULT_CONFIG_PATH = '.gitlab-ci.yml'
 
     UNLOCKABLE_STATUSES = (Ci::Pipeline.completed_statuses + [:manual]).freeze
+    # Excludes `waiting_for_callback` and `canceling` because those statuses lack a
+    # suitable index, making queries on them expensive on large tables.
+    INDEXED_ALIVE_STATUSES = (Ci::HasStatus::ALIVE_STATUSES - %w[waiting_for_callback canceling]).freeze
     # UI only shows 100+. TODO: pass constant to UI for SSoT
     COUNT_FAILED_JOBS_LIMIT = 101
     INPUTS_LIMIT = 20
@@ -475,6 +478,7 @@ module Ci
     end
 
     scope :with_unlockable_status, -> { with_status(*UNLOCKABLE_STATUSES) }
+    scope :indexed_alive, -> { with_status(*INDEXED_ALIVE_STATUSES) }
     scope :internal, -> { where(source: internal_sources) }
     scope :tag, -> { where(tag: true) }
     scope :no_tag, -> { where(tag: false) }

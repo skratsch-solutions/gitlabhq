@@ -1165,7 +1165,7 @@ When `Feature.enable` or `Feature.disable` is called, a `Gitlab::FeatureFlags::F
 > [!NOTE]
 > Events are only published when `Feature.enable` or `Feature.disable` returns `true`, indicating a state change occurred.
 > Percentage-based rollout methods (`Feature.enable_percentage_of_actors` and
-> `Feature.enable_percentage_of_time`) do **not** publish events.
+> `Feature.enable_percentage_of_time`) do not publish events.
 
 The event includes:
 

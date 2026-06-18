@@ -76273,6 +76273,28 @@ components:
           type: string
         merge_request_diffs_oldest_unsynced_time:
           type: string
+        organization_detail_uploads_count:
+          type: string
+        organization_detail_uploads_checksum_total_count:
+          type: string
+        organization_detail_uploads_checksummed_count:
+          type: string
+        organization_detail_uploads_checksum_failed_count:
+          type: string
+        organization_detail_uploads_synced_count:
+          type: string
+        organization_detail_uploads_failed_count:
+          type: string
+        organization_detail_uploads_registry_count:
+          type: string
+        organization_detail_uploads_verification_total_count:
+          type: string
+        organization_detail_uploads_verified_count:
+          type: string
+        organization_detail_uploads_verification_failed_count:
+          type: string
+        organization_detail_uploads_oldest_unsynced_time:
+          type: string
         package_files_count:
           type: string
         package_files_checksum_total_count:
@@ -76800,6 +76822,10 @@ components:
         merge_request_diffs_synced_in_percentage:
           type: string
         merge_request_diffs_verified_in_percentage:
+          type: string
+        organization_detail_uploads_synced_in_percentage:
+          type: string
+        organization_detail_uploads_verified_in_percentage:
           type: string
         package_files_synced_in_percentage:
           type: string
@@ -77401,6 +77427,28 @@ components:
           type: string
         merge_request_diffs_oldest_unsynced_time:
           type: string
+        organization_detail_uploads_count:
+          type: string
+        organization_detail_uploads_checksum_total_count:
+          type: string
+        organization_detail_uploads_checksummed_count:
+          type: string
+        organization_detail_uploads_checksum_failed_count:
+          type: string
+        organization_detail_uploads_synced_count:
+          type: string
+        organization_detail_uploads_failed_count:
+          type: string
+        organization_detail_uploads_registry_count:
+          type: string
+        organization_detail_uploads_verification_total_count:
+          type: string
+        organization_detail_uploads_verified_count:
+          type: string
+        organization_detail_uploads_verification_failed_count:
+          type: string
+        organization_detail_uploads_oldest_unsynced_time:
+          type: string
         package_files_count:
           type: string
         package_files_checksum_total_count:
@@ -77928,6 +77976,10 @@ components:
         merge_request_diffs_synced_in_percentage:
           type: string
         merge_request_diffs_verified_in_percentage:
+          type: string
+        organization_detail_uploads_synced_in_percentage:
+          type: string
+        organization_detail_uploads_verified_in_percentage:
           type: string
         package_files_synced_in_percentage:
           type: string

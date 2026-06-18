@@ -17,13 +17,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
     allow(WebAuthn.configuration.relying_party).to receive(:allowed_origins).and_return([app_id])
   end
 
-  context 'with quarantine id 19-2026-06-16',
-    quarantine: {
-      issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-      type: 'flaky'
-    } do
-    it_behaves_like 'OTP devices work independently of WebAuthn authenticators', 'WebAuthn'
-  end
+  it_behaves_like 'OTP devices work independently of WebAuthn authenticators', 'WebAuthn'
 
   describe 'second factor' do
     describe 'registration' do
@@ -223,11 +217,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
 
       context 'with valid authentications' do
         context 'with second_factor authenticators' do
-          it "allows a user to sign-in with an already registered WebAuthn authenticator",
-            quarantine: {
-              issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-              type: 'flaky'
-            } do
+          it "allows a user to sign-in with an already registered WebAuthn authenticator" do
             webauthn_authenticator = add_webauthn_device(app_id, user)
 
             submit_sign_in_form_for(user)
@@ -237,11 +227,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
           end
 
           context 'when multiple authenticators have been registered by the same user' do
-            it 'allows a user to sign-in with either authenticator',
-              quarantine: {
-                issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-                type: 'flaky'
-              } do
+            it 'allows a user to sign-in with either authenticator' do
               first_device = add_webauthn_device(app_id, user)
               second_device = add_webauthn_device(app_id, user)
 
@@ -260,11 +246,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
         end
 
         context 'with passkeys' do
-          it 'allows a user to sign-in with passkey, second_factor & OTP authenticators',
-            quarantine: {
-              issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-              type: 'flaky'
-            } do
+          it 'allows a user to sign-in with passkey, second_factor & OTP authenticators' do
             # with passkey
             passkey = add_passkey(app_id, user)
             submit_sign_in_form_for(user)
@@ -292,11 +274,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
         let(:other_user) { create(:user, :two_factor_via_webauthn, registrations_count: 1) }
 
         context 'when a given WebAuthn authenticator in GitLab is not owned by a user' do
-          it 'does not allow a user to sign-in in with that particular authenticator',
-            quarantine: {
-              issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-              type: 'flaky'
-            } do
+          it 'does not allow a user to sign-in in with that particular authenticator' do
             webauthn_authenticator = add_webauthn_device(app_id, user)
 
             # Sign-in with a 2FA enabled user & perform the user verification
@@ -308,11 +286,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
         end
 
         context 'with retries' do
-          it 'allows retrying authentication',
-            quarantine: {
-              issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-              type: 'flaky'
-            } do
+          it 'allows retrying authentication' do
             webauthn_authenticator = add_webauthn_device(app_id, user)
 
             # Failed authentication
@@ -331,11 +305,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
 
         context 'with passkeys' do
           context 'when a given passkey in GitLab is not owned by a user' do
-            it 'does not allow a user to sign-in in with that particular authenticator',
-              quarantine: {
-                issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-                type: 'flaky'
-              } do
+            it 'does not allow a user to sign-in in with that particular authenticator' do
               passkey = add_passkey(app_id, user)
 
               submit_sign_in_form_for(other_user)
@@ -346,11 +316,7 @@ RSpec.describe 'Using WebAuthn Authenticators', :js, feature_category: :system_a
           end
 
           context 'with retries' do
-            it 'allows retrying authentication',
-              quarantine: {
-                issue: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/work_items/43166',
-                type: 'flaky'
-              } do
+            it 'allows retrying authentication' do
               passkey = add_passkey(app_id, user)
 
               # Failed authentication

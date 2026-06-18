@@ -32,7 +32,7 @@ Background operations are appropriate when:
 - Operating on [high-traffic tables](../migration_style_guide.md#high-traffic-tables)
   where a single pass would exceed safe execution time.
 
-Do **not** use background operations for schema changes or operations
+Do not use background operations for schema changes or operations
 that can complete within
 [regular migration time limits](../migration_style_guide.md#how-long-a-migration-should-take).
 

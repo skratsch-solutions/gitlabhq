@@ -41,6 +41,8 @@ module Organizations
         response = ServiceResponse.success(payload: { organization: organization })
       end
 
+      publish_confirmed_event if response&.success?
+
       response
     end
 
@@ -52,6 +54,12 @@ module Organizations
         new_organization: organization,
         current_user: current_user
       ).execute
+    end
+
+    def publish_confirmed_event
+      Gitlab::EventStore.publish(
+        Organizations::ConfirmedEvent.new(data: { organization_id: organization.id })
+      )
     end
 
     def allowed?

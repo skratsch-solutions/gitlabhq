@@ -2648,7 +2648,7 @@ class User < ApplicationRecord
     end
   end
 
-  def can_admin_organization?(organization)
+  def can_update_organization?(organization)
     can?(:update_organization, organization)
   end
 
