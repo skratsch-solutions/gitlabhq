@@ -8,8 +8,6 @@ DELETE /projects/:id/alert_management_alerts/:alert_iid/metric_images/:metric_im
 DELETE /projects/:id/approval_settings/rules/:approval_rule_id
 DELETE /projects/:id/issues/:issue_iid/metric_images/:metric_image_id
 DELETE /projects/:id/managed_licenses/:managed_license_id
-DELETE /projects/:id/packages/:package_id/package_files/:package_file_id
-DELETE /projects/:id/packages/protection/rules/:package_protection_rule_id
 DELETE /projects/:id/snippets/:snippet_id
 DELETE /vscode/settings_sync(/:settings_context_hash)/v1/collection
 DELETE /vulnerabilities/:id/issue_links/:issue_link_id
@@ -20,7 +18,6 @@ GET /analytics/group_activity/new_members_count
 GET /dependency_list_exports/:export_id
 GET /dependency_list_exports/:export_id/download
 GET /events
-GET /groups/:id/-/packages/debian/pool/:distribution/:project_id/:letter/:package_name/:package_version/:file_name
 GET /groups/:id/export_relations/download
 GET /groups/:id/export_relations/status
 GET /mcp
@@ -40,12 +37,6 @@ GET /projects/:id/issues/:issue_iid/metric_images
 GET /projects/:id/managed_licenses
 GET /projects/:id/managed_licenses/:managed_license_id
 GET /projects/:id/merge_requests/:merge_request_iid/approval_settings
-GET /projects/:id/packages/:package_id/package_files
-GET /projects/:id/packages/:package_id/package_files/:package_file_id/download
-GET /projects/:id/packages/cargo/config.json
-GET /projects/:id/packages/protection/rules
-GET /projects/:id/packages/rpm/*package_file_id/*file_name
-GET /projects/:id/packages/rpm/repodata/*file_name
 GET /projects/:id/snippets
 GET /projects/:id/snippets/:snippet_id
 GET /projects/:id/snippets/:snippet_id/files/:ref/:file_path/raw
@@ -62,7 +53,6 @@ GET /vscode/settings_sync(/:settings_context_hash)/v1/resource/:resource_name
 GET /vscode/settings_sync(/:settings_context_hash)/v1/resource/:resource_name/:id
 GET /vulnerabilities/:id/issue_links
 PATCH /projects/:id/managed_licenses/:managed_license_id
-PATCH /projects/:id/packages/protection/rules/:package_protection_rule_id
 POST /duo_code_review/evaluations
 POST /groups/:id/epics/:epic_iid/todo
 POST /groups/:id/export_relations
@@ -83,8 +73,6 @@ POST /projects/:id/managed_licenses
 POST /projects/:id/merge_requests/:merge_request_iid/approvals
 POST /projects/:id/merge_requests/:subscribable_id/subscribe
 POST /projects/:id/merge_requests/:subscribable_id/unsubscribe
-POST /projects/:id/packages/protection/rules
-POST /projects/:id/packages/rpm
 POST /projects/:id/security_scans/sast/:sast_endpoint
 POST /projects/:id/snippets
 POST /projects/:project_id/product_analytics/request/dry-run

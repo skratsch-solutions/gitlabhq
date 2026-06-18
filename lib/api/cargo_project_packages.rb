@@ -70,6 +70,7 @@ module API
           tags %w[packages]
         end
 
+        route_setting :authorization, permissions: :read_package, boundary_type: :project
         get 'config.json' do
           {
             "dl" => cargo_registry_url,

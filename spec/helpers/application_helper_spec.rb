@@ -754,8 +754,8 @@ RSpec.describe ApplicationHelper, feature_category: :shared do
       it { is_expected.to include('page-with-panels') }
     end
 
-    describe 'application-chrome' do
-      it { is_expected.to include('application-chrome') }
+    describe 'page-theme-background' do
+      it { is_expected.to include('page-theme-background') }
     end
 
     describe 'user-logged-in and user-logged-out' do

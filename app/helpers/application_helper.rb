@@ -312,7 +312,7 @@ module ApplicationHelper
     class_names << 'epic-boards-page gl-overflow-auto' if current_controller?(:epic_boards)
     class_names << 'with-performance-bar' if performance_bar_enabled?
     class_names << 'with-header'
-    class_names << 'application-chrome'
+    class_names << 'page-theme-background'
     class_names << 'page-with-panels'
     class_names << 'with-gl-container-queries'
     class_names << system_message_class

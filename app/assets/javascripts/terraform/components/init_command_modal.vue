@@ -87,7 +87,7 @@ terraform init \\
 
     <div class="gl-mb-3 gl-flex">
       <pre
-        class="code-block rounded gl-border gl-mb-0 gl-w-full gl-py-2"
+        class="code-block gl-border gl-mb-0 gl-w-full !gl-rounded-base gl-py-2"
         data-testid="glab-command"
         >{{ getModalInfoGlabCopyStr() }}</pre
       >

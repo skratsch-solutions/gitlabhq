@@ -782,6 +782,14 @@ Only variables you can [use with the `include` keyword](../yaml/includes.md#use-
 not [masked](../variables/_index.md#mask-a-cicd-variable) can be expanded.
 [Nested variable expansion](../variables/where_variables_can_be_used.md#nested-variable-expansion) is not supported.
 
+> [!note]
+> Environment-scoped project and group variables are not available to `expand_vars`,
+> because input interpolation happens during pipeline creation, before jobs can be
+> assigned to environments. If `expand_vars` cannot find a matching variable, it leaves
+> the literal string (for example, `$MY_VAR`) in the configuration unchanged, which the
+> shell might still expand at runtime. If both an environment-scoped variable and a
+> non-scoped variable exist with the same name, `expand_vars` uses the non-scoped value.
+
 Example:
 
 ```yaml

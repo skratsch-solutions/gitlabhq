@@ -28,6 +28,7 @@ project:
   - download_maven_package_file
   - download_npm_package
   - download_nuget_package
+  - download_package
   - download_pypi_package
   - download_wiki_code
   - export_work_items
@@ -163,6 +164,7 @@ project:
 group:
   permissions: []
   raw_permissions:
+  - _bypass_ip_enforcement
   - create_vulnerability_export
   - read_add_on_purchase
   - read_ai_domain_settings

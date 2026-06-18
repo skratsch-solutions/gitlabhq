@@ -101,6 +101,7 @@ Grants the ability to create and read cd applications.
 | Create | Instance | Mutation | `CdApplicationCreate` |
 | Read | Group | Type | `CdApplication` |
 | Read | Instance | Type | `CdApplication` |
+| Read | Instance | Type | `CdService` |
 
 #### Cd Environment
 

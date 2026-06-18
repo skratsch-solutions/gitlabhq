@@ -38,6 +38,7 @@ module API
         params do
           requires :file_name, type: String, desc: 'Repository metadata file name'
         end
+        route_setting :authorization, permissions: :read_rpm_package, boundary_type: :project
         get 'repodata/*file_name', requirements: { file_name: API::NO_SLASH_URL_PART_REGEX } do
           authorize_read_package!(authorized_user_project)
 
@@ -62,6 +63,7 @@ module API
           requires :package_file_id, type: Integer, desc: 'RPM package file id'
           requires :file_name, type: String, desc: 'RPM package file name'
         end
+        route_setting :authorization, permissions: :download_rpm_package, boundary_type: :project
         get '*package_file_id/*file_name', requirements: { file_name: API::NO_SLASH_URL_PART_REGEX } do
           track_package_event(
             'pull_package',
@@ -83,6 +85,7 @@ module API
           ]
           tags %w[packages]
         end
+        route_setting :authorization, permissions: :upload_rpm_package, boundary_type: :project
         post do
           authorize_create_package!(authorized_user_project)
 

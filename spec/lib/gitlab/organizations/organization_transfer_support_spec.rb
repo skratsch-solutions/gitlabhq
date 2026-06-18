@@ -28,9 +28,14 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       cd_application_flow_definitions
       cd_applications
       cd_artifact_sources
+      cd_deployment_transitions
       cd_deployments
+      cd_environment_driver_bindings
       cd_environments
+      cd_rollout_environments
+      cd_rollout_transitions
       cd_rollouts
+      cd_service_environment_healths
       cd_services
       cd_version_set_entries
       cd_version_sets

@@ -89575,6 +89575,9 @@ msgstr ""
 msgid "already has a deployment in this rollout environment"
 msgstr ""
 
+msgid "already has a rollout environment in this rollout"
+msgstr ""
+
 msgid "already has an entry in this version set"
 msgstr ""
 
@@ -91514,6 +91517,9 @@ msgid "must contain only a mastodon handle."
 msgstr ""
 
 msgid "must contain only a valid ORCID."
+msgstr ""
+
+msgid "must have Pages enabled"
 msgstr ""
 
 msgid "must have a repository"

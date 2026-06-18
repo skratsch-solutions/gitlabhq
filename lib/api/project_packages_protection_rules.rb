@@ -25,6 +25,7 @@ module API
           tags %w[projects]
           is_array true
         end
+        route_setting :authorization, permissions: :read_package_protection_rule, boundary_type: :project
         get do
           present user_project.package_protection_rules, with: Entities::Projects::Packages::Protection::Rule
         end
@@ -61,6 +62,7 @@ module API
               'Must be provided when `minimum_access_level_for_delete` is not set.'
           at_least_one_of :minimum_access_level_for_push, :minimum_access_level_for_delete
         end
+        route_setting :authorization, permissions: :create_package_protection_rule, boundary_type: :project
         post do
           params = declared_params
           params.except!(:minimum_access_level_for_delete) if Feature.disabled?(:packages_protected_packages_delete,
@@ -111,6 +113,7 @@ module API
                 'If the value is `null`, the default minimum access level is `developer`. ' \
                 'Must be provided when `minimum_access_level_for_delete` is not set.'
           end
+          route_setting :authorization, permissions: :update_package_protection_rule, boundary_type: :project
           patch do
             package_protection_rule = user_project.package_protection_rules.find(params[:package_protection_rule_id])
 
@@ -138,6 +141,7 @@ module API
             ]
             tags %w[projects]
           end
+          route_setting :authorization, permissions: :delete_package_protection_rule, boundary_type: :project
           delete do
             package_protection_rule = user_project.package_protection_rules.find(params[:package_protection_rule_id])
 

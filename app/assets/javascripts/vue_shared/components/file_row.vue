@@ -108,7 +108,7 @@ export default {
 <template>
   <div
     v-if="file.isHeader"
-    class="file-row-header sticky-top js-file-row-header gl-bg-default gl-px-2"
+    class="file-row-header js-file-row-header !gl-sticky !gl-top-0 gl-bg-default gl-px-2"
     :title="file.path"
   >
     <gl-truncate :text="file.path" position="middle" class="gl-font-bold" />

@@ -70,7 +70,8 @@ RSpec.describe 'Database schema',
       catalog_resource_component_last_usages: %w[used_by_project_id], # No FK constraint because we want to preserve usage data even if project is deleted.
       chat_names: %w[chat_id team_id],
       chat_teams: %w[team_id],
-      cd_deployments: %w[rollout_environment_id], # FK added in follow-up that creates cd_rollout_environments (https://gitlab.com/gitlab-org/gitlab/-/issues/602442)
+      cd_deployment_transitions: %w[principal_id], # Generic actor id paired with a principal_type token (user/agent/policy/schedule/system), not a reference to one table.
+      cd_rollout_transitions: %w[principal_id], # Generic actor id paired with a principal_type token (user/agent/policy/schedule/system), not a reference to one table.
       ci_build_pending_states: %w[project_id],
       ci_build_trace_chunks: %w[project_id],
       ci_builds_runner_session: %w[project_id],

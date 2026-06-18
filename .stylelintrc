@@ -38,12 +38,6 @@
       }
     },
     {
-      "files": ["app/assets/stylesheets/framework/application-chrome.scss"],
-      "rules": {
-        "gitlab/split-apply": null
-      }
-    },
-    {
       "files": ["**/*.css"],
       "rules": {
         "gitlab/no-has": null

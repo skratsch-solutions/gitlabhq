@@ -39,7 +39,7 @@ export default {
       return this.position === SIDES.left;
     },
     roundedClass() {
-      if (this.isFullWidth) return 'rounded';
+      if (this.isFullWidth) return '!gl-rounded-base';
 
       return `rounded-${this.position}`;
     },

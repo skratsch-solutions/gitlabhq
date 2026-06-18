@@ -392,7 +392,7 @@ export default {
     <div
       ref="root"
       tabindex="-1"
-      class="design-detail js-design-detail fixed-top gl-flex gl-w-full gl-flex-col gl-justify-center gl-bg-subtle gl-@container/panel lg:gl-flex-row"
+      class="design-detail js-design-detail !gl-fixed !gl-left-0 !gl-right-0 gl-flex gl-w-full gl-flex-col gl-justify-center gl-bg-subtle gl-@container/panel lg:gl-flex-row"
     >
       <div class="gl-relative gl-flex gl-grow gl-flex-col gl-overflow-hidden">
         <design-toolbar

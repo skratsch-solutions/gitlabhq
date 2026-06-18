@@ -1,11 +1,4 @@
-@use "sass:map";
-@import 'framework/variables';
-
-/*
- * Themes
- */
-
-.application-chrome.page-with-panels {
+.page-theme-background {
   // Light mode
   &:not(.gl-dark) {
     // default color to mute the gradient

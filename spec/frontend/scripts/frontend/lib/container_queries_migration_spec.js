@@ -54,7 +54,7 @@ describe('migrateCSSUtils', () => {
 
   it('replaces Bootstrap utils with their Tailwind equivalent', () => {
     const input = 'visible @xl/panel:!gl-flex-nowrap';
-    const output = 'visible @xl/panel:!gl-flex-nowrap';
+    const output = '!gl-visible @xl/panel:!gl-flex-nowrap';
 
     expect(migrateCSSUtils(file, input)).toBe(output);
   });

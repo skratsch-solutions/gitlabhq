@@ -54,7 +54,8 @@ module API
           desc: 'Return package files sorted in `asc` or `desc` order.'
       end
       route_setting :authentication, job_token_allowed: true
-      route_setting :authorization, job_token_policies: :read_packages,
+      route_setting :authorization, permissions: :read_package, boundary_type: :project,
+        job_token_policies: :read_packages,
         allow_public_access_for_enabled_project_features: :package_registry
       get ':id/packages/:package_id/package_files' do
         package_files = package.installable_package_files
@@ -77,7 +78,8 @@ module API
         requires :package_file_id, type: Integer, desc: 'ID of a package file'
       end
       route_setting :authentication, job_token_allowed: true
-      route_setting :authorization, job_token_policies: :admin_packages
+      route_setting :authorization, permissions: :delete_package, boundary_type: :project,
+        job_token_policies: :admin_packages
       delete ':id/packages/:package_id/package_files/:package_file_id' do
         authorize_destroy_package!(user_project)
 
@@ -129,7 +131,8 @@ module API
         requires :package_file_id, type: Integer, desc: 'ID of a package file'
       end
       route_setting :authentication, job_token_allowed: true
-      route_setting :authorization, job_token_policies: :read_packages,
+      route_setting :authorization, permissions: :download_package, boundary_type: :project,
+        job_token_policies: :read_packages,
         allow_public_access_for_enabled_project_features: :package_registry
       get ':id/packages/:package_id/package_files/:package_file_id/download' do
         not_found! unless package && package_file

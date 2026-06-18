@@ -16,6 +16,7 @@ project:
   - download_maven_package_file
   - download_npm_package
   - download_nuget_package
+  - download_package
   - download_pypi_package
   - download_wiki_code
   - read_analytics

@@ -310,7 +310,7 @@ export default {
               <span v-if="expired" class="gl-text-danger">{{ $options.i18n.expired }}</span>
               <time-ago-tooltip
                 v-else
-                :class="{ 'text-warning': expiresSoon }"
+                :class="{ '!gl-text-warning': expiresSoon }"
                 :time="$options.utcExpiredDate(expiresAt)"
               />
             </template>

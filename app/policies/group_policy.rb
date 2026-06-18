@@ -18,7 +18,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   condition(:has_access) { access_level != GroupMember::NO_ACCESS }
 
   condition(:guest) { access_level >= GroupMember::GUEST }
-  condition(:owner) { access_level >= GroupMember::OWNER }
 
   condition(:has_parent, scope: :subject) { @subject.has_parent? }
   condition(:is_root_namespace, scope: :subject) { @subject.root? }

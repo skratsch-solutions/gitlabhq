@@ -455,6 +455,7 @@ class ProjectPolicy < BasePolicy
     prevent :download_maven_package_file
     prevent :download_npm_package
     prevent :download_nuget_package
+    prevent :download_package
     prevent :download_pypi_package
   end
 

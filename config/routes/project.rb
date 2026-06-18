@@ -365,7 +365,7 @@ constraints(Projects::ProjectUrlConstraint.new) do
 
         resources :saved_views, only: [:show], path: 'work_items/views'
 
-        resources :work_items, only: [:index, :new, :show, :edit], param: :iid do
+        resources :work_items, only: [:index, :new, :show, :edit], param: :iid, constraints: { iid: /\d+/ } do
           collection do
             post :import_csv
             post 'import_csv/authorize', to: 'work_items#authorize'

@@ -1502,7 +1502,9 @@ Grants the ability to create, delete, read, and update packages.
 | Create | Project | `POST` | `/projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/packages/:conan_package_reference/upload_urls` |
 | Create | Project | `POST` | `/projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/upload_urls` |
 | Create | Project | `POST` | `/projects/:id/packages/helm/api/:channel/charts` |
+| Create | Project | `POST` | `/projects/:id/packages/protection/rules` |
 | Create | Project | `POST` | `/projects/:id/packages/pypi` |
+| Create | Project | `POST` | `/projects/:id/packages/rpm` |
 | Create | Project | `POST` | `/projects/:id/packages/rubygems/api/v1/gems` |
 | Create | Project | `PUT` | `/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name` |
 | Create | Project | `PUT` | `/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name` |
@@ -1525,11 +1527,13 @@ Grants the ability to create, delete, read, and update packages.
 | Delete | Project | `DELETE` | `/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` |
 | Delete | Project | `DELETE` | `/packages/npm/-/package/*package_name/dist-tags/:tag` |
 | Delete | Project | `DELETE` | `/projects/:id/packages/:package_id` |
+| Delete | Project | `DELETE` | `/projects/:id/packages/:package_id/package_files/:package_file_id` |
 | Delete | Project | `DELETE` | `/projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` |
 | Delete | Project | `DELETE` | `/projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision` |
 | Delete | Project | `DELETE` | `/projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision` |
 | Delete | Project | `DELETE` | `/projects/:id/packages/npm/-/package/*package_name/dist-tags/:tag` |
 | Delete | Project | `DELETE` | `/projects/:id/packages/nuget/*package_name/*package_version` |
+| Delete | Project | `DELETE` | `/projects/:id/packages/protection/rules/:package_protection_rule_id` |
 | Delete | Group | `DELETE` | `/groups/:id/-/packages/npm/-/package/*package_name/dist-tags/:tag` |
 | Read | Project | `GET` | `/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` |
 | Read | Project | `GET` | `/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/digest` |
@@ -1543,12 +1547,15 @@ Grants the ability to create, delete, read, and update packages.
 | Read | Project | `GET` | `/packages/npm/-/package/*package_name/dist-tags` |
 | Read | Project | `GET` | `/projects/:id/packages` |
 | Read | Project | `GET` | `/projects/:id/packages/:package_id` |
+| Read | Project | `GET` | `/projects/:id/packages/:package_id/package_files` |
+| Read | Project | `GET` | `/projects/:id/packages/:package_id/package_files/:package_file_id/download` |
 | Read | Project | `GET` | `/projects/:id/packages/:package_id/pipelines` |
 | Read | Project | `GET` | `/projects/:id/packages/cargo/1/:package_name` |
 | Read | Project | `GET` | `/projects/:id/packages/cargo/2/:package_name` |
 | Read | Project | `GET` | `/projects/:id/packages/cargo/3/:first_char/:package_name` |
 | Read | Project | `GET` | `/projects/:id/packages/cargo/:package_name/:package_version/download` |
 | Read | Project | `GET` | `/projects/:id/packages/cargo/:prefix_1/:prefix_2/:package_name` |
+| Read | Project | `GET` | `/projects/:id/packages/cargo/config.json` |
 | Read | Project | `GET` | `/projects/:id/packages/composer/archives/*package_name` |
 | Read | Project | `GET` | `/projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` |
 | Read | Project | `GET` | `/projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/digest` |
@@ -1601,9 +1608,12 @@ Grants the ability to create, delete, read, and update packages.
 | Read | Project | `GET` | `/projects/:id/packages/nuget/metadata/*package_name/*package_version` |
 | Read | Project | `GET` | `/projects/:id/packages/nuget/metadata/*package_name/index` |
 | Read | Project | `GET` | `/projects/:id/packages/nuget/query` |
+| Read | Project | `GET` | `/projects/:id/packages/protection/rules` |
 | Read | Project | `GET` | `/projects/:id/packages/pypi/files/:sha256/*file_identifier` |
 | Read | Project | `GET` | `/projects/:id/packages/pypi/simple` |
 | Read | Project | `GET` | `/projects/:id/packages/pypi/simple/*package_name` |
+| Read | Project | `GET` | `/projects/:id/packages/rpm/*package_file_id/*file_name` |
+| Read | Project | `GET` | `/projects/:id/packages/rpm/repodata/*file_name` |
 | Read | Project | `GET` | `/projects/:id/packages/rubygems/:file_name` |
 | Read | Project | `GET` | `/projects/:id/packages/rubygems/api/v1/dependencies` |
 | Read | Project | `GET` | `/projects/:id/packages/rubygems/gems/:file_name` |
@@ -1623,6 +1633,7 @@ Grants the ability to create, delete, read, and update packages.
 | Read | Group | `GET` | `/groups/:id/-/packages/debian/dists/*distribution/InRelease` |
 | Read | Group | `GET` | `/groups/:id/-/packages/debian/dists/*distribution/Release` |
 | Read | Group | `GET` | `/groups/:id/-/packages/debian/dists/*distribution/Release.gpg` |
+| Read | Group | `GET` | `/groups/:id/-/packages/debian/pool/:distribution/:project_id/:letter/:package_name/:package_version/:file_name` |
 | Read | Group | `GET` | `/groups/:id/-/packages/maven/*path/:file_name` |
 | Read | Group | `GET` | `/groups/:id/-/packages/npm/-/package/*package_name/dist-tags` |
 | Read | Group | `GET` | `/groups/:id/-/packages/nuget/metadata/*package_name/*package_version` |
@@ -1643,6 +1654,7 @@ Grants the ability to create, delete, read, and update packages.
 | Read | Instance | `GET` | `/packages/conan/v1/users/authenticate` |
 | Read | Instance | `GET` | `/packages/conan/v1/users/check_credentials` |
 | Read | Instance | `GET` | `/packages/maven/*path/:file_name` |
+| Update | Project | `PATCH` | `/projects/:id/packages/protection/rules/:package_protection_rule_id` |
 
 #### Virtual Registry
 
@@ -3453,7 +3465,10 @@ feature is enabled.
 | Model Version: Read | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/get-download-uri` |
 | Package: Read | `GET` | `/projects/:id/packages` |
 | Package: Read | `GET` | `/projects/:id/packages/:package_id` |
+| Package: Read | `GET` | `/projects/:id/packages/:package_id/package_files` |
+| Package: Read | `GET` | `/projects/:id/packages/:package_id/package_files/:package_file_id/download` |
 | Package: Read | `GET` | `/projects/:id/packages/:package_id/pipelines` |
+| Package: Read | `GET` | `/projects/:id/packages/cargo/config.json` |
 | Package: Read | `GET` | `/projects/:id/packages/composer/archives/*package_name` |
 | Package: Read | `GET` | `/projects/:id/packages/debian/pool/:distribution/:letter/:package_name/:package_version/:file_name` |
 | Package: Read | `GET` | `/projects/:id/packages/generic/:package_name/*package_version/(*path/):file_name` |

@@ -198,7 +198,7 @@ export default {
             <gl-token
               v-for="environment in filteredEnvironments"
               :key="environment.id"
-              class="rounded-pill gl-mb-3 gl-mr-3 gl-mt-3 @md/panel:!gl-ml-3 @md/panel:!gl-mr-0 @md/panel:!gl-mt-0"
+              class="gl-mb-3 gl-mr-3 gl-mt-3 !gl-rounded-full @md/panel:!gl-ml-3 @md/panel:!gl-mr-0 @md/panel:!gl-mt-0"
               @close="removeScope(environment)"
             >
               {{ environment.environmentScope }}

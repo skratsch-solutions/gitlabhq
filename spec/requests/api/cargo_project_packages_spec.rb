@@ -28,6 +28,16 @@ RSpec.describe API::CargoProjectPackages, feature_category: :package_registry do
       get api(url), headers: headers
     end
 
+    it_behaves_like 'authorizing granular token permissions', :read_package do
+      let(:boundary_object) { project }
+      let(:headers) { { 'Authorization' => "Bearer #{pat.token}" } }
+      let(:request) { get(api(url), headers: headers) }
+
+      before_all do
+        project.add_developer(user)
+      end
+    end
+
     shared_examples 'successful config response' do
       it 'returns the config' do
         request

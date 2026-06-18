@@ -55,6 +55,7 @@ project:
 group:
   permissions: []
   raw_permissions:
+  - _bypass_ip_enforcement
   - activate_group_member
   - admin_add_on_purchase
   - admin_ci_minutes

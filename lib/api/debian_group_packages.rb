@@ -49,6 +49,7 @@ module API
           tags %w[packages]
         end
 
+        route_setting :authorization, permissions: :download_debian_package, boundary_type: :group
         get 'pool/:distribution/:project_id/:letter/:package_name/:package_version/:file_name', requirements: PACKAGE_FILE_REQUIREMENTS do
           present_distribution_package_file!(find_project!(params[:project_id]))
         end
