@@ -49,6 +49,8 @@ To use the Agent Platform:
 - Have [GitLab Duo turned on](turn_on_off.md#turn-gitlab-duo-on-or-off).
 - If you do not have GitLab Duo Pro or Enterprise,
   have [GitLab Duo Core turned on](turn_on_off.md#turn-gitlab-duo-core-on-or-off) for the top-level group or instance.
+- In GitLab 18.9 and earlier, you cannot use the Agent Platform with the GitLab Duo Enterprise add-on.
+  To use the Agent Platform with GitLab Duo Enterprise, upgrade to GitLab 18.10 or later.
 - Depending on your GitLab version:
   - In GitLab 18.8 and later, have the [Agent Platform turned on](turn_on_off.md#turn-gitlab-duo-agent-platform-on-or-off).
   - In GitLab 18.7 and earlier, have [beta and experimental features turned on](turn_on_off.md#turn-on-beta-and-experimental-features).

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SearchService, :with_current_organization, feature_category: :global_search do
-  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:user) { create(:user) }
 
   let_it_be(:accessible_group) { create(:group, :private) }
   let_it_be(:inaccessible_group) { create(:group, :private) }

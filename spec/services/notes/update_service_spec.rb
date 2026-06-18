@@ -80,11 +80,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     describe 'event tracking' do
       it 'does not track usage data when params is blank', :clean_gitlab_redis_shared_state do
         expect { update_note({}) }
-          .to not_trigger_internal_events(
-            Gitlab::UsageDataCounters::IssueActivityUniqueCounter::ISSUE_COMMENT_EDITED,
-            Gitlab::UsageDataCounters::MergeRequestActivityUniqueCounter::MR_EDIT_COMMENT_ACTION,
-            Gitlab::UsageDataCounters::MergeRequestActivityUniqueCounter::MR_EDIT_MULTILINE_COMMENT_ACTION
-          ).and not_increment_usage_metrics(
+          .to not_increment_usage_metrics(
             'redis_hll_counters.issues_edit.g_project_management_issue_comment_edited_monthly',
             'redis_hll_counters.issues_edit.g_project_management_issue_comment_edited_weekly',
             'redis_hll_counters.code_review.i_code_review_user_edit_mr_comment_monthly',

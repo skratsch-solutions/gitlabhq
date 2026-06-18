@@ -5134,6 +5134,46 @@ export const projectAttestationPath = /*#__PURE__*/ (projectFullPath, ...args) =
 
 /**
  * Generates rails route to
+ * /:project_full_path/-/observability/setup(.:format)
+ * @param {string} projectFullPath
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const projectObservabilitySetupPath = /*#__PURE__*/ (projectFullPath, ...args) => {
+  const _organizationNamespaceProjectObservabilitySetupPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"namespace_id":{"r":true},"project_id":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[5,[3,"namespace_id"]],[2,[7,"/"],[2,[3,"project_id"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"observability"],[2,[7,"/"],[2,[6,"setup"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]]]]]);
+  const _namespaceProjectObservabilitySetupPath = /*#__PURE__*/ __jsr.r({"namespace_id":{"r":true},"project_id":{"r":true},"format":{}}, [2,[7,"/"],[2,[5,[3,"namespace_id"]],[2,[7,"/"],[2,[3,"project_id"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"observability"],[2,[7,"/"],[2,[6,"setup"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]);
+
+  const { namespacePath, projectPath } = splitProjectFullPath(projectFullPath);
+
+  if (hasOrganizationScopedPaths()) {
+    return _organizationNamespaceProjectObservabilitySetupPath(gon.current_organization.path, namespacePath, projectPath, ...args);
+  }
+
+  return _namespaceProjectObservabilitySetupPath(namespacePath, projectPath, ...args);
+};
+
+/**
+ * Generates rails route to
+ * /:project_full_path/-/observability/access_requests(.:format)
+ * @param {string} projectFullPath
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const projectObservabilityAccessRequestsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
+  const _organizationNamespaceProjectObservabilityAccessRequestsPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"namespace_id":{"r":true},"project_id":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[5,[3,"namespace_id"]],[2,[7,"/"],[2,[3,"project_id"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"observability"],[2,[7,"/"],[2,[6,"access_requests"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]]]]]);
+  const _namespaceProjectObservabilityAccessRequestsPath = /*#__PURE__*/ __jsr.r({"namespace_id":{"r":true},"project_id":{"r":true},"format":{}}, [2,[7,"/"],[2,[5,[3,"namespace_id"]],[2,[7,"/"],[2,[3,"project_id"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"observability"],[2,[7,"/"],[2,[6,"access_requests"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]);
+
+  const { namespacePath, projectPath } = splitProjectFullPath(projectFullPath);
+
+  if (hasOrganizationScopedPaths()) {
+    return _organizationNamespaceProjectObservabilityAccessRequestsPath(gon.current_organization.path, namespacePath, projectPath, ...args);
+  }
+
+  return _namespaceProjectObservabilityAccessRequestsPath(namespacePath, projectPath, ...args);
+};
+
+/**
+ * Generates rails route to
  * /:project_full_path/-/observability/:id
  * @param {string} projectFullPath
  * @param {any} id

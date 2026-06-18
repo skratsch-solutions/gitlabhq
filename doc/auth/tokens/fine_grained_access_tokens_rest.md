@@ -112,6 +112,14 @@ Grants the ability to delete artifacts.
 | ------ | ------ | ------ | ---- |
 | Delete | Project | `DELETE` | `/projects/:id/artifacts` |
 
+#### Catalog Version
+
+Grants the ability to publish CI catalog versions.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Publish | Project | `POST` | `/projects/:id/catalog/publish` |
+
 #### CI Config
 
 Grants the ability to read and validate CI/CD configuration.
@@ -131,14 +139,6 @@ Grants the ability to create and transfer CI minutes.
 | Create | User | `POST` | `/namespaces/:id/minutes` |
 | Transfer | Group | `PATCH` | `/namespaces/:id/minutes/move/:target_id` |
 | Transfer | User | `PATCH` | `/namespaces/:id/minutes/move/:target_id` |
-
-#### Catalog Version
-
-Grants the ability to publish CI catalog versions.
-
-| Action | Access | Method | Path |
-| ------ | ------ | ------ | ---- |
-| Publish | Project | `POST` | `/projects/:id/catalog/publish` |
 
 #### Cluster
 
@@ -603,9 +603,9 @@ Grants the ability to create, delete, read, and update external status check ser
 
 ### Duo resources
 
-#### Ai Catalog Third Party Flow
+#### AI Catalog External Agent
 
-Grants the ability to create ai catalog third party flows.
+Grants the ability to create AI catalog external agents.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
@@ -1320,9 +1320,9 @@ Grants the ability to read and update error tracking settings.
 | Update | Project | `PATCH` | `/projects/:id/error_tracking/settings` |
 | Update | Project | `PUT` | `/projects/:id/error_tracking/settings` |
 
-#### Glql
+#### GLQL
 
-Grants the ability to read glqls.
+Grants the ability to read GLQL queries.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
@@ -1424,7 +1424,7 @@ Grants the ability to create, delete, read, and update organizations.
 | Create | Instance | `POST` | `/organizations` |
 | Delete | Instance | `DELETE` | `/organizations/:id` |
 
-### Packages And Registry resources
+### Packages and Registry resources
 
 #### Container Registry Protection Tag Rule
 
@@ -1832,32 +1832,7 @@ Grants the ability to create, delete, read, and update snippets.
 | Read | Instance | `GET` | `/snippets/:id/user_agent_detail` |
 | Update | User | `PUT` | `/snippets/:id` |
 
-### Project Model Registry And Experiments resources
-
-#### MLflow Artifact
-
-Grants the ability to read MLflow artifacts.
-
-| Action | Access | Method | Path |
-| ------ | ------ | ------ | ---- |
-| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow-artifacts/artifacts` |
-| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow-artifacts/artifacts/:model_version/*file_path` |
-
-#### MLflow Run
-
-Grants the ability to create, delete, log, read, and update MLflow runs.
-
-| Action | Access | Method | Path |
-| ------ | ------ | ------ | ---- |
-| Create | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/create` |
-| Delete | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/delete` |
-| Log | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/log-batch` |
-| Log | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/log-metric` |
-| Log | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/log-parameter` |
-| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/get` |
-| Read | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/search` |
-| Update | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/set-tag` |
-| Update | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/update` |
+### Project Model Registry and Experiments resources
 
 #### Ml Experiment
 
@@ -1887,6 +1862,31 @@ Grants the ability to create, delete, read, and update ml models.
 | Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/search` |
 | Read | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/get-latest-versions` |
 | Update | Project | `PATCH` | `/projects/:id/ml/mlflow/api/2.0/mlflow/registered-models/update` |
+
+#### MLflow Artifact
+
+Grants the ability to read MLflow artifacts.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow-artifacts/artifacts` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow-artifacts/artifacts/:model_version/*file_path` |
+
+#### MLflow Run
+
+Grants the ability to create, delete, log, read, and update MLflow runs.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/create` |
+| Delete | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/delete` |
+| Log | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/log-batch` |
+| Log | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/log-metric` |
+| Log | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/log-parameter` |
+| Read | Project | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/get` |
+| Read | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/search` |
+| Update | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/set-tag` |
+| Update | Project | `POST` | `/projects/:id/ml/mlflow/api/2.0/mlflow/runs/update` |
 
 #### Model Version
 
@@ -2676,7 +2676,7 @@ Grants the ability to read Zoekt nodes.
 | Read | Instance | `GET` | `/admin/zoekt/shards` |
 | Read | Instance | `GET` | `/admin/zoekt/shards/:node_id/indexed_namespaces` |
 
-### Subscription And Licensing resources
+### Subscription and Licensing resources
 
 #### Add On Purchase
 
@@ -3125,25 +3125,6 @@ Grants the ability to delete, read, and update SCIM identities.
 | Read | Group | `GET` | `/groups/:id/scim/identities` |
 | Update | Group | `PATCH` | `/groups/:id/scim/:uid` |
 
-#### SSH Key
-
-Grants the ability to create, delete, and read SSH keys.
-
-| Action | Access | Method | Path |
-| ------ | ------ | ------ | ---- |
-| Create | User | `POST` | `/user/keys` |
-| Create | Instance | `POST` | `/users/:user_id/keys` |
-| Delete | Group | `DELETE` | `/groups/:id/manage/ssh_keys/:key_id` |
-| Delete | User | `DELETE` | `/user/keys/:key_id` |
-| Delete | Instance | `DELETE` | `/users/:id/keys/:key_id` |
-| Read | Group | `GET` | `/groups/:id/manage/ssh_keys` |
-| Read | User | `GET` | `/user/keys` |
-| Read | User | `GET` | `/user/keys/:key_id` |
-| Read | User | `GET` | `/users/:id/keys/:key_id` |
-| Read | User | `GET` | `/users/:user_id/keys` |
-| Read | Instance | `GET` | `/keys` |
-| Read | Instance | `GET` | `/keys/:id` |
-
 #### Service Account
 
 Grants the ability to create, delete, read, and update service accounts.
@@ -3176,6 +3157,25 @@ Grants the ability to create, read, revoke, and rotate service account personal 
 | Revoke | Group | `DELETE` | `/groups/:id/service_accounts/:user_id/personal_access_tokens/:token_id` |
 | Rotate | Project | `POST` | `/projects/:id/service_accounts/:user_id/personal_access_tokens/:token_id/rotate` |
 | Rotate | Group | `POST` | `/groups/:id/service_accounts/:user_id/personal_access_tokens/:token_id/rotate` |
+
+#### SSH Key
+
+Grants the ability to create, delete, and read SSH keys.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | User | `POST` | `/user/keys` |
+| Create | Instance | `POST` | `/users/:user_id/keys` |
+| Delete | Group | `DELETE` | `/groups/:id/manage/ssh_keys/:key_id` |
+| Delete | User | `DELETE` | `/user/keys/:key_id` |
+| Delete | Instance | `DELETE` | `/users/:id/keys/:key_id` |
+| Read | Group | `GET` | `/groups/:id/manage/ssh_keys` |
+| Read | User | `GET` | `/user/keys` |
+| Read | User | `GET` | `/user/keys/:key_id` |
+| Read | User | `GET` | `/users/:id/keys/:key_id` |
+| Read | User | `GET` | `/users/:user_id/keys` |
+| Read | Instance | `GET` | `/keys` |
+| Read | Instance | `GET` | `/keys/:id` |
 
 #### Statistic
 
@@ -3308,7 +3308,7 @@ Grants the ability to create and read placeholder reassignments.
 | Create | Group | `POST` | `/groups/:id/placeholder_reassignments` |
 | Read | Group | `GET` | `/groups/:id/placeholder_reassignments` |
 
-### System Migration And Integration resources
+### System Migration and Integration resources
 
 #### Batched Background Operation
 

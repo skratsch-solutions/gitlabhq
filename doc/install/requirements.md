@@ -244,10 +244,10 @@ GitLab supports the following web browsers:
 - [Apple Safari](https://www.apple.com/safari/)
 - [Microsoft Edge](https://www.microsoft.com/en-us/edge?form=MA13QK)
 
-GitLab supports:
-
-- The two most recent major versions of these browsers
-- The current minor version of a supported major version
+GitLab targets the [Baseline](https://web-platform-dx.github.io/baseline/) Widely available
+browser set. These are the browser versions that support web platform features stable across
+all core browsers. A feature reaches Widely available status after at least 30 months. The
+Widely available browser set includes both desktop and mobile versions of these browsers.
 
 Running GitLab with JavaScript disabled in these browsers is not supported.
 

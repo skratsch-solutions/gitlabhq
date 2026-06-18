@@ -1978,7 +1978,7 @@ export const mockWorkItemFeaturesData = ({ discussionLocked = false } = {}) => (
     __typename: 'WorkItemWidgetHierarchy',
   },
   healthStatus: { healthStatus: null },
-  weight: { weight: null },
+  weight: { weight: null, rolledUpWeight: null, rolledUpCompletedWeight: null },
   linkedItems: { blockedByCount: 0, blockingCount: 0 },
   iteration: { iteration: null },
   errorTracking: {
@@ -11548,6 +11548,8 @@ export const workItemsQueryResponseWithFeatures = {
               },
               weight: {
                 weight: null,
+                rolledUpWeight: null,
+                rolledUpCompletedWeight: null,
               },
               linkedItems: {
                 blockedByCount: 0,
@@ -11648,6 +11650,8 @@ export const workItemsQueryResponseWithFeatures = {
               },
               weight: {
                 weight: null,
+                rolledUpWeight: null,
+                rolledUpCompletedWeight: null,
               },
               linkedItems: {
                 blockedByCount: 0,

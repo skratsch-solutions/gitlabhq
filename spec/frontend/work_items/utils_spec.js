@@ -15,6 +15,7 @@ import {
   WIDGET_TYPE_LINKED_RESOURCES,
   WIDGET_TYPE_HIERARCHY,
   WIDGET_TYPE_LINKED_ITEMS,
+  WIDGET_TYPE_WEIGHT,
   WORK_ITEM_TYPE_ENUM_EPIC,
   WORK_ITEM_TYPE_ENUM_INCIDENT,
   WORK_ITEM_TYPE_ENUM_ISSUE,
@@ -53,6 +54,7 @@ import {
   findOpenChildItemsCountsByType,
   findCrmContactsWidget,
   findLabelsWidget,
+  findWeightWidget,
   findLinkedResourcesWidget,
   findStartAndDueDateWidget,
   findTimeTrackingWidget,
@@ -1378,6 +1380,39 @@ describe('findLabelsWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findLabelsWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findWeightWidget', () => {
+  const weightWidget = {
+    type: WIDGET_TYPE_WEIGHT,
+    weight: 3,
+    rolledUpWeight: 5,
+    rolledUpCompletedWeight: 2,
+  };
+  const featuresWeight = {
+    weight: 8,
+    rolledUpWeight: 10,
+    rolledUpCompletedWeight: 4,
+  };
+
+  it('returns features.weight when present', () => {
+    const workItem = {
+      features: { weight: featuresWeight },
+      widgets: [weightWidget],
+    };
+
+    expect(findWeightWidget(workItem)).toBe(featuresWeight);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [weightWidget] };
+
+    expect(findWeightWidget(workItem)).toBe(weightWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findWeightWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

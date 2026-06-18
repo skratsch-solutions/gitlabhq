@@ -22,10 +22,6 @@ module Gitlab
           builds: Gitlab::Lazy.new do
             preload_builds(pipeline, :latest_builds)
             pipeline.latest_builds.map { |build| build_hook_attrs(build) }
-          end,
-          bridges: Gitlab::Lazy.new do
-            preload_bridges(pipeline, :latest_bridges)
-            pipeline.latest_bridges.map { |bridge| build_hook_attrs(bridge).merge(bridge: true) }
           end
         }
 
@@ -65,20 +61,6 @@ module Gitlab
         ).call
       end
 
-      def preload_bridges(pipeline, association)
-        ActiveRecord::Associations::Preloader.new(
-          records: [pipeline],
-          associations: {
-            association => {
-              **::Ci::Pipeline::PROJECT_ROUTE_AND_NAMESPACE_ROUTE,
-              user: [],
-              metadata: [],
-              ci_stage: []
-            }
-          }
-        ).call
-      end
-
       def hook_attrs(pipeline)
         {
           id: pipeline.id,
@@ -99,8 +81,7 @@ module Gitlab
           queued_duration: pipeline.queued_duration,
           protected_ref: pipeline.protected_ref?,
           variables: pipeline.variables.map(&:hook_attrs),
-          url: Gitlab::Routing.url_helpers.project_pipeline_url(pipeline.project, pipeline),
-          root_pipeline_id: pipeline.root_ancestor.id
+          url: Gitlab::Routing.url_helpers.project_pipeline_url(pipeline.project, pipeline)
         }
       end
 
@@ -114,8 +95,7 @@ module Gitlab
             path_with_namespace: project.full_path
           },
           job_id: source_pipeline.source_job_id,
-          pipeline_id: source_pipeline.source_pipeline_id,
-          bridge_id: source_pipeline.source_bridge&.id
+          pipeline_id: source_pipeline.source_pipeline_id
         }
       end
 

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
+RSpec.describe Gitlab::OtherMarkup, :aggregate_failures, feature_category: :wiki do
   let(:context) { {} }
 
   context 'when org-mode content' do
@@ -39,10 +39,43 @@ RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
       end
     end
 
+    context 'with checkboxes' do
+      let(:input) do
+        <<~ORG
+          - [-] Prepare release [50%]
+            - [X] Update changelog
+            - [ ] Review merge requests
+        ORG
+      end
+
+      it 'renders nested mixed-state checkboxes' do
+        inputs = doc.css('li.task-list-item input.task-list-item-checkbox')
+        expect(inputs.size).to eq 3
+
+        # [-]: indeterminate parent
+        expect(inputs[0].has_attribute?('checked')).to be false
+        expect(inputs[0]['data-indeterminate']).to eq 'true'
+
+        # [X]: uppercase checked child
+        expect(inputs[1].has_attribute?('checked')).to be true
+
+        # [ ]: unchecked child
+        expect(inputs[2].has_attribute?('checked')).to be false
+        expect(inputs[2]['data-indeterminate']).to be_nil
+
+        lis = doc.css('li.task-list-item')
+        expect(lis.size).to eq 3
+
+        # nested <ul> also gets task-list class
+        uls = doc.css('ul.task-list')
+        expect(uls.size).to eq 2
+      end
+    end
+
     context 'with auto-linking' do
       let(:input) { 'See https://example.com for details.' }
 
-      it 'auto-links bare URLs', :aggregate_failures do
+      it 'auto-links bare URLs' do
         link = doc.at_css('a')
 
         expect(link[:href]).to eq('https://example.com')

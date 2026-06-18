@@ -40,8 +40,6 @@ export const SIDEBAR_COOKIE_EXPIRATION = 365 * 10;
 
 export const PINNED_NAV_STORAGE_KEY = 'super-sidebar-pinned-nav-item-clicked';
 
-export const NAV_ITEM_LINK_ACTIVE_CLASS = 'super-sidebar-nav-item-current';
-
 // Frequent items constants
 export const FREQUENT_ITEMS = {
   MAX_COUNT: 20,

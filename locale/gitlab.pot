@@ -28588,6 +28588,9 @@ msgstr ""
 msgid "DuoChat|Approving..."
 msgstr ""
 
+msgid "DuoChat|Are you sure you want to delete this chat?"
+msgstr ""
+
 msgid "DuoChat|Ask a question about GitLab"
 msgstr ""
 
@@ -28652,6 +28655,9 @@ msgid "DuoChat|Created and maintained by GitLab"
 msgstr ""
 
 msgid "DuoChat|Custom agents"
+msgstr ""
+
+msgid "DuoChat|Delete chat"
 msgstr ""
 
 msgid "DuoChat|Delete file %{filePath}"
@@ -66479,6 +66485,9 @@ msgstr ""
 msgid "SecurityConfiguration|Enable profile-based scanning"
 msgstr ""
 
+msgid "SecurityConfiguration|Enable scanner"
+msgstr ""
+
 msgid "SecurityConfiguration|Enable scanners"
 msgstr ""
 
@@ -70669,6 +70678,9 @@ msgstr ""
 msgid "SecurityReports|Critical"
 msgstr ""
 
+msgid "SecurityReports|Critical and High SAST vulnerabilities"
+msgstr ""
+
 msgid "SecurityReports|Critical risk"
 msgstr ""
 
@@ -70771,10 +70783,16 @@ msgstr ""
 msgid "SecurityReports|Failed updating vulnerabilities with the following IDs: %{ids}"
 msgstr ""
 
+msgid "SecurityReports|False Positive detection"
+msgstr ""
+
 msgid "SecurityReports|False positive"
 msgstr ""
 
 msgid "SecurityReports|Filter results..."
+msgstr ""
+
+msgid "SecurityReports|From AI-created MRs"
 msgstr ""
 
 msgid "SecurityReports|GitLab Duo FP detection"
@@ -71153,6 +71171,9 @@ msgstr ""
 msgid "SecurityReports|Tracked ref"
 msgstr ""
 
+msgid "SecurityReports|True positive"
+msgstr ""
+
 msgid "SecurityReports|Unable to add %{invalidProjectsMessage}: %{errorMessage}"
 msgstr ""
 
@@ -71177,7 +71198,16 @@ msgstr ""
 msgid "SecurityReports|Vulnerabilities by age"
 msgstr ""
 
+msgid "SecurityReports|Vulnerabilities fixed"
+msgstr ""
+
 msgid "SecurityReports|Vulnerabilities over time"
+msgstr ""
+
+msgid "SecurityReports|Vulnerabilities with AI-created MRs"
+msgstr ""
+
+msgid "SecurityReports|Vulnerability Resolution"
 msgstr ""
 
 msgid "SecurityReports|Vulnerability Resolution available"

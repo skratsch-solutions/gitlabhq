@@ -303,6 +303,16 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
       it 'downloads the zip file when user clicks the download button' do
         requests = inspect_requests do
           click_link 'Download'
+
+          # `click_link` triggers a browser-initiated download and returns
+          # without waiting for it, so wait until the download request has
+          # actually been logged before reading it. Otherwise the request may
+          # not have started yet, leaving `artifact_request` nil.
+          wait_for('artifact download request') do
+            Gitlab::Testing::RequestInspectorMiddleware.requests.any? do |req|
+              req.url.include?('artifacts/download')
+            end
+          end
         end
 
         artifact_request = requests.find { |req| req.url.include?('artifacts/download') }

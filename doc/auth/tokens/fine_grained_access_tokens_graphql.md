@@ -65,6 +65,34 @@ Grants the ability to create, read, and update vulnerabilities.
 
 ### CI/CD resources
 
+#### Catalog Resource
+
+Grants the ability to create and delete CI catalog resources.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Project | Mutation | `CatalogResourcesCreate` |
+| Delete | Project | Mutation | `CatalogResourcesDestroy` |
+
+#### CD Application
+
+Grants the ability to create and read continuous deployment applications.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdApplicationCreate` |
+| Read | Instance | Type | `CdApplication` |
+| Read | Instance | Type | `CdService` |
+
+#### CD Environment
+
+Grants the ability to create and read continuous deployment environments.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdEnvironmentCreate` |
+| Read | Instance | Type | `CdEnvironment` |
+
 #### CI Config
 
 Grants the ability to read and validate CI/CD configuration.
@@ -81,34 +109,6 @@ Grants the ability to update CI/CD settings.
 | ------ | ------ | ---- | ---- |
 | Update | Project | Mutation | `ProjectCiCdSettingsUpdate` |
 | Update | Group | Mutation | `SafeDisablePipelineVariables` |
-
-#### Catalog Resource
-
-Grants the ability to create and delete CI catalog resources.
-
-| Action | Access | Kind | Name |
-| ------ | ------ | ---- | ---- |
-| Create | Project | Mutation | `CatalogResourcesCreate` |
-| Delete | Project | Mutation | `CatalogResourcesDestroy` |
-
-#### Cd Application
-
-Grants the ability to create and read cd applications.
-
-| Action | Access | Kind | Name |
-| ------ | ------ | ---- | ---- |
-| Create | Instance | Mutation | `CdApplicationCreate` |
-| Read | Instance | Type | `CdApplication` |
-| Read | Instance | Type | `CdService` |
-
-#### Cd Environment
-
-Grants the ability to create and read cd environments.
-
-| Action | Access | Kind | Name |
-| ------ | ------ | ---- | ---- |
-| Create | Instance | Mutation | `CdEnvironmentCreate` |
-| Read | Instance | Type | `CdEnvironment` |
 
 #### Cluster Agent
 
@@ -377,7 +377,7 @@ Grants the ability to create, delete, read, and update organizations.
 | Update | Instance | Mutation | `OrganizationUpdate` |
 | Update | Instance | Mutation | `OrganizationUserUpdate` |
 
-### Packages And Registry resources
+### Packages and Registry resources
 
 #### Container Registry Protection Tag Rule
 
@@ -465,7 +465,7 @@ Grants the ability to create, delete, read, and update snippets.
 | Update | Project | Mutation | `UpdateSnippet` |
 | Update | User | Mutation | `UpdateSnippet` |
 
-### Project Model Registry And Experiments resources
+### Project Model Registry and Experiments resources
 
 #### Model Version
 

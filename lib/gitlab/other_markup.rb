@@ -13,7 +13,7 @@ module Gitlab
       html = render_markup(file_name, input, context).force_encoding(input.encoding)
 
       context[:pipeline] ||= if Gitlab::MarkupHelper.org_mode?(file_name)
-                               :org_markup
+                               :orgmode
                              else
                                :markup
                              end

@@ -77,7 +77,7 @@ module Banzai
         if MarkdownFilter.glfm_markdown?(context) &&
             context[:pipeline] != :single_line &&
             context[:pipeline] != :commit_description &&
-            context[:pipeline] != :org_markup
+            context[:pipeline] != :orgmode
           return doc
         end
 

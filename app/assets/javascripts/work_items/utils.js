@@ -161,6 +161,7 @@ export const findVulnerabilitiesWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_VULNERABILITIES);
 
 export const findWeightWidget = (workItem) =>
+  workItem?.features?.weight ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_WEIGHT);
 
 export const findHierarchyWidgetChildren = (workItem) =>

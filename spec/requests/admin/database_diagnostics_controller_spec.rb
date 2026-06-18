@@ -5,8 +5,8 @@ require 'spec_helper'
 RSpec.describe 'Admin::DatabaseDiagnostics', feature_category: :database do
   include AdminModeHelper
 
-  let_it_be(:admin, freeze: false) { create(:admin) }
-  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:admin) { create(:admin) }
+  let_it_be(:user) { create(:user) }
 
   shared_examples 'unauthorized request' do
     context 'when user is not an admin' do

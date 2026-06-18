@@ -511,7 +511,7 @@ group :development do
 
   gem 'ruby-lsp-rspec', "~> 0.1.28", require: false, feature_category: :tooling
 
-  gem 'gdk-toogle', '~> 0.9', '>= 0.9.5', require: 'toogle', feature_category: :tooling
+  gem 'gdk-toogle', '~> 1.0', require: 'toogle', feature_category: :tooling
 
   gem 'grpc-tools', '~> 1.80.0', feature_category: :system_access
 

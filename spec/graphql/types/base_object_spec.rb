@@ -289,7 +289,7 @@ RSpec.describe Types::BaseObject, feature_category: :api do
     end
 
     describe '.authorize' do
-      let_it_be(:read_only_type, freeze: false) do
+      let_it_be(:read_only_type) do
         Class.new(described_class) do
           authorize :read_only
         end
@@ -332,7 +332,7 @@ RSpec.describe Types::BaseObject, feature_category: :api do
       let(:scope_validator) { instance_double(::Gitlab::Auth::ScopeValidator, valid_for?: true) }
       let(:context) { { current_user: current_user, scope_validator: scope_validator } }
 
-      let_it_be(:type, freeze: false) do
+      let_it_be(:type) do
         Class.new(described_class) { authorize :read_resource }
       end
 
@@ -378,7 +378,7 @@ RSpec.describe Types::BaseObject, feature_category: :api do
     end
 
     context 'with an `authorize_granular_token` directive' do
-      let_it_be(:type, freeze: false) do
+      let_it_be(:type) do
         Class.new(described_class) do
           authorize_granular_token(permissions: :read_wiki, boundary: :itself, boundary_type: :project)
         end
@@ -426,7 +426,7 @@ RSpec.describe Types::BaseObject, feature_category: :api do
     end
 
     context 'without an `authorize_granular_token` directive' do
-      let_it_be(:type, freeze: false) { Class.new(described_class) }
+      let_it_be(:type) { Class.new(described_class) }
 
       let(:context) { { current_user: current_user, access_token: access_token } }
 

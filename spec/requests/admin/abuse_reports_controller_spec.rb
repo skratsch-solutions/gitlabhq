@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Admin::AbuseReportsController, feature_category: :insider_threat do
   include AdminModeHelper
 
-  let_it_be(:admin, freeze: false) { create(:admin) }
+  let_it_be(:admin) { create(:admin) }
 
   before do
     enable_admin_mode!(admin)
@@ -52,7 +52,7 @@ RSpec.describe Admin::AbuseReportsController, feature_category: :insider_threat 
   end
 
   describe 'PUT #update' do
-    let_it_be(:report, freeze: false) { create(:abuse_report) }
+    let_it_be(:report) { create(:abuse_report) }
 
     let(:params) { {} }
     let(:expected_params) { ActionController::Parameters.new(params).permit! }

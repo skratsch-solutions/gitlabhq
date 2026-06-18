@@ -12,7 +12,6 @@ import {
   WIDGET_TYPE_MILESTONE,
   WIDGET_TYPE_PARTICIPANTS,
   WIDGET_TYPE_PROGRESS,
-  WIDGET_TYPE_WEIGHT,
   WIDGET_TYPE_COLOR,
   WORK_ITEM_TYPE_NAME_EPIC,
   WIDGET_TYPE_CUSTOM_FIELDS,
@@ -27,6 +26,7 @@ import {
   findLabelsWidget,
   findStartAndDueDateWidget,
   findTimeTrackingWidget,
+  findWeightWidget,
 } from '../utils';
 import workItemParticipantsQuery from '../graphql/work_item_participants.query.graphql';
 import workItemAllowedParentTypesQuery from '../graphql/work_item_allowed_parent_types.query.graphql';
@@ -168,7 +168,7 @@ export default {
       return this.workItemType === WORK_ITEM_TYPE_NAME_EPIC;
     },
     workItemWeight() {
-      return this.isWidgetPresent(WIDGET_TYPE_WEIGHT);
+      return findWeightWidget(this.workItem);
     },
     workItemProgress() {
       return this.isWidgetPresent(WIDGET_TYPE_PROGRESS);

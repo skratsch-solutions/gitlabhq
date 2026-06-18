@@ -2,9 +2,10 @@
 
 module Banzai
   module Pipeline
-    class OrgMarkupPipeline < BasePipeline
+    class OrgmodePipeline < BasePipeline
       def self.filters
         @filters ||= FilterArray[
+          Filter::OrgmodeCheckboxFilter,
           Filter::MarkupHeadingAnchorFilter,
           Filter::SanitizationFilter,
           Filter::SanitizeLinkFilter,

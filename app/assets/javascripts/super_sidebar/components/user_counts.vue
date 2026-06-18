@@ -23,11 +23,6 @@ export default {
       type: Object,
       required: true,
     },
-    counterClass: {
-      type: String,
-      required: false,
-      default: '',
-    },
   },
   i18n: {
     mergeRequests: __('Merge requests'),
@@ -58,12 +53,11 @@ export default {
 </script>
 
 <template>
-  <div class="gl-flex gl-items-center gl-justify-between gl-gap-0">
+  <div class="gl-flex gl-items-center gl-justify-between">
     <counter
       v-gl-tooltip.bottom="$options.i18n.workItems"
       class="dashboard-shortcuts-issues gl-basis-1/3"
       icon="work-items"
-      :class="counterClass"
       :count="userCounts.assigned_issues"
       :href="sidebarData.issues_dashboard_path"
       :label="$options.i18n.workItems"
@@ -76,7 +70,6 @@ export default {
       <counter
         v-gl-tooltip.bottom="$options.i18n.mergeRequests"
         class="js-merge-request-dashboard-shortcut gl-w-full"
-        :class="counterClass"
         icon="merge-request"
         :href="sidebarData.merge_request_dashboard_path"
         :count="userCounts.total_merge_requests"
@@ -91,7 +84,6 @@ export default {
       v-gl-tooltip.bottom="$options.i18n.todoList"
       class="shortcuts-todos js-todos-count gl-basis-1/3"
       icon="todo-done"
-      :class="counterClass"
       :count="userCounts.todos"
       :href="sidebarData.todos_dashboard_path"
       :label="$options.i18n.todoList"

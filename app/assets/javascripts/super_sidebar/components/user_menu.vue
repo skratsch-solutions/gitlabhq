@@ -338,7 +338,7 @@ export default {
       <template #toggle>
         <gl-button
           category="tertiary"
-          class="btn-with-notification !gl-rounded-full !gl-border-none !gl-px-0"
+          class="gl-relative !gl-rounded-full !gl-border-none !gl-px-0"
           :href="data.link_to_profile"
           data-testid="user-menu-toggle"
           data-track-action="click_dropdown"
@@ -380,11 +380,7 @@ export default {
         class="gl-border-t gl-flex gl-pt-2 md:gl-hidden"
         data-testid="user-counts-item"
       >
-        <user-counts
-          :sidebar-data="data"
-          class="gl-w-full"
-          counter-class="gl-button btn btn-default btn-default-tertiary"
-        />
+        <user-counts :sidebar-data="data" class="gl-w-full" />
       </gl-disclosure-dropdown-item>
 
       <gl-disclosure-dropdown-group bordered>

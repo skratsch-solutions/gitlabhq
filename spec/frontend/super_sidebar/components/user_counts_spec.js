@@ -1,6 +1,5 @@
 import { nextTick } from 'vue';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
-import Counter from '~/super_sidebar/components/counter.vue';
 import UserCounts from '~/super_sidebar/components/user_counts.vue';
 import { userCounts, useCachedUserCounts } from '~/super_sidebar/user_counts_manager';
 import { fetchUserCounts } from '~/super_sidebar/user_counts_fetch';
@@ -30,18 +29,6 @@ describe('UserCounts component', () => {
       },
     });
   };
-
-  it('applies counterClass to counter components', () => {
-    const customClass = 'custom-counter-class';
-    createWrapper({
-      counterClass: customClass,
-    });
-
-    const counters = wrapper.findAllComponents(Counter);
-    counters.wrappers.forEach((counter) => {
-      expect(counter.classes()).toContain(customClass);
-    });
-  });
 
   describe('default', () => {
     beforeEach(() => {

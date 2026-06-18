@@ -111,7 +111,7 @@ RSpec.describe Authn::Tokens::PersonalAccessToken, feature_category: :system_acc
 
   context 'when the token is a resource token' do
     context 'when the token is a project access token' do
-      let_it_be(:bot, freeze: false) { create(:user, :project_bot) }
+      let_it_be(:bot) { create(:user, :project_bot) }
       let_it_be(:project_member) { create(:project_member, source: create(:project), user: bot) }
       let_it_be(:plaintext) { create(:personal_access_token, user: bot).token }
 
@@ -121,8 +121,8 @@ RSpec.describe Authn::Tokens::PersonalAccessToken, feature_category: :system_acc
     end
 
     context 'when the token is a group access token' do
-      let_it_be(:bot, freeze: false) { create(:user, :project_bot) }
-      let_it_be(:group_member, freeze: false) { create(:group_member, source: create(:group), user: bot) }
+      let_it_be(:bot) { create(:user, :project_bot) }
+      let_it_be(:group_member) { create(:group_member, source: create(:group), user: bot) }
       let_it_be(:plaintext) { create(:personal_access_token, user: bot).token }
 
       it 'successfully revokes the token', :enable_admin_mode do

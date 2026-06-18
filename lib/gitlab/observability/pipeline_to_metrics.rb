@@ -4,7 +4,6 @@ module Gitlab
   module Observability
     class PipelineToMetrics
       include Gitlab::Utils::StrongMemoize
-      include Gitlab::Observability::TracingHelpers
 
       HISTOGRAM_BUCKETS = [1, 5, 10, 30, 60, 300, 600, 1800, 3600].freeze
 
@@ -58,7 +57,6 @@ module Gitlab
             { key: 'gitlab.project.name', value: { stringValue: pipeline_data.dig(:project, :name) } },
             { key: 'gitlab.pipeline.id', value: { intValue: pipeline[:id] } },
             { key: 'gitlab.pipeline.ref', value: { stringValue: pipeline[:ref] } },
-            { key: 'gitlab.trace_id', value: { stringValue: pipeline_trace_id } },
             { key: 'cicd.pipeline.name', value: { stringValue: pipeline_name } },
             { key: 'vcs.repository.name', value: { stringValue: pipeline_data.dig(:project, :name) } },
             { key: 'vcs.repository.url.full', value: { stringValue: pipeline_data.dig(:project, :web_url) } },
@@ -121,13 +119,7 @@ module Gitlab
                 attributes: [
                   { key: 'pipeline.status', value: { stringValue: pipeline[:status] } },
                   { key: 'pipeline.ref', value: { stringValue: pipeline[:ref] } }
-                ],
-                exemplars: [{
-                  timeUnixNano: current_time_nanoseconds,
-                  asDouble: pipeline[:duration] / 1000.0,
-                  traceId: pipeline_trace_id,
-                  spanId: pipeline_span_id
-                }]
+                ]
               }
             ]
           }

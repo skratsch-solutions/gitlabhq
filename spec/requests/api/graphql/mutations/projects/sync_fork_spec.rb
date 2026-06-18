@@ -33,7 +33,7 @@ RSpec.describe "Sync project fork", feature_category: :source_code_management do
   end
 
   context 'when the branch is protected', :use_clean_rails_redis_caching do
-    let_it_be(:protected_branch, freeze: false) do
+    let_it_be(:protected_branch) do
       create(:protected_branch, :no_one_can_push, project: project, name: target_branch)
     end
 

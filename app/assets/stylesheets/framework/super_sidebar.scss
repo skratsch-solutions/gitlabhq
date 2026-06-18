@@ -227,6 +227,11 @@ $command-palette-spacing: px-to-rem(14px);
     @include gl-prefers-reduced-motion-transition;
     transition: opacity .2s $gl-easing-out-cubic;
 
+    .gl-nav-item-label {
+      width: max-content;
+      overflow-wrap: anywhere;
+    }
+
     @starting-style {
       opacity: 0;
     }
@@ -265,14 +270,6 @@ $command-palette-spacing: px-to-rem(14px);
     mix-blend-mode: var(--super-sidebar-hr-mix-blend-mode);
   }
 
-  .btn-with-notification {
-    position: relative;
-  }
-
-  .super-sidebar-help-center-toggle[aria-expanded='true'] {
-    background-color: $gray-50 !important;
-  }
-
   #trial-status-sidebar-widget:hover {
     text-decoration: none;
     color: var(--gl-color-neutral-0);
@@ -291,25 +288,6 @@ $command-palette-spacing: px-to-rem(14px);
  */
 .super-sidebar-context-header {
   color: var(--super-sidebar-accent-foreground-color);
-}
-
-/**
- * Nav item
- */
-.super-sidebar .super-sidebar-nav-item {
-  font-weight: 425;
-  min-height: 1.75rem;
-
-  // stylelint-disable-next-line gitlab/no-has -- scoped to a specific button within the sidebar
-  &:has(.gl-button-text.gl-hidden) .gl-button-icon {
-    @apply gl-mr-0 #{!important};
-  }
-
-  &.super-sidebar-nav-item-current:not(:hover) {
-    .nav-item-link-label {
-      @apply gl-font-semibold;
-    }
-  }
 }
 
 /**
@@ -410,16 +388,6 @@ $command-palette-spacing: px-to-rem(14px);
 
     .super-sidebar-toggle {
       display: block;
-    }
-  }
-}
-
-.gl-dark {
-  .super-sidebar {
-    .gl-new-dropdown-custom-toggle {
-      .btn-with-notification.btn-with-notification {
-        mix-blend-mode: unset;
-      }
     }
   }
 }

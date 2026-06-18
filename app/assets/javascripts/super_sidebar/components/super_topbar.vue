@@ -198,12 +198,7 @@ export default {
           class="gl-border-r gl-mx-2 gl-my-3 gl-block gl-h-5 gl-w-1 gl-border-r-strong md:gl-ml-3 md:gl-mr-0"
         ></div>
 
-        <user-counts
-          v-if="isLoggedIn"
-          :sidebar-data="sidebarData"
-          class="gl-hidden md:gl-flex"
-          counter-class="gl-button btn btn-default btn-default-tertiary !gl-px-3"
-        />
+        <user-counts v-if="isLoggedIn" :sidebar-data="sidebarData" class="gl-hidden md:gl-flex" />
 
         <gl-button
           v-if="showAdminButton"

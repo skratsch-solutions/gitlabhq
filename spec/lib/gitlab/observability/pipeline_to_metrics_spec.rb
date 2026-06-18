@@ -2,8 +2,6 @@
 
 require 'fast_spec_helper'
 
-require_relative '../../../../lib/gitlab/ci/trace_context'
-
 RSpec.describe Gitlab::Observability::PipelineToMetrics, feature_category: :observability do
   let(:integration) do
     Struct.new(:otel_endpoint_url, :otel_headers, :service_name, :environment).new(
@@ -463,68 +461,6 @@ RSpec.describe Gitlab::Observability::PipelineToMetrics, feature_category: :obse
       expect(resource[:attributes]).to include(
         { key: 'deployment.environment', value: { stringValue: 'staging' } }
       )
-    end
-
-    context 'with trace context correlation' do
-      let(:root_pipeline_id) { 123 }
-      let(:expected_trace_id) { Gitlab::Ci::TraceContext.trace_id_for(root_pipeline_id) }
-      let(:expected_span_id) { Gitlab::Ci::TraceContext.span_id_for_pipeline(root_pipeline_id, 123) }
-
-      it 'includes gitlab.trace_id in resource attributes' do
-        result = converter.convert
-        resource = result[:resourceMetrics].first[:resource]
-
-        expect(resource[:attributes]).to include(
-          { key: 'gitlab.trace_id', value: { stringValue: expected_trace_id } }
-        )
-      end
-
-      it 'includes exemplars with valid traceId and spanId on data points', :aggregate_failures do
-        result = converter.convert
-        metrics = result[:resourceMetrics].first[:scopeMetrics].first[:metrics]
-
-        metrics.each do |metric|
-          data_points = metric.dig(:sum, :dataPoints) ||
-            metric.dig(:gauge, :dataPoints) ||
-            metric.dig(:histogram, :dataPoints) ||
-            []
-
-          data_points.each do |dp|
-            next unless dp.key?(:exemplars)
-
-            dp[:exemplars].each do |exemplar|
-              expect(exemplar[:traceId]).to match(/\A[0-9a-f]{32}\z/)
-              expect(exemplar[:spanId]).to match(/\A[0-9a-f]{16}\z/)
-            end
-          end
-        end
-      end
-
-      it 'sets exemplar traceId matching the pipeline trace ID' do
-        result = converter.convert
-        metrics = result[:resourceMetrics].first[:scopeMetrics].first[:metrics]
-
-        first_metric = metrics.first
-        data_points = first_metric.dig(:sum, :dataPoints) ||
-          first_metric.dig(:gauge, :dataPoints) ||
-          first_metric.dig(:histogram, :dataPoints)
-        exemplar = data_points.first[:exemplars].first
-
-        expect(exemplar[:traceId]).to eq(expected_trace_id)
-      end
-
-      it 'sets exemplar spanId matching the pipeline span ID' do
-        result = converter.convert
-        metrics = result[:resourceMetrics].first[:scopeMetrics].first[:metrics]
-
-        first_metric = metrics.first
-        data_points = first_metric.dig(:sum, :dataPoints) ||
-          first_metric.dig(:gauge, :dataPoints) ||
-          first_metric.dig(:histogram, :dataPoints)
-        exemplar = data_points.first[:exemplars].first
-
-        expect(exemplar[:spanId]).to eq(expected_span_id)
-      end
     end
   end
 end

@@ -368,8 +368,6 @@ export default {
     'app/assets/javascripts/super_sidebar/components/global_search/components/frequent_item_skeleton.vue',
     'app/assets/javascripts/super_sidebar/components/help_center.vue',
     'app/assets/javascripts/super_sidebar/components/icon_only_toggle.vue',
-    'app/assets/javascripts/super_sidebar/components/nav_item_link.vue',
-    'app/assets/javascripts/super_sidebar/components/nav_item_router_link.vue',
     'app/assets/javascripts/super_sidebar/components/organization_switcher.vue',
     'app/assets/javascripts/super_sidebar/components/promo_menu.vue',
     'app/assets/javascripts/super_sidebar/components/sidebar_portal.vue',

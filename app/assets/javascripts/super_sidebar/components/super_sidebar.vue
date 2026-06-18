@@ -239,7 +239,9 @@ export default {
             <help-center ref="helpCenter" :sidebar-data="sidebarData" class="gl-mr-2" />
           </div>
         </div>
-        <icon-only-toggle v-if="canIconOnly" class="gl-hidden xl:gl-flex" @toggle="toggleSidebar" />
+        <div v-if="canIconOnly" class="-gl-mt-2 gl-hidden gl-px-3 gl-pb-3 xl:gl-block">
+          <icon-only-toggle @toggle="toggleSidebar" />
+        </div>
       </div>
     </nav>
     <a

@@ -2,8 +2,6 @@
 
 require 'fast_spec_helper'
 
-require_relative '../../../../lib/gitlab/ci/trace_context'
-
 RSpec.describe Gitlab::Observability::PipelineToLogs, feature_category: :observability do
   let(:integration) do
     Struct.new(:otel_endpoint_url, :otel_headers, :service_name, :environment).new(
@@ -89,96 +87,6 @@ RSpec.describe Gitlab::Observability::PipelineToLogs, feature_category: :observa
         expect(result).to have_key(:resourceLogs)
         expect(result[:resourceLogs]).to be_an(Array)
         expect(result[:resourceLogs].length).to eq(1)
-      end
-    end
-
-    context 'with trace context correlation' do
-      let(:root_pipeline_id) { 123 }
-      let(:expected_trace_id) { Gitlab::Ci::TraceContext.trace_id_for(root_pipeline_id) }
-
-      it 'includes traceId on pipeline log record' do
-        result = converter.convert
-        log_records = result[:resourceLogs].first[:scopeLogs].first[:logRecords]
-
-        pipeline_log = log_records.find do |log|
-          log[:attributes].any? { |attr| attr[:key] == 'log.source' && attr[:value][:stringValue] == 'pipeline' }
-        end
-
-        expect(pipeline_log[:traceId]).to eq(expected_trace_id)
-      end
-
-      it 'includes spanId on pipeline log record matching TraceContext derivation' do
-        result = converter.convert
-        log_records = result[:resourceLogs].first[:scopeLogs].first[:logRecords]
-
-        pipeline_log = log_records.find do |log|
-          log[:attributes].any? { |attr| attr[:key] == 'log.source' && attr[:value][:stringValue] == 'pipeline' }
-        end
-
-        expected_span_id = Gitlab::Ci::TraceContext.span_id_for_pipeline(root_pipeline_id, 123)
-        expect(pipeline_log[:spanId]).to eq(expected_span_id)
-      end
-
-      it 'includes traceId on job log records' do
-        result = converter.convert
-        log_records = result[:resourceLogs].first[:scopeLogs].first[:logRecords]
-
-        job_logs = log_records.select do |log|
-          log[:attributes].any? { |attr| attr[:key] == 'log.source' && attr[:value][:stringValue] == 'job' }
-        end
-
-        aggregate_failures do
-          job_logs.each do |job_log|
-            expect(job_log[:traceId]).to eq(expected_trace_id)
-          end
-        end
-      end
-
-      it 'includes distinct spanId per job log record' do
-        result = converter.convert
-        log_records = result[:resourceLogs].first[:scopeLogs].first[:logRecords]
-
-        job_logs = log_records.select do |log|
-          log[:attributes].any? { |attr| attr[:key] == 'log.source' && attr[:value][:stringValue] == 'job' }
-        end
-
-        span_ids = job_logs.map { |log| log[:spanId] }
-
-        aggregate_failures do
-          expect(span_ids.uniq.size).to eq(2)
-          expect(span_ids.first).to eq(Gitlab::Ci::TraceContext.span_id_for_job(root_pipeline_id, 1, :export))
-          expect(span_ids.last).to eq(Gitlab::Ci::TraceContext.span_id_for_job(root_pipeline_id, 2, :export))
-        end
-      end
-
-      context 'with root_pipeline_id in pipeline data' do
-        let(:root_pipeline_id) { 999 }
-
-        before do
-          pipeline_data[:object_attributes][:root_pipeline_id] = root_pipeline_id
-        end
-
-        it 'uses root_pipeline_id for trace correlation' do
-          result = converter.convert
-          log_records = result[:resourceLogs].first[:scopeLogs].first[:logRecords]
-
-          pipeline_log = log_records.find do |log|
-            log[:attributes].any? { |attr| attr[:key] == 'log.source' && attr[:value][:stringValue] == 'pipeline' }
-          end
-
-          expect(pipeline_log[:traceId]).to eq(Gitlab::Ci::TraceContext.trace_id_for(999))
-        end
-      end
-
-      it 'produces trace IDs matching PipelineToTraces for the same pipeline', :aggregate_failures do
-        logs_result = converter.convert
-        traces_converter = Gitlab::Observability::PipelineToTraces.new(integration, pipeline_data)
-        traces_result = traces_converter.convert
-
-        log_trace_id = logs_result[:resourceLogs].first[:scopeLogs].first[:logRecords].first[:traceId]
-        span_trace_id = traces_result[:resourceSpans].first[:scopeSpans].first[:spans].first[:traceId]
-
-        expect(log_trace_id).to eq(span_trace_id)
       end
     end
 
