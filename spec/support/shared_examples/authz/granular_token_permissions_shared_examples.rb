@@ -133,25 +133,36 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
       it_behaves_like 'denying access'
     end
 
-    context 'when compared to a non-member request' do
-      it 'fine-grained PAT without scope mirrors a non-member request' do
-        unless boundary_object.is_a?(::Project) || boundary_object.is_a?(::Group)
-          skip 'only meaningful on Project/Group boundaries'
+    # A granular PAT reaches a public resource only through the public-access bypass, which mirrors
+    # anonymous access. We compare against a legacy non-member because a true anonymous request 401s
+    # on authenticate! endpoints. That baseline only holds for reads: an authenticated non-member can
+    # write to public resources while the bypass (anonymous) cannot. So we branch on the HTTP verb
+    # rather than the permission name, which keeps this correct for any read permission (read_*,
+    # download_*, use_global_search, ...). Dispatching the scopeless granular token is safe even for
+    # writes: it is denied at the boundary before the endpoint runs, so nothing mutates.
+    if context_type != :graphql
+      context 'when compared to a legacy non-member request' do
+        it 'mirrors the legacy non-member outcome via the public-access bypass' do
+          unless boundary_object.is_a?(::Project) || boundary_object.is_a?(::Group)
+            skip 'only meaningful on Project/Group boundaries'
+          end
+
+          # The public-access bypass only grants access on public resources. On internal or private
+          # resources an authenticated non-member may still read (internal visibility), which the
+          # bypass does not and should not mirror.
+          skip 'public-access bypass only applies to public resources' unless boundary_object.public?
+
+          non_member = create(:user)
+          granular_granted = dispatch_request_as(create(:granular_pat, user: non_member))
+
+          if response.request.get?
+            # Read: the bypass must grant the same access a legacy non-member has.
+            expect(granular_granted).to eq(dispatch_request_as(create(:personal_access_token, user: non_member)))
+          else
+            # Write: the bypass must never grant a mutation; legacy is not dispatched (no side effects).
+            expect(granular_granted).to be(false)
+          end
         end
-
-        skip 'GraphQL bypass parity is covered by per-resolver authorization' if is_graphql
-
-        # Pick a baseline that the bypass should mirror: a logged-in non-member when
-        # all declared permissions are in public_anonymous (an anonymous HTTP probe
-        # is unusable on `authenticate!` endpoints), or anonymous otherwise (the
-        # bypass shouldn't grant permissions outside public_anonymous, and a
-        # legacy non-member would false-positive for writes on public resources).
-        non_member = create(:user)
-        granular_pat = create(:granular_pat, user: non_member)
-        all_anonymous = granular_permissions.all? { |p| ::Users::Anonymous.can?(p, boundary_object) }
-        baseline_pat = create(:personal_access_token, user: non_member) if all_anonymous
-
-        expect(dispatch_request_as(granular_pat)).to eq(dispatch_request_as(baseline_pat))
       end
     end
   end

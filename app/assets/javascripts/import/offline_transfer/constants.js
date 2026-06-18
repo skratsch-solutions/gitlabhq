@@ -5,7 +5,9 @@ const CONFIGURE = s__('OfflineTransfer|Configure');
 const REVIEW = s__('OfflineTransfer|Review');
 const EXPORT = __('Export');
 
-export const OFFLINE_EXPORT_STEPS = [SELECT_ENTITIES, CONFIGURE, REVIEW, EXPORT];
+export const OFFLINE_EXPORT_TAB_HEADINGS = [SELECT_ENTITIES, CONFIGURE, REVIEW, EXPORT];
+
+export const OFFLINE_EXPORT_TAB_FIELDS = ['select', 'configure', 'review', 'export'];
 
 export const FORM_STEPPER_TAB_COLOR = {
   active: 'gl-text-link gl-font-bold',

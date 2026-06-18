@@ -317,6 +317,11 @@ msgid_plural "%d groups have access"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d group selected"
+msgid_plural "%d groups selected"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] ""
@@ -15563,6 +15568,9 @@ msgid "Cannot modify provider during creation"
 msgstr ""
 
 msgid "Cannot proceed with the push mirroring. Please verify your mirror configuration."
+msgstr ""
+
+msgid "Cannot process more than %{max} work item relations at once."
 msgstr ""
 
 msgid "Cannot promote issue because it does not belong to a group."
@@ -49165,6 +49173,12 @@ msgstr ""
 msgid "No work item found."
 msgstr ""
 
+msgid "No work items could be linked."
+msgstr ""
+
+msgid "No work items found that you have permission to link."
+msgstr ""
+
 msgid "No wrap"
 msgstr ""
 
@@ -51027,9 +51041,6 @@ msgstr ""
 msgid "Offline nodes automatically deleted after"
 msgstr ""
 
-msgid "OfflineTransferExport|%{selectedCount} of %{totalCount} selected"
-msgstr ""
-
 msgid "OfflineTransferExport|Could not load groups. Please try again."
 msgstr ""
 
@@ -51060,10 +51071,13 @@ msgstr ""
 msgid "OfflineTransferExport|Review export"
 msgstr ""
 
-msgid "OfflineTransferExport|Select all"
+msgid "OfflineTransferExport|Select at least one group to continue"
 msgstr ""
 
 msgid "OfflineTransferExport|Select groups to export"
+msgstr ""
+
+msgid "OfflineTransferExport|Select page"
 msgstr ""
 
 msgid "OfflineTransferExport|Start export"
@@ -51106,6 +51120,9 @@ msgid "OfflineTransfer|Import"
 msgstr ""
 
 msgid "OfflineTransfer|Invalid source version"
+msgstr ""
+
+msgid "OfflineTransfer|Missing source hostname in metadata"
 msgstr ""
 
 msgid "OfflineTransfer|Move groups and their contents to any GitLab instance, even with no network connection between this and the destination instance. With offline transfer you can export groups to an object storage you control, then import the files into the destination instance."
@@ -79964,6 +79981,9 @@ msgstr ""
 msgid "Unable to generate new instance ID"
 msgstr ""
 
+msgid "Unable to link %{work_item_reference}: %{errors}"
+msgstr ""
+
 msgid "Unable to load blame information. Please try again."
 msgstr ""
 
@@ -85504,10 +85524,10 @@ msgid_plural "When these merge requests are accepted"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "When using the %{code_open}http://%{code_close} or %{code_open}https://%{code_close} protocols, please provide the exact URL to the repository. HTTP redirects will not be followed."
+msgid "When using %{code_open}ssh://%{code_close}, use the format %{code_open}ssh://example.com/group/project.git%{code_close} and enter the SSH user (or %{code_open}git%{code_close} for a GitLab remote) in the username field below."
 msgstr ""
 
-msgid "When using the %{code_open}ssh://%{code_close} protocol, please use the following format: %{code_open}ssh://username@example.com/group/project.git%{code_close}."
+msgid "When using the %{code_open}http://%{code_close} or %{code_open}https://%{code_close} protocols, please provide the exact URL to the repository. HTTP redirects will not be followed."
 msgstr ""
 
 msgid "When you remove tracking of a ref, GitLab deletes any vulnerabilities associated with that ref. You have the option to archive them before their deletion."
@@ -85997,6 +86017,9 @@ msgid "WorkItemBoard|Show List"
 msgstr ""
 
 msgid "WorkItemBoard|Something went wrong when fetching the board columns. Please try again."
+msgstr ""
+
+msgid "WorkItemBoard|Something went wrong while updating the work item. Please try again."
 msgstr ""
 
 msgid "WorkItemCustomFields|Failed to load custom fields."
@@ -88202,6 +88225,9 @@ msgid "You are not allowed to create this tag as it is protected."
 msgstr ""
 
 msgid "You are not allowed to download code from this project."
+msgstr ""
+
+msgid "You are not allowed to manage work item relations for this merge request."
 msgstr ""
 
 msgid "You are not allowed to reject a user"

@@ -91,6 +91,12 @@ pre-push:
       glob: '*.{haml,rb,js,vue}'
       run: tooling/bin/gettext_extractor /dev/stdout --silent | diff - locale/gitlab.pot
       fail_text: PO files need to be updated. Try running tooling/bin/gettext_extractor locale/gitlab.pot
+    js-routes:
+      tags: frontend backend
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '{config/routes.rb,ee/config/routes.rb,config/routes/**,ee/config/routes/**,lib/gitlab/js_routes.rb}'
+      run: echo {files} >/dev/null && RAILS_ENV=test GITLAB_CONFIG=config/gitlab.yml.example bundle exec rake gitlab:js:routes:updated_check
+      fail_text: JavaScript path helpers are out of sync. Run `bin/rake gitlab:js:routes` and commit the changes.
     docs-deprecations:
       tags: documentation
       files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
@@ -323,6 +329,11 @@ auto-fix:
       files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD) --cached | while read file;do git diff --unified=1 $(git merge-base origin/master HEAD) $file | grep -Fqe '_(' && echo $file;done; true
       glob: '*.{haml,rb,js,vue}'
       run: tooling/bin/gettext_extractor locale/gitlab.pot
+    js-routes:
+      tags: frontend backend
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD) --cached
+      glob: '{config/routes.rb,ee/config/routes.rb,config/routes/**,ee/config/routes/**,lib/gitlab/js_routes.rb}'
+      run: echo {files} >/dev/null && RAILS_ENV=test GITLAB_CONFIG=config/gitlab.yml.example bundle exec rake gitlab:js:routes
     graphql_docs_compile:
       tags: documentation
       files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD) --cached

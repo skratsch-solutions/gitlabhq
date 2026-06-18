@@ -38,6 +38,7 @@ export default {
       required: true,
     },
   },
+  emits: ['select-project'],
   computed: {
     listboxItems() {
       return this.projects.map((project) => {

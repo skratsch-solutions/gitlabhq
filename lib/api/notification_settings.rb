@@ -85,7 +85,7 @@ module API
           ]
           tags ['notification_settings']
         end
-        route_setting :authorization, permissions: :read_notification_setting, boundary_type: source_type.to_sym
+        route_setting :authorization, permissions: :read_notification_setting, boundary_type: :user
         get ":id/notification_settings" do
           source = find_source(source_type, params[:id])
 
@@ -109,7 +109,7 @@ module API
             optional event, type: Boolean, desc: 'Enable/disable this notification'
           end
         end
-        route_setting :authorization, permissions: :update_notification_setting, boundary_type: source_type.to_sym
+        route_setting :authorization, permissions: :update_notification_setting, boundary_type: :user
         put ":id/notification_settings" do
           source = find_source(source_type, params.delete(:id))
           notification_setting = current_user.notification_settings_for(source)

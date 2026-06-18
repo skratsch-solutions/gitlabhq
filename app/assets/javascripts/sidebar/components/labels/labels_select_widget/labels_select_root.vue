@@ -128,6 +128,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['onLabelRemove', 'toggleCollapse', 'updateSelectedLabels'],
   data() {
     return {
       issuable: null,

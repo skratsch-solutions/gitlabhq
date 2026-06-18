@@ -6,11 +6,17 @@ import waitForPromises from 'helpers/wait_for_promises';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import getBoardWorkItemsQuery from 'ee_else_ce/work_items/board/graphql/get_board_work_items.query.graphql';
 import getWorkItemsRestQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_rest.query.graphql';
+import DraggableCompat from '~/lib/utils/vue3compat/draggable_compat.vue';
 import ColumnGroup from '~/work_items/board/components/column_group.vue';
 import ColumnHeader from '~/work_items/board/components/column_header.vue';
 import WorkItemCard from '~/work_items/board/components/work_item_card.vue';
 import WorkItemCardSkeleton from '~/work_items/board/components/work_item_card_skeleton.vue';
 import WorkItemChildrenLoadMore from '~/work_items/components/shared/work_item_children_load_more.vue';
+import { boardColumnQueryVariables } from '~/work_items/board/utils';
+import {
+  addWorkItemToColumn,
+  removeWorkItemFromColumn,
+} from '~/work_items/board/graphql/cache_updates';
 import { mockStatus, buildWorkItemNode, buildBoardWorkItemsResponse } from '../mock_data';
 
 jest.mock('~/sentry/sentry_browser_wrapper');
@@ -19,6 +25,7 @@ Vue.use(VueApollo);
 
 describe('ColumnGroup', () => {
   let wrapper;
+  let apolloProvider;
 
   const boardQueryHandler = jest.fn();
   const restQueryHandler = jest.fn();
@@ -30,6 +37,7 @@ describe('ColumnGroup', () => {
   const findErrorState = () => wrapper.findByTestId('error-state');
   const findLoadMore = () => wrapper.findComponent(WorkItemChildrenLoadMore);
   const findLoadMoreError = () => wrapper.findByTestId('load-more-error');
+  const findDraggable = () => wrapper.findComponent(DraggableCompat);
 
   const baseQueryVariables = {
     state: 'opened',
@@ -37,7 +45,7 @@ describe('ColumnGroup', () => {
   };
 
   const createComponent = ({ props = {}, glFeatures = {} } = {}) => {
-    const apolloProvider = createMockApollo([
+    apolloProvider = createMockApollo([
       [getBoardWorkItemsQuery, boardQueryHandler],
       [getWorkItemsRestQuery, restQueryHandler],
     ]);
@@ -101,6 +109,10 @@ describe('ColumnGroup', () => {
     it('does not render any work item cards', () => {
       expect(findWorkItemCards()).toHaveLength(0);
     });
+
+    it('still renders the draggable drop zone so items can be dropped into the column', () => {
+      expect(findDraggable().exists()).toBe(true);
+    });
   });
 
   describe('when work items are returned', () => {
@@ -124,6 +136,31 @@ describe('ColumnGroup', () => {
     it('does not render the empty state or skeleton ghost cards', () => {
       expect(findEmptyState().exists()).toBe(false);
       expect(findSkeletons()).toHaveLength(0);
+    });
+  });
+
+  describe('drag and drop', () => {
+    const nodes = [buildWorkItemNode(1), buildWorkItemNode(2)];
+
+    beforeEach(async () => {
+      boardQueryHandler.mockResolvedValue(buildBoardWorkItemsResponse(nodes));
+      createComponent();
+      await waitForPromises();
+    });
+
+    it('binds the work items to a shared draggable group keyed by id', () => {
+      expect(findDraggable().props('value')).toEqual(nodes);
+      expect(findDraggable().props('itemKey')).toBe('id');
+      expect(findDraggable().attributes('group')).toBe('work-item-board');
+      expect(findDraggable().attributes('tag')).toBe('ul');
+      expect(findDraggable().attributes('data-status-id')).toBe(mockStatus.id);
+    });
+
+    it('emits card-move with the drag event when a card is dropped', () => {
+      const dragEvent = { oldIndex: 0, newIndex: 1 };
+      findDraggable().vm.$emit('end', dragEvent);
+
+      expect(wrapper.emitted('card-move')).toEqual([[dragEvent]]);
     });
   });
 
@@ -369,6 +406,96 @@ describe('ColumnGroup', () => {
       it('resets the in-progress state', () => {
         expect(findLoadMore().props('fetchNextPageInProgress')).toBe(false);
       });
+    });
+  });
+
+  describe('drag and drop after pagination', () => {
+    // The drag-and-drop cache updates in board_view.vue key off the initial-page
+    // variables (boardColumnQueryVariables) — the same entry fetchMore merges
+    // subsequent pages into. After loading a second page these tests run the real
+    // cache helpers against that key to prove the move lands on the merged column.
+    const columnVariables = () =>
+      boardColumnQueryVariables({
+        rootPageFullPath: 'full/path',
+        baseQueryVariables,
+        groupProperty: 'status',
+        value: mockStatus,
+      });
+    const cachedNodeIds = () => {
+      const { cache } = apolloProvider.defaultClient;
+      const data = cache.readQuery({ query: getBoardWorkItemsQuery, variables: columnVariables() });
+      return data.namespace.workItems.nodes.map((node) => node.id);
+    };
+
+    // nodes 1 and 2 in the first page, nodes 3 and 4 in the second page.
+    beforeEach(async () => {
+      boardQueryHandler.mockResolvedValueOnce(
+        buildBoardWorkItemsResponse([buildWorkItemNode(1), buildWorkItemNode(2)], {
+          hasNextPage: true,
+          endCursor: 'CURSOR1',
+        }),
+      );
+      boardQueryHandler.mockResolvedValueOnce(
+        buildBoardWorkItemsResponse([buildWorkItemNode(3), buildWorkItemNode(4)], {
+          hasNextPage: false,
+        }),
+      );
+      createComponent();
+      await waitForPromises();
+
+      findLoadMore().vm.$emit('fetch-next-page');
+      await waitForPromises();
+    });
+
+    it('binds the full merged list to the draggable so drops resolve against every loaded page', () => {
+      expect(
+        findDraggable()
+          .props('value')
+          .map((node) => node.id),
+      ).toEqual([
+        'gid://gitlab/WorkItem/1',
+        'gid://gitlab/WorkItem/2',
+        'gid://gitlab/WorkItem/3',
+        'gid://gitlab/WorkItem/4',
+      ]);
+    });
+
+    it('keeps the paginated column a drop target keyed by its value id', () => {
+      expect(findDraggable().attributes('data-status-id')).toBe(mockStatus.id);
+    });
+
+    it('removes a card on a later page', () => {
+      removeWorkItemFromColumn({
+        cache: apolloProvider.defaultClient.cache,
+        query: getBoardWorkItemsQuery,
+        variables: columnVariables(),
+        workItemId: 'gid://gitlab/WorkItem/3',
+      });
+
+      expect(cachedNodeIds()).toEqual([
+        'gid://gitlab/WorkItem/1',
+        'gid://gitlab/WorkItem/2',
+        'gid://gitlab/WorkItem/4',
+      ]);
+    });
+
+    it('inserts a card past the first page', () => {
+      addWorkItemToColumn({
+        cache: apolloProvider.defaultClient.cache,
+        query: getBoardWorkItemsQuery,
+        variables: columnVariables(),
+        workItem: buildWorkItemNode(5),
+        index: 4,
+        status: mockStatus,
+      });
+
+      expect(cachedNodeIds()).toEqual([
+        'gid://gitlab/WorkItem/1',
+        'gid://gitlab/WorkItem/2',
+        'gid://gitlab/WorkItem/3',
+        'gid://gitlab/WorkItem/4',
+        'gid://gitlab/WorkItem/5',
+      ]);
     });
   });
 });

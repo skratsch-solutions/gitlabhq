@@ -45736,6 +45736,8 @@ CREATE INDEX idx_merge_requests_on_unmerged_state_id ON merge_requests USING btr
 
 CREATE INDEX idx_mr_cc_diff_files_on_mr_cc_id_and_sha ON merge_request_context_commit_diff_files USING btree (merge_request_context_commit_id, sha);
 
+CREATE INDEX idx_mr_closing_issues_on_mr_link_issue_from ON merge_requests_closing_issues USING btree (merge_request_id, link_type, issue_id, from_mr_description);
+
 CREATE INDEX idx_mr_metrics_on_project_closed_at_with_mr_id ON merge_request_metrics USING btree (target_project_id, latest_closed_at, merge_request_id) WHERE (latest_closed_at IS NOT NULL);
 
 CREATE INDEX idx_mrs_on_target_id_and_created_at_and_state_id ON merge_requests USING btree (target_project_id, state_id, created_at, id);
@@ -49167,8 +49169,6 @@ CREATE UNIQUE INDEX index_mr_blocks_on_blocking_and_blocked_mr_ids ON merge_requ
 CREATE INDEX index_mr_cleanup_schedules_timestamps_status ON merge_request_cleanup_schedules USING btree (scheduled_at) WHERE ((completed_at IS NULL) AND (status = 0));
 
 CREATE INDEX index_mr_closing_issues_on_issue_id_and_link_type ON merge_requests_closing_issues USING btree (issue_id, link_type);
-
-CREATE INDEX index_mr_closing_issues_on_merge_request_id_and_link_type ON merge_requests_closing_issues USING btree (merge_request_id, link_type);
 
 CREATE UNIQUE INDEX index_mr_closing_issues_on_mr_id_issue_id_link_type ON merge_requests_closing_issues USING btree (merge_request_id, issue_id, link_type) WHERE (link_type <> 0);
 

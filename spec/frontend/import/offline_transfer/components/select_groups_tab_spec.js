@@ -1,4 +1,4 @@
-import { GlLoadingIcon, GlEmptyState } from '@gitlab/ui';
+import { GlLoadingIcon, GlEmptyState, GlKeysetPagination } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
 import SelectGroupRow from '~/import/offline_transfer/components/select_group_row.vue';
@@ -8,7 +8,8 @@ describe('SelectGroupsTab', () => {
   let wrapper;
 
   const defaultProps = {
-    groups: mockGroups,
+    pageGroups: mockGroups,
+    showSelectError: false,
   };
 
   const createComponent = (propsData = {}) => {
@@ -21,13 +22,15 @@ describe('SelectGroupsTab', () => {
   const findList = () => wrapper.find('ul');
   const findAllRows = () => wrapper.findAllComponents(SelectGroupRow);
   const findCount = () => wrapper.findByTestId('selected-count');
-  const findSelectAll = () => wrapper.findByTestId('select-all');
+  const findSelectCurrentPage = () => wrapper.findByTestId('select-current-page');
   const findDeselectAll = () => wrapper.findByTestId('deselect-all');
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
+  const findNoGroupsSelectedError = () => wrapper.findByTestId('selected-error');
+  const findPagination = () => wrapper.findComponent(GlKeysetPagination);
 
   describe('group list', () => {
     it('shows the empty message when not loading and there are no groups', () => {
-      createComponent({ groups: [] });
+      createComponent({ pageGroups: [] });
 
       expect(findEmptyState().exists()).toBe(true);
     });
@@ -78,7 +81,7 @@ describe('SelectGroupsTab', () => {
     it('count matches the total groups selected', () => {
       createComponent({ selectedIds: ['gid://glab/Group/1'] });
 
-      expect(findCount().text()).toBe('1 of 3 selected');
+      expect(findCount().text()).toBe('1 group selected');
     });
 
     it('emits toggle with the group when a row is selected', () => {
@@ -88,11 +91,11 @@ describe('SelectGroupsTab', () => {
       expect(wrapper.emitted('toggle')).toEqual([[mockGroups[1]]]);
     });
 
-    it('emits select-all when Select all is clicked', () => {
+    it('emits select-current-page when Select all is clicked', () => {
       createComponent();
-      findSelectAll().vm.$emit('click');
+      findSelectCurrentPage().vm.$emit('click');
 
-      expect(wrapper.emitted('select-all')).toHaveLength(1);
+      expect(wrapper.emitted('select-current-page')).toHaveLength(1);
     });
 
     it('emits deselect-all when Deselect all is clicked', () => {
@@ -105,13 +108,63 @@ describe('SelectGroupsTab', () => {
     it('disables Select all when every group is already selected', () => {
       createComponent({ selectedIds: mockGroups.map((group) => group.id) });
 
-      expect(findSelectAll().props('disabled')).toBe(true);
+      expect(findSelectCurrentPage().props('disabled')).toBe(true);
     });
 
     it('disables Deselect all when nothing is selected', () => {
       createComponent();
 
       expect(findDeselectAll().props('disabled')).toBe(true);
+      expect(findNoGroupsSelectedError().exists()).toBe(false);
+    });
+
+    it('error is shown when nothing is selected and showSelectError is passed as true', () => {
+      createComponent({ selectedIds: [], showSelectError: true });
+
+      expect(findNoGroupsSelectedError().text()).toBe('Select at least one group to continue');
+    });
+
+    it('hides error when a group becomes selected even if showSelectError is true', () => {
+      createComponent({ selectedIds: ['gid://glab/Group/1'], showSelectError: true });
+
+      expect(findNoGroupsSelectedError().exists()).toBe(false);
+      expect(findCount().exists()).toBe(true);
+    });
+  });
+
+  describe('pagination', () => {
+    it('is not rendered when there is just one page', () => {
+      createComponent({ pageInfo: { hasNextPage: false, hasPreviousPage: false } });
+
+      expect(findPagination().exists()).toBe(false);
+    });
+
+    it('renders when there is a next page', () => {
+      createComponent({ pageInfo: { hasNextPage: true, hasPreviousPage: false } });
+
+      expect(findPagination().exists()).toBe(true);
+    });
+
+    it('renders when there is a previous page', () => {
+      createComponent({ pageInfo: { hasNextPage: false, hasPreviousPage: true } });
+
+      expect(findPagination().exists()).toBe(true);
+    });
+
+    it('correctly emits `next` with the cursor', () => {
+      createComponent({ pageInfo: { hasNextPage: true, hasPreviousPage: false } });
+
+      findPagination().vm.$emit('next', 'cursor123');
+
+      expect(wrapper.emitted('next')).toEqual([['cursor123']]);
+    });
+
+    it('correctly emits `prev` with the cursor', () => {
+      createComponent({ pageInfo: { hasNextPage: false, hasPreviousPage: true } });
+
+      findPagination().vm.$emit('prev', 'cursor456');
+
+      expect(wrapper.emitted('prev')).toEqual([['cursor456']]);
     });
   });
 });

@@ -25,6 +25,7 @@ export default {
       validator: ({ status }) => statusValidation.includes(status),
     },
   },
+  emits: ['update-issue-status'],
   computed: {
     ignoreBtn() {
       return this.error.status !== IGNORED

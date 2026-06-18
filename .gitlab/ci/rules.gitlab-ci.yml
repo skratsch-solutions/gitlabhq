@@ -1680,14 +1680,6 @@
     # to avoid the side effect of "never" rules
     - !reference [".releases:rules:canonical-dot-com-security-gitlab-stable-branch-only", rules]
 
-.frontend:rules:generate-js-routes:
-  rules:
-    - <<: *if-merge-request-labels-pipeline-expedite
-      when: never
-    - <<: *if-merge-train
-      when: never
-    - when: on_success
-
 .frontend:rules:compile-test-assets:
   rules:
     - if: '$ENABLE_COMPILE_TEST_ASSETS == "true"'

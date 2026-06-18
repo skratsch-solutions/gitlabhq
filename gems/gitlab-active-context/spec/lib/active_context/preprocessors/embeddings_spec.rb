@@ -122,7 +122,7 @@ RSpec.describe ActiveContext::Preprocessors::Embeddings do
     it 'results in failures and logs the error' do
       expect(ActiveContext::Logger).to receive(:retryable_exception) do |error, kwargs|
         expect(error.message).to eq(Test::MockLlmClass::NIL_CONTENTS_ERROR_MESSAGE)
-        expect(kwargs[:class]).to eq('Class')
+        expect(kwargs[:class_name]).to eq('Class')
       end
 
       expect { preprocessed_result }.not_to change { test_reference.documents.count }

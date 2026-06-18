@@ -900,12 +900,19 @@ Payload example:
 
 ## Merge request events
 
+{{< history >}}
+
+- Webhook event for when setting or canceling auto-merge [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/515530) in GitLab 19.2.
+
+{{< /history >}}
+
 Merge request events are triggered when:
 
 - A new merge request is created.
 - An existing merge request is updated, approved (by all required approvers), unapproved, merged, or closed.
 - An individual user adds or removes their approval to an existing merge request.
 - A reviewer is re-requested to review a merge request.
+- A merge request is set to auto-merge, or auto-merge is canceled.
 - A commit is added in the source branch.
 - All threads are resolved on the merge request.
 
@@ -924,8 +931,11 @@ The available values for `object_attributes.action` in the payload are:
 - `open`: A merge request is created.
 - `close`: A merge request is closed.
 - `reopen`: A closed merge request is reopened.
-- `update`: A merge request is updated. This includes general updates and re-request
-  review actions. Check the `changes` field to determine the specific type of update.
+- `update`: A merge request is updated. This includes general updates, re-request
+  review actions, and setting or canceling auto-merge. Check the `changes`
+  field to determine the specific type of update. When auto-merge is set or
+  canceled, the `changes` field reflects the change to the merge request's
+  auto-merge status.
 - `approval`: A user adds their approval.
 - `approved`: A merge request is fully approved by all required approvers.
 - `unapproval`: A user removes their approval, either manually or by the system.

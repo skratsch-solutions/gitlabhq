@@ -393,6 +393,11 @@ module Gitlab
         )
         metadata['retry_config'] = retry_config
         metadata['client_name'] = client_name if client_name.present?
+        # Forward the requesting user and IP so Gitaly attributes these RPCs and
+        # applies the authenticated (vs unauthenticated) concurrency limits,
+        # matching what Gitlab::GitalyClient#request_kwargs already does for
+        # direct gRPC calls. Anonymous requests simply omit the user identity.
+        metadata.merge!(Gitlab::GitalyClient.application_context_metadata)
 
         {
           address: Gitlab::GitalyClient.address(repository.shard),

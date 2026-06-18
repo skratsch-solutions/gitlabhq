@@ -71,11 +71,11 @@ RSpec.describe Import::Offline::Imports::ScheduleImportService, :aggregate_failu
       service.execute
     end
 
-    context 'when the metadata file raises UnsupportedVersionError' do
+    context 'when the metadata file raises MetadataError for unsupported version' do
       before do
         allow_next_instance_of(Import::Offline::Imports::MetadataFileReader) do |reader|
           allow(reader).to receive(:read).and_raise(
-            Import::Offline::Imports::MetadataFileReader::UnsupportedVersionError, 'Invalid source version'
+            Import::Offline::Imports::MetadataFileReader::MetadataError, 'Invalid source version'
           )
         end
       end
@@ -108,7 +108,7 @@ RSpec.describe Import::Offline::Imports::ScheduleImportService, :aggregate_failu
       before do
         allow_next_instance_of(Import::Offline::Imports::MetadataFileReader) do |reader|
           allow(reader).to receive(:read).and_raise(
-            Import::Offline::Imports::MetadataFileReader::MetadataParseError, 'Failed to parse metadata'
+            Import::Offline::Imports::MetadataFileReader::MetadataError, 'Failed to parse metadata'
           )
         end
       end

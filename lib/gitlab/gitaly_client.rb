@@ -440,7 +440,6 @@ module Gitlab
       metadata['remote_ip'] = context_data['meta.remote_ip'] if context_data['meta.remote_ip']
       metadata
     end
-    private_class_method :application_context_metadata
 
     # Forward the in-flight MVCC manifest sha (set by Gitaly's pre-receive
     # hook handler after it uploaded the new state to durable storage) so the

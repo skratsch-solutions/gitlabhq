@@ -6,10 +6,6 @@ import PipelinesTable from '~/ci/common/pipelines_table.vue';
 import RunPipelineButton from '~/ci/common/run_pipeline_button.vue';
 import { PIPELINE_ID_KEY } from '~/ci/constants';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
-import eventHub from '~/ci/event_hub';
-import PipelinesMixin from '~/ci/pipeline_details/mixins/pipelines_mixin';
-import PipelinesService from '~/ci/pipelines_page/services/pipelines_service';
-import PipelineStore from '~/ci/pipeline_details/stores/pipelines_store';
 import TablePagination from '~/vue_shared/components/pagination/table_pagination.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { s__, __ } from '~/locale';
@@ -22,8 +18,13 @@ import retryPipelineMutation from '~/ci/pipelines_page/graphql/mutations/retry_p
 import cancelPipelineMutation from '~/ci/pipelines_page/graphql/mutations/cancel_pipeline.mutation.graphql';
 import { MR_PIPELINE_TYPE_DETACHED } from '~/ci/merge_requests/constants';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
+import PipelineStore from './legacy_pipelines_store';
+import PipelinesService from './legacy_pipelines_service';
+import PipelinesMixin from './legacy_pipelines_mixin';
+import eventHub from './legacy_pipelines_event_hub';
 
 export default {
+  name: 'LegacyPipelinesTableWrapper',
   components: {
     GlAlert,
     GlEmptyState,

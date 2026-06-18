@@ -1,9 +1,10 @@
 <script>
 import { GlAlert, GlFormCheckbox } from '@gitlab/ui';
+import { DEFAULT_PER_PAGE } from '~/api';
 import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
 import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
 import offlineTransferSourceOwnedGroupsQuery from '~/import/offline_transfer/graphql/queries/offline_transfer_source_owned_groups.query.graphql';
-import { OFFLINE_EXPORT_STEPS } from '../constants';
+import { OFFLINE_EXPORT_TAB_HEADINGS, OFFLINE_EXPORT_TAB_FIELDS } from '../constants';
 
 export default {
   name: 'OfflineTransferExportApp',
@@ -14,20 +15,19 @@ export default {
     GlFormCheckbox,
   },
   data() {
+    const tabFields = OFFLINE_EXPORT_TAB_FIELDS.map((field) => [field, false]);
+
     return {
       offlineTransferSourceOwnedGroups: null,
       showValidationError: false,
       isFormComplete: false,
 
-      isStepComplete: {
-        select: false,
-        configure: false,
-        review: false,
-        export: false,
-      },
+      isStepComplete: Object.fromEntries(tabFields),
       showFetchError: false,
+      showSelectError: false,
       search: null,
-      cursor: null,
+      startCursor: null,
+      endCursor: null,
       selectedGroups: [],
     };
   },
@@ -41,7 +41,7 @@ export default {
       variables() {
         return {
           search: this.search,
-          after: this.cursor,
+          ...this.pagination,
         };
       },
       error() {
@@ -51,14 +51,38 @@ export default {
   },
 
   computed: {
-    groups() {
+    pageGroups() {
       return this.offlineTransferSourceOwnedGroups?.nodes ?? [];
+    },
+    pageInfo() {
+      return this.offlineTransferSourceOwnedGroups?.pageInfo;
+    },
+    pagination() {
+      if (!this.startCursor && !this.endCursor) {
+        return { first: DEFAULT_PER_PAGE, after: null, last: null, before: null };
+      }
+
+      return {
+        first: this.endCursor && DEFAULT_PER_PAGE,
+        after: this.endCursor,
+        last: this.startCursor && DEFAULT_PER_PAGE,
+        before: this.startCursor,
+      };
     },
     selectedGroupIds() {
       return this.selectedGroups.map((group) => group.id);
     },
     isLoading() {
       return this.$apollo.queries.offlineTransferSourceOwnedGroups.loading;
+    },
+    selectedGroupsCount() {
+      return this.selectedGroups.length;
+    },
+  },
+  watch: {
+    // TODO: When adding searchbox, also watch search, reset cursors
+    selectedGroupsCount() {
+      this.showSelectError = false;
     },
   },
 
@@ -82,15 +106,32 @@ export default {
         this.addGroup(group);
       }
     },
+    onSteppedForward() {
+      this.showValidationError = false;
+      this.showSelectError = false;
+    },
 
-    onSelectAll() {
-      this.selectedGroups = [...this.groups];
+    onSelectAllCurrentPage() {
+      const newSelections = this.pageGroups.filter((group) => !this.isGroupSelected(group));
+      this.selectedGroups = [...this.selectedGroups, ...newSelections];
     },
     onDeselectAll() {
       this.selectedGroups = [];
     },
-    onValidationFailed() {
-      this.showValidationError = true;
+    onNext(endCursor) {
+      this.startCursor = null;
+      this.endCursor = endCursor;
+    },
+    onPrev(startCursor) {
+      this.startCursor = startCursor;
+      this.endCursor = null;
+    },
+    onValidationFailed(stepIndex) {
+      if (stepIndex === 0) {
+        this.showSelectError = true;
+      } else {
+        this.showValidationError = true;
+      }
     },
     validateStep(stepIndex) {
       // each tab/step has a unique validation logic
@@ -98,7 +139,7 @@ export default {
       // continuing to the next tab
       switch (stepIndex) {
         case 0:
-          return this.selectedGroups.length > 0;
+          return this.selectedGroupsCount > 0;
         case 1:
           return this.isStepComplete.configure;
         case 2:
@@ -110,13 +151,11 @@ export default {
       }
     },
     onSteppedBack({ previousTabIndex }) {
-      const fields = ['select', 'configure', 'review', 'export'];
-      // stepping back resets the valid state of previous tab
-      // in case user makes changes
-      this.isStepComplete[fields[previousTabIndex]] = false;
+      // stepping back resets the `valid` state of previously completed tab
+      this.isStepComplete[OFFLINE_EXPORT_TAB_FIELDS[previousTabIndex]] = false;
     },
   },
-  STEPS: OFFLINE_EXPORT_STEPS,
+  STEPS: OFFLINE_EXPORT_TAB_HEADINGS,
 };
 </script>
 
@@ -155,6 +194,9 @@ export default {
         data-testid="completion-alert"
         @dismiss="isFormComplete = false"
       />
+      <!-- TODO: When the configure/review/export steps get real
+        validation, move their errors inline at the top of each step's content (as
+        step 0 does) and remove this alert. -->
       <gl-alert
         v-if="showValidationError"
         :title="__('Error')"
@@ -171,6 +213,7 @@ export default {
       :validate-step="validateStep"
       :completion-button-text="s__('OfflineTransferExport|Start export')"
       @stepped-back="onSteppedBack"
+      @stepped-forward="onSteppedForward"
       @validation-failed="onValidationFailed"
       @complete="onComplete"
     >
@@ -186,12 +229,16 @@ export default {
           }}
         </p>
         <select-groups-tab
-          :groups="groups"
+          :page-groups="pageGroups"
           :selected-ids="selectedGroupIds"
           :loading="isLoading"
+          :page-info="pageInfo"
+          :show-select-error="showSelectError"
           @toggle="onToggleGroup"
-          @select-all="onSelectAll"
+          @select-current-page="onSelectAllCurrentPage"
           @deselect-all="onDeselectAll"
+          @next="onNext"
+          @prev="onPrev"
         />
       </template>
 

@@ -8,11 +8,11 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
   include WorkhorseHelpers
   include ProjectForksHelper
 
-  let(:user) { create(:user) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:project, reload: true) { create(:project, :repository, creator: user) }
+  let!(:maintainer) { create(:project_member, :maintainer, user: user, project: project) }
   let(:guest) { create(:user).tap { |u| create(:project_member, :guest, user: u, project: project) } }
   let(:developer) { create(:user).tap { |u| create(:project_member, :developer, user: u, project: project) } }
-  let!(:project) { create(:project, :repository, creator: user) }
-  let!(:maintainer) { create(:project_member, :maintainer, user: user, project: project) }
 
   describe "GET /projects/:id/repository/tree" do
     let(:route) { "/projects/#{project.id}/repository/tree" }
@@ -763,6 +763,7 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
 
     context 'when authenticated', 'as a developer' do
       it_behaves_like 'repository compare' do
+        let(:project) { create(:project, :repository, creator: user) }
         let(:current_user) { user }
 
         context 'when user does not have read access to the parent project' do
@@ -885,6 +886,7 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
 
     context 'when authenticated', 'as a developer' do
       it_behaves_like 'repository contributors' do
+        let(:project) { create(:project, :repository, creator: user) }
         let(:current_user) { user }
       end
     end
@@ -919,6 +921,7 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
   end
 
   describe 'GET :id/repository/health' do
+    let(:project) { create(:project, :repository, creator: user) }
     let(:params) { nil }
 
     subject(:request) do
@@ -1098,6 +1101,8 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
   end
 
   describe 'GET /projects/:id/repository/changelog' do
+    let(:project) { create(:project, :repository, creator: user) }
+
     it_behaves_like 'enforcing job token policies', :read_releases,
       allow_public_access_for_enabled_project_features: :repository do
       before do
@@ -1354,6 +1359,8 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
   end
 
   describe 'POST /projects/:id/repository/changelog' do
+    let(:project) { create(:project, :repository, creator: user) }
+
     it 'generates the changelog for a version' do
       spy = instance_spy(::Repositories::ChangelogService)
 

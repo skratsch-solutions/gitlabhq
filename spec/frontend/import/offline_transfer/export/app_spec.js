@@ -7,8 +7,13 @@ import OfflineTransferExportApp from '~/import/offline_transfer/export/app.vue';
 import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
 import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
 import offlineTransferSourceOwnedGroupsQuery from '~/import/offline_transfer/graphql/queries/offline_transfer_source_owned_groups.query.graphql';
-import { OFFLINE_EXPORT_STEPS } from '~/import/offline_transfer/constants';
-import { mockGroups, mockGroupsResponse } from '../mock_data';
+import { OFFLINE_EXPORT_TAB_HEADINGS } from '~/import/offline_transfer/constants';
+import {
+  mockGroups,
+  mockGroupsResponse,
+  mockGroupsPage1Response,
+  mockGroupsPage2Response,
+} from '../mock_data';
 
 Vue.use(VueApollo);
 
@@ -35,7 +40,7 @@ describe('OfflineTransferExportApp', () => {
     });
 
     it('the correct steps', () => {
-      expect(findFormStepper().props('steps')).toBe(OFFLINE_EXPORT_STEPS);
+      expect(findFormStepper().props('steps')).toBe(OFFLINE_EXPORT_TAB_HEADINGS);
     });
 
     it('the correct completion button text', () => {
@@ -63,9 +68,17 @@ describe('OfflineTransferExportApp', () => {
     it('triggers a validation error alert when FormStepper emits validation-failed', async () => {
       expect(findValidationErrorAlert().exists()).toBe(false);
 
-      await findFormStepper().vm.$emit('validation-failed');
+      await findFormStepper().vm.$emit('validation-failed', 1);
 
       expect(findValidationErrorAlert().exists()).toBe(true);
+    });
+
+    it('clears existing validation error alert when FormStepper emits stepped-forward', async () => {
+      await findFormStepper().vm.$emit('validation-failed');
+      expect(findValidationErrorAlert().exists()).toBe(true);
+
+      await findFormStepper().vm.$emit('stepped-forward');
+      expect(findValidationErrorAlert().exists()).toBe(false);
     });
 
     it('sets the previously completed step as invalid after FormStepper emits stepped-back', async () => {
@@ -87,9 +100,14 @@ describe('OfflineTransferExportApp', () => {
 
       expect(
         findSelectGroupsTab()
-          .props('groups')
+          .props('pageGroups')
           .map((group) => group.id),
       ).toEqual(['gid://glab/Group/1', 'gid://glab/Group/2', 'gid://glab/Group/3']);
+    });
+
+    it('receives showSelectError as false by default', () => {
+      createComponent();
+      expect(findSelectGroupsTab().props('showSelectError')).toBe(false);
     });
 
     it('receives query loading state', async () => {
@@ -131,8 +149,8 @@ describe('OfflineTransferExportApp', () => {
         expect(findSelectGroupsTab().props('selectedIds')).toEqual([]);
       });
 
-      it('when emits `select-all` adds every group', async () => {
-        findSelectGroupsTab().vm.$emit('select-all');
+      it('when emits `select-current-page` adds every group', async () => {
+        findSelectGroupsTab().vm.$emit('select-current-page');
         await nextTick();
 
         expect(findSelectGroupsTab().props('selectedIds')).toEqual([
@@ -143,7 +161,7 @@ describe('OfflineTransferExportApp', () => {
       });
 
       it('when emits `deselect-all` empties the collection', async () => {
-        findSelectGroupsTab().vm.$emit('select-all');
+        findSelectGroupsTab().vm.$emit('select-current-page');
         await nextTick();
         findSelectGroupsTab().vm.$emit('deselect-all');
         await nextTick();
@@ -152,7 +170,91 @@ describe('OfflineTransferExportApp', () => {
       });
     });
 
-    describe('step validation', () => {
+    describe('pagination', () => {
+      const PAGE_1_END_CURSOR = mockGroupsPage1Response.data.groups.pageInfo.endCursor;
+      const PAGE_2_START_CURSOR = mockGroupsPage2Response.data.groups.pageInfo.startCursor;
+      const PAGE_1_IDS = ['gid://glab/Group/1', 'gid://glab/Group/2', 'gid://glab/Group/3'];
+      const PAGE_2_IDS = ['gid://glab/Group/4', 'gid://glab/Group/5', 'gid://glab/Group/6'];
+
+      // Returns page 1 on the first query, page 2 on the second.
+      const createPaginatedComponent = () => {
+        const handler = jest
+          .fn()
+          .mockResolvedValueOnce(mockGroupsPage1Response)
+          .mockResolvedValueOnce(mockGroupsPage2Response);
+        createComponent({ handler });
+        return handler;
+      };
+
+      it('passes pageInfo from the query down to the tab', async () => {
+        createComponent();
+        await waitForPromises();
+
+        expect(findSelectGroupsTab().props('pageInfo')).toMatchObject(
+          mockGroupsResponse.data.groups.pageInfo,
+        );
+      });
+
+      it('fetches the next page with `after` when the tab emits next', async () => {
+        const handler = createPaginatedComponent();
+        await waitForPromises();
+
+        findSelectGroupsTab().vm.$emit('next', PAGE_1_END_CURSOR);
+        await waitForPromises();
+
+        expect(handler).toHaveBeenLastCalledWith(
+          expect.objectContaining({ after: PAGE_1_END_CURSOR, before: null }),
+        );
+        expect(
+          findSelectGroupsTab()
+            .props('pageGroups')
+            .map((group) => group.id),
+        ).toEqual(PAGE_2_IDS);
+      });
+
+      it('fetches the previous page with `before` when the tab emits prev', async () => {
+        const handler = createPaginatedComponent();
+        await waitForPromises();
+
+        findSelectGroupsTab().vm.$emit('prev', PAGE_2_START_CURSOR);
+        await waitForPromises();
+
+        expect(handler).toHaveBeenLastCalledWith(
+          expect.objectContaining({ before: PAGE_2_START_CURSOR, after: null }),
+        );
+      });
+
+      it('keeps the selection when the page changes', async () => {
+        createPaginatedComponent();
+        await waitForPromises();
+
+        findSelectGroupsTab().vm.$emit('toggle', mockGroups[0]);
+        await nextTick();
+
+        findSelectGroupsTab().vm.$emit('next', PAGE_1_END_CURSOR);
+        await waitForPromises();
+
+        expect(findSelectGroupsTab().props('selectedIds')).toContain(mockGroups[0].id);
+      });
+
+      it('accumulates selections across pages on select-current-page', async () => {
+        createPaginatedComponent();
+        await waitForPromises();
+
+        findSelectGroupsTab().vm.$emit('select-current-page');
+        await nextTick();
+
+        findSelectGroupsTab().vm.$emit('next', PAGE_1_END_CURSOR);
+        await waitForPromises();
+
+        findSelectGroupsTab().vm.$emit('select-current-page');
+        await nextTick();
+
+        expect(findSelectGroupsTab().props('selectedIds')).toEqual([...PAGE_1_IDS, ...PAGE_2_IDS]);
+      });
+    });
+
+    describe('validation', () => {
       beforeEach(async () => {
         createComponent();
         await waitForPromises();
@@ -167,6 +269,27 @@ describe('OfflineTransferExportApp', () => {
         await nextTick();
 
         expect(findFormStepper().props('validateStep')(0)).toBe(true);
+      });
+
+      it('clears existing showSelectError when FormStepper emits stepped-forward', async () => {
+        await findFormStepper().vm.$emit('validation-failed', 0);
+        expect(findSelectGroupsTab().props('showSelectError')).toBe(true);
+
+        await findFormStepper().vm.$emit('stepped-forward');
+        expect(findSelectGroupsTab().props('showSelectError')).toBe(false);
+      });
+
+      it('after failed continue, when group selection changes, clears showSelectError', async () => {
+        await findFormStepper().vm.$emit('validation-failed', 0);
+        expect(findSelectGroupsTab().props('showSelectError')).toBe(true);
+
+        findSelectGroupsTab().vm.$emit('toggle', mockGroups[0]);
+        await nextTick();
+        expect(findSelectGroupsTab().props('showSelectError')).toBe(false);
+
+        findSelectGroupsTab().vm.$emit('deselect-all');
+        await nextTick();
+        expect(findSelectGroupsTab().props('showSelectError')).toBe(false);
       });
     });
   });

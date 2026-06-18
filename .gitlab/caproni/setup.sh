@@ -728,4 +728,8 @@ success "  Copied: ${COPIED_FILES[*]:-none}"
 success "  Rewritten to development env: ${MODIFIED_FILES[*]:-none}"
 success "  Unable to modify files: ${UNMODIFIED_FILES[*]:-none}"
 success ""
+
+# Create a marker file so exec.sh can tell setup has run.
+touch "$GITLAB_DIR/.gitlab/caproni/.setup-complete"
+
 echo 'Next: Run `caproni run`'

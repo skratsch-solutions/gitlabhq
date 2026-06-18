@@ -1,4 +1,4 @@
-import PipelineStore from '~/ci/pipeline_details/stores/pipelines_store';
+import PipelineStore from '~/commit/pipelines/legacy_pipelines_store';
 
 describe('Pipelines Store', () => {
   let store;

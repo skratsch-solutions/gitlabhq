@@ -54,6 +54,7 @@ export default {
       required: true,
     },
   },
+  emits: ['changeCanaryWeight'],
   computed: {
     canRenderDeployBoard() {
       return !this.isEmpty && !isEmpty(this.deployBoardData);

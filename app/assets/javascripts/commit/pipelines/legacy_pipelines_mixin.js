@@ -1,6 +1,5 @@
 import Visibility from 'visibilityjs';
 import { createAlert } from '~/alert';
-import eventHub from '~/ci/event_hub';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import { historyPushState, buildUrlWithCurrentLocation } from '~/lib/utils/common_utils';
 import { reportToSentry } from '~/ci/utils';
@@ -8,7 +7,8 @@ import { HTTP_STATUS_UNAUTHORIZED } from '~/lib/utils/http_status';
 import Poll from '~/lib/utils/poll';
 import { __ } from '~/locale';
 import { validateParams } from '~/ci/pipeline_details/utils';
-import { CANCEL_REQUEST, TOAST_MESSAGE } from '../constants';
+import { CANCEL_REQUEST, TOAST_MESSAGE } from '~/ci/pipeline_details/constants';
+import eventHub from './legacy_pipelines_event_hub';
 
 export default {
   data() {

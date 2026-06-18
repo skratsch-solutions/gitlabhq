@@ -97,9 +97,7 @@ Grants the ability to create and read cd applications.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
-| Create | Group | Mutation | `CdApplicationCreate` |
 | Create | Instance | Mutation | `CdApplicationCreate` |
-| Read | Group | Type | `CdApplication` |
 | Read | Instance | Type | `CdApplication` |
 | Read | Instance | Type | `CdService` |
 
@@ -109,9 +107,7 @@ Grants the ability to create and read cd environments.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
-| Create | Group | Mutation | `CdEnvironmentCreate` |
 | Create | Instance | Mutation | `CdEnvironmentCreate` |
-| Read | Group | Type | `CdEnvironment` |
 | Read | Instance | Type | `CdEnvironment` |
 
 #### Cluster Agent

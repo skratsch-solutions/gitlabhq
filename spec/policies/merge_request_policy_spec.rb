@@ -603,4 +603,39 @@ RSpec.describe MergeRequestPolicy, feature_category: :code_review_workflow do
       end
     end
   end
+
+  describe 'work item relation permissions', feature_category: :code_review_workflow do
+    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+
+    let(:work_item_relation_permissions) do
+      [:create_merge_request_work_item_relation, :delete_merge_request_work_item_relation]
+    end
+
+    context 'when the user can admin the merge request' do
+      let(:user) { developer }
+
+      before_all do
+        project.add_developer(developer)
+      end
+
+      it { expect_allowed(*work_item_relation_permissions) }
+    end
+
+    context 'when the user cannot admin the merge request' do
+      let(:user) { guest }
+
+      before_all do
+        project.add_guest(guest)
+      end
+
+      it { expect_disallowed(*work_item_relation_permissions) }
+    end
+
+    context 'when the user is anonymous' do
+      let(:user) { nil }
+
+      it { expect_disallowed(*work_item_relation_permissions) }
+    end
+  end
 end

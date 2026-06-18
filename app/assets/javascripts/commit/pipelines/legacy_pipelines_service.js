@@ -1,6 +1,6 @@
 import Api from '~/api';
 import axios from '~/lib/utils/axios_utils';
-import { validateParams } from '../../pipeline_details/utils';
+import { validateParams } from '~/ci/pipeline_details/utils';
 
 export default class PipelinesService {
   /**

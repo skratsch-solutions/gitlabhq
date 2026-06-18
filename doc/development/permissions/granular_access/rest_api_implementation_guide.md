@@ -261,6 +261,9 @@ it_behaves_like 'authorizing granular token permissions', :<permission_name> do
 end
 ```
 
+For read-only endpoints, the shared example also checks that a granular PAT without scope matches a
+legacy non-member, which catches permissions missing from `public_anonymous.yml`.
+
 #### Boundary Object Mapping
 
 The `boundary_object` must match the `boundary_type`:

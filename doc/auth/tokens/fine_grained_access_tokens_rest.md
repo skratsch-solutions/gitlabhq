@@ -3002,12 +3002,12 @@ Grants the ability to read and update notification settings.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
-| Read | Project | `GET` | `/projects/:id/notification_settings` |
-| Read | Group | `GET` | `/groups/:id/notification_settings` |
+| Read | User | `GET` | `/groups/:id/notification_settings` |
 | Read | User | `GET` | `/notification_settings` |
-| Update | Project | `PUT` | `/projects/:id/notification_settings` |
-| Update | Group | `PUT` | `/groups/:id/notification_settings` |
+| Read | User | `GET` | `/projects/:id/notification_settings` |
+| Update | User | `PUT` | `/groups/:id/notification_settings` |
 | Update | User | `PUT` | `/notification_settings` |
+| Update | User | `PUT` | `/projects/:id/notification_settings` |
 
 #### OAuth Application
 
@@ -3389,8 +3389,14 @@ feature is enabled.
 | Package: Read | `GET` | `/group/:id/-/packages/composer/p2/*package_name` |
 | Package: Read | `GET` | `/group/:id/-/packages/composer/packages` |
 | Group: Read | `GET` | `/groups/:id` |
+| Work Item: Read | `GET` | `/groups/:id/(-/)epics/:epic_iid/epics` |
+| Global Search: Use | `GET` | `/groups/:id/(-/)search` |
+| Work Item: Read | `GET` | `/groups/:id/-/epics/:epic_iid/issues` |
 | Package: Read | `GET` | `/groups/:id/-/packages/maven/*path/:file_name` |
 | Package: Read | `GET` | `/groups/:id/-/packages/npm/-/package/*package_name/dist-tags` |
+| Package: Read | `GET` | `/groups/:id/-/packages/pypi/files/:sha256/*file_identifier` |
+| Package: Read | `GET` | `/groups/:id/-/packages/pypi/simple` |
+| Package: Read | `GET` | `/groups/:id/-/packages/pypi/simple/*package_name` |
 | Avatar: Read | `GET` | `/groups/:id/avatar` |
 | Badge: Read | `GET` | `/groups/:id/badges` |
 | Badge: Read | `GET` | `/groups/:id/badges/:badge_id` |
@@ -3398,9 +3404,24 @@ feature is enabled.
 | Group: Read | `GET` | `/groups/:id/descendant_groups` |
 | Work Item: Read | `GET` | `/groups/:id/epics/:epic_iid/award_emoji` |
 | Work Item: Read | `GET` | `/groups/:id/epics/:epic_iid/award_emoji/:award_id` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:epic_iid/issues` |
 | Work Item: Read | `GET` | `/groups/:id/epics/:epic_iid/notes/:note_id/award_emoji` |
 | Work Item: Read | `GET` | `/groups/:id/epics/:epic_iid/notes/:note_id/award_emoji/:award_id` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:eventable_id/resource_label_events` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:eventable_id/resource_label_events/:event_id` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:eventable_id/resource_state_events` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:eventable_id/resource_state_events/:event_id` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:noteable_id/discussions` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:noteable_id/discussions/:discussion_id` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:noteable_id/discussions/:discussion_id/notes` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:noteable_id/discussions/:discussion_id/notes/:note_id` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:noteable_id/notes` |
+| Work Item: Read | `GET` | `/groups/:id/epics/:noteable_id/notes/:note_id` |
 | Work Item: Read | `GET` | `/groups/:id/issues_statistics` |
+| Member: Read | `GET` | `/groups/:id/members` |
+| Member: Read | `GET` | `/groups/:id/members/:user_id` |
+| Member: Read | `GET` | `/groups/:id/members/all` |
+| Member: Read | `GET` | `/groups/:id/members/all/:user_id` |
 | Merge Request: Read | `GET` | `/groups/:id/merge_requests` |
 | Work Item: Read | `GET` | `/groups/:id/milestones/:milestone_id/issues` |
 | Work Item: Read | `GET` | `/groups/:id/milestones/:milestone_id/merge_requests` |
@@ -3411,9 +3432,16 @@ feature is enabled.
 | Markdown Upload: Read | `GET` | `/groups/:id/uploads` |
 | Markdown Upload: Read | `GET` | `/groups/:id/uploads/:secret/:filename` |
 | Markdown Upload: Read | `GET` | `/groups/:id/uploads/:upload_id` |
+| Work Item: Read | `GET` | `/groups/:id/wiki_pages/:noteable_id/notes` |
+| Work Item: Read | `GET` | `/groups/:id/wiki_pages/:noteable_id/notes/:note_id` |
+| Wiki: Read | `GET` | `/groups/:id/wikis` |
+| Wiki: Read | `GET` | `/groups/:id/wikis/:slug` |
 | Package: Read | `GET` | `/packages/npm/-/package/*package_name/dist-tags` |
 | Project: Read | `GET` | `/projects/:id` |
+| Global Search: Use | `GET` | `/projects/:id/(-/)search` |
 | Code: Read | `GET` | `/projects/:id/(-/)search/semantic` |
+| Approval Rule: Read | `GET` | `/projects/:id/approval_rules` |
+| Approval Rule: Read | `GET` | `/projects/:id/approval_rules/:approval_rule_id` |
 | Avatar: Read | `GET` | `/projects/:id/avatar` |
 | Badge: Read | `GET` | `/projects/:id/badges` |
 | Badge: Read | `GET` | `/projects/:id/badges/:badge_id` |
@@ -3429,15 +3457,43 @@ feature is enabled.
 | Environment: Read | `GET` | `/projects/:id/environments/:environment_id` |
 | Project: Read | `GET` | `/projects/:id/forks` |
 | Work Item: Read | `GET` | `/projects/:id/issues` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_iteration_events` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_iteration_events/:event_id` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_label_events` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_label_events/:event_id` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_milestone_events` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_milestone_events/:event_id` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_state_events` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_state_events/:event_id` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_weight_events` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:eventable_id/resource_weight_events/:event_id` |
 | Work Item: Read | `GET` | `/projects/:id/issues/:issue_iid` |
 | Work Item: Read | `GET` | `/projects/:id/issues/:issue_iid/closed_by` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:issue_iid/notes/:note_id/award_emoji` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:issue_iid/notes/:note_id/award_emoji/:award_id` |
 | Work Item: Read | `GET` | `/projects/:id/issues/:issue_iid/participants` |
 | Work Item: Read | `GET` | `/projects/:id/issues/:issue_iid/related_merge_requests` |
 | Work Item: Read | `GET` | `/projects/:id/issues/:issue_iid/time_stats` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:noteable_id/discussions` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:noteable_id/discussions/:discussion_id` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:noteable_id/discussions/:discussion_id/notes` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:noteable_id/discussions/:discussion_id/notes/:note_id` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:noteable_id/notes` |
+| Work Item: Read | `GET` | `/projects/:id/issues/:noteable_id/notes/:note_id` |
 | Work Item: Read | `GET` | `/projects/:id/issues_statistics` |
 | Label: Read | `GET` | `/projects/:id/labels` |
 | Label: Read | `GET` | `/projects/:id/labels/:name` |
+| Member: Read | `GET` | `/projects/:id/members` |
+| Member: Read | `GET` | `/projects/:id/members/:user_id` |
+| Member: Read | `GET` | `/projects/:id/members/all` |
+| Member: Read | `GET` | `/projects/:id/members/all/:user_id` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests` |
+| Merge Request: Read | `GET` | `/projects/:id/merge_requests/:eventable_id/resource_label_events` |
+| Merge Request: Read | `GET` | `/projects/:id/merge_requests/:eventable_id/resource_label_events/:event_id` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:eventable_id/resource_milestone_events` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:eventable_id/resource_milestone_events/:event_id` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:eventable_id/resource_state_events` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:eventable_id/resource_state_events/:event_id` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid` |
 | Merge Request Approval Rule: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/approval_rules` |
 | Merge Request Approval Rule: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/approval_rules/:approval_rule_id` |
@@ -3451,6 +3507,8 @@ feature is enabled.
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/draft_notes` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/draft_notes/:draft_note_id` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/merge_ref` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/notes/:note_id/award_emoji` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/notes/:note_id/award_emoji/:award_id` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/participants` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/pipelines` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/raw_diffs` |
@@ -3459,6 +3517,12 @@ feature is enabled.
 | Work Item: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/time_stats` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/versions` |
 | Merge Request: Read | `GET` | `/projects/:id/merge_requests/:merge_request_iid/versions/:version_id` |
+| Merge Request: Read | `GET` | `/projects/:id/merge_requests/:noteable_id/discussions` |
+| Merge Request: Read | `GET` | `/projects/:id/merge_requests/:noteable_id/discussions/:discussion_id` |
+| Merge Request: Read | `GET` | `/projects/:id/merge_requests/:noteable_id/discussions/:discussion_id/notes` |
+| Merge Request: Read | `GET` | `/projects/:id/merge_requests/:noteable_id/discussions/:discussion_id/notes/:note_id` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:noteable_id/notes` |
+| Work Item: Read | `GET` | `/projects/:id/merge_requests/:noteable_id/notes/:note_id` |
 | Work Item: Read | `GET` | `/projects/:id/milestones` |
 | Work Item: Read | `GET` | `/projects/:id/milestones/:milestone_id` |
 | Model Version: Read | `GET` | `/projects/:id/ml/mlflow/api/2.0/mlflow/model-versions/get` |
@@ -3505,6 +3569,10 @@ feature is enabled.
 | Branch: Read | `HEAD` | `/projects/:id/repository/branches/:branch` |
 | Repository: Read | `GET` | `/projects/:id/repository/changelog` |
 | Commit: Read | `GET` | `/projects/:id/repository/commits` |
+| Commit: Read | `GET` | `/projects/:id/repository/commits/:noteable_id/discussions` |
+| Commit: Read | `GET` | `/projects/:id/repository/commits/:noteable_id/discussions/:discussion_id` |
+| Commit: Read | `GET` | `/projects/:id/repository/commits/:noteable_id/discussions/:discussion_id/notes` |
+| Commit: Read | `GET` | `/projects/:id/repository/commits/:noteable_id/discussions/:discussion_id/notes/:note_id` |
 | Commit: Read | `GET` | `/projects/:id/repository/commits/:sha` |
 | Commit: Read | `GET` | `/projects/:id/repository/commits/:sha/comments` |
 | Commit: Read | `GET` | `/projects/:id/repository/commits/:sha/diff` |
@@ -3526,7 +3594,17 @@ feature is enabled.
 | Repository Tag: Read | `GET` | `/projects/:id/repository/tags/:tag_name` |
 | Repository Tag: Read | `GET` | `/projects/:id/repository/tags/:tag_name/signature` |
 | Repository: Read | `GET` | `/projects/:id/repository/tree` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:noteable_id/discussions` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:noteable_id/discussions/:discussion_id` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:noteable_id/discussions/:discussion_id/notes` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:noteable_id/discussions/:discussion_id/notes/:note_id` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:noteable_id/notes` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:noteable_id/notes/:note_id` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:snippet_id/notes/:note_id/award_emoji` |
+| Work Item: Read | `GET` | `/projects/:id/snippets/:snippet_id/notes/:note_id/award_emoji/:award_id` |
 | Project: Read | `GET` | `/projects/:id/starrers` |
+| Work Item: Read | `GET` | `/projects/:id/wiki_pages/:noteable_id/notes` |
+| Work Item: Read | `GET` | `/projects/:id/wiki_pages/:noteable_id/notes/:note_id` |
 | Wiki: Read | `GET` | `/projects/:id/wikis` |
 | Wiki: Read | `GET` | `/projects/:id/wikis/:slug` |
 | Package: Read | `GET` | `/virtual_registries/packages/maven/:id/*path` |

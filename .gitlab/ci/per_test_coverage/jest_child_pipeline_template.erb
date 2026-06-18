@@ -48,8 +48,6 @@ jest per-test-coverage:
     # these, and GitLab rejects `optional` on cross-pipeline needs. The jest run
     # needs the generated JS routes and fe-islands assets to pass.
     - pipeline: $PARENT_PIPELINE_ID
-      job: generate-js-routes
-    - pipeline: $PARENT_PIPELINE_ID
       job: compile-fe-islands
     - pipeline: $PARENT_PIPELINE_ID
       job: per-test-coverage:pipeline-generate

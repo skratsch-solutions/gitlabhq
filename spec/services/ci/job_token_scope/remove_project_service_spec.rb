@@ -14,54 +14,71 @@ RSpec.describe Ci::JobTokenScope::RemoveProjectService, feature_category: :conti
       target_project: target_project)
   end
 
-  shared_examples 'removes project' do |context|
-    it 'removes the project from the scope' do
-      expect do
-        expect(result).to be_success
-        expect(result.payload).to eq(link)
-      end.to change { Ci::JobToken::ProjectScopeLink.count }.by(-1)
+  shared_examples 'returns error' do |error|
+    it 'returns an error response', :aggregate_failures do
+      expect(result).to be_error
+      expect(result.message).to eq(error)
     end
   end
 
   describe '#execute' do
     subject(:result) { service.execute(target_project, :outbound) }
 
-    it_behaves_like 'editable job token scope' do
+    context 'when user does not have permissions to edit the job token scope' do
+      it_behaves_like 'returns error', 'Insufficient permissions to modify the job token scope'
+    end
+
+    context 'when user has permissions to edit the job token scope' do
+      before do
+        project.add_maintainer(current_user)
+      end
+
       context 'when user has permissions on source and target project' do
         before do
-          project.add_maintainer(current_user)
           target_project.add_developer(current_user)
         end
 
-        it_behaves_like 'removes project'
+        it 'removes the project from the scope', :aggregate_failures do
+          expect { expect(result).to be_success }.to change { Ci::JobToken::ProjectScopeLink.count }.by(-1)
+          expect(result.payload).to eq(link)
+        end
 
         context 'when token scope is disabled' do
           before do
             project.ci_cd_settings.update!(job_token_scope_enabled: false)
           end
 
-          it_behaves_like 'removes project'
+          it 'removes the project from the scope', :aggregate_failures do
+            expect { expect(result).to be_success }.to change { Ci::JobToken::ProjectScopeLink.count }.by(-1)
+            expect(result.payload).to eq(link)
+          end
+        end
+      end
+
+      context 'when user cannot read the target project' do
+        let_it_be(:target_project) { create(:project, :private) }
+        let_it_be(:link) do
+          create(:ci_job_token_project_scope_link,
+            source_project: project,
+            target_project: target_project)
+        end
+
+        it 'removes the project from the scope', :aggregate_failures do
+          expect { expect(result).to be_success }.to change { Ci::JobToken::ProjectScopeLink.count }.by(-1)
+          expect(result.payload).to eq(link)
         end
       end
 
       context 'when target project is same as the source project' do
-        before do
-          project.add_maintainer(current_user)
-        end
-
         let(:target_project) { project }
 
-        it_behaves_like 'returns error', "Source project cannot be removed from the job token scope"
+        it_behaves_like 'returns error', Ci::JobTokenScope::RemoveProjectService::SOURCE_CANNOT_BE_REMOVED
       end
 
       context 'when target project is not in the job token scope' do
         let_it_be(:target_project) { create(:project, :public) }
 
-        before do
-          project.add_maintainer(current_user)
-        end
-
-        it_behaves_like 'returns error', 'Target project is not in the job token scope'
+        it_behaves_like 'returns error', Ci::JobTokenScope::RemoveProjectService::TARGET_NOT_IN_SCOPE
       end
     end
   end

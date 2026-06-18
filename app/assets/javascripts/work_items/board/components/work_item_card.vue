@@ -40,7 +40,10 @@ export default {
 </script>
 
 <template>
-  <li class="gl-border gl-rounded-lg gl-border-section gl-bg-section hover:gl-bg-subtle">
+  <li
+    :data-work-item-id="item.id"
+    class="js-board-card gl-border gl-rounded-lg gl-border-section gl-bg-section hover:gl-bg-subtle"
+  >
     <a
       :href="item.webPath"
       data-testid="work-item-link"

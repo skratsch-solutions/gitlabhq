@@ -28,6 +28,11 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MONOLITH_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
+if [[ ! -f "$SCRIPT_DIR/.setup-complete" ]]; then
+  echo >&2 "ERROR: setup has not run yet. Run 'caproni run' to set up the local environment first."
+  exit 1
+fi
+
 CONFIG_NAME="${MIRRORD_CONFIG:-exec}"
 CONFIG="$MONOLITH_DIR/.gitlab/caproni/.mirrord/${CONFIG_NAME}.json"
 TARGET_DEPLOYMENT="deploy/gitlab-toolbox"

@@ -84,7 +84,7 @@ Source Location   | /config/routes/snippets.rb:3
 The JavaScript path helper is the `Prefix` in camelCase with suffix `Path`. In the above example it will be `newSnippetPath`. The `Source Location` indicates which file the path helper will be in. In the above example it would be in `app/assets/javascripts/lib/utils/path_helpers/snippets.js`
 
 > [!note]
-> `app/assets/javascripts/lib/utils/path_helpers/*.js` should be generated when starting [GitLab Development Kit](https://gitlab-org.gitlab.io/gitlab-development-kit/). If the path helpers are not generated or you are getting errors due to them being out of date, you can manually generate the path helpers by running `bundle exec rake gitlab:js:routes`. Similarly you can clear the cache and restart GDK with `yarn clean && gdk restart`.
+> When updating Rails routes you will need to generate and commit the JavaScript path helpers for these routes. To do this run  `bin/rake gitlab:js:routes`.
 
 #### Project path helpers
 

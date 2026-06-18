@@ -69,6 +69,7 @@ export default {
       default: null,
     },
   },
+  emits: ['closeForm', 'dueDateUpdated', 'startDateUpdated'],
   data() {
     return {
       issuable: {},

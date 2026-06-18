@@ -12,6 +12,7 @@ module AutoMerge
       end
 
       notify(merge_request)
+      execute_merge_request_hooks(merge_request)
       AutoMergeProcessWorker.perform_async({ 'merge_request_id' => merge_request.id })
 
       strategy.to_sym
@@ -33,7 +34,15 @@ module AutoMerge
     end
 
     def cancel(merge_request, &block)
-      clear_auto_merge(merge_request, error_message: "Can't cancel the automatic merge", &block)
+      response = clear_auto_merge(merge_request, error_message: "Can't cancel the automatic merge", &block)
+
+      # Fire the update webhook only on a successful, user-initiated cancellation.
+      # abort delegates to clear_auto_merge too but intentionally skips this:
+      # aborts are system-initiated, so a plain 'update' event would misattribute
+      # the change to current_user.
+      execute_merge_request_hooks(merge_request) if response[:status] == :success
+
+      response
     end
 
     def abort(merge_request, reason, &block)
@@ -77,6 +86,14 @@ module AutoMerge
 
     # Overridden in child classes
     def notify(merge_request); end
+
+    # Fires outside the transaction so the DB state is committed before
+    # external consumers receive the event.
+    def execute_merge_request_hooks(merge_request)
+      MergeRequests::BaseService
+        .new(project: merge_request.project, current_user: current_user)
+        .execute_hooks(merge_request, 'update')
+    end
 
     def strategy
       strong_memoize(:strategy) do
