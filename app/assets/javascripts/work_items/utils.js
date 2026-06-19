@@ -120,6 +120,7 @@ export const findLabelsWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_LABELS);
 
 export const findLinkedItemsWidget = (workItem) =>
+  workItem?.features?.linkedItems ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_LINKED_ITEMS);
 
 export const findBlockerLinkedItems = (workItem) =>

@@ -62,7 +62,7 @@ The `geo:blob_replicator` Rails generator automates the creation of all boilerpl
   | `--parent-factory` | Parent model factory in upload-partition mode (defaults to `NAME` minus `_upload`) |
   | `--pretend` | Preview without writing |
   | `--skip-post-generate` | Skip the post-generation rake tasks and RuboCop autocorrect |
-  | `--only-post-generate` | Post-rebase: skip new-file creation and patching; only re-run the derived-doc regeneration rake tasks (and RuboCop autocorrect) |
+  | `--only-post-generate` | Post-rebase: skip new-file creation, but re-apply the (idempotent) framework patches and re-run the derived-doc regeneration rake tasks (and RuboCop autocorrect) |
 
   After writing the files and applying the patches, the generator regenerates the derived docs/metrics (gettext, SSF metrics, DB dictionary, GraphQL and OpenAPI docs) and runs `rubocop --autocorrect` over the generated and patched Ruby.
 

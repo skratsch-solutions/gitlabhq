@@ -4,7 +4,7 @@ internal/staticpages/servefile.go:63:1: cognitive complexity 22 of func `(*Stati
 internal/transport/transport.go:147:1: cognitive complexity 59 of func `validateIPAddress` is high (> 20) (gocognit)
 cmd/gitlab-workhorse/logging.go:54:11: string `stderr` has 3 occurrences, make it a constant (goconst)
 cmd/gitlab-workhorse/main.go:418:10: G112: Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server (gosec)
-internal/ai_assist/duoworkflow/actions.go:195:40: G704: SSRF via taint analysis (gosec)
+internal/ai_assist/duoworkflow/actions.go:231:40: G704: SSRF via taint analysis (gosec)
 internal/config/config.go:319:18: G204: Subprocess launched with variable (gosec)
 internal/config/config.go:500:8: G101: Potential hardcoded credentials (gosec)
 internal/dependencyproxy/dependencyproxy.go:235:44: G704: SSRF via taint analysis (gosec)

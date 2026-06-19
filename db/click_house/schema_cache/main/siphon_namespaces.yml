@@ -116,8 +116,6 @@ columns:
   type: Nullable(Bool)
 - name: max_personal_access_token_lifetime
   type: Nullable(Int64)
-- name: push_rule_id
-  type: Nullable(Int64)
 - name: shared_runners_enabled
   type: Bool
   default_kind: DEFAULT

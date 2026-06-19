@@ -66743,6 +66743,9 @@ msgstr ""
 msgid "SecurityConfiguration|Other scanner types, including DAST, Container Scanning, and IaC, can be configured via security policies or at the project level."
 msgstr ""
 
+msgid "SecurityConfiguration|Pending"
+msgstr ""
+
 msgid "SecurityConfiguration|Pipeline execution policy"
 msgstr ""
 

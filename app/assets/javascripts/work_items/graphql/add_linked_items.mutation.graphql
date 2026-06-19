@@ -8,9 +8,19 @@ mutation addLinkedItems(
   workItemAddLinkedItems(input: $input) {
     workItem {
       ...WorkItem
-      widgets {
+      widgets @skip(if: $useWorkItemFeatures) {
         ... on WorkItemWidgetLinkedItems {
           type
+          linkedItems {
+            nodes {
+              linkId
+              linkType
+            }
+          }
+        }
+      }
+      features @include(if: $useWorkItemFeatures) {
+        linkedItems {
           linkedItems {
             nodes {
               linkId

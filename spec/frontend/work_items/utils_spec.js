@@ -55,6 +55,7 @@ import {
   findCrmContactsWidget,
   findLabelsWidget,
   findWeightWidget,
+  findLinkedItemsWidget,
   findLinkedResourcesWidget,
   findStartAndDueDateWidget,
   findTimeTrackingWidget,
@@ -1320,6 +1321,35 @@ describe('findLinkedResourcesWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findLinkedResourcesWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findLinkedItemsWidget', () => {
+  const linkedItemsWidget = {
+    type: WIDGET_TYPE_LINKED_ITEMS,
+    linkedItems: { nodes: [{ linkId: 'gid://gitlab/IssueLink/1', linkType: 'relates_to' }] },
+  };
+  const featuresLinkedItems = {
+    linkedItems: { nodes: [{ linkId: 'gid://gitlab/IssueLink/2', linkType: 'relates_to' }] },
+  };
+
+  it('returns features.linkedItems when present', () => {
+    const workItem = {
+      features: { linkedItems: featuresLinkedItems },
+      widgets: [linkedItemsWidget],
+    };
+
+    expect(findLinkedItemsWidget(workItem)).toBe(featuresLinkedItems);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [linkedItemsWidget] };
+
+    expect(findLinkedItemsWidget(workItem)).toBe(linkedItemsWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findLinkedItemsWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

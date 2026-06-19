@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,6 +25,13 @@ var (
 	errResponseBodySizeLimitExceeded = errors.New("response body exceeded size limit")
 	errRequestAborted                = errors.New("request aborted")
 	errRequestTimedOut               = errors.New("request timed out")
+)
+
+const (
+	httpActionErrorTypeTimeout      = "timeout"
+	httpActionErrorTypeAborted      = "aborted"
+	httpActionErrorTypeSizeExceeded = "size_limit_exceeded"
+	httpActionErrorTypeOther        = "other"
 )
 
 // ActionResponseBodyLimit is the maximum size of response body that can be received.
@@ -121,9 +129,11 @@ func (a *runHTTPActionHandler) Execute(ctx context.Context, action *pb.Action) (
 		return nil, err
 	}
 
+	method := action.GetRunHTTPRequest().Method
+
 	logger := log.WithContextFields(a.originalReq.Context(), log.Fields{
 		"path":       action.GetRunHTTPRequest().Path,
-		"method":     action.GetRunHTTPRequest().Method,
+		"method":     method,
 		"request_id": action.GetRequestID(),
 	})
 
@@ -135,6 +145,7 @@ func (a *runHTTPActionHandler) Execute(ctx context.Context, action *pb.Action) (
 		req = req.WithContext(timeoutCtx)
 	}
 
+	start := time.Now()
 	nrw := &nullResponseWriter{header: make(http.Header), logger: logger}
 	err = serveHTTPSafe(a.backend, nrw, req)
 
@@ -143,6 +154,16 @@ func (a *runHTTPActionHandler) Execute(ctx context.Context, action *pb.Action) (
 	if a.shouldTimeoutHTTPRequests && errors.Is(req.Context().Err(), context.DeadlineExceeded) {
 		err = errRequestTimedOut
 	}
+
+	httpActionDurationSeconds.WithLabelValues(method).Observe(time.Since(start).Seconds())
+
+	if err != nil {
+		httpActionErrorsTotal.WithLabelValues(httpActionErrorType(err)).Inc()
+		httpActionsTotal.WithLabelValues(method, "0").Inc()
+	} else {
+		httpActionsTotal.WithLabelValues(method, strconv.Itoa(nrw.status)).Inc()
+	}
+
 	clientEvent := a.buildClientEvent(nrw, err, action)
 
 	logger.WithFields(log.Fields{
@@ -154,6 +175,21 @@ func (a *runHTTPActionHandler) Execute(ctx context.Context, action *pb.Action) (
 	}).Info("Sending HTTP response event")
 
 	return clientEvent, nil
+}
+
+// httpActionErrorType maps a transport-level error to a label value for
+// httpActionErrorsTotal.
+func httpActionErrorType(err error) string {
+	switch {
+	case errors.Is(err, errRequestTimedOut):
+		return httpActionErrorTypeTimeout
+	case errors.Is(err, errRequestAborted):
+		return httpActionErrorTypeAborted
+	case errors.Is(err, errResponseBodySizeLimitExceeded):
+		return httpActionErrorTypeSizeExceeded
+	default:
+		return httpActionErrorTypeOther
+	}
 }
 
 func (a *runHTTPActionHandler) buildClientEvent(nrw *nullResponseWriter, err error, action *pb.Action) *pb.ClientEvent {

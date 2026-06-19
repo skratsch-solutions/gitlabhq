@@ -33,8 +33,13 @@ title: GitLab Duo CLI (`duo`)
   - Introduced in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.80.0) 8.80.0.
 - `/exit` slash command [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.88.0) in GitLab Duo CLI 8.88.0, during the GitLab 19.0 release.
 - `/doctor` slash command [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.94.0) in GitLab Duo CLI 8.94.0, during the GitLab 19.0 release.
+- `/skills` slash command [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.81.0) in GitLab Duo CLI 8.81.0, during the GitLab 19.0 release.
+- `/mcp` slash command [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.95.0) in GitLab Duo CLI 8.95.0, during the GitLab 19.0 release.
+- Settings panel [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.90.0) in GitLab Duo CLI 8.90.0, during the GitLab 19.0 release.
+- `AI_AGENT` environment variable [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.95.0) in GitLab Duo CLI 8.95.0, during the GitLab 19.0 release.
 - Pattern-based tool approval [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21850) in GitLab 19.1.
   - Introduced in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.101.0) 8.101.0.
+- System notifications [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.105.0) in GitLab Duo CLI 8.105.0, during the GitLab 19.1 release.
 
 {{< /history >}}
 
@@ -279,10 +284,42 @@ The following slash commands are available:
 | `/exit`     | Exit the GitLab Duo CLI.                             |
 | `/feedback` | Submit a bug report or feature request.              |
 | `/help`     | Display a list of available slash commands.          |
+| `/mcp`      | View configured MCP servers and their status.        |
 | `/model`    | Switch the AI model for the current session.         |
 | `/new`      | Start a new chat session.                            |
 | `/sessions` | Browse, search, and switch sessions.                 |
-| `/settings` | Open settings.                                       |
+| `/settings` | Open the settings panel.                             |
+| `/skills`   | List available Agent Skills in the current project.  |
+
+#### Settings
+
+To change a setting:
+
+1. In interactive mode, type `/settings` and press <kbd>Enter</kbd>.
+1. Use the arrow keys to navigate the list of settings.
+1. To change the selected setting, press <kbd>Enter</kbd> or <kbd>Space</kbd>.
+1. To close the panel, press <kbd>Escape</kbd>.
+
+Changes persist across sessions.
+
+The following settings are available:
+
+| Setting                  | Description                                                                                       |
+|--------------------------|---------------------------------------------------------------------------------------------------|
+| **Telemetry**            | Send anonymous usage data to improve GitLab Duo.                                                  |
+| **Enable global skills** | (Experimental) Discover [user-level Agent Skills](../duo_agent_platform/customize/agent_skills.md#create-user-level-skills) from `~/.agents/skills/` and `~/.gitlab/duo/skills/`. A restart is required for changes to take effect. |
+| **Notifications**        | Control [system notifications](#system-notifications) (`auto` or `disabled`).                     |
+
+#### System notifications
+
+The GitLab Duo CLI can send a system notification when a session needs your attention
+(for example, when it finishes a task or requires a tool approval) while the terminal window
+is not focused.
+
+Notifications are controlled by the **Notifications** setting in the [settings panel](#settings):
+
+- `auto` (default): Send a system notification when the terminal is unfocused.
+- `disabled`: Never send system notifications.
 
 #### Tool approvals
 
@@ -675,6 +712,10 @@ You can configure the GitLab Duo CLI using environment variables:
 - `GITLAB_ENABLE_PROJECT_HOOKS`: (Experimental) Enable loading project-level [hooks](#hooks).
 - `GITLAB_OAUTH_TOKEN` or `GITLAB_TOKEN`: Authentication token.
 - `LOG_LEVEL`: Logging level.
+
+When the GitLab Duo CLI runs a command on your behalf, it sets the `AI_AGENT` environment variable
+in that process. Scripts and tools can read `AI_AGENT` to detect that they are running in an
+AI-driven execution.
 
 ## Proxy and custom certificate configuration
 

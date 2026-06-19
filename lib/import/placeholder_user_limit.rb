@@ -14,7 +14,7 @@ module Import
     def exceeded?
       return false if unlimited?
 
-      cache.read(cache_key).present? || calculate_has_exceeded.tap do |has_exceeded|
+      cache.read(cache_key, timeout: EXCEEDANCE_CACHE_TTL).present? || calculate_has_exceeded.tap do |has_exceeded|
         if has_exceeded
           log_limit_exceeded
 
@@ -27,7 +27,7 @@ module Import
     end
 
     def limit
-      cached_limit = cache.read_integer(limit_cache_key)
+      cached_limit = cache.read_integer(limit_cache_key, timeout: LIMIT_CACHE_TTL)
       return cached_limit unless cached_limit.nil?
 
       calculate_limit.tap do |limit|

@@ -1755,7 +1755,6 @@ CREATE TABLE siphon_namespaces
     `default_branch_protection` Nullable(Int8),
     `unlock_membership_to_ldap` Nullable(Bool),
     `max_personal_access_token_lifetime` Nullable(Int64),
-    `push_rule_id` Nullable(Int64),
     `shared_runners_enabled` Bool DEFAULT true,
     `allow_descendants_override_disabled_shared_runners` Bool DEFAULT false,
     `traversal_ids` Array(Int64) DEFAULT [],

@@ -53,6 +53,7 @@ describe('WorkItemRelationships', () => {
     removeLinkedWorkItemMutationHandler = removeLinkedWorkItemSuccessMutationHandler,
     canAdminWorkItemLink = true,
     hasBlockedWorkItemsFeature = true,
+    glFeatures = {},
   } = {}) => {
     const mockApollo = createMockApollo([
       [workItemLinkedItemsQuery, workItemLinkedItemsHandler],
@@ -61,6 +62,9 @@ describe('WorkItemRelationships', () => {
 
     wrapper = shallowMountExtended(WorkItemRelationships, {
       apolloProvider: mockApollo,
+      provide: {
+        glFeatures,
+      },
       propsData: {
         workItemId: 'gid://gitlab/WorkItem/1',
         workItemIid: '1',
@@ -103,6 +107,23 @@ describe('WorkItemRelationships', () => {
 
     expect(workItemLinkedItemsSuccessHandler).toHaveBeenCalled();
   });
+
+  it.each`
+    workItemFeaturesField | useWorkItemFeatures
+    ${true}               | ${true}
+    ${false}              | ${false}
+  `(
+    'requests query with useWorkItemFeatures=$useWorkItemFeatures when workItemFeaturesField flag is $workItemFeaturesField',
+    async ({ workItemFeaturesField, useWorkItemFeatures }) => {
+      await createComponent({ glFeatures: { workItemFeaturesField } });
+
+      expect(workItemLinkedItemsSuccessHandler).toHaveBeenCalledWith({
+        fullPath: 'gitlab-org/gitlab-test',
+        iid: '1',
+        useWorkItemFeatures,
+      });
+    },
+  );
 
   it('shows loader when query is not processed', () => {
     createComponent();
