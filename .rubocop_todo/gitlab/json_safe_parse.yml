@@ -93,7 +93,6 @@ Gitlab/JsonSafeParse:
     - 'ee/lib/audit_events/streaming/destinations/google_cloud_logging_stream_destination.rb'
     - 'ee/lib/gitlab/ci/parsers/requirements_management/requirement.rb'
     - 'ee/lib/gitlab/ci/parsers/sbom/cyclonedx.rb'
-    - 'ee/lib/gitlab/duo/administration/verify_self_hosted_setup.rb'
     - 'ee/lib/gitlab/geo/signed_data.rb'
     - 'ee/lib/gitlab/git_guardian/client.rb'
     - 'ee/lib/gitlab/llm/ai_gateway/code_suggestions_client.rb'

@@ -174,6 +174,7 @@ export const MEMBERS_TAB_TYPES = Object.freeze({
   invite: 'invite',
   accessRequest: 'accessRequest',
   placeholder: 'placeholder',
+  directMembers: 'directMembers',
 });
 
 // `app/models/members/group_member.rb`
@@ -187,6 +188,7 @@ export const TAB_QUERY_PARAM_VALUES = Object.freeze({
   invite: 'invited',
   accessRequest: 'access_requests',
   placeholder: 'placeholders',
+  directMembers: 'direct_members',
 });
 
 /**

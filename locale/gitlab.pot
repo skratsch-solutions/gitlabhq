@@ -21964,6 +21964,9 @@ msgstr ""
 msgid "ContinuousDeployment|%{environmentsCount} of %{totalEnvironmentsCount} environments"
 msgstr ""
 
+msgid "ContinuousDeployment|Add Environment"
+msgstr ""
+
 msgid "ContinuousDeployment|Add application"
 msgstr ""
 
@@ -22000,6 +22003,9 @@ msgstr ""
 msgid "ContinuousDeployment|Deployment in progress"
 msgstr ""
 
+msgid "ContinuousDeployment|Environment name"
+msgstr ""
+
 msgid "ContinuousDeployment|Environments"
 msgstr ""
 
@@ -22021,6 +22027,9 @@ msgstr ""
 msgid "ContinuousDeployment|Last deployed %{time}"
 msgstr ""
 
+msgid "ContinuousDeployment|Name cannot exceed %{maxLength} characters."
+msgstr ""
+
 msgid "ContinuousDeployment|New application"
 msgstr ""
 
@@ -22031,6 +22040,9 @@ msgid "ContinuousDeployment|Register application"
 msgstr ""
 
 msgid "ContinuousDeployment|Register environment"
+msgstr ""
+
+msgid "ContinuousDeployment|Register the cluster or cloud account where services will run. Agent registration is included."
 msgstr ""
 
 msgid "ContinuousDeployment|Register your first environment"
@@ -60237,6 +60249,9 @@ msgstr ""
 msgid "ProtectedBranch|Toggle code owner approval"
 msgstr ""
 
+msgid "ProtectedBranch|Unable to load matching branches"
+msgstr ""
+
 msgid "ProtectedBranch|Unprotect"
 msgstr ""
 
@@ -60476,6 +60491,9 @@ msgid "ProtectedTag|Protected tags"
 msgstr ""
 
 msgid "ProtectedTag|Tag"
+msgstr ""
+
+msgid "ProtectedTag|Unable to load matching tags"
 msgstr ""
 
 msgid "ProtectedTag|What are protected tags?"
@@ -61407,6 +61425,9 @@ msgid "ReleaseCreation|Release"
 msgstr ""
 
 msgid "ReleaseCreation|e.g. May production release"
+msgstr ""
+
+msgid "ReleaseCreation|e.g. eu-west-1-prod"
 msgstr ""
 
 msgid "Released"

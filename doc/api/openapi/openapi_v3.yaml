@@ -79445,9 +79445,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1234
         root_namespace_id:
           type: integer
+          format: int64
           example: 5678
         created_at:
           type: string
@@ -79490,15 +79492,19 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1234
         zoekt_shard_id:
           type: integer
+          format: int64
           example: 1234
         zoekt_node_id:
           type: integer
+          format: int64
           example: 1234
         namespace_id:
           type: integer
+          format: int64
           example: 1234
         number_of_replicas_override:
           type: integer
@@ -79508,6 +79514,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1234
         index_base_url:
           type: string

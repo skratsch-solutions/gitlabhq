@@ -41,6 +41,19 @@ describe('MembersTabs', () => {
             },
           },
         },
+        [MEMBERS_TAB_TYPES.directMembers]: {
+          namespaced: true,
+          state: {
+            pagination: {
+              ...pagination,
+              totalItems,
+              paramName: 'direct_members_page',
+            },
+            filteredSearchBar: {
+              searchParam: 'search_direct_members',
+            },
+          },
+        },
         [MEMBERS_TAB_TYPES.group]: {
           namespaced: true,
           state: {
@@ -128,9 +141,10 @@ describe('MembersTabs', () => {
       const tabs = findTabs();
 
       expect(tabs[0].text()).toBe('Members  10');
-      expect(tabs[1].text()).toBe('Groups  10');
-      expect(tabs[2].text()).toBe('Pending invitations  10');
-      expect(tabs[3].text()).toBe('Access requests  10');
+      expect(tabs[1].text()).toBe('Direct members  10');
+      expect(tabs[2].text()).toBe('Groups  10');
+      expect(tabs[3].text()).toBe('Pending invitations  10');
+      expect(tabs[4].text()).toBe('Access requests  10');
       expect(findActiveTab().text()).toContain('Members');
     });
 
@@ -155,6 +169,7 @@ describe('MembersTabs', () => {
       await createComponent({ totalItems: 0 });
 
       expect(findTabByText('Members')).not.toBeUndefined();
+      expect(findTabByText('Direct members')).toBeUndefined();
       expect(findTabByText('Groups')).toBeUndefined();
       expect(findTabByText('Pending invitations')).toBeUndefined();
       expect(findTabByText('Access requests')).toBeUndefined();
@@ -192,6 +207,7 @@ describe('MembersTabs', () => {
       });
 
       expect(findTabByText('Members')).not.toBeUndefined();
+      expect(findTabByText('Direct members')).not.toBeUndefined();
       expect(findTabByText('Groups')).not.toBeUndefined();
       expect(findTabByText('Pending invitations')).toBeUndefined();
       expect(findTabByText('Access requests')).toBeUndefined();
@@ -217,6 +233,7 @@ describe('MembersTabs', () => {
   it.each`
     tab                 | testId                       | href
     ${'Members'}        | ${'user-tab-title'}          | ${'https://localhost/'}
+    ${'Direct members'} | ${'directMembers-tab-title'} | ${'https://localhost/?tab=direct_members'}
     ${'Groups'}         | ${'group-tab-title'}         | ${'https://localhost/?tab=groups'}
     ${'Invite'}         | ${'invite-tab-title'}        | ${'https://localhost/?tab=invited'}
     ${'Access Request'} | ${'accessRequest-tab-title'} | ${'https://localhost/?tab=access_requests'}
@@ -228,9 +245,32 @@ describe('MembersTabs', () => {
     expect(tabTitleContainer.href).toBe(href);
   });
 
+  describe('when a search/filter param from another tab is present in the URL', () => {
+    beforeEach(() => {
+      setWindowLocation('?search=luba&search_groups=foo');
+    });
+
+    it.each`
+      tab                 | testId                       | href
+      ${'Members'}        | ${'user-tab-title'}          | ${'https://localhost/'}
+      ${'Direct members'} | ${'directMembers-tab-title'} | ${'https://localhost/?tab=direct_members'}
+      ${'Groups'}         | ${'group-tab-title'}         | ${'https://localhost/?tab=groups'}
+    `(
+      'clears all tabs search/token params when switching to $tab tab',
+      async ({ testId, href }) => {
+        await createComponent();
+
+        const tabTitleContainer = wrapper.findByTestId(testId).element.parentElement;
+
+        expect(tabTitleContainer.href).toBe(href);
+      },
+    );
+  });
+
   describe.each`
     tab                 | testId
     ${'Members'}        | ${'user-tab-title'}
+    ${'Direct members'} | ${'directMembers-tab-title'}
     ${'Groups'}         | ${'group-tab-title'}
     ${'Invite'}         | ${'invite-tab-title'}
     ${'Access Request'} | ${'accessRequest-tab-title'}

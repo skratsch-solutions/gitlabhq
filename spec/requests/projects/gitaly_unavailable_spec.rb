@@ -623,4 +623,38 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
       end
     end
   end
+
+  describe 'Projects::ProtectedBranchesController' do
+    include_context 'when RefsFinder#execute raises Gitaly error'
+
+    let_it_be_with_reload(:protected_refs_project) { create(:project, :public, :repository) }
+    let_it_be(:protected_branch) { create(:protected_branch, project: protected_refs_project) }
+
+    before_all do
+      protected_refs_project.add_maintainer(user)
+    end
+
+    describe '#show' do
+      let(:make_request) { get project_protected_branch_path(protected_refs_project, protected_branch) }
+
+      it_behaves_like 'handles Gitaly errors for request specs'
+    end
+  end
+
+  describe 'Projects::ProtectedTagsController' do
+    include_context 'when RefsFinder#execute raises Gitaly error'
+
+    let_it_be_with_reload(:protected_refs_project) { create(:project, :public, :repository) }
+    let_it_be(:protected_tag) { create(:protected_tag, project: protected_refs_project) }
+
+    before_all do
+      protected_refs_project.add_maintainer(user)
+    end
+
+    describe '#show' do
+      let(:make_request) { get project_protected_tag_path(protected_refs_project, protected_tag) }
+
+      it_behaves_like 'handles Gitaly errors for request specs'
+    end
+  end
 end

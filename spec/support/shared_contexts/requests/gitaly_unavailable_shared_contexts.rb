@@ -53,3 +53,12 @@ RSpec.shared_context 'when CompareService#execute raises Gitaly error' do
     end
   end
 end
+
+RSpec.shared_context 'when RefsFinder#execute raises Gitaly error' do
+  let(:allow_gitaly_to_raise_error) do
+    allow_next_instance_of(Gitlab::Git::Finders::RefsFinder) do |finder|
+      allow(finder).to receive(:execute)
+        .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
+    end
+  end
+end

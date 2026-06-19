@@ -81,7 +81,7 @@ export default {
       );
     },
     tabPath(value) {
-      return setUrlParams({ tab: value, page: null });
+      return setUrlParams({ tab: value }, { clearParams: true });
     },
     titleLinkAttrs({ attrs, queryParamValue: value }) {
       return { ...attrs, href: this.tabPath(value) };

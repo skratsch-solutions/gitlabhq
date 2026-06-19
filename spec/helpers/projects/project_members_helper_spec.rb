@@ -29,6 +29,7 @@ RSpec.describe Projects::ProjectMembersHelper, feature_category: :groups_and_pro
           helper.project_members_app_data_json(
             project,
             members: present_members(members_collection),
+            direct_members: present_members(members_collection),
             invited: present_members(invited),
             links: links,
             access_requests: present_members(access_requests),
