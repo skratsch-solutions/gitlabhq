@@ -51,11 +51,10 @@ module Mcp
       }.freeze
 
       def initialize
-        # Do not call build_tools here. Route discovery (discover_api_tools) reads
-        # API::API.routes which is lazily memoized by Grape. When Manager is instantiated
-        # at class-definition time (via namespace_setting in API::Mcp::Base), EE modules
-        # haven't been prepended yet, so EE-only routes (e.g. SemanticCodeSearch) would be
-        # missed. Deferring to the first call of #tools ensures routes are fully compiled.
+        # Do not call build_tools here. API::API.routes is lazily memoized by Grape, and
+        # Manager is instantiated at class-definition time via namespace_setting in
+        # API::Mcp::Base, before all routes are registered. Deferring to the first call
+        # of #tools ensures a complete route list.
       end
 
       def tools
@@ -224,5 +223,3 @@ module Mcp
     end
   end
 end
-
-Mcp::Tools::Manager.prepend_mod

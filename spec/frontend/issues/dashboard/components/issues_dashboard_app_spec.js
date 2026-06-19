@@ -300,6 +300,54 @@ describe('IssuesDashboardApp component', () => {
         });
       });
     });
+
+    describe('default work item types in query variables', () => {
+      describe('when dashboardShowAllWorkItemTypes feature flag is disabled', () => {
+        it('passes the default work item types as the `workItemTypeIds` argument', async () => {
+          const issuesQueryHandler = jest.fn().mockResolvedValue(defaultQueryResponse);
+          setWindowLocation('?search=find+issues');
+          mountComponent({ issuesQueryHandler });
+          await waitForPromises();
+
+          expect(issuesQueryHandler).toHaveBeenCalledWith(
+            expect.objectContaining({ workItemTypeIds: ['gid://gitlab/WorkItems::Type/1'] }),
+          );
+        });
+      });
+
+      describe('when dashboardShowAllWorkItemTypes feature flag is enabled', () => {
+        it('does not pass a default type filter', async () => {
+          const issuesQueryHandler = jest.fn().mockResolvedValue(defaultQueryResponse);
+          setWindowLocation('?search=find+issues');
+          mountComponent({
+            provide: { glFeatures: { dashboardShowAllWorkItemTypes: true } },
+            issuesQueryHandler,
+          });
+          await waitForPromises();
+
+          expect(issuesQueryHandler).toHaveBeenCalledWith(
+            expect.not.objectContaining({ types: expect.anything() }),
+          );
+          expect(issuesQueryHandler).toHaveBeenCalledWith(
+            expect.not.objectContaining({ workItemTypeIds: expect.anything() }),
+          );
+        });
+
+        it('still passes a user-selected type filter through', async () => {
+          const issuesQueryHandler = jest.fn().mockResolvedValue(defaultQueryResponse);
+          setWindowLocation('?search=find+issues&type[]=incident');
+          mountComponent({
+            provide: { glFeatures: { dashboardShowAllWorkItemTypes: true } },
+            issuesQueryHandler,
+          });
+          await waitForPromises();
+
+          expect(issuesQueryHandler).toHaveBeenCalledWith(
+            expect.objectContaining({ workItemTypeIds: 'gid://gitlab/WorkItems::Type/INCIDENT' }),
+          );
+        });
+      });
+    });
   });
 
   describe('initial url params', () => {

@@ -7,6 +7,14 @@ module Gitlab
         FINISHED = 3
         FINALIZED = 6
 
+        LFK_DELETED_RECORD_TABLES = %w[
+          loose_foreign_keys_deleted_records
+          loose_foreign_keys_user_deleted_records
+          loose_foreign_keys_namespace_deleted_records
+          loose_foreign_keys_project_deleted_records
+          loose_foreign_keys_organization_deleted_records
+        ].freeze
+
         QUERIES = {
           pg_show_all_settings: <<~SQL,
             SHOW ALL;
@@ -60,7 +68,23 @@ module Gitlab
           pg_class_settings: <<~SQL
             SELECT * FROM pg_class;
           SQL
-        }.freeze
+        }.merge(
+          # Backlog of pending loose foreign key cleanups per source table, one query
+          # (and one CSV) per deleted-records queue.
+          LFK_DELETED_RECORD_TABLES.to_h do |table|
+            [:"#{table}_backlog", <<~SQL]
+              SELECT fully_qualified_table_name AS source_table,
+                     count(*) AS pending,
+                     count(*) FILTER (WHERE consume_after <= now()) AS due_now,
+                     max(cleanup_attempts) AS max_attempts,
+                     min(consume_after) AS oldest_consume_after
+              FROM #{table}
+              WHERE status = 1
+              GROUP BY 1
+              ORDER BY pending DESC;
+            SQL
+          end
+        ).freeze
 
         def run
           QUERIES.each do |name, query|

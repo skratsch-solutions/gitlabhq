@@ -240,16 +240,23 @@ export default {
         })
       );
     },
+    showAllWorkItemTypes() {
+      return this.glFeatures.dashboardShowAllWorkItemTypes;
+    },
     queryVariables() {
-      return {
+      const variables = {
         hideUsers: this.isPublicVisibilityRestricted && !this.isSignedIn,
         isSignedIn: this.isSignedIn,
         sort: this.sortKey,
         state: this.state,
         ...this.pageParams,
         ...this.apiFilterParams,
-        workItemTypeIds: this.apiFilterParams.workItemTypeIds || this.defaultWorkItemTypes,
       };
+      if (!this.showAllWorkItemTypes) {
+        variables.workItemTypeIds =
+          this.apiFilterParams.workItemTypeIds || this.defaultWorkItemTypes;
+      }
+      return variables;
     },
     renderedIssues() {
       return this.hasSearch ? this.issues : [];

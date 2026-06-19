@@ -45384,7 +45384,7 @@ CREATE INDEX idx_ai_audit_events_on_namespace_id_created_at ON ONLY ai_audit_eve
 
 CREATE INDEX idx_ai_audit_events_on_project_id_created_at ON ONLY ai_audit_events USING btree (project_id, created_at DESC);
 
-CREATE INDEX idx_ai_audit_events_on_workflow_id ON ONLY ai_audit_events USING btree (workflow_id);
+CREATE INDEX idx_ai_audit_events_on_workflow_id_created_at_id ON ONLY ai_audit_events USING btree (workflow_id, created_at DESC, id DESC);
 
 CREATE INDEX idx_ai_catalog_item_stars_on_organization_id ON ai_catalog_item_stars USING btree (organization_id);
 
