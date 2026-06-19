@@ -56,7 +56,7 @@ RSpec.describe 'Group', :with_current_organization, feature_category: :groups_an
         click_button 'Create group'
 
         expect(page).to have_current_path(new_group_path, ignore_query: true)
-        expect(page).to have_text('Choose a group path that does not start with a dash or end with a period. It can also contain alphanumeric characters and underscores.')
+        expect(page).to have_text('Group URL can only contain letters, digits, underscores, periods, and dashes.')
       end
     end
 

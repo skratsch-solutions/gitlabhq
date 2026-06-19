@@ -190,7 +190,7 @@ export default {
   },
   emptyNameSpace: {
     id: undefined,
-    fullPath: s__('ProjectsNew|Pick a group or namespace'),
+    fullPath: s__('ProjectsNew|Select a group or namespace'),
   },
 };
 </script>

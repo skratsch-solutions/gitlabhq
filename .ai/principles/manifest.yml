@@ -657,7 +657,6 @@ principles:
     owner_team: '@gitlab-org/technical-writing/tw-docops'
     file_filters:
       - 'doc/**/*.md'
-      - 'locale/**/*'
     baseline: .ai/principles/baselines/documentation.md
     sources:
       - path: doc/development/documentation/styleguide/_index.md

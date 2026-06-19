@@ -24,6 +24,10 @@ module Authn
       ::Gitlab::DoorkeeperSecretStoring::Sha512Hash.transform_secret(raw_token_value)
     end
 
+    def self.uid_for(application_id)
+      where(id: application_id).pick(:uid)
+    end
+
     # Check whether the given plain text secret matches our stored secret
     #
     # @param input [#to_s] Plain secret provided by user

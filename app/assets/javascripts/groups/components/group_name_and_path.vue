@@ -1,18 +1,18 @@
 <script>
 import {
+  GlAlert,
+  GlButton,
+  GlButtonGroup,
+  GlCollapsibleListbox,
   GlFormGroup,
   GlFormInput,
   GlFormInputGroup,
   GlInputGroupText,
   GlLink,
-  GlAlert,
-  GlButton,
-  GlButtonGroup,
-  GlCollapsibleListbox,
 } from '@gitlab/ui';
 import { debounce } from 'lodash-es';
 
-import { s__, __ } from '~/locale';
+import { __, s__ } from '~/locale';
 import { getGroupPathAvailability } from '~/rest_api';
 import { createAlert } from '~/alert';
 import { slugify } from '~/lib/utils/text_utility';
@@ -22,6 +22,7 @@ import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { MINIMUM_SEARCH_LENGTH } from '~/graphql_shared/constants';
 import { DEBOUNCE_DELAY } from '~/vue_shared/components/filtered_search_bar/constants';
 
+import { validateGroupPath } from '../group_path_rules';
 import searchGroupsWhereUserCanCreateSubgroups from '../queries/search_groups_where_user_can_create_subgroups.query.graphql';
 
 const DEBOUNCE_DURATION = 1000;
@@ -136,6 +137,9 @@ export default {
 
       return '!gl-bg-feedback-info';
     },
+    pathFormatError() {
+      return validateGroupPath(this.path);
+    },
   },
   watch: {
     name: [
@@ -146,9 +150,20 @@ export default {
         this.pathFeedbackState = null;
         this.apiSuggestedPath = '';
         this.path = slugify(newName);
+
+        if (!this.path) return;
+
+        if (this.pathFormatError) {
+          this.abortActiveRequest();
+          this.pathInvalidFeedback = this.pathFormatError;
+          this.pathFeedbackState = false;
+        } else {
+          this.pathInvalidFeedback = null;
+        }
       },
       debounce(async function updatePathWithSuggestions() {
         if (this.isEditingGroup || this.hasPathBeenManuallySet) return;
+        if (this.pathFormatError) return;
 
         try {
           const { suggests } = await this.checkPathAvailability();
@@ -180,15 +195,18 @@ export default {
     debouncedFetchGroups: debounce(function fetchGroups(searchTerm) {
       this.fetchGroups(searchTerm);
     }, DEBOUNCE_DELAY),
+    abortActiveRequest() {
+      if (this.activeApiRequestAbortController === null) return;
+
+      this.activeApiRequestAbortController.abort();
+      this.activeApiRequestAbortController = null;
+      this.apiLoading = false;
+    },
     async checkPathAvailability() {
       if (!this.path) return Promise.reject();
 
+      this.abortActiveRequest();
       this.apiLoading = true;
-
-      if (this.activeApiRequestAbortController !== null) {
-        this.activeApiRequestAbortController.abort();
-      }
-
       this.activeApiRequestAbortController = new AbortController();
 
       try {
@@ -232,10 +250,21 @@ export default {
       this.apiSuggestedPath = '';
       this.hasPathBeenManuallySet = true;
       this.path = value;
+
+      if (this.pathFormatError) {
+        this.abortActiveRequest();
+        this.pathInvalidFeedback = this.pathFormatError;
+        this.pathFeedbackState = false;
+        return;
+      }
+
+      this.pathInvalidFeedback = null;
       this.debouncedValidatePath();
     },
     debouncedValidatePath: debounce(async function validatePath() {
       if (this.isEditingGroup && this.path === this.fields.path.value) return;
+
+      if (this.pathFormatError) return;
 
       try {
         const {
@@ -262,8 +291,9 @@ export default {
     handleInvalidPath(event) {
       event.preventDefault();
 
-      this.pathInvalidFeedback = this.$options.i18n.inputs.path.invalidFeedbackInvalidPattern;
       this.pathFeedbackState = false;
+      this.pathInvalidFeedback =
+        this.pathFormatError || this.$options.i18n.inputs.path.invalidFeedbackInvalidPattern;
     },
     handleDropdownShown() {
       if (!this.currentUserGroups) {

@@ -155,9 +155,7 @@ export default {
     <div class="gl-flex gl-flex-col gl-gap-4 @sm/panel:gl-flex-row">
       <gl-form-group
         class="@sm/panel:gl-w-1/2"
-        :invalid-feedback="
-          s__('ProjectsNew|Pick a group or namespace where you want to create this project.')
-        "
+        :invalid-feedback="s__('ProjectsNew|Select where to create this project.')"
         :state="selectedNamespace.id !== null"
         data-testid="project-namespace-group"
       >

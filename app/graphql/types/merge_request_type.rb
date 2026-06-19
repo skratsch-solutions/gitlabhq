@@ -34,6 +34,15 @@ module Types
       description: 'Details about which files were changed in the merge request.' do
       argument :path, GraphQL::Types::String, required: false, description: 'Specific file path.'
     end
+    field :discussions_with_activity, ::Types::Notes::DiscussionType.connection_type,
+      null: false,
+      skip_type_authorization: [:read_note, :read_emoji],
+      resolver: Resolvers::Notes::DiscussionsResolver,
+      connection_extension: Gitlab::Graphql::Extensions::ForwardOnlyExternallyPaginatedArrayExtension,
+      experiment: { milestone: '19.2' },
+      description: 'Discussions on the merge request, including synthetic system notes ' \
+        'generated from resource events such as label, milestone, and state changes. ' \
+        'Supports forward-only pagination.'
     field :draft, GraphQL::Types::Boolean, method: :draft?, null: false,
       description: 'Indicates if the merge request is a draft.'
     field :id, GraphQL::Types::ID, null: false,

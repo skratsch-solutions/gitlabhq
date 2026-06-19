@@ -498,7 +498,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'ee/spec/services/ee/issues/close_service_spec.rb'
     - 'ee/spec/services/ee/issues/create_service_spec.rb'
     - 'ee/spec/services/ee/issues/reopen_service_spec.rb'
-    - 'ee/spec/services/ee/issues/update_service_spec.rb'
     - 'ee/spec/services/ee/members/approve_access_request_service_spec.rb'
     - 'ee/spec/services/ee/members/create_service_spec.rb'
     - 'ee/spec/services/ee/members/destroy_service_spec.rb'

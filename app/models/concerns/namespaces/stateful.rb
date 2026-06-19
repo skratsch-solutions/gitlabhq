@@ -25,6 +25,8 @@ module Namespaces
         transfer_scheduled: 7
       }, instance_methods: false
 
+      scope :with_state, ->(states) { where(state: states) }
+
       state_machine :state, initial: :ancestor_inherited do
         state :creation_in_progress
         state :maintenance

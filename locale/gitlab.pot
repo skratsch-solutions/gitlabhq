@@ -37161,6 +37161,24 @@ msgstr ""
 msgid "GroupSettings|Group CI/CD settings were successfully updated."
 msgstr ""
 
+msgid "GroupSettings|Group URL can only contain letters, digits, underscores, periods, and dashes."
+msgstr ""
+
+msgid "GroupSettings|Group URL is required."
+msgstr ""
+
+msgid "GroupSettings|Group URL must be at least 2 characters long."
+msgstr ""
+
+msgid "GroupSettings|Group URL must end with a letter, digit, underscore, or dash."
+msgstr ""
+
+msgid "GroupSettings|Group URL must not end with `.git` or `.atom`."
+msgstr ""
+
+msgid "GroupSettings|Group URL must start with a letter, digit, underscore, or period."
+msgstr ""
+
 msgid "GroupSettings|Group members are not notified if the group is mentioned."
 msgstr ""
 
@@ -59643,12 +59661,6 @@ msgstr ""
 msgid "ProjectsNew|Password/Personal access token"
 msgstr ""
 
-msgid "ProjectsNew|Pick a group or namespace"
-msgstr ""
-
-msgid "ProjectsNew|Pick a group or namespace where you want to create this project."
-msgstr ""
-
 msgid "ProjectsNew|Please enter a valid Bitbucket Server URL."
 msgstr ""
 
@@ -59718,10 +59730,16 @@ msgstr ""
 msgid "ProjectsNew|Select a group"
 msgstr ""
 
+msgid "ProjectsNew|Select a group or namespace"
+msgstr ""
+
 msgid "ProjectsNew|Select a group to view its project templates"
 msgstr ""
 
 msgid "ProjectsNew|Select a template"
+msgstr ""
+
+msgid "ProjectsNew|Select where to create this project."
 msgstr ""
 
 msgid "ProjectsNew|To move or copy an entire GitLab project from another GitLab installation to this one, navigate to the original project's settings page, generate an export file, and upload it here."
@@ -66527,6 +66545,9 @@ msgstr ""
 msgid "SecurityConfiguration|Advanced setup"
 msgstr ""
 
+msgid "SecurityConfiguration|All scanners are already enabled on all projects."
+msgstr ""
+
 msgid "SecurityConfiguration|All uncovered projects are selected."
 msgstr ""
 
@@ -66866,6 +66887,9 @@ msgid "SecurityConfiguration|The status of the tools only applies to the default
 msgstr ""
 
 msgid "SecurityConfiguration|This project does not contain any archived vulnerabilities yet."
+msgstr ""
+
+msgid "SecurityConfiguration|This scanner is already enabled on all projects."
 msgstr ""
 
 msgid "SecurityConfiguration|Toggle Container Scanning for Registry"
@@ -85749,7 +85773,7 @@ msgstr[1] ""
 msgid "When using %{code_open}ssh://%{code_close}, use the format %{code_open}ssh://example.com/group/project.git%{code_close} and enter the SSH user (or %{code_open}git%{code_close} for a GitLab remote) in the username field below."
 msgstr ""
 
-msgid "When using the %{code_open}http://%{code_close} or %{code_open}https://%{code_close} protocols, please provide the exact URL to the repository. HTTP redirects will not be followed."
+msgid "When using the %{code_open}http://%{code_close} or %{code_open}https://%{code_close} protocols, provide the exact URL to the repository. HTTP redirects will not be followed."
 msgstr ""
 
 msgid "When you remove tracking of a ref, GitLab deletes any vulnerabilities associated with that ref. You have the option to archive them before their deletion."
@@ -87654,6 +87678,9 @@ msgid "WorkItem|Starting statuses"
 msgstr ""
 
 msgid "WorkItem|Status"
+msgstr ""
+
+msgid "WorkItem|Status changed"
 msgstr ""
 
 msgid "WorkItem|Status name is too long. Use maximum 32 characters."

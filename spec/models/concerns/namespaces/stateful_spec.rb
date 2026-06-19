@@ -15,6 +15,21 @@ RSpec.describe Namespaces::Stateful, feature_category: :groups_and_projects do
     it { is_expected.to define_enum_for(:state).with_values(**states).without_instance_methods }
   end
 
+  describe '.with_state' do
+    let_it_be(:archived_namespace) { create(:namespace, state: :archived) }
+    let_it_be(:deletion_scheduled_namespace) { create(:namespace, state: :deletion_scheduled) }
+    let_it_be(:ancestor_inherited_namespace) { create(:namespace, state: :ancestor_inherited) }
+
+    it 'filters namespaces by a single state' do
+      expect(Namespace.with_state(:archived)).to contain_exactly(archived_namespace)
+    end
+
+    it 'filters namespaces by multiple states' do
+      expect(Namespace.with_state([:archived, :deletion_scheduled]))
+        .to contain_exactly(archived_namespace, deletion_scheduled_namespace)
+    end
+  end
+
   describe 'zero handling' do
     describe 'state reading' do
       it 'treats 0 state as ancestor_inherited' do

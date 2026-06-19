@@ -13731,6 +13731,7 @@ CREATE TABLE ai_namespace_feature_settings (
     offered_model_name text,
     model_allowlist_enabled boolean DEFAULT false NOT NULL,
     model_allowlist_gitlab_model_refs text[] DEFAULT '{}'::text[] NOT NULL,
+    CONSTRAINT ai_namespace_feature_settings_model_allowlist_refs_size CHECK ((cardinality(model_allowlist_gitlab_model_refs) <= 100)),
     CONSTRAINT check_14e81e87bc CHECK ((char_length(offered_model_ref) <= 255)),
     CONSTRAINT check_c850e74656 CHECK ((char_length(offered_model_name) <= 255))
 );
@@ -22877,7 +22878,8 @@ CREATE TABLE instance_model_selection_feature_settings (
     model_allowlist_enabled boolean DEFAULT false NOT NULL,
     model_allowlist_gitlab_model_refs text[] DEFAULT '{}'::text[] NOT NULL,
     CONSTRAINT check_2d921a9d8a CHECK ((char_length(offered_model_ref) <= 255)),
-    CONSTRAINT check_6159907afe CHECK ((char_length(offered_model_name) <= 255))
+    CONSTRAINT check_6159907afe CHECK ((char_length(offered_model_name) <= 255)),
+    CONSTRAINT instance_model_selection_settings_model_allowlist_refs_size CHECK ((cardinality(model_allowlist_gitlab_model_refs) <= 100))
 );
 
 CREATE SEQUENCE instance_model_selection_feature_settings_id_seq
@@ -39439,9 +39441,6 @@ ALTER TABLE ONLY ai_instance_accessible_entity_rules
 ALTER TABLE ONLY ai_namespace_feature_access_rules
     ADD CONSTRAINT ai_namespace_feature_access_rules_pkey PRIMARY KEY (id);
 
-ALTER TABLE ai_namespace_feature_settings
-    ADD CONSTRAINT ai_namespace_feature_settings_model_allowlist_refs_size CHECK ((cardinality(model_allowlist_gitlab_model_refs) <= 100)) NOT VALID;
-
 ALTER TABLE ONLY ai_namespace_feature_settings
     ADD CONSTRAINT ai_namespace_feature_settings_pkey PRIMARY KEY (id);
 
@@ -40803,9 +40802,6 @@ ALTER TABLE ONLY instance_audit_events_streaming_headers
 
 ALTER TABLE ONLY instance_model_selection_feature_settings
     ADD CONSTRAINT instance_model_selection_feature_settings_pkey PRIMARY KEY (id);
-
-ALTER TABLE instance_model_selection_feature_settings
-    ADD CONSTRAINT instance_model_selection_settings_model_allowlist_refs_size CHECK ((cardinality(model_allowlist_gitlab_model_refs) <= 100)) NOT VALID;
 
 ALTER TABLE ONLY instance_type_ci_runner_machines
     ADD CONSTRAINT instance_type_ci_runner_machines_pkey PRIMARY KEY (id, runner_type);

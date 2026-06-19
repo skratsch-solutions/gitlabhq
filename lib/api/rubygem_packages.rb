@@ -40,6 +40,8 @@ module API
       def project
         user_project(action: :read_package)
       end
+
+      def enforce_dependency_firewall_on_upload!; end
     end
 
     before do
@@ -177,6 +179,8 @@ module API
             authorize_upload!(project)
             bad_request!('File is too large') if project.actual_limits.exceeded?(:rubygems_max_file_size, params[:file].size)
 
+            enforce_dependency_firewall_on_upload!
+
             track_package_event('push_package', :rubygems, project: project, namespace: project.namespace)
 
             response = nil
@@ -243,3 +247,5 @@ module API
     end
   end
 end
+
+API::RubygemPackages.prepend_mod

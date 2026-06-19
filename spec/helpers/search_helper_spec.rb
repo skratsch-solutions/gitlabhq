@@ -702,7 +702,6 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
 
     before do
       allow(self).to receive(:current_user).and_return(user)
-      stub_feature_flags(search_projects_autocomplete_use_search_service: false)
     end
 
     context 'when the user does not have access to projects' do
@@ -714,52 +713,6 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
     context 'when the user has access to one project' do
       before_all do
         project_2.add_developer(user)
-      end
-
-      it 'returns the project' do
-        expect(projects_autocomplete(search_term).pluck(:id)).to eq([project_2.id])
-      end
-
-      it 'orders by star_count descending' do
-        project_1.add_developer(user)
-
-        expect(projects_autocomplete(search_term).pluck(:id)).to eq([project_1.id, project_2.id])
-
-        project_1.update!(star_count: 2)
-        project_2.update!(star_count: 5)
-
-        expect(projects_autocomplete(search_term).pluck(:id)).to eq([project_2.id, project_1.id])
-      end
-
-      context 'when the search term is Search::Params::MIN_TERM_LENGTH characters long' do
-        let(:search_term) { 'te' }
-
-        it 'returns the project' do
-          expect(projects_autocomplete(search_term).pluck(:id)).to eq([project_2.id])
-        end
-      end
-
-      context 'when a project namespace matches the search term but the project does not' do
-        let_it_be(:group) { create(:group, name: 'test group') }
-        let_it_be(:project_3) { create(:project, name: 'nothing', namespace: group) }
-
-        before_all do
-          group.add_owner(user)
-        end
-
-        it 'returns all projects matching the term' do
-          expect(projects_autocomplete(search_term).pluck(:id)).to match_array([project_2.id, project_3.id])
-        end
-      end
-    end
-
-    context 'when search_projects_autocomplete_use_search_service feature flag is enabled' do
-      before_all do
-        project_2.add_developer(user)
-      end
-
-      before do
-        stub_feature_flags(search_projects_autocomplete_use_search_service: user)
       end
 
       it 'delegates to search_using_search_service with projects scope and autocomplete flag' do

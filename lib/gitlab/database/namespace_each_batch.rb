@@ -199,36 +199,40 @@ module Gitlab
       end
 
       def walk_down
-        lateral_query = namespace_class
-          .select(*lateral_query_columns)
-          .where('parent_id = cte.current_id')
-          .order(:id)
-          .limit(1)
-
         base_namespace_class.select(
           base_namespace_class.arel_table[:id].as('current_id'),
           Arel.sql("cte.depth || #{base_namespace_table}.id::bigint").as('depth'),
           Arel.sql(type_filtered_ids_append).as('ids'),
           Arel.sql('cte.count + 1').as('count'),
           Arel.sql('1::bigint AS index')
-        ).from("cte, LATERAL (#{lateral_query.to_sql}) #{base_namespace_table}")
+        ).from("cte, LATERAL (#{walk_down_lateral_query.to_sql}) #{base_namespace_table}")
       end
 
       def next_elements
-        lateral_query = namespace_class
-          .select(*lateral_query_columns)
-          .where("#{base_namespace_table}.parent_id = cte.depth[array_length(cte.depth, 1) - 1]")
-          .where("#{base_namespace_table}.id > cte.depth[array_length(cte.depth, 1)]")
-          .order(:id)
-          .limit(1)
-
         base_namespace_class.select(
           base_namespace_class.arel_table[:id].as('current_id'),
           Arel.sql("cte.depth[:array_length(cte.depth, 1) - 1] || #{base_namespace_table}.id::bigint").as('depth'),
           Arel.sql(type_filtered_ids_append).as('ids'),
           Arel.sql('cte.count + 1').as('count'),
           Arel.sql('2::bigint AS index')
-        ).from("cte, LATERAL (#{lateral_query.to_sql}) #{base_namespace_table}")
+        ).from("cte, LATERAL (#{next_elements_lateral_query.to_sql}) #{base_namespace_table}")
+      end
+
+      def walk_down_lateral_query
+        namespace_class
+          .select(*lateral_query_columns)
+          .where('parent_id = cte.current_id')
+          .order(:id)
+          .limit(1)
+      end
+
+      def next_elements_lateral_query
+        namespace_class
+          .select(*lateral_query_columns)
+          .where("#{base_namespace_table}.parent_id = cte.depth[array_length(cte.depth, 1) - 1]")
+          .where("#{base_namespace_table}.id > cte.depth[array_length(cte.depth, 1)]")
+          .order(:id)
+          .limit(1)
       end
 
       def up_one_level
