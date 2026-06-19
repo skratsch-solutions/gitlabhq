@@ -24,6 +24,7 @@ import {
 } from './constants';
 
 export default {
+  name: 'SetStatusForm',
   components: {
     GlButton,
     GlIcon,

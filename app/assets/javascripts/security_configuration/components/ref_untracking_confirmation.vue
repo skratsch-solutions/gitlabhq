@@ -3,6 +3,7 @@ import { GlModal, GlBadge, GlSprintf } from '@gitlab/ui';
 import { __, sprintf, n__, s__ } from '~/locale';
 
 export default {
+  name: 'RefUntrackingConfirmation',
   components: {
     GlModal,
     GlBadge,

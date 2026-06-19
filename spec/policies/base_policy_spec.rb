@@ -77,6 +77,15 @@ RSpec.describe BasePolicy, feature_category: :shared do
       it { is_expected.not_to be_allowed(ability) }
     end
 
+    context 'with a non-User actor' do
+      let(:current_user) { build_stubbed(:deploy_token) }
+
+      it 'is not allowed and does not raise' do
+        expect { policy.allowed?(ability) }.not_to raise_error
+        is_expected.not_to be_allowed(ability)
+      end
+    end
+
     describe 'bypassing the session for sessionless login', :request_store do
       let(:current_user) { build_stubbed(:admin) }
 

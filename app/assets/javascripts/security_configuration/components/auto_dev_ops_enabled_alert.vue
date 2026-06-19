@@ -3,6 +3,7 @@ import { GlAlert, GlLink, GlSprintf } from '@gitlab/ui';
 import { s__ } from '~/locale';
 
 export default {
+  name: 'AutoDevOpsEnabledAlert',
   components: {
     GlAlert,
     GlLink,

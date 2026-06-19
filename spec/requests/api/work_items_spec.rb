@@ -144,6 +144,79 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
           )
         end
       end
+
+      describe 'development feature N+1 prevention' do
+        let_it_be(:closing_work_item, freeze: false) { create(:work_item, project: project) }
+        let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
+        let_it_be(:other_closing_work_item, freeze: false) { create(:work_item, project: project) }
+        let_it_be(:other_merge_request, freeze: false) do
+          create(:merge_request, source_project: project, source_branch: 'other')
+        end
+
+        let(:request_params) { { features: 'development' } }
+
+        before do
+          create(:merge_requests_closing_issues, issue: closing_work_item, merge_request: merge_request)
+          create(:merge_requests_closing_issues, issue: other_closing_work_item, merge_request: other_merge_request)
+        end
+
+        it 'loads the closing merge requests count for the whole page in a single query', :aggregate_failures do
+          api_path = "/namespaces/#{CGI.escape(namespace_record.full_path)}/-/work_items"
+
+          recorder = ActiveRecord::QueryRecorder.new do
+            get api(api_path, user), params: request_params
+          end
+
+          closing_mr_count_queries = recorder.log.grep(
+            /SELECT "merge_requests_closing_issues"\."issue_id", COUNT\(\*\)/
+          )
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(closing_mr_count_queries.size).to eq(1)
+          expect(features_json_for(closing_work_item)).to eq('development' => { 'closing_merge_requests_count' => 1 })
+          expect(features_json_for(other_closing_work_item)).to eq(
+            'development' => { 'closing_merge_requests_count' => 1 }
+          )
+        end
+      end
+
+      describe 'development feature' do
+        let_it_be(:closing_work_item, freeze: false) { create(:work_item, project: project) }
+        let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
+
+        let(:request_params) { { features: 'development' } }
+        let(:api_path) { "/namespaces/#{CGI.escape(namespace_record.full_path)}/-/work_items" }
+
+        before do
+          create(:merge_requests_closing_issues, issue: closing_work_item, merge_request: merge_request)
+        end
+
+        it 'exposes the visibility-aware closing merge requests count', :aggregate_failures do
+          get api(api_path, user), params: request_params
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(features_json_for(closing_work_item)).to eq(
+            'development' => { 'closing_merge_requests_count' => 1 }
+          )
+          expect(features_json_for(project_work_item)).to eq(
+            'development' => { 'closing_merge_requests_count' => 0 }
+          )
+        end
+
+        it 'excludes closing merge requests the user cannot read', :aggregate_failures do
+          inaccessible_project = create(:project, :private)
+          inaccessible_project.project_feature.update!(merge_requests_access_level: ProjectFeature::PRIVATE)
+          inaccessible_mr = create(:merge_request, source_project: inaccessible_project)
+          create(:merge_requests_closing_issues, issue: closing_work_item, merge_request: inaccessible_mr)
+
+          get api(api_path, user), params: request_params
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(features_json_for(closing_work_item)).to eq(
+            'development' => { 'closing_merge_requests_count' => 1 }
+          )
+        end
+      end
     end
 
     context 'when namespace is not a group or project' do

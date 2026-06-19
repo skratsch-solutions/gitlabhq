@@ -41,6 +41,7 @@ const i18n = {
 };
 
 export default {
+  name: 'TrainingProviderList',
   components: {
     GlAlert,
     GlCard,

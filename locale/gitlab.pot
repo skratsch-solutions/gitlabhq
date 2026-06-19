@@ -7779,9 +7779,6 @@ msgstr ""
 msgid "AgentArtifacts|Agent audit events"
 msgstr ""
 
-msgid "AgentArtifacts|Agent output"
-msgstr ""
-
 msgid "AgentArtifacts|Audit events"
 msgstr ""
 
@@ -7794,6 +7791,9 @@ msgstr ""
 msgid "AgentArtifacts|Close"
 msgstr ""
 
+msgid "AgentArtifacts|Content"
+msgstr ""
+
 msgid "AgentArtifacts|Created after"
 msgstr ""
 
@@ -7801,6 +7801,9 @@ msgid "AgentArtifacts|Created before"
 msgstr ""
 
 msgid "AgentArtifacts|Details"
+msgstr ""
+
+msgid "AgentArtifacts|Error message"
 msgstr ""
 
 msgid "AgentArtifacts|Event type"
@@ -7818,10 +7821,10 @@ msgstr ""
 msgid "AgentArtifacts|Filter agent artifacts"
 msgstr ""
 
-msgid "AgentArtifacts|IP address"
+msgid "AgentArtifacts|Goal"
 msgstr ""
 
-msgid "AgentArtifacts|Input prompt"
+msgid "AgentArtifacts|IP address"
 msgstr ""
 
 msgid "AgentArtifacts|No agent artifacts found."
@@ -7833,7 +7836,16 @@ msgstr ""
 msgid "AgentArtifacts|No details available for this event."
 msgstr ""
 
+msgid "AgentArtifacts|Previous error"
+msgstr ""
+
 msgid "AgentArtifacts|Project"
+msgstr ""
+
+msgid "AgentArtifacts|Prompt content"
+msgstr ""
+
+msgid "AgentArtifacts|Response content"
 msgstr ""
 
 msgid "AgentArtifacts|Session"
@@ -7857,9 +7869,6 @@ msgstr ""
 msgid "AgentArtifacts|Summary"
 msgstr ""
 
-msgid "AgentArtifacts|System prompt"
-msgstr ""
-
 msgid "AgentArtifacts|Target details"
 msgstr ""
 
@@ -7867,6 +7876,9 @@ msgid "AgentArtifacts|Target type"
 msgstr ""
 
 msgid "AgentArtifacts|Timestamp"
+msgstr ""
+
+msgid "AgentArtifacts|Tool arguments"
 msgstr ""
 
 msgid "AgentArtifacts|View full session details"
@@ -16902,6 +16914,9 @@ msgstr ""
 msgid "CloneWorkItem|Unable to clone. Target namespace is pending deletion."
 msgstr ""
 
+msgid "CloneWorkItem|Unable to clone. The selected work item type is not available in the target namespace."
+msgstr ""
+
 msgid "CloneWorkItem|Unable to clone. You have insufficient permissions."
 msgstr ""
 
@@ -24931,6 +24946,9 @@ msgid "DataExplorer|Start by typing a GLQL query."
 msgstr ""
 
 msgid "DataExplorer|What is GLQL?"
+msgstr ""
+
+msgid "DataSync|Unable to perform action. The selected work item type is not available in the target namespace."
 msgstr ""
 
 msgid "Database '%{database_name}' is using PostgreSQL %{pg_version_current}, but this version of GitLab requires PostgreSQL %{pg_version_minimum}. Please upgrade your environment to a supported PostgreSQL version. See %{pg_requirements_url} for details."
@@ -47923,6 +47941,9 @@ msgid "MoveWorkItem|Unable to move. Moving across projects and groups is not sup
 msgstr ""
 
 msgid "MoveWorkItem|Unable to move. Target namespace is pending deletion."
+msgstr ""
+
+msgid "MoveWorkItem|Unable to move. The selected work item type is not available in the target namespace."
 msgstr ""
 
 msgid "MoveWorkItem|Unable to move. You have insufficient permissions."

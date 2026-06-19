@@ -300,10 +300,11 @@ Example response:
 }
 ```
 
-## Retrieve cluster health
+## Retrieve access and cluster health
 
-Retrieves cluster health and component status. This endpoint always returns `200 OK`,
-even when the service is unreachable. Check the `status` field to determine health.
+Returns whether the authenticated user can access the Knowledge Graph, along with the
+cluster health. Use this endpoint to decide whether to expose Orbit actions before you
+call them. It always returns `200 OK`, regardless of access or service health.
 
 ```plaintext
 GET /api/v4/orbit/status
@@ -318,12 +319,15 @@ Supported attributes:
 If successful, returns [`200 OK`](rest/troubleshooting.md#status-codes) and the following
 response attributes:
 
-| Attribute    | Type         | Description                                                     |
-|--------------|--------------|-----------------------------------------------------------------|
-| `status`     | string       | The cluster health status, for example `healthy` or `unknown`.  |
-| `timestamp`  | string       | The timestamp of the health check.                              |
-| `version`    | string       | The service version.                                            |
-| `components` | object array | The individual component statuses.                              |
+| Attribute          | Type    | Description                                                         |
+|--------------------|---------|---------------------------------------------------------------------|
+| `user`             | object  | The requesting user's access.                                       |
+| `user.available`   | boolean | Whether the user can access the Knowledge Graph.                    |
+| `system`           | object  | The cluster health, or `null` when the user has no access.          |
+| `system.status`    | string  | The cluster health status, for example `healthy` or `unknown`.      |
+| `system.timestamp` | string  | The timestamp of the health check.                                  |
+| `system.version`   | string  | The service version.                                                |
+| `system.components`| array   | The individual component statuses.                                  |
 
 Example request:
 
@@ -336,14 +340,30 @@ Example response:
 
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2026-03-05T15:08:35.885160548+00:00",
-  "version": "0.1.0",
-  "components": [
-    {"name": "gkg-indexer", "status": "healthy", "replicas": {"ready": 1, "desired": 1}, "metrics": {}},
-    {"name": "gkg-webserver", "status": "healthy", "replicas": {"ready": 1, "desired": 1}, "metrics": {}},
-    {"name": "clickhouse", "status": "healthy", "replicas": {"ready": 0, "desired": 0}, "metrics": {}}
-  ]
+  "user": {
+    "available": true
+  },
+  "system": {
+    "status": "healthy",
+    "timestamp": "2026-03-05T15:08:35.885160548+00:00",
+    "version": "0.1.0",
+    "components": [
+      {"name": "gkg-indexer", "status": "healthy", "replicas": {"ready": 1, "desired": 1}, "metrics": {}},
+      {"name": "gkg-webserver", "status": "healthy", "replicas": {"ready": 1, "desired": 1}, "metrics": {}},
+      {"name": "clickhouse", "status": "healthy", "replicas": {"ready": 0, "desired": 0}, "metrics": {}}
+    ]
+  }
+}
+```
+
+When the user has no access, `system` is `null`:
+
+```json
+{
+  "user": {
+    "available": false
+  },
+  "system": null
 }
 ```
 

@@ -20772,6 +20772,90 @@ CREATE SEQUENCE duo_workflows_events_id_seq
 
 ALTER SEQUENCE duo_workflows_events_id_seq OWNED BY duo_workflows_events.id;
 
+CREATE TABLE duo_workflows_workflow_merge_requests (
+    id bigint NOT NULL,
+    workflow_id bigint NOT NULL,
+    merge_request_id bigint NOT NULL,
+    project_id bigint,
+    namespace_id bigint,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    link_type smallint NOT NULL,
+    CONSTRAINT check_33722876a7 CHECK ((num_nonnulls(namespace_id, project_id) = 1))
+);
+
+CREATE SEQUENCE duo_workflows_workflow_merge_requests_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE duo_workflows_workflow_merge_requests_id_seq OWNED BY duo_workflows_workflow_merge_requests.id;
+
+CREATE TABLE duo_workflows_workflow_notes (
+    id bigint NOT NULL,
+    workflow_id bigint NOT NULL,
+    note_id bigint NOT NULL,
+    project_id bigint,
+    namespace_id bigint,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    link_type smallint NOT NULL,
+    CONSTRAINT check_383936561e CHECK ((num_nonnulls(namespace_id, project_id) = 1))
+);
+
+CREATE SEQUENCE duo_workflows_workflow_notes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE duo_workflows_workflow_notes_id_seq OWNED BY duo_workflows_workflow_notes.id;
+
+CREATE TABLE duo_workflows_workflow_pipelines (
+    id bigint NOT NULL,
+    workflow_id bigint NOT NULL,
+    pipeline_id bigint NOT NULL,
+    project_id bigint,
+    namespace_id bigint,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    link_type smallint NOT NULL,
+    CONSTRAINT check_3b3e2cc85c CHECK ((num_nonnulls(namespace_id, project_id) = 1))
+);
+
+CREATE SEQUENCE duo_workflows_workflow_pipelines_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE duo_workflows_workflow_pipelines_id_seq OWNED BY duo_workflows_workflow_pipelines.id;
+
+CREATE TABLE duo_workflows_workflow_work_items (
+    id bigint NOT NULL,
+    workflow_id bigint NOT NULL,
+    work_item_id bigint NOT NULL,
+    project_id bigint,
+    namespace_id bigint,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    link_type smallint NOT NULL,
+    CONSTRAINT check_df9373df82 CHECK ((num_nonnulls(namespace_id, project_id) = 1))
+);
+
+CREATE SEQUENCE duo_workflows_workflow_work_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE duo_workflows_workflow_work_items_id_seq OWNED BY duo_workflows_workflow_work_items.id;
+
 CREATE TABLE duo_workflows_workflows (
     id bigint NOT NULL,
     user_id bigint NOT NULL,
@@ -25207,6 +25291,7 @@ CREATE TABLE namespace_settings (
     personal_access_token_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     require_sha_for_merge boolean,
     lock_require_sha_for_merge boolean DEFAULT false NOT NULL,
+    admin_locked_duo_features_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_0ba93c78c7 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_d9644d516f CHECK ((char_length(step_up_auth_required_oauth_provider) <= 255)),
     CONSTRAINT check_namespace_settings_pat_settings_is_hash CHECK ((jsonb_typeof(personal_access_token_settings) = 'object'::text)),
@@ -36928,6 +37013,14 @@ ALTER TABLE ONLY duo_workflows_checkpoint_writes ALTER COLUMN id SET DEFAULT nex
 
 ALTER TABLE ONLY duo_workflows_events ALTER COLUMN id SET DEFAULT nextval('duo_workflows_events_id_seq'::regclass);
 
+ALTER TABLE ONLY duo_workflows_workflow_merge_requests ALTER COLUMN id SET DEFAULT nextval('duo_workflows_workflow_merge_requests_id_seq'::regclass);
+
+ALTER TABLE ONLY duo_workflows_workflow_notes ALTER COLUMN id SET DEFAULT nextval('duo_workflows_workflow_notes_id_seq'::regclass);
+
+ALTER TABLE ONLY duo_workflows_workflow_pipelines ALTER COLUMN id SET DEFAULT nextval('duo_workflows_workflow_pipelines_id_seq'::regclass);
+
+ALTER TABLE ONLY duo_workflows_workflow_work_items ALTER COLUMN id SET DEFAULT nextval('duo_workflows_workflow_work_items_id_seq'::regclass);
+
 ALTER TABLE ONLY duo_workflows_workflows ALTER COLUMN id SET DEFAULT nextval('duo_workflows_workflows_id_seq'::regclass);
 
 ALTER TABLE ONLY duo_workflows_workloads ALTER COLUMN id SET DEFAULT nextval('duo_workflows_workloads_id_seq'::regclass);
@@ -40496,6 +40589,18 @@ ALTER TABLE ONLY duo_workflows_checkpoint_writes
 
 ALTER TABLE ONLY duo_workflows_events
     ADD CONSTRAINT duo_workflows_events_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY duo_workflows_workflow_merge_requests
+    ADD CONSTRAINT duo_workflows_workflow_merge_requests_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY duo_workflows_workflow_notes
+    ADD CONSTRAINT duo_workflows_workflow_notes_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY duo_workflows_workflow_pipelines
+    ADD CONSTRAINT duo_workflows_workflow_pipelines_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY duo_workflows_workflow_work_items
+    ADD CONSTRAINT duo_workflows_workflow_work_items_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY duo_workflows_workflows
     ADD CONSTRAINT duo_workflows_workflows_pkey PRIMARY KEY (id);
@@ -48033,6 +48138,38 @@ CREATE INDEX index_duo_wf_session_artifacts_on_project_id_updated_at ON duo_work
 CREATE INDEX index_duo_wf_session_artifacts_on_user_id ON duo_workflow_session_artifacts USING btree (user_id);
 
 CREATE UNIQUE INDEX index_duo_wf_session_artifacts_on_workflow_id ON duo_workflow_session_artifacts USING btree (workflow_id);
+
+CREATE INDEX index_duo_wf_wf_mrs_on_merge_request_id ON duo_workflows_workflow_merge_requests USING btree (merge_request_id);
+
+CREATE INDEX index_duo_wf_wf_mrs_on_namespace_id ON duo_workflows_workflow_merge_requests USING btree (namespace_id);
+
+CREATE INDEX index_duo_wf_wf_mrs_on_project_id ON duo_workflows_workflow_merge_requests USING btree (project_id);
+
+CREATE UNIQUE INDEX index_duo_wf_wf_mrs_on_workflow_id_and_merge_request_id ON duo_workflows_workflow_merge_requests USING btree (workflow_id, merge_request_id, link_type);
+
+CREATE INDEX index_duo_wf_wf_notes_on_namespace_id ON duo_workflows_workflow_notes USING btree (namespace_id);
+
+CREATE INDEX index_duo_wf_wf_notes_on_note_id ON duo_workflows_workflow_notes USING btree (note_id);
+
+CREATE INDEX index_duo_wf_wf_notes_on_project_id ON duo_workflows_workflow_notes USING btree (project_id);
+
+CREATE UNIQUE INDEX index_duo_wf_wf_notes_on_workflow_id_and_note_id ON duo_workflows_workflow_notes USING btree (workflow_id, note_id, link_type);
+
+CREATE INDEX index_duo_wf_wf_pipelines_on_namespace_id ON duo_workflows_workflow_pipelines USING btree (namespace_id);
+
+CREATE INDEX index_duo_wf_wf_pipelines_on_pipeline_id ON duo_workflows_workflow_pipelines USING btree (pipeline_id);
+
+CREATE INDEX index_duo_wf_wf_pipelines_on_project_id ON duo_workflows_workflow_pipelines USING btree (project_id);
+
+CREATE UNIQUE INDEX index_duo_wf_wf_pipelines_on_workflow_id_and_pipeline_id ON duo_workflows_workflow_pipelines USING btree (workflow_id, pipeline_id, link_type);
+
+CREATE INDEX index_duo_wf_wf_wi_on_namespace_id ON duo_workflows_workflow_work_items USING btree (namespace_id);
+
+CREATE INDEX index_duo_wf_wf_wi_on_project_id ON duo_workflows_workflow_work_items USING btree (project_id);
+
+CREATE INDEX index_duo_wf_wf_wi_on_work_item_id ON duo_workflows_workflow_work_items USING btree (work_item_id);
+
+CREATE UNIQUE INDEX index_duo_wf_wf_wi_on_workflow_id_and_work_item_id ON duo_workflows_workflow_work_items USING btree (workflow_id, work_item_id, link_type);
 
 CREATE INDEX index_duo_workflows_checkpoint_writes_on_namespace_id ON duo_workflows_checkpoint_writes USING btree (namespace_id);
 
@@ -57164,6 +57301,9 @@ ALTER TABLE ONLY cluster_agent_url_configurations
 ALTER TABLE ONLY incident_management_escalation_rules
     ADD CONSTRAINT fk_0314ee86eb FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY duo_workflows_workflow_work_items
+    ADD CONSTRAINT fk_03389b6782 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY cluster_platforms_kubernetes
     ADD CONSTRAINT fk_0358d71adf FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
@@ -57275,6 +57415,9 @@ ALTER TABLE ONLY catalog_resource_component_last_usages
 ALTER TABLE ONLY dast_sites
     ADD CONSTRAINT fk_0a57f2271b FOREIGN KEY (dast_site_validation_id) REFERENCES dast_site_validations(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY duo_workflows_workflow_notes
+    ADD CONSTRAINT fk_0a753a4251 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY project_saved_replies
     ADD CONSTRAINT fk_0ace76afbb FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE NOT VALID;
 
@@ -57295,6 +57438,9 @@ ALTER TABLE ONLY vulnerability_flip_guards
 
 ALTER TABLE ONLY audit_events_amazon_s3_configurations
     ADD CONSTRAINT fk_0bcc22194d FOREIGN KEY (stream_destination_id) REFERENCES audit_events_group_external_streaming_destinations(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY duo_workflows_workflow_merge_requests
+    ADD CONSTRAINT fk_0bf4048a66 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY issue_customer_relations_contacts
     ADD CONSTRAINT fk_0c0037f723 FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE;
@@ -57689,6 +57835,9 @@ ALTER TABLE ONLY project_group_links
 ALTER TABLE ONLY packages_helm_metadata_cache_states
     ADD CONSTRAINT fk_2902beee34 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY duo_workflows_workflow_work_items
+    ADD CONSTRAINT fk_290dc77821 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY merge_requests_compliance_violations
     ADD CONSTRAINT fk_290ec1ab02 FOREIGN KEY (merge_request_id) REFERENCES merge_requests(id) ON DELETE CASCADE;
 
@@ -57715,6 +57864,9 @@ ALTER TABLE ONLY note_metadata
 
 ALTER TABLE ONLY personal_access_token_granular_scopes
     ADD CONSTRAINT fk_2a2bab7170 FOREIGN KEY (personal_access_token_id) REFERENCES personal_access_tokens(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY duo_workflows_workflow_merge_requests
+    ADD CONSTRAINT fk_2a6a5e86ea FOREIGN KEY (merge_request_id) REFERENCES merge_requests(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY approval_group_rules
     ADD CONSTRAINT fk_2a74c6e52d FOREIGN KEY (approval_policy_rule_id) REFERENCES approval_policy_rules(id) ON DELETE CASCADE;
@@ -57997,6 +58149,9 @@ ALTER TABLE ONLY vulnerability_reads
 
 ALTER TABLE ONLY subscription_add_on_purchases
     ADD CONSTRAINT fk_410004d68b FOREIGN KEY (subscription_add_on_id) REFERENCES subscription_add_ons(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY duo_workflows_workflow_work_items
+    ADD CONSTRAINT fk_410c403c45 FOREIGN KEY (work_item_id) REFERENCES issues(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY alert_management_alert_assignees
     ADD CONSTRAINT fk_419f7a11fa FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -58388,6 +58543,9 @@ ALTER TABLE ONLY merge_request_diff_details
 ALTER TABLE ONLY saml_group_links
     ADD CONSTRAINT fk_6336b1d1d0 FOREIGN KEY (member_role_id) REFERENCES member_roles(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY duo_workflows_workflow_merge_requests
+    ADD CONSTRAINT fk_6338e34638 FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY snippet_repository_states
     ADD CONSTRAINT fk_634bc9f2e3 FOREIGN KEY (snippet_organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
@@ -58669,6 +58827,9 @@ ALTER TABLE ONLY design_management_repository_states
 
 ALTER TABLE ONLY wiki_page_meta_user_mentions
     ADD CONSTRAINT fk_7954f34107 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY duo_workflows_workflow_merge_requests
+    ADD CONSTRAINT fk_79847c32a9 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY topics
     ADD CONSTRAINT fk_79ae18bd4b FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
@@ -59528,6 +59689,9 @@ ALTER TABLE ONLY packages_build_infos
 ALTER TABLE ONLY protected_branch_merge_access_levels
     ADD CONSTRAINT fk_c0c9525ab9 FOREIGN KEY (member_role_id) REFERENCES member_roles(id) ON DELETE RESTRICT;
 
+ALTER TABLE ONLY duo_workflows_workflow_work_items
+    ADD CONSTRAINT fk_c0e9359392 FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY design_management_versions
     ADD CONSTRAINT fk_c1440b4896 FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL;
 
@@ -59678,11 +59842,17 @@ ALTER TABLE ONLY compliance_framework_security_policies
 ALTER TABLE ONLY cd_rollout_transitions
     ADD CONSTRAINT fk_cf5cbf2723 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY duo_workflows_workflow_pipelines
+    ADD CONSTRAINT fk_cf7893a54c FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY work_item_type_custom_fields
     ADD CONSTRAINT fk_cf7da43538 FOREIGN KEY (custom_field_id) REFERENCES custom_fields(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY issue_assignment_events
     ADD CONSTRAINT fk_cfd2073177 FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY duo_workflows_workflow_notes
+    ADD CONSTRAINT fk_cffdf714a4 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ci_runner_controller_runner_level_scopings
     ADD CONSTRAINT fk_ci_rcrl_scopings_runner_id_runner_type FOREIGN KEY (runner_id, runner_type) REFERENCES ci_runners(id, runner_type) ON UPDATE CASCADE ON DELETE CASCADE;
@@ -59782,6 +59952,9 @@ ALTER TABLE ONLY system_note_metadata
 
 ALTER TABLE ONLY sbom_occurrences
     ADD CONSTRAINT fk_d857c6edc1 FOREIGN KEY (component_id) REFERENCES sbom_components(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY duo_workflows_workflow_notes
+    ADD CONSTRAINT fk_d8b468d010 FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY zentao_tracker_data
     ADD CONSTRAINT fk_d8eda829f4 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE NOT VALID;
@@ -59918,6 +60091,12 @@ ALTER TABLE ONLY approval_merge_request_rules
 ALTER TABLE ONLY cd_version_set_entries
     ADD CONSTRAINT fk_e3b06cd466 FOREIGN KEY (artifact_source_id) REFERENCES cd_artifact_sources(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY duo_workflows_workflow_notes
+    ADD CONSTRAINT fk_e4176de44b FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY duo_workflows_workflow_pipelines
+    ADD CONSTRAINT fk_e472f74490 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY packages_debian_project_component_files
     ADD CONSTRAINT fk_e4ff7d8a8b FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -59941,6 +60120,9 @@ ALTER TABLE ONLY group_upload_states
 
 ALTER TABLE ONLY approval_project_rules_protected_branches
     ADD CONSTRAINT fk_e6ee913fc2 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY duo_workflows_workflow_pipelines
+    ADD CONSTRAINT fk_e6f7440be4 FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY analytics_cycle_analytics_value_stream_settings
     ADD CONSTRAINT fk_e6fcfdeb81 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;

@@ -128,6 +128,7 @@ const search = (root, searchTerm) => {
 };
 
 export default {
+  name: 'SearchSettings',
   components: {
     EmptyResult,
     GlSearchBoxByType,

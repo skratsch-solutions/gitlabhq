@@ -321,6 +321,15 @@ html {
   }
 }
 
+// Hides Chrome's iOS translation tooltip
+//
+// Chrome on iOS injects `#goog-gt-tt` into the `<body>` when translation is enabled.
+// The accompanying Google CSS, which would normally hide this element, is blocked
+// by GitLab's CSP. Without that stylesheet, the element becomes visibly rendered.
+#goog-gt-tt {
+  display: none;
+}
+
 /*
  * These are used by the `Tab width` user preference in
  * `https://gitlab.com/-/profile/preferences`. The `css_class_for_user` method in

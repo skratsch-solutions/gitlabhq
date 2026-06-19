@@ -71,11 +71,12 @@ and the value is capped at `200`. Set the value to `0` to pause scheduling.
 
 Auto remediation supports the following package managers:
 
-| Language | Package Manager | Files                                |
-| -------- | --------------- | ------------------------------------ |
-| Ruby     | Bundler         | `Gemfile`, `Gemfile.lock`            |
-| Java     | Maven           | `pom.xml`                            |
-| Java     | Gradle          | `build.gradle`, `build.gradle.kts`   |
+| Language | Package Manager                     | Files                                                                  |
+| -------- | ----------------------------------- | ---------------------------------------------------------------------- |
+| Ruby     | Bundler                             | `Gemfile`, `Gemfile.lock`                                              |
+| Java     | Maven                               | `pom.xml`                                                              |
+| Java     | Gradle                              | `build.gradle`, `build.gradle.kts`                                     |
+| Python   | pip, pipenv, poetry, setuptools, uv | `requirements.txt`, `Pipfile`, `pyproject.toml`, `setup.py`, `uv.lock` |
 
 Support for additional ecosystems is planned. For details, see
 [epic 21643](https://gitlab.com/groups/gitlab-org/-/work_items/21643).

@@ -22,12 +22,16 @@ export default {
     store: { type: Object },
     userPermissions: { type: Object },
     filePaths: { type: Object },
+    diffRefs: { type: Object, default: undefined },
     showWhitespace: { default: undefined },
   },
   emits: ['empty'],
   computed: {
     allDiscussions() {
-      return this.store.findAllFileDiscussionsForFile(this.filePaths);
+      return this.store.findAllFileDiscussionsForFile({
+        ...this.filePaths,
+        diffRefs: this.diffRefs,
+      });
     },
     collapsedDiscussions() {
       return this.allDiscussions.filter((d) => !d.isForm && !d.isDraft && d.hidden);

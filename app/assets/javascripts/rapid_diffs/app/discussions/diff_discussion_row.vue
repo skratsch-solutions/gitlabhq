@@ -13,6 +13,7 @@ export default {
   inject: {
     store: { type: Object },
     filePaths: { type: Object },
+    diffRefs: { type: Object, default: undefined },
   },
   props: {
     oldLine: {
@@ -48,7 +49,9 @@ export default {
       return this.positions.length === 1 ? 4 : 2;
     },
     discussionsByPosition() {
-      return this.positions.map((p) => this.store.findLineDiscussionsForPosition(p));
+      return this.positions.map((p) =>
+        this.store.findLineDiscussionsForPosition({ ...p, diffRefs: this.diffRefs }),
+      );
     },
     regularDiscussionsByPosition() {
       return this.discussionsByPosition.map((discussions) => discussions.filter((d) => !d.isDraft));
@@ -89,7 +92,12 @@ export default {
       const noteId = getNoteIdFromHash();
       if (!noteId) return;
       for (const position of this.positions) {
-        if (discussionsContainNote(this.store.findLineDiscussionsForPosition(position), noteId)) {
+        if (
+          discussionsContainNote(
+            this.store.findLineDiscussionsForPosition({ ...position, diffRefs: this.diffRefs }),
+            noteId,
+          )
+        ) {
           this.toggle(false);
           return;
         }

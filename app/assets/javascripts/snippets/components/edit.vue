@@ -27,6 +27,7 @@ import SnippetVisibilityEdit from './snippet_visibility_edit.vue';
 eventHub.$on(SNIPPET_MEASURE_BLOBS_CONTENT, markBlobPerformance);
 
 export default {
+  name: 'SnippetsEdit',
   components: {
     SnippetDescriptionEdit,
     SnippetVisibilityEdit,

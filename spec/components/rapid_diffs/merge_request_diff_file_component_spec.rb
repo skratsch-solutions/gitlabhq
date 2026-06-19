@@ -88,6 +88,32 @@ RSpec.describe RapidDiffs::MergeRequestDiffFileComponent, type: :component, feat
       expect(file_data['custom_key']).to eq('custom_value')
       expect(file_data['code_review_id']).to eq(diff_file.code_review_id)
     end
+
+    it 'includes the diff file refs in file_data' do
+      allow(diff_file).to receive(:diff_refs).and_return(
+        Gitlab::Diff::DiffRefs.new(base_sha: 'base123', start_sha: 'start456', head_sha: 'head789')
+      )
+
+      render_component
+
+      diff_file_element = page.find('diff-file')
+      file_data = Gitlab::Json.parse(diff_file_element['data-file-data'])
+      expect(file_data['diff_refs']).to eq(
+        'base_sha' => 'base123',
+        'start_sha' => 'start456',
+        'head_sha' => 'head789'
+      )
+    end
+
+    it 'omits diff_refs when the diff file has none' do
+      allow(diff_file).to receive(:diff_refs).and_return(nil)
+
+      render_component
+
+      diff_file_element = page.find('diff-file')
+      file_data = Gitlab::Json.parse(diff_file_element['data-file-data'])
+      expect(file_data).not_to have_key('diff_refs')
+    end
   end
 
   describe 'viewed toggle' do
