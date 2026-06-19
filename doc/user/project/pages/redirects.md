@@ -185,6 +185,16 @@ In this example, the rule redirects `/old/a/b/c/file` to `/new/a/b/c/file`.
 Splats also match empty strings, so the previous rule redirects
 `/old/file` to `/new/file`.
 
+### Match a file extension with a splat
+
+A splat can directly precede a file extension in the `from` path. For example, this rule matches any `.html` request and redirects it to the same path with a trailing slash and no extension:
+
+```plaintext
+/*.html /:splat/ 301
+```
+
+In this example, a request to `/page.html` redirects to `/page/`, and a request to `/docs/page.html` redirects to `/docs/page/`.
+
 ### Rewrite all requests to a root `index.html`
 
 Single page applications (SPAs) often perform their own routing using

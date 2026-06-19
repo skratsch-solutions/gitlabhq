@@ -282,6 +282,7 @@ The following slash commands are available:
 | `/model`    | Switch the AI model for the current session.         |
 | `/new`      | Start a new chat session.                            |
 | `/sessions` | Browse, search, and switch sessions.                 |
+| `/settings` | Open settings.                                       |
 
 #### Tool approvals
 

@@ -5,6 +5,7 @@ import { s__ } from '~/locale';
 import { USER_MENU_TRACKING_DEFAULTS } from '../constants';
 
 export default {
+  name: 'UserMenuProfileItem',
   i18n: {
     user: {
       busy: s__('UserProfile|Busy'),

@@ -14,6 +14,7 @@ import PromoMenu from './promo_menu.vue';
 import { SEARCH_MODAL_ID } from './global_search/constants';
 
 export default {
+  name: 'SuperTopbar',
   SEARCH_MODAL_ID,
   staticBreadcrumbs,
   components: {

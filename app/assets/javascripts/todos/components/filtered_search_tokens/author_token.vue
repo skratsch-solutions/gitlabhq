@@ -6,6 +6,7 @@ import { getUser } from '~/rest_api';
 import AsyncToken from './async_token.vue';
 
 export default {
+  name: 'AuthorToken',
   i18n: {
     suggestionsFetchError: __('There was a problem fetching authors.'),
   },

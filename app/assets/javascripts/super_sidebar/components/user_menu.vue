@@ -32,6 +32,7 @@ const WHATS_NEW_EXPERIMENT = 'whats_new_placement';
 const WHATS_NEW_PLACEMENT = 'profile_menu';
 
 export default {
+  name: 'UserMenu',
   SET_STATUS_MODAL_ID,
   WHATS_NEW_EXPERIMENT,
   // "GitLab Next" is a proper noun, so it is intentionally not translated

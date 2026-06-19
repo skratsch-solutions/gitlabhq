@@ -3,6 +3,7 @@
 module IssueLinks
   class CreateService < IssuableLinks::CreateService
     include IncidentManagement::UsageData
+    include Gitlab::Utils::StrongMemoize
 
     def success(...)
       GraphqlTriggers.work_item_updated(issuable)
@@ -19,9 +20,10 @@ module IssueLinks
 
     private
 
-    def readonly_issuables(issuables)
-      @readonly_issuables ||= issuables.select { |issuable| issuable.readable_by?(current_user) }
+    def readonly_issuables
+      referenced_issuables.select { |issuable| issuable.readable_by?(current_user) }
     end
+    strong_memoize_attr :readonly_issuables
 
     def track_event
       track_incident_action(current_user, issuable, :incident_relate)
@@ -29,10 +31,6 @@ module IssueLinks
 
     def link_class
       IssueLink
-    end
-
-    def issuables_no_permission_error_message
-      _("Couldn't link issues. You must have at least the Guest role in both projects.")
     end
 
     def extractor_context

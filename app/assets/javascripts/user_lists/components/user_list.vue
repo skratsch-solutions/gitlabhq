@@ -15,6 +15,7 @@ import AddUserModal from './add_user_modal.vue';
 const commonTableClasses = ['gl-py-5', 'gl-border-b-1', 'gl-border-b-solid', 'gl-border-default'];
 
 export default {
+  name: 'UserList',
   components: {
     GlAlert,
     GlButton,

@@ -4,6 +4,7 @@ import { s__ } from '~/locale';
 import { ADD_USER_MODAL_ID } from '../constants/show';
 
 export default {
+  name: 'AddUserModal',
   components: {
     GlFormGroup,
     GlFormTextarea,

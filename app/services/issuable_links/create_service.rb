@@ -62,7 +62,7 @@ module IssuableLinks
     end
 
     def render_no_permission_error?
-      readonly_issuables(referenced_issuables).present? && linkable_issuables(referenced_issuables).empty?
+      readonly_issuables.present? && linkable_issuables(referenced_issuables).empty?
     end
 
     def render_not_found_error?
@@ -136,7 +136,7 @@ module IssuableLinks
     end
 
     def error_message
-      ::Gitlab::WorkItems::IssuableLinks::ErrorMessage.new(target_type: target_issuable_type, container_type: 'project')
+      ::Gitlab::WorkItems::IssuableLinks::ErrorMessage.new(target_type: target_issuable_type)
     end
 
     def target_issuable_type
@@ -152,7 +152,7 @@ module IssuableLinks
       raise NotImplementedError
     end
 
-    def readonly_issuables(_issuables)
+    def readonly_issuables
       [] # default to empty for non-issues
     end
 

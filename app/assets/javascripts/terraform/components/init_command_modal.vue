@@ -4,6 +4,7 @@ import { __, s__ } from '~/locale';
 import SimpleCopyButton from '~/vue_shared/components/simple_copy_button.vue';
 
 export default {
+  name: 'InitCommandModal',
   i18n: {
     title: s__('Terraform|Terraform init'),
     explanatoryText: s__(

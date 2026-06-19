@@ -1174,6 +1174,7 @@ type:StringExpression
 type:Submodule
 type:SubscriptionFutureEntry
 type:SuggestedReviewersType
+type:Suggestion
 type:SystemNoteMetadata
 type:TargetedMessage
 type:TaskCompletionStatus

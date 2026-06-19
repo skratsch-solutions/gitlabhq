@@ -20,6 +20,7 @@ const WHATS_NEW_EXPERIMENT = 'whats_new_placement';
 const WHATS_NEW_PLACEMENT = 'help_menu';
 
 export default {
+  name: 'HelpCenter',
   WHATS_NEW_EXPERIMENT,
   components: {
     GlDisclosureDropdown,

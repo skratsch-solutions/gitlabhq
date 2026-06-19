@@ -26,6 +26,7 @@ import TodoItemTitle from './todo_item_title.vue';
 import TodoItemTitleHiddenBySaml from './todo_item_title_hidden_by_saml.vue';
 
 export default {
+  name: 'TodoItemBody',
   components: {
     GlLink,
     GlAvatar,

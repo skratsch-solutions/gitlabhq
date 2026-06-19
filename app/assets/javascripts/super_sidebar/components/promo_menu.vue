@@ -10,6 +10,7 @@ import { PROMO_URL } from '~/constants';
 import { exploreRootPath } from '~/lib/utils/path_helpers/explore';
 
 export default {
+  name: 'PromoMenu',
   components: {
     GlButton,
     GlDisclosureDropdown,

@@ -22,6 +22,7 @@ import SidebarMenu from './sidebar_menu.vue';
 import ScrollScrim from './scroll_scrim.vue';
 
 export default {
+  name: 'SuperSidebar',
   components: {
     IconOnlyToggle,
     HelpCenter,

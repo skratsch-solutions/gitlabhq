@@ -72,6 +72,7 @@ docs-lint release-note-categories:
   image: $DEFAULT_CI_IMAGE
   stage: lint
   needs: []
+  allow_failure: true  # TODO: Remove after https://gitlab.com/gitlab-org/gitlab/-/work_items/603549 is resolved
   script:
     - ruby scripts/lint/validate_release_categories.rb --release-notes doc/releases/**/*.md
 

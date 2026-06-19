@@ -3,6 +3,7 @@ import { GlNavItem, GlTooltipDirective } from '@gitlab/ui';
 import { s__ } from '~/locale';
 
 export default {
+  name: 'IconOnlyToggle',
   components: { GlNavItem },
   directives: {
     GlTooltip: GlTooltipDirective,

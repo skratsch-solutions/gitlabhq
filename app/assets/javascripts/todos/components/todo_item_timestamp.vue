@@ -6,6 +6,7 @@ import { s__, sprintf } from '~/locale';
 import TodoSnoozedTimestamp from './todo_snoozed_timestamp.vue';
 
 export default {
+  name: 'TodoItemTimestamp',
   components: { TodoSnoozedTimestamp },
   mixins: [timeagoMixin],
   props: {

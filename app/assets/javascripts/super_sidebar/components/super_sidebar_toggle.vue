@@ -8,6 +8,7 @@ import { sidebarState } from '../state';
 import { toggleSuperSidebarCollapsed } from '../super_sidebar_collapsed_state_manager';
 
 export default {
+  name: 'SuperSidebarToggle',
   components: {
     GlButton,
   },

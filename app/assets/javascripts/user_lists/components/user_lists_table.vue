@@ -12,6 +12,7 @@ import { __, s__, sprintf } from '~/locale';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 
 export default {
+  name: 'UserListsTable',
   i18n: {
     showMore: __('Show more'),
     showLess: __('Show less'),

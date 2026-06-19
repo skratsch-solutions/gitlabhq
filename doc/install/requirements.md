@@ -100,7 +100,7 @@ To install extensions, PostgreSQL requires superuser privileges. For instruction
 ### GitLab Geo
 
 For [GitLab Geo](../administration/geo/_index.md), you should use the Linux package or
-[validated cloud providers](../administration/reference_architectures/_index.md#recommended-cloud-providers-and-services)
+[supported infrastructure](../administration/reference_architectures/_index.md#infrastructure-and-services)
 to install GitLab.
 Compatibility with other external databases is not guaranteed.
 

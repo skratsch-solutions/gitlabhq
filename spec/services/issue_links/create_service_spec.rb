@@ -10,6 +10,8 @@ RSpec.describe IssueLinks::CreateService, feature_category: :team_planning do
     let_it_be(:issuable, freeze: false) { create :issue, project: project }
     let_it_be(:issuable2, freeze: false) { create :issue, project: project }
     let_it_be(:restricted_issuable, freeze: false) { create :issue }
+    let_it_be(:public_project, freeze: false) { create :project, :public }
+    let_it_be(:readonly_issuable, freeze: false) { create :issue, project: public_project }
     let_it_be(:another_project, freeze: false) { create :project, namespace: project.namespace }
     let_it_be(:issuable3, freeze: false) { create :issue, project: another_project }
     let_it_be(:issuable_a, freeze: false) { create :issue, project: project }

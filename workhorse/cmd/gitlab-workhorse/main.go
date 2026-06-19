@@ -14,7 +14,8 @@ import (
 	"time"
 
 	"gitlab.com/gitlab-org/labkit/fips"
-	"gitlab.com/gitlab-org/labkit/log"
+	"gitlab.com/gitlab-org/labkit/v2/log"
+
 	"gitlab.com/gitlab-org/labkit/monitoring"
 	"gitlab.com/gitlab-org/labkit/tracing"
 
@@ -253,7 +254,9 @@ func gracefulShutdown(
 		// Wait for the graceful shutdown delay to complete before shutting down the server
 		gracefulShutdownDelay := healthCheckServer.GetGracefulShutdownDelay()
 		if gracefulShutdownDelay > 0 {
-			log.WithField("shutdown_delay_s", gracefulShutdownDelay.Seconds()).Info("Waiting for graceful shutdown delay")
+			slog.With(
+				"shutdown_delay_s", gracefulShutdownDelay.Seconds(),
+			).Info("Waiting for graceful shutdown delay")
 
 			go upgradedConnsManager.Shutdown(gracefulShutdownDelay)
 
@@ -310,7 +313,10 @@ func run(boot bootConfig, cfg config.Config) error {
 	slog.SetDefault(v2Logger)
 
 	tracing.Initialize(tracing.WithServiceName("gitlab-workhorse"))
-	log.WithField("version", Version).WithField("build_time", BuildTime).Print("Starting")
+	slog.With(
+		"version", Version,
+		"build_time", BuildTime,
+	).Info("Starting")
 	fips.Check()
 
 	// Good housekeeping for Unix sockets: unlink before binding
@@ -337,11 +343,12 @@ func run(boot bootConfig, cfg config.Config) error {
 
 	secret.SetPath(boot.secretPath)
 
-	log.Info("Using redis/go-redis")
+	slog.Info("Using redis/go-redis")
 
 	rdb, err := redis.Configure(&cfg)
 	if err != nil {
-		log.WithError(err).Error("unable to configure redis client")
+		// #nosec G706 -- Log taint false positive due to old golangci version
+		slog.Error("unable to configure redis client", log.Error(err))
 	}
 	redisKeyWatcher := redis.NewKeyWatcher(rdb)
 
@@ -418,7 +425,10 @@ func run(boot bootConfig, cfg config.Config) error {
 	case err := <-finalErrors:
 		return err
 	case sig := <-done:
-		log.WithFields(log.Fields{"shutdown_timeout_s": cfg.ShutdownTimeout.Duration.Seconds(), "signal": sig.String()}).Infof("shutdown initiated")
+		slog.With(
+			"shutdown_timeout_s", cfg.ShutdownTimeout.Duration.Seconds(),
+			"signal", sig.String(),
+		).Info("shutdown initiated")
 		return gracefulShutdown(srv, cfg, redisKeyWatcher, healthCheckServer, shutdownCh, upgradedConnsManager)
 	}
 }

@@ -1,9 +1,9 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlButton } from '@gitlab/ui';
 import { highCountTrim } from '~/lib/utils/text_utility';
 
 export default {
+  name: 'SuperSidebarCounter',
   components: {
     GlButton,
   },

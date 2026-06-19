@@ -8319,12 +8319,6 @@ msgstr ""
 msgid "AiPowered|Configure GitLab Duo Self-Hosted"
 msgstr ""
 
-msgid "AiPowered|Configure features"
-msgstr ""
-
-msgid "AiPowered|Configure models for GitLab Duo"
-msgstr ""
-
 msgid "AiPowered|Connection method"
 msgstr ""
 
@@ -8454,9 +8448,6 @@ msgstr ""
 msgid "AiPowered|GitLab Duo Core available to all users"
 msgstr ""
 
-msgid "AiPowered|GitLab Duo Model Selection"
-msgstr ""
-
 msgid "AiPowered|GitLab Duo Self-Hosted"
 msgstr ""
 
@@ -8529,13 +8520,13 @@ msgstr ""
 msgid "AiPowered|Local URL for the GitLab Duo Agent Platform service"
 msgstr ""
 
+msgid "AiPowered|Manage models"
+msgstr ""
+
 msgid "AiPowered|Maximum time in seconds to wait for responses from the AI Gateway (up to 600 seconds).%{br}Increasing this value might result in degraded user experience."
 msgstr ""
 
 msgid "AiPowered|Members of group"
-msgstr ""
-
-msgid "AiPowered|Model Selection"
 msgstr ""
 
 msgid "AiPowered|Model selection"
@@ -22699,6 +22690,9 @@ msgstr ""
 msgid "Could not find parent group with path %{path}"
 msgstr ""
 
+msgid "Could not link %{issuables}. You must be a member of the project or group of both %{issuables}."
+msgstr ""
+
 msgid "Could not load the user chart. Please refresh the page to try again."
 msgstr ""
 
@@ -22757,12 +22751,6 @@ msgid "Couldn't find denylist event type filters where audit event type(s): %{mi
 msgstr ""
 
 msgid "Couldn't find event type filters where audit event type(s): %{missing_filters}"
-msgstr ""
-
-msgid "Couldn't link %{issuables}. You must have at least the Guest role in both %{issuable}'s %{projects_or_groups}."
-msgstr ""
-
-msgid "Couldn't link issues. You must have at least the Guest role in both projects."
 msgstr ""
 
 msgid "Couldn't re-order due to an internal error."

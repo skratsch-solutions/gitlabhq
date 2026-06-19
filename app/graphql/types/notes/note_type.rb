@@ -64,6 +64,9 @@ module Types
       field :position, Types::Notes::DiffPositionType,
         null: true,
         description: 'Position of the note on a diff.'
+      field :suggestions, Types::Notes::SuggestionType.connection_type,
+        null: true,
+        description: 'Suggested changes contained in the note.'
 
       field :author_is_contributor, GraphQL::Types::Boolean,
         null: true,
