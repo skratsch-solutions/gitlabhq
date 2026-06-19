@@ -117,6 +117,7 @@ module API
         optional :confidential, type: Boolean, desc: 'Boolean parameter if the issue should be confidential', allow_blank: false
         optional :discussion_locked, type: Boolean, desc: " Boolean parameter indicating if the issue's discussion is locked"
         optional :issue_type, type: String, values: ::WorkItems::TypesFramework::Provider.unfiltered_base_types_for_issues, desc: "The type of the issue. Accepts: #{::WorkItems::TypesFramework::Provider.unfiltered_base_types_for_issues.join(', ')}"
+        optional :severity, type: String, values: IssuableSeverity.severities.keys, desc: "The severity of the issue. Only applies to incidents. Accepts: #{IssuableSeverity.severities.keys.join(', ')}"
 
         use :optional_issue_params_ee
       end

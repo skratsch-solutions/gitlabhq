@@ -65066,6 +65066,16 @@ definitions:
         - requirement
         - task
         - ticket
+      severity:
+        type: string
+        description: 'The severity of the issue. Only applies to incidents. Accepts:
+          unknown, low, medium, high, critical'
+        enum:
+        - unknown
+        - low
+        - medium
+        - high
+        - critical
       weight:
         type: integer
         format: int32
@@ -65157,6 +65167,16 @@ definitions:
         - requirement
         - task
         - ticket
+      severity:
+        type: string
+        description: 'The severity of the issue. Only applies to incidents. Accepts:
+          unknown, low, medium, high, critical'
+        enum:
+        - unknown
+        - low
+        - medium
+        - high
+        - critical
       weight:
         type: integer
         format: int32

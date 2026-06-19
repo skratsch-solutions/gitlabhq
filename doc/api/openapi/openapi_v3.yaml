@@ -44911,7 +44911,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_38544661d22c"
+              "$ref": "#/components/schemas/RequestBody_782244cb51ab"
   "/api/v4/projects/{id}/issues_statistics":
     get:
       operationId: getApiV4ProjectsIdIssuesStatistics
@@ -45311,7 +45311,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_0e1153b6a771"
+              "$ref": "#/components/schemas/RequestBody_87ffe09df217"
     delete:
       operationId: deleteApiV4ProjectsIdIssuesIssueIid
       summary: Delete a project issue
@@ -104229,7 +104229,7 @@ components:
           nullable: true
       required:
       - content
-    RequestBody_38544661d22c:
+    RequestBody_782244cb51ab:
       type: object
       properties:
         title:
@@ -104326,6 +104326,17 @@ components:
           description: 'The type of the issue. Accepts: issue, incident, test_case,
             requirement, task, ticket'
           nullable: true
+        severity:
+          type: string
+          enum:
+          - unknown
+          - low
+          - medium
+          - high
+          - critical
+          description: 'The severity of the issue. Only applies to incidents. Accepts:
+            unknown, low, medium, high, critical'
+          nullable: true
         weight:
           type: integer
           description: The weight of the issue
@@ -104340,7 +104351,7 @@ components:
           nullable: true
       required:
       - title
-    RequestBody_0e1153b6a771:
+    RequestBody_87ffe09df217:
       type: object
       properties:
         title:
@@ -104430,6 +104441,17 @@ components:
           - ticket
           description: 'The type of the issue. Accepts: issue, incident, test_case,
             requirement, task, ticket'
+          nullable: true
+        severity:
+          type: string
+          enum:
+          - unknown
+          - low
+          - medium
+          - high
+          - critical
+          description: 'The severity of the issue. Only applies to incidents. Accepts:
+            unknown, low, medium, high, critical'
           nullable: true
         weight:
           type: integer

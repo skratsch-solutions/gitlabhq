@@ -88,19 +88,13 @@ class FakeWebauthnDevice
 
   private
 
-  # The WebAuthn challenge page populates `gon.webauthn.options` asynchronously
-  # once its JavaScript bundle has loaded. Reading the challenge before that
-  # happens raises "Cannot read properties of undefined". Wait for the value to
-  # be present before any `evaluate_script` call dereferences it.
-  def wait_for_webauthn_options(max_wait_time: Capybara.default_max_wait_time)
-    wait_until = ::Gitlab::Metrics::System.monotonic_time + max_wait_time
-    loop do
-      break if @page.evaluate_script('Boolean(window.gon && gon.webauthn && gon.webauthn.options)')
-
-      raise 'Condition not met: gon.webauthn.options populated' if
-        ::Gitlab::Metrics::System.monotonic_time > wait_until
-
-      sleep(0.05)
+  # Submitting the sign-in form navigates to the 2FA page, which is what
+  # populates `gon.webauthn`. Wait for it before reading the challenge,
+  # otherwise this can run before the new page has loaded and
+  # `gon.webauthn` is still undefined.
+  def wait_for_webauthn_options
+    WaitHelpers.wait_for('gon.webauthn to be populated') do
+      @page.evaluate_script('Boolean(window.gon && gon.webauthn && gon.webauthn.options)')
     end
   end
 

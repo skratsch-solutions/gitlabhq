@@ -109,6 +109,37 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
       end
     end
 
+    context 'with severity' do
+      it 'sets the severity on a new incident', :aggregate_failures do
+        post api("/projects/#{project.id}/issues", user),
+          params: { title: 'new incident', issue_type: 'incident', severity: 'high' }
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(json_response['issue_type']).to eq('incident')
+
+        incident = project.issues.find(json_response['id'])
+        expect(incident.severity).to eq('high')
+      end
+
+      it 'rejects an invalid severity value' do
+        post api("/projects/#{project.id}/issues", user),
+          params: { title: 'new incident', issue_type: 'incident', severity: 'invalid' }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'ignores severity on a non-incident issue', :aggregate_failures do
+        post api("/projects/#{project.id}/issues", user),
+          params: { title: 'new issue', severity: 'high' }
+
+        expect(response).to have_gitlab_http_status(:created)
+
+        issue = project.issues.find(json_response['id'])
+        expect(issue).not_to be_supports_severity
+        expect(issue.severity).to eq(IssuableSeverity::DEFAULT)
+      end
+    end
+
     context 'user does not have permissions to create issue' do
       let(:not_member) { create(:user) }
 
