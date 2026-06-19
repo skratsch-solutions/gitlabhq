@@ -8,6 +8,7 @@ module Gitlab
       # to avoid insertion errors.
       class PartitionExporter
         include PartitionKeyColumnTypes
+        include EnsureUtcSession
 
         SUPPORTED_PARTITION_TYPES = Set.new(INTEGER_TYPES + DATE_TYPES).freeze
 
@@ -21,6 +22,8 @@ module Gitlab
         #   integer partition hashes are { partition_name: String, from: Integer, to: Integer } and
         #   date partition hashes are { partition_name: String, from: String|nil, to: String }.
         def export
+          ensure_utc_session!
+
           results = []
 
           Gitlab::Database::SharedModel.using_connection(@connection) do
@@ -40,6 +43,8 @@ module Gitlab
         end
 
         private
+
+        attr_reader :connection
 
         def partition_key_types(tables)
           pairs = tables.map { |table| [table.key_columns.first, table.identifier] }

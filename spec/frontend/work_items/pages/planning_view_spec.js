@@ -67,6 +67,8 @@ import {
   WORK_ITEM_TYPE_NAME_ISSUE,
   WORK_ITEM_TYPE_NAME_TICKET,
   STATE_CLOSED,
+  VIEW_MODE_LIST,
+  VIEW_MODE_BOARD,
 } from '~/work_items/constants';
 
 import namespaceWorkItemTypesQuery from '~/work_items/graphql/namespace_work_item_types.query.graphql';
@@ -223,7 +225,6 @@ const subscribedSavedViewsHandler = jest.fn().mockResolvedValue({
 
 const findListView = () => wrapper.findComponent(ListView);
 const findBoardView = () => wrapper.findComponent({ name: 'BoardView' });
-const findToggleViewModeButton = () => wrapper.findByTestId('toggle-view-mode-button');
 const findDetailPanel = () => wrapper.findComponent(WorkItemDetailPanel);
 const findFilteredSearchBar = () => wrapper.findComponent(FilteredSearchBar);
 const findGlIntersectionObserver = () => wrapper.findComponent(GlIntersectionObserver);
@@ -2670,20 +2671,15 @@ describe('planning-view', () => {
       });
     });
 
-    describe('when planningViewBoards feature flag is disabled', () => {
-      beforeEach(async () => {
-        await mountComponent({ stubs: { WorkItemsSavedViewsSelectors: savedViewsSelectorsStub } });
-      });
-
-      it('does not render the toggle button', () => {
-        expect(findToggleViewModeButton().exists()).toBe(false);
-      });
-    });
-
     describe('when planningViewBoards feature flag is enabled', () => {
       beforeEach(async () => {
         await mountComponent({
-          provide: { glFeatures: { planningViewBoards: true } },
+          provide: {
+            glFeatures: {
+              planningViewBoards: true,
+              workItemListDisplaySettingsDrawer: true,
+            },
+          },
           stubs: {
             WorkItemsSavedViewsSelectors: savedViewsSelectorsStub,
             BoardView: boardViewStub,
@@ -2691,22 +2687,21 @@ describe('planning-view', () => {
         });
       });
 
-      it('renders the toggle button labelled "Show Board" by default', () => {
-        expect(findToggleViewModeButton().exists()).toBe(true);
-        expect(findToggleViewModeButton().text()).toBe('Show Board');
+      it('passes the current viewMode to the drawer (list by default)', () => {
+        expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_LIST);
       });
 
-      it('switches to board view and updates the button label when clicked', async () => {
-        findToggleViewModeButton().vm.$emit('click');
+      it('switches to board view when the drawer emits toggle-view-mode with "board"', async () => {
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
         await waitForPromises();
 
         expect(findListView().exists()).toBe(false);
         expect(findBoardView().exists()).toBe(true);
-        expect(findToggleViewModeButton().text()).toBe('Show List');
+        expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_BOARD);
       });
 
       it('passes rootPageFullPath and queryVariables to the board view', async () => {
-        findToggleViewModeButton().vm.$emit('click');
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
         await waitForPromises();
 
         expect(findBoardView().props('rootPageFullPath')).toBe('full/path');
@@ -2717,22 +2712,37 @@ describe('planning-view', () => {
         });
       });
 
-      it('switches back to list view on a second click', async () => {
-        findToggleViewModeButton().vm.$emit('click');
+      it('switches back to list view when the drawer emits toggle-view-mode with "list"', async () => {
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
         await waitForPromises();
-        findToggleViewModeButton().vm.$emit('click');
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_LIST);
         await waitForPromises();
 
         expect(findListView().exists()).toBe(true);
         expect(findBoardView().exists()).toBe(false);
-        expect(findToggleViewModeButton().text()).toBe('Show Board');
+        expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_LIST);
+      });
+
+      it('persists viewMode when navigating All Items → Saved View → All Items', async () => {
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+        await waitForPromises();
+
+        await router.push({ name: 'savedView', params: { type: 'work_items', view_id: '3' } });
+        await waitForPromises();
+
+        await router.push({ name: 'planningView', params: { type: 'work_items' } });
+        await waitForPromises();
+
+        expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_BOARD);
+        expect(findBoardView().exists()).toBe(true);
+        expect(findListView().exists()).toBe(false);
       });
 
       describe('when board-view emits set-error', () => {
         const message = 'Something went wrong when fetching the board columns.';
 
         beforeEach(async () => {
-          findToggleViewModeButton().vm.$emit('click');
+          findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
           await waitForPromises();
           findBoardView().vm.$emit('set-error', message);
           await nextTick();

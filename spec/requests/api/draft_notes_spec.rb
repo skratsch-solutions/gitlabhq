@@ -414,7 +414,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         expect(response).to have_gitlab_http_status(:no_content)
 
         # The published note should be a DiscussionNote, making it resolvable
-        published_note = merge_request.notes.last
+        published_note = merge_request.notes.order(:id).last
         expect(published_note.type).to eq('DiscussionNote')
         expect(published_note.discussion.resolvable?).to eq(true)
       end
@@ -554,14 +554,14 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         end.to change { merge_request.notes.count }.by_at_least(1)
 
         expect(response).to have_gitlab_http_status(:no_content)
-        expect(merge_request.notes.last.note).to eq('**Summary**')
+        expect(merge_request.notes.order(:id).last.note).to eq('**Summary**')
       end
 
       it "creates an internal note when internal is true", :aggregate_failures do
         post api("#{base_url}/bulk_publish", user), params: { note: 'Internal summary', internal: true }
 
         expect(response).to have_gitlab_http_status(:no_content)
-        note = merge_request.notes.last
+        note = merge_request.notes.order(:id).last
         expect(note.note).to eq('Internal summary')
         expect(note.internal).to eq(true)
       end
@@ -570,7 +570,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         post api("#{base_url}/bulk_publish", user), params: { note: 'Public summary', internal: false }
 
         expect(response).to have_gitlab_http_status(:no_content)
-        note = merge_request.notes.last
+        note = merge_request.notes.order(:id).last
         expect(note.note).to eq('Public summary')
         expect(note.internal).to eq(false)
       end
@@ -592,7 +592,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         reviewer = merge_request.merge_request_reviewers.find_by(user_id: user.id)
         expect(reviewer.state).to eq('requested_changes')
 
-        summary_note = merge_request.notes.where(note: 'Review summary').last
+        summary_note = merge_request.notes.where(note: 'Review summary').order(:id).last
         expect(summary_note).to be_present
         expect(summary_note.internal).to eq(true)
       end

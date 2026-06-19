@@ -33449,10 +33449,16 @@ msgstr ""
 msgid "FoundationalFlow|Resolve critical SAST vulnerabilities."
 msgstr ""
 
+msgid "FoundationalFlow|Review merge request code changes for business logic security vulnerabilities."
+msgstr ""
+
 msgid "FoundationalFlow|SAST False Positive Detection"
 msgstr ""
 
 msgid "FoundationalFlow|Secret Detection False Positive Detection"
+msgstr ""
+
+msgid "FoundationalFlow|Security Review"
 msgstr ""
 
 msgid "FoundationalFlow|Streamline code reviews by analyzing code changes and relevant codebase context. [How can I use this flow](https://docs.gitlab.com/user/duo_agent_platform/flows/foundational_flows/code_review/#use-the-flow)?"
@@ -86238,12 +86244,6 @@ msgstr ""
 msgid "WorkItemBoard|No items"
 msgstr ""
 
-msgid "WorkItemBoard|Show Board"
-msgstr ""
-
-msgid "WorkItemBoard|Show List"
-msgstr ""
-
 msgid "WorkItemBoard|Something went wrong when fetching the board columns. Please try again."
 msgstr ""
 
@@ -86293,6 +86293,12 @@ msgid "WorkItemCustomField|Type"
 msgstr ""
 
 msgid "WorkItemCustomField|Use on"
+msgstr ""
+
+msgid "WorkItemPlanningView|Board"
+msgstr ""
+
+msgid "WorkItemPlanningView|List"
 msgstr ""
 
 msgid "WorkItemStatus|%{status_name} is not a valid status for this item."

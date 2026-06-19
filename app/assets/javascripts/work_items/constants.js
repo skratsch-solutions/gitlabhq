@@ -446,3 +446,6 @@ export const VIEW_CONTEXT = {
   drawerWorkItem: 'drawer_work_item',
   drawerMergeRequest: 'drawer_merge_request',
 };
+
+export const VIEW_MODE_LIST = 'list';
+export const VIEW_MODE_BOARD = 'board';

@@ -29,12 +29,13 @@ module Organizations
 
     rule { organization_owner }.policy do
       enable :access_organization_admin_area
+      enable :delete_organization
       enable :read_organization_user
       enable :transfer_group
       enable :update_organization
     end
 
-    rule { (admin | organization_owner) & ~default_organization }.enable :delete_organization
+    rule { default_organization }.prevent :delete_organization
 
     rule { blocked | deactivated | inactive }.policy do
       prevent :delete_organization

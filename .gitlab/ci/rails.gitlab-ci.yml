@@ -360,6 +360,15 @@ rspec unit clickhouse25:
     - .rails:rules:clickhouse-changes
   parallel: 2
 
+# Dedicated job for the partition export/import UTC session guard specs.
+# Runs only the `:partition_tz`-tagged examples (see .rspec-base-pg17-tz) with
+# the extra non-UTC `postgres-tz` service, gated by a fork-runnable changes:
+# rule scoped to the partitioning lib + spec files.
+rspec unit partition-tz:
+  extends:
+    - .rspec-base-pg17-tz
+    - .rails:rules:partition-tz-changes
+
 rspec-ee unit clickhouse25:
   extends:
     - .rspec-base-pg17-clickhouse25

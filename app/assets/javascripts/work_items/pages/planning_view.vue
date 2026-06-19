@@ -153,6 +153,8 @@ import {
   DETAIL_VIEW_QUERY_PARAM_NAME,
   DETAIL_VIEW_DESIGN_VERSION_PARAM_NAME,
   VIEW_CONTEXT,
+  VIEW_MODE_LIST,
+  VIEW_MODE_BOARD,
 } from '../constants';
 
 const ListView = () => import('ee_else_ce/work_items/list/list_view.vue');
@@ -183,6 +185,8 @@ export default {
   WORK_ITEM_CREATE_SOURCES,
   CREATION_CONTEXT_LIST_ROUTE,
   VIEW_CONTEXT,
+  VIEW_MODE_LIST,
+  VIEW_MODE_BOARD,
   searchProjectsQuery,
   name: 'PlanningView',
   components: {
@@ -264,9 +268,11 @@ export default {
 
   data() {
     const loggedIn = isLoggedIn();
+    const isSavedViewRoute = this.$route.name === ROUTES.savedView;
+    const persistedViewMode = !isSavedViewRoute && planningViewAllItemsFilters.value?.viewMode;
     return {
       namespaceId: null,
-      viewMode: 'list',
+      viewMode: persistedViewMode || VIEW_MODE_LIST,
       activeItem: null,
       sortKey: CREATED_DESC,
       error: undefined,
@@ -1209,7 +1215,14 @@ export default {
           filterTokens: [...tokens],
           sortKey: this.sortKey,
           state: this.state,
+          viewMode: this.viewMode,
         });
+      }
+    },
+    handleToggleViewMode(newViewMode) {
+      this.viewMode = newViewMode;
+      if (!this.isSavedView) {
+        this.saveSessionFilters(this.filterTokens);
       }
     },
     handleSetActiveItem(item) {
@@ -1858,17 +1871,6 @@ export default {
               :create-source="$options.WORK_ITEM_CREATE_SOURCES.WORK_ITEM_LIST"
               @work-item-created="handleWorkItemCreated"
             />
-            <gl-button
-              v-if="isPlanningViewBoardEnabled"
-              data-testid="toggle-view-mode-button"
-              @click="viewMode = viewMode === 'list' ? 'board' : 'list'"
-            >
-              {{
-                viewMode === 'list'
-                  ? s__('WorkItemBoard|Show Board')
-                  : s__('WorkItemBoard|Show List')
-              }}
-            </gl-button>
           </template>
         </saved-views-selectors>
       </template>
@@ -2046,7 +2048,7 @@ export default {
       </div>
     </template>
     <list-view
-      v-if="viewMode === 'list'"
+      v-if="viewMode === $options.VIEW_MODE_LIST"
       data-testid="list-view"
       :root-page-full-path="rootPageFullPath"
       :with-tabs="withTabs"
@@ -2145,7 +2147,7 @@ export default {
       </template>
     </list-view>
     <board-view
-      v-if="viewMode === 'board' && isPlanningViewBoardEnabled"
+      v-if="viewMode === $options.VIEW_MODE_BOARD && isPlanningViewBoardEnabled"
       :root-page-full-path="rootPageFullPath"
       :query-variables="queryVariables"
       @set-error="($evt) => (error = $evt)"
@@ -2153,6 +2155,7 @@ export default {
     <work-item-display-settings-drawer
       v-if="isDisplaySettingsDrawerEnabled"
       :open="isDisplayDrawerOpen"
+      :view-mode="viewMode"
       :sort-options="sortOptions"
       :sort-key="sortKey"
       :namespace-preferences="displaySettingsSoT.namespacePreferences"
@@ -2164,6 +2167,7 @@ export default {
       @close="isDisplayDrawerOpen = false"
       @sort="handleSort"
       @update-settings="handleLocalDisplayPreferencesUpdate"
+      @toggle-view-mode="handleToggleViewMode"
     />
   </div>
 </template>

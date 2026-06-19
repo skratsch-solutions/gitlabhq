@@ -24,6 +24,7 @@ organization:
   raw_permissions:
   - access_organization_admin_area
   - create_group
+  - delete_organization
   - read_artifact_registry
   - read_organization
   - read_organization_user

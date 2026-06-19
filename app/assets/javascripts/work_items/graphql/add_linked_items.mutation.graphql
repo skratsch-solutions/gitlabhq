@@ -1,5 +1,6 @@
 #import "ee_else_ce/work_items/graphql/work_item.fragment.graphql"
 
+# @feature_category: portfolio_management
 mutation addLinkedItems(
   $input: WorkItemAddLinkedItemsInput!
   $useWorkItemFeatures: Boolean = false

@@ -2692,6 +2692,20 @@
     - <<: *if-default-refs
       changes: *backend-patterns
 
+.rails:rules:partition-tz-changes:
+  rules:
+    # Deliberately fork-runnable: unlike the ClickHouse rule this is copied from,
+    # we do NOT start with `if-fork-merge-request: when: never`. The community
+    # fork (gitlab-community/gitlab-org) is classified as a fork, and this MR is
+    # the one introducing the test, so the fork's MR pipeline must be able to run
+    # it. `if-merge-request` matches ANY MR event (no namespace restriction).
+    - <<: *if-merge-request
+      changes:
+        - "lib/gitlab/database/partitioning/**/*"
+        - "spec/lib/gitlab/database/partitioning/**/*"
+        - "spec/support/database/partition_tz.rb"
+        - "spec/support/helpers/database/multiple_databases_helpers.rb"
+
 .rails:rules:clickhouse-migration-changes:
   rules:
     - <<: *if-fork-merge-request

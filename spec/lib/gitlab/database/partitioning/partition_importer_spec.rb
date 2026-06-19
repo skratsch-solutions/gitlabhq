@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_category: :database do
   include Database::PartitioningHelpers
+  include Database::MultipleDatabasesHelpers
   include Gitlab::Database::MigrationHelpers::LooseForeignKeyHelpers
 
   let(:connection) { ApplicationRecord.connection }
@@ -381,6 +382,58 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
           expect(result[:created]).to eq(1)
         end
       end
+    end
+  end
+
+  # Happy-path UTC session guard (UNTAGGED).
+  #
+  # Under the default (UTC) session the guard must be a no-op and #import must
+  # behave exactly as before, including in dry-run. These run in the normal
+  # `rspec unit` jobs against CI's primary `postgres`, which may report a
+  # UTC-equivalent value such as `Etc/UTC` or `GMT`; the guard normalizes those
+  # (see EnsureUtcSession::UTC_TIMEZONES) rather than comparing strictly.
+  describe '#import (UTC session guard)' do
+    it 'does not raise under the default (UTC) session' do
+      expect { importer.import([]) }.not_to raise_error
+    end
+
+    it 'does not raise under UTC even in dry-run' do
+      expect { importer.import([], dry_run: true) }.not_to raise_error
+    end
+  end
+
+  # Guard proof (TAGGED :partition_tz), including dry-run.
+  #
+  # Under a genuinely non-UTC session the guard must raise before doing any
+  # work -- and the dry-run case must ALSO raise, because the guard runs at the
+  # top of #import before the dry-run branch. No SQL stubbing; the subject is
+  # constructed with a real side connection (the `postgres-tz` instance) whose
+  # SESSION TimeZone is forced non-UTC in the `before` hook.
+  #
+  # This test asserts only the OUTCOME (a raise under a non-UTC state). It puts
+  # the connection into a non-UTC state via a session `SET timezone`, which is a
+  # reliable lever regardless of whether the guard inspects the session zone or
+  # the database's configured default. The assertion matches on a message
+  # substring rather than an exact error class.
+  describe '#import (non-UTC session guard)', :partition_tz do
+    before do
+      skip_unless_non_utc_database_available
+
+      tz_connection.execute("SET timezone TO 'America/Los_Angeles'")
+    end
+
+    after do
+      tz_connection.execute("SET timezone TO 'UTC'")
+    end
+
+    subject(:importer) { described_class.new(connection: tz_connection) }
+
+    it 'raises on a real import under non-UTC' do
+      expect { importer.import([]) }.to raise_error(/TimeZone.*UTC/i)
+    end
+
+    it 'raises on a dry-run import under non-UTC (guard runs before the dry-run branch)' do
+      expect { importer.import([], dry_run: true) }.to raise_error(/TimeZone.*UTC/i)
     end
   end
 end

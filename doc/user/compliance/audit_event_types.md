@@ -180,6 +180,7 @@ Audit event types belong to the following product categories.
 | [`project_reset_approvals_on_push_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/66234) | A project has its setting on whether approvals are reset on a push is updated | {{< yes >}} | GitLab [14.2](https://gitlab.com/gitlab-org/gitlab/-/issues/336211) | Project |
 | [`project_resolve_outdated_diff_discussions_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/106652) | A project's resolve outdated diff discussions setting is updated | {{< yes >}} | GitLab [15.7](https://gitlab.com/gitlab-org/gitlab/-/issues/369288) | Project |
 | [`show_diff_preview_in_email_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/164973) | Setting Email notification to include diff preview is updated | {{< yes >}} | GitLab [17.4](https://gitlab.com/gitlab-org/gitlab/-/issues/486532) | Group, Project |
+| [`require_sha_for_merge_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236732) | Added when require_sha_for_merge is changed. | {{< yes >}} | GitLab [19.2](https://gitlab.com/gitlab-org/gitlab/-/work_items/599954) | Group |
 | [`selective_code_owner_removals_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148743) | Selective code owner removal is updated | {{< yes >}} | GitLab [17.0](https://gitlab.com/gitlab-org/gitlab/-/issues/327562) | Project |
 
 ### Code suggestions

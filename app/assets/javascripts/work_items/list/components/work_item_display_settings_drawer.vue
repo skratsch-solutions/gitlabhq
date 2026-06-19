@@ -1,7 +1,9 @@
 <script>
-import { GlDrawer } from '@gitlab/ui';
+import { GlDrawer, GlSegmentedControl } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { DRAWER_Z_INDEX } from '~/lib/utils/constants';
+import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { VIEW_MODE_LIST, VIEW_MODE_BOARD } from '../../constants';
 import WorkItemDisplaySettingsSort from './work_item_display_settings_sort.vue';
 import WorkItemDisplaySettingsMetadata from './work_item_display_settings_metadata.vue';
 import WorkItemDisplaySettingsUserPreferences from './work_item_display_settings_user_preferences.vue';
@@ -10,13 +12,27 @@ export default {
   name: 'WorkItemDisplaySettingsDrawer',
   components: {
     GlDrawer,
+    GlSegmentedControl,
     WorkItemDisplaySettingsSort,
     WorkItemDisplaySettingsMetadata,
     WorkItemDisplaySettingsUserPreferences,
   },
+  mixins: [glFeatureFlagMixin()],
   i18n: {
     title: s__('WorkItems|Display'),
   },
+  viewModeOptions: [
+    {
+      value: VIEW_MODE_LIST,
+      text: s__('WorkItemPlanningView|List'),
+      props: { icon: 'list-bulleted' },
+    },
+    {
+      value: VIEW_MODE_BOARD,
+      text: s__('WorkItemPlanningView|Board'),
+      props: { icon: 'work-item-issue-board' },
+    },
+  ],
   props: {
     open: {
       type: Boolean,
@@ -27,6 +43,10 @@ export default {
       required: true,
     },
     workItemTypeId: {
+      type: String,
+      required: true,
+    },
+    viewMode: {
       type: String,
       required: true,
     },
@@ -61,10 +81,13 @@ export default {
       default: false,
     },
   },
-  emits: ['close', 'sort', 'update-settings'],
+  emits: ['close', 'sort', 'update-settings', 'toggle-view-mode'],
   computed: {
     hasSortOptions() {
       return this.sortOptions.length > 0;
+    },
+    isPlanningViewBoardEnabled() {
+      return Boolean(this.glFeatures.planningViewBoards);
     },
   },
   methods: {
@@ -76,6 +99,9 @@ export default {
     },
     onSettingsUpdate(input) {
       this.$emit('update-settings', input);
+    },
+    onToggleViewMode(newViewMode) {
+      this.$emit('toggle-view-mode', newViewMode);
     },
   },
   DRAWER_Z_INDEX,
@@ -95,6 +121,14 @@ export default {
     </template>
     <template #default>
       <div class="gl-flex gl-h-full gl-flex-col !gl-p-0">
+        <gl-segmented-control
+          v-if="isPlanningViewBoardEnabled"
+          :options="$options.viewModeOptions"
+          :value="viewMode"
+          class="gl-mx-5 gl-mt-5"
+          data-testid="view-mode-toggle"
+          @input="onToggleViewMode"
+        />
         <work-item-display-settings-sort
           v-if="hasSortOptions"
           :sort-options="sortOptions"

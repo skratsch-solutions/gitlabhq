@@ -60,7 +60,16 @@ module API
         return unless reviewer_record
 
         state_value = MergeRequestReviewer.states[state]
-        reviewer_record.update(state: state_value) if state_value
+        return unless state_value
+
+        return if reviewer_record.update(state: state_value)
+
+        Gitlab::AppLogger.warn(
+          message: "Failed to update composite identity reviewer state",
+          merge_request_id: mr.id,
+          user_id: composite_actor.id,
+          errors: reviewer_record.errors.full_messages
+        )
       end
       # rubocop:enable CodeReuse/ActiveRecord
 

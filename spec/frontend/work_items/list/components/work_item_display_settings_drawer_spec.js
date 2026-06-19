@@ -1,5 +1,6 @@
-import { GlDrawer } from '@gitlab/ui';
+import { GlDrawer, GlSegmentedControl } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
+import { VIEW_MODE_LIST, VIEW_MODE_BOARD } from '~/work_items/constants';
 import WorkItemDisplaySettingsDrawer from '~/work_items/list/components/work_item_display_settings_drawer.vue';
 import WorkItemDisplaySettingsSort from '~/work_items/list/components/work_item_display_settings_sort.vue';
 import WorkItemDisplaySettingsMetadata from '~/work_items/list/components/work_item_display_settings_metadata.vue';
@@ -17,6 +18,7 @@ const DEFAULT_PROPS = {
   open: false,
   fullPath: 'gitlab-org/gitlab',
   workItemTypeId: 'gid://gitlab/WorkItems::Type/8',
+  viewMode: VIEW_MODE_LIST,
 };
 
 describe('WorkItemDisplaySettingsDrawer', () => {
@@ -26,12 +28,17 @@ describe('WorkItemDisplaySettingsDrawer', () => {
   const findSort = () => wrapper.findComponent(WorkItemDisplaySettingsSort);
   const findMetadata = () => wrapper.findComponent(WorkItemDisplaySettingsMetadata);
   const findUserPreferences = () => wrapper.findComponent(WorkItemDisplaySettingsUserPreferences);
+  const findViewModeToggle = () => wrapper.findComponent(GlSegmentedControl);
 
-  const createComponent = ({ props = {} } = {}) => {
+  const createComponent = ({ props = {}, provide = {} } = {}) => {
     wrapper = shallowMountExtended(WorkItemDisplaySettingsDrawer, {
       propsData: {
         ...DEFAULT_PROPS,
         ...props,
+      },
+      provide: {
+        glFeatures: { planningViewBoards: true },
+        ...provide,
       },
     });
   };
@@ -48,6 +55,46 @@ describe('WorkItemDisplaySettingsDrawer', () => {
     findDrawer().vm.$emit('close');
 
     expect(wrapper.emitted('close')).toHaveLength(1);
+  });
+
+  describe('view mode toggles', () => {
+    it('renders the toggles with list and board options', () => {
+      createComponent();
+
+      expect(findViewModeToggle().exists()).toBe(true);
+      expect(findViewModeToggle().props('options')).toEqual([
+        {
+          value: VIEW_MODE_LIST,
+          text: 'List',
+          props: { icon: 'list-bulleted' },
+        },
+        {
+          value: VIEW_MODE_BOARD,
+          text: 'Board',
+          props: { icon: 'work-item-issue-board' },
+        },
+      ]);
+    });
+
+    it('reflects the current chosen view mode', () => {
+      createComponent({ props: { viewMode: VIEW_MODE_BOARD } });
+
+      expect(findViewModeToggle().props('value')).toBe(VIEW_MODE_BOARD);
+    });
+
+    it('switches view mode with the selected value when toggled', () => {
+      createComponent();
+
+      findViewModeToggle().vm.$emit('input', VIEW_MODE_BOARD);
+
+      expect(wrapper.emitted('toggle-view-mode')).toEqual([[VIEW_MODE_BOARD]]);
+    });
+
+    it('does not render the toggles when planningViewBoards feature flag is disabled', () => {
+      createComponent({ provide: { glFeatures: { planningViewBoards: false } } });
+
+      expect(findViewModeToggle().exists()).toBe(false);
+    });
   });
 
   describe('sort section', () => {

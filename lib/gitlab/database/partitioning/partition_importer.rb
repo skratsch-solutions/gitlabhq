@@ -6,6 +6,7 @@ module Gitlab
       class PartitionImporter
         include Gitlab::Database::MigrationHelpers::LooseForeignKeyHelpers
         include PartitionKeyColumnTypes
+        include EnsureUtcSession
 
         ImportError = Class.new(StandardError)
 
@@ -19,6 +20,8 @@ module Gitlab
         # @return [Hash]
         #   { created: Integer, skipped: Integer, tables_processed: Integer }
         def import(table_definitions, dry_run: false)
+          ensure_utc_session!
+
           totals = { created: 0, skipped: 0, tables_processed: 0 }
           errors = []
 

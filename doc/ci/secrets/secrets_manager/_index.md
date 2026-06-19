@@ -250,6 +250,13 @@ When you [transfer a project](../../../user/project/working_with_projects.md#tra
 
 Users with the Owner role in the project receive an email notification to rotate a secret on the day specified in a secret's configuration.
 
+## Related topics
+
+- [Secret Audit Tool for Variables](https://gitlab.com/guided-explorations/secrets-management/secret-audit-tool-for-variables):
+  A community tool that scans a GitLab group hierarchy for CI/CD variables whose names suggest they may hold credentials
+  (passwords, tokens, API keys, and similar). It generates an HTML report to help you identify
+  variables to migrate to GitLab Secrets Manager.
+
 ## Troubleshooting
 
 ### Error: `reading from Vault: api error: status code 403`
