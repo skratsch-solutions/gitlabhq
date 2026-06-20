@@ -72,6 +72,10 @@ RSpec.describe ApplicationSettingsHelper, feature_category: :shared do
       expect(helper.visible_attributes).to include(:can_create_organization)
     end
 
+    it 'contains :ci_partitions_in_seconds_limit_human_readable' do
+      expect(helper.visible_attributes).to include(:ci_partitions_in_seconds_limit_human_readable)
+    end
+
     describe ':mcp_server_enabled' do
       context 'when self-managed' do
         it 'is included' do

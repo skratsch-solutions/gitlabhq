@@ -1264,6 +1264,62 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
       end
     end
 
+    context 'with ci_partitions_in_seconds_limit_human_readable' do
+      it 'updates the settings', :aggregate_failures do
+        put api("/application/settings", admin), params: {
+          ci_partitions_in_seconds_limit_human_readable: '2 months'
+        }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to include(
+          'ci_partitions_in_seconds_limit_human_readable' => '2 months'
+        )
+      end
+
+      it 'does not allow a value below the minimum' do
+        put api("/application/settings", admin), params: {
+          ci_partitions_in_seconds_limit_human_readable: '1 week'
+        }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']['ci_partitions_in_seconds_limit'])
+          .to include(a_string_matching('must be greater than or equal to'))
+      end
+
+      it 'does not allow a value above the maximum' do
+        put api("/application/settings", admin), params: {
+          ci_partitions_in_seconds_limit_human_readable: '1 year'
+        }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']['ci_partitions_in_seconds_limit'])
+          .to include(a_string_matching('must be less than or equal to'))
+      end
+    end
+
+    context 'with deprecated ci_partitions_in_seconds_limit' do
+      it 'still accepts the raw integer value for backwards compatibility' do
+        put api("/application/settings", admin), params: {
+          ci_partitions_in_seconds_limit: ChronicDuration.parse('2 months')
+        }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to include(
+          'ci_partitions_in_seconds_limit_human_readable' => ChronicDuration.output(
+            ChronicDuration.parse('2 months'), format: :short
+          )
+        )
+      end
+
+      it 'is not exposed in the response', :aggregate_failures do
+        get api("/application/settings", admin)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to have_key('ci_partitions_in_seconds_limit_human_readable')
+        expect(json_response).not_to have_key('ci_partitions_in_seconds_limit')
+      end
+    end
+
     context 'with downstream_pipeline_trigger_limit_per_project_user_sha' do
       it 'updates the settings' do
         put api("/application/settings", admin), params: {

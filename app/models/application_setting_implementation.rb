@@ -55,6 +55,7 @@ module ApplicationSettingImplementation
         ci_job_live_trace_enabled: false,
         ci_max_total_yaml_size_bytes: 314572800, # max_yaml_size_bytes * ci_max_includes = 2.megabyte * 150
         ci_delete_pipelines_in_seconds_limit_human_readable: '1 year',
+        ci_partitions_in_seconds_limit_human_readable: '1 month',
         commit_email_hostname: default_commit_email_hostname,
         container_expiration_policies_enable_historic_entries: false,
         container_registry_features: [],

@@ -570,6 +570,7 @@ class ApplicationSetting < ApplicationRecord
   jsonb_accessor :ci_cd_settings, ci_cd_settings_definition
 
   chronic_duration_attr :ci_delete_pipelines_in_seconds_limit_human_readable, :ci_delete_pipelines_in_seconds_limit
+  chronic_duration_attr :ci_partitions_in_seconds_limit_human_readable, :ci_partitions_in_seconds_limit
 
   validate :validate_object_storage_for_live_trace_configuration, if: -> { ci_job_live_trace_enabled? }
   validates :ci_partitions_in_seconds_limit, presence: true,

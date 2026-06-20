@@ -1852,6 +1852,13 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         it { is_expected.not_to allow_value('').for(:ci_partitions_in_seconds_limit) }
         it { is_expected.not_to allow_value(nil).for(:ci_partitions_in_seconds_limit) }
         it { is_expected.not_to allow_value(0).for(:ci_partitions_in_seconds_limit) }
+
+        describe '#ci_partitions_in_seconds_limit_human_readable=' do
+          it 'propagates values' do
+            expect { setting.ci_partitions_in_seconds_limit_human_readable = '2 months' }
+              .to change { setting.ci_partitions_in_seconds_limit }.to eq(ChronicDuration.parse('2 months'))
+          end
+        end
       end
     end
 

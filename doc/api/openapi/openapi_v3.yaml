@@ -16861,7 +16861,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_9a65f718f888"
+              "$ref": "#/components/schemas/RequestBody_bfbf3ab4435a"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -80893,6 +80893,8 @@ components:
           type: string
         ci_job_live_trace_enabled:
           type: string
+        ci_partitions_in_seconds_limit_human_readable:
+          type: string
         concurrent_github_import_jobs_limit:
           type: string
         concurrent_bitbucket_import_jobs_limit:
@@ -94262,7 +94264,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_9a65f718f888:
+    RequestBody_bfbf3ab4435a:
       type: object
       properties:
         admin_mode:
@@ -95597,6 +95599,9 @@ components:
         ci_delete_pipelines_in_seconds_limit_human_readable:
           type: string
           nullable: true
+        ci_partitions_in_seconds_limit_human_readable:
+          type: string
+          nullable: true
         container_expiration_policies_enable_historic_entries:
           type: string
           nullable: true
@@ -96627,6 +96632,9 @@ components:
           type: string
           nullable: true
         allow_deploy_tokens_and_keys_with_external_authn:
+          type: string
+          nullable: true
+        ci_partitions_in_seconds_limit:
           type: string
           nullable: true
         throttle_unauthenticated_web_enabled:

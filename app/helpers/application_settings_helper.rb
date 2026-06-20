@@ -297,6 +297,7 @@ module ApplicationSettingsHelper
       :allow_bypass_placeholder_confirmation,
       :ci_delete_pipelines_in_seconds_limit_human_readable,
       :ci_job_live_trace_enabled,
+      :ci_partitions_in_seconds_limit_human_readable,
       :concurrent_github_import_jobs_limit,
       :concurrent_bitbucket_import_jobs_limit,
       :concurrent_bitbucket_server_import_jobs_limit,
@@ -721,7 +722,9 @@ module ApplicationSettingsHelper
   def deprecated_attributes
     [
       :admin_notification_email,
-      :asset_proxy_whitelist
+      :asset_proxy_whitelist,
+      # Deprecated in favor of `ci_partitions_in_seconds_limit_human_readable`.
+      :ci_partitions_in_seconds_limit
     ]
   end
 
