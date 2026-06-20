@@ -3,6 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :markdown do
+  # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+  # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+  # subject, or an in-memory mutation that survives reload/refind). Do not
+  # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+  # (see gitlab-org/gitlab#602925).
   let_it_be(:group, freeze: false)    { create(:group) }
   let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
   let_it_be(:project, freeze: false) { create(:project, group: group) }
@@ -12,6 +17,10 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
   let_it_be(:issue3, freeze: false)   { create(:issue, project: project2) }
   let_it_be(:issue4, freeze: false)   { create(:issue, project: project2) }
   let_it_be(:doc, freeze: false)      { Nokogiri::HTML.fragment("#{issue1.to_reference} #{issue2.to_reference} #{issue3.to_reference(full: true)}") }
+  # `freeze: false` is kept here because this `let_it_be` subject is not an
+  # ActiveRecord record, so freezing gives no cross-example isolation benefit
+  # and `let_it_be_with_reload`/`refind` are no-ops on it. Keep as-is (see
+  # gitlab-org/gitlab#602925).
   let_it_be(:result, freeze: false)   { {} }
   let_it_be(:filter_class, freeze: false) { Banzai::Filter::References::IssueReferenceFilter }
 
@@ -46,6 +55,11 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
     end
 
     context 'when cache is loaded' do
+      # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+      # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+      # subject, or an in-memory mutation that survives reload/refind). Do not
+      # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+      # (see gitlab-org/gitlab#602925).
       let_it_be(:cache, freeze: false) do
         filter = filter_class.new(doc, project: project)
         cache = described_class.new(filter, { project: project }, result)

@@ -307,6 +307,10 @@ RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :markdown do
     let_it_be(:ref)            { 'markdown' }
     let_it_be(:requested_path) { '/' }
     let_it_be(:commit)         { project.commit(ref) }
+    # `freeze: false` is kept here because this `let_it_be` subject is not an
+    # ActiveRecord record, so freezing gives no cross-example isolation benefit
+    # and `let_it_be_with_reload`/`refind` are no-ops on it. Keep as-is (see
+    # gitlab-org/gitlab#602925).
     let_it_be(:context, freeze: false) do
       {
         commit: commit,
