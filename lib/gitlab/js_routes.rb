@@ -180,7 +180,14 @@ module Gitlab
       # To support short hand project helpers defined in
       # https://gitlab.com/gitlab-org/gitlab/-/blob/4202e37329fb343ae674db79593ce04427ebab6b/config/routes.rb#L368
       def generate_project_path_helper(global_route, organization_route)
-        global_jsdoc, global_path_helper_name, global_path_helper = generate_global_path_helper(global_route)
+        # `config/routes.rb` registers a shorthand `direct` URL helper for every
+        # `namespace_project_*` route by substituting the prefix (e.g.
+        # `namespace_project_jobs` -> `project_jobs`). The shorthand is what views
+        # and Ruby code use, so it's what we document in the JSDoc and use for the JS export.
+        shorthand_route_name = global_route.name.sub('namespace_project', 'project')
+
+        global_jsdoc, global_path_helper_name, global_path_helper =
+          generate_global_path_helper(global_route, rails_route_name: shorthand_route_name)
         organization_path_helper_name, organization_path_helper = generate_organization_path_helper(
           organization_route
         )
@@ -196,8 +203,7 @@ module Gitlab
             ' * @param {string} projectFullPath'
           )
 
-        project_path_helper_name =
-          "#{global_route.name.sub('namespace_project', 'project')}_path".camelize(:lower)
+        project_path_helper_name = "#{shorthand_route_name}_path".camelize(:lower)
 
         <<~JS
             #{jsdoc}export const #{project_path_helper_name} = /*#__PURE__*/ (projectFullPath, ...args) => {
@@ -249,11 +255,43 @@ module Gitlab
       end
 
       # Generate path helper for global route
-      def generate_global_path_helper(global_route)
-        ::JsRoutes::Route.new(
+      def generate_global_path_helper(global_route, rails_route_name: global_route.name)
+        jsdoc, name, helper = ::JsRoutes::Route.new(
           ::JsRoutes.configuration,
           global_route
         ).helpers[0]
+
+        [annotate_jsdoc_with_rails_route(jsdoc, global_route, rails_route_name), name, helper]
+      end
+
+      # Expand the JSDoc with the Rails route metadata so the generated helper
+      # can be found by searching for the Rails route name used in views.
+      def annotate_jsdoc_with_rails_route(jsdoc, global_route, rails_route_name)
+        jsdoc.sub(/^ \* Generates rails route to\n \* (?<href>.+)\n/) do
+          href = Regexp.last_match[:href]
+          lines = [
+            ' * Generates the Rails route:',
+            ' *',
+            " * - href: `#{href}`",
+            " * - Path helper: `#{rails_route_name}_path`",
+            " * - URL helper: `#{rails_route_name}_url`"
+          ]
+
+          controller_action = route_controller_action(global_route)
+          lines << " * - controller#action: `#{controller_action}`" if controller_action
+
+          lines << ' *'
+
+          "#{lines.join("\n")}\n"
+        end
+      end
+
+      def route_controller_action(global_route)
+        controller = global_route.requirements[:controller]
+        action = global_route.requirements[:action]
+        return unless controller && action
+
+        "#{controller}##{action}"
       end
 
       # Generate path helper for scoped organization route

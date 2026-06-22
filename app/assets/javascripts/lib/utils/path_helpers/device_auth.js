@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /oauth/device/confirm(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/device/confirm(.:format)`
+ * - Path helper: `confirm_oauth_device_path`
+ * - URL helper: `confirm_oauth_device_url`
+ * - controller#action: `oauth/device_authorizations#confirm`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/iam/consent/accept(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/iam/consent/accept(.:format)`
+ * - Path helper: `accept_iam_consent_path`
+ * - URL helper: `accept_iam_consent_url`
+ * - controller#action: `iam/consent#accept`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const acceptIamConsentPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/iam/consent/reject(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/iam/consent/reject(.:format)`
+ * - Path helper: `reject_iam_consent_path`
+ * - URL helper: `reject_iam_consent_url`
+ * - controller#action: `iam/consent#reject`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const rejectIamConsentPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/iam/consent(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/iam/consent(.:format)`
+ * - Path helper: `iam_consent_path`
+ * - URL helper: `iam_consent_url`
+ * - controller#action: `iam/consent#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

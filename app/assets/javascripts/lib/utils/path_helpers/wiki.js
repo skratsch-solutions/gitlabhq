@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/git_access(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/git_access(.:format)`
+ * - Path helper: `group_wikis_git_access_path`
+ * - URL helper: `group_wikis_git_access_url`
+ * - controller#action: `groups/wikis#git_access`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -25,8 +30,13 @@ export const groupWikisGitAccessPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/pages(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/pages(.:format)`
+ * - Path helper: `group_wikis_pages_path`
+ * - URL helper: `group_wikis_pages_url`
+ * - controller#action: `groups/wikis#pages`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -43,8 +53,13 @@ export const groupWikisPagesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/templates(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/templates(.:format)`
+ * - Path helper: `group_wikis_templates_path`
+ * - URL helper: `group_wikis_templates_url`
+ * - controller#action: `groups/wikis#templates`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -61,8 +76,13 @@ export const groupWikisTemplatesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/new(.:format)`
+ * - Path helper: `group_wikis_new_path`
+ * - URL helper: `group_wikis_new_url`
+ * - controller#action: `groups/wikis#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -79,8 +99,13 @@ export const groupWikisNewPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis(.:format)`
+ * - Path helper: `group_wikis_path`
+ * - URL helper: `group_wikis_url`
+ * - controller#action: `groups/wikis#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -97,8 +122,13 @@ export const groupWikisPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/-/confluence(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/-/confluence(.:format)`
+ * - Path helper: `group_wikis_confluence_path`
+ * - URL helper: `group_wikis_confluence_url`
+ * - controller#action: `groups/confluences#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -115,8 +145,13 @@ export const groupWikisConfluencePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/*id/edit
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/*id/edit`
+ * - Path helper: `group_wiki_edit_path`
+ * - URL helper: `group_wiki_edit_url`
+ * - controller#action: `groups/wikis#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -134,8 +169,13 @@ export const groupWikiEditPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/*id/history
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/*id/history`
+ * - Path helper: `group_wiki_history_path`
+ * - URL helper: `group_wiki_history_url`
+ * - controller#action: `groups/wikis#history`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -153,8 +193,13 @@ export const groupWikiHistoryPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/*id/diff
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/*id/diff`
+ * - Path helper: `group_wiki_diff_path`
+ * - URL helper: `group_wiki_diff_url`
+ * - controller#action: `groups/wikis#diff`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -172,8 +217,13 @@ export const groupWikiDiffPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/*id/raw
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/*id/raw`
+ * - Path helper: `group_wiki_raw_path`
+ * - URL helper: `group_wiki_raw_url`
+ * - controller#action: `groups/wikis#raw`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -191,8 +241,13 @@ export const groupWikiRawPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/*id/preview_markdown
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/*id/preview_markdown`
+ * - Path helper: `group_wiki_preview_markdown_path`
+ * - URL helper: `group_wiki_preview_markdown_url`
+ * - controller#action: `groups/wikis#preview_markdown`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -210,8 +265,13 @@ export const groupWikiPreviewMarkdownPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/wikis/*id
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/wikis/*id`
+ * - Path helper: `group_wiki_path`
+ * - URL helper: `group_wiki_url`
+ * - controller#action: `groups/wikis#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -229,8 +289,13 @@ export const groupWikiPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/git_access(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/git_access(.:format)`
+ * - Path helper: `project_wikis_git_access_path`
+ * - URL helper: `project_wikis_git_access_url`
+ * - controller#action: `projects/wikis#git_access`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -249,8 +314,13 @@ export const projectWikisGitAccessPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/pages(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/pages(.:format)`
+ * - Path helper: `project_wikis_pages_path`
+ * - URL helper: `project_wikis_pages_url`
+ * - controller#action: `projects/wikis#pages`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -269,8 +339,13 @@ export const projectWikisPagesPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/templates(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/templates(.:format)`
+ * - Path helper: `project_wikis_templates_path`
+ * - URL helper: `project_wikis_templates_url`
+ * - controller#action: `projects/wikis#templates`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -289,8 +364,13 @@ export const projectWikisTemplatesPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/new(.:format)`
+ * - Path helper: `project_wikis_new_path`
+ * - URL helper: `project_wikis_new_url`
+ * - controller#action: `projects/wikis#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -309,8 +389,13 @@ export const projectWikisNewPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis(.:format)`
+ * - Path helper: `project_wikis_path`
+ * - URL helper: `project_wikis_url`
+ * - controller#action: `projects/wikis#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -329,8 +414,13 @@ export const projectWikisPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/-/confluence(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/-/confluence(.:format)`
+ * - Path helper: `project_wikis_confluence_path`
+ * - URL helper: `project_wikis_confluence_url`
+ * - controller#action: `projects/confluences#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -349,8 +439,13 @@ export const projectWikisConfluencePath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/*id/edit
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/*id/edit`
+ * - Path helper: `project_wiki_edit_path`
+ * - URL helper: `project_wiki_edit_url`
+ * - controller#action: `projects/wikis#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -370,8 +465,13 @@ export const projectWikiEditPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/*id/history
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/*id/history`
+ * - Path helper: `project_wiki_history_path`
+ * - URL helper: `project_wiki_history_url`
+ * - controller#action: `projects/wikis#history`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -391,8 +491,13 @@ export const projectWikiHistoryPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/*id/diff
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/*id/diff`
+ * - Path helper: `project_wiki_diff_path`
+ * - URL helper: `project_wiki_diff_url`
+ * - controller#action: `projects/wikis#diff`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -412,8 +517,13 @@ export const projectWikiDiffPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/*id/raw
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/*id/raw`
+ * - Path helper: `project_wiki_raw_path`
+ * - URL helper: `project_wiki_raw_url`
+ * - controller#action: `projects/wikis#raw`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -433,8 +543,13 @@ export const projectWikiRawPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/*id/preview_markdown
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/*id/preview_markdown`
+ * - Path helper: `project_wiki_preview_markdown_path`
+ * - URL helper: `project_wiki_preview_markdown_url`
+ * - controller#action: `projects/wikis#preview_markdown`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -454,8 +569,13 @@ export const projectWikiPreviewMarkdownPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/wikis/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/wikis/*id`
+ * - Path helper: `project_wiki_path`
+ * - URL helper: `project_wiki_url`
+ * - controller#action: `projects/wikis#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options

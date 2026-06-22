@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/repository(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/repository(.:format)`
+ * - Path helper: `project_deprecated_repository_path`
+ * - URL helper: `project_deprecated_repository_url`
+ * - controller#action: `projects/repositories#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -27,8 +32,12 @@ export const projectDeprecatedRepositoryPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/refs/switch
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/refs/switch`
+ * - Path helper: `project_deprecated_refs_switch_path`
+ * - URL helper: `project_deprecated_refs_switch_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -47,8 +56,12 @@ export const projectDeprecatedRefsSwitchPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/refs/:id/logs_tree
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/refs/:id/logs_tree`
+ * - Path helper: `project_deprecated_path`
+ * - URL helper: `project_deprecated_url`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -68,8 +81,13 @@ export const projectDeprecatedPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/tree/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/tree/*id`
+ * - Path helper: `project_deprecated_deprecated_tree_path`
+ * - URL helper: `project_deprecated_deprecated_tree_url`
+ * - controller#action: `projects/tree#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -89,8 +107,13 @@ export const projectDeprecatedDeprecatedTreePath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/blob/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/blob/*id`
+ * - Path helper: `project_deprecated_deprecated_blob_path`
+ * - URL helper: `project_deprecated_deprecated_blob_url`
+ * - controller#action: `projects/blob#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -110,8 +133,13 @@ export const projectDeprecatedDeprecatedBlobPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/raw/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/raw/*id`
+ * - Path helper: `project_deprecated_deprecated_raw_path`
+ * - URL helper: `project_deprecated_deprecated_raw_url`
+ * - controller#action: `projects/raw#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -131,8 +159,13 @@ export const projectDeprecatedDeprecatedRawPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/blame/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/blame/*id`
+ * - Path helper: `project_deprecated_deprecated_blame_path`
+ * - URL helper: `project_deprecated_deprecated_blame_url`
+ * - controller#action: `projects/blame#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options

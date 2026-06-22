@@ -48,7 +48,8 @@ export default {
     },
     viewMode: {
       type: String,
-      required: true,
+      required: false,
+      default: VIEW_MODE_LIST,
     },
     sortOptions: {
       type: Array,

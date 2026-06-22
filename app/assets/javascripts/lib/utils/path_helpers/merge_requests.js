@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id(.:format)`
+ * - Path helper: `project_merge_request_path`
+ * - URL helper: `project_merge_request_url`
+ * - controller#action: `projects/merge_requests#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -28,8 +33,13 @@ export const projectMergeRequestPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/commit_change_content(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/commit_change_content(.:format)`
+ * - Path helper: `commit_change_content_project_merge_request_path`
+ * - URL helper: `commit_change_content_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#commit_change_content`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -49,8 +59,13 @@ export const commitChangeContentProjectMergeRequestPath = /*#__PURE__*/ (project
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/merge(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/merge(.:format)`
+ * - Path helper: `merge_project_merge_request_path`
+ * - URL helper: `merge_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#merge`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -70,8 +85,13 @@ export const mergeProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/cancel_auto_merge(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/cancel_auto_merge(.:format)`
+ * - Path helper: `cancel_auto_merge_project_merge_request_path`
+ * - URL helper: `cancel_auto_merge_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#cancel_auto_merge`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -91,8 +111,13 @@ export const cancelAutoMergeProjectMergeRequestPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/pipeline_status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/pipeline_status(.:format)`
+ * - Path helper: `pipeline_status_project_merge_request_path`
+ * - URL helper: `pipeline_status_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#pipeline_status`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -112,8 +137,13 @@ export const pipelineStatusProjectMergeRequestPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/ci_environments_status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/ci_environments_status(.:format)`
+ * - Path helper: `ci_environments_status_project_merge_request_path`
+ * - URL helper: `ci_environments_status_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#ci_environments_status`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -133,8 +163,13 @@ export const ciEnvironmentsStatusProjectMergeRequestPath = /*#__PURE__*/ (projec
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/toggle_subscription(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/toggle_subscription(.:format)`
+ * - Path helper: `toggle_subscription_project_merge_request_path`
+ * - URL helper: `toggle_subscription_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#toggle_subscription`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -154,8 +189,13 @@ export const toggleSubscriptionProjectMergeRequestPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/remove_wip(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/remove_wip(.:format)`
+ * - Path helper: `remove_wip_project_merge_request_path`
+ * - URL helper: `remove_wip_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#remove_wip`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -175,8 +215,13 @@ export const removeWipProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/assign_related_issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/assign_related_issues(.:format)`
+ * - Path helper: `assign_related_issues_project_merge_request_path`
+ * - URL helper: `assign_related_issues_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#assign_related_issues`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -196,8 +241,13 @@ export const assignRelatedIssuesProjectMergeRequestPath = /*#__PURE__*/ (project
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/discussions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/discussions(.:format)`
+ * - Path helper: `discussions_project_merge_request_path`
+ * - URL helper: `discussions_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#discussions`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -217,8 +267,13 @@ export const discussionsProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/test_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/test_reports(.:format)`
+ * - Path helper: `test_reports_project_merge_request_path`
+ * - URL helper: `test_reports_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#test_reports`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -238,8 +293,13 @@ export const testReportsProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/exposed_artifacts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/exposed_artifacts(.:format)`
+ * - Path helper: `exposed_artifacts_project_merge_request_path`
+ * - URL helper: `exposed_artifacts_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#exposed_artifacts`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -259,8 +319,13 @@ export const exposedArtifactsProjectMergeRequestPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/accessibility_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/accessibility_reports(.:format)`
+ * - Path helper: `accessibility_reports_project_merge_request_path`
+ * - URL helper: `accessibility_reports_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#accessibility_reports`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -280,8 +345,13 @@ export const accessibilityReportsProjectMergeRequestPath = /*#__PURE__*/ (projec
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/coverage_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/coverage_reports(.:format)`
+ * - Path helper: `coverage_reports_project_merge_request_path`
+ * - URL helper: `coverage_reports_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#coverage_reports`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -301,8 +371,13 @@ export const coverageReportsProjectMergeRequestPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/terraform_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/terraform_reports(.:format)`
+ * - Path helper: `terraform_reports_project_merge_request_path`
+ * - URL helper: `terraform_reports_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#terraform_reports`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -322,8 +397,13 @@ export const terraformReportsProjectMergeRequestPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/codequality_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/codequality_reports(.:format)`
+ * - Path helper: `codequality_reports_project_merge_request_path`
+ * - URL helper: `codequality_reports_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#codequality_reports`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -343,8 +423,13 @@ export const codequalityReportsProjectMergeRequestPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/codequality_mr_diff_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/codequality_mr_diff_reports(.:format)`
+ * - Path helper: `codequality_mr_diff_reports_project_merge_request_path`
+ * - URL helper: `codequality_mr_diff_reports_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#codequality_mr_diff_reports`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -364,8 +449,13 @@ export const codequalityMrDiffReportsProjectMergeRequestPath = /*#__PURE__*/ (pr
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/commits(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/commits(.:format)`
+ * - Path helper: `commits_project_json_merge_request_path`
+ * - URL helper: `commits_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests#commits`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -385,8 +475,13 @@ export const commitsProjectJsonMergeRequestPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/pipelines(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/pipelines(.:format)`
+ * - Path helper: `pipelines_project_json_merge_request_path`
+ * - URL helper: `pipelines_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests#pipelines`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -406,8 +501,13 @@ export const pipelinesProjectJsonMergeRequestPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/context_commits(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/context_commits(.:format)`
+ * - Path helper: `context_commits_project_json_merge_request_path`
+ * - URL helper: `context_commits_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests#context_commits`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -427,8 +527,13 @@ export const contextCommitsProjectJsonMergeRequestPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diffs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diffs(.:format)`
+ * - Path helper: `diffs_project_json_merge_request_path`
+ * - URL helper: `diffs_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests/diffs#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -448,8 +553,13 @@ export const diffsProjectJsonMergeRequestPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diffs_batch(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diffs_batch(.:format)`
+ * - Path helper: `diffs_batch_project_json_merge_request_path`
+ * - URL helper: `diffs_batch_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests/diffs#diffs_batch`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -469,8 +579,13 @@ export const diffsBatchProjectJsonMergeRequestPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diffs_metadata(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diffs_metadata(.:format)`
+ * - Path helper: `diffs_metadata_project_json_merge_request_path`
+ * - URL helper: `diffs_metadata_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests/diffs#diffs_metadata`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -490,8 +605,13 @@ export const diffsMetadataProjectJsonMergeRequestPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/widget(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/widget(.:format)`
+ * - Path helper: `widget_project_json_merge_request_path`
+ * - URL helper: `widget_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests/content#widget`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -511,8 +631,13 @@ export const widgetProjectJsonMergeRequestPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/cached_widget(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/cached_widget(.:format)`
+ * - Path helper: `cached_widget_project_json_merge_request_path`
+ * - URL helper: `cached_widget_project_json_merge_request_url`
+ * - controller#action: `projects/merge_requests/content#cached_widget`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -532,8 +657,13 @@ export const cachedWidgetProjectJsonMergeRequestPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diffs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diffs(.:format)`
+ * - Path helper: `diffs_project_merge_request_path`
+ * - URL helper: `diffs_project_merge_request_url`
+ * - controller#action: `projects/merge_requests/diffs#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -553,8 +683,13 @@ export const diffsProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/commits(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/commits(.:format)`
+ * - Path helper: `commits_project_merge_request_path`
+ * - URL helper: `commits_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -574,8 +709,13 @@ export const commitsProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/pipelines(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/pipelines(.:format)`
+ * - Path helper: `pipelines_project_merge_request_path`
+ * - URL helper: `pipelines_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -595,8 +735,13 @@ export const pipelinesProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diff_for_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diff_for_path(.:format)`
+ * - Path helper: `diff_for_path_project_merge_request_path`
+ * - URL helper: `diff_for_path_project_merge_request_url`
+ * - controller#action: `projects/merge_requests/diffs#diff_for_path`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -616,8 +761,13 @@ export const diffForPathProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diff_by_file_hash/:file_hash(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diff_by_file_hash/:file_hash(.:format)`
+ * - Path helper: `diff_by_file_hash_project_merge_request_path`
+ * - URL helper: `diff_by_file_hash_project_merge_request_url`
+ * - controller#action: `projects/merge_requests/diffs#diff_by_file_hash`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {any} fileHash
@@ -638,8 +788,13 @@ export const diffByFileHashProjectMergeRequestPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diffs_stream(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diffs_stream(.:format)`
+ * - Path helper: `diffs_stream_project_merge_request_path`
+ * - URL helper: `diffs_stream_project_merge_request_url`
+ * - controller#action: `projects/merge_requests/diffs_stream#diffs_stream`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -659,8 +814,13 @@ export const diffsStreamProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diff_files_metadata(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diff_files_metadata(.:format)`
+ * - Path helper: `diff_files_metadata_project_merge_request_path`
+ * - URL helper: `diff_files_metadata_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#diff_files_metadata`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -680,8 +840,13 @@ export const diffFilesMetadataProjectMergeRequestPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diffs_stats(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diffs_stats(.:format)`
+ * - Path helper: `diffs_stats_project_merge_request_path`
+ * - URL helper: `diffs_stats_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#diffs_stats`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -701,8 +866,13 @@ export const diffsStatsProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/diff_file(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/diff_file(.:format)`
+ * - Path helper: `diff_file_project_merge_request_path`
+ * - URL helper: `diff_file_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#diff_file`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -722,8 +892,13 @@ export const diffFileProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/versions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/versions(.:format)`
+ * - Path helper: `versions_project_merge_request_path`
+ * - URL helper: `versions_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#versions`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -743,8 +918,13 @@ export const versionsProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/conflicts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/conflicts(.:format)`
+ * - Path helper: `conflicts_project_merge_request_path`
+ * - URL helper: `conflicts_project_merge_request_url`
+ * - controller#action: `projects/merge_requests/conflicts#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -764,8 +944,13 @@ export const conflictsProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/conflict_for_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/conflict_for_path(.:format)`
+ * - Path helper: `conflict_for_path_project_merge_request_path`
+ * - URL helper: `conflict_for_path_project_merge_request_url`
+ * - controller#action: `projects/merge_requests/conflicts#conflict_for_path`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -785,8 +970,13 @@ export const conflictForPathProjectMergeRequestPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/resolve_conflicts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/resolve_conflicts(.:format)`
+ * - Path helper: `resolve_conflicts_project_merge_request_path`
+ * - URL helper: `resolve_conflicts_project_merge_request_url`
+ * - controller#action: `projects/merge_requests/conflicts#resolve_conflicts`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -806,8 +996,13 @@ export const resolveConflictsProjectMergeRequestPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/diff_for_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/diff_for_path(.:format)`
+ * - Path helper: `diff_for_path_project_merge_requests_path`
+ * - URL helper: `diff_for_path_project_merge_requests_url`
+ * - controller#action: `projects/merge_requests#diff_for_path`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -826,8 +1021,13 @@ export const diffForPathProjectMergeRequestsPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/bulk_update(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/bulk_update(.:format)`
+ * - Path helper: `bulk_update_project_merge_requests_path`
+ * - URL helper: `bulk_update_project_merge_requests_url`
+ * - controller#action: `projects/merge_requests#bulk_update`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -846,8 +1046,13 @@ export const bulkUpdateProjectMergeRequestsPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/export_csv(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/export_csv(.:format)`
+ * - Path helper: `export_csv_project_merge_requests_path`
+ * - URL helper: `export_csv_project_merge_requests_url`
+ * - controller#action: `projects/merge_requests#export_csv`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -866,8 +1071,13 @@ export const exportCsvProjectMergeRequestsPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:merge_request_id/drafts/publish(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:merge_request_id/drafts/publish(.:format)`
+ * - Path helper: `publish_project_merge_request_drafts_path`
+ * - URL helper: `publish_project_merge_request_drafts_url`
+ * - controller#action: `projects/merge_requests/drafts#publish`
+ *
  * @param {string} projectFullPath
  * @param {any} mergeRequestId
  * @param {object | undefined} options
@@ -887,8 +1097,13 @@ export const publishProjectMergeRequestDraftsPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:merge_request_id/drafts/discard(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:merge_request_id/drafts/discard(.:format)`
+ * - Path helper: `discard_project_merge_request_drafts_path`
+ * - URL helper: `discard_project_merge_request_drafts_url`
+ * - controller#action: `projects/merge_requests/drafts#discard`
+ *
  * @param {string} projectFullPath
  * @param {any} mergeRequestId
  * @param {object | undefined} options
@@ -908,8 +1123,13 @@ export const discardProjectMergeRequestDraftsPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:merge_request_id/drafts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:merge_request_id/drafts(.:format)`
+ * - Path helper: `project_merge_request_drafts_path`
+ * - URL helper: `project_merge_request_drafts_url`
+ * - controller#action: `projects/merge_requests/drafts#index`
+ *
  * @param {string} projectFullPath
  * @param {any} mergeRequestId
  * @param {object | undefined} options
@@ -929,8 +1149,13 @@ export const projectMergeRequestDraftsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:merge_request_id/drafts/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:merge_request_id/drafts/:id(.:format)`
+ * - Path helper: `project_merge_request_draft_path`
+ * - URL helper: `project_merge_request_draft_url`
+ * - controller#action: `projects/merge_requests/drafts#update`
+ *
  * @param {string} projectFullPath
  * @param {any} mergeRequestId
  * @param {any} id
@@ -951,8 +1176,13 @@ export const projectMergeRequestDraftPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests(.:format)`
+ * - Path helper: `project_merge_requests_path`
+ * - URL helper: `project_merge_requests_url`
+ * - controller#action: `projects/merge_requests#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -971,8 +1201,13 @@ export const projectMergeRequestsPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/edit(.:format)`
+ * - Path helper: `edit_project_merge_request_path`
+ * - URL helper: `edit_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -992,8 +1227,13 @@ export const editProjectMergeRequestPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new(.:format)`
+ * - Path helper: `project_new_merge_request_path`
+ * - URL helper: `project_new_merge_request_url`
+ * - controller#action: `projects/merge_requests/creations#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1012,8 +1252,13 @@ export const projectNewMergeRequestPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/diffs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/diffs(.:format)`
+ * - Path helper: `project_new_merge_request_json_diffs_path`
+ * - URL helper: `project_new_merge_request_json_diffs_url`
+ * - controller#action: `projects/merge_requests/creations#diffs`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1032,8 +1277,13 @@ export const projectNewMergeRequestJsonDiffsPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/pipelines(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/pipelines(.:format)`
+ * - Path helper: `project_new_merge_request_json_pipelines_path`
+ * - URL helper: `project_new_merge_request_json_pipelines_url`
+ * - controller#action: `projects/merge_requests/creations#pipelines`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1052,8 +1302,13 @@ export const projectNewMergeRequestJsonPipelinesPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/diffs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/diffs(.:format)`
+ * - Path helper: `project_new_merge_request_diffs_path`
+ * - URL helper: `project_new_merge_request_diffs_url`
+ * - controller#action: `projects/merge_requests/creations#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1072,8 +1327,13 @@ export const projectNewMergeRequestDiffsPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/pipelines(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/pipelines(.:format)`
+ * - Path helper: `project_new_merge_request_pipelines_path`
+ * - URL helper: `project_new_merge_request_pipelines_url`
+ * - controller#action: `projects/merge_requests/creations#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1092,8 +1352,13 @@ export const projectNewMergeRequestPipelinesPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/diff_for_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/diff_for_path(.:format)`
+ * - Path helper: `project_new_merge_request_diff_for_path_path`
+ * - URL helper: `project_new_merge_request_diff_for_path_url`
+ * - controller#action: `projects/merge_requests/creations#diff_for_path`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1112,8 +1377,13 @@ export const projectNewMergeRequestDiffForPathPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/branch_from(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/branch_from(.:format)`
+ * - Path helper: `project_new_merge_request_branch_from_path`
+ * - URL helper: `project_new_merge_request_branch_from_url`
+ * - controller#action: `projects/merge_requests/creations#branch_from`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1132,8 +1402,13 @@ export const projectNewMergeRequestBranchFromPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/branch_to(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/branch_to(.:format)`
+ * - Path helper: `project_new_merge_request_branch_to_path`
+ * - URL helper: `project_new_merge_request_branch_to_url`
+ * - controller#action: `projects/merge_requests/creations#branch_to`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1152,8 +1427,13 @@ export const projectNewMergeRequestBranchToPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/diffs_stream(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/diffs_stream(.:format)`
+ * - Path helper: `project_new_merge_request_diffs_stream_path`
+ * - URL helper: `project_new_merge_request_diffs_stream_url`
+ * - controller#action: `projects/merge_requests/creations_diffs_stream#diffs_stream`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1172,8 +1452,13 @@ export const projectNewMergeRequestDiffsStreamPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/diff_files_metadata(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/diff_files_metadata(.:format)`
+ * - Path helper: `project_new_merge_request_diff_files_metadata_path`
+ * - URL helper: `project_new_merge_request_diff_files_metadata_url`
+ * - controller#action: `projects/merge_requests/creations#diff_files_metadata`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1192,8 +1477,13 @@ export const projectNewMergeRequestDiffFilesMetadataPath = /*#__PURE__*/ (projec
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/diffs_stats(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/diffs_stats(.:format)`
+ * - Path helper: `project_new_merge_request_diffs_stats_path`
+ * - URL helper: `project_new_merge_request_diffs_stats_url`
+ * - controller#action: `projects/merge_requests/creations#diffs_stats`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1212,8 +1502,13 @@ export const projectNewMergeRequestDiffsStatsPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/new/diff_file(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/new/diff_file(.:format)`
+ * - Path helper: `project_new_merge_request_diff_file_path`
+ * - URL helper: `project_new_merge_request_diff_file_url`
+ * - controller#action: `projects/merge_requests/creations#diff_file`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path

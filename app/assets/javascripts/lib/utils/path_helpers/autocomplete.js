@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/autocomplete/users(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/autocomplete/users(.:format)`
+ * - Path helper: `autocomplete_users_path`
+ * - URL helper: `autocomplete_users_url`
+ * - controller#action: `autocomplete#users`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const autocompleteUsersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/autocomplete/users/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/autocomplete/users/:id(.:format)`
+ * - Path helper: `autocomplete_user_path`
+ * - URL helper: `autocomplete_user_url`
+ * - controller#action: `autocomplete#user`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -42,8 +52,13 @@ export const autocompleteUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/autocomplete/projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/autocomplete/projects(.:format)`
+ * - Path helper: `autocomplete_projects_path`
+ * - URL helper: `autocomplete_projects_url`
+ * - controller#action: `autocomplete#projects`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -59,8 +74,13 @@ export const autocompleteProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/autocomplete/award_emojis(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/autocomplete/award_emojis(.:format)`
+ * - Path helper: `autocomplete_award_emojis_path`
+ * - URL helper: `autocomplete_award_emojis_url`
+ * - controller#action: `autocomplete#award_emojis`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -76,8 +96,13 @@ export const autocompleteAwardEmojisPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/autocomplete/merge_request_target_branches(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/autocomplete/merge_request_target_branches(.:format)`
+ * - Path helper: `autocomplete_merge_request_target_branches_path`
+ * - URL helper: `autocomplete_merge_request_target_branches_url`
+ * - controller#action: `autocomplete#merge_request_target_branches`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -93,8 +118,13 @@ export const autocompleteMergeRequestTargetBranchesPath = /*#__PURE__*/ (...args
 };
 
 /**
- * Generates rails route to
- * /-/autocomplete/merge_request_source_branches(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/autocomplete/merge_request_source_branches(.:format)`
+ * - Path helper: `autocomplete_merge_request_source_branches_path`
+ * - URL helper: `autocomplete_merge_request_source_branches_url`
+ * - controller#action: `autocomplete#merge_request_source_branches`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -110,8 +140,13 @@ export const autocompleteMergeRequestSourceBranchesPath = /*#__PURE__*/ (...args
 };
 
 /**
- * Generates rails route to
- * /-/autocomplete/deploy_keys_with_owners(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/autocomplete/deploy_keys_with_owners(.:format)`
+ * - Path helper: `autocomplete_deploy_keys_with_owners_path`
+ * - URL helper: `autocomplete_deploy_keys_with_owners_url`
+ * - controller#action: `autocomplete#deploy_keys_with_owners`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

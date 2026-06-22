@@ -15,6 +15,11 @@ RSpec.describe Issues::ReferencedMergeRequestsService, feature_category: :team_p
     end
   end
 
+  # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+  # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+  # subject, or an in-memory mutation that survives reload/refind). Do not
+  # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+  # (see gitlab-org/gitlab#602925).
   let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
   let_it_be(:other_project, freeze: false) { create(:project, :public, :repository) }

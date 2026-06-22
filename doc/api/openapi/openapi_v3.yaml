@@ -84463,9 +84463,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         project_id:
           type: integer
+          format: int64
           example: 1
         package_name_pattern:
           type: string
@@ -84534,6 +84536,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -84562,9 +84565,11 @@ components:
         creator_id:
           type: integer
           description: ID of the user who created the package
+          format: int64
           example: 1
         project_id:
           type: integer
+          format: int64
           example: 2
         project_path:
           type: string
@@ -84930,6 +84935,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         codename:
           type: string
@@ -84969,9 +84975,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         project_id:
           type: integer
+          format: int64
           example: 123
         tag_name_pattern:
           type: string
@@ -84987,9 +84995,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         project_id:
           type: integer
+          format: int64
           example: 1
         repository_path_pattern:
           type: string
@@ -85017,6 +85027,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -85026,6 +85037,7 @@ components:
           example: group/project/releases
         project_id:
           type: integer
+          format: int64
           example: 9
         location:
           type: string
@@ -85279,9 +85291,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 225
         package_id:
           type: integer
+          format: int64
           example: 4
         created_at:
           type: string

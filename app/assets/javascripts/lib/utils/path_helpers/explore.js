@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /explore/projects/active(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/projects/active(.:format)`
+ * - Path helper: `active_explore_projects_path`
+ * - URL helper: `active_explore_projects_url`
+ * - controller#action: `explore/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const activeExploreProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/projects/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/projects/inactive(.:format)`
+ * - Path helper: `inactive_explore_projects_path`
+ * - URL helper: `inactive_explore_projects_url`
+ * - controller#action: `explore/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const inactiveExploreProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/projects/all(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/projects/all(.:format)`
+ * - Path helper: `all_explore_projects_path`
+ * - URL helper: `all_explore_projects_url`
+ * - controller#action: `explore/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +73,13 @@ export const allExploreProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/projects/topics(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/projects/topics(.:format)`
+ * - Path helper: `topics_explore_projects_path`
+ * - URL helper: `topics_explore_projects_url`
+ * - controller#action: `explore/projects#topics`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +95,13 @@ export const topicsExploreProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/projects/topics/:topic_name(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/projects/topics/:topic_name(.:format)`
+ * - Path helper: `topic_explore_projects_path`
+ * - URL helper: `topic_explore_projects_url`
+ * - controller#action: `explore/projects#topic`
+ *
  * @param {any} topicName
  * @param {object | undefined} options
  * @returns {string} route path
@@ -93,8 +118,13 @@ export const topicExploreProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/projects(.:format)`
+ * - Path helper: `explore_projects_path`
+ * - URL helper: `explore_projects_url`
+ * - controller#action: `explore/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -110,8 +140,13 @@ export const exploreProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/groups/active(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/groups/active(.:format)`
+ * - Path helper: `active_explore_groups_path`
+ * - URL helper: `active_explore_groups_url`
+ * - controller#action: `explore/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -127,8 +162,13 @@ export const activeExploreGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/groups/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/groups/inactive(.:format)`
+ * - Path helper: `inactive_explore_groups_path`
+ * - URL helper: `inactive_explore_groups_url`
+ * - controller#action: `explore/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -144,8 +184,13 @@ export const inactiveExploreGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/groups(.:format)`
+ * - Path helper: `explore_groups_path`
+ * - URL helper: `explore_groups_url`
+ * - controller#action: `explore/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -161,8 +206,13 @@ export const exploreGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/catalog(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/catalog(.:format)`
+ * - Path helper: `explore_catalog_index_path`
+ * - URL helper: `explore_catalog_index_url`
+ * - controller#action: `explore/catalog#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -178,8 +228,13 @@ export const exploreCatalogIndexPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/catalog/*full_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/catalog/*full_path(.:format)`
+ * - Path helper: `explore_catalog_path`
+ * - URL helper: `explore_catalog_url`
+ * - controller#action: `explore/catalog#show`
+ *
  * @param {any} fullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -196,8 +251,13 @@ export const exploreCatalogPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/snippets(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/snippets(.:format)`
+ * - Path helper: `explore_snippets_path`
+ * - URL helper: `explore_snippets_url`
+ * - controller#action: `explore/snippets#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -213,8 +273,13 @@ export const exploreSnippetsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore/analytics_dashboards(/*vueroute)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore/analytics_dashboards(/*vueroute)(.:format)`
+ * - Path helper: `explore_analytics_dashboards_path`
+ * - URL helper: `explore_analytics_dashboards_url`
+ * - controller#action: `explore/analytics_dashboards#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -230,8 +295,13 @@ export const exploreAnalyticsDashboardsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /explore(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/explore(.:format)`
+ * - Path helper: `explore_root_path`
+ * - URL helper: `explore_root_url`
+ * - controller#action: `explore/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -247,8 +317,13 @@ export const exploreRootPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /public(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/public(.:format)`
+ * - Path helper: `public_path`
+ * - URL helper: `public_url`
+ * - controller#action: `explore/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -264,8 +339,13 @@ export const publicPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /public/projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/public/projects(.:format)`
+ * - Path helper: `public_projects_path`
+ * - URL helper: `public_projects_url`
+ * - controller#action: `explore/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

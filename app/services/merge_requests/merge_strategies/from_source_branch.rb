@@ -46,6 +46,10 @@ module MergeRequests
             merge_params: merge_params
           ).execute
 
+          if create_ref_result.error? && Feature.enabled?(:verify_create_ref_advancement, project)
+            raise_error(create_ref_result.message)
+          end
+
           payload = create_ref_result.payload
 
           src_sha = payload[:commit_sha]

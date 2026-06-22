@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/customers_dot/proxy/graphql(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/customers_dot/proxy/graphql(.:format)`
+ * - Path helper: `customers_dot_proxy_graphql_path`
+ * - URL helper: `customers_dot_proxy_graphql_url`
+ * - controller#action: `customers_dot/proxy#graphql`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/outbox(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/outbox(.:format)`
+ * - Path helper: `outbox_project_releases_path`
+ * - URL helper: `outbox_project_releases_url`
+ * - controller#action: `activity_pub/projects/releases#outbox`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -27,8 +32,13 @@ export const outboxProjectReleasesPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/inbox(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/inbox(.:format)`
+ * - Path helper: `inbox_project_releases_path`
+ * - URL helper: `inbox_project_releases_url`
+ * - controller#action: `activity_pub/projects/releases#inbox`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -47,8 +57,13 @@ export const inboxProjectReleasesPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases(.:format)`
+ * - Path helper: `project_releases_path`
+ * - URL helper: `project_releases_url`
+ * - controller#action: `activity_pub/projects/releases#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path

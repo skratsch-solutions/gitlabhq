@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /unsubscribes/:email(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/unsubscribes/:email(.:format)`
+ * - Path helper: `unsubscribe_path`
+ * - URL helper: `unsubscribe_url`
+ * - controller#action: `users/unsubscribes#show`
+ *
  * @param {any} email
  * @param {object | undefined} options
  * @returns {string} route path
@@ -25,8 +30,13 @@ export const unsubscribePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/geo/sign_in(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/geo/sign_in(.:format)`
+ * - Path helper: `users_auth_geo_sign_in_path`
+ * - URL helper: `users_auth_geo_sign_in_url`
+ * - controller#action: `sessions#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -42,8 +52,13 @@ export const usersAuthGeoSignInPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/geo/sign_out(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/geo/sign_out(.:format)`
+ * - Path helper: `users_auth_geo_sign_out_path`
+ * - URL helper: `users_auth_geo_sign_out_url`
+ * - controller#action: `sessions#destroy`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -59,8 +74,13 @@ export const usersAuthGeoSignOutPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/almost_there(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/almost_there(.:format)`
+ * - Path helper: `users_almost_there_path`
+ * - URL helper: `users_almost_there_url`
+ * - controller#action: `confirmations#almost_there`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -76,8 +96,13 @@ export const usersAlmostTherePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/resend_verification_code(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/resend_verification_code(.:format)`
+ * - Path helper: `users_resend_verification_code_path`
+ * - URL helper: `users_resend_verification_code_url`
+ * - controller#action: `sessions#resend_verification_code`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -93,8 +118,13 @@ export const usersResendVerificationCodePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/successful_verification(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/successful_verification(.:format)`
+ * - Path helper: `users_successful_verification_path`
+ * - URL helper: `users_successful_verification_url`
+ * - controller#action: `sessions#successful_verification`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -110,8 +140,13 @@ export const usersSuccessfulVerificationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/skip_verification_for_now(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/skip_verification_for_now(.:format)`
+ * - Path helper: `users_skip_verification_for_now_path`
+ * - URL helper: `users_skip_verification_for_now_url`
+ * - controller#action: `sessions#skip_verification_for_now`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -127,8 +162,13 @@ export const usersSkipVerificationForNowPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/skip_verification_confirmation(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/skip_verification_confirmation(.:format)`
+ * - Path helper: `users_skip_verification_confirmation_path`
+ * - URL helper: `users_skip_verification_confirmation_url`
+ * - controller#action: `sessions#skip_verification_confirmation`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -144,8 +184,13 @@ export const usersSkipVerificationConfirmationPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /users/fallback_to_email_otp(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/fallback_to_email_otp(.:format)`
+ * - Path helper: `users_fallback_to_email_otp_path`
+ * - URL helper: `users_fallback_to_email_otp_url`
+ * - controller#action: `sessions#fallback_to_email_otp`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -161,8 +206,13 @@ export const usersFallbackToEmailOtpPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/passkeys/sign_in(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/passkeys/sign_in(.:format)`
+ * - Path helper: `users_passkeys_sign_in_path`
+ * - URL helper: `users_passkeys_sign_in_url`
+ * - controller#action: `sessions#new_passkey`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -178,8 +228,13 @@ export const usersPasskeysSignInPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/sign_in_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/sign_in_path(.:format)`
+ * - Path helper: `users_sign_in_path_path`
+ * - URL helper: `users_sign_in_path_url`
+ * - controller#action: `sessions#sign_in_path`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -195,8 +250,12 @@ export const usersSignInPathPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth(.:format)`
+ * - Path helper: `users_auth_path`
+ * - URL helper: `users_auth_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -212,8 +271,13 @@ export const usersAuthPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/terms/:id/accept(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/terms/:id/accept(.:format)`
+ * - Path helper: `accept_term_path`
+ * - URL helper: `accept_term_url`
+ * - controller#action: `users/terms#accept`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -230,8 +294,13 @@ export const acceptTermPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/terms/:id/decline(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/terms/:id/decline(.:format)`
+ * - Path helper: `decline_term_path`
+ * - URL helper: `decline_term_url`
+ * - controller#action: `users/terms#decline`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -248,8 +317,13 @@ export const declineTermPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/terms(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/terms(.:format)`
+ * - Path helper: `terms_path`
+ * - URL helper: `terms_url`
+ * - controller#action: `users/terms#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -265,8 +339,13 @@ export const termsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/callouts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/callouts(.:format)`
+ * - Path helper: `callouts_path`
+ * - URL helper: `callouts_url`
+ * - controller#action: `users/callouts#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -282,8 +361,13 @@ export const calloutsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/group_callouts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/group_callouts(.:format)`
+ * - Path helper: `group_callouts_path`
+ * - URL helper: `group_callouts_url`
+ * - controller#action: `users/group_callouts#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -299,8 +383,13 @@ export const groupCalloutsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/project_callouts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/project_callouts(.:format)`
+ * - Path helper: `project_callouts_path`
+ * - URL helper: `project_callouts_url`
+ * - controller#action: `users/project_callouts#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -316,8 +405,13 @@ export const projectCalloutsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/broadcast_message_dismissals(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/broadcast_message_dismissals(.:format)`
+ * - Path helper: `broadcast_message_dismissals_path`
+ * - URL helper: `broadcast_message_dismissals_url`
+ * - controller#action: `users/broadcast_message_dismissals#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -333,8 +427,13 @@ export const broadcastMessageDismissalsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/users/pins(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/users/pins(.:format)`
+ * - Path helper: `pins_path`
+ * - URL helper: `pins_url`
+ * - controller#action: `users/pins#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -350,8 +449,13 @@ export const pinsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/calendar(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/calendar(.:format)`
+ * - Path helper: `user_calendar_path`
+ * - URL helper: `user_calendar_url`
+ * - controller#action: `users#calendar`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -368,8 +472,13 @@ export const userCalendarPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/calendar_activities(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/calendar_activities(.:format)`
+ * - Path helper: `user_calendar_activities_path`
+ * - URL helper: `user_calendar_activities_url`
+ * - controller#action: `users#calendar_activities`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -386,8 +495,13 @@ export const userCalendarActivitiesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/groups(.:format)`
+ * - Path helper: `user_groups_path`
+ * - URL helper: `user_groups_url`
+ * - controller#action: `users#groups`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -404,8 +518,13 @@ export const userGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/projects(.:format)`
+ * - Path helper: `user_projects_path`
+ * - URL helper: `user_projects_url`
+ * - controller#action: `users#projects`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -422,8 +541,13 @@ export const userProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/contributed(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/contributed(.:format)`
+ * - Path helper: `user_contributed_projects_path`
+ * - URL helper: `user_contributed_projects_url`
+ * - controller#action: `users#contributed`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -440,8 +564,13 @@ export const userContributedProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/starred(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/starred(.:format)`
+ * - Path helper: `user_starred_projects_path`
+ * - URL helper: `user_starred_projects_url`
+ * - controller#action: `users#starred`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -458,8 +587,13 @@ export const userStarredProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/projects/contributed(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/projects/contributed(.:format)`
+ * - Path helper: `user_projects_contributed_path`
+ * - URL helper: `user_projects_contributed_url`
+ * - controller#action: `users#projects`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -476,8 +610,13 @@ export const userProjectsContributedPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/projects/starred(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/projects/starred(.:format)`
+ * - Path helper: `user_projects_starred_path`
+ * - URL helper: `user_projects_starred_url`
+ * - controller#action: `users#projects`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -494,8 +633,13 @@ export const userProjectsStarredPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/snippets(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/snippets(.:format)`
+ * - Path helper: `user_snippets_path`
+ * - URL helper: `user_snippets_url`
+ * - controller#action: `users#snippets`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -512,8 +656,13 @@ export const userSnippetsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/followers(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/followers(.:format)`
+ * - Path helper: `user_followers_path`
+ * - URL helper: `user_followers_url`
+ * - controller#action: `users#followers`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -530,8 +679,13 @@ export const userFollowersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/following(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/following(.:format)`
+ * - Path helper: `user_following_path`
+ * - URL helper: `user_following_url`
+ * - controller#action: `users#following`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -548,8 +702,13 @@ export const userFollowingPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/exists(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/exists(.:format)`
+ * - Path helper: `user_exists_path`
+ * - URL helper: `user_exists_url`
+ * - controller#action: `users#exists`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -566,8 +725,13 @@ export const userExistsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/activity(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/activity(.:format)`
+ * - Path helper: `user_activity_path`
+ * - URL helper: `user_activity_url`
+ * - controller#action: `users#activity`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -584,8 +748,13 @@ export const userActivityPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/follow(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/follow(.:format)`
+ * - Path helper: `user_follow_path`
+ * - URL helper: `user_follow_url`
+ * - controller#action: `users#follow`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -602,8 +771,13 @@ export const userFollowPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/:username/unfollow(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/:username/unfollow(.:format)`
+ * - Path helper: `user_unfollow_path`
+ * - URL helper: `user_unfollow_url`
+ * - controller#action: `users#unfollow`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -620,8 +794,13 @@ export const userUnfollowPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /:username.gpg(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:username.gpg(.:format)`
+ * - Path helper: `user_gpg_keys_path`
+ * - URL helper: `user_gpg_keys_url`
+ * - controller#action: `users#gpg_keys`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path
@@ -638,8 +817,13 @@ export const userGpgKeysPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /:username(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:username(.:format)`
+ * - Path helper: `user_path`
+ * - URL helper: `user_url`
+ * - controller#action: `users#show`
+ *
  * @param {any} username
  * @param {object | undefined} options
  * @returns {string} route path

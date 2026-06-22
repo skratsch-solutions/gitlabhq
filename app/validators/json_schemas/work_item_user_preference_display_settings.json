@@ -25,6 +25,14 @@
         ]
       },
       "uniqueItems": true
+    },
+    "viewMode": {
+      "description": "Which view mode (list or board) the saved view should open in",
+      "type": "string",
+      "enum": [
+        "list",
+        "board"
+      ]
     }
   },
   "additionalProperties": false

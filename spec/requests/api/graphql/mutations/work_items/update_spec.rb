@@ -239,7 +239,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
 
       let(:add_label_ids) { [] }
       let(:remove_label_ids) { [] }
-      let_it_be(:group_work_item, freeze: false) { create(:work_item, :task, :group_level, namespace: group) }
+      let_it_be_with_reload(:group_work_item) { create(:work_item, :task, :group_level, namespace: group) }
 
       before_all do
         work_item.update!(labels: [existing_label])
@@ -391,7 +391,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       end
 
       context 'when the work item type does not support labels widget' do
-        let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
+        let_it_be(:work_item) { create(:work_item, :task, project: project) }
 
         let(:input) { { 'descriptionWidget' => { 'description' => "Updating labels.\n/labels ~\"#{label1.name}\"" } } }
 
@@ -509,7 +509,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
         end
 
         context 'when the work item type does not support start and due date widget' do
-          let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
+          let_it_be(:work_item) { create(:work_item, :task, project: project) }
 
           let(:input) { { 'descriptionWidget' => { 'description' => "Updating due date.\n/due today" } } }
 
@@ -1033,13 +1033,13 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
         end
 
         context 'when changing work item type' do
-          let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
+          let_it_be(:work_item) { create(:work_item, :task, project: project) }
           let(:description) { "/type issue" }
 
           let(:input) { { 'descriptionWidget' => { 'description' => description } } }
 
           context 'with multiple commands' do
-            let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
+            let_it_be(:work_item) { create(:work_item, :task, project: project) }
 
             let(:description) { "Updating work item\n/type issue\n/due tomorrow\n/title Foo" }
 
@@ -1063,7 +1063,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
           end
 
           context 'when conversion is not permitted' do
-            let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
+            let_it_be(:work_item) { create(:work_item, :task, project: project) }
             let_it_be(:issue) { create(:work_item, project: project) }
             let_it_be(:link) { create(:parent_link, work_item_parent: issue, work_item: work_item) }
 
@@ -1116,7 +1116,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       end
 
       context 'when the work item type does not support the assignees widget' do
-        let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
+        let_it_be(:work_item) { create(:work_item, :task, project: project) }
 
         let(:input) do
           { 'descriptionWidget' => { 'description' => "Updating assignee.\n/assign @#{developer.username}" } }
@@ -1931,7 +1931,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
 
       context 'when the work item type does not support time tracking widget' do
         context 'with quick action' do
-          let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
+          let_it_be(:work_item) { create(:work_item, :task, project: project) }
 
           let(:spent_at) { Date.current }
           let(:input) { { 'descriptionWidget' => { 'description' => "some description\n\n/estimate 12h\n/spend 2h" } } }
@@ -2051,7 +2051,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
 
     context 'when unsupported widget input is sent' do
       let_it_be(:issue_type) { build(:work_item_system_defined_type, :issue) }
-      let_it_be(:work_item, freeze: false) { create(:work_item, work_item_type: issue_type, project: project) }
+      let_it_be(:work_item) { create(:work_item, work_item_type: issue_type, project: project) }
 
       let(:input) do
         {

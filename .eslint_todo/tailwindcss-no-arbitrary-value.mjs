@@ -63,6 +63,7 @@ export default {
     'ee/app/assets/javascripts/ai/components/navigation_rail.vue',
     'ee/app/assets/javascripts/ai/duo_agentic_chat/components/duo_agentic_chat_view.vue',
     'ee/app/assets/javascripts/ai/duo_agentic_chat/components/duo_chat_header.vue',
+    'ee/app/assets/javascripts/ai/duo_agentic_chat/components/prompt_textarea.vue',
     'ee/app/assets/javascripts/ai/duo_agentic_chat/components/messages/message_tool_start_flow.vue',
     'ee/app/assets/javascripts/ai/duo_agents_platform/pages/show/components/agent_flow_details.vue',
     'ee/app/assets/javascripts/ai/tanuki_bot/components/duo_chat_view.vue',

@@ -187,7 +187,7 @@ RSpec.describe MergeRequests::UpdateReviewersService, feature_category: :code_re
       end
 
       context 'when adding reviewers to MR with no reviewers' do
-        let_it_be(:merge_request_without_reviewers, freeze: false) do
+        let_it_be_with_reload(:merge_request_without_reviewers) do
           create(
             :merge_request,
             :simple,

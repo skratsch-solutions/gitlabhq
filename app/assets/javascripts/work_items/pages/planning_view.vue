@@ -278,6 +278,7 @@ export default {
       error: undefined,
       initialSortKey: CREATED_DESC,
       initialViewSortKey: null,
+      initialViewMode: VIEW_MODE_LIST,
       filterTokens: [],
       workItemsCount: 0,
       hasWorkItems: false,
@@ -398,6 +399,7 @@ export default {
             const tokens = this.getFilterTokensFromSavedView(savedView?.filters || {});
             this.initialViewTokens = tokens;
             this.initialViewSortKey = savedView?.sort;
+            this.initialViewMode = savedView.displaySettings?.viewMode;
             this.initialViewDisplaySettings = {
               commonPreferences: { ...this.displaySettings.commonPreferences },
               namespacePreferences: savedView.displaySettings,
@@ -416,6 +418,7 @@ export default {
                 commonPreferences: { ...this.displaySettings.commonPreferences },
                 namespacePreferences: savedView.displaySettings,
               };
+              this.viewMode = savedView.displaySettings?.viewMode;
             }
 
             this.updateDocumentTitle();
@@ -558,7 +561,7 @@ export default {
       if (!this.initialPreferences) return false;
 
       const currentPreferences = {
-        hiddenMetadataKeys: this.displaySettingsSoT?.namespacePreferences?.hiddenMetadataKeys ?? [],
+        hiddenMetadataKeys: this.namespacePreferences.hiddenMetadataKeys ?? [],
       };
       const viewPreferences = {
         hiddenMetadataKeys:
@@ -610,9 +613,14 @@ export default {
       const compareSort = !this.isSavedView ? this.initialSortKey : this.initialViewSortKey;
       return this.sortKey !== compareSort;
     },
+    viewModeChanged() {
+      return this.viewMode !== this.initialViewMode;
+    },
     viewConfigChanged() {
       if (this.isSavedView) {
-        return this.filtersChanged || this.sortChanged || this.preferencesChanged;
+        return (
+          this.filtersChanged || this.sortChanged || this.preferencesChanged || this.viewModeChanged
+        );
       }
       return this.filtersChanged;
     },
@@ -991,6 +999,9 @@ export default {
           }
         : this.displaySettings;
     },
+    namespacePreferences() {
+      return this.displaySettingsSoT?.namespacePreferences || {};
+    },
     savedViewId() {
       return convertToGraphQLId('WorkItems::SavedViews::SavedView', this.$route.params.view_id);
     },
@@ -1086,6 +1097,7 @@ export default {
       return {
         sortKey: this.sortKey,
         displaySettings: this.localDisplaySettings,
+        viewMode: this.viewMode,
       };
     },
     savedViewDraftStorageKey() {
@@ -1221,7 +1233,9 @@ export default {
     },
     handleToggleViewMode(newViewMode) {
       this.viewMode = newViewMode;
-      if (!this.isSavedView) {
+      if (this.isSavedView) {
+        this.persistSavedViewDraft();
+      } else {
         this.saveSessionFilters(this.filterTokens);
       }
     },
@@ -1282,6 +1296,7 @@ export default {
 
       this.sortKey = parsedData.sortKey;
       this.localDisplaySettings = parsedData.displaySettings;
+      this.viewMode = parsedData.viewMode;
     },
     handleClickTab(state) {
       if (this.state === state) {
@@ -1344,7 +1359,10 @@ export default {
           description: this.savedView?.description,
           isPrivate: this.savedView?.isPrivate,
           filters: this.apiFilterParams,
-          displaySettings: this.displaySettingsSoT?.namespacePreferences || {},
+          displaySettings: {
+            ...this.namespacePreferences,
+            viewMode: this.viewMode,
+          },
           sort: this.sortKey,
           userPermissions: this.savedView?.userPermissions,
           subscribed: this.savedView?.subscribed,
@@ -1394,6 +1412,7 @@ export default {
       this.filterTokens = [...this.initialViewTokens];
       this.sortKey = this.initialViewSortKey;
       this.localDisplaySettings = this.initialViewDisplaySettings;
+      this.viewMode = this.initialViewMode;
       this.clearLocalSavedViewsConfig();
     },
     addStateToken() {
@@ -1925,7 +1944,7 @@ export default {
         <transition name="issuable-header-slide">
           <div
             v-if="isStickyHeaderVisible"
-            class="sticky-filter gl-fixed gl-left-auto gl-right-auto gl-z-3 gl-hidden @md/panel:gl-block"
+            class="sticky-filter gl-fixed gl-left-auto gl-right-auto gl-z-3 gl-hidden @sm/panel:gl-block"
           >
             <!-- eslint-disable vue/v-on-event-hyphenation -->
             <filtered-search-bar
@@ -1978,7 +1997,7 @@ export default {
     <template v-if="!isServiceDeskList">
       <!-- state-count -->
       <div class="gl-border-b gl-flex gl-flex-wrap gl-justify-between gl-gap-y-3 gl-py-3">
-        <div class="gl-flex gl-items-center">
+        <div class="gl-flex gl-w-full gl-items-center gl-justify-between">
           <span data-testid="work-item-count" class="gl-mr-3">{{ workItemTotalStateCount }}</span>
           <gl-button
             v-if="allowBulkEditing"
@@ -2048,7 +2067,7 @@ export default {
       </div>
     </template>
     <list-view
-      v-if="viewMode === $options.VIEW_MODE_LIST"
+      v-if="viewMode !== $options.VIEW_MODE_BOARD"
       data-testid="list-view"
       :root-page-full-path="rootPageFullPath"
       :with-tabs="withTabs"

@@ -7,8 +7,12 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/profile/audit_log(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/audit_log(.:format)`
+ * - Path helper: `audit_log_profile_path`
+ * - URL helper: `audit_log_profile_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +28,12 @@ export const auditLogProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/applications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/applications(.:format)`
+ * - Path helper: `applications_profile_path`
+ * - URL helper: `applications_profile_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +49,13 @@ export const applicationsProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/reset_incoming_email_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/reset_incoming_email_token(.:format)`
+ * - Path helper: `reset_incoming_email_token_profile_path`
+ * - URL helper: `reset_incoming_email_token_profile_url`
+ * - controller#action: `profiles#reset_incoming_email_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +71,13 @@ export const resetIncomingEmailTokenProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/reset_feed_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/reset_feed_token(.:format)`
+ * - Path helper: `reset_feed_token_profile_path`
+ * - URL helper: `reset_feed_token_profile_url`
+ * - controller#action: `profiles#reset_feed_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +93,13 @@ export const resetFeedTokenProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/reset_static_object_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/reset_static_object_token(.:format)`
+ * - Path helper: `reset_static_object_token_profile_path`
+ * - URL helper: `reset_static_object_token_profile_url`
+ * - controller#action: `profiles#reset_static_object_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -92,8 +115,13 @@ export const resetStaticObjectTokenProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/update_username(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/update_username(.:format)`
+ * - Path helper: `update_username_profile_path`
+ * - URL helper: `update_username_profile_url`
+ * - controller#action: `profiles#update_username`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -109,8 +137,13 @@ export const updateUsernameProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/account/unlink(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/account/unlink(.:format)`
+ * - Path helper: `unlink_profile_account_path`
+ * - URL helper: `unlink_profile_account_url`
+ * - controller#action: `profiles/accounts#unlink`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -126,8 +159,13 @@ export const unlinkProfileAccountPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/account/generate_support_pin(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/account/generate_support_pin(.:format)`
+ * - Path helper: `generate_support_pin_profile_account_path`
+ * - URL helper: `generate_support_pin_profile_account_url`
+ * - controller#action: `profiles/accounts#generate_support_pin`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -143,8 +181,13 @@ export const generateSupportPinProfileAccountPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/account(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/account(.:format)`
+ * - Path helper: `profile_account_path`
+ * - URL helper: `profile_account_url`
+ * - controller#action: `profiles/accounts#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -160,8 +203,13 @@ export const profileAccountPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/groups/*id/notifications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/groups/*id/notifications(.:format)`
+ * - Path helper: `profile_group_notifications_path`
+ * - URL helper: `profile_group_notifications_url`
+ * - controller#action: `profiles/groups#update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -178,8 +226,13 @@ export const profileGroupNotificationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/notifications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/notifications(.:format)`
+ * - Path helper: `profile_notifications_path`
+ * - URL helper: `profile_notifications_url`
+ * - controller#action: `profiles/notifications#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -195,8 +248,13 @@ export const profileNotificationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/slack/slack_link(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/slack/slack_link(.:format)`
+ * - Path helper: `slack_link_profile_slack_path`
+ * - URL helper: `slack_link_profile_slack_url`
+ * - controller#action: `profiles/slacks#slack_link`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -212,8 +270,13 @@ export const slackLinkProfileSlackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/slack/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/slack/edit(.:format)`
+ * - Path helper: `edit_profile_slack_path`
+ * - URL helper: `edit_profile_slack_url`
+ * - controller#action: `profiles/slacks#edit`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -229,8 +292,13 @@ export const editProfileSlackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/preferences(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/preferences(.:format)`
+ * - Path helper: `profile_preferences_path`
+ * - URL helper: `profile_preferences_url`
+ * - controller#action: `profiles/preferences#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -246,8 +314,13 @@ export const profilePreferencesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/comment_templates(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/comment_templates(.:format)`
+ * - Path helper: `profile_comment_templates_path`
+ * - URL helper: `profile_comment_templates_url`
+ * - controller#action: `profiles/comment_templates#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -263,8 +336,13 @@ export const profileCommentTemplatesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/comment_templates/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/comment_templates/:id(.:format)`
+ * - Path helper: `profile_comment_template_path`
+ * - URL helper: `profile_comment_template_url`
+ * - controller#action: `profiles/comment_templates#index`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -281,8 +359,13 @@ export const profileCommentTemplatePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/emails/:id/resend_confirmation_instructions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/emails/:id/resend_confirmation_instructions(.:format)`
+ * - Path helper: `resend_confirmation_instructions_profile_email_path`
+ * - URL helper: `resend_confirmation_instructions_profile_email_url`
+ * - controller#action: `profiles/emails#resend_confirmation_instructions`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -299,8 +382,13 @@ export const resendConfirmationInstructionsProfileEmailPath = /*#__PURE__*/ (...
 };
 
 /**
- * Generates rails route to
- * /-/profile/emails(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/emails(.:format)`
+ * - Path helper: `profile_emails_path`
+ * - URL helper: `profile_emails_url`
+ * - controller#action: `profiles/emails#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -316,8 +404,13 @@ export const profileEmailsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/emails/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/emails/:id(.:format)`
+ * - Path helper: `profile_email_path`
+ * - URL helper: `profile_email_url`
+ * - controller#action: `profiles/emails#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -334,8 +427,13 @@ export const profileEmailPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/avatar(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/avatar(.:format)`
+ * - Path helper: `profile_avatar_path`
+ * - URL helper: `profile_avatar_url`
+ * - controller#action: `profiles/avatars#destroy`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -351,8 +449,12 @@ export const profileAvatarPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/chat_names(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/chat_names(.:format)`
+ * - Path helper: `chat_names_profile_path`
+ * - URL helper: `chat_names_profile_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -368,8 +470,12 @@ export const chatNamesProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/chat_names/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/chat_names/new(.:format)`
+ * - Path helper: `chat_names_new_profile_path`
+ * - URL helper: `chat_names_new_profile_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -385,8 +491,13 @@ export const chatNamesNewProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/two_factor_auth/codes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/two_factor_auth/codes(.:format)`
+ * - Path helper: `codes_profile_two_factor_auth_path`
+ * - URL helper: `codes_profile_two_factor_auth_url`
+ * - controller#action: `profiles/two_factor_auths#codes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -402,8 +513,13 @@ export const codesProfileTwoFactorAuthPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/two_factor_auth/skip(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/two_factor_auth/skip(.:format)`
+ * - Path helper: `skip_profile_two_factor_auth_path`
+ * - URL helper: `skip_profile_two_factor_auth_url`
+ * - controller#action: `profiles/two_factor_auths#skip`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -419,8 +535,13 @@ export const skipProfileTwoFactorAuthPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/two_factor_auth/create_webauthn(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/two_factor_auth/create_webauthn(.:format)`
+ * - Path helper: `create_webauthn_profile_two_factor_auth_path`
+ * - URL helper: `create_webauthn_profile_two_factor_auth_url`
+ * - controller#action: `profiles/two_factor_auths#create_webauthn`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -436,8 +557,13 @@ export const createWebauthnProfileTwoFactorAuthPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /-/profile/two_factor_auth/destroy_otp(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/two_factor_auth/destroy_otp(.:format)`
+ * - Path helper: `destroy_otp_profile_two_factor_auth_path`
+ * - URL helper: `destroy_otp_profile_two_factor_auth_url`
+ * - controller#action: `profiles/two_factor_auths#destroy_otp`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -453,8 +579,13 @@ export const destroyOtpProfileTwoFactorAuthPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/two_factor_auth/destroy_webauthn/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/two_factor_auth/destroy_webauthn/:id(.:format)`
+ * - Path helper: `destroy_webauthn_profile_two_factor_auth_path`
+ * - URL helper: `destroy_webauthn_profile_two_factor_auth_url`
+ * - controller#action: `profiles/two_factor_auths#destroy_webauthn`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -471,8 +602,13 @@ export const destroyWebauthnProfileTwoFactorAuthPath = /*#__PURE__*/ (...args) =
 };
 
 /**
- * Generates rails route to
- * /-/profile/two_factor_auth(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/two_factor_auth(.:format)`
+ * - Path helper: `profile_two_factor_auth_path`
+ * - URL helper: `profile_two_factor_auth_url`
+ * - controller#action: `profiles/two_factor_auths#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -488,8 +624,13 @@ export const profileTwoFactorAuthPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/passkeys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/passkeys(.:format)`
+ * - Path helper: `profile_passkeys_path`
+ * - URL helper: `profile_passkeys_url`
+ * - controller#action: `profiles/passkeys#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -505,8 +646,13 @@ export const profilePasskeysPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/passkeys/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/passkeys/new(.:format)`
+ * - Path helper: `new_profile_passkey_path`
+ * - URL helper: `new_profile_passkey_url`
+ * - controller#action: `profiles/passkeys#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -522,8 +668,13 @@ export const newProfilePasskeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/passkeys/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/passkeys/:id(.:format)`
+ * - Path helper: `profile_passkey_path`
+ * - URL helper: `profile_passkey_url`
+ * - controller#action: `profiles/passkeys#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path

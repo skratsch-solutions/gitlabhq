@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/user_settings/authentication_log(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/authentication_log(.:format)`
+ * - Path helper: `user_settings_authentication_log_path`
+ * - URL helper: `user_settings_authentication_log_url`
+ * - controller#action: `user_settings/user_settings#authentication_log`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const userSettingsAuthenticationLogPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/applications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/applications(.:format)`
+ * - Path helper: `user_settings_applications_path`
+ * - URL helper: `user_settings_applications_url`
+ * - controller#action: `oauth/applications#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const userSettingsApplicationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/active_sessions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/active_sessions(.:format)`
+ * - Path helper: `user_settings_active_sessions_path`
+ * - URL helper: `user_settings_active_sessions_url`
+ * - controller#action: `user_settings/active_sessions#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +73,13 @@ export const userSettingsActiveSessionsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/active_sessions/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/active_sessions/:id(.:format)`
+ * - Path helper: `user_settings_active_session_path`
+ * - URL helper: `user_settings_active_session_url`
+ * - controller#action: `user_settings/active_sessions#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -76,8 +96,13 @@ export const userSettingsActiveSessionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/profile(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/profile(.:format)`
+ * - Path helper: `user_settings_profile_path`
+ * - URL helper: `user_settings_profile_url`
+ * - controller#action: `user_settings/profiles#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -93,8 +118,13 @@ export const userSettingsProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/identities/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/identities/new(.:format)`
+ * - Path helper: `new_user_settings_identities_path`
+ * - URL helper: `new_user_settings_identities_url`
+ * - controller#action: `user_settings/identities#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -110,8 +140,13 @@ export const newUserSettingsIdentitiesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/identities(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/identities(.:format)`
+ * - Path helper: `user_settings_identities_path`
+ * - URL helper: `user_settings_identities_url`
+ * - controller#action: `user_settings/identities#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -127,8 +162,13 @@ export const userSettingsIdentitiesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/password/reset(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/password/reset(.:format)`
+ * - Path helper: `reset_user_settings_password_path`
+ * - URL helper: `reset_user_settings_password_url`
+ * - controller#action: `user_settings/passwords#reset`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -144,8 +184,13 @@ export const resetUserSettingsPasswordPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/password/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/password/new(.:format)`
+ * - Path helper: `new_user_settings_password_path`
+ * - URL helper: `new_user_settings_password_url`
+ * - controller#action: `user_settings/passwords#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -161,8 +206,13 @@ export const newUserSettingsPasswordPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/password/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/password/edit(.:format)`
+ * - Path helper: `edit_user_settings_password_path`
+ * - URL helper: `edit_user_settings_password_url`
+ * - controller#action: `user_settings/passwords#edit`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -178,8 +228,13 @@ export const editUserSettingsPasswordPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/password(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/password(.:format)`
+ * - Path helper: `user_settings_password_path`
+ * - URL helper: `user_settings_password_url`
+ * - controller#action: `user_settings/passwords#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -195,8 +250,13 @@ export const userSettingsPasswordPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/personal_access_tokens/toggle_dpop(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/personal_access_tokens/toggle_dpop(.:format)`
+ * - Path helper: `toggle_dpop_user_settings_personal_access_tokens_path`
+ * - URL helper: `toggle_dpop_user_settings_personal_access_tokens_url`
+ * - controller#action: `user_settings/personal_access_tokens#toggle_dpop`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -212,8 +272,13 @@ export const toggleDpopUserSettingsPersonalAccessTokensPath = /*#__PURE__*/ (...
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/personal_access_tokens/granular/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/personal_access_tokens/granular/new(.:format)`
+ * - Path helper: `granular_new_user_settings_personal_access_tokens_path`
+ * - URL helper: `granular_new_user_settings_personal_access_tokens_url`
+ * - controller#action: `user_settings/personal_access_tokens#granular_new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -229,8 +294,13 @@ export const granularNewUserSettingsPersonalAccessTokensPath = /*#__PURE__*/ (..
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/personal_access_tokens/legacy/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/personal_access_tokens/legacy/new(.:format)`
+ * - Path helper: `legacy_new_user_settings_personal_access_tokens_path`
+ * - URL helper: `legacy_new_user_settings_personal_access_tokens_url`
+ * - controller#action: `user_settings/personal_access_tokens#legacy_new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -246,8 +316,13 @@ export const legacyNewUserSettingsPersonalAccessTokensPath = /*#__PURE__*/ (...a
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/personal_access_tokens(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/personal_access_tokens(.:format)`
+ * - Path helper: `user_settings_personal_access_tokens_path`
+ * - URL helper: `user_settings_personal_access_tokens_url`
+ * - controller#action: `user_settings/personal_access_tokens#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -263,8 +338,13 @@ export const userSettingsPersonalAccessTokensPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/gpg_keys/:id/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/gpg_keys/:id/revoke(.:format)`
+ * - Path helper: `revoke_user_settings_gpg_key_path`
+ * - URL helper: `revoke_user_settings_gpg_key_url`
+ * - controller#action: `user_settings/gpg_keys#revoke`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -281,8 +361,13 @@ export const revokeUserSettingsGpgKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/gpg_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/gpg_keys(.:format)`
+ * - Path helper: `user_settings_gpg_keys_path`
+ * - URL helper: `user_settings_gpg_keys_url`
+ * - controller#action: `user_settings/gpg_keys#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -298,8 +383,13 @@ export const userSettingsGpgKeysPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/gpg_keys/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/gpg_keys/:id(.:format)`
+ * - Path helper: `user_settings_gpg_key_path`
+ * - URL helper: `user_settings_gpg_key_url`
+ * - controller#action: `user_settings/gpg_keys#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -316,8 +406,13 @@ export const userSettingsGpgKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/ssh_keys/:id/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/ssh_keys/:id/revoke(.:format)`
+ * - Path helper: `revoke_user_settings_ssh_key_path`
+ * - URL helper: `revoke_user_settings_ssh_key_url`
+ * - controller#action: `user_settings/ssh_keys#revoke`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -334,8 +429,13 @@ export const revokeUserSettingsSshKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/ssh_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/ssh_keys(.:format)`
+ * - Path helper: `user_settings_ssh_keys_path`
+ * - URL helper: `user_settings_ssh_keys_url`
+ * - controller#action: `user_settings/ssh_keys#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -351,8 +451,13 @@ export const userSettingsSshKeysPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/ssh_keys/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/ssh_keys/:id(.:format)`
+ * - Path helper: `user_settings_ssh_key_path`
+ * - URL helper: `user_settings_ssh_key_url`
+ * - controller#action: `user_settings/ssh_keys#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -369,8 +474,13 @@ export const userSettingsSshKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/integration_accounts/deny(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/integration_accounts/deny(.:format)`
+ * - Path helper: `deny_user_settings_integration_accounts_path`
+ * - URL helper: `deny_user_settings_integration_accounts_url`
+ * - controller#action: `profiles/chat_names#deny`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -386,8 +496,13 @@ export const denyUserSettingsIntegrationAccountsPath = /*#__PURE__*/ (...args) =
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/integration_accounts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/integration_accounts(.:format)`
+ * - Path helper: `user_settings_integration_accounts_path`
+ * - URL helper: `user_settings_integration_accounts_url`
+ * - controller#action: `profiles/chat_names#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -403,8 +518,13 @@ export const userSettingsIntegrationAccountsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/integration_accounts/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/integration_accounts/new(.:format)`
+ * - Path helper: `new_user_settings_integration_account_path`
+ * - URL helper: `new_user_settings_integration_account_url`
+ * - controller#action: `profiles/chat_names#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -420,8 +540,13 @@ export const newUserSettingsIntegrationAccountPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /-/user_settings/integration_accounts/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/user_settings/integration_accounts/:id(.:format)`
+ * - Path helper: `user_settings_integration_account_path`
+ * - URL helper: `user_settings_integration_account_url`
+ * - controller#action: `profiles/chat_names#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path

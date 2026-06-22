@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/google_api/auth/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/google_api/auth/callback(.:format)`
+ * - Path helper: `callback_google_api_auth_path`
+ * - URL helper: `callback_google_api_auth_url`
+ * - controller#action: `google_api/authorizations#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

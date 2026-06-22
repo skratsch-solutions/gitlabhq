@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /users/auth/-/import/alicloud/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/alicloud/callback(.:format)`
+ * - Path helper: `users_import_alicloud_callback_path`
+ * - URL helper: `users_import_alicloud_callback_url`
+ * - controller#action: `import/alicloud#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const usersImportAlicloudCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/github/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/github/callback(.:format)`
+ * - Path helper: `users_import_github_callback_path`
+ * - URL helper: `users_import_github_callback_url`
+ * - controller#action: `import/github#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const usersImportGithubCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/bitbucket/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/bitbucket/callback(.:format)`
+ * - Path helper: `users_import_bitbucket_callback_path`
+ * - URL helper: `users_import_bitbucket_callback_url`
+ * - controller#action: `import/bitbucket#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +73,13 @@ export const usersImportBitbucketCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/gitlab/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/gitlab/callback(.:format)`
+ * - Path helper: `users_import_gitlab_callback_path`
+ * - URL helper: `users_import_gitlab_callback_url`
+ * - controller#action: `import/gitlab#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +95,13 @@ export const usersImportGitlabCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/google_oauth2/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/google_oauth2/callback(.:format)`
+ * - Path helper: `users_import_google_oauth2_callback_path`
+ * - URL helper: `users_import_google_oauth2_callback_url`
+ * - controller#action: `import/google_oauth2#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -92,8 +117,13 @@ export const usersImportGoogleOauth2CallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/jwt/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/jwt/callback(.:format)`
+ * - Path helper: `users_import_jwt_callback_path`
+ * - URL helper: `users_import_jwt_callback_url`
+ * - controller#action: `import/jwt#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -109,8 +139,13 @@ export const usersImportJwtCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/auth0/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/auth0/callback(.:format)`
+ * - Path helper: `users_import_auth0_callback_path`
+ * - URL helper: `users_import_auth0_callback_url`
+ * - controller#action: `import/auth0#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -126,8 +161,13 @@ export const usersImportAuth0CallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/salesforce/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/salesforce/callback(.:format)`
+ * - Path helper: `users_import_salesforce_callback_path`
+ * - URL helper: `users_import_salesforce_callback_url`
+ * - controller#action: `import/salesforce#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -143,8 +183,13 @@ export const usersImportSalesforceCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/atlassian_oauth2/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/atlassian_oauth2/callback(.:format)`
+ * - Path helper: `users_import_atlassian_oauth2_callback_path`
+ * - URL helper: `users_import_atlassian_oauth2_callback_url`
+ * - controller#action: `import/atlassian_oauth2#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -160,8 +205,13 @@ export const usersImportAtlassianOauth2CallbackPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/openid_connect/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/openid_connect/callback(.:format)`
+ * - Path helper: `users_import_openid_connect_callback_path`
+ * - URL helper: `users_import_openid_connect_callback_url`
+ * - controller#action: `import/openid_connect#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -177,8 +227,13 @@ export const usersImportOpenidConnectCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/-/import/group_saml/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/-/import/group_saml/callback(.:format)`
+ * - Path helper: `users_import_group_saml_callback_path`
+ * - URL helper: `users_import_group_saml_callback_url`
+ * - controller#action: `import/group_saml#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -194,8 +249,13 @@ export const usersImportGroupSamlCallbackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/history(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/history(.:format)`
+ * - Path helper: `import_history_index_path`
+ * - URL helper: `import_history_index_url`
+ * - controller#action: `import/history#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -211,8 +271,13 @@ export const importHistoryIndexPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/url/validate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/url/validate(.:format)`
+ * - Path helper: `validate_import_url_path`
+ * - URL helper: `validate_import_url_url`
+ * - controller#action: `import/url#validate`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -228,8 +293,13 @@ export const validateImportUrlPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/url/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/url/new(.:format)`
+ * - Path helper: `new_import_url_path`
+ * - URL helper: `new_import_url_url`
+ * - controller#action: `import/url#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -245,8 +315,13 @@ export const newImportUrlPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/personal_access_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/personal_access_token(.:format)`
+ * - Path helper: `personal_access_token_import_github_path`
+ * - URL helper: `personal_access_token_import_github_url`
+ * - controller#action: `import/github#personal_access_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -262,8 +337,13 @@ export const personalAccessTokenImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/status(.:format)`
+ * - Path helper: `status_import_github_path`
+ * - URL helper: `status_import_github_url`
+ * - controller#action: `import/github#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -279,8 +359,13 @@ export const statusImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/details(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/details(.:format)`
+ * - Path helper: `details_import_github_path`
+ * - URL helper: `details_import_github_url`
+ * - controller#action: `import/github#details`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -296,8 +381,13 @@ export const detailsImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/callback(.:format)`
+ * - Path helper: `callback_import_github_path`
+ * - URL helper: `callback_import_github_url`
+ * - controller#action: `import/github#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -313,8 +403,13 @@ export const callbackImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_import_github_path`
+ * - URL helper: `realtime_changes_import_github_url`
+ * - controller#action: `import/github#realtime_changes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -330,8 +425,13 @@ export const realtimeChangesImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/failures(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/failures(.:format)`
+ * - Path helper: `failures_import_github_path`
+ * - URL helper: `failures_import_github_url`
+ * - controller#action: `import/github#failures`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -347,8 +447,13 @@ export const failuresImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/cancel(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/cancel(.:format)`
+ * - Path helper: `cancel_import_github_path`
+ * - URL helper: `cancel_import_github_url`
+ * - controller#action: `import/github#cancel`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -364,8 +469,13 @@ export const cancelImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/cancel_all(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/cancel_all(.:format)`
+ * - Path helper: `cancel_all_import_github_path`
+ * - URL helper: `cancel_all_import_github_url`
+ * - controller#action: `import/github#cancel_all`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -381,8 +491,13 @@ export const cancelAllImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/counts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/counts(.:format)`
+ * - Path helper: `counts_import_github_path`
+ * - URL helper: `counts_import_github_url`
+ * - controller#action: `import/github#counts`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -398,8 +513,13 @@ export const countsImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github/new(.:format)`
+ * - Path helper: `new_import_github_path`
+ * - URL helper: `new_import_github_url`
+ * - controller#action: `import/github#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -415,8 +535,13 @@ export const newImportGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github(.:format)`
+ * - Path helper: `import_github_path`
+ * - URL helper: `import_github_url`
+ * - controller#action: `import/github#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -432,8 +557,13 @@ export const importGithubPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitea/personal_access_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitea/personal_access_token(.:format)`
+ * - Path helper: `personal_access_token_import_gitea_path`
+ * - URL helper: `personal_access_token_import_gitea_url`
+ * - controller#action: `import/gitea#personal_access_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -449,8 +579,13 @@ export const personalAccessTokenImportGiteaPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitea/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitea/status(.:format)`
+ * - Path helper: `status_import_gitea_path`
+ * - URL helper: `status_import_gitea_url`
+ * - controller#action: `import/gitea#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -466,8 +601,13 @@ export const statusImportGiteaPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitea/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitea/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_import_gitea_path`
+ * - URL helper: `realtime_changes_import_gitea_url`
+ * - controller#action: `import/gitea#realtime_changes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -483,8 +623,13 @@ export const realtimeChangesImportGiteaPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitea/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitea/new(.:format)`
+ * - Path helper: `new_import_gitea_path`
+ * - URL helper: `new_import_gitea_url`
+ * - controller#action: `import/gitea#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -500,8 +645,13 @@ export const newImportGiteaPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitea(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitea(.:format)`
+ * - Path helper: `import_gitea_path`
+ * - URL helper: `import_gitea_url`
+ * - controller#action: `import/gitea#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -517,8 +667,13 @@ export const importGiteaPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket/status(.:format)`
+ * - Path helper: `status_import_bitbucket_path`
+ * - URL helper: `status_import_bitbucket_url`
+ * - controller#action: `import/bitbucket#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -534,8 +689,13 @@ export const statusImportBitbucketPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket/callback(.:format)`
+ * - Path helper: `callback_import_bitbucket_path`
+ * - URL helper: `callback_import_bitbucket_url`
+ * - controller#action: `import/bitbucket#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -551,8 +711,13 @@ export const callbackImportBitbucketPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_import_bitbucket_path`
+ * - URL helper: `realtime_changes_import_bitbucket_url`
+ * - controller#action: `import/bitbucket#realtime_changes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -568,8 +733,13 @@ export const realtimeChangesImportBitbucketPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket(.:format)`
+ * - Path helper: `import_bitbucket_path`
+ * - URL helper: `import_bitbucket_url`
+ * - controller#action: `import/bitbucket#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -585,8 +755,13 @@ export const importBitbucketPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket_server/configure(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket_server/configure(.:format)`
+ * - Path helper: `configure_import_bitbucket_server_path`
+ * - URL helper: `configure_import_bitbucket_server_url`
+ * - controller#action: `import/bitbucket_server#configure`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -602,8 +777,13 @@ export const configureImportBitbucketServerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket_server/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket_server/status(.:format)`
+ * - Path helper: `status_import_bitbucket_server_path`
+ * - URL helper: `status_import_bitbucket_server_url`
+ * - controller#action: `import/bitbucket_server#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -619,8 +799,13 @@ export const statusImportBitbucketServerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket_server/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket_server/callback(.:format)`
+ * - Path helper: `callback_import_bitbucket_server_path`
+ * - URL helper: `callback_import_bitbucket_server_url`
+ * - controller#action: `import/bitbucket_server#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -636,8 +821,13 @@ export const callbackImportBitbucketServerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket_server/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket_server/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_import_bitbucket_server_path`
+ * - URL helper: `realtime_changes_import_bitbucket_server_url`
+ * - controller#action: `import/bitbucket_server#realtime_changes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -653,8 +843,13 @@ export const realtimeChangesImportBitbucketServerPath = /*#__PURE__*/ (...args) 
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket_server/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket_server/new(.:format)`
+ * - Path helper: `new_import_bitbucket_server_path`
+ * - URL helper: `new_import_bitbucket_server_url`
+ * - controller#action: `import/bitbucket_server#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -670,8 +865,13 @@ export const newImportBitbucketServerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bitbucket_server(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bitbucket_server(.:format)`
+ * - Path helper: `import_bitbucket_server_path`
+ * - URL helper: `import_bitbucket_server_url`
+ * - controller#action: `import/bitbucket_server#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -687,8 +887,13 @@ export const importBitbucketServerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/fogbugz/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/fogbugz/status(.:format)`
+ * - Path helper: `status_import_fogbugz_path`
+ * - URL helper: `status_import_fogbugz_url`
+ * - controller#action: `import/fogbugz#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -704,8 +909,13 @@ export const statusImportFogbugzPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/fogbugz/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/fogbugz/callback(.:format)`
+ * - Path helper: `callback_import_fogbugz_path`
+ * - URL helper: `callback_import_fogbugz_url`
+ * - controller#action: `import/fogbugz#callback`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -721,8 +931,13 @@ export const callbackImportFogbugzPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/fogbugz/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/fogbugz/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_import_fogbugz_path`
+ * - URL helper: `realtime_changes_import_fogbugz_url`
+ * - controller#action: `import/fogbugz#realtime_changes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -738,8 +953,13 @@ export const realtimeChangesImportFogbugzPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/fogbugz/user_map(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/fogbugz/user_map(.:format)`
+ * - Path helper: `new_user_map_import_fogbugz_path`
+ * - URL helper: `new_user_map_import_fogbugz_url`
+ * - controller#action: `import/fogbugz#new_user_map`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -755,8 +975,13 @@ export const newUserMapImportFogbugzPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/fogbugz/user_map(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/fogbugz/user_map(.:format)`
+ * - Path helper: `create_user_map_import_fogbugz_path`
+ * - URL helper: `create_user_map_import_fogbugz_url`
+ * - controller#action: `import/fogbugz#create_user_map`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -772,8 +997,13 @@ export const createUserMapImportFogbugzPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/fogbugz/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/fogbugz/new(.:format)`
+ * - Path helper: `new_import_fogbugz_path`
+ * - URL helper: `new_import_fogbugz_url`
+ * - controller#action: `import/fogbugz#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -789,8 +1019,13 @@ export const newImportFogbugzPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/fogbugz(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/fogbugz(.:format)`
+ * - Path helper: `import_fogbugz_path`
+ * - URL helper: `import_fogbugz_url`
+ * - controller#action: `import/fogbugz#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -806,8 +1041,13 @@ export const importFogbugzPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitlab_project(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitlab_project(.:format)`
+ * - Path helper: `import_gitlab_project_path`
+ * - URL helper: `import_gitlab_project_url`
+ * - controller#action: `import/gitlab_projects#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -823,8 +1063,13 @@ export const importGitlabProjectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitlab_project/authorize(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitlab_project/authorize(.:format)`
+ * - Path helper: `authorize_import_gitlab_project_path`
+ * - URL helper: `authorize_import_gitlab_project_url`
+ * - controller#action: `import/gitlab_projects#authorize`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -840,8 +1085,13 @@ export const authorizeImportGitlabProjectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitlab_project/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitlab_project/new(.:format)`
+ * - Path helper: `new_import_gitlab_project_path`
+ * - URL helper: `new_import_gitlab_project_url`
+ * - controller#action: `import/gitlab_projects#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -857,8 +1107,13 @@ export const newImportGitlabProjectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitlab_group/authorize(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitlab_group/authorize(.:format)`
+ * - Path helper: `authorize_import_gitlab_group_path`
+ * - URL helper: `authorize_import_gitlab_group_url`
+ * - controller#action: `import/gitlab_groups#authorize`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -874,8 +1129,13 @@ export const authorizeImportGitlabGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/gitlab_group(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/gitlab_group(.:format)`
+ * - Path helper: `import_gitlab_group_path`
+ * - URL helper: `import_gitlab_group_url`
+ * - controller#action: `import/gitlab_groups#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -891,8 +1151,13 @@ export const importGitlabGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/github_group/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/github_group/status(.:format)`
+ * - Path helper: `status_import_github_group_path`
+ * - URL helper: `status_import_github_group_url`
+ * - controller#action: `import/github_groups#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -908,8 +1173,13 @@ export const statusImportGithubGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bulk_imports/configure(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bulk_imports/configure(.:format)`
+ * - Path helper: `configure_import_bulk_imports_path`
+ * - URL helper: `configure_import_bulk_imports_url`
+ * - controller#action: `import/bulk_imports#configure`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -925,8 +1195,13 @@ export const configureImportBulkImportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bulk_imports/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bulk_imports/status(.:format)`
+ * - Path helper: `status_import_bulk_imports_path`
+ * - URL helper: `status_import_bulk_imports_url`
+ * - controller#action: `import/bulk_imports#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -942,8 +1217,13 @@ export const statusImportBulkImportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bulk_imports/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bulk_imports/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_import_bulk_imports_path`
+ * - URL helper: `realtime_changes_import_bulk_imports_url`
+ * - controller#action: `import/bulk_imports#realtime_changes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -959,8 +1239,13 @@ export const realtimeChangesImportBulkImportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bulk_imports/history(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bulk_imports/history(.:format)`
+ * - Path helper: `history_import_bulk_imports_path`
+ * - URL helper: `history_import_bulk_imports_url`
+ * - controller#action: `import/bulk_imports#history`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -976,8 +1261,13 @@ export const historyImportBulkImportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bulk_imports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bulk_imports(.:format)`
+ * - Path helper: `import_bulk_imports_path`
+ * - URL helper: `import_bulk_imports_url`
+ * - controller#action: `import/bulk_imports#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -993,8 +1283,13 @@ export const importBulkImportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bulk_imports/:id/history(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bulk_imports/:id/history(.:format)`
+ * - Path helper: `history_import_bulk_import_path`
+ * - URL helper: `history_import_bulk_import_url`
+ * - controller#action: `import/bulk_imports#history`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1011,8 +1306,13 @@ export const historyImportBulkImportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/bulk_imports/:id/history/:entity_id/failures(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/bulk_imports/:id/history/:entity_id/failures(.:format)`
+ * - Path helper: `failures_import_bulk_import_path`
+ * - URL helper: `failures_import_bulk_import_url`
+ * - controller#action: `import/bulk_imports#failures`
+ *
  * @param {any} id
  * @param {any} entityId
  * @param {object | undefined} options
@@ -1030,8 +1330,13 @@ export const failuresImportBulkImportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/offline(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/offline(.:format)`
+ * - Path helper: `import_offline_path`
+ * - URL helper: `import_offline_url`
+ * - controller#action: `import/offline#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1047,8 +1352,13 @@ export const importOfflinePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/offline/export/history(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/offline/export/history(.:format)`
+ * - Path helper: `history_import_offline_export_path`
+ * - URL helper: `history_import_offline_export_url`
+ * - controller#action: `import/offline/export#history`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1064,8 +1374,13 @@ export const historyImportOfflineExportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/offline/export(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/offline/export(.:format)`
+ * - Path helper: `import_offline_export_path`
+ * - URL helper: `import_offline_export_url`
+ * - controller#action: `import/offline/export#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1081,8 +1396,13 @@ export const importOfflineExportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/offline/import/history(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/offline/import/history(.:format)`
+ * - Path helper: `history_import_offline_import_path`
+ * - URL helper: `history_import_offline_import_url`
+ * - controller#action: `import/offline/import#history`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1098,8 +1418,13 @@ export const historyImportOfflineImportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/offline/import(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/offline/import(.:format)`
+ * - Path helper: `import_offline_import_path`
+ * - URL helper: `import_offline_import_url`
+ * - controller#action: `import/offline/import#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1115,8 +1440,13 @@ export const importOfflineImportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/manifest/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/manifest/status(.:format)`
+ * - Path helper: `status_import_manifest_path`
+ * - URL helper: `status_import_manifest_url`
+ * - controller#action: `import/manifest#status`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1132,8 +1462,13 @@ export const statusImportManifestPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/manifest/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/manifest/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_import_manifest_path`
+ * - URL helper: `realtime_changes_import_manifest_url`
+ * - controller#action: `import/manifest#realtime_changes`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1149,8 +1484,13 @@ export const realtimeChangesImportManifestPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/manifest/upload(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/manifest/upload(.:format)`
+ * - Path helper: `upload_import_manifest_path`
+ * - URL helper: `upload_import_manifest_url`
+ * - controller#action: `import/manifest#upload`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1166,8 +1506,13 @@ export const uploadImportManifestPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/manifest/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/manifest/new(.:format)`
+ * - Path helper: `new_import_manifest_path`
+ * - URL helper: `new_import_manifest_url`
+ * - controller#action: `import/manifest#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1183,8 +1528,13 @@ export const newImportManifestPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/manifest(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/manifest(.:format)`
+ * - Path helper: `import_manifest_path`
+ * - URL helper: `import_manifest_url`
+ * - controller#action: `import/manifest#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1200,8 +1550,13 @@ export const importManifestPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/source_users/:namespace_id/:reassignment_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/source_users/:namespace_id/:reassignment_token(.:format)`
+ * - Path helper: `namespaced_show_import_source_users_path`
+ * - URL helper: `namespaced_show_import_source_users_url`
+ * - controller#action: `import/source_users#show`
+ *
  * @param {any} namespaceId
  * @param {any} reassignmentToken
  * @param {object | undefined} options
@@ -1219,8 +1574,13 @@ export const namespacedShowImportSourceUsersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/source_users/:namespace_id/:reassignment_token/accept(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/source_users/:namespace_id/:reassignment_token/accept(.:format)`
+ * - Path helper: `namespaced_accept_import_source_users_path`
+ * - URL helper: `namespaced_accept_import_source_users_url`
+ * - controller#action: `import/source_users#accept`
+ *
  * @param {any} namespaceId
  * @param {any} reassignmentToken
  * @param {object | undefined} options
@@ -1238,8 +1598,13 @@ export const namespacedAcceptImportSourceUsersPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /import/source_users/:namespace_id/:reassignment_token/decline(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/source_users/:namespace_id/:reassignment_token/decline(.:format)`
+ * - Path helper: `namespaced_decline_import_source_users_path`
+ * - URL helper: `namespaced_decline_import_source_users_url`
+ * - controller#action: `import/source_users#decline`
+ *
  * @param {any} namespaceId
  * @param {any} reassignmentToken
  * @param {object | undefined} options
@@ -1257,8 +1622,13 @@ export const namespacedDeclineImportSourceUsersPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /import/source_users/:reassignment_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/source_users/:reassignment_token(.:format)`
+ * - Path helper: `import_source_user_path`
+ * - URL helper: `import_source_user_url`
+ * - controller#action: `import/source_users#show`
+ *
  * @param {any} reassignmentToken
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1275,8 +1645,13 @@ export const importSourceUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/source_users/:reassignment_token/accept(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/source_users/:reassignment_token/accept(.:format)`
+ * - Path helper: `accept_import_source_user_path`
+ * - URL helper: `accept_import_source_user_url`
+ * - controller#action: `import/source_users#accept`
+ *
  * @param {any} reassignmentToken
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1293,8 +1668,13 @@ export const acceptImportSourceUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /import/source_users/:reassignment_token/decline(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/import/source_users/:reassignment_token/decline(.:format)`
+ * - Path helper: `decline_import_source_user_path`
+ * - URL helper: `decline_import_source_user_url`
+ * - controller#action: `import/source_users#decline`
+ *
  * @param {any} reassignmentToken
  * @param {object | undefined} options
  * @returns {string} route path

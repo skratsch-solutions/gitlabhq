@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /admin/registrations/groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/registrations/groups(.:format)`
+ * - Path helper: `admin_registrations_groups_path`
+ * - URL helper: `admin_registrations_groups_url`
+ * - controller#action: `admin/registrations/groups#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const adminRegistrationsGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/registrations/groups/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/registrations/groups/new(.:format)`
+ * - Path helper: `new_admin_registrations_group_path`
+ * - URL helper: `new_admin_registrations_group_url`
+ * - controller#action: `admin/registrations/groups#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const newAdminRegistrationsGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/registrations/profile/skip(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/registrations/profile/skip(.:format)`
+ * - Path helper: `skip_admin_registrations_profile_path`
+ * - URL helper: `skip_admin_registrations_profile_url`
+ * - controller#action: `admin/registrations/profiles#skip`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +73,13 @@ export const skipAdminRegistrationsProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/registrations/profile/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/registrations/profile/new(.:format)`
+ * - Path helper: `new_admin_registrations_profile_path`
+ * - URL helper: `new_admin_registrations_profile_url`
+ * - controller#action: `admin/registrations/profiles#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +95,13 @@ export const newAdminRegistrationsProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/registrations/profile(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/registrations/profile(.:format)`
+ * - Path helper: `admin_registrations_profile_path`
+ * - URL helper: `admin_registrations_profile_url`
+ * - controller#action: `admin/registrations/profiles#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -92,8 +117,13 @@ export const adminRegistrationsProfilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/keys/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/keys/:id(.:format)`
+ * - Path helper: `admin_user_key_path`
+ * - URL helper: `admin_user_key_url`
+ * - controller#action: `admin/keys#show`
+ *
  * @param {any} userId
  * @param {any} id
  * @param {object | undefined} options
@@ -111,8 +141,13 @@ export const adminUserKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/identities(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/identities(.:format)`
+ * - Path helper: `admin_user_identities_path`
+ * - URL helper: `admin_user_identities_url`
+ * - controller#action: `admin/identities#index`
+ *
  * @param {any} userId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -129,8 +164,13 @@ export const adminUserIdentitiesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/identities/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/identities/new(.:format)`
+ * - Path helper: `new_admin_user_identity_path`
+ * - URL helper: `new_admin_user_identity_url`
+ * - controller#action: `admin/identities#new`
+ *
  * @param {any} userId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -147,8 +187,13 @@ export const newAdminUserIdentityPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/identities/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/identities/:id/edit(.:format)`
+ * - Path helper: `edit_admin_user_identity_path`
+ * - URL helper: `edit_admin_user_identity_url`
+ * - controller#action: `admin/identities#edit`
+ *
  * @param {any} userId
  * @param {any} id
  * @param {object | undefined} options
@@ -166,8 +211,13 @@ export const editAdminUserIdentityPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/identities/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/identities/:id(.:format)`
+ * - Path helper: `admin_user_identity_path`
+ * - URL helper: `admin_user_identity_url`
+ * - controller#action: `admin/identities#update`
+ *
  * @param {any} userId
  * @param {any} id
  * @param {object | undefined} options
@@ -185,8 +235,13 @@ export const adminUserIdentityPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/impersonation_tokens/:id/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/impersonation_tokens/:id/revoke(.:format)`
+ * - Path helper: `revoke_admin_user_impersonation_token_path`
+ * - URL helper: `revoke_admin_user_impersonation_token_url`
+ * - controller#action: `admin/impersonation_tokens#revoke`
+ *
  * @param {any} userId
  * @param {any} id
  * @param {object | undefined} options
@@ -204,8 +259,13 @@ export const revokeAdminUserImpersonationTokenPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/impersonation_tokens/:id/rotate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/impersonation_tokens/:id/rotate(.:format)`
+ * - Path helper: `rotate_admin_user_impersonation_token_path`
+ * - URL helper: `rotate_admin_user_impersonation_token_url`
+ * - controller#action: `admin/impersonation_tokens#rotate`
+ *
  * @param {any} userId
  * @param {any} id
  * @param {object | undefined} options
@@ -223,8 +283,13 @@ export const rotateAdminUserImpersonationTokenPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /admin/users/:user_id/impersonation_tokens(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:user_id/impersonation_tokens(.:format)`
+ * - Path helper: `admin_user_impersonation_tokens_path`
+ * - URL helper: `admin_user_impersonation_tokens_url`
+ * - controller#action: `admin/impersonation_tokens#index`
+ *
  * @param {any} userId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -241,8 +306,13 @@ export const adminUserImpersonationTokensPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/projects(.:format)`
+ * - Path helper: `projects_admin_user_path`
+ * - URL helper: `projects_admin_user_url`
+ * - controller#action: `admin/users#projects`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -259,8 +329,13 @@ export const projectsAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/keys(.:format)`
+ * - Path helper: `keys_admin_user_path`
+ * - URL helper: `keys_admin_user_url`
+ * - controller#action: `admin/users#keys`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -277,8 +352,13 @@ export const keysAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/block(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/block(.:format)`
+ * - Path helper: `block_admin_user_path`
+ * - URL helper: `block_admin_user_url`
+ * - controller#action: `admin/users#block`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -295,8 +375,13 @@ export const blockAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/unblock(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/unblock(.:format)`
+ * - Path helper: `unblock_admin_user_path`
+ * - URL helper: `unblock_admin_user_url`
+ * - controller#action: `admin/users#unblock`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -313,8 +398,13 @@ export const unblockAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/ban(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/ban(.:format)`
+ * - Path helper: `ban_admin_user_path`
+ * - URL helper: `ban_admin_user_url`
+ * - controller#action: `admin/users#ban`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -331,8 +421,13 @@ export const banAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/unban(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/unban(.:format)`
+ * - Path helper: `unban_admin_user_path`
+ * - URL helper: `unban_admin_user_url`
+ * - controller#action: `admin/users#unban`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -349,8 +444,13 @@ export const unbanAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/deactivate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/deactivate(.:format)`
+ * - Path helper: `deactivate_admin_user_path`
+ * - URL helper: `deactivate_admin_user_url`
+ * - controller#action: `admin/users#deactivate`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -367,8 +467,13 @@ export const deactivateAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/activate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/activate(.:format)`
+ * - Path helper: `activate_admin_user_path`
+ * - URL helper: `activate_admin_user_url`
+ * - controller#action: `admin/users#activate`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -385,8 +490,13 @@ export const activateAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/unlock(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/unlock(.:format)`
+ * - Path helper: `unlock_admin_user_path`
+ * - URL helper: `unlock_admin_user_url`
+ * - controller#action: `admin/users#unlock`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -403,8 +513,13 @@ export const unlockAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/confirm(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/confirm(.:format)`
+ * - Path helper: `confirm_admin_user_path`
+ * - URL helper: `confirm_admin_user_url`
+ * - controller#action: `admin/users#confirm`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -421,8 +536,13 @@ export const confirmAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/approve(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/approve(.:format)`
+ * - Path helper: `approve_admin_user_path`
+ * - URL helper: `approve_admin_user_url`
+ * - controller#action: `admin/users#approve`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -439,8 +559,13 @@ export const approveAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/trust(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/trust(.:format)`
+ * - Path helper: `trust_admin_user_path`
+ * - URL helper: `trust_admin_user_url`
+ * - controller#action: `admin/users#trust`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -457,8 +582,13 @@ export const trustAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/untrust(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/untrust(.:format)`
+ * - Path helper: `untrust_admin_user_path`
+ * - URL helper: `untrust_admin_user_url`
+ * - controller#action: `admin/users#untrust`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -475,8 +605,13 @@ export const untrustAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/reject(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/reject(.:format)`
+ * - Path helper: `reject_admin_user_path`
+ * - URL helper: `reject_admin_user_url`
+ * - controller#action: `admin/users#reject`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -493,8 +628,13 @@ export const rejectAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/impersonate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/impersonate(.:format)`
+ * - Path helper: `impersonate_admin_user_path`
+ * - URL helper: `impersonate_admin_user_url`
+ * - controller#action: `admin/users#impersonate`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -511,8 +651,13 @@ export const impersonateAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/disable_two_factor(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/disable_two_factor(.:format)`
+ * - Path helper: `disable_two_factor_admin_user_path`
+ * - URL helper: `disable_two_factor_admin_user_url`
+ * - controller#action: `admin/users#disable_two_factor`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -529,8 +674,13 @@ export const disableTwoFactorAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/remove/:email_id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/remove/:email_id(.:format)`
+ * - Path helper: `remove_email_admin_user_path`
+ * - URL helper: `remove_email_admin_user_url`
+ * - controller#action: `admin/users#remove_email`
+ *
  * @param {any} id
  * @param {any} emailId
  * @param {object | undefined} options
@@ -548,8 +698,13 @@ export const removeEmailAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users(.:format)`
+ * - Path helper: `admin_users_path`
+ * - URL helper: `admin_users_url`
+ * - controller#action: `admin/users#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -565,8 +720,13 @@ export const adminUsersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/new(.:format)`
+ * - Path helper: `new_admin_user_path`
+ * - URL helper: `new_admin_user_url`
+ * - controller#action: `admin/users#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -582,8 +742,13 @@ export const newAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id/edit(.:format)`
+ * - Path helper: `edit_admin_user_path`
+ * - URL helper: `edit_admin_user_url`
+ * - controller#action: `admin/users#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -600,8 +765,13 @@ export const editAdminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/users/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/users/:id(.:format)`
+ * - Path helper: `admin_user_path`
+ * - URL helper: `admin_user_url`
+ * - controller#action: `admin/users#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -618,8 +788,13 @@ export const adminUserPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/session/destroy(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/session/destroy(.:format)`
+ * - Path helper: `destroy_admin_session_path`
+ * - URL helper: `destroy_admin_session_url`
+ * - controller#action: `admin/sessions#destroy`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -635,8 +810,13 @@ export const destroyAdminSessionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/session/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/session/new(.:format)`
+ * - Path helper: `new_admin_session_path`
+ * - URL helper: `new_admin_session_url`
+ * - controller#action: `admin/sessions#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -652,8 +832,13 @@ export const newAdminSessionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/session(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/session(.:format)`
+ * - Path helper: `admin_session_path`
+ * - URL helper: `admin_session_url`
+ * - controller#action: `admin/sessions#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -669,8 +854,13 @@ export const adminSessionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/impersonation(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/impersonation(.:format)`
+ * - Path helper: `admin_impersonation_path`
+ * - URL helper: `admin_impersonation_url`
+ * - controller#action: `admin/impersonations#destroy`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -686,8 +876,13 @@ export const adminImpersonationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/initial_setup/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/initial_setup/new(.:format)`
+ * - Path helper: `new_admin_initial_setup_path`
+ * - URL helper: `new_admin_initial_setup_url`
+ * - controller#action: `admin/initial_setup#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -703,8 +898,13 @@ export const newAdminInitialSetupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/initial_setup(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/initial_setup(.:format)`
+ * - Path helper: `admin_initial_setup_path`
+ * - URL helper: `admin_initial_setup_url`
+ * - controller#action: `admin/initial_setup#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -720,8 +920,13 @@ export const adminInitialSetupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/abuse_reports/:id/moderate_user(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/abuse_reports/:id/moderate_user(.:format)`
+ * - Path helper: `moderate_user_admin_abuse_report_path`
+ * - URL helper: `moderate_user_admin_abuse_report_url`
+ * - controller#action: `admin/abuse_reports#moderate_user`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -738,8 +943,13 @@ export const moderateUserAdminAbuseReportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/abuse_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/abuse_reports(.:format)`
+ * - Path helper: `admin_abuse_reports_path`
+ * - URL helper: `admin_abuse_reports_url`
+ * - controller#action: `admin/abuse_reports#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -755,8 +965,13 @@ export const adminAbuseReportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/abuse_reports/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/abuse_reports/:id(.:format)`
+ * - Path helper: `admin_abuse_report_path`
+ * - URL helper: `admin_abuse_report_url`
+ * - controller#action: `admin/abuse_reports#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -773,8 +988,13 @@ export const adminAbuseReportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/gitaly_servers(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/gitaly_servers(.:format)`
+ * - Path helper: `admin_gitaly_servers_path`
+ * - URL helper: `admin_gitaly_servers_url`
+ * - controller#action: `admin/gitaly_servers#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -790,8 +1010,13 @@ export const adminGitalyServersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/spam_logs/:id/mark_as_ham(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/spam_logs/:id/mark_as_ham(.:format)`
+ * - Path helper: `mark_as_ham_admin_spam_log_path`
+ * - URL helper: `mark_as_ham_admin_spam_log_url`
+ * - controller#action: `admin/spam_logs#mark_as_ham`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -808,8 +1033,13 @@ export const markAsHamAdminSpamLogPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/spam_logs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/spam_logs(.:format)`
+ * - Path helper: `admin_spam_logs_path`
+ * - URL helper: `admin_spam_logs_url`
+ * - controller#action: `admin/spam_logs#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -825,8 +1055,13 @@ export const adminSpamLogsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/spam_logs/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/spam_logs/:id(.:format)`
+ * - Path helper: `admin_spam_log_path`
+ * - URL helper: `admin_spam_log_url`
+ * - controller#action: `admin/spam_logs#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -843,8 +1078,13 @@ export const adminSpamLogPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/applications/:id/renew(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/applications/:id/renew(.:format)`
+ * - Path helper: `renew_admin_application_path`
+ * - URL helper: `renew_admin_application_url`
+ * - controller#action: `admin/applications#renew`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -861,8 +1101,13 @@ export const renewAdminApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/applications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/applications(.:format)`
+ * - Path helper: `admin_applications_path`
+ * - URL helper: `admin_applications_url`
+ * - controller#action: `admin/applications#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -878,8 +1123,13 @@ export const adminApplicationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/applications/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/applications/new(.:format)`
+ * - Path helper: `new_admin_application_path`
+ * - URL helper: `new_admin_application_url`
+ * - controller#action: `admin/applications#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -895,8 +1145,13 @@ export const newAdminApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/applications/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/applications/:id/edit(.:format)`
+ * - Path helper: `edit_admin_application_path`
+ * - URL helper: `edit_admin_application_url`
+ * - controller#action: `admin/applications#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -913,8 +1168,13 @@ export const editAdminApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/applications/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/applications/:id(.:format)`
+ * - Path helper: `admin_application_path`
+ * - URL helper: `admin_application_url`
+ * - controller#action: `admin/applications#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -931,8 +1191,13 @@ export const adminApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/groups/active(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/groups/active(.:format)`
+ * - Path helper: `active_admin_groups_path`
+ * - URL helper: `active_admin_groups_url`
+ * - controller#action: `admin/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -948,8 +1213,13 @@ export const activeAdminGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/groups/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/groups/inactive(.:format)`
+ * - Path helper: `inactive_admin_groups_path`
+ * - URL helper: `inactive_admin_groups_url`
+ * - controller#action: `admin/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -965,8 +1235,13 @@ export const inactiveAdminGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/groups(.:format)`
+ * - Path helper: `admin_groups_path`
+ * - URL helper: `admin_groups_url`
+ * - controller#action: `admin/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -982,8 +1257,13 @@ export const adminGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/groups/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/groups/new(.:format)`
+ * - Path helper: `new_admin_group_path`
+ * - URL helper: `new_admin_group_url`
+ * - controller#action: `admin/groups#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -999,8 +1279,13 @@ export const newAdminGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/organizations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/organizations(.:format)`
+ * - Path helper: `admin_organizations_path`
+ * - URL helper: `admin_organizations_url`
+ * - controller#action: `admin/organizations#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1016,8 +1301,13 @@ export const adminOrganizationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/groups/*id/members_update(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/groups/*id/members_update(.:format)`
+ * - Path helper: `admin_group_members_update_path`
+ * - URL helper: `admin_group_members_update_url`
+ * - controller#action: `admin/groups#members_update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1034,8 +1324,13 @@ export const adminGroupMembersUpdatePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/groups/*id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/groups/*id/edit(.:format)`
+ * - Path helper: `admin_group_edit_path`
+ * - URL helper: `admin_group_edit_url`
+ * - controller#action: `admin/groups#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1052,8 +1347,13 @@ export const adminGroupEditPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/groups/*id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/groups/*id(.:format)`
+ * - Path helper: `admin_group_path`
+ * - URL helper: `admin_group_url`
+ * - controller#action: `admin/groups#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1070,8 +1370,13 @@ export const adminGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/topics/:topic_id/avatar(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/topics/:topic_id/avatar(.:format)`
+ * - Path helper: `admin_topic_avatar_path`
+ * - URL helper: `admin_topic_avatar_url`
+ * - controller#action: `admin/topics/avatars#destroy`
+ *
  * @param {any} topicId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1088,8 +1393,13 @@ export const adminTopicAvatarPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/topics/preview_markdown(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/topics/preview_markdown(.:format)`
+ * - Path helper: `preview_markdown_admin_topics_path`
+ * - URL helper: `preview_markdown_admin_topics_url`
+ * - controller#action: `admin/topics#preview_markdown`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1105,8 +1415,13 @@ export const previewMarkdownAdminTopicsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/topics/merge(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/topics/merge(.:format)`
+ * - Path helper: `merge_admin_topics_path`
+ * - URL helper: `merge_admin_topics_url`
+ * - controller#action: `admin/topics#merge`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1122,8 +1437,13 @@ export const mergeAdminTopicsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/topics(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/topics(.:format)`
+ * - Path helper: `admin_topics_path`
+ * - URL helper: `admin_topics_url`
+ * - controller#action: `admin/topics#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1139,8 +1459,13 @@ export const adminTopicsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/topics/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/topics/new(.:format)`
+ * - Path helper: `new_admin_topic_path`
+ * - URL helper: `new_admin_topic_url`
+ * - controller#action: `admin/topics#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1156,8 +1481,13 @@ export const newAdminTopicPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/topics/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/topics/:id/edit(.:format)`
+ * - Path helper: `edit_admin_topic_path`
+ * - URL helper: `edit_admin_topic_url`
+ * - controller#action: `admin/topics#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1174,8 +1504,13 @@ export const editAdminTopicPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/topics/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/topics/:id(.:format)`
+ * - Path helper: `admin_topic_path`
+ * - URL helper: `admin_topic_url`
+ * - controller#action: `admin/topics#update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1192,8 +1527,13 @@ export const adminTopicPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/deploy_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/deploy_keys(.:format)`
+ * - Path helper: `admin_deploy_keys_path`
+ * - URL helper: `admin_deploy_keys_url`
+ * - controller#action: `admin/deploy_keys#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1209,8 +1549,13 @@ export const adminDeployKeysPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/deploy_keys/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/deploy_keys/new(.:format)`
+ * - Path helper: `new_admin_deploy_key_path`
+ * - URL helper: `new_admin_deploy_key_url`
+ * - controller#action: `admin/deploy_keys#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1226,8 +1571,13 @@ export const newAdminDeployKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/deploy_keys/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/deploy_keys/:id/edit(.:format)`
+ * - Path helper: `edit_admin_deploy_key_path`
+ * - URL helper: `edit_admin_deploy_key_url`
+ * - controller#action: `admin/deploy_keys#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1244,8 +1594,13 @@ export const editAdminDeployKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/deploy_keys/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/deploy_keys/:id(.:format)`
+ * - Path helper: `admin_deploy_key_path`
+ * - URL helper: `admin_deploy_key_url`
+ * - controller#action: `admin/deploy_keys#update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1262,8 +1617,13 @@ export const adminDeployKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/hooks/:id/test(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/hooks/:id/test(.:format)`
+ * - Path helper: `test_admin_hook_path`
+ * - URL helper: `test_admin_hook_url`
+ * - controller#action: `admin/hooks#test`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1280,8 +1640,13 @@ export const testAdminHookPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/hooks/:hook_id/hook_logs/:id/retry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/hooks/:hook_id/hook_logs/:id/retry(.:format)`
+ * - Path helper: `retry_admin_hook_hook_log_path`
+ * - URL helper: `retry_admin_hook_hook_log_url`
+ * - controller#action: `admin/hook_logs#retry`
+ *
  * @param {any} hookId
  * @param {any} id
  * @param {object | undefined} options
@@ -1299,8 +1664,13 @@ export const retryAdminHookHookLogPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/hooks/:hook_id/hook_logs/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/hooks/:hook_id/hook_logs/:id(.:format)`
+ * - Path helper: `admin_hook_hook_log_path`
+ * - URL helper: `admin_hook_hook_log_url`
+ * - controller#action: `admin/hook_logs#show`
+ *
  * @param {any} hookId
  * @param {any} id
  * @param {object | undefined} options
@@ -1318,8 +1688,13 @@ export const adminHookHookLogPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/hooks(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/hooks(.:format)`
+ * - Path helper: `admin_hooks_path`
+ * - URL helper: `admin_hooks_url`
+ * - controller#action: `admin/hooks#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1335,8 +1710,13 @@ export const adminHooksPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/hooks/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/hooks/:id/edit(.:format)`
+ * - Path helper: `edit_admin_hook_path`
+ * - URL helper: `edit_admin_hook_url`
+ * - controller#action: `admin/hooks#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1353,8 +1733,13 @@ export const editAdminHookPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/hooks/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/hooks/:id(.:format)`
+ * - Path helper: `admin_hook_path`
+ * - URL helper: `admin_hook_url`
+ * - controller#action: `admin/hooks#update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1371,8 +1756,13 @@ export const adminHookPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/broadcast_messages/preview(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/broadcast_messages/preview(.:format)`
+ * - Path helper: `preview_admin_broadcast_messages_path`
+ * - URL helper: `preview_admin_broadcast_messages_url`
+ * - controller#action: `admin/broadcast_messages#preview`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1388,8 +1778,13 @@ export const previewAdminBroadcastMessagesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/broadcast_messages(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/broadcast_messages(.:format)`
+ * - Path helper: `admin_broadcast_messages_path`
+ * - URL helper: `admin_broadcast_messages_url`
+ * - controller#action: `admin/broadcast_messages#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1405,8 +1800,13 @@ export const adminBroadcastMessagesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/broadcast_messages/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/broadcast_messages/:id/edit(.:format)`
+ * - Path helper: `edit_admin_broadcast_message_path`
+ * - URL helper: `edit_admin_broadcast_message_url`
+ * - controller#action: `admin/broadcast_messages#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1423,8 +1823,13 @@ export const editAdminBroadcastMessagePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/broadcast_messages/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/broadcast_messages/:id(.:format)`
+ * - Path helper: `admin_broadcast_message_path`
+ * - URL helper: `admin_broadcast_message_url`
+ * - controller#action: `admin/broadcast_messages#update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1441,8 +1846,13 @@ export const adminBroadcastMessagePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/instance_review(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/instance_review(.:format)`
+ * - Path helper: `admin_instance_review_path`
+ * - URL helper: `admin_instance_review_url`
+ * - controller#action: `admin/instance_review#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1458,8 +1868,13 @@ export const adminInstanceReviewPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/background_migrations/:background_migration_id/batched_jobs/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/background_migrations/:background_migration_id/batched_jobs/:id(.:format)`
+ * - Path helper: `admin_background_migration_batched_job_path`
+ * - URL helper: `admin_background_migration_batched_job_url`
+ * - controller#action: `admin/batched_jobs#show`
+ *
  * @param {any} backgroundMigrationId
  * @param {any} id
  * @param {object | undefined} options
@@ -1477,8 +1892,13 @@ export const adminBackgroundMigrationBatchedJobPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /admin/background_migrations/:id/pause(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/background_migrations/:id/pause(.:format)`
+ * - Path helper: `pause_admin_background_migration_path`
+ * - URL helper: `pause_admin_background_migration_url`
+ * - controller#action: `admin/background_migrations#pause`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1495,8 +1915,13 @@ export const pauseAdminBackgroundMigrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/background_migrations/:id/resume(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/background_migrations/:id/resume(.:format)`
+ * - Path helper: `resume_admin_background_migration_path`
+ * - URL helper: `resume_admin_background_migration_url`
+ * - controller#action: `admin/background_migrations#resume`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1513,8 +1938,13 @@ export const resumeAdminBackgroundMigrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/background_migrations/:id/retry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/background_migrations/:id/retry(.:format)`
+ * - Path helper: `retry_admin_background_migration_path`
+ * - URL helper: `retry_admin_background_migration_url`
+ * - controller#action: `admin/background_migrations#retry`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1531,8 +1961,13 @@ export const retryAdminBackgroundMigrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/background_migrations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/background_migrations(.:format)`
+ * - Path helper: `admin_background_migrations_path`
+ * - URL helper: `admin_background_migrations_url`
+ * - controller#action: `admin/background_migrations#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1548,8 +1983,13 @@ export const adminBackgroundMigrationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/background_migrations/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/background_migrations/:id(.:format)`
+ * - Path helper: `admin_background_migration_path`
+ * - URL helper: `admin_background_migration_url`
+ * - controller#action: `admin/background_migrations#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1566,8 +2006,13 @@ export const adminBackgroundMigrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/health_check(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/health_check(.:format)`
+ * - Path helper: `admin_health_check_path`
+ * - URL helper: `admin_health_check_url`
+ * - controller#action: `admin/health_check#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1583,8 +2028,13 @@ export const adminHealthCheckPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/background_jobs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/background_jobs(.:format)`
+ * - Path helper: `admin_background_jobs_path`
+ * - URL helper: `admin_background_jobs_url`
+ * - controller#action: `admin/background_jobs#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1600,8 +2050,13 @@ export const adminBackgroundJobsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/database_diagnostics/run_collation_check(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/database_diagnostics/run_collation_check(.:format)`
+ * - Path helper: `run_collation_check_admin_database_diagnostics_path`
+ * - URL helper: `run_collation_check_admin_database_diagnostics_url`
+ * - controller#action: `admin/database_diagnostics#run_collation_check`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1617,8 +2072,13 @@ export const runCollationCheckAdminDatabaseDiagnosticsPath = /*#__PURE__*/ (...a
 };
 
 /**
- * Generates rails route to
- * /admin/database_diagnostics/collation_check_results(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/database_diagnostics/collation_check_results(.:format)`
+ * - Path helper: `collation_check_results_admin_database_diagnostics_path`
+ * - URL helper: `collation_check_results_admin_database_diagnostics_url`
+ * - controller#action: `admin/database_diagnostics#collation_check_results`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1634,8 +2094,13 @@ export const collationCheckResultsAdminDatabaseDiagnosticsPath = /*#__PURE__*/ (
 };
 
 /**
- * Generates rails route to
- * /admin/database_diagnostics/run_schema_check(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/database_diagnostics/run_schema_check(.:format)`
+ * - Path helper: `run_schema_check_admin_database_diagnostics_path`
+ * - URL helper: `run_schema_check_admin_database_diagnostics_url`
+ * - controller#action: `admin/database_diagnostics#run_schema_check`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1651,8 +2116,13 @@ export const runSchemaCheckAdminDatabaseDiagnosticsPath = /*#__PURE__*/ (...args
 };
 
 /**
- * Generates rails route to
- * /admin/database_diagnostics/schema_check_results(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/database_diagnostics/schema_check_results(.:format)`
+ * - Path helper: `schema_check_results_admin_database_diagnostics_path`
+ * - URL helper: `schema_check_results_admin_database_diagnostics_url`
+ * - controller#action: `admin/database_diagnostics#schema_check_results`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1668,8 +2138,13 @@ export const schemaCheckResultsAdminDatabaseDiagnosticsPath = /*#__PURE__*/ (...
 };
 
 /**
- * Generates rails route to
- * /admin/database_diagnostics(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/database_diagnostics(.:format)`
+ * - Path helper: `admin_database_diagnostics_path`
+ * - URL helper: `admin_database_diagnostics_url`
+ * - controller#action: `admin/database_diagnostics#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1685,8 +2160,13 @@ export const adminDatabaseDiagnosticsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/system_info(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/system_info(.:format)`
+ * - Path helper: `admin_system_info_path`
+ * - URL helper: `admin_system_info_url`
+ * - controller#action: `admin/system_info#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1702,8 +2182,13 @@ export const adminSystemInfoPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/projects/active(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/active(.:format)`
+ * - Path helper: `active_admin_projects_path`
+ * - URL helper: `active_admin_projects_url`
+ * - controller#action: `admin/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1719,8 +2204,13 @@ export const activeAdminProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/projects/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/inactive(.:format)`
+ * - Path helper: `inactive_admin_projects_path`
+ * - URL helper: `inactive_admin_projects_url`
+ * - controller#action: `admin/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1736,8 +2226,13 @@ export const inactiveAdminProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects(.:format)`
+ * - Path helper: `admin_projects_path`
+ * - URL helper: `admin_projects_url`
+ * - controller#action: `admin/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1753,8 +2248,13 @@ export const adminProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/usage_trends(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/usage_trends(.:format)`
+ * - Path helper: `admin_usage_trends_path`
+ * - URL helper: `admin_usage_trends_url`
+ * - controller#action: `admin/usage_trends#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1770,8 +2270,13 @@ export const adminUsageTrendsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/dev_ops_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/dev_ops_reports(.:format)`
+ * - Path helper: `admin_dev_ops_reports_path`
+ * - URL helper: `admin_dev_ops_reports_url`
+ * - controller#action: `admin/dev_ops_report#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1787,8 +2292,12 @@ export const adminDevOpsReportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/dev_ops_report(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/dev_ops_report(.:format)`
+ * - Path helper: `admin_dev_ops_report_path`
+ * - URL helper: `admin_dev_ops_report_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1804,8 +2313,13 @@ export const adminDevOpsReportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/cohorts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/cohorts(.:format)`
+ * - Path helper: `admin_cohorts_path`
+ * - URL helper: `admin_cohorts_url`
+ * - controller#action: `admin/cohorts#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1821,8 +2335,13 @@ export const adminCohortsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/projects/:project_full_path/transfer(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/:project_full_path/transfer(.:format)`
+ * - Path helper: `transfer_admin_project_path`
+ * - URL helper: `transfer_admin_project_url`
+ * - controller#action: `admin/projects#transfer`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1841,8 +2360,13 @@ export const transferAdminProjectPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /admin/projects/:project_full_path/repository_check(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/:project_full_path/repository_check(.:format)`
+ * - Path helper: `repository_check_admin_project_path`
+ * - URL helper: `repository_check_admin_project_url`
+ * - controller#action: `admin/projects#repository_check`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1861,8 +2385,13 @@ export const repositoryCheckAdminProjectPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /admin/projects/:project_full_path/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/:project_full_path/edit(.:format)`
+ * - Path helper: `edit_admin_project_path`
+ * - URL helper: `edit_admin_project_url`
+ * - controller#action: `admin/projects#edit`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1881,8 +2410,13 @@ export const editAdminProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /admin/projects/:project_full_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/:project_full_path(.:format)`
+ * - Path helper: `admin_project_path`
+ * - URL helper: `admin_project_url`
+ * - controller#action: `admin/projects#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1901,8 +2435,13 @@ export const adminProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/projects/:project_full_path/runner_projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/:project_full_path/runner_projects(.:format)`
+ * - Path helper: `admin_project_runner_projects_path`
+ * - URL helper: `admin_project_runner_projects_url`
+ * - controller#action: `admin/runner_projects#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1921,8 +2460,13 @@ export const adminProjectRunnerProjectsPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /admin/projects/:project_full_path/runner_projects/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/projects/:project_full_path/runner_projects/:id(.:format)`
+ * - Path helper: `admin_project_runner_project_path`
+ * - URL helper: `admin_project_runner_project_url`
+ * - controller#action: `admin/runner_projects#destroy`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1942,8 +2486,13 @@ export const adminProjectRunnerProjectPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/integrations/:id/overrides(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/integrations/:id/overrides(.:format)`
+ * - Path helper: `overrides_admin_application_settings_integration_path`
+ * - URL helper: `overrides_admin_application_settings_integration_url`
+ * - controller#action: `admin/integrations#overrides`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1960,8 +2509,13 @@ export const overridesAdminApplicationSettingsIntegrationPath = /*#__PURE__*/ (.
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/integrations/:id/test(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/integrations/:id/test(.:format)`
+ * - Path helper: `test_admin_application_settings_integration_path`
+ * - URL helper: `test_admin_application_settings_integration_url`
+ * - controller#action: `admin/integrations#test`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1978,8 +2532,13 @@ export const testAdminApplicationSettingsIntegrationPath = /*#__PURE__*/ (...arg
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/integrations/:id/reset(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/integrations/:id/reset(.:format)`
+ * - Path helper: `reset_admin_application_settings_integration_path`
+ * - URL helper: `reset_admin_application_settings_integration_url`
+ * - controller#action: `admin/integrations#reset`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1996,8 +2555,13 @@ export const resetAdminApplicationSettingsIntegrationPath = /*#__PURE__*/ (...ar
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/integrations/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/integrations/:id/edit(.:format)`
+ * - Path helper: `edit_admin_application_settings_integration_path`
+ * - URL helper: `edit_admin_application_settings_integration_url`
+ * - controller#action: `admin/integrations#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2014,8 +2578,13 @@ export const editAdminApplicationSettingsIntegrationPath = /*#__PURE__*/ (...arg
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/integrations/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/integrations/:id(.:format)`
+ * - Path helper: `admin_application_settings_integration_path`
+ * - URL helper: `admin_application_settings_integration_url`
+ * - controller#action: `admin/integrations#update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2032,8 +2601,13 @@ export const adminApplicationSettingsIntegrationPath = /*#__PURE__*/ (...args) =
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/slack/slack_auth(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/slack/slack_auth(.:format)`
+ * - Path helper: `slack_auth_admin_application_settings_slack_path`
+ * - URL helper: `slack_auth_admin_application_settings_slack_url`
+ * - controller#action: `admin/slacks#slack_auth`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2049,8 +2623,13 @@ export const slackAuthAdminApplicationSettingsSlackPath = /*#__PURE__*/ (...args
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/slack(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/slack(.:format)`
+ * - Path helper: `admin_application_settings_slack_path`
+ * - URL helper: `admin_application_settings_slack_url`
+ * - controller#action: `admin/slacks#destroy`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2066,8 +2645,13 @@ export const adminApplicationSettingsSlackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/usage_data(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/usage_data(.:format)`
+ * - Path helper: `usage_data_admin_application_settings_path`
+ * - URL helper: `usage_data_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#usage_data`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2083,8 +2667,13 @@ export const usageDataAdminApplicationSettingsPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/reset_registration_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/reset_registration_token(.:format)`
+ * - Path helper: `reset_registration_token_admin_application_settings_path`
+ * - URL helper: `reset_registration_token_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#reset_registration_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2100,8 +2689,13 @@ export const resetRegistrationTokenAdminApplicationSettingsPath = /*#__PURE__*/ 
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/reset_health_check_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/reset_health_check_token(.:format)`
+ * - Path helper: `reset_health_check_token_admin_application_settings_path`
+ * - URL helper: `reset_health_check_token_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#reset_health_check_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2117,8 +2711,13 @@ export const resetHealthCheckTokenAdminApplicationSettingsPath = /*#__PURE__*/ (
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/reset_error_tracking_access_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/reset_error_tracking_access_token(.:format)`
+ * - Path helper: `reset_error_tracking_access_token_admin_application_settings_path`
+ * - URL helper: `reset_error_tracking_access_token_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#reset_error_tracking_access_token`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2134,8 +2733,13 @@ export const resetErrorTrackingAccessTokenAdminApplicationSettingsPath = /*#__PU
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/clear_repository_check_states(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/clear_repository_check_states(.:format)`
+ * - Path helper: `clear_repository_check_states_admin_application_settings_path`
+ * - URL helper: `clear_repository_check_states_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#clear_repository_check_states`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2151,8 +2755,13 @@ export const clearRepositoryCheckStatesAdminApplicationSettingsPath = /*#__PURE_
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/reset_vscode_extension_marketplace_extension_host_domain(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/reset_vscode_extension_marketplace_extension_host_domain(.:format)`
+ * - Path helper: `reset_vscode_extension_marketplace_extension_host_domain_admin_application_settings_path`
+ * - URL helper: `reset_vscode_extension_marketplace_extension_host_domain_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#reset_vscode_extension_marketplace_extension_host_domain`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2168,8 +2777,13 @@ export const resetVSCodeExtensionMarketplaceExtensionHostDomainAdminApplicationS
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/general(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/general(.:format)`
+ * - Path helper: `general_admin_application_settings_path`
+ * - URL helper: `general_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#general`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2185,8 +2799,13 @@ export const generalAdminApplicationSettingsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/integrations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/integrations(.:format)`
+ * - Path helper: `integrations_admin_application_settings_path`
+ * - URL helper: `integrations_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#integrations`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2202,8 +2821,13 @@ export const integrationsAdminApplicationSettingsPath = /*#__PURE__*/ (...args) 
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/repository(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/repository(.:format)`
+ * - Path helper: `repository_admin_application_settings_path`
+ * - URL helper: `repository_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#repository`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2219,8 +2843,13 @@ export const repositoryAdminApplicationSettingsPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/ci_cd(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/ci_cd(.:format)`
+ * - Path helper: `ci_cd_admin_application_settings_path`
+ * - URL helper: `ci_cd_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#ci_cd`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2236,8 +2865,13 @@ export const ciCdAdminApplicationSettingsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/reporting(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/reporting(.:format)`
+ * - Path helper: `reporting_admin_application_settings_path`
+ * - URL helper: `reporting_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#reporting`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2253,8 +2887,13 @@ export const reportingAdminApplicationSettingsPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/metrics_and_profiling(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/metrics_and_profiling(.:format)`
+ * - Path helper: `metrics_and_profiling_admin_application_settings_path`
+ * - URL helper: `metrics_and_profiling_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#metrics_and_profiling`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2270,8 +2909,13 @@ export const metricsAndProfilingAdminApplicationSettingsPath = /*#__PURE__*/ (..
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/network(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/network(.:format)`
+ * - Path helper: `network_admin_application_settings_path`
+ * - URL helper: `network_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#network`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2287,8 +2931,13 @@ export const networkAdminApplicationSettingsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/preferences(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/preferences(.:format)`
+ * - Path helper: `preferences_admin_application_settings_path`
+ * - URL helper: `preferences_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#preferences`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2304,8 +2953,13 @@ export const preferencesAdminApplicationSettingsPath = /*#__PURE__*/ (...args) =
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/usage_quotas(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/usage_quotas(.:format)`
+ * - Path helper: `usage_quotas_admin_application_settings_path`
+ * - URL helper: `usage_quotas_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#usage_quotas`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2321,8 +2975,13 @@ export const usageQuotasAdminApplicationSettingsPath = /*#__PURE__*/ (...args) =
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/lets_encrypt_terms_of_service(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/lets_encrypt_terms_of_service(.:format)`
+ * - Path helper: `lets_encrypt_terms_of_service_admin_application_settings_path`
+ * - URL helper: `lets_encrypt_terms_of_service_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#lets_encrypt_terms_of_service`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2338,8 +2997,13 @@ export const letsEncryptTermsOfServiceAdminApplicationSettingsPath = /*#__PURE__
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/slack_app_manifest_download(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/slack_app_manifest_download(.:format)`
+ * - Path helper: `slack_app_manifest_download_admin_application_settings_path`
+ * - URL helper: `slack_app_manifest_download_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#slack_app_manifest_download`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2355,8 +3019,13 @@ export const slackAppManifestDownloadAdminApplicationSettingsPath = /*#__PURE__*
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/slack_app_manifest_share(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/slack_app_manifest_share(.:format)`
+ * - Path helper: `slack_app_manifest_share_admin_application_settings_path`
+ * - URL helper: `slack_app_manifest_share_admin_application_settings_url`
+ * - controller#action: `admin/application_settings#slack_app_manifest_share`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2372,8 +3041,13 @@ export const slackAppManifestShareAdminApplicationSettingsPath = /*#__PURE__*/ (
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/service_accounts(/*vueroute)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/service_accounts(/*vueroute)(.:format)`
+ * - Path helper: `admin_application_settings_service_accounts_path`
+ * - URL helper: `admin_application_settings_service_accounts_url`
+ * - controller#action: `admin/application_settings/service_accounts#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2389,8 +3063,13 @@ export const adminApplicationSettingsServiceAccountsPath = /*#__PURE__*/ (...arg
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/appearance/preview_sign_in(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/appearance/preview_sign_in(.:format)`
+ * - Path helper: `preview_sign_in_admin_application_settings_appearances_path`
+ * - URL helper: `preview_sign_in_admin_application_settings_appearances_url`
+ * - controller#action: `admin/application_settings/appearances#preview_sign_in`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2406,8 +3085,13 @@ export const previewSignInAdminApplicationSettingsAppearancesPath = /*#__PURE__*
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/appearance/logo(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/appearance/logo(.:format)`
+ * - Path helper: `logo_admin_application_settings_appearances_path`
+ * - URL helper: `logo_admin_application_settings_appearances_url`
+ * - controller#action: `admin/application_settings/appearances#logo`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2423,8 +3107,13 @@ export const logoAdminApplicationSettingsAppearancesPath = /*#__PURE__*/ (...arg
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/appearance/pwa_icon(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/appearance/pwa_icon(.:format)`
+ * - Path helper: `pwa_icon_admin_application_settings_appearances_path`
+ * - URL helper: `pwa_icon_admin_application_settings_appearances_url`
+ * - controller#action: `admin/application_settings/appearances#pwa_icon`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2440,8 +3129,13 @@ export const pwaIconAdminApplicationSettingsAppearancesPath = /*#__PURE__*/ (...
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/appearance/header_logos(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/appearance/header_logos(.:format)`
+ * - Path helper: `header_logos_admin_application_settings_appearances_path`
+ * - URL helper: `header_logos_admin_application_settings_appearances_url`
+ * - controller#action: `admin/application_settings/appearances#header_logos`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2457,8 +3151,13 @@ export const headerLogosAdminApplicationSettingsAppearancesPath = /*#__PURE__*/ 
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/appearance/favicon(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/appearance/favicon(.:format)`
+ * - Path helper: `favicon_admin_application_settings_appearances_path`
+ * - URL helper: `favicon_admin_application_settings_appearances_url`
+ * - controller#action: `admin/application_settings/appearances#favicon`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2474,8 +3173,13 @@ export const faviconAdminApplicationSettingsAppearancesPath = /*#__PURE__*/ (...
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings/appearance(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings/appearance(.:format)`
+ * - Path helper: `admin_application_settings_appearances_path`
+ * - URL helper: `admin_application_settings_appearances_url`
+ * - controller#action: `admin/application_settings/appearances#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2491,8 +3195,13 @@ export const adminApplicationSettingsAppearancesPath = /*#__PURE__*/ (...args) =
 };
 
 /**
- * Generates rails route to
- * /admin/application_settings(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/application_settings(.:format)`
+ * - Path helper: `admin_application_settings_path`
+ * - URL helper: `admin_application_settings_url`
+ * - controller#action: `admin/application_settings#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2508,8 +3217,13 @@ export const adminApplicationSettingsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/plan_limits(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/plan_limits(.:format)`
+ * - Path helper: `admin_plan_limits_path`
+ * - URL helper: `admin_plan_limits_url`
+ * - controller#action: `admin/plan_limits#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2525,8 +3239,13 @@ export const adminPlanLimitsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/packages_limits(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/packages_limits(.:format)`
+ * - Path helper: `admin_packages_limits_path`
+ * - URL helper: `admin_packages_limits_url`
+ * - controller#action: `admin/packages_limits#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2542,8 +3261,13 @@ export const adminPackagesLimitsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/labels(.:format)`
+ * - Path helper: `admin_labels_path`
+ * - URL helper: `admin_labels_url`
+ * - controller#action: `admin/labels#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2559,8 +3283,13 @@ export const adminLabelsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/labels/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/labels/new(.:format)`
+ * - Path helper: `new_admin_label_path`
+ * - URL helper: `new_admin_label_url`
+ * - controller#action: `admin/labels#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2576,8 +3305,13 @@ export const newAdminLabelPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/labels/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/labels/:id/edit(.:format)`
+ * - Path helper: `edit_admin_label_path`
+ * - URL helper: `edit_admin_label_url`
+ * - controller#action: `admin/labels#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2594,8 +3328,13 @@ export const editAdminLabelPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/labels/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/labels/:id(.:format)`
+ * - Path helper: `admin_label_path`
+ * - URL helper: `admin_label_url`
+ * - controller#action: `admin/labels#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2612,8 +3351,13 @@ export const adminLabelPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/:id/register(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/:id/register(.:format)`
+ * - Path helper: `register_admin_runner_path`
+ * - URL helper: `register_admin_runner_url`
+ * - controller#action: `admin/runners#register`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2630,8 +3374,13 @@ export const registerAdminRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/:id/resume(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/:id/resume(.:format)`
+ * - Path helper: `resume_admin_runner_path`
+ * - URL helper: `resume_admin_runner_url`
+ * - controller#action: `admin/runners#resume`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2648,8 +3397,13 @@ export const resumeAdminRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/:id/pause(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/:id/pause(.:format)`
+ * - Path helper: `pause_admin_runner_path`
+ * - URL helper: `pause_admin_runner_url`
+ * - controller#action: `admin/runners#pause`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2666,8 +3420,13 @@ export const pauseAdminRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/tag_list(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/tag_list(.:format)`
+ * - Path helper: `tag_list_admin_runners_path`
+ * - URL helper: `tag_list_admin_runners_url`
+ * - controller#action: `admin/runners#tag_list`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2683,8 +3442,13 @@ export const tagListAdminRunnersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/runner_setup_scripts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/runner_setup_scripts(.:format)`
+ * - Path helper: `runner_setup_scripts_admin_runners_path`
+ * - URL helper: `runner_setup_scripts_admin_runners_url`
+ * - controller#action: `admin/runners#runner_setup_scripts`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2700,8 +3464,13 @@ export const runnerSetupScriptsAdminRunnersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners(.:format)`
+ * - Path helper: `admin_runners_path`
+ * - URL helper: `admin_runners_url`
+ * - controller#action: `admin/runners#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2717,8 +3486,13 @@ export const adminRunnersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/new(.:format)`
+ * - Path helper: `new_admin_runner_path`
+ * - URL helper: `new_admin_runner_url`
+ * - controller#action: `admin/runners#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2734,8 +3508,13 @@ export const newAdminRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/:id/edit(.:format)`
+ * - Path helper: `edit_admin_runner_path`
+ * - URL helper: `edit_admin_runner_url`
+ * - controller#action: `admin/runners#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2752,8 +3531,13 @@ export const editAdminRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/runners/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/runners/:id(.:format)`
+ * - Path helper: `admin_runner_path`
+ * - URL helper: `admin_runner_url`
+ * - controller#action: `admin/runners#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2770,8 +3554,13 @@ export const adminRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/jobs/cancel_all(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/jobs/cancel_all(.:format)`
+ * - Path helper: `cancel_all_admin_jobs_path`
+ * - URL helper: `cancel_all_admin_jobs_url`
+ * - controller#action: `admin/jobs#cancel_all`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2787,8 +3576,13 @@ export const cancelAllAdminJobsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/jobs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/jobs(.:format)`
+ * - Path helper: `admin_jobs_path`
+ * - URL helper: `admin_jobs_url`
+ * - controller#action: `admin/jobs#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2804,8 +3598,13 @@ export const adminJobsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/ci/variables(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/ci/variables(.:format)`
+ * - Path helper: `admin_ci_variables_path`
+ * - URL helper: `admin_ci_variables_url`
+ * - controller#action: `admin/ci/variables#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2821,8 +3620,13 @@ export const adminCiVariablesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/dashboard/stats(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/dashboard/stats(.:format)`
+ * - Path helper: `admin_dashboard_stats_path`
+ * - URL helper: `admin_dashboard_stats_url`
+ * - controller#action: `admin/dashboard#stats`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2838,8 +3642,13 @@ export const adminDashboardStatsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/organization(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/organization(.:format)`
+ * - Path helper: `admin_org_dashboard_path`
+ * - URL helper: `admin_org_dashboard_url`
+ * - controller#action: `admin/organizations/dashboard#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2855,8 +3664,13 @@ export const adminOrgDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin(.:format)`
+ * - Path helper: `admin_root_path`
+ * - URL helper: `admin_root_url`
+ * - controller#action: `admin/dashboard#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2872,8 +3686,13 @@ export const adminRootPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/version_check(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/version_check(.:format)`
+ * - Path helper: `admin_version_check_path`
+ * - URL helper: `admin_version_check_url`
+ * - controller#action: `admin/version_check#version_check`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/refs
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/refs`
+ * - Path helper: `info_refs_path`
+ * - URL helper: `info_refs_url`
+ * - controller#action: `repositories/git_http#info_refs`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -26,8 +31,13 @@ export const infoRefsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/git-upload-pack
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/git-upload-pack`
+ * - Path helper: `git_upload_pack_path`
+ * - URL helper: `git_upload_pack_url`
+ * - controller#action: `repositories/git_http#git_upload_pack`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -45,8 +55,13 @@ export const gitUploadPackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/git-receive-pack
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/git-receive-pack`
+ * - Path helper: `git_receive_pack_path`
+ * - URL helper: `git_receive_pack_url`
+ * - controller#action: `repositories/git_http#git_receive_pack`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -64,8 +79,13 @@ export const gitReceivePackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/ssh-upload-pack
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/ssh-upload-pack`
+ * - Path helper: `ssh_upload_pack_path`
+ * - URL helper: `ssh_upload_pack_url`
+ * - controller#action: `repositories/git_http#ssh_upload_pack`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -83,8 +103,13 @@ export const sshUploadPackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/ssh-receive-pack
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/ssh-receive-pack`
+ * - Path helper: `ssh_receive_pack_path`
+ * - URL helper: `ssh_receive_pack_url`
+ * - controller#action: `repositories/git_http#ssh_receive_pack`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -102,8 +127,13 @@ export const sshReceivePackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/lfs/objects/batch
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/lfs/objects/batch`
+ * - Path helper: `batch_path`
+ * - URL helper: `batch_url`
+ * - controller#action: `repositories/lfs_api#batch`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -121,8 +151,13 @@ export const batchPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/:id/unlock
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/:id/unlock`
+ * - Path helper: `unlock_lfs_lock_path`
+ * - URL helper: `unlock_lfs_lock_url`
+ * - controller#action: `repositories/lfs_locks_api#unlock`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {any} id
@@ -141,8 +176,13 @@ export const unlockLfsLockPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/verify
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/verify`
+ * - Path helper: `verify_lfs_locks_path`
+ * - URL helper: `verify_lfs_locks_url`
+ * - controller#action: `repositories/lfs_locks_api#verify`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -160,8 +200,13 @@ export const verifyLfsLocksPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks`
+ * - Path helper: `lfs_locks_path`
+ * - URL helper: `lfs_locks_url`
+ * - controller#action: `repositories/lfs_locks_api#index`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -179,8 +224,13 @@ export const lfsLocksPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/new
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/new`
+ * - Path helper: `new_lfs_lock_path`
+ * - URL helper: `new_lfs_lock_url`
+ * - controller#action: `repositories/lfs_locks_api#new`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {object | undefined} options
@@ -198,8 +248,13 @@ export const newLfsLockPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/:id/edit
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/:id/edit`
+ * - Path helper: `edit_lfs_lock_path`
+ * - URL helper: `edit_lfs_lock_url`
+ * - controller#action: `repositories/lfs_locks_api#edit`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {any} id
@@ -218,8 +273,13 @@ export const editLfsLockPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/:id
+ * Generates the Rails route:
+ *
+ * - href: `/-/from_secondary/:geo_node_id/*repository_path/info/lfs/locks/:id`
+ * - Path helper: `lfs_lock_path`
+ * - URL helper: `lfs_lock_url`
+ * - controller#action: `repositories/lfs_locks_api#show`
+ *
  * @param {any} geoNodeId
  * @param {any} repositoryPath
  * @param {any} id

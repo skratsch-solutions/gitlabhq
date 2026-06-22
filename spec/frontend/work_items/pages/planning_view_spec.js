@@ -2697,11 +2697,11 @@ describe('planning-view', () => {
 
         expect(findListView().exists()).toBe(false);
         expect(findBoardView().exists()).toBe(true);
-        expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_BOARD);
+        expect(findDisplaySettingsDrawer().props('viewMode')).toBe('board');
       });
 
       it('passes rootPageFullPath and queryVariables to the board view', async () => {
-        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', 'board');
         await waitForPromises();
 
         expect(findBoardView().props('rootPageFullPath')).toBe('full/path');
@@ -2720,18 +2720,25 @@ describe('planning-view', () => {
 
         expect(findListView().exists()).toBe(true);
         expect(findBoardView().exists()).toBe(false);
-        expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_LIST);
+        expect(findDisplaySettingsDrawer().props('viewMode')).toBe('list');
       });
 
-      it('persists viewMode when navigating All Items → Saved View → All Items', async () => {
+      it('persists view mode for All Items', async () => {
         findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
         await waitForPromises();
 
-        await router.push({ name: 'savedView', params: { type: 'work_items', view_id: '3' } });
-        await waitForPromises();
-
-        await router.push({ name: 'planningView', params: { type: 'work_items' } });
-        await waitForPromises();
+        await mountComponent({
+          provide: {
+            glFeatures: {
+              planningViewBoards: true,
+              workItemListDisplaySettingsDrawer: true,
+            },
+          },
+          stubs: {
+            WorkItemsSavedViewsSelectors: savedViewsSelectorsStub,
+            BoardView: boardViewStub,
+          },
+        });
 
         expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_BOARD);
         expect(findBoardView().exists()).toBe(true);
@@ -2750,6 +2757,86 @@ describe('planning-view', () => {
 
         it('renders the error in a GlAlert', () => {
           expect(wrapper.findComponent(GlAlert).text()).toBe(message);
+        });
+      });
+    });
+
+    describe('persistence on a saved view', () => {
+      const mountSavedViewWithDrawer = async (savedViewOverride = {}) => {
+        const savedView = { ...singleSavedView[0], ...savedViewOverride };
+        await mountComponent({
+          provide: {
+            glFeatures: {
+              planningViewBoards: true,
+              workItemListDisplaySettingsDrawer: true,
+            },
+          },
+          savedViewHandler: jest
+            .fn()
+            .mockResolvedValue(savedViewResponseFactory({ savedViews: [savedView] })),
+          stubs: {
+            WorkItemsSavedViewsSelectors: savedViewsSelectorsStub,
+            BoardView: boardViewStub,
+          },
+          route: { name: 'savedView', params: { type: 'work_items', view_id: '3' } },
+        });
+        await waitForPromises();
+      };
+
+      it('does not render "Save changes" or "Reset to defaults" buttons before the view mode changes', async () => {
+        await mountSavedViewWithDrawer({ displaySettings: { viewMode: VIEW_MODE_LIST } });
+
+        expect(findResetViewButton().exists()).toBe(false);
+        expect(findUpdateViewButton().exists()).toBe(false);
+      });
+
+      describe('when the view mode is toggled', () => {
+        beforeEach(async () => {
+          await mountSavedViewWithDrawer({ displaySettings: { viewMode: VIEW_MODE_LIST } });
+
+          findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+          await nextTick();
+        });
+
+        it('renders "Save changes" and "Reset to defaults" buttons', () => {
+          expect(findResetViewButton().exists()).toBe(true);
+          expect(findUpdateViewButton().exists()).toBe(true);
+        });
+
+        it('persists the chosen view mode to the localStorage draft', () => {
+          expect(localStorage.setItem).toHaveBeenCalledWith(
+            'full/path-saved-view-3',
+            expect.stringContaining(`"viewMode":"${VIEW_MODE_BOARD}"`),
+          );
+        });
+
+        it('reverts to the saved view mode when "Reset to defaults" is clicked', async () => {
+          findResetViewButton().vm.$emit('click');
+          await nextTick();
+
+          expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_LIST);
+          expect(findResetViewButton().exists()).toBe(false);
+          expect(findUpdateViewButton().exists()).toBe(false);
+        });
+
+        it('sends the chosen view mode in the displaySettings payload when "Save changes" is clicked', async () => {
+          saveSavedView.mockResolvedValue({
+            data: {
+              workItemSavedViewUpdate: {
+                errors: [],
+                savedView: singleSavedView[0],
+              },
+            },
+          });
+
+          await findUpdateViewButton().vm.$emit('click');
+          await waitForPromises();
+
+          expect(saveSavedView).toHaveBeenCalledWith(
+            expect.objectContaining({
+              displaySettings: expect.objectContaining({ viewMode: VIEW_MODE_BOARD }),
+            }),
+          );
         });
       });
     });

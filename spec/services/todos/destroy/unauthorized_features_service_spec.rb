@@ -14,15 +14,15 @@ RSpec.describe Todos::Destroy::UnauthorizedFeaturesService, feature_category: :t
     end
   end
 
-  let!(:todo_mr_non_member)      { create(:todo, user: user, target: mr, project: project) }
-  let!(:todo_mr_non_member2)     { create(:todo, user: another_user, target: mr, project: project) }
-  let!(:todo_mr_member)          { create(:todo, user: project_member, target: mr, project: project) }
-  let!(:todo_issue_non_member)   { create(:todo, user: user, target: issue, project: project) }
-  let!(:todo_issue_non_member2)  { create(:todo, user: another_user, target: issue, project: project) }
-  let!(:todo_issue_member)       { create(:todo, user: project_member, target: issue, project: project) }
-  let!(:commit_todo_non_member)  { create(:on_commit_todo, user: user, project: project) }
-  let!(:commit_todo_non_member2) { create(:on_commit_todo, user: another_user, project: project) }
-  let!(:commit_todo_member)      { create(:on_commit_todo, user: project_member, project: project) }
+  let_it_be(:todo_mr_non_member)      { create(:todo, user: user, target: mr, project: project) }
+  let_it_be(:todo_mr_non_member2)     { create(:todo, user: another_user, target: mr, project: project) }
+  let_it_be(:todo_mr_member)          { create(:todo, user: project_member, target: mr, project: project) }
+  let_it_be(:todo_issue_non_member)   { create(:todo, user: user, target: issue, project: project) }
+  let_it_be(:todo_issue_non_member2)  { create(:todo, user: another_user, target: issue, project: project) }
+  let_it_be(:todo_issue_member)       { create(:todo, user: project_member, target: issue, project: project) }
+  let_it_be(:commit_todo_non_member)  { create(:on_commit_todo, user: user, project: project) }
+  let_it_be(:commit_todo_non_member2) { create(:on_commit_todo, user: another_user, project: project) }
+  let_it_be(:commit_todo_member)      { create(:on_commit_todo, user: project_member, project: project) }
 
   context 'when user_id is provided' do
     subject { described_class.new(project.id, user.id).execute }

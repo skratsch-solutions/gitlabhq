@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /oauth/authorize/native(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/authorize/native(.:format)`
+ * - Path helper: `native_oauth_authorization_path`
+ * - URL helper: `native_oauth_authorization_url`
+ * - controller#action: `oauth/authorizations#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const nativeOauthAuthorizationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/authorize(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/authorize(.:format)`
+ * - Path helper: `oauth_authorization_path`
+ * - URL helper: `oauth_authorization_url`
+ * - controller#action: `oauth/authorizations#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const oauthAuthorizationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/token(.:format)`
+ * - Path helper: `oauth_token_path`
+ * - URL helper: `oauth_token_url`
+ * - controller#action: `oauth/tokens#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +73,13 @@ export const oauthTokenPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/revoke(.:format)`
+ * - Path helper: `oauth_revoke_path`
+ * - URL helper: `oauth_revoke_url`
+ * - controller#action: `oauth/tokens#revoke`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +95,13 @@ export const oauthRevokePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/introspect(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/introspect(.:format)`
+ * - Path helper: `oauth_introspect_path`
+ * - URL helper: `oauth_introspect_url`
+ * - controller#action: `oauth/tokens#introspect`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -92,8 +117,13 @@ export const oauthIntrospectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/applications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/applications(.:format)`
+ * - Path helper: `oauth_applications_path`
+ * - URL helper: `oauth_applications_url`
+ * - controller#action: `oauth/applications#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -109,8 +139,13 @@ export const oauthApplicationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/applications/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/applications/new(.:format)`
+ * - Path helper: `new_oauth_application_path`
+ * - URL helper: `new_oauth_application_url`
+ * - controller#action: `oauth/applications#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -126,8 +161,13 @@ export const newOauthApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/applications/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/applications/:id/edit(.:format)`
+ * - Path helper: `edit_oauth_application_path`
+ * - URL helper: `edit_oauth_application_url`
+ * - controller#action: `oauth/applications#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -144,8 +184,13 @@ export const editOauthApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/applications/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/applications/:id(.:format)`
+ * - Path helper: `oauth_application_path`
+ * - URL helper: `oauth_application_url`
+ * - controller#action: `oauth/applications#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -162,8 +207,13 @@ export const oauthApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/authorized_applications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/authorized_applications(.:format)`
+ * - Path helper: `oauth_authorized_applications_path`
+ * - URL helper: `oauth_authorized_applications_url`
+ * - controller#action: `oauth/authorized_applications#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -179,8 +229,13 @@ export const oauthAuthorizedApplicationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/authorized_applications/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/authorized_applications/:id(.:format)`
+ * - Path helper: `oauth_authorized_application_path`
+ * - URL helper: `oauth_authorized_application_url`
+ * - controller#action: `oauth/authorized_applications#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -197,8 +252,13 @@ export const oauthAuthorizedApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/token/info(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/token/info(.:format)`
+ * - Path helper: `oauth_token_info_path`
+ * - URL helper: `oauth_token_info_url`
+ * - controller#action: `oauth/token_info#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -214,8 +274,13 @@ export const oauthTokenInfoPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/applications/:id/renew(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/applications/:id/renew(.:format)`
+ * - Path helper: `renew_oauth_application_path`
+ * - URL helper: `renew_oauth_application_url`
+ * - controller#action: `oauth/applications#renew`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -232,8 +297,13 @@ export const renewOauthApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /.well-known/oauth-protected-resource(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/.well-known/oauth-protected-resource(.:format)`
+ * - Path helper: `oauth_protected_resource_metadata_path`
+ * - URL helper: `oauth_protected_resource_metadata_url`
+ * - controller#action: `oauth/protected_resource_metadata#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -249,8 +319,13 @@ export const oauthProtectedResourceMetadataPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/register(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/register(.:format)`
+ * - Path helper: `oauth_register_path`
+ * - URL helper: `oauth_register_url`
+ * - controller#action: `oauth/dynamic_registrations#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -266,8 +341,13 @@ export const oauthRegisterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/userinfo(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/userinfo(.:format)`
+ * - Path helper: `oauth_userinfo_path`
+ * - URL helper: `oauth_userinfo_url`
+ * - controller#action: `doorkeeper/openid_connect/userinfo#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -283,8 +363,13 @@ export const oauthUserinfoPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/discovery/keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/discovery/keys(.:format)`
+ * - Path helper: `oauth_discovery_keys_path`
+ * - URL helper: `oauth_discovery_keys_url`
+ * - controller#action: `jwks#keys`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -300,8 +385,13 @@ export const oauthDiscoveryKeysPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /.well-known/openid-configuration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/.well-known/openid-configuration(.:format)`
+ * - Path helper: `oauth_discovery_provider_path`
+ * - URL helper: `oauth_discovery_provider_url`
+ * - controller#action: `jwks#provider`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -317,8 +407,13 @@ export const oauthDiscoveryProviderPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /.well-known/webfinger(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/.well-known/webfinger(.:format)`
+ * - Path helper: `oauth_discovery_webfinger_path`
+ * - URL helper: `oauth_discovery_webfinger_url`
+ * - controller#action: `jwks#webfinger`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -334,8 +429,13 @@ export const oauthDiscoveryWebfingerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/authorize_device(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/authorize_device(.:format)`
+ * - Path helper: `oauth_device_codes_create_path`
+ * - URL helper: `oauth_device_codes_create_url`
+ * - controller#action: `doorkeeper/device_authorization_grant/device_codes#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -351,8 +451,13 @@ export const oauthDeviceCodesCreatePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/device(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/device(.:format)`
+ * - Path helper: `oauth_device_authorizations_index_path`
+ * - URL helper: `oauth_device_authorizations_index_url`
+ * - controller#action: `oauth/device_authorizations#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -368,8 +473,13 @@ export const oauthDeviceAuthorizationsIndexPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /oauth/device(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/oauth/device(.:format)`
+ * - Path helper: `oauth_device_authorizations_authorize_path`
+ * - URL helper: `oauth_device_authorizations_authorize_url`
+ * - controller#action: `oauth/device_authorizations#authorize`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -385,8 +495,13 @@ export const oauthDeviceAuthorizationsAuthorizePath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/oauth_application_id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/oauth_application_id(.:format)`
+ * - Path helper: `jira_connect_oauth_application_id_options_path`
+ * - URL helper: `jira_connect_oauth_application_id_options_url`
+ * - controller#action: `jira_connect/oauth_application_ids#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -402,8 +517,13 @@ export const jiraConnectOauthApplicationIdOptionsPath = /*#__PURE__*/ (...args) 
 };
 
 /**
- * Generates rails route to
- * /search(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/search(.:format)`
+ * - Path helper: `search_path`
+ * - URL helper: `search_url`
+ * - controller#action: `search#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -419,8 +539,13 @@ export const searchPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /search/autocomplete(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/search/autocomplete(.:format)`
+ * - Path helper: `search_autocomplete_path`
+ * - URL helper: `search_autocomplete_url`
+ * - controller#action: `search#autocomplete`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -436,8 +561,13 @@ export const searchAutocompletePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /search/settings(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/search/settings(.:format)`
+ * - Path helper: `search_settings_path`
+ * - URL helper: `search_settings_url`
+ * - controller#action: `search#settings`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -453,8 +583,13 @@ export const searchSettingsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /search/count(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/search/count(.:format)`
+ * - Path helper: `search_count_path`
+ * - URL helper: `search_count_url`
+ * - controller#action: `search#count`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -470,8 +605,13 @@ export const searchCountPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /search/opensearch(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/search/opensearch(.:format)`
+ * - Path helper: `search_opensearch_path`
+ * - URL helper: `search_opensearch_url`
+ * - controller#action: `search#opensearch`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -487,8 +627,13 @@ export const searchOpensearchPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /search/aggregations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/search/aggregations(.:format)`
+ * - Path helper: `search_aggregations_path`
+ * - URL helper: `search_aggregations_url`
+ * - controller#action: `search#aggregations`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -504,8 +649,13 @@ export const searchAggregationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /jwt/auth(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/jwt/auth(.:format)`
+ * - Path helper: `jwt_auth_path`
+ * - URL helper: `jwt_auth_url`
+ * - controller#action: `jwt#auth`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -521,8 +671,13 @@ export const jwtAuthPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /health_check(/:checks)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/health_check(/:checks)(.:format)`
+ * - Path helper: `health_check_path`
+ * - URL helper: `health_check_url`
+ * - controller#action: `health_check#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -538,8 +693,13 @@ export const healthCheckPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /.well-known/terraform.json(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/.well-known/terraform.json(.:format)`
+ * - Path helper: `terraform_services_path`
+ * - URL helper: `terraform_services_url`
+ * - controller#action: `terraform/services#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -555,8 +715,13 @@ export const terraformServicesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/sandbox/mermaid_v11(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/sandbox/mermaid_v11(.:format)`
+ * - Path helper: `sandbox_mermaid_v11_path`
+ * - URL helper: `sandbox_mermaid_v11_url`
+ * - controller#action: `sandbox#mermaid_v11`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -572,8 +737,13 @@ export const sandboxMermaidV11Path = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/sandbox/swagger(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/sandbox/swagger(.:format)`
+ * - Path helper: `sandbox_swagger_path`
+ * - URL helper: `sandbox_swagger_url`
+ * - controller#action: `sandbox#swagger`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -589,8 +759,13 @@ export const sandboxSwaggerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/:model/:model_id/uploads/:secret/:filename(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/:model/:model_id/uploads/:secret/:filename(.:format)`
+ * - Path helper: `banzai_upload_path`
+ * - URL helper: `banzai_upload_url`
+ * - controller#action: `banzai/uploads#show`
+ *
  * @param {any} model
  * @param {any} modelId
  * @param {any} secret
@@ -610,8 +785,13 @@ export const banzaiUploadPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/diagram-proxy/:key(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/diagram-proxy/:key(.:format)`
+ * - Path helper: `diagram_proxy_path`
+ * - URL helper: `diagram_proxy_url`
+ * - controller#action: `banzai/diagram_proxy#proxy`
+ *
  * @param {any} key
  * @param {object | undefined} options
  * @returns {string} route path
@@ -628,8 +808,13 @@ export const diagramProxyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/whats_new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/whats_new(.:format)`
+ * - Path helper: `whats_new_path`
+ * - URL helper: `whats_new_url`
+ * - controller#action: `whats_new#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -645,8 +830,13 @@ export const whatsNewPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/whats_new/mark_as_read(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/whats_new/mark_as_read(.:format)`
+ * - Path helper: `whats_new_mark_as_read_path`
+ * - URL helper: `whats_new_mark_as_read_url`
+ * - controller#action: `whats_new#mark_as_read`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -662,8 +852,13 @@ export const whatsNewMarkAsReadPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/offline(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/offline(.:format)`
+ * - Path helper: `offline_path`
+ * - URL helper: `offline_url`
+ * - controller#action: `pwa#offline`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -679,8 +874,13 @@ export const offlinePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/manifest(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/manifest(.:format)`
+ * - Path helper: `manifest_path`
+ * - URL helper: `manifest_url`
+ * - controller#action: `pwa#manifest`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -696,8 +896,13 @@ export const manifestPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/kubernetes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/kubernetes(.:format)`
+ * - Path helper: `kubernetes_dashboard_index_path`
+ * - URL helper: `kubernetes_dashboard_index_url`
+ * - controller#action: `clusters/agents/dashboard#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -713,8 +918,13 @@ export const kubernetesDashboardIndexPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/kubernetes/:agent_id(/*vueroute)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/kubernetes/:agent_id(/*vueroute)(.:format)`
+ * - Path helper: `kubernetes_dashboard_path`
+ * - URL helper: `kubernetes_dashboard_url`
+ * - controller#action: `clusters/agents/dashboard#show`
+ *
  * @param {any} agentId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -731,8 +941,12 @@ export const kubernetesDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/http_router/version(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/http_router/version(.:format)`
+ * - Path helper: `http_router_version_path`
+ * - URL helper: `http_router_version_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -748,8 +962,13 @@ export const httpRouterVersionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/liveness(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/liveness(.:format)`
+ * - Path helper: `liveness_path`
+ * - URL helper: `liveness_url`
+ * - controller#action: `health#liveness`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -765,8 +984,13 @@ export const livenessPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/readiness(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/readiness(.:format)`
+ * - Path helper: `readiness_path`
+ * - URL helper: `readiness_url`
+ * - controller#action: `health#readiness`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -782,8 +1006,13 @@ export const readinessPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/metrics(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/metrics(.:format)`
+ * - Path helper: `metrics_path`
+ * - URL helper: `metrics_url`
+ * - controller#action: `metrics#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -799,8 +1028,13 @@ export const metricsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/metrics/system(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/metrics/system(.:format)`
+ * - Path helper: `metrics_system_path`
+ * - URL helper: `metrics_system_url`
+ * - controller#action: `metrics#system`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -816,8 +1050,12 @@ export const metricsSystemPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/peek
+ * Generates the Rails route:
+ *
+ * - href: `/-/peek`
+ * - Path helper: `peek_routes_path`
+ * - URL helper: `peek_routes_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -833,8 +1071,13 @@ export const peekRoutesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/runner_setup/platforms(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/runner_setup/platforms(.:format)`
+ * - Path helper: `runner_setup_platforms_path`
+ * - URL helper: `runner_setup_platforms_url`
+ * - controller#action: `runner_setup#platforms`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -850,8 +1093,13 @@ export const runnerSetupPlatformsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/acme-challenge(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/acme-challenge(.:format)`
+ * - Path helper: `acme_challenge_path`
+ * - URL helper: `acme_challenge_url`
+ * - controller#action: `acme_challenges#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -867,8 +1115,13 @@ export const acmeChallengePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/ide
+ * Generates the Rails route:
+ *
+ * - href: `/-/ide`
+ * - Path helper: `ide_path`
+ * - URL helper: `ide_url`
+ * - controller#action: `ide#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -884,8 +1137,13 @@ export const idePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/ide/project
+ * Generates the Rails route:
+ *
+ * - href: `/-/ide/project`
+ * - Path helper: `ide_project_path`
+ * - URL helper: `ide_project_url`
+ * - controller#action: `ide#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -901,8 +1159,13 @@ export const ideProjectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/ide/oauth_redirect
+ * Generates the Rails route:
+ *
+ * - href: `/-/ide/oauth_redirect`
+ * - Path helper: `ide_oauth_redirect_path`
+ * - URL helper: `ide_oauth_redirect_url`
+ * - controller#action: `ide#oauth_redirect`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -918,8 +1181,13 @@ export const ideOauthRedirectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/ide/project/:project_id/edit
+ * Generates the Rails route:
+ *
+ * - href: `/-/ide/project/:project_id/edit`
+ * - Path helper: `ide_project_edit_path`
+ * - URL helper: `ide_project_edit_url`
+ * - controller#action: `ide#index`
+ *
  * @param {any} projectId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -936,8 +1204,13 @@ export const ideProjectEditPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/ide/project/:project_id/tree
+ * Generates the Rails route:
+ *
+ * - href: `/-/ide/project/:project_id/tree`
+ * - Path helper: `ide_project_tree_path`
+ * - URL helper: `ide_project_tree_url`
+ * - controller#action: `ide#index`
+ *
  * @param {any} projectId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -954,8 +1227,13 @@ export const ideProjectTreePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/ide/project/:project_id/blob
+ * Generates the Rails route:
+ *
+ * - href: `/-/ide/project/:project_id/blob`
+ * - Path helper: `ide_project_blob_path`
+ * - URL helper: `ide_project_blob_url`
+ * - controller#action: `ide#index`
+ *
  * @param {any} projectId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -972,8 +1250,13 @@ export const ideProjectBlobPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/ide/reset_oauth_application_settings
+ * Generates the Rails route:
+ *
+ * - href: `/-/ide/reset_oauth_application_settings`
+ * - Path helper: `ide_reset_oauth_application_settings_path`
+ * - URL helper: `ide_reset_oauth_application_settings_url`
+ * - controller#action: `admin/applications#reset_web_ide_oauth_application_settings`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -989,8 +1272,13 @@ export const ideResetOauthApplicationSettingsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/chaos/leakmem(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/chaos/leakmem(.:format)`
+ * - Path helper: `leakmem_chaos_path`
+ * - URL helper: `leakmem_chaos_url`
+ * - controller#action: `chaos#leakmem`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1006,8 +1294,13 @@ export const leakmemChaosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/chaos/cpu_spin(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/chaos/cpu_spin(.:format)`
+ * - Path helper: `cpu_spin_chaos_path`
+ * - URL helper: `cpu_spin_chaos_url`
+ * - controller#action: `chaos#cpu_spin`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1023,8 +1316,13 @@ export const cpuSpinChaosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/chaos/db_spin(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/chaos/db_spin(.:format)`
+ * - Path helper: `db_spin_chaos_path`
+ * - URL helper: `db_spin_chaos_url`
+ * - controller#action: `chaos#db_spin`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1040,8 +1338,13 @@ export const dbSpinChaosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/chaos/sleep(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/chaos/sleep(.:format)`
+ * - Path helper: `sleep_chaos_path`
+ * - URL helper: `sleep_chaos_url`
+ * - controller#action: `chaos#sleep`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1057,8 +1360,13 @@ export const sleepChaosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/chaos/kill(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/chaos/kill(.:format)`
+ * - Path helper: `kill_chaos_path`
+ * - URL helper: `kill_chaos_url`
+ * - controller#action: `chaos#kill`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1074,8 +1382,13 @@ export const killChaosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/chaos/quit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/chaos/quit(.:format)`
+ * - Path helper: `quit_chaos_path`
+ * - URL helper: `quit_chaos_url`
+ * - controller#action: `chaos#quit`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1091,8 +1404,13 @@ export const quitChaosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/chaos/gc(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/chaos/gc(.:format)`
+ * - Path helper: `gc_chaos_path`
+ * - URL helper: `gc_chaos_url`
+ * - controller#action: `chaos#gc`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1108,8 +1426,13 @@ export const gcChaosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/invites/:id/accept(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/invites/:id/accept(.:format)`
+ * - Path helper: `accept_invite_path`
+ * - URL helper: `accept_invite_url`
+ * - controller#action: `invites#accept`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1126,8 +1449,13 @@ export const acceptInvitePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/invites/:id/decline(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/invites/:id/decline(.:format)`
+ * - Path helper: `decline_invite_path`
+ * - URL helper: `decline_invite_url`
+ * - controller#action: `invites#decline`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1144,8 +1472,13 @@ export const declineInvitePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/invites/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/invites/:id(.:format)`
+ * - Path helper: `invite_path`
+ * - URL helper: `invite_url`
+ * - controller#action: `invites#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1162,8 +1495,13 @@ export const invitePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/sent_notifications/:id/unsubscribe(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/sent_notifications/:id/unsubscribe(.:format)`
+ * - Path helper: `unsubscribe_sent_notification_path`
+ * - URL helper: `unsubscribe_sent_notification_url`
+ * - controller#action: `sent_notifications#unsubscribe`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1180,8 +1518,13 @@ export const unsubscribeSentNotificationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/awarded_achievements/:id/accept(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/awarded_achievements/:id/accept(.:format)`
+ * - Path helper: `accept_awarded_achievement_path`
+ * - URL helper: `accept_awarded_achievement_url`
+ * - controller#action: `achievements/awarded_achievements#accept`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1198,8 +1541,13 @@ export const acceptAwardedAchievementPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/abuse_reports/add_category(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/abuse_reports/add_category(.:format)`
+ * - Path helper: `add_category_abuse_reports_path`
+ * - URL helper: `add_category_abuse_reports_url`
+ * - controller#action: `abuse_reports#add_category`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1215,8 +1563,13 @@ export const addCategoryAbuseReportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/abuse_reports(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/abuse_reports(.:format)`
+ * - Path helper: `abuse_reports_path`
+ * - URL helper: `abuse_reports_url`
+ * - controller#action: `abuse_reports#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1232,8 +1585,13 @@ export const abuseReportsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jwks(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jwks(.:format)`
+ * - Path helper: `jwks_path`
+ * - URL helper: `jwks_url`
+ * - controller#action: `jwks#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1249,8 +1607,13 @@ export const jwksPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:snippet_id/notes/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:snippet_id/notes/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_snippet_note_path`
+ * - URL helper: `toggle_award_emoji_snippet_note_url`
+ * - controller#action: `snippets/notes#toggle_award_emoji`
+ *
  * @param {any} snippetId
  * @param {any} id
  * @param {object | undefined} options
@@ -1268,8 +1631,13 @@ export const toggleAwardEmojiSnippetNotePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_snippet_path`
+ * - URL helper: `toggle_award_emoji_snippet_url`
+ * - controller#action: `snippets#toggle_award_emoji`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1286,8 +1654,13 @@ export const toggleAwardEmojiSnippetPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/emails/confirmation/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/emails/confirmation/new(.:format)`
+ * - Path helper: `new_email_confirmation_path`
+ * - URL helper: `new_email_confirmation_url`
+ * - controller#action: `confirmations#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1303,8 +1676,13 @@ export const newEmailConfirmationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/profile/emails/confirmation(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/profile/emails/confirmation(.:format)`
+ * - Path helper: `email_confirmation_path`
+ * - URL helper: `email_confirmation_url`
+ * - controller#action: `confirmations#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1320,8 +1698,13 @@ export const emailConfirmationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/mailgun/webhooks(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/mailgun/webhooks(.:format)`
+ * - Path helper: `mailgun_webhooks_path`
+ * - URL helper: `mailgun_webhooks_url`
+ * - controller#action: `mailgun/webhooks#process_webhook`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1337,8 +1720,13 @@ export const mailgunWebhooksPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/members/mailgun/permanent_failures(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/members/mailgun/permanent_failures(.:format)`
+ * - Path helper: `members_mailgun_permanent_failures_path`
+ * - URL helper: `members_mailgun_permanent_failures_url`
+ * - controller#action: `mailgun/webhooks#process_webhook`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1354,8 +1742,13 @@ export const membersMailgunPermanentFailuresPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/timelogs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/timelogs(.:format)`
+ * - Path helper: `timelogs_path`
+ * - URL helper: `timelogs_url`
+ * - controller#action: `time_tracking/timelogs#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1371,8 +1764,13 @@ export const timelogsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/track_namespace_visits(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/track_namespace_visits(.:format)`
+ * - Path helper: `track_namespace_visits_path`
+ * - URL helper: `track_namespace_visits_url`
+ * - controller#action: `users/namespace_visits#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1388,8 +1786,13 @@ export const trackNamespaceVisitsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/external_redirect(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/external_redirect(.:format)`
+ * - Path helper: `external_redirect_path`
+ * - URL helper: `external_redirect_url`
+ * - controller#action: `external_redirect/external_redirect#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1405,8 +1808,13 @@ export const externalRedirectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/collect_events(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/collect_events(.:format)`
+ * - Path helper: `event_forwarding_path`
+ * - URL helper: `event_forwarding_url`
+ * - controller#action: `event_forward/event_forward#forward`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1422,8 +1830,13 @@ export const eventForwardingPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/experimental/o11y_service_settings(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/experimental/o11y_service_settings(.:format)`
+ * - Path helper: `experimental_o11y_service_settings_path`
+ * - URL helper: `experimental_o11y_service_settings_url`
+ * - controller#action: `experimental/o11y_service_settings#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1439,8 +1852,13 @@ export const experimentalO11yServiceSettingsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/experimental/o11y_service_settings/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/experimental/o11y_service_settings/new(.:format)`
+ * - Path helper: `new_experimental_o11y_service_setting_path`
+ * - URL helper: `new_experimental_o11y_service_setting_url`
+ * - controller#action: `experimental/o11y_service_settings#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1456,8 +1874,13 @@ export const newExperimentalO11yServiceSettingPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /-/experimental/o11y_service_settings/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/experimental/o11y_service_settings/:id/edit(.:format)`
+ * - Path helper: `edit_experimental_o11y_service_setting_path`
+ * - URL helper: `edit_experimental_o11y_service_setting_url`
+ * - controller#action: `experimental/o11y_service_settings#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1474,8 +1897,13 @@ export const editExperimentalO11yServiceSettingPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /-/experimental/o11y_service_settings/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/experimental/o11y_service_settings/:id(.:format)`
+ * - Path helper: `experimental_o11y_service_setting_path`
+ * - URL helper: `experimental_o11y_service_setting_url`
+ * - controller#action: `experimental/o11y_service_settings#update`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1492,8 +1920,13 @@ export const experimentalO11yServiceSettingPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups(.:format)`
+ * - Path helper: `groups_path`
+ * - URL helper: `groups_url`
+ * - controller#action: `groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1509,8 +1942,13 @@ export const groupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/new(.:format)`
+ * - Path helper: `new_group_path`
+ * - URL helper: `new_group_url`
+ * - controller#action: `groups#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1526,8 +1964,13 @@ export const newGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/request_access(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/request_access(.:format)`
+ * - Path helper: `request_access_group_group_members_path`
+ * - URL helper: `request_access_group_group_members_url`
+ * - controller#action: `groups/group_members#request_access`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1544,8 +1987,13 @@ export const requestAccessGroupGroupMembersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/:id/approve_access_request(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/:id/approve_access_request(.:format)`
+ * - Path helper: `approve_access_request_group_group_member_path`
+ * - URL helper: `approve_access_request_group_group_member_url`
+ * - controller#action: `groups/group_members#approve_access_request`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1563,8 +2011,13 @@ export const approveAccessRequestGroupGroupMemberPath = /*#__PURE__*/ (...args) 
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/epics/:epic_id/notes/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/epics/:epic_id/notes/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_group_epic_note_path`
+ * - URL helper: `toggle_award_emoji_group_epic_note_url`
+ * - controller#action: `groups/epics/notes#toggle_award_emoji`
+ *
  * @param {any} groupId
  * @param {any} epicId
  * @param {any} id
@@ -1583,8 +2036,13 @@ export const toggleAwardEmojiGroupEpicNotePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/epics/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/epics/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_group_epic_path`
+ * - URL helper: `toggle_award_emoji_group_epic_url`
+ * - controller#action: `groups/epics#toggle_award_emoji`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1602,8 +2060,13 @@ export const toggleAwardEmojiGroupEpicPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/connect(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/connect(.:format)`
+ * - Path helper: `connect_group_clusters_path`
+ * - URL helper: `connect_group_clusters_url`
+ * - controller#action: `groups/clusters#connect`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1620,8 +2083,13 @@ export const connectGroupClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/new_cluster_docs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/new_cluster_docs(.:format)`
+ * - Path helper: `new_cluster_docs_group_clusters_path`
+ * - URL helper: `new_cluster_docs_group_clusters_url`
+ * - controller#action: `groups/clusters#new_cluster_docs`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1638,8 +2106,13 @@ export const newClusterDocsGroupClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/create_user(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/create_user(.:format)`
+ * - Path helper: `create_user_group_clusters_path`
+ * - URL helper: `create_user_group_clusters_url`
+ * - controller#action: `groups/clusters#create_user`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1656,8 +2129,13 @@ export const createUserGroupClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/:cluster_id/integration/create_or_update(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/:cluster_id/integration/create_or_update(.:format)`
+ * - Path helper: `create_or_update_group_cluster_integration_path`
+ * - URL helper: `create_or_update_group_cluster_integration_url`
+ * - controller#action: `groups/clusters/integrations#create_or_update`
+ *
  * @param {any} groupId
  * @param {any} clusterId
  * @param {object | undefined} options
@@ -1675,8 +2153,13 @@ export const createOrUpdateGroupClusterIntegrationPath = /*#__PURE__*/ (...args)
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/:id/environments(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/:id/environments(.:format)`
+ * - Path helper: `environments_group_cluster_path`
+ * - URL helper: `environments_group_cluster_url`
+ * - controller#action: `groups/clusters#environments`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1694,8 +2177,13 @@ export const environmentsGroupClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/:id/cluster_status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/:id/cluster_status(.:format)`
+ * - Path helper: `cluster_status_group_cluster_path`
+ * - URL helper: `cluster_status_group_cluster_url`
+ * - controller#action: `groups/clusters#cluster_status`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1713,8 +2201,13 @@ export const clusterStatusGroupClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/:id/clear_cache(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/:id/clear_cache(.:format)`
+ * - Path helper: `clear_cache_group_cluster_path`
+ * - URL helper: `clear_cache_group_cluster_url`
+ * - controller#action: `groups/clusters#clear_cache`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1732,8 +2225,13 @@ export const clearCacheGroupClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/:id/migrate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/:id/migrate(.:format)`
+ * - Path helper: `migrate_group_cluster_path`
+ * - URL helper: `migrate_group_cluster_url`
+ * - controller#action: `groups/clusters#migrate`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1751,8 +2249,13 @@ export const migrateGroupClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/:id/update_migration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/:id/update_migration(.:format)`
+ * - Path helper: `update_migration_group_cluster_path`
+ * - URL helper: `update_migration_group_cluster_url`
+ * - controller#action: `groups/clusters#update_migration`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1770,8 +2273,13 @@ export const updateMigrationGroupClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters(.:format)`
+ * - Path helper: `group_clusters_path`
+ * - URL helper: `group_clusters_url`
+ * - controller#action: `groups/clusters#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1788,8 +2296,13 @@ export const groupClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/clusters/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/clusters/:id(.:format)`
+ * - Path helper: `group_cluster_path`
+ * - URL helper: `group_cluster_url`
+ * - controller#action: `groups/clusters#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1807,8 +2320,13 @@ export const groupClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/projects(.:format)`
+ * - Path helper: `projects_path`
+ * - URL helper: `projects_url`
+ * - controller#action: `projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1824,8 +2342,13 @@ export const projectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /projects/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/projects/new(.:format)`
+ * - Path helper: `new_project_path`
+ * - URL helper: `new_project_url`
+ * - controller#action: `projects#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1841,8 +2364,13 @@ export const newProjectPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/connect(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/connect(.:format)`
+ * - Path helper: `connect_admin_clusters_path`
+ * - URL helper: `connect_admin_clusters_url`
+ * - controller#action: `admin/clusters#connect`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1858,8 +2386,13 @@ export const connectAdminClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/new_cluster_docs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/new_cluster_docs(.:format)`
+ * - Path helper: `new_cluster_docs_admin_clusters_path`
+ * - URL helper: `new_cluster_docs_admin_clusters_url`
+ * - controller#action: `admin/clusters#new_cluster_docs`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1875,8 +2408,13 @@ export const newClusterDocsAdminClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/create_user(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/create_user(.:format)`
+ * - Path helper: `create_user_admin_clusters_path`
+ * - URL helper: `create_user_admin_clusters_url`
+ * - controller#action: `admin/clusters#create_user`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -1892,8 +2430,13 @@ export const createUserAdminClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/:cluster_id/integration/create_or_update(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/:cluster_id/integration/create_or_update(.:format)`
+ * - Path helper: `create_or_update_admin_cluster_integration_path`
+ * - URL helper: `create_or_update_admin_cluster_integration_url`
+ * - controller#action: `admin/clusters/integrations#create_or_update`
+ *
  * @param {any} clusterId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1910,8 +2453,13 @@ export const createOrUpdateAdminClusterIntegrationPath = /*#__PURE__*/ (...args)
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/:id/environments(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/:id/environments(.:format)`
+ * - Path helper: `environments_admin_cluster_path`
+ * - URL helper: `environments_admin_cluster_url`
+ * - controller#action: `admin/clusters#environments`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1928,8 +2476,13 @@ export const environmentsAdminClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/:id/cluster_status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/:id/cluster_status(.:format)`
+ * - Path helper: `cluster_status_admin_cluster_path`
+ * - URL helper: `cluster_status_admin_cluster_url`
+ * - controller#action: `admin/clusters#cluster_status`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1946,8 +2499,13 @@ export const clusterStatusAdminClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/:id/clear_cache(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/:id/clear_cache(.:format)`
+ * - Path helper: `clear_cache_admin_cluster_path`
+ * - URL helper: `clear_cache_admin_cluster_url`
+ * - controller#action: `admin/clusters#clear_cache`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1964,8 +2522,13 @@ export const clearCacheAdminClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/:id/migrate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/:id/migrate(.:format)`
+ * - Path helper: `migrate_admin_cluster_path`
+ * - URL helper: `migrate_admin_cluster_url`
+ * - controller#action: `admin/clusters#migrate`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1982,8 +2545,13 @@ export const migrateAdminClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/:id/update_migration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/:id/update_migration(.:format)`
+ * - Path helper: `update_migration_admin_cluster_path`
+ * - URL helper: `update_migration_admin_cluster_url`
+ * - controller#action: `admin/clusters#update_migration`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2000,8 +2568,13 @@ export const updateMigrationAdminClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters(.:format)`
+ * - Path helper: `admin_clusters_path`
+ * - URL helper: `admin_clusters_url`
+ * - controller#action: `admin/clusters#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2017,8 +2590,13 @@ export const adminClustersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /admin/clusters/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/admin/clusters/:id(.:format)`
+ * - Path helper: `admin_cluster_path`
+ * - URL helper: `admin_cluster_url`
+ * - controller#action: `admin/clusters#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2035,8 +2613,13 @@ export const adminClusterPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/sign_in(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/sign_in(.:format)`
+ * - Path helper: `new_user_session_path`
+ * - URL helper: `new_user_session_url`
+ * - controller#action: `sessions#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2052,8 +2635,13 @@ export const newUserSessionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/sign_in(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/sign_in(.:format)`
+ * - Path helper: `user_session_path`
+ * - URL helper: `user_session_url`
+ * - controller#action: `sessions#create`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2069,8 +2657,13 @@ export const userSessionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/sign_out(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/sign_out(.:format)`
+ * - Path helper: `destroy_user_session_path`
+ * - URL helper: `destroy_user_session_url`
+ * - controller#action: `sessions#destroy`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2086,184 +2679,299 @@ export const destroyUserSessionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/auth/alicloud(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/alicloud(.:format)`
+ * - Path helper: `user_alicloud_omniauth_authorize_path`
+ * - URL helper: `user_alicloud_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userAlicloudOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"alicloud"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/alicloud/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/alicloud/callback(.:format)`
+ * - Path helper: `user_alicloud_omniauth_callback_path`
+ * - URL helper: `user_alicloud_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#alicloud`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userAlicloudOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"alicloud"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/github(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/github(.:format)`
+ * - Path helper: `user_github_omniauth_authorize_path`
+ * - URL helper: `user_github_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGithubOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"github"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/github/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/github/callback(.:format)`
+ * - Path helper: `user_github_omniauth_callback_path`
+ * - URL helper: `user_github_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#github`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGithubOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"github"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/bitbucket(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/bitbucket(.:format)`
+ * - Path helper: `user_bitbucket_omniauth_authorize_path`
+ * - URL helper: `user_bitbucket_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userBitbucketOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"bitbucket"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/bitbucket/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/bitbucket/callback(.:format)`
+ * - Path helper: `user_bitbucket_omniauth_callback_path`
+ * - URL helper: `user_bitbucket_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#bitbucket`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userBitbucketOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"bitbucket"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/gitlab(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/gitlab(.:format)`
+ * - Path helper: `user_gitlab_omniauth_authorize_path`
+ * - URL helper: `user_gitlab_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGitlabOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"gitlab"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/gitlab/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/gitlab/callback(.:format)`
+ * - Path helper: `user_gitlab_omniauth_callback_path`
+ * - URL helper: `user_gitlab_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#gitlab`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGitlabOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"gitlab"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/google_oauth2(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/google_oauth2(.:format)`
+ * - Path helper: `user_google_oauth2_omniauth_authorize_path`
+ * - URL helper: `user_google_oauth2_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGoogleOauth2OmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"google_oauth2"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/google_oauth2/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/google_oauth2/callback(.:format)`
+ * - Path helper: `user_google_oauth2_omniauth_callback_path`
+ * - URL helper: `user_google_oauth2_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#google_oauth2`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGoogleOauth2OmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"google_oauth2"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/jwt(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/jwt(.:format)`
+ * - Path helper: `user_jwt_omniauth_authorize_path`
+ * - URL helper: `user_jwt_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userJwtOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"jwt"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/jwt/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/jwt/callback(.:format)`
+ * - Path helper: `user_jwt_omniauth_callback_path`
+ * - URL helper: `user_jwt_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#jwt`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userJwtOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"jwt"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/auth0(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/auth0(.:format)`
+ * - Path helper: `user_auth0_omniauth_authorize_path`
+ * - URL helper: `user_auth0_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userAuth0OmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"auth0"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/auth0/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/auth0/callback(.:format)`
+ * - Path helper: `user_auth0_omniauth_callback_path`
+ * - URL helper: `user_auth0_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#auth0`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userAuth0OmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"auth0"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/salesforce(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/salesforce(.:format)`
+ * - Path helper: `user_salesforce_omniauth_authorize_path`
+ * - URL helper: `user_salesforce_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userSalesforceOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"salesforce"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/salesforce/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/salesforce/callback(.:format)`
+ * - Path helper: `user_salesforce_omniauth_callback_path`
+ * - URL helper: `user_salesforce_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#salesforce`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userSalesforceOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"salesforce"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/atlassian_oauth2(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/atlassian_oauth2(.:format)`
+ * - Path helper: `user_atlassian_oauth2_omniauth_authorize_path`
+ * - URL helper: `user_atlassian_oauth2_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userAtlassianOauth2OmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"atlassian_oauth2"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/atlassian_oauth2/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/atlassian_oauth2/callback(.:format)`
+ * - Path helper: `user_atlassian_oauth2_omniauth_callback_path`
+ * - URL helper: `user_atlassian_oauth2_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#atlassian_oauth2`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userAtlassianOauth2OmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"atlassian_oauth2"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/openid_connect(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/openid_connect(.:format)`
+ * - Path helper: `user_openid_connect_omniauth_authorize_path`
+ * - URL helper: `user_openid_connect_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userOpenidConnectOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"openid_connect"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/openid_connect/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/openid_connect/callback(.:format)`
+ * - Path helper: `user_openid_connect_omniauth_callback_path`
+ * - URL helper: `user_openid_connect_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#openid_connect`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userOpenidConnectOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"openid_connect"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/group_saml(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/group_saml(.:format)`
+ * - Path helper: `user_group_saml_omniauth_authorize_path`
+ * - URL helper: `user_group_saml_omniauth_authorize_url`
+ * - controller#action: `omniauth_callbacks#passthru`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGroupSamlOmniauthAuthorizePath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"group_saml"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/auth/group_saml/callback(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/auth/group_saml/callback(.:format)`
+ * - Path helper: `user_group_saml_omniauth_callback_path`
+ * - URL helper: `user_group_saml_omniauth_callback_url`
+ * - controller#action: `omniauth_callbacks#group_saml`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const userGroupSamlOmniauthCallbackPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"group_saml"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /users/password/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/password/new(.:format)`
+ * - Path helper: `new_user_password_path`
+ * - URL helper: `new_user_password_url`
+ * - controller#action: `passwords#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2279,8 +2987,13 @@ export const newUserPasswordPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/password/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/password/edit(.:format)`
+ * - Path helper: `edit_user_password_path`
+ * - URL helper: `edit_user_password_url`
+ * - controller#action: `passwords#edit`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2296,8 +3009,13 @@ export const editUserPasswordPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/password(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/password(.:format)`
+ * - Path helper: `user_password_path`
+ * - URL helper: `user_password_url`
+ * - controller#action: `passwords#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2313,8 +3031,13 @@ export const userPasswordPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/cancel(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/cancel(.:format)`
+ * - Path helper: `cancel_user_registration_path`
+ * - URL helper: `cancel_user_registration_url`
+ * - controller#action: `registrations#cancel`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2330,8 +3053,13 @@ export const cancelUserRegistrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/sign_up(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/sign_up(.:format)`
+ * - Path helper: `new_user_registration_path`
+ * - URL helper: `new_user_registration_url`
+ * - controller#action: `registrations#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2347,8 +3075,13 @@ export const newUserRegistrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/edit(.:format)`
+ * - Path helper: `edit_user_registration_path`
+ * - URL helper: `edit_user_registration_url`
+ * - controller#action: `registrations#edit`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2364,8 +3097,13 @@ export const editUserRegistrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users(.:format)`
+ * - Path helper: `user_registration_path`
+ * - URL helper: `user_registration_url`
+ * - controller#action: `registrations#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2381,8 +3119,13 @@ export const userRegistrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/confirmation/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/confirmation/new(.:format)`
+ * - Path helper: `new_user_confirmation_path`
+ * - URL helper: `new_user_confirmation_url`
+ * - controller#action: `confirmations#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2398,8 +3141,13 @@ export const newUserConfirmationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/confirmation(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/confirmation(.:format)`
+ * - Path helper: `user_confirmation_path`
+ * - URL helper: `user_confirmation_url`
+ * - controller#action: `confirmations#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2415,8 +3163,13 @@ export const userConfirmationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/unlock/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/unlock/new(.:format)`
+ * - Path helper: `new_user_unlock_path`
+ * - URL helper: `new_user_unlock_url`
+ * - controller#action: `devise/unlocks#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2432,8 +3185,13 @@ export const newUserUnlockPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /users/unlock(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/users/unlock(.:format)`
+ * - Path helper: `user_unlock_path`
+ * - URL helper: `user_unlock_url`
+ * - controller#action: `devise/unlocks#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2449,8 +3207,13 @@ export const userUnlockPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/security/vulnerabilities/:vulnerability_id/notes/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/security/vulnerabilities/:vulnerability_id/notes/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_project_security_vulnerability_note_path`
+ * - URL helper: `toggle_award_emoji_project_security_vulnerability_note_url`
+ * - controller#action: `projects/security/vulnerabilities/notes#toggle_award_emoji`
+ *
  * @param {string} projectFullPath
  * @param {any} vulnerabilityId
  * @param {any} id
@@ -2471,8 +3234,13 @@ export const toggleAwardEmojiProjectSecurityVulnerabilityNotePath = /*#__PURE__*
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/project_members/request_access(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/project_members/request_access(.:format)`
+ * - Path helper: `request_access_project_project_members_path`
+ * - URL helper: `request_access_project_project_members_url`
+ * - controller#action: `projects/project_members#request_access`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2491,8 +3259,13 @@ export const requestAccessProjectProjectMembersPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/project_members/:id/approve_access_request(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/project_members/:id/approve_access_request(.:format)`
+ * - Path helper: `approve_access_request_project_project_member_path`
+ * - URL helper: `approve_access_request_project_project_member_url`
+ * - controller#action: `projects/project_members#approve_access_request`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2512,8 +3285,13 @@ export const approveAccessRequestProjectProjectMemberPath = /*#__PURE__*/ (proje
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/connect(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/connect(.:format)`
+ * - Path helper: `connect_project_clusters_path`
+ * - URL helper: `connect_project_clusters_url`
+ * - controller#action: `projects/clusters#connect`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2532,8 +3310,13 @@ export const connectProjectClustersPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/new_cluster_docs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/new_cluster_docs(.:format)`
+ * - Path helper: `new_cluster_docs_project_clusters_path`
+ * - URL helper: `new_cluster_docs_project_clusters_url`
+ * - controller#action: `projects/clusters#new_cluster_docs`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2552,8 +3335,13 @@ export const newClusterDocsProjectClustersPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/create_user(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/create_user(.:format)`
+ * - Path helper: `create_user_project_clusters_path`
+ * - URL helper: `create_user_project_clusters_url`
+ * - controller#action: `projects/clusters#create_user`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2572,8 +3360,13 @@ export const createUserProjectClustersPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/:cluster_id/integration/create_or_update(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/:cluster_id/integration/create_or_update(.:format)`
+ * - Path helper: `create_or_update_project_cluster_integration_path`
+ * - URL helper: `create_or_update_project_cluster_integration_url`
+ * - controller#action: `projects/clusters/integrations#create_or_update`
+ *
  * @param {string} projectFullPath
  * @param {any} clusterId
  * @param {object | undefined} options
@@ -2593,8 +3386,13 @@ export const createOrUpdateProjectClusterIntegrationPath = /*#__PURE__*/ (projec
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/:id/environments(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/:id/environments(.:format)`
+ * - Path helper: `environments_project_cluster_path`
+ * - URL helper: `environments_project_cluster_url`
+ * - controller#action: `projects/clusters#environments`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2614,8 +3412,13 @@ export const environmentsProjectClusterPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/:id/cluster_status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/:id/cluster_status(.:format)`
+ * - Path helper: `cluster_status_project_cluster_path`
+ * - URL helper: `cluster_status_project_cluster_url`
+ * - controller#action: `projects/clusters#cluster_status`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2635,8 +3438,13 @@ export const clusterStatusProjectClusterPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/:id/clear_cache(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/:id/clear_cache(.:format)`
+ * - Path helper: `clear_cache_project_cluster_path`
+ * - URL helper: `clear_cache_project_cluster_url`
+ * - controller#action: `projects/clusters#clear_cache`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2656,8 +3464,13 @@ export const clearCacheProjectClusterPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/:id/migrate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/:id/migrate(.:format)`
+ * - Path helper: `migrate_project_cluster_path`
+ * - URL helper: `migrate_project_cluster_url`
+ * - controller#action: `projects/clusters#migrate`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2677,8 +3490,13 @@ export const migrateProjectClusterPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/:id/update_migration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/:id/update_migration(.:format)`
+ * - Path helper: `update_migration_project_cluster_path`
+ * - URL helper: `update_migration_project_cluster_url`
+ * - controller#action: `projects/clusters#update_migration`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2698,8 +3516,13 @@ export const updateMigrationProjectClusterPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters(.:format)`
+ * - Path helper: `project_clusters_path`
+ * - URL helper: `project_clusters_url`
+ * - controller#action: `projects/clusters#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2718,8 +3541,13 @@ export const projectClustersPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/clusters/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/clusters/:id(.:format)`
+ * - Path helper: `project_cluster_path`
+ * - URL helper: `project_cluster_url`
+ * - controller#action: `projects/clusters#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2739,8 +3567,13 @@ export const projectClusterPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_project_issue_path`
+ * - URL helper: `toggle_award_emoji_project_issue_url`
+ * - controller#action: `projects/issues#toggle_award_emoji`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2760,8 +3593,13 @@ export const toggleAwardEmojiProjectIssuePath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merge_requests/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merge_requests/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_project_merge_request_path`
+ * - URL helper: `toggle_award_emoji_project_merge_request_url`
+ * - controller#action: `projects/merge_requests#toggle_award_emoji`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2781,8 +3619,13 @@ export const toggleAwardEmojiProjectMergeRequestPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_project_snippet_path`
+ * - URL helper: `toggle_award_emoji_project_snippet_url`
+ * - controller#action: `projects/snippets#toggle_award_emoji`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2802,8 +3645,13 @@ export const toggleAwardEmojiProjectSnippetPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/notes/:id/toggle_award_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/notes/:id/toggle_award_emoji(.:format)`
+ * - Path helper: `toggle_award_emoji_project_note_path`
+ * - URL helper: `toggle_award_emoji_project_note_url`
+ * - controller#action: `projects/notes#toggle_award_emoji`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2823,8 +3671,13 @@ export const toggleAwardEmojiProjectNotePath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /snippets/:id/raw
+ * Generates the Rails route:
+ *
+ * - href: `/snippets/:id/raw`
+ * - Path helper: `deprecated_path`
+ * - URL helper: `deprecated_url`
+ * - controller#action: `snippets#raw`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2841,8 +3694,13 @@ export const deprecatedPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /sitemap(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/sitemap(.:format)`
+ * - Path helper: `sitemap_path`
+ * - URL helper: `sitemap_url`
+ * - controller#action: `sitemap#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2858,8 +3716,13 @@ export const sitemapPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /
+ * Generates the Rails route:
+ *
+ * - href: `/`
+ * - Path helper: `root_path`
+ * - URL helper: `root_url`
+ * - controller#action: `root#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -2875,8 +3738,13 @@ export const rootPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/namespace/:namespace_id/sent_notifications/:id/unsubscribe(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/namespace/:namespace_id/sent_notifications/:id/unsubscribe(.:format)`
+ * - Path helper: `unsubscribe_namespace_sent_notification_path`
+ * - URL helper: `unsubscribe_namespace_sent_notification_url`
+ * - controller#action: `sent_notifications#unsubscribe`
+ *
  * @param {any} namespaceId
  * @param {any} id
  * @param {object | undefined} options

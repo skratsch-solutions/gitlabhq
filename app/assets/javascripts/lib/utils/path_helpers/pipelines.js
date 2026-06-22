@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/settings(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/settings(.:format)`
+ * - Path helper: `project_pipelines_settings_path`
+ * - URL helper: `project_pipelines_settings_url`
+ * - controller#action: `projects/pipelines_settings#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -27,8 +32,13 @@ export const projectPipelinesSettingsPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/charts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/charts(.:format)`
+ * - Path helper: `charts_project_pipelines_path`
+ * - URL helper: `charts_project_pipelines_url`
+ * - controller#action: `projects/pipelines#charts`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -47,8 +57,13 @@ export const chartsProjectPipelinesPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines(/*ref)/latest(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines(/*ref)/latest(.:format)`
+ * - Path helper: `latest_project_pipelines_path`
+ * - URL helper: `latest_project_pipelines_url`
+ * - controller#action: `projects/pipelines#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -67,8 +82,13 @@ export const latestProjectPipelinesPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/stage(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/stage(.:format)`
+ * - Path helper: `stage_project_pipeline_path`
+ * - URL helper: `stage_project_pipeline_url`
+ * - controller#action: `projects/pipelines#stage`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -88,8 +108,13 @@ export const stageProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/cancel(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/cancel(.:format)`
+ * - Path helper: `cancel_project_pipeline_path`
+ * - URL helper: `cancel_project_pipeline_url`
+ * - controller#action: `projects/pipelines#cancel`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -109,8 +134,13 @@ export const cancelProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/retry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/retry(.:format)`
+ * - Path helper: `retry_project_pipeline_path`
+ * - URL helper: `retry_project_pipeline_url`
+ * - controller#action: `projects/pipelines#retry`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -130,8 +160,13 @@ export const retryProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/builds(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/builds(.:format)`
+ * - Path helper: `builds_project_pipeline_path`
+ * - URL helper: `builds_project_pipeline_url`
+ * - controller#action: `projects/pipelines#builds`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -151,8 +186,13 @@ export const buildsProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/failures(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/failures(.:format)`
+ * - Path helper: `failures_project_pipeline_path`
+ * - URL helper: `failures_project_pipeline_url`
+ * - controller#action: `projects/pipelines#failures`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -172,8 +212,13 @@ export const failuresProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/status(.:format)`
+ * - Path helper: `status_project_pipeline_path`
+ * - URL helper: `status_project_pipeline_url`
+ * - controller#action: `projects/pipelines#status`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -193,8 +238,13 @@ export const statusProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/test_report(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/test_report(.:format)`
+ * - Path helper: `test_report_project_pipeline_path`
+ * - URL helper: `test_report_project_pipeline_url`
+ * - controller#action: `projects/pipelines#test_report`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -214,8 +264,13 @@ export const testReportProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/manual_variables(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/manual_variables(.:format)`
+ * - Path helper: `manual_variables_project_pipeline_path`
+ * - URL helper: `manual_variables_project_pipeline_url`
+ * - controller#action: `projects/pipelines#manual_variables`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -235,8 +290,13 @@ export const manualVariablesProjectPipelinePath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id/downloadable_artifacts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id/downloadable_artifacts(.:format)`
+ * - Path helper: `downloadable_artifacts_project_pipeline_path`
+ * - URL helper: `downloadable_artifacts_project_pipeline_url`
+ * - controller#action: `projects/pipelines#downloadable_artifacts`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -256,8 +316,13 @@ export const downloadableArtifactsProjectPipelinePath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:pipeline_id/stages/:stage_name/play_manual(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:pipeline_id/stages/:stage_name/play_manual(.:format)`
+ * - Path helper: `project_pipeline_stage_play_manual_path`
+ * - URL helper: `project_pipeline_stage_play_manual_url`
+ * - controller#action: `projects/pipelines/stages#play_manual`
+ *
  * @param {string} projectFullPath
  * @param {any} pipelineId
  * @param {any} stageName
@@ -278,8 +343,13 @@ export const projectPipelineStagePlayManualPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:pipeline_id/tests/summary(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:pipeline_id/tests/summary(.:format)`
+ * - Path helper: `summary_project_pipeline_tests_path`
+ * - URL helper: `summary_project_pipeline_tests_url`
+ * - controller#action: `projects/pipelines/tests#summary`
+ *
  * @param {string} projectFullPath
  * @param {any} pipelineId
  * @param {object | undefined} options
@@ -299,8 +369,13 @@ export const summaryProjectPipelineTestsPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:pipeline_id/tests/:suite_name(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:pipeline_id/tests/:suite_name(.:format)`
+ * - Path helper: `project_pipeline_test_path`
+ * - URL helper: `project_pipeline_test_url`
+ * - controller#action: `projects/pipelines/tests#show`
+ *
  * @param {string} projectFullPath
  * @param {any} pipelineId
  * @param {any} suiteName
@@ -321,8 +396,13 @@ export const projectPipelineTestPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines(.:format)`
+ * - Path helper: `project_pipelines_path`
+ * - URL helper: `project_pipelines_url`
+ * - controller#action: `projects/pipelines#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -341,8 +421,13 @@ export const projectPipelinesPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/new(.:format)`
+ * - Path helper: `new_project_pipeline_path`
+ * - URL helper: `new_project_pipeline_url`
+ * - controller#action: `projects/pipelines#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -361,8 +446,13 @@ export const newProjectPipelinePath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipelines/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipelines/:id(.:format)`
+ * - Path helper: `project_pipeline_path`
+ * - URL helper: `project_pipeline_url`
+ * - controller#action: `projects/pipelines#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -382,8 +472,13 @@ export const projectPipelinePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipeline_schedules/:id/play(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipeline_schedules/:id/play(.:format)`
+ * - Path helper: `play_project_pipeline_schedule_path`
+ * - URL helper: `play_project_pipeline_schedule_url`
+ * - controller#action: `projects/pipeline_schedules#play`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -403,8 +498,13 @@ export const playProjectPipelineSchedulePath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipeline_schedules/:id/take_ownership(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipeline_schedules/:id/take_ownership(.:format)`
+ * - Path helper: `take_ownership_project_pipeline_schedule_path`
+ * - URL helper: `take_ownership_project_pipeline_schedule_url`
+ * - controller#action: `projects/pipeline_schedules#take_ownership`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -424,8 +524,13 @@ export const takeOwnershipProjectPipelineSchedulePath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipeline_schedules(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipeline_schedules(.:format)`
+ * - Path helper: `project_pipeline_schedules_path`
+ * - URL helper: `project_pipeline_schedules_url`
+ * - controller#action: `projects/pipeline_schedules#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -444,8 +549,13 @@ export const projectPipelineSchedulesPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipeline_schedules/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipeline_schedules/new(.:format)`
+ * - Path helper: `new_project_pipeline_schedule_path`
+ * - URL helper: `new_project_pipeline_schedule_url`
+ * - controller#action: `projects/pipeline_schedules#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -464,8 +574,13 @@ export const newProjectPipelineSchedulePath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipeline_schedules/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipeline_schedules/:id/edit(.:format)`
+ * - Path helper: `edit_project_pipeline_schedule_path`
+ * - URL helper: `edit_project_pipeline_schedule_url`
+ * - controller#action: `projects/pipeline_schedules#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -485,8 +600,13 @@ export const editProjectPipelineSchedulePath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/pipeline_schedules/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/pipeline_schedules/:id(.:format)`
+ * - Path helper: `project_pipeline_schedule_path`
+ * - URL helper: `project_pipeline_schedule_url`
+ * - controller#action: `projects/pipeline_schedules#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options

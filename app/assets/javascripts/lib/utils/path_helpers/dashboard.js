@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /dashboard/home(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/home(.:format)`
+ * - Path helper: `home_dashboard_path`
+ * - URL helper: `home_dashboard_url`
+ * - controller#action: `dashboard#home`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const homeDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/issues(.:format)`
+ * - Path helper: `issues_dashboard_path`
+ * - URL helper: `issues_dashboard_url`
+ * - controller#action: `dashboard#issues_calendar`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const issuesDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/work_items(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/work_items(.:format)`
+ * - Path helper: `work_items_dashboard_path`
+ * - URL helper: `work_items_dashboard_url`
+ * - controller#action: `dashboard#work_items_calendar`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +73,13 @@ export const workItemsDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/merge_requests(.:format)`
+ * - Path helper: `merge_requests_dashboard_path`
+ * - URL helper: `merge_requests_dashboard_url`
+ * - controller#action: `dashboard#merge_requests`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +95,13 @@ export const mergeRequestsDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/activity(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/activity(.:format)`
+ * - Path helper: `activity_dashboard_path`
+ * - URL helper: `activity_dashboard_url`
+ * - controller#action: `dashboard#activity`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -92,8 +117,13 @@ export const activityDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/merge_requests/following(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/merge_requests/following(.:format)`
+ * - Path helper: `merge_requests_following_dashboard_path`
+ * - URL helper: `merge_requests_following_dashboard_url`
+ * - controller#action: `dashboard#merge_requests`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -109,8 +139,13 @@ export const mergeRequestsFollowingDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/merge_requests/search(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/merge_requests/search(.:format)`
+ * - Path helper: `merge_requests_search_dashboard_path`
+ * - URL helper: `merge_requests_search_dashboard_url`
+ * - controller#action: `dashboard#search_merge_requests`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -126,8 +161,13 @@ export const mergeRequestsSearchDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/merge_requests/merged(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/merge_requests/merged(.:format)`
+ * - Path helper: `merge_requests_merged_dashboard_path`
+ * - URL helper: `merge_requests_merged_dashboard_url`
+ * - controller#action: `dashboard#merge_requests`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -143,8 +183,13 @@ export const mergeRequestsMergedDashboardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/milestones(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/milestones(.:format)`
+ * - Path helper: `dashboard_milestones_path`
+ * - URL helper: `dashboard_milestones_url`
+ * - controller#action: `dashboard/milestones#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -160,8 +205,13 @@ export const dashboardMilestonesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/labels(.:format)`
+ * - Path helper: `dashboard_labels_path`
+ * - URL helper: `dashboard_labels_url`
+ * - controller#action: `dashboard/labels#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -177,8 +227,13 @@ export const dashboardLabelsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/groups/member(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/groups/member(.:format)`
+ * - Path helper: `member_dashboard_groups_path`
+ * - URL helper: `member_dashboard_groups_url`
+ * - controller#action: `dashboard/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -194,8 +249,13 @@ export const memberDashboardGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/groups/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/groups/inactive(.:format)`
+ * - Path helper: `inactive_dashboard_groups_path`
+ * - URL helper: `inactive_dashboard_groups_url`
+ * - controller#action: `dashboard/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -211,8 +271,13 @@ export const inactiveDashboardGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/groups(.:format)`
+ * - Path helper: `dashboard_groups_path`
+ * - URL helper: `dashboard_groups_url`
+ * - controller#action: `dashboard/groups#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -228,8 +293,13 @@ export const dashboardGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/snippets(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/snippets(.:format)`
+ * - Path helper: `dashboard_snippets_path`
+ * - URL helper: `dashboard_snippets_url`
+ * - controller#action: `dashboard/snippets#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -245,8 +315,13 @@ export const dashboardSnippetsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/todos(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/todos(.:format)`
+ * - Path helper: `dashboard_todos_path`
+ * - URL helper: `dashboard_todos_url`
+ * - controller#action: `dashboard/todos#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -262,8 +337,13 @@ export const dashboardTodosPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/todos/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/todos/:id(.:format)`
+ * - Path helper: `dashboard_todo_path`
+ * - URL helper: `dashboard_todo_url`
+ * - controller#action: `dashboard/todos#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -280,8 +360,13 @@ export const dashboardTodoPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/projects/contributed(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/projects/contributed(.:format)`
+ * - Path helper: `contributed_dashboard_projects_path`
+ * - URL helper: `contributed_dashboard_projects_url`
+ * - controller#action: `dashboard/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -297,8 +382,13 @@ export const contributedDashboardProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/projects/starred(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/projects/starred(.:format)`
+ * - Path helper: `starred_dashboard_projects_path`
+ * - URL helper: `starred_dashboard_projects_url`
+ * - controller#action: `dashboard/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -314,8 +404,13 @@ export const starredDashboardProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/projects/personal(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/projects/personal(.:format)`
+ * - Path helper: `personal_dashboard_projects_path`
+ * - URL helper: `personal_dashboard_projects_url`
+ * - controller#action: `dashboard/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -331,8 +426,13 @@ export const personalDashboardProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/projects/member(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/projects/member(.:format)`
+ * - Path helper: `member_dashboard_projects_path`
+ * - URL helper: `member_dashboard_projects_url`
+ * - controller#action: `dashboard/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -348,8 +448,13 @@ export const memberDashboardProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard/projects/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard/projects/inactive(.:format)`
+ * - Path helper: `inactive_dashboard_projects_path`
+ * - URL helper: `inactive_dashboard_projects_url`
+ * - controller#action: `dashboard/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -365,8 +470,13 @@ export const inactiveDashboardProjectsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /dashboard(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/dashboard(.:format)`
+ * - Path helper: `root_dashboard_path`
+ * - URL helper: `root_dashboard_url`
+ * - controller#action: `dashboard/projects#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

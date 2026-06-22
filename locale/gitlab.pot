@@ -55107,9 +55107,6 @@ msgstr ""
 msgid "PipelineSchedules|Edit scheduled pipeline"
 msgstr ""
 
-msgid "PipelineSchedules|Explore plan limits"
-msgstr ""
-
 msgid "PipelineSchedules|Inactive"
 msgstr ""
 
@@ -55120,6 +55117,9 @@ msgid "PipelineSchedules|Interval Pattern"
 msgstr ""
 
 msgid "PipelineSchedules|Last Pipeline"
+msgstr ""
+
+msgid "PipelineSchedules|Learn about pipeline schedule limits"
 msgstr ""
 
 msgid "PipelineSchedules|Learn how to take ownership"
@@ -55215,7 +55215,7 @@ msgstr ""
 msgid "PipelineSchedules|View pipeline schedule"
 msgstr ""
 
-msgid "PipelineSchedules|You have exceeded the maximum number of pipeline schedules for your plan. To create a new schedule, either increase your plan limit or delete an existing schedule."
+msgid "PipelineSchedules|You have reached your plan limit for pipeline schedules. To create a new schedule, delete an existing schedule or increase your limit."
 msgstr ""
 
 msgid "PipelineSource|API"
@@ -84727,10 +84727,16 @@ msgstr ""
 msgid "Vulnerability|Create a merge request to implement this solution, or download and apply the patch manually."
 msgstr ""
 
+msgid "Vulnerability|Data flow"
+msgstr ""
+
 msgid "Vulnerability|Dependency paths"
 msgstr ""
 
 msgid "Vulnerability|Description"
+msgstr ""
+
+msgid "Vulnerability|Detail"
 msgstr ""
 
 msgid "Vulnerability|Details"
@@ -85007,9 +85013,6 @@ msgid "Vulnerability|What is code flow?"
 msgstr ""
 
 msgid "Vulnerability|circular dependency"
-msgstr ""
-
-msgid "Vulnerability|code_flow"
 msgstr ""
 
 msgid "Vulnerability|likely a false positive"

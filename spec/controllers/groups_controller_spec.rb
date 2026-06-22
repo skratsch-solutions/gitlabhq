@@ -12,13 +12,13 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
   let_it_be(:group_organization) { current_organization }
   let_it_be_with_refind(:group) { create_default(:group, :public, organization: group_organization) }
   let_it_be_with_refind(:project) { create(:project, namespace: group) }
-  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:user) { create(:user) }
   let_it_be(:admin_with_admin_mode) { create(:admin) }
   let_it_be(:admin_without_admin_mode) { create(:admin) }
-  let_it_be(:group_member, freeze: false) { create(:group_member, group: group, user: user) }
-  let_it_be(:owner, freeze: false) { group.add_owner(create(:user)).user }
+  let_it_be(:group_member) { create(:group_member, group: group, user: user) }
+  let_it_be_with_reload(:owner) { group.add_owner(create(:user)).user }
   let_it_be(:maintainer) { group.add_maintainer(create(:user)).user }
-  let_it_be(:developer, freeze: false) { group.add_developer(create(:user)).user }
+  let_it_be_with_reload(:developer) { group.add_developer(create(:user)).user }
   let_it_be(:guest) { group.add_guest(create(:user)).user }
 
   before_all do
@@ -635,7 +635,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     subject { delete :destroy, format: format, params: { id: group.to_param, **params } }
 
     context 'when authenticated user can admin the group' do
-      let_it_be(:user, freeze: false) { owner }
+      let_it_be(:user) { owner }
 
       before do
         sign_in(user)
@@ -769,7 +769,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
   end
 
   describe 'POST #restore' do
-    let_it_be(:group, freeze: false) { create(:group, :deletion_scheduled, owners: user) }
+    let_it_be(:group) { create(:group, :deletion_scheduled, owners: user) }
 
     subject { post :restore, params: { group_id: group.to_param } }
 

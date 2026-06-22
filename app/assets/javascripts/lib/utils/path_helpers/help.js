@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /help(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/help(.:format)`
+ * - Path helper: `help_path`
+ * - URL helper: `help_url`
+ * - controller#action: `help#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +29,13 @@ export const helpPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /help/shortcuts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/help/shortcuts(.:format)`
+ * - Path helper: `help_shortcuts_path`
+ * - URL helper: `help_shortcuts_url`
+ * - controller#action: `help#shortcuts`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +51,13 @@ export const helpShortcutsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /help/instance_configuration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/help/instance_configuration(.:format)`
+ * - Path helper: `help_instance_configuration_path`
+ * - URL helper: `help_instance_configuration_url`
+ * - controller#action: `help#instance_configuration`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +73,13 @@ export const helpInstanceConfigurationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /help/docs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/help/docs(.:format)`
+ * - Path helper: `help_docs_path`
+ * - URL helper: `help_docs_url`
+ * - controller#action: `help#redirect_to_docs`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +95,13 @@ export const helpDocsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /help/*path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/help/*path(.:format)`
+ * - Path helper: `help_page_path`
+ * - URL helper: `help_page_url`
+ * - controller#action: `help#show`
+ *
  * @param {any} path
  * @param {object | undefined} options
  * @returns {string} route path

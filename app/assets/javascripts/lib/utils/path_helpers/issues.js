@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues(.:format)`
+ * - Path helper: `project_issues_path`
+ * - URL helper: `project_issues_url`
+ * - controller#action: `projects/issues#calendar`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -27,8 +32,13 @@ export const projectIssuesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/toggle_subscription(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/toggle_subscription(.:format)`
+ * - Path helper: `toggle_subscription_project_issue_path`
+ * - URL helper: `toggle_subscription_project_issue_url`
+ * - controller#action: `projects/issues#toggle_subscription`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -48,8 +58,13 @@ export const toggleSubscriptionProjectIssuePath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/mark_as_spam(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/mark_as_spam(.:format)`
+ * - Path helper: `mark_as_spam_project_issue_path`
+ * - URL helper: `mark_as_spam_project_issue_url`
+ * - controller#action: `projects/issues#mark_as_spam`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -69,8 +84,13 @@ export const markAsSpamProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/move(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/move(.:format)`
+ * - Path helper: `move_project_issue_path`
+ * - URL helper: `move_project_issue_url`
+ * - controller#action: `projects/issues#move`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -90,8 +110,13 @@ export const moveProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/reorder(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/reorder(.:format)`
+ * - Path helper: `reorder_project_issue_path`
+ * - URL helper: `reorder_project_issue_url`
+ * - controller#action: `projects/issues#reorder`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -111,8 +136,13 @@ export const reorderProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/related_branches(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/related_branches(.:format)`
+ * - Path helper: `related_branches_project_issue_path`
+ * - URL helper: `related_branches_project_issue_url`
+ * - controller#action: `projects/issues#related_branches`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -132,8 +162,13 @@ export const relatedBranchesProjectIssuePath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/can_create_branch(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/can_create_branch(.:format)`
+ * - Path helper: `can_create_branch_project_issue_path`
+ * - URL helper: `can_create_branch_project_issue_url`
+ * - controller#action: `projects/issues#can_create_branch`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -153,8 +188,13 @@ export const canCreateBranchProjectIssuePath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/realtime_changes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/realtime_changes(.:format)`
+ * - Path helper: `realtime_changes_project_issue_path`
+ * - URL helper: `realtime_changes_project_issue_url`
+ * - controller#action: `projects/issues#realtime_changes`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -174,8 +214,13 @@ export const realtimeChangesProjectIssuePath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/create_merge_request(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/create_merge_request(.:format)`
+ * - Path helper: `create_merge_request_project_issue_path`
+ * - URL helper: `create_merge_request_project_issue_url`
+ * - controller#action: `projects/issues#create_merge_request`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -195,8 +240,13 @@ export const createMergeRequestProjectIssuePath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/discussions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/discussions(.:format)`
+ * - Path helper: `discussions_project_issue_path`
+ * - URL helper: `discussions_project_issue_url`
+ * - controller#action: `projects/issues#discussions`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -216,8 +266,13 @@ export const discussionsProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/designs(/*vueroute)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/designs(/*vueroute)`
+ * - Path helper: `designs_project_issue_path`
+ * - URL helper: `designs_project_issue_url`
+ * - controller#action: `projects/issues#designs`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -237,8 +292,13 @@ export const designsProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/:incident_tab(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/:incident_tab(.:format)`
+ * - Path helper: `incident_issue_project_issue_path`
+ * - URL helper: `incident_issue_project_issue_url`
+ * - controller#action: `projects/issues#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {any} incidentTab
@@ -259,8 +319,13 @@ export const incidentIssueProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/service_desk(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/service_desk(.:format)`
+ * - Path helper: `service_desk_project_issues_path`
+ * - URL helper: `service_desk_project_issues_url`
+ * - controller#action: `projects/issues#service_desk`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -279,8 +344,13 @@ export const serviceDeskProjectIssuesPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/bulk_update(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/bulk_update(.:format)`
+ * - Path helper: `bulk_update_project_issues_path`
+ * - URL helper: `bulk_update_project_issues_url`
+ * - controller#action: `projects/issues#bulk_update`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -299,8 +369,13 @@ export const bulkUpdateProjectIssuesPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/import_csv(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/import_csv(.:format)`
+ * - Path helper: `import_csv_project_issues_path`
+ * - URL helper: `import_csv_project_issues_url`
+ * - controller#action: `projects/issues#import_csv`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -319,8 +394,13 @@ export const importCsvProjectIssuesPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/export_csv(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/export_csv(.:format)`
+ * - Path helper: `export_csv_project_issues_path`
+ * - URL helper: `export_csv_project_issues_url`
+ * - controller#action: `projects/issues#export_csv`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -339,8 +419,13 @@ export const exportCsvProjectIssuesPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/incident/:id(/:incident_tab)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/incident/:id(/:incident_tab)(.:format)`
+ * - Path helper: `incident_project_issues_path`
+ * - URL helper: `incident_project_issues_url`
+ * - controller#action: `projects/incidents#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -360,8 +445,13 @@ export const incidentProjectIssuesPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:issue_id/links(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:issue_id/links(.:format)`
+ * - Path helper: `project_issue_links_path`
+ * - URL helper: `project_issue_links_url`
+ * - controller#action: `projects/issue_links#index`
+ *
  * @param {string} projectFullPath
  * @param {any} issueId
  * @param {object | undefined} options
@@ -381,8 +471,13 @@ export const projectIssueLinksPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:issue_id/links/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:issue_id/links/:id(.:format)`
+ * - Path helper: `project_issue_link_path`
+ * - URL helper: `project_issue_link_url`
+ * - controller#action: `projects/issue_links#destroy`
+ *
  * @param {string} projectFullPath
  * @param {any} issueId
  * @param {any} id
@@ -403,8 +498,13 @@ export const projectIssueLinkPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/new(.:format)`
+ * - Path helper: `new_project_issue_path`
+ * - URL helper: `new_project_issue_url`
+ * - controller#action: `projects/issues#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -423,8 +523,13 @@ export const newProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id/edit(.:format)`
+ * - Path helper: `edit_project_issue_path`
+ * - URL helper: `edit_project_issue_url`
+ * - controller#action: `projects/issues#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -444,8 +549,13 @@ export const editProjectIssuePath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/issues/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/issues/:id(.:format)`
+ * - Path helper: `project_issue_path`
+ * - URL helper: `project_issue_url`
+ * - controller#action: `projects/issues#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options

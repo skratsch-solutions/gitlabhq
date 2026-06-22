@@ -360,6 +360,11 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
 
     context 'with :editor_extension format' do
       let_it_be(:pat_user) { create(:user) }
+      # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+      # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+      # subject, or an in-memory mutation that survives reload/refind). Do not
+      # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+      # (see gitlab-org/gitlab#602925).
       let_it_be(:personal_access_token, freeze: false) { create(:personal_access_token, user: pat_user) }
 
       let_it_be(:oauth_user) { create(:user) }
@@ -498,7 +503,8 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
 
   describe '#find_user_from_job_token' do
     let_it_be(:user) { build(:user) }
-    let_it_be(:job, freeze: false) { build(:ci_build, user: user, status: :running) }
+
+    let(:job) { build(:ci_build, user: user, status: :running) }
 
     before do
       env[Gitlab::Auth::AuthFinders::JOB_TOKEN_HEADER] = 'glcbt-token_value'

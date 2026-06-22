@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/snippets/:id/raw(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:id/raw(.:format)`
+ * - Path helper: `raw_snippet_path`
+ * - URL helper: `raw_snippet_url`
+ * - controller#action: `snippets#raw`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -25,8 +30,13 @@ export const rawSnippetPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:id/mark_as_spam(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:id/mark_as_spam(.:format)`
+ * - Path helper: `mark_as_spam_snippet_path`
+ * - URL helper: `mark_as_spam_snippet_url`
+ * - controller#action: `snippets#mark_as_spam`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -43,8 +53,13 @@ export const markAsSpamSnippetPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/preview_markdown(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/preview_markdown(.:format)`
+ * - Path helper: `preview_markdown_snippets_path`
+ * - URL helper: `preview_markdown_snippets_url`
+ * - controller#action: `snippets#preview_markdown`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -60,8 +75,13 @@ export const previewMarkdownSnippetsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:snippet_id/notes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:snippet_id/notes(.:format)`
+ * - Path helper: `snippet_notes_path`
+ * - URL helper: `snippet_notes_url`
+ * - controller#action: `snippets/notes#index`
+ *
  * @param {any} snippetId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -78,8 +98,13 @@ export const snippetNotesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:snippet_id/notes/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:snippet_id/notes/:id(.:format)`
+ * - Path helper: `snippet_note_path`
+ * - URL helper: `snippet_note_url`
+ * - controller#action: `snippets/notes#update`
+ *
  * @param {any} snippetId
  * @param {any} id
  * @param {object | undefined} options
@@ -97,8 +122,13 @@ export const snippetNotePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets(.:format)`
+ * - Path helper: `snippets_path`
+ * - URL helper: `snippets_url`
+ * - controller#action: `snippets#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -114,8 +144,13 @@ export const snippetsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/new(.:format)`
+ * - Path helper: `new_snippet_path`
+ * - URL helper: `new_snippet_url`
+ * - controller#action: `snippets#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -131,8 +166,13 @@ export const newSnippetPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:id/edit(.:format)`
+ * - Path helper: `edit_snippet_path`
+ * - URL helper: `edit_snippet_url`
+ * - controller#action: `snippets#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -149,8 +189,13 @@ export const editSnippetPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:id(.:format)`
+ * - Path helper: `snippet_path`
+ * - URL helper: `snippet_url`
+ * - controller#action: `snippets#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -167,8 +212,13 @@ export const snippetPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/snippets/:snippet_id/raw/:ref/*path
+ * Generates the Rails route:
+ *
+ * - href: `/-/snippets/:snippet_id/raw/:ref/*path`
+ * - Path helper: `snippet_blob_raw_path`
+ * - URL helper: `snippet_blob_raw_url`
+ * - controller#action: `snippets/blobs#raw`
+ *
  * @param {any} snippetId
  * @param {any} ref
  * @param {any} path

@@ -3,6 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe WorkItems::DeleteService, feature_category: :team_planning do
+  # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+  # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+  # subject, or an in-memory mutation that survives reload/refind). Do not
+  # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+  # (see gitlab-org/gitlab#602925).
   let_it_be(:group, freeze: false) { create(:group) }
   let_it_be(:project, freeze: false) { create(:project, :repository, group: group) }
   let_it_be(:author, freeze: false) { create(:user, guest_of: group) }
@@ -98,6 +103,11 @@ RSpec.describe WorkItems::DeleteService, feature_category: :team_planning do
     end
 
     context 'when work item has assignees' do
+      # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+      # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+      # subject, or an in-memory mutation that survives reload/refind). Do not
+      # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+      # (see gitlab-org/gitlab#602925).
       let_it_be(:assignee, freeze: false) { create(:user, guest_of: group) }
       let_it_be(:work_item_with_assignee, freeze: false) do
         create(:work_item, project: project, author: owner, assignees: [assignee])

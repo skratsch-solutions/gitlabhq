@@ -60,6 +60,7 @@ class CommitStatus < Ci::ApplicationRecord
     where(allow_failure: true, status: [:failed, :canceled])
   end
 
+  scope :order_id_asc, -> { order(id: :asc) }
   scope :order_id_desc, -> { order(id: :desc) }
 
   scope :latest, -> { where(retried: [false, nil]) }

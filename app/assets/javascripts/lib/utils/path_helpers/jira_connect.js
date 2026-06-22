@@ -7,8 +7,12 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /-/jira_connect(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect(.:format)`
+ * - Path helper: `jira_connect_base_path`
+ * - URL helper: `jira_connect_base_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -24,8 +28,13 @@ export const jiraConnectBasePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/app_descriptor(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/app_descriptor(.:format)`
+ * - Path helper: `jira_connect_app_descriptor_path`
+ * - URL helper: `jira_connect_app_descriptor_url`
+ * - controller#action: `jira_connect/app_descriptor#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -41,8 +50,13 @@ export const jiraConnectAppDescriptorPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/events/installed(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/events/installed(.:format)`
+ * - Path helper: `jira_connect_events_installed_path`
+ * - URL helper: `jira_connect_events_installed_url`
+ * - controller#action: `jira_connect/events#installed`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -58,8 +72,13 @@ export const jiraConnectEventsInstalledPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/events/uninstalled(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/events/uninstalled(.:format)`
+ * - Path helper: `jira_connect_events_uninstalled_path`
+ * - URL helper: `jira_connect_events_uninstalled_url`
+ * - controller#action: `jira_connect/events#uninstalled`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -75,8 +94,13 @@ export const jiraConnectEventsUninstalledPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/subscriptions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/subscriptions(.:format)`
+ * - Path helper: `jira_connect_subscriptions_path`
+ * - URL helper: `jira_connect_subscriptions_url`
+ * - controller#action: `jira_connect/subscriptions#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -92,8 +116,13 @@ export const jiraConnectSubscriptionsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/subscriptions/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/subscriptions/:id(.:format)`
+ * - Path helper: `jira_connect_subscription_path`
+ * - URL helper: `jira_connect_subscription_url`
+ * - controller#action: `jira_connect/subscriptions#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -110,8 +139,13 @@ export const jiraConnectSubscriptionPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/branches/route(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/branches/route(.:format)`
+ * - Path helper: `route_jira_connect_branches_path`
+ * - URL helper: `route_jira_connect_branches_url`
+ * - controller#action: `jira_connect/branches#route`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -127,8 +161,13 @@ export const routeJiraConnectBranchesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/branches/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/branches/new(.:format)`
+ * - Path helper: `new_jira_connect_branch_path`
+ * - URL helper: `new_jira_connect_branch_url`
+ * - controller#action: `jira_connect/branches#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -144,8 +183,13 @@ export const newJiraConnectBranchPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/public_keys/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/public_keys/:id(.:format)`
+ * - Path helper: `jira_connect_public_key_path`
+ * - URL helper: `jira_connect_public_key_url`
+ * - controller#action: `jira_connect/public_keys#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -162,8 +206,13 @@ export const jiraConnectPublicKeyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/workspaces/search(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/workspaces/search(.:format)`
+ * - Path helper: `search_jira_connect_workspaces_path`
+ * - URL helper: `search_jira_connect_workspaces_url`
+ * - controller#action: `jira_connect/workspaces#search`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -179,8 +228,13 @@ export const searchJiraConnectWorkspacesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/repositories/search(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/repositories/search(.:format)`
+ * - Path helper: `search_jira_connect_repositories_path`
+ * - URL helper: `search_jira_connect_repositories_url`
+ * - controller#action: `jira_connect/repositories#search`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -196,8 +250,13 @@ export const searchJiraConnectRepositoriesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/repositories/associate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/repositories/associate(.:format)`
+ * - Path helper: `associate_jira_connect_repositories_path`
+ * - URL helper: `associate_jira_connect_repositories_url`
+ * - controller#action: `jira_connect/repositories#associate`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -213,8 +272,13 @@ export const associateJiraConnectRepositoriesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/installations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/installations(.:format)`
+ * - Path helper: `jira_connect_installations_path`
+ * - URL helper: `jira_connect_installations_url`
+ * - controller#action: `jira_connect/installations#update`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -230,8 +294,13 @@ export const jiraConnectInstallationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/oauth_callbacks(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/oauth_callbacks(.:format)`
+ * - Path helper: `jira_connect_oauth_callbacks_path`
+ * - URL helper: `jira_connect_oauth_callbacks_url`
+ * - controller#action: `jira_connect/oauth_callbacks#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
@@ -247,8 +316,13 @@ export const jiraConnectOauthCallbacksPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /-/jira_connect/oauth_application_id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/jira_connect/oauth_application_id(.:format)`
+ * - Path helper: `jira_connect_oauth_application_id_path`
+ * - URL helper: `jira_connect_oauth_application_id_url`
+ * - controller#action: `jira_connect/oauth_application_ids#show`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

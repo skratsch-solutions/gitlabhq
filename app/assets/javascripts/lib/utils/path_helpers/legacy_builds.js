@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/builds/:id/raw(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/builds/:id/raw(.:format)`
+ * - Path helper: `raw_project_build_path`
+ * - URL helper: `raw_project_build_url`
+ * - controller#action: `projects/builds#raw`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -28,8 +33,13 @@ export const rawProjectBuildPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/builds/:build_id/artifacts/download(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/builds/:build_id/artifacts/download(.:format)`
+ * - Path helper: `download_project_build_artifacts_path`
+ * - URL helper: `download_project_build_artifacts_url`
+ * - controller#action: `projects/build_artifacts#download`
+ *
  * @param {string} projectFullPath
  * @param {any} buildId
  * @param {object | undefined} options
@@ -49,8 +59,13 @@ export const downloadProjectBuildArtifactsPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/builds/:build_id/artifacts/browse(/*path)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/builds/:build_id/artifacts/browse(/*path)`
+ * - Path helper: `browse_project_build_artifacts_path`
+ * - URL helper: `browse_project_build_artifacts_url`
+ * - controller#action: `projects/build_artifacts#browse`
+ *
  * @param {string} projectFullPath
  * @param {any} buildId
  * @param {object | undefined} options
@@ -70,8 +85,13 @@ export const browseProjectBuildArtifactsPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/builds/:build_id/artifacts/file/*path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/builds/:build_id/artifacts/file/*path`
+ * - Path helper: `file_project_build_artifacts_path`
+ * - URL helper: `file_project_build_artifacts_url`
+ * - controller#action: `projects/build_artifacts#file`
+ *
  * @param {string} projectFullPath
  * @param {any} buildId
  * @param {any} path
@@ -92,8 +112,13 @@ export const fileProjectBuildArtifactsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/builds/:build_id/artifacts/raw/*path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/builds/:build_id/artifacts/raw/*path`
+ * - Path helper: `raw_project_build_artifacts_path`
+ * - URL helper: `raw_project_build_artifacts_url`
+ * - controller#action: `projects/build_artifacts#raw`
+ *
  * @param {string} projectFullPath
  * @param {any} buildId
  * @param {any} path
@@ -114,8 +139,13 @@ export const rawProjectBuildArtifactsPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/builds(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/builds(.:format)`
+ * - Path helper: `project_builds_path`
+ * - URL helper: `project_builds_url`
+ * - controller#action: `projects/builds#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -134,8 +164,13 @@ export const projectBuildsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/builds/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/builds/:id(.:format)`
+ * - Path helper: `project_build_path`
+ * - URL helper: `project_build_url`
+ * - controller#action: `projects/builds#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options

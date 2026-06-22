@@ -110,7 +110,8 @@ RSpec.describe BulkImports::PipelineWorker, feature_category: :importers do
             source_full_path: entity.source_full_path,
             pipeline_class: pipeline_tracker.pipeline_name,
             importer: 'gitlab_migration',
-            source_version: entity.bulk_import.source_version_info.to_s
+            source_version: entity.bulk_import.source_version_info.to_s,
+            Labkit::Fields::GL_ORGANIZATION_ID => entity.organization_id
           )
         )
 

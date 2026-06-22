@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/:from...:to
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/:from...:to`
+ * - Path helper: `project_compare_path`
+ * - URL helper: `project_compare_url`
+ * - controller#action: `projects/compare#show`
+ *
  * @param {string} projectFullPath
  * @param {any} from
  * @param {any} to
@@ -29,8 +34,13 @@ export const projectComparePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/:from..:to
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/:from..:to`
+ * - Path helper: `project_compare_with_two_dots_path`
+ * - URL helper: `project_compare_with_two_dots_url`
+ * - controller#action: `projects/compare#show`
+ *
  * @param {string} projectFullPath
  * @param {any} from
  * @param {any} to
@@ -51,8 +61,13 @@ export const projectCompareWithTwoDotsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/diff_for_path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/diff_for_path`
+ * - Path helper: `diff_for_path_project_compare_index_path`
+ * - URL helper: `diff_for_path_project_compare_index_url`
+ * - controller#action: `projects/compare#diff_for_path`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -71,8 +86,13 @@ export const diffForPathProjectCompareIndexPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/signatures
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/signatures`
+ * - Path helper: `signatures_project_compare_index_path`
+ * - URL helper: `signatures_project_compare_index_url`
+ * - controller#action: `projects/compare#signatures`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -91,8 +111,13 @@ export const signaturesProjectCompareIndexPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/diffs_stream
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/diffs_stream`
+ * - Path helper: `diffs_stream_project_compare_index_path`
+ * - URL helper: `diffs_stream_project_compare_index_url`
+ * - controller#action: `projects/compare_diffs_stream#diffs_stream`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -111,8 +136,13 @@ export const diffsStreamProjectCompareIndexPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/diff_files_metadata
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/diff_files_metadata`
+ * - Path helper: `diff_files_metadata_project_compare_index_path`
+ * - URL helper: `diff_files_metadata_project_compare_index_url`
+ * - controller#action: `projects/compare#diff_files_metadata`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -131,8 +161,13 @@ export const diffFilesMetadataProjectCompareIndexPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/diffs_stats
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/diffs_stats`
+ * - Path helper: `diffs_stats_project_compare_index_path`
+ * - URL helper: `diffs_stats_project_compare_index_url`
+ * - controller#action: `projects/compare#diffs_stats`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -151,8 +186,13 @@ export const diffsStatsProjectCompareIndexPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/diff_file
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/diff_file`
+ * - Path helper: `diff_file_project_compare_index_path`
+ * - URL helper: `diff_file_project_compare_index_url`
+ * - controller#action: `projects/compare#diff_file`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -171,8 +211,13 @@ export const diffFileProjectCompareIndexPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare/target_projects
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare/target_projects`
+ * - Path helper: `target_projects_project_json_compare_index_path`
+ * - URL helper: `target_projects_project_json_compare_index_url`
+ * - controller#action: `projects/compare#target_projects_json`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -191,8 +236,13 @@ export const targetProjectsProjectJsonCompareIndexPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/compare
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/compare`
+ * - Path helper: `project_compare_index_path`
+ * - URL helper: `project_compare_index_url`
+ * - controller#action: `projects/compare#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -211,8 +261,13 @@ export const projectCompareIndexPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/refs/switch
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/refs/switch`
+ * - Path helper: `switch_project_refs_path`
+ * - URL helper: `switch_project_refs_url`
+ * - controller#action: `projects/refs#switch`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -231,8 +286,13 @@ export const switchProjectRefsPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/refs/:id/logs_tree
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/refs/:id/logs_tree`
+ * - Path helper: `logs_tree_project_ref_path`
+ * - URL helper: `logs_tree_project_ref_url`
+ * - controller#action: `projects/refs#logs_tree`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -252,8 +312,13 @@ export const logsTreeProjectRefPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/refs/:id/logs_tree/*path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/refs/:id/logs_tree/*path`
+ * - Path helper: `logs_file_project_ref_path`
+ * - URL helper: `logs_file_project_ref_url`
+ * - controller#action: `projects/refs#logs_tree`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {any} path
@@ -274,8 +339,13 @@ export const logsFileProjectRefPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/network/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/network/:id`
+ * - Path helper: `project_network_path`
+ * - URL helper: `project_network_url`
+ * - controller#action: `projects/network#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -295,8 +365,13 @@ export const projectNetworkPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/graphs/:id/charts
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/graphs/:id/charts`
+ * - Path helper: `charts_project_graph_path`
+ * - URL helper: `charts_project_graph_url`
+ * - controller#action: `projects/graphs#charts`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -316,8 +391,13 @@ export const chartsProjectGraphPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/graphs/:id/commits
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/graphs/:id/commits`
+ * - Path helper: `commits_project_graph_path`
+ * - URL helper: `commits_project_graph_url`
+ * - controller#action: `projects/graphs#commits`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -337,8 +417,13 @@ export const commitsProjectGraphPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/graphs/:id/ci
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/graphs/:id/ci`
+ * - Path helper: `ci_project_graph_path`
+ * - URL helper: `ci_project_graph_url`
+ * - controller#action: `projects/graphs#ci`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -358,8 +443,13 @@ export const ciProjectGraphPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/graphs/:id/languages
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/graphs/:id/languages`
+ * - Path helper: `languages_project_graph_path`
+ * - URL helper: `languages_project_graph_url`
+ * - controller#action: `projects/graphs#languages`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -379,8 +469,13 @@ export const languagesProjectGraphPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/graphs/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/graphs/:id`
+ * - Path helper: `project_graph_path`
+ * - URL helper: `project_graph_url`
+ * - controller#action: `projects/graphs#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -400,8 +495,13 @@ export const projectGraphPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/branches/:state
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/branches/:state`
+ * - Path helper: `project_branches_filtered_path`
+ * - URL helper: `project_branches_filtered_url`
+ * - controller#action: `projects/branches#index`
+ *
  * @param {string} projectFullPath
  * @param {any} state
  * @param {object | undefined} options
@@ -421,8 +521,13 @@ export const projectBranchesFilteredPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/branches/diverging_commit_counts
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/branches/diverging_commit_counts`
+ * - Path helper: `diverging_commit_counts_project_branches_path`
+ * - URL helper: `diverging_commit_counts_project_branches_url`
+ * - controller#action: `projects/branches#diverging_commit_counts`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -441,8 +546,13 @@ export const divergingCommitCountsProjectBranchesPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/branches
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/branches`
+ * - Path helper: `project_branches_path`
+ * - URL helper: `project_branches_url`
+ * - controller#action: `projects/branches#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -461,8 +571,13 @@ export const projectBranchesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/branches/new
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/branches/new`
+ * - Path helper: `new_project_branch_path`
+ * - URL helper: `new_project_branch_url`
+ * - controller#action: `projects/branches#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -481,8 +596,13 @@ export const newProjectBranchPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/branches/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/branches/:id`
+ * - Path helper: `project_branch_path`
+ * - URL helper: `project_branch_url`
+ * - controller#action: `projects/branches#destroy`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -502,8 +622,13 @@ export const projectBranchPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/merged_branches
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/merged_branches`
+ * - Path helper: `project_merged_branches_path`
+ * - URL helper: `project_merged_branches_url`
+ * - controller#action: `projects/branches#destroy_all_merged`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -522,8 +647,13 @@ export const projectMergedBranchesPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/tags
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/tags`
+ * - Path helper: `project_tags_path`
+ * - URL helper: `project_tags_url`
+ * - controller#action: `projects/tags#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -542,8 +672,13 @@ export const projectTagsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/tags/new
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/tags/new`
+ * - Path helper: `new_project_tag_path`
+ * - URL helper: `new_project_tag_url`
+ * - controller#action: `projects/tags#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -562,8 +697,13 @@ export const newProjectTagPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/tags/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/tags/:id`
+ * - Path helper: `project_tag_path`
+ * - URL helper: `project_tag_url`
+ * - controller#action: `projects/tags#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -583,8 +723,13 @@ export const projectTagPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/protected_branches
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/protected_branches`
+ * - Path helper: `project_protected_branches_path`
+ * - URL helper: `project_protected_branches_url`
+ * - controller#action: `projects/protected_branches#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -603,8 +748,13 @@ export const projectProtectedBranchesPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/protected_branches/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/protected_branches/:id`
+ * - Path helper: `project_protected_branch_path`
+ * - URL helper: `project_protected_branch_url`
+ * - controller#action: `projects/protected_branches#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -624,8 +774,13 @@ export const projectProtectedBranchPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/protected_tags
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/protected_tags`
+ * - Path helper: `project_protected_tags_path`
+ * - URL helper: `project_protected_tags_url`
+ * - controller#action: `projects/protected_tags#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -644,8 +799,13 @@ export const projectProtectedTagsPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/protected_tags/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/protected_tags/:id`
+ * - Path helper: `project_protected_tag_path`
+ * - URL helper: `project_protected_tag_url`
+ * - controller#action: `projects/protected_tags#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -665,8 +825,13 @@ export const projectProtectedTagPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/new/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/new/*id`
+ * - Path helper: `project_new_blob_path`
+ * - URL helper: `project_new_blob_url`
+ * - controller#action: `projects/blob#new`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -686,8 +851,13 @@ export const projectNewBlobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/create/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/create/*id`
+ * - Path helper: `project_create_blob_path`
+ * - URL helper: `project_create_blob_url`
+ * - controller#action: `projects/blob#create`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -707,8 +877,13 @@ export const projectCreateBlobPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/edit/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/edit/*id`
+ * - Path helper: `project_edit_blob_path`
+ * - URL helper: `project_edit_blob_url`
+ * - controller#action: `projects/blob#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -728,8 +903,13 @@ export const projectEditBlobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/update/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/update/*id`
+ * - Path helper: `project_update_blob_path`
+ * - URL helper: `project_update_blob_url`
+ * - controller#action: `projects/blob#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -749,8 +929,13 @@ export const projectUpdateBlobPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/preview/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/preview/*id`
+ * - Path helper: `project_preview_blob_path`
+ * - URL helper: `project_preview_blob_url`
+ * - controller#action: `projects/blob#preview`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -770,8 +955,13 @@ export const projectPreviewBlobPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/blob/*id/diff
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/blob/*id/diff`
+ * - Path helper: `project_blob_diff_path`
+ * - URL helper: `project_blob_diff_url`
+ * - controller#action: `projects/blob#diff`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -791,8 +981,13 @@ export const projectBlobDiffPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/blob/*id/diff_lines
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/blob/*id/diff_lines`
+ * - Path helper: `project_blob_diff_lines_path`
+ * - URL helper: `project_blob_diff_lines_url`
+ * - controller#action: `projects/blob#diff_lines`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -812,8 +1007,13 @@ export const projectBlobDiffLinesPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/blob/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/blob/*id`
+ * - Path helper: `project_blob_path`
+ * - URL helper: `project_blob_url`
+ * - controller#action: `projects/blob#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -833,8 +1033,13 @@ export const projectBlobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/tree/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/tree/*id`
+ * - Path helper: `project_tree_path`
+ * - URL helper: `project_tree_url`
+ * - controller#action: `projects/tree#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -854,8 +1059,13 @@ export const projectTreePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/raw/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/raw/*id`
+ * - Path helper: `project_raw_path`
+ * - URL helper: `project_raw_url`
+ * - controller#action: `projects/raw#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -875,8 +1085,13 @@ export const projectRawPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/blame_page/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/blame_page/*id`
+ * - Path helper: `project_blame_page_path`
+ * - URL helper: `project_blame_page_url`
+ * - controller#action: `projects/blame#page`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -896,8 +1111,13 @@ export const projectBlamePagePath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/blame/*id/streaming
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/blame/*id/streaming`
+ * - Path helper: `project_blame_streaming_path`
+ * - URL helper: `project_blame_streaming_url`
+ * - controller#action: `projects/blame#streaming`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -917,8 +1137,13 @@ export const projectBlameStreamingPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/blame/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/blame/*id`
+ * - Path helper: `project_blame_path`
+ * - URL helper: `project_blame_url`
+ * - controller#action: `projects/blame#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -938,8 +1163,13 @@ export const projectBlamePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commits
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commits`
+ * - Path helper: `project_commits_root_path`
+ * - URL helper: `project_commits_root_url`
+ * - controller#action: `projects/commits#commits_root`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -958,8 +1188,13 @@ export const projectCommitsRootPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commits/*id/signatures
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commits/*id/signatures`
+ * - Path helper: `project_signatures_path`
+ * - URL helper: `project_signatures_url`
+ * - controller#action: `projects/commits#signatures`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -979,8 +1214,13 @@ export const projectSignaturesPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commits/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commits/*id`
+ * - Path helper: `project_commits_path`
+ * - URL helper: `project_commits_url`
+ * - controller#action: `projects/commits#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1000,8 +1240,13 @@ export const projectCommitsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/create_dir/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/create_dir/*id`
+ * - Path helper: `project_create_dir_path`
+ * - URL helper: `project_create_dir_url`
+ * - controller#action: `projects/tree#create_dir`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1021,8 +1266,13 @@ export const projectCreateDirPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/find_file/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/find_file/*id`
+ * - Path helper: `project_find_file_path`
+ * - URL helper: `project_find_file_url`
+ * - controller#action: `projects/find_file#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1042,8 +1292,13 @@ export const projectFindFilePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/files/*id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/files/*id`
+ * - Path helper: `project_files_path`
+ * - URL helper: `project_files_url`
+ * - controller#action: `projects/find_file#list`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1063,8 +1318,13 @@ export const projectFilesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/diffs_stream(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/diffs_stream(.:format)`
+ * - Path helper: `diffs_stream_project_commit_path`
+ * - URL helper: `diffs_stream_project_commit_url`
+ * - controller#action: `projects/commit_diffs_stream#diffs_stream`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1084,8 +1344,13 @@ export const diffsStreamProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/pipelines(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/pipelines(.:format)`
+ * - Path helper: `pipelines_project_commit_path`
+ * - URL helper: `pipelines_project_commit_url`
+ * - controller#action: `projects/commit#pipelines`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1105,8 +1370,13 @@ export const pipelinesProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/revert(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/revert(.:format)`
+ * - Path helper: `revert_project_commit_path`
+ * - URL helper: `revert_project_commit_url`
+ * - controller#action: `projects/commit#revert`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1126,8 +1396,13 @@ export const revertProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/cherry_pick(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/cherry_pick(.:format)`
+ * - Path helper: `cherry_pick_project_commit_path`
+ * - URL helper: `cherry_pick_project_commit_url`
+ * - controller#action: `projects/commit#cherry_pick`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1147,8 +1422,13 @@ export const cherryPickProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/diff_for_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/diff_for_path(.:format)`
+ * - Path helper: `diff_for_path_project_commit_path`
+ * - URL helper: `diff_for_path_project_commit_url`
+ * - controller#action: `projects/commit#diff_for_path`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1168,8 +1448,13 @@ export const diffForPathProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/diff_files(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/diff_files(.:format)`
+ * - Path helper: `diff_files_project_commit_path`
+ * - URL helper: `diff_files_project_commit_url`
+ * - controller#action: `projects/commit#diff_files`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1189,8 +1474,13 @@ export const diffFilesProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/merge_requests(.:format)`
+ * - Path helper: `merge_requests_project_commit_path`
+ * - URL helper: `merge_requests_project_commit_url`
+ * - controller#action: `projects/commit#merge_requests`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1210,8 +1500,13 @@ export const mergeRequestsProjectCommitPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/diff_files_metadata(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/diff_files_metadata(.:format)`
+ * - Path helper: `diff_files_metadata_project_commit_path`
+ * - URL helper: `diff_files_metadata_project_commit_url`
+ * - controller#action: `projects/commit#diff_files_metadata`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1231,8 +1526,13 @@ export const diffFilesMetadataProjectCommitPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/diffs_stats(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/diffs_stats(.:format)`
+ * - Path helper: `diffs_stats_project_commit_path`
+ * - URL helper: `diffs_stats_project_commit_url`
+ * - controller#action: `projects/commit#diffs_stats`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1252,8 +1552,13 @@ export const diffsStatsProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/diff_file(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/diff_file(.:format)`
+ * - Path helper: `diff_file_project_commit_path`
+ * - URL helper: `diff_file_project_commit_url`
+ * - controller#action: `projects/commit#diff_file`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1273,8 +1578,13 @@ export const diffFileProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id/discussions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id/discussions(.:format)`
+ * - Path helper: `discussions_project_commit_path`
+ * - URL helper: `discussions_project_commit_url`
+ * - controller#action: `projects/commit#discussions`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1294,8 +1604,13 @@ export const discussionsProjectCommitPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/commit/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/commit/:id(.:format)`
+ * - Path helper: `project_commit_path`
+ * - URL helper: `project_commit_url`
+ * - controller#action: `projects/commit#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1315,8 +1630,13 @@ export const projectCommitPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/repository(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/repository(.:format)`
+ * - Path helper: `project_repository_path`
+ * - URL helper: `project_repository_url`
+ * - controller#action: `projects/repositories#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path

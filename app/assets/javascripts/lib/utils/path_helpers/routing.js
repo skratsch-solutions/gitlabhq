@@ -7,8 +7,12 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/mirror(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/mirror(/*rest)(.:format)`
+ * - Path helper: `project_legacy_mirror_redirect_path`
+ * - URL helper: `project_legacy_mirror_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -27,8 +31,12 @@ export const projectLegacyMirrorRedirectPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/tags(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/tags(/*rest)(.:format)`
+ * - Path helper: `project_legacy_tags_redirect_path`
+ * - URL helper: `project_legacy_tags_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -47,8 +55,12 @@ export const projectLegacyTagsRedirectPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/hooks(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/hooks(/*rest)(.:format)`
+ * - Path helper: `project_legacy_hooks_redirect_path`
+ * - URL helper: `project_legacy_hooks_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -67,8 +79,12 @@ export const projectLegacyHooksRedirectPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/commits(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/commits(/*rest)(.:format)`
+ * - Path helper: `project_legacy_commits_redirect_path`
+ * - URL helper: `project_legacy_commits_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -87,8 +103,12 @@ export const projectLegacyCommitsRedirectPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/commit(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/commit(/*rest)(.:format)`
+ * - Path helper: `project_legacy_commit_redirect_path`
+ * - URL helper: `project_legacy_commit_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -107,8 +127,12 @@ export const projectLegacyCommitRedirectPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/find_file(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/find_file(/*rest)(.:format)`
+ * - Path helper: `project_legacy_find_file_redirect_path`
+ * - URL helper: `project_legacy_find_file_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -127,8 +151,12 @@ export const projectLegacyFindFileRedirectPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/files(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/files(/*rest)(.:format)`
+ * - Path helper: `project_legacy_files_redirect_path`
+ * - URL helper: `project_legacy_files_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -147,8 +175,12 @@ export const projectLegacyFilesRedirectPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/compare(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/compare(/*rest)(.:format)`
+ * - Path helper: `project_legacy_compare_redirect_path`
+ * - URL helper: `project_legacy_compare_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -167,8 +199,12 @@ export const projectLegacyCompareRedirectPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/cycle_analytics(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/cycle_analytics(/*rest)(.:format)`
+ * - Path helper: `project_legacy_cycle_analytics_redirect_path`
+ * - URL helper: `project_legacy_cycle_analytics_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -187,8 +223,12 @@ export const projectLegacyCycleAnalyticsRedirectPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/mattermost(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/mattermost(/*rest)(.:format)`
+ * - Path helper: `project_legacy_mattermost_redirect_path`
+ * - URL helper: `project_legacy_mattermost_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -207,8 +247,12 @@ export const projectLegacyMattermostRedirectPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/variables(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/variables(/*rest)(.:format)`
+ * - Path helper: `project_legacy_variables_redirect_path`
+ * - URL helper: `project_legacy_variables_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -227,8 +271,12 @@ export const projectLegacyVariablesRedirectPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/triggers(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/triggers(/*rest)(.:format)`
+ * - Path helper: `project_legacy_triggers_redirect_path`
+ * - URL helper: `project_legacy_triggers_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -247,8 +295,12 @@ export const projectLegacyTriggersRedirectPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/environments(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/environments(/*rest)(.:format)`
+ * - Path helper: `project_legacy_environments_redirect_path`
+ * - URL helper: `project_legacy_environments_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -267,8 +319,12 @@ export const projectLegacyEnvironmentsRedirectPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/protected_environments(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/protected_environments(/*rest)(.:format)`
+ * - Path helper: `project_legacy_protected_environments_redirect_path`
+ * - URL helper: `project_legacy_protected_environments_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -287,8 +343,12 @@ export const projectLegacyProtectedEnvironmentsRedirectPath = /*#__PURE__*/ (pro
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/error_tracking(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/error_tracking(/*rest)(.:format)`
+ * - Path helper: `project_legacy_error_tracking_redirect_path`
+ * - URL helper: `project_legacy_error_tracking_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -307,8 +367,12 @@ export const projectLegacyErrorTrackingRedirectPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/alert_management(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/alert_management(/*rest)(.:format)`
+ * - Path helper: `project_legacy_alert_management_redirect_path`
+ * - URL helper: `project_legacy_alert_management_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -327,8 +391,12 @@ export const projectLegacyAlertManagementRedirectPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/serverless(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/serverless(/*rest)(.:format)`
+ * - Path helper: `project_legacy_serverless_redirect_path`
+ * - URL helper: `project_legacy_serverless_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -347,8 +415,12 @@ export const projectLegacyServerlessRedirectPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/clusters(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/clusters(/*rest)(.:format)`
+ * - Path helper: `project_legacy_clusters_redirect_path`
+ * - URL helper: `project_legacy_clusters_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -367,8 +439,12 @@ export const projectLegacyClustersRedirectPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/audit_events(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/audit_events(/*rest)(.:format)`
+ * - Path helper: `project_legacy_audit_events_redirect_path`
+ * - URL helper: `project_legacy_audit_events_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -387,8 +463,12 @@ export const projectLegacyAuditEventsRedirectPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/wikis(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/wikis(/*rest)(.:format)`
+ * - Path helper: `project_legacy_wikis_redirect_path`
+ * - URL helper: `project_legacy_wikis_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -407,8 +487,12 @@ export const projectLegacyWikisRedirectPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/merge_requests(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/merge_requests(/*rest)(.:format)`
+ * - Path helper: `project_legacy_merge_requests_redirect_path`
+ * - URL helper: `project_legacy_merge_requests_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -427,8 +511,12 @@ export const projectLegacyMergeRequestsRedirectPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/vulnerability_feedback(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/vulnerability_feedback(/*rest)(.:format)`
+ * - Path helper: `project_legacy_vulnerability_feedback_redirect_path`
+ * - URL helper: `project_legacy_vulnerability_feedback_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -447,8 +535,12 @@ export const projectLegacyVulnerabilityFeedbackRedirectPath = /*#__PURE__*/ (pro
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/security(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/security(/*rest)(.:format)`
+ * - Path helper: `project_legacy_security_redirect_path`
+ * - URL helper: `project_legacy_security_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -467,8 +559,12 @@ export const projectLegacySecurityRedirectPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/dependencies(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/dependencies(/*rest)(.:format)`
+ * - Path helper: `project_legacy_dependencies_redirect_path`
+ * - URL helper: `project_legacy_dependencies_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -487,8 +583,12 @@ export const projectLegacyDependenciesRedirectPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/issues(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/issues(/*rest)(.:format)`
+ * - Path helper: `project_legacy_issues_redirect_path`
+ * - URL helper: `project_legacy_issues_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -507,8 +607,12 @@ export const projectLegacyIssuesRedirectPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pipelines(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pipelines(/*rest)(.:format)`
+ * - Path helper: `project_legacy_pipelines_redirect_path`
+ * - URL helper: `project_legacy_pipelines_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -527,8 +631,12 @@ export const projectLegacyPipelinesRedirectPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pipeline_schedules(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pipeline_schedules(/*rest)(.:format)`
+ * - Path helper: `project_legacy_pipeline_schedules_redirect_path`
+ * - URL helper: `project_legacy_pipeline_schedules_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -547,8 +655,12 @@ export const projectLegacyPipelineSchedulesRedirectPath = /*#__PURE__*/ (project
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/runners(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/runners(/*rest)(.:format)`
+ * - Path helper: `project_legacy_runners_redirect_path`
+ * - URL helper: `project_legacy_runners_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -567,8 +679,12 @@ export const projectLegacyRunnersRedirectPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/snippets(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/snippets(/*rest)(.:format)`
+ * - Path helper: `project_legacy_snippets_redirect_path`
+ * - URL helper: `project_legacy_snippets_redirect_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -587,8 +703,12 @@ export const projectLegacySnippetsRedirectPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /snippets(/*rest)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/snippets(/*rest)(.:format)`
+ * - Path helper: `deprecated_legacy_snippets_redirect_path`
+ * - URL helper: `deprecated_legacy_snippets_redirect_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

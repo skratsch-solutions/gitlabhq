@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths, splitProjectFullPath } from '~/lib/utils/pa
 
 
 /**
- * Generates rails route to
- * /:project_full_path/-/preview_markdown(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/preview_markdown(.:format)`
+ * - Path helper: `project_preview_markdown_path`
+ * - URL helper: `project_preview_markdown_url`
+ * - controller#action: `projects#preview_markdown`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -27,8 +32,13 @@ export const projectPreviewMarkdownPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/archive/*id.:format
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/archive/*id.:format`
+ * - Path helper: `project_archive_path`
+ * - URL helper: `project_archive_url`
+ * - controller#action: `projects/repositories#archive`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {any} format
@@ -49,8 +59,13 @@ export const projectArchivePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/security/configuration/sast(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/security/configuration/sast(.:format)`
+ * - Path helper: `project_security_configuration_sast_path`
+ * - URL helper: `project_security_configuration_sast_url`
+ * - controller#action: `projects/security/sast_configuration#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -69,8 +84,13 @@ export const projectSecurityConfigurationSastPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/security/configuration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/security/configuration(.:format)`
+ * - Path helper: `project_security_configuration_path`
+ * - URL helper: `project_security_configuration_url`
+ * - controller#action: `projects/security/configuration#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -89,8 +109,13 @@ export const projectSecurityConfigurationPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/artifacts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/artifacts(.:format)`
+ * - Path helper: `project_artifacts_path`
+ * - URL helper: `project_artifacts_url`
+ * - controller#action: `projects/artifacts#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -109,8 +134,13 @@ export const projectArtifactsPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/artifacts/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/artifacts/:id(.:format)`
+ * - Path helper: `project_artifact_path`
+ * - URL helper: `project_artifact_url`
+ * - controller#action: `projects/artifacts#destroy`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -130,8 +160,13 @@ export const projectArtifactPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/packages(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/packages(.:format)`
+ * - Path helper: `project_packages_path`
+ * - URL helper: `project_packages_url`
+ * - controller#action: `projects/packages/packages#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -150,8 +185,13 @@ export const projectPackagesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/packages/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/packages/:id(.:format)`
+ * - Path helper: `project_package_path`
+ * - URL helper: `project_package_url`
+ * - controller#action: `projects/packages/packages#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -171,8 +211,13 @@ export const projectPackagePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/package_files/:id/download(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/package_files/:id/download(.:format)`
+ * - Path helper: `download_project_package_file_path`
+ * - URL helper: `download_project_package_file_url`
+ * - controller#action: `projects/packages/package_files#download`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -192,8 +237,13 @@ export const downloadProjectPackageFilePath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/terraform_module_registry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/terraform_module_registry(.:format)`
+ * - Path helper: `project_infrastructure_registry_index_path`
+ * - URL helper: `project_infrastructure_registry_index_url`
+ * - controller#action: `projects/packages/infrastructure_registry#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -212,8 +262,13 @@ export const projectInfrastructureRegistryIndexPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/terraform_module_registry/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/terraform_module_registry/:id(.:format)`
+ * - Path helper: `project_infrastructure_registry_path`
+ * - URL helper: `project_infrastructure_registry_url`
+ * - controller#action: `projects/packages/infrastructure_registry#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -233,8 +288,13 @@ export const projectInfrastructureRegistryPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/artifacts/*ref_name_and_path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/artifacts/*ref_name_and_path`
+ * - Path helper: `latest_succeeded_project_artifacts_path`
+ * - URL helper: `latest_succeeded_project_artifacts_url`
+ * - controller#action: `projects/artifacts#latest_succeeded`
+ *
  * @param {string} projectFullPath
  * @param {any} refNameAndPath
  * @param {object | undefined} options
@@ -254,8 +314,13 @@ export const latestSucceededProjectArtifactsPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/status(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/status(.:format)`
+ * - Path helper: `status_project_job_path`
+ * - URL helper: `status_project_job_url`
+ * - controller#action: `projects/jobs#status`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -275,8 +340,13 @@ export const statusProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/cancel(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/cancel(.:format)`
+ * - Path helper: `cancel_project_job_path`
+ * - URL helper: `cancel_project_job_url`
+ * - controller#action: `projects/jobs#cancel`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -296,8 +366,13 @@ export const cancelProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/unschedule(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/unschedule(.:format)`
+ * - Path helper: `unschedule_project_job_path`
+ * - URL helper: `unschedule_project_job_url`
+ * - controller#action: `projects/jobs#unschedule`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -317,8 +392,13 @@ export const unscheduleProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/retry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/retry(.:format)`
+ * - Path helper: `retry_project_job_path`
+ * - URL helper: `retry_project_job_url`
+ * - controller#action: `projects/jobs#retry`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -338,8 +418,13 @@ export const retryProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/play(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/play(.:format)`
+ * - Path helper: `play_project_job_path`
+ * - URL helper: `play_project_job_url`
+ * - controller#action: `projects/jobs#play`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -359,8 +444,13 @@ export const playProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/erase(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/erase(.:format)`
+ * - Path helper: `erase_project_job_path`
+ * - URL helper: `erase_project_job_url`
+ * - controller#action: `projects/jobs#erase`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -380,8 +470,13 @@ export const eraseProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/trace(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/trace(.:format)`
+ * - Path helper: `trace_project_job_path`
+ * - URL helper: `trace_project_job_url`
+ * - controller#action: `projects/jobs#trace`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -401,8 +496,13 @@ export const traceProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/raw(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/raw(.:format)`
+ * - Path helper: `raw_project_job_path`
+ * - URL helper: `raw_project_job_url`
+ * - controller#action: `projects/jobs#raw`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -422,8 +522,13 @@ export const rawProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/viewer(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/viewer(.:format)`
+ * - Path helper: `viewer_project_job_path`
+ * - URL helper: `viewer_project_job_url`
+ * - controller#action: `projects/jobs#viewer`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -443,8 +548,13 @@ export const viewerProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/terminal(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/terminal(.:format)`
+ * - Path helper: `terminal_project_job_path`
+ * - URL helper: `terminal_project_job_url`
+ * - controller#action: `projects/jobs#terminal`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -464,8 +574,13 @@ export const terminalProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/proxy(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/proxy(.:format)`
+ * - Path helper: `proxy_project_job_path`
+ * - URL helper: `proxy_project_job_url`
+ * - controller#action: `projects/jobs#proxy`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -485,8 +600,13 @@ export const proxyProjectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id/test_report_summary(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id/test_report_summary(.:format)`
+ * - Path helper: `test_report_summary_project_job_path`
+ * - URL helper: `test_report_summary_project_job_url`
+ * - controller#action: `projects/jobs#test_report_summary`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -506,8 +626,13 @@ export const testReportSummaryProjectJobPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:job_id/artifacts/download(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:job_id/artifacts/download(.:format)`
+ * - Path helper: `download_project_job_artifacts_path`
+ * - URL helper: `download_project_job_artifacts_url`
+ * - controller#action: `projects/artifacts#download`
+ *
  * @param {string} projectFullPath
  * @param {any} jobId
  * @param {object | undefined} options
@@ -527,8 +652,13 @@ export const downloadProjectJobArtifactsPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:job_id/artifacts/browse(/*path)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:job_id/artifacts/browse(/*path)`
+ * - Path helper: `browse_project_job_artifacts_path`
+ * - URL helper: `browse_project_job_artifacts_url`
+ * - controller#action: `projects/artifacts#browse`
+ *
  * @param {string} projectFullPath
  * @param {any} jobId
  * @param {object | undefined} options
@@ -548,8 +678,13 @@ export const browseProjectJobArtifactsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:job_id/artifacts/file/*path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:job_id/artifacts/file/*path`
+ * - Path helper: `file_project_job_artifacts_path`
+ * - URL helper: `file_project_job_artifacts_url`
+ * - controller#action: `projects/artifacts#file`
+ *
  * @param {string} projectFullPath
  * @param {any} jobId
  * @param {any} path
@@ -570,8 +705,13 @@ export const fileProjectJobArtifactsPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:job_id/artifacts/external_file/*path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:job_id/artifacts/external_file/*path`
+ * - Path helper: `external_file_project_job_artifacts_path`
+ * - URL helper: `external_file_project_job_artifacts_url`
+ * - controller#action: `projects/artifacts#external_file`
+ *
  * @param {string} projectFullPath
  * @param {any} jobId
  * @param {any} path
@@ -592,8 +732,13 @@ export const externalFileProjectJobArtifactsPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:job_id/artifacts/raw/*path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:job_id/artifacts/raw/*path`
+ * - Path helper: `raw_project_job_artifacts_path`
+ * - URL helper: `raw_project_job_artifacts_url`
+ * - controller#action: `projects/artifacts#raw`
+ *
  * @param {string} projectFullPath
  * @param {any} jobId
  * @param {any} path
@@ -614,8 +759,13 @@ export const rawProjectJobArtifactsPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:job_id/artifacts/keep(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:job_id/artifacts/keep(.:format)`
+ * - Path helper: `keep_project_job_artifacts_path`
+ * - URL helper: `keep_project_job_artifacts_url`
+ * - controller#action: `projects/artifacts#keep`
+ *
  * @param {string} projectFullPath
  * @param {any} jobId
  * @param {object | undefined} options
@@ -635,8 +785,13 @@ export const keepProjectJobArtifactsPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs(.:format)`
+ * - Path helper: `project_jobs_path`
+ * - URL helper: `project_jobs_url`
+ * - controller#action: `projects/jobs#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -655,8 +810,13 @@ export const projectJobsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/jobs/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/jobs/:id(.:format)`
+ * - Path helper: `project_job_path`
+ * - URL helper: `project_job_url`
+ * - controller#action: `projects/jobs#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -676,8 +836,13 @@ export const projectJobPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ci/lint(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ci/lint(.:format)`
+ * - Path helper: `project_ci_lint_path`
+ * - URL helper: `project_ci_lint_url`
+ * - controller#action: `projects/ci/lints#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -696,8 +861,13 @@ export const projectCiLintPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ci/editor(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ci/editor(.:format)`
+ * - Path helper: `project_ci_pipeline_editor_path`
+ * - URL helper: `project_ci_pipeline_editor_url`
+ * - controller#action: `projects/ci/pipeline_editor#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -716,8 +886,13 @@ export const projectCiPipelineEditorPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ci/daily_build_group_report_results(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ci/daily_build_group_report_results(.:format)`
+ * - Path helper: `project_ci_daily_build_group_report_results_path`
+ * - URL helper: `project_ci_daily_build_group_report_results_url`
+ * - controller#action: `projects/ci/daily_build_group_report_results#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -736,8 +911,13 @@ export const projectCiDailyBuildGroupReportResultsPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ci/prometheus_metrics/histograms(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ci/prometheus_metrics/histograms(.:format)`
+ * - Path helper: `project_ci_prometheus_metrics_histograms_path`
+ * - URL helper: `project_ci_prometheus_metrics_histograms_url`
+ * - controller#action: `projects/ci/prometheus_metrics/histograms#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -756,8 +936,13 @@ export const projectCiPrometheusMetricsHistogramsPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/:id/register(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/:id/register(.:format)`
+ * - Path helper: `register_project_runner_path`
+ * - URL helper: `register_project_runner_url`
+ * - controller#action: `projects/runners#register`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -777,8 +962,13 @@ export const registerProjectRunnerPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/:id/resume(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/:id/resume(.:format)`
+ * - Path helper: `resume_project_runner_path`
+ * - URL helper: `resume_project_runner_url`
+ * - controller#action: `projects/runners#resume`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -798,8 +988,13 @@ export const resumeProjectRunnerPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/:id/pause(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/:id/pause(.:format)`
+ * - Path helper: `pause_project_runner_path`
+ * - URL helper: `pause_project_runner_url`
+ * - controller#action: `projects/runners#pause`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -819,8 +1014,13 @@ export const pauseProjectRunnerPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/toggle_shared_runners(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/toggle_shared_runners(.:format)`
+ * - Path helper: `toggle_shared_runners_project_runners_path`
+ * - URL helper: `toggle_shared_runners_project_runners_url`
+ * - controller#action: `projects/runners#toggle_shared_runners`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -839,8 +1039,13 @@ export const toggleSharedRunnersProjectRunnersPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/toggle_group_runners(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/toggle_group_runners(.:format)`
+ * - Path helper: `toggle_group_runners_project_runners_path`
+ * - URL helper: `toggle_group_runners_project_runners_url`
+ * - controller#action: `projects/runners#toggle_group_runners`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -859,8 +1064,13 @@ export const toggleGroupRunnersProjectRunnersPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners(.:format)`
+ * - Path helper: `project_runners_path`
+ * - URL helper: `project_runners_url`
+ * - controller#action: `projects/runners#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -879,8 +1089,13 @@ export const projectRunnersPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/new(.:format)`
+ * - Path helper: `new_project_runner_path`
+ * - URL helper: `new_project_runner_url`
+ * - controller#action: `projects/runners#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -899,8 +1114,13 @@ export const newProjectRunnerPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/:id/edit(.:format)`
+ * - Path helper: `edit_project_runner_path`
+ * - URL helper: `edit_project_runner_url`
+ * - controller#action: `projects/runners#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -920,8 +1140,13 @@ export const editProjectRunnerPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/runners/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/runners/:id(.:format)`
+ * - Path helper: `project_runner_path`
+ * - URL helper: `project_runner_url`
+ * - controller#action: `projects/runners#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -941,8 +1166,13 @@ export const projectRunnerPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/ci_cd/reset_cache(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/ci_cd/reset_cache(.:format)`
+ * - Path helper: `reset_cache_project_settings_ci_cd_path`
+ * - URL helper: `reset_cache_project_settings_ci_cd_url`
+ * - controller#action: `projects/settings/ci_cd#reset_cache`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -961,8 +1191,13 @@ export const resetCacheProjectSettingsCiCdPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/ci_cd/reset_registration_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/ci_cd/reset_registration_token(.:format)`
+ * - Path helper: `reset_registration_token_project_settings_ci_cd_path`
+ * - URL helper: `reset_registration_token_project_settings_ci_cd_url`
+ * - controller#action: `projects/settings/ci_cd#reset_registration_token`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -981,8 +1216,13 @@ export const resetRegistrationTokenProjectSettingsCiCdPath = /*#__PURE__*/ (proj
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/ci_cd/deploy_token/create(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/ci_cd/deploy_token/create(.:format)`
+ * - Path helper: `create_deploy_token_project_settings_ci_cd_path`
+ * - URL helper: `create_deploy_token_project_settings_ci_cd_url`
+ * - controller#action: `projects/settings/repository#create_deploy_token`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1001,8 +1241,13 @@ export const createDeployTokenProjectSettingsCiCdPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/ci_cd/runner_setup_scripts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/ci_cd/runner_setup_scripts(.:format)`
+ * - Path helper: `runner_setup_scripts_project_settings_ci_cd_path`
+ * - URL helper: `runner_setup_scripts_project_settings_ci_cd_url`
+ * - controller#action: `projects/settings/ci_cd#runner_setup_scripts`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1021,8 +1266,13 @@ export const runnerSetupScriptsProjectSettingsCiCdPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/ci_cd/export_job_token_authorizations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/ci_cd/export_job_token_authorizations(.:format)`
+ * - Path helper: `export_job_token_authorizations_project_settings_ci_cd_path`
+ * - URL helper: `export_job_token_authorizations_project_settings_ci_cd_url`
+ * - controller#action: `projects/settings/ci_cd#export_job_token_authorizations`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1041,8 +1291,13 @@ export const exportJobTokenAuthorizationsProjectSettingsCiCdPath = /*#__PURE__*/
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/ci_cd(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/ci_cd(.:format)`
+ * - Path helper: `project_settings_ci_cd_path`
+ * - URL helper: `project_settings_ci_cd_url`
+ * - controller#action: `projects/settings/ci_cd#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1061,8 +1316,13 @@ export const projectSettingsCiCdPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/operations/reset_pagerduty_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/operations/reset_pagerduty_token(.:format)`
+ * - Path helper: `reset_pagerduty_token_project_settings_operations_path`
+ * - URL helper: `reset_pagerduty_token_project_settings_operations_url`
+ * - controller#action: `projects/settings/operations#reset_pagerduty_token`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1081,8 +1341,13 @@ export const resetPagerdutyTokenProjectSettingsOperationsPath = /*#__PURE__*/ (p
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/operations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/operations(.:format)`
+ * - Path helper: `project_settings_operations_path`
+ * - URL helper: `project_settings_operations_url`
+ * - controller#action: `projects/settings/operations#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1101,8 +1366,13 @@ export const projectSettingsOperationsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/integrations/:id/test(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/integrations/:id/test(.:format)`
+ * - Path helper: `test_project_settings_integration_path`
+ * - URL helper: `test_project_settings_integration_url`
+ * - controller#action: `projects/settings/integrations#test`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1122,8 +1392,13 @@ export const testProjectSettingsIntegrationPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/integrations/:integration_id/hook_logs/:id/retry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/integrations/:integration_id/hook_logs/:id/retry(.:format)`
+ * - Path helper: `retry_project_settings_integration_hook_log_path`
+ * - URL helper: `retry_project_settings_integration_hook_log_url`
+ * - controller#action: `projects/settings/integration_hook_logs#retry`
+ *
  * @param {string} projectFullPath
  * @param {any} integrationId
  * @param {any} id
@@ -1144,8 +1419,13 @@ export const retryProjectSettingsIntegrationHookLogPath = /*#__PURE__*/ (project
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/integrations/:integration_id/hook_logs/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/integrations/:integration_id/hook_logs/:id(.:format)`
+ * - Path helper: `project_settings_integration_hook_log_path`
+ * - URL helper: `project_settings_integration_hook_log_url`
+ * - controller#action: `projects/settings/integration_hook_logs#show`
+ *
  * @param {string} projectFullPath
  * @param {any} integrationId
  * @param {any} id
@@ -1166,8 +1446,13 @@ export const projectSettingsIntegrationHookLogPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/integrations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/integrations(.:format)`
+ * - Path helper: `project_settings_integrations_path`
+ * - URL helper: `project_settings_integrations_url`
+ * - controller#action: `projects/settings/integrations#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1186,8 +1471,13 @@ export const projectSettingsIntegrationsPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/integrations/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/integrations/:id/edit(.:format)`
+ * - Path helper: `edit_project_settings_integration_path`
+ * - URL helper: `edit_project_settings_integration_url`
+ * - controller#action: `projects/settings/integrations#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1207,8 +1497,13 @@ export const editProjectSettingsIntegrationPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/integrations/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/integrations/:id(.:format)`
+ * - Path helper: `project_settings_integration_path`
+ * - URL helper: `project_settings_integration_url`
+ * - controller#action: `projects/settings/integrations#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1228,8 +1523,13 @@ export const projectSettingsIntegrationPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/slack/slack_auth(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/slack/slack_auth(.:format)`
+ * - Path helper: `slack_auth_project_settings_slack_path`
+ * - URL helper: `slack_auth_project_settings_slack_url`
+ * - controller#action: `projects/settings/slacks#slack_auth`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1248,8 +1548,13 @@ export const slackAuthProjectSettingsSlackPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/slack/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/slack/edit(.:format)`
+ * - Path helper: `edit_project_settings_slack_path`
+ * - URL helper: `edit_project_settings_slack_url`
+ * - controller#action: `projects/settings/slacks#edit`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1268,8 +1573,13 @@ export const editProjectSettingsSlackPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/slack(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/slack(.:format)`
+ * - Path helper: `project_settings_slack_path`
+ * - URL helper: `project_settings_slack_url`
+ * - controller#action: `projects/settings/slacks#update`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1288,8 +1598,13 @@ export const projectSettingsSlackPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/repository/deploy_token/create(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/repository/deploy_token/create(.:format)`
+ * - Path helper: `create_deploy_token_project_settings_repository_path`
+ * - URL helper: `create_deploy_token_project_settings_repository_url`
+ * - controller#action: `projects/settings/repository#create_deploy_token`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1308,8 +1623,13 @@ export const createDeployTokenProjectSettingsRepositoryPath = /*#__PURE__*/ (pro
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/repository/cleanup(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/repository/cleanup(.:format)`
+ * - Path helper: `cleanup_project_settings_repository_path`
+ * - URL helper: `cleanup_project_settings_repository_url`
+ * - controller#action: `projects/settings/repository#cleanup`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1328,8 +1648,13 @@ export const cleanupProjectSettingsRepositoryPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/repository/branch_rules(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/repository/branch_rules(.:format)`
+ * - Path helper: `project_settings_repository_branch_rules_path`
+ * - URL helper: `project_settings_repository_branch_rules_url`
+ * - controller#action: `projects/settings/branch_rules#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1348,8 +1673,13 @@ export const projectSettingsRepositoryBranchRulesPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/repository(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/repository(.:format)`
+ * - Path helper: `project_settings_repository_path`
+ * - URL helper: `project_settings_repository_url`
+ * - controller#action: `projects/settings/repository#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1368,8 +1698,13 @@ export const projectSettingsRepositoryPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/service_accounts(/*vueroute)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/service_accounts(/*vueroute)(.:format)`
+ * - Path helper: `project_settings_service_accounts_path`
+ * - URL helper: `project_settings_service_accounts_url`
+ * - controller#action: `projects/settings/service_accounts#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1388,8 +1723,13 @@ export const projectSettingsServiceAccountsPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/access_tokens/:id/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/access_tokens/:id/revoke(.:format)`
+ * - Path helper: `revoke_project_settings_access_token_path`
+ * - URL helper: `revoke_project_settings_access_token_url`
+ * - controller#action: `projects/settings/access_tokens#revoke`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1409,8 +1749,13 @@ export const revokeProjectSettingsAccessTokenPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/access_tokens/:id/rotate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/access_tokens/:id/rotate(.:format)`
+ * - Path helper: `rotate_project_settings_access_token_path`
+ * - URL helper: `rotate_project_settings_access_token_url`
+ * - controller#action: `projects/settings/access_tokens#rotate`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1430,8 +1775,13 @@ export const rotateProjectSettingsAccessTokenPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/access_tokens/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/access_tokens/inactive(.:format)`
+ * - Path helper: `inactive_project_settings_access_tokens_path`
+ * - URL helper: `inactive_project_settings_access_tokens_url`
+ * - controller#action: `projects/settings/access_tokens#inactive`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1450,8 +1800,13 @@ export const inactiveProjectSettingsAccessTokensPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/access_tokens(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/access_tokens(.:format)`
+ * - Path helper: `project_settings_access_tokens_path`
+ * - URL helper: `project_settings_access_tokens_url`
+ * - controller#action: `projects/settings/access_tokens#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1470,8 +1825,13 @@ export const projectSettingsAccessTokensPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/packages_and_registries/cleanup_image_tags(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/packages_and_registries/cleanup_image_tags(.:format)`
+ * - Path helper: `cleanup_image_tags_project_settings_packages_and_registries_path`
+ * - URL helper: `cleanup_image_tags_project_settings_packages_and_registries_url`
+ * - controller#action: `projects/settings/packages_and_registries#cleanup_tags`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1490,8 +1850,13 @@ export const cleanupImageTagsProjectSettingsPackagesAndRegistriesPath = /*#__PUR
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/packages_and_registries(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/packages_and_registries(.:format)`
+ * - Path helper: `project_settings_packages_and_registries_path`
+ * - URL helper: `project_settings_packages_and_registries_url`
+ * - controller#action: `projects/settings/packages_and_registries#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1510,8 +1875,13 @@ export const projectSettingsPackagesAndRegistriesPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/settings/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/settings/merge_requests(.:format)`
+ * - Path helper: `project_settings_merge_requests_path`
+ * - URL helper: `project_settings_merge_requests_url`
+ * - controller#action: `projects/settings/merge_requests#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1530,8 +1900,13 @@ export const projectSettingsMergeRequestsPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/usage_quotas(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/usage_quotas(.:format)`
+ * - Path helper: `project_usage_quotas_path`
+ * - URL helper: `project_usage_quotas_url`
+ * - controller#action: `projects/usage_quotas#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1550,8 +1925,13 @@ export const projectUsageQuotasPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/members(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/members(.:format)`
+ * - Path helper: `members_project_autocomplete_sources_path`
+ * - URL helper: `members_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#members`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1570,8 +1950,13 @@ export const membersProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/issues(.:format)`
+ * - Path helper: `issues_project_autocomplete_sources_path`
+ * - URL helper: `issues_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#issues`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1590,8 +1975,13 @@ export const issuesProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/merge_requests(.:format)`
+ * - Path helper: `merge_requests_project_autocomplete_sources_path`
+ * - URL helper: `merge_requests_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#merge_requests`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1610,8 +2000,13 @@ export const mergeRequestsProjectAutocompleteSourcesPath = /*#__PURE__*/ (projec
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/labels(.:format)`
+ * - Path helper: `labels_project_autocomplete_sources_path`
+ * - URL helper: `labels_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#labels`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1630,8 +2025,13 @@ export const labelsProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/milestones(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/milestones(.:format)`
+ * - Path helper: `milestones_project_autocomplete_sources_path`
+ * - URL helper: `milestones_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#milestones`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1650,8 +2050,13 @@ export const milestonesProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/commands(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/commands(.:format)`
+ * - Path helper: `commands_project_autocomplete_sources_path`
+ * - URL helper: `commands_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#commands`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1670,8 +2075,13 @@ export const commandsProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/snippets(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/snippets(.:format)`
+ * - Path helper: `snippets_project_autocomplete_sources_path`
+ * - URL helper: `snippets_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#snippets`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1690,8 +2100,13 @@ export const snippetsProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/contacts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/contacts(.:format)`
+ * - Path helper: `contacts_project_autocomplete_sources_path`
+ * - URL helper: `contacts_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#contacts`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1710,8 +2125,13 @@ export const contactsProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/autocomplete_sources/wikis(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/autocomplete_sources/wikis(.:format)`
+ * - Path helper: `wikis_project_autocomplete_sources_path`
+ * - URL helper: `wikis_project_autocomplete_sources_url`
+ * - controller#action: `projects/autocomplete_sources#wikis`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1730,8 +2150,13 @@ export const wikisProjectAutocompleteSourcesPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/project_members/leave(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/project_members/leave(.:format)`
+ * - Path helper: `leave_project_project_members_path`
+ * - URL helper: `leave_project_project_members_url`
+ * - controller#action: `projects/project_members#leave`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1750,8 +2175,13 @@ export const leaveProjectProjectMembersPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/project_members/invite_search(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/project_members/invite_search(.:format)`
+ * - Path helper: `invite_search_project_project_members_path`
+ * - URL helper: `invite_search_project_project_members_url`
+ * - controller#action: `projects/project_members#invite_search`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1770,8 +2200,13 @@ export const inviteSearchProjectProjectMembersPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/project_members/:id/resend_invite(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/project_members/:id/resend_invite(.:format)`
+ * - Path helper: `resend_invite_project_project_member_path`
+ * - URL helper: `resend_invite_project_project_member_url`
+ * - controller#action: `projects/project_members#resend_invite`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1791,8 +2226,13 @@ export const resendInviteProjectProjectMemberPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/project_members(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/project_members(.:format)`
+ * - Path helper: `project_project_members_path`
+ * - URL helper: `project_project_members_url`
+ * - controller#action: `projects/project_members#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1811,8 +2251,13 @@ export const projectProjectMembersPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/project_members/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/project_members/:id(.:format)`
+ * - Path helper: `project_project_member_path`
+ * - URL helper: `project_project_member_url`
+ * - controller#action: `projects/project_members#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1832,8 +2277,13 @@ export const projectProjectMemberPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/enabled_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/enabled_keys(.:format)`
+ * - Path helper: `enabled_keys_project_deploy_keys_path`
+ * - URL helper: `enabled_keys_project_deploy_keys_url`
+ * - controller#action: `projects/deploy_keys#enabled_keys`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1852,8 +2302,13 @@ export const enabledKeysProjectDeployKeysPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/available_project_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/available_project_keys(.:format)`
+ * - Path helper: `available_project_keys_project_deploy_keys_path`
+ * - URL helper: `available_project_keys_project_deploy_keys_url`
+ * - controller#action: `projects/deploy_keys#available_project_keys`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1872,8 +2327,13 @@ export const availableProjectKeysProjectDeployKeysPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/available_public_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/available_public_keys(.:format)`
+ * - Path helper: `available_public_keys_project_deploy_keys_path`
+ * - URL helper: `available_public_keys_project_deploy_keys_url`
+ * - controller#action: `projects/deploy_keys#available_public_keys`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1892,8 +2352,13 @@ export const availablePublicKeysProjectDeployKeysPath = /*#__PURE__*/ (projectFu
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/:id/enable(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/:id/enable(.:format)`
+ * - Path helper: `enable_project_deploy_key_path`
+ * - URL helper: `enable_project_deploy_key_url`
+ * - controller#action: `projects/deploy_keys#enable`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1913,8 +2378,13 @@ export const enableProjectDeployKeyPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/:id/disable(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/:id/disable(.:format)`
+ * - Path helper: `disable_project_deploy_key_path`
+ * - URL helper: `disable_project_deploy_key_url`
+ * - controller#action: `projects/deploy_keys#disable`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1934,8 +2404,13 @@ export const disableProjectDeployKeyPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys(.:format)`
+ * - Path helper: `project_deploy_keys_path`
+ * - URL helper: `project_deploy_keys_url`
+ * - controller#action: `projects/deploy_keys#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1954,8 +2429,13 @@ export const projectDeployKeysPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/new(.:format)`
+ * - Path helper: `new_project_deploy_key_path`
+ * - URL helper: `new_project_deploy_key_url`
+ * - controller#action: `projects/deploy_keys#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1974,8 +2454,13 @@ export const newProjectDeployKeyPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/:id/edit(.:format)`
+ * - Path helper: `edit_project_deploy_key_path`
+ * - URL helper: `edit_project_deploy_key_url`
+ * - controller#action: `projects/deploy_keys#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -1995,8 +2480,13 @@ export const editProjectDeployKeyPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_keys/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_keys/:id(.:format)`
+ * - Path helper: `project_deploy_key_path`
+ * - URL helper: `project_deploy_key_url`
+ * - controller#action: `projects/deploy_keys#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2016,8 +2506,13 @@ export const projectDeployKeyPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/deploy_tokens/:id/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/deploy_tokens/:id/revoke(.:format)`
+ * - Path helper: `revoke_project_deploy_token_path`
+ * - URL helper: `revoke_project_deploy_token_url`
+ * - controller#action: `projects/deploy_tokens#revoke`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2037,8 +2532,13 @@ export const revokeProjectDeployTokenPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/:id/promote(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/:id/promote(.:format)`
+ * - Path helper: `promote_project_milestone_path`
+ * - URL helper: `promote_project_milestone_url`
+ * - controller#action: `projects/milestones#promote`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2058,8 +2558,13 @@ export const promoteProjectMilestonePath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/:id/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/:id/issues(.:format)`
+ * - Path helper: `issues_project_milestone_path`
+ * - URL helper: `issues_project_milestone_url`
+ * - controller#action: `projects/milestones#issues`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2079,8 +2584,13 @@ export const issuesProjectMilestonePath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/:id/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/:id/merge_requests(.:format)`
+ * - Path helper: `merge_requests_project_milestone_path`
+ * - URL helper: `merge_requests_project_milestone_url`
+ * - controller#action: `projects/milestones#merge_requests`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2100,8 +2610,13 @@ export const mergeRequestsProjectMilestonePath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/:id/participants(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/:id/participants(.:format)`
+ * - Path helper: `participants_project_milestone_path`
+ * - URL helper: `participants_project_milestone_url`
+ * - controller#action: `projects/milestones#participants`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2121,8 +2636,13 @@ export const participantsProjectMilestonePath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/:id/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/:id/labels(.:format)`
+ * - Path helper: `labels_project_milestone_path`
+ * - URL helper: `labels_project_milestone_url`
+ * - controller#action: `projects/milestones#labels`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2142,8 +2662,13 @@ export const labelsProjectMilestonePath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones(.:format)`
+ * - Path helper: `project_milestones_path`
+ * - URL helper: `project_milestones_url`
+ * - controller#action: `projects/milestones#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2162,8 +2687,13 @@ export const projectMilestonesPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/new(.:format)`
+ * - Path helper: `new_project_milestone_path`
+ * - URL helper: `new_project_milestone_url`
+ * - controller#action: `projects/milestones#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2182,8 +2712,13 @@ export const newProjectMilestonePath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/:id/edit(.:format)`
+ * - Path helper: `edit_project_milestone_path`
+ * - URL helper: `edit_project_milestone_url`
+ * - controller#action: `projects/milestones#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2203,8 +2738,13 @@ export const editProjectMilestonePath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/milestones/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/milestones/:id(.:format)`
+ * - Path helper: `project_milestone_path`
+ * - URL helper: `project_milestone_url`
+ * - controller#action: `projects/milestones#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2224,8 +2764,13 @@ export const projectMilestonePath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/generate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/generate(.:format)`
+ * - Path helper: `generate_project_labels_path`
+ * - URL helper: `generate_project_labels_url`
+ * - controller#action: `projects/labels#generate`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2244,8 +2789,13 @@ export const generateProjectLabelsPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/set_priorities(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/set_priorities(.:format)`
+ * - Path helper: `set_priorities_project_labels_path`
+ * - URL helper: `set_priorities_project_labels_url`
+ * - controller#action: `projects/labels#set_priorities`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2264,8 +2814,13 @@ export const setPrioritiesProjectLabelsPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/:id/promote(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/:id/promote(.:format)`
+ * - Path helper: `promote_project_label_path`
+ * - URL helper: `promote_project_label_url`
+ * - controller#action: `projects/labels#promote`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2285,8 +2840,13 @@ export const promoteProjectLabelPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/:id/toggle_subscription(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/:id/toggle_subscription(.:format)`
+ * - Path helper: `toggle_subscription_project_label_path`
+ * - URL helper: `toggle_subscription_project_label_url`
+ * - controller#action: `projects/labels#toggle_subscription`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2306,8 +2866,13 @@ export const toggleSubscriptionProjectLabelPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/:id/remove_priority(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/:id/remove_priority(.:format)`
+ * - Path helper: `remove_priority_project_label_path`
+ * - URL helper: `remove_priority_project_label_url`
+ * - controller#action: `projects/labels#remove_priority`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2327,8 +2892,13 @@ export const removePriorityProjectLabelPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels(.:format)`
+ * - Path helper: `project_labels_path`
+ * - URL helper: `project_labels_url`
+ * - controller#action: `projects/labels#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2347,8 +2917,13 @@ export const projectLabelsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/new(.:format)`
+ * - Path helper: `new_project_label_path`
+ * - URL helper: `new_project_label_url`
+ * - controller#action: `projects/labels#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2367,8 +2942,13 @@ export const newProjectLabelPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/:id/edit(.:format)`
+ * - Path helper: `edit_project_label_path`
+ * - URL helper: `edit_project_label_url`
+ * - controller#action: `projects/labels#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2388,8 +2968,13 @@ export const editProjectLabelPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/labels/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/labels/:id(.:format)`
+ * - Path helper: `project_label_path`
+ * - URL helper: `project_label_url`
+ * - controller#action: `projects/labels#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2409,8 +2994,13 @@ export const projectLabelPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/boards(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/boards(.:format)`
+ * - Path helper: `project_boards_path`
+ * - URL helper: `project_boards_url`
+ * - controller#action: `projects/boards#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2429,8 +3019,13 @@ export const projectBoardsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/boards/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/boards/:id(.:format)`
+ * - Path helper: `project_board_path`
+ * - URL helper: `project_board_url`
+ * - controller#action: `projects/boards#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2450,8 +3045,13 @@ export const projectBoardPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/permalink/latest(/)(*suffix_path)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/permalink/latest(/)(*suffix_path)`
+ * - Path helper: `project_latest_release_permalink_path`
+ * - URL helper: `project_latest_release_permalink_url`
+ * - controller#action: `projects/releases#latest_permalink`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2470,8 +3070,13 @@ export const projectLatestReleasePermalinkPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/:tag/downloads/*filepath
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/:tag/downloads/*filepath`
+ * - Path helper: `downloads_project_release_path`
+ * - URL helper: `downloads_project_release_url`
+ * - controller#action: `projects/releases#downloads`
+ *
  * @param {string} projectFullPath
  * @param {any} tag
  * @param {any} filepath
@@ -2492,8 +3097,13 @@ export const downloadsProjectReleasePath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/:tag/evidences/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/:tag/evidences/:id(.:format)`
+ * - Path helper: `project_evidence_path`
+ * - URL helper: `project_evidence_url`
+ * - controller#action: `projects/releases/evidences#show`
+ *
  * @param {string} projectFullPath
  * @param {any} tag
  * @param {any} id
@@ -2514,8 +3124,13 @@ export const projectEvidencePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/new(.:format)`
+ * - Path helper: `new_project_release_path`
+ * - URL helper: `new_project_release_url`
+ * - controller#action: `projects/releases#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2534,8 +3149,13 @@ export const newProjectReleasePath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/:tag/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/:tag/edit(.:format)`
+ * - Path helper: `edit_project_release_path`
+ * - URL helper: `edit_project_release_url`
+ * - controller#action: `projects/releases#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} tag
  * @param {object | undefined} options
@@ -2555,8 +3175,13 @@ export const editProjectReleasePath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/releases/:tag(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/releases/:tag(.:format)`
+ * - Path helper: `project_release_path`
+ * - URL helper: `project_release_url`
+ * - controller#action: `projects/releases#show`
+ *
  * @param {string} projectFullPath
  * @param {any} tag
  * @param {object | undefined} options
@@ -2576,8 +3201,13 @@ export const projectReleasePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/starrers(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/starrers(.:format)`
+ * - Path helper: `project_starrers_path`
+ * - URL helper: `project_starrers_url`
+ * - controller#action: `projects/starrers#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2596,8 +3226,13 @@ export const projectStarrersPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/forks(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/forks(.:format)`
+ * - Path helper: `project_forks_path`
+ * - URL helper: `project_forks_url`
+ * - controller#action: `projects/forks#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2616,8 +3251,13 @@ export const projectForksPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/forks/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/forks/new(.:format)`
+ * - Path helper: `new_project_fork_path`
+ * - URL helper: `new_project_fork_url`
+ * - controller#action: `projects/forks#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2636,8 +3276,13 @@ export const newProjectForkPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/group_links/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/group_links/:id(.:format)`
+ * - Path helper: `project_group_link_path`
+ * - URL helper: `project_group_link_url`
+ * - controller#action: `projects/group_links#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2657,8 +3302,13 @@ export const projectGroupLinkPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/import/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/import/new(.:format)`
+ * - Path helper: `new_project_import_path`
+ * - URL helper: `new_project_import_url`
+ * - controller#action: `projects/imports#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2677,8 +3327,13 @@ export const newProjectImportPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/import(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/import(.:format)`
+ * - Path helper: `project_import_path`
+ * - URL helper: `project_import_url`
+ * - controller#action: `projects/imports#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2697,8 +3352,13 @@ export const projectImportPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/avatar(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/avatar(.:format)`
+ * - Path helper: `project_avatar_path`
+ * - URL helper: `project_avatar_url`
+ * - controller#action: `projects/avatars#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2717,8 +3377,13 @@ export const projectAvatarPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/mattermost/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/mattermost/new(.:format)`
+ * - Path helper: `new_project_mattermost_path`
+ * - URL helper: `new_project_mattermost_url`
+ * - controller#action: `projects/mattermosts#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2737,8 +3402,13 @@ export const newProjectMattermostPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/mattermost(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/mattermost(.:format)`
+ * - Path helper: `project_mattermost_path`
+ * - URL helper: `project_mattermost_url`
+ * - controller#action: `projects/mattermosts#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2757,8 +3427,13 @@ export const projectMattermostPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/variables(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/variables(.:format)`
+ * - Path helper: `project_variables_path`
+ * - URL helper: `project_variables_url`
+ * - controller#action: `projects/variables#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2777,8 +3452,13 @@ export const projectVariablesPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/triggers(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/triggers(.:format)`
+ * - Path helper: `project_triggers_path`
+ * - URL helper: `project_triggers_url`
+ * - controller#action: `projects/triggers#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2797,8 +3477,13 @@ export const projectTriggersPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/triggers/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/triggers/:id(.:format)`
+ * - Path helper: `project_trigger_path`
+ * - URL helper: `project_trigger_url`
+ * - controller#action: `projects/triggers#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -2818,8 +3503,13 @@ export const projectTriggerPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/mirror/ssh_host_keys(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/mirror/ssh_host_keys(.:format)`
+ * - Path helper: `ssh_host_keys_project_mirror_path`
+ * - URL helper: `ssh_host_keys_project_mirror_url`
+ * - controller#action: `projects/mirrors#ssh_host_keys`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2838,8 +3528,13 @@ export const sshHostKeysProjectMirrorPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/mirror/update_now(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/mirror/update_now(.:format)`
+ * - Path helper: `update_now_project_mirror_path`
+ * - URL helper: `update_now_project_mirror_url`
+ * - controller#action: `projects/mirrors#update_now`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2858,8 +3553,13 @@ export const updateNowProjectMirrorPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/mirror(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/mirror(.:format)`
+ * - Path helper: `project_mirror_path`
+ * - URL helper: `project_mirror_url`
+ * - controller#action: `projects/mirrors#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2878,8 +3578,13 @@ export const projectMirrorPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics(.:format)`
+ * - Path helper: `project_cycle_analytics_path`
+ * - URL helper: `project_cycle_analytics_url`
+ * - controller#action: `projects/cycle_analytics#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2898,8 +3603,13 @@ export const projectCycleAnalyticsPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics/events/issue(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics/events/issue(.:format)`
+ * - Path helper: `project_cycle_analytics_issue_path`
+ * - URL helper: `project_cycle_analytics_issue_url`
+ * - controller#action: `projects/cycle_analytics/events#issue`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2918,8 +3628,13 @@ export const projectCycleAnalyticsIssuePath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics/events/plan(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics/events/plan(.:format)`
+ * - Path helper: `project_cycle_analytics_plan_path`
+ * - URL helper: `project_cycle_analytics_plan_url`
+ * - controller#action: `projects/cycle_analytics/events#plan`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2938,8 +3653,13 @@ export const projectCycleAnalyticsPlanPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics/events/code(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics/events/code(.:format)`
+ * - Path helper: `project_cycle_analytics_code_path`
+ * - URL helper: `project_cycle_analytics_code_url`
+ * - controller#action: `projects/cycle_analytics/events#code`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2958,8 +3678,13 @@ export const projectCycleAnalyticsCodePath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics/events/test(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics/events/test(.:format)`
+ * - Path helper: `project_cycle_analytics_test_path`
+ * - URL helper: `project_cycle_analytics_test_url`
+ * - controller#action: `projects/cycle_analytics/events#test`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2978,8 +3703,13 @@ export const projectCycleAnalyticsTestPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics/events/review(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics/events/review(.:format)`
+ * - Path helper: `project_cycle_analytics_review_path`
+ * - URL helper: `project_cycle_analytics_review_url`
+ * - controller#action: `projects/cycle_analytics/events#review`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2998,8 +3728,13 @@ export const projectCycleAnalyticsReviewPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics/events/staging(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics/events/staging(.:format)`
+ * - Path helper: `project_cycle_analytics_staging_path`
+ * - URL helper: `project_cycle_analytics_staging_url`
+ * - controller#action: `projects/cycle_analytics/events#staging`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3018,8 +3753,13 @@ export const projectCycleAnalyticsStagingPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/value_stream_analytics/events/production(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/value_stream_analytics/events/production(.:format)`
+ * - Path helper: `project_cycle_analytics_production_path`
+ * - URL helper: `project_cycle_analytics_production_url`
+ * - controller#action: `projects/cycle_analytics/events#production`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3038,8 +3778,13 @@ export const projectCycleAnalyticsProductionPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/analytics/value_stream_analytics(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/analytics/value_stream_analytics(.:format)`
+ * - Path helper: `project_analytics_cycle_analytics_path`
+ * - URL helper: `project_analytics_cycle_analytics_url`
+ * - controller#action: `projects/analytics/cycle_analytics#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3058,8 +3803,13 @@ export const projectAnalyticsCycleAnalyticsPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/median(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/median(.:format)`
+ * - Path helper: `median_project_analytics_cycle_analytics_value_stream_stage_path`
+ * - URL helper: `median_project_analytics_cycle_analytics_value_stream_stage_url`
+ * - controller#action: `projects/analytics/cycle_analytics/stages#median`
+ *
  * @param {string} projectFullPath
  * @param {any} valueStreamId
  * @param {any} id
@@ -3080,8 +3830,13 @@ export const medianProjectAnalyticsCycleAnalyticsValueStreamStagePath = /*#__PUR
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/average(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/average(.:format)`
+ * - Path helper: `average_project_analytics_cycle_analytics_value_stream_stage_path`
+ * - URL helper: `average_project_analytics_cycle_analytics_value_stream_stage_url`
+ * - controller#action: `projects/analytics/cycle_analytics/stages#average`
+ *
  * @param {string} projectFullPath
  * @param {any} valueStreamId
  * @param {any} id
@@ -3102,8 +3857,13 @@ export const averageProjectAnalyticsCycleAnalyticsValueStreamStagePath = /*#__PU
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/records(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/records(.:format)`
+ * - Path helper: `records_project_analytics_cycle_analytics_value_stream_stage_path`
+ * - URL helper: `records_project_analytics_cycle_analytics_value_stream_stage_url`
+ * - controller#action: `projects/analytics/cycle_analytics/stages#records`
+ *
  * @param {string} projectFullPath
  * @param {any} valueStreamId
  * @param {any} id
@@ -3124,8 +3884,13 @@ export const recordsProjectAnalyticsCycleAnalyticsValueStreamStagePath = /*#__PU
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/count(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages/:id/count(.:format)`
+ * - Path helper: `count_project_analytics_cycle_analytics_value_stream_stage_path`
+ * - URL helper: `count_project_analytics_cycle_analytics_value_stream_stage_url`
+ * - controller#action: `projects/analytics/cycle_analytics/stages#count`
+ *
  * @param {string} projectFullPath
  * @param {any} valueStreamId
  * @param {any} id
@@ -3146,8 +3911,13 @@ export const countProjectAnalyticsCycleAnalyticsValueStreamStagePath = /*#__PURE
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/analytics/value_stream_analytics/value_streams/:value_stream_id/stages(.:format)`
+ * - Path helper: `project_analytics_cycle_analytics_value_stream_stages_path`
+ * - URL helper: `project_analytics_cycle_analytics_value_stream_stages_url`
+ * - controller#action: `projects/analytics/cycle_analytics/stages#index`
+ *
  * @param {string} projectFullPath
  * @param {any} valueStreamId
  * @param {object | undefined} options
@@ -3167,8 +3937,13 @@ export const projectAnalyticsCycleAnalyticsValueStreamStagesPath = /*#__PURE__*/
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/analytics/value_stream_analytics/summary(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/analytics/value_stream_analytics/summary(.:format)`
+ * - Path helper: `project_analytics_cycle_analytics_summary_path`
+ * - URL helper: `project_analytics_cycle_analytics_summary_url`
+ * - controller#action: `projects/analytics/cycle_analytics/summary#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3187,8 +3962,13 @@ export const projectAnalyticsCycleAnalyticsSummaryPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/cluster_agents/:name(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/cluster_agents/:name(.:format)`
+ * - Path helper: `project_cluster_agent_path`
+ * - URL helper: `project_cluster_agent_url`
+ * - controller#action: `projects/cluster_agents#show`
+ *
  * @param {string} projectFullPath
  * @param {any} name
  * @param {object | undefined} options
@@ -3208,8 +3988,13 @@ export const projectClusterAgentPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/terraform(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/terraform(.:format)`
+ * - Path helper: `project_terraform_index_path`
+ * - URL helper: `project_terraform_index_url`
+ * - controller#action: `projects/terraform#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3228,8 +4013,12 @@ export const projectTerraformIndexPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud(.:format)`
+ * - Path helper: `project_google_cloud_path`
+ * - URL helper: `project_google_cloud_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3248,8 +4037,13 @@ export const projectGoogleCloudPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/configuration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/configuration(.:format)`
+ * - Path helper: `project_google_cloud_configuration_path`
+ * - URL helper: `project_google_cloud_configuration_url`
+ * - controller#action: `projects/google_cloud/configuration#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3268,8 +4062,13 @@ export const projectGoogleCloudConfigurationPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/revoke_oauth(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/revoke_oauth(.:format)`
+ * - Path helper: `project_google_cloud_revoke_oauth_index_path`
+ * - URL helper: `project_google_cloud_revoke_oauth_index_url`
+ * - controller#action: `projects/google_cloud/revoke_oauth#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3288,8 +4087,13 @@ export const projectGoogleCloudRevokeOauthIndexPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/service_accounts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/service_accounts(.:format)`
+ * - Path helper: `project_google_cloud_service_accounts_path`
+ * - URL helper: `project_google_cloud_service_accounts_url`
+ * - controller#action: `projects/google_cloud/service_accounts#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3308,8 +4112,13 @@ export const projectGoogleCloudServiceAccountsPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/gcp_regions(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/gcp_regions(.:format)`
+ * - Path helper: `project_google_cloud_gcp_regions_path`
+ * - URL helper: `project_google_cloud_gcp_regions_url`
+ * - controller#action: `projects/google_cloud/gcp_regions#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3328,8 +4137,13 @@ export const projectGoogleCloudGcpRegionsPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/deployments(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/deployments(.:format)`
+ * - Path helper: `project_google_cloud_deployments_path`
+ * - URL helper: `project_google_cloud_deployments_url`
+ * - controller#action: `projects/google_cloud/deployments#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3348,8 +4162,13 @@ export const projectGoogleCloudDeploymentsPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/deployments/cloud_run(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/deployments/cloud_run(.:format)`
+ * - Path helper: `project_google_cloud_deployments_cloud_run_path`
+ * - URL helper: `project_google_cloud_deployments_cloud_run_url`
+ * - controller#action: `projects/google_cloud/deployments#cloud_run`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3368,8 +4187,13 @@ export const projectGoogleCloudDeploymentsCloudRunPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/deployments/cloud_storage(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/deployments/cloud_storage(.:format)`
+ * - Path helper: `project_google_cloud_deployments_cloud_storage_path`
+ * - URL helper: `project_google_cloud_deployments_cloud_storage_url`
+ * - controller#action: `projects/google_cloud/deployments#cloud_storage`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3388,8 +4212,13 @@ export const projectGoogleCloudDeploymentsCloudStoragePath = /*#__PURE__*/ (proj
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/databases(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/databases(.:format)`
+ * - Path helper: `project_google_cloud_databases_path`
+ * - URL helper: `project_google_cloud_databases_url`
+ * - controller#action: `projects/google_cloud/databases#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3408,8 +4237,13 @@ export const projectGoogleCloudDatabasesPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/google_cloud/databases/new/:product(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/google_cloud/databases/new/:product(.:format)`
+ * - Path helper: `new_project_google_cloud_database_path`
+ * - URL helper: `new_project_google_cloud_database_url`
+ * - controller#action: `projects/google_cloud/databases#new`
+ *
  * @param {string} projectFullPath
  * @param {any} product
  * @param {object | undefined} options
@@ -3429,8 +4263,12 @@ export const newProjectGoogleCloudDatabasePath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/aws(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/aws(.:format)`
+ * - Path helper: `project_aws_path`
+ * - URL helper: `project_aws_url`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3449,8 +4287,13 @@ export const projectAwsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/aws/configuration(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/aws/configuration(.:format)`
+ * - Path helper: `project_aws_configuration_path`
+ * - URL helper: `project_aws_configuration_url`
+ * - controller#action: `projects/aws/configuration#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3469,8 +4312,13 @@ export const projectAwsConfigurationPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:id/stop(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:id/stop(.:format)`
+ * - Path helper: `stop_project_environment_path`
+ * - URL helper: `stop_project_environment_url`
+ * - controller#action: `projects/environments#stop`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3490,8 +4338,13 @@ export const stopProjectEnvironmentPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:id/cancel_auto_stop(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:id/cancel_auto_stop(.:format)`
+ * - Path helper: `cancel_auto_stop_project_environment_path`
+ * - URL helper: `cancel_auto_stop_project_environment_url`
+ * - controller#action: `projects/environments#cancel_auto_stop`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3511,8 +4364,13 @@ export const cancelAutoStopProjectEnvironmentPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:id/terminal(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:id/terminal(.:format)`
+ * - Path helper: `terminal_project_environment_path`
+ * - URL helper: `terminal_project_environment_url`
+ * - controller#action: `projects/environments#terminal`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3532,8 +4390,13 @@ export const terminalProjectEnvironmentPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:id/k8s(/*vueroute)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:id/k8s(/*vueroute)(.:format)`
+ * - Path helper: `k8s_subroute_project_environment_path`
+ * - URL helper: `k8s_subroute_project_environment_url`
+ * - controller#action: `projects/environments#k8s`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3553,8 +4416,13 @@ export const k8sSubrouteProjectEnvironmentPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:id/prometheus/api/v1/*proxy_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:id/prometheus/api/v1/*proxy_path(.:format)`
+ * - Path helper: `prometheus_api_project_environment_path`
+ * - URL helper: `prometheus_api_project_environment_url`
+ * - controller#action: `projects/environments/prometheus_api#prometheus_proxy`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {any} proxyPath
@@ -3575,8 +4443,13 @@ export const prometheusApiProjectEnvironmentPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/folders/*id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/folders/*id(.:format)`
+ * - Path helper: `folder_project_environments_path`
+ * - URL helper: `folder_project_environments_url`
+ * - controller#action: `projects/environments#folder`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3596,8 +4469,13 @@ export const folderProjectEnvironmentsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/search(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/search(.:format)`
+ * - Path helper: `search_project_environments_path`
+ * - URL helper: `search_project_environments_url`
+ * - controller#action: `projects/environments#search`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3616,8 +4494,13 @@ export const searchProjectEnvironmentsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:environment_id/deployments(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:environment_id/deployments(.:format)`
+ * - Path helper: `project_environment_deployments_path`
+ * - URL helper: `project_environment_deployments_url`
+ * - controller#action: `projects/deployments#index`
+ *
  * @param {string} projectFullPath
  * @param {any} environmentId
  * @param {object | undefined} options
@@ -3637,8 +4520,13 @@ export const projectEnvironmentDeploymentsPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:environment_id/deployments/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:environment_id/deployments/:id(.:format)`
+ * - Path helper: `project_environment_deployment_path`
+ * - URL helper: `project_environment_deployment_url`
+ * - controller#action: `projects/deployments#show`
+ *
  * @param {string} projectFullPath
  * @param {any} environmentId
  * @param {any} id
@@ -3659,8 +4547,13 @@ export const projectEnvironmentDeploymentPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments(.:format)`
+ * - Path helper: `project_environments_path`
+ * - URL helper: `project_environments_url`
+ * - controller#action: `projects/environments#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3679,8 +4572,13 @@ export const projectEnvironmentsPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/new(.:format)`
+ * - Path helper: `new_project_environment_path`
+ * - URL helper: `new_project_environment_url`
+ * - controller#action: `projects/environments#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3699,8 +4597,13 @@ export const newProjectEnvironmentPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:id/edit(.:format)`
+ * - Path helper: `edit_project_environment_path`
+ * - URL helper: `edit_project_environment_url`
+ * - controller#action: `projects/environments#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3720,8 +4623,13 @@ export const editProjectEnvironmentPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/environments/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/environments/:id(.:format)`
+ * - Path helper: `project_environment_path`
+ * - URL helper: `project_environment_url`
+ * - controller#action: `projects/environments#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3741,8 +4649,13 @@ export const projectEnvironmentPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/alert_management/:id/details(/*page)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/alert_management/:id/details(/*page)(.:format)`
+ * - Path helper: `details_project_alert_management_path`
+ * - URL helper: `details_project_alert_management_url`
+ * - controller#action: `projects/alert_management#details`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3762,8 +4675,13 @@ export const detailsProjectAlertManagementPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/alert_management(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/alert_management(.:format)`
+ * - Path helper: `project_alert_management_index_path`
+ * - URL helper: `project_alert_management_index_url`
+ * - controller#action: `projects/alert_management#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3782,8 +4700,13 @@ export const projectAlertManagementIndexPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/alert_management/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/alert_management/:id(.:format)`
+ * - Path helper: `project_alert_management_alert_path`
+ * - URL helper: `project_alert_management_alert_url`
+ * - controller#action: `projects/alert_management#details`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3803,8 +4726,13 @@ export const projectAlertManagementAlertPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items(.:format)`
+ * - Path helper: `project_work_items_path`
+ * - URL helper: `project_work_items_url`
+ * - controller#action: `projects/work_items#calendar`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3823,8 +4751,13 @@ export const projectWorkItemsPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items/views/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items/views/:id(.:format)`
+ * - Path helper: `project_saved_view_path`
+ * - URL helper: `project_saved_view_url`
+ * - controller#action: `projects/saved_views#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -3844,8 +4777,13 @@ export const projectSavedViewPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items/import_csv(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items/import_csv(.:format)`
+ * - Path helper: `import_csv_project_work_items_path`
+ * - URL helper: `import_csv_project_work_items_url`
+ * - controller#action: `projects/work_items#import_csv`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3864,8 +4802,13 @@ export const importCsvProjectWorkItemsPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items/import_csv/authorize(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items/import_csv/authorize(.:format)`
+ * - Path helper: `import_csv_authorize_project_work_items_path`
+ * - URL helper: `import_csv_authorize_project_work_items_url`
+ * - controller#action: `projects/work_items#authorize`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3884,8 +4827,13 @@ export const importCsvAuthorizeProjectWorkItemsPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items/:iid/designs(/*vueroute)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items/:iid/designs(/*vueroute)`
+ * - Path helper: `designs_project_work_item_path`
+ * - URL helper: `designs_project_work_item_url`
+ * - controller#action: `projects/work_items#show`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -3905,8 +4853,13 @@ export const designsProjectWorkItemPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items/new(.:format)`
+ * - Path helper: `new_project_work_item_path`
+ * - URL helper: `new_project_work_item_url`
+ * - controller#action: `projects/work_items#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3925,8 +4878,13 @@ export const newProjectWorkItemPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items/:iid/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items/:iid/edit(.:format)`
+ * - Path helper: `edit_project_work_item_path`
+ * - URL helper: `edit_project_work_item_url`
+ * - controller#action: `projects/work_items#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -3946,8 +4904,13 @@ export const editProjectWorkItemPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/work_items/:iid(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/work_items/:iid(.:format)`
+ * - Path helper: `project_work_item_path`
+ * - URL helper: `project_work_item_url`
+ * - controller#action: `projects/work_items#show`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -3967,8 +4930,13 @@ export const projectWorkItemPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/incidents/integrations/pagerduty(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/incidents/integrations/pagerduty(.:format)`
+ * - Path helper: `project_incidents_integrations_pagerduty_path`
+ * - URL helper: `project_incidents_integrations_pagerduty_url`
+ * - controller#action: `projects/incident_management/pager_duty_incidents#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -3987,8 +4955,13 @@ export const projectIncidentsIntegrationsPagerdutyPath = /*#__PURE__*/ (projectF
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/incidents(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/incidents(.:format)`
+ * - Path helper: `project_incidents_path`
+ * - URL helper: `project_incidents_url`
+ * - controller#action: `projects/incidents#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4007,8 +4980,13 @@ export const projectIncidentsPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/incident_management/timeline_events/preview_markdown(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/incident_management/timeline_events/preview_markdown(.:format)`
+ * - Path helper: `preview_markdown_project_incident_management_timeline_events_path`
+ * - URL helper: `preview_markdown_project_incident_management_timeline_events_url`
+ * - controller#action: `projects/incident_management/timeline_events#preview_markdown`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4027,8 +5005,13 @@ export const previewMarkdownProjectIncidentManagementTimelineEventsPath = /*#__P
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/error_tracking/projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/error_tracking/projects(.:format)`
+ * - Path helper: `project_error_tracking_projects_path`
+ * - URL helper: `project_error_tracking_projects_url`
+ * - controller#action: `projects/error_tracking/projects#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4047,8 +5030,13 @@ export const projectErrorTrackingProjectsPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/error_tracking/:issue_id/details(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/error_tracking/:issue_id/details(.:format)`
+ * - Path helper: `details_project_error_tracking_index_path`
+ * - URL helper: `details_project_error_tracking_index_url`
+ * - controller#action: `projects/error_tracking#details`
+ *
  * @param {string} projectFullPath
  * @param {any} issueId
  * @param {object | undefined} options
@@ -4068,8 +5056,13 @@ export const detailsProjectErrorTrackingIndexPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/error_tracking/:issue_id/stack_trace(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/error_tracking/:issue_id/stack_trace(.:format)`
+ * - Path helper: `stack_trace_project_error_tracking_index_path`
+ * - URL helper: `stack_trace_project_error_tracking_index_url`
+ * - controller#action: `projects/error_tracking/stack_traces#index`
+ *
  * @param {string} projectFullPath
  * @param {any} issueId
  * @param {object | undefined} options
@@ -4089,8 +5082,13 @@ export const stackTraceProjectErrorTrackingIndexPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/error_tracking/:issue_id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/error_tracking/:issue_id(.:format)`
+ * - Path helper: `update_project_error_tracking_index_path`
+ * - URL helper: `update_project_error_tracking_index_url`
+ * - controller#action: `projects/error_tracking#update`
+ *
  * @param {string} projectFullPath
  * @param {any} issueId
  * @param {object | undefined} options
@@ -4110,8 +5108,13 @@ export const updateProjectErrorTrackingIndexPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/error_tracking(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/error_tracking(.:format)`
+ * - Path helper: `project_error_tracking_index_path`
+ * - URL helper: `project_error_tracking_index_url`
+ * - controller#action: `projects/error_tracking#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4130,8 +5133,13 @@ export const projectErrorTrackingIndexPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/design_management/designs/:design_id(/:sha)/raw_image(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/design_management/designs/:design_id(/:sha)/raw_image(.:format)`
+ * - Path helper: `project_design_management_designs_raw_image_path`
+ * - URL helper: `project_design_management_designs_raw_image_url`
+ * - controller#action: `projects/design_management/designs/raw_images#show`
+ *
  * @param {string} projectFullPath
  * @param {any} designId
  * @param {object | undefined} options
@@ -4151,8 +5159,13 @@ export const projectDesignManagementDesignsRawImagePath = /*#__PURE__*/ (project
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/design_management/designs/:design_id(/:sha)/resized_image/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/design_management/designs/:design_id(/:sha)/resized_image/:id(.:format)`
+ * - Path helper: `project_design_management_designs_resized_image_path`
+ * - URL helper: `project_design_management_designs_resized_image_url`
+ * - controller#action: `projects/design_management/designs/resized_image#show`
+ *
  * @param {string} projectFullPath
  * @param {any} designId
  * @param {any} id
@@ -4173,8 +5186,13 @@ export const projectDesignManagementDesignsResizedImagePath = /*#__PURE__*/ (pro
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets/:snippet_id/raw/:ref/*path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets/:snippet_id/raw/:ref/*path`
+ * - Path helper: `project_snippet_blob_raw_path`
+ * - URL helper: `project_snippet_blob_raw_url`
+ * - controller#action: `projects/snippets/blobs#raw`
+ *
  * @param {string} projectFullPath
  * @param {any} snippetId
  * @param {any} ref
@@ -4196,8 +5214,13 @@ export const projectSnippetBlobRawPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/import/jira(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/import/jira(.:format)`
+ * - Path helper: `project_import_jira_path`
+ * - URL helper: `project_import_jira_url`
+ * - controller#action: `projects/import/jira#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4216,8 +5239,13 @@ export const projectImportJiraPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets/:id/raw(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets/:id/raw(.:format)`
+ * - Path helper: `raw_project_snippet_path`
+ * - URL helper: `raw_project_snippet_url`
+ * - controller#action: `projects/snippets#raw`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4237,8 +5265,13 @@ export const rawProjectSnippetPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets/:id/mark_as_spam(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets/:id/mark_as_spam(.:format)`
+ * - Path helper: `mark_as_spam_project_snippet_path`
+ * - URL helper: `mark_as_spam_project_snippet_url`
+ * - controller#action: `projects/snippets#mark_as_spam`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4258,8 +5291,13 @@ export const markAsSpamProjectSnippetPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets(.:format)`
+ * - Path helper: `project_snippets_path`
+ * - URL helper: `project_snippets_url`
+ * - controller#action: `projects/snippets#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4278,8 +5316,13 @@ export const projectSnippetsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets/new(.:format)`
+ * - Path helper: `new_project_snippet_path`
+ * - URL helper: `new_project_snippet_url`
+ * - controller#action: `projects/snippets#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4298,8 +5341,13 @@ export const newProjectSnippetPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets/:id/edit(.:format)`
+ * - Path helper: `edit_project_snippet_path`
+ * - URL helper: `edit_project_snippet_url`
+ * - controller#action: `projects/snippets#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4319,8 +5367,13 @@ export const editProjectSnippetPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/snippets/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/snippets/:id(.:format)`
+ * - Path helper: `project_snippet_path`
+ * - URL helper: `project_snippet_url`
+ * - controller#action: `projects/snippets#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4340,8 +5393,13 @@ export const projectSnippetPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/feature_flags_client/reset_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/feature_flags_client/reset_token(.:format)`
+ * - Path helper: `reset_token_project_feature_flags_client_path`
+ * - URL helper: `reset_token_project_feature_flags_client_url`
+ * - controller#action: `projects/feature_flags_clients#reset_token`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4360,8 +5418,13 @@ export const resetTokenProjectFeatureFlagsClientPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/feature_flags_user_lists(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/feature_flags_user_lists(.:format)`
+ * - Path helper: `project_feature_flags_user_lists_path`
+ * - URL helper: `project_feature_flags_user_lists_url`
+ * - controller#action: `projects/feature_flags_user_lists#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4380,8 +5443,13 @@ export const projectFeatureFlagsUserListsPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/feature_flags_user_lists/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/feature_flags_user_lists/new(.:format)`
+ * - Path helper: `new_project_feature_flags_user_list_path`
+ * - URL helper: `new_project_feature_flags_user_list_url`
+ * - controller#action: `projects/feature_flags_user_lists#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4400,8 +5468,13 @@ export const newProjectFeatureFlagsUserListPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/feature_flags_user_lists/:iid/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/feature_flags_user_lists/:iid/edit(.:format)`
+ * - Path helper: `edit_project_feature_flags_user_list_path`
+ * - URL helper: `edit_project_feature_flags_user_list_url`
+ * - controller#action: `projects/feature_flags_user_lists#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -4421,8 +5494,13 @@ export const editProjectFeatureFlagsUserListPath = /*#__PURE__*/ (projectFullPat
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/feature_flags_user_lists/:iid(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/feature_flags_user_lists/:iid(.:format)`
+ * - Path helper: `project_feature_flags_user_list_path`
+ * - URL helper: `project_feature_flags_user_list_url`
+ * - controller#action: `projects/feature_flags_user_lists#show`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -4442,8 +5520,13 @@ export const projectFeatureFlagsUserListPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/schema/:branch/*filename
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/schema/:branch/*filename`
+ * - Path helper: `project_schema_path`
+ * - URL helper: `project_schema_url`
+ * - controller#action: `projects/web_ide_schemas#show`
+ *
  * @param {string} projectFullPath
  * @param {any} branch
  * @param {any} filename
@@ -4464,8 +5547,13 @@ export const projectSchemaPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/hooks/:id/test(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/hooks/:id/test(.:format)`
+ * - Path helper: `test_project_hook_path`
+ * - URL helper: `test_project_hook_url`
+ * - controller#action: `projects/hooks#test`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4485,8 +5573,13 @@ export const testProjectHookPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/hooks/:hook_id/hook_logs/:id/retry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/hooks/:hook_id/hook_logs/:id/retry(.:format)`
+ * - Path helper: `retry_project_hook_hook_log_path`
+ * - URL helper: `retry_project_hook_hook_log_url`
+ * - controller#action: `projects/hook_logs#retry`
+ *
  * @param {string} projectFullPath
  * @param {any} hookId
  * @param {any} id
@@ -4507,8 +5600,13 @@ export const retryProjectHookHookLogPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/hooks/:hook_id/hook_logs/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/hooks/:hook_id/hook_logs/:id(.:format)`
+ * - Path helper: `project_hook_hook_log_path`
+ * - URL helper: `project_hook_hook_log_url`
+ * - controller#action: `projects/hook_logs#show`
+ *
  * @param {string} projectFullPath
  * @param {any} hookId
  * @param {any} id
@@ -4529,8 +5627,13 @@ export const projectHookHookLogPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/hooks(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/hooks(.:format)`
+ * - Path helper: `project_hooks_path`
+ * - URL helper: `project_hooks_url`
+ * - controller#action: `projects/hooks#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4549,8 +5652,13 @@ export const projectHooksPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/hooks/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/hooks/:id/edit(.:format)`
+ * - Path helper: `edit_project_hook_path`
+ * - URL helper: `edit_project_hook_url`
+ * - controller#action: `projects/hooks#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4570,8 +5678,13 @@ export const editProjectHookPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/hooks/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/hooks/:id(.:format)`
+ * - Path helper: `project_hook_path`
+ * - URL helper: `project_hook_url`
+ * - controller#action: `projects/hooks#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4591,8 +5704,13 @@ export const projectHookPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/integrations/slash_commands/confirm(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/integrations/slash_commands/confirm(.:format)`
+ * - Path helper: `confirm_project_integrations_slash_commands_path`
+ * - URL helper: `confirm_project_integrations_slash_commands_url`
+ * - controller#action: `projects/integrations/slash_commands#confirm`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4611,8 +5729,13 @@ export const confirmProjectIntegrationsSlashCommandsPath = /*#__PURE__*/ (projec
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/integrations/slash_commands(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/integrations/slash_commands(.:format)`
+ * - Path helper: `project_integrations_slash_commands_path`
+ * - URL helper: `project_integrations_slash_commands_url`
+ * - controller#action: `projects/integrations/slash_commands#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4631,8 +5754,13 @@ export const projectIntegrationsSlashCommandsPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/badges/custom(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/badges/custom(.:format)`
+ * - Path helper: `custom_project_badges_path`
+ * - URL helper: `custom_project_badges_url`
+ * - controller#action: `projects/badges#custom`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4651,8 +5779,13 @@ export const customProjectBadgesPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/badges/release(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/badges/release(.:format)`
+ * - Path helper: `release_project_badges_path`
+ * - URL helper: `release_project_badges_url`
+ * - controller#action: `projects/badges#release`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4671,8 +5804,13 @@ export const releaseProjectBadgesPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/harbor/repositories/:repository_id/artifacts/:artifact_id/tags(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/harbor/repositories/:repository_id/artifacts/:artifact_id/tags(.:format)`
+ * - Path helper: `project_harbor_repository_artifact_tags_path`
+ * - URL helper: `project_harbor_repository_artifact_tags_url`
+ * - controller#action: `projects/harbor/tags#index`
+ *
  * @param {string} projectFullPath
  * @param {any} repositoryId
  * @param {any} artifactId
@@ -4693,8 +5831,13 @@ export const projectHarborRepositoryArtifactTagsPath = /*#__PURE__*/ (projectFul
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/harbor/repositories/:repository_id/artifacts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/harbor/repositories/:repository_id/artifacts(.:format)`
+ * - Path helper: `project_harbor_repository_artifacts_path`
+ * - URL helper: `project_harbor_repository_artifacts_url`
+ * - controller#action: `projects/harbor/artifacts#index`
+ *
  * @param {string} projectFullPath
  * @param {any} repositoryId
  * @param {object | undefined} options
@@ -4714,8 +5857,13 @@ export const projectHarborRepositoryArtifactsPath = /*#__PURE__*/ (projectFullPa
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/harbor/repositories(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/harbor/repositories(.:format)`
+ * - Path helper: `project_harbor_repositories_path`
+ * - URL helper: `project_harbor_repositories_url`
+ * - controller#action: `projects/harbor/repositories#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4734,8 +5882,13 @@ export const projectHarborRepositoriesPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/harbor/repositories/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/harbor/repositories/:id(.:format)`
+ * - Path helper: `project_harbor_repository_path`
+ * - URL helper: `project_harbor_repository_url`
+ * - controller#action: `projects/harbor/repositories#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -4755,8 +5908,13 @@ export const projectHarborRepositoryPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/experiments(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/experiments(.:format)`
+ * - Path helper: `project_ml_experiments_path`
+ * - URL helper: `project_ml_experiments_url`
+ * - controller#action: `projects/ml/experiments#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4775,8 +5933,13 @@ export const projectMlExperimentsPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/experiments/:iid(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/experiments/:iid(.:format)`
+ * - Path helper: `project_ml_experiment_path`
+ * - URL helper: `project_ml_experiment_url`
+ * - controller#action: `projects/ml/experiments#show`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -4796,8 +5959,13 @@ export const projectMlExperimentPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/candidates/:iid/promote(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/candidates/:iid/promote(.:format)`
+ * - Path helper: `promote_project_ml_candidate_path`
+ * - URL helper: `promote_project_ml_candidate_url`
+ * - controller#action: `projects/ml/candidates#promote`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -4817,8 +5985,13 @@ export const promoteProjectMlCandidatePath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/candidates/:iid(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/candidates/:iid(.:format)`
+ * - Path helper: `project_ml_candidate_path`
+ * - URL helper: `project_ml_candidate_url`
+ * - controller#action: `projects/ml/candidates#show`
+ *
  * @param {string} projectFullPath
  * @param {any} iid
  * @param {object | undefined} options
@@ -4838,8 +6011,13 @@ export const projectMlCandidatePath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/models/:model_model_id/versions/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/models/:model_model_id/versions/new(.:format)`
+ * - Path helper: `new_project_ml_model_version_path`
+ * - URL helper: `new_project_ml_model_version_url`
+ * - controller#action: `projects/ml/model_versions#new`
+ *
  * @param {string} projectFullPath
  * @param {any} modelModelId
  * @param {object | undefined} options
@@ -4859,8 +6037,13 @@ export const newProjectMlModelVersionPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/models/:model_model_id/versions/:model_version_id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/models/:model_model_id/versions/:model_version_id/edit(.:format)`
+ * - Path helper: `edit_project_ml_model_version_path`
+ * - URL helper: `edit_project_ml_model_version_url`
+ * - controller#action: `projects/ml/model_versions#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} modelModelId
  * @param {any} modelVersionId
@@ -4881,8 +6064,13 @@ export const editProjectMlModelVersionPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/models/:model_model_id/versions/:model_version_id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/models/:model_model_id/versions/:model_version_id(.:format)`
+ * - Path helper: `project_ml_model_version_path`
+ * - URL helper: `project_ml_model_version_url`
+ * - controller#action: `projects/ml/model_versions#show`
+ *
  * @param {string} projectFullPath
  * @param {any} modelModelId
  * @param {any} modelVersionId
@@ -4903,8 +6091,13 @@ export const projectMlModelVersionPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/models(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/models(.:format)`
+ * - Path helper: `project_ml_models_path`
+ * - URL helper: `project_ml_models_url`
+ * - controller#action: `projects/ml/models#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4923,8 +6116,13 @@ export const projectMlModelsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/models/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/models/new(.:format)`
+ * - Path helper: `new_project_ml_model_path`
+ * - URL helper: `new_project_ml_model_url`
+ * - controller#action: `projects/ml/models#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -4943,8 +6141,13 @@ export const newProjectMlModelPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/models/:model_id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/models/:model_id/edit(.:format)`
+ * - Path helper: `edit_project_ml_model_path`
+ * - URL helper: `edit_project_ml_model_url`
+ * - controller#action: `projects/ml/models#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} modelId
  * @param {object | undefined} options
@@ -4964,8 +6167,13 @@ export const editProjectMlModelPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/models/:model_id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/models/:model_id(.:format)`
+ * - Path helper: `project_ml_model_path`
+ * - URL helper: `project_ml_model_url`
+ * - controller#action: `projects/ml/models#show`
+ *
  * @param {string} projectFullPath
  * @param {any} modelId
  * @param {object | undefined} options
@@ -4985,8 +6193,13 @@ export const projectMlModelPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/ml/preview_markdown(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/ml/preview_markdown(.:format)`
+ * - Path helper: `project_ml_preview_markdown_path`
+ * - URL helper: `project_ml_preview_markdown_url`
+ * - controller#action: `projects/ml#preview_markdown`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5005,8 +6218,13 @@ export const projectMlPreviewMarkdownPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/service_desk/custom_email(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/service_desk/custom_email(.:format)`
+ * - Path helper: `project_service_desk_custom_email_path`
+ * - URL helper: `project_service_desk_custom_email_url`
+ * - controller#action: `projects/service_desk/custom_email#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5025,8 +6243,13 @@ export const projectServiceDeskCustomEmailPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/:noteable_type/:noteable_id/discussions/:id/resolve(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/:noteable_type/:noteable_id/discussions/:id/resolve(.:format)`
+ * - Path helper: `resolve_project_discussion_path`
+ * - URL helper: `resolve_project_discussion_url`
+ * - controller#action: `projects/discussions#resolve`
+ *
  * @param {string} projectFullPath
  * @param {any} noteableType
  * @param {any} noteableId
@@ -5048,8 +6271,13 @@ export const resolveProjectDiscussionPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/:noteable_type/:noteable_id/discussions/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/:noteable_type/:noteable_id/discussions/:id(.:format)`
+ * - Path helper: `project_discussion_path`
+ * - URL helper: `project_discussion_url`
+ * - controller#action: `projects/discussions#show`
+ *
  * @param {string} projectFullPath
  * @param {any} noteableType
  * @param {any} noteableId
@@ -5071,8 +6299,13 @@ export const projectDiscussionPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/attestations/:id/download(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/attestations/:id/download(.:format)`
+ * - Path helper: `download_project_attestation_path`
+ * - URL helper: `download_project_attestation_url`
+ * - controller#action: `projects/attestations#download`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5092,8 +6325,13 @@ export const downloadProjectAttestationPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/attestations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/attestations(.:format)`
+ * - Path helper: `project_attestations_path`
+ * - URL helper: `project_attestations_url`
+ * - controller#action: `projects/attestations#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5112,8 +6350,13 @@ export const projectAttestationsPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/attestations/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/attestations/:id(.:format)`
+ * - Path helper: `project_attestation_path`
+ * - URL helper: `project_attestation_url`
+ * - controller#action: `projects/attestations#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5133,8 +6376,13 @@ export const projectAttestationPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/observability/setup(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/observability/setup(.:format)`
+ * - Path helper: `project_observability_setup_path`
+ * - URL helper: `project_observability_setup_url`
+ * - controller#action: `projects/observability/setup#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5153,8 +6401,13 @@ export const projectObservabilitySetupPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/observability/access_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/observability/access_requests(.:format)`
+ * - Path helper: `project_observability_access_requests_path`
+ * - URL helper: `project_observability_access_requests_url`
+ * - controller#action: `projects/observability/access_requests#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5173,8 +6426,13 @@ export const projectObservabilityAccessRequestsPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/observability/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/observability/:id`
+ * - Path helper: `project_observability_path`
+ * - URL helper: `project_observability_url`
+ * - controller#action: `projects/observability#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5194,8 +6452,13 @@ export const projectObservabilityPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/-/observability/*sub_path
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/-/observability/*sub_path`
+ * - Path helper: `project_observability_sub_path_path`
+ * - URL helper: `project_observability_sub_path_url`
+ * - controller#action: `projects/observability#show`
+ *
  * @param {string} projectFullPath
  * @param {any} subPath
  * @param {object | undefined} options
@@ -5215,8 +6478,13 @@ export const projectObservabilitySubPathPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/restore(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/restore(.:format)`
+ * - Path helper: `project_restore_path`
+ * - URL helper: `project_restore_url`
+ * - controller#action: `projects#restore`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5235,8 +6503,13 @@ export const projectRestorePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/service_desk(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/service_desk(.:format)`
+ * - Path helper: `project_service_desk_path`
+ * - URL helper: `project_service_desk_url`
+ * - controller#action: `projects/service_desk#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5255,8 +6528,13 @@ export const projectServiceDeskPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/templates/:template_type(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/templates/:template_type(.:format)`
+ * - Path helper: `project_templates_path`
+ * - URL helper: `project_templates_url`
+ * - controller#action: `projects/templates#index`
+ *
  * @param {string} projectFullPath
  * @param {any} templateType
  * @param {object | undefined} options
@@ -5276,8 +6554,13 @@ export const projectTemplatesPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/templates/:template_type/:key(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/templates/:template_type/:key(.:format)`
+ * - Path helper: `project_template_path`
+ * - URL helper: `project_template_url`
+ * - controller#action: `projects/templates#show`
+ *
  * @param {string} projectFullPath
  * @param {any} templateType
  * @param {any} key
@@ -5298,8 +6581,13 @@ export const projectTemplatePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/description_templates/names/:template_type(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/description_templates/names/:template_type(.:format)`
+ * - Path helper: `project_template_names_path`
+ * - URL helper: `project_template_names_url`
+ * - controller#action: `projects/templates#names`
+ *
  * @param {string} projectFullPath
  * @param {any} templateType
  * @param {object | undefined} options
@@ -5319,8 +6607,13 @@ export const projectTemplateNamesPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/regenerate_unique_domain(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/regenerate_unique_domain(.:format)`
+ * - Path helper: `regenerate_unique_domain_project_pages_path`
+ * - URL helper: `regenerate_unique_domain_project_pages_url`
+ * - controller#action: `projects/pages#regenerate_unique_domain`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5339,8 +6632,13 @@ export const regenerateUniqueDomainProjectPagesPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/domains/:id/verify(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/domains/:id/verify(.:format)`
+ * - Path helper: `verify_project_pages_domain_path`
+ * - URL helper: `verify_project_pages_domain_url`
+ * - controller#action: `projects/pages_domains#verify`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5360,8 +6658,13 @@ export const verifyProjectPagesDomainPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/domains/:id/retry_auto_ssl(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/domains/:id/retry_auto_ssl(.:format)`
+ * - Path helper: `retry_auto_ssl_project_pages_domain_path`
+ * - URL helper: `retry_auto_ssl_project_pages_domain_url`
+ * - controller#action: `projects/pages_domains#retry_auto_ssl`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5381,8 +6684,13 @@ export const retryAutoSslProjectPagesDomainPath = /*#__PURE__*/ (projectFullPath
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/domains/:id/clean_certificate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/domains/:id/clean_certificate(.:format)`
+ * - Path helper: `clean_certificate_project_pages_domain_path`
+ * - URL helper: `clean_certificate_project_pages_domain_url`
+ * - controller#action: `projects/pages_domains#clean_certificate`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5402,8 +6710,13 @@ export const cleanCertificateProjectPagesDomainPath = /*#__PURE__*/ (projectFull
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/domains(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/domains(.:format)`
+ * - Path helper: `project_pages_domains_path`
+ * - URL helper: `project_pages_domains_url`
+ * - controller#action: `projects/pages_domains#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5422,8 +6735,13 @@ export const projectPagesDomainsPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/domains/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/domains/new(.:format)`
+ * - Path helper: `new_project_pages_domain_path`
+ * - URL helper: `new_project_pages_domain_url`
+ * - controller#action: `projects/pages_domains#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5442,8 +6760,13 @@ export const newProjectPagesDomainPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/domains/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/domains/:id/edit(.:format)`
+ * - Path helper: `edit_project_pages_domain_path`
+ * - URL helper: `edit_project_pages_domain_url`
+ * - controller#action: `projects/pages_domains#edit`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5463,8 +6786,13 @@ export const editProjectPagesDomainPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/domains/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/domains/:id(.:format)`
+ * - Path helper: `project_pages_domain_path`
+ * - URL helper: `project_pages_domain_url`
+ * - controller#action: `projects/pages_domains#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5484,8 +6812,13 @@ export const projectPagesDomainPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages/new(.:format)`
+ * - Path helper: `new_project_pages_path`
+ * - URL helper: `new_project_pages_url`
+ * - controller#action: `projects/pages#new`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5504,8 +6837,13 @@ export const newProjectPagesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/pages(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/pages(.:format)`
+ * - Path helper: `project_pages_path`
+ * - URL helper: `project_pages_url`
+ * - controller#action: `projects/pages#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5524,8 +6862,13 @@ export const projectPagesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/prometheus/alerts/notify(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/prometheus/alerts/notify(.:format)`
+ * - Path helper: `notify_project_prometheus_alerts_path`
+ * - URL helper: `notify_project_prometheus_alerts_url`
+ * - controller#action: `projects/alerting/notifications#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5544,8 +6887,13 @@ export const notifyProjectPrometheusAlertsPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/alerts/notify(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/alerts/notify(.:format)`
+ * - Path helper: `project_alerts_notify_path`
+ * - URL helper: `project_alerts_notify_url`
+ * - controller#action: `projects/alerting/notifications#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5564,8 +6912,13 @@ export const projectAlertsNotifyPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/alerts/notify/:name/:endpoint_identifier(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/alerts/notify/:name/:endpoint_identifier(.:format)`
+ * - Path helper: `project_alert_http_integration_path`
+ * - URL helper: `project_alert_http_integration_url`
+ * - controller#action: `projects/alerting/notifications#create`
+ *
  * @param {string} projectFullPath
  * @param {any} name
  * @param {any} endpointIdentifier
@@ -5586,8 +6939,13 @@ export const projectAlertHttpIntegrationPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/container_registry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/container_registry(.:format)`
+ * - Path helper: `project_container_registry_index_path`
+ * - URL helper: `project_container_registry_index_url`
+ * - controller#action: `projects/registry/repositories#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5606,8 +6964,13 @@ export const projectContainerRegistryIndexPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/container_registry/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/container_registry/:id(.:format)`
+ * - Path helper: `project_container_registry_path`
+ * - URL helper: `project_container_registry_url`
+ * - controller#action: `projects/registry/repositories#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5627,8 +6990,13 @@ export const projectContainerRegistryPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/registry/repository/:repository_id/tags/bulk_destroy
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/registry/repository/:repository_id/tags/bulk_destroy`
+ * - Path helper: `bulk_destroy_project_registry_repository_tags_path`
+ * - URL helper: `bulk_destroy_project_registry_repository_tags_url`
+ * - controller#action: `projects/registry/tags#bulk_destroy`
+ *
  * @param {string} projectFullPath
  * @param {any} repositoryId
  * @param {object | undefined} options
@@ -5648,8 +7016,13 @@ export const bulkDestroyProjectRegistryRepositoryTagsPath = /*#__PURE__*/ (proje
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/registry/repository/:repository_id/tags
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/registry/repository/:repository_id/tags`
+ * - Path helper: `project_registry_repository_tags_path`
+ * - URL helper: `project_registry_repository_tags_url`
+ * - controller#action: `projects/registry/tags#index`
+ *
  * @param {string} projectFullPath
  * @param {any} repositoryId
  * @param {object | undefined} options
@@ -5669,8 +7042,13 @@ export const projectRegistryRepositoryTagsPath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/registry/repository/:repository_id/tags/:id
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/registry/repository/:repository_id/tags/:id`
+ * - Path helper: `project_registry_repository_tag_path`
+ * - URL helper: `project_registry_repository_tag_url`
+ * - controller#action: `projects/registry/tags#destroy`
+ *
  * @param {string} projectFullPath
  * @param {any} repositoryId
  * @param {any} id
@@ -5691,8 +7069,13 @@ export const projectRegistryRepositoryTagPath = /*#__PURE__*/ (projectFullPath, 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/notes/:id/resolve(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/notes/:id/resolve(.:format)`
+ * - Path helper: `resolve_project_note_path`
+ * - URL helper: `resolve_project_note_url`
+ * - controller#action: `projects/notes#resolve`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5712,8 +7095,13 @@ export const resolveProjectNotePath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/notes/:id/outdated_line_change(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/notes/:id/outdated_line_change(.:format)`
+ * - Path helper: `outdated_line_change_project_note_path`
+ * - URL helper: `outdated_line_change_project_note_url`
+ * - controller#action: `projects/notes#outdated_line_change`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5733,8 +7121,13 @@ export const outdatedLineChangeProjectNotePath = /*#__PURE__*/ (projectFullPath,
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/notes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/notes(.:format)`
+ * - Path helper: `project_notes_path`
+ * - URL helper: `project_notes_url`
+ * - controller#action: `projects/notes#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5753,8 +7146,13 @@ export const projectNotesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/notes/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/notes/:id(.:format)`
+ * - Path helper: `project_note_path`
+ * - URL helper: `project_note_url`
+ * - controller#action: `projects/notes#update`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5774,8 +7172,13 @@ export const projectNotePath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/noteable/:target_type/:target_id/notes(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/noteable/:target_type/:target_id/notes(.:format)`
+ * - Path helper: `project_noteable_notes_path`
+ * - URL helper: `project_noteable_notes_url`
+ * - controller#action: `projects/notes#index`
+ *
  * @param {string} projectFullPath
  * @param {any} targetType
  * @param {any} targetId
@@ -5796,8 +7199,13 @@ export const projectNoteableNotesPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/todos(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/todos(.:format)`
+ * - Path helper: `project_todos_path`
+ * - URL helper: `project_todos_url`
+ * - controller#action: `projects/todos#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5816,8 +7224,13 @@ export const projectTodosPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/uploads/:secret/:filename
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/uploads/:secret/:filename`
+ * - Path helper: `show_project_uploads_path`
+ * - URL helper: `show_project_uploads_url`
+ * - controller#action: `projects/uploads#show`
+ *
  * @param {string} projectFullPath
  * @param {any} secret
  * @param {any} filename
@@ -5838,8 +7251,13 @@ export const showProjectUploadsPath = /*#__PURE__*/ (projectFullPath, ...args) =
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/uploads/authorize(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/uploads/authorize(.:format)`
+ * - Path helper: `authorize_project_uploads_path`
+ * - URL helper: `authorize_project_uploads_url`
+ * - controller#action: `projects/uploads#authorize`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5858,8 +7276,13 @@ export const authorizeProjectUploadsPath = /*#__PURE__*/ (projectFullPath, ...ar
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/uploads(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/uploads(.:format)`
+ * - Path helper: `project_uploads_path`
+ * - URL helper: `project_uploads_url`
+ * - controller#action: `projects/uploads#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5878,8 +7301,13 @@ export const projectUploadsPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/runner_projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/runner_projects(.:format)`
+ * - Path helper: `project_runner_projects_path`
+ * - URL helper: `project_runner_projects_url`
+ * - controller#action: `projects/runner_projects#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5898,8 +7326,13 @@ export const projectRunnerProjectsPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/runner_projects/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/runner_projects/:id(.:format)`
+ * - Path helper: `project_runner_project_path`
+ * - URL helper: `project_runner_project_url`
+ * - controller#action: `projects/runner_projects#destroy`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -5919,8 +7352,13 @@ export const projectRunnerProjectPath = /*#__PURE__*/ (projectFullPath, ...args)
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/badges/*ref/pipeline(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/badges/*ref/pipeline(.:format)`
+ * - Path helper: `pipeline_project_badges_path`
+ * - URL helper: `pipeline_project_badges_url`
+ * - controller#action: `projects/badges#pipeline`
+ *
  * @param {string} projectFullPath
  * @param {any} ref
  * @param {object | undefined} options
@@ -5940,8 +7378,13 @@ export const pipelineProjectBadgesPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/badges/*ref/coverage(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/badges/*ref/coverage(.:format)`
+ * - Path helper: `coverage_project_badges_path`
+ * - URL helper: `coverage_project_badges_url`
+ * - controller#action: `projects/badges#coverage`
+ *
  * @param {string} projectFullPath
  * @param {any} ref
  * @param {object | undefined} options
@@ -5961,8 +7404,13 @@ export const coverageProjectBadgesPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/badges(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/badges(.:format)`
+ * - Path helper: `project_badges_path`
+ * - URL helper: `project_badges_url`
+ * - controller#action: `projects/badges#index`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -5981,8 +7429,13 @@ export const projectBadgesPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/ide_terminals/:id/cancel(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/ide_terminals/:id/cancel(.:format)`
+ * - Path helper: `cancel_project_web_ide_terminal_path`
+ * - URL helper: `cancel_project_web_ide_terminal_url`
+ * - controller#action: `projects/web_ide_terminals#cancel`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -6002,8 +7455,13 @@ export const cancelProjectWebIdeTerminalPath = /*#__PURE__*/ (projectFullPath, .
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/ide_terminals/:id/retry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/ide_terminals/:id/retry(.:format)`
+ * - Path helper: `retry_project_web_ide_terminal_path`
+ * - URL helper: `retry_project_web_ide_terminal_url`
+ * - controller#action: `projects/web_ide_terminals#retry`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -6023,8 +7481,13 @@ export const retryProjectWebIdeTerminalPath = /*#__PURE__*/ (projectFullPath, ..
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/ide_terminals/check_config(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/ide_terminals/check_config(.:format)`
+ * - Path helper: `check_config_project_web_ide_terminals_path`
+ * - URL helper: `check_config_project_web_ide_terminals_url`
+ * - controller#action: `projects/web_ide_terminals#check_config`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6043,8 +7506,13 @@ export const checkConfigProjectWebIdeTerminalsPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/ide_terminals(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/ide_terminals(.:format)`
+ * - Path helper: `project_web_ide_terminals_path`
+ * - URL helper: `project_web_ide_terminals_url`
+ * - controller#action: `projects/web_ide_terminals#create`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6063,8 +7531,13 @@ export const projectWebIdeTerminalsPath = /*#__PURE__*/ (projectFullPath, ...arg
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/ide_terminals/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/ide_terminals/:id(.:format)`
+ * - Path helper: `project_web_ide_terminal_path`
+ * - URL helper: `project_web_ide_terminal_url`
+ * - controller#action: `projects/web_ide_terminals#show`
+ *
  * @param {string} projectFullPath
  * @param {any} id
  * @param {object | undefined} options
@@ -6084,8 +7557,13 @@ export const projectWebIdeTerminalPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/repository/archive.:format
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/repository/archive.:format`
+ * - Path helper: `project_repository_archive_path`
+ * - URL helper: `project_repository_archive_url`
+ * - controller#action: `projects/legacy_archive#show`
+ *
  * @param {string} projectFullPath
  * @param {any} format
  * @param {object | undefined} options
@@ -6105,8 +7583,13 @@ export const projectRepositoryArchivePath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/transfer(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/transfer(.:format)`
+ * - Path helper: `transfer_project_path`
+ * - URL helper: `transfer_project_url`
+ * - controller#action: `projects#transfer`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6125,8 +7608,13 @@ export const transferProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/remove_fork(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/remove_fork(.:format)`
+ * - Path helper: `remove_fork_project_path`
+ * - URL helper: `remove_fork_project_url`
+ * - controller#action: `projects#remove_fork`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6145,8 +7633,13 @@ export const removeForkProjectPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/archive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/archive(.:format)`
+ * - Path helper: `archive_project_path`
+ * - URL helper: `archive_project_url`
+ * - controller#action: `projects#archive`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6165,8 +7658,13 @@ export const archiveProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/unarchive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/unarchive(.:format)`
+ * - Path helper: `unarchive_project_path`
+ * - URL helper: `unarchive_project_url`
+ * - controller#action: `projects#unarchive`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6185,8 +7683,13 @@ export const unarchiveProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/housekeeping(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/housekeeping(.:format)`
+ * - Path helper: `housekeeping_project_path`
+ * - URL helper: `housekeeping_project_url`
+ * - controller#action: `projects#housekeeping`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6205,8 +7708,13 @@ export const housekeepingProjectPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/toggle_star(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/toggle_star(.:format)`
+ * - Path helper: `toggle_star_project_path`
+ * - URL helper: `toggle_star_project_url`
+ * - controller#action: `projects#toggle_star`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6225,8 +7733,13 @@ export const toggleStarProjectPath = /*#__PURE__*/ (projectFullPath, ...args) =>
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/export(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/export(.:format)`
+ * - Path helper: `export_project_path`
+ * - URL helper: `export_project_url`
+ * - controller#action: `projects#export`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6245,8 +7758,13 @@ export const exportProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/remove_export(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/remove_export(.:format)`
+ * - Path helper: `remove_export_project_path`
+ * - URL helper: `remove_export_project_url`
+ * - controller#action: `projects#remove_export`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6265,8 +7783,13 @@ export const removeExportProjectPath = /*#__PURE__*/ (projectFullPath, ...args) 
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/generate_new_export(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/generate_new_export(.:format)`
+ * - Path helper: `generate_new_export_project_path`
+ * - URL helper: `generate_new_export_project_url`
+ * - controller#action: `projects#generate_new_export`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6285,8 +7808,13 @@ export const generateNewExportProjectPath = /*#__PURE__*/ (projectFullPath, ...a
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/download_export(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/download_export(.:format)`
+ * - Path helper: `download_export_project_path`
+ * - URL helper: `download_export_project_url`
+ * - controller#action: `projects#download_export`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6305,8 +7833,13 @@ export const downloadExportProjectPath = /*#__PURE__*/ (projectFullPath, ...args
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/activity(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/activity(.:format)`
+ * - Path helper: `activity_project_path`
+ * - URL helper: `activity_project_url`
+ * - controller#action: `projects#activity`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6325,8 +7858,13 @@ export const activityProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/refs(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/refs(.:format)`
+ * - Path helper: `refs_project_path`
+ * - URL helper: `refs_project_url`
+ * - controller#action: `projects#refs`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6345,8 +7883,13 @@ export const refsProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/new_issuable_address(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/new_issuable_address(.:format)`
+ * - Path helper: `new_issuable_address_project_path`
+ * - URL helper: `new_issuable_address_project_url`
+ * - controller#action: `projects#new_issuable_address`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6365,8 +7908,13 @@ export const newIssuableAddressProjectPath = /*#__PURE__*/ (projectFullPath, ...
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/unfoldered_environment_names(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/unfoldered_environment_names(.:format)`
+ * - Path helper: `unfoldered_environment_names_project_path`
+ * - URL helper: `unfoldered_environment_names_project_url`
+ * - controller#action: `projects#unfoldered_environment_names`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6385,8 +7933,13 @@ export const unfolderedEnvironmentNamesProjectPath = /*#__PURE__*/ (projectFullP
 };
 
 /**
- * Generates rails route to
- * /:project_full_path/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path/edit(.:format)`
+ * - Path helper: `edit_project_path`
+ * - URL helper: `edit_project_url`
+ * - controller#action: `projects#edit`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6405,8 +7958,13 @@ export const editProjectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * /:project_full_path(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/:project_full_path(.:format)`
+ * - Path helper: `project_path`
+ * - URL helper: `project_url`
+ * - controller#action: `projects#show`
+ *
  * @param {string} projectFullPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -6425,8 +7983,12 @@ export const projectPath = /*#__PURE__*/ (projectFullPath, ...args) => {
 };
 
 /**
- * Generates rails route to
- * (/-/jira)/*namespace_id/:project_id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `(/-/jira)/*namespace_id/:project_id(.:format)`
+ * - Path helper: `jira_path`
+ * - URL helper: `jira_url`
+ *
  * @param {any} namespaceId
  * @param {any} projectId
  * @param {object | undefined} options

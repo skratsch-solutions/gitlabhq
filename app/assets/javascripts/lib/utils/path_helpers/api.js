@@ -6,32 +6,50 @@ import { __jsr } from '~/lib/utils/path_helpers/core';
 
 
 /**
- * Generates rails route to
- * /api/graphql(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/api/graphql(.:format)`
+ * - Path helper: `api_graphql_path`
+ * - URL helper: `api_graphql_url`
+ * - controller#action: `graphql#execute`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const apiGraphqlPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"api"],[2,[7,"/"],[2,[6,"graphql"],[1,[2,[8,"."],[3,"format"]]]]]]]);
 
 /**
- * Generates rails route to
- * /api/glql(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/api/glql(.:format)`
+ * - Path helper: `api_glql_path`
+ * - URL helper: `api_glql_url`
+ * - controller#action: `glql/base#execute`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const apiGlqlPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"api"],[2,[7,"/"],[2,[6,"glql"],[1,[2,[8,"."],[3,"format"]]]]]]]);
 
 /**
- * Generates rails route to
- * /-/graphql-explorer(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/-/graphql-explorer(.:format)`
+ * - Path helper: `__graphql_explorer_path`
+ * - URL helper: `__graphql_explorer_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const GraphqlExplorerPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"graphql-explorer"],[1,[2,[8,"."],[3,"format"]]]]]]]);
 
 /**
- * Generates rails route to
- * /
+ * Generates the Rails route:
+ *
+ * - href: `/`
+ * - Path helper: `api_api_path`
+ * - URL helper: `api_api_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

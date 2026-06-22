@@ -342,6 +342,36 @@ RSpec.describe MergeRequests::CreateRefService, feature_category: :merge_trains 
         end
       end
 
+      context 'when the rebase collapses onto the target tip' do
+        # A source with no commits of its own beyond the target tip rebases to a
+        # no-op: the generated ref equals the target tip, so recording it as a
+        # merge would write no commit yet still delete the source branch.
+        # See https://gitlab.com/gitlab-org/gitlab/-/work_items/598820.
+        let(:source_sha) { project.repository.commit(first_parent_ref).sha }
+
+        before do
+          project.merge_method = :ff
+          project.save!
+        end
+
+        it 'returns an error', :aggregate_failures do
+          expect(result[:status]).to eq :error
+          expect(result[:message])
+            .to eq('The merge request has no changes to merge after rebasing onto the target branch')
+        end
+
+        context 'and verify_create_ref_advancement is disabled' do
+          before do
+            stub_feature_flags(verify_create_ref_advancement: false)
+          end
+
+          it 'records the no-op as a success (legacy behaviour)', :aggregate_failures do
+            expect(result[:status]).to eq :success
+            expect(result[:commit_sha]).to eq(source_sha)
+          end
+        end
+      end
+
       context 'when we are not on ee' do
         include_examples 'does not generate ref merge request commits'
       end

@@ -204,6 +204,7 @@ RSpec.describe BulkImports::EntityWorker, feature_category: :importers do
           bulk_import_entity_type: entity.source_type,
           source_full_path: entity.source_full_path,
           source_version: entity.bulk_import.source_version_info.to_s,
+          Labkit::Fields::GL_ORGANIZATION_ID => entity.organization_id,
           importer: 'gitlab_migration'
         ))
 

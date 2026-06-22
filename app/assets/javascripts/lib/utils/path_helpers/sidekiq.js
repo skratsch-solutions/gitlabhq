@@ -7,8 +7,12 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /admin/sidekiq
+ * Generates the Rails route:
+ *
+ * - href: `/admin/sidekiq`
+ * - Path helper: `sidekiq_path`
+ * - URL helper: `sidekiq_url`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

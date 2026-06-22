@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /uploads/-/system/:model/:mounted_as/:id/:filename(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/uploads/-/system/:model/:mounted_as/:id/:filename(.:format)`
+ * - Path helper: `appearance_upload_path`
+ * - URL helper: `appearance_upload_url`
+ * - controller#action: `uploads#show`
+ *
  * @param {any} model
  * @param {any} mountedAs
  * @param {any} id
@@ -28,8 +33,13 @@ export const appearanceUploadPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /uploads/:model(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/uploads/:model(.:format)`
+ * - Path helper: `upload_path`
+ * - URL helper: `upload_url`
+ * - controller#action: `uploads#create`
+ *
  * @param {any} model
  * @param {object | undefined} options
  * @returns {string} route path
@@ -46,8 +56,13 @@ export const uploadPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /uploads/-/system/:model/:mounted_as/:id/:filename(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/uploads/-/system/:model/:mounted_as/:id/:filename(.:format)`
+ * - Path helper: `alert_metric_image_upload_path`
+ * - URL helper: `alert_metric_image_upload_url`
+ * - controller#action: `uploads#show`
+ *
  * @param {any} model
  * @param {any} mountedAs
  * @param {any} id
@@ -67,8 +82,13 @@ export const alertMetricImageUploadPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /uploads/-/system/:model/:mounted_as/:id/:filename(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/uploads/-/system/:model/:mounted_as/:id/:filename(.:format)`
+ * - Path helper: `abuse_report_screenshot_path`
+ * - URL helper: `abuse_report_screenshot_url`
+ * - controller#action: `uploads#show`
+ *
  * @param {any} model
  * @param {any} mountedAs
  * @param {any} id

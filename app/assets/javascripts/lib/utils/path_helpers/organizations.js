@@ -6,24 +6,39 @@ import { __jsr } from '~/lib/utils/path_helpers/core';
 
 
 /**
- * Generates rails route to
- * /o
+ * Generates the Rails route:
+ *
+ * - href: `/o`
+ * - Path helper: `organizations_path`
+ * - URL helper: `organizations_url`
+ * - controller#action: `organizations/organizations#index`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const organizationsPath = /*#__PURE__*/ __jsr.r({}, [2,[7,"/"],[6,"o"]]);
 
 /**
- * Generates rails route to
- * /o/-/preview_markdown(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/-/preview_markdown(.:format)`
+ * - Path helper: `preview_markdown_organizations_path`
+ * - URL helper: `preview_markdown_organizations_url`
+ * - controller#action: `organizations/organizations#preview_markdown`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
 export const previewMarkdownOrganizationsPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"preview_markdown"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/overview(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/overview(.:format)`
+ * - Path helper: `organization_path`
+ * - URL helper: `organization_url`
+ * - controller#action: `organizations/organizations#show`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -31,8 +46,13 @@ export const previewMarkdownOrganizationsPath = /*#__PURE__*/ __jsr.r({"format":
 export const organizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"overview"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/activity(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/activity(.:format)`
+ * - Path helper: `activity_organization_path`
+ * - URL helper: `activity_organization_url`
+ * - controller#action: `organizations/organizations#activity`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -40,8 +60,13 @@ export const organizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":
 export const activityOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"activity"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/groups_and_projects(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/groups_and_projects(.:format)`
+ * - Path helper: `groups_and_projects_organization_path`
+ * - URL helper: `groups_and_projects_organization_url`
+ * - controller#action: `organizations/organizations#groups_and_projects`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -49,8 +74,13 @@ export const activityOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_pat
 export const groupsAndProjectsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"groups_and_projects"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/users(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/users(.:format)`
+ * - Path helper: `users_organization_path`
+ * - URL helper: `users_organization_url`
+ * - controller#action: `organizations/organizations#users`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -58,8 +88,13 @@ export const groupsAndProjectsOrganizationPath = /*#__PURE__*/ __jsr.r({"organiz
 export const usersOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"users"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/settings/general(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/settings/general(.:format)`
+ * - Path helper: `general_settings_organization_path`
+ * - URL helper: `general_settings_organization_url`
+ * - controller#action: `organizations/settings#general`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -67,8 +102,13 @@ export const usersOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":
 export const generalSettingsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"settings"],[2,[7,"/"],[2,[6,"general"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/groups/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/groups/new(.:format)`
+ * - Path helper: `new_groups_organization_path`
+ * - URL helper: `new_groups_organization_url`
+ * - controller#action: `organizations/groups#new`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -76,8 +116,13 @@ export const generalSettingsOrganizationPath = /*#__PURE__*/ __jsr.r({"organizat
 export const newGroupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"groups"],[2,[7,"/"],[2,[6,"new"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/groups(.:format)`
+ * - Path helper: `groups_organization_path`
+ * - URL helper: `groups_organization_url`
+ * - controller#action: `organizations/groups#destroy`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -85,8 +130,13 @@ export const newGroupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_pa
 export const groupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"groups"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/artifact_registry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/artifact_registry(.:format)`
+ * - Path helper: `artifact_registry_organization_index_path`
+ * - URL helper: `artifact_registry_organization_index_url`
+ * - controller#action: `organizations/artifact_registry#index`
+ *
  * @param {any} organizationPath
  * @param {object | undefined} options
  * @returns {string} route path
@@ -94,8 +144,13 @@ export const groupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path"
 export const artifactRegistryOrganizationIndexPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"artifact_registry"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/groups/*id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/groups/*id/edit(.:format)`
+ * - Path helper: `edit_groups_organization_path`
+ * - URL helper: `edit_groups_organization_url`
+ * - controller#action: `organizations/groups#edit`
+ *
  * @param {any} organizationPath
  * @param {any} id
  * @param {object | undefined} options
@@ -104,8 +159,13 @@ export const artifactRegistryOrganizationIndexPath = /*#__PURE__*/ __jsr.r({"org
 export const editGroupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"id":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"groups"],[2,[7,"/"],[2,[5,[3,"id"]],[2,[7,"/"],[2,[6,"edit"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/:organization_path/-/projects/*namespace_id/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/:organization_path/-/projects/*namespace_id/:id/edit(.:format)`
+ * - Path helper: `edit_namespace_projects_organization_path`
+ * - URL helper: `edit_namespace_projects_organization_url`
+ * - controller#action: `organizations/projects#edit`
+ *
  * @param {any} organizationPath
  * @param {any} namespaceId
  * @param {any} id
@@ -115,8 +175,13 @@ export const editGroupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_p
 export const editNamespaceProjectsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"namespace_id":{"r":true},"id":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"projects"],[2,[7,"/"],[2,[5,[3,"namespace_id"]],[2,[7,"/"],[2,[3,"id"],[2,[7,"/"],[2,[6,"edit"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]]]]]);
 
 /**
- * Generates rails route to
- * /o/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/o/new(.:format)`
+ * - Path helper: `new_organization_path`
+ * - URL helper: `new_organization_url`
+ * - controller#action: `organizations/organizations#new`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */

@@ -7,8 +7,13 @@ import { hasOrganizationScopedPaths } from '~/lib/utils/path_helpers/utils';
 
 
 /**
- * Generates rails route to
- * /groups/*id/-/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/edit(.:format)`
+ * - Path helper: `edit_group_path`
+ * - URL helper: `edit_group_url`
+ * - controller#action: `groups#edit`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -25,8 +30,13 @@ export const editGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/issues(.:format)`
+ * - Path helper: `issues_group_calendar_path`
+ * - URL helper: `issues_group_calendar_url`
+ * - controller#action: `groups#issues_calendar`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -43,8 +53,13 @@ export const issuesGroupCalendarPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/issues(.:format)`
+ * - Path helper: `issues_group_path`
+ * - URL helper: `issues_group_url`
+ * - controller#action: `groups#issues`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -61,8 +76,13 @@ export const issuesGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/merge_requests(.:format)`
+ * - Path helper: `merge_requests_group_path`
+ * - URL helper: `merge_requests_group_url`
+ * - controller#action: `groups#merge_requests`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -79,8 +99,13 @@ export const mergeRequestsGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/details(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/details(.:format)`
+ * - Path helper: `details_group_path`
+ * - URL helper: `details_group_url`
+ * - controller#action: `groups#details`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -97,8 +122,13 @@ export const detailsGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/activity(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/activity(.:format)`
+ * - Path helper: `activity_group_path`
+ * - URL helper: `activity_group_url`
+ * - controller#action: `groups#activity`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -115,8 +145,13 @@ export const activityGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/transfer(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/transfer(.:format)`
+ * - Path helper: `transfer_group_path`
+ * - URL helper: `transfer_group_url`
+ * - controller#action: `groups#transfer`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -133,8 +168,13 @@ export const transferGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/export(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/export(.:format)`
+ * - Path helper: `export_group_path`
+ * - URL helper: `export_group_url`
+ * - controller#action: `groups#export`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -151,8 +191,13 @@ export const exportGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/download_export(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/download_export(.:format)`
+ * - Path helper: `download_export_group_path`
+ * - URL helper: `download_export_group_url`
+ * - controller#action: `groups#download_export`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -169,8 +214,13 @@ export const downloadExportGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/unfoldered_environment_names(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/unfoldered_environment_names(.:format)`
+ * - Path helper: `unfoldered_environment_names_group_path`
+ * - URL helper: `unfoldered_environment_names_group_url`
+ * - controller#action: `groups#unfoldered_environment_names`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -187,8 +237,13 @@ export const unfolderedEnvironmentNamesGroupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/shared(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/shared(.:format)`
+ * - Path helper: `group_shared_path`
+ * - URL helper: `group_shared_url`
+ * - controller#action: `groups#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -205,8 +260,13 @@ export const groupSharedPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/shared_groups(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/shared_groups(.:format)`
+ * - Path helper: `group_shared_groups_path`
+ * - URL helper: `group_shared_groups_url`
+ * - controller#action: `groups#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -223,8 +283,13 @@ export const groupSharedGroupsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/inactive(.:format)`
+ * - Path helper: `group_inactive_path`
+ * - URL helper: `group_inactive_url`
+ * - controller#action: `groups#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -241,8 +306,12 @@ export const groupInactivePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id/-/archived(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id/-/archived(.:format)`
+ * - Path helper: `archived_path`
+ * - URL helper: `archived_url`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -259,8 +328,13 @@ export const archivedPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id(.:format)`
+ * - Path helper: `group_canonical_path`
+ * - URL helper: `group_canonical_url`
+ * - controller#action: `groups#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -277,8 +351,13 @@ export const groupCanonicalPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*id(.:format)`
+ * - Path helper: `destroy_group_canonical_path`
+ * - URL helper: `destroy_group_canonical_url`
+ * - controller#action: `groups#destroy`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -295,8 +374,13 @@ export const destroyGroupCanonicalPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/work_items(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/work_items(.:format)`
+ * - Path helper: `group_work_items_path`
+ * - URL helper: `group_work_items_url`
+ * - controller#action: `groups/work_items#rss`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -313,8 +397,13 @@ export const groupWorkItemsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/work_items/views/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/work_items/views/:id(.:format)`
+ * - Path helper: `group_saved_view_path`
+ * - URL helper: `group_saved_view_url`
+ * - controller#action: `groups/saved_views#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -332,8 +421,13 @@ export const groupSavedViewPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/ci_cd/reset_registration_token(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/ci_cd/reset_registration_token(.:format)`
+ * - Path helper: `reset_registration_token_group_settings_ci_cd_path`
+ * - URL helper: `reset_registration_token_group_settings_ci_cd_url`
+ * - controller#action: `groups/settings/ci_cd#reset_registration_token`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -350,8 +444,13 @@ export const resetRegistrationTokenGroupSettingsCiCdPath = /*#__PURE__*/ (...arg
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/ci_cd/update_auto_devops(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/ci_cd/update_auto_devops(.:format)`
+ * - Path helper: `update_auto_devops_group_settings_ci_cd_path`
+ * - URL helper: `update_auto_devops_group_settings_ci_cd_url`
+ * - controller#action: `groups/settings/ci_cd#update_auto_devops`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -368,8 +467,13 @@ export const updateAutoDevopsGroupSettingsCiCdPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/ci_cd/deploy_token/create(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/ci_cd/deploy_token/create(.:format)`
+ * - Path helper: `create_deploy_token_group_settings_ci_cd_path`
+ * - URL helper: `create_deploy_token_group_settings_ci_cd_url`
+ * - controller#action: `groups/settings/repository#create_deploy_token`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -386,8 +490,13 @@ export const createDeployTokenGroupSettingsCiCdPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/ci_cd/runner_setup_scripts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/ci_cd/runner_setup_scripts(.:format)`
+ * - Path helper: `runner_setup_scripts_group_settings_ci_cd_path`
+ * - URL helper: `runner_setup_scripts_group_settings_ci_cd_url`
+ * - controller#action: `groups/settings/ci_cd#runner_setup_scripts`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -404,8 +513,13 @@ export const runnerSetupScriptsGroupSettingsCiCdPath = /*#__PURE__*/ (...args) =
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/ci_cd(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/ci_cd(.:format)`
+ * - Path helper: `group_settings_ci_cd_path`
+ * - URL helper: `group_settings_ci_cd_url`
+ * - controller#action: `groups/settings/ci_cd#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -422,8 +536,13 @@ export const groupSettingsCiCdPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/issues(/*vueroute)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/issues(/*vueroute)`
+ * - Path helper: `issues_group_settings_issues_path`
+ * - URL helper: `issues_group_settings_issues_url`
+ * - controller#action: `groups/settings/work_items#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -440,8 +559,13 @@ export const issuesGroupSettingsIssuesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/issues/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/issues/new(.:format)`
+ * - Path helper: `new_group_settings_issues_path`
+ * - URL helper: `new_group_settings_issues_url`
+ * - controller#action: `groups/settings/issues#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -458,8 +582,13 @@ export const newGroupSettingsIssuesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/issues/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/issues/edit(.:format)`
+ * - Path helper: `edit_group_settings_issues_path`
+ * - URL helper: `edit_group_settings_issues_url`
+ * - controller#action: `groups/settings/issues#edit`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -476,8 +605,13 @@ export const editGroupSettingsIssuesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/repository/deploy_token/create(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/repository/deploy_token/create(.:format)`
+ * - Path helper: `create_deploy_token_group_settings_repository_path`
+ * - URL helper: `create_deploy_token_group_settings_repository_url`
+ * - controller#action: `groups/settings/repository#create_deploy_token`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -494,8 +628,13 @@ export const createDeployTokenGroupSettingsRepositoryPath = /*#__PURE__*/ (...ar
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/repository(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/repository(.:format)`
+ * - Path helper: `group_settings_repository_path`
+ * - URL helper: `group_settings_repository_url`
+ * - controller#action: `groups/settings/repository#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -512,8 +651,13 @@ export const groupSettingsRepositoryPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/service_accounts(/*vueroute)(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/service_accounts(/*vueroute)(.:format)`
+ * - Path helper: `group_settings_service_accounts_path`
+ * - URL helper: `group_settings_service_accounts_url`
+ * - controller#action: `groups/settings/service_accounts#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -530,8 +674,13 @@ export const groupSettingsServiceAccountsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/access_tokens/:id/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/access_tokens/:id/revoke(.:format)`
+ * - Path helper: `revoke_group_settings_access_token_path`
+ * - URL helper: `revoke_group_settings_access_token_url`
+ * - controller#action: `groups/settings/access_tokens#revoke`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -549,8 +698,13 @@ export const revokeGroupSettingsAccessTokenPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/access_tokens/:id/rotate(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/access_tokens/:id/rotate(.:format)`
+ * - Path helper: `rotate_group_settings_access_token_path`
+ * - URL helper: `rotate_group_settings_access_token_url`
+ * - controller#action: `groups/settings/access_tokens#rotate`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -568,8 +722,13 @@ export const rotateGroupSettingsAccessTokenPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/access_tokens/inactive(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/access_tokens/inactive(.:format)`
+ * - Path helper: `inactive_group_settings_access_tokens_path`
+ * - URL helper: `inactive_group_settings_access_tokens_url`
+ * - controller#action: `groups/settings/access_tokens#inactive`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -586,8 +745,13 @@ export const inactiveGroupSettingsAccessTokensPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/access_tokens(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/access_tokens(.:format)`
+ * - Path helper: `group_settings_access_tokens_path`
+ * - URL helper: `group_settings_access_tokens_url`
+ * - controller#action: `groups/settings/access_tokens#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -604,8 +768,13 @@ export const groupSettingsAccessTokensPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/integrations/:id/test(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/integrations/:id/test(.:format)`
+ * - Path helper: `test_group_settings_integration_path`
+ * - URL helper: `test_group_settings_integration_url`
+ * - controller#action: `groups/settings/integrations#test`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -623,8 +792,13 @@ export const testGroupSettingsIntegrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/integrations/:id/reset(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/integrations/:id/reset(.:format)`
+ * - Path helper: `reset_group_settings_integration_path`
+ * - URL helper: `reset_group_settings_integration_url`
+ * - controller#action: `groups/settings/integrations#reset`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -642,8 +816,13 @@ export const resetGroupSettingsIntegrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/integrations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/integrations(.:format)`
+ * - Path helper: `group_settings_integrations_path`
+ * - URL helper: `group_settings_integrations_url`
+ * - controller#action: `groups/settings/integrations#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -660,8 +839,13 @@ export const groupSettingsIntegrationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/integrations/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/integrations/:id/edit(.:format)`
+ * - Path helper: `edit_group_settings_integration_path`
+ * - URL helper: `edit_group_settings_integration_url`
+ * - controller#action: `groups/settings/integrations#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -679,8 +863,13 @@ export const editGroupSettingsIntegrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/integrations/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/integrations/:id(.:format)`
+ * - Path helper: `group_settings_integration_path`
+ * - URL helper: `group_settings_integration_url`
+ * - controller#action: `groups/settings/integrations#update`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -698,8 +887,13 @@ export const groupSettingsIntegrationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/slack/slack_auth(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/slack/slack_auth(.:format)`
+ * - Path helper: `slack_auth_group_settings_slack_path`
+ * - URL helper: `slack_auth_group_settings_slack_url`
+ * - controller#action: `groups/settings/slacks#slack_auth`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -716,8 +910,13 @@ export const slackAuthGroupSettingsSlackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/slack(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/slack(.:format)`
+ * - Path helper: `group_settings_slack_path`
+ * - URL helper: `group_settings_slack_url`
+ * - controller#action: `groups/settings/slacks#destroy`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -734,8 +933,13 @@ export const groupSettingsSlackPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/applications/:id/renew(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/applications/:id/renew(.:format)`
+ * - Path helper: `renew_group_settings_application_path`
+ * - URL helper: `renew_group_settings_application_url`
+ * - controller#action: `groups/settings/applications#renew`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -753,8 +957,13 @@ export const renewGroupSettingsApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/applications(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/applications(.:format)`
+ * - Path helper: `group_settings_applications_path`
+ * - URL helper: `group_settings_applications_url`
+ * - controller#action: `groups/settings/applications#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -771,8 +980,13 @@ export const groupSettingsApplicationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/applications/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/applications/new(.:format)`
+ * - Path helper: `new_group_settings_application_path`
+ * - URL helper: `new_group_settings_application_url`
+ * - controller#action: `groups/settings/applications#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -789,8 +1003,13 @@ export const newGroupSettingsApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/applications/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/applications/:id/edit(.:format)`
+ * - Path helper: `edit_group_settings_application_path`
+ * - URL helper: `edit_group_settings_application_url`
+ * - controller#action: `groups/settings/applications#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -808,8 +1027,13 @@ export const editGroupSettingsApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/applications/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/applications/:id(.:format)`
+ * - Path helper: `group_settings_application_path`
+ * - URL helper: `group_settings_application_url`
+ * - controller#action: `groups/settings/applications#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -827,8 +1051,13 @@ export const groupSettingsApplicationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/settings/packages_and_registries(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/settings/packages_and_registries(.:format)`
+ * - Path helper: `group_settings_packages_and_registries_path`
+ * - URL helper: `group_settings_packages_and_registries_url`
+ * - controller#action: `groups/settings/packages_and_registries#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -845,8 +1074,13 @@ export const groupSettingsPackagesAndRegistriesPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/variables(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/variables(.:format)`
+ * - Path helper: `group_variables_path`
+ * - URL helper: `group_variables_url`
+ * - controller#action: `groups/variables#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -863,8 +1097,13 @@ export const groupVariablesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/children(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/children(.:format)`
+ * - Path helper: `group_children_path`
+ * - URL helper: `group_children_url`
+ * - controller#action: `groups/children#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -881,8 +1120,13 @@ export const groupChildrenPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/labels/:id/toggle_subscription(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/labels/:id/toggle_subscription(.:format)`
+ * - Path helper: `toggle_subscription_group_label_path`
+ * - URL helper: `toggle_subscription_group_label_url`
+ * - controller#action: `groups/labels#toggle_subscription`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -900,8 +1144,13 @@ export const toggleSubscriptionGroupLabelPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/labels(.:format)`
+ * - Path helper: `group_labels_path`
+ * - URL helper: `group_labels_url`
+ * - controller#action: `groups/labels#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -918,8 +1167,13 @@ export const groupLabelsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/labels/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/labels/new(.:format)`
+ * - Path helper: `new_group_label_path`
+ * - URL helper: `new_group_label_url`
+ * - controller#action: `groups/labels#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -936,8 +1190,13 @@ export const newGroupLabelPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/labels/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/labels/:id/edit(.:format)`
+ * - Path helper: `edit_group_label_path`
+ * - URL helper: `edit_group_label_url`
+ * - controller#action: `groups/labels#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -955,8 +1214,13 @@ export const editGroupLabelPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/labels/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/labels/:id(.:format)`
+ * - Path helper: `group_label_path`
+ * - URL helper: `group_label_url`
+ * - controller#action: `groups/labels#update`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -974,8 +1238,13 @@ export const groupLabelPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/custom_emoji(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/custom_emoji(.:format)`
+ * - Path helper: `group_custom_emoji_index_path`
+ * - URL helper: `group_custom_emoji_index_url`
+ * - controller#action: `groups/custom_emoji#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -992,8 +1261,13 @@ export const groupCustomEmojiIndexPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/custom_emoji/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/custom_emoji/new(.:format)`
+ * - Path helper: `new_group_custom_emoji_path`
+ * - URL helper: `new_group_custom_emoji_url`
+ * - controller#action: `groups/custom_emoji#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1010,8 +1284,13 @@ export const newGroupCustomEmojiPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/packages(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/packages(.:format)`
+ * - Path helper: `group_packages_path`
+ * - URL helper: `group_packages_url`
+ * - controller#action: `groups/packages#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1028,8 +1307,13 @@ export const groupPackagesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/packages/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/packages/:id(.:format)`
+ * - Path helper: `group_package_path`
+ * - URL helper: `group_package_url`
+ * - controller#action: `groups/packages#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1047,8 +1331,13 @@ export const groupPackagePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/terraform_module_registry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/terraform_module_registry(.:format)`
+ * - Path helper: `group_infrastructure_registry_index_path`
+ * - URL helper: `group_infrastructure_registry_index_url`
+ * - controller#action: `groups/infrastructure_registry#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1065,8 +1354,12 @@ export const groupInfrastructureRegistryIndexPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/infrastructure_registry(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/infrastructure_registry(.:format)`
+ * - Path helper: `group_infrastructure_registry_path`
+ * - URL helper: `group_infrastructure_registry_url`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1083,8 +1376,13 @@ export const groupInfrastructureRegistryPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones/:id/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones/:id/issues(.:format)`
+ * - Path helper: `issues_group_milestone_path`
+ * - URL helper: `issues_group_milestone_url`
+ * - controller#action: `groups/milestones#issues`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1102,8 +1400,13 @@ export const issuesGroupMilestonePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones/:id/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones/:id/merge_requests(.:format)`
+ * - Path helper: `merge_requests_group_milestone_path`
+ * - URL helper: `merge_requests_group_milestone_url`
+ * - controller#action: `groups/milestones#merge_requests`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1121,8 +1424,13 @@ export const mergeRequestsGroupMilestonePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones/:id/participants(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones/:id/participants(.:format)`
+ * - Path helper: `participants_group_milestone_path`
+ * - URL helper: `participants_group_milestone_url`
+ * - controller#action: `groups/milestones#participants`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1140,8 +1448,13 @@ export const participantsGroupMilestonePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones/:id/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones/:id/labels(.:format)`
+ * - Path helper: `labels_group_milestone_path`
+ * - URL helper: `labels_group_milestone_url`
+ * - controller#action: `groups/milestones#labels`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1159,8 +1472,13 @@ export const labelsGroupMilestonePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones(.:format)`
+ * - Path helper: `group_milestones_path`
+ * - URL helper: `group_milestones_url`
+ * - controller#action: `groups/milestones#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1177,8 +1495,13 @@ export const groupMilestonesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones/new(.:format)`
+ * - Path helper: `new_group_milestone_path`
+ * - URL helper: `new_group_milestone_url`
+ * - controller#action: `groups/milestones#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1195,8 +1518,13 @@ export const newGroupMilestonePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones/:id/edit(.:format)`
+ * - Path helper: `edit_group_milestone_path`
+ * - URL helper: `edit_group_milestone_url`
+ * - controller#action: `groups/milestones#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1214,8 +1542,13 @@ export const editGroupMilestonePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/milestones/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/milestones/:id(.:format)`
+ * - Path helper: `group_milestone_path`
+ * - URL helper: `group_milestone_url`
+ * - controller#action: `groups/milestones#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1233,8 +1566,13 @@ export const groupMilestonePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/releases(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/releases(.:format)`
+ * - Path helper: `group_releases_path`
+ * - URL helper: `group_releases_url`
+ * - controller#action: `groups/releases#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1251,8 +1589,13 @@ export const groupReleasesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/deploy_tokens/:id/revoke(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/deploy_tokens/:id/revoke(.:format)`
+ * - Path helper: `revoke_group_deploy_token_path`
+ * - URL helper: `revoke_group_deploy_token_url`
+ * - controller#action: `groups/deploy_tokens#revoke`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1270,8 +1613,13 @@ export const revokeGroupDeployTokenPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/avatar(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/avatar(.:format)`
+ * - Path helper: `group_avatar_path`
+ * - URL helper: `group_avatar_url`
+ * - controller#action: `groups/avatars#destroy`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1288,8 +1636,13 @@ export const groupAvatarPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/import(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/import(.:format)`
+ * - Path helper: `group_import_path`
+ * - URL helper: `group_import_url`
+ * - controller#action: `groups/imports#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1306,8 +1659,13 @@ export const groupImportPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/:id/resend_invite(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/:id/resend_invite(.:format)`
+ * - Path helper: `resend_invite_group_group_member_path`
+ * - URL helper: `resend_invite_group_group_member_url`
+ * - controller#action: `groups/group_members#resend_invite`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1325,8 +1683,13 @@ export const resendInviteGroupGroupMemberPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/bulk_reassignment_file/authorize(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/bulk_reassignment_file/authorize(.:format)`
+ * - Path helper: `authorize_group_bulk_reassignment_file_path`
+ * - URL helper: `authorize_group_bulk_reassignment_file_url`
+ * - controller#action: `groups/bulk_placeholder_assignments#authorize`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1343,8 +1706,13 @@ export const authorizeGroupBulkReassignmentFilePath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/bulk_reassignment_file(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/bulk_reassignment_file(.:format)`
+ * - Path helper: `group_bulk_reassignment_file_path`
+ * - URL helper: `group_bulk_reassignment_file_url`
+ * - controller#action: `groups/bulk_placeholder_assignments#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1361,8 +1729,13 @@ export const groupBulkReassignmentFilePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/leave(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/leave(.:format)`
+ * - Path helper: `leave_group_group_members_path`
+ * - URL helper: `leave_group_group_members_url`
+ * - controller#action: `groups/group_members#leave`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1379,8 +1752,13 @@ export const leaveGroupGroupMembersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/invite_search(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/invite_search(.:format)`
+ * - Path helper: `invite_search_group_group_members_path`
+ * - URL helper: `invite_search_group_group_members_url`
+ * - controller#action: `groups/group_members#invite_search`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1397,8 +1775,13 @@ export const inviteSearchGroupGroupMembersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members(.:format)`
+ * - Path helper: `group_group_members_path`
+ * - URL helper: `group_group_members_url`
+ * - controller#action: `groups/group_members#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1415,8 +1798,13 @@ export const groupGroupMembersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_members/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_members/:id(.:format)`
+ * - Path helper: `group_group_member_path`
+ * - URL helper: `group_group_member_url`
+ * - controller#action: `groups/group_members#update`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1434,8 +1822,13 @@ export const groupGroupMemberPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/group_links/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/group_links/:id(.:format)`
+ * - Path helper: `group_group_link_path`
+ * - URL helper: `group_group_link_url`
+ * - controller#action: `groups/group_links#update`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1453,8 +1846,13 @@ export const groupGroupLinkPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/uploads/:secret/:filename
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/uploads/:secret/:filename`
+ * - Path helper: `show_group_uploads_path`
+ * - URL helper: `show_group_uploads_url`
+ * - controller#action: `groups/uploads#show`
+ *
  * @param {any} groupId
  * @param {any} secret
  * @param {any} filename
@@ -1473,8 +1871,13 @@ export const showGroupUploadsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/uploads/authorize(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/uploads/authorize(.:format)`
+ * - Path helper: `authorize_group_uploads_path`
+ * - URL helper: `authorize_group_uploads_url`
+ * - controller#action: `groups/uploads#authorize`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1491,8 +1894,13 @@ export const authorizeGroupUploadsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/uploads(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/uploads(.:format)`
+ * - Path helper: `group_uploads_path`
+ * - URL helper: `group_uploads_url`
+ * - controller#action: `groups/uploads#create`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1509,8 +1917,13 @@ export const groupUploadsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/boards(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/boards(.:format)`
+ * - Path helper: `group_boards_path`
+ * - URL helper: `group_boards_url`
+ * - controller#action: `groups/boards#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1527,8 +1940,13 @@ export const groupBoardsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/boards/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/boards/:id(.:format)`
+ * - Path helper: `group_board_path`
+ * - URL helper: `group_board_url`
+ * - controller#action: `groups/boards#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1546,8 +1964,13 @@ export const groupBoardPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/runners/:id/register(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/runners/:id/register(.:format)`
+ * - Path helper: `register_group_runner_path`
+ * - URL helper: `register_group_runner_url`
+ * - controller#action: `groups/runners#register`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1565,8 +1988,13 @@ export const registerGroupRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/runners/:id/resume(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/runners/:id/resume(.:format)`
+ * - Path helper: `resume_group_runner_path`
+ * - URL helper: `resume_group_runner_url`
+ * - controller#action: `groups/runners#resume`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1584,8 +2012,13 @@ export const resumeGroupRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/runners/:id/pause(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/runners/:id/pause(.:format)`
+ * - Path helper: `pause_group_runner_path`
+ * - URL helper: `pause_group_runner_url`
+ * - controller#action: `groups/runners#pause`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1603,8 +2036,13 @@ export const pauseGroupRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/runners(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/runners(.:format)`
+ * - Path helper: `group_runners_path`
+ * - URL helper: `group_runners_url`
+ * - controller#action: `groups/runners#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1621,8 +2059,13 @@ export const groupRunnersPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/runners/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/runners/new(.:format)`
+ * - Path helper: `new_group_runner_path`
+ * - URL helper: `new_group_runner_url`
+ * - controller#action: `groups/runners#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1639,8 +2082,13 @@ export const newGroupRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/runners/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/runners/:id/edit(.:format)`
+ * - Path helper: `edit_group_runner_path`
+ * - URL helper: `edit_group_runner_url`
+ * - controller#action: `groups/runners#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1658,8 +2106,13 @@ export const editGroupRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/runners/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/runners/:id(.:format)`
+ * - Path helper: `group_runner_path`
+ * - URL helper: `group_runner_url`
+ * - controller#action: `groups/runners#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1677,8 +2130,13 @@ export const groupRunnerPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/container_registries(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/container_registries(.:format)`
+ * - Path helper: `group_container_registries_path`
+ * - URL helper: `group_container_registries_url`
+ * - controller#action: `groups/registry/repositories#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1695,8 +2153,13 @@ export const groupContainerRegistriesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/container_registries/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/container_registries/:id(.:format)`
+ * - Path helper: `group_container_registry_path`
+ * - URL helper: `group_container_registry_url`
+ * - controller#action: `groups/registry/repositories#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1714,8 +2177,13 @@ export const groupContainerRegistryPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/dependency_proxy(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/dependency_proxy(.:format)`
+ * - Path helper: `group_dependency_proxy_path`
+ * - URL helper: `group_dependency_proxy_url`
+ * - controller#action: `groups/dependency_proxies#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1732,8 +2200,13 @@ export const groupDependencyProxyPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/harbor/repositories/:repository_id/artifacts/:artifact_id/tags(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/harbor/repositories/:repository_id/artifacts/:artifact_id/tags(.:format)`
+ * - Path helper: `group_harbor_repository_artifact_tags_path`
+ * - URL helper: `group_harbor_repository_artifact_tags_url`
+ * - controller#action: `groups/harbor/tags#index`
+ *
  * @param {any} groupId
  * @param {any} repositoryId
  * @param {any} artifactId
@@ -1752,8 +2225,13 @@ export const groupHarborRepositoryArtifactTagsPath = /*#__PURE__*/ (...args) => 
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/harbor/repositories/:repository_id/artifacts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/harbor/repositories/:repository_id/artifacts(.:format)`
+ * - Path helper: `group_harbor_repository_artifacts_path`
+ * - URL helper: `group_harbor_repository_artifacts_url`
+ * - controller#action: `groups/harbor/artifacts#index`
+ *
  * @param {any} groupId
  * @param {any} repositoryId
  * @param {object | undefined} options
@@ -1771,8 +2249,13 @@ export const groupHarborRepositoryArtifactsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/harbor/repositories(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/harbor/repositories(.:format)`
+ * - Path helper: `group_harbor_repositories_path`
+ * - URL helper: `group_harbor_repositories_url`
+ * - controller#action: `groups/harbor/repositories#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1789,8 +2272,13 @@ export const groupHarborRepositoriesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/harbor/repositories/:id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/harbor/repositories/:id(.:format)`
+ * - Path helper: `group_harbor_repository_path`
+ * - URL helper: `group_harbor_repository_url`
+ * - controller#action: `groups/harbor/repositories#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1808,8 +2296,13 @@ export const groupHarborRepositoryPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/autocomplete_sources/members(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/autocomplete_sources/members(.:format)`
+ * - Path helper: `members_group_autocomplete_sources_path`
+ * - URL helper: `members_group_autocomplete_sources_url`
+ * - controller#action: `groups/autocomplete_sources#members`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1826,8 +2319,13 @@ export const membersGroupAutocompleteSourcesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/autocomplete_sources/issues(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/autocomplete_sources/issues(.:format)`
+ * - Path helper: `issues_group_autocomplete_sources_path`
+ * - URL helper: `issues_group_autocomplete_sources_url`
+ * - controller#action: `groups/autocomplete_sources#issues`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1844,8 +2342,13 @@ export const issuesGroupAutocompleteSourcesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/autocomplete_sources/merge_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/autocomplete_sources/merge_requests(.:format)`
+ * - Path helper: `merge_requests_group_autocomplete_sources_path`
+ * - URL helper: `merge_requests_group_autocomplete_sources_url`
+ * - controller#action: `groups/autocomplete_sources#merge_requests`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1862,8 +2365,13 @@ export const mergeRequestsGroupAutocompleteSourcesPath = /*#__PURE__*/ (...args)
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/autocomplete_sources/labels(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/autocomplete_sources/labels(.:format)`
+ * - Path helper: `labels_group_autocomplete_sources_path`
+ * - URL helper: `labels_group_autocomplete_sources_url`
+ * - controller#action: `groups/autocomplete_sources#labels`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1880,8 +2388,13 @@ export const labelsGroupAutocompleteSourcesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/autocomplete_sources/commands(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/autocomplete_sources/commands(.:format)`
+ * - Path helper: `commands_group_autocomplete_sources_path`
+ * - URL helper: `commands_group_autocomplete_sources_url`
+ * - controller#action: `groups/autocomplete_sources#commands`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1898,8 +2411,13 @@ export const commandsGroupAutocompleteSourcesPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/autocomplete_sources/milestones(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/autocomplete_sources/milestones(.:format)`
+ * - Path helper: `milestones_group_autocomplete_sources_path`
+ * - URL helper: `milestones_group_autocomplete_sources_url`
+ * - controller#action: `groups/autocomplete_sources#milestones`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1916,8 +2434,13 @@ export const milestonesGroupAutocompleteSourcesPath = /*#__PURE__*/ (...args) =>
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/crm/contacts(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/crm/contacts(.:format)`
+ * - Path helper: `group_crm_contacts_path`
+ * - URL helper: `group_crm_contacts_url`
+ * - controller#action: `groups/crm/contacts#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1934,8 +2457,13 @@ export const groupCrmContactsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/crm/contacts/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/crm/contacts/new(.:format)`
+ * - Path helper: `new_group_crm_contact_path`
+ * - URL helper: `new_group_crm_contact_url`
+ * - controller#action: `groups/crm/contacts#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1952,8 +2480,13 @@ export const newGroupCrmContactPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/crm/contacts/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/crm/contacts/:id/edit(.:format)`
+ * - Path helper: `edit_group_crm_contact_path`
+ * - URL helper: `edit_group_crm_contact_url`
+ * - controller#action: `groups/crm/contacts#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -1971,8 +2504,13 @@ export const editGroupCrmContactPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/crm/organizations(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/crm/organizations(.:format)`
+ * - Path helper: `group_crm_organizations_path`
+ * - URL helper: `group_crm_organizations_url`
+ * - controller#action: `groups/crm/organizations#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -1989,8 +2527,13 @@ export const groupCrmOrganizationsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/crm/organizations/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/crm/organizations/new(.:format)`
+ * - Path helper: `new_group_crm_organization_path`
+ * - URL helper: `new_group_crm_organization_url`
+ * - controller#action: `groups/crm/organizations#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2007,8 +2550,13 @@ export const newGroupCrmOrganizationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/crm/organizations/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/crm/organizations/:id/edit(.:format)`
+ * - Path helper: `edit_group_crm_organization_path`
+ * - URL helper: `edit_group_crm_organization_url`
+ * - controller#action: `groups/crm/organizations#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -2026,8 +2574,13 @@ export const editGroupCrmOrganizationPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/achievements(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/achievements(.:format)`
+ * - Path helper: `group_achievements_path`
+ * - URL helper: `group_achievements_url`
+ * - controller#action: `groups/achievements#index`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2044,8 +2597,13 @@ export const groupAchievementsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/achievements/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/achievements/new(.:format)`
+ * - Path helper: `new_group_achievement_path`
+ * - URL helper: `new_group_achievement_url`
+ * - controller#action: `groups/achievements#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2062,8 +2620,13 @@ export const newGroupAchievementPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/achievements/:id/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/achievements/:id/edit(.:format)`
+ * - Path helper: `edit_group_achievement_path`
+ * - URL helper: `edit_group_achievement_url`
+ * - controller#action: `groups/achievements#edit`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -2081,8 +2644,13 @@ export const editGroupAchievementPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/work_items/:iid(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/work_items/:iid(.:format)`
+ * - Path helper: `group_work_item_path`
+ * - URL helper: `group_work_item_url`
+ * - controller#action: `groups/work_items#show`
+ *
  * @param {any} groupId
  * @param {any} iid
  * @param {object | undefined} options
@@ -2100,8 +2668,13 @@ export const groupWorkItemPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/work_items/new
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/work_items/new`
+ * - Path helper: `group_work_item_new_path`
+ * - URL helper: `group_work_item_new_url`
+ * - controller#action: `groups/work_items#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2118,8 +2691,13 @@ export const groupWorkItemNewPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/import_history(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/import_history(.:format)`
+ * - Path helper: `group_import_history_path`
+ * - URL helper: `group_import_history_url`
+ * - controller#action: `groups/import_histories#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2136,8 +2714,13 @@ export const groupImportHistoryPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/observability/o11y_service_settings/edit(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/observability/o11y_service_settings/edit(.:format)`
+ * - Path helper: `edit_group_observability_o11y_service_settings_path`
+ * - URL helper: `edit_group_observability_o11y_service_settings_url`
+ * - controller#action: `groups/observability/o11y_service_settings#edit`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2154,8 +2737,13 @@ export const editGroupObservabilityO11yServiceSettingsPath = /*#__PURE__*/ (...a
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/observability/o11y_service_settings(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/observability/o11y_service_settings(.:format)`
+ * - Path helper: `group_observability_o11y_service_settings_path`
+ * - URL helper: `group_observability_o11y_service_settings_url`
+ * - controller#action: `groups/observability/o11y_service_settings#update`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2172,8 +2760,13 @@ export const groupObservabilityO11yServiceSettingsPath = /*#__PURE__*/ (...args)
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/observability/setup(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/observability/setup(.:format)`
+ * - Path helper: `group_observability_setup_path`
+ * - URL helper: `group_observability_setup_url`
+ * - controller#action: `groups/observability/setup#show`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2190,8 +2783,13 @@ export const groupObservabilitySetupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/observability/access_requests(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/observability/access_requests(.:format)`
+ * - Path helper: `group_observability_access_requests_path`
+ * - URL helper: `group_observability_access_requests_url`
+ * - controller#action: `groups/observability/access_requests#create`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2208,8 +2806,13 @@ export const groupObservabilityAccessRequestsPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/observability/:id
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/observability/:id`
+ * - Path helper: `group_observability_path`
+ * - URL helper: `group_observability_url`
+ * - controller#action: `groups/observability#show`
+ *
  * @param {any} groupId
  * @param {any} id
  * @param {object | undefined} options
@@ -2227,8 +2830,13 @@ export const groupObservabilityPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/observability/*sub_path
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/observability/*sub_path`
+ * - Path helper: `group_observability_sub_path_path`
+ * - URL helper: `group_observability_sub_path_url`
+ * - controller#action: `groups/observability#show`
+ *
  * @param {any} groupId
  * @param {any} subPath
  * @param {object | undefined} options
@@ -2246,8 +2854,13 @@ export const groupObservabilitySubPathPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/step_up_auths/new(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/step_up_auths/new(.:format)`
+ * - Path helper: `new_group_step_up_auth_path`
+ * - URL helper: `new_group_step_up_auth_url`
+ * - controller#action: `groups/step_up_auths#new`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2264,8 +2877,13 @@ export const newGroupStepUpAuthPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/preview_markdown(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/preview_markdown(.:format)`
+ * - Path helper: `group_preview_markdown_path`
+ * - URL helper: `group_preview_markdown_url`
+ * - controller#action: `groups#preview_markdown`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2282,8 +2900,13 @@ export const groupPreviewMarkdownPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /groups/*group_id/-/restore(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/groups/*group_id/-/restore(.:format)`
+ * - Path helper: `group_restore_path`
+ * - URL helper: `group_restore_url`
+ * - controller#action: `groups#restore`
+ *
  * @param {any} groupId
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2300,8 +2923,13 @@ export const groupRestorePath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /*id(.:format)
+ * Generates the Rails route:
+ *
+ * - href: `/*id(.:format)`
+ * - Path helper: `group_path`
+ * - URL helper: `group_url`
+ * - controller#action: `groups#show`
+ *
  * @param {any} id
  * @param {object | undefined} options
  * @returns {string} route path
@@ -2318,8 +2946,13 @@ export const groupPath = /*#__PURE__*/ (...args) => {
 };
 
 /**
- * Generates rails route to
- * /v2
+ * Generates the Rails route:
+ *
+ * - href: `/v2`
+ * - Path helper: `v2_path`
+ * - URL helper: `v2_url`
+ * - controller#action: `groups/dependency_proxy_auth#authenticate`
+ *
  * @param {object | undefined} options
  * @returns {string} route path
  */
