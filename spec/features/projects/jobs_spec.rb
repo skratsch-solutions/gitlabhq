@@ -8,9 +8,10 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
   include ProjectForksHelper
   include Ci::PipelineVariableHelpers
 
-  let(:user) { create(:user) }
+  let_it_be_with_refind(:user) { create(:user) }
+  let_it_be_with_refind(:project) { create(:project, :repository) }
+
   let(:user_access_level) { :developer }
-  let(:project) { create(:project, :repository) }
   let(:pipeline) { create(:ci_pipeline, project: project, sha: project.commit('HEAD').sha) }
 
   let(:job) { create(:ci_build, :trace_live, pipeline: pipeline) }
@@ -21,7 +22,7 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
   end
 
   before do
-    project.add_role(user, user_access_level)
+    project.add_role(user, user_access_level) # rubocop:disable RSpec/BeforeAllRoleAssignment -- user_access_level is a let overridden in :guest/:maintainer/:reporter contexts
     sign_in(user)
   end
 
@@ -483,9 +484,7 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
       end
 
       context 'when user is a maintainer' do
-        before do
-          project.add_maintainer(user)
-        end
+        let(:user_access_level) { :maintainer }
 
         shared_examples 'reveal button variables behavior' do
           it 'renders a hidden value with a reveal values button', :js do
@@ -727,7 +726,6 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
       let(:job) { create(:ci_build, :playable, pipeline: pipeline) }
 
       before do
-        project.add_developer(user)
         visit project_job_path(project, job)
       end
 
@@ -757,7 +755,6 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
       let(:job) { create(:ci_build, :scheduled, pipeline: pipeline) }
 
       before do
-        project.add_developer(user)
         visit project_job_path(project, job)
       end
 

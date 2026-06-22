@@ -120,7 +120,7 @@ then issue a mid-term amendment Order Form reflecting the updated annual commitm
 
 ## Buy GitLab Flex
 
-GitLab Flex is available as a recurring annual or multi-year term.
+GitLab Flex is available as a recurring annual or multi-year term, for full annual terms of 12 months.
 To buy GitLab Flex, contact your GitLab account team or the [GitLab Sales team](https://about.gitlab.com/sales/).
 
 Your annual commitment should account for:
@@ -130,6 +130,9 @@ Your annual commitment should account for:
 - Growth buffer: Additional capacity for mid-year expansion or new capability adoption.
 
 Tiered volume discounts are available and automatically applied based on your total annual commitment size.
+
+Multi-year contracts operate as separate annual pools.
+This means that an unused balance in one year balance does not carry over to the following year.
 
 After you sign your GitLab Flex agreement, you can start provisioning your initial allocation.
 

@@ -75,7 +75,6 @@ export default {
     'app/assets/javascripts/notes/components/note_form.vue',
     'app/assets/javascripts/notes/components/noteable_discussion.vue',
     'app/assets/javascripts/notes/components/noteable_note.vue',
-    'app/assets/javascripts/observability/components/date_range_filter.vue',
     'app/assets/javascripts/organizations/activity/components/app.vue',
     'app/assets/javascripts/packages_and_registries/container_registry/explorer/components/details_page/tags_list.vue',
     'app/assets/javascripts/packages_and_registries/container_registry/explorer/pages/details.vue',

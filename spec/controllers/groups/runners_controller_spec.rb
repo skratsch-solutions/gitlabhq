@@ -12,8 +12,8 @@ RSpec.describe Groups::RunnersController, feature_category: :fleet_visibility do
   let_it_be(:project) { create(:project, group: group) }
   let_it_be(:runner) { create(:ci_runner, :group, groups: [group]) }
 
-  let!(:project_runner) { create(:ci_runner, :project, projects: [project]) }
-  let!(:instance_runner) { create(:ci_runner, :instance) }
+  let_it_be_with_reload(:project_runner) { create(:ci_runner, :project, projects: [project]) }
+  let_it_be_with_reload(:instance_runner) { create(:ci_runner, :instance) }
   let(:runner_registration_enabled) { true }
 
   before do
@@ -339,7 +339,7 @@ RSpec.describe Groups::RunnersController, feature_category: :fleet_visibility do
   end
 
   describe '#update' do
-    let!(:group_runner) { create(:ci_runner, :group, groups: [group]) }
+    let_it_be_with_reload(:group_runner) { create(:ci_runner, :group, groups: [group]) }
 
     shared_examples 'updates the runner' do
       it 'updates the runner, ticks the queue, and redirects' do
