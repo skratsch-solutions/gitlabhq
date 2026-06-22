@@ -440,6 +440,11 @@
   - "doc/development/events/_index.md"
   - "data/events/**/*"
   - "lib/tasks/gitlab/docs/compile_events.rake"
+  # organizations release status table
+  - "doc/development/organizations/release_status.md"
+  - "config/organizations_release.yml"
+  - "lib/organizations/release/**/*"
+  - "lib/tasks/gitlab/organizations.rake"
 
 .docs-release-note-categories-patterns: &docs-release-note-categories-patterns
   - "doc/releases/**/*"

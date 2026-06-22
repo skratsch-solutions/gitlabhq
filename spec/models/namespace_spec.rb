@@ -3590,4 +3590,36 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       expect(namespace.supports_work_items?).to be(true).or(be(false))
     end
   end
+
+  describe '#consented_to?' do
+    let(:feature_name) { :code_review_flow_dap_routing }
+
+    subject(:consented_to) { namespace.consented_to?(feature_name) }
+
+    context 'when no consent record exists for the namespace' do
+      it { is_expected.to be(false) }
+    end
+
+    context 'when a consent record exists for the feature' do
+      before do
+        create(:namespaces_consent, namespace: namespace, feature_name: :code_review_flow_dap_routing)
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when a consent record exists for a different namespace' do
+      before do
+        create(:namespaces_consent, feature_name: :code_review_flow_dap_routing)
+      end
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when feature_name is invalid' do
+      let(:feature_name) { :invalid_feature_name }
+
+      it { is_expected.to be(false) }
+    end
+  end
 end

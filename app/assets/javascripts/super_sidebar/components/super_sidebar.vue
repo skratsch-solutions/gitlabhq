@@ -53,24 +53,17 @@ export default {
   data() {
     return {
       sidebarState,
-      showPeekHint: false,
       isMouseover: false,
       isAnimatable: false,
       wasToggledManually: false,
     };
   },
   computed: {
-    showOverlay() {
-      return this.sidebarState.isPeek || this.sidebarState.isHoverPeek;
-    },
     menuItems() {
       return this.sidebarData.current_menu_items || [];
     },
-    peekClasses() {
+    sidebarClasses() {
       return {
-        'super-sidebar-peek-hint': this.showPeekHint,
-        'super-sidebar-peek': this.showOverlay,
-        'super-sidebar-has-peeked': this.sidebarState.hasPeeked,
         'super-sidebar-is-icon-only': this.isIconOnly,
         'super-sidebar-is-mobile': this.sidebarState.isMobile,
         'super-sidebar-animatable': this.isAnimatable,
@@ -89,7 +82,7 @@ export default {
       handler(collapsed) {
         this.setupFocusTrapListener();
 
-        if (this.isNotPeeking() && !collapsed) {
+        if (!collapsed) {
           this.$nextTick(() => {
             this.firstFocusableElement().focus();
           });
@@ -133,9 +126,6 @@ export default {
     isOverlapping() {
       return GlBreakpointInstance.windowWidth() < breakpoints.xl;
     },
-    isNotPeeking() {
-      return !(sidebarState.isHoverPeek || sidebarState.isPeek);
-    },
     setupFocusTrapListener() {
       /**
        * Only trap focus when sidebar displays over page content to avoid
@@ -151,7 +141,7 @@ export default {
       toggleSuperSidebarCollapsed(true);
     },
     handleEscKey() {
-      if (this.isOverlapping() && this.isNotPeeking()) {
+      if (this.isOverlapping()) {
         this.collapseSidebar();
         document.querySelector(`.${JS_TOGGLE_EXPAND_CLASS}`)?.focus();
       }
@@ -193,7 +183,7 @@ export default {
       id="super-sidebar"
       aria-labelledby="super-sidebar-heading"
       class="super-sidebar"
-      :class="peekClasses"
+      :class="sidebarClasses"
       data-testid="super-sidebar"
       :inert="sidebarState.isCollapsed"
       @mouseenter="isMouseover = true"

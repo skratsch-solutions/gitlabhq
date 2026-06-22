@@ -1,6 +1,7 @@
 <script>
 import {
   GlButton,
+  GlButtonGroup,
   GlCard,
   GlIcon,
   GlLink,
@@ -26,6 +27,7 @@ export default {
   },
   components: {
     GlButton,
+    GlButtonGroup,
     GlCard,
     GlIcon,
     GlLink,
@@ -159,7 +161,7 @@ export default {
           <span v-else data-testid="metric-image-label-span">{{
             urlText == null || urlText == '' ? filename : urlText
           }}</span>
-          <div class="btn-group gl-ml-auto">
+          <gl-button-group class="gl-ml-auto">
             <gl-button
               v-if="canUpdate"
               v-gl-tooltip.bottom
@@ -178,7 +180,7 @@ export default {
               data-testid="delete-button"
               @click="modalVisible = true"
             />
-          </div>
+          </gl-button-group>
         </div>
       </div>
     </template>

@@ -4,7 +4,6 @@
  */
 $super-sidebar-transition-delay: 0.4s;
 $super-sidebar-transition-duration: 0.2s;
-$super-sidebar-transition-hint-duration: $super-sidebar-transition-duration * 0.25;
 $command-palette-spacing: px-to-rem(14px);
 
 /**
@@ -310,34 +309,6 @@ $command-palette-spacing: px-to-rem(14px);
 }
 
 /**
- * Peek
- */
-.super-sidebar-has-peeked {
-  margin-top: calc(#{$header-height} - #{$gl-spacing-scale-2});
-  margin-bottom: #{$gl-spacing-scale-2};
-}
-
-.super-sidebar-peek {
-  margin-left: #{$gl-spacing-scale-2};
-}
-
-.super-sidebar-peek,
-.super-sidebar-peek-hint {
-  @apply gl-shadow;
-  border-right: 0;
-}
-
-.super-sidebar-peek-hint {
-  @media (prefers-reduced-motion: no-preference) {
-    transition: transform $super-sidebar-transition-hint-duration ease-out;
-  }
-}
-
-.super-sidebar-peek {
-  @apply gl-rounded-base;
-}
-
-/**
  * Page with super sidebar
  */
 .page-with-super-sidebar {
@@ -373,14 +344,6 @@ $command-palette-spacing: px-to-rem(14px);
   .super-sidebar {
     @apply gl-m-0;
     transform: translate3d(-100%, 0, 0);
-
-    &.super-sidebar-peek {
-      transform: translate3d(0, 0, 0);
-    }
-
-    &.super-sidebar-peek-hint {
-      transform: translate3d(calc(#{$gl-spacing-scale-3} - 100%), 0, 0);
-    }
   }
 
   @include media-breakpoint-up(xl) {

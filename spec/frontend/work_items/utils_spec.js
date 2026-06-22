@@ -15,6 +15,7 @@ import {
   WIDGET_TYPE_LINKED_RESOURCES,
   WIDGET_TYPE_HIERARCHY,
   WIDGET_TYPE_LINKED_ITEMS,
+  WIDGET_TYPE_HEALTH_STATUS,
   WIDGET_TYPE_WEIGHT,
   WORK_ITEM_TYPE_ENUM_EPIC,
   WORK_ITEM_TYPE_ENUM_INCIDENT,
@@ -53,6 +54,7 @@ import {
   findNotesWidget,
   findOpenChildItemsCountsByType,
   findCrmContactsWidget,
+  findHealthStatusWidget,
   findLabelsWidget,
   findWeightWidget,
   findLinkedItemsWidget,
@@ -1409,6 +1411,37 @@ describe('findLabelsWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findLabelsWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findHealthStatusWidget', () => {
+  const healthStatusWidget = {
+    type: WIDGET_TYPE_HEALTH_STATUS,
+    healthStatus: 'onTrack',
+    rolledUpHealthStatus: [],
+  };
+  const featuresHealthStatus = {
+    healthStatus: 'atRisk',
+    rolledUpHealthStatus: [],
+  };
+
+  it('returns features.healthStatus when present', () => {
+    const workItem = {
+      features: { healthStatus: featuresHealthStatus },
+      widgets: [healthStatusWidget],
+    };
+
+    expect(findHealthStatusWidget(workItem)).toBe(featuresHealthStatus);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [healthStatusWidget] };
+
+    expect(findHealthStatusWidget(workItem)).toBe(healthStatusWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findHealthStatusWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

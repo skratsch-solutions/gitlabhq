@@ -7,7 +7,6 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import WorkItemDates from 'ee_else_ce/work_items/components/work_item_dates.vue';
 
 import {
-  WIDGET_TYPE_HEALTH_STATUS,
   WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_MILESTONE,
   WIDGET_TYPE_PARTICIPANTS,
@@ -21,6 +20,7 @@ import {
 import {
   findAssigneesWidget,
   findCrmContactsWidget,
+  findHealthStatusWidget,
   findHierarchyWidget,
   findHierarchyWidgetDefinition,
   findLabelsWidget,
@@ -177,7 +177,7 @@ export default {
       return this.isWidgetPresent(WIDGET_TYPE_ITERATION);
     },
     workItemHealthStatus() {
-      return this.isWidgetPresent(WIDGET_TYPE_HEALTH_STATUS);
+      return findHealthStatusWidget(this.workItem);
     },
     workItemHierarchy() {
       return findHierarchyWidget(this.workItem);

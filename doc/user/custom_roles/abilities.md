@@ -90,6 +90,12 @@ You can create a [custom role](_index.md) by adding one or more custom permissio
 |:-----------|:------------|:--------------|:------|:-----------|
 | Manage integrations | Create, read, update, and delete integrations with external applications. | [`admin_integrations`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/154601) | Group,<br> Project | GitLab [17.1](https://gitlab.com/gitlab-org/gitlab/-/issues/460522) |
 
+## Package registry
+
+| Permission | Description | API Attribute | Scope | Introduced |
+|:-----------|:------------|:--------------|:------|:-----------|
+| Delete packages | Delete packages and package files in the package registry. | [`destroy_package`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240943) | Group,<br> Project | GitLab [19.2](https://gitlab.com/gitlab-org/gitlab/-/work_items/592019) |
+
 ## Runner
 
 | Permission | Description | API Attribute | Scope | Introduced |

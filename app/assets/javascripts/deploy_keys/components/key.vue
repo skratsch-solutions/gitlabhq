@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script>
-import { GlBadge, GlButton, GlIcon, GlTooltipDirective } from '@gitlab/ui';
+import { GlBadge, GlButton, GlButtonGroup, GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import { head, tail } from 'lodash-es';
 import { createAlert } from '~/alert';
 import { s__, sprintf } from '~/locale';
@@ -17,6 +17,7 @@ export default {
     ActionBtn,
     GlBadge,
     GlButton,
+    GlButtonGroup,
     GlIcon,
   },
   directives: {
@@ -214,7 +215,7 @@ export default {
       </div>
     </div>
     <div class="table-section section-10 table-button-footer deploy-key-actions">
-      <div class="btn-group table-action-buttons">
+      <gl-button-group class="table-action-buttons">
         <action-btn
           v-if="!isEnabled"
           :deploy-key="deployKey"
@@ -258,7 +259,7 @@ export default {
           category="secondary"
           variant="danger"
         />
-      </div>
+      </gl-button-group>
     </div>
   </div>
 </template>

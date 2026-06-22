@@ -29,6 +29,9 @@ RSpec.describe Members::InviteMailer, feature_category: :groups_and_projects do
       it_behaves_like 'does not render a manage notifications link'
 
       it 'contains all the standard information', :aggregate_failures do
+        # Organization scoping is covered separately below.
+        stub_feature_flags(organization_scoped_invite_links: false)
+
         is_expected.to have_body_text group_member.human_access
         is_expected.to have_body_text 'default role'
         is_expected.to have_body_text group_member.invite_token
@@ -110,6 +113,50 @@ RSpec.describe Members::InviteMailer, feature_category: :groups_and_projects do
             expect(invite_email).not_to have_header('X-Mailgun-Tag', ::Members::Mailgun::INVITE_EMAIL_TAG)
             expect(invite_email).not_to have_header('X-Mailgun-Variables', mailgun_variables.to_json)
           end
+        end
+      end
+    end
+
+    context 'for organization-scoped invite links' do
+      let(:group_member) { invite_to_group(group, inviter: owner) }
+
+      context 'when the inviting organization uses scoped paths and the feature is enabled' do
+        let(:group) { build(:group, description: nil, organization: build(:organization, path: 'scoped-org')) }
+
+        before do
+          stub_feature_flags(organization_scoped_invite_links: true)
+        end
+
+        it 'renders an organization-scoped Join now link' do
+          is_expected.to have_body_text("/o/scoped-org/-/invites/#{group_member.invite_token}")
+        end
+      end
+
+      context 'when the inviting organization serves unscoped (default) paths' do
+        let(:organization) { build(:organization) }
+        let(:group) { build(:group, description: nil, organization: organization) }
+
+        before do
+          allow(organization).to receive(:scoped_paths?).and_return(false)
+          stub_feature_flags(organization_scoped_invite_links: true)
+        end
+
+        it 'renders an unscoped Join now link' do
+          is_expected.to have_body_text("/-/invites/#{group_member.invite_token}")
+          is_expected.not_to have_body_text('/o/')
+        end
+      end
+
+      context 'when the feature flag is disabled' do
+        let(:group) { build(:group, description: nil, organization: build(:organization, path: 'scoped-org')) }
+
+        before do
+          stub_feature_flags(organization_scoped_invite_links: false)
+        end
+
+        it 'renders an unscoped Join now link' do
+          is_expected.to have_body_text("/-/invites/#{group_member.invite_token}")
+          is_expected.not_to have_body_text('/o/scoped-org')
         end
       end
     end

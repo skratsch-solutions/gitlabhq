@@ -9,11 +9,6 @@ export const sidebarState = observable('super_sidebar_state', {
   isCollapsed: false,
   isMobile: false,
   isIconOnly: false,
-  hasPeeked: false,
-  isPeek: false,
-  isPeekable: false,
-  isHoverPeek: false,
-  wasHoverPeek: false,
 });
 
 export const duoChatGlobalState = observable('duo_chat_global_state', {

@@ -951,6 +951,10 @@ class Namespace < ApplicationRecord
   end
   strong_memoize_attr :supports_work_items?
 
+  def consented_to?(feature_name)
+    namespace_consents.exists?(feature_name: feature_name)
+  end
+
   private
 
   def parent_organization_match

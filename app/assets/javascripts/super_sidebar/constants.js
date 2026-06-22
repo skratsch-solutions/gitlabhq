@@ -11,13 +11,6 @@ export const CHAT_MODES = {
   AGENTIC: 'agentic',
 };
 
-export const SUPER_SIDEBAR_PEEK_OPEN_DELAY = 200;
-export const SUPER_SIDEBAR_PEEK_CLOSE_DELAY = 500;
-export const SUPER_SIDEBAR_PEEK_STATE_CLOSED = 'closed';
-export const SUPER_SIDEBAR_PEEK_STATE_WILL_OPEN = 'will-open';
-export const SUPER_SIDEBAR_PEEK_STATE_OPEN = 'open';
-export const SUPER_SIDEBAR_PEEK_STATE_WILL_CLOSE = 'will-close';
-
 export const TRACKING_UNKNOWN_ID = 'item_without_id';
 export const TRACKING_UNKNOWN_PANEL = 'nav_panel_unknown';
 export const CLICK_MENU_ITEM_ACTION = 'click_menu_item';

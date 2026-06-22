@@ -98,9 +98,7 @@ export default {
       if (
         bvEvent.target !== this.$el ||
         (this.isTypeCollapse && !this.isCollapsed) ||
-        (this.isTypeExpand && this.isCollapsed) ||
-        this.isPeek ||
-        this.isHoverPeek
+        (this.isTypeExpand && this.isCollapsed)
       )
         return;
 

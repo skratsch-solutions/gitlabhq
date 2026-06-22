@@ -154,7 +154,12 @@ We claim three things for each attribute:
 - **The source of the record** (defined by `cells_claims_metadata`)
 
 >[!note]
-> Every `cells_claims_attribute` must specify both a `type` (bucket type) and `feature_flag` (model-specific control flag).
+> Every `cells_claims_attribute` must specify a `type` (bucket type). A
+> `feature_flag` (model-specific control flag) is added for deployment safety
+> when first rolling out claims for an attribute. It is part of the rollout
+> lifecycle, not a permanent requirement, and can be removed once the attribute
+> has been validated and stable in production. See
+> [Removing the feature flag](#removing-the-feature-flag).
 
 ### Rails
 
@@ -240,6 +245,25 @@ When adding claims to a new model:
 1. **Add types in Topology Service** (see [Topology Service](#topology-service) section)
 1. **Audit for ActiveRecord-bypassing code paths** (see [Bulk claiming for ActiveRecord-bypassing code paths](#bulk-claiming-for-activerecord-bypassing-code-paths))
 1. **Add tests** (see [Tests](#tests) section)
+
+#### Removing the feature flag
+
+The per-attribute `feature_flag:` exists for deployment safety during rollout.
+After enabling the flag globally in production, validate that the attribute
+lifecycle works end to end:
+
+- **Create:** creating a record claims the attribute.
+- **Delete:** destroying a record releases the claim.
+- **Rename:** updating the attribute releases the old claim and creates the new one.
+
+Once claiming has run without issue in production for at least a week, remove
+the per-attribute `feature_flag:` and delete the flag's YAML file. After removal,
+only `Gitlab.config.cell.enabled` controls claiming, as
+`cells_claims_enabled_for_attribute?` returns `true` when no `feature_flag` is
+set. See [`Cells::Claimable`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/concerns/cells/claimable.rb).
+
+For an example of this cleanup, see [merge request 240942](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240942),
+which removed the `cells_claims_service_desk_settings` flag from `ServiceDeskSetting`.
 
 #### Skip claiming for specific values
 

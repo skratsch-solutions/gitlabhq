@@ -73,7 +73,6 @@ module Ci
           self.partitioned_pipeline_loaders = partitioned_pipeline_loaders.merge(name => foreign_key)
 
           define_method(name) do
-            return super() unless Feature.enabled?(:partitioned_pipeline_association_finder, :current_request)
             return super() if association(name).loaded?
 
             fk_value = read_attribute(foreign_key)

@@ -106,6 +106,7 @@ export const findErrorTrackingWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_ERROR_TRACKING);
 
 export const findHealthStatusWidget = (workItem) =>
+  workItem?.features?.healthStatus ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_HEALTH_STATUS);
 
 export const findHierarchyWidget = (workItem) =>

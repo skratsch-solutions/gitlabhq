@@ -100,19 +100,6 @@ RSpec.describe Ci::Partitionable::AssociationFinder, feature_category: :continuo
         expect(record.association(:pipeline).target).to be_nil
       end
     end
-
-    context 'when the feature flag is disabled' do
-      before do
-        stub_feature_flags(partitioned_pipeline_association_finder: false)
-      end
-
-      it 'falls back to the default Rails reader and does not call find_by_id' do
-        record = klass.new(pipeline_id: pipeline.id)
-
-        expect(Ci::Pipeline).not_to receive(:find_by_id)
-        expect(record.pipeline).to eq(pipeline)
-      end
-    end
   end
 
   describe '.partitioned_pipeline_loaders' do

@@ -1,0 +1,10 @@
+---
+name: organization_scoped_invite_links
+description: Scopes member invitation links under the inviting organization's /o/<organization_path>/ path so Cells path-based routing delivers the invite to the cell that owns the organization
+feature_issue_url: https://gitlab.com/gitlab-com/gl-infra/tenant-scale/cells-infrastructure/team/-/work_items/767
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240600/
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/603133
+milestone: '19.2'
+group: group::cells infrastructure
+type: gitlab_com_derisk
+default_enabled: false

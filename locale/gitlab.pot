@@ -28140,9 +28140,6 @@ msgstr ""
 msgid "DuoAgenticChat|chat-rules.md was not found in this page"
 msgstr ""
 
-msgid "DuoAgentsPlatform|%{message} %{linkStart}View the agent session%{linkEnd} to track progress."
-msgstr ""
-
 msgid "DuoAgentsPlatform|AI"
 msgstr ""
 
@@ -28167,6 +28164,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Agent session"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Already set up"
+msgstr ""
+
 msgid "DuoAgentsPlatform|An error occurred while fetching flows configured for this project."
 msgstr ""
 
@@ -28174,9 +28174,6 @@ msgid "DuoAgentsPlatform|An error occurred while fetching users."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Analyze pipeline failures and get fix suggestions"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Analyze your .gitlab-ci.yml and get actionable improvement suggestions in a new draft merge request."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Are you sure you want to cancel this session? This action cannot be undone."
@@ -28201,9 +28198,6 @@ msgid "DuoAgentsPlatform|Chat"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Chat with a specialized agent"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Code review instructions have already been initialized."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Comment on issue"
@@ -28257,12 +28251,6 @@ msgstr ""
 msgid "DuoAgentsPlatform|Create triggers to automatically run pipelines when specified events occur in your project."
 msgstr ""
 
-msgid "DuoAgentsPlatform|Creates a .gitlab/duo/agent-config.yml file so CI-launched Duo Agent Platform flows run in a container that matches your project tech stack."
-msgstr ""
-
-msgid "DuoAgentsPlatform|Creates a .gitlab/duo/mr-review-instructions.yaml file so the Code Review Flow applies review standards tailored to your project languages and conventions."
-msgstr ""
-
 msgid "DuoAgentsPlatform|Data Analyst"
 msgstr ""
 
@@ -28303,9 +28291,6 @@ msgid "DuoAgentsPlatform|Event types"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Event types are required."
-msgstr ""
-
-msgid "DuoAgentsPlatform|Execution environment has already been initialized."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Failed to cancel session. Please try again."
@@ -28359,27 +28344,6 @@ msgstr ""
 msgid "DuoAgentsPlatform|Identify code improvements"
 msgstr ""
 
-msgid "DuoAgentsPlatform|Improve CI setup"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Improve your CI setup"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Initialize code review instructions"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Initialize context path not configured."
-msgstr ""
-
-msgid "DuoAgentsPlatform|Initialize execution environment"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Initialize project context"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Initialize your project context to help Duo Agent Platform understand your codebase. This creates an AGENTS.md file, sub-AGENTS.md files for key directories, and skill and rule stubs in a new merge request."
-msgstr ""
-
 msgid "DuoAgentsPlatform|List comments"
 msgstr ""
 
@@ -28407,9 +28371,6 @@ msgstr ""
 msgid "DuoAgentsPlatform|New trigger"
 msgstr ""
 
-msgid "DuoAgentsPlatform|No .gitlab-ci.yml found on the default branch. Add a CI configuration file to use this feature."
-msgstr ""
-
 msgid "DuoAgentsPlatform|No agent sessions yet"
 msgstr ""
 
@@ -28417,6 +28378,9 @@ msgid "DuoAgentsPlatform|No triggers yet"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Onboarding"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Onboarding setup path not configured."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Owner"
@@ -28434,10 +28398,7 @@ msgstr ""
 msgid "DuoAgentsPlatform|Planning Agent"
 msgstr ""
 
-msgid "DuoAgentsPlatform|Project context has already been initialized."
-msgstr ""
-
-msgid "DuoAgentsPlatform|Project context has already been initialized. %{linkStart}View the agent session%{linkEnd} to find the merge request."
+msgid "DuoAgentsPlatform|Prerequisite missing"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Read file"
@@ -28446,7 +28407,13 @@ msgstr ""
 msgid "DuoAgentsPlatform|Review a merge request"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Run"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Run command"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Run the available initializers to prepare this repository for GitLab Duo Agent Platform. Each one opens a draft merge request you can review."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Save changes"
@@ -28506,22 +28473,16 @@ msgstr ""
 msgid "DuoAgentsPlatform|Sessions"
 msgstr ""
 
-msgid "DuoAgentsPlatform|Set up your project for Duo Agent Platform"
+msgid "DuoAgentsPlatform|Set up your project for GitLab Duo Agent Platform"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Skipped"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Something went wrong while fetching Agent Flows"
 msgstr ""
 
-msgid "DuoAgentsPlatform|Something went wrong while initializing code review instructions."
-msgstr ""
-
-msgid "DuoAgentsPlatform|Something went wrong while initializing project context."
-msgstr ""
-
-msgid "DuoAgentsPlatform|Something went wrong while initializing the execution environment."
-msgstr ""
-
-msgid "DuoAgentsPlatform|Something went wrong while starting the CI improvement workflow."
+msgid "DuoAgentsPlatform|Something went wrong while running the initializer."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Start a Free Trial"
@@ -28566,6 +28527,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Update merge request"
 msgstr ""
 
+msgid "DuoAgentsPlatform|View session"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Who can grant you access"
 msgstr ""
 
@@ -28573,9 +28537,6 @@ msgid "DuoAgentsPlatform|With a trial you can chat with AI agents tailored to yo
 msgstr ""
 
 msgid "DuoAgentsPlatform|Work item events configuration"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Workflow started. %{linkStart}View the agent session%{linkEnd} to track progress."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Write file"
@@ -51742,16 +51703,16 @@ msgstr ""
 msgid "Onboarding|(optional)"
 msgstr ""
 
-msgid "Onboarding|A CI improvement workflow is already in progress."
+msgid "Onboarding|Analyze the repository and create a .gitlab/duo/mr-review-instructions.yaml file so the Code Review flow enforces your project conventions."
+msgstr ""
+
+msgid "Onboarding|Analyze the repository and create an AGENTS.md file so GitLab Duo Agent Platform understands your codebase."
+msgstr ""
+
+msgid "Onboarding|Analyze your .gitlab-ci.yml and get improvement suggestions in a draft merge request."
 msgstr ""
 
 msgid "Onboarding|Blank project (default)"
-msgstr ""
-
-msgid "Onboarding|Code review instructions have already been initialized."
-msgstr ""
-
-msgid "Onboarding|Code review instructions initialization is already in progress."
 msgstr ""
 
 msgid "Onboarding|Continue"
@@ -51760,16 +51721,13 @@ msgstr ""
 msgid "Onboarding|Country"
 msgstr ""
 
+msgid "Onboarding|Create a .gitlab/duo/agent-config.yml file so CI-launched flows run in a container that matches your tech stack."
+msgstr ""
+
 msgid "Onboarding|Create your first project"
 msgstr ""
 
 msgid "Onboarding|Email"
-msgstr ""
-
-msgid "Onboarding|Execution environment has already been initialized."
-msgstr ""
-
-msgid "Onboarding|Execution environment initialization is already in progress."
 msgstr ""
 
 msgid "Onboarding|First name"
@@ -51793,22 +51751,28 @@ msgstr ""
 msgid "Onboarding|If you can't find your organization, request an invite from your company's GitLab administrator."
 msgstr ""
 
+msgid "Onboarding|Improve CI setup"
+msgstr ""
+
+msgid "Onboarding|Initialize code review instructions"
+msgstr ""
+
+msgid "Onboarding|Initialize execution environment"
+msgstr ""
+
+msgid "Onboarding|Initialize project context"
+msgstr ""
+
 msgid "Onboarding|Last name"
 msgstr ""
 
 msgid "Onboarding|Looking for your team?"
 msgstr ""
 
-msgid "Onboarding|No .gitlab-ci.yml found on the default branch."
-msgstr ""
-
 msgid "Onboarding|Organization name"
 msgstr ""
 
 msgid "Onboarding|Project"
-msgstr ""
-
-msgid "Onboarding|Project context initialization is already in progress."
 msgstr ""
 
 msgid "Onboarding|Project failed to be created"

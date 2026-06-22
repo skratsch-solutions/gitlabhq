@@ -16,6 +16,11 @@ RSpec.describe Members::InviteReminderMailer, feature_category: :groups_and_proj
 
     subject(:email) { described_class.email(group_member, group_member.invite_token, reminder_index) }
 
+    # Organization scoping is covered separately below.
+    before do
+      stub_feature_flags(organization_scoped_invite_links: false)
+    end
+
     context 'for first reminder email' do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
@@ -59,6 +64,31 @@ RSpec.describe Members::InviteReminderMailer, feature_category: :groups_and_proj
         is_expected.to have_body_text group_member.human_access.downcase
         is_expected.to have_body_text invite_url(group_member.invite_token)
         is_expected.to have_body_text decline_invite_url(group_member.invite_token)
+      end
+    end
+
+    context 'for organization-scoped invite links' do
+      context 'when the inviting organization uses scoped paths and the feature is enabled' do
+        let(:group) { build(:group, organization: build(:organization, path: 'scoped-org')) }
+
+        before do
+          stub_feature_flags(organization_scoped_invite_links: true)
+        end
+
+        it 'renders organization-scoped invite links', :aggregate_failures do
+          is_expected.to have_body_text("/o/scoped-org/-/invites/#{group_member.invite_token}")
+          is_expected.to have_body_text("/o/scoped-org/-/invites/#{group_member.invite_token}/decline")
+        end
+      end
+
+      context 'when the feature flag is disabled' do
+        let(:group) { build(:group, organization: build(:organization, path: 'scoped-org')) }
+
+        it 'renders unscoped invite links', :aggregate_failures do
+          is_expected.to have_body_text invite_url(group_member.invite_token)
+          is_expected.to have_body_text decline_invite_url(group_member.invite_token)
+          is_expected.not_to have_body_text('/o/scoped-org')
+        end
       end
     end
 
