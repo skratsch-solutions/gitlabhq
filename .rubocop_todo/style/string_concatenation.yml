@@ -113,7 +113,6 @@ Style/StringConcatenation:
     - 'spec/factories/ci/daily_build_group_report_results.rb'
     - 'spec/factories/gitaly/commit.rb'
     - 'spec/features/canonical_link_spec.rb'
-    - 'spec/features/groups/group_settings_spec.rb'
     - 'spec/features/merge_request/user_resolves_conflicts_spec.rb'
     - 'spec/features/projects/commits/user_browses_commits_spec.rb'
     - 'spec/features/projects/import_export/import_file_spec.rb'

@@ -566,6 +566,10 @@ export default {
       }
     },
     onJobActionExecuted(pipeline) {
+      // Force-alive so the pipeline stays subscribed even if the refetched status is not
+      // yet alive.
+      this.forcedAliveParentIds = [...new Set([...this.forcedAliveParentIds, pipeline.graphqlId])];
+
       const downstreamIds = (pipeline.downstream?.nodes || [])
         .slice(0, MAX_DOWNSTREAM_SUBSCRIPTIONS)
         .map((d) => d.id);

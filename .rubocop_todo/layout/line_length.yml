@@ -2198,7 +2198,6 @@ Layout/LineLength:
     - 'spec/features/frequently_visited_projects_and_groups_spec.rb'
     - 'spec/features/groups/board_spec.rb'
     - 'spec/features/groups/clusters/user_spec.rb'
-    - 'spec/features/groups/group_settings_spec.rb'
     - 'spec/features/groups/integrations/user_activates_mattermost_slash_command_spec.rb'
     - 'spec/features/groups/labels/edit_spec.rb'
     - 'spec/features/groups/members/manage_members_spec.rb'

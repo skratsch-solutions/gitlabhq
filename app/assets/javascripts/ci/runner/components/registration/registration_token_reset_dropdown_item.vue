@@ -44,6 +44,7 @@ export default {
       },
     },
   },
+  emits: ['tokenReset'],
   data() {
     return {
       loading: false,

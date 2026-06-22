@@ -13,7 +13,6 @@ RSpec/FeatureSpecMaxExamples:
     - 'spec/features/admin/settings/general_settings_spec.rb'
     - 'spec/features/admin/users/users_spec.rb'
     - 'spec/features/boards/boards_spec.rb'
-    - 'spec/features/groups/group_settings_spec.rb'
     - 'spec/features/groups_spec.rb'
     - 'spec/features/markdown/markdown_spec.rb'
     - 'spec/features/merge_request/user_resolves_diff_notes_and_discussions_resolve_spec.rb'

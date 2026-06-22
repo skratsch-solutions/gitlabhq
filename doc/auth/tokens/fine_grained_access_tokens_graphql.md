@@ -288,6 +288,14 @@ Grants the ability to restore AI catalog items.
 | ------ | ------ | ---- | ---- |
 | Restore | Project | Mutation | `AiCatalogItemVersionRestore` |
 
+#### Duo Workflow
+
+Grants the ability to create, read, resume, and update duo workflows.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Update | User | Mutation | `UpdateDuoWorkflowAgentPrivileges` |
+
 #### Model Selection Allowlist
 
 Grants the ability to read and update model selection allowlists.

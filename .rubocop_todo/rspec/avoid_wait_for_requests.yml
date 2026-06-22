@@ -271,7 +271,6 @@ RSpec/AvoidWaitForRequests:
     - 'spec/features/groups/crm/contacts/create_spec.rb'
     - 'spec/features/groups/dependency_proxy_spec.rb'
     - 'spec/features/groups/empty_states_spec.rb'
-    - 'spec/features/groups/group_settings_spec.rb'
     - 'spec/features/groups/import_export/connect_instance_spec.rb'
     - 'spec/features/groups/import_export/migration_history_spec.rb'
     - 'spec/features/groups/integrations/user_manages_gitlab_for_slack_app_spec.rb'

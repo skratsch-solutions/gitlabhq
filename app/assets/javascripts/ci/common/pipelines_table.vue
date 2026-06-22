@@ -324,6 +324,7 @@ export default {
           :pipeline-path="item.path"
           :project-path="getProjectPath(item)"
           class="-gl-my-3 -gl-ml-4"
+          @retried="onJobActionExecuted(item)"
         />
       </template>
     </gl-table-lite>

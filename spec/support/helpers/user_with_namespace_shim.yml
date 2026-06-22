@@ -330,8 +330,10 @@
 - spec/features/file_uploads/user_avatar_spec.rb
 - spec/features/frequently_visited_projects_and_groups_spec.rb
 - spec/features/global_search_spec.rb
-- spec/features/groups/group_settings_spec.rb
 - spec/features/groups/participants_autocomplete_spec.rb
+- spec/features/groups/settings/advanced_spec.rb
+- spec/features/groups/settings/general_spec.rb
+- spec/features/groups/settings/permissions_spec.rb
 - spec/features/groups_spec.rb
 - spec/features/help_dropdown_spec.rb
 - spec/features/ide/user_opens_merge_request_spec.rb

@@ -125,7 +125,9 @@ FactoryBot.define do
         operations_access_level: evaluator.operations_access_level,
         analytics_access_level: evaluator.analytics_access_level,
         container_registry_access_level: evaluator.container_registry_access_level,
-        security_and_compliance_access_level: evaluator.security_and_compliance_access_level
+        security_and_compliance_access_level: evaluator.security_and_compliance_access_level,
+        model_experiments_access_level: evaluator.model_experiments_access_level,
+        model_registry_access_level: evaluator.model_registry_access_level
       }
 
       project_ci_cd_settings_hash = {}

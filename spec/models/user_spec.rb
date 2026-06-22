@@ -6390,6 +6390,37 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     end
   end
 
+  describe '#has_active_non_default_organization?' do
+    subject { user.has_active_non_default_organization? }
+
+    context 'when user belongs to an active non-default organization' do
+      let_it_be(:organization) { create(:organization, state: :active) }
+      let_it_be(:user) { create(:user, organizations: [organization]) }
+
+      it { is_expected.to eq(true) }
+    end
+
+    context 'when user only belongs to the default organization' do
+      let_it_be(:default_organization) { create(:organization, :default) } # rubocop:disable Gitlab/RSpec/AvoidCreateDefaultOrganization -- required for full covearge on this method
+      let_it_be(:user) { create(:user, organizations: [default_organization]) }
+
+      it { is_expected.to eq(false) }
+    end
+
+    context 'when user belongs to a non-default organization that is not active' do
+      let_it_be(:organization) { create(:organization, :unconfirmed) }
+      let_it_be(:user) { create(:user, organizations: [organization]) }
+
+      it { is_expected.to eq(false) }
+    end
+
+    context 'when user does not belong to any organization' do
+      let_it_be(:user) { create(:user, organizations: []) }
+
+      it { is_expected.to eq(false) }
+    end
+  end
+
   describe '#can_remove_self?' do
     let(:user) { create(:user) }
 

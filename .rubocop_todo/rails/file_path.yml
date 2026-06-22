@@ -61,7 +61,6 @@ Rails/FilePath:
     - 'spec/factories/packages/debian/distribution_key.rb'
     - 'spec/factories/pages_domains.rb'
     - 'spec/features/admin/admin_appearance_spec.rb'
-    - 'spec/features/groups/group_settings_spec.rb'
     - 'spec/features/groups/import_export/import_file_spec.rb'
     - 'spec/features/help_pages_spec.rb'
     - 'spec/features/profiles/user_edit_profile_spec.rb'

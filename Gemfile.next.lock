@@ -1462,7 +1462,7 @@ GEM
     opensearch-ruby (3.4.0)
       faraday (>= 1.0, < 3)
       multi_json (>= 1.0)
-    openssl (3.3.2)
+    openssl (3.3.3)
     openssl-signature_algorithm (1.3.0)
       openssl (> 2.0)
     opentelemetry-api (1.9.0)
@@ -3186,7 +3186,7 @@ CHECKSUMS
   open4 (1.3.4) sha256=a1df037310624ecc1ea1d81264b11c83e96d0c3c1c6043108d37d396dcd0f4b1
   openid_connect (2.3.1) sha256=5d808380cff80d78e3d3d54cfaebe2d6461d835c674faa29e2314a402c1b2182
   opensearch-ruby (3.4.0) sha256=0a8621686bed3c59b4c23e08cbaef873685a3fe4568e9d2703155ca92b8ca05d
-  openssl (3.3.2) sha256=7f4e01215dc9c4be1fca71d692406be3e6340b39c1f71a47fea9c497decd0f6c
+  openssl (3.3.3) sha256=d46902138f2987c13122fab826030a11c2bb9b8a16394215cbfc5062c5e2d335
   openssl-signature_algorithm (1.3.0) sha256=a3b40b5e8276162d4a6e50c7c97cdaf1446f9b2c3946a6fa2c14628e0c957e80
   opentelemetry-api (1.9.0) sha256=d24065dd26583babd8d498d38ea35f74dfa193fb7102512e6e161649440079fb
   opentelemetry-common (0.24.0) sha256=f1647b233b8ac667feeb74d66a65b702008d9ab55aae825c220b4fe2c14fa773

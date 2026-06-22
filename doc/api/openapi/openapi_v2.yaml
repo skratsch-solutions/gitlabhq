@@ -48916,7 +48916,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       username:
         type: string
@@ -48985,7 +48985,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       username:
         type: string
@@ -49055,7 +49055,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       username:
         type: string
@@ -51625,7 +51625,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       username:
         type: string
@@ -52853,7 +52853,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 75
       title:
         type: string
@@ -54858,7 +54858,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 75
       title:
         type: string
@@ -55449,7 +55449,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       size:
         type: integer
@@ -55476,7 +55476,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       username:
         type: string
@@ -56962,7 +56962,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       username:
         type: string
@@ -67710,7 +67710,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       url:
         type: string
@@ -72723,7 +72723,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
       message:
         type: string
         example: Example broadcast message
@@ -72930,7 +72930,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       application_id:
         type: string
@@ -72966,7 +72966,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       application_id:
         type: string
@@ -76882,7 +76882,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       username:
         type: string
@@ -78097,7 +78097,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       url:
         type: string

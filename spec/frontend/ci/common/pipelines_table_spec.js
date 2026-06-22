@@ -233,6 +233,13 @@ describe('Pipelines Table', () => {
             }
           });
         });
+
+        it('forwards "job-action-executed" with the row item when the widget emits "retried"', () => {
+          findPipelineFailureWidget().vm.$emit('retried');
+
+          expect(wrapper.emitted('job-action-executed')).toHaveLength(1);
+          expect(wrapper.emitted('job-action-executed')[0][0].iid).toBe(firstPipeline.iid);
+        });
       });
 
       describe('and `useFailedJobsWidget` value is not provided', () => {

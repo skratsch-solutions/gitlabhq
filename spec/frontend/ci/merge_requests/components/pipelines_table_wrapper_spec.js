@@ -969,6 +969,22 @@ describe('PipelinesTableWrapper component', () => {
         });
       });
 
+      it('subscribes to a terminal parent pipeline after a job action on it', async () => {
+        const response = generateMRPipelinesResponse({ count: 1, status: 'FAILED' });
+        mergeRequestPipelinesRequest.mockResolvedValue(response);
+        await createComponent();
+
+        expect(subscriptionHandler).not.toHaveBeenCalled();
+
+        const pipeline = findPipelinesList().props('pipelines')[0];
+        findPipelinesList().vm.$emit('job-action-executed', pipeline);
+        await waitForPromises();
+
+        expect(subscriptionHandler).toHaveBeenCalledWith({
+          pipelineId: 'gid://gitlab/Ci::Pipeline/1',
+        });
+      });
+
       it('subscribes to a terminal downstream after a job action on its parent', async () => {
         const downstream = generateMockDownstreamPipeline({ id: '100', status: 'SUCCESS' });
         const response = generateMRPipelinesResponse({ count: 0 });

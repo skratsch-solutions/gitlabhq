@@ -1272,6 +1272,7 @@ type:VulnerabilityExportUploadRegistry
 type:VulnerabilityExternalIssueLink
 type:VulnerabilityFindingTokenStatus
 type:VulnerabilityFlag
+type:VulnerabilityFunnelStep
 type:VulnerabilityIdentifier
 type:VulnerabilityIssueLink
 type:VulnerabilityLink
@@ -1292,6 +1293,7 @@ type:VulnerabilityReportTypeCount
 type:VulnerabilityRepresentationInformation
 type:VulnerabilityRequest
 type:VulnerabilityRequestResponseHeader
+type:VulnerabilityResolutionFunnel
 type:VulnerabilityResponse
 type:VulnerabilityScanner
 type:VulnerabilitySeveritiesCount

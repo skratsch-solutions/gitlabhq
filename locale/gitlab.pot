@@ -6132,6 +6132,9 @@ msgstr ""
 msgid "AdminMode|Step-up authentication failed."
 msgstr ""
 
+msgid "AdminSelfHostedModels|%{count} more"
+msgstr ""
+
 msgid "AdminSelfHostedModels|A unique and descriptive name for your deployment."
 msgstr ""
 
@@ -6301,6 +6304,9 @@ msgid "AdminSelfHostedModels|Successfully updated all %{mainFeature} features"
 msgstr ""
 
 msgid "AdminSelfHostedModels|Test connection"
+msgstr ""
+
+msgid "AdminSelfHostedModels|The provided identifier does not exist. Did you mean %{suggestions}?"
 msgstr ""
 
 msgid "AdminSelfHostedModels|The self-hosted model was successfully saved."
@@ -39535,6 +39541,9 @@ msgid "InProductMarketing|Let's get set up"
 msgstr ""
 
 msgid "InProductMarketing|No credit card required."
+msgstr ""
+
+msgid "InProductMarketing|Set up your GitLab environment and answer a few questions to personalize your experience."
 msgstr ""
 
 msgid "InProductMarketing|Set up your GitLab environment."
@@ -82072,7 +82081,7 @@ msgstr ""
 msgid "User is not allowed to resolve thread"
 msgstr ""
 
-msgid "User is pending deletion"
+msgid "User is pending deprovisioning. Please wait for the user to be deprovisioned and try again later."
 msgstr ""
 
 msgid "User key"

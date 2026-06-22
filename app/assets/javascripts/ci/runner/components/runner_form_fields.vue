@@ -50,6 +50,7 @@ export default {
       required: false,
     },
   },
+  emits: ['input'],
   data() {
     return {
       model: null,

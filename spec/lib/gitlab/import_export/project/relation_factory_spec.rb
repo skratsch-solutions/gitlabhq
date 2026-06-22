@@ -182,6 +182,26 @@ RSpec.describe Gitlab::ImportExport::Project::RelationFactory, :use_clean_rails_
     it 'inserts backticks around username mentions' do
       expect(created_object.description).to eq("I said to `@sam` the code should follow `@bob`'s advice. `@alice`?")
     end
+
+    context 'when the exported hash is missing target_project_id' do
+      let(:relation_hash) do
+        {
+          'id' => 27,
+          'target_branch' => "feature",
+          'source_branch' => "feature_conflict",
+          'source_project_id' => project.id,
+          'author_id' => admin.id,
+          'title' => "MR1",
+          'state' => "opened",
+          'diff_head_sha' => "ABCD"
+        }
+      end
+
+      it 'defaults the target project to the project being imported and builds a valid merge request', :aggregate_failures do
+        expect(created_object.target_project).to eq(project)
+        expect(created_object).to be_valid
+      end
+    end
   end
 
   context 'issue object' do

@@ -653,7 +653,7 @@ Grants the ability to read code suggestion enabled status.
 
 #### Duo Workflow
 
-Grants the ability to create, read, and resume duo workflows.
+Grants the ability to create, read, resume, and update duo workflows.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
