@@ -25,8 +25,8 @@ describe('convertGraphQLVarsToRestParams', () => {
       ['TITLE_DESC', 'title', 'desc'],
       ['PRIORITY_ASC', 'priority', 'asc'],
       ['PRIORITY_DESC', 'priority', 'desc'],
-      ['POPULARITY_ASC', 'upvotes', 'asc'],
-      ['POPULARITY_DESC', 'upvotes', 'desc'],
+      ['POPULARITY_ASC', 'popularity', 'asc'],
+      ['POPULARITY_DESC', 'popularity', 'desc'],
       ['CLOSED_AT_ASC', 'closed_at', 'asc'],
       ['CLOSED_AT_DESC', 'closed_at', 'desc'],
       ['RELATIVE_POSITION_ASC', 'relative_position', 'asc'],
@@ -54,51 +54,84 @@ describe('convertGraphQLVarsToRestParams', () => {
   });
 
   describe('pagination', () => {
-    it('maps after/first to cursor/per_page', () => {
-      const params = convertGraphQLVarsToRestParams({ after: 'abc123', first: 25 });
+    describe('keyset pagination (cursor-based)', () => {
+      it('maps after/first to cursor/per_page', () => {
+        const params = convertGraphQLVarsToRestParams({ after: 'abc123', first: 25 });
 
-      expect(params.get('cursor')).toBe('abc123');
-      expect(params.get('per_page')).toBe('25');
-    });
-
-    it('uses afterCursor as fallback for cursor', () => {
-      const params = convertGraphQLVarsToRestParams({ afterCursor: 'cursor1' });
-
-      expect(params.get('cursor')).toBe('cursor1');
-    });
-
-    it('uses firstPageSize as fallback for per_page', () => {
-      const params = convertGraphQLVarsToRestParams({ firstPageSize: 20 });
-
-      expect(params.get('per_page')).toBe('20');
-    });
-
-    it('maps before/last to cursor/per_page for previous page', () => {
-      const params = convertGraphQLVarsToRestParams({ before: 'prev123', last: 10 });
-
-      expect(params.get('cursor')).toBe('prev123');
-      expect(params.get('per_page')).toBe('10');
-    });
-
-    it('uses beforeCursor as fallback for cursor', () => {
-      const params = convertGraphQLVarsToRestParams({ beforeCursor: 'cursor2' });
-
-      expect(params.get('cursor')).toBe('cursor2');
-    });
-
-    it('uses lastPageSize as fallback for per_page', () => {
-      const params = convertGraphQLVarsToRestParams({ lastPageSize: 15 });
-
-      expect(params.get('per_page')).toBe('15');
-    });
-
-    it('prefers afterCursor over beforeCursor when both present', () => {
-      const params = convertGraphQLVarsToRestParams({
-        afterCursor: 'next1',
-        beforeCursor: 'prev1',
+        expect(params.get('cursor')).toBe('abc123');
+        expect(params.get('per_page')).toBe('25');
       });
 
-      expect(params.get('cursor')).toBe('next1');
+      it('uses afterCursor as fallback for cursor', () => {
+        const params = convertGraphQLVarsToRestParams({ afterCursor: 'cursor1' });
+
+        expect(params.get('cursor')).toBe('cursor1');
+      });
+
+      it('uses firstPageSize as fallback for per_page', () => {
+        const params = convertGraphQLVarsToRestParams({ firstPageSize: 20 });
+
+        expect(params.get('per_page')).toBe('20');
+      });
+
+      it('maps before/last to cursor/per_page for previous page', () => {
+        const params = convertGraphQLVarsToRestParams({ before: 'prev123', last: 10 });
+
+        expect(params.get('cursor')).toBe('prev123');
+        expect(params.get('per_page')).toBe('10');
+      });
+
+      it('uses beforeCursor as fallback for cursor', () => {
+        const params = convertGraphQLVarsToRestParams({ beforeCursor: 'cursor2' });
+
+        expect(params.get('cursor')).toBe('cursor2');
+      });
+
+      it('uses lastPageSize as fallback for per_page', () => {
+        const params = convertGraphQLVarsToRestParams({ lastPageSize: 15 });
+
+        expect(params.get('per_page')).toBe('15');
+      });
+
+      it('prefers afterCursor over beforeCursor when both present', () => {
+        const params = convertGraphQLVarsToRestParams({
+          afterCursor: 'next1',
+          beforeCursor: 'prev1',
+        });
+
+        expect(params.get('cursor')).toBe('next1');
+      });
+
+      it('uses cursor parameter for alphanumeric cursor values', () => {
+        const params = convertGraphQLVarsToRestParams({ after: 'abc123def' });
+
+        expect(params.get('cursor')).toBe('abc123def');
+        expect(params.get('page')).toBeNull();
+      });
+    });
+
+    describe('offset pagination (page-based)', () => {
+      it('maps numeric cursor value to page parameter', () => {
+        const params = convertGraphQLVarsToRestParams({ after: '2', first: 20 });
+
+        expect(params.get('page')).toBe('2');
+        expect(params.get('cursor')).toBeNull();
+        expect(params.get('per_page')).toBe('20');
+      });
+
+      it('maps numeric afterCursor to page parameter', () => {
+        const params = convertGraphQLVarsToRestParams({ afterCursor: '3' });
+
+        expect(params.get('page')).toBe('3');
+        expect(params.get('cursor')).toBeNull();
+      });
+
+      it('maps numeric beforeCursor to page parameter', () => {
+        const params = convertGraphQLVarsToRestParams({ beforeCursor: '1' });
+
+        expect(params.get('page')).toBe('1');
+        expect(params.get('cursor')).toBeNull();
+      });
     });
 
     it('omits cursor/per_page when not provided', () => {

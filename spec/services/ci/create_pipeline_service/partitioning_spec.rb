@@ -4,8 +4,8 @@ require 'spec_helper'
 
 RSpec.describe Ci::CreatePipelineService, :aggregate_failures,
   feature_category: :continuous_integration do
-  let_it_be(:project, freeze: false) { create(:project, :repository) }
-  let_it_be(:user)    { project.first_owner }
+  let_it_be_with_reload(:project) { create(:project, :repository) }
+  let_it_be(:user) { project.first_owner }
 
   let(:service) { described_class.new(project, user, { ref: 'master' }) }
   let(:config) do

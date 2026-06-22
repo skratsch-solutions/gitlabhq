@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::LanguageDetection do
+RSpec.describe Gitlab::LanguageDetection, feature_category: :source_code_management do
   let_it_be(:project) { create(:project, :repository) }
   let_it_be(:ruby) { create(:programming_language, name: 'Ruby') }
   let_it_be(:haskell) { create(:programming_language, name: 'Haskell') }
@@ -30,6 +30,37 @@ RSpec.describe Gitlab::LanguageDetection do
   describe '#languages' do
     it 'returns the language names' do
       expect(subject.languages).to eq(%w[Ruby JavaScript Elixir CoffeeScript Go])
+    end
+  end
+
+  describe '#detected_languages' do
+    it 'returns detected language objects', :aggregate_failures do
+      detected_languages = subject.detected_languages
+
+      expect(detected_languages.size).to eq(described_class::MAX_LANGUAGES)
+      expect(detected_languages.first).to have_attributes(
+        name: 'Ruby',
+        share: 66.63,
+        color: '#701516',
+        language_id: 326
+      )
+      expect(detected_languages).to all(be_a(described_class::DetectedLanguage))
+    end
+  end
+
+  describe '#language_color' do
+    subject { described_class.new(repository, repository_languages).language_color(name) }
+
+    context 'when the language is detected' do
+      let(:name) { 'Ruby' }
+
+      it { is_expected.to eq('#701516') }
+    end
+
+    context 'when the language is not detected' do
+      let(:name) { 'Unknown' }
+
+      it { is_expected.to be_nil }
     end
   end
 

@@ -1112,7 +1112,7 @@ RSpec.describe Projects::IssuesController, :request_store, feature_category: :te
       issue = post_new_issue
 
       expect(issue).to be_a(Issue)
-      expect(issue.persisted?).to eq(true)
+      expect(issue.persisted?).to be(true)
       expect(issue.work_item_type.base_type).to eq('issue')
     end
 
@@ -1151,7 +1151,7 @@ RSpec.describe Projects::IssuesController, :request_store, feature_category: :te
         post_issue(title: 'Hello')
         discussion.first_note.reload
 
-        expect(discussion.resolved?).to eq(true)
+        expect(discussion.resolved?).to be(true)
       end
 
       it 'sets a flash message' do
@@ -1168,7 +1168,7 @@ RSpec.describe Projects::IssuesController, :request_store, feature_category: :te
         it 'resolves a single discussion' do
           discussion.first_note.reload
 
-          expect(discussion.resolved?).to eq(true)
+          expect(discussion.resolved?).to be(true)
         end
 
         it 'sets a flash message that one discussion was resolved' do

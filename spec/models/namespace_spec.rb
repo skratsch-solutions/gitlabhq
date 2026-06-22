@@ -2840,8 +2840,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
         end
 
         context 'then the parent is deleted' do
-          it 'throws an InvalidForeignKey exception' do
-            expect { parent.destroy! }.to raise_error(ActiveRecord::InvalidForeignKey)
+          it 'throws an StatementInvalid exception' do
+            expect { parent.destroy! }.to raise_error(ActiveRecord::StatementInvalid)
           end
         end
       end

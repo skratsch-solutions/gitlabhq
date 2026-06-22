@@ -41,7 +41,7 @@ RSpec.describe Projects::AvatarsController do
           sign_in(project.first_owner)
           subject
 
-          expect(response.cache_control[:public]).to eq(true)
+          expect(response.cache_control[:public]).to be(true)
           expect(response.cache_control[:max_age]).to eq(60)
           expect(response.cache_control[:no_store]).to be_nil
         end

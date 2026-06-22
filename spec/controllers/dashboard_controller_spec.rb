@@ -132,7 +132,7 @@ RSpec.describe DashboardController, feature_category: :code_review_workflow do
           get :search_merge_requests, params: { author_id: user.id }
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(assigns(:search_timeout_occurred)).to eq(true)
+          expect(assigns(:search_timeout_occurred)).to be(true)
         end
 
         context 'rendering views' do
@@ -164,7 +164,7 @@ RSpec.describe DashboardController, feature_category: :code_review_workflow do
           get :search_merge_requests, params: { author_id: user.id }
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(assigns(:search_timeout_occurred)).to eq(nil)
+          expect(assigns(:search_timeout_occurred)).to be_nil
         end
 
         context 'rendering views' do
@@ -299,7 +299,7 @@ RSpec.describe DashboardController, feature_category: :code_review_workflow do
 
       shared_examples_for 'no filters are set' do
         it 'sets @no_filters_set to true' do
-          expect(assigns[:no_filters_set]).to eq(true)
+          expect(assigns[:no_filters_set]).to be(true)
         end
       end
 
@@ -320,7 +320,7 @@ RSpec.describe DashboardController, feature_category: :code_review_workflow do
 
     shared_examples_for 'filters are set' do
       it 'sets @no_filters_set to false' do
-        expect(assigns[:no_filters_set]).to eq(false)
+        expect(assigns[:no_filters_set]).to be(false)
       end
     end
 

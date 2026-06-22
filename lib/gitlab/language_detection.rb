@@ -3,6 +3,7 @@
 module Gitlab
   class LanguageDetection
     MAX_LANGUAGES = 5
+    DetectedLanguage = Struct.new(:name, :share, :color, :language_id, keyword_init: true)
 
     def initialize(repository, repository_languages)
       @repository = repository
@@ -10,15 +11,26 @@ module Gitlab
     end
 
     def languages
-      detection.keys
+      detected_languages.map(&:name)
     end
 
     def language_color(name)
-      detection.dig(name, :color)
+      detected_language_by_name[name]&.color
     end
 
     def language_gitaly_id(name)
-      detection.dig(name, :language_id)
+      detected_language_by_name[name]&.language_id
+    end
+
+    def detected_languages
+      @detected_languages ||= detection.map do |name, attributes|
+        DetectedLanguage.new(
+          name: name,
+          share: attributes[:value],
+          color: attributes[:color],
+          language_id: attributes[:language_id]
+        )
+      end
     end
 
     # Newly detected languages, returned in a structure accepted by
@@ -70,6 +82,10 @@ module Gitlab
 
     def previous_language_names
       @previous_language_names ||= @repository_languages.map(&:name)
+    end
+
+    def detected_language_by_name
+      @detected_language_by_name ||= detected_languages.index_by(&:name)
     end
 
     def detection

@@ -18,7 +18,7 @@ RSpec.describe OmniauthCallbacksController, type: :controller, feature_category:
       it "sets the session variable for provider 2FA" do
         post :saml, params: { SAMLResponse: mock_saml_response }
 
-        expect(session[:provider_2FA]).to eq(true)
+        expect(session[:provider_2FA]).to be(true)
       end
     end
 

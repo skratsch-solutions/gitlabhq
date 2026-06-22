@@ -3,16 +3,16 @@
 require 'spec_helper'
 
 RSpec.describe Releases::DestroyService, feature_category: :release_orchestration do
-  let(:project) { create(:project, :repository) }
-  let(:mainatiner) { create(:user) }
-  let(:repoter) { create(:user) }
+  let_it_be_with_reload(:project) { create(:project, :repository) }
+  let_it_be(:mainatiner) { create(:user) }
+  let_it_be(:repoter) { create(:user) }
   let(:tag) { 'v1.1.0' }
   let!(:release) { create(:release, project: project, tag: tag) }
   let(:service) { described_class.new(project, user, params) }
   let(:params) { { tag: tag } }
   let(:user) { mainatiner }
 
-  before do
+  before_all do
     project.add_maintainer(mainatiner)
     project.add_reporter(repoter)
   end

@@ -324,7 +324,7 @@ RSpec.describe Oauth::ApplicationsController, feature_category: :system_access d
     end
 
     it 'includes Two-factor enforcement concern' do
-      expect(described_class.included_modules.include?(EnforcesTwoFactorAuthentication)).to eq(true)
+      expect(described_class.included_modules.include?(EnforcesTwoFactorAuthentication)).to be(true)
     end
   end
 

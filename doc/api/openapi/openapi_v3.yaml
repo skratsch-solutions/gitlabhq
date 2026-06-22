@@ -73378,6 +73378,7 @@ components:
       properties:
         namespace_id:
           type: integer
+          format: int64
           example: 123
         namespace_name:
           type: string
@@ -75701,6 +75702,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         plan:
           type: string
@@ -75755,6 +75757,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         plan:
           type: string

@@ -2447,6 +2447,34 @@ curl --request PUT --header "PRIVATE-TOKEN: <your-token>" \
 To set the visibility level of individual project features,
 see [Project feature visibility level](#project-feature-visibility-level).
 
+#### Turn off Service Desk for multiple projects
+
+GitLab stores the Service Desk setting for each project. New projects have Service Desk
+active by default. To turn off Service Desk across multiple projects in a namespace, update
+each project with the [update a project](#update-a-project) endpoint.
+
+Prerequisites:
+
+- You must have the Maintainer or Owner role for each project you want to change.
+
+To turn off Service Desk for a project, set the `service_desk_enabled` attribute to `false`:
+
+```shell
+curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+  --data "service_desk_enabled=false" \
+  --url "https://gitlab.example.com/api/v4/projects/<project_id>"
+```
+
+To find the projects in a namespace, use the
+[list group projects](groups.md#list-projects) endpoint with `include_subgroups=true`,
+or the [list user projects](#list-all-personal-projects-for-a-user) endpoint for a
+personal namespace. Then run the previous request for each project you want to change.
+
+The `service_desk_enabled` field returned by the API is a computed value. It is `true`
+only when the project setting is on and incoming email is configured for the instance.
+If incoming email is not configured, the field reads `false` even when the project
+setting is on.
+
 ### Import members
 
 Imports members from another project.

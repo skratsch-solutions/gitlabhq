@@ -49,6 +49,14 @@ Grants the ability to read pipeline execution project schedules.
 | ------ | ------ | ---- | ---- |
 | Read | Project | Type | `PipelineExecutionProjectSchedule` |
 
+#### Secrets Manager
+
+Grants the ability to read secrets managers.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Group | Type | `SecretsManagerEntitlement` |
+
 #### Vulnerability
 
 Grants the ability to create, read, and update vulnerabilities.

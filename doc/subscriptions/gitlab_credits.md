@@ -68,6 +68,9 @@ For more information about included credits, see [GitLab Promotions Terms & Cond
 Monthly Commitment Pool is a shared pool of credits available to all users in the subscription.
 All users in your subscription can draw from this shared pool after they have consumed their included credits.
 
+You can't reserve the pool for a subset of users or isolate consumption to specific users, groups, or projects.
+To limit how much individual users consume, use usage caps.
+
 You can purchase the Monthly Commitment Pool as a recurring annual or multi-year term.
 The number of credits purchased for the year is divided in 12.
 
@@ -114,7 +117,8 @@ and the additional 25 are billed as on-demand usage.
 
 GitLab Credits are consumed in the following order:
 
-1. Included credits are used by each user first.
+1. Temporary evaluation credits are used first.
+1. Included credits are consumed by each user before any shared credits.
 1. Monthly Commitment Pool of credits are used after all included credits have been consumed.
 1. On-Demand credits are used after all other available credits
    (included credits and Monthly Commitment Pool, if applicable) are depleted and usage billing terms are signed.

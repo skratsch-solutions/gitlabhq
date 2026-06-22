@@ -91,7 +91,7 @@ RSpec.describe Organizations::OrganizationUser, type: :model, feature_category: 
 
     context 'and organization is attempted to be destroyed' do
       it 'prevents destroying the organization' do
-        expect { organization.destroy! }.to raise_error(ActiveRecord::InvalidForeignKey)
+        expect { organization.destroy! }.to raise_error(ActiveRecord::StatementInvalid)
       end
     end
   end

@@ -227,16 +227,33 @@ export function mapWorkItemToGraphQL(item, sharedNamespace, { useWorkItemFeature
   };
 }
 
-// Parses keyset pagination info from REST API response headers
+// Parses pagination info from REST API response headers
+// Supports both keyset pagination and offset pagination
 export function parsePageInfo(headers) {
   const nextCursor = headers['x-next-cursor'] || null;
   const prevCursor = headers['x-prev-cursor'] || null;
+
+  // If cursor headers are present, use keyset pagination
+  if (nextCursor || prevCursor) {
+    return {
+      __typename: 'PageInfo',
+      hasNextPage: Boolean(nextCursor),
+      hasPreviousPage: Boolean(prevCursor),
+      endCursor: nextCursor,
+      startCursor: prevCursor,
+    };
+  }
+
+  // Otherwise, fall back to offset pagination
+  const nextPage = headers['x-next-page'];
+  const prevPage = headers['x-prev-page'];
+
   return {
     __typename: 'PageInfo',
-    hasNextPage: Boolean(nextCursor),
-    hasPreviousPage: Boolean(prevCursor),
-    endCursor: nextCursor,
-    startCursor: prevCursor,
+    hasNextPage: Boolean(nextPage),
+    hasPreviousPage: Boolean(prevPage),
+    endCursor: nextPage ? String(nextPage) : null,
+    startCursor: prevPage ? String(prevPage) : null,
   };
 }
 

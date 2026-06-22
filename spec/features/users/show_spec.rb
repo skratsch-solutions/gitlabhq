@@ -5,6 +5,11 @@ require 'spec_helper'
 RSpec.describe 'User page', feature_category: :user_profile do
   include ExternalAuthorizationServiceHelpers
 
+  # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+  # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+  # subject, or an in-memory mutation that survives reload/refind). Do not
+  # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+  # (see gitlab-org/gitlab#602925).
   let_it_be(:user, freeze: false) { create(:user, bio: '<b>Lorem</b> <i>ipsum</i> dolor sit <a href="https://example.com">amet</a>') }
 
   subject(:visit_profile) { visit(user_path(user)) }

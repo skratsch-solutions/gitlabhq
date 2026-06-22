@@ -242,6 +242,19 @@ bundled Mattermost, see
 [Migrating from the Linux package to Mattermost Standalone](https://docs.mattermost.com/administration-guide/onboard/migrate-gitlab-omnibus.html)
 for migration instructions. If you do not use the bundled Mattermost, you are not impacted.
 
+Before upgrading to GitLab 19.0, remove or comment out all `mattermost[...]` settings from `/etc/gitlab/gitlab.rb`.
+If any `mattermost[...]` keys remain, `gitlab-ctl reconfigure` aborts immediately after the package
+is installed with:
+
+```plaintext
+RuntimeError: Removed configurations found in gitlab.rb. Aborting reconfigure.
+```
+
+> [!NOTE]
+> `gitlab-ctl check-config --version 19.0.x` does not currently detect this condition.
+> Do not rely on `check-config` to validate Mattermost key removal before upgrading.
+> See [issue 9916](https://gitlab.com/gitlab-org/omnibus-gitlab/-/work_items/9916) for details.
+
 ### Linux package support for SUSE distributions discontinued
 
 - Affects: Linux package

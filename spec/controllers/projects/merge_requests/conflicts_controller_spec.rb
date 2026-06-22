@@ -100,12 +100,12 @@ RSpec.describe Projects::MergeRequests::ConflictsController, feature_category: :
                 expect(line['type']).to be_in(%w[old new])
                 expect(line.values_at('old_line', 'new_line')).to contain_exactly(nil, a_kind_of(Integer))
               elsif line['type'].nil?
-                expect(line['old_line']).not_to eq(nil)
-                expect(line['new_line']).not_to eq(nil)
+                expect(line['old_line']).not_to be_nil
+                expect(line['new_line']).not_to be_nil
               else
                 expect(line['type']).to eq('match')
-                expect(line['old_line']).to eq(nil)
-                expect(line['new_line']).to eq(nil)
+                expect(line['old_line']).to be_nil
+                expect(line['new_line']).to be_nil
               end
             end
           end

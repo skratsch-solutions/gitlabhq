@@ -54,8 +54,8 @@ For more information, see
 ## PostgreSQL
 
 [PostgreSQL](https://www.postgresql.org/) is the only supported database and is bundled with the Linux package.
-You can also use an [external PostgreSQL database](https://docs.gitlab.com/omnibus/settings/database/#using-a-non-packaged-postgresql-database-management-server)
-[which must be configured correctly](#postgresql-settings).
+You can also use an [external PostgreSQL database](https://docs.gitlab.com/omnibus/settings/database/#using-a-non-packaged-postgresql-database-management-server),
+which must be [configured correctly](../administration/postgresql/tune.md#required-settings-for-external-instances).
 
 ### Supported versions
 
@@ -106,59 +106,11 @@ Compatibility with other external databases is not guaranteed.
 
 For more information, see [requirements for running Geo](../administration/geo/_index.md#requirements-for-running-geo).
 
-### Locale compatibility
+For external PostgreSQL instances, see:
 
-When you change locale data in `glibc`, PostgreSQL database files are
-no longer fully compatible between different operating systems.
-To avoid index corruption,
-[check for locale compatibility](../administration/geo/replication/troubleshooting/common.md#check-os-locale-data-compatibility)
-when you:
-
-- Move binary PostgreSQL data between servers.
-- Upgrade your Linux distribution.
-- Update or change third-party container images.
-
-For more information, see [upgrading operating systems for PostgreSQL](../administration/postgresql/upgrading_os.md).
-
-### GitLab schemas
-
-You should create or use databases exclusively for GitLab, [Geo](../administration/geo/_index.md),
-[Gitaly Cluster (Praefect)](../administration/gitaly/praefect/_index.md), or other components.
-Do not create or modify databases, schemas, users, or other properties except when you follow:
-
-- Procedures in the GitLab documentation
-- The directions of GitLab Support or engineers
-
-The main GitLab application uses three schemas:
-
-- The default `public` schema
-- `gitlab_partitions_static` (created automatically)
-- `gitlab_partitions_dynamic` (created automatically)
-
-During Rails database migrations, GitLab might create or modify schemas or tables.
-Database migrations are tested against the schema definition in the GitLab codebase.
-If you modify any schema, [GitLab upgrades](../update/_index.md) might fail.
-
-### PostgreSQL settings
-
-Here are some required settings for externally managed PostgreSQL instances.
-
-| Tunable setting        | Required value | More information |
-|:-----------------------|:---------------|:-----------------|
-| `work_mem`             | minimum `8 MB`  | This value is the Linux package default. In large deployments, if queries create temporary files, you should increase this setting. |
-| `maintenance_work_mem` | minimum `64 MB` | You require [more for larger database servers](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/8377#note_1728173087). |
-| `max_connections`      | minimum `400`   | Calculate based on your GitLab components. See [Tune PostgreSQL](../administration/postgresql/tune.md) page for detailed guidance. |
-| `shared_buffers`       | minimum `2 GB`  | You require more for larger database servers. The Linux package default is set to 25% of server RAM. |
-| `statement_timeout`    | 15000 to 60000 | A statement timeout prevents runaway issues with locks and the database rejecting new clients. You should use values between 15 and 60 seconds (15000 to 60000 milliseconds), where one minute matches the Puma rack timeout setting. |
-| `hot_standby_feedback` | `on` | For configurations with multiple nodes and [database load balancing](../administration/postgresql/database_load_balancing.md#configure-database-load-balancing) configured, ensure that all replica nodes have `hot_standby_feedback` enabled to prevent lag buildup. |
-
-You can configure some PostgreSQL settings for the specific database, rather than for all
-databases on the server.
-
-- You might limit configuration to specific databases when hosting multiple databases on the same server.
-- For guidance on where to apply configuration, consult your database administrator or vendor.
-- For GCP Cloud SQL, you can set `statement_timeout` on a specific database or user, but not [as a database flag](https://cloud.google.com/sql/docs/postgres/flags#list-flags-postgres).
-  For example: `ALTER DATABASE gitlab SET statement_timeout = '60s';`
+- [Required settings](../administration/postgresql/tune.md#required-settings-for-external-instances) for externally managed instances.
+- [Database schemas](../administration/postgresql/external.md#database-schemas) for schema guidance.
+- [When to check locale compatibility](../administration/postgresql/upgrading_os.md#when-to-check-locale-compatibility) for locale considerations.
 
 ## Puma
 
@@ -171,38 +123,8 @@ To adjust Puma settings:
 - For the GitLab Helm chart, see the
   [`webservice` chart](https://docs.gitlab.com/charts/charts/gitlab/webservice/).
 
-### Workers
-
-The recommended number of Puma workers largely depends on CPU and memory capacity.
-By default, the Linux package uses the recommended number of workers.
-For more information about how this number is calculated,
-see [`puma.rb`](https://gitlab.com/gitlab-org/omnibus-gitlab/-/blob/master/files/gitlab-cookbooks/gitlab/libraries/puma.rb?ref_type=heads#L46-69).
-
-A node must never have fewer than two Puma workers.
-For example, a node should have:
-
-- Two workers for 2 CPU cores and 8 GB of memory
-- Two workers for 4 CPU cores and 4 GB of memory
-- Four workers for 4 CPU cores and 8 GB of memory
-- Six workers for 8 CPU cores and 8 GB of memory
-- Eight workers for 8 CPU cores and 16 GB of memory
-
-By default, each Puma worker is limited to 1.2 GB of memory.
-You can [adjust this setting](../administration/operations/puma.md#tuning-memory-use) in `/etc/gitlab/gitlab.rb`.
-
-You can also increase the number of Puma workers, provided enough CPU and memory capacity is available.
-More workers would reduce response times and improve the ability to handle parallel requests.
-Run tests to verify the optimal number of workers for your [installation](install_methods.md).
-
-### Threads
-
-The recommended number of Puma threads depends on total system memory.
-A node should use:
-
-- One thread for an operating system with a maximum of 2 GB of memory
-- Four threads for an operating system with more than 2 GB of memory
-
-More threads would lead to excessive swapping and lower performance.
+For worker and thread sizing guidance, see
+[Puma worker and thread sizing](../administration/operations/puma.md#worker-and-thread-sizing).
 
 ## Redis
 

@@ -13,7 +13,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe 'TAGS and BRANCHES scope' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project) }
     let_it_be(:branch_pipeline) { create(:ci_pipeline, project: project, ref: 'feature') }
     let_it_be(:tag_pipeline) { create(:ci_pipeline, project: project, ref: 'v1.0.0', tag: true) }
 
@@ -56,7 +56,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe 'sha' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project) }
 
     let(:pipelines_graphql_data) { graphql_data.dig(*%w[project pipelines nodes]).first }
 
@@ -98,7 +98,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe 'duration fields' do
-    let_it_be(:pipeline, freeze: false) do
+    let_it_be_with_reload(:pipeline) do
       create(:ci_pipeline, project: project)
     end
 
@@ -135,7 +135,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
 
   describe '.stages' do
     let_it_be(:project) { create(:project, :repository) }
-    let_it_be(:pipeline, freeze: false) { create(:ci_empty_pipeline, project: project) }
+    let_it_be_with_reload(:pipeline) { create(:ci_empty_pipeline, project: project) }
     let_it_be(:stage) { create(:ci_stage, pipeline: pipeline, project: project) }
     let_it_be(:other_stage) { create(:ci_stage, pipeline: pipeline, project: project, name: 'other') }
 
@@ -300,7 +300,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe '.job_artifacts' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project) }
     let_it_be(:pipeline_job_1) { create(:ci_build, pipeline: pipeline, name: 'Job 1') }
     let_it_be(:pipeline_job_artifact_1) { create(:ci_job_artifact, job: pipeline_job_1) }
     let_it_be(:pipeline_job_2) { create(:ci_build, pipeline: pipeline, name: 'Job 2') }
@@ -373,7 +373,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe 'errorMessages' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project) }
     let_it_be(:error_message) { create(:ci_pipeline_message, pipeline: pipeline, content: 'error', severity: :error) }
 
     let(:pipelines_graphql_data) { graphql_data.dig(*%w[project pipelines nodes]).first }
@@ -419,7 +419,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe 'warningMessages' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project) }
+    let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project) }
     let_it_be(:warning_message) { create(:ci_pipeline_message, pipeline: pipeline, content: 'warning') }
 
     let(:pipelines_graphql_data) { graphql_data.dig(*%w[project pipelines nodes]).first }
@@ -504,7 +504,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe 'upstream' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project, user: user) }
+    let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project, user: user) }
     let_it_be(:upstream_project) { create(:project, :repository, :public) }
     let_it_be(:upstream_pipeline) { create(:ci_pipeline, project: upstream_project, user: user) }
 
@@ -564,7 +564,7 @@ RSpec.describe 'Query.project(fullPath).pipelines', feature_category: :continuou
   end
 
   describe 'downstream' do
-    let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, project: project, user: user) }
+    let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project, user: user) }
     let(:pipeline_2) { create(:ci_pipeline, project: project, user: user) }
 
     let_it_be(:downstream_project) { create(:project, :repository, :public) }

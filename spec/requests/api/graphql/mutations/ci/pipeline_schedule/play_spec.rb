@@ -7,7 +7,7 @@ RSpec.describe 'PipelineSchedulePlay', feature_category: :continuous_integration
 
   let_it_be(:current_user) { create(:user) }
   let_it_be(:project) { create(:project) }
-  let_it_be(:pipeline_schedule, freeze: false) do
+  let_it_be_with_reload(:pipeline_schedule) do
     create(
       :ci_pipeline_schedule,
       :every_minute,

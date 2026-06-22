@@ -15,8 +15,8 @@ const GRAPHQL_SORT_TO_REST = {
   RELATIVE_POSITION_ASC: { order_by: 'relative_position', sort: 'asc' },
   PRIORITY_ASC: { order_by: 'priority', sort: 'asc' },
   PRIORITY_DESC: { order_by: 'priority', sort: 'desc' },
-  POPULARITY_ASC: { order_by: 'upvotes', sort: 'asc' },
-  POPULARITY_DESC: { order_by: 'upvotes', sort: 'desc' },
+  POPULARITY_ASC: { order_by: 'popularity', sort: 'asc' },
+  POPULARITY_DESC: { order_by: 'popularity', sort: 'desc' },
   CLOSED_AT_ASC: { order_by: 'closed_at', sort: 'asc' },
   CLOSED_AT_DESC: { order_by: 'closed_at', sort: 'desc' },
   DUE_DATE_ASC: { order_by: 'due_date', sort: 'asc' },
@@ -110,7 +110,16 @@ export function convertGraphQLVarsToRestParams(vars) {
     }
   }
 
-  appendParam(params, 'cursor', vars.after ?? vars.afterCursor ?? vars.before ?? vars.beforeCursor);
+  // Handle pagination: support both cursor-based and page-based pagination
+  const cursorValue = vars.after ?? vars.afterCursor ?? vars.before ?? vars.beforeCursor;
+  if (cursorValue) {
+    if (/^\d+$/.test(cursorValue)) {
+      appendParam(params, 'page', cursorValue);
+    } else {
+      appendParam(params, 'cursor', cursorValue);
+    }
+  }
+
   appendParam(
     params,
     'per_page',

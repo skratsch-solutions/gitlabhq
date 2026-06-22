@@ -1435,10 +1435,10 @@
     core-js "^3.29.1"
     mitt "^3.0.1"
 
-"@gitlab/duo-ui@^15.35.0":
-  version "15.35.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/duo-ui/-/duo-ui-15.35.0.tgz#4144d48a12745e6d4ba1619951a77f391fcb2c69"
-  integrity sha512-xNrhf1WNhXqPD7edtInYjmYnmSTR4WyBd9u5cpuX3uL3fa0Ukz1NoQyEUjeKYcnyOfMoYFdCpq0bojDcWAGoXA==
+"@gitlab/duo-ui@^15.36.0":
+  version "15.36.2"
+  resolved "https://registry.yarnpkg.com/@gitlab/duo-ui/-/duo-ui-15.36.2.tgz#3b84a75955eb335991fd3cfc088114cae7316877"
+  integrity sha512-CD3a64SEhYOcM8nWKRJZODJSo4G9ZMZlxP7HJoInhqoygrdaIK8aidEKGdg19HczdpoP1QVMRPgcZqI7+74u+A==
   dependencies:
     "@floating-ui/dom" "1.7.6"
     diff "^8.0.2"
@@ -7654,9 +7654,9 @@ diff@^3.4.0:
   integrity sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==
 
 diff@^8.0.2:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/diff/-/diff-8.0.2.tgz#712156a6dd288e66ebb986864e190c2fc9eddfae"
-  integrity sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg==
+  version "8.0.4"
+  resolved "https://registry.yarnpkg.com/diff/-/diff-8.0.4.tgz#4f5baf3188b9b2431117b962eb20ba330fadf696"
+  integrity sha512-DPi0FmjiSU5EvQV0++GFDOJ9ASQUVFh5kD+OzOnYdi7n3Wpm9hWWGfB/O2blfHcMVTL5WkQXSnRiK9makhrcnw==
 
 diffie-hellman@^5.0.0:
   version "5.0.2"
@@ -11292,14 +11292,14 @@ markdown-it@^14.0.0, markdown-it@^14.1.0:
     uc.micro "^2.1.0"
 
 marked-bidi@^1.0.3, marked-bidi@^1.0.8:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/marked-bidi/-/marked-bidi-1.0.13.tgz#ca9e488ee58d52e50d5d0c62358300e3242f4788"
-  integrity sha512-mXCLPK6lPWlJoTqz1tBoVRYafBGMH6R7EbV7YQFifIx4Mxjsivkwb09Tn5nBKVZCR6mYZKCY6/H7hHVqz3mlcw==
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/marked-bidi/-/marked-bidi-1.0.15.tgz#a3a49fb46e8025f8720ca9da9d2336fcccb32846"
+  integrity sha512-kNL3nSxUsZEi854rxstqZohjw7L+Mmm1GEpk/RDZzrXzffzg3NArqypygBfVm6VAPeAMv5G3OA694ndh2CXS4A==
 
 marked-highlight@^2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/marked-highlight/-/marked-highlight-2.2.3.tgz#e7e5e7ccfb1699356c3a45d851db8fe983689172"
-  integrity sha512-FCfZRxW/msZAiasCML4isYpxyQWKEEx44vOgdn5Kloae+Qc3q4XR7WjpKKf8oMLk7JP9ZCRd2vhtclJFdwxlWQ==
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/marked-highlight/-/marked-highlight-2.2.4.tgz#e8d9a3b9ab8cdba8c255a5bcca9d922716befa5e"
+  integrity sha512-PZxisNMJDduSjc0q6uvjsnqqHCXc9s0eyzxDO9sB1eNGJnd/H1/Fu+z6g/liC1dfJdFW4SftMwMlLvsBhUPrqQ==
 
 marked@^12.0.0:
   version "12.0.0"

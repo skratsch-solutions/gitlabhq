@@ -134,17 +134,16 @@ RSpec.describe Authn::Tokens::PersonalAccessToken, feature_category: :system_acc
   context 'when the user is neither a human nor a bot' do
     let(:plaintext) { personal_access_token.token }
 
-    it 'raises unsupported deploy token type' do
+    it 'returns unsupported personal access token type', :aggregate_failures do
       expect(user).to receive(:human?).and_return(false)
       expect(user).to receive(:project_bot?).and_return(false)
 
       expect(::PersonalAccessToken).to receive(:find_by_token).with(plaintext).and_return(personal_access_token)
 
-      expect do
-        token.revoke!(admin)
-      end
-        .to raise_error(::Authn::AgnosticTokenIdentifier::UnsupportedTokenError,
-          'Unsupported personal access token type')
+      response = token.revoke!(admin)
+
+      expect(response).to be_error
+      expect(response.message).to eq('Unsupported personal access token type')
     end
   end
 
