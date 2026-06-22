@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module Import
+  # The limit value is read with refresh: false so reads do not slide the TTL forward: the write
+  # caps it at LIMIT_CACHE_TTL, so a plan or seat change is reflected within that window instead of
+  # being served from a perpetually-refreshed cache. exceeded? keeps the default refresh because its
+  # short EXCEEDANCE_CACHE_TTL window already lets a namespace drop back below its limit quickly.
   class PlaceholderUserLimit
     UNLIMITED = 0
     LIMIT_TIER_1 = :import_placeholder_user_limit_tier_1
@@ -27,7 +31,7 @@ module Import
     end
 
     def limit
-      cached_limit = cache.read_integer(limit_cache_key, timeout: LIMIT_CACHE_TTL)
+      cached_limit = cache.read_integer(limit_cache_key, refresh: false)
       return cached_limit unless cached_limit.nil?
 
       calculate_limit.tap do |limit|

@@ -84,7 +84,7 @@ by:
 - Replying to review comments to ask for clarification or alternative approaches.
 - Mentioning `@GitLabDuo` in any discussion thread to ask follow-up questions.
 
-Discussions with GitLab Duo in comments count as Agentic Chat requests and [consume credits](../../../../subscriptions/gitlab_credits.md).
+Discussions with GitLab Duo in comments use GitLab Duo Agent Platform and [consume credits](../../../../subscriptions/gitlab_credits.md).
 
 Feedback provided to GitLab Duo does not influence later reviews of other merge requests.
 Adding this functionality is proposed in [issue 560116](https://gitlab.com/gitlab-org/gitlab/-/issues/560116).

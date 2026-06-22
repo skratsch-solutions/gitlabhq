@@ -28051,7 +28051,8 @@ CREATE VIEW postgres_constraints AS
     pg_get_constraintdef(pg_constraint.oid) AS definition
    FROM ((pg_constraint
      JOIN pg_class ON ((pg_constraint.conrelid = pg_class.oid)))
-     JOIN pg_namespace ON ((pg_class.relnamespace = pg_namespace.oid)));
+     JOIN pg_namespace ON ((pg_class.relnamespace = pg_namespace.oid)))
+  WHERE (pg_constraint.contype <> 'n'::"char");
 
 CREATE VIEW postgres_foreign_keys AS
  SELECT pg_constraint.oid,

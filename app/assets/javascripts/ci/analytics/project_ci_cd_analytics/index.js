@@ -18,14 +18,8 @@ export const initProjectCiCdAnalytics = () => {
     return null;
   }
 
-  const {
-    projectId,
-    projectPath,
-    failedPipelinesLink,
-    coverageChartPath,
-    defaultBranch,
-    testRunsEmptyStateImagePath,
-  } = el.dataset;
+  const { projectId, projectPath, failedPipelinesLink, coverageChartPath, defaultBranch } =
+    el.dataset;
 
   const shouldRenderDoraCharts = parseBoolean(el.dataset.shouldRenderDoraCharts);
   const shouldRenderQualitySummary = parseBoolean(el.dataset.shouldRenderQualitySummary);
@@ -49,7 +43,6 @@ export const initProjectCiCdAnalytics = () => {
       coverageChartPath,
       defaultBranch,
       projectBranchCount,
-      testRunsEmptyStateImagePath,
       contextId,
     },
     render: (createElement) => createElement(ProjectPipelinesCharts, {}),

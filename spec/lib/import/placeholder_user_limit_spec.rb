@@ -83,17 +83,18 @@ RSpec.describe Import::PlaceholderUserLimit, :clean_gitlab_redis_shared_state, f
             .with(instance.send(:cache_key), timeout: described_class::EXCEEDANCE_CACHE_TTL)
         end
 
-        it 'does not extend the cache TTL beyond EXCEEDANCE_CACHE_TTL on subsequent reads', :aggregate_failures do
+        it 'refreshes the TTL up to EXCEEDANCE_CACHE_TTL on read', :aggregate_failures do
           exceeded?
 
           raw_key = Gitlab::Cache::Import::Caching.cache_key_for(instance.send(:cache_key))
 
-          ttl = Gitlab::Redis::SharedState.with { |redis| redis.ttl(raw_key) }
-          expect(ttl).to be <= described_class::EXCEEDANCE_CACHE_TTL.to_i
+          # Shrink the TTL so the refresh-on-read is observable as a jump back up to the short window.
+          Gitlab::Redis::SharedState.with { |redis| redis.expire(raw_key, 5) }
 
-          3.times { described_class.new(namespace: namespace).exceeded? }
+          described_class.new(namespace: namespace).exceeded?
 
           ttl = Gitlab::Redis::SharedState.with { |redis| redis.ttl(raw_key) }
+          expect(ttl).to be > 5
           expect(ttl).to be <= described_class::EXCEEDANCE_CACHE_TTL.to_i
         end
       end
@@ -120,29 +121,29 @@ RSpec.describe Import::PlaceholderUserLimit, :clean_gitlab_redis_shared_state, f
         2.times { expect(described_class.new(namespace: namespace).limit).to eq(limit) }
       end
 
-      it 'reads the cached limit using the LIMIT_CACHE_TTL timeout' do
+      it 'reads the cached limit without refreshing the TTL' do
         instance.limit
 
         expect(Gitlab::Cache::Import::Caching)
           .to receive(:read_integer)
-          .with(instance.send(:limit_cache_key), timeout: described_class::LIMIT_CACHE_TTL)
+          .with(instance.send(:limit_cache_key), refresh: false)
           .and_call_original
 
         described_class.new(namespace: namespace).limit
       end
 
-      it 'does not extend the cache TTL beyond LIMIT_CACHE_TTL on subsequent reads', :aggregate_failures do
+      it 'does not slide the TTL forward on subsequent reads' do
         instance.limit
 
         raw_key = Gitlab::Cache::Import::Caching.cache_key_for(instance.send(:limit_cache_key))
 
-        ttl = Gitlab::Redis::SharedState.with { |redis| redis.ttl(raw_key) }
-        expect(ttl).to be <= described_class::LIMIT_CACHE_TTL.to_i
+        # Shrink the TTL so a refresh-on-read would be observable as a jump back up to the write TTL.
+        Gitlab::Redis::SharedState.with { |redis| redis.expire(raw_key, 10) }
 
         3.times { described_class.new(namespace: namespace).limit }
 
         ttl = Gitlab::Redis::SharedState.with { |redis| redis.ttl(raw_key) }
-        expect(ttl).to be <= described_class::LIMIT_CACHE_TTL.to_i
+        expect(ttl).to be <= 10
       end
     end
 

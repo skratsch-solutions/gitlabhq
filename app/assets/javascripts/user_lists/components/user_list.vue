@@ -99,7 +99,7 @@ export default {
     </gl-alert>
     <gl-loading-icon v-if="isLoading" size="xl" class="gl-mt-6" />
     <div v-else>
-      <add-user-modal @addUsers="addUserIds" />
+      <add-user-modal @add-users="addUserIds" />
       <div :class="$options.classes.headerClasses">
         <div>
           <h3>{{ name }}</h3>

@@ -146,7 +146,7 @@ Gitlab/JsonSafeParse:
     - 'ee/spec/lib/gitlab/ci/parsers/security/container_scanning_spec.rb'
     - 'ee/spec/lib/gitlab/ci/parsers/security/dependency_scanning_spec.rb'
     - 'ee/spec/lib/gitlab/cube_js/data_transformer_spec.rb'
-    - 'ee/spec/lib/gitlab/elastic/bulk_indexer_spec.rb'
+    - 'ee/spec/lib/search/elastic/bulk_indexer_spec.rb'
     - 'ee/spec/lib/gitlab/geo/oauth/session_spec.rb'
     - 'ee/spec/lib/gitlab/geo/signed_data_spec.rb'
     - 'ee/spec/lib/gitlab/geo_spec.rb'

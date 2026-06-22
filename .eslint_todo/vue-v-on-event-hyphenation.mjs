@@ -123,7 +123,6 @@ export default {
     'app/assets/javascripts/token_access/components/outbound_token_access.vue',
     'app/assets/javascripts/usage_quotas/components/search_and_sort_bar/search_and_sort_bar.vue',
     'app/assets/javascripts/usage_quotas/storage/namespace/components/namespace_storage_app.vue',
-    'app/assets/javascripts/user_lists/components/user_list.vue',
     'app/assets/javascripts/vue_merge_request_widget/components/states/ready_to_merge.vue',
     'app/assets/javascripts/vue_merge_request_widget/components/widget/dynamic_content.vue',
     'app/assets/javascripts/vue_merge_request_widget/components/widget/widget.vue',

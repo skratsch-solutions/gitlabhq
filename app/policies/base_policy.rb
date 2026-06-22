@@ -4,10 +4,6 @@ class BasePolicy < DeclarativePolicy::Base
   desc "User is an instance admin"
   with_options scope: :user, score: 0
   condition(:admin) do
-    # Only a User can be an instance admin. Guarding here keeps the condition
-    # from calling User-specific methods on non-User actors (e.g. a
-    # Gitlab::Auth::GroupSaml::TokenActor passed via Groups::SsoController),
-    # which would otherwise raise NoMethodError during policy evaluation.
     next false unless user_is_user?
     next false if @user.from_ci_job_token?
     next true if @user.admin_bot?

@@ -162,6 +162,29 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
   end
 
+  describe 'GET #details' do
+    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:project) { create(:project, :public, group: group) }
+    let_it_be(:user) { create(:user, developer_of: group) }
+    let_it_be(:event) { create(:event, project: project) }
+
+    before do
+      sign_in(user)
+    end
+
+    subject(:get_details) { get details_group_path(group, format: :atom) }
+
+    it 'renders the group activity atom feed with the correct events', :aggregate_failures do
+      get_details
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(response.media_type).to eq('application/atom+xml')
+      expect(response.body).to include("#{group.name} activity")
+      expect(response.body.scan('<entry>').size).to eq(1)
+      expect(response.body).to include(":#{event.id}</id>")
+    end
+  end
+
   describe 'GET #new' do
     context 'step-up authentication enforcement' do
       let_it_be_with_reload(:group) { create(:group) }

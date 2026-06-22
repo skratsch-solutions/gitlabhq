@@ -158,7 +158,6 @@ export default {
     'app/assets/javascripts/token_access/components/token_access_table.vue',
     'app/assets/javascripts/usage_quotas/components/search_and_sort_bar/search_and_sort_bar.vue',
     'app/assets/javascripts/usage_quotas/storage/namespace/components/project_list.vue',
-    'app/assets/javascripts/user_lists/components/add_user_modal.vue',
     'app/assets/javascripts/vue_merge_request_widget/components/action_buttons.vue',
     'app/assets/javascripts/vue_merge_request_widget/components/checks/rebase.vue',
     'app/assets/javascripts/vue_merge_request_widget/components/checks/unresolved_discussions.vue',

@@ -172,18 +172,6 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
   end
 
-  describe 'GET #details' do
-    before do
-      sign_in(user)
-    end
-
-    let(:format) { :html }
-
-    subject { get :details, params: { id: group.to_param }, format: format }
-
-    it_behaves_like 'details view as atom'
-  end
-
   describe 'GET edit' do
     it 'sets the badge API endpoint' do
       sign_in(owner)

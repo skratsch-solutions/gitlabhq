@@ -57,10 +57,6 @@ export default {
       default: '',
       required: false,
     },
-    emptyStateSvgPath: {
-      default: '',
-      required: false,
-    },
     canUpdateAllJobs: {
       default: false,
       required: true,

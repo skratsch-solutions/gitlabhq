@@ -147,6 +147,20 @@ RSpec.describe Projects::BlobController, feature_category: :source_code_manageme
           expect(json_response).to have_key 'raw_path'
         end
       end
+
+      context 'when last_for_path returns nil' do
+        let(:id) { 'master/README.md' }
+
+        before do
+          allow(Gitlab::Git::Commit).to receive(:last_for_path).and_return(nil)
+          get :show, params: { namespace_id: project.namespace, project_id: project, id: id }, format: :json
+        end
+
+        it 'does not raise a NoMethodError and sets last_commit_sha to nil', :aggregate_failures do
+          expect(response).to be_ok
+          expect(assigns(:last_commit_sha)).to be_nil
+        end
+      end
     end
 
     context 'with tree path' do
@@ -377,6 +391,19 @@ RSpec.describe Projects::BlobController, feature_category: :source_code_manageme
         get :edit, params: default_params
 
         expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      context 'when last_for_path returns nil' do
+        before do
+          allow(Gitlab::Git::Commit).to receive(:last_for_path).and_return(nil)
+        end
+
+        it 'sets last_commit_sha to nil without raising an error', :aggregate_failures do
+          get :edit, params: default_params
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(assigns(:last_commit_sha)).to be_nil
+        end
       end
 
       context 'when file size exceeds limit' do

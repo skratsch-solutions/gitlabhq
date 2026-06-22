@@ -290,7 +290,7 @@ class Projects::BlobController < Projects::ApplicationController
 
   def set_last_commit_sha
     @last_commit_sha = Gitlab::Git::Commit
-      .last_for_path(@repository, @ref, @path, literal_pathspec: true).sha
+      .last_for_path(@repository, @ref, @path, literal_pathspec: true)&.sha
   end
 
   def show_html

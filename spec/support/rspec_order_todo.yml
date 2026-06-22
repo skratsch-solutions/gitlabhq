@@ -893,7 +893,7 @@
 - './ee/spec/lib/gitlab/custom_file_templates_spec.rb'
 - './ee/spec/lib/gitlab/cycle_analytics/stage_summary_spec.rb'
 - './ee/spec/lib/gitlab/data_builder/vulnerability_spec.rb'
-- './ee/spec/lib/gitlab/elastic/bulk_indexer_spec.rb'
+- './ee/spec/lib/search/elastic/bulk_indexer_spec.rb'
 - './ee/spec/lib/search/elastic/group_search_results_spec.rb'
 - './ee/spec/lib/gitlab/email/handler/create_note_handler_spec.rb'
 - './ee/spec/lib/gitlab/exclusive_lease_spec.rb'

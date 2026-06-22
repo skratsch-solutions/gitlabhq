@@ -17,7 +17,7 @@ export default {
       default: false,
     },
   },
-  emits: ['addUsers'],
+  emits: ['add-users'],
   modalOptions: {
     actionPrimary: {
       text: s__('UserLists|Add'),
@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     submitUsers() {
-      this.$emit('addUsers', this.userIds);
+      this.$emit('add-users', this.userIds);
       this.clearInput();
     },
     clearInput() {
