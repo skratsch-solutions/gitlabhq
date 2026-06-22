@@ -58,7 +58,7 @@ RSpec.describe Banzai::Filter::TruncateVisibleFilter, feature_category: :markdow
     let(:max_chars) { 150 }
     let(:markdown) { "```ruby\ndef test\n  'hello world'\nend\n```" }
     let(:expected) do
-      '<code><span id="LC1" class="line" lang="ruby">' \
+      '<code><span id="LC1" class="line" data-lang="ruby">' \
       '<span class="k">def</span> <span class="nf">test</span>...</span>'
     end
 
