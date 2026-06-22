@@ -157,6 +157,40 @@ and using AWS S3 as your storage backend:
 Ensure that the user executing the command has the
 correct [permission scopes](https://docker-docs.uclv.cu/registry/storage-drivers/s3/#s3-permission-scopes).
 
+### Error: `convert field 8 failed: invalid hex format`
+
+When you import existing registry data into the metadata database, the import
+can fail while it reads manifests:
+
+```shell
+ERRO[0000] pre importing tagged manifests common_blobs=false dry_run=false error="finding tagged manifests in database: scanning manifest: convert field 8 failed: invalid hex format"
+```
+
+This error occurs when the PostgreSQL server or the registry's database role is
+configured with `bytea_output = escape`. The registry reads some binary columns
+as text and expects the default hexadecimal format.
+
+Check the value through the same connection path the registry uses, for example
+through PgBouncer if you use it:
+
+```sql
+SELECT current_setting('bytea_output');
+```
+
+To resolve the error, set the output format to `hex` for the registry database:
+
+```sql
+ALTER DATABASE <registry_database> SET bytea_output = 'hex';
+```
+
+Then reconnect the registry by restarting it or opening new connections, and
+retry the import. A role-level setting overrides the database default, so if a
+role sets `bytea_output`, set it there too:
+
+```sql
+ALTER ROLE <registry_user> SET bytea_output = 'hex';
+```
+
 ### Registry fails to start due to metadata management issues
 
 The registry could fail to start with one of the following errors:

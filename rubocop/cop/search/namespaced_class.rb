@@ -37,7 +37,7 @@ module RuboCop
         def on_module(node)
           add_identifiers(node)
 
-          run_search_namespace_cop(node) if node.child_nodes.none? { |n| n.module_type? || n.class_type? }
+          run_search_namespace_cop(node) if node.child_nodes.none? { |n| n.type?(:module, :class) }
         end
 
         def on_class(node)

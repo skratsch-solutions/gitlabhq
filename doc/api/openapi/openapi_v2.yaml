@@ -49707,7 +49707,7 @@ definitions:
         example: id >= 500
       member_role_id:
         type: integer
-        format: int32
+        format: int64
         example: 12
     required:
     - cn
@@ -49725,7 +49725,7 @@ definitions:
         example: 40
       member_role_id:
         type: integer
-        format: int32
+        format: int64
         example: 12
       provider:
         type: string
@@ -51793,7 +51793,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 142
       title:
         type: string
@@ -51902,7 +51902,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -51968,7 +51968,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -56370,7 +56370,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       name:
         type: string
@@ -56389,7 +56389,7 @@ definitions:
         - api
       user_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       last_used_at:
         type: string
@@ -59227,7 +59227,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       title:
         type: string
@@ -59308,7 +59308,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       title:
         type: string
@@ -76839,7 +76839,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       title:
         type: string
@@ -77629,7 +77629,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       name:
         type: string
@@ -77648,7 +77648,7 @@ definitions:
         - api
       user_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       last_used_at:
         type: string
@@ -77687,7 +77687,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       name:
         type: string
@@ -77706,7 +77706,7 @@ definitions:
         - api
       user_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       last_used_at:
         type: string
@@ -77747,7 +77747,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       name:
         type: string
@@ -77766,7 +77766,7 @@ definitions:
         - api
       user_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       last_used_at:
         type: string

@@ -3,6 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe API::Helpers::PackagesHelpers, feature_category: :package_registry do
+  # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+  # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+  # subject, or an in-memory mutation that survives reload/refind). Do not
+  # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+  # (see gitlab-org/gitlab#602925).
   let_it_be(:helper, freeze: false) { Class.new.include(API::Helpers).include(described_class).new }
   let_it_be(:project) { create(:project) }
   let_it_be(:group) { create(:group) }

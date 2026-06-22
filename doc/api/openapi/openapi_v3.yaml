@@ -73746,6 +73746,7 @@ components:
           example: 40
         member_role_id:
           type: integer
+          format: int64
           example: 12
         provider:
           type: string
@@ -74093,6 +74094,7 @@ components:
           example: id >= 500
         member_role_id:
           type: integer
+          format: int64
           example: 12
     APIEntitiesGroup:
       type: object
@@ -74947,6 +74949,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -74965,6 +74968,7 @@ components:
           - api
         user_id:
           type: integer
+          format: int64
           example: 3
         last_used_at:
           type: string
@@ -74985,6 +74989,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -75006,6 +75011,7 @@ components:
           example: auth
         user_id:
           type: integer
+          format: int64
           example: 3
     APIEntitiesIssuableReferences:
       type: object
@@ -80191,6 +80197,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -80228,6 +80235,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -80258,6 +80266,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         key:
           type: string
@@ -80302,6 +80311,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -80320,6 +80330,7 @@ components:
           - api
         user_id:
           type: integer
+          format: int64
           example: 3
         last_used_at:
           type: string
@@ -80340,6 +80351,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -80358,6 +80370,7 @@ components:
           - api
         user_id:
           type: integer
+          format: int64
           example: 3
         last_used_at:
           type: string
@@ -82177,6 +82190,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -82195,6 +82209,7 @@ components:
           - api
         user_id:
           type: integer
+          format: int64
           example: 3
         last_used_at:
           type: string
@@ -83001,6 +83016,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -83019,6 +83035,7 @@ components:
           - api
         user_id:
           type: integer
+          format: int64
           example: 3
         last_used_at:
           type: string
@@ -83048,6 +83065,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -83066,6 +83084,7 @@ components:
           - api
         user_id:
           type: integer
+          format: int64
           example: 3
         last_used_at:
           type: string
@@ -85159,6 +85178,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -85177,6 +85197,7 @@ components:
           - api
         user_id:
           type: integer
+          format: int64
           example: 3
         last_used_at:
           type: string
@@ -86155,6 +86176,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -87318,6 +87340,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -87342,6 +87365,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -87369,6 +87393,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -88711,6 +88736,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 142
         title:
           type: string
