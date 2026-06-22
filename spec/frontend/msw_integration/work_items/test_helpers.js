@@ -38,6 +38,7 @@ export function findInDrawer(testId) {
 export function createPortalElement(id = 'contextual-panel-portal') {
   const existing = document.getElementById(id);
   if (existing) return existing;
+
   const portalEl = document.createElement('div');
   portalEl.id = id;
   document.body.appendChild(portalEl);

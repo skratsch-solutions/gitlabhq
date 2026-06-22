@@ -31491,7 +31491,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_8d4444cd33a2"
+              "$ref": "#/components/schemas/RequestBody_072680597c31"
     delete:
       operationId: deleteApiV4ProjectsId
       summary: Delete a project
@@ -83861,6 +83861,8 @@ components:
           type: string
         merge_trains_skip_train_allowed:
           type: string
+        merge_train_enforcement:
+          type: string
         max_pipelines_per_merge_train:
           type: string
         only_allow_merge_if_all_status_checks_passed:
@@ -84268,6 +84270,8 @@ components:
         merge_trains_enabled:
           type: string
         merge_trains_skip_train_allowed:
+          type: string
+        merge_train_enforcement:
           type: string
         max_pipelines_per_merge_train:
           type: string
@@ -99895,7 +99899,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_8d4444cd33a2:
+    RequestBody_072680597c31:
       type: object
       properties:
         name:
@@ -100536,6 +100540,15 @@ components:
           type: boolean
           description: Allow merge train merge requests to be merged without waiting
             for pipelines to finish.
+          nullable: true
+        merge_train_enforcement:
+          type: string
+          enum:
+          - allow_bypass
+          - enforce_for_all_users
+          - enforce_with_owner_override
+          description: Merge train enforcement level. One of `allow_bypass`, `enforce_for_all_users`,
+            or `enforce_with_owner_override`.
           nullable: true
         max_pipelines_per_merge_train:
           type: integer

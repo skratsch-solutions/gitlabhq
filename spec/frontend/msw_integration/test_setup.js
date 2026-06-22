@@ -1,5 +1,9 @@
 import { fetch, Request, Response, Headers } from '@whatwg-node/fetch';
-import { clearMissingOperations, missingOperations } from 'jest/msw_integration/test_helpers';
+import {
+  clearMissingOperations,
+  missingOperations,
+  resetCapturedRequests,
+} from 'jest/msw_integration/operation_helpers';
 import { server } from './server';
 import { setupRouter } from './setup_utils';
 import { baseMetadata } from './constants';
@@ -44,6 +48,7 @@ beforeEach(async () => {
 afterEach(() => {
   server.resetHandlers();
   global.metadata = baseMetadata;
+  resetCapturedRequests();
 });
 
 afterAll(() => {

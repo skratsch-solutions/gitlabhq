@@ -58768,6 +58768,12 @@ msgstr ""
 msgid "ProjectSettings|All merge requests and commits are made against this branch unless you specify a different one."
 msgstr ""
 
+msgid "ProjectSettings|All merge requests must go through the merge train. Owners and administrators can bypass the merge train for individual merge requests through the UI or API."
+msgstr ""
+
+msgid "ProjectSettings|All merge requests must go through the merge train. You cannot bypass the merge train through the UI or API. To merge through the API, use auto-merge instead."
+msgstr ""
+
 msgid "ProjectSettings|All security policy pipelines must succeed"
 msgstr ""
 
@@ -58775,6 +58781,9 @@ msgid "ProjectSettings|Allow"
 msgstr ""
 
 msgid "ProjectSettings|Allow anyone to pull from package registry"
+msgstr ""
+
+msgid "ProjectSettings|Allow bypass"
 msgstr ""
 
 msgid "ProjectSettings|Allow security policy bots to access CI/CD configuration files in this project."
@@ -58901,6 +58910,12 @@ msgid "ProjectSettings|Enable suggested reviewers"
 msgstr ""
 
 msgid "ProjectSettings|Encourage"
+msgstr ""
+
+msgid "ProjectSettings|Enforce for all users"
+msgstr ""
+
+msgid "ProjectSettings|Enforce with Owner override"
 msgstr ""
 
 msgid "ProjectSettings|Enter a merge request title template"
@@ -59048,6 +59063,9 @@ msgid "ProjectSettings|Merge requests approved for merge are queued, and pipelin
 msgstr ""
 
 msgid "ProjectSettings|Merge suggestions"
+msgstr ""
+
+msgid "ProjectSettings|Merge train enforcement"
 msgstr ""
 
 msgid "ProjectSettings|Merging is only allowed when the source branch is up-to-date with its target."
@@ -59276,6 +59294,9 @@ msgid "ProjectSettings|Users can only push commits to this repository if the com
 msgstr ""
 
 msgid "ProjectSettings|Users can request access"
+msgstr ""
+
+msgid "ProjectSettings|Users with permission to merge can bypass the merge train through the UI or API."
 msgstr ""
 
 msgid "ProjectSettings|View and edit files in this project."

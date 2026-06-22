@@ -18,6 +18,7 @@ RSpec.describe Types::Ci::CiCdSettingType, feature_category: :continuous_integra
     if Gitlab.ee?
       expected_fields += %w[
         merge_trains_skip_train_allowed merge_trains_enabled max_pipelines_per_merge_train
+        merge_train_enforcement
       ]
     end
 

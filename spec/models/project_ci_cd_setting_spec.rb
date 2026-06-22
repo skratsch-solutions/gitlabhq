@@ -134,6 +134,19 @@ RSpec.describe ProjectCiCdSetting, feature_category: :continuous_integration do
     end
   end
 
+  describe '#merge_train_enforcement' do
+    it 'defines an enum' do
+      described_class.merge_train_enforcements.each_key do |level|
+        setting = described_class.new(merge_train_enforcement: level)
+        expect(setting.merge_train_enforcement).to eq level
+      end
+    end
+
+    it 'defaults to allow_bypass' do
+      expect(described_class.new.merge_train_enforcement).to eq('allow_bypass')
+    end
+  end
+
   describe '#forward_deployment_enabled' do
     it 'is true by default' do
       expect(described_class.new.forward_deployment_enabled).to be_truthy

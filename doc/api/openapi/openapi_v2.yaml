@@ -51165,6 +51165,8 @@ definitions:
         type: string
       merge_trains_skip_train_allowed:
         type: string
+      merge_train_enforcement:
+        type: string
       max_pipelines_per_merge_train:
         type: string
       only_allow_merge_if_all_status_checks_passed:
@@ -70010,6 +70012,8 @@ definitions:
         type: string
       merge_trains_skip_train_allowed:
         type: string
+      merge_train_enforcement:
+        type: string
       max_pipelines_per_merge_train:
         type: string
       only_allow_merge_if_all_status_checks_passed:
@@ -70734,6 +70738,14 @@ definitions:
         type: boolean
         description: Allow merge train merge requests to be merged without waiting
           for pipelines to finish.
+      merge_train_enforcement:
+        type: string
+        description: Merge train enforcement level. One of `allow_bypass`, `enforce_for_all_users`,
+          or `enforce_with_owner_override`.
+        enum:
+        - allow_bypass
+        - enforce_for_all_users
+        - enforce_with_owner_override
       max_pipelines_per_merge_train:
         type: integer
         format: int32

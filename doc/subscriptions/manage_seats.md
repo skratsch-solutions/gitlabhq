@@ -222,7 +222,6 @@ When you turn on restricted access, the following known issues might occur and r
 - The number of seats can still be exceeded if:
   - You use SAML, SCIM, or LDAP to add new members, and have exceeded the number of seats in the subscription. When the Minimal Access fallback feature is enabled, users are assigned Minimal Access instead of being blocked.
   - Multiple users with the Owner role or administrator access add members simultaneously.
-  - New billable members delay accepting an invitation. When you invite a user, they don't consume a billable seat until they accept the invitation. If an invited user delays accepting, you can invite and add other users during that time. When the delayed user finally accepts, they consume a billable seat, which might cause an overage if you've already reached your seat limit.
 - If you renew your subscription through the GitLab Sales Team for fewer users than your current
   subscription, you will incur an overage fee. To avoid this fee, remove additional users before your
   renewal starts. For example, if you have 20 users and renew your subscription for 15 users,
@@ -248,6 +247,21 @@ A group Owner or an administrator can approve the users when seats become availa
 Users with only the Minimal Access role are reactivated directly, because they do not consume a billable seat.
 
 You can [automatically remove dormant members](../user/group/moderate_users.md#automatically-remove-dormant-members).
+
+#### Pending invitation acceptance
+
+After you turn on restricted access, it governs whether a pending invitation can proceed:
+
+- On GitLab.com, when no subscription seats remain, a user cannot accept a pending invitation
+  that grants a billable role. The invitation remains pending until a group Owner makes a seat
+  available, either by purchasing more seats or removing billable members.
+- On GitLab Self-Managed:
+  - On the Ultimate tier, the same behavior applies. The invitation remains pending
+    until an administrator makes a seat available, either by purchasing more seats or removing
+    billable members.
+  - On the Premium tier, restricted access enforces the seat limit when the account is created,
+    rather than when the invitation is accepted. GitLab notifies the user when they register
+    that their account could not be created and they should contact a GitLab administrator.
 
 ### Changing from user cap to restricted access
 

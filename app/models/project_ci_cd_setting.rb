@@ -36,6 +36,12 @@ class ProjectCiCdSetting < ApplicationRecord
 
   enum :resource_group_default_process_mode, ::Ci::ResourceGroup::RESOURCE_GROUP_PROCESS_MODES, prefix: true
 
+  enum :merge_train_enforcement, {
+    allow_bypass: 0,
+    enforce_for_all_users: 1,
+    enforce_with_owner_override: 2
+  }, prefix: true
+
   before_validation :set_pipeline_variables_secure_defaults, on: :create
   before_create :set_default_git_depth
 

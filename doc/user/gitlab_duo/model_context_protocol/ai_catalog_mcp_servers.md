@@ -9,7 +9,7 @@ title: MCP servers in the AI Catalog
 {{< details >}}
 
 - Tier: Free, Premium, Ultimate
-- Offering: GitLab.com, GitLab Self-Managed
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
 - Status: Experiment
 
 {{< /details >}}
@@ -26,7 +26,7 @@ title: MCP servers in the AI Catalog
 > This feature is available for testing, but not ready for production use.
 
 Custom agents in the AI Catalog can connect to external data sources and
-third-party services (such as Jira or Google Drive) through the
+third-party services (such as Jira or Linear) through the
 [Model Context Protocol](https://modelcontextprotocol.io/) (MCP).
 
 This feature is an [experiment](../../../policy/development_stages_support.md#experiment).
@@ -50,12 +50,26 @@ at both the group and project level.
   [turned on GitLab Duo experiment and beta features](../turn_on_off.md#on-gitlabcom-2).
 - On GitLab Self-Managed, your instance has
   [GitLab Duo experiment and beta features turned on](../turn_on_off.md#on-gitlab-self-managed-2).
-- To add or edit MCP servers, you must be an instance administrator.
 - The MCP server must be a:
   - Vetted or partner MCP server. Arbitrary URLs are not allowed.
   - Remote MCP server.
 
 ## Add an MCP server to the AI Catalog
+
+{{< details >}}
+
+- Offering: GitLab Self-Managed, GitLab Dedicated
+
+{{< /details >}}
+
+Prerequisites:
+
+- Administrator access for the instance.
+
+On GitLab Self-Managed and GitLab Dedicated, instance administrators can add an MCP server to the AI Catalog for their instance from the list of [available MCP Servers](#available-mcp-servers).
+
+> [!note]
+> On GitLab.com, top-level group members cannot add an MCP server to the AI Catalog because this is centrally managed by GitLab.com administrators.
 
 To add an MCP server to the AI Catalog:
 
@@ -80,6 +94,21 @@ To add an MCP server to the AI Catalog:
 The MCP server is now available in your organization's catalog and can be associated with agents.
 
 ## Edit an MCP server
+
+{{< details >}}
+
+- Offering: GitLab Self-Managed, GitLab Dedicated
+
+{{< /details >}}
+
+Prerequisites:
+
+- Administrator access for the instance.
+
+On GitLab Self-Managed and GitLab Dedicated, instance administrators can edit an MCP server in the AI Catalog for their instance.
+
+> [!note]
+> On GitLab.com, top-level group members cannot edit an MCP server in the AI Catalog because this is centrally managed by GitLab.com administrators.
 
 To edit an MCP server:
 

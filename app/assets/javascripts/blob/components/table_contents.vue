@@ -16,7 +16,8 @@ export default {
     };
   },
   mounted() {
-    this.blobViewer = document.querySelector('.blob-viewer[data-type="rich"]');
+    const fileHolder = this.$el.closest('.file-holder');
+    this.blobViewer = fileHolder?.querySelector('.blob-viewer[data-type="rich"]');
     const blobViewerAttr = (attr) => this.blobViewer.getAttribute(attr);
 
     this.observer = new MutationObserver(() => {
@@ -81,12 +82,14 @@ export default {
 </script>
 
 <template>
-  <gl-disclosure-dropdown
-    v-if="!isHidden && items.length"
-    :toggle-text="__('Table of contents')"
-    text-sr-only
-    icon="list-bulleted"
-    class="!gl-pr-0"
-    :items="items"
-  />
+  <div class="gl-contents">
+    <gl-disclosure-dropdown
+      v-if="!isHidden && items.length"
+      :toggle-text="__('Table of contents')"
+      text-sr-only
+      icon="list-bulleted"
+      class="!gl-pr-0"
+      :items="items"
+    />
+  </div>
 </template>
