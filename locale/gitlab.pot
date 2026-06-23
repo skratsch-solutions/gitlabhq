@@ -4729,6 +4729,9 @@ msgstr ""
 msgid "AccessTokens|No resources added"
 msgstr ""
 
+msgid "AccessTokens|No resources selected. Add resources to set permissions."
+msgstr ""
+
 msgid "AccessTokens|Not eligible to rotate tokens with permissions not held by the user"
 msgstr ""
 
@@ -4744,6 +4747,9 @@ msgstr ""
 msgid "AccessTokens|Only specific groups or projects that I'm a member of"
 msgstr ""
 
+msgid "AccessTokens|Permissions"
+msgstr ""
+
 msgid "AccessTokens|Permissions:"
 msgstr ""
 
@@ -4754,6 +4760,9 @@ msgid "AccessTokens|Personal access tokens"
 msgstr ""
 
 msgid "AccessTokens|Publicly visible resources are accessible without a permission. See the %{linkStart}list of publicly accessible endpoints%{linkEnd}."
+msgstr ""
+
+msgid "AccessTokens|Remove %{resource}"
 msgstr ""
 
 msgid "AccessTokens|Remove group %{name}"
@@ -4772,6 +4781,15 @@ msgid "AccessTokens|Require fine-grained personal access tokens after a specific
 msgstr ""
 
 msgid "AccessTokens|Required only if you add group and project resources."
+msgstr ""
+
+msgid "AccessTokens|Resource"
+msgstr ""
+
+msgid "AccessTokens|Resource access"
+msgstr ""
+
+msgid "AccessTokens|Resource and permission selector"
 msgstr ""
 
 msgid "AccessTokens|Revoke"
@@ -62486,9 +62504,6 @@ msgstr ""
 msgid "Required only if you are using AssumeRole for authorization across accounts."
 msgstr ""
 
-msgid "Requirement"
-msgstr ""
-
 msgid "Requirement %{reference} has been added"
 msgstr ""
 
@@ -72198,9 +72213,6 @@ msgstr ""
 msgid "Service Desk"
 msgstr ""
 
-msgid "Service Desk Ticket"
-msgstr ""
-
 msgid "Service account"
 msgstr ""
 
@@ -75858,9 +75870,6 @@ msgstr ""
 msgid "TargetedMessage|Namespace IDs are limited to a maximum of %{limit}."
 msgstr ""
 
-msgid "Task"
-msgstr ""
-
 msgid "Task list"
 msgstr ""
 
@@ -76148,9 +76157,6 @@ msgid "Terraform|Your project doesn't have any Terraform state files"
 msgstr ""
 
 msgid "Test"
-msgstr ""
-
-msgid "Test case"
 msgstr ""
 
 msgid "Test cases"

@@ -22,6 +22,7 @@ export default {
       type: Object,
     },
   },
+  emits: ['change'],
   translations: {
     rolloutUserListLabel: s__('FeatureFlag|User List'),
     rolloutUserListDescription: s__('FeatureFlag|Select a user list'),

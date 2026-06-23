@@ -9,6 +9,7 @@ module Tasks
             ai_workflows_oauth_auth: 'AI workflows OAuth token',
             compliance_external_auth: 'Compliance external control token',
             container_registry_event_auth: 'Container registry event token',
+            deprecated_endpoint: 'Deprecated endpoint',
             error_tracking_token_auth: 'Error tracking token',
             geo_jwt_auth: 'Geo node JWT',
             geo_proxy_auth: 'Geo proxy',

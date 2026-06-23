@@ -61,6 +61,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['handle-submit'],
   translations: {
     allEnvironmentsText: s__('FeatureFlags|* (All Environments)'),
 

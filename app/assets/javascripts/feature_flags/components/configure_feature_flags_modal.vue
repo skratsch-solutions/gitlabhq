@@ -63,6 +63,7 @@ export default {
       required: true,
     },
   },
+  emits: ['token'],
   translations: {
     cancelActionLabel: __('Close'),
     modalTitle: s__('FeatureFlags|Configure feature flags'),

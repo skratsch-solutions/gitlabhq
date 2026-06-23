@@ -48,6 +48,7 @@ export default {
       default: '',
     },
   },
+  emits: ['blur', 'input', 'input-suggested-path', 'invalid', 'loading-change', 'state-change'],
   data() {
     return {
       suggestedPath: '',

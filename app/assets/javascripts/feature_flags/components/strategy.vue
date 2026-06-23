@@ -49,6 +49,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['change', 'delete'],
 
   i18n: {
     allEnvironments: __('All environments'),

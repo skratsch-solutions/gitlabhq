@@ -31,6 +31,7 @@ export default {
       default: '',
     },
   },
+  emits: ['change'],
   data() {
     return {
       loading: false,

@@ -6,7 +6,6 @@ import {
   GlButton,
   GlExperimentBadge,
   GlLink,
-  GlTabs,
   GlSprintf,
   GlLoadingIcon,
 } from '@gitlab/ui';
@@ -74,7 +73,6 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       },
       stubs: {
         GlSprintf,
-        GlTabs: { template: '<div><slot name="tabs-end" /><slot /></div>' },
         AskDapPermissions: true,
       },
     });
@@ -97,13 +95,15 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
 
   const findLink = () => wrapper.findComponent(GlLink);
   const findLinks = () => wrapper.findAllComponents(GlLink);
-  const findTabs = () => wrapper.findComponent(GlTabs);
 
-  const findPermissionsSelectors = () =>
-    wrapper.findAllComponents(PersonalAccessTokenPermissionsSelector);
-  const findGroupPermissionsSelector = () => findPermissionsSelectors().at(0);
-  const findUserPermissionsSelector = () => findPermissionsSelectors().at(1);
-  const findInstancePermissionsSelector = () => findPermissionsSelectors().at(2);
+  const findPermissionsSelector = () =>
+    wrapper.findComponent(PersonalAccessTokenPermissionsSelector);
+  const emitPermissions = ({ groupPermissions, userPermissions, instancePermissions } = {}) =>
+    findPermissionsSelector().vm.$emit('input', {
+      namespace: groupPermissions ? mockCreateMutationInput.group.permissions : [],
+      user: userPermissions ? mockCreateMutationInput.user.permissions : [],
+      instance: instancePermissions ? mockCreateMutationInput.instance.permissions : [],
+    });
 
   const findCreateButton = () => wrapper.findAllComponents(GlButton).at(0);
   const findCancelButton = () => wrapper.findAllComponents(GlButton).at(1);
@@ -125,19 +125,9 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       await nextTick();
 
       findNamespaceSelector().vm.$emit('input', [mockProjects[0], mockGroups[0]]);
-      findGroupPermissionsSelector().vm.$emit('input', mockCreateMutationInput.group.permissions);
     }
 
-    if (options.userPermissions) {
-      findUserPermissionsSelector().vm.$emit('input', mockCreateMutationInput.user.permissions);
-    }
-
-    if (options.instancePermissions) {
-      findInstancePermissionsSelector().vm.$emit(
-        'input',
-        mockCreateMutationInput.instance.permissions,
-      );
-    }
+    emitPermissions(options);
   };
 
   const fillAndSubmitForm = async (options) => {
@@ -242,17 +232,13 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       expect(publicAccessLink.attributes('target')).toBe('_blank');
     });
 
-    it('renders permissions selectors for group, user, and instance scope', () => {
-      expect(findTabs().exists()).toBe(true);
-
-      expect(findPermissionsSelectors()).toHaveLength(3);
-
-      expect(findGroupPermissionsSelector().props('targetBoundaries')).toEqual([
-        'GROUP',
-        'PROJECT',
-      ]);
-      expect(findUserPermissionsSelector().props('targetBoundaries')).toEqual(['USER']);
-      expect(findInstancePermissionsSelector().props('targetBoundaries')).toEqual(['INSTANCE']);
+    it('renders the permissions selector with the form permissions', () => {
+      expect(findPermissionsSelector().exists()).toBe(true);
+      expect(findPermissionsSelector().props('value')).toEqual({
+        namespace: [],
+        user: [],
+        instance: [],
+      });
     });
   });
 
@@ -294,7 +280,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
     });
 
     it('validates scope is required when group permissions are selected', async () => {
-      findGroupPermissionsSelector().vm.$emit('input', mockCreateMutationInput.group.permissions);
+      emitPermissions({ groupPermissions: true });
 
       await findCreateButton().vm.$emit('click');
 
@@ -313,13 +299,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
     it('validates permissions are required', async () => {
       await findCreateButton().vm.$emit('click');
 
-      expect(findGroupPermissionsSelector().props('error')).toBe(
-        'Add at least one resource with permissions.',
-      );
-      expect(findUserPermissionsSelector().props('error')).toBe(
-        'Add at least one resource with permissions.',
-      );
-      expect(findInstancePermissionsSelector().props('error')).toBe(
+      expect(findPermissionsSelector().props('error')).toBe(
         'Add at least one resource with permissions.',
       );
     });
@@ -348,7 +328,11 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
     });
 
     it('passes hasUnsavedChanges as true when permissions are changed', async () => {
-      findGroupPermissionsSelector().vm.$emit('input', ['read_project']);
+      findPermissionsSelector().vm.$emit('input', {
+        namespace: ['read_project'],
+        user: [],
+        instance: [],
+      });
       await nextTick();
 
       expect(findConfirmDialog().props('hasUnsavedChanges')).toBe(true);
@@ -562,14 +546,14 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       createComponent();
       await waitForPromises();
 
-      expect(findGroupPermissionsSelector().props('value')).toEqual([
+      expect(findPermissionsSelector().props('value').namespace).toEqual([
         'read_project',
         'write_project',
         'read_repository',
         'read_contributed_project',
       ]);
 
-      expect(findUserPermissionsSelector().props('value')).toEqual([]);
+      expect(findPermissionsSelector().props('value').user).toEqual([]);
     });
 
     it('pre-populates namespace selector from the fetched token scopes', async () => {
@@ -607,8 +591,8 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       expect(findNameInput().attributes('value')).toBe('User Only Token (copy)');
       expect(findDescriptionTextarea().attributes('value')).toBe('A user-scoped token');
       expect(findNamespaceSelector().exists()).toBe(false);
-      expect(findGroupPermissionsSelector().props('value')).toEqual([]);
-      expect(findUserPermissionsSelector().props('value')).toEqual([
+      expect(findPermissionsSelector().props('value').namespace).toEqual([]);
+      expect(findPermissionsSelector().props('value').user).toEqual([
         'read_user',
         'read_contributed_project',
       ]);
@@ -665,9 +649,9 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
 
       await waitForPromises();
 
-      expect(findGroupPermissionsSelector().props('value')).toEqual(['read_project']);
+      expect(findPermissionsSelector().props('value').namespace).toEqual(['read_project']);
 
-      expect(findUserPermissionsSelector().props('value')).toEqual([
+      expect(findPermissionsSelector().props('value').user).toEqual([
         'read_user',
         'read_contributed_project',
       ]);

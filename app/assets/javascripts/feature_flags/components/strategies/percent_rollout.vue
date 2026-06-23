@@ -16,6 +16,7 @@ export default {
       type: Object,
     },
   },
+  emits: ['change'],
   i18n: {
     rolloutPercentageDescription: __('Enter an integer number between 0 and 100'),
     rolloutPercentageInvalid: s__(

@@ -77,7 +77,6 @@ ee/app/models/security/orchestration_policy_configuration.rb:
   - compliance_framework_ids_with_policy_index
   - experiment_configuration
 app/helpers/integrations_helper.rb:
-  - integration_issue_type
   - integration_todo_target_type
 app/helpers/routing/groups/members_helper.rb:
   - approve_access_request_group_member_path

@@ -6,7 +6,6 @@ import {
   GlFormTextarea,
   GlButton,
   GlExperimentBadge,
-  GlTabs,
   GlLink,
   GlSprintf,
   GlLoadingIcon,
@@ -28,7 +27,6 @@ import {
   MAX_DESCRIPTION_LENGTH,
   ACCESS_USER_ENUM,
   ACCESS_INSTANCE_ENUM,
-  ACCESS_NAMESPACE_ENUMS,
   NAMESPACE_ACCESS_TYPES,
 } from '~/personal_access_tokens/constants';
 import ConfirmUnsavedChangesDialog from '~/vue_shared/components/confirm_unsaved_changes_dialog.vue';
@@ -55,7 +53,6 @@ export default {
     ConfirmUnsavedChangesDialog,
     CreatedPersonalAccessToken,
     GlExperimentBadge,
-    GlTabs,
     GlLink,
     GlSprintf,
     GlLoadingIcon,
@@ -340,11 +337,6 @@ export default {
   ),
   MAX_NAME_LENGTH,
   MAX_DESCRIPTION_LENGTH,
-  permissionTabs: [
-    { key: 'namespace', boundaries: ACCESS_NAMESPACE_ENUMS },
-    { key: 'user', boundaries: [ACCESS_USER_ENUM] },
-    { key: 'instance', boundaries: [ACCESS_INSTANCE_ENUM] },
-  ],
 };
 </script>
 
@@ -438,23 +430,19 @@ export default {
               </template>
             </gl-sprintf>
           </p>
-          <gl-tabs content-class="!gl-p-0">
-            <template #tabs-end>
+          <personal-access-token-permissions-selector
+            v-model="form.permissions"
+            :error="errors.permissions"
+            :ai-permissions="aiPermissions"
+          >
+            <template #header-actions>
               <ask-dap-permissions
                 v-if="$options.components.AskDapPermissions"
                 @permissions-selected="handlePermissionsSelected"
                 @permissions-cleared="handlePermissionsCleared"
               />
             </template>
-            <personal-access-token-permissions-selector
-              v-for="tab in $options.permissionTabs"
-              :key="tab.key"
-              v-model="form.permissions[tab.key]"
-              :error="errors.permissions"
-              :target-boundaries="tab.boundaries"
-              :ai-permissions="aiPermissions"
-            />
-          </gl-tabs>
+          </personal-access-token-permissions-selector>
         </section>
 
         <div class="settings-sticky-footer gl-flex gl-flex-wrap gl-gap-3">

@@ -13469,6 +13469,7 @@ CREATE TABLE ai_catalog_items (
     last_30_day_usage_count integer DEFAULT 0 NOT NULL,
     last_30_day_usage_count_updated_at timestamp with time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL,
     star_count integer DEFAULT 0 NOT NULL,
+    visibility smallint DEFAULT 0 NOT NULL,
     CONSTRAINT check_5a87fd2753 CHECK ((char_length(identifier) <= 255)),
     CONSTRAINT check_7e02a4805b CHECK ((char_length(description) <= 1024)),
     CONSTRAINT check_804e59e032 CHECK ((char_length(foundational_flow_reference) <= 255)),

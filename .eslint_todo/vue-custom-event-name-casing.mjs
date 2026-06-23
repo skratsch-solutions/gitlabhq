@@ -3,7 +3,6 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/add_context_commits_modal/components/add_context_commits_modal_trigger.vue',
     'app/assets/javascripts/behaviors/components/diagram_performance_warning.vue',
     'app/assets/javascripts/behaviors/components/image_lightbox.vue',
     'app/assets/javascripts/boards/components/board_add_new_column.vue',

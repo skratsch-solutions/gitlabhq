@@ -30,6 +30,7 @@ export default {
       default: DEFAULT_PAGE_SIZE,
     },
   },
+  emits: ['loadMore'],
   computed: {
     hasNextPage() {
       return this.count < this.totalCount;

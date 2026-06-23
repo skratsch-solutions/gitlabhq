@@ -29,6 +29,7 @@ export default {
       required: true,
     },
   },
+  emits: ['change'],
   computed: {
     strategyComponent() {
       return STRATEGIES[this.strategy?.name];

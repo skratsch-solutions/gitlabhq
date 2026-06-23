@@ -32702,7 +32702,7 @@ paths:
       operationId: getApiV4ProjectsIdAuditEventsAuditEventId
       summary: Retrieve a project audit event
       description: Retrieves an audit event for a specified project. Only available
-        to users with the Maintainer or Owner role for the project.
+        to users with at least the Developer role for the project.
       tags:
       - Projects
       responses:

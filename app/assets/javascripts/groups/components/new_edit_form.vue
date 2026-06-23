@@ -79,6 +79,7 @@ export default {
       required: true,
     },
   },
+  emits: ['submit'],
   data() {
     return {
       hasPathBeenManuallySet: this.initialFormValues[FORM_FIELD_PATH],

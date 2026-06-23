@@ -23,6 +23,7 @@ export default {
       default: false,
     },
   },
+  emits: ['copyAsGFM', 'copySource', 'reload', 'viewSource'],
   data() {
     return {
       toggleId: uniqueId('dropdown-toggle-btn-'),

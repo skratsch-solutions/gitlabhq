@@ -60,6 +60,7 @@ Before upgrading to GitLab 18.10, review the following:
 - [18.10.0 - 18.10.4] - [Geo blob download failures](#geo-blob-download-failures) (Geo)
 - [18.10.0 - 18.10.3] - [Geo secondary throttled jobs not draining](#geo-secondary-throttled-jobs-not-draining) (Geo)
 - [18.10.0 - 18.10.3] - [Sidekiq concurrency limiter causes job backlogs on Helm chart and Operator deployments](#sidekiq-concurrency-limiter-causes-job-backlogs-on-helm-chart-and-operator-deployments) (Helm chart, Operator)
+- [18.10.0] - [Secret Detection false positive detection enabled by default on all projects](#secret-detection-false-positive-detection-enabled-by-default-on-all-projects)
 - [18.10.0] - [Custom webhook template with unquoted placeholders cannot be saved](#custom-webhook-template-with-unquoted-placeholders-cannot-be-saved)
 - [18.10.0] - [Dotenv variables in pipeline execution policies respect `variables_override`](#dotenv-variables-in-pipeline-execution-policies-respect-variables_override)
 
@@ -1262,3 +1263,22 @@ A fix that gates the default concurrency limit calculation behind a feature flag
 [merge request 230713](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/230713) and
 backported to 18.10.4 ([merge request 231085](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/231085))
 and 18.9.6 ([merge request 231297](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/231297)).
+
+### Secret Detection false positive detection enabled by default on all projects
+
+- Affects: All installation methods
+- Affected versions: 18.10.x
+
+Enabling the foundation flow for
+[secret false positive detection](../../user/application_security/vulnerabilities/false_positive_detection.md)
+usually requires two steps:
+
+1. Allow the foundational flow for a group.
+1. Enable the foundational flow for individual projects.
+
+However, an upgrade to any version of GitLab 18.10 enables the foundational flow for secret false
+positive detection for all projects. After the foundational flow is allowed for a group, its already
+enabled for all projects in the group.
+
+You should check the settings for projects in a group before allowing the foundational flow for
+secret false positive detection for the group.

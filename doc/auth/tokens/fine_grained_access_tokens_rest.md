@@ -32,6 +32,15 @@ Fine-grained personal access tokens can access the following REST API endpoints:
 
 ### Application Security resources
 
+#### Attestation
+
+Grants the ability to read attestations.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Project | `GET` | `/projects/:id/attestations/:attestation_iid/download` |
+| Read | Project | `GET` | `/projects/:id/attestations/:subject_digest` |
+
 #### Compliance Policy Setting
 
 Grants the ability to read and update compliance policy settings.
@@ -51,12 +60,17 @@ Grants the ability to read dependencies.
 
 #### Dependency List Export
 
-Grants the ability to create dependency list exports.
+Grants the ability to create and read dependency list exports.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/pipelines/:id/dependency_list_exports` |
 | Create | Project | `POST` | `/projects/:id/dependency_list_exports` |
 | Create | Group | `POST` | `/groups/:id/dependency_list_exports` |
+| Read | Project | `GET` | `/dependency_list_exports/:export_id` |
+| Read | Project | `GET` | `/dependency_list_exports/:export_id/download` |
+| Read | Group | `GET` | `/dependency_list_exports/:export_id` |
+| Read | Group | `GET` | `/dependency_list_exports/:export_id/download` |
 
 #### SBOM Occurrence
 
@@ -65,6 +79,14 @@ Grants the ability to read SBOM occurrences.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Read | Project | `GET` | `/occurrences/vulnerabilities` |
+
+#### Security Scan
+
+Grants the ability to create security scans.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/security_scans/sast/:sast_endpoint` |
 
 #### Security Setting
 
@@ -84,11 +106,22 @@ Grants the ability to create, read, and update vulnerabilities.
 | ------ | ------ | ------ | ---- |
 | Create | Project | `POST` | `/projects/:id/vulnerabilities` |
 | Read | Project | `GET` | `/projects/:id/vulnerabilities` |
+| Read | Project | `GET` | `/projects/:id/vulnerability_findings` |
 | Read | Project | `GET` | `/vulnerabilities/:id` |
 | Update | Project | `POST` | `/vulnerabilities/:id/confirm` |
 | Update | Project | `POST` | `/vulnerabilities/:id/dismiss` |
 | Update | Project | `POST` | `/vulnerabilities/:id/resolve` |
 | Update | Project | `POST` | `/vulnerabilities/:id/revert` |
+
+#### Vulnerability Archive Export
+
+Grants the ability to create and read vulnerability archive exports.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/security/projects/:id/vulnerability_archive_exports` |
+| Read | Project | `GET` | `/security/vulnerability_archive_exports/:id` |
+| Read | Project | `GET` | `/security/vulnerability_archive_exports/:id/download` |
 
 #### Vulnerability Export
 
@@ -101,6 +134,24 @@ Grants the ability to create and read vulnerability exports.
 | Create | Instance | `POST` | `/security/vulnerability_exports` |
 | Read | Instance | `GET` | `/security/vulnerability_exports/:id` |
 | Read | Instance | `GET` | `/security/vulnerability_exports/:id/download` |
+
+#### Vulnerability Flag
+
+Grants the ability to update vulnerability flags.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Update | Project | `POST` | `/vulnerabilities/:vulnerability_id/flags/ai_detection` |
+
+#### Vulnerability Issue Link
+
+Grants the ability to create, delete, and read vulnerability issue links.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/vulnerabilities/:id/issue_links` |
+| Delete | Project | `DELETE` | `/vulnerabilities/:id/issue_links/:issue_link_id` |
+| Read | Project | `GET` | `/vulnerabilities/:id/issue_links` |
 
 ### CI/CD resources
 
@@ -575,6 +626,8 @@ Grants the ability to read audit events.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Read | Project | `GET` | `/projects/:id/audit_events` |
+| Read | Project | `GET` | `/projects/:id/audit_events/:audit_event_id` |
 | Read | Group | `GET` | `/groups/:id/audit_events` |
 | Read | Group | `GET` | `/groups/:id/audit_events/:audit_event_id` |
 | Read | Instance | `GET` | `/audit_events` |
@@ -3781,6 +3834,11 @@ incompatible with personal access tokens.
 | `PATCH` | `/projects/:id/compliance_external_controls/:control_id/status` | Compliance external control token |
 | `POST` | `/projects/:id/integrations/mattermost_slash_commands/trigger` | Project integration token |
 | `POST` | `/projects/:id/issues/:issue_iid/metric_images/authorize` | Workhorse pre-authorization |
+| `GET` | `/projects/:id/managed_licenses` | Deprecated endpoint |
+| `POST` | `/projects/:id/managed_licenses` | Deprecated endpoint |
+| `GET` | `/projects/:id/managed_licenses/:managed_license_id` | Deprecated endpoint |
+| `PATCH` | `/projects/:id/managed_licenses/:managed_license_id` | Deprecated endpoint |
+| `DELETE` | `/projects/:id/managed_licenses/:managed_license_id` | Deprecated endpoint |
 | `PUT` | `/projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name/authorize` | Workhorse pre-authorization |
 | `PUT` | `/projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name/authorize` | Workhorse pre-authorization |
 | `PUT` | `/projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name/authorize` | Workhorse pre-authorization |

@@ -13,6 +13,7 @@ export default {
     GlCollapsibleListbox,
   },
   inject: ['environmentsEndpoint'],
+  emits: ['add'],
   data() {
     return {
       environmentSearch: '',

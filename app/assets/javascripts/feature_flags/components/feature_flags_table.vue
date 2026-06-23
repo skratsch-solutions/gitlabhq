@@ -43,6 +43,7 @@ export default {
       required: true,
     },
   },
+  emits: ['toggle-flag'],
   data() {
     return {
       deleteFeatureFlagUrl: null,

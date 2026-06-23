@@ -39,6 +39,7 @@ export default {
       type: String,
     },
   },
+  emits: ['dismiss-alert'],
   methods: {
     clearAlert(index) {
       this.$emit('dismiss-alert', index);

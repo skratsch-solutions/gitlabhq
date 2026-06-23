@@ -219,7 +219,6 @@ create_task
 create_test_case
 create_timelog
 create_virtual_registry
-create_vulnerability_archive_export
 create_vulnerability_feedback
 create_vulnerability_state_transition
 create_web_ide_terminal
@@ -385,7 +384,6 @@ read_all_workspaces
 read_analytics
 read_application_statistics
 read_approvers
-read_attestation
 read_billing
 read_blob
 read_build
@@ -421,7 +419,6 @@ read_custom_field
 read_customizable_dashboards
 read_cycle_analytics
 read_dedicated_hosted_runner_usage
-read_dependency_list_export
 read_dependency_proxy
 read_deploy_board
 read_design
@@ -568,7 +565,6 @@ read_user_organizations
 read_user_profile
 read_users_list
 read_virtual_registry
-read_vulnerability_archive_export
 read_vulnerability_feedback
 read_vulnerability_merge_request_link
 read_vulnerability_representation_information
