@@ -118,6 +118,14 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'bottomReached',
+    'dropdownHidden',
+    'dropdownShown',
+    'searchStarted',
+    'updateSelected',
+    'updateValue',
+  ],
   data() {
     return {
       isEditing: false,

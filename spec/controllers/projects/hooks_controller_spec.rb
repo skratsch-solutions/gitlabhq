@@ -23,7 +23,7 @@ RSpec.describe Projects::HooksController, feature_category: :webhooks do
   end
 
   describe '#update' do
-    let_it_be(:hook, freeze: false) { create(:project_hook, project: project) }
+    let_it_be_with_reload(:hook) { create(:project_hook, project: project) }
 
     let(:params) do
       { namespace_id: project.namespace, project_id: project, id: hook.id }
@@ -111,7 +111,7 @@ RSpec.describe Projects::HooksController, feature_category: :webhooks do
   end
 
   describe '#edit' do
-    let_it_be(:hook, freeze: false) { create(:project_hook, project: project) }
+    let_it_be_with_reload(:hook) { create(:project_hook, project: project) }
 
     let(:params) do
       { namespace_id: project.namespace, project_id: project, id: hook.id }

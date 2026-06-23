@@ -12,6 +12,7 @@ export default {
       required: true,
     },
   },
+  emits: ['fetch-next-page'],
 };
 </script>
 

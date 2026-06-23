@@ -40,6 +40,7 @@ export default {
       default: true,
     },
   },
+  emits: ['clickFile', 'clickRow', 'clickSubmodule', 'clickTree', 'showMore', 'toggleTree'],
   computed: {
     isTree() {
       return this.file.type === 'tree';

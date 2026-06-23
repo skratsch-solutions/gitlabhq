@@ -17164,12 +17164,15 @@ CREATE TABLE cd_deployment_transitions (
     from_state smallint NOT NULL,
     to_state smallint NOT NULL,
     event text NOT NULL,
-    principal_type text NOT NULL,
     reason text,
     triggered_by text,
+    principal text,
+    on_behalf_of text,
     CONSTRAINT check_7f169be99d CHECK ((char_length(event) <= 72)),
     CONSTRAINT check_8c5eac0de3 CHECK ((char_length(reason) <= 2000)),
-    CONSTRAINT check_f3cda07724 CHECK ((char_length(principal_type) <= 255)),
+    CONSTRAINT check_8f176571e9 CHECK ((principal IS NOT NULL)),
+    CONSTRAINT check_a8abf76456 CHECK ((char_length(on_behalf_of) <= 255)),
+    CONSTRAINT check_e55ffd980c CHECK ((char_length(principal) <= 255)),
     CONSTRAINT check_f56bc5e8de CHECK ((char_length(triggered_by) <= 255))
 );
 
@@ -17284,13 +17287,16 @@ CREATE TABLE cd_rollout_transitions (
     from_state smallint NOT NULL,
     to_state smallint NOT NULL,
     event text NOT NULL,
-    principal_type text NOT NULL,
     reason text,
     triggered_by text,
+    principal text,
+    on_behalf_of text,
+    CONSTRAINT check_2d1ed89919 CHECK ((char_length(on_behalf_of) <= 255)),
     CONSTRAINT check_3707175af1 CHECK ((char_length(reason) <= 2000)),
     CONSTRAINT check_4e3a0df636 CHECK ((char_length(triggered_by) <= 255)),
-    CONSTRAINT check_adc54d280e CHECK ((char_length(event) <= 72)),
-    CONSTRAINT check_f8b6cb5848 CHECK ((char_length(principal_type) <= 255))
+    CONSTRAINT check_4ee4e030f4 CHECK ((principal IS NOT NULL)),
+    CONSTRAINT check_6a2d564a87 CHECK ((char_length(principal) <= 255)),
+    CONSTRAINT check_adc54d280e CHECK ((char_length(event) <= 72))
 );
 
 CREATE SEQUENCE cd_rollout_transitions_id_seq

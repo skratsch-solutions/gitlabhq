@@ -42,6 +42,7 @@ export default {
       default: true,
     },
   },
+  emits: ['click', 'toggle'],
   data() {
     return {
       focusedIndex: -1,

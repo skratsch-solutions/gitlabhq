@@ -11,7 +11,7 @@ RSpec.describe RunPipelineScheduleWorker, feature_category: :pipeline_compositio
     let_it_be(:group) { create(:group) }
     let_it_be_with_refind(:project) { create(:project, :repository, namespace: group) }
     let_it_be(:user) { create(:user) }
-    let_it_be(:pipeline_schedule, freeze: false) do
+    let_it_be_with_reload(:pipeline_schedule) do
       create(:ci_pipeline_schedule, :nightly, project: project, owner: user)
     end
 

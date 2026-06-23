@@ -32,6 +32,7 @@ export default {
       default: true,
     },
   },
+  emits: ['imgLoaded'],
   data() {
     return {
       width: 0,

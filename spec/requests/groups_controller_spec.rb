@@ -840,4 +840,61 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       end
     end
   end
+
+  describe 'POST #restore' do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group, :deletion_scheduled, owners: user) }
+
+    subject(:restore_group) { post group_restore_path(group) }
+
+    context 'when authenticated user can admin the group' do
+      before do
+        sign_in(user)
+      end
+
+      context 'when the restore succeeds' do
+        it 'restores the group' do
+          expect { restore_group }.to change { group.reload.self_deletion_scheduled? }.from(true).to(false)
+        end
+
+        it 'renders success notice upon restoring', :aggregate_failures do
+          restore_group
+
+          expect(response).to redirect_to(edit_group_path(group))
+          expect(flash[:notice]).to include "Group '#{group.name}' has been successfully restored."
+        end
+      end
+
+      context 'when the restore fails' do
+        before do
+          allow_next_instance_of(::Groups::RestoreService) do |service|
+            allow(service).to receive(:execute).and_return(ServiceResponse.error(message: 'error'))
+          end
+        end
+
+        it 'does not restore the group' do
+          expect { restore_group }.not_to change { group.reload.self_deletion_scheduled? }.from(true)
+        end
+
+        it 'redirects to group edit page', :aggregate_failures do
+          restore_group
+
+          expect(response).to redirect_to(edit_group_path(group))
+          expect(flash[:alert]).to include 'error'
+        end
+      end
+    end
+
+    context 'when authenticated user cannot admin the group' do
+      before do
+        sign_in(create(:user))
+      end
+
+      it 'returns 404' do
+        restore_group
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+  end
 end

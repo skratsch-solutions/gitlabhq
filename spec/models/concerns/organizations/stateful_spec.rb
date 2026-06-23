@@ -267,7 +267,7 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
 
   describe 'existing organizations with nil confirmation data' do
     context 'when an organization is active without confirmed_by_user_id or confirmed_at' do
-      let_it_be(:existing_org, freeze: false) { create(:organization) }
+      let_it_be_with_reload(:existing_org) { create(:organization) }
 
       it 'can be active with nil confirmed_by_user_id in state_metadata' do
         expect(existing_org.organization_detail.confirmed_by_user_id).to be_nil

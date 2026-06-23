@@ -163,7 +163,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
           }
         end
 
-        let_it_be(:project, freeze: false) do
+        let_it_be_with_reload(:project) do
           create(:project, :custom_repo, files: project_files)
         end
 
@@ -244,7 +244,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
           }
         end
 
-        let_it_be(:project, freeze: false) do
+        let_it_be_with_reload(:project) do
           create(:project, :custom_repo, files: project_files)
         end
 
@@ -741,8 +741,8 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
       end
 
       context 'with paths and compare_to' do
-        let_it_be(:project, freeze: false) { create(:project, :empty_repo) }
-        let_it_be(:user)    { project.first_owner }
+        let_it_be_with_reload(:project) { create(:project, :empty_repo) }
+        let_it_be(:user) { project.first_owner }
 
         let(:initialization_params) { base_initialization_params.merge(before: nil) }
         let(:changed_file) { 'file2.txt' }

@@ -13,6 +13,7 @@ export default {
       default: 0,
     },
   },
+  emits: ['show-closed'],
   computed: {
     buttonText() {
       const itemText = n__('item', 'items', this.numberOfClosedItems);

@@ -99,7 +99,7 @@ export default {
       }
     },
     handleWorkItemDeleted(workItemId) {
-      this.$emit('relatedIssueRemoveRequest', workItemId);
+      this.$emit('related-issue-remove-request', workItemId);
     },
     updateQueryParam(id) {
       updateHistory({

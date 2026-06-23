@@ -5,16 +5,20 @@ require 'spec_helper'
 RSpec.describe 'new tables missing sharding_key', feature_category: :organization do
   include ShardingKeySpecHelpers
 
-  # Specific tables can be temporarily exempt from this requirement. You must add an issue link in a comment next to
-  # the table name to remove this once a decision has been made.
+  # Existing tables can be temporarily exempt from this requirement.
+  # You must add an issue link as sharding_key_issue_url in the db/docs
   let(:allowed_to_be_missing_sharding_key) do
-    [
-      'ai_settings', # https://gitlab.com/gitlab-org/gitlab/-/issues/531356
-      'group_secrets_managers', # https://gitlab.com/gitlab-org/gitlab/-/work_items/589058
-      'merge_request_diff_files_99208b8fac', # https://gitlab.com/gitlab-org/gitlab/-/issues/422767
-      'project_secrets_managers', # https://gitlab.com/gitlab-org/gitlab/-/work_items/589058
-      'p_ci_pipeline_artifact_states', # https://gitlab.com/gitlab-org/gitlab/-/work_items/587555
-      'packages_package_file_states' # https://gitlab.com/gitlab-org/gitlab/-/work_items/587559
+    %w[
+      audit_events
+      ai_settings
+      group_secrets_managers
+      merge_request_diff_commits
+      merge_request_diff_files
+      merge_request_diff_files_99208b8fac
+      project_secrets_managers
+      push_rules
+      p_ci_pipeline_artifact_states
+      packages_package_file_states
     ]
   end
 
@@ -157,15 +161,24 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
     }
   end
 
-  let(:starting_from_milestone) { 16.6 }
-
-  it 'requires a sharding_key for all cell-local tables, after milestone 16.6', :aggregate_failures do
-    tables_missing_sharding_key(starting_from_milestone: starting_from_milestone).each do |table_name|
+  it 'requires a sharding_key for all org tables', :aggregate_failures do
+    tables_missing_sharding_key.each do |table_name|
       expect(allowed_to_be_missing_sharding_key).to include(table_name), error_message(table_name)
     end
   end
 
-  it 'requires a sharding_key, sharding_key_issue_url, or desired_sharding_key for all cell-local tables',
+  it 'does not allow a sharding key for cell-local tables', :aggregate_failures do
+    Gitlab::Database::Dictionary.entries.each do |entry|
+      next if Gitlab::Database::GitlabSchema.require_sharding_key?(entry.gitlab_schema)
+
+      expect(entry.sharding_key).to be_nil,
+        "This table #{entry.table_name} must not have a `sharding_key` in the `db/docs` YML file. " \
+          "Remove this attribute, or update the `gitlab_schema` to be an organization based schema. " \
+          "Please refer to https://docs.gitlab.com/development/organization/sharding/#sharding-principles."
+    end
+  end
+
+  it 'requires a sharding_key, sharding_key_issue_url, or desired_sharding_key for all org tables',
     :aggregate_failures do
     tables_missing_sharding_key_or_sharding_in_progress.each do |table_name|
       expect(allowed_to_be_missing_sharding_key).to include(table_name),
@@ -370,9 +383,19 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
   it 'only allows `allowed_to_be_missing_sharding_key` to include tables that are missing a sharding_key',
     :aggregate_failures do
     allowed_to_be_missing_sharding_key.each do |exempted_table|
-      expect(tables_missing_sharding_key(starting_from_milestone: starting_from_milestone)).to include(exempted_table),
+      expect(tables_missing_sharding_key).to include(exempted_table),
         "`#{exempted_table}` is not missing a `sharding_key`. " \
           "You must remove this table from the `allowed_to_be_missing_sharding_key` list."
+    end
+  end
+
+  it 'requires `allowed_to_be_missing_sharding_key` must have sharding_key_issue_url',
+    :aggregate_failures do
+    allowed_to_be_missing_sharding_key.each do |exempted_table|
+      entry = ::Gitlab::Database::Dictionary.entry(exempted_table)
+
+      expect(entry&.sharding_key_issue_url).to be_present,
+        "`#{exempted_table}` is missing a `sharding_key_issue_url`."
     end
   end
 
@@ -471,17 +494,16 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
   def error_message(table_name)
     <<~HEREDOC
       The table `#{table_name}` is missing a `sharding_key` in the `db/docs` YML file.
-      Starting from GitLab #{starting_from_milestone}, we expect all new tables to define a `sharding_key`.
+      Starting from GitLab 16.6, we expect all new tables to define a `sharding_key`.
 
       To choose an appropriate sharding_key for this table please refer
-      to our guidelines at https://docs.gitlab.com/ee/development/organization/#defining-a-sharding-key-for-all-cell-local-tables, or consult with the Tenant Scale group.
+      to our guidelines at https://docs.gitlab.com/development/organization/sharding/, or consult with the Tenant Scale group.
     HEREDOC
   end
 
-  def tables_missing_sharding_key(starting_from_milestone:)
+  def tables_missing_sharding_key
     ::Gitlab::Database::Dictionary.entries.filter_map do |entry|
       entry.table_name if entry.sharding_key.blank? &&
-        entry.milestone_greater_than_or_equal_to?(starting_from_milestone) &&
         ::Gitlab::Database::GitlabSchema.require_sharding_key?(entry.gitlab_schema)
     end
   end

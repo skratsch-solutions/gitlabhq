@@ -239,7 +239,7 @@ RSpec.describe 'Pipeline Editor', :js, feature_category: :pipeline_composition d
       it 'user can navigate away without a browser alert' do
         expect(page).to have_content('Pipeline editor')
 
-        click_link 'Pipelines'
+        within_testid('non-static-items-section') { click_link 'Pipelines' }
 
         page.within('#content-body') do
           expect(page).not_to have_content('Pipeline editor')

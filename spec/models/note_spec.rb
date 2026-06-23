@@ -1598,6 +1598,31 @@ RSpec.describe Note, feature_category: :team_planning do
     end
   end
 
+  describe '.commit_note_ids_for_shas' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:commit_note) { create(:note_on_commit, project: project, commit_id: 'abc123') }
+
+    it 'returns the project commit-note IDs for the given SHAs' do
+      expect(described_class.commit_note_ids_for_shas(['abc123'], project.id)).to contain_exactly(commit_note.id)
+    end
+
+    it 'excludes notes on the same SHA that belong to another project' do
+      create(:note_on_commit, project: create(:project), commit_id: 'abc123')
+
+      expect(described_class.commit_note_ids_for_shas(['abc123'], project.id)).to contain_exactly(commit_note.id)
+    end
+
+    it 'excludes notes on the same SHA that are not commit notes' do
+      create(:note_on_issue, project: project).update_column(:commit_id, 'abc123')
+
+      expect(described_class.commit_note_ids_for_shas(['abc123'], project.id)).to contain_exactly(commit_note.id)
+    end
+
+    it 'returns an empty array when no commit notes match' do
+      expect(described_class.commit_note_ids_for_shas(['def456'], project.id)).to be_empty
+    end
+  end
+
   describe '#for_work_item?' do
     it 'returns true for a work item' do
       expect(build(:note_on_work_item).for_work_item?).to be true

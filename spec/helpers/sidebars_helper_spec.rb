@@ -14,11 +14,12 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
   describe '#super_sidebar_context' do
     include_context 'custom session'
 
-    let(:user) { build(:user) }
     let_it_be(:group) { build(:group) }
     let_it_be(:group_with_id) { build_stubbed(:group) }
-    let_it_be(:panel, freeze: false) { {} }
-    let_it_be(:panel_type, freeze: false) { 'project' }
+
+    let(:user) { build(:user) }
+    let(:panel) { {} }
+    let(:panel_type) { 'project' }
     let(:project) { nil }
     let(:current_user_mode) { Gitlab::Auth::CurrentUserMode.new(user) }
     let(:context_with_group_id) do
@@ -233,7 +234,7 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
 
     describe "shortcut links" do
       describe "as the anonymous user" do
-        let_it_be(:user, freeze: false) { nil }
+        let(:user) { nil }
         let(:global_shortcut_links) do
           [
             {
@@ -858,6 +859,54 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
 
     it 'sets ref_type to nil when not provided' do
       expect(helper.send(:project_sidebar_context_data, project, nil, nil)[:ref_type]).to be_nil
+    end
+  end
+
+  describe '#super_sidebar_default_pins' do
+    let(:user) { build_stubbed(:user) }
+
+    context 'when feature_library_modal is disabled' do
+      before do
+        stub_feature_flags(feature_library_modal: false)
+      end
+
+      it 'returns old project defaults' do
+        expect(helper.send(:super_sidebar_default_pins, 'project', user)).to eq(
+          %w[project_issue_list project_merge_request_list]
+        )
+      end
+
+      it 'returns old group defaults', unless: Gitlab.ee? do
+        expect(helper.send(:super_sidebar_default_pins, 'group', user)).to eq(
+          %w[group_issue_list group_merge_request_list]
+        )
+      end
+
+      it 'returns empty array for other panel types' do
+        expect(helper.send(:super_sidebar_default_pins, 'explore', user)).to eq([])
+      end
+    end
+
+    context 'when feature_library_modal is enabled' do
+      before do
+        stub_feature_flags(feature_library_modal: true)
+      end
+
+      it 'returns enriched project defaults' do
+        expect(helper.send(:super_sidebar_default_pins, 'project', user)).to eq(
+          %w[project_overview members project_issue_list branches project_merge_request_list pipelines]
+        )
+      end
+
+      it 'returns enriched group defaults', unless: Gitlab.ee? do
+        expect(helper.send(:super_sidebar_default_pins, 'group', user)).to eq(
+          %w[group_overview members group_issue_list issue_boards group_merge_request_list]
+        )
+      end
+
+      it 'returns empty array for other panel types' do
+        expect(helper.send(:super_sidebar_default_pins, 'explore', user)).to eq([])
+      end
     end
   end
 end

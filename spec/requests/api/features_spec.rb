@@ -168,14 +168,14 @@ RSpec.describe API::Features, :clean_gitlab_redis_feature_flag, stub_feature_fla
 
     context 'when enabling for a repository by path' do
       it_behaves_like 'enables the flag for the actor', :repository do
-        let_it_be(:actor, freeze: false) { create(:project).repository }
+        let_it_be_with_reload(:actor) { create(:project).repository }
         let(:actor_value) { actor.full_path }
       end
     end
 
     context 'when enabling for a runner by ID' do
       it_behaves_like 'enables the flag for the actor', :runner do
-        let_it_be(:actor, freeze: false) { create(:ci_runner) }
+        let_it_be_with_reload(:actor) { create(:ci_runner) }
         let(:actor_value) { actor.id.to_s }
       end
 

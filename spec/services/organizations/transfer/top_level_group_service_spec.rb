@@ -277,6 +277,160 @@ RSpec.describe Organizations::Transfer::TopLevelGroupService, :aggregate_failure
             expect(another_group.reload.organization_id).to eq(old_organization.id)
           end
         end
+
+        context 'when target organization is unconfirmed with existing TLGs' do
+          let_it_be(:unconfirmed_organization) { create(:organization, :unconfirmed) }
+          let_it_be_with_reload(:existing_tlg) { create(:group, organization: unconfirmed_organization) }
+          let_it_be_with_reload(:group_to_transfer) { create(:group, organization: old_organization) }
+
+          let(:groups_param) { group_to_transfer }
+          let(:organization_param) { unconfirmed_organization }
+
+          context 'when user owns all existing TLGs in the unconfirmed org' do
+            before_all do
+              existing_tlg.add_owner(user)
+              group_to_transfer.add_owner(user)
+            end
+
+            it 'authorizes based on group ownership and transfers successfully' do
+              result = service.execute
+
+              expect(result).to be_success
+              expect(group_to_transfer.reload.organization_id).to eq(unconfirmed_organization.id)
+            end
+          end
+
+          context 'when user does not own all existing TLGs in the unconfirmed org' do
+            let_it_be(:other_user) { create(:user) }
+
+            before_all do
+              existing_tlg.add_owner(other_user)
+              group_to_transfer.add_owner(user)
+            end
+
+            it 'returns error ServiceResponse' do
+              result = service.execute
+
+              expect(result).to be_error
+              expect(result.message).to eq(
+                s_('TransferOrganization|You must be an owner of both the group and new organization.')
+              )
+              expect(group_to_transfer.reload.organization_id).to eq(old_organization.id)
+            end
+          end
+
+          context 'when unconfirmed org has multiple existing TLGs' do
+            let_it_be_with_reload(:existing_tlg2) { create(:group, organization: unconfirmed_organization) }
+            let_it_be_with_reload(:existing_tlg3) { create(:group, organization: unconfirmed_organization) }
+
+            context 'when user owns all existing TLGs' do
+              before_all do
+                existing_tlg.add_owner(user)
+                existing_tlg2.add_owner(user)
+                existing_tlg3.add_owner(user)
+                group_to_transfer.add_owner(user)
+              end
+
+              it 'authorizes and transfers successfully' do
+                result = service.execute
+
+                expect(result).to be_success
+                expect(group_to_transfer.reload.organization_id).to eq(unconfirmed_organization.id)
+              end
+
+              it 'avoids N+1 queries when checking existing TLG permissions' do
+                unconfirmed_org_for_control = create(:organization, :unconfirmed)
+                [existing_tlg, existing_tlg2, existing_tlg3].each do |group|
+                  group.update!(organization: unconfirmed_org_for_control)
+                end
+
+                control = ActiveRecord::QueryRecorder.new do
+                  described_class.new(
+                    groups: group_to_transfer, new_organization: unconfirmed_org_for_control, current_user: user
+                  ).execute
+                end
+
+                unconfirmed_org_for_test = create(:organization, :unconfirmed)
+                create(:group, organization: unconfirmed_org_for_test, owners: user)
+                [existing_tlg, existing_tlg2, existing_tlg3].each do |group|
+                  group.update!(organization: unconfirmed_org_for_test)
+                end
+                group_to_transfer.update!(organization: old_organization)
+
+                expect do
+                  described_class.new(
+                    groups: group_to_transfer, new_organization: unconfirmed_org_for_test, current_user: user
+                  ).execute
+                end.not_to exceed_query_limit(control)
+
+                [existing_tlg, existing_tlg2, existing_tlg3].each do |group|
+                  group.update!(organization: unconfirmed_organization)
+                end
+              end
+            end
+
+            context 'when user owns only some existing TLGs' do
+              let_it_be(:other_user) { create(:user) }
+
+              before_all do
+                existing_tlg.add_owner(user)
+                existing_tlg2.add_owner(other_user)
+                group_to_transfer.add_owner(user)
+              end
+
+              it 'returns error ServiceResponse' do
+                result = service.execute
+
+                expect(result).to be_error
+                expect(result.message).to eq(
+                  s_('TransferOrganization|You must be an owner of both the group and new organization.')
+                )
+              end
+            end
+          end
+        end
+
+        context 'when target organization is unconfirmed with no existing TLGs' do
+          context 'when user is org owner' do
+            let_it_be(:empty_unconfirmed_org_with_owner) { create(:organization, :unconfirmed) }
+            let_it_be_with_reload(:group_for_empty_org_with_owner) do
+              create(:group, organization: old_organization, owners: user)
+            end
+
+            let(:groups_param) { group_for_empty_org_with_owner }
+            let(:organization_param) { empty_unconfirmed_org_with_owner }
+
+            before_all do
+              empty_unconfirmed_org_with_owner.add_owner(user)
+            end
+
+            it 'authorizes based on org ownership and transfers successfully' do
+              result = service.execute
+
+              expect(result).to be_success
+              expect(group_for_empty_org_with_owner.reload.organization_id).to eq(empty_unconfirmed_org_with_owner.id)
+            end
+          end
+
+          context 'when user is not org owner' do
+            let_it_be(:empty_unconfirmed_org_no_owner) { create(:organization, :unconfirmed) }
+            let_it_be_with_reload(:group_for_empty_org_no_owner) do
+              create(:group, organization: old_organization, owners: user)
+            end
+
+            let(:groups_param) { group_for_empty_org_no_owner }
+            let(:organization_param) { empty_unconfirmed_org_no_owner }
+
+            it 'returns error ServiceResponse' do
+              result = service.execute
+
+              expect(result).to be_error
+              expect(result.message).to eq(
+                s_('TransferOrganization|You must be an owner of both the group and new organization.')
+              )
+            end
+          end
+        end
       end
 
       context 'when any group in the batch is invalid' do

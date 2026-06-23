@@ -49,6 +49,7 @@ export default {
       required: false,
     },
   },
+  emits: ['ciStatusBadgeClick'],
   computed: {
     href() {
       // href can come from GraphQL (camelCase) or REST API (snake_case)

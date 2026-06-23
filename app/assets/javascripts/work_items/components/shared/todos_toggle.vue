@@ -36,6 +36,7 @@ export default {
       default: 'tertiary',
     },
   },
+  emits: ['error', 'todosUpdated'],
   data() {
     return {
       isLoading: false,

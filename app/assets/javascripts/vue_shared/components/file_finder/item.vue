@@ -36,6 +36,7 @@ export default {
       default: false,
     },
   },
+  emits: ['click', 'mousemove', 'mouseover'],
   computed: {
     pathWithEllipsis() {
       const { path } = this.file;

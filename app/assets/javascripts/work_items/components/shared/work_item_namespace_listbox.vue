@@ -40,6 +40,7 @@ export default {
       default: false,
     },
   },
+  emits: ['error', 'selectNamespace'],
   data() {
     return {
       projects: [],

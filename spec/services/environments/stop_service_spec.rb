@@ -8,6 +8,11 @@ RSpec.describe Environments::StopService, feature_category: :continuous_delivery
   let(:service) { described_class.new(project, user) }
 
   shared_examples_for 'stopping environment' do
+    # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+    # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+    # subject, or an in-memory mutation that survives reload/refind). Do not
+    # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+    # (see gitlab-org/gitlab#602925).
     let_it_be(:project, freeze: false) { create(:project, :private, :repository) }
     let_it_be(:developer) { create(:user, developer_of: project) }
     let_it_be(:reporter) { create(:user, reporter_of: project) }

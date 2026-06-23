@@ -331,6 +331,24 @@ class Note < ApplicationRecord
       where(noteable_type: 'MergeRequest', commit_id: shas).select(:noteable_id)
     end
 
+    # Resolves a project's commit-note IDs for the given commit SHAs. Used by the
+    # commit-notes export paths, which walk the repository for SHAs and resolve
+    # notes from them.
+    #
+    # Queries by commit_id only, then filters project_id and noteable_type in Ruby.
+    # Adding project_id to the WHERE makes the planner build a BitmapAnd against
+    # index_notes_on_project_id_and_noteable_type, scanning every note in the
+    # project (tens of millions of rows on large projects, ~29s observed). Querying
+    # by commit_id alone uses index_notes_on_commit_id and returns only the matching
+    # rows (bounded by the SHA page), which are cheap to filter in Ruby.
+    def commit_note_ids_for_shas(shas, project_id)
+      where(commit_id: shas)
+        .pluck(:id, :project_id, :noteable_type)
+        .filter_map do |id, note_project_id, noteable_type|
+          id if note_project_id == project_id && noteable_type == 'Commit'
+        end
+    end
+
     def with_web_entity_associations
       preload(:project, :author, :noteable)
     end

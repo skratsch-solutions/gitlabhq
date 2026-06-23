@@ -81,6 +81,7 @@ export default {
       default: true,
     },
   },
+  emits: ['input'],
   data() {
     return {
       pristine: true,

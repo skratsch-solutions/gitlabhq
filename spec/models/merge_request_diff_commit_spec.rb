@@ -56,8 +56,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
         diff_commit = create(
           :merge_request_diff_commit,
           merge_request_diff: mr_diff,
-          merge_request_commits_metadata: commits_metadata,
-          project_id: project.id
+          merge_request_commits_metadata: commits_metadata
         )
 
         partitioned_diff_commit = partitioned_diff_commits.first
@@ -98,8 +97,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
         diff_commit = create(
           :merge_request_diff_commit,
           merge_request_diff: mr_diff,
-          merge_request_commits_metadata: commits_metadata,
-          project_id: project.id
+          merge_request_commits_metadata: commits_metadata
         )
 
         expect(mr_diff.merge_request_diff_commits.count).to eq(1)
@@ -135,8 +133,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           diff_commit = create(
             :merge_request_diff_commit,
             merge_request_diff: mr_diff,
-            merge_request_commits_metadata: commits_metadata,
-            project_id: project.id
+            merge_request_commits_metadata: commits_metadata
           )
 
           # Truncate partitioned table to ensure it's empty
@@ -159,12 +156,12 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       let_it_be(:project) { create(:project) }
       let_it_be(:merge_request2) { create(:merge_request, source_project: project, target_project: project) }
       let_it_be(:diff_1) { create(:merge_request_diff, merge_request: merge_request2) }
-      let_it_be(:commit_1) { create(:merge_request_diff_commit, merge_request_diff: diff_1, relative_order: 0, project_id: project.id) }
-      let_it_be(:commit_2) { create(:merge_request_diff_commit, merge_request_diff: diff_1, relative_order: 1, project_id: project.id) }
+      let_it_be(:commit_1) { create(:merge_request_diff_commit, merge_request_diff: diff_1, relative_order: 0) }
+      let_it_be(:commit_2) { create(:merge_request_diff_commit, merge_request_diff: diff_1, relative_order: 1) }
 
       before do
         merge_request_diff_2 = create(:merge_request_diff, merge_request: merge_request2)
-        create(:merge_request_diff_commit, merge_request_diff: merge_request_diff_2, project_id: project.id)
+        create(:merge_request_diff_commit, merge_request_diff: merge_request_diff_2)
       end
 
       it 'returns commits for the specified merge request diff' do
@@ -200,12 +197,8 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
 
     before_all do
       merge_request_diff.merge_request_diff_commits.find_each do |commit|
-        commit.update_columns(project_id: project.id, sha: commit.merge_request_commits_metadata.sha)
+        commit.update_columns(sha: commit.merge_request_commits_metadata.sha)
       end
-    end
-
-    before do
-      stub_feature_flags(mr_diff_commits_read_new_table: false)
     end
 
     it 'returns the oldest merge request id for the given commit shas' do
@@ -220,34 +213,10 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       expect(result).to be_empty
     end
 
-    context 'when mr_diff_commits_read_new_table is enabled' do
-      before do
-        stub_feature_flags(mr_diff_commits_read_new_table: project, merge_request_diff_commits_partition: project)
-      end
+    it 'returns empty result when project_id does not match' do
+      result = described_class.oldest_merge_request_id_per_commit(non_existing_record_id, [commit_sha])
 
-      it 'filters by project_id' do
-        result = described_class.oldest_merge_request_id_per_commit(project.id, [commit_sha])
-
-        expect(result.map(&:merge_request_id)).to contain_exactly(merge_request.id)
-      end
-
-      it 'returns empty result when project_id does not match' do
-        result = described_class.oldest_merge_request_id_per_commit(non_existing_record_id, [commit_sha])
-
-        expect(result).to be_empty
-      end
-    end
-
-    context 'when mr_diff_commits_read_new_table is disabled' do
-      before do
-        stub_feature_flags(mr_diff_commits_read_new_table: false)
-      end
-
-      it 'does not filter by project_id' do
-        result = described_class.oldest_merge_request_id_per_commit(project.id, [commit_sha])
-
-        expect(result.map(&:merge_request_id)).to contain_exactly(merge_request.id)
-      end
+      expect(result).to be_empty
     end
   end
 
@@ -266,8 +235,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
         merge_request_diff: merge_request_diff,
         merge_request_commits_metadata: commits_metadata,
         relative_order: 0,
-        sha: nil,
-        project_id: project.id
+        sha: nil
       )
     end
 
@@ -276,54 +244,86 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
         :merge_request_diff_commit,
         merge_request_diff: merge_request_diff,
         relative_order: 1,
-        sha: 'def456',
-        project_id: project.id
+        sha: 'def456'
       )
     end
 
     before do
-      stub_feature_flags(mr_diff_commits_read_new_table: false)
+      create(
+        :diff_commit_without_metadata,
+        merge_request_diff: merge_request_diff,
+        relative_order: 2,
+        sha: 'fade12'
+      )
     end
 
-    # Both flag states must return identical results: the flag only swaps the SQL join strategy
-    # (LATERAL nested loop vs. plain hash-eligible LEFT JOIN), not the data.
-    [true, false].each do |lateral_join_enabled|
-      context "when commit_shas_metadata_lateral_join is #{lateral_join_enabled ? 'enabled' : 'disabled'}" do
-        before do
-          stub_feature_flags(commit_shas_metadata_lateral_join: lateral_join_enabled)
-        end
+    it 'returns SHAs for commits that have a metadata record' do
+      result = described_class
+                 .for_merge_request_diff(merge_request_diff.id, project.id)
+                 .commit_shas_from_metadata(project_id: project.id, limit: nil)
 
-        it 'returns commit shas from both metadata and diff commits' do
-          result = described_class
-            .for_merge_request_diff(merge_request_diff.id, project.id)
-            .commit_shas_from_metadata(project_id: project.id, limit: nil)
+      expect(result).to include('abc123')
+    end
 
-          expect(result).to contain_exactly('abc123', 'def456')
-        end
+    it 'excludes diff commits with no metadata record (INNER JOIN behaviour)' do
+      result = described_class
+                 .for_merge_request_diff(merge_request_diff.id, project.id)
+                 .commit_shas_from_metadata(project_id: project.id, limit: nil)
 
-        it 'respects the limit parameter' do
-          result = described_class
-            .for_merge_request_diff(merge_request_diff.id, project.id)
-            .commit_shas_from_metadata(project_id: project.id, limit: 1)
+      expect(result).not_to include('fade12')
+    end
 
-          expect(result.size).to eq(1)
-        end
+    it 'respects the limit parameter' do
+      result = described_class
+                 .for_merge_request_diff(merge_request_diff.id, project.id)
+                 .commit_shas_from_metadata(project_id: project.id, limit: 1)
 
-        context 'when partition_enabled is true' do
-          it 'filters by project_id' do
-            result = described_class
-              .for_merge_request_diff(merge_request_diff.id, project.id)
-              .commit_shas_from_metadata(project_id: project.id, limit: nil, partition_enabled: true)
+      expect(result.size).to eq(1)
+    end
 
-            expect(result).to contain_exactly('abc123', 'def456')
+    it 'does not reference columns missing from the new diff commits table' do
+      expect do
+        described_class
+          .for_merge_request_diff(merge_request_diff.id, project.id)
+          .commit_shas_from_metadata(project_id: project.id, limit: nil)
+      end.not_to query_missing_diff_commit_columns
+    end
+
+    it 'returns empty result when project_id does not match' do
+      result = described_class
+        .for_merge_request_diff(merge_request_diff.id, non_existing_record_id)
+        .commit_shas_from_metadata(project_id: non_existing_record_id, limit: nil)
+
+      expect(result).to be_empty
+    end
+
+    context 'when mr_diff_commits_read_new_table is disabled' do
+      before do
+        stub_feature_flags(mr_diff_commits_read_new_table: false)
+      end
+
+      # Both flag states must return identical results: the flag only swaps the SQL join strategy
+      # (LATERAL nested loop vs. plain hash-eligible LEFT JOIN), not the data.
+      [true, false].each do |lateral_join_enabled|
+        context "when commit_shas_metadata_lateral_join is #{lateral_join_enabled ? 'enabled' : 'disabled'}" do
+          before do
+            stub_feature_flags(commit_shas_metadata_lateral_join: lateral_join_enabled)
           end
 
-          it 'returns empty result when project_id does not match' do
+          it 'returns commit shas from both metadata and diff commits' do
             result = described_class
-              .for_merge_request_diff(merge_request_diff.id, non_existing_record_id)
-              .commit_shas_from_metadata(project_id: non_existing_record_id, limit: nil, partition_enabled: true)
+              .for_merge_request_diff(merge_request_diff.id, project.id)
+              .commit_shas_from_metadata(project_id: project.id, limit: nil)
 
-            expect(result).to be_empty
+            expect(result).to contain_exactly('abc123', 'def456', 'fade12')
+          end
+
+          it 'respects the limit parameter' do
+            result = described_class
+              .for_merge_request_diff(merge_request_diff.id, project.id)
+              .commit_shas_from_metadata(project_id: project.id, limit: 1)
+
+            expect(result.size).to eq(1)
           end
         end
       end
@@ -419,6 +419,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       ]
     end
 
+    # the new code path strips :trailers from rows before legacy_bulk_insert.
     let(:deduplicated_rows) do
       rows.map do |row|
         row.except(
@@ -427,7 +428,8 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           :authored_date,
           :committed_date,
           :sha,
-          :message)
+          :message,
+          :trailers)
       end
     end
 
@@ -490,6 +492,21 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       end
 
       let(:rows) { super().map { |row| row.except(:project_id) } }
+
+      # read_new_commits_table? requires both FFs; with partition disabled the legacy path
+      # still keeps :trailers in legacy_bulk_insert.
+      let(:deduplicated_rows) { super().map { |row| row.merge(trailers: {}.to_json) } }
+
+      include_examples 'inserts the commits into the database en masse'
+    end
+
+    context 'when mr_diff_commits_read_new_table is disabled' do
+      before do
+        stub_feature_flags(mr_diff_commits_read_new_table: false)
+      end
+
+      # Legacy code path keeps :trailers in the rows passed to legacy_bulk_insert.
+      let(:deduplicated_rows) { super().map { |row| row.merge(trailers: {}.to_json) } }
 
       include_examples 'inserts the commits into the database en masse'
     end
@@ -595,13 +612,13 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           merge_request_diff_id: merge_request_diff_id,
           relative_order: 0,
           sha: Gitlab::Database::ShaAttribute.serialize("ba3343bc4fa403a8dfbfcab7fc1a8c29ee34bd69"),
-          merge_request_commits_metadata_id: an_instance_of(Integer),
           trailers: {}.to_json,
+          merge_request_commits_metadata_id: an_instance_of(Integer),
           project_id: an_instance_of(Integer)
         }]
-
-        include_examples 'inserts the commits into the database en masse'
       end
+
+      include_examples 'inserts the commits into the database en masse'
     end
 
     context 'with organization_id in lookup' do
@@ -684,8 +701,28 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
     let(:merge_request_diff) { create(:merge_request_diff) }
     let(:merge_request_diff_commit) { create(:merge_request_diff_commit, merge_request_diff: merge_request_diff) }
 
-    it 'returns the project ID of the associated merge request diff' do
-      expect(merge_request_diff_commit.project_id).to eq(merge_request_diff.project_id)
+    context 'when project_id attribute is nil (pre-swap, unbackfilled row)' do
+      before do
+        merge_request_diff_commit.update_columns(project_id: nil)
+      end
+
+      it 'falls back to the project ID of the associated merge request diff' do
+        expect(merge_request_diff_commit.reload.project_id).to eq(merge_request_diff.project_id)
+      end
+    end
+
+    context 'when project_id attribute is populated (post-swap, NOT NULL column)' do
+      before do
+        merge_request_diff_commit.update_columns(project_id: merge_request_diff.project_id)
+      end
+
+      it 'returns the value from the attribute without loading merge_request_diff' do
+        commit = described_class.find(merge_request_diff_commit.id)
+
+        expect(commit.association(:merge_request_diff).loaded?).to be(false)
+        expect(commit.project_id).to eq(merge_request_diff.project_id)
+        expect(commit.association(:merge_request_diff).loaded?).to be(false)
+      end
     end
   end
 

@@ -1481,6 +1481,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
       context 'when sha is only present in diff commit' do
         before do
+          # Pre-backfill scenario: SHA lives only on `merge_request_diff_commits.sha`,
+          # not in `merge_request_commits_metadata`. The metadata-only read path
+          # (`mr_diff_commits_read_new_table`) is only enabled post-backfill, so
+          # stub it off to exercise the legacy union fallback.
+          stub_feature_flags(mr_diff_commits_read_new_table: false)
+
           commit.update!(sha: sha)
           commit.merge_request_commits_metadata.destroy!
         end
@@ -3714,6 +3720,14 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
       subject { merge_request.reload }
 
+      before do
+        # Pre-backfill scenario: committer reachable only via the direct
+        # `committer_id` column on `merge_request_diff_commits`. Once
+        # `mr_diff_commits_read_new_table` is enabled the union with that
+        # path is removed, so this case is exercised with the FF off.
+        stub_feature_flags(mr_diff_commits_read_new_table: false)
+      end
+
       it_behaves_like 'committer filtering matches expected'
     end
 
@@ -3777,6 +3791,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       subject { merge_request.reload }
+
+      before do
+        # Pre-backfill mixed state: one commit via metadata, one only via the
+        # direct `committer_id` column. The union covering both paths only
+        # exists with the FF off; post-backfill the direct path is dropped.
+        stub_feature_flags(mr_diff_commits_read_new_table: false)
+      end
 
       it_behaves_like 'committer filtering matches expected'
     end
@@ -3849,6 +3870,49 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       subject { merge_request.reload }
 
       it_behaves_like 'committer filtering matches expected'
+    end
+
+    context 'with one commit via metadata and one only via direct committer_id' do
+      let_it_be(:merge_request) do
+        create(:merge_request, :skip_diff_creation, source_project: project, target_project: project)
+      end
+
+      let_it_be(:other_user) { create(:user) }
+      let_it_be(:other_diff_commit_user) do
+        create(:merge_request_diff_commit_user, email: other_user.email)
+      end
+
+      let_it_be(:diff) { create(:merge_request_diff, merge_request: merge_request) }
+
+      let_it_be(:metadata_commit) do
+        create(:merge_request_diff_commit, merge_request_diff: diff, committer: diff_commit_user, relative_order: 0)
+      end
+
+      # This commit has no metadata record - its committer is only reachable via the direct
+      # committer_id column on merge_request_diff_commits (the FF-off UNION path).
+      let_it_be(:direct_commit) do
+        create(:diff_commit_without_metadata, merge_request_diff: diff, committer_id: other_diff_commit_user.id, relative_order: 1)
+      end
+
+      subject { merge_request.reload }
+
+      before do
+        subject.clear_memoization(:committer_ids_to_filter_from_approvers)
+        subject.clear_memoization(:committers_to_filter_from_approvers)
+      end
+
+      it 'includes the committer reachable via metadata' do
+        expect(subject.committer_ids_to_filter_from_approvers.pluck(:id)).to include(committer_user.id)
+      end
+
+      it 'excludes the committer reachable only via the direct diff_commits path' do
+        expect(subject.committer_ids_to_filter_from_approvers.pluck(:id)).not_to include(other_user.id)
+      end
+
+      it 'does not reference columns missing from the new diff commits table' do
+        expect { subject.committer_ids_to_filter_from_approvers.load }
+          .not_to query_missing_diff_commit_columns
+      end
     end
   end
 
@@ -4967,12 +5031,56 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
     context 'when `sha` data is distributed across both tables' do
       before do
+        # Mid-backfill state: a subset of diff commits still have their SHA only
+        # on `merge_request_diff_commits` (no metadata link yet). The fallback
+        # to that column is removed when `mr_diff_commits_read_new_table` is on,
+        # so we only assert this behaviour with the FF off.
+        stub_feature_flags(mr_diff_commits_read_new_table: false)
+
         merge_request.merge_request_diffs.flat_map(&:merge_request_diff_commits).sample(10).map do |diff_commit|
           diff_commit.update!(merge_request_commits_metadata_id: nil, sha: diff_commit.sha)
         end
       end
 
       it_behaves_like 'persisted merge request'
+    end
+
+    context 'with a mix of migrated and unmigrated diff commits' do
+      let_it_be(:project) { create(:project, :repository) }
+      let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+      let(:unmigrated_shas) do
+        # Mid-backfill state: nullify `merge_request_commits_metadata_id` on a subset of
+        # diff commits while keeping their `sha`. With the FF enabled, the metadata-only path
+        # excludes these rows; with the FF disabled, the legacy union path includes them.
+        merge_request.merge_request_diffs.flat_map(&:merge_request_diff_commits).sample(5).map do |dc|
+          dc.update!(merge_request_commits_metadata_id: nil, sha: dc.sha)
+          dc.sha
+        end
+      end
+
+      before do
+        unmigrated_shas
+        merge_request.clear_memoization(:read_new_commits_table?)
+      end
+
+      it 'excludes unmigrated diff commits (metadata-only path)' do
+        expect(merge_request.all_commit_shas).not_to include(*unmigrated_shas)
+      end
+
+      it 'does not reference columns missing from the new diff commits table' do
+        expect { merge_request.all_commit_shas }.not_to query_missing_diff_commit_columns
+      end
+
+      context 'when mr_diff_commits_read_new_table is disabled' do
+        before do
+          stub_feature_flags(mr_diff_commits_read_new_table: false)
+          merge_request.clear_memoization(:read_new_commits_table?)
+        end
+
+        it 'includes unmigrated diff commits via the legacy union path' do
+          expect(merge_request.all_commit_shas).to include(*unmigrated_shas)
+        end
+      end
     end
   end
 
@@ -9499,22 +9607,36 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       )
     end
 
-    let_it_be(:diff_commit_without_metadata) do
-      create(
-        :merge_request_diff_commit,
-        merge_request_diff: merge_request_diff,
-        relative_order: 1,
-        sha: 'def456'
-      )
-    end
-
     it 'checks existence of commit by SHA from merge_request_commits_metadata table' do
       expect(merge_request.commit_exists?(commits_metadata.sha)).to eq(true)
     end
 
     context 'when SHA only matches a record in merge_request_diff_commits table' do
-      it 'checks existence of commit by SHA from merge_request_diff_commits_table' do
-        expect(merge_request.commit_exists?(diff_commit_without_metadata.sha)).to eq(true)
+      let_it_be(:orphan_diff_commit) do
+        create(
+          :diff_commit_without_metadata,
+          merge_request_diff: merge_request_diff,
+          relative_order: 2,
+          sha: 'ghi789'
+        )
+      end
+
+      before do
+        merge_request.clear_memoization(:read_new_commits_table?)
+      end
+
+      it 'returns false (fallback to diff_commits.sha is skipped)' do
+        expect(merge_request.commit_exists?(orphan_diff_commit.sha)).to eq(false)
+      end
+
+      context 'when mr_diff_commits_read_new_table is disabled' do
+        before do
+          stub_feature_flags(mr_diff_commits_read_new_table: false)
+        end
+
+        it 'checks existence of commit by SHA from merge_request_diff_commits table' do
+          expect(merge_request.commit_exists?(orphan_diff_commit.sha)).to eq(true)
+        end
       end
     end
   end

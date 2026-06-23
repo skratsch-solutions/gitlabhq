@@ -4,6 +4,7 @@ module Organizations
   module Transfer
     class TopLevelGroupService
       include BaseServiceUtility
+      include Gitlab::Utils::StrongMemoize
 
       BATCH_SIZE = 100
 
@@ -57,9 +58,48 @@ module Organizations
         Preloaders::GroupPolicyPreloader.new(groups, current_user).execute
       end
 
+      # A backfilled organization is unconfirmed and has at least one top-level group.
+      # However, no organization owners have been synced yet and standard authorization
+      # is not possible. Fallback to group owners in this specific case.
+      # This is safe because the organization is not yet confirmed.
       def can_transfer_to_organization?
-        skip_authorization || Ability.allowed?(current_user, :transfer_group, new_organization)
+        return true if skip_authorization
+        return can_update_all_existing_top_level_groups? if backfilled_new_organization?
+
+        Ability.allowed?(current_user, :transfer_group, new_organization)
       end
+
+      def backfilled_new_organization?
+        new_organization.unconfirmed? && existing_top_level_groups.any?
+      end
+
+      def existing_top_level_groups
+        new_organization.groups.top_level.to_a
+      end
+      strong_memoize_attr :existing_top_level_groups
+
+      def can_update_all_existing_top_level_groups?
+        preload_existing_top_level_groups_policy
+        existing_top_level_groups.all? { |group| can_update_group_organization?(group) }
+      end
+
+      def preload_existing_top_level_groups_policy
+        Preloaders::GroupPolicyPreloader.new(existing_top_level_groups, current_user).execute
+      end
+      strong_memoize_attr :preload_existing_top_level_groups_policy
+
+      def can_update_group_organization?(group)
+        return true if authorized_group_ids.include?(group.id)
+
+        authorized = Ability.allowed?(current_user, :update_group_organization, group)
+        authorized_group_ids.add(group.id) if authorized
+        authorized
+      end
+
+      def authorized_group_ids
+        Set.new
+      end
+      strong_memoize_attr :authorized_group_ids
 
       def validate_all_groups
         errors = {}
@@ -81,7 +121,7 @@ module Organizations
         return group_not_root_error unless group_is_root?(group)
         return if skip_authorization
 
-        permission_error unless Ability.allowed?(current_user, :update_group_organization, group)
+        permission_error unless can_update_group_organization?(group)
       end
 
       def group_is_root?(group)

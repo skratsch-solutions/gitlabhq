@@ -505,60 +505,6 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
   end
 
-  describe 'POST #restore' do
-    let_it_be(:group) { create(:group, :deletion_scheduled, owners: user) }
-
-    subject { post :restore, params: { group_id: group.to_param } }
-
-    context 'when authenticated user can admin the group' do
-      before do
-        sign_in(user)
-      end
-
-      context 'when the restore succeeds' do
-        it 'restores the group' do
-          expect { subject }.to change { group.reload.self_deletion_scheduled? }.from(true).to(false)
-        end
-
-        it 'renders success notice upon restoring' do
-          subject
-
-          expect(response).to redirect_to(edit_group_path(group))
-          expect(flash[:notice]).to include "Group '#{group.name}' has been successfully restored."
-        end
-      end
-
-      context 'when the restore fails' do
-        before do
-          allow(::Groups::RestoreService).to receive_message_chain(:new, :execute).and_return(ServiceResponse.error(message: 'error'))
-        end
-
-        it 'does not restore the group' do
-          expect { subject }.not_to change { group.reload.self_deletion_scheduled? }.from(true)
-        end
-
-        it 'redirects to group edit page' do
-          subject
-
-          expect(response).to redirect_to(edit_group_path(group))
-          expect(flash[:alert]).to include 'error'
-        end
-      end
-    end
-
-    context 'when authenticated user cannot admin the group' do
-      before do
-        sign_in(create(:user))
-      end
-
-      it 'returns 404' do
-        subject
-
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
-    end
-  end
-
   describe 'PUT update' do
     before do
       sign_in(user)

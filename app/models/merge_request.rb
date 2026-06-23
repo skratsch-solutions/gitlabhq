@@ -2393,9 +2393,13 @@ class MergeRequest < ApplicationRecord
   end
 
   def all_commits
-    MergeRequestDiffCommit
+    relation = MergeRequestDiffCommit
       .where(merge_request_diff: merge_request_diffs.recent)
       .limit(10_000)
+
+    relation = relation.where(project_id: target_project_id) if read_new_commits_table?
+
+    relation
   end
 
   # Note that this could also return SHA from now dangling commits
@@ -2867,21 +2871,24 @@ class MergeRequest < ApplicationRecord
   end
 
   def commit_exists?(sha)
-    # We query the SHA from `merge_request_commits_metadata` table first and
-    # fallback to querying them from `merge_request_diff_commits` if doesn't match
-    # anything. That is to check if commit exists but the records are old and there
-    # are no `merge_request_commits_metadata_id` set for them since they're not
-    # backfilled yet.
+    diff_commits_subquery = MergeRequestDiffCommit
+      .where('merge_request_diff_commits.merge_request_commits_metadata_id = merge_request_commits_metadata.id')
+      .where_exists(
+        merge_request_diffs.where('merge_request_diffs.id = merge_request_diff_commits.merge_request_diff_id')
+      )
+
+    diff_commits_subquery = diff_commits_subquery.where(project_id: target_project_id) if read_new_commits_table?
+
+    # Data can be found in either table until backfill completes. First look for SHAs in table
+    # `merge_request_commits_metadata`, if not found look in `merge_request_diff_commits`.
     return true if MergeRequest::CommitsMetadata
       .where(project: project, sha: sha)
-      .where_exists(
-        MergeRequestDiffCommit
-          .where('merge_request_diff_commits.merge_request_commits_metadata_id = merge_request_commits_metadata.id')
-          .where_exists(
-            merge_request_diffs.where('merge_request_diffs.id = merge_request_diff_commits.merge_request_diff_id')
-          )
-      )
+      .where_exists(diff_commits_subquery)
       .exists?
+
+    # We skip querying `merge_request_diff_commits` table when FF `mr_diff_commits_read_new_table` is enabled.
+    # This flag will only be enabled when new table is fully populated
+    return false if read_new_commits_table?
 
     all_commits.exists?(sha: sha)
   end
@@ -3012,12 +3019,14 @@ class MergeRequest < ApplicationRecord
   def committer_emails_from_diff
     return [] unless merge_request_diff&.persisted?
 
-    union = Arel::Nodes::Union.new(
-      committer_emails_via_metadata_query,
-      committer_emails_via_direct_query
-    )
+    committer_emails_query =
+      if read_new_commits_table?
+        committer_emails_via_metadata_query
+      else
+        Arel::Nodes::Union.new(committer_emails_via_metadata_query, committer_emails_via_direct_query)
+      end
 
-    ApplicationRecord.connection.select_values(union.to_sql)
+    ApplicationRecord.connection.select_values(committer_emails_query.to_sql)
   end
   strong_memoize_attr :committer_emails_from_diff
 
@@ -3026,7 +3035,7 @@ class MergeRequest < ApplicationRecord
     m = MergeRequest::CommitsMetadata.arel_table
     u = MergeRequest::DiffCommitUser.arel_table
 
-    dc.project(u[:email])
+    query = dc.project(u[:email])
       .join(m).on(
         m[:id].eq(dc[:merge_request_commits_metadata_id])
         .and(m[:project_id].eq(target_project_id))
@@ -3034,6 +3043,10 @@ class MergeRequest < ApplicationRecord
       .join(u).on(u[:id].eq(m[:committer_id]))
       .where(dc[:merge_request_diff_id].eq(merge_request_diff.id))
       .where(u[:email].not_eq(nil))
+
+    query = query.where(dc[:project_id].eq(target_project_id)) if read_new_commits_table?
+
+    query
   end
 
   def committer_emails_via_direct_query
@@ -3254,6 +3267,8 @@ class MergeRequest < ApplicationRecord
                       .where(project_id: project_id)
                       .pluck(:sha)
 
+    return migrated_shas.uniq if read_new_commits_table?
+
     # We need to query SHAs from `merge_request_diff_commits` table to account
     # for records that don't have `merge_request_commits_metadata_id` populated yet
     unmigrated_shas = all_commits.where(merge_request_commits_metadata_id: nil).pluck(:sha)
@@ -3270,6 +3285,12 @@ class MergeRequest < ApplicationRecord
 
     ::Gitlab::MergeRequests::DiffResolver.new(self, params).resolve
   end
+
+  def read_new_commits_table?
+    Feature.enabled?(:mr_diff_commits_read_new_table, project) &&
+      Feature.enabled?(:merge_request_diff_commits_partition, project)
+  end
+  strong_memoize_attr :read_new_commits_table?
 end
 
 MergeRequest.prepend_mod_with('MergeRequest')

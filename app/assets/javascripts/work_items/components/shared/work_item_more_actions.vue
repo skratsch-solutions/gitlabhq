@@ -69,6 +69,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['toggle-show-closed', 'update-hidden-metadata-keys'],
   data() {
     return {
       isDropdownVisible: false,

@@ -95,6 +95,7 @@ export default {
       default: false,
     },
   },
+  emits: ['click', 'mouseout', 'mouseover', 'removeChild'],
   computed: {
     shouldShowAssignees() {
       const showAssignee =

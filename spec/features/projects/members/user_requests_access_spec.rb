@@ -62,7 +62,7 @@ RSpec.describe 'Projects > Members > User requests access', :js, feature_categor
     end
 
     it 'user is not listed in the project members page' do
-      within_testid('super-sidebar') do
+      within_testid('non-static-items-section') do
         click_button 'Manage'
         click_link 'Members'
       end

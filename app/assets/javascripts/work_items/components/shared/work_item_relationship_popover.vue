@@ -50,6 +50,7 @@ export default {
       required: false,
     },
   },
+  emits: ['click', 'mouseout', 'mouseover'],
   defaultDisplayLimit: 3,
   computed: {
     atLinkedItemsDisplayLimit() {

@@ -32,6 +32,7 @@ export default {
       default: '',
     },
   },
+  emits: ['click'],
   computed: {
     toggleLabel() {
       return this.isCollapsed

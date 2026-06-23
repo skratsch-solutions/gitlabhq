@@ -391,8 +391,8 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
     end
 
     describe '.with_user' do
-      let_it_be(:user, freeze: false) { create(:user, organization: organization) }
-      let_it_be(:second_organization, freeze: false) { create(:organization, users: [user]) }
+      let_it_be_with_reload(:user) { create(:user, organization: organization) }
+      let_it_be_with_reload(:second_organization) { create(:organization, users: [user]) }
 
       subject(:organizations_for_user) { described_class.with_user(user) }
 
@@ -527,7 +527,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   end
 
   describe 'invalid state transitions' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     it 'cannot soft_delete! from soft_deleted state' do
       organization.update_column(:state, described_class.states['soft_deleted'])
@@ -564,7 +564,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   end
 
   describe '#owner?' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     subject { organization.owner?(user) }
 
@@ -590,7 +590,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   end
 
   describe '#add_owner' do
-    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be_with_reload(:user) { create(:user) }
 
     before_all do
       organization.add_owner(user)

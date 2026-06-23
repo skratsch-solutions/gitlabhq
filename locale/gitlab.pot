@@ -3467,7 +3467,7 @@ msgstr ""
 msgid "AICatalog|Trigger %{itemType} when a pipeline status changes."
 msgstr ""
 
-msgid "AICatalog|Trigger %{itemType} when a work item is created (issues, tasks, incidents, and other project-level work item types)."
+msgid "AICatalog|Trigger %{itemType} when a project-level work item is created or its status is updated."
 msgstr ""
 
 msgid "AICatalog|Trigger %{itemType} when service account user is assigned as a reviewer to a merge request."
@@ -6151,6 +6151,9 @@ msgid "AdminSelfHostedModels|%{count} more"
 msgstr ""
 
 msgid "AdminSelfHostedModels|A unique and descriptive name for your deployment."
+msgstr ""
+
+msgid "AdminSelfHostedModels|AI Gateway could not connect to the model endpoint. Verify the model endpoint URL is correct and reachable from the AI Gateway, and that any firewall or proxy is not blocking the connection."
 msgstr ""
 
 msgid "AdminSelfHostedModels|API Key (optional)"
@@ -10409,6 +10412,15 @@ msgstr ""
 msgid "Analyze"
 msgstr ""
 
+msgid "Analyze CI/CD pipeline metrics and performance"
+msgstr ""
+
+msgid "Analyze repository coverage, statistics, and metrics"
+msgstr ""
+
+msgid "Analyze value stream and cycle time"
+msgstr ""
+
 msgid "Analyze your dependencies for known vulnerabilities."
 msgstr ""
 
@@ -14389,6 +14401,9 @@ msgstr ""
 msgid "Breadcrumbs"
 msgstr ""
 
+msgid "Break down large initiatives into smaller, manageable work items across multiple projects"
+msgstr ""
+
 msgid "Broadcast Message was successfully created."
 msgstr ""
 
@@ -14573,6 +14588,9 @@ msgid "Build a new repository or import existing work."
 msgstr ""
 
 msgid "Build cannot be erased"
+msgstr ""
+
+msgid "Build stronger customer relationships by tracking interactions and organizations"
 msgstr ""
 
 msgid "Build, test, and deploy your code with pipelines."
@@ -18522,6 +18540,9 @@ msgstr ""
 msgid "Collation name"
 msgstr ""
 
+msgid "Collect customer feedback and support requests via email"
+msgstr ""
+
 msgid "Collector hostname"
 msgstr ""
 
@@ -21106,6 +21127,9 @@ msgstr ""
 msgid "Configure search access and visibility settings for search scopes."
 msgstr ""
 
+msgid "Configure security scanning and settings"
+msgstr ""
+
 msgid "Configure settings for advanced search."
 msgstr ""
 
@@ -22405,6 +22429,9 @@ msgstr ""
 msgid "Control who has access to your group and what they can do"
 msgstr ""
 
+msgid "Control who has access to your project and what they can do"
+msgstr ""
+
 msgid "Convert Jenkins to GitLab CI/CD using Duo"
 msgstr ""
 
@@ -22900,6 +22927,9 @@ msgstr ""
 msgid "Create an incident. Incidents are created for each alert triggered."
 msgstr ""
 
+msgid "Create and manage documentation"
+msgstr ""
+
 msgid "Create branch"
 msgstr ""
 
@@ -23018,6 +23048,9 @@ msgid "Create wildcard: %{searchTerm}"
 msgstr ""
 
 msgid "Create your first page"
+msgstr ""
+
+msgid "Create, manage, and measure custom analytics dashboards"
 msgstr ""
 
 msgid "Create, update, or delete a merge request."
@@ -25387,6 +25420,9 @@ msgid "Define custom rules for what constitutes spam, independent of Akismet"
 msgstr ""
 
 msgid "Define how approval rules are applied to merge requests."
+msgstr ""
+
+msgid "Define on-call rotations to ensure the right people are alerted"
 msgstr ""
 
 msgid "Define rules for who can push, merge, and the required approvals for each branch."
@@ -31815,6 +31851,9 @@ msgid "Explore / AI Catalog (Agents)"
 msgstr ""
 
 msgid "Explore / AI Catalog (Flows)"
+msgstr ""
+
+msgid "Explore and analyze distributed traces"
 msgstr ""
 
 msgid "Explore groups"
@@ -40641,6 +40680,9 @@ msgstr ""
 msgid "Invalidated"
 msgstr ""
 
+msgid "Inventory of security assets"
+msgstr ""
+
 msgid "Investigate vulnerabilities"
 msgstr ""
 
@@ -44510,6 +44552,9 @@ msgstr ""
 msgid "Manage access"
 msgstr ""
 
+msgid "Manage alerts and notifications"
+msgstr ""
+
 msgid "Manage applications that can use GitLab as an OAuth provider, and applications that you've authorized to use your account."
 msgstr ""
 
@@ -44534,10 +44579,19 @@ msgstr ""
 msgid "Manage deployments"
 msgstr ""
 
+msgid "Manage file locks to prevent conflicting changes"
+msgstr ""
+
 msgid "Manage framework"
 msgstr ""
 
+msgid "Manage group credentials inventory"
+msgstr ""
+
 msgid "Manage group labels"
+msgstr ""
+
+msgid "Manage incident response and resolution"
 msgstr ""
 
 msgid "Manage members"
@@ -45291,6 +45345,15 @@ msgid "May"
 msgstr ""
 
 msgid "Mean time to merge"
+msgstr ""
+
+msgid "Measure DevOps adoption across the group"
+msgstr ""
+
+msgid "Measure code review efficiency and merge request throughput"
+msgstr ""
+
+msgid "Measure team productivity metrics"
 msgstr ""
 
 msgid "Measured in bytes of code. Excludes generated and vendored code."
@@ -47838,10 +47901,19 @@ msgstr ""
 msgid "Monitor Settings"
 msgstr ""
 
+msgid "Monitor and address security vulnerabilities"
+msgstr ""
+
+msgid "Monitor and enforce compliance status and reports"
+msgstr ""
+
 msgid "Monitor and observe AI agent behavior and activities across your group."
 msgstr ""
 
 msgid "Monitor and observe AI agent behavior and activities across your project."
+msgstr ""
+
+msgid "Monitor open source libraries and their known vulnerabilities"
 msgstr ""
 
 msgid "Monitor your errors directly in GitLab."
@@ -53220,6 +53292,9 @@ msgstr ""
 msgid "Organize and categorize work across your group with consistent labels"
 msgstr ""
 
+msgid "Organize and categorize work across your project with consistent labels"
+msgstr ""
+
 msgid "Organize work with projects"
 msgstr ""
 
@@ -56274,6 +56349,9 @@ msgid "Plain-text response to send to clients that hit a rate limit"
 msgstr ""
 
 msgid "Plan"
+msgstr ""
+
+msgid "Plan and communicate your group's strategic direction with a visual timeline"
 msgstr ""
 
 msgid "Plan and track test cases for your project."
@@ -62956,6 +63034,9 @@ msgstr ""
 msgid "Run pipeline"
 msgstr ""
 
+msgid "Run security scans on demand against any branch or environment"
+msgstr ""
+
 msgid "Run this job again in order to create the necessary resources."
 msgstr ""
 
@@ -65527,6 +65608,9 @@ msgid "Search (3 character minimum)"
 msgstr ""
 
 msgid "Search an environment spec"
+msgstr ""
+
+msgid "Search and analyze application logs"
 msgstr ""
 
 msgid "Search artifacts"
@@ -71580,6 +71664,9 @@ msgstr ""
 msgid "SecurityTxt|When present, this will be publicly available at %{codeOpen}https://gitlab.example.com/.well-known/security.txt%{codeClose}. Maximum 2048 characters."
 msgstr ""
 
+msgid "See a complete record of all changes and access events"
+msgstr ""
+
 msgid "See commit statistics for each contributor."
 msgstr ""
 
@@ -72642,6 +72729,9 @@ msgstr ""
 msgid "Set due date"
 msgstr ""
 
+msgid "Set escalation rules to ensure alerts reach the right responders"
+msgstr ""
+
 msgid "Set health status"
 msgstr ""
 
@@ -72676,6 +72766,9 @@ msgid "Set rate limits for package registry API requests that supersede the gene
 msgstr ""
 
 msgid "Set rate limits for searches performed by web or API requests."
+msgstr ""
+
+msgid "Set rules to protect your projects and data"
 msgstr ""
 
 msgid "Set severity"
@@ -74772,7 +74865,19 @@ msgstr ""
 msgid "Store and deploy container images"
 msgstr ""
 
+msgid "Store and manage group secrets"
+msgstr ""
+
+msgid "Store and manage machine learning models"
+msgstr ""
+
+msgid "Store and manage project secrets"
+msgstr ""
+
 msgid "Store and manage your Terraform state files."
+msgstr ""
+
+msgid "Store and share code snippets"
 msgstr ""
 
 msgid "Stored version"
@@ -79489,6 +79594,9 @@ msgstr ""
 msgid "Trace Details"
 msgstr ""
 
+msgid "Trace requests across services to diagnose performance issues"
+msgstr ""
+
 msgid "Tracing"
 msgstr ""
 
@@ -79654,10 +79762,22 @@ msgstr ""
 msgid "Tracing|value"
 msgstr ""
 
+msgid "Track and manage application errors"
+msgstr ""
+
+msgid "Track and manage machine learning experiments"
+msgstr ""
+
 msgid "Track and manage your deployment environments."
 msgstr ""
 
 msgid "Track and prioritize work across all group projects"
+msgstr ""
+
+msgid "Track and view member contributions and activity"
+msgstr ""
+
+msgid "Track bugs, features, and tasks in one place"
 msgstr ""
 
 msgid "Track compliance across your projects. Upgrade to GitLab Ultimate to access the Compliance center."
@@ -79673,6 +79793,9 @@ msgid "Track important events in your group."
 msgstr ""
 
 msgid "Track important events in your project."
+msgstr ""
+
+msgid "Track issue metrics, trends, and throughput"
 msgstr ""
 
 msgid "Track time with quick actions"
@@ -83339,6 +83462,9 @@ msgstr ""
 msgid "View incident issues."
 msgstr ""
 
+msgid "View insights and build custom charts and reports"
+msgstr ""
+
 msgid "View issue"
 msgstr ""
 
@@ -83396,6 +83522,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "View replaced file @ "
+msgstr ""
+
+msgid "View security findings and trends"
 msgstr ""
 
 msgid "View source"
@@ -84221,6 +84350,12 @@ msgid "Visual Studio Code (SSH)"
 msgstr ""
 
 msgid "Visualize and manage work with kanban-style boards"
+msgstr ""
+
+msgid "Visualize and monitor application and infrastructure metrics"
+msgstr ""
+
+msgid "Visualize epic workflow and manage progress using kanban-style boards"
 msgstr ""
 
 msgid "Visualize the branch and commit graph of your repository."

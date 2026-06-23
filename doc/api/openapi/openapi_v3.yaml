@@ -82527,9 +82527,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         project_id:
           type: integer
+          format: int64
           example: 1
         state_name:
           type: string
@@ -86968,6 +86970,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         active:
           type: boolean

@@ -340,6 +340,55 @@ RSpec.describe MergeRequest::CommitsMetadata, feature_category: :code_review_wor
           expect(result).to be_empty
         end
       end
+
+      context 'when querying for a commit in the metadata table' do
+        let(:shas) { [commit_sha_1] }
+
+        it 'returns the merge request ID for that commit' do
+          expect(result.pluck(:sha, :merge_request_id)).to contain_exactly([commit_sha_1, mr_1.id])
+        end
+
+        it 'does not fall back to querying merge_request_diff_commits directly' do
+          recorder = ActiveRecord::QueryRecorder.new { result.to_a }
+
+          expect(recorder.log.size).to eq(1)
+          expect(recorder.log.first).to match(/"merge_request_commits_metadata"."sha" =/)
+          expect(recorder.log.first).not_to match(/"merge_request_diff_commits"."sha" =/)
+        end
+
+        context 'when mr_diff_commits_read_new_table is disabled' do
+          before do
+            stub_feature_flags(mr_diff_commits_read_new_table: false)
+          end
+
+          it 'returns the merge request ID for that commit' do
+            expect(result.pluck(:sha, :merge_request_id)).to contain_exactly([commit_sha_1, mr_1.id])
+          end
+
+          context 'when data exists in old table only' do
+            let_it_be(:old_commit_sha) { OpenSSL::Digest::SHA256.hexdigest('old_sha') }
+            let_it_be(:old_table_commit) do
+              create(:diff_commit_without_metadata,
+                merge_request_diff: mr_diff_1,
+                sha: old_commit_sha,
+                relative_order: mr_diff_1.merge_request_diff_commits.reload.size)
+            end
+
+            let(:shas) { [old_commit_sha] }
+
+            it 'returns the merge request ID for that commit' do
+              expect(result.pluck(:sha, :merge_request_id)).to contain_exactly([old_commit_sha, mr_1.id])
+            end
+
+            it 'falls back to querying merge_request_diff_commits directly' do
+              recorder = ActiveRecord::QueryRecorder.new { result.to_a }
+
+              expect(recorder.log.first).to match(/"merge_request_commits_metadata"."sha" =/)
+              expect(recorder.log.second).to match(/"merge_request_diff_commits"."sha" =/)
+            end
+          end
+        end
+      end
     end
 
     context 'when merge requests are not merged' do
@@ -393,6 +442,67 @@ RSpec.describe MergeRequest::CommitsMetadata, feature_category: :code_review_wor
 
       it 'only returns results for the specified project' do
         expect(result).to be_empty
+      end
+    end
+  end
+
+  describe '.oldest_merge_requests_commits_from_metadata' do
+    let_it_be(:project) { create(:project) }
+    let(:shas) { [sha_a] }
+    let_it_be(:sha_a) { OpenSSL::Digest::SHA256.hexdigest('sha_a') }
+    let_it_be(:sha_b) { OpenSSL::Digest::SHA256.hexdigest('sha_b') }
+    let_it_be(:metadata_a) { create(:merge_request_commits_metadata, project: project, sha: sha_a) }
+    let_it_be(:mr_1) { create(:merge_request, :merged, target_project: project) }
+    let_it_be(:mr_2) { create(:merge_request, :merged, target_project: project) }
+
+    before_all do
+      create(:merge_request_diff_commit, merge_request_diff: mr_1.merge_request_diff,
+        merge_request_commits_metadata: metadata_a)
+      create(:merge_request_diff_commit, merge_request_diff: mr_2.merge_request_diff,
+        merge_request_commits_metadata: metadata_a)
+    end
+
+    subject(:result) { described_class.oldest_merge_requests_commits_from_metadata(project.id, shas) }
+
+    it 'returns the sha and the minimum merge_request_id across merged MRs' do
+      expect(result.to_a.pluck(:sha, :merge_request_id)).to contain_exactly([sha_a, mr_1.id])
+    end
+
+    it 'excludes SHAs not in the provided list' do
+      expect(described_class.oldest_merge_requests_commits_from_metadata(project.id, [sha_b])).to be_empty
+    end
+
+    context 'when the commit has no merge_request_diff_commits link' do
+      let_it_be(:metadata_b) { create(:merge_request_commits_metadata, project: project, sha: sha_b) }
+
+      let(:shas) { [sha_b] }
+
+      it 'excludes it via the INNER JOIN on merge_request_diff_commits' do
+        expect(result).to be_empty
+      end
+    end
+
+    context 'when the commit is linked only to non-merged MRs' do
+      let_it_be(:open_sha) { OpenSSL::Digest::SHA256.hexdigest('open_sha') }
+      let(:shas) { [open_sha] }
+      let_it_be(:open_metadata) { create(:merge_request_commits_metadata, project: project, sha: open_sha) }
+      let_it_be(:mr_open) { create(:merge_request, :opened, source_project: project, target_project: project) }
+
+      before_all do
+        create(:merge_request_diff_commit, merge_request_diff: mr_open.merge_request_diff,
+          merge_request_commits_metadata: open_metadata)
+      end
+
+      it 'returns empty results' do
+        expect(result).to be_empty
+      end
+    end
+
+    context 'when the commit belongs to a different project' do
+      let_it_be(:other_project) { create(:project) }
+
+      it 'returns empty results for the other project' do
+        expect(described_class.oldest_merge_requests_commits_from_metadata(other_project.id, shas)).to be_empty
       end
     end
   end

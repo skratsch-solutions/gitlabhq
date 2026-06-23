@@ -51,7 +51,7 @@ RSpec.describe Discussions::ResolveService, feature_category: :code_review_workf
     end
 
     context 'when not all discussions are resolved' do
-      before do
+      before_all do
         create(:diff_note_on_merge_request, noteable: merge_request, project: project).to_discussion
       end
 

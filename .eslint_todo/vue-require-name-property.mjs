@@ -33,7 +33,6 @@ export default {
     'app/assets/javascripts/analytics/devops_reports/components/devops_score.vue',
     'app/assets/javascripts/analytics/devops_reports/components/service_ping_disabled.vue',
     'app/assets/javascripts/analytics/shared/components/daterange.vue',
-    'app/assets/javascripts/blame/preferences/blame_preferences.vue',
     'app/assets/javascripts/blob/components/blame_header.vue',
     'app/assets/javascripts/blob/components/blob_content_error.vue',
     'app/assets/javascripts/blob/components/blob_header.vue',

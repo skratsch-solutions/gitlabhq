@@ -275,7 +275,7 @@ RSpec.describe 'Accessibility: Writing Code', :js, feature_category: :source_cod
       visit project_commit_path(project, commit.id)
       wait_for_requests
 
-      click_link('Pipelines')
+      within('.commit-ci-menu') { click_link('Pipelines') }
       wait_for_requests
 
       expect(page).to be_axe_clean.within('#content-body').skipping :'link-in-text-block', :'link-name'
@@ -285,7 +285,7 @@ RSpec.describe 'Accessibility: Writing Code', :js, feature_category: :source_cod
       visit project_commit_path(project, commit.id)
       wait_for_requests
 
-      click_link('Pipelines')
+      within('.commit-ci-menu') { click_link('Pipelines') }
       wait_for_requests
 
       click_link('Changes')

@@ -181,6 +181,16 @@ export default {
       required: true,
     },
   },
+  emits: [
+    'blur',
+    'cancel-editing',
+    'error',
+    'focus',
+    'start-editing',
+    'stop-editing',
+    'submit-form',
+    'toggle-resolve-discussion',
+  ],
   data() {
     return {
       commentText: getDraft(this.autosaveKey) || this.initialValue || '',

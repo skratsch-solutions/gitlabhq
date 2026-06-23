@@ -51,7 +51,9 @@ RSpec.describe 'Commit > Pipelines tab', :js, feature_category: :source_code_man
     end
 
     it 'does not display pipelines tab link' do
-      expect(page).not_to have_link('Pipelines')
+      within('#content-body') do
+        expect(page).not_to have_link('Pipelines')
+      end
     end
   end
 end

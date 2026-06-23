@@ -81,14 +81,16 @@ module Gitlab
 
           return if @excluded_relations.include?(key.to_s)
 
+          batch_ids = options[:batch_ids]
+
+          return if batch_ids && batch_ids.empty?
+
           record = exportable.public_send(key) # rubocop: disable GitlabSecurity/PublicSend
 
-          if options[:batch_ids]
-            record = record.where(record.model.primary_key => Array.wrap(options[:batch_ids]).map(&:to_i))
-          end
+          record = record.where(record.model.primary_key => Array.wrap(batch_ids).map(&:to_i)) if batch_ids
 
           if record.is_a?(ActiveRecord::Relation)
-            batch_order = batch_ordering(record, key, options[:batch_ids])
+            batch_order = batch_ordering(record, key, batch_ids)
             serialize_many_relations(key, record, definition_options, batch_order: batch_order)
           elsif record.respond_to?(:each) # this is to support `project_members` that return an Array
             serialize_many_each(key, record, definition_options)

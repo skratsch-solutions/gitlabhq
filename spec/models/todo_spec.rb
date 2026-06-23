@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe Todo, feature_category: :notifications do
-  let_it_be(:issue, freeze: false) { create(:issue) }
+  let_it_be_with_reload(:issue) { create(:issue) }
   let_it_be(:user) { create(:user) }
   let_it_be(:user2) { create(:user) }
   let_it_be(:group) { create(:group, developers: user) }
-  let_it_be(:project, freeze: false) { create(:project, :repository, developers: user) }
+  let_it_be_with_reload(:project) { create(:project, :repository, developers: user) }
   let_it_be(:project2) { create(:project) }
 
   describe 'relationships' do
@@ -400,7 +400,7 @@ RSpec.describe Todo, feature_category: :notifications do
     end
 
     context 'when the todo is coming from an issue' do
-      let_it_be(:issue, freeze: false) { create(:issue, project: project) }
+      let_it_be_with_reload(:issue) { create(:issue, project: project) }
       let(:issue_path) { ::Gitlab::UrlBuilder.instance.issue_path(issue) }
 
       context 'when coming from the issue itself' do
@@ -481,7 +481,7 @@ RSpec.describe Todo, feature_category: :notifications do
     end
 
     context 'when the todo is coming from a wiki page' do
-      let_it_be(:wiki_page_meta, freeze: false) { create(:wiki_page_meta, :for_wiki_page, project: project) }
+      let_it_be_with_reload(:wiki_page_meta) { create(:wiki_page_meta, :for_wiki_page, project: project) }
 
       context 'when coming from the wiki page itself' do
         let_it_be(:todo) { create(:todo, project: project, user: user, target: wiki_page_meta) }

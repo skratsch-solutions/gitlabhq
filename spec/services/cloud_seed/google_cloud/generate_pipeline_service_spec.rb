@@ -8,6 +8,11 @@ RSpec.describe CloudSeed::GoogleCloud::GeneratePipelineService, feature_category
       let_it_be(:project) { create(:project, :repository) }
       let_it_be(:maintainer) { create(:user) }
       let_it_be(:service_params) { { action: described_class::ACTION_DEPLOY_TO_CLOUD_RUN } }
+      # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+      # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+      # subject, or an in-memory mutation that survives reload/refind). Do not
+      # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+      # (see gitlab-org/gitlab#602925).
       let_it_be(:service, freeze: false) { described_class.new(project, maintainer, service_params) }
 
       before do

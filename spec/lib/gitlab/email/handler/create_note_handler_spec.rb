@@ -6,7 +6,7 @@ RSpec.describe Gitlab::Email::Handler::CreateNoteHandler, feature_category: :sha
   include_context 'email shared context'
 
   let_it_be_with_reload(:user) { create(:user, email: 'jake@adventuretime.ooo') }
-  let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
+  let_it_be_with_reload(:project) { create(:project, :public, :repository) }
   let_it_be(:support_bot) { create(:support_bot) }
 
   let(:noteable)  { note.noteable }

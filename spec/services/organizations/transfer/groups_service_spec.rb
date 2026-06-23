@@ -622,12 +622,12 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
     end
 
     context 'when disconnecting from gitaly' do
-      let_it_be(:project, freeze: false) do
+      let_it_be_with_reload(:project) do
         create(:project, :small_repo, namespace: group, organization: old_organization)
       end
 
       context 'when linked to pool repository' do
-        let_it_be(:pool_repository, freeze: false) do
+        let_it_be_with_reload(:pool_repository) do
           create(:pool_repository, :ready, source_project: project)
         end
 

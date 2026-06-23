@@ -39,6 +39,7 @@ export default {
       default: undefined,
     },
   },
+  emits: ['startEditing', 'stopEditing'],
   data() {
     return {
       editing: false,

@@ -24,6 +24,7 @@ const i18n = {
 };
 
 export default {
+  name: 'BlamePreferences',
   i18n,
   docsLink: helpPagePath('user/project/repository/files/git_blame.md', {
     anchor: 'ignore-specific-revisions',
