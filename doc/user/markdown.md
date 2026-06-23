@@ -133,12 +133,13 @@ Don't use `image of` or `video of` in the description. For more information, see
 Titles of issues, merge requests, epics, and other work items do not support full GitLab Flavored Markdown.
 Titles support only:
 
+- Code spans (`` `code` ``), without support for [using additional backticks](#use-additional-backticks) or escaping.
 - Emoji (`:emoji:` shortcodes and custom emoji).
 - Auto-linked URLs.
 - [GitLab-specific references](#gitlab-specific-references) like `#123`,
   `@user`, and `!456`.
 
-Standard Markdown syntax like bold, italic, code spans, links, headings, lists, and other block-level formatting is not processed in titles.
+Standard Markdown syntax like bold, italic, links, headings, lists, and other block-level formatting is not processed in titles.
 For example, the title `` **Merge request title** `` is not displayed in bold and is displayed with the asterisks.
 
 ## Headings

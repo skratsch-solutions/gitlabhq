@@ -79,6 +79,33 @@ RSpec.describe Projects::LfsPointers::LfsObjectDownloadListService, feature_cate
       end
     end
 
+    context 'when the download link list service raises an error' do
+      before do
+        allow_any_instance_of(Projects::LfsPointers::LfsDownloadLinkListService)
+          .to receive(:each_link).and_raise(error)
+      end
+
+      context 'with a generic download links error' do
+        let(:error) { Projects::LfsPointers::LfsDownloadLinkListService::DownloadLinksError.new('boom') }
+
+        it 'wraps it in a LfsObjectDownloadListError' do
+          expect { subject.each_list_item {} }
+            .to raise_error(described_class::LfsObjectDownloadListError, /Error: boom/)
+        end
+      end
+
+      context 'with an unauthorized error' do
+        let(:error) do
+          Projects::LfsPointers::LfsDownloadLinkListService::DownloadLinksRequestUnauthorizedError.new('Unauthorized')
+        end
+
+        it 'wraps it in a LfsObjectDownloadListUnauthorizedError' do
+          expect { subject.each_list_item {} }
+            .to raise_error(described_class::LfsObjectDownloadListUnauthorizedError, /Error: Unauthorized/)
+        end
+      end
+    end
+
     context 'when lfsconfig file exists' do
       before do
         allow(project.repository).to receive(:lfsconfig_for).and_return("[lfs]\n\turl = #{lfs_endpoint}\n")

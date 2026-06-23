@@ -36,6 +36,10 @@ module Bitbucket
       perform_refresh!
     end
 
+    def refresh_if_expired!
+      refresh! if expired?
+    end
+
     def perform_refresh!
       response = connection.refresh!
 
@@ -58,7 +62,7 @@ module Bitbucket
 
     def get_with_retry(path, extra_query = {})
       retry_with_exponential_backoff do
-        refresh! if expired?
+        refresh_if_expired!
 
         connection.get(build_url(path), params: @default_query.merge(extra_query))
       end

@@ -60,4 +60,14 @@ RSpec.describe Bitbucket::Connection, feature_category: :importers do
       bitbucket_connection.get_response_code
     end
   end
+
+  describe '#refresh_if_expired!' do
+    it 'delegates to underlying connection' do
+      expect_next_instance_of(Bitbucket::OauthConnection) do |connection|
+        expect(connection).to receive(:refresh_if_expired!)
+      end
+
+      bitbucket_connection.refresh_if_expired!
+    end
+  end
 end

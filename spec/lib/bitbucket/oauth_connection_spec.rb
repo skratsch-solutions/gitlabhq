@@ -186,6 +186,30 @@ RSpec.describe Bitbucket::OauthConnection, feature_category: :importers do
     end
   end
 
+  describe '#refresh_if_expired!' do
+    context 'when the token has expired' do
+      it 'refreshes the token' do
+        connection = described_class.new({ token: token })
+
+        allow(connection).to receive(:expired?).and_return(true)
+        expect(connection).to receive(:refresh!)
+
+        connection.refresh_if_expired!
+      end
+    end
+
+    context 'when the token has not expired' do
+      it 'does not refresh the token' do
+        connection = described_class.new({ token: token })
+
+        allow(connection).to receive(:expired?).and_return(false)
+        expect(connection).not_to receive(:refresh!)
+
+        connection.refresh_if_expired!
+      end
+    end
+  end
+
   describe '#perform_refresh!' do
     it 'rotates the in-memory credentials from the OAuth2 response', :aggregate_failures do
       response = instance_double(

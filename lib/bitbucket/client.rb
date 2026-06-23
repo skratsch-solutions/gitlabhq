@@ -38,6 +38,10 @@ module Bitbucket
       @connection = Connection.new(options, refresh_strategy: refresh_strategy)
     end
 
+    def refresh_if_expired!
+      connection.refresh_if_expired!
+    end
+
     # Fetches data from the Bitbucket API and yields a Page object for every page
     # of data, without loading all of them into memory.
     #

@@ -23,6 +23,11 @@ module Bitbucket # rubocop:disable Gitlab:BoundedContexts -- existing module
       get_with_retry(path, extra_query).code.to_i
     end
 
+    # API token credentials don't expire, so there is nothing to refresh.
+    def refresh_if_expired!
+      nil
+    end
+
     private
 
     def get_with_retry(path, extra_query = {})

@@ -850,12 +850,12 @@ GEM
       prometheus-client-mmap (>= 1.2, < 2.0)
       redis (> 3.0.0, < 6.0.0)
     gitlab-license (2.6.0)
-    gitlab-mail_room (1.0.0)
-      jwt (>= 2.0)
-      net-imap (>= 0.2.1)
-      oauth2 (>= 1.4.4, < 3)
+    gitlab-mail_room (1.1.0)
+      jwt (>= 2.0, < 4)
+      net-imap (>= 0.5, < 0.7)
+      oauth2 (>= 2.0.9, < 3)
       redis (>= 5, < 6)
-      redis-namespace (>= 1.8.2)
+      redis-namespace (>= 1.8.2, < 2)
     gitlab-markup (2.0.0)
     gitlab-net-dns (0.15.0)
       logger
@@ -2448,7 +2448,7 @@ DEPENDENCIES
   gitlab-kas-grpc (~> 19.1.0.pre.rc2)
   gitlab-labkit (~> 2.6.0)
   gitlab-license (~> 2.6)
-  gitlab-mail_room (~> 1.0.0)
+  gitlab-mail_room (~> 1.1.0)
   gitlab-markup (~> 2.0.0)
   gitlab-net-dns (~> 0.15.0)
   gitlab-rspec!
@@ -2955,7 +2955,7 @@ CHECKSUMS
   gitlab-kas-grpc (19.1.0.pre.rc2) sha256=d63d683a7295de4e5f2edd294cb4f1069633859aa496792750604f662f6fe950
   gitlab-labkit (2.6.0) sha256=7a7ec84c0e2ea6d68ab5a7a1067ce93bad66a60f7c75637e0678baa0b1b17d38
   gitlab-license (2.6.0) sha256=2c1f8ae73835640ec77bf758c1d0c9730635043c01cf77902f7976e826d7d016
-  gitlab-mail_room (1.0.0) sha256=00910bc000ff819f8e2030fd2260f7b40f025c410b11b82de8f67de7922c0159
+  gitlab-mail_room (1.1.0) sha256=784847b914a6636b30264fd8a042c15e39f3473f3acd78ebd254ac0a885a5878
   gitlab-markup (2.0.0) sha256=951a1c871463a8f329e6c002b2da337cd547febcc1e33d84df4a212419fba02e
   gitlab-net-dns (0.15.0) sha256=d229aae205055b86b2ad166981257eb589ce6d6a146aa79b3ea2b1e5d9741f46
   gitlab-rspec (0.1.0)

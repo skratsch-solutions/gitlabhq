@@ -14,6 +14,16 @@ RSpec.describe Bitbucket::Client, feature_category: :importers do
 
   subject(:client) { described_class.new(options) }
 
+  describe '#refresh_if_expired!' do
+    it 'delegates to the connection' do
+      expect_next_instance_of(Bitbucket::Connection) do |connection|
+        expect(connection).to receive(:refresh_if_expired!)
+      end
+
+      client.refresh_if_expired!
+    end
+  end
+
   describe '#each_page' do
     shared_examples 'fetching bitbucket data' do |params|
       let_it_be(:item1) do

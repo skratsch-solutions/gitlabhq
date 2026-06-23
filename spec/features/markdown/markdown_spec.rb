@@ -380,7 +380,7 @@ RSpec.describe 'GitLab Markdown', :aggregate_failures, feature_category: :markdo
       expect(doc).to create_toc
     end
 
-    it 'includes AutolinkFilter' do
+    it 'autolinks' do
       expect(doc).to create_autolinks
     end
 

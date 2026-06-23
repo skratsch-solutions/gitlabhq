@@ -90,7 +90,18 @@ Grants the ability to create and read continuous deployment applications.
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdApplicationCreate` |
 | Read | Instance | Type | `CdApplication` |
+| Read | Instance | Type | `CdApplicationFlowDefinition` |
+| Read | Instance | Type | `CdArtifactSource` |
+| Read | Instance | Type | `CdDeployment` |
+| Read | Instance | Type | `CdDeploymentTransition` |
+| Read | Instance | Type | `CdRollout` |
+| Read | Instance | Type | `CdRolloutEnvironment` |
+| Read | Instance | Type | `CdRolloutTransition` |
 | Read | Instance | Type | `CdService` |
+| Read | Instance | Type | `CdServiceEnvironmentHealth` |
+| Read | Instance | Type | `CdVersion` |
+| Read | Instance | Type | `CdVersionSet` |
+| Read | Instance | Type | `CdVersionSetEntry` |
 
 #### CD Environment
 
@@ -100,6 +111,7 @@ Grants the ability to create and read continuous deployment environments.
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdEnvironmentCreate` |
 | Read | Instance | Type | `CdEnvironment` |
+| Read | Instance | Type | `CdEnvironmentDriverBinding` |
 
 #### CI Config
 

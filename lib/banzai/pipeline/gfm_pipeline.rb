@@ -35,7 +35,6 @@ module Banzai
           Filter::AudioLinkFilter,
           Filter::HeadingAccessibilityFilter,
           Filter::TableOfContentsTagFilter,
-          Filter::AutolinkFilter,
           Filter::SuggestionFilter,
           Filter::FootnoteFilter,
           Filter::InlineDiffFilter,

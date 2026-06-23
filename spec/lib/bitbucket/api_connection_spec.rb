@@ -62,4 +62,12 @@ RSpec.describe Bitbucket::ApiConnection, feature_category: :importers do
       expect(connection.get_response_code('/repositories/workspace/repo/issues')).to eq(404)
     end
   end
+
+  describe '#refresh_if_expired!' do
+    subject(:connection) { described_class.new(email: 'user@example.com', api_token: 'token123') }
+
+    it 'is a no-op because API token credentials do not expire' do
+      expect(connection.refresh_if_expired!).to be_nil
+    end
+  end
 end
