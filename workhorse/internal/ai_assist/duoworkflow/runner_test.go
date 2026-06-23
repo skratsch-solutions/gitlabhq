@@ -1730,6 +1730,67 @@ func TestRunner_stopWorkflow_returnsNilOnAck(t *testing.T) {
 	require.Equal(t, "TEST_REASON", stopEvent.Reason)
 }
 
+func TestRunner_handleAgentMessages_setsWorkflowEndedOnEOF(t *testing.T) {
+	mockWf := &mockWorkflowStream{
+		recvError: io.EOF,
+	}
+	req := httptest.NewRequest("GET", "/duo", nil)
+
+	r := &runner{
+		originalReq: req,
+		streamManager: &streamManager{
+			wf:          mockWf,
+			originalReq: req,
+		},
+		stop: stopCoordinator{
+			acked: make(chan struct{}),
+		},
+	}
+
+	errCh := make(chan error, 1)
+	r.handleAgentMessages(context.Background(), errCh)
+
+	require.NoError(t, <-errCh)
+	require.True(t, r.stop.workflowEnded.Load(), "workflowEnded should be set when DWS sends EOF")
+}
+
+func TestRunner_Shutdown_skipsStopAndCloseGoingAwayWhenWorkflowEnded(t *testing.T) {
+	mockWf := &mockWorkflowStream{}
+	controlMessages := []struct {
+		msgType int
+		data    []byte
+	}{}
+	mockConn := &mockWebSocketConn{}
+	wrappedConn := &shutdownTrackingConn{
+		mockWebSocketConn: mockConn,
+		controlMessages:   &controlMessages,
+	}
+
+	req := httptest.NewRequest("GET", "/duo", nil)
+	r := &runner{
+		originalReq: req,
+		conn:        wrappedConn,
+		streamManager: &streamManager{
+			wf:          mockWf,
+			originalReq: req,
+		},
+		stop: stopCoordinator{
+			acked:        make(chan struct{}),
+			shutdownDone: make(chan struct{}),
+		},
+	}
+	r.stop.workflowEnded.Store(true)
+
+	shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
+	shutdownCancel() // fire immediately
+
+	err := r.Shutdown(shutdownCtx)
+	require.NoError(t, err)
+
+	require.Empty(t, mockWf.getSendEvents(), "no StopWorkflowRequest should be sent when workflow already ended")
+	require.Empty(t, controlMessages, "CloseGoingAway should not be sent when workflow already ended")
+}
+
 func TestRunner_handleAgentMessages_stopAck(t *testing.T) {
 	t.Run("closes stop.acked when Unavailable received after stop requested", func(t *testing.T) {
 		mockWf := &mockWorkflowStream{

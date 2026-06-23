@@ -14,14 +14,6 @@ module Gitlab
       detected_languages.map(&:name)
     end
 
-    def language_color(name)
-      detected_language_by_name[name]&.color
-    end
-
-    def language_gitaly_id(name)
-      detected_language_by_name[name]&.language_id
-    end
-
     def detected_languages
       @detected_languages ||= detection.map do |name, attributes|
         DetectedLanguage.new(
@@ -82,10 +74,6 @@ module Gitlab
 
     def previous_language_names
       @previous_language_names ||= @repository_languages.map(&:name)
-    end
-
-    def detected_language_by_name
-      @detected_language_by_name ||= detected_languages.index_by(&:name)
     end
 
     def detection

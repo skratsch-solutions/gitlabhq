@@ -145,6 +145,11 @@ type stopCoordinator struct {
 	// observe the DWS stop acknowledgment before the connection is destroyed.
 	agentDone sync.WaitGroup
 
+	// workflowEnded is set to true when handleAgentMessages receives io.EOF,
+	// meaning DWS finished the workflow naturally. When this is set,
+	// handleWebSocketMessages should not attempt to send a StopWorkflowRequest
+	workflowEnded atomic.Bool
+
 	// shutdownStarted is set to true at the start of Shutdown. Close only
 	// waits on shutdownDone when this is set, since Shutdown is only invoked
 	// during server shutdown and never in the normal request path.
@@ -335,6 +340,7 @@ func (r *runner) handleAgentMessages(ctx context.Context, errCh chan<- error) {
 			switch {
 			case err == io.EOF:
 				log.WithRequest(r.originalReq).Info("handleAgentMessages: EOF, expected when workflow ends")
+				r.stop.workflowEnded.Store(true)
 				errCh <- nil // Expected error when a workflow ends
 			case errors.Is(err, errStreamUnavailable) && r.stop.requested.Load():
 				log.WithRequest(r.originalReq).Info("handleAgentMessages: DWS acknowledged stop request")
@@ -645,14 +651,21 @@ func (r *runner) Shutdown(ctx context.Context) error {
 		log.WithRequest(r.originalReq).Info("Shutdown: shutdown context done, sending stop workflow")
 	}
 
-	err := r.stopWorkflow(
-		"WORKHORSE_SERVER_SHUTDOWN",
-		fmt.Errorf("duoworkflow: stopping workflow due to server shutdown"),
-	)
-	if err != nil {
-		log.WithRequest(r.originalReq).WithError(err).Info("Shutdown: failed to stop workflow gracefully")
-	} else {
-		log.WithRequest(r.originalReq).Info("Shutdown: workflow stopped gracefully")
+	workflowEnded := r.stop.workflowEnded.Load()
+
+	// If the workflow already ended naturally (DWS sent EOF), there is nothing
+	// to stop and no reason to send CloseGoingAway — the client does not need
+	// to reconnect to resume a workflow that has already finished.
+	if !workflowEnded {
+		err := r.stopWorkflow(
+			"WORKHORSE_SERVER_SHUTDOWN",
+			fmt.Errorf("duoworkflow: stopping workflow due to server shutdown"),
+		)
+		if err != nil {
+			log.WithRequest(r.originalReq).WithError(err).Info("Shutdown: failed to stop workflow gracefully")
+		} else {
+			log.WithRequest(r.originalReq).Info("Shutdown: workflow stopped gracefully")
+		}
 	}
 
 	// Always release the lock so the executor can acquire it on the new
@@ -666,9 +679,9 @@ func (r *runner) Shutdown(ctx context.Context) error {
 	}
 
 	// Send CloseGoingAway (1001) to signal the client to reconnect. Skip this
-	// when the request context fired first — the client is already gone and
-	// there is no WebSocket connection to write to.
-	if !requestContextDone {
+	// when the request context fired first (client is already gone) or when
+	// the workflow ended naturally (nothing to reconnect to).
+	if !requestContextDone && !workflowEnded {
 		deadline := time.Now().Add(wsCloseTimeout)
 		closeMsg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutdown")
 		if wsErr := r.conn.WriteControl(websocket.CloseMessage, closeMsg, deadline); wsErr != nil {

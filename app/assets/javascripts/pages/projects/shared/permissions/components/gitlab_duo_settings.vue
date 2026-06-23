@@ -200,7 +200,7 @@ export default {
       );
     },
     showSastVrWorkflow() {
-      return this.glFeatures.enableVulnerabilityResolution && this.ultimateFeaturesAvailable;
+      return this.ultimateFeaturesAvailable;
     },
     showAllSettings() {
       return this.visibleSettings.includes(ALL_SETTINGS);

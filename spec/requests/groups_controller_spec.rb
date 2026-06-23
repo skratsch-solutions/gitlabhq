@@ -756,4 +756,88 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       it_behaves_like 'enforces step-up authentication (request spec)'
     end
   end
+
+  describe 'GET #download_export', :enable_admin_mode, :clean_gitlab_redis_rate_limiting do
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:admin) { create(:admin) }
+    let_it_be(:guest) { create(:user, guest_of: group) }
+
+    let(:export_file) { fixture_file_upload('spec/fixtures/group_export.tar.gz') }
+
+    subject(:download_export) { get download_export_group_path(group) }
+
+    context 'when there is a file available to download' do
+      before do
+        sign_in(admin)
+        create(:import_export_upload, group: group, export_file: export_file, user: admin)
+      end
+
+      it 'sends the file' do
+        download_export
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+
+    context 'when the file is no longer present on disk' do
+      before do
+        sign_in(admin)
+        create(:import_export_upload, group: group, export_file: export_file, user: admin)
+        group.export_file(admin).file.delete
+      end
+
+      it 'returns not found', :aggregate_failures do
+        download_export
+
+        expect(flash[:alert]).to include('file containing the export is not available yet')
+        expect(response).to redirect_to(edit_group_path(group))
+      end
+    end
+
+    context 'when there is no file available to download' do
+      before do
+        sign_in(admin)
+      end
+
+      it 'returns not found', :aggregate_failures do
+        download_export
+
+        expect(flash[:alert])
+          .to eq 'Group export link has expired. Please generate a new export from your group settings.'
+
+        expect(response).to redirect_to(edit_group_path(group))
+      end
+    end
+
+    context 'when the user does not have the required permissions' do
+      before do
+        sign_in(guest)
+      end
+
+      it 'returns not_found' do
+        download_export
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+
+    context 'when the endpoint receives requests above the rate limit' do
+      before do
+        sign_in(admin)
+
+        allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
+          allow(strategy)
+          .to receive(:increment)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_download_export][:threshold].call + 1)
+        end
+      end
+
+      it 'throttles the endpoint', :aggregate_failures do
+        download_export
+
+        expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status :too_many_requests
+      end
+    end
+  end
 end

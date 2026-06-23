@@ -31,6 +31,8 @@ module Gitlab
 
                 pipeline.association(:stages).target = stages_to_insert
               end
+
+              stick_merge_request_to_primary!
             end
           rescue ActiveRecord::RecordInvalid => e
             error("Failed to persist the pipeline: #{e}")
@@ -45,6 +47,17 @@ module Gitlab
           end
 
           private
+
+          # Records the main database WAL location for the pipeline's merge request so that
+          # downstream consumers can ensure they read a copy of the merge request that is at least
+          # as up-to-date as pipeline creation, from a caught-up replica. This is especially
+          # important for build serialization for the runner.
+          def stick_merge_request_to_primary!
+            return unless pipeline.merge_request_id
+            return unless ::Feature.enabled?(:ci_pipeline_mr_main_db_wal_pinning, project)
+
+            ::MergeRequest.sticking.stick(:merge_request, pipeline.merge_request_id)
+          end
 
           def with_iid_retry(cleanup_on_failure: false)
             max_retries = 3

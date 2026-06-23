@@ -29,7 +29,7 @@ RSpec.describe Security::SecurityJobsFinder, feature_category: :vulnerability_ma
     end
 
     context 'with combination of security jobs and license scanning jobs' do
-      let!(:license_scanning_build) { create(:ci_build, :license_scanning, pipeline: pipeline) }
+      let_it_be(:license_scanning_build) { create(:ci_build, :license_scanning, pipeline: pipeline) }
 
       it 'returns only the security jobs' do
         is_expected.to include(sast_build)

@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Projects::AutocompleteSourcesController do
   let_it_be_with_reload(:group) { create(:group) }
   let_it_be(:private_group) { create(:group, :private) }
-  let_it_be(:project, freeze: false) { create(:project, namespace: group) }
+  let_it_be_with_reload(:project) { create(:project, namespace: group) }
   let_it_be(:public_project) { create(:project, :public, group: group) }
   let_it_be(:development) { create(:label, project: project, name: 'Development') }
   let_it_be(:private_issue) { create(:labeled_issue, project: project, labels: [development]) }
@@ -293,7 +293,7 @@ RSpec.describe Projects::AutocompleteSourcesController do
 
     context 'when user cannot read wiki pages' do
       let_it_be(:group2) { create(:group, :public) }
-      let_it_be(:project2, freeze: false) { create(:project, :public, namespace: group2) }
+      let_it_be_with_reload(:project2) { create(:project, :public, namespace: group2) }
 
       before do
         create(:wiki_page, project: project2, title: 'foo')

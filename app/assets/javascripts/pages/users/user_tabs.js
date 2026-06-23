@@ -9,6 +9,7 @@ import axios from '~/lib/utils/axios_utils';
 import { localTimeAgo } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
 import ActivityCalendar from './activity_calendar';
+import { initVueActivityCalendar } from './vue_activity_calendar';
 import UserOverviewBlock from './user_overview_block';
 
 const CALENDAR_TEMPLATE = `
@@ -138,6 +139,13 @@ export default class UserTabs {
 
   loadActivityCalendar() {
     const $calendarWrap = this.$parentEl.find('.user-calendar');
+
+    if (!$calendarWrap.length) {
+      initVueActivityCalendar();
+
+      return;
+    }
+
     const calendarPath = $calendarWrap.data('calendarPath');
 
     AjaxCache.retrieve(calendarPath)

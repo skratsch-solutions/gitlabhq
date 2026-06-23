@@ -9,7 +9,7 @@ internal/config/config.go:319:18: G204: Subprocess launched with variable (gosec
 internal/config/config.go:500:8: G101: Potential hardcoded credentials (gosec)
 internal/dependencyproxy/dependencyproxy.go:235:44: G704: SSRF via taint analysis (gosec)
 internal/listener/listener.go:28:16: G402: TLS MinVersion too low. (gosec)
-internal/oauthproxy/oauthproxy.go:132:2: G101: Potential hardcoded credentials (gosec)
+internal/oauthproxy/oauthproxy.go:273:2: G101: Potential hardcoded credentials (gosec)
 internal/sendurl/sendurl.go:146:38: G704: SSRF via taint analysis (gosec)
 internal/testhelper/testhelper.go:251:21: G302: Expect file permissions to be 0600 or less (gosec)
 internal/config/config.go:511:10: SA1019: google.CredentialsFromJSON is deprecated: This function is deprecated because of a potential security risk. It does not validate the credential configuration. The security risk occurs when a credential configuration is accepted from a source that is not under your control and used without validation on your side. (staticcheck)

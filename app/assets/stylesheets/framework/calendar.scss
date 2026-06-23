@@ -1,3 +1,8 @@
+.new-activities-block {
+  // Set min-height to avoid big layout shift
+  min-height: 240px;
+}
+
 .user-contrib-cell {
   &:hover,
   &:focus,

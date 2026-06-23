@@ -160,6 +160,69 @@ module Ci
         end
       end
 
+      context 'when checking merge request main database stickiness' do
+        let_it_be(:runner) { create(:ci_runner, :project, projects: [project]) }
+        let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+        let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project, merge_request: merge_request) }
+
+        before do
+          allow(::Ci::Runner.sticking).to receive(:find_caught_up_replica).and_return(true)
+        end
+
+        it 'serves the build when the merge request replica is caught up', :aggregate_failures do
+          expect(::MergeRequest.sticking).to receive(:find_caught_up_replica)
+            .with(:merge_request, merge_request.id, use_primary_on_failure: false)
+            .and_return(true)
+
+          result = execute
+          expect(result).to be_valid
+          expect(result.build).to eq(pending_job)
+        end
+
+        it 'does not serve the build when the merge request replica is lagging', :aggregate_failures do
+          expect(::MergeRequest.sticking).to receive(:find_caught_up_replica)
+            .with(:merge_request, merge_request.id, use_primary_on_failure: false)
+            .and_return(false)
+
+          expect_next_instance_of(::Gitlab::Ci::Queue::Metrics) do |metric|
+            allow(metric).to receive(:increment_queue_operation).and_call_original
+            expect(metric).to receive(:increment_queue_operation).with(:queue_merge_request_replication_lag)
+          end
+
+          result = execute
+          expect(result).not_to be_valid
+          expect(result.build).to be_nil
+        end
+
+        context 'with multiple builds of the same lagging merge request pipeline' do
+          let!(:other_pending_job) { create(:ci_build, :pending, :queued, pipeline: pipeline) }
+
+          it 'only checks the merge request replica once per merge request' do
+            expect(::MergeRequest.sticking).to receive(:find_caught_up_replica)
+              .with(:merge_request, merge_request.id, use_primary_on_failure: false)
+              .once
+              .and_return(false)
+
+            expect(execute).not_to be_valid
+          end
+        end
+
+        context 'when the feature flag is disabled' do
+          before do
+            stub_feature_flags(ci_pipeline_mr_main_db_wal_pinning: false)
+          end
+
+          it 'serves the build without checking the merge request replica', :aggregate_failures do
+            expect(::MergeRequest.sticking).not_to receive(:find_caught_up_replica)
+              .with(:merge_request, anything, use_primary_on_failure: false)
+
+            result = execute
+            expect(result).to be_valid
+            expect(result.build).to eq(pending_job)
+          end
+        end
+      end
+
       shared_examples 'handles runner assignment' do
         context 'when runner follows tag list' do
           subject(:build) { build_on(project_runner, runner_manager: project_runner_manager) }

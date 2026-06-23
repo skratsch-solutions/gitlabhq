@@ -390,6 +390,29 @@ Grants the ability to read escalation policies.
 | ------ | ------ | ---- | ---- |
 | Read | Project | Type | `EscalationPolicyType` |
 
+### Notifications resources
+
+#### Todo
+
+Grants the ability to create, delete, read, and update todos.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Project | Mutation | `TodoCreate` |
+| Create | Group | Mutation | `TodoCreate` |
+| Delete | User | Mutation | `TodoDeleteAllDone` |
+| Delete | User | Mutation | `TodoDeleteMany` |
+| Read | User | Type | `Todo` |
+| Update | User | Mutation | `TodoMarkDone` |
+| Update | User | Mutation | `TodoResolveMany` |
+| Update | User | Mutation | `TodoRestore` |
+| Update | User | Mutation | `TodoRestoreMany` |
+| Update | User | Mutation | `TodoSnooze` |
+| Update | User | Mutation | `TodoSnoozeMany` |
+| Update | User | Mutation | `TodoUnSnooze` |
+| Update | User | Mutation | `TodoUnsnoozeMany` |
+| Update | User | Mutation | `TodosMarkAllDone` |
+
 ### Organizations resources
 
 #### Organization

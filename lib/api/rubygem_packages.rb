@@ -41,7 +41,10 @@ module API
         user_project(action: :read_package)
       end
 
+      # Overridden in EE to enforce the Dependency Firewall; no-ops in CE.
       def enforce_dependency_firewall_on_upload!; end
+
+      def enforce_dependency_firewall_on_download!(_package); end
     end
 
     before do
@@ -136,6 +139,8 @@ module API
                             .for_rubygem_with_file_name(project, params[:file_name])
 
           package_file = package_files.installable.last!
+
+          enforce_dependency_firewall_on_download!(package_file.package)
 
           track_package_event('pull_package', :rubygems, project: project, namespace: project.namespace)
 

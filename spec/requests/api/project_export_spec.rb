@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cache, feature_category: :importers do
-  let_it_be(:project, freeze: false) { create(:project) }
+  let_it_be_with_reload(:project) { create(:project) }
   let_it_be(:project_none) { create(:project) }
   let_it_be(:project_started) { create(:project) }
   let(:project_finished) { create(:project, :with_export, export_user: user) }
@@ -672,8 +672,8 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
 
       describe 'GET /projects/:id/export_relations/download' do
         context 'when export request is not batched' do
-          let_it_be(:export, freeze: false) { create(:bulk_import_export, project: project, relation: 'labels', user: user) }
-          let_it_be(:upload, freeze: false) { create(:bulk_import_export_upload, export: export) }
+          let_it_be_with_reload(:export) { create(:bulk_import_export, project: project, relation: 'labels', user: user) }
+          let_it_be_with_reload(:upload) { create(:bulk_import_export_upload, export: export) }
 
           it_behaves_like 'authorizing granular token permissions', :download_project_relation_export do
             before do
@@ -731,7 +731,7 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
           context 'when export is batched' do
             let(:relation) { 'issues' }
 
-            let_it_be(:export, freeze: false) { create(:bulk_import_export, :batched, project: project, relation: 'issues', user: user) }
+            let_it_be_with_reload(:export) { create(:bulk_import_export, :batched, project: project, relation: 'issues', user: user) }
 
             it 'returns 400' do
               export.update!(batched: true)
@@ -804,7 +804,7 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
         end
 
         context 'when export is from an offline transfer export' do
-          let_it_be(:export, freeze: false) { create(:bulk_import_export, :offline, project: project, relation: 'labels', user: user) }
+          let_it_be_with_reload(:export) { create(:bulk_import_export, :offline, project: project, relation: 'labels', user: user) }
 
           it 'returns 404' do
             get api(download_path, user)
@@ -952,8 +952,8 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
         end
 
         describe 'GET /projects/:id/export_relations/download' do
-          let_it_be(:export, freeze: false) { create(:bulk_import_export, project: project, relation: 'labels', user: user) }
-          let_it_be(:upload, freeze: false) { create(:bulk_import_export_upload, export: export) }
+          let_it_be_with_reload(:export) { create(:bulk_import_export, project: project, relation: 'labels', user: user) }
+          let_it_be_with_reload(:upload) { create(:bulk_import_export_upload, export: export) }
 
           subject(:request) { get api(download_path, user) }
 

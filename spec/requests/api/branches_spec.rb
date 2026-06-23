@@ -489,6 +489,15 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
     end
 
     context 'when search parameter is passed with new branches finder' do
+      it 'uses BranchesFinder', :aggregate_failures do
+        expect(BranchesFinder).to receive(:new).and_call_original
+        expect(Gitlab::Git::Finders::BranchesFinder).not_to receive(:new)
+
+        get api(route, user), params: { per_page: 100, search: branch_name }
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+
       it 'returns correct branches' do
         get api(route, user), params: { per_page: 100, search: branch_name }
 
@@ -504,14 +513,25 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
         expect(json_response).to eq []
       end
 
-      it 'does not return X-Total and X-Total-Pages headers', :aggregate_failures do
+      it 'returns offset pagination headers', :aggregate_failures do
         get api(route, user), params: { per_page: 5, search: branch_name }
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(response.headers).not_to have_key('X-Total')
-        expect(response.headers).not_to have_key('X-Total-Pages')
+        # Searched requests route to the legacy BranchesFinder, which uses offset pagination.
+        expect(response.headers['X-Total']).to eq(json_response.size.to_s)
+        expect(response.headers['X-Total-Pages']).to eq('1')
         expect(response.headers['X-Page']).to eq('1')
         expect(response.headers['X-Per-Page']).to eq('5')
+      end
+    end
+
+    context 'when search and regex parameters are not passed' do
+      it 'uses Gitlab::Git::Finders::BranchesFinder' do
+        expect(Gitlab::Git::Finders::BranchesFinder).to receive(:new).and_call_original
+
+        get api(route, user), params: { per_page: 2 }
+
+        expect(response).to have_gitlab_http_status(:ok)
       end
     end
 

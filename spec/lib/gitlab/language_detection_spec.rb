@@ -48,38 +48,6 @@ RSpec.describe Gitlab::LanguageDetection, feature_category: :source_code_managem
     end
   end
 
-  describe '#language_color' do
-    subject { described_class.new(repository, repository_languages).language_color(name) }
-
-    context 'when the language is detected' do
-      let(:name) { 'Ruby' }
-
-      it { is_expected.to eq('#701516') }
-    end
-
-    context 'when the language is not detected' do
-      let(:name) { 'Unknown' }
-
-      it { is_expected.to be_nil }
-    end
-  end
-
-  describe '#language_gitaly_id' do
-    subject { described_class.new(repository, repository_languages).language_gitaly_id(name) }
-
-    context 'when the language is detected' do
-      let(:name) { 'Ruby' }
-
-      it { is_expected.to eq(326) }
-    end
-
-    context 'when the language is not detected' do
-      let(:name) { 'Unknown' }
-
-      it { is_expected.to be_nil }
-    end
-  end
-
   describe '#insertions' do
     let(:programming_languages) { [ruby, haskell] }
     let(:detection) do

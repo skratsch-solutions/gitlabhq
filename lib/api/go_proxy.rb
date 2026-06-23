@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module API
   class GoProxy < ::API::Base
     helpers Gitlab::Golang

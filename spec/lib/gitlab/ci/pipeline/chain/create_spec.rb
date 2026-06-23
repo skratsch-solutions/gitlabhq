@@ -353,6 +353,47 @@ RSpec.describe Gitlab::Ci::Pipeline::Chain::Create, feature_category: :pipeline_
 
   it_behaves_like 'pipeline creation'
 
+  describe 'merge request main database WAL pinning' do
+    let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+
+    before do
+      pipeline.stages.build(name: 'test', position: 0, project: project)
+    end
+
+    context 'when the pipeline has a merge request' do
+      let(:pipeline) do
+        build(:ci_empty_pipeline, project: project, ref: 'master', user: user, merge_request: merge_request)
+      end
+
+      it 'sticks the merge request to the primary on the main database' do
+        expect(::MergeRequest.sticking)
+          .to receive(:stick).with(:merge_request, merge_request.id)
+
+        step.perform!
+      end
+
+      context 'when the feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_pipeline_mr_main_db_wal_pinning: false)
+        end
+
+        it 'does not stick the merge request' do
+          expect(::MergeRequest.sticking).not_to receive(:stick)
+
+          step.perform!
+        end
+      end
+    end
+
+    context 'when the pipeline has no merge request' do
+      it 'does not stick the merge request' do
+        expect(::MergeRequest.sticking).not_to receive(:stick)
+
+        step.perform!
+      end
+    end
+  end
+
   describe 'bulk insert path' do
     let(:pipeline) { build(:ci_empty_pipeline, project: project, ref: 'master', user: user) }
     let(:stage) { build(:ci_stage, pipeline: pipeline, project: project) }

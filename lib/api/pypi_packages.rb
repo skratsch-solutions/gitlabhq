@@ -157,6 +157,14 @@ module API
 
         true
       end
+
+      # Overridden in EE to enforce the Dependency Firewall before a locally
+      # hosted package file is served. CE intentionally does nothing.
+      def enforce_dependency_firewall_on_download!(_package); end
+
+      # Overridden in EE to enforce the Dependency Firewall before a package is
+      # persisted on upload. CE intentionally does nothing.
+      def enforce_dependency_firewall_on_upload!(_project, _name, _version); end
     end
 
     params do
@@ -277,6 +285,8 @@ module API
           package = Packages::Pypi::PackageFinder.new(current_user, project, { filename: filename, sha256: params[:sha256] }).execute
           package_file = ::Packages::PackageFileFinder.new(package, filename, with_file_name_like: false).execute
 
+          enforce_dependency_firewall_on_download!(package)
+
           track_package_event('pull_package', :pypi, project: project, namespace: project.namespace)
 
           present_package_file!(package_file, supports_direct_download: true)
@@ -374,6 +384,8 @@ module API
             bad_request!('File is too large')
           end
 
+          enforce_dependency_firewall_on_upload!(project, params[:name], params[:version])
+
           track_package_event('push_package', :pypi, project: project, namespace: project.namespace)
 
           validate_fips! if Gitlab::FIPS.enabled?
@@ -422,3 +434,5 @@ module API
     end
   end
 end
+
+API::PypiPackages.prepend_mod

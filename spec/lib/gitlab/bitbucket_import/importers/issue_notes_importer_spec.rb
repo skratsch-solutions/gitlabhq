@@ -12,7 +12,7 @@ RSpec.describe Gitlab::BitbucketImport::Importers::IssueNotesImporter, :clean_gi
   end
 
   let_it_be(:bitbucket_user) { create(:user) }
-  let_it_be(:identity, freeze: false) do
+  let_it_be_with_reload(:identity) do
     create(:identity, user: bitbucket_user, extern_uid: '{123}', provider: :bitbucket)
   end
 

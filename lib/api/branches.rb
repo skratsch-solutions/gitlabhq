@@ -32,7 +32,7 @@ module API
       end
 
       def build_branches_finder(repository, params)
-        if params[:regex].present? || Feature.disabled?(:use_new_branches_finder_api, user_project)
+        if params[:search].present? || params[:regex].present? || Feature.disabled?(:use_new_branches_finder_api, user_project)
           BranchesFinder.new(repository, params)
         else
           Gitlab::Git::Finders::BranchesFinder.new(

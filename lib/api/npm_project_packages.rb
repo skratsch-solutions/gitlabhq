@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module API
   class NpmProjectPackages < ::API::Base
     ERROR_REASON_TO_HTTP_STATUS_MAPPTING = {

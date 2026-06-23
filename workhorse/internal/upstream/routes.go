@@ -381,12 +381,21 @@ func configureRoutes(u *upstream) {
 		}).Info("oauthproxy: IAMServiceURL not set; OAuth requests will be handled by Rails")
 	} else {
 		iamRoundTripper := roundtripper.NewBackendRoundTripper(u.IAMServiceURL, "", u.ProxyHeadersTimeout, u.DevelopmentMode)
+		// When IAMServiceURL points at the GATE sandbox Envoy gateway, that
+		// gateway routes by `x-gitlab-svc` header — without it, IAM-bound OAuth
+		// requests fall through to the GitLab default backend. (Hitting the IAM
+		// service directly, bypassing the gateway, doesn't need the header.)
+		// Harmless when sent to non-Envoy endpoints: unknown headers are ignored.
+		// TODO: remove when direct path-based routing replaces the Envoy
+		// header-based routing (see gitlab-org/gitlab!240684 for the matching
+		// gRPC-side workaround).
 		iamProxy = proxypkg.NewProxy(
 			u.IAMServiceURL,
 			u.Version,
 			iamRoundTripper,
 			proxypkg.WithForcedTargetHostHeader(),
 			proxypkg.WithCorrelationID(),
+			proxypkg.WithCustomHeaders(map[string]string{"x-gitlab-svc": "iam-auth-http"}),
 		)
 		log.WithFields(log.Fields{
 			"iam_routing_enabled": true,

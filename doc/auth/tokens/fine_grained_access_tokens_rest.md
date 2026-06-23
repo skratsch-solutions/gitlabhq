@@ -1428,7 +1428,7 @@ Grants the ability to create, delete, and update broadcast messages.
 
 #### Todo
 
-Grants the ability to create, read, and update todos.
+Grants the ability to create, delete, read, and update todos.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |

@@ -33,7 +33,7 @@ module API
       expose :full_name, :full_path
       expose :created_at
       expose :parent_id
-      expose :organization_id, documentation: { type: 'Integer' }
+      expose :organization_id, documentation: { type: 'Integer', format: 'int64' }
       expose :shared_runners_setting
       expose :max_artifacts_size, documentation: { type: 'Integer' }
 

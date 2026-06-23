@@ -386,18 +386,6 @@ mutation:TimelineEventTagCreate
 mutation:TimelineEventUpdate
 mutation:TimelogCreate
 mutation:TimelogDelete
-mutation:TodoCreate
-mutation:TodoDeleteAllDone
-mutation:TodoDeleteMany
-mutation:TodoMarkDone
-mutation:TodoResolveMany
-mutation:TodoRestore
-mutation:TodoRestoreMany
-mutation:TodoSnooze
-mutation:TodoSnoozeMany
-mutation:TodoUnSnooze
-mutation:TodoUnsnoozeMany
-mutation:TodosMarkAllDone
 mutation:UnlinkProjectComplianceViolationIssue
 mutation:UpdateAiToolRule
 mutation:UpdateAlertStatus
@@ -1203,7 +1191,6 @@ type:TimelineEventTagType
 type:TimelineEventType
 type:Timelog
 type:TimelogPermissions
-type:Todo
 type:TreeEntry
 type:TrialUsage
 type:UnprotectAccessLevel

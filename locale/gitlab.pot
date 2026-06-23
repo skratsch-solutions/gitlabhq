@@ -1020,9 +1020,6 @@ msgstr ""
 msgid "%{group_name} activity"
 msgstr ""
 
-msgid "%{group_name} is approaching the limit of available seats"
-msgstr ""
-
 msgid "%{group_name} is being deleted."
 msgstr ""
 
@@ -29521,6 +29518,9 @@ msgstr ""
 msgid "DuoSlack|View session in GitLab"
 msgstr ""
 
+msgid "DuoSlack|Your message is too long for me to process (the limit is about %{limit} characters). Shorten it and mention me again."
+msgstr ""
+
 msgid "DuoSlack|is getting started…"
 msgstr ""
 
@@ -31384,9 +31384,6 @@ msgid "Estimate"
 msgstr ""
 
 msgid "Estimated"
-msgstr ""
-
-msgid "Even if you reach the number of seats in your subscription, you can continue to add users, and GitLab will bill you for the overage."
 msgstr ""
 
 msgid "Event '%{event}' of type '%{event_type}' must not start with '%{prefix}'"
@@ -51839,9 +51836,6 @@ msgid "Onboarding|Your project will be created at:"
 msgstr ""
 
 msgid "Once imported, repositories can be mirrored over SSH. Read more %{link_start}here%{link_end}."
-msgstr ""
-
-msgid "Once you reach the number of seats in your subscription, you can no longer invite or add users to the namespace."
 msgstr ""
 
 msgid "One and only one of %{params} is required"
@@ -83404,9 +83398,6 @@ msgstr[1] ""
 msgid "View replaced file @ "
 msgstr ""
 
-msgid "View seat usage"
-msgstr ""
-
 msgid "View source"
 msgstr ""
 
@@ -89588,15 +89579,11 @@ msgid_plural "Your instance has used %{used_seats} of %{total_seats} seats (%{ov
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "Your instance has used %{used_seats} of %{total_seats} seat. When no seats remain, adding new users will put your instance into overage. Purchase more seats and turn on restricted access to block new users automatically."
-msgid_plural "Your instance has used %{used_seats} of %{total_seats} seats. When no seats remain, adding new users will put your instance into overage. Purchase more seats and turn on restricted access to block new users automatically."
-msgstr[0] ""
-msgstr[1] ""
+msgid "Your instance has used %{used_seats} of %{total_seats} seats. When no seats remain, adding new users will put your instance into overage. Purchase more seats and turn on restricted access to block new users automatically."
+msgstr ""
 
-msgid "Your instance has used %{used_seats} of %{total_seats} seat. When no seats remain, restricted access will block new users from being added to prevent overages."
-msgid_plural "Your instance has used %{used_seats} of %{total_seats} seats. When no seats remain, restricted access will block new users from being added to prevent overages."
-msgstr[0] ""
-msgstr[1] ""
+msgid "Your instance has used %{used_seats} of %{total_seats} seats. When no seats remain, restricted access will block new users from being added to prevent overages."
+msgstr ""
 
 msgid "Your instance has used all %{total_seats} seat. Adding new users will put your instance into overage. Purchase more seats and turn on restricted access to block new users automatically."
 msgid_plural "Your instance has used all %{total_seats} seats. Adding new users will put your instance into overage. Purchase more seats and turn on restricted access to block new users automatically."
@@ -89651,6 +89638,15 @@ msgid "Your name"
 msgstr ""
 
 msgid "Your namespace %{namespace_name} is over %{link_start}the %{free_limit} user limit%{link_end}"
+msgstr ""
+
+msgid "Your namespace has used %{used_seats} of %{total_seats} seats. When no seats remain, adding new users will put your namespace into overage. Purchase more seats and turn on restricted access to block new users automatically."
+msgstr ""
+
+msgid "Your namespace has used %{used_seats} of %{total_seats} seats. When no seats remain, restricted access will block new users from being added to prevent overages."
+msgstr ""
+
+msgid "Your namespace is approaching its seat limit"
 msgstr ""
 
 msgid "Your namespace storage is full"
@@ -89763,11 +89759,6 @@ msgstr ""
 
 msgid "Your subscription expired!"
 msgstr ""
-
-msgid "Your subscription has %{remaining_seat_count} out of %{total_seat_count} seat remaining."
-msgid_plural "Your subscription has %{remaining_seat_count} out of %{total_seat_count} seats remaining."
-msgstr[0] ""
-msgstr[1] ""
 
 msgid "Your subscription with temporary extension expired!"
 msgstr ""

@@ -151,13 +151,9 @@ RSpec.describe AutocompleteController do
     end
 
     context 'unauthenticated user' do
-      let_it_be(:public_project) { create(:project, :public) }
+      let_it_be(:public_project) { create(:project, :public, guests: user) }
 
       describe 'GET #users with public project' do
-        before_all do
-          public_project.add_guest(user)
-        end
-
         before do
           get(:users, params: { project_id: public_project.id })
         end

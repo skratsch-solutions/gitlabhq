@@ -978,6 +978,7 @@ The following fields are deprecated and included for backward compatibility only
 
 - `actioned_at` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224849) in GitLab 18.10.
 - `merged_at` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235360) in GitLab 19.1.
+- `target_branch_protected` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/480576) in GitLab 19.2.
 
 {{< /history >}}
 
@@ -1027,6 +1028,7 @@ It includes the following fields:
 | `system_action`                 | String  | The system action (only present if `system` is `true`). |
 | `system`                        | Boolean | Whether the event was system-initiated. |
 | `target_branch`                 | String  | The target branch name. |
+| `target_branch_protected`       | Boolean | Whether the target branch is a [protected branch](../repository/branches/protected.md). |
 | `target`                        | Object  | Target project details. For example, name and description. |
 | `target_project_id`             | Integer | The ID of the target project. |
 | `time_change`                   | Integer | Change in time spent in seconds. |
@@ -1270,6 +1272,7 @@ recommended alternatives, see [deprecated fields](#deprecated-fields).
     "squash_commit_sha": null,
     "state_id": 1,
     "target_branch": "main",
+    "target_branch_protected": true,
     "target_project_id": 2,
     "time_estimate": 0,
     "title": "Add input validation to booking form",

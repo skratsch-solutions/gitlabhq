@@ -549,68 +549,48 @@ describe('GitlabDuoSettings', () => {
       });
 
       describe('Duo SAST VR Workflow settings', () => {
-        it('shows SAST VR Workflow toggle when feature flag is enabled', () => {
-          wrapper = createWrapper(
-            { duoFeaturesEnabled: true, amazonQAvailable: false },
-            { enableVulnerabilityResolution: true },
-          );
+        it('shows SAST VR Workflow toggle', () => {
+          wrapper = createWrapper({ duoFeaturesEnabled: true, amazonQAvailable: false });
 
           expect(findDuoSastVrWorkflowToggle().exists()).toBe(true);
           expect(findDuoSastVrWorkflowToggle().props('disabled')).toBe(false);
         });
 
-        it('does not show SAST VR Workflow toggle when feature flag is disabled', () => {
-          wrapper = createWrapper(
-            { duoFeaturesEnabled: true, amazonQAvailable: false },
-            { enableVulnerabilityResolution: false },
-          );
-
-          expect(findDuoSastVrWorkflowToggle().exists()).toBe(false);
-        });
-
         it('does not show SAST VR Workflow toggle when ultimateFeaturesAvailable is false', () => {
-          wrapper = createWrapper(
-            { duoFeaturesEnabled: true, amazonQAvailable: false, ultimateFeaturesAvailable: false },
-            { enableVulnerabilityResolution: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            ultimateFeaturesAvailable: false,
+          });
 
           expect(findDuoSastVrWorkflowToggle().exists()).toBe(false);
         });
 
         it('does not disable SAST VR Workflow toggle when Duo features are locked on', () => {
-          wrapper = createWrapper(
-            {
-              duoFeaturesEnabled: true,
-              duoFeaturesLocked: true,
-              amazonQAvailable: false,
-            },
-            { enableVulnerabilityResolution: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            duoFeaturesLocked: true,
+            amazonQAvailable: false,
+          });
 
           expect(findDuoSastVrWorkflowToggle().props('disabled')).toBe(false);
         });
 
         it('does not render SAST VR Workflow toggle when Duo features are not enabled', () => {
-          wrapper = createWrapper(
-            {
-              duoFeaturesEnabled: false,
-              amazonQAvailable: false,
-            },
-            { enableVulnerabilityResolution: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: false,
+            amazonQAvailable: false,
+          });
 
           expect(findDuoSastVrWorkflowToggle().exists()).toBe(false);
         });
 
         it('updates the hidden input value when toggled', async () => {
-          wrapper = createWrapper(
-            {
-              duoFeaturesEnabled: true,
-              amazonQAvailable: false,
-              initialDuoSastVrWorkflowEnabled: true,
-            },
-            { enableVulnerabilityResolution: true },
-          );
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            initialDuoSastVrWorkflowEnabled: true,
+          });
 
           const findHiddenInput = () =>
             wrapper.find(
@@ -829,14 +809,11 @@ describe('GitlabDuoSettings', () => {
   describe('visibleSettings allowlist', () => {
     describe('when restricted to the SAST VR workflow setting', () => {
       beforeEach(() => {
-        wrapper = createWrapper(
-          {
-            duoFeaturesEnabled: true,
-            amazonQAvailable: false,
-            visibleSettings: ['duoSastVrWorkflowEnabled'],
-          },
-          { enableVulnerabilityResolution: true },
-        );
+        wrapper = createWrapper({
+          duoFeaturesEnabled: true,
+          amazonQAvailable: false,
+          visibleSettings: ['duoSastVrWorkflowEnabled'],
+        });
       });
 
       it('renders only the SAST VR workflow toggle and the save button', () => {
@@ -856,14 +833,11 @@ describe('GitlabDuoSettings', () => {
 
     describe('when the allowlist contains ALL_SETTINGS', () => {
       beforeEach(() => {
-        wrapper = createWrapper(
-          {
-            duoFeaturesEnabled: true,
-            amazonQAvailable: false,
-            visibleSettings: [ALL_SETTINGS],
-          },
-          { enableVulnerabilityResolution: true },
-        );
+        wrapper = createWrapper({
+          duoFeaturesEnabled: true,
+          amazonQAvailable: false,
+          visibleSettings: [ALL_SETTINGS],
+        });
       });
 
       it('renders the full set of Duo settings', () => {

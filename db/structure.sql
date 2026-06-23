@@ -380,6 +380,62 @@ RETURN OLD;
 END
 $$;
 
+CREATE FUNCTION enqueue_gsm_deprovision_task() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF OLD.group_id IS NULL THEN
+  RETURN NULL;
+END IF;
+
+INSERT INTO group_secrets_manager_maintenance_tasks (
+  action,
+  retry_count,
+  organization_id,
+  group_id,
+  root_namespace_id
+) VALUES (
+  1,
+  0,
+  OLD.organization_id,
+  OLD.group_id,
+  OLD.root_namespace_id
+)
+ON CONFLICT (group_id) DO NOTHING;
+
+RETURN NULL;
+
+END
+$$;
+
+CREATE FUNCTION enqueue_psm_deprovision_task() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF OLD.project_id IS NULL THEN
+  RETURN NULL;
+END IF;
+
+INSERT INTO project_secrets_manager_maintenance_tasks (
+  action,
+  retry_count,
+  organization_id,
+  project_id,
+  root_namespace_id
+) VALUES (
+  1,
+  0,
+  OLD.organization_id,
+  OLD.project_id,
+  OLD.root_namespace_id
+)
+ON CONFLICT (project_id) DO NOTHING;
+
+RETURN NULL;
+
+END
+$$;
+
 CREATE FUNCTION ensure_note_diff_files_sharding_key() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -56527,6 +56583,10 @@ CREATE TRIGGER dependency_proxy_blobs_loose_fk_trigger AFTER DELETE ON dependenc
 
 CREATE TRIGGER duo_workflows_workflows_loose_fk_trigger AFTER DELETE ON duo_workflows_workflows REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records();
 
+CREATE TRIGGER enqueue_gsm_deprovision_task_after_delete AFTER DELETE ON group_secrets_managers FOR EACH ROW EXECUTE FUNCTION enqueue_gsm_deprovision_task();
+
+CREATE TRIGGER enqueue_psm_deprovision_task_after_delete AFTER DELETE ON project_secrets_managers FOR EACH ROW EXECUTE FUNCTION enqueue_psm_deprovision_task();
+
 CREATE TRIGGER group_type_ci_runner_machines_loose_fk_trigger AFTER DELETE ON group_type_ci_runner_machines REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records_override_table('ci_runner_machines');
 
 CREATE TRIGGER group_type_ci_runners_loose_fk_trigger AFTER DELETE ON group_type_ci_runners REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records_override_table('ci_runners');
@@ -57508,7 +57568,7 @@ ALTER TABLE ONLY cluster_agent_migrations
     ADD CONSTRAINT fk_1211a345fb FOREIGN KEY (agent_id) REFERENCES cluster_agents(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY group_secrets_managers
-    ADD CONSTRAINT fk_12159a4355 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_12159a4355 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY job_environments
     ADD CONSTRAINT fk_12235a5803 FOREIGN KEY (environment_id) REFERENCES environments(id) ON DELETE CASCADE;
@@ -59086,7 +59146,7 @@ ALTER TABLE ONLY compliance_requirements
     ADD CONSTRAINT fk_8f5fb77fc7 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY project_secrets_managers
-    ADD CONSTRAINT fk_8f88850d11 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_8f88850d11 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY incident_management_oncall_shifts
     ADD CONSTRAINT fk_8f8f23decb FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

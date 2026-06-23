@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe API::GroupExport, feature_category: :importers do
-  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:group) { create(:group) }
   let_it_be(:user) { create(:user) }
 
   let(:path) { "/groups/#{group.id}/export" }
@@ -319,7 +319,7 @@ RSpec.describe API::GroupExport, feature_category: :importers do
         context 'when export is batched' do
           let(:relation) { 'milestones' }
 
-          let_it_be(:export, freeze: false) do
+          let_it_be_with_reload(:export) do
             create(:bulk_import_export, :batched, group: group, relation: 'milestones', user: user)
           end
 
@@ -395,7 +395,7 @@ RSpec.describe API::GroupExport, feature_category: :importers do
       end
 
       context 'when export is from an offline transfer export' do
-        let_it_be(:export, freeze: false) do
+        let_it_be_with_reload(:export) do
           create(:bulk_import_export, :offline, group: group, relation: 'labels', user: user)
         end
 

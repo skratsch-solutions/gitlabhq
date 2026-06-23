@@ -1658,6 +1658,26 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       end
     end
 
+    describe '.requiring_two_factor_authentication' do
+      subject { described_class.requiring_two_factor_authentication(enabled) }
+
+      let_it_be(:group_requiring_2fa) { create(:group, require_two_factor_authentication: true) }
+      let_it_be(:group_not_requiring_2fa) { create(:group, require_two_factor_authentication: false) }
+
+      context 'when requiring_two_factor_authentication is enabled' do
+        let(:enabled) { true }
+
+        it { is_expected.to contain_exactly(group_requiring_2fa) }
+      end
+
+      context 'when requiring_two_factor_authentication is disabled' do
+        let(:enabled) { false }
+
+        it { is_expected.to include(group_not_requiring_2fa) }
+        it { is_expected.not_to include(group_requiring_2fa) }
+      end
+    end
+
     describe 'descendants_with_shared_with_groups' do
       subject { described_class.descendants_with_shared_with_groups(parent_group) }
 

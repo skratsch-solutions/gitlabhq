@@ -162,7 +162,7 @@ RSpec.describe Import::Offline::Projects::Pipelines::ProjectPipeline, feature_ca
   describe '#after_run' do
     let_it_be_with_reload(:bulk_import) { create(:bulk_import, user: user) }
     let_it_be(:entity) { create(:bulk_import_entity, :project_entity, bulk_import: bulk_import) }
-    let_it_be(:tracker, freeze: false) { create(:bulk_import_tracker, entity: entity) }
+    let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
     let(:context) { BulkImports::Pipeline::Context.new(tracker) }
 
     subject(:pipeline) { described_class.new(context) }

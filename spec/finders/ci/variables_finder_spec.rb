@@ -8,7 +8,7 @@ RSpec.describe Ci::VariablesFinder, feature_category: :continuous_integration do
       subject { described_class.new(owner, params) }
 
       context 'without key filter' do
-        let!(:params) { {} }
+        let(:params) { {} }
 
         it 'raises an error' do
           expect { subject }.to raise_error(ArgumentError, 'Please provide params[:key]')
@@ -20,7 +20,7 @@ RSpec.describe Ci::VariablesFinder, feature_category: :continuous_integration do
       subject { described_class.new(owner.reload, params).execute }
 
       context 'with key filter' do
-        let!(:params) { { key: 'key1' } }
+        let(:params) { { key: 'key1' } }
 
         it 'returns var1' do
           expect(subject).to contain_exactly(var1)
@@ -28,7 +28,7 @@ RSpec.describe Ci::VariablesFinder, feature_category: :continuous_integration do
       end
 
       context 'with key and environment_scope filter' do
-        let!(:params) { { key: 'key2', filter: { environment_scope: 'staging' } } }
+        let(:params) { { key: 'key2', filter: { environment_scope: 'staging' } } }
 
         it 'returns var2' do
           expect(subject).to contain_exactly(var2)

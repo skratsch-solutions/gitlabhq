@@ -94,6 +94,7 @@ RSpec.describe 'Contributions Calendar', :js, feature_category: :user_profile do
   context 'with `profile_tabs_vue` feature flag disabled' do
     before do
       stub_feature_flags(profile_tabs_vue: false)
+      stub_feature_flags(vue_profile_activity_calendar: false)
       sign_in user
     end
 
@@ -263,6 +264,7 @@ RSpec.describe 'Contributions Calendar', :js, feature_category: :user_profile do
 
   context 'with `profile_tabs_vue` feature flag enabled' do
     before do
+      stub_feature_flags(vue_profile_activity_calendar: false)
       sign_in user
     end
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module API
   class RpmProjectPackages < ::API::Base
     helpers ::API::Helpers::PackagesHelpers
