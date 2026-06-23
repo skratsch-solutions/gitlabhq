@@ -19,7 +19,7 @@ RSpec.describe Projects::AutocompleteSourcesController do
   end
 
   describe 'GET commands' do
-    before do
+    before_all do
       group.add_owner(user)
     end
 
@@ -104,8 +104,11 @@ RSpec.describe Projects::AutocompleteSourcesController do
   end
 
   describe 'GET labels' do
-    before do
+    before_all do
       group.add_owner(user)
+    end
+
+    before do
       sign_in(user)
     end
 
@@ -265,8 +268,11 @@ RSpec.describe Projects::AutocompleteSourcesController do
     end
 
     context 'when user can read wiki pages' do
-      before do
+      before_all do
         group.add_owner(user)
+      end
+
+      before do
         sign_in(user)
       end
 

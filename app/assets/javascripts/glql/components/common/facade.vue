@@ -7,6 +7,7 @@ import { renderMarkdown } from '~/notes/utils';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { InternalEvents } from '~/tracking';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { MODE_ANALYTICS } from '../../constants';
 import { copyGLQLNodeAsGFM } from '../../utils/copy_as_gfm';
 import Counter from '../../utils/counter';
 import GlqlResolver from './resolver.vue';
@@ -61,13 +62,13 @@ export default {
       },
 
       loading: false,
-      itemsCount: null,
       retryCount: 0,
       showResolver: false,
 
       query: undefined,
       config: undefined,
       data: undefined,
+      mode: undefined,
 
       preClasses: 'code highlight code-syntax-highlight-theme',
 
@@ -79,12 +80,22 @@ export default {
       if (this.config?.title) return this.config.title;
       if (this.loading) return '';
 
-      return this.config?.display === 'table'
-        ? __('Embedded table view')
-        : __('Embedded list view');
+      return __('Embedded view');
     },
     description() {
       return this.config?.description;
+    },
+    isAnalyticsMode() {
+      return this.mode === MODE_ANALYTICS;
+    },
+    itemsCount() {
+      // Analytics mode aggregates results into dimensions and metrics, so a row
+      // count is meaningless there. Only show the count for standard, per-item results.
+      return this.isAnalyticsMode ? null : this.data?.count;
+    },
+    showZeroCount() {
+      // A zero count is only meaningful for standard, per-item results.
+      return !this.loading && !this.isAnalyticsMode;
     },
     showEmptyState() {
       return this.data?.nodes?.length === 0;
@@ -158,12 +169,12 @@ export default {
       }
     },
     renderMarkdown,
-    onResolverChange({ loading, query, config, data, error }) {
+    onResolverChange({ loading, query, config, data, mode, error }) {
       this.loading = loading;
       this.query = query;
       this.config = config;
       this.data = data;
-      this.itemsCount = data?.count;
+      this.mode = mode;
 
       if (error) {
         this.handleError(error);
@@ -233,7 +244,7 @@ export default {
         :count="itemsCount"
         is-collapsible
         :collapsed="isCollapsed"
-        :show-zero-count="!loading"
+        :show-zero-count="showZeroCount"
         class="!gl-mt-5"
         :body-class="{
           '!gl-m-0 !gl-p-0': loading || (data && data.count),

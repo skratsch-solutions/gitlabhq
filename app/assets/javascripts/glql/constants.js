@@ -4,6 +4,7 @@ export const DISPLAY_TYPES = {
   LIST: 'list',
   ORDERED_LIST: 'orderedList',
   TABLE: 'table',
+  STAT: 'stat',
   COLUMN_CHART: 'columnChart',
   LINE_CHART: 'lineChart',
 };
@@ -21,6 +22,7 @@ export const PAGINATED_DISPLAY_TYPES_WITH_DEFAULT_LIMIT = new Set([
 
 export const DEFAULT_DISPLAY_TYPE = DISPLAY_TYPES.LIST;
 export const MODE_STANDARD = 'standard';
+export const MODE_ANALYTICS = 'analytics';
 export const FIELD_TYPES = {
   ATTRIBUTE: 'attribute',
   DIMENSION: 'dimension',

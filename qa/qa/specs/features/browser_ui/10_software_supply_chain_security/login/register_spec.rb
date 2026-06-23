@@ -115,7 +115,22 @@ module QA
         end
 
         around do |example|
-          with_application_settings(require_admin_approval_after_user_signup: true) { example.run }
+          with_application_settings(require_admin_approval_after_user_signup: true) do
+            # Wait for the setting to propagate.
+            # The user's blocked_pending_approval state is set at registration time based on
+            # this setting, so it must be active before the user registers.
+            # See https://gitlab.com/gitlab-org/gitlab/-/issues/603412
+            #
+            Support::Waiter.wait_until(
+              max_duration: 15,
+              sleep_interval: 1,
+              message: 'Waiting for require_admin_approval_after_user_signup setting to propagate'
+            ) do
+              Runtime::ApplicationSettings.get_application_setting(:require_admin_approval_after_user_signup) == true
+            end
+
+            example.run
+          end
         end
 
         it 'allows user login after approval' do

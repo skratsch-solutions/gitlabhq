@@ -162,6 +162,17 @@ describe('ColumnGroup', () => {
 
       expect(wrapper.emitted('card-move')).toEqual([[dragEvent]]);
     });
+
+    it('does not disable the draggable by default', () => {
+      expect(findDraggable().attributes('disabled')).toBeUndefined();
+    });
+
+    it('disables the draggable while dragDisabled is true', async () => {
+      createComponent({ props: { dragDisabled: true } });
+      await waitForPromises();
+
+      expect(findDraggable().attributes('disabled')).toBeDefined();
+    });
   });
 
   describe('query variables', () => {

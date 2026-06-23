@@ -12,6 +12,13 @@ export const readWorkItemFromColumn = ({ cache, query, variables, workItemId }) 
   return node ? cloneDeep(node) : null;
 };
 
+// Pre-move snapshot of a column's ordered work items; empty when the column is
+// absent from the cache. Used to compute relative-position ids for a move.
+export const readWorkItemsFromColumn = ({ cache, query, variables }) => {
+  const data = cache.readQuery({ query, variables });
+  return getConnection(data)?.nodes ?? [];
+};
+
 // No-op on a missing cache entry, so a move still works when a sibling column is unloaded.
 export const removeWorkItemFromColumn = ({ cache, query, variables, workItemId }) => {
   cache.updateQuery({ query, variables }, (sourceData) => {

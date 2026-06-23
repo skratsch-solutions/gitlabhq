@@ -2707,9 +2707,41 @@ describe('planning-view', () => {
         expect(findBoardView().props('rootPageFullPath')).toBe('full/path');
         expect(findBoardView().props('queryVariables')).toMatchObject({
           fullPath: 'full/path',
-          sort: CREATED_DESC,
+          sort: RELATIVE_POSITION_ASC,
           state: STATUS_OPEN,
         });
+      });
+
+      it('enforces Manual sort on the board and restores the list sort on exit', async () => {
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+        await waitForPromises();
+
+        expect(findDisplaySettingsDrawer().props('sortOptions')).toEqual([
+          expect.objectContaining({ title: 'Manual' }),
+        ]);
+        expect(findDisplaySettingsDrawer().props('sortKey')).toBe(RELATIVE_POSITION_ASC);
+
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_LIST);
+        await waitForPromises();
+
+        expect(findDisplaySettingsDrawer().props('sortOptions').length).toBeGreaterThan(1);
+        expect(findDisplaySettingsDrawer().props('sortKey')).toBe(CREATED_DESC);
+      });
+
+      it('does not persist the sort when the locked Manual option is selected on the board', async () => {
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+        await waitForPromises();
+
+        findDisplaySettingsDrawer().vm.$emit('sort', RELATIVE_POSITION_ASC);
+        await waitForPromises();
+
+        expect(userPreferenceMutationHandler).not.toHaveBeenCalled();
+
+        // The list sort is preserved so it is restored on exit.
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_LIST);
+        await waitForPromises();
+
+        expect(findDisplaySettingsDrawer().props('sortKey')).toBe(CREATED_DESC);
       });
 
       it('switches back to list view when the drawer emits toggle-view-mode with "list"', async () => {

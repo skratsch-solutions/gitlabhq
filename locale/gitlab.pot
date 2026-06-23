@@ -30105,12 +30105,6 @@ msgstr ""
 msgid "Embedded content"
 msgstr ""
 
-msgid "Embedded list view"
-msgstr ""
-
-msgid "Embedded table view"
-msgstr ""
-
 msgid "Embedded view"
 msgstr ""
 
@@ -92534,6 +92528,12 @@ msgid "starting with 'duo-', 'duo_', 'ai-' or 'ai_' is reserved for GitLab AI en
 msgstr ""
 
 msgid "starts on %{timebox_start_date}"
+msgstr ""
+
+msgid "stat display type cannot have dimensions"
+msgstr ""
+
+msgid "stat display type requires exactly 1 metric"
 msgstr ""
 
 msgid "structure is too large. Maximum size is %{max_size} characters"

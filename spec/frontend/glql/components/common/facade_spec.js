@@ -22,6 +22,12 @@ const MOCK_PARSE_OUTPUT = {
 describe('GlqlFacade', () => {
   let wrapper;
 
+  // numGlqlBlocks is a module-level counter shared across instances. Reset it so
+  // each test starts fresh and the suite stays independent of test count/order.
+  beforeEach(() => {
+    GlqlFacade.numGlqlBlocks.reset();
+  });
+
   const createComponent = async (props = {}, glFeatures = {}) => {
     wrapper = mountExtended(GlqlFacade, {
       propsData: {
@@ -53,6 +59,7 @@ describe('GlqlFacade', () => {
       query: MOCK_PARSE_OUTPUT.query,
       config: MOCK_PARSE_OUTPUT.config,
       data: { count: 2, ...MOCK_ISSUES },
+      mode: 'standard',
       error: null,
       ...data,
     });
@@ -93,17 +100,14 @@ describe('GlqlFacade', () => {
       expect(findCrudComponent().props('title')).toBe(title);
     });
 
-    it('shows a default title for table views', async () => {
-      await emitResolverChange({ config: { display: 'table' } });
+    it.each(['table', 'list', 'orderedList', 'stat', 'columnChart', 'lineChart', undefined])(
+      'shows a generic default title for display type: %s',
+      async (display) => {
+        await emitResolverChange({ config: { display } });
 
-      expect(findCrudComponent().props('title')).toBe('Embedded table view');
-    });
-
-    it('shows a default title', async () => {
-      await emitResolverChange({ config: {} });
-
-      expect(findCrudComponent().props('title')).toBe('Embedded list view');
-    });
+        expect(findCrudComponent().props('title')).toBe('Embedded view');
+      },
+    );
   });
 
   describe('when the query includes a collapsed flag', () => {
@@ -156,6 +160,14 @@ describe('GlqlFacade', () => {
       expect(crudComponent.props('count')).toBe(2);
 
       expect(crudComponent.props('collapsed')).toBe(false);
+    });
+
+    it('hides the item count in analytics mode instead of showing zero', async () => {
+      await emitResolverChange({ mode: 'analytics', data: { count: 1, nodes: [{}] } });
+
+      expect(findCrudComponent().props('count')).toBe(null);
+      expect(findCrudComponent().props('showZeroCount')).toBe(false);
+      expect(wrapper.findByTestId('crud-count').exists()).toBe(false);
     });
 
     it('renders actions', () => {

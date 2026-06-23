@@ -3,6 +3,7 @@ import { DISPLAY_TYPES } from '../../constants';
 import ColumnChartPresenter from './column_chart.vue';
 import LineChartPresenter from './line_chart.vue';
 import ListPresenter from './list.vue';
+import StatPresenter from './stat.vue';
 import TablePresenter from './table.vue';
 
 export default {
@@ -10,6 +11,7 @@ export default {
   components: {
     TablePresenter,
     ListPresenter,
+    StatPresenter,
     ColumnChartPresenter,
     LineChartPresenter,
   },
@@ -66,6 +68,13 @@ export default {
     :fields="fields"
     :loading="loading"
     :list-type="listType"
+  />
+  <stat-presenter
+    v-else-if="displayType === $options.DISPLAY_TYPES.STAT"
+    :data="data"
+    :fields="fields"
+    :loading="loading"
+    @error="$emit('error', $event)"
   />
   <column-chart-presenter
     v-else-if="displayType === $options.DISPLAY_TYPES.COLUMN_CHART"

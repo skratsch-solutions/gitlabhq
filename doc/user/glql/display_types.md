@@ -39,6 +39,7 @@ The following display types are available only in analytics mode:
 
 | Display type                  | `display` value | Description |
 | ----------------------------- | --------------- | ----------- |
+| Single stat | `stat`          | A single aggregated metric, displayed as a large value. |
 | Column chart | `columnChart`   | A chart that compares metrics across the categories defined by your dimensions. |
 | Line chart     | `lineChart`     | A chart that plots one or more metrics as lines over a dimension, to show trends. |
 
@@ -103,6 +104,39 @@ fields: title, health, due
 limit: 5
 sort: due asc
 query: type = Issue AND project = "gitlab-org/gitlab" AND assignee = currentUser() AND state = opened
+```
+````
+
+## Single stat
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241395) in GitLab 19.2.
+
+{{< /history >}}
+
+A single stat visualizes one aggregated metric from [analytics mode](_index.md#analytics-mode) as a
+large value. Use a single stat to highlight a key number, such as a total or a rate.
+
+A single stat requires:
+
+- Analytics mode, set with `mode: analytics`.
+- Only one metric, set with the `metrics` parameter.
+- No `dimensions`.
+
+Values format automatically based on the metric. For example, counts use thousands separators and
+rates display as percentages.
+
+### Example
+
+To display the total number of Code Suggestions over the last 30 days as a single stat:
+
+````yaml
+```glql
+display: stat
+mode: analytics
+query: type = CodeSuggestion and timestamp >= -30d
+metrics: totalCount
 ```
 ````
 

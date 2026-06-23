@@ -55,6 +55,11 @@ export default {
       type: Object,
       required: true,
     },
+    dragDisabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   emits: ['card-move'],
   data() {
@@ -189,6 +194,7 @@ export default {
         tag="ul"
         :data-status-id="value.id"
         v-bind="$options.sortableOptions"
+        :disabled="dragDisabled"
         class="gl-m-0 gl-flex gl-flex-1 gl-list-none gl-flex-col gl-gap-3 gl-p-0"
         @end="$emit('card-move', $event)"
       >

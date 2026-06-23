@@ -1,6 +1,7 @@
 import {
   addWorkItemToColumn,
   readWorkItemFromColumn,
+  readWorkItemsFromColumn,
   removeWorkItemFromColumn,
 } from '~/work_items/board/graphql/cache_updates';
 import { buildBoardWorkItemsResponse, buildWorkItemNode, buildStatusWidget } from '../mock_data';
@@ -141,6 +142,23 @@ describe('work item board cache updates', () => {
           index: 0,
         }),
       ).not.toThrow();
+    });
+  });
+
+  describe('readWorkItemsFromColumn', () => {
+    it('returns the column nodes in order', () => {
+      const cache = buildCacheWith([buildWorkItemNode(1), buildWorkItemNode(2)]);
+
+      expect(readWorkItemsFromColumn({ cache, query, variables }).map((node) => node.id)).toEqual([
+        'gid://gitlab/WorkItem/1',
+        'gid://gitlab/WorkItem/2',
+      ]);
+    });
+
+    it('returns an empty array when the cache entry is missing', () => {
+      expect(
+        readWorkItemsFromColumn({ cache: createFakeCache(undefined), query, variables }),
+      ).toEqual([]);
     });
   });
 

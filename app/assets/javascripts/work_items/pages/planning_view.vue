@@ -511,6 +511,26 @@ export default {
     isPlanningViewBoardEnabled() {
       return Boolean(this.glFeatures.planningViewBoards);
     },
+    isBoardView() {
+      return this.viewMode === VIEW_MODE_BOARD && this.isPlanningViewBoardEnabled;
+    },
+    // The board only supports Manual ordering, so it always reads/displays Manual sort
+    // regardless of the list's sort. We override here rather than mutating sortKey, so the
+    // list restores the user's sort on return and their preference is never overwritten.
+    effectiveSortKey() {
+      return this.isBoardView ? RELATIVE_POSITION_ASC : this.sortKey;
+    },
+    manualSortOption() {
+      return this.sortOptions.find(
+        (option) => option.sortDirection?.ascending === RELATIVE_POSITION_ASC,
+      );
+    },
+    boardSortOptions() {
+      return this.manualSortOption ? [this.manualSortOption] : [];
+    },
+    drawerSortOptions() {
+      return this.isBoardView ? this.boardSortOptions : this.sortOptions;
+    },
     useRestApi() {
       return Boolean(
         this.glFeatures.workItemRestApiFrontendUsers &&
@@ -674,7 +694,7 @@ export default {
       const isIidSearch = ISSUE_REFERENCE.test(this.searchQuery);
       return {
         fullPath: this.rootPageFullPath,
-        sort: this.sortKey,
+        sort: this.effectiveSortKey,
         state: this.state,
         ...this.apiFilterParams,
         ...this.apiTypesArgument,
@@ -1066,7 +1086,10 @@ export default {
       });
     },
     filteredSearchSortOptions() {
-      return this.isDisplaySettingsDrawerEnabled ? [] : this.sortOptions;
+      if (this.isDisplaySettingsDrawerEnabled) {
+        return [];
+      }
+      return this.isBoardView ? this.boardSortOptions : this.sortOptions;
     },
     preselectedWorkItemType() {
       return this.isEpicsList ? WORK_ITEM_TYPE_NAME_EPIC : WORK_ITEM_TYPE_NAME_ISSUE;
@@ -1639,7 +1662,7 @@ export default {
       this.updateRouterQueryParams();
     },
     handleSort(sortKey) {
-      if (this.sortKey === sortKey) {
+      if (this.effectiveSortKey === sortKey) {
         return;
       }
 
@@ -1901,7 +1924,7 @@ export default {
         :tokens="searchTokens"
         :sort-options="filteredSearchSortOptions"
         :initial-filter-value="filterTokens"
-        :initial-sort-by="sortKey"
+        :initial-sort-by="effectiveSortKey"
         sync-filter-and-sort
         :show-checkbox="showBulkEditSidebar"
         :checkbox-checked="allIssuablesChecked"
@@ -1954,7 +1977,7 @@ export default {
               :tokens="searchTokens"
               :sort-options="filteredSearchSortOptions"
               :initial-filter-value="filterTokens"
-              :initial-sort-by="sortKey"
+              :initial-sort-by="effectiveSortKey"
               sync-filter-and-sort
               :show-checkbox="showBulkEditSidebar"
               :checkbox-checked="allIssuablesChecked"
@@ -2175,8 +2198,8 @@ export default {
       v-if="isDisplaySettingsDrawerEnabled"
       :open="isDisplayDrawerOpen"
       :view-mode="viewMode"
-      :sort-options="sortOptions"
-      :sort-key="sortKey"
+      :sort-options="drawerSortOptions"
+      :sort-key="effectiveSortKey"
       :namespace-preferences="displaySettingsSoT.namespacePreferences"
       :common-preferences="displaySettings.commonPreferences"
       :full-path="rootPageFullPath"

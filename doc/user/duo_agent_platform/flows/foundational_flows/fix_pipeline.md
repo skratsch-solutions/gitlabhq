@@ -142,3 +142,7 @@ To work around this issue, try the following:
 - Add a summary step at the end of your script that echoes key error messages.
 - Use `after_script` to output diagnostic information after the main script completes.
 - Split verbose jobs into smaller, focused jobs with more concise logs.
+
+## Give feedback
+
+The team is actively improving the Fix CI/CD Pipeline Flow. To report issues or suggest improvements, leave your feedback in [feedback issue 601991](https://gitlab.com/gitlab-org/gitlab/-/work_items/601991).

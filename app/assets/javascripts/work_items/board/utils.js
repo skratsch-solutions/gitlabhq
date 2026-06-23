@@ -23,3 +23,29 @@ export const boardColumnQueryVariables = ({
   firstPageSize: DEFAULT_PAGE_SIZE_BOARD_COLUMN,
   [groupProperty]: { name: value.name }, // must be last to override base
 });
+
+// Relative-position arguments for a card move, derived from the target column's
+// pre-move order (`nodes`). For a same-column move the source and target lists
+// are identical. Mirrors the neighbour logic in boards/components/board_list.vue
+// so both boards order items the same way. IDs are full GraphQL global IDs —
+// the workItemUpdate mutation parses the gid server-side.
+export const getMovePositionIds = ({ nodes = [], sameColumn, oldIndex, newIndex }) => {
+  const idAt = (index) => nodes[index]?.id;
+
+  if (sameColumn) {
+    // Moving down: the card at the drop index ends up before the moved card.
+    if (newIndex > oldIndex) {
+      return { moveBeforeId: idAt(newIndex) };
+    }
+    // Moving up: the card at the drop index ends up after the moved card.
+    if (newIndex < oldIndex) {
+      return { moveAfterId: idAt(newIndex) };
+    }
+    // Dropped in place — no reordering.
+    return {};
+  }
+
+  // Cross-column: the moved card is inserted at newIndex, so its neighbours are
+  // the cards currently surrounding that slot.
+  return { moveBeforeId: idAt(newIndex - 1), moveAfterId: idAt(newIndex) };
+};

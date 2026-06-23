@@ -14,6 +14,30 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
   let(:guest) { create(:user).tap { |u| create(:project_member, :guest, user: u, project: project) } }
   let(:developer) { create(:user).tap { |u| create(:project_member, :developer, user: u, project: project) } }
 
+  shared_examples 'returns 503 when Gitaly is unavailable' do |http_method:|
+    using RSpec::Parameterized::TableSyntax
+
+    # Gitaly errors (GRPC::Unavailable, GRPC::DeadlineExceeded, etc.) are wrapped by
+    # Gitlab::Git::WrapsGitalyErrors into CommandError or CommandTimedOut before
+    # reaching the API layer. CommandTimedOut is a subclass of CommandError.
+    where(:exception_class) do
+      [
+        [Gitlab::Git::CommandError],
+        [Gitlab::Git::CommandTimedOut]
+      ]
+    end
+
+    with_them do
+      it 'returns 503' do
+        stub_gitaly_error
+
+        send(http_method, api(route, user))
+
+        expect(response).to have_gitlab_http_status(:service_unavailable)
+      end
+    end
+  end
+
   describe "GET /projects/:id/repository/tree" do
     let(:route) { "/projects/#{project.id}/repository/tree" }
 
@@ -523,6 +547,26 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
       end
     end
 
+    context 'when Gitaly is unavailable' do
+      let(:stub_gitaly_error) do
+        allow(Gitlab::Workhorse).to receive(:send_git_archive)
+          .and_raise(exception_class, 'Gitaly error')
+      end
+
+      it_behaves_like 'returns 503 when Gitaly is unavailable', http_method: :get
+    end
+
+    context 'when archive is not found' do
+      it 'returns 404' do
+        allow(Gitlab::Workhorse).to receive(:send_git_archive)
+          .and_raise(Gitlab::Workhorse::ArchiveNotFoundError, 'Archive not found')
+
+        get api(route, user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+
     it_behaves_like 'authorizing granular token permissions', :read_repository_archive do
       let(:boundary_object) { project }
       let(:request) do
@@ -562,6 +606,28 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(response.headers['Content-Type']).to include('application/zip')
+      end
+    end
+
+    context 'when Gitaly is unavailable' do
+      let(:stub_gitaly_error) do
+        allow_next_instance_of(Gitlab::Repositories::ArchiveHeaderBuilder) do |builder|
+          allow(builder).to receive(:metadata).and_raise(exception_class, 'Gitaly error')
+        end
+      end
+
+      it_behaves_like 'returns 503 when Gitaly is unavailable', http_method: :head
+    end
+
+    context 'when archive is not found' do
+      it 'returns 404' do
+        allow_next_instance_of(Gitlab::Repositories::ArchiveHeaderBuilder) do |builder|
+          allow(builder).to receive(:metadata).and_raise(Gitlab::Workhorse::ArchiveNotFoundError, 'Archive not found')
+        end
+
+        head api(route, user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
   end
