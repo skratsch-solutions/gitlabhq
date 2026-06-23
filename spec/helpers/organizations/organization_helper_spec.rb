@@ -226,6 +226,8 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :organizatio
   describe '#organization_settings_general_app_data' do
     it 'returns expected json' do
       expect(organization).to receive(:avatar_url).with(size: 192).and_return('avatar.jpg')
+      expect(organization).to receive(:max_group_visibility_level).and_return(Gitlab::VisibilityLevel::PRIVATE)
+
       expect(Gitlab::Json.parse(helper.organization_settings_general_app_data(organization))).to eq(
         {
           'organization' => {
@@ -236,6 +238,7 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :organizatio
             'avatar' => 'avatar.jpg',
             'visibility_level' => organization.visibility_level
           },
+          'max_group_visibility_level' => Gitlab::VisibilityLevel::PRIVATE,
           'organizations_url' => 'http://test.host/o/',
           'preview_markdown_path' => '/o/-/preview_markdown'
         }

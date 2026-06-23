@@ -155,6 +155,29 @@ export const databaseInformationResults = {
         { name: 'gitlab_partitions_dynamic', current: false, owner: 'postgres' },
         { name: 'gitlab_partitions_static', current: false, owner: 'postgres' },
       ],
+      findings: [],
+    },
+  },
+};
+
+export const databaseInformationWithFindings = {
+  databases: {
+    main: {
+      current_user: 'gitlab',
+      search_path: 'public',
+      schemas: [{ name: 'public', current: true, owner: 'postgres' }],
+      findings: [
+        {
+          severity: 'error',
+          code: 'search_path_missing_public',
+          message: 'The public schema is not in the search path.',
+        },
+        {
+          severity: 'warning',
+          code: 'search_path_non_default',
+          message: 'The search path differs from the expected default of "$user", public.',
+        },
+      ],
     },
   },
 };

@@ -288,6 +288,12 @@ RSpec.describe 'Group', :with_current_organization, feature_category: :groups_an
 
         expect(page).not_to have_selector('li[role="option"]', text: 'foo3')
 
+        # Selecting a parent group re-validates the subgroup path asynchronously
+        # (a debounced availability check). Submitting before it settles leaves the
+        # path field in a transient invalid state, which blocks the submit and keeps
+        # the browser on /groups/new. Wait for the path to be confirmed available.
+        expect(page).to have_content('Group path is available.')
+
         click_button 'Create subgroup'
 
         expect(page).to have_current_path(group_path('foo2/bar'), ignore_query: true)

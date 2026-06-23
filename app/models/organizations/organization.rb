@@ -34,7 +34,6 @@ module Organizations
 
     has_many :namespaces
     has_many :groups
-    has_many :root_groups, -> { roots }, class_name: 'Group', inverse_of: :organization
     has_many :pool_repositories
     has_many :projects
     has_many :snippets
@@ -185,11 +184,15 @@ module Organizations
       "/o/#{path}"
     end
 
+    def max_group_visibility_level
+      groups.where(parent_id: nil).maximum(:visibility_level)
+    end
+
     private
 
     # The visibility must be broader than the visibility of any contained root groups.
     def check_visibility_level_broader_than_groups
-      max_group_level = root_groups.maximum(:visibility_level)
+      max_group_level = max_group_visibility_level
       return unless max_group_level
 
       return if visibility_level >= max_group_level

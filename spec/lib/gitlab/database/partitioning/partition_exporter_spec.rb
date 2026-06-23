@@ -155,6 +155,53 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionExporter, feature_catego
       end
     end
 
+    context 'with a list-partitioned table' do
+      before do
+        connection.execute(<<~SQL)
+          CREATE TABLE _test_list_partitioned
+          (id serial NOT NULL, partition_id bigint NOT NULL, PRIMARY KEY (id, partition_id))
+          PARTITION BY LIST (partition_id);
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_list_partitioned_1
+          PARTITION OF _test_list_partitioned
+          FOR VALUES IN ('1');
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_list_partitioned_2
+          PARTITION OF _test_list_partitioned
+          FOR VALUES IN ('2');
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_list_partitioned_3_4
+          PARTITION OF _test_list_partitioned
+          FOR VALUES IN ('3', '4');
+        SQL
+      end
+
+      after do
+        connection.execute('DROP TABLE IF EXISTS _test_list_partitioned CASCADE')
+      end
+
+      it 'includes single-value list partitions', :aggregate_failures do
+        result = exporter.export
+
+        table_result = result.find { |r| r[:table_name] == '_test_list_partitioned' }
+        expect(table_result).not_to be_nil
+        expect(table_result[:partition_type]).to eq('bigint')
+        expect(table_result[:partition_strategy]).to eq('list')
+        expect(table_result[:partitions]).to contain_exactly(
+          { partition_name: '_test_list_partitioned_1', values: [1] },
+          { partition_name: '_test_list_partitioned_2', values: [2] }
+        )
+      end
+
+      it 'excludes multi-value list partitions' do
+        result = exporter.export
+
+        table_result = result.find { |r| r[:table_name] == '_test_list_partitioned' }
+        partition_names = table_result[:partitions].map { |p| p[:partition_name] }
+        expect(partition_names).not_to include('_test_list_partitioned_3_4')
+      end
+    end
+
     context 'with a range-partitioned table whose key_columns is empty' do
       before do
         connection.execute(<<~SQL)

@@ -152,7 +152,7 @@ export default {
       initialDescriptionText: this.description,
       conflictedDescription: '',
       formFieldProps: {
-        'aria-label': __('Description'),
+        'aria-labelledby': 'work-item-description-label',
         placeholder: __('Write a comment or drag your files here…'),
         id: 'work-item-description',
         name: 'work-item-description',
@@ -675,11 +675,12 @@ export default {
 <template>
   <div data-testid="work-item-description-wrapper">
     <gl-form v-if="isEditing" @submit.prevent="updateWorkItem" @reset.prevent="cancelEditing">
-      <gl-form-group
-        :class="formGroupClass"
-        :label="__('Description')"
-        label-for="work-item-description"
-      >
+      <gl-form-group :class="formGroupClass" label-for="work-item-description">
+        <template #label>
+          <span id="work-item-description-label">
+            {{ __('Description') }}
+          </span>
+        </template>
         <work-item-description-template-listbox
           :full-path="fullPath"
           :template="selectedTemplate"

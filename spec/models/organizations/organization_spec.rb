@@ -16,17 +16,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
 
     it { is_expected.to have_many :namespaces }
     it { is_expected.to have_many :groups }
-    it { is_expected.to have_many :root_groups }
     it { is_expected.to have_many :integrations }
-
-    describe '.root_groups' do
-      let_it_be(:group) { create(:group, organization: organization) }
-      let_it_be(:subgroup) { create(:group, parent: group) }
-
-      it 'returns only root groups' do
-        expect(organization.root_groups).to contain_exactly(group)
-      end
-    end
 
     it { is_expected.to have_many(:users).through(:organization_users).inverse_of(:organizations) }
     it { is_expected.to have_many(:organization_users).inverse_of(:organization) }
@@ -167,8 +157,8 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
           let(:organization) { build(:organization, visibility_level: visibility_level) }
 
           it 'validates visibility level' do
-            allow(organization.root_groups).to receive(:maximum)
-              .with(:visibility_level).and_return(max_group_visibility)
+            allow(organization).to receive(:max_group_visibility_level)
+              .and_return(max_group_visibility)
 
             expect(organization.valid?).to eq(valid)
 
@@ -630,6 +620,22 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
 
   describe '#full_path' do
     it { expect(organization.full_path).to eq("/o/#{organization.path}") }
+  end
+
+  describe '#max_group_visibility_level' do
+    context 'when the organization has root groups' do
+      let_it_be(:organization) { create(:organization, :public) }
+      let_it_be(:private_group) { create(:group, :private, organization: organization) }
+      let_it_be(:internal_group) { create(:group, :internal, organization: organization) }
+
+      it 'returns the highest visibility level among its root groups' do
+        expect(organization.max_group_visibility_level).to eq(Gitlab::VisibilityLevel::INTERNAL)
+      end
+    end
+
+    context 'when the organization has no root groups' do
+      it { expect(organization.max_group_visibility_level).to be_nil }
+    end
   end
 
   describe '.search' do

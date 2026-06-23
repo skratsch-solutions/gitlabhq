@@ -32,7 +32,6 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
   let(:allowed_to_have_loose_multi_column_sharding_constraint) do
     [
       'events', # has `(group_id IS NOT NULL) OR (project_id IS NOT NULL) OR (personal_namespace_id IS NOT NULL)`
-      'labels', # constraint exists as `num_nonnulls(...) = 1` but is NOT VALID; tracked in https://gitlab.com/gitlab-org/gitlab/-/issues/558353
       'notes', # has `num_nonnulls(namespace_id, organization_id, project_id) >= 1`
       'scan_result_policies' # has `num_nonnulls(namespace_id, project_id) >= 1`
     ]
@@ -140,7 +139,6 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       "instance_type_ci_runner_machines" => "https://gitlab.com/gitlab-org/gitlab/-/issues/525293",
       "instance_type_ci_runners" => "https://gitlab.com/gitlab-org/gitlab/-/issues/525293",
       "issuable_metric_image_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
-      "labels" => "https://gitlab.com/gitlab-org/gitlab/-/issues/563889",
       "namespace_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "note_diff_files" => "https://gitlab.com/gitlab-org/gitlab/-/issues/550694",
       "project_import_export_relation_export_upload_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",

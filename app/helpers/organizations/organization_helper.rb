@@ -29,7 +29,8 @@ module Organizations
     def organization_settings_general_app_data(organization)
       {
         organization: organization.slice(:id, :name, :path, :description, :visibility_level)
-          .merge({ avatar: organization.avatar_url(size: 192) })
+          .merge({ avatar: organization.avatar_url(size: 192) }),
+        max_group_visibility_level: organization.max_group_visibility_level
       }.merge(shared_new_settings_general_app_data).to_json
     end
 

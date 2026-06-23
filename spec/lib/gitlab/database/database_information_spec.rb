@@ -39,6 +39,110 @@ RSpec.describe Gitlab::Database::DatabaseInformation, feature_category: :databas
       end
     end
 
+    it 'includes a findings array' do
+      expect(result[:databases]['main'][:findings]).to be_an(Array)
+    end
+
+    context 'with search_path findings' do
+      let(:model) { class_double(ApplicationRecord) }
+      let(:connection) { instance_double(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter) }
+      let(:search_path) { '"$user", public' }
+      let(:schema_rows) do
+        [{ 'name' => 'public', 'is_current' => true, 'owner' => 'gitlab', 'has_tables' => true }]
+      end
+
+      subject(:findings) { described_class.execute[:databases]['main'][:findings] }
+
+      before do
+        allow(Gitlab::Database).to receive(:database_base_models).and_return({ 'main' => model })
+        allow(model).to receive(:connection).and_return(connection)
+        allow(connection).to receive(:select_value).with('SELECT current_user').and_return('gitlab')
+        allow(connection).to receive(:select_value).with('SHOW search_path').and_return(search_path)
+        allow(connection).to receive(:select_all).and_return(schema_rows)
+      end
+
+      context 'when the search path is the default of "$user", public' do
+        it 'returns no findings' do
+          expect(findings).to be_empty
+        end
+      end
+
+      context 'when a partition schema is present in the search path' do
+        let(:search_path) { '"$user", public, gitlab_partitions_dynamic' }
+
+        it 'returns only a partition-schema warning', :aggregate_failures do
+          codes = findings.map { |f| f[:code] }
+
+          expect(codes).to contain_exactly('search_path_contains_partition_schema')
+          expect(findings.first[:severity]).to eq('warning')
+        end
+      end
+
+      context 'when a populated partition schema is in the search path' do
+        let(:search_path) { '"$user", public, gitlab_partitions_dynamic' }
+        let(:schema_rows) do
+          [
+            { 'name' => 'public', 'is_current' => true, 'owner' => 'gitlab', 'has_tables' => true },
+            { 'name' => 'gitlab_partitions_dynamic', 'is_current' => false, 'owner' => 'gitlab',
+              'has_tables' => true }
+          ]
+        end
+
+        it 'is flagged only as a partition schema, not as split objects', :aggregate_failures do
+          codes = findings.map { |f| f[:code] }
+
+          expect(codes).to include('search_path_contains_partition_schema')
+          expect(codes).not_to include('search_path_objects_split_across_schemas')
+        end
+      end
+
+      context 'when all objects live in a single non-public schema and public is empty' do
+        let(:search_path) { 'gitlab, public' }
+        let(:schema_rows) do
+          [
+            { 'name' => 'public', 'is_current' => false, 'owner' => 'gitlab', 'has_tables' => false },
+            { 'name' => 'gitlab', 'is_current' => true, 'owner' => 'gitlab', 'has_tables' => true }
+          ]
+        end
+
+        it 'returns no findings' do
+          expect(findings).to be_empty
+        end
+      end
+
+      context 'when objects are split across more than one populated schema' do
+        let(:search_path) { 'gitlab, public' }
+        let(:schema_rows) do
+          [
+            { 'name' => 'public', 'is_current' => false, 'owner' => 'gitlab', 'has_tables' => true },
+            { 'name' => 'gitlab', 'is_current' => true, 'owner' => 'gitlab', 'has_tables' => true }
+          ]
+        end
+
+        it 'returns a split-objects error naming the schemas', :aggregate_failures do
+          finding = findings.find { |f| f[:code] == 'search_path_objects_split_across_schemas' }
+
+          expect(finding).to be_present
+          expect(finding[:severity]).to eq('warning')
+          expect(finding[:message]).to include('public').and(include('gitlab'))
+        end
+      end
+
+      context 'when the "$user" token resolves to a populated user schema alongside public' do
+        let(:search_path) { '"$user", public' }
+        let(:schema_rows) do
+          [
+            { 'name' => 'public', 'is_current' => false, 'owner' => 'gitlab', 'has_tables' => true },
+            { 'name' => 'gitlab', 'is_current' => true, 'owner' => 'gitlab', 'has_tables' => true }
+          ]
+        end
+
+        it 'resolves "$user" and reports the split' do
+          expect(findings.map { |f| f[:code] }).to include('search_path_objects_split_across_schemas')
+        end
+      end
+    end
+
     context 'when a database name does not map to a known model' do
       subject(:result) { described_class.execute(database_names: %w[bogus]) }
 

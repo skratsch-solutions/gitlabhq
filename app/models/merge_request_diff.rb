@@ -584,7 +584,7 @@ class MergeRequestDiff < ApplicationRecord
 
       if comparison
         diff_options.merge!(
-          generated_files: comparison.generated_files,
+          generated_files: comparison.generated_files(diffs: collection.diff_files),
           paths: collection.diff_paths,
           page: collection.current_page,
           per_page: collection.limit_value,

@@ -25,7 +25,7 @@ RSpec.describe 'per-test coverage child pipeline templates', feature_category: :
     block.scan(/^[ \t]+- (.+)$/).flatten.map(&:strip)
   end
 
-  it 'declare the stages the merged child pipeline needs' do
+  it 'declare the stages the merged child pipeline needs', :aggregate_failures do
     # The merged child must expose every stage its jobs use: `test` for the
     # rspec shards and `test-frontend` for the jest shards. Pinning the list
     # means dropping one (even from both templates) fails here instead of

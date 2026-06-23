@@ -1,6 +1,7 @@
 <script>
 import { GlForm, GlFormFields, GlButton } from '@gitlab/ui';
 import { formValidators } from '@gitlab/ui/src/utils';
+import { organizationsPath } from '~/lib/utils/path_helpers/organizations';
 import { n__, s__, __ } from '~/locale';
 import { slugify } from '~/lib/utils/text_utility';
 import AvatarUploadDropzone from '~/organizations/shared/components/avatar_upload_dropzone.vue';
@@ -49,7 +50,7 @@ export default {
   restrictedToolBarItems: RESTRICTED_TOOLBAR_ITEMS_BASIC_EDITING_ONLY,
   availableVisibilityLevels: [VISIBILITY_LEVEL_PRIVATE_INTEGER, VISIBILITY_LEVEL_PUBLIC_INTEGER],
   ORGANIZATION_VISIBILITY_LEVEL_DESCRIPTIONS,
-  inject: ['organizationsPath', 'previewMarkdownPath'],
+  inject: ['previewMarkdownPath'],
   props: {
     loading: {
       type: Boolean,
@@ -190,6 +191,7 @@ export default {
     },
   },
   methods: {
+    organizationsPath,
     onPathInput(event, formFieldsInputEvent) {
       formFieldsInputEvent(event);
       this.hasPathBeenManuallySet = true;
@@ -270,7 +272,7 @@ export default {
         data-testid="submit-button"
         >{{ submitButtonText }}</gl-button
       >
-      <gl-button v-if="showCancelButton" :href="organizationsPath">{{
+      <gl-button v-if="showCancelButton" :href="organizationsPath()">{{
         $options.i18n.cancel
       }}</gl-button>
     </div>

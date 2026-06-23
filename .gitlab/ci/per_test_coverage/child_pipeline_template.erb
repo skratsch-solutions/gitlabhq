@@ -84,6 +84,10 @@ workflow:
     expire_in: 7d
     paths:
       - tmp/per-test-coverage-rspec-*.ndjson
+      # Uploaded so the export job can pass these standard rspec reports to the
+      # gem's --test-reports, which attributes feature_category, group, stage,
+      # and section to each test. rspec_parallelized_job writes them regardless.
+      - rspec/rspec-*.json
     when: always
 
 <% if test_suite_prefix.nil? %>

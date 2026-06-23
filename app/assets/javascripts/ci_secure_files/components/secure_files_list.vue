@@ -21,6 +21,7 @@ import MetadataButton from './metadata/button.vue';
 import MetadataModal from './metadata/modal.vue';
 
 export default {
+  name: 'SecureFilesList',
   components: {
     GlAlert,
     GlButton,

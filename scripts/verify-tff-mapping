@@ -654,6 +654,8 @@ tests = [
       ee/spec/features/registrations/saas/subscription_flow_spec.rb
       ee/spec/features/registrations/saas/subscription_sm_flow_spec.rb
       ee/spec/features/registrations/saas/trial_flow_spec.rb
+      ee/spec/features/registrations/saas/unified_free_flow_spec.rb
+      ee/spec/features/registrations/saas/unified_free_to_trial_flow_spec.rb
       ee/spec/controllers/registrations/company_controller_spec.rb
       ee/spec/requests/ee/registrations_controller_spec.rb
       ee/spec/requests/trial_registrations_controller_spec.rb

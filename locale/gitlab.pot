@@ -25044,6 +25044,9 @@ msgstr ""
 msgid "DatabaseDiagnostics|Missing sequences"
 msgstr ""
 
+msgid "DatabaseDiagnostics|More than one schema in the search path contains objects: %{schemas}. GitLab's objects should all live in a single schema. If they are split across multiple schemas, unqualified references can resolve unexpectedly."
+msgstr ""
+
 msgid "DatabaseDiagnostics|No schema issues detected."
 msgstr ""
 
@@ -25071,6 +25074,9 @@ msgstr ""
 msgid "DatabaseDiagnostics|Schemas"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Search path"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Search path:"
 msgstr ""
 
@@ -25084,6 +25090,9 @@ msgid "DatabaseDiagnostics|Tables"
 msgstr ""
 
 msgid "DatabaseDiagnostics|The database diagnostic job is taking longer than expected. You can check back later or try running it again."
+msgstr ""
+
+msgid "DatabaseDiagnostics|The search path contains a GitLab partition schema. Partition schemas are expected to be referenced fully qualified, not via the search path."
 msgstr ""
 
 msgid "DatabaseDiagnostics|These issues require manual remediation."
@@ -53090,6 +53099,9 @@ msgstr ""
 msgid "Organization|Organization visibility level"
 msgstr ""
 
+msgid "Organization|Organization visibility successfully updated."
+msgstr ""
+
 msgid "Organization|Organization was successfully updated."
 msgstr ""
 
@@ -53164,6 +53176,9 @@ msgid "Organization|Update your organization name, description, and avatar. %{li
 msgstr ""
 
 msgid "Organization|View all"
+msgstr ""
+
+msgid "Organization|Visibility levels that are more restrictive than the groups in this Organization have been disabled."
 msgstr ""
 
 msgid "Organization|We'll create one Organization per top-level group. You can reassign groups between them in the next step."

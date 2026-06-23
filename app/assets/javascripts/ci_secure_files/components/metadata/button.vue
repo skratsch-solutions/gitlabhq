@@ -4,6 +4,7 @@ import { GlButton, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
 import { __ } from '~/locale';
 
 export default {
+  name: 'MetadataButton',
   components: {
     GlButton,
   },

@@ -757,6 +757,27 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
       end
     end
 
+    context 'when the pipeline fails to persist after being saved' do
+      before do
+        config = YAML.dump({ test: { script: 'ls' } })
+        stub_ci_pipeline_yaml_file(config)
+
+        allow_next_instance_of(Gitlab::Ci::Pipeline::Chain::Create) do |instance|
+          allow(instance).to receive(:insert_records_and_restore_ids).and_raise(ActiveRecord::RecordInvalid)
+        end
+      end
+
+      it 'returns an error response', :aggregate_failures do
+        result = nil
+
+        expect { result = execute_service }.not_to raise_error
+
+        expect(result).to be_error
+        expect(result.payload).to be_frozen
+        expect(result.payload).not_to be_persisted
+      end
+    end
+
     context 'when the configuration includes ID tokens' do
       it 'creates variables for the ID tokens' do
         config = YAML.dump({

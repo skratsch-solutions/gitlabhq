@@ -255,6 +255,105 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
       end
     end
 
+    context 'with list partitions' do
+      before do
+        connection.execute(<<~SQL)
+          CREATE TABLE _test_list_import_partitioned
+          (id serial NOT NULL, partition_id bigint NOT NULL, PRIMARY KEY (id, partition_id))
+          PARTITION BY LIST (partition_id);
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_list_import_partitioned_1
+          PARTITION OF _test_list_import_partitioned
+          FOR VALUES IN ('1');
+        SQL
+      end
+
+      after do
+        connection.execute('DROP TABLE IF EXISTS _test_list_import_partitioned CASCADE')
+      end
+
+      let(:list_table_definitions) do
+        [
+          {
+            table_name: '_test_list_import_partitioned',
+            partition_type: 'bigint',
+            partition_strategy: 'list',
+            partitions: [
+              { partition_name: '_test_list_import_partitioned_1', values: [1] },
+              { partition_name: '_test_list_import_partitioned_2', values: [2] }
+            ]
+          }
+        ]
+      end
+
+      it 'creates missing list partitions and skips existing ones', :aggregate_failures do
+        result = importer.import(list_table_definitions)
+
+        expect(result[:created]).to eq(1)
+        expect(result[:skipped]).to eq(1)
+        expect(result[:tables_processed]).to eq(1)
+
+        expect(connection.table_exists?(
+          "#{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_list_import_partitioned_2"
+        )).to be(true)
+      end
+
+      it 'is idempotent for list partitions', :aggregate_failures do
+        importer.import(list_table_definitions)
+        result = importer.import(list_table_definitions)
+
+        expect(result[:created]).to eq(0)
+        expect(result[:skipped]).to eq(2)
+      end
+
+      context 'with string keys (JSON-parsed input)' do
+        let(:string_key_list_definitions) do
+          [
+            {
+              'table_name' => '_test_list_import_partitioned',
+              'partition_type' => 'bigint',
+              'partition_strategy' => 'list',
+              'partitions' => [
+                { 'partition_name' => '_test_list_import_partitioned_2', 'values' => [2] }
+              ]
+            }
+          ]
+        end
+
+        it 'handles string keys correctly', :aggregate_failures do
+          result = importer.import(string_key_list_definitions)
+
+          expect(result[:created]).to eq(1)
+          expect(connection.table_exists?(
+            "#{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_list_import_partitioned_2"
+          )).to be(true)
+        end
+      end
+
+      context 'with multi-value list partition data' do
+        let(:multi_value_definitions) do
+          [
+            {
+              table_name: '_test_list_import_partitioned',
+              partition_type: 'bigint',
+              partition_strategy: 'list',
+              partitions: [
+                { partition_name: '_test_list_import_partitioned_1_2', values: [1, 2] }
+              ]
+            }
+          ]
+        end
+
+        it 'raises ImportError — multi-value list partitions are not supported' do
+          expect { importer.import(multi_value_definitions) }
+            .to raise_error(
+              Gitlab::Database::Partitioning::PartitionImporter::ImportError,
+              /table=_test_list_import_partitioned/
+            )
+        end
+      end
+    end
+
     context 'with date range partitions' do
       before do
         connection.execute(<<~SQL)

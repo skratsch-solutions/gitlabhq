@@ -331,6 +331,93 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
       it_behaves_like 'enforces step-up authentication (request spec)'
     end
+
+    context 'as JSON' do
+      let_it_be(:group, freeze: false) { create(:group, :public) }
+      let_it_be(:project) { create(:project, group: group) }
+      let_it_be(:user) { create(:user, developer_of: group) }
+
+      subject(:get_activity) { get activity_group_path(group), as: :json }
+
+      before do
+        sign_in(user)
+      end
+
+      it 'includes events from all projects in the group and its subgroups',
+        :sidekiq_might_not_need_inline, :aggregate_failures do
+        2.times do
+          group_project = create(:project, group: group)
+          create(:event, project: group_project)
+        end
+        subgroup = create(:group, parent: group, organization: group.organization)
+        create(:event, project: create(:project, group: subgroup))
+
+        get_activity
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['count']).to eq(3)
+      end
+
+      context 'with the event filter set to all' do
+        before do
+          cookies[:event_filter] = EventFilter::ALL
+        end
+
+        it 'includes transferred group events when group events are unavailable', :aggregate_failures do
+          create(:event, :transferred, project: nil, group: group, target: group, target_type: 'Group', author: user)
+
+          get_activity
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['count']).to eq(1)
+        end
+
+        it 'includes subgroup group-transfer events in the parent group activity', :aggregate_failures do
+          subgroup = create(:group, :public, parent: group, organization: group.organization)
+          create(:event, :transferred, project: nil, group: group, target: group, target_type: 'Group', author: user)
+          create(:event, :transferred, project: nil, group: subgroup, target: subgroup, target_type: 'Group',
+            author: user)
+
+          get_activity
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['count']).to eq(2)
+        end
+
+        it 'includes project-transfer events in the group activity', :aggregate_failures do
+          create(:event, :transferred, project: project, target: project, target_type: 'Project', author: user)
+
+          get_activity
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['count']).to eq(1)
+        end
+      end
+    end
+
+    context 'when the user has no permission to see an event' do
+      let_it_be(:group, freeze: false) { create(:group, :public) }
+      let_it_be(:project) { create(:project, group: group) }
+      let_it_be(:restricted_project) do
+        create(:project, :public, issues_access_level: ProjectFeature::PRIVATE, group: group)
+      end
+
+      let_it_be(:user) { create(:user, guest_of: group) }
+
+      before do
+        create(:event, project: project)
+        create(:event, :created, project: restricted_project, target: create(:issue))
+
+        sign_in(user)
+      end
+
+      it 'filters out the invisible event', :aggregate_failures do
+        get activity_group_path(group), as: :json
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['count']).to eq(1)
+      end
+    end
   end
 
   describe 'GET #issues' do

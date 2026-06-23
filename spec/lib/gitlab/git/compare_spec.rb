@@ -183,6 +183,14 @@ RSpec.describe Gitlab::Git::Compare, feature_category: :source_code_management d
           expect(generated_files).to eq Set.new
         end
       end
+
+      context 'when diffs are provided' do
+        it 'derives the changed paths from the diffs instead of calling find_changed_paths', :aggregate_failures do
+          expect(repository).not_to receive(:find_changed_paths)
+
+          expect(compare.generated_files(diffs: compare.diffs.to_a)).to eq Set.new(['file1.txt'])
+        end
+      end
     end
 
     context 'with deleted .gitattributes in the HEAD' do

@@ -246,10 +246,6 @@ requests.post(url, headers=headers, data=data, files=files)
 
 {{< /history >}}
 
-> [!flag]
-> On GitLab Self-Managed, by default this feature is available. To hide the feature, an administrator can [disable the feature flag](../administration/feature_flags/_index.md) named `import_project_from_remote_file`.
-> On GitLab.com and GitLab Dedicated, this feature is available.
-
 Imports a project from a remote archive.
 
 ```plaintext
