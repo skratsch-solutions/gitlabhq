@@ -219,7 +219,7 @@ RSpec.describe Users::MigrateRecordsToGhostUserService, feature_category: :user_
 
       it "deletes the access token" do
         service.execute
-        expect(PersonalAccessToken.find_by(id: token.id)).to eq nil
+        expect(PersonalAccessToken.find_by(id: token.id)).to be_nil
       end
     end
   end

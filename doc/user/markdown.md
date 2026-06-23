@@ -2322,8 +2322,8 @@ Markdown is fine in GitLab.
 
 ### Collapsible section
 
-Content can be collapsed using HTML's [`<details>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details)
-and [`<summary>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary)
+Content can be collapsed using HTML's [`<details>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details)
+and [`<summary>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/summary)
 tags. For example, collapse a long log file so it takes up less screen space.
 
 ```html

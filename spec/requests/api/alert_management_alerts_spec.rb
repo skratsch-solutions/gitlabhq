@@ -4,6 +4,11 @@ require 'spec_helper'
 
 RSpec.describe API::AlertManagementAlerts, feature_category: :incident_management do
   let_it_be(:creator) { create(:user) }
+  # `freeze: false` is required here: this `let_it_be` subject is mutated
+  # in-memory across examples in a way that survives both
+  # `let_it_be_with_reload` and `let_it_be_with_refind` (e.g. a memoized
+  # association/collection or a non-persisted attribute). Keeping it unfrozen
+  # is the only correct cure (see gitlab-org/gitlab#602925).
   let_it_be(:project, freeze: false) do
     create(:project, :public, creator_id: creator.id, namespace: creator.namespace)
   end

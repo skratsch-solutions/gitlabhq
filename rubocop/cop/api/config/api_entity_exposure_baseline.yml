@@ -801,6 +801,8 @@ lib/api/entities/user_safe.rb:
 - username
 lib/api/entities/work_item_basic.rb:
 - features
+lib/api/entities/work_items/author.rb:
+- web_path
 lib/api/entities/work_items/features.rb: []
 lib/api/entities/work_items/features/award_emoji.rb:
 - downvotes
@@ -824,6 +826,8 @@ lib/api/entities/work_items/features/hierarchy.rb:
 lib/api/entities/work_items/features/labels.rb:
 - allows_scoped_labels
 - labels
+lib/api/entities/work_items/features/notifications.rb:
+- subscribed
 lib/api/entities/work_items/features/start_and_due_date.rb:
 - due_date
 - roll_up

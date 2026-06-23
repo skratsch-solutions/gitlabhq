@@ -1022,7 +1022,7 @@ RSpec.describe ::SystemNotes::IssuablesService, feature_category: :team_planning
 
       event = ResourceStateEvent.last
 
-      expect(event.close_after_error_tracking_resolve).to eq(true)
+      expect(event.close_after_error_tracking_resolve).to be(true)
       expect(event.state).to eq('closed')
     end
   end
@@ -1035,7 +1035,7 @@ RSpec.describe ::SystemNotes::IssuablesService, feature_category: :team_planning
 
       event = ResourceStateEvent.last
 
-      expect(event.close_auto_resolve_prometheus_alert).to eq(true)
+      expect(event.close_auto_resolve_prometheus_alert).to be(true)
       expect(event.state).to eq('closed')
     end
   end

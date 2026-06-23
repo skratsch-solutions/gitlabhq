@@ -75,7 +75,7 @@ RSpec.describe ResourceAccessTokens::CreateService, feature_category: :system_ac
           group_id = root.is_a?(Group) ? root.id : nil
           access_token.user.reload
 
-          expect(access_token.user.confirmed?).to eq(true)
+          expect(access_token.user.confirmed?).to be(true)
           expect(access_token.group_id).to eq(group_id)
           expect(access_token.user_type).to eq("project_bot")
           expect(access_token.user.user_type).to eq("project_bot")
@@ -200,7 +200,7 @@ RSpec.describe ResourceAccessTokens::CreateService, feature_category: :system_ac
           end
 
           it 'creates resource bot user with external status' do
-            expect(subject.payload[:access_token].user.external).to eq true
+            expect(subject.payload[:access_token].user.external).to be true
           end
         end
       end

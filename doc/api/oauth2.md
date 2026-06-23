@@ -28,7 +28,7 @@ This functionality is based on the [doorkeeper Ruby gem](https://github.com/door
 {{< /history >}}
 
 Many `/oauth` endpoints support cross-origin resource sharing (CORS). From GitLab 15.1, the following endpoints also
-support [CORS preflight requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS):
+support [CORS preflight requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS):
 
 - `/oauth/revoke`
 - `/oauth/token`
@@ -36,7 +36,7 @@ support [CORS preflight requests](https://developer.mozilla.org/en-US/docs/Web/H
 
 Only certain headers can be used for preflight requests:
 
-- The headers listed for [simple requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests).
+- The headers listed for [simple requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS#simple_requests).
 - The `Authorization` header.
 
 For example, the `X-Requested-With` header can't be used for preflight requests.

@@ -1,4 +1,4 @@
-#import "~/ci/pipelines_page/graphql/fragments/pipeline_details.fragment.graphql"
+#import "~/ci/pipelines_page/graphql/fragments/pipeline_list_item.fragment.graphql"
 
 query getPipelineCreationRequests($fullPath: ID!, $mergeRequestIid: String!) {
   project(fullPath: $fullPath) {
@@ -14,7 +14,7 @@ query getPipelineCreationRequests($fullPath: ID!, $mergeRequestIid: String!) {
         pipelineId
         error
         pipeline {
-          ...PipelineDetails
+          ...PipelineListItem
         }
       }
     }

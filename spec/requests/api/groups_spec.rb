@@ -11,7 +11,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   let_it_be(:user2) { create(:user) }
   let_it_be(:user3) { create(:user) }
   let_it_be(:admin) { create(:admin) }
-  let_it_be(:group1, freeze: false) { create(:group, path: 'some_path', avatar: File.open(uploaded_image_temp_path), owners: user1, organization: current_organization) }
+  let_it_be_with_reload(:group1) { create(:group, path: 'some_path', avatar: File.open(uploaded_image_temp_path), owners: user1, organization: current_organization) }
   let_it_be(:group2) { create(:group, :private, owners: user2) }
   let_it_be(:project1) { create(:project, namespace: group1) }
   let_it_be(:project2) { create(:project, namespace: group2, name: 'testing') }
@@ -2316,7 +2316,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   end
 
   describe "GET /groups/:id/groups/shared" do
-    let_it_be(:main_group, freeze: false) do
+    let_it_be(:main_group) do
       create(:group, :private, name: "b-group", path: "w#{group1.path}", owners: user1)
     end
 
@@ -2615,7 +2615,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   end
 
   describe "GET /groups/:id/invited_groups" do
-    let_it_be(:main_group, freeze: false) do
+    let_it_be(:main_group) do
       create(:group, :private, name: "b-group", path: "w#{group1.path}", owners: user1)
     end
 
@@ -3727,7 +3727,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   describe "POST /groups/:id/restore" do
     let_it_be(:user) { user1 }
     let_it_be(:unauthorized_user) { user2 }
-    let_it_be(:group, freeze: false) do
+    let_it_be(:group) do
       create(:group_with_deletion_schedule, :deletion_scheduled, marked_for_deletion_on: 1.day.ago,
         deleting_user: user, owners: user)
     end
@@ -3850,7 +3850,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
   describe 'GET /groups/:id/transfer_locations' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:source_group, freeze: false) { create(:group, :private) }
+    let_it_be(:source_group) { create(:group, :private) }
 
     let(:params) { {} }
 
@@ -4149,7 +4149,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
   describe 'POST /groups/:id/transfer_to_organization' do
     let_it_be(:organization) { create(:organization) }
-    let_it_be(:group_to_transfer, freeze: false) { create(:group, :private) }
+    let_it_be(:group_to_transfer) { create(:group, :private) }
     let_it_be(:subgroup) { create(:group, :private, parent: group_to_transfer) }
 
     before do

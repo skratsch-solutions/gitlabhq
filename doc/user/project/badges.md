@@ -330,7 +330,7 @@ Customize the background color on the right side by adding the `value_color=colo
 
 Colors can be passed as:
 
-- [A named color](https://developer.mozilla.org/en-US/docs/Web/CSS/named-color), for example `blue`
+- [A named color](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/named-color), for example `blue`
 - Hexadecimal representation like `fff` or `7bc043` (without leading `#`)
 
 ```plaintext
@@ -343,7 +343,7 @@ Customize the background color on the left side by adding the `value_color=color
 
 Colors can be passed as:
 
-- [A named color](https://developer.mozilla.org/en-US/docs/Web/CSS/named-color), for example `blue`
+- [A named color](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/named-color), for example `blue`
 - Hexadecimal representation like `fff` or `7bc043` (without leading `#`)
 
 ```plaintext

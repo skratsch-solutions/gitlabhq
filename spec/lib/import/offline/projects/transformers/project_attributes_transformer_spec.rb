@@ -55,7 +55,7 @@ RSpec.describe Import::Offline::Projects::Transformers::ProjectAttributesTransfo
     end
 
     it 'adds import type' do
-      expect(transformed_data[:import_type]).to eq(described_class::PROJECT_IMPORT_TYPE)
+      expect(transformed_data[:import_type]).to eq(Import::SOURCE_OFFLINE_TRANSFER.to_s)
     end
 
     it 'adds namespace_id' do

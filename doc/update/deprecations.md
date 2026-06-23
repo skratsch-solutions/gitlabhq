@@ -2886,7 +2886,7 @@ config file locations instead, for example `config/redis.cache.yml` or
 - Removal in GitLab 16.0 ([breaking change](https://docs.gitlab.com/update/terminology/#breaking-change))
 - To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/container-registry/-/issues/842).
 
-The container registry [pull-through cache](https://docs.docker.com/docker-hub/mirror/) is deprecated in GitLab 15.8 and will be removed in GitLab 16.0. The pull-through cache is part of the upstream [Docker Distribution project](https://github.com/distribution/distribution). However, we are removing the pull-through cache in favor of the GitLab Dependency Proxy, which allows you to proxy and cache container images from Docker Hub. Removing the pull-through cache allows us also to remove the upstream client code without sacrificing functionality.
+The container registry [pull-through cache](https://docs.docker.com/docker-hub/image-library/mirror/) is deprecated in GitLab 15.8 and will be removed in GitLab 16.0. The pull-through cache is part of the upstream [Docker Distribution project](https://github.com/distribution/distribution). However, we are removing the pull-through cache in favor of the GitLab Dependency Proxy, which allows you to proxy and cache container images from Docker Hub. Removing the pull-through cache allows us also to remove the upstream client code without sacrificing functionality.
 
 ### Container scanning variables that reference Docker
 
@@ -5159,7 +5159,7 @@ Rate limits will be enabled by default for commonly used [User](https://docs.git
 [Project](https://docs.gitlab.com/administration/settings/rate_limit_on_projects_api/), and [Group](https://docs.gitlab.com/administration/settings/rate_limit_on_groups_api/) endpoints.
 Enabling these rate limits by default can help improve overall system stability,
 by reducing the potential for heavy API usage to negatively impact the broader user experience. Requests made above the rate
-limit will return an [HTTP 429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429) error code and [additional rate limit headers](https://docs.gitlab.com/administration/settings/user_and_ip_rate_limits/#response-headers).
+limit will return an [HTTP 429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429) error code and [additional rate limit headers](https://docs.gitlab.com/administration/settings/user_and_ip_rate_limits/#response-headers).
 
 The default rate limits have been intentionally set fairly high to not disrupt most usage, based on the request rates we see on GitLab.com.
 Instance administrators can set higher or lower limits as needed in the Admin area, similarly to other rate limits already in place.

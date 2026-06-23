@@ -2394,6 +2394,52 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
           expect(json_response.size).to eq(1)
         end
       end
+
+      context 'when diff files exceed safe limits' do
+        before do
+          allow(Commit).to receive_messages(diff_safe_max_files: 1, diff_safe_max_lines: 1)
+        end
+
+        it 'does not collapse diff content on page 1', :aggregate_failures do
+          get(
+            api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/diffs", user),
+            params: { page: 1, per_page: 30 }
+          )
+
+          expect_successful_response_with_paginated_array
+
+          non_trivial_diffs = json_response.reject { |diff| diff['deleted_file'] || diff['renamed_file'] }
+          expect(non_trivial_diffs).not_to be_empty
+
+          json_response.each do |diff|
+            expect(diff['collapsed']).to be false
+
+            next if diff['deleted_file'] || diff['renamed_file']
+
+            expect(diff['diff']).not_to be_empty, "Expected non-empty diff for #{diff['new_path']}"
+          end
+        end
+
+        it 'does not collapse diff content on subsequent pages', :aggregate_failures do
+          get(
+            api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/diffs", user),
+            params: { page: 2, per_page: 1 }
+          )
+
+          expect_successful_response_with_paginated_array
+
+          non_trivial_diffs = json_response.reject { |diff| diff['deleted_file'] || diff['renamed_file'] }
+          expect(non_trivial_diffs).not_to be_empty
+
+          json_response.each do |diff|
+            expect(diff['collapsed']).to be false
+
+            next if diff['deleted_file'] || diff['renamed_file']
+
+            expect(diff['diff']).not_to be_empty, "Expected non-empty diff for #{diff['new_path']}"
+          end
+        end
+      end
     end
   end
 

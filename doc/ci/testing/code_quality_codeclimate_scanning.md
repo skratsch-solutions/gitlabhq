@@ -522,7 +522,7 @@ name = "docker:29.1.4-dind"
 > the previous Kubernetes configuration in the [`config` field](https://docs.gitlab.com/runner/install/kubernetes_helm_chart_configuration/)
 > of the `values.yaml` file.
 
-To ensure that you use the `overlay2` [storage driver](https://docs.docker.com/storage/storagedriver/select-storage-driver/), which offers the best overall performance:
+To ensure that you use the `overlay2` [storage driver](https://docs.docker.com/engine/storage/drivers/select-storage-driver/), which offers the best overall performance:
 
 - Specify the `DOCKER_HOST` that the Docker CLI communicates with.
 - Set the `DOCKER_DRIVER` variable to empty.
@@ -553,7 +553,7 @@ you must mount the `/var/lib` directory as a volume mount.
 > [!note]
 > If you cannot to mount the `/var/lib` directory as a volume mount, you can set `--storage-driver` to `vfs` instead.
 > If you opt for the `vfs` value, it might have a negative
-> impact on [performance](https://docs.docker.com/storage/storagedriver/select-storage-driver/).
+> impact on [performance](https://docs.docker.com/engine/storage/drivers/select-storage-driver/).
 
 To configure permissions for the Docker daemon:
 

@@ -171,7 +171,9 @@ class Project < ApplicationRecord
 
   after_save :schedule_sync_event_worker, if: -> { saved_change_to_id? || saved_change_to_namespace_id? }
 
-  after_save :create_import_state, if: ->(project) { project.import? && project.import_state.nil? }
+  after_save :create_import_state, if: ->(project) do
+    project.import? && project.import_state.nil? && (!project.transfer_import? || project.mirror?)
+  end
 
   after_save :save_topics
 
@@ -1871,7 +1873,7 @@ class Project < ApplicationRecord
   end
 
   def import?
-    external_import? || forked? || gitlab_project_import? || jira_import? || gitlab_project_migration? || Gitlab::ImportSources.template?(import_type)
+    external_import? || forked? || gitlab_project_import? || jira_import? || gitlab_project_migration? || offline_transfer? || Gitlab::ImportSources.template?(import_type)
   end
 
   def external_import?
@@ -1894,6 +1896,16 @@ class Project < ApplicationRecord
 
   def gitlab_project_migration?
     import_type == 'gitlab_project_migration'
+  end
+
+  def offline_transfer?
+    import_type == Import::SOURCE_OFFLINE_TRANSFER.to_s
+  end
+
+  # Direct Transfer and Offline Transfer imports are driven by the BulkImports
+  # framework, which manages its own progress and does not use ProjectImportState.
+  def transfer_import?
+    gitlab_project_migration? || offline_transfer?
   end
 
   def gitea_import?

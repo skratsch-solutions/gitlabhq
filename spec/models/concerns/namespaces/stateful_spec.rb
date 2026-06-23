@@ -239,6 +239,11 @@ RSpec.describe Namespaces::Stateful, feature_category: :groups_and_projects do
 
       context 'when namespace is a project namespace' do
         let_it_be_with_reload(:project) { create(:project) }
+        # `freeze: false` is required in this spec: one or more `let_it_be` subjects
+        # cannot be frozen by default (deep_freeze traversal failure, a non-AR
+        # subject, or an in-memory mutation that survives reload/refind). Do not
+        # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
+        # (see gitlab-org/gitlab#602925).
         let_it_be(:project_namespace, freeze: false) { project.project_namespace }
 
         it 'expires namespace descendants cache for the parent when archiving' do

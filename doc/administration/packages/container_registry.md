@@ -758,7 +758,7 @@ registry['storage'] = {
 }
 ```
 
-GitLab supports all [available parameters](https://docs.docker.com/registry/storage-drivers/gcs/).
+GitLab supports all [available parameters](https://distribution.github.io/distribution/storage-drivers/gcs/).
 
 {{< /tab >}}
 
@@ -1793,7 +1793,7 @@ Make sure everything continues to work as expected before replicating it in prod
 
 ### Docker Distribution Registry
 
-The [Docker Distribution Registry](https://docs.docker.com/registry/) was donated to the CNCF
+The [Docker Distribution Registry](https://distribution.github.io/distribution/) was donated to the CNCF
 and is now known as the [Distribution Registry](https://distribution.github.io/distribution/).
 This registry is the open source implementation that the GitLab container registry is based on.
 The GitLab container registry is compatible with the basic functionality provided by the Distribution Registry,

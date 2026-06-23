@@ -33,7 +33,7 @@ A deploy token is a pair of values:
 
 Deploy tokens do not support [SSH authentication](../../ssh.md).
 
-You can use a deploy token for [HTTP authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication)
+You can use a deploy token for [HTTP authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication)
 to the following endpoints:
 
 - GitLab package registry public API.

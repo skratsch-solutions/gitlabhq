@@ -545,12 +545,22 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
 
     describe 'import scheduling' do
       context 'when project import type is gitlab project migration' do
-        it 'does not schedule project import' do
+        it 'does not create or schedule project import state' do
           opts[:import_type] = 'gitlab_project_migration'
 
           project = create_project(user, opts)
 
-          expect(project.import_state.status).to eq('none')
+          expect(project.import_state).to be_nil
+        end
+      end
+
+      context 'when project import type is offline transfer' do
+        it 'does not create or schedule project import state' do
+          opts[:import_type] = Import::SOURCE_OFFLINE_TRANSFER.to_s
+
+          project = create_project(user, opts)
+
+          expect(project.import_state).to be_nil
         end
       end
     end

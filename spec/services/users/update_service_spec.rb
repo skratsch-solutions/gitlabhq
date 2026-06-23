@@ -14,7 +14,7 @@ RSpec.describe Users::UpdateService, feature_category: :user_profile do
 
       expect(result).to include(status: :success)
       expect(user.reload.timezone).to eq('Europe/Warsaw')
-      expect(user.time_display_relative).to eq(true)
+      expect(user.time_display_relative).to be(true)
     end
 
     it 'returns an error result when record cannot be updated' do
@@ -298,7 +298,7 @@ RSpec.describe Users::UpdateService, feature_category: :user_profile do
             ).execute
 
             expect(result[:status]).to eq(:success)
-            expect(organization.user?(target_user)).to eq(true)
+            expect(organization.user?(target_user)).to be(true)
           end
         end
 
@@ -357,7 +357,7 @@ RSpec.describe Users::UpdateService, feature_category: :user_profile do
           update_user(user, enabled_following: false)
         end.to change { user.followed_users.count }.from(3).to(0)
                                                    .and change { user.following_users.count }.from(3).to(0)
-        expect(user.enabled_following).to eq(false)
+        expect(user.enabled_following).to be(false)
       end
 
       context 'when there is more followers/followees then batch limit' do
@@ -370,7 +370,7 @@ RSpec.describe Users::UpdateService, feature_category: :user_profile do
             update_user(user, enabled_following: false)
           end.to change { user.followed_users.count }.from(3).to(0)
                                                      .and change { user.following_users.count }.from(3).to(0)
-          expect(user.enabled_following).to eq(false)
+          expect(user.enabled_following).to be(false)
         end
       end
     end

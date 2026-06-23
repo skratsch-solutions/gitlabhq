@@ -8,8 +8,6 @@ module Import
           include ::BulkImports::PathNormalization
           include ::BulkImports::Uniquify
 
-          PROJECT_IMPORT_TYPE = 'gitlab_project_migration'
-
           NamespaceNotFoundError = Class.new(StandardError)
 
           def transform(context, data)
@@ -31,7 +29,7 @@ module Import
               name: uniquify(namespace, data['name'], :name),
               path: uniquify(namespace, path, :path),
               created_at: data['created_at'],
-              import_type: PROJECT_IMPORT_TYPE,
+              import_type: Import::SOURCE_OFFLINE_TRANSFER.to_s,
               visibility_level: allowed_visibility_level(data['visibility_level'], namespace),
               namespace_id: namespace.id
             ).with_indifferent_access

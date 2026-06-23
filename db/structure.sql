@@ -16795,6 +16795,7 @@ CREATE TABLE bulk_import_exports (
     total_objects_count integer DEFAULT 0 NOT NULL,
     user_id bigint,
     offline_export_id bigint,
+    organization_id bigint,
     CONSTRAINT check_24cb010672 CHECK ((char_length(relation) <= 255)),
     CONSTRAINT check_8f0f357334 CHECK ((char_length(error) <= 255)),
     CONSTRAINT check_9ee6d14d33 CHECK ((char_length(jid) <= 255)),
@@ -45606,6 +45607,8 @@ CREATE UNIQUE INDEX idx_bulk_import_batch_trackers_on_tracker_batch_org_uniq ON 
 
 CREATE UNIQUE INDEX idx_bulk_import_exports_on_group_relation_offline_export ON bulk_import_exports USING btree (group_id, relation, offline_export_id) WHERE ((group_id IS NOT NULL) AND (offline_export_id IS NOT NULL));
 
+CREATE INDEX idx_bulk_import_exports_on_organization_id ON bulk_import_exports USING btree (organization_id);
+
 CREATE UNIQUE INDEX idx_bulk_import_exports_on_project_relation_offline_export ON bulk_import_exports USING btree (project_id, relation, offline_export_id) WHERE ((project_id IS NOT NULL) AND (offline_export_id IS NOT NULL));
 
 CREATE INDEX idx_catalog_resource_cpmt_last_usages_on_cpmt_project_id ON catalog_resource_component_last_usages USING btree (component_project_id);
@@ -59621,6 +59624,9 @@ ALTER TABLE ONLY resource_link_events
 
 ALTER TABLE ONLY workspaces
     ADD CONSTRAINT fk_bdb0b31131 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY bulk_import_exports
+    ADD CONSTRAINT fk_bde1337d10 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE NOT VALID;
 
 ALTER TABLE ONLY ascp_security_guidelines
     ADD CONSTRAINT fk_be2c636993 FOREIGN KEY (security_context_id) REFERENCES ascp_security_contexts(id) ON DELETE CASCADE;

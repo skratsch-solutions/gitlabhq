@@ -243,7 +243,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     describe 'path validator' do
-      let_it_be(:parent, freeze: false) { create(:namespace) }
+      let_it_be_with_reload(:parent) { create(:namespace) }
 
       where(:namespace_type, :path, :valid) do
         ref(:project_sti_name)   | 'j'               | true
@@ -411,7 +411,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     let_it_be(:user) { create(:user) }
     let_it_be(:user_namespace) { user.namespace }
 
-    let_it_be(:parent, freeze: false) { create(:group) }
+    let_it_be_with_reload(:parent) { create(:group) }
     let_it_be(:group) { create(:group, parent: parent) }
     let_it_be(:another_group) { create(:group) }
 
@@ -838,7 +838,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     describe '.with_project_statistics' do
-      let_it_be(:namespace, freeze: false) { create(:namespace) }
+      let_it_be_with_reload(:namespace) { create(:namespace) }
       let_it_be(:project) do
         create(:project,
           namespace: namespace,
@@ -1061,13 +1061,13 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       subject { namespace.allow_runner_registration_token? }
 
       context 'when namespace_settings is nil' do
-        let_it_be(:namespace, freeze: false) { create(:namespace) }
+        let_it_be_with_reload(:namespace) { create(:namespace) }
 
         it { is_expected.to eq false }
       end
 
       context 'when namespace_settings is not nil' do
-        let_it_be(:namespace, freeze: false) { create(:namespace, :with_namespace_settings) }
+        let_it_be_with_reload(:namespace) { create(:namespace, :with_namespace_settings) }
 
         it { is_expected.to eq true }
 
@@ -1179,7 +1179,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   it_behaves_like 'an isolatable', :namespace
 
   describe '#self_archived?' do
-    let_it_be(:namespace, freeze: false) { create(:group) }
+    let_it_be_with_reload(:namespace) { create(:group) }
 
     it 'is an alias of #archived?' do
       expect(namespace.method(:self_archived?).original_name).to eq(:archived?)
@@ -1215,7 +1215,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     context 'when group has no parent' do
-      let_it_be(:root, freeze: false) { create(:group) }
+      let_it_be_with_reload(:root) { create(:group) }
 
       it 'returns true when archived' do
         root.namespace_settings.update!(archived: true)
@@ -1293,7 +1293,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     context 'when group has no parent' do
-      let_it_be(:root, freeze: false) { create(:group) }
+      let_it_be_with_reload(:root) { create(:group) }
 
       it 'returns false when archived' do
         root.namespace_settings.update!(archived: true)
@@ -1519,7 +1519,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     describe '.self_and_descendants' do
-      let_it_be(:namespace, freeze: false) { create(:namespace) }
+      let_it_be_with_reload(:namespace) { create(:namespace) }
 
       subject { described_class.where(id: namespace).self_and_descendants.load }
 
@@ -1527,7 +1527,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     describe '.self_and_descendant_ids' do
-      let_it_be(:namespace, freeze: false) { create(:namespace) }
+      let_it_be_with_reload(:namespace) { create(:namespace) }
 
       subject { described_class.where(id: namespace).self_and_descendant_ids.load }
 
@@ -1958,7 +1958,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   end
 
   describe '.with_statistics' do
-    let_it_be(:namespace, freeze: false) { create(:namespace) }
+    let_it_be_with_reload(:namespace) { create(:namespace) }
     let_it_be(:project_outside_namespace) do
       create(
         :project,
@@ -2067,7 +2067,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   end
 
   describe '.find_by_path_or_name' do
-    let_it_be(:namespace, freeze: false) { create(:namespace, name: 'WoW', path: 'woW') }
+    let_it_be_with_reload(:namespace) { create(:namespace, name: 'WoW', path: 'woW') }
 
     it { expect(described_class.find_by_path_or_name('wow')).to eq(namespace) }
     it { expect(described_class.find_by_path_or_name('WOW')).to eq(namespace) }
@@ -2316,7 +2316,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
   shared_examples '#all_projects' do
     context 'when namespace is a group' do
-      let_it_be(:namespace, freeze: false) { create(:group) }
+      let_it_be_with_reload(:namespace) { create(:group) }
       let_it_be(:child) { create(:group, parent: namespace) }
       let_it_be(:project1) { create(:project_empty_repo, namespace: namespace) }
       let_it_be(:project2) { create(:project_empty_repo, namespace: child) }
@@ -2346,7 +2346,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
   describe '#all_projects_except_soft_deleted' do
     context 'when namespace is a group' do
-      let_it_be(:namespace, freeze: false) { create(:group) }
+      let_it_be_with_reload(:namespace) { create(:group) }
       let_it_be(:child) { create(:group, parent: namespace) }
       let_it_be(:project1) { create(:project_empty_repo, namespace: namespace) }
       let_it_be(:project2) { create(:project_empty_repo, namespace: child) }
@@ -2395,7 +2395,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   end
 
   describe '#all_active_project_ids' do
-    let_it_be(:namespace, freeze: false) { create(:group) }
+    let_it_be_with_reload(:namespace) { create(:group) }
     let_it_be(:child) { create(:group, parent: namespace) }
     let_it_be(:active_project1) { create(:project, namespace: namespace) }
     let_it_be(:active_project2) { create(:project, namespace: child) }

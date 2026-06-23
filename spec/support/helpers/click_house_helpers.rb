@@ -49,7 +49,7 @@ module ClickHouseHelpers
           )
     end)
 
-    expect(result).to eq(true)
+    expect(result).to be(true)
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
@@ -66,7 +66,7 @@ module ClickHouseHelpers
            )
     end)
 
-    expect(result).to eq(true)
+    expect(result).to be(true)
 
     insert_ci_pipelines_to_siphon(pipelines)
   end
@@ -98,7 +98,7 @@ module ClickHouseHelpers
       }
     end)
 
-    expect(result).to eq(true)
+    expect(result).to be(true)
   end
 
   def insert_ci_stages_to_siphon(stages, replicated_at: Time.current, deleted: false)
@@ -121,7 +121,7 @@ module ClickHouseHelpers
       }
     end)
 
-    expect(result).to eq(true)
+    expect(result).to be(true)
   end
 
   def self.default_timezone

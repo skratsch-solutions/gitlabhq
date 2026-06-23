@@ -1,6 +1,6 @@
 #import "~/graphql_shared/fragments/ci_icon.fragment.graphql"
 
-fragment PipelineDetails on Pipeline {
+fragment PipelineListItem on Pipeline {
   id
   iid
   detailedStatus {

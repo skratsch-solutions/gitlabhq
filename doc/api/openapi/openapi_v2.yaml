@@ -49125,11 +49125,11 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       group_id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       name:
         type: text
@@ -50686,6 +50686,8 @@ definitions:
         type: string
       experiment_features_enabled:
         type: string
+      ai_settings:
+        "$ref": "#/definitions/API_Entities_AiSettings"
       membership_lock:
         type: string
       ip_restriction_ranges:
@@ -51539,6 +51541,59 @@ definitions:
     - snippets_size
     - uploads_size
     - container_registry_size
+  API_Entities_AiSettings:
+    type: object
+    properties:
+      duo_agent_platform_enabled:
+        type: boolean
+        example: true
+      duo_workflow_mcp_enabled:
+        type: boolean
+        example: false
+      foundational_agents_default_enabled:
+        type: boolean
+        example: true
+      ai_catalog_restricted_to_group_hierarchy:
+        type: boolean
+        example: false
+      ai_usage_data_collection_enabled:
+        type: boolean
+        example: false
+      prompt_injection_protection_level:
+        type: string
+        example: no_checks
+      include_recommended_allowed:
+        type: boolean
+        example: false
+      allow_all_unix_sockets:
+        type: boolean
+        example: false
+      allow_project_extension:
+        type: boolean
+        example: true
+      minimum_access_level_execute:
+        type: integer
+        format: int32
+        example: 30
+      minimum_access_level_execute_async:
+        type: integer
+        format: int32
+        example: 30
+      minimum_access_level_manage:
+        type: integer
+        format: int32
+        example: 40
+      minimum_access_level_enable_on_projects:
+        type: integer
+        format: int32
+        example: 40
+    required:
+    - duo_agent_platform_enabled
+    - duo_workflow_mcp_enabled
+    - foundational_agents_default_enabled
+    - ai_catalog_restricted_to_group_hierarchy
+    - ai_usage_data_collection_enabled
+    - prompt_injection_protection_level
   postApiV4GroupsIdTransfer:
     type: object
     properties:
@@ -51595,13 +51650,13 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
       author_id:
         type: integer
-        format: int32
+        format: int64
       entity_id:
         type: integer
-        format: int32
+        format: int64
       entity_type:
         type: string
       event_name:

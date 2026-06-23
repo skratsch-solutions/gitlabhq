@@ -45,11 +45,29 @@ RSpec.describe Resolvers::SnippetsResolver, feature_category: :source_code_manag
         resolve_snippets
       end
 
-      it 'only returns snippets from the current organization' do
-        snippets = resolve_snippets.items
+      context 'when organization isolation is enabled' do
+        before do
+          allow(::Gitlab::Organizations::Isolation).to receive(:enabled?).and_return(true)
+        end
 
-        expect(snippets).to contain_exactly(personal_snippet, other_personal_snippet, project_snippet, other_project_snippet)
-        expect(snippets).not_to include(snippet_in_other_org)
+        it 'only returns snippets from the current organization' do
+          snippets = resolve_snippets.items
+
+          expect(snippets).to contain_exactly(personal_snippet, other_personal_snippet, project_snippet, other_project_snippet)
+          expect(snippets).not_to include(snippet_in_other_org)
+        end
+      end
+
+      context 'when organization isolation is disabled' do
+        before do
+          allow(::Gitlab::Organizations::Isolation).to receive(:enabled?).and_return(false)
+        end
+
+        it 'does not filter snippets by organization' do
+          snippets = resolve_snippets.items
+
+          expect(snippets).to include(snippet_in_other_org)
+        end
       end
     end
 

@@ -694,7 +694,7 @@ module API
         merge_request = find_merge_request_with_access(params[:merge_request_iid])
 
         diffs = paginate(
-          merge_request.merge_request_diff.paginated_diffs(params[:page], params[:per_page]),
+          merge_request.merge_request_diff.paginated_diffs(params[:page], params[:per_page], { expanded: true }),
           skip_pagination_check: true
         ).diffs
         filtered_diffs = filter_diffs_for_mcp(diffs, user_project)

@@ -7,7 +7,7 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   context 'token authentication' do
     context 'when public group' do
-      let_it_be(:public_group, freeze: false) { create(:group, :public) }
+      let_it_be(:public_group) { create(:group, :public) }
 
       it_behaves_like 'authenticates sessionless user for the request spec', 'show atom', public_resource: true do
         let(:url) { group_path(public_group, format: :atom) }
@@ -23,7 +23,7 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
 
     context 'when private group' do
-      let_it_be(:private_group, freeze: false) { create(:group, :private) }
+      let_it_be(:private_group) { create(:group, :private) }
 
       it_behaves_like 'authenticates sessionless user for the request spec', 'show atom', public_resource: false, ignore_metrics: true do
         let(:url) { group_path(private_group, format: :atom) }
@@ -52,8 +52,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
   end
 
   describe 'POST #preview_markdown' do
-    let_it_be(:group, freeze: false) { create(:group) }
-    let_it_be(:developer, freeze: false) { create(:user, developer_of: group) }
+    let_it_be_with_reload(:group) { create(:group) }
+    let_it_be(:developer) { create(:user, developer_of: group) }
 
     before do
       login_as(developer)
@@ -220,9 +220,9 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
   end
 
   describe 'GET #edit' do
-    let_it_be(:group, freeze: false) { create(:group, :public) }
-    let_it_be(:owner, freeze: false) { create(:user) }
-    let_it_be(:maintainer, freeze: false) { create(:user) }
+    let_it_be_with_reload(:group) { create(:group, :public) }
+    let_it_be(:owner) { create(:user) }
+    let_it_be(:maintainer) { create(:user) }
     let(:url) { edit_group_path(group) }
 
     before_all do
@@ -486,6 +486,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
   end
 
   describe 'DELETE #destroy' do
+    include Namespaces::DeletableHelper
+
     context 'step-up authentication enforcement' do
       let_it_be_with_reload(:group) { create(:group) }
       let_it_be_with_reload(:user) { create(:user, owner_of: group) }
@@ -498,6 +500,146 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       end
 
       it_behaves_like 'enforces step-up authentication (request spec)'
+    end
+
+    context 'deletion behaviour' do
+      let_it_be_with_reload(:group) { create(:group, :public) }
+      let_it_be(:owner) { create(:user, owner_of: group) }
+
+      let(:format) { :html }
+      let(:params) { {} }
+
+      subject(:destroy_group) { delete group_path(group), params: params, as: format }
+
+      context 'when the authenticated user can admin the group' do
+        before do
+          sign_in(owner)
+        end
+
+        context 'when the deletion is scheduled successfully' do
+          it 'marks the group for delayed deletion and does not enqueue an immediate deletion', :aggregate_failures do
+            Sidekiq::Testing.fake! do
+              expect { destroy_group }
+                .to change { group.reload.self_deletion_scheduled? }.from(false).to(true)
+                .and not_change { GroupDestroyWorker.jobs.size }
+            end
+          end
+
+          context 'for an HTML request' do
+            it 'redirects to the groups dashboard' do
+              destroy_group
+
+              expect(response).to redirect_to(dashboard_groups_path)
+            end
+          end
+
+          context 'for a JSON request', :freeze_time do
+            let(:format) { :json }
+
+            it 'returns a confirmation message' do
+              destroy_group
+
+              expect(json_response['message']).to eq(
+                "'#{group.reload.name}' has been scheduled for deletion and will be deleted on " \
+                  "#{permanent_deletion_date_formatted(group)}.")
+            end
+          end
+        end
+
+        context 'when the deletion fails' do
+          before do
+            allow_next_instance_of(::Groups::MarkForDeletionService) do |service|
+              allow(service).to receive(:execute).and_return(ServiceResponse.error(message: 'error'))
+            end
+          end
+
+          it 'does not mark the group for deletion' do
+            expect { destroy_group }.not_to change { group.reload.self_deletion_scheduled? }.from(false)
+          end
+
+          context 'for an HTML request' do
+            it 'redirects to the group edit page with an alert', :aggregate_failures do
+              destroy_group
+
+              expect(response).to redirect_to(edit_group_path(group))
+              expect(flash[:alert]).to include('error')
+            end
+          end
+
+          context 'for a JSON request' do
+            let(:format) { :json }
+
+            it 'returns the error message' do
+              destroy_group
+
+              expect(json_response['message']).to eq('error')
+            end
+          end
+        end
+
+        context 'when the group is already marked for deletion' do
+          before do
+            group.schedule_deletion!(transition_user: owner)
+            create(:group_deletion_schedule, group: group, marked_for_deletion_on: Date.current)
+          end
+
+          context 'when the permanently_remove param is set' do
+            let(:params) { { permanently_remove: true } }
+
+            context 'for an HTML request' do
+              it 'deletes the group immediately and redirects to the groups dashboard', :aggregate_failures do
+                expect(GroupDestroyWorker).to receive(:perform_async)
+
+                destroy_group
+
+                expect(response).to redirect_to(dashboard_groups_path)
+                expect(flash[:toast]).to include("#{group.name} is being deleted.")
+              end
+            end
+
+            context 'for a JSON request' do
+              let(:format) { :json }
+
+              it 'deletes the group immediately and returns a confirmation message', :aggregate_failures do
+                expect(GroupDestroyWorker).to receive(:perform_async)
+
+                destroy_group
+
+                expect(json_response['message']).to eq("#{group.name} is being deleted.")
+              end
+            end
+          end
+        end
+
+        context 'when a group ancestor is already marked for deletion' do
+          let_it_be(:nested_group) { create(:group, :nested, parent: group) }
+
+          before do
+            create(:group_deletion_schedule, group: group, marked_for_deletion_on: Date.current)
+          end
+
+          subject(:destroy_group) { delete group_path(nested_group), params: params, as: format }
+
+          it 'redirects to the edit page with an alert', :aggregate_failures do
+            destroy_group
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(flash[:alert]).to eq('Group ancestor has already been marked for deletion')
+          end
+        end
+      end
+
+      context 'when the authenticated user cannot admin the group' do
+        before do
+          sign_in(create(:user))
+        end
+
+        it 'returns 404' do
+          destroy_group
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
     end
   end
 
@@ -522,9 +664,9 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
 
     context 'when groups_and_projects_async_transfer feature flag is enabled' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
       let_it_be_with_reload(:group) { create(:group, :public) }
-      let_it_be(:new_parent_group, freeze: false) { create(:group, :public) }
+      let_it_be(:new_parent_group) { create(:group, :public) }
 
       before_all do
         group.add_owner(user)
@@ -573,9 +715,9 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
 
     context 'when groups_and_projects_async_transfer feature flag is disabled' do
-      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:user) { create(:user) }
       let_it_be_with_reload(:group) { create(:group, :public) }
-      let_it_be(:new_parent_group, freeze: false) { create(:group, :public) }
+      let_it_be(:new_parent_group) { create(:group, :public) }
 
       before_all do
         group.add_owner(user)

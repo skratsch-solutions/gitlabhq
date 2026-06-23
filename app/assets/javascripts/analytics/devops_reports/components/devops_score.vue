@@ -1,6 +1,7 @@
 <script>
 import { GlBadge, GlTableLite, GlLink, GlEmptyState } from '@gitlab/ui';
 import { GlSingleStat } from '@gitlab/ui/src/charts';
+import NO_DATA_SVG from '@gitlab/svgs/dist/illustrations/empty-state/empty-devops-md.svg?url';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import { sprintf, s__ } from '~/locale';
 
@@ -22,9 +23,6 @@ export default {
     devopsScoreMetrics: {
       default: null,
     },
-    noDataImagePath: {
-      default: '',
-    },
   },
   computed: {
     titleHelperText() {
@@ -40,6 +38,7 @@ export default {
     },
   },
   devopsReportDocsPath: helpPagePath('administration/analytics/devops_adoption'),
+  NO_DATA_SVG,
   tableHeaderFields: [
     {
       key: 'title',
@@ -70,7 +69,7 @@ export default {
     <gl-empty-state
       v-if="isEmpty"
       :title="__('Data is still calculating…')"
-      :svg-path="noDataImagePath"
+      :svg-path="$options.NO_DATA_SVG"
     >
       <template #description>
         <p class="gl-mb-0">{{ __('It may be several days before you see feature usage data.') }}</p>

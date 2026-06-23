@@ -74946,6 +74946,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
         name:
           type: string
         approval_status:
@@ -75330,9 +75331,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         group_id:
           type: integer
+          format: int64
           example: 2
         name:
           type: string
@@ -75572,6 +75575,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         created_at:
           type: string
@@ -75615,9 +75619,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         project_id:
           type: integer
+          format: int64
           example: 3
         created_at:
           type: string
@@ -79402,10 +79408,13 @@ components:
       properties:
         id:
           type: integer
+          format: int64
         author_id:
           type: integer
+          format: int64
         entity_id:
           type: integer
+          format: int64
         entity_type:
           type: string
         event_name:
@@ -79459,6 +79468,7 @@ components:
       properties:
         csp_namespace_id:
           type: integer
+          format: int64
           example: 1
     APIEntitiesAnalyticsKnowledgeGraphEnabledNamespace:
       type: object
@@ -88603,6 +88613,48 @@ components:
           example: https://example.com/foo/bar/-/jobs/1
         project:
           type: string
+    APIEntitiesAiSettings:
+      type: object
+      properties:
+        duo_agent_platform_enabled:
+          type: boolean
+          example: true
+        duo_workflow_mcp_enabled:
+          type: boolean
+          example: false
+        foundational_agents_default_enabled:
+          type: boolean
+          example: true
+        ai_catalog_restricted_to_group_hierarchy:
+          type: boolean
+          example: false
+        ai_usage_data_collection_enabled:
+          type: boolean
+          example: false
+        prompt_injection_protection_level:
+          type: string
+          example: no_checks
+        include_recommended_allowed:
+          type: boolean
+          example: false
+        allow_all_unix_sockets:
+          type: boolean
+          example: false
+        allow_project_extension:
+          type: boolean
+          example: true
+        minimum_access_level_execute:
+          type: integer
+          example: 30
+        minimum_access_level_execute_async:
+          type: integer
+          example: 30
+        minimum_access_level_manage:
+          type: integer
+          example: 40
+        minimum_access_level_enable_on_projects:
+          type: integer
+          example: 40
     APIEntitiesGroupDetail:
       type: object
       properties:
@@ -88749,6 +88801,8 @@ components:
           type: string
         experiment_features_enabled:
           type: string
+        ai_settings:
+          "$ref": "#/components/schemas/APIEntitiesAiSettings"
         membership_lock:
           type: string
         ip_restriction_ranges:

@@ -5132,6 +5132,40 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     it { expect(project.github_import?).to be true }
   end
 
+  describe '#offline_transfer?' do
+    let_it_be(:project) { build(:project, import_type: Import::SOURCE_OFFLINE_TRANSFER.to_s) }
+
+    it { expect(project.offline_transfer?).to be true }
+    it { expect(project.import?).to be true }
+  end
+
+  describe '#transfer_import?' do
+    where(:import_type, :expected) do
+      'gitlab_project_migration'             | true
+      ::Import::SOURCE_OFFLINE_TRANSFER.to_s | true
+      'github'                               | false
+      nil                                    | false
+    end
+
+    with_them do
+      let(:project) { build(:project, import_type: import_type) }
+
+      it { expect(project.transfer_import?).to eq(expected) }
+    end
+  end
+
+  describe 'import_state creation' do
+    %w[gitlab_project_migration offline_transfer].each do |type|
+      context "when import_type is #{type}" do
+        it 'does not create an import_state' do
+          project = create(:project, import_type: type)
+
+          expect(project.import_state).to be_nil
+        end
+      end
+    end
+  end
+
   describe '#github_enterprise_import?' do
     let_it_be(:github_com_project) do
       build(

@@ -1,4 +1,4 @@
-#import "~/ci/pipelines_page/graphql/fragments/pipeline_details.fragment.graphql"
+#import "~/ci/pipelines_page/graphql/fragments/pipeline_list_item.fragment.graphql"
 
 subscription ciPipelineCreationRequestsUpdated($mergeRequestId: MergeRequestID!) {
   ciPipelineCreationRequestsUpdated(mergeRequestId: $mergeRequestId) {
@@ -11,7 +11,7 @@ subscription ciPipelineCreationRequestsUpdated($mergeRequestId: MergeRequestID!)
       pipelineId
       error
       pipeline {
-        ...PipelineDetails
+        ...PipelineListItem
       }
     }
   }

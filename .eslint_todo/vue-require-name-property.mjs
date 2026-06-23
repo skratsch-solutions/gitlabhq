@@ -87,8 +87,6 @@ export default {
     'app/assets/javascripts/code_navigation/components/app.vue',
     'app/assets/javascripts/code_navigation/components/doc_line.vue',
     'app/assets/javascripts/code_navigation/components/popover.vue',
-    'app/assets/javascripts/commit/components/signature_badge.vue',
-    'app/assets/javascripts/commit/components/x509_certificate_details.vue',
     'app/assets/javascripts/confidential_merge_request/components/dropdown.vue',
     'app/assets/javascripts/confidential_merge_request/components/project_form_group.vue',
     'app/assets/javascripts/contribution_events/components/contribution_event/contribution_event_base.vue',

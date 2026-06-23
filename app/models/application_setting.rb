@@ -12,8 +12,6 @@ class ApplicationSetting < ApplicationRecord
 
   columns_changing_default :tool_approval_for_session_enabled
 
-  ignore_column :container_registry_data_repair_detail_worker_max_concurrency,
-    remove_with: '19.2', remove_after: '2026-06-22'
   ignore_column :model_prompt_cache_enabled, remove_with: '18.5', remove_after: '2025-10-05'
   ignore_column :lock_model_prompt_cache_enabled, remove_with: '18.5', remove_after: '2025-10-05'
 

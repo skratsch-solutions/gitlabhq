@@ -513,7 +513,7 @@ RSpec.describe SnippetsFinder do
       end
     end
 
-    # rubocop:disable RSpec/MultipleMemoizedHelpers -- Needs many helpers to cover cross-org isolation
+    # rubocop:disable RSpec/MultipleMemoizedHelpers -- Cross-org isolation needs fixtures for two organizations
     context 'organization isolation' do
       let_it_be(:org1) { create(:organization) }
       let_it_be(:org2) { create(:organization) }
@@ -524,52 +524,116 @@ RSpec.describe SnippetsFinder do
       let_it_be(:snippet_org2_private) { create(:personal_snippet, :private, author: user_org2, organization: org2) }
       let_it_be(:snippet_org2_public) { create(:personal_snippet, :public, author: user_org2, organization: org2) }
 
-      # Add these project snippets to test that project snippets bypass org isolation
+      # Project snippets to verify that the project path bypasses org filtering
       let_it_be(:project_org1) { create(:project, :public, organization: org1) }
       let_it_be(:project_org2) { create(:project, :public, organization: org2) }
       let_it_be(:project_snippet_org1) { create(:project_snippet, :public, project: project_org1) }
       let_it_be(:project_snippet_org2) { create(:project_snippet, :public, project: project_org2) }
 
+      # A user who is a member of multiple organizations, with a personal snippet in each.
+      let_it_be(:multi_org_user) { create(:user, organization: org1) }
+      let_it_be(:multi_snippet_org1) { create(:personal_snippet, :private, author: multi_org_user, organization: org1) }
+      let_it_be(:multi_snippet_org2) { create(:personal_snippet, :private, author: multi_org_user, organization: org2) }
+
       let(:current_user) { user_org1 }
       let(:base_params) { { organization_id: org1.id } }
 
-      context 'when filtering for personal snippets only' do
-        let(:params) { base_params.merge(only_personal: true) }
+      before_all do
+        project_org1.add_developer(multi_org_user)
+        project_org2.add_developer(multi_org_user)
+      end
 
-        it 'returns only snippets from user organization' do
-          expect(snippets).to contain_exactly(snippet_org1_private, snippet_org1_public)
+      context 'when isolation is enabled (isolated organization)' do
+        before do
+          allow(::Gitlab::Organizations::Isolation).to receive(:enabled?).and_return(true)
         end
 
-        it 'does not return snippets from other organizations' do
-          expect(snippets).not_to include(snippet_org2_private, snippet_org2_public)
+        context 'when filtering for personal snippets only' do
+          let(:params) { base_params.merge(only_personal: true) }
+
+          it 'returns only snippets from the specified organization', :aggregate_failures do
+            expect(snippets).to contain_exactly(snippet_org1_private, snippet_org1_public)
+            expect(snippets).not_to include(snippet_org2_private, snippet_org2_public)
+          end
+        end
+
+        context 'when the user belongs to multiple organizations' do
+          let(:current_user) { multi_org_user }
+          let(:params) { base_params.merge(only_personal: true) }
+
+          it 'does not leak snippets from other organizations the user belongs to', :aggregate_failures do
+            expect(snippets).to include(multi_snippet_org1)
+            expect(snippets).not_to include(multi_snippet_org2, snippet_org2_private, snippet_org2_public)
+          end
+        end
+
+        context 'when exploring snippets' do
+          let(:params) { base_params.merge(explore: true) }
+
+          it 'returns only public snippets from the specified organization' do
+            expect(snippets).to contain_exactly(snippet_org1_public)
+          end
+        end
+
+        context 'when including project snippets' do
+          let(:params) { base_params.merge(scope: :all) }
+
+          it 'returns only snippets from the specified organization', :aggregate_failures do
+            expect(snippets).to include(snippet_org1_private, snippet_org1_public, project_snippet_org1)
+            expect(snippets).not_to include(snippet_org2_private, snippet_org2_public, project_snippet_org2)
+          end
+        end
+
+        context 'when user is admin in admin mode', :enable_admin_mode do
+          let(:current_user) { admin }
+          let(:params) { base_params.merge(all_available: true) }
+
+          it 'returns all snippets across organizations with all_available flag' do
+            expect(snippets).to include(snippet_org1_private, snippet_org1_public, snippet_org2_private, snippet_org2_public)
+          end
         end
       end
 
-      context 'when exploring snippets' do
-        let(:params) { base_params.merge(explore: true) }
-
-        it 'returns only public snippets from user organization' do
-          expect(snippets).to contain_exactly(snippet_org1_public)
+      context 'when isolation is disabled (non-isolated/encapsulated organization)' do
+        before do
+          allow(::Gitlab::Organizations::Isolation).to receive(:enabled?).and_return(false)
         end
-      end
 
-      context 'when including project snippets' do
-        let(:params) { base_params.merge(scope: :all) }
+        context 'when filtering by author across organizations' do
+          let(:current_user) { multi_org_user }
+          let(:params) { base_params.merge(author: multi_org_user, only_personal: true) }
 
-        it 'returns only project snippets from the specified organization' do
-          # Should include org1 personal snippets AND org1 project snippets
-          expect(snippets).to include(snippet_org1_private, snippet_org1_public, project_snippet_org1)
-          # Should NOT include snippets from other orgs (personal OR project)
-          expect(snippets).not_to include(snippet_org2_private, snippet_org2_public, project_snippet_org2)
+          it "returns the author's personal snippets across all organizations", :aggregate_failures do
+            expect(snippets).to contain_exactly(multi_snippet_org1, multi_snippet_org2)
+            expect(snippets).not_to include(snippet_org1_private, snippet_org2_private)
+          end
         end
-      end
 
-      context 'when user is admin in admin mode', :enable_admin_mode do
-        let(:current_user) { admin }
-        let(:params) { base_params.merge(all_available: true) }
+        context 'when no scope restricts the result' do
+          let(:current_user) { multi_org_user }
+          let(:params) { base_params }
 
-        it 'returns all snippets with all_available flag' do
-          expect(snippets).to include(snippet_org1_private, snippet_org1_public, snippet_org2_private, snippet_org2_public)
+          it 'does not apply the organization filter, returning snippets from multiple organizations' do
+            expect(snippets).to include(project_snippet_org1, project_snippet_org2)
+          end
+        end
+
+        context 'when filtering for personal snippets only' do
+          let(:current_user) { multi_org_user }
+          let(:params) { base_params.merge(only_personal: true) }
+
+          it 'returns public personal snippets from all organizations' do
+            expect(snippets).to include(snippet_org1_public, snippet_org2_public)
+          end
+        end
+
+        context 'when user is admin in admin mode', :enable_admin_mode do
+          let(:current_user) { admin }
+          let(:params) { base_params.merge(all_available: true) }
+
+          it 'returns all snippets across organizations with all_available flag' do
+            expect(snippets).to include(snippet_org1_private, snippet_org1_public, snippet_org2_private, snippet_org2_public)
+          end
         end
       end
     end

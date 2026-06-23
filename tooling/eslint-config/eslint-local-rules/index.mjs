@@ -8,6 +8,7 @@ import { noWebUrl } from './no_web_url.mjs';
 import { vueNoWebUrl } from './vue_no_web_url.mjs';
 import { noMixedJestAliases } from './no_mixed_jest_aliases.mjs';
 import { pageEntrypointMustExecute } from './page_entrypoint_must_execute.mjs';
+import { noApolloMock } from './no_apollo_mock.mjs';
 
 export const eslintLocalRules = {
   rules: {
@@ -21,5 +22,6 @@ export const eslintLocalRules = {
     'vue-no-web-url': vueNoWebUrl,
     'no-mixed-jest-aliases': noMixedJestAliases,
     'page-entrypoint-must-execute': pageEntrypointMustExecute,
+    'no-apollo-mock': noApolloMock,
   },
 };

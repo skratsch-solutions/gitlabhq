@@ -19,7 +19,7 @@ RSpec.describe WebHooks::CreateService, feature_category: :webhooks do
 
           expect(response).to be_success
           expect(response[:hook].organization_id).to be_nil
-          expect(response[:async]).to eq(false)
+          expect(response[:async]).to be(false)
         end.to change { ProjectHook.count }.by(1)
       end
 
@@ -34,7 +34,7 @@ RSpec.describe WebHooks::CreateService, feature_category: :webhooks do
 
             expect(response).to be_success
             expect(response[:hook].organization_id).to eq(organization.id)
-            expect(response[:async]).to eq(false)
+            expect(response[:async]).to be(false)
           end.to change { SystemHook.count }.by(1)
         end
       end

@@ -121,8 +121,6 @@ describe('Pipelines table in Commits and Merge requests', () => {
     wrapper = mountFn(LegacyPipelinesTableWrapper, {
       propsData: {
         endpoint: 'endpoint.json',
-        emptyStateSvgPath: 'foo',
-        errorStateSvgPath: 'foo',
         ...props,
       },
       provide: {

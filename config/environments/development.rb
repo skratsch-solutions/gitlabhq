@@ -110,3 +110,10 @@ Rails.application.configure do
 
   config.log_level = Gitlab::Utils.to_rails_log_level(ENV["GITLAB_LOG_LEVEL"], :debug)
 end
+
+begin
+  require_relative '../../tooling/lib/tooling/rake_announcer'
+  Tooling::RakeAnnouncer.run
+rescue StandardError, LoadError
+  # do nothing, so we don't block production rake tasks on failure
+end
