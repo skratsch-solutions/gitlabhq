@@ -68,3 +68,19 @@ export const addWorkItemToColumn = ({ cache, query, variables, workItem, index, 
     });
   });
 };
+
+// Adjusts a column's total count (the count-only query lives in its own cache entry,
+// so card-move updates to the connection don't touch it). No-op on a missing entry.
+export const adjustWorkItemCountInColumn = ({ cache, query, variables, delta }) => {
+  cache.updateQuery({ query, variables }, (sourceData) => {
+    const connection = getConnection(sourceData);
+    if (typeof connection?.count !== 'number') {
+      return sourceData;
+    }
+
+    return produce(sourceData, (draftData) => {
+      const draft = getConnection(draftData);
+      draft.count = Math.max(0, draft.count + delta);
+    });
+  });
+};

@@ -26241,6 +26241,7 @@ CREATE TABLE organizations (
     path text NOT NULL,
     visibility_level smallint DEFAULT 0 NOT NULL,
     state smallint DEFAULT 0 NOT NULL,
+    uuid uuid DEFAULT gen_random_uuid_v7() NOT NULL,
     CONSTRAINT check_0b4296b5ea CHECK ((char_length(path) <= 255)),
     CONSTRAINT check_d130d769e0 CHECK ((char_length(name) <= 255))
 );
@@ -49811,6 +49812,8 @@ CREATE INDEX index_organizations_on_path_trigram ON organizations USING gin (pat
 CREATE INDEX index_organizations_on_state ON organizations USING btree (state);
 
 CREATE UNIQUE INDEX index_organizations_on_unique_name_per_group ON customer_relations_organizations USING btree (group_id, lower(name), id);
+
+CREATE UNIQUE INDEX index_organizations_on_uuid ON organizations USING btree (uuid);
 
 CREATE INDEX index_p_ai_active_context_code_repositories_on_last_queried_at ON ONLY p_ai_active_context_code_repositories USING btree (last_queried_at);
 

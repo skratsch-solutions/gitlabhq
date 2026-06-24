@@ -443,6 +443,59 @@ In this example, if the job name is `test` and the SHA checksum is `abc123`, the
 - The cache `paths` field is required. A cache configuration without paths has no effect.
 - Cache keys support CI/CD variables in the `prefix` field.
 
+### Configure ID tokens
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224940) in GitLab 19.2.
+
+{{< /history >}}
+
+To authenticate with third-party services from a flow, configure
+[ID tokens](../../../ci/secrets/id_token_authentication.md).
+An ID token is a JSON web token (JWT) that GitLab CI/CD generates and injects into the flow job.
+
+Use ID tokens to authenticate with OpenID Connect (OIDC) services without storing long-lived
+credentials. For example, you can use ID tokens for keyless signing of binaries and Git commits,
+or to retrieve secrets from a secrets manager.
+
+To configure ID tokens, in the `agent-config.yml` file, add an `id_tokens` block.
+Each token requires an `aud` (audience) claim:
+
+```yaml
+id_tokens:
+  SIGSTORE_ID_TOKEN:
+    aud: sigstore
+  VAULT_ID_TOKEN:
+    aud: https://vault.example.com
+```
+
+The `aud` claim can be a single string or a list of strings:
+
+```yaml
+id_tokens:
+  MY_ID_TOKEN:
+    aud:
+      - https://first.service.example.com
+      - https://second.service.example.com
+```
+
+Each token is available in the flow job as an environment variable that uses the name of the token.
+For the previous examples, the flow can use `$SIGSTORE_ID_TOKEN`, `$VAULT_ID_TOKEN`, and `$MY_ID_TOKEN`.
+
+If a token name matches a variable name declared elsewhere in your configuration, the ID token
+takes precedence.
+
+> [!warning]
+> An ID token is a credential that grants access to any service that trusts its `aud` claim.
+> Set the narrowest possible `aud` value for each token so that a compromised token can
+> authenticate with as few services as possible. Because the configuration file is read from
+> the default branch, apply the [recommended protections](#recommended-protections) to control
+> who can change which tokens a flow can request.
+
+For more information about the token payload and how to configure trust with third-party services,
+see [OpenID Connect (OIDC) authentication using ID tokens](../../../ci/secrets/id_token_authentication.md).
+
 ### Complete configuration example
 
 Here's an example `agent-config.yml` file that uses all available options:
@@ -476,6 +529,11 @@ network_policy:
     - my-own-site.com
   denied_domains:
     - malicious.com
+
+# ID tokens for OIDC authentication
+id_tokens:
+  VAULT_ID_TOKEN:
+    aud: https://vault.example.com
 ```
 
 This configuration:
@@ -484,6 +542,7 @@ This configuration:
 - Installs build tools and Python dependencies before running the flow.
 - Caches pip and virtual environment directories.
 - Creates a new cache when `requirements.txt` or `Pipfile.lock` changes, with a prefix of `python-deps`.
+- Provides a `VAULT_ID_TOKEN` ID token for OIDC authentication with HashiCorp Vault.
 
 ## Configure runners
 

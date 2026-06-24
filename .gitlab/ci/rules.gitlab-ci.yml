@@ -547,6 +547,15 @@
 .spec-only-patterns: &spec-only-patterns
   - "{,ee/,jh/}spec/**/*"
 
+# Frontend GraphQL query documents.
+# A query change should re-run backend unit/integration specs (e.g. the N+1
+# request specs added in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224202),
+# but it must NOT trigger migration specs. Keep this out of `.backend-patterns`
+# so the `*-background-migration` rules (which key off `.backend-patterns`) are
+# not triggered by query-only changes.
+.frontend-graphql-patterns: &frontend-graphql-patterns
+  - "{,ee/,jh/}app/assets/javascripts/**/*.graphql"
+
 # Backend patterns + .ci-patterns
 .backend-patterns: &backend-patterns
   - "{,jh/}Gemfile{,.lock}"
@@ -557,8 +566,6 @@
   # List explicitly all the app/ dirs that are backend (i.e. all except app/assets).
   - "{,ee/,jh/}{app/channels,app/components,app/controllers,app/finders,app/graphql,app/helpers,app/mailers,app/models,app/policies,app/presenters,app/serializers,app/services,app/uploaders,app/validators,app/views,app/workers}/**/*"
   - "{,ee/,jh/}{bin,config,db,elastic,gems,generator_templates,lib}/**/*"
-  # GraphQL query files
-  - "{,ee/,jh/}app/assets/javascripts/**/*.graphql"
   # Spec support files
   - "{,ee/,jh/}spec/{support,factories,fixtures,tooling/fixtures}/**/*"
   - "{,ee/,jh/}spec/{*.rb,.rspec}"
@@ -2686,6 +2693,8 @@
     - <<: *if-default-refs
       changes: *backend-patterns
     - <<: *if-default-refs
+      changes: *frontend-graphql-patterns
+    - <<: *if-default-refs
       changes: *backstage-patterns
 
 .rails:rules:clickhouse-changes:
@@ -2752,6 +2761,8 @@
     - !reference [".rails:rules:ee-and-foss-default-rules", rules]
     - <<: *if-default-refs
       changes: *backend-patterns
+    - <<: *if-default-refs
+      changes: *frontend-graphql-patterns
 
 .rails:rules:only-run-system-if-medium-runners-available:
   rules:
@@ -2847,6 +2858,8 @@
     - !reference [".rails:rules:ee-and-foss-default-rules", rules]
     - <<: *if-default-refs
       changes: *backend-patterns
+    - <<: *if-default-refs
+      changes: *frontend-graphql-patterns
 
 .rails:rules:ee-only-integration:
   rules:
@@ -2857,6 +2870,8 @@
     - !reference [".rails:rules:ee-and-foss-default-rules", rules]
     - <<: *if-default-refs
       changes: *backend-patterns
+    - <<: *if-default-refs
+      changes: *frontend-graphql-patterns
 
 .rails:rules:ee-only-system:
   rules:

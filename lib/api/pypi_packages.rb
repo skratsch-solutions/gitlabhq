@@ -184,7 +184,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[pypi_packages]
+          tags %w[packages_pypi]
         end
         params do
           use :package_download
@@ -214,7 +214,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[packages]
+          tags %w[packages_pypi]
         end
 
         # An API entry point but returns an HTML file instead of JSON.
@@ -234,7 +234,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[packages]
+          tags %w[packages_pypi]
         end
 
         params do
@@ -266,7 +266,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[packages]
+          tags %w[packages_pypi]
         end
 
         params do
@@ -300,7 +300,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[packages]
+          tags %w[packages_pypi]
         end
 
         # An API entry point but returns an HTML file instead of JSON.
@@ -323,7 +323,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[packages]
+          tags %w[packages_pypi]
         end
 
         params do
@@ -353,7 +353,7 @@ module API
             { code: 404, message: 'Not Found' },
             { code: 422, message: 'Unprocessable Entity' }
           ]
-          tags %w[packages]
+          tags %w[packages_pypi]
         end
 
         params do
@@ -415,7 +415,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[packages]
+          tags %w[packages_pypi]
         end
 
         route_setting :authentication, deploy_token_allowed: true, basic_auth_personal_access_token: true, job_token_allowed: :basic_auth

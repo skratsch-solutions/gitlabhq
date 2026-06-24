@@ -78226,6 +78226,12 @@ msgstr ""
 msgid "This only applies to repository indexing operations."
 msgstr ""
 
+msgid "This organization is currently in read-only mode. Write operations are disabled."
+msgstr ""
+
+msgid "This organization is currently in read-only mode. Write operations are temporarily disabled."
+msgstr ""
+
 msgid "This page is hosted on GitLab pages but contains user-generated content and may contain malicious code. Do not accept unless you trust the author and source."
 msgstr ""
 
@@ -89916,11 +89922,24 @@ msgstr ""
 msgid "Your namespace %{namespace_name} is over %{link_start}the %{free_limit} user limit%{link_end}"
 msgstr ""
 
+msgid "Your namespace has reached its seat limit"
+msgstr ""
+
 msgid "Your namespace has used %{used_seats} of %{total_seats} seats. When no seats remain, adding new users will put your namespace into overage. Purchase more seats and turn on restricted access to block new users automatically."
 msgstr ""
 
 msgid "Your namespace has used %{used_seats} of %{total_seats} seats. When no seats remain, restricted access will block new users from being added to prevent overages."
 msgstr ""
+
+msgid "Your namespace has used all %{total_seats} seat. Adding new users will put your namespace into overage. Purchase more seats and turn on restricted access to block new users automatically."
+msgid_plural "Your namespace has used all %{total_seats} seats. Adding new users will put your namespace into overage. Purchase more seats and turn on restricted access to block new users automatically."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Your namespace has used all %{total_seats} seat. Restricted access is blocking new users from being added to prevent overages. Purchase more seats or turn off restricted access to allow new users."
+msgid_plural "Your namespace has used all %{total_seats} seats. Restricted access is blocking new users from being added to prevent overages. Purchase more seats or turn off restricted access to allow new users."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Your namespace is approaching its seat limit"
 msgstr ""

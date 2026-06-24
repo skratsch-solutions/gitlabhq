@@ -651,8 +651,8 @@ To add IP addresses to the allowlist:
 
    1. Select **Add IP address**.
    1. In the **IP address** text box, enter either:
-      - A single IPv4 address (for example, `192.168.1.1`).
-      - An IPv4 address range in CIDR notation (for example, `192.168.1.0/24`).
+      - A single IPv4 or IPv6 address (for example, `192.168.1.1` or `2001:db8::1`).
+      - An IPv4 or IPv6 address range in CIDR notation (for example, `192.168.1.0/24` or `2001:db8::/32`).
    1. In the **Description** text box, enter a description.
    1. Select **Add**.
 

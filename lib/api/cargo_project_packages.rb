@@ -67,7 +67,7 @@ module API
             { code: 401, message: 'Unauthorized' },
             { code: 403, message: 'Forbidden' }
           ]
-          tags %w[packages]
+          tags %w[packages_cargo]
         end
 
         route_setting :authorization, permissions: :read_package, boundary_type: :project
@@ -129,7 +129,7 @@ module API
             { code: 404, message: 'Not Found' }
           ]
           produces %w[text/plain]
-          tags %w[packages]
+          tags %w[packages_cargo]
         end
         params do
           requires :package_name, type: String, desc: 'The cargo package name'
@@ -150,7 +150,7 @@ module API
             { code: 404, message: 'Not Found' }
           ]
           produces %w[text/plain]
-          tags %w[packages]
+          tags %w[packages_cargo]
         end
         params do
           requires :package_name, type: String, desc: 'The cargo package name'
@@ -171,7 +171,7 @@ module API
             { code: 404, message: 'Not Found' }
           ]
           produces %w[text/plain]
-          tags %w[packages]
+          tags %w[packages_cargo]
         end
         params do
           requires :first_char, type: String, desc: 'First character of the cargo package name'
@@ -193,7 +193,7 @@ module API
             { code: 404, message: 'Not Found' }
           ]
           produces %w[text/plain]
-          tags %w[packages]
+          tags %w[packages_cargo]
         end
         params do
           requires :prefix_1, type: String, desc: 'First two characters of the cargo package name'
@@ -214,7 +214,7 @@ module API
             { code: 404, message: 'Not Found' }
           ]
           produces %w[application/octet-stream]
-          tags %w[packages]
+          tags %w[packages_cargo]
         end
         params do
           requires :package_name, type: String, desc: 'The cargo package name'

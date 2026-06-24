@@ -3295,8 +3295,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def read_new_commits_table?
-    Feature.enabled?(:mr_diff_commits_read_new_table, project) &&
-      Feature.enabled?(:merge_request_diff_commits_partition, project)
+    Feature.enabled?(:mr_diff_commits_read_new_table, project)
   end
   strong_memoize_attr :read_new_commits_table?
 end

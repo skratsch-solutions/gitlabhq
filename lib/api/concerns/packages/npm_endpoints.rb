@@ -75,7 +75,7 @@ module API
                 { code: 403, message: 'Forbidden' },
                 { code: 404, message: 'Not Found' }
               ]
-              tags %w[packages]
+              tags %w[packages_npm]
             end
             route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true,
               authenticate_non_public: true
@@ -113,7 +113,7 @@ module API
                   { code: 403, message: 'Forbidden' },
                   { code: 404, message: 'Not Found' }
                 ]
-                tags %w[packages]
+                tags %w[packages_npm]
               end
               route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
               route_setting :authorization, permissions: :create_npm_package_tag,
@@ -152,7 +152,7 @@ module API
                   { code: 403, message: 'Forbidden' },
                   { code: 404, message: 'Not Found' }
                 ]
-                tags %w[packages]
+                tags %w[packages_npm]
               end
               route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
               route_setting :authorization, permissions: :delete_npm_package_tag,
@@ -195,7 +195,7 @@ module API
               { code: 404, message: 'Not Found' }
             ]
             is_array true
-            tags %w[packages]
+            tags %w[packages_npm]
           end
           route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
           # Granular token authorization is skipped because:
@@ -220,7 +220,7 @@ module API
               { code: 404, message: 'Not Found' }
             ]
             is_array true
-            tags %w[packages]
+            tags %w[packages_npm]
           end
           route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
           # Granular token authorization is skipped because:

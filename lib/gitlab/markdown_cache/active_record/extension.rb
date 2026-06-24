@@ -47,7 +47,19 @@ module Gitlab
 
         def save_markdown(updates)
           return unless persisted? && Gitlab::Database.read_write?
+          # `refresh_markdown_cache` writes via `cached_markdown_version_for_write`;
+          # this guard protects against future-version rows from downgrades (i.e.
+          # where persisted > current).
           return if cached_markdown_version.to_i < cached_markdown_version_in_database.to_i
+
+          if cached_markdown_version.to_i > cached_markdown_version_in_database.to_i
+            # Concurrent requests both rolling "current" against the same
+            # previous-version row will each pass the above check against their
+            # load-time snapshot, so a single row can be counted more than once.
+            # The counter therefore is an upper bound on rows upgraded, not
+            # necessarily the exact number.
+            Gitlab::MarkdownCache.version_upgrade_counter.increment(class: self.class.name)
+          end
 
           update_columns(updates)
         end

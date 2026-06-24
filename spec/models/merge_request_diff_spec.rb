@@ -2385,25 +2385,11 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
         allow(merge_request_diff).to receive(:merge_request).and_return(merge_request)
       end
 
-      context 'when both feature flags are enabled' do
-        before do
-          stub_feature_flags(mr_diff_commits_read_new_table: project, merge_request_diff_commits_partition: project)
-        end
-
-        it { expect(merge_request_diff.read_new_commits_table?).to be true }
-      end
+      it { expect(merge_request_diff.read_new_commits_table?).to be true }
 
       context 'when mr_diff_commits_read_new_table is disabled' do
         before do
-          stub_feature_flags(mr_diff_commits_read_new_table: false, merge_request_diff_commits_partition: project)
-        end
-
-        it { expect(merge_request_diff.read_new_commits_table?).to be false }
-      end
-
-      context 'when merge_request_diff_commits_partition is disabled' do
-        before do
-          stub_feature_flags(mr_diff_commits_read_new_table: project, merge_request_diff_commits_partition: false)
+          stub_feature_flags(mr_diff_commits_read_new_table: false)
         end
 
         it { expect(merge_request_diff.read_new_commits_table?).to be false }

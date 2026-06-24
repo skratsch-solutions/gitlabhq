@@ -32,6 +32,11 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
       expect(described_class::READ_ONLY_BLOCKED_STATES)
         .to contain_exactly(:soft_deleted, :deletion_in_progress, :unconfirmed, :confirmed)
     end
+
+    it 'defines TIME_BOUNDED_READ_ONLY_REASONS as a subset of READ_ONLY_REASONS' do
+      expect(described_class::TIME_BOUNDED_READ_ONLY_REASONS).to eq(%w[migration incident])
+      expect(described_class::READ_ONLY_REASONS).to include(*described_class::TIME_BOUNDED_READ_ONLY_REASONS)
+    end
   end
 
   describe 'enums' do
@@ -534,6 +539,27 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
       end
 
       it { is_expected.to be true }
+    end
+  end
+
+  describe '#read_only_time_bounded?' do
+    subject(:read_only_time_bounded?) { organization.read_only_time_bounded? }
+
+    where(:reason, :expected) do
+      'migration' | true
+      'incident'  | true
+      'isolation' | false
+      'billing'   | false
+      'legal'     | false
+      nil         | false
+    end
+
+    with_them do
+      before do
+        organization.read_only_reason = reason
+      end
+
+      it { is_expected.to eq(expected) }
     end
   end
 

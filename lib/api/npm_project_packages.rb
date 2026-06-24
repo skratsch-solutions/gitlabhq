@@ -70,7 +70,7 @@ module API
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not Found' }
         ]
-        tags %w[packages]
+        tags %w[packages_npm]
       end
       params do
         requires :package_name, type: String, desc: 'Package name'
@@ -106,7 +106,7 @@ module API
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not Found' }
         ]
-        tags %w[packages]
+        tags %w[packages_npm]
         hidden true
       end
       route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
@@ -130,7 +130,7 @@ module API
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not Found' }
         ]
-        tags %w[packages]
+        tags %w[packages_npm]
       end
       params do
         requires :package_name, type: String, desc: 'Package name'
@@ -179,7 +179,7 @@ module API
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not Found' }
         ]
-        tags %w[packages]
+        tags %w[packages_npm]
       end
       params do
         use :package_name

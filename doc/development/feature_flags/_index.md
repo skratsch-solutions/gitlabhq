@@ -293,6 +293,14 @@ created using the [Experiment tracking template](https://gitlab.com/gitlab-org/g
 the worker name itself, for example, `run_sidekiq_jobs_AuthorizedProjectsWorker`. Some examples for using `worker` type feature
 flags can be found in [deferring Sidekiq jobs](#deferring-sidekiq-jobs).
 
+### `markdown_cache` type
+
+`markdown_cache` feature flags drive the phased rollout of a `Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION` bump.
+Like `worker` flags, they have no YAML definition: the name is generated from the target cache version, for example,
+`markdown_cache_stochastic_rollout_34`. Because every bump uses its own flag, a fresh flag starts disabled, so a percentage
+left set on a previous bump's flag cannot carry into the next. For the rollout procedure, see
+[phased rollout of `CACHE_COMMONMARK_VERSION` bumps](../gitlab_flavored_markdown/banzai_pipeline_and_parsing.md#phased-rollout-of-cache_commonmark_version-bumps).
+
 ### (Deprecated) `development` type
 
 The `development` type is deprecated in favor of the `gitlab_com_derisk`, `wip`, and `beta` feature flag types.

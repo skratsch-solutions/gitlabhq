@@ -24,6 +24,14 @@ export const boardColumnQueryVariables = ({
   [groupProperty]: { name: value.name }, // must be last to override base
 });
 
+// The count-only query uses a different query document so it always has its own cache
+// entry. `firstPageSize` is stripped because the count query doesn't accept it, and
+// board_view keys its drag-and-drop count updates off these same variables.
+export const boardColumnCountVariables = (params) => {
+  const { firstPageSize, ...countVariables } = boardColumnQueryVariables(params);
+  return countVariables;
+};
+
 // Relative-position arguments for a card move, derived from the target column's
 // pre-move order (`nodes`). For a same-column move the source and target lists
 // are identical. Mirrors the neighbour logic in boards/components/board_list.vue

@@ -14,9 +14,13 @@ module Onboarding
       def execute
         return [] unless VALID_PANELS.include?(@panel)
 
-        ranked_entries(normalize(@query))
-          .map { |e| e['feature_key'] } # rubocop:disable Rails/Pluck -- entries is a plain Array, not an ActiveRecord relation
-          .uniq
+        normalized = normalize(@query)
+
+        entries = ranked_entries(normalized) # Tier 1: whole-query match
+        entries = keyword_entries(normalized) unless entries.any? # Tier 2: tokenized match, only on Tier 1 miss
+
+        entries.map { |e| e['feature_key'] } # rubocop:disable Rails/Pluck -- entries is a plain Array, not an ActiveRecord relation
+               .uniq
       end
 
       private
@@ -25,7 +29,7 @@ module Onboarding
         query.to_s.downcase.strip
       end
 
-      # Returns entries matching the query, filtered to the requested panel,
+      # Tier 1: matches the full normalized query against terms,
       # ranked: exact term match, then prefix, then substring.
       def ranked_entries(normalized_query)
         return [] if normalized_query.length < MIN_QUERY_LENGTH
@@ -50,6 +54,15 @@ module Onboarding
         end
 
         (exact + starts + contains)
+      end
+
+      # Tier 2: No stemming: morphological variants (e.g. "branches" vs "branch") fall through to Tier 3.
+      def keyword_entries(normalized_query)
+        tokens = normalized_query.split
+                                 .reject { |t| Gitlab::Search::AbuseDetection::STOP_WORDS.include?(t) }
+
+        tokens.flat_map { |token| ranked_entries(token) }
+              .uniq { |e| [e['feature_key'], e['panels']] }
       end
     end
   end

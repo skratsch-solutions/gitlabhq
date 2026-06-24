@@ -152,6 +152,9 @@ RSpec.shared_examples 'an editable mentionable' do
         expect(subject).to receive(:latest_cached_markdown_version).at_least(:once) do
           Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION_SHIFTED + 1
         end
+        expect(subject).to receive(:cached_markdown_version_for_write).at_least(:once) do
+          Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION_SHIFTED + 1
+        end
       end
 
       it 'persists the refreshed cache so that it does not have to be refreshed every time' do

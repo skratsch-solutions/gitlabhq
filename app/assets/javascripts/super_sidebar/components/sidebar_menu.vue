@@ -1,6 +1,6 @@
 <script>
 import { GlBreakpointInstance, breakpoints } from '@gitlab/ui/src/utils'; // eslint-disable-line no-restricted-syntax -- GlBreakpointInstance is used intentionally here. In this case we must obtain viewport breakpoints
-import { GlButton, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
+import { GlNavItem, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
 import superSidebarDataQuery from '~/super_sidebar/graphql/queries/super_sidebar.query.graphql';
 import { __, s__, sprintf } from '~/locale';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
@@ -21,7 +21,7 @@ export default {
     MenuSection,
     NavItem,
     PinnedSection,
-    GlButton,
+    GlNavItem,
     FeatureLibraryModal,
   },
   directives: {
@@ -295,19 +295,17 @@ export default {
       @pin-remove="destroyPin"
       @pin-reorder="movePin"
     />
-    <gl-button
+    <gl-nav-item
       v-if="supportsPins && glFeatures.featureLibraryModal"
       v-gl-modal="$options.modalId"
       v-gl-tooltip.right.viewport="isIconOnly ? $options.i18n.browseMoreFeatures : ''"
-      category="tertiary"
-      icon="applications"
-      class="application-chrome-nav-item super-sidebar-nav-item gl-w-full !gl-justify-start gl-gap-3 !gl-px-2-5 !gl-py-2"
-      :button-text-classes="{ '!gl-text-default': !isIconOnly, 'gl-hidden': isIconOnly }"
       :aria-label="$options.i18n.browseMoreFeatures"
       data-testid="feature-library-trigger"
+      icon="applications"
+      :is-icon-only="isIconOnly"
     >
       {{ $options.i18n.browseMoreFeatures }}
-    </gl-button>
+    </gl-nav-item>
     <feature-library-modal
       v-if="supportsPins && glFeatures.featureLibraryModal"
       :panel-type="panelType"

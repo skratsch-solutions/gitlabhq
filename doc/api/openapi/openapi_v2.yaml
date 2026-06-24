@@ -41,18 +41,26 @@ tags:
   description: Operations about keys
 - name: runners
   description: Operations about runners
-- name: packages
-  description: Operations about packages
+- name: packages_debian
+  description: Operations about packages_debians
 - name: deploy_resources
   description: Operations about deploy_resources
 - name: avatars
   description: Operations about avatars
 - name: group_import_and_export
   description: Operations about group_import_and_exports
+- name: packages
+  description: Operations about packages
 - name: invitations
   description: Operations about invitations
 - name: members
   description: Operations about members
+- name: packages_npm
+  description: Operations about packages_npms
+- name: packages_nuget
+  description: Operations about packages_nugets
+- name: packages_pypi
+  description: Operations about packages_pypis
 - name: access_tokens
   description: Operations about access_tokens
 - name: search
@@ -77,16 +85,24 @@ tags:
   description: Operations about pipeline_schedules
 - name: ci_triggers
   description: Operations about ci_triggers
+- name: packages_cargo
+  description: Operations about packages_cargos
 - name: commits
   description: Operations about commits
 - name: commit_statuses
   description: Operations about commit_statuses
+- name: packages_composer
+  description: Operations about packages_composers
+- name: packages_conan
+  description: Operations about packages_conans
 - name: draft_notes
   description: Operations about draft_notes
 - name: error_tracking
   description: Operations about error_trackings
 - name: files
   description: Operations about files
+- name: packages_helm
+  description: Operations about packages_helms
 - name: issues
   description: Operations about issues
 - name: metric_images
@@ -117,6 +133,10 @@ tags:
   description: Operations about repositories
 - name: resource_events
   description: Operations about resource_events
+- name: packages_rpm
+  description: Operations about packages_rpms
+- name: packages_rubygem
+  description: Operations about packages_rubygems
 - name: submodules
   description: Operations about submodules
 - name: attestations
@@ -2727,7 +2747,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionReleaseGpg
   "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/Release":
     get:
@@ -2759,7 +2779,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionRelease
   "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/InRelease":
     get:
@@ -2791,7 +2811,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionInrelease
   "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/{component}/debian-installer/binary-{architecture}/Packages":
     get:
@@ -2837,7 +2857,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionComponentDebianInstallerBinaryArchitecturePackages
   ? "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/{component}/debian-installer/binary-{architecture}/by-hash/SHA256/{file_sha256}"
   : get:
@@ -2888,7 +2908,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionComponentDebianInstallerBinaryArchitectureByHashSha256FileSha256
   "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/{component}/source/Sources":
     get:
@@ -2928,7 +2948,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionComponentSourceSources
   "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/{component}/source/by-hash/SHA256/{file_sha256}":
     get:
@@ -2973,7 +2993,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionComponentSourceByHashSha256FileSha256
   "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/{component}/binary-{architecture}/Packages":
     get:
@@ -3019,7 +3039,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionComponentBinaryArchitecturePackages
   "/api/v4/groups/{id}/-/packages/debian/dists/*distribution/{component}/binary-{architecture}/by-hash/SHA256/{file_sha256}":
     get:
@@ -3070,7 +3090,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianDists*distributionComponentBinaryArchitectureByHashSha256FileSha256
   "/api/v4/groups/{id}/-/packages/debian/pool/{distribution}/{project_id}/{letter}/{package_name}/{package_version}/{file_name}":
     get:
@@ -3130,7 +3150,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdPackagesDebianPoolDistributionProjectIdLetterPackageNamePackageVersionFileName
   "/api/v4/groups/{id}/dependency_proxy/cache":
     delete:
@@ -3568,7 +3588,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: postApiV4GroupsIdDebianDistributions
     get:
       summary: Get a list of Debian Distributions
@@ -3671,7 +3691,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdDebianDistributions
   "/api/v4/groups/{id}/-/debian_distributions/{codename}":
     get:
@@ -3703,7 +3723,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdDebianDistributionsCodename
     put:
       summary: Update a Debian Distribution
@@ -3743,7 +3763,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: putApiV4GroupsIdDebianDistributionsCodename
     delete:
       summary: Delete a Debian Distribution
@@ -3830,7 +3850,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: deleteApiV4GroupsIdDebianDistributionsCodename
   "/api/v4/groups/{id}/-/debian_distributions/{codename}/key.asc":
     get:
@@ -3862,7 +3882,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4GroupsIdDebianDistributionsCodenameKeyAsc
   "/api/v4/groups/{id}/export/download":
     get:
@@ -8445,7 +8465,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: getApiV4GroupsIdPackagesNpmPackage*packageNameDistTags
   "/api/v4/groups/{id}/-/packages/npm/-/package/*package_name/dist-tags/{tag}":
     put:
@@ -8484,7 +8504,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: putApiV4GroupsIdPackagesNpmPackage*packageNameDistTagsTag
     delete:
       summary: Deletes the given tag
@@ -8519,7 +8539,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: deleteApiV4GroupsIdPackagesNpmPackage*packageNameDistTagsTag
   "/api/v4/groups/{id}/-/packages/npm/-/npm/v1/security/advisories/bulk":
     post:
@@ -8547,7 +8567,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: postApiV4GroupsIdPackagesNpmNpmV1SecurityAdvisoriesBulk
   "/api/v4/groups/{id}/-/packages/npm/-/npm/v1/security/audits/quick":
     post:
@@ -8575,7 +8595,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: postApiV4GroupsIdPackagesNpmNpmV1SecurityAuditsQuick
   "/api/v4/groups/{id}/-/packages/npm/*package_name":
     get:
@@ -8611,7 +8631,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: getApiV4GroupsIdPackagesNpm*packageName
   "/api/v4/groups/{id}/-/packages/nuget/index":
     get:
@@ -8634,7 +8654,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4GroupsIdPackagesNugetIndex
   "/api/v4/groups/{id}/-/packages/nuget/symbolfiles/*file_name/*signature/*same_file_name":
     get:
@@ -8680,7 +8700,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4GroupsIdPackagesNugetSymbolfiles*fileName*signature*sameFileName
   "/api/v4/groups/{id}/-/packages/nuget/v2":
     get:
@@ -8701,7 +8721,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4GroupsIdPackagesNugetV2
   "/api/v4/groups/{id}/-/packages/nuget/v2/$metadata":
     get:
@@ -8720,7 +8740,7 @@ paths:
         '200':
           description: The NuGet V2 Feed Package $metadata endpoint
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4GroupsIdPackagesNugetV2$metadata
   "/api/v4/groups/{id}/-/packages/nuget/metadata/*package_name/index":
     get:
@@ -8753,7 +8773,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4GroupsIdPackagesNugetMetadata*packageNameIndex
   "/api/v4/groups/{id}/-/packages/nuget/metadata/*package_name/*package_version":
     get:
@@ -8792,7 +8812,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4GroupsIdPackagesNugetMetadata*packageName*packageVersion
   "/api/v4/groups/{id}/-/packages/nuget/query":
     get:
@@ -8847,7 +8867,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4GroupsIdPackagesNugetQuery
   "/api/v4/groups/{id}/-/packages/pypi/files/{sha256}/*file_identifier":
     get:
@@ -8884,7 +8904,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - pypi_packages
+      - packages_pypi
       operationId: getApiV4GroupsIdPackagesPypiFilesSha256*fileIdentifier
   "/api/v4/groups/{id}/-/packages/pypi/simple":
     get:
@@ -8909,7 +8929,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_pypi
       operationId: getApiV4GroupsIdPackagesPypiSimple
   "/api/v4/groups/{id}/-/packages/pypi/simple/*package_name":
     get:
@@ -8940,7 +8960,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_pypi
       operationId: getApiV4GroupsIdPackagesPypiSimple*packageName
   "/api/v4/groups/{id}/releases":
     get:
@@ -14256,7 +14276,7 @@ paths:
         '403':
           description: Forbidden
       tags:
-      - packages
+      - packages_cargo
       operationId: getApiV4ProjectsIdPackagesCargoConfigJson
   "/api/v4/projects/{id}/packages/cargo/1/{package_name}":
     get:
@@ -14289,7 +14309,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_cargo
       operationId: getApiV4ProjectsIdPackagesCargo1PackageName
   "/api/v4/projects/{id}/packages/cargo/2/{package_name}":
     get:
@@ -14322,7 +14342,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_cargo
       operationId: getApiV4ProjectsIdPackagesCargo2PackageName
   "/api/v4/projects/{id}/packages/cargo/3/{first_char}/{package_name}":
     get:
@@ -14360,7 +14380,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_cargo
       operationId: getApiV4ProjectsIdPackagesCargo3FirstCharPackageName
   "/api/v4/projects/{id}/packages/cargo/{prefix_1}/{prefix_2}/{package_name}":
     get:
@@ -14403,7 +14423,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_cargo
       operationId: getApiV4ProjectsIdPackagesCargoPrefix1Prefix2PackageName
   "/api/v4/projects/{id}/packages/cargo/{package_name}/{package_version}/download":
     get:
@@ -14438,7 +14458,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_cargo
       operationId: getApiV4ProjectsIdPackagesCargoPackageNamePackageVersionDownload
   "/api/v4/projects/{id}/repository/commits":
     get:
@@ -15169,7 +15189,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_composer
       operationId: postApiV4ProjectsIdPackagesComposer
   "/api/v4/projects/{id}/packages/composer/archives/*package_name":
     get:
@@ -15205,7 +15225,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_composer
       operationId: getApiV4ProjectsIdPackagesComposerArchives*packageName
   "/api/v4/projects/{id}/packages/conan/v1/users/authenticate":
     get:
@@ -15227,7 +15247,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1UsersAuthenticate
   "/api/v4/projects/{id}/packages/conan/v1/users/check_credentials":
     get:
@@ -15249,7 +15269,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1UsersCheckCredentials
   "/api/v4/projects/{id}/packages/conan/v1/conans/search":
     get:
@@ -15282,7 +15302,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansSearch
   "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
@@ -15332,7 +15352,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
   "/api/v4/projects/{id}/packages/conan/v1/ping":
     get:
@@ -15352,7 +15372,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1Ping
   ? "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}"
   : get:
@@ -15408,7 +15428,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReference
   "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}":
     get:
@@ -15458,7 +15478,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannel
     delete:
       summary: Delete Package
@@ -15505,7 +15525,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: deleteApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannel
   ? "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}/digest"
   : get:
@@ -15561,7 +15581,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReferenceDigest
   "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/digest":
     get:
@@ -15611,7 +15631,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelDigest
   ? "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}/download_urls"
   : get:
@@ -15667,7 +15687,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReferenceDownloadUrls
   ? "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/download_urls"
   : get:
@@ -15717,7 +15737,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelDownloadUrls
   ? "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}/upload_urls"
   : post:
@@ -15775,7 +15795,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: postApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReferenceUploadUrls
   "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/upload_urls":
     post:
@@ -15827,7 +15847,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: postApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelUploadUrls
   ? "/api/v4/projects/{id}/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/export/{file_name}"
   : get:
@@ -15894,7 +15914,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionExportFileName
     put:
       summary: Upload recipe package files
@@ -15969,7 +15989,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionExportFileName
   ? "/api/v4/projects/{id}/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/export/{file_name}/authorize"
   : put:
@@ -16040,7 +16060,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionExportFileNameAuthorize
   ? "/api/v4/projects/{id}/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/package/{conan_package_reference}/{package_revision}/{file_name}"
   : get:
@@ -16117,7 +16137,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionPackageConanPackageReferencePackageRevisionFileName
     put:
       summary: Upload package files
@@ -16204,7 +16224,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionPackageConanPackageReferencePackageRevisionFileName
   ? "/api/v4/projects/{id}/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/package/{conan_package_reference}/{package_revision}/{file_name}/authorize"
   : put:
@@ -16287,7 +16307,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionPackageConanPackageReferencePackageRevisionFileNameAuthorize
   "/api/v4/projects/{id}/packages/conan/v2/users/authenticate":
     get:
@@ -16309,7 +16329,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2UsersAuthenticate
   "/api/v4/projects/{id}/packages/conan/v2/users/check_credentials":
     get:
@@ -16331,7 +16351,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2UsersCheckCredentials
   "/api/v4/projects/{id}/packages/conan/v2/conans/search":
     get:
@@ -16364,7 +16384,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansSearch
   "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
@@ -16414,7 +16434,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
   "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/latest":
     get:
@@ -16466,7 +16486,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelLatest
   "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions":
     get:
@@ -16518,7 +16538,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisions
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}"
   : delete:
@@ -16574,7 +16594,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: deleteApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevision
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/files"
   : get:
@@ -16632,7 +16652,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFiles
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/files/{file_name}"
   : get:
@@ -16701,7 +16721,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFilesFileName
     put:
       summary: Upload recipe package files
@@ -16776,7 +16796,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFilesFileName
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/files/{file_name}/authorize"
   : put:
@@ -16847,7 +16867,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFilesFileNameAuthorize
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/search"
   : get:
@@ -16903,7 +16923,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionSearch
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/latest"
   : get:
@@ -16967,7 +16987,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceLatest
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions"
   : get:
@@ -17031,7 +17051,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisions
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}"
   : delete:
@@ -17099,7 +17119,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: deleteApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevision
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}/files"
   : get:
@@ -17169,7 +17189,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFiles
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}/files/{file_name}"
   : get:
@@ -17250,7 +17270,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFilesFileName
     put:
       summary: Upload package files
@@ -17337,7 +17357,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFilesFileName
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}/files/{file_name}/authorize"
   : put:
@@ -17420,7 +17440,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFilesFileNameAuthorize
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/Release.gpg":
     get:
@@ -17452,7 +17472,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionReleaseGpg
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/Release":
     get:
@@ -17484,7 +17504,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionRelease
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/InRelease":
     get:
@@ -17516,7 +17536,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionInrelease
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/{component}/debian-installer/binary-{architecture}/Packages":
     get:
@@ -17562,7 +17582,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionComponentDebianInstallerBinaryArchitecturePackages
   ? "/api/v4/projects/{id}/packages/debian/dists/*distribution/{component}/debian-installer/binary-{architecture}/by-hash/SHA256/{file_sha256}"
   : get:
@@ -17613,7 +17633,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionComponentDebianInstallerBinaryArchitectureByHashSha256FileSha256
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/{component}/source/Sources":
     get:
@@ -17653,7 +17673,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionComponentSourceSources
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/{component}/source/by-hash/SHA256/{file_sha256}":
     get:
@@ -17698,7 +17718,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionComponentSourceByHashSha256FileSha256
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/{component}/binary-{architecture}/Packages":
     get:
@@ -17744,7 +17764,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionComponentBinary-ArchitecturePackages
   "/api/v4/projects/{id}/packages/debian/dists/*distribution/{component}/binary-{architecture}/by-hash/SHA256/{file_sha256}":
     get:
@@ -17795,7 +17815,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionComponentBinaryArchitectureByHashSha256FileSha256
   "/api/v4/projects/{id}/packages/debian/pool/{distribution}/{letter}/{package_name}/{package_version}/{file_name}":
     get:
@@ -17849,7 +17869,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdPackagesDebianPoolDistributionLetterPackageNamePackageVersionFileName
   "/api/v4/projects/{id}/packages/debian/{file_name}":
     put:
@@ -17888,7 +17908,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: putApiV4ProjectsIdPackagesDebianFileName
   "/api/v4/projects/{id}/packages/debian/{file_name}/authorize":
     put:
@@ -17927,7 +17947,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: putApiV4ProjectsIdPackagesDebianFileNameAuthorize
   "/api/v4/projects/{id}/deploy_keys":
     get:
@@ -20775,7 +20795,7 @@ paths:
         '403':
           description: Forbidden
       tags:
-      - packages
+      - packages_helm
       operationId: getApiV4ProjectsIdPackagesHelmChannelIndexYaml
   "/api/v4/projects/{id}/packages/helm/{channel}/charts/{file_name}.tgz":
     get:
@@ -20812,7 +20832,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_helm
       operationId: getApiV4ProjectsIdPackagesHelmChannelChartsFileNameTgz
   "/api/v4/projects/{id}/packages/helm/api/{channel}/charts/authorize":
     post:
@@ -20845,7 +20865,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_helm
       operationId: postApiV4ProjectsIdPackagesHelmApiChannelChartsAuthorize
   "/api/v4/projects/{id}/packages/helm/api/{channel}/charts":
     post:
@@ -20883,7 +20903,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_helm
       operationId: postApiV4ProjectsIdPackagesHelmApiChannelCharts
   "/api/v4/projects/{id}/services":
     get:
@@ -28899,7 +28919,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: getApiV4ProjectsIdPackagesNpmPackage*packageNameDistTags
   "/api/v4/projects/{id}/packages/npm/-/package/*package_name/dist-tags/{tag}":
     put:
@@ -28938,7 +28958,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: putApiV4ProjectsIdPackagesNpmPackage*packageNameDistTagsTag
     delete:
       summary: Deletes the given tag
@@ -28973,7 +28993,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: deleteApiV4ProjectsIdPackagesNpmPackage*packageNameDistTagsTag
   "/api/v4/projects/{id}/packages/npm/-/npm/v1/security/advisories/bulk":
     post:
@@ -29001,7 +29021,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: postApiV4ProjectsIdPackagesNpmNpmV1SecurityAdvisoriesBulk
   "/api/v4/projects/{id}/packages/npm/-/npm/v1/security/audits/quick":
     post:
@@ -29029,7 +29049,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: postApiV4ProjectsIdPackagesNpmNpmV1SecurityAuditsQuick
   "/api/v4/projects/{id}/packages/npm/*package_name/-/*file_name":
     get:
@@ -29061,7 +29081,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: getApiV4ProjectsIdPackagesNpm*packageName-*fileName
   "/api/v4/projects/{id}/packages/npm/{package_name}":
     put:
@@ -29100,7 +29120,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: putApiV4ProjectsIdPackagesNpmPackageName
   "/api/v4/projects/{id}/packages/npm/*package_name":
     get:
@@ -29136,7 +29156,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: getApiV4ProjectsIdPackagesNpm*packageName
   "/api/v4/projects/{id}/packages/nuget/index":
     get:
@@ -29158,7 +29178,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetIndex
   "/api/v4/projects/{id}/packages/nuget/symbolfiles/*file_name/*signature/*same_file_name":
     get:
@@ -29203,7 +29223,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetSymbolfiles*fileName*signature*sameFileName
   "/api/v4/projects/{id}/packages/nuget/v2":
     get:
@@ -29223,7 +29243,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetV2
     put:
       summary: The NuGet V2 Feed Package Publish endpoint
@@ -29255,7 +29275,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: putApiV4ProjectsIdPackagesNugetV2
   "/api/v4/projects/{id}/packages/nuget/v2/$metadata":
     get:
@@ -29273,7 +29293,7 @@ paths:
         '200':
           description: The NuGet V2 Feed Package $metadata endpoint
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetV2$metadata
   "/api/v4/projects/{id}/packages/nuget/metadata/*package_name/index":
     get:
@@ -29305,7 +29325,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetMetadata*packageNameIndex
   "/api/v4/projects/{id}/packages/nuget/metadata/*package_name/*package_version":
     get:
@@ -29343,7 +29363,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetMetadata*packageName*packageVersion
   "/api/v4/projects/{id}/packages/nuget/query":
     get:
@@ -29397,7 +29417,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetQuery
   "/api/v4/projects/{id}/packages/nuget/download/*package_name/index":
     get:
@@ -29429,7 +29449,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetDownload*packageNameIndex
   "/api/v4/projects/{id}/packages/nuget/download/*package_name/*package_version/*package_filename":
     get:
@@ -29471,7 +29491,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetDownload*packageName*packageVersion*packageFilename
   "/api/v4/projects/{id}/packages/nuget":
     put:
@@ -29504,7 +29524,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: putApiV4ProjectsIdPackagesNuget
   "/api/v4/projects/{id}/packages/nuget/authorize":
     put:
@@ -29530,7 +29550,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: putApiV4ProjectsIdPackagesNugetAuthorize
   "/api/v4/projects/{id}/packages/nuget/symbolpackage":
     put:
@@ -29563,7 +29583,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: putApiV4ProjectsIdPackagesNugetSymbolpackage
   "/api/v4/projects/{id}/packages/nuget/symbolpackage/authorize":
     put:
@@ -29589,7 +29609,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: putApiV4ProjectsIdPackagesNugetSymbolpackageAuthorize
   "/api/v4/projects/{id}/packages/nuget/*package_name/*package_version":
     delete:
@@ -29625,7 +29645,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: deleteApiV4ProjectsIdPackagesNuget*packageName*packageVersion
   "/api/v4/projects/{id}/packages/nuget/v2/authorize":
     put:
@@ -29651,7 +29671,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_nuget
       operationId: putApiV4ProjectsIdPackagesNugetV2Authorize
   "/api/v4/projects/{project_id}/packages/nuget/v2/FindPackagesById\\(\\)":
     get:
@@ -29679,7 +29699,7 @@ paths:
         '400':
           description: Bad Request
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsProjectIdPackagesNugetV2Findpackagesbyid\(\)
   "/api/v4/projects/{project_id}/packages/nuget/v2/Packages\\(\\)":
     get:
@@ -29707,7 +29727,7 @@ paths:
         '400':
           description: Bad Request
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsProjectIdPackagesNugetV2Packages\(\)
   "/api/v4/projects/{project_id}/packages/nuget/v2/Packages\\(Id='*package_name',Version='*package_version'\\)":
     get:
@@ -29741,7 +29761,7 @@ paths:
         '400':
           description: Bad Request
       tags:
-      - packages
+      - packages_nuget
       operationId: getApiV4ProjectsProjectIdPackagesNugetV2Packages\(id='*packageName',version='*packageVersion'\)
   "/api/v4/projects/{id}/packages/{package_id}/package_files":
     get:
@@ -30897,7 +30917,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: postApiV4ProjectsIdDebianDistributions
     get:
       summary: Get a list of Debian Distributions
@@ -31000,7 +31020,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdDebianDistributions
   "/api/v4/projects/{id}/debian_distributions/{codename}":
     get:
@@ -31032,7 +31052,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdDebianDistributionsCodename
     put:
       summary: Update a Debian Distribution
@@ -31072,7 +31092,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: putApiV4ProjectsIdDebianDistributionsCodename
     delete:
       summary: Delete a Debian Distribution
@@ -31159,7 +31179,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: deleteApiV4ProjectsIdDebianDistributionsCodename
   "/api/v4/projects/{id}/debian_distributions/{codename}/key.asc":
     get:
@@ -31191,7 +31211,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_debian
       operationId: getApiV4ProjectsIdDebianDistributionsCodenameKeyAsc
   "/api/v4/projects/{id}/events":
     get:
@@ -37308,7 +37328,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_pypi
       operationId: getApiV4ProjectsIdPackagesPypiFilesSha256*fileIdentifier
   "/api/v4/projects/{id}/packages/pypi/simple":
     get:
@@ -37332,7 +37352,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_pypi
       operationId: getApiV4ProjectsIdPackagesPypiSimple
   "/api/v4/projects/{id}/packages/pypi/simple/*package_name":
     get:
@@ -37362,7 +37382,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_pypi
       operationId: getApiV4ProjectsIdPackagesPypiSimple*packageName
   "/api/v4/projects/{id}/packages/pypi":
     post:
@@ -37397,7 +37417,7 @@ paths:
         '422':
           description: Unprocessable Entity
       tags:
-      - packages
+      - packages_pypi
       operationId: postApiV4ProjectsIdPackagesPypi
   "/api/v4/projects/{id}/packages/pypi/authorize":
     post:
@@ -37423,7 +37443,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_pypi
       operationId: postApiV4ProjectsIdPackagesPypiAuthorize
   "/api/v4/projects/{id}/releases":
     get:
@@ -38801,7 +38821,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rpm
       operationId: getApiV4ProjectsIdPackagesRpmRepodata*fileName
   "/api/v4/projects/{id}/packages/rpm/*package_file_id/*file_name":
     get:
@@ -38836,7 +38856,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rpm
       operationId: getApiV4ProjectsIdPackagesRpm*packageFileId*fileName
   "/api/v4/projects/{id}/packages/rpm":
     post:
@@ -38864,7 +38884,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rpm
       operationId: postApiV4ProjectsIdPackagesRpm
   "/api/v4/projects/{id}/packages/rpm/authorize":
     post:
@@ -38890,7 +38910,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rpm
       operationId: postApiV4ProjectsIdPackagesRpmAuthorize
   "/api/v4/projects/{id}/packages/rubygems/{file_name}":
     get:
@@ -38927,7 +38947,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rubygem
       operationId: getApiV4ProjectsIdPackagesRubygemsFileName
   "/api/v4/projects/{id}/packages/rubygems/quick/Marshal.4.8/{file_name}":
     get:
@@ -38958,7 +38978,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rubygem
       operationId: getApiV4ProjectsIdPackagesRubygemsQuickMarshal48FileName
   "/api/v4/projects/{id}/packages/rubygems/gems/{file_name}":
     get:
@@ -38988,7 +39008,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rubygem
       operationId: getApiV4ProjectsIdPackagesRubygemsGemsFileName
   "/api/v4/projects/{id}/packages/rubygems/api/v1/gems/authorize":
     post:
@@ -39013,7 +39033,7 @@ paths:
         '403':
           description: Forbidden
       tags:
-      - packages
+      - packages_rubygem
       operationId: postApiV4ProjectsIdPackagesRubygemsApiV1GemsAuthorize
   "/api/v4/projects/{id}/packages/rubygems/api/v1/gems":
     post:
@@ -39045,7 +39065,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rubygem
       operationId: postApiV4ProjectsIdPackagesRubygemsApiV1Gems
   "/api/v4/projects/{id}/packages/rubygems/api/v1/dependencies":
     get:
@@ -39079,7 +39099,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_rubygem
       operationId: getApiV4ProjectsIdPackagesRubygemsApiV1Dependencies
   "/api/v4/projects/{id}/(-/)search":
     get:
@@ -42462,7 +42482,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_composer
       operationId: getApiV4GroupIdPackagesComposerPackages
   "/api/v4/group/{id}/-/packages/composer/p/{sha}":
     get:
@@ -42490,7 +42510,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_composer
       operationId: getApiV4GroupIdPackagesComposerPSha
   "/api/v4/group/{id}/-/packages/composer/p2/*package_name":
     get:
@@ -42520,7 +42540,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_composer
       operationId: getApiV4GroupIdPackagesComposerP2*packageName
   "/api/v4/group/{id}/-/packages/composer/*package_name":
     get:
@@ -42549,7 +42569,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_composer
       operationId: getApiV4GroupIdPackagesComposer*packageName
   "/api/v4/packages/conan/v1/users/authenticate":
     get:
@@ -42565,7 +42585,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1UsersAuthenticate
   "/api/v4/packages/conan/v1/users/check_credentials":
     get:
@@ -42581,7 +42601,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1UsersCheckCredentials
   "/api/v4/packages/conan/v1/conans/search":
     get:
@@ -42609,7 +42629,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansSearch
   "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
@@ -42654,7 +42674,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
   "/api/v4/packages/conan/v1/ping":
     get:
@@ -42668,7 +42688,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1Ping
   ? "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}"
   : get:
@@ -42719,7 +42739,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReference
   "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}":
     get:
@@ -42764,7 +42784,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannel
     delete:
       summary: Delete Package
@@ -42806,7 +42826,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: deleteApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannel
   ? "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}/digest"
   : get:
@@ -42857,7 +42877,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReferenceDigest
   "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/digest":
     get:
@@ -42902,7 +42922,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelDigest
   ? "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}/download_urls"
   : get:
@@ -42953,7 +42973,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReferenceDownloadUrls
   "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/download_urls":
     get:
@@ -42998,7 +43018,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelDownloadUrls
   ? "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/packages/{conan_package_reference}/upload_urls"
   : post:
@@ -43051,7 +43071,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: postApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelPackagesConanPackageReferenceUploadUrls
   "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/upload_urls":
     post:
@@ -43098,7 +43118,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: postApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelUploadUrls
   ? "/api/v4/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/export/{file_name}"
   : get:
@@ -43160,7 +43180,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionExportFileName
     put:
       summary: Upload recipe package files
@@ -43230,7 +43250,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4PackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionExportFileName
   ? "/api/v4/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/export/{file_name}/authorize"
   : put:
@@ -43296,7 +43316,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4PackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionExportFileNameAuthorize
   ? "/api/v4/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/package/{conan_package_reference}/{package_revision}/{file_name}"
   : get:
@@ -43368,7 +43388,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: getApiV4PackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionPackageConanPackageReferencePackageRevisionFileName
     put:
       summary: Upload package files
@@ -43450,7 +43470,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4PackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionPackageConanPackageReferencePackageRevisionFileName
   ? "/api/v4/packages/conan/v1/files/{package_name}/{package_version}/{package_username}/{package_channel}/{recipe_revision}/package/{conan_package_reference}/{package_revision}/{file_name}/authorize"
   : put:
@@ -43528,7 +43548,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_conan
       operationId: putApiV4PackagesConanV1FilesPackageNamePackageVersionPackageUsernamePackageChannelRecipeRevisionPackageConanPackageReferencePackageRevisionFileNameAuthorize
   "/api/v4/packages/maven/*path/{file_name}":
     get:
@@ -43587,7 +43607,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: getApiV4PackagesNpmPackage*packageNameDistTags
   "/api/v4/packages/npm/-/package/*package_name/dist-tags/{tag}":
     put:
@@ -43621,7 +43641,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: putApiV4PackagesNpmPackage*packageNameDistTagsTag
     delete:
       summary: Deletes the given tag
@@ -43651,7 +43671,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: deleteApiV4PackagesNpmPackage*packageNameDistTagsTag
   "/api/v4/packages/npm/-/npm/v1/security/advisories/bulk":
     post:
@@ -43673,7 +43693,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: postApiV4PackagesNpmNpmV1SecurityAdvisoriesBulk
   "/api/v4/packages/npm/-/npm/v1/security/audits/quick":
     post:
@@ -43695,7 +43715,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: postApiV4PackagesNpmNpmV1SecurityAuditsQuick
   "/api/v4/packages/npm/*package_name":
     get:
@@ -43726,7 +43746,7 @@ paths:
         '404':
           description: Not Found
       tags:
-      - packages
+      - packages_npm
       operationId: getApiV4PackagesNpm*packageName
   "/api/v4/packages/terraform/modules/v1/{module_namespace}/{module_name}/{module_system}/versions":
     get:

@@ -558,12 +558,6 @@ describe('Sidebar Menu', () => {
         expect(findTrigger().props('icon')).toBe('applications');
       });
 
-      it('applies the shared nav-item styling so it matches sibling nav items', () => {
-        expect(findTrigger().classes()).toEqual(
-          expect.arrayContaining(['super-sidebar-nav-item', '!gl-justify-start']),
-        );
-      });
-
       it('renders the modal', () => {
         expect(findFeatureLibraryModal().exists()).toBe(true);
       });
@@ -582,7 +576,7 @@ describe('Sidebar Menu', () => {
       });
 
       it('hides the trigger label so only the icon remains', () => {
-        expect(findTrigger().props('buttonTextClasses')).toMatchObject({ 'gl-hidden': true });
+        expect(findTrigger().props('isIconOnly')).toBe(true);
       });
     });
 

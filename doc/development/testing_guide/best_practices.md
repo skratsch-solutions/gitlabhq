@@ -568,6 +568,35 @@ within_testid('search-filter') do
 end
 ```
 
+#### Wait for a control to be enabled, not just present
+
+After an action that triggers an asynchronous mutation, a control often stays
+disabled (in a `loading` state) until the mutation resolves, and its label or
+the surrounding state can change once it does. A bare `have_button` or
+`have_link` matches the control while it is still disabled, so the assertion
+passes mid-transition and the next assertion races the re-render.
+
+Assert that the destination control is both present and enabled with
+`disabled: false`. This waits out the in-flight mutation before the following
+assertions run:
+
+```ruby
+click_button 'Resume'
+
+# Bad: matches the button while it is still disabled (mid-mutation), so the
+# next assertion races the re-render.
+expect(page).to have_button 'Pause'
+expect(page).not_to have_text 'Paused'
+
+# Good: waits until the mutation settles and the button is interactive.
+expect(page).to have_button 'Pause', disabled: false
+expect(page).not_to have_text 'Paused'
+```
+
+This is reliable when the control and the state you check next derive from the
+same updated data, so once the control is enabled the dependent state has also
+re-rendered.
+
 #### Mock expensive external operations
 
 Feature and integration specs that trigger real external processes (compiling

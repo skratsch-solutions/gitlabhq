@@ -1,10 +1,16 @@
 import {
   addWorkItemToColumn,
+  adjustWorkItemCountInColumn,
   readWorkItemFromColumn,
   readWorkItemsFromColumn,
   removeWorkItemFromColumn,
 } from '~/work_items/board/graphql/cache_updates';
-import { buildBoardWorkItemsResponse, buildWorkItemNode, buildStatusWidget } from '../mock_data';
+import {
+  buildBoardWorkItemsResponse,
+  buildBoardWorkItemsCountResponse,
+  buildWorkItemNode,
+  buildStatusWidget,
+} from '../mock_data';
 
 // Minimal stand-in for the Apollo cache: the real client strips unselected
 // fields (e.g. the STATUS widget) on write, so a fake keeps the helper logic
@@ -141,6 +147,34 @@ describe('work item board cache updates', () => {
           workItem: buildWorkItemNode(1),
           index: 0,
         }),
+      ).not.toThrow();
+    });
+  });
+
+  describe('adjustWorkItemCountInColumn', () => {
+    const countOf = (cache) => cache.getStore().namespace.workItems.count;
+
+    it('applies the delta to the cached count', () => {
+      const cache = createFakeCache(buildBoardWorkItemsCountResponse(5).data);
+
+      adjustWorkItemCountInColumn({ cache, query, variables, delta: -1 });
+
+      expect(countOf(cache)).toBe(4);
+    });
+
+    it('does not drop below zero', () => {
+      const cache = createFakeCache(buildBoardWorkItemsCountResponse(0).data);
+
+      adjustWorkItemCountInColumn({ cache, query, variables, delta: -1 });
+
+      expect(countOf(cache)).toBe(0);
+    });
+
+    it('does nothing when the cache entry is missing', () => {
+      const cache = createFakeCache(undefined);
+
+      expect(() =>
+        adjustWorkItemCountInColumn({ cache, query, variables, delta: 1 }),
       ).not.toThrow();
     });
   });

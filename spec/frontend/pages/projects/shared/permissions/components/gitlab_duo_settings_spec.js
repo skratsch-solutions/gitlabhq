@@ -831,6 +831,60 @@ describe('GitlabDuoSettings', () => {
       });
     });
 
+    describe('when restricted to the SAST FP detection setting', () => {
+      beforeEach(() => {
+        wrapper = createWrapper(
+          {
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            visibleSettings: ['duoSastFpDetectionEnabled'],
+          },
+          { enableVulnerabilityResolution: true },
+        );
+      });
+
+      it('renders only the SAST FP detection toggle and the save button', () => {
+        expect(findDuoSastFpDetectionToggle().exists()).toBe(true);
+        expect(findSaveButton().exists()).toBe(true);
+      });
+
+      it('hides the Duo enable toggle and every other Duo setting', () => {
+        expect(findDuoEnabledToggle().exists()).toBe(false);
+        expect(findDuoSastVrWorkflowToggle().exists()).toBe(false);
+        expect(findDuoSecretDetectionFpToggle().exists()).toBe(false);
+        expect(findToolApprovalToggle().exists()).toBe(false);
+        expect(findDuoRemoteFlowsToggle().exists()).toBe(false);
+        expect(findExclusionSettings().exists()).toBe(false);
+      });
+    });
+
+    describe('when restricted to both SAST VR and SAST FP detection settings', () => {
+      beforeEach(() => {
+        wrapper = createWrapper(
+          {
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            visibleSettings: ['duoSastVrWorkflowEnabled', 'duoSastFpDetectionEnabled'],
+          },
+          { enableVulnerabilityResolution: true },
+        );
+      });
+
+      it('renders both the SAST VR and SAST FP detection toggles', () => {
+        expect(findDuoSastVrWorkflowToggle().exists()).toBe(true);
+        expect(findDuoSastFpDetectionToggle().exists()).toBe(true);
+        expect(findSaveButton().exists()).toBe(true);
+      });
+
+      it('hides the Duo enable toggle and non-allowed settings', () => {
+        expect(findDuoEnabledToggle().exists()).toBe(false);
+        expect(findDuoSecretDetectionFpToggle().exists()).toBe(false);
+        expect(findToolApprovalToggle().exists()).toBe(false);
+        expect(findDuoRemoteFlowsToggle().exists()).toBe(false);
+        expect(findExclusionSettings().exists()).toBe(false);
+      });
+    });
+
     describe('when the allowlist contains ALL_SETTINGS', () => {
       beforeEach(() => {
         wrapper = createWrapper({

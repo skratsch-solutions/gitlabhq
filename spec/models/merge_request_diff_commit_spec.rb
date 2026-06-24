@@ -486,20 +486,6 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       expect(commit_row.committer).to eq(commit_user_row)
     end
 
-    context 'when merge_request_diff_commits_partition is disabled' do
-      before do
-        stub_feature_flags(merge_request_diff_commits_partition: false)
-      end
-
-      let(:rows) { super().map { |row| row.except(:project_id) } }
-
-      # read_new_commits_table? requires both FFs; with partition disabled the legacy path
-      # still keeps :trailers in legacy_bulk_insert.
-      let(:deduplicated_rows) { super().map { |row| row.merge(trailers: {}.to_json) } }
-
-      include_examples 'inserts the commits into the database en masse'
-    end
-
     context 'when mr_diff_commits_read_new_table is disabled' do
       before do
         stub_feature_flags(mr_diff_commits_read_new_table: false)
@@ -549,41 +535,24 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
             .and_return({ first_commit_sha => existing_metadata.id })
         end
 
-        it 'logs an error for only the failed commits' do
-          expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
-            instance_of(described_class::CouldNotCreateMetadataError),
-            hash_including(
-              message: 'Failed to create metadata',
-              merge_request_diff_id: merge_request_diff.id,
-              project_id: project.id,
-              failed_count: 1,
-              total_count: 2,
-              relative_orders: [1]
-            )
+        it 'raises an error' do
+          expect { create_bulk(merge_request_diff.id) }.to raise_error(
+            MergeRequestDiffCommit::CouldNotCreateMetadataError,
+            "Failed to create metadata for commits: [#{rows[1][:relative_order]}], project_id: #{project.id}, " \
+              "merge_request_diff_id: #{merge_request_diff_id}. Commits in batch: 2, failed: 1"
           )
-
-          create_bulk(merge_request_diff.id)
         end
+      end
 
-        it 'creates records with mixed metadata_id states' do
-          create_bulk(merge_request_diff.id)
+      context 'when there are already existing commits metadata record for some SHAs' do
+        it 'does not create a new merge_request_commits_metadata record' do
+          # Call create_bulk to create bulk records and simulate existing records
+          # so calling it again for a new `MergeRequestDiff` shouldn't create
+          # new commit metadata records.
+          create_bulk(merge_request_diff_id)
 
-          diff_commits = merge_request_diff.reload.merge_request_diff_commits
-
-          expect(diff_commits[0].merge_request_commits_metadata_id).not_to be_nil
-          expect(diff_commits[1].merge_request_commits_metadata_id).to be_nil
-        end
-
-        context 'when there are already existing commits metadata record for some SHAs' do
-          it 'does not create a new merge_request_commits_metadata record' do
-            # Call create_bulk to create bulk records and simulate existing records
-            # so calling it again for a new `MergeRequestDiff` shouldn't create
-            # new commit metadata records.
-            create_bulk(merge_request_diff_id)
-
-            expect { create_bulk(create(:merge_request_diff).id) }
-              .not_to change { MergeRequest::CommitsMetadata.count }
-          end
+          expect { create_bulk(create(:merge_request_diff).id) }
+            .not_to change { MergeRequest::CommitsMetadata.count }
         end
       end
     end
@@ -625,9 +594,12 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       let(:test_project) { create(:project) }
       let(:test_diff) { create(:merge_request_diff) }
       let(:organization_id) { test_project.organization_id }
+      let(:sha_hex) { 'ae73cb07c9eeaf35924a10f713b364d32b2dd34f' }
+      let(:sha) { Gitlab::Database::ShaAttribute.serialize(sha_hex) }
+      let(:metadata) { create(:merge_request_commits_metadata, project: project, sha: sha) }
       let(:commits) do
         [double(:commit, to_hash: {
-          id: 'test123',
+          id: sha_hex,
           author_name: 'Feature Test Author',
           author_email: 'feature@test.com',
           committer_name: 'Feature Test Committer',
@@ -647,6 +619,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
             instance_double(MergeRequest::DiffCommitUser, id: 2)
         }
 
+        allow(MergeRequest::CommitsMetadata).to receive(:bulk_find_or_create).and_return({ sha_hex => metadata.id })
         allow(MergeRequest::DiffCommitUser).to receive(:bulk_find_or_create).and_return(users_hash)
 
         expect { described_class.create_bulk(test_diff.id, commits, test_project) }.not_to raise_error

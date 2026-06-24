@@ -59,7 +59,6 @@ class MergeRequestDiffCommit < ApplicationRecord
   # cf. https://gitlab.com/gitlab-org/gitlab/issues/207989 for progress
   def self.create_bulk(merge_request_diff_id, commits, project, skip_commit_data: false)
     organization_id = project.organization_id
-    partition_enabled = Feature.enabled?(:merge_request_diff_commits_partition, project)
     commit_hashes, user_triples = prepare_commits_for_bulk_insert(commits, organization_id)
     users = MergeRequest::DiffCommitUser.bulk_find_or_create(user_triples)
 
@@ -95,7 +94,7 @@ class MergeRequestDiffCommit < ApplicationRecord
       # inserting the `sha` in `merge_request_commits_metadata` table.
       commit_hash[:raw_sha] = raw_sha
 
-      commit_hash[:project_id] = project.id if partition_enabled
+      commit_hash[:project_id] = project.id
       commit_hash = commit_hash.merge(message: '') if skip_commit_data
 
       commit_hash
@@ -185,10 +184,7 @@ class MergeRequestDiffCommit < ApplicationRecord
   end
 
   def self.read_new_commits_table?(project_id)
-    actor = Project.actor_from_id(project_id)
-
-    Feature.enabled?(:mr_diff_commits_read_new_table, actor) &&
-      Feature.enabled?(:merge_request_diff_commits_partition, actor)
+    Feature.enabled?(:mr_diff_commits_read_new_table, Project.actor_from_id(project_id))
   end
 
   def self.commit_shas_from_new_table(project_id:, limit:)
@@ -234,19 +230,18 @@ class MergeRequestDiffCommit < ApplicationRecord
 
     rows_without_metadata = rows.select { |row| row[:merge_request_commits_metadata_id].nil? }
 
-    if rows_without_metadata.any?
-      Gitlab::ErrorTracking.track_exception(
-        CouldNotCreateMetadataError.new,
-        message: 'Failed to create metadata',
-        failed_count: rows_without_metadata.size,
-        total_count: rows.size,
-        merge_request_diff_id: merge_request_diff_id,
-        project_id: project_id,
-        relative_orders: rows_without_metadata.filter_map { |r| r[:relative_order] }
-      )
-    end
+    return rows unless rows_without_metadata.any?
 
-    rows
+    raise CouldNotCreateMetadataError, format(
+      "Failed to create metadata for commits: %{relative_orders}, project_id: %{project_id}, " \
+        "merge_request_diff_id: %{merge_request_diff_id}. " \
+        "Commits in batch: %{total_count}, failed: %{failed_count}",
+      failed_count: rows_without_metadata.size,
+      total_count: rows.size,
+      merge_request_diff_id: merge_request_diff_id,
+      project_id: project_id,
+      relative_orders: rows_without_metadata.filter_map { |r| r[:relative_order] }
+    )
   end
 
   # `trailers` was not migrated to `merge_request_diff_commits_b5377a7a34` or

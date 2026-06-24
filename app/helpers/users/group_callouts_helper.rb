@@ -3,6 +3,7 @@
 module Users
   module GroupCalloutsHelper
     APPROACHING_SEAT_COUNT_THRESHOLD = 'approaching_seat_count_threshold'
+    REACHED_SEAT_COUNT_THRESHOLD = 'reached_seat_count_threshold'
 
     private
 

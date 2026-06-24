@@ -80,6 +80,26 @@ RSpec.describe Ci::Workloads::WorkloadDefinition, feature_category: :continuous_
       expect(definition.to_job_hash).not_to have_key(:tags)
     end
 
+    it 'includes id_tokens when present' do
+      id_tokens = {
+        'SIGSTORE_ID_TOKEN' => { 'aud' => 'sigstore' },
+        'VAULT_ID_TOKEN' => { 'aud' => ['https://vault.example.com'] }
+      }
+      definition.id_tokens = id_tokens
+
+      expect(definition.to_job_hash[:id_tokens]).to eq(id_tokens)
+    end
+
+    it 'does not include id_tokens when nil' do
+      definition.id_tokens = nil
+      expect(definition.to_job_hash).not_to have_key(:id_tokens)
+    end
+
+    it 'does not include id_tokens when empty' do
+      definition.id_tokens = {}
+      expect(definition.to_job_hash).not_to have_key(:id_tokens)
+    end
+
     it 'raises ArgumentError if image is not present' do
       definition.image = ''
       expect { definition.to_job_hash }.to raise_error(ArgumentError)

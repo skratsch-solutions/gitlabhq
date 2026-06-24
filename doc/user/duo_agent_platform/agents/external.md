@@ -288,6 +288,44 @@ The following CI/CD variables are available:
 | Google Gemini CLI          | `GOOGLE_CLOUD_PROJECT`       | Google Cloud project ID. |
 | Google Gemini CLI          | `GOOGLE_CLOUD_LOCATION`      | Google Cloud project location. |
 
+## Authenticate with ID tokens
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224940) in GitLab 19.2.
+
+{{< /history >}}
+
+To authenticate a custom external agent with third-party OpenID Connect (OIDC) services,
+declare [ID tokens](../../../ci/secrets/id_token_authentication.md) in the agent configuration.
+GitLab CI/CD generates a signed JSON web token (JWT) and injects it into the agent job.
+
+Use ID tokens to authenticate without storing long-lived credentials.
+For example, you can retrieve secrets from a secrets manager or sign artifacts.
+
+To configure ID tokens, add an `id_tokens` block to the external agent configuration.
+Each token requires an `aud` (audience) claim:
+
+```yaml
+injectGatewayToken: true
+image: node:22-slim
+commands:
+  - my-authentication-script.sh "$VAULT_ID_TOKEN"
+id_tokens:
+  VAULT_ID_TOKEN:
+    aud: https://vault.example.com
+```
+
+The `aud` claim can be a single string or a list of strings.
+Each token is available in the agent job as an environment variable that uses the name of the token.
+
+> [!warning]
+> An ID token is a credential that grants access to any service that trusts its `aud` claim.
+> Set the narrowest possible `aud` value for each token.
+
+For more information about the token payload, see
+[OpenID Connect (OIDC) authentication using ID tokens](../../../ci/secrets/id_token_authentication.md).
+
 ## Enable the agent
 
 Enable an agent to trigger it from an issue, merge request, or discussion.

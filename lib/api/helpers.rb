@@ -124,6 +124,8 @@ module API
         user: user,
         rack_env: request.env
       ).organization
+
+      check_organization_read_only!
     end
 
     def save_current_user_in_env(user)
@@ -200,6 +202,8 @@ module API
         return redirect!(url_with_project_id(project))
       end
 
+      check_organization_read_only_for!(project)
+
       project
     end
 
@@ -265,7 +269,11 @@ module API
       # it's possible a method such as bypass_session! might log
       # a message before @group is set.
       ::Gitlab::ApplicationContext.push(namespace: group) if group
-      check_group_access(group)
+      result = check_group_access(group)
+
+      check_organization_read_only_for!(result)
+
+      result
     end
 
     def find_group_by_full_path!(full_path)
@@ -621,6 +629,58 @@ module API
 
     def service_unavailable!(message = nil)
       render_api_error!(message || '503 Service Unavailable', 503)
+    end
+
+    def check_organization_read_only!
+      return unless write_request?
+
+      organization = ::Current.organization
+      return unless organization_read_only_enforced?(organization)
+
+      render_organization_read_only_error!(organization)
+    end
+
+    # Guards the resource's own organization, which can differ from
+    # Current.organization (already checked in set_current_organization) when a
+    # request targets a project or group outside the caller's current
+    # organization. The extra organization load is intentional defense-in-depth.
+    def check_organization_read_only_for!(resource)
+      return unless write_request?
+      return unless resource.respond_to?(:organization)
+
+      organization = resource.organization
+      return unless organization_read_only_enforced?(organization)
+
+      render_organization_read_only_error!(organization)
+    end
+
+    def organization_read_only_enforced?(organization)
+      return false unless organization&.read_only?
+
+      Feature.enabled?(:organization_read_only_enforcement, organization)
+    end
+
+    # Time-bounded reasons are retryable (503 + Retry-After); indefinite reasons
+    # are not (403).
+    def render_organization_read_only_error!(organization)
+      if organization.read_only_time_bounded?
+        header 'Retry-After', '60'
+        service_unavailable!(read_only_organization_message(time_bounded: true))
+      else
+        forbidden!(read_only_organization_message(time_bounded: false))
+      end
+    end
+
+    def write_request?
+      %w[POST PATCH PUT DELETE].include?(request.request_method)
+    end
+
+    def read_only_organization_message(time_bounded:)
+      if time_bounded
+        _('This organization is currently in read-only mode. Write operations are temporarily disabled.')
+      else
+        _('This organization is currently in read-only mode. Write operations are disabled.')
+      end
     end
 
     def conflict!(message = nil)

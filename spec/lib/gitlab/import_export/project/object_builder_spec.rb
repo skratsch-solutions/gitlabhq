@@ -320,18 +320,6 @@ RSpec.describe Gitlab::ImportExport::Project::ObjectBuilder do
       })
     end
 
-    context 'when merge_request_diff_commits_partition is disabled' do
-      before do
-        stub_feature_flags(merge_request_diff_commits_partition: false)
-      end
-
-      it 'does not set `project_id` attribute' do
-        new_commit = described_class.build(MergeRequestDiffCommit, diff_commit_object_attrs)
-
-        expect(new_commit.attributes['project_id']).to be_nil
-      end
-    end
-
     context 'when the "committer" object is present' do
       it 'uses this object as the committer' do
         user = MergeRequest::DiffCommitUser
@@ -473,18 +461,12 @@ RSpec.describe Gitlab::ImportExport::Project::ObjectBuilder do
             .and_return(nil)
         end
 
-        it 'logs an error for only the failed commits' do
-          expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
-            instance_of(MergeRequestDiffCommit::CouldNotCreateMetadataError),
-            hash_including(
-              message: 'Failed to create metadata during import',
-              project_id: project.id
-            )
-          )
-
-          described_class.build(
-            MergeRequestDiffCommit,
-            commit_attrs
+        it 'raises CouldNotCreateMetadataError so the MR import failure is recorded' do
+          expect do
+            described_class.build(MergeRequestDiffCommit, commit_attrs)
+          end.to raise_error(
+            MergeRequestDiffCommit::CouldNotCreateMetadataError,
+            /Failed to create commits metadata during import/
           )
         end
       end

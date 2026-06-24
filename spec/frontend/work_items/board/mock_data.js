@@ -128,6 +128,20 @@ export const buildBoardWorkItemsResponse = (nodes = [], pageInfo = {}) => ({
   },
 });
 
+export const buildBoardWorkItemsCountResponse = (count = 0) => ({
+  data: {
+    namespace: {
+      __typename: 'Group',
+      id: mockGroupId,
+      name: 'Test',
+      workItems: {
+        __typename: 'WorkItemConnection',
+        count,
+      },
+    },
+  },
+});
+
 export const buildNamespaceStatusesResponse = (statuses = []) => ({
   data: {
     namespace: {

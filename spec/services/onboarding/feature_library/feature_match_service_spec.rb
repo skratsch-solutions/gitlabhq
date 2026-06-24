@@ -21,7 +21,8 @@ RSpec.describe Onboarding::FeatureLibrary::FeatureMatchService, feature_category
         { 'term' => 'pipeline',         'feature_key' => 'pipelines',                 'panels' => ['project'] },
         { 'term' => 'analytics',        'feature_key' => 'cycle_analytics',           'panels' => ['project'] },
         { 'term' => 'pipeline analytics', 'feature_key' => 'ci_cd_analytics',         'panels' => ['project'] },
-        { 'term' => 'members', 'feature_key' => 'members', 'panels' => %w[project group] }
+        { 'term' => 'members',    'feature_key' => 'members', 'panels' => %w[project group] },
+        { 'term' => 'kubernetes', 'feature_key' => 'group_kubernetes_clusters', 'panels' => ['group'] }
       ].freeze
     )
   end
@@ -162,6 +163,92 @@ RSpec.describe Onboarding::FeatureLibrary::FeatureMatchService, feature_category
 
       it 'returns an empty array' do
         expect(result).to eq([])
+      end
+    end
+
+    describe 'Tier 2 keyword extraction' do
+      context 'with a project panel' do
+        let(:panel) { 'project' }
+
+        context 'when a sentence contains a known term (Tier 1 misses, Tier 2 extracts)' do
+          let(:query) { 'how do i create a ticket' }
+
+          it 'resolves via the extracted token' do
+            expect(result).to eq(%w[project_issue_list])
+          end
+        end
+
+        context 'when a token prefixes a multi-word term (returns all related features)' do
+          let(:query) { 'issue pipeline' }
+
+          it 'returns all matched feature ids' do
+            expect(result).to match_array(%w[project_issue_list pipelines ci_cd_analytics])
+          end
+        end
+
+        context 'when the sentence contains only stopwords' do
+          let(:query) { 'how do i the' }
+
+          it 'returns an empty array' do
+            expect(result).to eq([])
+          end
+        end
+
+        context 'when Tier 1 matches, Tier 2 is not invoked' do
+          let(:query) { 'pr' }
+
+          it 'returns the Tier 1 result without additional Tier 2 token results' do
+            expect(result).to match_array(%w[project_merge_request_list boards])
+          end
+        end
+
+        context 'when a sentence token resolves to a project-only feature' do
+          let(:query) { 'how do i set up a pipeline' }
+
+          it 'returns all pipeline-related feature ids' do
+            expect(result).to match_array(%w[pipelines ci_cd_analytics])
+          end
+        end
+      end
+
+      context 'with a group panel' do
+        let(:panel) { 'group' }
+
+        context 'when a sentence contains a known term' do
+          let(:query) { 'how do i create a ticket' }
+
+          it 'returns the group-panel id' do
+            expect(result).to eq(%w[group_issue_list])
+          end
+        end
+
+        context 'when a sentence token resolves to a project-only feature' do
+          let(:query) { 'how do i set up a pipeline' }
+
+          it 'returns an empty array (pipelines has no group entry)' do
+            expect(result).to eq([])
+          end
+        end
+      end
+    end
+
+    describe 'Tier 2 breadth query regression' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:query, :panel, :expected_ids) do
+        'how do i raise an issue'    | 'project' | %w[project_issue_list]
+        'where are my pull requests' | 'project' | %w[project_merge_request_list]
+        'where are my pull requests' | 'group'   | %w[group_merge_request_list]
+        'how do i see team members'  | 'project' | %w[members]
+        'how do i see team members'  | 'group'   | %w[members]
+        'how do i manage kubernetes' | 'group'   | %w[group_kubernetes_clusters]
+      end
+
+      with_them do
+        it "resolves to include the expected feature ids", :aggregate_failures do
+          result = described_class.new(query: query, panel: panel).execute
+          expected_ids.each { |id| expect(result).to include(id) }
+        end
       end
     end
   end

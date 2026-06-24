@@ -6,8 +6,9 @@ import DraggableCompat from '~/lib/utils/vue3compat/draggable_compat.vue';
 import { defaultSortableOptions, DRAG_DELAY } from '~/sortable/constants';
 import WorkItemChildrenLoadMore from '~/work_items/components/shared/work_item_children_load_more.vue';
 import { DEFAULT_PAGE_SIZE_BOARD_COLUMN_SUBSEQUENT } from '~/work_items/constants';
+import getWorkItemsCountOnlyQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_count_only.query.graphql';
 
-import { boardColumnQuery, boardColumnQueryVariables } from '../utils';
+import { boardColumnQuery, boardColumnQueryVariables, boardColumnCountVariables } from '../utils';
 import { BOARD_DND_GROUP, BOARD_CARD_CLASS } from '../constants';
 import ColumnHeader from './column_header.vue';
 import WorkItemCard from './work_item_card.vue';
@@ -65,6 +66,7 @@ export default {
   data() {
     return {
       workItemsConnection: { nodes: [], pageInfo: {} },
+      totalCount: 0,
       error: null,
       loadMoreError: false,
       fetchNextPageInProgress: false,
@@ -96,6 +98,14 @@ export default {
         value: this.value,
       });
     },
+    countQueryVariables() {
+      return boardColumnCountVariables({
+        rootPageFullPath: this.rootPageFullPath,
+        baseQueryVariables: this.baseQueryVariables,
+        groupProperty: this.groupProperty,
+        value: this.value,
+      });
+    },
   },
   apollo: {
     workItemsConnection() {
@@ -120,6 +130,20 @@ export default {
             return;
           }
           this.error = this.$options.i18n.fetchError;
+          Sentry.captureException(error);
+        },
+      };
+    },
+    totalCount() {
+      return {
+        query: getWorkItemsCountOnlyQuery,
+        variables() {
+          return this.countQueryVariables;
+        },
+        update(data) {
+          return data?.namespace?.workItems?.count ?? 0;
+        },
+        error(error) {
           Sentry.captureException(error);
         },
       };
@@ -177,7 +201,7 @@ export default {
   <div
     class="gl-flex gl-h-full gl-w-48 gl-shrink-0 gl-flex-col gl-rounded-lg gl-bg-strong dark:gl-bg-subtle"
   >
-    <column-header :value="value" :group-property="groupProperty" :count="workItems.length" />
+    <column-header :value="value" :group-property="groupProperty" :count="totalCount" />
     <div class="gl-flex gl-min-h-0 gl-flex-1 gl-flex-col gl-overflow-y-auto gl-px-3 gl-pb-3">
       <p
         v-if="error"

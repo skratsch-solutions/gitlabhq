@@ -6,6 +6,7 @@ import waitForPromises from 'helpers/wait_for_promises';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import getBoardWorkItemsQuery from 'ee_else_ce/work_items/board/graphql/get_board_work_items.query.graphql';
 import getWorkItemsRestQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_rest.query.graphql';
+import getWorkItemsCountOnlyQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_count_only.query.graphql';
 import DraggableCompat from '~/lib/utils/vue3compat/draggable_compat.vue';
 import ColumnGroup from '~/work_items/board/components/column_group.vue';
 import ColumnHeader from '~/work_items/board/components/column_header.vue';
@@ -17,7 +18,12 @@ import {
   addWorkItemToColumn,
   removeWorkItemFromColumn,
 } from '~/work_items/board/graphql/cache_updates';
-import { mockStatus, buildWorkItemNode, buildBoardWorkItemsResponse } from '../mock_data';
+import {
+  mockStatus,
+  buildWorkItemNode,
+  buildBoardWorkItemsResponse,
+  buildBoardWorkItemsCountResponse,
+} from '../mock_data';
 
 jest.mock('~/sentry/sentry_browser_wrapper');
 
@@ -29,6 +35,7 @@ describe('ColumnGroup', () => {
 
   const boardQueryHandler = jest.fn();
   const restQueryHandler = jest.fn();
+  const countQueryHandler = jest.fn();
 
   const findColumnHeader = () => wrapper.findComponent(ColumnHeader);
   const findSkeletons = () => wrapper.findAllComponents(WorkItemCardSkeleton);
@@ -48,6 +55,7 @@ describe('ColumnGroup', () => {
     apolloProvider = createMockApollo([
       [getBoardWorkItemsQuery, boardQueryHandler],
       [getWorkItemsRestQuery, restQueryHandler],
+      [getWorkItemsCountOnlyQuery, countQueryHandler],
     ]);
 
     wrapper = shallowMountExtended(ColumnGroup, {
@@ -68,16 +76,49 @@ describe('ColumnGroup', () => {
   beforeEach(() => {
     boardQueryHandler.mockResolvedValue(buildBoardWorkItemsResponse([buildWorkItemNode(1)]));
     restQueryHandler.mockResolvedValue(buildBoardWorkItemsResponse([buildWorkItemNode(1)]));
+    countQueryHandler.mockResolvedValue(buildBoardWorkItemsCountResponse(1));
   });
 
   describe('column header', () => {
-    it('passes the value, groupProperty, and item count to ColumnHeader', async () => {
+    it('passes the value and groupProperty to ColumnHeader', async () => {
       createComponent();
       await waitForPromises();
 
       expect(findColumnHeader().props('value')).toEqual(mockStatus);
       expect(findColumnHeader().props('groupProperty')).toBe('status');
-      expect(findColumnHeader().props('count')).toBe(1);
+    });
+
+    it('passes the total count from the count query, not the number of loaded items', async () => {
+      // A single page is loaded, but the column actually holds 57 matching items.
+      boardQueryHandler.mockResolvedValue(buildBoardWorkItemsResponse([buildWorkItemNode(1)]));
+      countQueryHandler.mockResolvedValue(buildBoardWorkItemsCountResponse(57));
+      createComponent();
+      await waitForPromises();
+
+      expect(findWorkItemCards()).toHaveLength(1);
+      expect(findColumnHeader().props('count')).toBe(57);
+    });
+
+    it('queries the count with the column query variables', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(countQueryHandler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fullPath: 'full/path',
+          ...baseQueryVariables,
+          status: { name: mockStatus.name },
+        }),
+      );
+    });
+
+    it('captures the error in Sentry when the count query fails', async () => {
+      const queryError = new Error('GraphQL failure');
+      countQueryHandler.mockRejectedValue(queryError);
+      createComponent();
+      await waitForPromises();
+
+      expect(Sentry.captureException).toHaveBeenCalledWith(queryError);
     });
   });
 
@@ -350,7 +391,6 @@ describe('ColumnGroup', () => {
       await waitForPromises();
 
       expect(findWorkItemCards()).toHaveLength(4);
-      expect(findColumnHeader().props('count')).toBe(4);
       expect(findLoadMore().exists()).toBe(false);
     });
 

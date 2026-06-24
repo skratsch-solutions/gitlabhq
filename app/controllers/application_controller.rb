@@ -30,6 +30,7 @@ class ApplicationController < BaseActionController
   include Gitlab::HttpRouter::RuleContext
   include Gitlab::HttpRouter::RuleMetrics
   include CookiesHelper
+  include EnforcesReadOnlyOrganization
 
   content_security_policy do |p|
     next if p.directives.blank?
@@ -45,6 +46,7 @@ class ApplicationController < BaseActionController
 
   before_action :authenticate_user!, except: [:route_not_found]
   before_action :set_current_organization
+  before_action :enforce_read_only_organization
   before_action :enforce_terms!, if: :should_enforce_terms?
   before_action :check_password_expiration, if: :html_request?
   before_action :ldap_security_check

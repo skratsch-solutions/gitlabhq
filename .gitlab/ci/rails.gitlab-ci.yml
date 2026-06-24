@@ -805,40 +805,38 @@ rspec:schedule-weekly-report-failures:
       fi
 
 # Reports PG PREVIOUS nightly pipeline status to #s_database_excellence_alerts (issue #592923)
+rspec:schedule-nightly-pg-previous-report-failure:
+  extends:
+    - .rails:rules:default-branch-schedule-nightly-pg-previous--code-backstage-ee-only
+  stage: .post
+  when: on_failure
+  script:
+    - scripts/slack s_database_excellence_alerts "❌ PG PREVIOUS nightly pipeline failed! See ${CI_PIPELINE_URL}" ci_failing "GitLab Bot"
+
 rspec:schedule-nightly-pg-previous-report-success:
   extends:
     - .rails:rules:default-branch-schedule-nightly-pg-previous--code-backstage-ee-only
-  stage: post-test
+  stage: .post
   when: on_success
   script:
     - scripts/slack s_database_excellence_alerts "✅ PG PREVIOUS nightly pipeline succeeded! See ${CI_PIPELINE_URL}" ci_passing "GitLab Bot"
 
-rspec:schedule-nightly-pg-previous-report-failures:
-  extends:
-    - .rails:rules:default-branch-schedule-nightly-pg-previous--code-backstage-ee-only
-  stage: post-test
-  when: on_failure
-  script:
-    - scripts/slack s_database_excellence_alerts "❌ PG PREVIOUS nightly pipeline failed! See ${CI_PIPELINE_URL}" ci_failing "GitLab Bot"
-    - exit 1
-
 # Reports PG NEXT nightly pipeline status to #s_database_excellence_alerts (issue #592923)
-rspec:schedule-nightly-pg-next-report-success:
+rspec:schedule-nightly-pg-next-report-failure:
   extends:
     - .rails:rules:default-branch-schedule-nightly-pg-next--code-backstage-ee-only
-  stage: post-test
-  when: on_success
-  script:
-    - scripts/slack s_database_excellence_alerts "✅ PG NEXT nightly pipeline succeeded! See ${CI_PIPELINE_URL}" ci_passing "GitLab Bot"
-
-rspec:schedule-nightly-pg-next-report-failures:
-  extends:
-    - .rails:rules:default-branch-schedule-nightly-pg-next--code-backstage-ee-only
-  stage: post-test
+  stage: .post
   when: on_failure
   script:
     - scripts/slack s_database_excellence_alerts "❌ PG NEXT nightly pipeline failed! See ${CI_PIPELINE_URL}" ci_failing "GitLab Bot"
-    - exit 1
+
+rspec:schedule-nightly-pg-next-report-success:
+  extends:
+    - .rails:rules:default-branch-schedule-nightly-pg-next--code-backstage-ee-only
+  stage: .post
+  when: on_success
+  script:
+    - scripts/slack s_database_excellence_alerts "✅ PG NEXT nightly pipeline succeeded! See ${CI_PIPELINE_URL}" ci_passing "GitLab Bot"
 
 rspec:flaky-tests-report:
   extends:

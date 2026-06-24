@@ -228,6 +228,26 @@ tags:
   description: Operations related to organizations.
 - name: Packages
   description: Operations related to packages.
+- name: 'Packages: Cargo'
+  description: 'Operations related to packages: cargo.'
+- name: 'Packages: Composer'
+  description: 'Operations related to packages: composer.'
+- name: 'Packages: Conan'
+  description: 'Operations related to packages: conan.'
+- name: 'Packages: Debian'
+  description: 'Operations related to packages: debian.'
+- name: 'Packages: Helm'
+  description: 'Operations related to packages: helm.'
+- name: 'Packages: NPM'
+  description: 'Operations related to packages: NPM.'
+- name: 'Packages: NuGet'
+  description: 'Operations related to packages: nuget.'
+- name: 'Packages: PyPi'
+  description: 'Operations related to packages: PyPi.'
+- name: 'Packages: RPM'
+  description: 'Operations related to packages: RPM.'
+- name: 'Packages: RubyGem'
+  description: 'Operations related to packages: RubyGem.'
 - name: Pipeline schedules
   description: Operations related to pipeline schedules.
 - name: Pipelines
@@ -264,8 +284,6 @@ tags:
   description: Operations related to provider identities.
 - name: Push rules
   description: Operations related to push rules.
-- name: PyPi packages
-  description: Operations related to PyPi packages.
 - name: Releases
   description: Operations related to releases.
 - name: Remote mirrors
@@ -27322,7 +27340,7 @@ paths:
       description: Downloads a RubyGems spec index file (specs.4.8.gz, latest_specs.4.8.gz,
         or prerelease_specs.4.8.gz) for a project.
       tags:
-      - Packages
+      - 'Packages: RubyGem'
       responses:
         '200':
           description: OK
@@ -27361,7 +27379,7 @@ paths:
       description: Downloads a gemspec file in Marshal format for a specified gem
         version.
       tags:
-      - Packages
+      - 'Packages: RubyGem'
       responses:
         '200':
           description: OK
@@ -27392,7 +27410,7 @@ paths:
       summary: Download a gem file
       description: Downloads a specified gem file for a project.
       tags:
-      - Packages
+      - 'Packages: RubyGem'
       responses:
         '200':
           description: OK
@@ -27423,7 +27441,7 @@ paths:
       summary: Authorize a gem upload from workhorse
       description: This feature was introduced in GitLab 13.9
       tags:
-      - Packages
+      - 'Packages: RubyGem'
       responses:
         '200':
           description: OK
@@ -27446,7 +27464,7 @@ paths:
       summary: Upload a gem
       description: Uploads a gem for a specified project.
       tags:
-      - Packages
+      - 'Packages: RubyGem'
       responses:
         '201':
           description: Created
@@ -27479,7 +27497,7 @@ paths:
         is a marshalled array of hashes for all versions of the requested gems. Because
         the response is marshalled, you can store it in a file.
       tags:
-      - Packages
+      - 'Packages: RubyGem'
       responses:
         '200':
           description: OK
@@ -27515,7 +27533,7 @@ paths:
       summary: Upload a RPM package
       description: This feature was introduced in GitLab 15.7
       tags:
-      - Packages
+      - 'Packages: RPM'
       responses:
         '201':
           description: Created
@@ -27542,7 +27560,7 @@ paths:
       summary: Authorize package upload from workhorse
       description: This feature was introduced in GitLab 15.7
       tags:
-      - Packages
+      - 'Packages: RPM'
       responses:
         '201':
           description: Created
@@ -29685,7 +29703,7 @@ paths:
       summary: List all packages for a group
       description: Lists all packages for a specified group in an HTML file.
       tags:
-      - Packages
+      - 'Packages: PyPi'
       responses:
         '200':
           description: OK
@@ -29710,7 +29728,7 @@ paths:
       summary: List all packages for a project
       description: Lists all packages for a specified project in an HTML file.
       tags:
-      - Packages
+      - 'Packages: PyPi'
       responses:
         '200':
           description: OK
@@ -29735,7 +29753,7 @@ paths:
       summary: Upload a package
       description: Uploads a PyPI package for a specified project.
       tags:
-      - Packages
+      - 'Packages: PyPi'
       responses:
         '201':
           description: Created
@@ -29770,7 +29788,7 @@ paths:
       summary: Authorize the PyPi package upload from workhorse
       description: This feature was introduced in GitLab 12.10
       tags:
-      - Packages
+      - 'Packages: PyPi'
       responses:
         '200':
           description: OK
@@ -34980,7 +34998,7 @@ paths:
       summary: Create a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '201':
           description: Created
@@ -35016,7 +35034,7 @@ paths:
       summary: Get a list of Debian Distributions
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -35151,7 +35169,7 @@ paths:
       summary: Get a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -35187,7 +35205,7 @@ paths:
       summary: Update a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -35231,7 +35249,7 @@ paths:
       summary: Delete a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '202':
           description: Accepted
@@ -35345,7 +35363,7 @@ paths:
       summary: Get a Debian Distribution Key
       description: This feature was introduced in 14.4
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -37148,7 +37166,7 @@ paths:
       summary: The NuGet V3 Feed Service Index
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37173,7 +37191,7 @@ paths:
       summary: The NuGet V2 Feed Service Index
       description: This feature was introduced in GitLab 16.2
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37193,7 +37211,7 @@ paths:
       summary: The NuGet V2 Feed Package Publish endpoint
       description: This feature was introduced in GitLab 16.2
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '201':
           description: Created
@@ -37226,7 +37244,7 @@ paths:
       summary: The NuGet V2 Feed Package $metadata endpoint
       description: This feature was introduced in GitLab 16.3
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37249,7 +37267,7 @@ paths:
       summary: The NuGet Search Service
       description: This feature was introduced in GitLab 12.8
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37312,7 +37330,7 @@ paths:
       summary: The NuGet V3 Feed Package Publish endpoint
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '201':
           description: Created
@@ -37345,7 +37363,7 @@ paths:
       summary: The NuGet Package Authorize endpoint
       description: This feature was introduced in GitLab 14.1
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37370,7 +37388,7 @@ paths:
       summary: The NuGet Symbol Package Publish endpoint
       description: This feature was introduced in GitLab 14.1
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '201':
           description: Created
@@ -37403,7 +37421,7 @@ paths:
       summary: The NuGet Symbol Package Authorize endpoint
       description: This feature was introduced in GitLab 14.1
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37428,7 +37446,7 @@ paths:
       summary: The NuGet V2 Feed Package Authorize endpoint
       description: This feature was introduced in GitLab 16.2
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37453,7 +37471,7 @@ paths:
       summary: The NuGet V2 Feed Find Packages by ID endpoint
       description: This feature was introduced in GitLab 16.4
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37485,7 +37503,7 @@ paths:
       summary: The NuGet V2 Feed Enumerate Packages endpoint
       description: This feature was introduced in GitLab 16.4
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37517,7 +37535,7 @@ paths:
       summary: The NuGet V3 Feed Service Index
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37542,7 +37560,7 @@ paths:
       summary: The NuGet V2 Feed Service Index
       description: This feature was introduced in GitLab 16.2
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37563,7 +37581,7 @@ paths:
       summary: The NuGet V2 Feed Package $metadata endpoint
       description: This feature was introduced in GitLab 16.3
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37586,7 +37604,7 @@ paths:
       summary: The NuGet Search Service
       description: This feature was introduced in GitLab 12.8
       tags:
-      - Packages
+      - 'Packages: NuGet'
       responses:
         '200':
           description: OK
@@ -37649,7 +37667,7 @@ paths:
       summary: NPM registry bulk advisory endpoint
       description: This feature was introduced in GitLab 15.6
       tags:
-      - Packages
+      - 'Packages: NPM'
       responses:
         '200':
           description: Ok
@@ -37676,7 +37694,7 @@ paths:
       summary: NPM registry quick audit endpoint
       description: This feature was introduced in GitLab 15.6
       tags:
-      - Packages
+      - 'Packages: NPM'
       responses:
         '200':
           description: Ok
@@ -37704,7 +37722,7 @@ paths:
       description: Creates or deprecates an NPM package for a specified project. Deprecate
         support was added in GitLab 16.0.
       tags:
-      - Packages
+      - 'Packages: NPM'
       responses:
         '200':
           description: OK
@@ -37743,7 +37761,7 @@ paths:
       summary: NPM registry bulk advisory endpoint
       description: This feature was introduced in GitLab 15.6
       tags:
-      - Packages
+      - 'Packages: NPM'
       responses:
         '200':
           description: Ok
@@ -37761,7 +37779,7 @@ paths:
       summary: NPM registry quick audit endpoint
       description: This feature was introduced in GitLab 15.6
       tags:
-      - Packages
+      - 'Packages: NPM'
       responses:
         '200':
           description: Ok
@@ -37779,7 +37797,7 @@ paths:
       summary: NPM registry bulk advisory endpoint
       description: This feature was introduced in GitLab 15.6
       tags:
-      - Packages
+      - 'Packages: NPM'
       responses:
         '200':
           description: Ok
@@ -37806,7 +37824,7 @@ paths:
       summary: NPM registry quick audit endpoint
       description: This feature was introduced in GitLab 15.6
       tags:
-      - Packages
+      - 'Packages: NPM'
       responses:
         '200':
           description: Ok
@@ -52883,7 +52901,7 @@ paths:
       summary: Download a chart index
       description: This feature was introduced in GitLab 14.0
       tags:
-      - Packages
+      - 'Packages: Helm'
       responses:
         '200':
           description: OK
@@ -52914,7 +52932,7 @@ paths:
       summary: Download a chart
       description: This feature was introduced in GitLab 14.0
       tags:
-      - Packages
+      - 'Packages: Helm'
       responses:
         '200':
           description: OK
@@ -52954,7 +52972,7 @@ paths:
       summary: Authorize a chart upload from workhorse
       description: This feature was introduced in GitLab 14.0
       tags:
-      - Packages
+      - 'Packages: Helm'
       responses:
         '200':
           description: OK
@@ -52987,7 +53005,7 @@ paths:
       summary: Upload a chart
       description: This feature was introduced in GitLab 14.0
       tags:
-      - Packages
+      - 'Packages: Helm'
       responses:
         '201':
           description: Created
@@ -53647,7 +53665,7 @@ paths:
       summary: Create a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '201':
           description: Created
@@ -53683,7 +53701,7 @@ paths:
       summary: Get a list of Debian Distributions
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -53818,7 +53836,7 @@ paths:
       summary: Get a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -53854,7 +53872,7 @@ paths:
       summary: Update a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -53898,7 +53916,7 @@ paths:
       summary: Delete a Debian Distribution
       description: This feature was introduced in 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '202':
           description: Accepted
@@ -54012,7 +54030,7 @@ paths:
       summary: Get a Debian Distribution Key
       description: This feature was introduced in 14.4
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -57928,7 +57946,7 @@ paths:
       summary: Download Debian package
       description: This feature was introduced in GitLab 14.2
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -57997,7 +58015,7 @@ paths:
       summary: Download Debian package
       description: This feature was introduced in GitLab 14.2
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -58060,7 +58078,7 @@ paths:
       summary: Upload Debian package
       description: This feature was introduced in GitLab 14.0
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '201':
           description: Created
@@ -58101,7 +58119,7 @@ paths:
       summary: Authorize Debian package upload
       description: This feature was introduced in GitLab 13.5
       tags:
-      - Packages
+      - 'Packages: Debian'
       responses:
         '200':
           description: OK
@@ -58248,7 +58266,7 @@ paths:
       summary: Authenticate user against conan CLI
       description: This feature was introduced in GitLab 12.2
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58271,7 +58289,7 @@ paths:
       summary: Check for valid user credentials per conan CLI
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58294,7 +58312,7 @@ paths:
       summary: Search for packages
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58333,7 +58351,7 @@ paths:
       summary: Get package references metadata
       description: This feature was introduced in GitLab 18.0
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58388,7 +58406,7 @@ paths:
       summary: Get the latest recipe revision
       description: This feature was introduced in GitLab 17.11
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58447,7 +58465,7 @@ paths:
       summary: Get the list of revisions
       description: This feature was introduced in GitLab 17.11
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58506,7 +58524,7 @@ paths:
       summary: Delete recipe revision
       description: This feature was introduced in GitLab 18.1
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58568,7 +58586,7 @@ paths:
       summary: List recipe files
       description: This feature was introduced in GitLab 17.11
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58634,7 +58652,7 @@ paths:
       summary: Download recipe files
       description: This feature was introduced in GitLab 17.8
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58710,7 +58728,7 @@ paths:
       summary: Upload recipe package files
       description: This feature was introduced in GitLab 17.10
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58793,7 +58811,7 @@ paths:
       summary: Workhorse authorize the conan recipe file
       description: This feature was introduced in GitLab 17.10
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58870,7 +58888,7 @@ paths:
       summary: Get package references metadata
       description: This feature was introduced in GitLab 18.1
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -58932,7 +58950,7 @@ paths:
       summary: Get the latest package revision
       description: This feature was introduced in GitLab 17.11
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59005,7 +59023,7 @@ paths:
       summary: Get the list of package revisions
       description: This feature was introduced in GitLab 18.0
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59078,7 +59096,7 @@ paths:
       summary: Delete package revision
       description: This feature was introduced in GitLab 18.1
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59154,7 +59172,7 @@ paths:
       summary: List package files
       description: This feature was introduced in GitLab 18.0
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59234,7 +59252,7 @@ paths:
       summary: Download package files
       description: This feature was introduced in GitLab 17.11
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59324,7 +59342,7 @@ paths:
       summary: Upload package files
       description: This feature was introduced in GitLab 17.11
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59421,7 +59439,7 @@ paths:
       summary: Workhorse authorize the conan package file
       description: This feature was introduced in GitLab 17.11
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59512,7 +59530,7 @@ paths:
       summary: Authenticate user against conan CLI
       description: This feature was introduced in GitLab 12.2
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59535,7 +59553,7 @@ paths:
       summary: Check for valid user credentials per conan CLI
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59558,7 +59576,7 @@ paths:
       summary: Search for packages
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59597,7 +59615,7 @@ paths:
       summary: Get package references metadata
       description: This feature was introduced in GitLab 18.0
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59652,7 +59670,7 @@ paths:
       summary: Ping the Conan API
       description: This feature was introduced in GitLab 12.2
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59673,7 +59691,7 @@ paths:
       summary: Package Snapshot
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59737,7 +59755,7 @@ paths:
       summary: Recipe Snapshot
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59793,7 +59811,7 @@ paths:
       summary: Delete Package
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59846,7 +59864,7 @@ paths:
       summary: Package Digest
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59910,7 +59928,7 @@ paths:
       summary: Recipe Digest
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -59967,7 +59985,7 @@ paths:
       summary: Package Download Urls
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60031,7 +60049,7 @@ paths:
       summary: Recipe Download Urls
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60088,7 +60106,7 @@ paths:
       summary: Package Upload Urls
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60152,7 +60170,7 @@ paths:
       summary: Recipe Upload Urls
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60209,7 +60227,7 @@ paths:
       summary: Download recipe files
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60283,7 +60301,7 @@ paths:
       summary: Upload recipe package files
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60366,7 +60384,7 @@ paths:
       summary: Workhorse authorize the conan recipe file
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60443,7 +60461,7 @@ paths:
       summary: Download package files
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60529,7 +60547,7 @@ paths:
       summary: Upload package files
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60626,7 +60644,7 @@ paths:
       summary: Workhorse authorize the conan package file
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60717,7 +60735,7 @@ paths:
       summary: Authenticate user against conan CLI
       description: This feature was introduced in GitLab 12.2
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60731,7 +60749,7 @@ paths:
       summary: Check for valid user credentials per conan CLI
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60745,7 +60763,7 @@ paths:
       summary: Search for packages
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60776,7 +60794,7 @@ paths:
       summary: Get package references metadata
       description: This feature was introduced in GitLab 18.0
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60823,7 +60841,7 @@ paths:
       summary: Ping the Conan API
       description: This feature was introduced in GitLab 12.2
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60835,7 +60853,7 @@ paths:
       summary: Package Snapshot
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60891,7 +60909,7 @@ paths:
       summary: Recipe Snapshot
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60939,7 +60957,7 @@ paths:
       summary: Delete Package
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -60984,7 +61002,7 @@ paths:
       summary: Package Digest
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61040,7 +61058,7 @@ paths:
       summary: Recipe Digest
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61089,7 +61107,7 @@ paths:
       summary: Package Download Urls
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61145,7 +61163,7 @@ paths:
       summary: Recipe Download Urls
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61194,7 +61212,7 @@ paths:
       summary: Package Upload Urls
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61250,7 +61268,7 @@ paths:
       summary: Recipe Upload Urls
       description: This feature was introduced in GitLab 12.4
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61299,7 +61317,7 @@ paths:
       summary: Download recipe files
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61365,7 +61383,7 @@ paths:
       summary: Upload recipe package files
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61440,7 +61458,7 @@ paths:
       summary: Workhorse authorize the conan recipe file
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61509,7 +61527,7 @@ paths:
       summary: Download package files
       description: This feature was introduced in GitLab 12.5
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61587,7 +61605,7 @@ paths:
       summary: Upload package files
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61676,7 +61694,7 @@ paths:
       summary: Workhorse authorize the conan package file
       description: This feature was introduced in GitLab 12.6
       tags:
-      - Packages
+      - 'Packages: Conan'
       responses:
         '200':
           description: OK
@@ -61759,7 +61777,7 @@ paths:
       summary: Composer packages endpoint at group level
       description: This feature was introduced in GitLab 13.1
       tags:
-      - Packages
+      - 'Packages: Composer'
       responses:
         '200':
           description: OK
@@ -61782,7 +61800,7 @@ paths:
       summary: Composer packages endpoint at group level for packages list
       description: This feature was introduced in GitLab 13.1
       tags:
-      - Packages
+      - 'Packages: Composer'
       responses:
         '200':
           description: OK
@@ -61812,7 +61830,7 @@ paths:
       summary: Composer packages endpoint for registering packages
       description: This feature was introduced in GitLab 13.1
       tags:
-      - Packages
+      - 'Packages: Composer'
       responses:
         '201':
           description: Created
@@ -62632,7 +62650,7 @@ paths:
       summary: Get config.json
       description: This will be used by cargo for further requests
       tags:
-      - Packages
+      - 'Packages: Cargo'
       responses:
         '200':
           description: OK
@@ -62657,7 +62675,7 @@ paths:
         most recently published first. Limited to the 500 most recently published
         versions.
       tags:
-      - Packages
+      - 'Packages: Cargo'
       responses:
         '200':
           description: OK
@@ -62692,7 +62710,7 @@ paths:
         most recently published first. Limited to the 500 most recently published
         versions.
       tags:
-      - Packages
+      - 'Packages: Cargo'
       responses:
         '200':
           description: OK
@@ -62727,7 +62745,7 @@ paths:
         most recently published first. Limited to the 500 most recently published
         versions.
       tags:
-      - Packages
+      - 'Packages: Cargo'
       responses:
         '200':
           description: OK
@@ -62768,7 +62786,7 @@ paths:
         most recently published first. Limited to the 500 most recently published
         versions.
       tags:
-      - Packages
+      - 'Packages: Cargo'
       responses:
         '200':
           description: OK
@@ -62814,7 +62832,7 @@ paths:
       description: This endpoint serves the .crate file for a given package name and
         version
       tags:
-      - Packages
+      - 'Packages: Cargo'
       responses:
         '200':
           description: OK

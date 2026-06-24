@@ -776,10 +776,7 @@ class MergeRequestDiff < ApplicationRecord
   def read_new_commits_table?
     return false unless merge_request&.target_project
 
-    target_project = merge_request.target_project
-
-    Feature.enabled?(:mr_diff_commits_read_new_table, target_project) &&
-      Feature.enabled?(:merge_request_diff_commits_partition, target_project)
+    Feature.enabled?(:mr_diff_commits_read_new_table, merge_request.target_project)
   end
   strong_memoize_attr :read_new_commits_table?
 

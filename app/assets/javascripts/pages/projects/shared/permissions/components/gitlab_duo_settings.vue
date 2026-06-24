@@ -10,6 +10,7 @@ import {
   duoHelpPath,
   ALL_SETTINGS,
   DUO_SAST_VR_WORKFLOW_ENABLED,
+  DUO_SAST_FP_DETECTION_ENABLED,
 } from '../constants';
 import ProjectSettingRow from './project_setting_row.vue';
 import ExclusionSettings from './exclusion_settings.vue';
@@ -228,6 +229,7 @@ export default {
   },
   duoFlowHelpPath,
   DUO_SAST_VR_WORKFLOW_ENABLED,
+  DUO_SAST_FP_DETECTION_ENABLED,
   i18n: {
     saveChanges: __('Save changes'),
     saveChangesAriaLabel: __('Save changes for GitLab Duo'),
@@ -419,7 +421,9 @@ export default {
           />
         </project-setting-row>
         <project-setting-row
-          v-if="ultimateFeaturesAvailable && showAllSettings"
+          v-if="
+            ultimateFeaturesAvailable && isSettingVisible($options.DUO_SAST_FP_DETECTION_ENABLED)
+          "
           :label="s__('DuoSAST|Turn on SAST false positive detection')"
           class="gl-mt-5"
           :help-text="

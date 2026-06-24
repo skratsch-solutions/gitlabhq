@@ -6,10 +6,17 @@ import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { RELATIVE_POSITION_ASC } from '~/work_items/list/constants';
 
 import getBoardNamespaceStatusesQuery from 'ee_else_ce/work_items/board/graphql/get_namespace_statuses.query.graphql';
+import getWorkItemsCountOnlyQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_count_only.query.graphql';
 import updateBoardWorkItemMutation from './graphql/update_board_work_item.mutation.graphql';
-import { boardColumnQuery, boardColumnQueryVariables, getMovePositionIds } from './utils';
+import {
+  boardColumnQuery,
+  boardColumnQueryVariables,
+  getMovePositionIds,
+  boardColumnCountVariables,
+} from './utils';
 import {
   addWorkItemToColumn,
+  adjustWorkItemCountInColumn,
   readWorkItemFromColumn,
   readWorkItemsFromColumn,
   removeWorkItemFromColumn,
@@ -83,6 +90,14 @@ export default {
     },
     columnVariables(value) {
       return boardColumnQueryVariables({
+        rootPageFullPath: this.rootPageFullPath,
+        baseQueryVariables: this.queryVariables,
+        groupProperty: this.groupBy.property,
+        value,
+      });
+    },
+    columnCountVariables(value) {
+      return boardColumnCountVariables({
         rootPageFullPath: this.rootPageFullPath,
         baseQueryVariables: this.queryVariables,
         groupProperty: this.groupBy.property,
@@ -175,6 +190,21 @@ export default {
               index: newIndex,
               // Only patch the status badge on a cross-column move; a reorder keeps it.
               status: statusChanged ? toValue : null,
+            });
+
+            // The header counts live in their own count-only query cache, so keep them
+            // in step with the connection updates above (rolled back on a failed move).
+            adjustWorkItemCountInColumn({
+              cache: store,
+              query: getWorkItemsCountOnlyQuery,
+              variables: this.columnCountVariables(fromValue),
+              delta: -1,
+            });
+            adjustWorkItemCountInColumn({
+              cache: store,
+              query: getWorkItemsCountOnlyQuery,
+              variables: this.columnCountVariables(toValue),
+              delta: 1,
             });
           },
         });

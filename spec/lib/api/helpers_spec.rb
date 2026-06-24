@@ -146,6 +146,11 @@ RSpec.describe API::Helpers, feature_category: :api do
     let_it_be_with_reload(:project) { create(:project, :public) }
     let_it_be(:user) { create(:user) }
 
+    before do
+      allow(helper).to receive(:request)
+        .and_return(instance_double(Rack::Request, request_method: 'GET', get?: true))
+    end
+
     shared_examples 'private project without access' do
       before do
         project.update_column(:visibility_level, Gitlab::VisibilityLevel.level_value('private'))
@@ -661,6 +666,11 @@ RSpec.describe API::Helpers, feature_category: :api do
     let_it_be_with_reload(:group) { create(:group, :public) }
     let_it_be(:user) { create(:user) }
 
+    before do
+      allow(helper).to receive(:request)
+        .and_return(instance_double(Rack::Request, request_method: 'GET', get?: true))
+    end
+
     shared_examples 'private group without access' do
       before do
         group.update_column(:visibility_level, Gitlab::VisibilityLevel.level_value('private'))
@@ -764,6 +774,8 @@ RSpec.describe API::Helpers, feature_category: :api do
       allow(helper).to receive(:current_user).and_return(group.first_owner)
       allow(helper).to receive(:job_token_authentication?).and_return(false)
       allow(helper).to receive(:authenticate_non_public?).and_return(false)
+      allow(helper).to receive(:request)
+        .and_return(instance_double(Rack::Request, request_method: 'GET', get?: true))
     end
 
     subject { helper.find_group!(group.id, organization: organization) }

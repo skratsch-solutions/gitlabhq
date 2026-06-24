@@ -56,13 +56,16 @@ class ApplicationSetting < ApplicationRecord
   enum :whats_new_variant, { all_tiers: 0, current_tier: 1, disabled: 2 }, prefix: true
   enum :email_confirmation_setting, { off: 0, soft: 1, hard: 2 }, prefix: true
 
-  # We won't add a prefix here as this token is deprecated and being
-  # disabled in 17.0
+  # disabled in 17.0. While still usable, we are not prefixing it
+  # to avoid breaking changes during the deprecation period.
   # https://docs.gitlab.com/ee/ci/runners/new_creation_workflow.html
-  add_authentication_token_field :runners_registration_token, encrypted: :required
-  add_authentication_token_field :health_check_access_token, insecure: true # rubocop:todo -- https://gitlab.com/gitlab-org/gitlab/-/issues/376751
-  add_authentication_token_field :static_objects_external_storage_auth_token, encrypted: :required # rubocop:todo -- https://gitlab.com/gitlab-org/gitlab/-/issues/439292
-  add_authentication_token_field :error_tracking_access_token, encrypted: :required # rubocop:todo -- https://gitlab.com/gitlab-org/gitlab/-/issues/439292
+  add_authentication_token_field :runners_registration_token, encrypted: :required # rubocop:disable Gitlab/TokenWithoutPrefix -- Legacy token being disabled in 17.0
+
+  # These tokens are kept without prefixes for backward compatibility.
+  # We are tracking the prefixing/migration in the issues below.
+  add_authentication_token_field :health_check_access_token, insecure: true # rubocop:disable Gitlab/TokenWithoutPrefix -- https://gitlab.com/gitlab-org/gitlab/-/issues/376751
+  add_authentication_token_field :static_objects_external_storage_auth_token, encrypted: :required # rubocop:disable Gitlab/TokenWithoutPrefix -- https://gitlab.com/gitlab-org/gitlab/-/issues/439292
+  add_authentication_token_field :error_tracking_access_token, encrypted: :required # rubocop:disable Gitlab/TokenWithoutPrefix -- https://gitlab.com/gitlab-org/gitlab/-/issues/439292
 
   belongs_to :push_rule
   belongs_to :web_ide_oauth_application, class_name: 'Authn::OauthApplication'

@@ -257,6 +257,11 @@ InitializerConnections.warn_if_database_connection do
         # Used by third parties to verify CI_JOB_JWT
         get 'jwks' => 'jwks#index'
 
+        # Dedicated JWKS for the Cloud Connector keys (EE-only).
+        Gitlab.ee do
+          draw :cloud_connector
+        end
+
         draw :snippets
         draw_all :profile
         draw_all :user_settings

@@ -46,7 +46,7 @@ module API
             { code: 403, message: 'Forbidden' },
             { code: 404, message: 'Not Found' }
           ]
-          tags %w[packages]
+          tags %w[packages_debian]
         end
 
         route_setting :authorization, permissions: :download_debian_package, boundary_type: :group

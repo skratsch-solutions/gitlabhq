@@ -26,6 +26,7 @@ class GraphqlController < ApplicationController
     Gitlab::Auth::TooManyIps => { status: :forbidden },
     RateLimitedService::RateLimitedError => { status: :too_many_requests },
     Gitlab::Git::ResourceExhaustedError => { status: :service_unavailable },
+    Gitlab::Graphql::Errors::OrganizationReadOnlyError => { status: :service_unavailable },
     ActiveRecord::QueryAborted => { status: :service_unavailable },
     ActiveRecord::QueryCanceled => {
       status: :service_unavailable,
@@ -44,6 +45,11 @@ class GraphqlController < ApplicationController
     current_user.nil? || sessionless_user? || !any_mutating_query?
   }
   skip_before_action :check_two_factor_requirement, if: -> { sessionless_user? }
+  # GraphQL handles read-only enforcement per-operation in
+  # #disallow_mutations_for_organization_read_only: all GraphQL traffic is POST,
+  # so the generic write-method check from EnforcesReadOnlyOrganization would
+  # block read queries too.
+  skip_before_action :enforce_read_only_organization
 
   # Header can be passed by tests to disable SQL query limits.
   DISABLE_SQL_QUERY_LIMIT_HEADER = 'HTTP_X_GITLAB_DISABLE_SQL_QUERY_LIMIT'
@@ -91,6 +97,7 @@ class GraphqlController < ApplicationController
   before_action :enforce_language_server_restrictions
 
   before_action :disallow_mutations_for_get
+  before_action :disallow_mutations_for_organization_read_only
 
   # Since we deactivate authentication from the main ApplicationController and
   # defer it to :authorize_access_api!, we need to override the bypass session
@@ -206,6 +213,17 @@ class GraphqlController < ApplicationController
     return unless any_mutating_query?
 
     raise ::Gitlab::Graphql::Errors::ArgumentError, "Mutations are forbidden in #{request.request_method} requests"
+  end
+
+  def disallow_mutations_for_organization_read_only
+    return unless any_mutating_query?
+
+    organization = ::Current.organization
+    return unless organization&.read_only?
+    return unless Feature.enabled?(:organization_read_only_enforcement, organization)
+
+    raise ::Gitlab::Graphql::Errors::OrganizationReadOnlyError,
+      "Mutations are forbidden because the organization is in read-only mode"
   end
 
   def limit_query_size

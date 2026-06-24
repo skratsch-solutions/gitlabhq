@@ -34,6 +34,20 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
   let(:updated_markdown) { '`Bar`' }
   let(:updated_html) { '<p dir="auto"><code>Bar</code></p>' }
 
+  let(:rollout_flag) { :"markdown_cache_stochastic_rollout_#{Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION}" }
+
+  # Build a persisted row with a chosen cached_markdown_version without
+  # going through the before_create callback, which would overwrite it
+  # based on the current roll of the rollout flag.
+  def persisted_row_at_version(version)
+    row = klass.create!(
+      project_id: project.id, namespace_id: project.project_namespace_id,
+      title: markdown, title_html: html
+    )
+    row.update_columns(cached_markdown_version: version)
+    row.reload
+  end
+
   before do
     stub_commonmark_sourcepos_disabled
   end
@@ -258,10 +272,11 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
       thing.update_column(:cached_markdown_version, thing.cached_markdown_version + 1)
     end
 
-    it 'does not save the generated HTML' do
-      expect(thing).not_to receive(:update_columns)
-
+    it 'does not regress the cached_markdown_version' do
       thing.refresh_markdown_cache!
+      thing.reload
+
+      expect(thing.cached_markdown_version).to eq((Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION << 16) + 1)
     end
   end
 
@@ -274,6 +289,142 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
       expect(thing).to receive(:update_columns)
 
       thing.refresh_markdown_cache!
+    end
+  end
+
+  describe 'stochastic version rollout' do
+    let(:previous_cache_version) { (Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION - 1) << 16 }
+
+    # Simulate a rollout in progress by setting CACHE_COMMONMARK_VERSION_PREVIOUS_SHIFTED
+    # to the version we're rolling from.
+    before do
+      stub_const(
+        'Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION_PREVIOUS_SHIFTED',
+        previous_cache_version
+      )
+      stub_feature_flags(rollout_flag => false)
+    end
+
+    context 'when the rollout flag is disabled' do
+      it 'treats rows at the previous shifted version as up-to-date' do
+        row = persisted_row_at_version(previous_cache_version)
+
+        expect(row.cached_html_up_to_date?(:title)).to be(true)
+      end
+
+      it 'persists newly written rows at the current shifted version regardless of the roll' do
+        row = klass.new(project_id: project.id, namespace_id: project.project_namespace_id, title: markdown)
+        row.save!
+
+        expect(row.cached_markdown_version).to eq(cache_version)
+      end
+
+      it 'upgrades a row at the previous version through a content edit (writes go to current)' do
+        row = persisted_row_at_version(previous_cache_version)
+
+        row.update!(title: updated_markdown)
+        row.reload
+
+        expect(row.cached_markdown_version).to eq(cache_version)
+        expect(row.title_html).to eq(updated_html)
+      end
+
+      it 'does not rewrite rows at the current shifted version backwards via save_markdown' do
+        row = persisted_row_at_version(cache_version)
+
+        row.refresh_markdown_cache!
+        row.reload
+
+        expect(row.cached_markdown_version).to eq(cache_version)
+      end
+
+      it 'does not regress rows at the current shifted version on a normal save (before_update path)' do
+        row = persisted_row_at_version(cache_version)
+
+        row.update!(updated_at: Time.current + 1.second)
+        row.reload
+
+        expect(row.cached_markdown_version).to eq(cache_version)
+      end
+    end
+
+    context 'when the rollout flag is at 100%' do
+      before do
+        stub_feature_flags(rollout_flag => true)
+      end
+
+      it 'considers rows at the previous shifted version stale' do
+        row = persisted_row_at_version(previous_cache_version)
+
+        expect(row.cached_html_up_to_date?(:title)).to be(false)
+      end
+
+      it 'rewrites a stale row to the current shifted version on a render_field read' do
+        row = persisted_row_at_version(previous_cache_version)
+
+        Banzai::Renderer.render_field(row, :title)
+        row.reload
+
+        expect(row.cached_markdown_version).to eq(cache_version)
+      end
+
+      it 'persists newly written rows at the current shifted version' do
+        row = klass.new(project_id: project.id, namespace_id: project.project_namespace_id, title: markdown)
+        row.save!
+
+        expect(row.cached_markdown_version).to eq(cache_version)
+      end
+
+      it 'increments the version_upgrade_counter when rewriting a stale row' do
+        row = persisted_row_at_version(previous_cache_version)
+        counter = instance_double(Prometheus::Client::Counter, increment: nil)
+        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+
+        Banzai::Renderer.render_field(row, :title)
+
+        expect(counter).to have_received(:increment).with(class: row.class.name)
+      end
+    end
+
+    context 'counter is not incremented when the version is not advancing' do
+      it 'does not increment for a row already at the current version under a "previous" roll' do
+        row = persisted_row_at_version(cache_version)
+        counter = instance_double(Prometheus::Client::Counter, increment: nil)
+        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+
+        Banzai::Renderer.render_field(row, :title)
+
+        expect(counter).not_to have_received(:increment)
+      end
+
+      it 'does not increment for a same-version resync write' do
+        row = persisted_row_at_version(cache_version)
+        counter = instance_double(Prometheus::Client::Counter, increment: nil)
+        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+
+        row.refresh_markdown_cache!
+
+        expect(counter).not_to have_received(:increment)
+      end
+    end
+  end
+
+  describe 'steady state (no rollout in progress)' do
+    let(:older_version) { (Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION - 1) << 16 }
+
+    it 'treats older versions as stale' do
+      row = persisted_row_at_version(older_version)
+
+      expect(row.cached_html_up_to_date?(:title)).to be(false)
+    end
+
+    it 'rewrites older versions to the current shifted version on a render_field read' do
+      row = persisted_row_at_version(older_version)
+
+      Banzai::Renderer.render_field(row, :title)
+      row.reload
+
+      expect(row.cached_markdown_version).to eq(cache_version)
     end
   end
 end

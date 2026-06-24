@@ -19,6 +19,17 @@ module Organizations
     # Persisted in OrganizationDetail#state_metadata as `read_only_reason`.
     READ_ONLY_REASONS = %w[migration isolation incident billing legal].freeze
 
+    # Reasons that are expected to resolve on their own within a bounded time.
+    # Enforcement layers return a retryable response (503 + Retry-After) for
+    # these, and a non-retryable response (403) for the remaining indefinite
+    # reasons.
+    #
+    # This classification is an implementation decision: ADR 010 (Organization
+    # Read-Only Mode) lists the reasons but does not say which are time-bounded.
+    # The error matrix that defines the mapping is the source of truth:
+    # https://gitlab.com/gitlab-org/gitlab/-/work_items/602825.
+    TIME_BOUNDED_READ_ONLY_REASONS = %w[migration incident].freeze
+
     # Non-active states from which read-only mode cannot be entered. An
     # organization must be active first; the state machine enforces this via the
     # `active -> read_only_initialization` transition.
@@ -114,6 +125,10 @@ module Organizations
       # cleanly in a follow-up MR (https://gitlab.com/gitlab-org/gitlab/-/issues/602810).
       def read_only?
         READ_ONLY_STATES.include?(state_name)
+      end
+
+      def read_only_time_bounded?
+        TIME_BOUNDED_READ_ONLY_REASONS.include?(read_only_reason)
       end
 
       private
