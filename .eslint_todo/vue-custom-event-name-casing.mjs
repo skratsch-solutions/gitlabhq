@@ -122,7 +122,6 @@ export default {
     'app/assets/javascripts/repository/components/header_area/blob_controls.vue',
     'app/assets/javascripts/repository/components/header_area/blob_delete_file_group.vue',
     'app/assets/javascripts/repository/components/header_area/blob_overflow_menu.vue',
-    'app/assets/javascripts/repository/components/table/index.vue',
     'app/assets/javascripts/search/results/components/blob_footer.vue',
     'app/assets/javascripts/sidebar/components/assignees/assignees_realtime.vue',
     'app/assets/javascripts/sidebar/components/confidential/sidebar_confidentiality_content.vue',

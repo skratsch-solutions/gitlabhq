@@ -286,6 +286,8 @@ RSpec.describe 'Group', :with_current_organization, feature_category: :groups_an
         click_button 'foo'
         find('li[role="option"]', text: 'foo2').click
 
+        wait_for_requests
+
         expect(page).not_to have_selector('li[role="option"]', text: 'foo3')
 
         # Selecting a parent group re-validates the subgroup path asynchronously

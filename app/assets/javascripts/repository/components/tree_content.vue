@@ -206,7 +206,7 @@ export default {
       :loading-path="loadingPath"
       :has-more="hasShowMore"
       :commits="commits"
-      @showMore="handleShowMore"
+      @show-more="handleShowMore"
       @row-appear="handleRowAppear"
     />
     <file-preview v-if="readme" :blob="readme" />

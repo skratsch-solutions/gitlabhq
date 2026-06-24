@@ -50,7 +50,7 @@ export default {
       required: true,
     },
   },
-  emits: ['showMore'],
+  emits: ['show-more'],
   apollo: {
     projectPath: {
       query: projectPathQuery,
@@ -134,7 +134,7 @@ export default {
       // This allows the browser to paint the button interaction immediately
       // before processing the new entries. See: https://web.dev/articles/optimize-inp
       setTimeout(() => {
-        this.$emit('showMore');
+        this.$emit('show-more');
         this.isProcessingShowMore = false;
       }, 0);
     },

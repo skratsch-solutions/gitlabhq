@@ -104,7 +104,6 @@ export default {
     'app/assets/javascripts/repository/components/header_area.vue',
     'app/assets/javascripts/repository/components/header_area/blob_controls.vue',
     'app/assets/javascripts/repository/components/header_area/blob_overflow_menu.vue',
-    'app/assets/javascripts/repository/components/tree_content.vue',
     'app/assets/javascripts/repository/file_tree_browser/components/tree_list.vue',
     'app/assets/javascripts/sidebar/components/assignees/sidebar_assignees_widget.vue',
     'app/assets/javascripts/sidebar/components/confidential/sidebar_confidentiality_widget.vue',
