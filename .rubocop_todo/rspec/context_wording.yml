@@ -945,7 +945,6 @@ RSpec/ContextWording:
     - 'spec/features/projects/ci/lint_spec.rb'
     - 'spec/features/projects/clusters_spec.rb'
     - 'spec/features/projects/commit/comments/user_adds_comment_spec.rb'
-    - 'spec/features/projects/commits/multi_view_diff_spec.rb'
     - 'spec/features/projects/commits/user_browses_commits_spec.rb'
     - 'spec/features/projects/deploy_keys_spec.rb'
     - 'spec/features/projects/environments/environments_spec.rb'

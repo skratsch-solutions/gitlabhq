@@ -40,6 +40,18 @@ The layer passes the actor straight through to the feature flag library, like a 
 Pass a consistent actor type at every call site for an organization flag, because the shared stage flags bucket by actor type for percentage rollouts.
 See [How the stage flags are operated](#how-the-stage-flags-are-operated).
 
+### Expose a flag to the frontend
+
+To gate frontend code, push the organization flag from a controller, the way you push a feature flag with `push_frontend_feature_flag`:
+
+```ruby
+push_frontend_organization_release(:ui_for_organizations, actor)
+```
+
+The helper resolves the organization flag through the layer and pushes the result under the organization flag's own name.
+Frontend code reads `gon.features.uiForOrganizations` and stays decoupled from the backing stage flag.
+Advancing the feature to another stage needs no frontend change.
+
 ## Register your organization flag
 
 Declare the organization flag in `config/organizations_release.yml`:

@@ -1,0 +1,9 @@
+---
+name: ci_rules_regexp
+description: Support regexp matching in rules:changes and rules:exists
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/issues/198688
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236982
+milestone: '19.2'
+group: group::pipeline authoring
+type: gitlab_com_derisk
+default_enabled: false

@@ -237,7 +237,6 @@ RSpec.describe 'Accessibility: Writing Code', :js, feature_category: :source_cod
     let_it_be(:commit) { project.repository.commit }
 
     before_all do
-      stub_feature_flags(rapid_diffs_on_commit_show: true)
       create(:ci_pipeline, project: project, sha: commit.sha, ref: 'master')
     end
 

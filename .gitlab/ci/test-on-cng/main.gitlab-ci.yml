@@ -152,6 +152,13 @@ cng-instance:
     - .cng-test-parallel
     - .with-coverband-arg
 
+cng-instance-ff-inverse:
+  extends: cng-instance
+  variables:
+    QA_FEATURE_FLAGS: $FEATURE_FLAGS
+  rules:
+    - !reference [.rules:test:feature-flags-set, rules]
+
 cng-registry:
   extends:
     - .cng-test

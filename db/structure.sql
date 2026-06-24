@@ -18164,6 +18164,8 @@ CREATE TABLE ci_project_metrics (
     project_id bigint NOT NULL,
     first_pipeline_succeeded_at timestamp with time zone,
     ci_config_generated_by text,
+    ci_config_first_generated_at timestamp with time zone,
+    first_ai_pipeline_results_viewed_at timestamp with time zone,
     CONSTRAINT check_f4517ae3a7 CHECK ((char_length(ci_config_generated_by) <= 255))
 );
 
@@ -29225,6 +29227,7 @@ CREATE TABLE project_security_settings (
     cvs_for_container_scanning_enabled boolean DEFAULT true NOT NULL,
     cvs_for_dependency_scanning_enabled boolean DEFAULT true NOT NULL,
     license_scanning_for_cyclonedx_enabled boolean DEFAULT true NOT NULL,
+    fast_dependency_paths_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_20a23efdb6 CHECK ((secret_push_protection_enabled IS NOT NULL))
 );
 

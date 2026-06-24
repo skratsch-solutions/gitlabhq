@@ -91,13 +91,6 @@ gdk-instance:
   variables:
     QA_SCENARIO: Test::Instance::All
 
-gdk-instance-ff-inverse:
-  extends: gdk-instance
-  variables:
-    QA_FEATURE_FLAGS: $FEATURE_FLAGS
-  rules:
-    - !reference [.rules:test:feature-flags-set, rules]
-
 gdk-instance-gitaly-transactions:
   extends: gdk-instance
   variables:

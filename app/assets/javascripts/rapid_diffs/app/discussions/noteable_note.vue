@@ -37,6 +37,11 @@ export default {
       type: Object,
     },
   },
+  provide() {
+    return {
+      reportAbusePath: this.endpoints.reportAbuse,
+    };
+  },
   props: {
     note: {
       type: Object,

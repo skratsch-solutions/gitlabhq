@@ -3646,6 +3646,15 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
+  describe '#committer_emails_from_diff' do
+    it 'routes the query to a replica to keep it off the primary' do
+      expect(::Gitlab::Database::LoadBalancing::SessionMap)
+        .to receive(:use_replica_if_available).and_yield
+
+      subject.send(:committer_emails_from_diff)
+    end
+  end
+
   describe 'committer filtering equivalence with committers()' do
     let_it_be(:project) { create(:project) }
     let_it_be(:committer_user) { create(:user) }

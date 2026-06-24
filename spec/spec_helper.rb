@@ -310,9 +310,6 @@ RSpec.configure do |config|
       # Handle dynamic partitions creation
       stub_feature_flags(disallow_database_ddl_feature_flags: false)
 
-      # Opting out of Organizations is the exception.
-      stub_feature_flags(opt_out_organizations: false)
-
       # Enabled only when debugging
       stub_feature_flags(track_struct_event_logger: false)
 

@@ -22,13 +22,17 @@ module WorkItems
         response
       end
 
-      def linkable_issuables(work_items)
-        @linkable_issuables ||= work_items.select { |work_item| can_link_item?(work_item) }
+      override :linkable_issuables
+      def linkable_issuables
+        referenced_issuables.select { |work_item| can_link_item?(work_item) }
       end
+      strong_memoize_attr :linkable_issuables
 
+      override :previous_related_issuables
       def previous_related_issuables
-        @related_issues ||= issuable.linked_work_items(authorize: false).to_a
+        issuable.linked_work_items(authorize: false).to_a
       end
+      strong_memoize_attr :previous_related_issuables
 
       private
 

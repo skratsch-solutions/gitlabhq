@@ -3026,7 +3026,15 @@ class MergeRequest < ApplicationRecord
         Arel::Nodes::Union.new(committer_emails_via_metadata_query, committer_emails_via_direct_query)
       end
 
-    ApplicationRecord.connection.select_values(committer_emails_query.to_sql)
+    # This is a pure read used only for approval eligibility filtering, which
+    # can tolerate a few seconds of replication lag, and it is gated behind the
+    # approval_committer_emails_from_diff feature flag. We send it to a replica
+    # via select_all, which ConnectionProxy routes through the load balancer's
+    # read path; the previous select_values fell through to #method_missing and
+    # was treated as ambiguous, so it ran on the primary. The SQL is unchanged.
+    ::Gitlab::Database::LoadBalancing::SessionMap.use_replica_if_available do
+      ApplicationRecord.connection.select_all(committer_emails_query.to_sql).rows.flatten
+    end
   end
   strong_memoize_attr :committer_emails_from_diff
 

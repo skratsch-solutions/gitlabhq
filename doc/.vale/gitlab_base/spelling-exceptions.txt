@@ -554,6 +554,7 @@ Kibana
 kibibyte
 kibibytes
 Kinesis
+Kiro
 Klar
 Knative
 KPIs

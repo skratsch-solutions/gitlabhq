@@ -146,6 +146,21 @@ module Gitlab
       push_to_gon_attributes(:features, name, enabled)
     end
 
+    # Exposes the state of an Organizations release flag to the frontend code.
+    #
+    # Resolves the organization flag through the release layer, which maps it
+    # to its backing org_stage_* flag, then pushes the result under the
+    # organization flag's own name. Frontend code keys on the stable
+    # organization flag name and stays decoupled from the backing stage, the
+    # same way the backend call sites and the release spec helper do.
+    #
+    # flag - The organization flag name, e.g. `:ui_for_organizations`.
+    # actor - The actor to check the flag against; pass nil for the
+    #   instance-wide gate.
+    def push_frontend_organization_release(flag, actor)
+      push_force_frontend_feature_flag(flag, ::Organizations::Release.enabled?(flag, actor))
+    end
+
     def push_application_setting(key)
       return unless Gitlab::CurrentSettings.respond_to?(key)
 

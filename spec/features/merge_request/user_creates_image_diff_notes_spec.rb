@@ -9,67 +9,40 @@ RSpec.describe 'Merge request > User creates image diff notes', :js, feature_cat
   let(:user) { project.creator }
 
   before do
-    stub_feature_flags(rapid_diffs_on_commit_show: false)
     sign_in(user)
 
-    # Stub helper to return any blob file as image from public app folder.
-    # This is necessary to run this specs since we don't display repo images in capybara.
+    # Stub helper to return any blob file as an image from the public app folder, since we
+    # don't display repo images in capybara.
     allow_any_instance_of(DiffHelper).to receive(:diff_file_blob_raw_url).and_return('/apple-touch-icon.png')
     allow_any_instance_of(DiffHelper).to receive(:diff_file_old_blob_raw_url).and_return('/favicon.png')
   end
 
-  context 'create commit diff notes' do
-    commit_id = '2f63565e7aac07bcdadb654e253078b727143ec4'
+  context 'commit image diff notes' do
+    let(:path) { "files/images/6049019_460s.jpg" }
+    let(:commit) { project.commit('2f63565e7aac07bcdadb654e253078b727143ec4') }
 
-    describe 'create a new diff note' do
-      before do
-        visit project_commit_path(project, commit_id)
-        create_image_diff_note
-      end
+    let(:note1_position) { build(:image_diff_position, file: path, diff_refs: commit.diff_refs) }
+    let(:note2_position) { build(:image_diff_position, file: path, diff_refs: commit.diff_refs) }
 
-      it 'shows indicator and avatar badges, and allows collapsing/expanding the discussion notes' do
-        indicator = find('.js-image-badge')
-        badge = find('.image-diff-avatar-link .design-note-pin')
-
-        expect(indicator).to have_content('1')
-        expect(badge).to have_content('1')
-
-        find('.js-diff-notes-toggle').click
-
-        expect(page).not_to have_content('image diff test comment')
-
-        find('.js-diff-notes-toggle').click
-
-        expect(page).to have_content('image diff test comment')
-      end
+    let!(:note1) do
+      create(:diff_note_on_commit, commit_id: commit.id, project: project, position: note1_position, note: 'my note 1')
     end
 
-    describe 'render commit diff notes' do
-      let(:path) { "files/images/6049019_460s.jpg" }
-      let(:commit) { project.commit('2f63565e7aac07bcdadb654e253078b727143ec4') }
+    let!(:note2) do
+      create(:diff_note_on_commit, commit_id: commit.id, project: project, position: note2_position, note: 'my note 2')
+    end
 
-      let(:note1_position) do
-        build(:image_diff_position, file: path, diff_refs: commit.diff_refs)
-      end
+    before do
+      visit project_commit_path(project, commit.id)
+      wait_for_requests
+    end
 
-      let(:note2_position) do
-        build(:image_diff_position, file: path, diff_refs: commit.diff_refs)
-      end
-
-      let!(:note1) { create(:diff_note_on_commit, commit_id: commit.id, project: project, position: note1_position, note: 'my note 1') }
-      let!(:note2) { create(:diff_note_on_commit, commit_id: commit.id, project: project, position: note2_position, note: 'my note 2') }
-
-      before do
-        visit project_commit_path(project, commit.id)
-        wait_for_requests
-      end
-
-      it 'render diff indicators within the image diff frame, diff notes, and avatar badge numbers' do
-        expect(page).to have_css('.js-image-badge', count: 2)
-        expect(page).to have_css('.diff-content .note', count: 2)
-        expect(page).to have_css('.image-diff-avatar-link', text: 1)
-        expect(page).to have_css('.image-diff-avatar-link', text: 2)
-      end
+    # Creating image diff notes through the UI is exercised by the merge request contexts
+    # below; here we stub the notes and assert the Rapid Diffs image viewer renders them.
+    it 'renders the image diff notes', :aggregate_failures do
+      expect(page).to have_testid('noteable-note-container', count: 2)
+      expect(page).to have_content('my note 1')
+      expect(page).to have_content('my note 2')
     end
   end
 
@@ -233,40 +206,6 @@ RSpec.describe 'Merge request > User creates image diff notes', :js, feature_cat
     end
 
     describe 'swipe view', quarantine: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/issues/9345' do
-      before do
-        switch_to_swipe_view
-      end
-
-      it_behaves_like 'swipe view'
-    end
-  end
-
-  describe 'image view modes' do
-    before do
-      visit project_commit_path(project, '2f63565e7aac07bcdadb654e253078b727143ec4')
-    end
-
-    def switch_to_swipe_view
-      find('.view-modes-menu .swipe').click
-    end
-
-    def switch_to_onion_skin
-      find('.view-modes-menu .onion-skin').click
-    end
-
-    describe 'onion skin' do
-      before do
-        switch_to_onion_skin
-      end
-
-      it 'resizes image' do
-        expect(find('.onion-skin-frame')['style']).to match('width: 198px; height: 210px;')
-      end
-
-      it_behaves_like 'onion skin'
-    end
-
-    describe 'swipe view' do
       before do
         switch_to_swipe_view
       end

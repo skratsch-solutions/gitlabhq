@@ -111,22 +111,17 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :organizatio
   end
 
   describe '#ui_for_organizations_enabled?' do
-    where(:opt_out_organizations_enabled, :ui_for_organizations_enabled, :current_user_present, :expected_result) do
+    where(:ui_for_organizations_enabled, :current_user_present, :expected_result) do
       [
-        [true,  true,  true,  false],
-        [true,  true,  false, false],
-        [true,  false, true,  false],
-        [true,  false, false, false],
-        [false, true,  true,  true],
-        [false, true,  false, true],
-        [false, false, true,  false],
-        [false, false, false, false]
+        [true,  true,  true],
+        [true,  false, true],
+        [false, true,  false],
+        [false, false, false]
       ]
     end
 
     with_them do
       before do
-        stub_feature_flags(opt_out_organizations: opt_out_organizations_enabled)
         stub_feature_flags(ui_for_organizations: ui_for_organizations_enabled)
         allow(helper).to receive(:current_user).and_return(current_user_present ? user : nil)
       end

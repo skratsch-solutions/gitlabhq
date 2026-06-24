@@ -9,7 +9,7 @@ module Organizations
     end
 
     def ui_for_organizations_enabled?
-      Feature.disabled?(:opt_out_organizations, current_user) && Feature.enabled?(:ui_for_organizations, current_user)
+      Feature.enabled?(:ui_for_organizations, current_user)
     end
 
     def organization_show_app_data(organization)

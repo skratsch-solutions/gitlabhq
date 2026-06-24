@@ -62,15 +62,15 @@ module IssuableLinks
     end
 
     def render_no_permission_error?
-      readonly_issuables.present? && linkable_issuables(referenced_issuables).empty?
+      readonly_issuables.present? && linkable_issuables.empty?
     end
 
     def render_not_found_error?
-      linkable_issuables(referenced_issuables).empty?
+      linkable_issuables.empty?
     end
 
     def create_links
-      objects = linkable_issuables(referenced_issuables)
+      objects = linkable_issuables
       link_issuables(objects)
     end
 
@@ -148,7 +148,7 @@ module IssuableLinks
       SystemNoteService.relate_issuable(issuable_link.target, issuable_link.source, current_user)
     end
 
-    def linkable_issuables(objects)
+    def linkable_issuables
       raise NotImplementedError
     end
 

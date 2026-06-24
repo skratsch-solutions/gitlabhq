@@ -5369,6 +5369,64 @@ relative to `refs/heads/branch1` and the pipeline source is a merge request even
 
 ---
 
+##### `rules:changes:regexp`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236982) in GitLab 19.2 [with a flag](../../administration/feature_flags/_index.md) named `ci_rules_regexp`. Disabled by default. When disabled, a job with `regexp:` always runs.
+
+{{< /history >}}
+
+Use `rules:changes:regexp` to match changed file paths using a Ruby regular expression
+instead of glob patterns.
+
+`regexp:` and `paths:` are mutually exclusive. Use exactly one per `rules:changes` block.
+
+**Keyword type**: Job keyword. You can use it only as part of a job.
+
+**Supported values**:
+
+- A Ruby regular expression string. Maximum length is 255 characters.
+  The pattern is matched against each changed file path.
+  The rule is satisfied if at least one path matches.
+
+CI/CD variables [are supported](../variables/where_variables_can_be_used.md#gitlab-ciyml-file).
+Variables in the pattern are expanded before the pattern is matched. The 255-character limit
+also applies to the expanded pattern.
+
+**Example of `rules:changes:regexp`**:
+
+```yaml
+backend-tests:
+  script: rspec
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        regexp: '\A(?!docs/).*'
+```
+
+In this example, `backend-tests` runs when at least one changed file is outside the `docs/` directory.
+
+**Additional details**:
+
+- The pattern matches any part of the path unless you anchor it. To match the full path,
+  anchor the pattern with `\A` and `\z`.
+- Anchor patterns with `\A` and `\z` instead of `^` and `$`. Git allows newlines in file paths,
+  and `^` and `$` match at newline boundaries. A pattern like `^(?!docs/)` can match a crafted
+  path that contains a newline, such as a file under `docs/` followed by a newline and another path.
+- Unlike `rules:if`, which uses RE2, `rules:changes:regexp` uses [Ruby's native regular expression engine](https://docs.ruby-lang.org/en/3.3/Regexp.html).
+- Lookahead and lookbehind are supported.
+- To prevent ReDoS attacks, the pattern is bounded by two timeouts. Each single-path match
+  has a 50 ms timeout, and evaluation across all paths has a 2-second total budget.
+  If either timeout is exceeded, the pipeline fails with a configuration error.
+- If the expanded pattern is longer than 255 characters, the pipeline fails with a
+  configuration error.
+- For performance reasons, if more than 50,000 files changed, the rule evaluates to `true`
+  without running the pattern.
+- You can combine `regexp:` with `compare_to:` to control which ref to compare against.
+
+---
+
 #### `rules:exists`
 
 {{< history >}}
@@ -5513,6 +5571,63 @@ docker build:
 
 In this example, the `docker build` job is only included when the `Dockerfile` exists in
 the project `my-group/my-project` on the commit tagged with `v1.0.0`.
+
+---
+
+##### `rules:exists:regexp`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236982) in GitLab 19.2 [with a flag](../../administration/feature_flags/_index.md) named `ci_rules_regexp`. Disabled by default. When disabled, a job with `regexp:` always runs.
+
+{{< /history >}}
+
+Use `rules:exists:regexp` to match file paths in the repository using a Ruby regular expression
+instead of glob patterns.
+
+`regexp:` and `paths:` are mutually exclusive. Use exactly one per `rules:exists` block.
+
+**Keyword type**: Job keyword. You can use it as part of a job or an [`include`](#include).
+
+**Supported values**:
+
+- A Ruby regular expression string. Maximum length is 255 characters.
+  The pattern is matched against every file path in the repository.
+  The rule is satisfied if at least one path matches.
+
+CI/CD variables [are supported](../variables/where_variables_can_be_used.md#gitlab-ciyml-file).
+Variables in the pattern are expanded before the pattern is matched. The 255-character limit
+also applies to the expanded pattern.
+
+**Example of `rules:exists:regexp`**:
+
+```yaml
+run-if-go-files-exist:
+  script: go test ./...
+  rules:
+    - exists:
+        regexp: '\.go$'
+```
+
+In this example, the job runs if any `.go` file exists anywhere in the repository.
+
+**Additional details**:
+
+- The pattern matches any part of the path unless you anchor it. To match the full path,
+  anchor the pattern with `\A` and `\z`.
+- Anchor patterns with `\A` and `\z` instead of `^` and `$`. Git allows newlines in file paths,
+  and `^` and `$` match at newline boundaries. A pattern like `^(?!docs/)` can match a crafted
+  path that contains a newline, such as a file under `docs/` followed by a newline and another path.
+- Unlike `rules:if`, which uses RE2, `rules:exists:regexp` uses [Ruby's native regular expression engine](https://docs.ruby-lang.org/en/3.3/Regexp.html).
+- Lookahead and lookbehind are supported.
+- To prevent ReDoS attacks, the pattern is bounded by two timeouts. Each single-path match
+  has a 50 ms timeout, and evaluation across all paths has a 2-second total budget.
+  If either timeout is exceeded, the pipeline fails with a configuration error.
+- If the expanded pattern is longer than 255 characters, the pipeline fails with a
+  configuration error.
+- For performance reasons, if the repository contains more than 50,000 files, the rule
+  evaluates to `true` without running the pattern.
+- You can combine `regexp:` with `project:` and `ref:` to search in a different project.
 
 ---
 

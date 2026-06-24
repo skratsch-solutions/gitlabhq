@@ -189,7 +189,7 @@
     "lightningcss": "^1.30.0",
     "lodash-es": "^4.17.23",
     "lowlight": "^2.9.0",
-    "marked": "^12.0.0",
+    "marked": "^16.0.0",
     "marked-bidi": "^1.0.3",
     "mathjax": "3",
     "mermaid-v11": "npm:mermaid@11.13.0",

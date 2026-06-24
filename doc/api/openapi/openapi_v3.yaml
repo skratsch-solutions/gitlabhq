@@ -10381,9 +10381,9 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdSecuritySettings
-      summary: Update the `secret_push_protection_enabled` setting
-      description: Updates the `secret_push_protection_enabled` setting for a specified
-        project. You must have the Maintainer or Owner role for the project.
+      summary: Update project security settings
+      description: Updates project security settings for a specified project. You
+        must have the Maintainer or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -10407,7 +10407,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_177dd08c196c"
+              "$ref": "#/components/schemas/RequestBody_716d7a1ab91d"
   "/api/v4/projects/{id}/approval_rules":
     get:
       operationId: getApiV4ProjectsIdApprovalRules
@@ -93350,7 +93350,7 @@ components:
           nullable: true
       required:
       - secret_push_protection_enabled
-    RequestBody_177dd08c196c:
+    RequestBody_716d7a1ab91d:
       type: object
       properties:
         secret_push_protection_enabled:
@@ -93360,6 +93360,13 @@ components:
         pre_receive_secret_detection_enabled:
           type: boolean
           description: Enable/disable secret push protection
+          nullable: true
+        fast_dependency_paths_enabled:
+          type: boolean
+          description: Enable fast mode for dependency path graph builds. When enabled,
+            records one path per dependency instead of all possible paths, reducing
+            memory and processing time for large dependency graphs. Requires the dependency_paths
+            feature flag to be enabled.
           nullable: true
     RequestBody_af72b7508a93:
       type: object

@@ -468,8 +468,7 @@
 - spec/features/projects/labels/issues_sorted_by_priority_spec.rb
 - spec/features/projects/labels/update_prioritization_spec.rb
 - spec/features/projects/labels/user_views_labels_spec.rb
-- spec/features/projects/members/group_member_cannot_request_access_to_his_group_project_spec.rb
-- spec/features/projects/members/group_requester_cannot_request_access_to_project_spec.rb
+- spec/features/projects/members/access_control_spec.rb
 - spec/features/projects/members/manage_members_spec.rb
 - spec/features/projects/members/member_leaves_project_spec.rb
 - spec/features/projects/members/sorting_spec.rb

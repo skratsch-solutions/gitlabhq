@@ -2142,6 +2142,11 @@ scope enabled.
 POST /projects
 ```
 
+> [!note]
+> When you create a project with `package_registry_access_level` set to `disabled`, the package registry might remain enabled.
+> As a workaround, also set `packages_enabled` to `false` in the same request.
+> For more information, see [issue 572010](https://gitlab.com/gitlab-org/gitlab/-/work_items/572010).
+
 Supported general project attributes:
 
 | Attribute                                          | Type    | Required                       | Description |

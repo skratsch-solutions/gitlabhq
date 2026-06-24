@@ -142,6 +142,18 @@ module Gitlab
         end
 
         begin
+          # Re-check under the lock: another request may have rebuilt and released
+          # the lock just before we acquired it. (The redundant Gitaly call still
+          # happens upstream in #fetch; only the duplicate overwrite is avoided.)
+          smembers, exists, is_trusted = read_with_trust(key)
+
+          if exists && is_trusted
+            log_event(:rebuild_skipped, key, reason: 'cache already rebuilt')
+            # Return the trusted set, not our value: the winner reconciled it with
+            # the pending-event queue, so it is authoritative (like a cache_hit).
+            return smembers
+          end
+
           with do |redis|
             log_event(:rebuild_started, key, canonical_count: value.size)
 
@@ -204,15 +216,7 @@ module Gitlab
       end
 
       def fetch(key)
-        full_key = cache_key(key)
-
-        smembers, exists, is_trusted = with do |redis|
-          redis.multi do |multi|
-            multi.smembers(full_key)
-            multi.exists?(full_key) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
-            multi.exists?(trust_key(key)) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
-          end
-        end
+        smembers, exists, is_trusted = read_with_trust(key)
 
         if is_trusted
           log_event(:cache_hit, key, count: smembers.size)
@@ -414,6 +418,21 @@ module Gitlab
         ref_name = event[1..]
 
         [ref_name, deleted]
+      end
+
+      # Atomically read the set members, key existence, and trust flag in one
+      # round-trip.
+      # @return [Array(Array<String>, Boolean, Boolean)] [members, exists, trusted]
+      def read_with_trust(key)
+        full_key = cache_key(key)
+
+        with do |redis|
+          redis.multi do |multi|
+            multi.smembers(full_key)
+            multi.exists?(full_key) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
+            multi.exists?(trust_key(key)) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
+          end
+        end
       end
 
       def mark_trusted(key)

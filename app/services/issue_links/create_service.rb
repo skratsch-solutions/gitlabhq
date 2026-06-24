@@ -2,6 +2,7 @@
 
 module IssueLinks
   class CreateService < IssuableLinks::CreateService
+    extend ::Gitlab::Utils::Override
     include IncidentManagement::UsageData
     include Gitlab::Utils::StrongMemoize
 
@@ -10,16 +11,21 @@ module IssueLinks
       super
     end
 
-    def linkable_issuables(issues)
-      @linkable_issuables ||= issues.select { |issue| can?(current_user, :admin_issue_link, issue) }
+    override :linkable_issuables
+    def linkable_issuables
+      referenced_issuables.select { |issue| can?(current_user, :admin_issue_link, issue) }
     end
+    strong_memoize_attr :linkable_issuables
 
+    override :previous_related_issuables
     def previous_related_issuables
-      @related_issues ||= issuable.related_issues(authorize: false).to_a
+      issuable.related_issues(authorize: false).to_a
     end
+    strong_memoize_attr :previous_related_issuables
 
     private
 
+    override :readonly_issuables
     def readonly_issuables
       referenced_issuables.select { |issuable| issuable.readable_by?(current_user) }
     end

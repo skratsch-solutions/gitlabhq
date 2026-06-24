@@ -128,12 +128,21 @@ export default {
   },
   computed: {
     allUsers() {
-      const currentUser = this.alphabetizedUsers.find(({ id }) => id === this.currentUser?.id);
+      let usersToPin = [];
 
-      return unionBy([currentUser], this.alphabetizedUsers, 'id').map((user) => ({
+      // Pin the current user to the top of the list. Prefer the richer autocomplete
+      // entry when present, otherwise fall back to the current user object from the currentUserQuery.
+      if (this.currentUser) {
+        const currentUserInList = this.alphabetizedUsers.find(
+          ({ id }) => id === this.currentUser.id,
+        );
+        usersToPin = [currentUserInList ?? this.currentUser];
+      }
+
+      return unionBy(usersToPin, this.alphabetizedUsers, 'id').map((user) => ({
         ...user,
-        value: user?.id,
-        text: user?.name,
+        value: user.id,
+        text: user.name,
       }));
     },
     alphabetizedUsers() {

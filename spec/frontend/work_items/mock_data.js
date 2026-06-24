@@ -4225,6 +4225,30 @@ export const projectMembersAutocompleteResponseWithCurrentUser = {
   },
 };
 
+export const projectMembersAutocompleteResponseWithoutCurrentUser = {
+  data: {
+    namespace: {
+      id: 'gid://gitlab/Project/7',
+      __typename: 'Project',
+      users: [
+        {
+          __typename: 'AutocompletedUser',
+          id: 'gid://gitlab/User/5',
+          avatarUrl: '/avatar2',
+          name: 'rookie',
+          username: 'rookie',
+          webUrl: 'rookie',
+          webPath: '/rookie',
+          compositeIdentityEnforced: false,
+          status: {
+            availability: 'NOT_SET',
+          },
+        },
+      ],
+    },
+  },
+};
+
 export const projectMembersAutocompleteResponseWithNoMatchingUsers = {
   data: {
     namespace: {

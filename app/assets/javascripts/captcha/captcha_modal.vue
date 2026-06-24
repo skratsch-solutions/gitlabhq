@@ -71,7 +71,7 @@ export default {
   methods: {
     emitReceivedCaptchaResponse(captchaResponse) {
       if (this.showModal) this.$refs.modal.hide();
-      this.$emit('receivedCaptchaResponse', captchaResponse);
+      this.$emit('received-captcha-response', captchaResponse);
     },
     emitNullReceivedCaptchaResponse() {
       this.emitReceivedCaptchaResponse(null);

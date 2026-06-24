@@ -465,6 +465,110 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
       end
     end
 
+    context 'when the cache was already rebuilt while waiting for the lock' do
+      let(:cached_members) { %w[main develop] }
+
+      before do
+        Gitlab::Redis::RepositoryCache.with do |redis|
+          redis.sadd(cache.cache_key(:branch_names), cached_members)
+          redis.set(cache.trust_key(:branch_names), '1')
+        end
+      end
+
+      it 'skips the rebuild and logs the reason', :aggregate_failures do
+        allow(Gitlab::AppLogger).to receive(:info)
+        expect(Gitlab::AppLogger).to receive(:info).with(
+          hash_including(
+            message: 'rebuild_skipped',
+            rebuildable_cache: hash_including(
+              event: :rebuild_skipped,
+              reason: 'cache already rebuilt'
+            )
+          )
+        )
+        expect(Gitlab::AppLogger).not_to receive(:info).with(
+          hash_including(message: 'rebuild_started')
+        )
+        expect(Gitlab::AppLogger).not_to receive(:info).with(
+          hash_including(message: 'rebuild_completed')
+        )
+
+        cache.write(:branch_names, %w[overwrite-1 overwrite-2])
+      end
+
+      it 'returns the already-cached members instead of the new value' do
+        result = cache.write(:branch_names, %w[overwrite-1 overwrite-2])
+
+        expect(result).to contain_exactly('main', 'develop')
+      end
+
+      it 'does not overwrite the cache with the new value' do
+        cache.write(:branch_names, %w[overwrite-1 overwrite-2])
+
+        expect(cache.read(:branch_names)).to contain_exactly('main', 'develop')
+      end
+
+      it 'releases the rebuild lock afterwards' do
+        cache.write(:branch_names, %w[overwrite-1 overwrite-2])
+
+        expect(cache.rebuilding?(:branch_names)).to be false
+      end
+    end
+
+    context 'when the post-lock recheck raises' do
+      it 'releases the rebuild lock', :aggregate_failures do
+        allow(cache).to receive(:read_with_trust).and_raise(Redis::BaseError)
+
+        expect { cache.write(:branch_names, %w[a b]) }.to raise_error(Redis::BaseError)
+
+        expect(cache.rebuilding?(:branch_names)).to be false
+      end
+    end
+
+    context 'when the cache is absent or untrusted' do
+      it 'proceeds to rebuild and marks the cache trusted', :aggregate_failures do
+        expect(cache.trusted?(:branch_names)).to be false
+
+        result = cache.write(:branch_names, %w[main feature])
+
+        expect(result).to contain_exactly('main', 'feature')
+        expect(cache.read(:branch_names)).to contain_exactly('main', 'feature')
+        expect(cache.trusted?(:branch_names)).to be true
+      end
+    end
+
+    context 'when the set exists but is not trusted' do
+      before do
+        Gitlab::Redis::RepositoryCache.with do |redis|
+          redis.sadd(cache.cache_key(:branch_names), %w[old-1 old-2])
+        end
+      end
+
+      it 'rebuilds and overwrites the stale set', :aggregate_failures do
+        result = cache.write(:branch_names, %w[new-1 new-2])
+
+        expect(result).to contain_exactly('new-1', 'new-2')
+        expect(cache.read(:branch_names)).to contain_exactly('new-1', 'new-2')
+        expect(cache.trusted?(:branch_names)).to be true
+      end
+    end
+
+    context 'when the trust flag is set but the set was evicted' do
+      before do
+        Gitlab::Redis::RepositoryCache.with do |redis|
+          redis.set(cache.trust_key(:branch_names), '1')
+        end
+      end
+
+      it 'rebuilds rather than returning the missing set', :aggregate_failures do
+        result = cache.write(:branch_names, %w[new-1 new-2])
+
+        expect(result).to contain_exactly('new-1', 'new-2')
+        expect(cache.read(:branch_names)).to contain_exactly('new-1', 'new-2')
+        expect(cache.trusted?(:branch_names)).to be true
+      end
+    end
+
     context 'when another rebuild is in progress' do
       before do
         Gitlab::Redis::RepositoryCache.with do |redis|

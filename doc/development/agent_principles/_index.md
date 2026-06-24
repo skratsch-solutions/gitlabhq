@@ -116,6 +116,11 @@ distilled from source documentation.
 
 ### When to add a baseline rule
 
+> [!warning]
+> Adding baseline rules risks creating dual sources of truth, undermining the goal of distilling
+> principles from a single source of truth.
+> Treat them as temporary exceptions, not as the primary way to add instructions to agents.
+
 Add a baseline rule when:
 
 - The rule depends on tooling state that the documentation does not
