@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe ImpersonationAccessTokenSerializer, feature_category: :user_management do

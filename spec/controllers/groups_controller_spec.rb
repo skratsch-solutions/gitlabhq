@@ -1323,100 +1323,6 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
       sign_in(user)
     end
 
-    context 'with external authorization service enabled' do
-      before do
-        enable_external_authorization_service_check
-      end
-
-      describe 'GET #show' do
-        it 'is successful' do
-          get :show, params: { id: group.to_param }
-
-          expect(response).to have_gitlab_http_status(:ok)
-        end
-
-        it 'does not allow other formats' do
-          get :show, params: { id: group.to_param }, format: :atom
-
-          expect(response).to have_gitlab_http_status(:forbidden)
-        end
-      end
-
-      describe 'GET #edit' do
-        it 'is successful' do
-          get :edit, params: { id: group.to_param }
-
-          expect(response).to have_gitlab_http_status(:ok)
-        end
-      end
-
-      describe 'GET #new' do
-        it 'is successful' do
-          get :new
-
-          expect(response).to have_gitlab_http_status(:ok)
-        end
-      end
-
-      describe 'GET #index' do
-        it 'is successful' do
-          get :index
-
-          # Redirects to the dashboard
-          expect(response).to have_gitlab_http_status(:found)
-        end
-      end
-
-      describe 'POST #create' do
-        it 'creates a group' do
-          expect do
-            post :create, params: { group: { name: 'a name', path: 'a-name' } }
-          end.to change { Group.count }.by(1)
-        end
-      end
-
-      describe 'PUT #update' do
-        it 'updates a group' do
-          expect do
-            put :update, params: { id: group.to_param, group: { name: 'world' } }
-          end.to change { group.reload.name }
-        end
-
-        context "malicious group name" do
-          subject { put :update, params: { id: group.to_param, group: { name: "<script>alert('Attack!');</script>" } } }
-
-          it { is_expected.to render_template(:edit) }
-
-          it 'does not update name' do
-            expect { subject }.not_to change { group.reload.name }
-          end
-        end
-
-        context 'when default branch name is invalid' do
-          subject { put :update, params: { id: group.to_param, group: { default_branch_name: "***" } } }
-
-          it 'renders an error message' do
-            expect { subject }.not_to change { group.reload.name }
-            expect(flash[:alert]).to eq('Default branch name is invalid.')
-          end
-        end
-      end
-
-      describe 'DELETE #destroy' do
-        it 'deletes the group' do
-          delete :destroy, params: { id: group.to_param }
-
-          expect(response).to have_gitlab_http_status(:found)
-        end
-      end
-    end
-
-    describe 'GET #activity' do
-      subject { get :activity, params: { id: group.to_param } }
-
-      it_behaves_like 'disabled when using an external authorization service'
-    end
-
     describe "GET #activity as JSON" do
       include DesignManagementTestHelpers
 
@@ -1443,18 +1349,6 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
 
         expect(json_response['count']).to eq(3)
       end
-    end
-
-    describe 'GET #issues' do
-      subject { get :issues, params: { id: group.to_param } }
-
-      it_behaves_like 'disabled when using an external authorization service'
-    end
-
-    describe 'GET #merge_requests' do
-      subject { get :merge_requests, params: { id: group.to_param } }
-
-      it_behaves_like 'disabled when using an external authorization service'
     end
   end
 

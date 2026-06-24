@@ -910,4 +910,123 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       end
     end
   end
+
+  describe 'external authorization' do
+    include ExternalAuthorizationServiceHelpers
+
+    let_it_be(:group, freeze: false) { create(:group, :public) }
+    let_it_be(:user) { create(:user, owner_of: group) }
+
+    before do
+      sign_in(user)
+    end
+
+    context 'with the external authorization service enabled' do
+      before do
+        enable_external_authorization_service_check
+      end
+
+      describe 'GET #show' do
+        it 'is successful' do
+          get group_path(group)
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+
+        it 'does not allow other formats' do
+          get group_path(group, format: :atom)
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+        end
+      end
+
+      describe 'GET #edit' do
+        it 'is successful' do
+          get edit_group_path(group)
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
+      describe 'GET #new' do
+        it 'is successful' do
+          get new_group_path
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
+      describe 'GET #index' do
+        it 'redirects to the dashboard' do
+          get groups_path
+
+          expect(response).to have_gitlab_http_status(:found)
+        end
+      end
+
+      describe 'POST #create' do
+        it 'creates a group' do
+          expect do
+            post groups_path, params: { group: { name: 'a name', path: 'a-name' } }
+          end.to change { Group.count }.by(1)
+        end
+      end
+
+      describe 'PUT #update' do
+        it 'updates a group' do
+          expect do
+            put group_path(group), params: { group: { name: 'world' } }
+          end.to change { group.reload.name }
+        end
+
+        context 'with a malicious group name' do
+          subject(:update_group) do
+            put group_path(group), params: { group: { name: "<script>alert('Attack!');</script>" } }
+          end
+
+          it 'renders the edit page and does not update the name', :aggregate_failures do
+            expect { update_group }.not_to change { group.reload.name }
+            expect(response).to have_gitlab_http_status(:ok)
+          end
+        end
+
+        context 'when the default branch name is invalid' do
+          subject(:update_group) do
+            put group_path(group), params: { group: { default_branch_name: '***' } }
+          end
+
+          it 'renders an error message', :aggregate_failures do
+            expect { update_group }.not_to change { group.reload.name }
+            expect(flash[:alert]).to eq('Default branch name is invalid.')
+          end
+        end
+      end
+
+      describe 'DELETE #destroy' do
+        it 'deletes the group' do
+          delete group_path(group)
+
+          expect(response).to have_gitlab_http_status(:found)
+        end
+      end
+    end
+
+    describe 'GET #activity' do
+      subject(:make_request) { get activity_group_path(group) }
+
+      it_behaves_like 'disabled when using an external authorization service'
+    end
+
+    describe 'GET #issues' do
+      subject(:make_request) { get issues_group_path(group) }
+
+      it_behaves_like 'disabled when using an external authorization service'
+    end
+
+    describe 'GET #merge_requests' do
+      subject(:make_request) { get merge_requests_group_path(group) }
+
+      it_behaves_like 'disabled when using an external authorization service'
+    end
+  end
 end

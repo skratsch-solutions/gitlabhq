@@ -7,6 +7,7 @@ import timeagoMixin from '~/vue_shared/mixins/timeago';
 import noteQuery from '../queries/note.query.graphql';
 
 export default {
+  name: 'CommentPopover',
   safeHtmlConfig: { ADD_TAGS: ['gl-emoji'] },
   components: {
     GlAvatar,

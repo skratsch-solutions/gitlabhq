@@ -8,6 +8,7 @@ import timeagoMixin from '~/vue_shared/mixins/timeago';
 import query from '../queries/merge_request.query.graphql';
 
 export default {
+  name: 'MrPopover',
   components: {
     GlIcon,
     GlBadge,

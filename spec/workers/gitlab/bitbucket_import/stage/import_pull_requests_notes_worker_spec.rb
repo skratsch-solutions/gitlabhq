@@ -26,9 +26,17 @@ RSpec.describe Gitlab::BitbucketImport::Stage::ImportPullRequestsNotesWorker, fe
 
       it 'logs stage start and finish' do
         expect(Gitlab::BitbucketImport::Logger)
-          .to receive(:info).with(hash_including(message: 'starting stage', project_id: project.id))
+          .to receive(:info).with(hash_including(
+            message: 'starting stage',
+            project_id: project.id,
+            Labkit::Fields::GL_ORGANIZATION_ID => project.organization_id
+          ))
         expect(Gitlab::BitbucketImport::Logger)
-          .to receive(:info).with(hash_including(message: 'stage finished', project_id: project.id))
+          .to receive(:info).with(hash_including(
+            message: 'stage finished',
+            project_id: project.id,
+            Labkit::Fields::GL_ORGANIZATION_ID => project.organization_id
+          ))
 
         worker.perform(project.id)
       end

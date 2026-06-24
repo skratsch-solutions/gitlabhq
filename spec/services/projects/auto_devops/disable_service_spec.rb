@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Projects::AutoDevops::DisableService, '#execute', feature_category: :auto_devops do

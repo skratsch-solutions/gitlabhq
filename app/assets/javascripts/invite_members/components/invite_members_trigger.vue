@@ -10,6 +10,7 @@ import {
 } from '../constants';
 
 export default {
+  name: 'InviteMembersTrigger',
   components: { GlButton, GlLink, GlDropdownItem, GlDisclosureDropdownItem },
   props: {
     displayText: {

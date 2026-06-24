@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # rubocop:disable RSpec/VerifiedDoubles
 
 require 'fast_spec_helper'

@@ -17,6 +17,7 @@ import IssueAssignees from './issue_assignees.vue';
 import IssueMilestone from './issue_milestone.vue';
 
 export default {
+  name: 'RelatedIssuableItem',
   components: {
     IssueMilestone,
     IssueAssignees,

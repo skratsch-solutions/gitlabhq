@@ -39,6 +39,7 @@ const DEFAULT_SLOTS = [
 ];
 
 export default {
+  name: 'InviteModalBase',
   components: {
     RoleSelector,
     GlFormGroup,

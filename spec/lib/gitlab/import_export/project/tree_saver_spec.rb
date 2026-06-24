@@ -468,6 +468,7 @@ RSpec.describe Gitlab::ImportExport::Project::TreeSaver, :with_license, feature_
     let(:info_params) do
       {
         'error.class': error_class,
+        Labkit::Fields::GL_ORGANIZATION_ID => project.organization_id,
         project_name: project.name,
         project_id: project.id
       }

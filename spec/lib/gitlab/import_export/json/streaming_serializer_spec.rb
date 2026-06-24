@@ -86,6 +86,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
             exception_message: 'Error!',
             exception_class: 'StandardError',
             relation: :issues,
+            Labkit::Fields::GL_ORGANIZATION_ID => exportable.organization_id,
             project_id: exportable.id,
             project_name: exportable.name,
             project_path: exportable.full_path,
@@ -109,6 +110,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
               exception_message: 'PG::QueryCanceled: statement timeout',
               exception_class: 'ActiveRecord::QueryCanceled',
               relation: :issues,
+              Labkit::Fields::GL_ORGANIZATION_ID => exportable.organization_id,
               project_id: exportable.id,
               project_name: exportable.name,
               project_path: exportable.full_path,
@@ -129,6 +131,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           message: "Exporting relation: issues",
           number_of_records: 16,
           relation: 'issues',
+          Labkit::Fields::GL_ORGANIZATION_ID => exportable.organization_id,
           project_id: exportable.id,
           project_name: exportable.name,
           project_path: exportable.full_path
@@ -260,6 +263,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           importer: 'Import/Export',
           message: 'Exporting relation: namespace',
           relation: 'namespace',
+          Labkit::Fields::GL_ORGANIZATION_ID => exportable.organization_id,
           project_id: exportable.id,
           project_name: exportable.name,
           project_path: exportable.full_path
@@ -338,6 +342,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           message: 'Exporting relation: project_members',
           relation: 'project_members',
           number_of_records: 1,
+          Labkit::Fields::GL_ORGANIZATION_ID => exportable.organization_id,
           project_id: exportable.id,
           project_name: exportable.name,
           project_path: exportable.full_path

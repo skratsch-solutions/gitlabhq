@@ -3,6 +3,7 @@ import { GlLink, GlSprintf, GlIcon } from '@gitlab/ui';
 import { joinPaths } from '~/lib/utils/url_utility';
 
 export default {
+  name: 'ImportSourceCell',
   components: {
     GlLink,
     GlSprintf,

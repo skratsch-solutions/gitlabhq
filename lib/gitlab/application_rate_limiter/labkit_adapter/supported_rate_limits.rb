@@ -131,6 +131,12 @@ module Gitlab
               characteristics: %i[user ip],
               action: :block
             },
+            feature_library_search: {
+              limiter_name: 'applimiter_feature_library_search',
+              rule_name: 'limit_feature_library_searches_by_user',
+              characteristics: %i[user],
+              action: :block
+            },
             fetch_google_ip_list: {
               limiter_name: 'applimiter_fetch_google_ip_list',
               rule_name: 'limit_google_ip_list_fetches_by_scope',

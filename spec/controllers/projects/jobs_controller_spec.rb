@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, feature_category: :continuous_integration, factory_default: :keep do

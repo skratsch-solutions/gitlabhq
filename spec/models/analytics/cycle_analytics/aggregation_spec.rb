@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Analytics::CycleAnalytics::Aggregation, type: :model, feature_category: :value_stream_management do

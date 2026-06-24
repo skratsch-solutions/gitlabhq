@@ -716,7 +716,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     it { expect(first_diff.reload).not_to be_latest }
   end
 
-  shared_examples_for 'merge request diffs' do
+  shared_examples_for 'merge request diffs' do |reuse_diff_fixture = false|
     let(:merge_request) { create(:merge_request) }
 
     context 'when it was not cleaned by the system' do
@@ -770,6 +770,8 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     end
 
     describe '#diffs_in_batch' do
+      let_it_be_with_reload(:diff_with_commits) { create(:merge_request).merge_request_diff } if reuse_diff_fixture
+
       let(:diff_options) { {} }
 
       shared_examples_for 'measuring diffs metrics' do
@@ -900,6 +902,8 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     end
 
     describe '#paginated_diffs' do
+      let_it_be_with_reload(:diff_with_commits) { create(:merge_request).merge_request_diff } if reuse_diff_fixture
+
       shared_examples 'diffs with generated files check' do
         it 'checks generated files' do
           diffs = diff_with_commits.paginated_diffs(1, 10)
@@ -956,6 +960,8 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     end
 
     describe '#diffs_for_streaming' do
+      let_it_be_with_reload(:diff_with_commits) { create(:merge_request).merge_request_diff } if reuse_diff_fixture
+
       shared_examples 'diffs with generated files check' do
         it 'checks generated files' do
           diffs = diff_with_commits.diffs_for_streaming(offset_index: 0)
@@ -1015,6 +1021,8 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     end
 
     describe '#diffs_for_streaming_by_changed_paths' do
+      let_it_be_with_reload(:diff_with_commits) { create(:merge_request).merge_request_diff } if reuse_diff_fixture
+
       let(:diff_refs) { diff_with_commits.diff_refs }
       let(:expected_block) { proc {} }
       let(:repository) { diff_with_commits.project.repository }
@@ -1041,6 +1049,8 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
     end
 
     describe '#diffs' do
+      let_it_be_with_reload(:diff_with_commits) { create(:merge_request).merge_request_diff } if reuse_diff_fixture
+
       let(:diff_options) { {} }
 
       shared_examples_for 'fetching full diffs' do
@@ -1510,7 +1520,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe 'internal diffs configured' do
-    include_examples 'merge request diffs'
+    include_examples 'merge request diffs', true
   end
 
   describe 'external diffs on disk always enabled' do

@@ -38,6 +38,7 @@ const initFormField = ({ value = null, required = true } = {}) => ({
 });
 
 export default {
+  name: 'ImportFromGitlabExportApp',
   components: {
     GlButton,
     GlFormGroup,
