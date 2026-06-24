@@ -6555,7 +6555,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_a9c0dd5122b7"
+              "$ref": "#/components/schemas/RequestBody_ea91039ecafb"
   "/api/v4/groups/{id}/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4GroupsIdMemberRolesMemberRoleId
@@ -6625,7 +6625,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_a9c0dd5122b7"
+              "$ref": "#/components/schemas/RequestBody_ea91039ecafb"
   "/api/v4/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4MemberRolesMemberRoleId
@@ -75429,6 +75429,9 @@ components:
         admin_web_hook:
           type: boolean
           default: false
+        read_agent_artifacts:
+          type: boolean
+          default: false
         read_compliance_dashboard:
           type: boolean
           default: false
@@ -91922,7 +91925,7 @@ components:
           nullable: true
       required:
       - extern_uid
-    RequestBody_a9c0dd5122b7:
+    RequestBody_ea91039ecafb:
       type: object
       properties:
         base_access_level:
@@ -92068,6 +92071,11 @@ components:
         admin_web_hook:
           type: boolean
           description: Manage webhooks
+          nullable: true
+        read_agent_artifacts:
+          type: boolean
+          description: Read GitLab Duo Agent Platform artifacts, including audit events
+            and session metadata, that are exposed through the agent artifacts dashboard.
           nullable: true
         read_compliance_dashboard:
           type: boolean

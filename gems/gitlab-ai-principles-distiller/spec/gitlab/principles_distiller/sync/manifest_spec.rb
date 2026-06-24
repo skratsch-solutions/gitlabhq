@@ -270,7 +270,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       content = File.read(claude_skill_path)
 
       expect(content).to include('name: gitlab-coding-principles')
-      expect(content).to include('description: Load all relevant GitLab development principles')
+      expect(content).to include('description: "MUST USE before planning, implementing, refactoring')
     end
 
     it 'includes principle entries from manifest', :aggregate_failures do

@@ -289,8 +289,6 @@ principles:
         url: https://docs.gitlab.com/development/permissions/granular_access/rest_api_implementation_guide/
       - path: doc/development/permissions/granular_access/job_tokens.md
         url: https://docs.gitlab.com/development/permissions/granular_access/job_tokens/
-      - path: doc/development/permissions/job_tokens.md
-        url: https://docs.gitlab.com/development/permissions/job_tokens/
       - path: doc/development/permissions/granular_access/permission_definitions.md
         url: https://docs.gitlab.com/development/permissions/granular_access/permission_definitions/
       - path: doc/development/permissions/granular_access/assignable_permissions.md

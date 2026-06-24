@@ -28,6 +28,7 @@ export default {
       required: false,
     },
   },
+  emits: ['cancelDelete', 'confirmDelete'],
   data() {
     return {
       inputImageName: '',

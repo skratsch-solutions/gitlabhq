@@ -54,6 +54,7 @@ export default {
       required: false,
     },
   },
+  emits: ['packageToDelete'],
   computed: {
     hasPipeline() {
       return Boolean(this.packageEntity.pipeline?.user?.name);

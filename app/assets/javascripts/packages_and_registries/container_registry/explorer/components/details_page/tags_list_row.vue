@@ -85,6 +85,7 @@ export default {
       required: false,
     },
   },
+  emits: ['delete', 'select'],
   i18n: {
     REMOVE_TAG_BUTTON_TITLE,
     DIGEST_LABEL,

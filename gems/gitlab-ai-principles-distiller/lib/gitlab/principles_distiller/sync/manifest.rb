@@ -328,7 +328,7 @@ module Gitlab
           skill_content = <<~SKILL
             ---
             name: gitlab-coding-principles
-            description: Load all relevant GitLab development principles before planning or implementing. Evaluates every principle group to ensure cross-domain coverage.
+            description: "MUST USE before planning, implementing, refactoring, OR reviewing any GitLab code changes (including merge request reviews, code review feedback, new features, bug fixes). Evaluate every principle group to ensure cross-domain coverage. Triggers: review, reviewing, plan, planning, implement, implementing, refactor, refactoring, MR review, code review."
             ---
 
             # Load Project Principles

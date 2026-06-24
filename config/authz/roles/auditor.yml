@@ -32,6 +32,7 @@ project:
   - download_pypi_package
   - download_wiki_code
   - export_work_items
+  - read_agent_artifacts
   - read_ai_catalog_item_consumer
   - read_ai_tool_rule
   - read_alert_management_alert
@@ -167,6 +168,7 @@ group:
   - _bypass_ip_enforcement
   - create_vulnerability_export
   - read_add_on_purchase
+  - read_agent_artifacts
   - read_ai_domain_settings
   - read_any_audit_event
   - read_approval_rule

@@ -261,6 +261,7 @@ InitializerConnections.warn_if_database_connection do
         draw_all :profile
         draw_all :user_settings
         draw_all :autocomplete
+        draw_all :feature_library
 
         post '/mailgun/webhooks' => 'mailgun/webhooks#process_webhook'
 

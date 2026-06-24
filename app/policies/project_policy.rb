@@ -871,6 +871,7 @@ class ProjectPolicy < BasePolicy
     prevent :read_security_orchestration_policies
     prevent :modify_security_policy
     prevent :read_compliance_dashboard
+    prevent :read_agent_artifacts
     prevent :read_compliance_adherence_report
     prevent :read_compliance_violations_report
     prevent :read_project_security_exclusions

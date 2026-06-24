@@ -1,0 +1,106 @@
+# Feature search terminology map
+#
+# Maps external vocabulary to GitLab Feature Library item IDs.
+# This is a temporary placeholder pending the curated import from the full terminology sheet.
+#
+# Each entry:
+#   source_tool:   the external tool or context (e.g. GitHub, Jira)
+#   term:          the search string the user types (lowercase; multi-word is supported)
+#   feature_key:   the real Sidebars::MenuItem#item_id (the source of truth)
+#   panels:        panels this feature is valid in - [project], [group], or [project, group]
+#
+# To add a feature: add one or more entries with a real Feature Library item_id and its valid panels.
+# The !/data/**/*.yml CODEOWNERS rule exempts this file from the engineering review gate.
+#
+# Note: features with distinct ids per panel (e.g. Issues, Merge Requests) require two entries —
+# one per panel with the correct panel-specific id.
+
+# Merge requests
+- source_tool: GitHub
+  term: pr
+  feature_key: project_merge_request_list
+  panels: [project]
+- source_tool: GitHub
+  term: pr
+  feature_key: group_merge_request_list
+  panels: [group]
+- source_tool: GitHub
+  term: pull request
+  feature_key: project_merge_request_list
+  panels: [project]
+
+# Issues
+- source_tool: Jira
+  term: ticket
+  feature_key: project_issue_list
+  panels: [project]
+- source_tool: Jira
+  term: ticket
+  feature_key: group_issue_list
+  panels: [group]
+- source_tool: Generic
+  term: issue
+  feature_key: project_issue_list
+  panels: [project]
+
+# Boards
+- source_tool: Generic
+  term: board
+  feature_key: boards
+  panels: [project, group]
+
+# Pipelines
+- source_tool: Generic
+  term: pipeline
+  feature_key: pipelines
+  panels: [project]
+- source_tool: GitHub
+  term: ci/cd
+  feature_key: pipelines
+  panels: [project]
+
+# Repository
+- source_tool: Generic
+  term: repository
+  feature_key: files
+  panels: [project]
+
+# Branches
+- source_tool: Generic
+  term: branch
+  feature_key: branches
+  panels: [project]
+
+# Environments
+- source_tool: Generic
+  term: environment
+  feature_key: environments
+  panels: [project]
+
+# Members
+- source_tool: Generic
+  term: members
+  feature_key: members
+  panels: [project, group]
+
+# Activity
+- source_tool: Generic
+  term: activity
+  feature_key: activity
+  panels: [project, group]
+
+# Security
+- source_tool: Generic
+  term: vulnerability
+  feature_key: vulnerability_report
+  panels: [project]
+
+# Kubernetes
+- source_tool: Generic
+  term: kubernetes
+  feature_key: group_kubernetes_clusters
+  panels: [group]
+- source_tool: Generic
+  term: k8s
+  feature_key: group_kubernetes_clusters
+  panels: [group]

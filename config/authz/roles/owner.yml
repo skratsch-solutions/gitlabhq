@@ -33,6 +33,7 @@ project:
   - manage_owners
   - mark_issue_for_publication
   - modify_security_policy
+  - read_agent_artifacts
   - read_ai_tool_rule
   - read_compliance_adherence_report
   - read_compliance_dashboard
@@ -126,6 +127,7 @@ group:
   - override_group_member
   - provision_secrets_manager
   - read_add_on_purchase
+  - read_agent_artifacts
   - read_ai_domain_settings
   - read_ai_tool_rule
   - read_any_audit_event

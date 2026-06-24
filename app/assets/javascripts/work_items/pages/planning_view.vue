@@ -1022,6 +1022,9 @@ export default {
     namespacePreferences() {
       return this.displaySettingsSoT?.namespacePreferences || {};
     },
+    displaySettingsToSave() {
+      return { ...this.namespacePreferences, viewMode: this.viewMode };
+    },
     savedViewId() {
       return convertToGraphQLId('WorkItems::SavedViews::SavedView', this.$route.params.view_id);
     },
@@ -1382,10 +1385,7 @@ export default {
           description: this.savedView?.description,
           isPrivate: this.savedView?.isPrivate,
           filters: this.apiFilterParams,
-          displaySettings: {
-            ...this.namespacePreferences,
-            viewMode: this.viewMode,
-          },
+          displaySettings: this.displaySettingsToSave,
           sort: this.sortKey,
           userPermissions: this.savedView?.userPermissions,
           subscribed: this.savedView?.subscribed,
@@ -1885,7 +1885,7 @@ export default {
           :saved-views="subscribedSavedViews"
           :sort-key="sortKey"
           :filters="apiFilterParams"
-          :display-settings="displaySettingsSoT.namespacePreferences"
+          :display-settings="displaySettingsToSave"
           @navigate-to-all-items="navigateToAllItems"
           @reset-to-default-view="resetToDefaultView"
           @subscribe-from-modal="subscribeFromModal = true"
@@ -2019,8 +2019,10 @@ export default {
     </div>
     <template v-if="!isServiceDeskList">
       <!-- state-count -->
-      <div class="gl-border-b gl-flex gl-flex-wrap gl-justify-between gl-gap-y-3 gl-py-3">
-        <div class="gl-flex gl-w-full gl-items-center gl-justify-between">
+      <div
+        class="gl-border-b gl-flex gl-flex-wrap gl-justify-between gl-gap-y-3 gl-py-3 sm:gl-flex-nowrap"
+      >
+        <div class="gl-flex gl-items-center">
           <span data-testid="work-item-count" class="gl-mr-3">{{ workItemTotalStateCount }}</span>
           <gl-button
             v-if="allowBulkEditing"
@@ -2052,7 +2054,7 @@ export default {
             :title="s__('WorkItem|Save view')"
             :sort-key="sortKey"
             :filters="apiFilterParams"
-            :display-settings="displaySettings.namespacePreferences"
+            :display-settings="displaySettingsToSave"
             :show-subscription-limit-warning="isSubscriptionLimitReached"
             @hide="isNewViewModalVisible = false"
           />

@@ -66,6 +66,7 @@ export default {
       required: false,
     },
   },
+  emits: ['delete'],
   i18n: {
     REMOVE_TAGS_BUTTON_TITLE,
     TAGS_LIST_TITLE,

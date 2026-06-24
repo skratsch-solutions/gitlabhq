@@ -25,6 +25,7 @@ project:
   - enable_container_scanning_for_registry
   - enable_secret_push_protection
   - manage_project_security_exclusions
+  - read_agent_artifacts
   - read_any_audit_event
   - read_audit_event
   - read_compliance_adherence_report
@@ -61,6 +62,7 @@ group:
   - apply_security_scan_profiles
   - create_vulnerability_export
   - enable_secret_push_protection
+  - read_agent_artifacts
   - read_any_audit_event
   - read_audit_event
   - read_compliance_adherence_report

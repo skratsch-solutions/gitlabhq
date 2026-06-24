@@ -2649,6 +2649,7 @@ describe('planning-view', () => {
   describe('view mode toggle', () => {
     const savedViewsSelectorsStub = {
       name: 'WorkItemsSavedViewsSelectors',
+      props: ['displaySettings'],
       template: '<div><slot name="header-area"></slot></div>',
     };
     const boardViewStub = {
@@ -2775,6 +2776,26 @@ describe('planning-view', () => {
         expect(findDisplaySettingsDrawer().props('viewMode')).toBe(VIEW_MODE_BOARD);
         expect(findBoardView().exists()).toBe(true);
         expect(findListView().exists()).toBe(false);
+      });
+
+      describe('when creating a new saved view in board mode', () => {
+        beforeEach(async () => {
+          findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+          await waitForPromises();
+        });
+
+        it('saves the current view mode', async () => {
+          findFilteredSearchBar().vm.$emit('onFilter', [
+            { type: TOKEN_TYPE_AUTHOR, value: { data: 'homer', operator: OPERATOR_IS } },
+          ]);
+          await nextTick();
+          await findSaveViewButton().trigger('click');
+          await nextTick();
+
+          expect(findNewSavedViewModal().props('displaySettings')).toEqual(
+            expect.objectContaining({ viewMode: VIEW_MODE_BOARD }),
+          );
+        });
       });
 
       describe('when board-view emits set-error', () => {
