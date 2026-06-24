@@ -365,11 +365,18 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   end
 
   def rebase
+    # Measure the web UI rebase journey: from clicking the Rebase button here
+    # until RebaseWorker completes it. Started only on this path so the SLI is
+    # scoped to the button; rebase_async's other callers (REST API, the /rebase
+    # quick action) do not start it.
+    experience = Labkit::UserExperienceSli.start(:ui_button_rebase)
+
     @merge_request
       .rebase_async(current_user.id, skip_ci: Gitlab::Utils.to_boolean(merge_params[:skip_ci], default: false))
 
     head :ok
   rescue MergeRequest::RebaseLockTimeout => e
+    experience.error!(e.message).complete
     render json: { merge_error: e.message }, status: :conflict
   end
 

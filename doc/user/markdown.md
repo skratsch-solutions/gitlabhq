@@ -781,13 +781,11 @@ When rendered, the example looks similar to:
   - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352861) in GitLab 18.1 [with a flag](../administration/feature_flags/_index.md) named `extensible_reference_filters`. Disabled by default.
   - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/197052) in GitLab 18.2. Feature flag `extensible_reference_filters` removed.
 - Option to reference epics with `[epic:123]` syntax [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352864) in GitLab 18.4.
-- Ability to reference personal snippets [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/217306) in GitLab 19.0 [with a flag](../administration/feature_flags/_index.md) named `personal_snippet_reference_filters`. Disabled by default.
+- Ability to reference personal snippets:
+  - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/217306) in GitLab 19.0 [with a flag](../administration/feature_flags/_index.md) named `personal_snippet_reference_filters`. Disabled by default.
+  - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241935) in GitLab 19.2. Feature flag `personal_snippet_reference_filters` removed.
 
 {{< /history >}}
-
-> [!flag]
-> The availability of personal snippet references is controlled by a feature flag.
-> For more information, see the history.
 
 GitLab Flavored Markdown renders GitLab-specific references. For example, you can reference
 an issue, a commit, a team member, or even an entire project team. GitLab Flavored Markdown turns

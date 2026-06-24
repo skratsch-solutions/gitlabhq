@@ -21,10 +21,33 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
     }
   end
 
+  # The labkit adapter is the sole rate-limiting path, so the synthetic keys
+  # used throughout these examples must be registered for the adapter to handle
+  # them. INCR-mode entries here; the resource-usage describe overrides this
+  # with cost-mode entries.
+  let(:labkit_registry) do
+    {
+      test_action: {
+        limiter_name: 'applimiter_test_action',
+        rule_name: 'limit_test_action',
+        characteristics: %i[user project],
+        action: :block
+      },
+      another_action: {
+        limiter_name: 'applimiter_another_action',
+        rule_name: 'limit_another_action',
+        characteristics: %i[user project],
+        action: :block
+      }
+    }
+  end
+
   subject { described_class }
 
   before do
     allow(described_class).to receive(:rate_limits).and_return(rate_limits)
+    allow(Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits)
+      .to receive(:all).and_return(labkit_registry)
   end
 
   describe '.throttled?' do
@@ -99,86 +122,6 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
 
         expect(::Gitlab::Instrumentation::RateLimitingGates.payload)
           .to eq(::Gitlab::Instrumentation::RateLimitingGates::GATES => [:test_action])
-
-        subject.throttled?(:another_action, scope: [user], peek: true)
-
-        expect(::Gitlab::Instrumentation::RateLimitingGates.payload)
-          .to eq(::Gitlab::Instrumentation::RateLimitingGates::GATES => [:test_action, :another_action])
-      end
-    end
-
-    describe 'counting actions once per unique resource' do
-      let(:scope) { [user, project] }
-
-      let(:start_time) { Time.current.beginning_of_hour }
-      let(:project1) { instance_double(Project, id: '1') }
-      let(:project2) { instance_double(Project, id: '2') }
-
-      before do
-        if described_class.instance_variable_defined?(:@application_rate_limiter_histogram)
-          described_class.remove_instance_variable(:@application_rate_limiter_histogram)
-        end
-      end
-
-      it 'returns true when unique actioned resources count exceeds threshold' do
-        travel_to(start_time) do
-          expect(subject.throttled?(:test_action, scope: scope, resource: project1)).to eq(false)
-        end
-
-        travel_to(start_time + 1.minute) do
-          expect(subject.throttled?(:test_action, scope: scope, resource: project2)).to eq(true)
-        end
-      end
-
-      it 'returns false when unique actioned resource count does not exceed threshold' do
-        travel_to(start_time) do
-          expect(subject.throttled?(:test_action, scope: scope, resource: project1)).to eq(false)
-        end
-
-        travel_to(start_time + 1.minute) do
-          expect(subject.throttled?(:test_action, scope: scope, resource: project1)).to eq(false)
-        end
-      end
-
-      it 'returns false when interval has elapsed' do
-        travel_to(start_time) do
-          expect(subject.throttled?(:test_action, scope: scope, resource: project1)).to eq(false)
-        end
-
-        travel_to(start_time + 2.minutes) do
-          expect(subject.throttled?(:test_action, scope: scope, resource: project2)).to eq(false)
-        end
-      end
-    end
-
-    describe 'emitting metrics for throttling utilization' do
-      let(:histogram_double) { instance_double(Prometheus::Client::Histogram) }
-
-      around do |example|
-        # check if defined
-        if described_class.instance_variable_defined?(:@application_rate_limiter_histogram)
-          described_class.remove_instance_variable(:@application_rate_limiter_histogram)
-        end
-
-        example.run
-
-        described_class.remove_instance_variable(:@application_rate_limiter_histogram)
-      end
-
-      it 'observe histogram metrics using a memoized histogram instance' do
-        expect(Gitlab::Metrics).to receive(:histogram)
-          .once
-          .with(
-            :gitlab_application_rate_limiter_throttle_utilization_ratio,
-            "The utilization-ratio of a throttle.",
-            { peek: nil, throttle_key: nil, feature_category: nil },
-            described_class::LIMIT_USAGE_BUCKET
-          )
-          .and_return(histogram_double)
-        expect(histogram_double).to receive(:observe).twice
-
-        subject.throttled?(:test_action, scope: [], threshold: 1)
-        subject.throttled?(:test_action, scope: [], threshold: 1)
       end
     end
 
@@ -215,30 +158,9 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
         end
       end
 
-      it 'returns false when interval has elapsed', :aggregate_failures do
-        travel_to(start_time) do
-          expect(
-            subject.throttled?(
-              :test_action, scope: scope, threshold: threshold, interval: interval
-            )
-          ).to eq(false)
-
-          # another_action has a threshold of 2 so we simulate 2 requests
-          expect(subject.throttled?(:another_action, scope: scope)).to eq(false)
-          expect(subject.throttled?(:another_action, scope: scope)).to eq(false)
-        end
-
-        travel_to(start_time + 2.minutes) do
-          expect(
-            subject.throttled?(
-              :test_action, scope: scope, threshold: threshold, interval: interval
-            )
-          ).to eq(false)
-
-          # Assert that another_action has its own interval that hasn't elapsed
-          expect(subject.throttled?(:another_action, scope: scope)).to eq(true)
-        end
-      end
+      # Window expiry (counter reset once the interval elapses) is labkit's
+      # behaviour: its bucket is a Redis-side TTL that travel_to cannot move,
+      # so it is covered by labkit's own specs rather than re-asserted here.
 
       it 'allows peeking at the current state without changing its value', :aggregate_failures do
         travel_to(start_time) do
@@ -343,6 +265,27 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
     let(:threshold) { 100 }
     let(:interval) { 60 }
 
+    # resource_usage_throttled? builds an IncrementResourceUsagePerAction
+    # strategy, which the adapter only dispatches for cost-mode entries.
+    let(:labkit_registry) do
+      {
+        test_action: {
+          limiter_name: 'applimiter_test_action',
+          rule_name: 'limit_test_action',
+          characteristics: %i[user project],
+          action: :block,
+          cost_mode: true
+        },
+        another_action: {
+          limiter_name: 'applimiter_another_action',
+          rule_name: 'limit_another_action',
+          characteristics: %i[user project],
+          action: :block,
+          cost_mode: true
+        }
+      }
+    end
+
     before do
       Gitlab::SafeRequestStore.begin!
       Gitlab::SafeRequestStore[resource_key] = threshold
@@ -425,23 +368,8 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
         end
       end
 
-      it 'returns false when interval has elapsed' do
-        travel_to(start_time) do
-          expect(
-            subject.resource_usage_throttled?(
-              :test_action, scope: scope, resource_key: resource_key, threshold: threshold, interval: interval
-            )
-          ).to eq(false)
-        end
-
-        travel_to(start_time + 2.minutes) do
-          expect(
-            subject.resource_usage_throttled?(
-              :test_action, scope: scope, resource_key: resource_key, threshold: threshold, interval: interval
-            )
-          ).to eq(false)
-        end
-      end
+      # Window expiry once the interval elapses is labkit's behaviour (a
+      # Redis-side TTL that travel_to cannot move); see labkit's own specs.
     end
 
     context 'with peek' do
@@ -463,39 +391,6 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
           # peeking again
           expect(subject.resource_usage_throttled?(:test_action, peek: true, **kwargs)).to eq(true)
         end
-      end
-    end
-
-    context 'when tracking resource usage throttles' do
-      let(:histogram_double) { instance_double(Prometheus::Client::Histogram) }
-
-      around do |example|
-        # check if defined
-        if described_class.instance_variable_defined?(:@application_rate_limiter_histogram)
-          described_class.remove_instance_variable(:@application_rate_limiter_histogram)
-        end
-
-        example.run
-
-        described_class.remove_instance_variable(:@application_rate_limiter_histogram)
-      end
-
-      it 'observe histogram metrics using a memoized histogram instance' do
-        expect(Gitlab::Metrics).to receive(:histogram)
-          .once
-          .with(
-            :gitlab_application_rate_limiter_throttle_utilization_ratio,
-            "The utilization-ratio of a throttle.",
-            { peek: nil, throttle_key: nil, feature_category: nil },
-            described_class::LIMIT_USAGE_BUCKET
-          )
-          .and_return(histogram_double)
-        expect(histogram_double).to receive(:observe).twice
-
-        subject.resource_usage_throttled?(
-          :test_action, scope: [], resource_key: resource_key, threshold: threshold, interval: interval)
-        subject.resource_usage_throttled?(
-          :test_action, scope: [], resource_key: resource_key, threshold: threshold, interval: interval)
       end
     end
 
@@ -529,42 +424,8 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
         end
       end
 
-      it 'returns false when interval has elapsed', :aggregate_failures do
-        travel_to(start_time) do
-          expect(
-            subject.resource_usage_throttled?(
-              :test_action, scope: scope, resource_key: resource_key, threshold: threshold, interval: interval
-            )
-          ).to eq(false)
-
-          # another_action has a threshold of 2 so we simulate 2 requests
-          expect(
-            subject.resource_usage_throttled?(
-              :another_action, scope: scope, resource_key: resource_key_2, threshold: threshold * 2, interval: interval
-            )
-          ).to eq(false)
-          expect(
-            subject.resource_usage_throttled?(
-              :another_action, scope: scope, resource_key: resource_key_2, threshold: threshold * 2, interval: interval
-            )
-          ).to eq(false)
-        end
-
-        travel_to(start_time + 2.minutes) do
-          expect(
-            subject.resource_usage_throttled?(
-              :test_action, scope: scope, resource_key: resource_key, threshold: threshold, interval: interval
-            )
-          ).to eq(false)
-
-          # Assert that another_action has its own interval that hasn't elapsed
-          expect(
-            subject.resource_usage_throttled?(
-              :test_action, scope: scope, resource_key: resource_key, threshold: threshold, interval: interval
-            )
-          ).to eq(true)
-        end
-      end
+      # Window expiry once the interval elapses is labkit's behaviour (a
+      # Redis-side TTL that travel_to cannot move); see labkit's own specs.
     end
 
     context 'when using ActiveRecord models as scope' do
@@ -711,25 +572,16 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
     let(:scope) { user }
     let(:start_time) { Time.current.beginning_of_hour }
 
-    before do
-      if described_class.instance_variable_defined?(:@application_rate_limiter_histogram)
-        described_class.remove_instance_variable(:@application_rate_limiter_histogram)
-      end
-    end
-
     it_behaves_like 'returns false'
-
-    it 'does not observe any histogram metrics' do
-      expect(Gitlab::Metrics).not_to receive(:histogram)
-
-      subject.throttled?(:test_action, scope: [])
-    end
   end
 
   describe 'labkit adapter dispatch from _throttled?', :clean_gitlab_redis_rate_limiting do
+    # These examples exercise the real registry and keys, so the synthetic
+    # registry stub from the top-level before is reverted here.
     before do
       allow(described_class).to receive(:rate_limits).and_call_original
-      Gitlab::ApplicationRateLimiter::LabkitAdapter.instance_variable_set(:@limiters, nil)
+      allow(Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits)
+        .to receive(:all).and_call_original
       allow(Gitlab::CurrentSettings.current_application_settings)
         .to receive(:users_get_by_id_limit).and_return(1)
     end
@@ -751,27 +603,11 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
       expect(result).to be(true).or be(false)
     end
 
-    context 'when the adapter does not apply' do
-      it 'does not dispatch when the key is not handled by the adapter' do
-        # Every rate_limits key now has a registry entry, so stub the registry
-        # empty to exercise the "key absent from SupportedRateLimits" branch.
-        allow(Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits)
-          .to receive(:all).and_return({})
-
-        expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
-        expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run_peek!)
-
-        described_class.throttled?(:users_get_by_id, scope: user)
-      end
-
+    context 'when the strategy does not match the labkit rule mode' do
       it 'does not dispatch when a resource is provided for an INCR-mode key' do
-        # The strategy becomes IncrementPerActionedResource (SADD/SCARD), which
-        # would diverge silently from labkit's INCR-mode rule for this key, so
-        # dispatch is gated on the spec being count_distinct (set-mode).
-        stub_feature_flags(rate_limiter_use_labkit_users_get_by_id: true)
         expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
 
-        described_class.throttled?(:users_get_by_id, scope: user, resource: user)
+        expect(described_class.throttled?(:users_get_by_id, scope: user, resource: user)).to be(false)
       end
     end
 
@@ -783,16 +619,13 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
           rule_name: 'limit_distinct_by_user',
           characteristics: %i[user],
           count_distinct: :project_id,
-          action: :block,
-          flag_scope: :cohort_4
+          action: :block
         }
       end
 
       before do
         allow(Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits).to receive(:all)
           .and_return(users_get_by_id: count_distinct_spec)
-        stub_feature_flags(rate_limiter_use_labkit_cohort_4: true,
-          rate_limiter_use_labkit_cohort_4_enforce: false)
       end
 
       it 'dispatches to the labkit adapter and forwards the resource id and overrides' do
@@ -813,164 +646,39 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
         Gitlab::SafeRequestStore[resource_key] = 5.0
       end
 
-      context 'when the use_labkit flag is on (enforce off)' do
-        before do
-          stub_feature_flags(rate_limiter_use_labkit_cohort_5: true,
-            rate_limiter_use_labkit_cohort_5_enforce: false)
-        end
+      it 'dispatches to the adapter forwarding the resolved threshold, interval and cost' do
+        expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run!)
+          .with(:main_db_duration_limit_per_worker, scope: 'SomeWorker',
+            context: hash_including(threshold: 1234, interval: 77), cost: 5.0).and_return(false)
 
-        it 'dispatches to the adapter forwarding the resolved threshold, interval and cost' do
-          expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run!)
-            .with(:main_db_duration_limit_per_worker, scope: 'SomeWorker',
-              context: hash_including(threshold: 1234, interval: 77), cost: 5.0).and_return(false)
-
-          described_class.resource_usage_throttled?(:main_db_duration_limit_per_worker,
-            scope: 'SomeWorker', resource_key: resource_key, threshold: 1234, interval: 77)
-        end
-      end
-
-      context 'when the use_labkit flag is off' do
-        before do
-          stub_feature_flags(rate_limiter_use_labkit_cohort_5: false,
-            rate_limiter_use_labkit_cohort_5_enforce: false)
-        end
-
-        it 'stays on the legacy path and does not dispatch to the adapter', :aggregate_failures do
-          expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
-          expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run_peek!)
-
-          described_class.resource_usage_throttled?(:main_db_duration_limit_per_worker,
-            scope: 'SomeWorker', resource_key: resource_key, threshold: 1234, interval: 77)
-        end
+        described_class.resource_usage_throttled?(:main_db_duration_limit_per_worker,
+          scope: 'SomeWorker', resource_key: resource_key, threshold: 1234, interval: 77)
       end
     end
 
-    context 'in peek mode (cohort 3)' do
+    context 'in peek mode' do
       let_it_be(:namespace) { create(:namespace) }
-      let(:labkit_key) do
-        "labkit:rl:applimiter_update_namespace_name:limit_namespace_name_updates_by_namespace" \
-          ":namespace:#{namespace.id}"
-      end
-
-      def labkit_count
-        Gitlab::Redis::RateLimiting.with { |r| r.get(labkit_key) }.to_i
-      end
 
       before do
         allow(Gitlab::CurrentSettings.current_application_settings)
           .to receive(:update_namespace_name_rate_limit).and_return(2)
       end
 
-      context 'when use_labkit is on and enforce is off (shadow)' do
-        before do
-          stub_feature_flags(rate_limiter_use_labkit_cohort_3: true,
-            rate_limiter_use_labkit_cohort_3_enforce: false)
-        end
+      it 'dispatches peek checks to the labkit adapter without incrementing' do
+        expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run_peek!)
+          .with(:update_namespace_name, scope: namespace, context: { resource_id: nil, threshold: nil, interval: nil })
+          .and_return(false)
+        expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
 
-        it 'reads the labkit counter without incrementing it' do
-          described_class.peek(:update_namespace_name, scope: namespace)
-
-          expect(labkit_count).to eq(0)
-        end
-
-        it 'returns the legacy decision even when the adapter says throttled' do
-          allow(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run_peek!).and_return(true)
-
-          expect(described_class.peek(:update_namespace_name, scope: namespace)).to be(false)
-        end
+        expect(described_class.peek(:update_namespace_name, scope: namespace)).to be(false)
       end
 
-      context 'when use_labkit and enforce are both on' do
-        before do
-          stub_feature_flags(rate_limiter_use_labkit_cohort_3: true,
-            rate_limiter_use_labkit_cohort_3_enforce: true)
-        end
+      it 'returns the labkit peek decision' do
+        expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run_peek!)
+          .with(:update_namespace_name, scope: namespace, context: { resource_id: nil, threshold: nil, interval: nil })
+          .and_return(true)
 
-        it 'returns the labkit decision and skips legacy peek' do
-          allow(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run_peek!).and_return(true)
-          expect(described_class).not_to receive(:report_metrics)
-
-          expect(described_class.peek(:update_namespace_name, scope: namespace)).to be(true)
-        end
-
-        it 'does not increment either counter' do
-          described_class.peek(:update_namespace_name, scope: namespace)
-
-          expect(labkit_count).to eq(0)
-        end
-      end
-    end
-
-    context 'when use_labkit is on and enforce is off' do
-      let(:labkit_key) { "labkit:rl:applimiter_users_get_by_id:limit_user_lookups_by_user:user:#{user.id}" }
-
-      def legacy_key_count
-        Gitlab::Redis::RateLimiting.with do |r|
-          count = 0
-          r.scan_each(match: "application_rate_limiter:users_get_by_id:*") { count += 1 }
-          count
-        end
-      end
-
-      def labkit_count
-        Gitlab::Redis::RateLimiting.with { |r| r.get(labkit_key) }.to_i
-      end
-
-      before do
-        stub_feature_flags(rate_limiter_use_labkit_users_get_by_id: true,
-          rate_limiter_use_labkit_users_get_by_id_enforce: false)
-      end
-
-      it 'increments both the labkit and legacy counters' do
-        described_class.throttled?(:users_get_by_id, scope: user)
-
-        expect(labkit_count).to eq(1)
-        expect(legacy_key_count).to be > 0
-      end
-
-      it 'returns the legacy decision even when the adapter says throttle' do
-        allow(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run!).and_return(true)
-        allow(Gitlab::CurrentSettings.current_application_settings)
-          .to receive(:users_get_by_id_limit).and_return(100)
-
-        expect(described_class.throttled?(:users_get_by_id, scope: user)).to be(false)
-      end
-    end
-
-    context 'when use_labkit and enforce are both on' do
-      let(:labkit_key) { "labkit:rl:applimiter_users_get_by_id:limit_user_lookups_by_user:user:#{user.id}" }
-
-      def legacy_key_count
-        Gitlab::Redis::RateLimiting.with do |r|
-          count = 0
-          r.scan_each(match: "application_rate_limiter:users_get_by_id:*") { count += 1 }
-          count
-        end
-      end
-
-      def labkit_count
-        Gitlab::Redis::RateLimiting.with { |r| r.get(labkit_key) }.to_i
-      end
-
-      before do
-        stub_feature_flags(rate_limiter_use_labkit_users_get_by_id: true,
-          rate_limiter_use_labkit_users_get_by_id_enforce: true)
-      end
-
-      it 'increments the labkit counter and skips the legacy one' do
-        described_class.throttled?(:users_get_by_id, scope: user)
-
-        expect(labkit_count).to eq(1)
-        expect(legacy_key_count).to eq(0)
-      end
-
-      it 'returns the adapter decision without running the legacy path' do
-        allow(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run!).and_return(true)
-        allow(Gitlab::CurrentSettings.current_application_settings)
-          .to receive(:users_get_by_id_limit).and_return(100)
-
-        expect(described_class.throttled?(:users_get_by_id, scope: user)).to be(true)
-        expect(legacy_key_count).to eq(0)
+        expect(described_class.peek(:update_namespace_name, scope: namespace)).to be(true)
       end
     end
   end

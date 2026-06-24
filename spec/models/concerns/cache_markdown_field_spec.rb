@@ -240,17 +240,6 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache, feature_category: 
           is_expected.to have_key(:user)
           expect(context[:user]).to eq(user)
         end
-
-        context 'when the personal_snippet_reference_filters flag is disabled' do
-          before do
-            stub_feature_flags(personal_snippet_reference_filters: false)
-          end
-
-          it 'does not set the user in the context' do
-            is_expected.not_to have_key(:user)
-            expect(context[:user]).to be_nil
-          end
-        end
       end
     end
 

@@ -170,7 +170,7 @@
     - c.with_body do
       .js-listbox-input{ data: { label: _('Language'), description: s_('Preferences|This feature is experimental and translations are not yet complete.'), name: 'user[preferred_language]', items: language_choices.to_json, value: current_user.preferred_language, block: true.to_s, toggle_class: 'gl-form-input-xl' } }
       %p.-gl-mt-5
-        = link_to help_page_url('development/i18n/translation.md'), class: 'text-nowrap gl-link-inline', target: '_blank', rel: 'noopener noreferrer' do
+        = link_to help_page_url('development/i18n/translation.md'), class: '!gl-whitespace-nowrap gl-link-inline', target: '_blank', rel: 'noopener noreferrer' do
           = _("Help translate GitLab into your language")
           %span{ aria: { label: _('Open new window') } }
             = sprite_icon('external-link')

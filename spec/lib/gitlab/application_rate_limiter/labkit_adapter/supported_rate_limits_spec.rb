@@ -1,38 +1,25 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
+require 'spec_helper'
 
 RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits,
   feature_category: :system_access do
-  describe 'feature flag YAML coverage' do
-    def yaml_exists?(flag_name)
-      %w[config/feature_flags/wip ee/config/feature_flags/wip].any? do |dir|
-        Rails.root.join(dir, "#{flag_name}.yml").exist?
-      end
-    end
+  describe 'registry coverage' do
+    # The labkit adapter is the only rate-limiting path; there is no legacy
+    # fallback. A rate_limits key with no registry entry would not have a Labkit
+    # rule to route through. This guard fails
+    # loudly when a new key is added to ApplicationRateLimiter.rate_limits
+    # without a matching SupportedRateLimits entry.
+    it 'registers every ApplicationRateLimiter.rate_limits key' do
+      rate_limit_keys = ::Gitlab::ApplicationRateLimiter.rate_limits.keys.to_set
+      registered = described_class.all.keys.to_set
 
-    it 'has a use_labkit / _enforce YAML pair for every cohort-wide flag_scope' do
-      scopes = described_class.all.values.filter_map { |entry| entry[:flag_scope] }.uniq
+      unregistered = rate_limit_keys - registered
 
-      missing = scopes.flat_map do |scope|
-        ["rate_limiter_use_labkit_#{scope}", "rate_limiter_use_labkit_#{scope}_enforce"]
-          .reject { |name| yaml_exists?(name) }
-      end
-
-      expect(missing).to be_empty,
-        "Missing FF YAMLs for cohort-wide flag_scopes: #{missing.join(', ')}"
-    end
-
-    it 'has a use_labkit / _enforce YAML pair for every per-key (cohort 1) entry' do
-      per_key = described_class.all.reject { |_, entry| entry[:flag_scope] }
-
-      missing = per_key.keys.flat_map do |key|
-        ["rate_limiter_use_labkit_#{key}", "rate_limiter_use_labkit_#{key}_enforce"]
-          .reject { |name| yaml_exists?(name) }
-      end
-
-      expect(missing).to be_empty,
-        "Missing FF YAMLs for per-key entries: #{missing.join(', ')}"
+      expect(unregistered).to be_empty,
+        "These ApplicationRateLimiter.rate_limits keys have no Labkit::RateLimit registry " \
+          "entry, so they would not be rate limited: #{unregistered.to_a.sort.join(', ')}. " \
+          "Add an entry in SupportedRateLimits (or its EE counterpart)."
     end
   end
 end

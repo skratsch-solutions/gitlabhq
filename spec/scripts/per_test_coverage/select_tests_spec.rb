@@ -39,6 +39,14 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
     )
   end
 
+  before do
+    # A per-test coverage capture pipeline can set
+    # GLCI_PER_TEST_COVERAGE_FORCE_BUCKET globally to force a bucket sweep, and
+    # it would otherwise leak into the weekday and weekend examples here. The
+    # forced-bucket context below re-stubs it explicitly.
+    stub_env('GLCI_PER_TEST_COVERAGE_FORCE_BUCKET', nil)
+  end
+
   after do
     FileUtils.rm_rf(output_dir)
   end

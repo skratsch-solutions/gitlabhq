@@ -22,6 +22,7 @@ export default {
       required: true,
     },
   },
+  emits: ['confirm'],
   methods: {
     keepAllAsPlaceholder() {
       this.$apollo

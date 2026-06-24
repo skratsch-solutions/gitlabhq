@@ -689,10 +689,8 @@ RSpec.describe API::Ci::Jobs, feature_category: :continuous_integration do
     let(:query) { {} }
 
     before do
-      allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-        threshold = Gitlab::ApplicationRateLimiter.rate_limits[:jobs_index][:threshold].call
-        allow(strategy).to receive(:increment).and_return(threshold + 1)
-      end
+      allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
+        .with(:jobs_index, scope: anything).and_return(true)
 
       get api("/projects/#{project.id}/jobs", api_user), params: query
     end

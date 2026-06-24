@@ -24,6 +24,7 @@ export default {
     SignInOauthButton,
     VersionSelectForm,
   },
+  emits: ['error', 'sign-in-oauth'],
   data() {
     return {
       gitlabBasePath: null,

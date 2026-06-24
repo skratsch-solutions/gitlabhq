@@ -27,6 +27,7 @@ export default {
       default: false,
     },
   },
+  emits: ['error'],
   data() {
     return {
       isLoading: false,

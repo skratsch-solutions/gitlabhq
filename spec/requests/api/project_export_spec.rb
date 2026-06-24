@@ -264,16 +264,9 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
         context 'when rate limit is exceeded' do
           subject(:request) { get api(download_path, admin, admin_mode: true) }
 
-          before do
-            allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-              threshold = Gitlab::ApplicationRateLimiter.rate_limits[:project_download_export][:threshold].call
-              allow(strategy).to receive(:increment).and_return(threshold + 1)
-            end
-          end
-
           it 'prevents requesting project export' do
             expect(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
-              .with(:project_download_export, scope: [user, project]).and_call_original
+              .with(:project_download_export, scope: [user, project]).and_return(true)
 
             request
 
@@ -474,10 +467,8 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
 
         context 'when rate limit is exceeded across projects' do
           before do
-            allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-              threshold = Gitlab::ApplicationRateLimiter.rate_limits[:project_export][:threshold].call
-              allow(strategy).to receive(:increment).and_return(threshold + 1)
-            end
+            allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
+              .with(:project_export, scope: anything).and_return(true)
           end
 
           it 'prevents requesting project export' do

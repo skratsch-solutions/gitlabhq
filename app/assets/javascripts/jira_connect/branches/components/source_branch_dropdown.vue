@@ -24,6 +24,7 @@ export default {
       default: null,
     },
   },
+  emits: ['change', 'error'],
   data() {
     return {
       initialSourceBranchNamesLoading: false,

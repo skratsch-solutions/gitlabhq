@@ -62,6 +62,7 @@ export default {
       default: 'sm',
     },
   },
+  emits: ['closed', 'confirmed'],
   computed: {
     primaryAction() {
       return {

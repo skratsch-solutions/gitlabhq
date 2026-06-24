@@ -1922,11 +1922,8 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
     shared_examples 'rate limits project export endpoint' do
       before do
-        allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-          allow(strategy)
-            .to receive(:increment)
-            .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:"project_#{action}"][:threshold].call + 1)
-        end
+        allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
+          .with(:"project_#{action}", scope: anything).and_return(true)
       end
 
       it 'prevents requesting project export' do
@@ -2059,11 +2056,8 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
         context 'when the endpoint receives requests above the limit', :clean_gitlab_redis_rate_limiting do
           before do
-            allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-              allow(strategy)
-                .to receive(:increment)
-                .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:project_download_export][:threshold].call + 1)
-            end
+            allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
+              .with(:project_download_export, scope: anything).and_return(true)
           end
 
           it 'prevents requesting project export' do

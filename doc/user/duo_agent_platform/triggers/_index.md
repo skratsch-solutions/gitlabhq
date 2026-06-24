@@ -43,6 +43,7 @@ in a discussion, or when you assign them as a reviewer.
 - Feature flag `ai_flow_trigger_pipeline_hooks` [removed](https://gitlab.com/gitlab-org/gitlab/-/work_items/587272) in GitLab 19.1.
 - **Work item created** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/599985) in GitLab 19.1.
 - **Merge request ready** trigger event type [generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/598421) in GitLab 19.1. Feature flag `merge_request_ready_flow_trigger` removed.
+- **Work item status changed** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/599983) in GitLab 19.2.
 
 {{< /history >}}
 
@@ -78,7 +79,7 @@ To create a trigger:
 1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section,
    from the **Trigger when** dropdown list, select **Approved**.
 1. Optional. If you selected **Work item**, in the **Work item events configuration** section,
-   from the **Trigger when** dropdown list, select **Created**.
+   from the **Trigger when** dropdown list, select one or more of the following states: **Created**, **Status changed**.
 1. From the **Service account** dropdown list,
    select a user to be [the composite identity](../composite_identity.md).
 1. For **Configuration source**, select one of the following:

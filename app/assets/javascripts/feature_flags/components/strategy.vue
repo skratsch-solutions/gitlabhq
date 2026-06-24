@@ -167,7 +167,7 @@ export default {
         </div>
 
         <div
-          class="order-first gl-offset-md-0 gl-order-md-0 gl-ml-auto !gl-self-end @md/panel:!gl-self-stretch"
+          class="gl-offset-md-0 gl-order-md-0 !gl-order-first gl-ml-auto !gl-self-end @md/panel:!gl-self-stretch"
         >
           <gl-button
             data-testid="delete-strategy-button"

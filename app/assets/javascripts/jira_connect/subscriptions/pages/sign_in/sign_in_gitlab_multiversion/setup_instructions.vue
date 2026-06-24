@@ -14,6 +14,7 @@ export default {
     GlFormCheckbox,
     GlLink,
   },
+  emits: ['back', 'next'],
   data() {
     return {
       requiredSteps: [

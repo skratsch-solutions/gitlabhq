@@ -31,6 +31,7 @@ title: External agents
 - **Merge request** trigger event type with the **Approved** action [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237081) in GitLab 19.1.
 - **Work item created** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/599985) in GitLab 19.1.
 - **Merge request ready** trigger event type [generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/598421) in GitLab 19.1. Feature flag `merge_request_ready_flow_trigger` removed.
+- **Work item status changed** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/599983) in GitLab 19.2.
 
 {{< /history >}}
 
@@ -318,8 +319,9 @@ To enable an external agent:
    - **Merge request ready**: When a draft merge request is marked as ready for review.
    - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
    - **Merge request**: When a selected merge request action occurs.
-   - **Work item created**: When a work item is created in the project.
+   - **Work item**: When a selected work item action occurs.
 1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section, from the **Trigger when** dropdown list, select **Approved**.
+1. Optional. If you selected **Work item**, in the **Work item events configuration** section, from the **Trigger when** dropdown list, select one or more of the following actions: **Created**, **Status changed**.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -343,8 +345,9 @@ To enable an external agent:
    - **Merge request ready**: When a draft merge request is marked as ready for review.
    - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
    - **Merge request**: When a selected merge request action occurs.
-   - **Work item created**: When a work item is created in the project.
+   - **Work item**: When a selected work item action occurs.
 1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section, from the **Trigger when** dropdown list, select **Approved**.
+1. Optional. If you selected **Work item**, in the **Work item events configuration** section, from the **Trigger when** dropdown list, select one or more of the following actions: **Created**, **Status changed**.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -382,8 +385,9 @@ To enable an external agent in a project:
    - **Merge request ready**: When a draft merge request is marked as ready for review.
    - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
    - **Merge request**: When a selected merge request action occurs.
-   - **Work item created**: When a work item is created in the project.
+   - **Work item**: When a selected work item action occurs.
 1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section, from the **Trigger when** dropdown list, select **Approved**.
+1. Optional. If you selected **Work item**, in the **Work item events configuration** section, from the **Trigger when** dropdown list, select one or more of the following actions: **Created**, **Status changed**.
 1. Select **Enable**.
 
 The external agent appears in the project's **AI** > **Agents** list.

@@ -35,6 +35,7 @@ export default {
       required: false,
     },
   },
+  emits: ['select-item', 'delete-pod'],
   data() {
     return {
       currentPage: 1,

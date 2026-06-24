@@ -837,7 +837,7 @@ GEM
       js_regex (~> 3.8)
     gitlab-kas-grpc (19.1.0.pre.rc2)
       grpc (~> 1.0)
-    gitlab-labkit (2.6.0)
+    gitlab-labkit (2.6.1)
       actionpack (>= 5.0.0, < 8.2.0)
       activesupport (>= 5.0.0, < 8.2.0)
       google-protobuf (>= 3.25, < 5.0)
@@ -1073,22 +1073,22 @@ GEM
       logger (~> 1.6)
       ostruct (~> 0.6)
       sass-embedded (~> 1.58)
-    grpc (1.81.0)
+    grpc (1.81.1)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.81.0-aarch64-linux-gnu)
+    grpc (1.81.1-aarch64-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.81.0-arm64-darwin)
+    grpc (1.81.1-arm64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.81.0-x86-linux-gnu)
+    grpc (1.81.1-x86-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.81.0-x86_64-darwin)
+    grpc (1.81.1-x86_64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.81.0-x86_64-linux-gnu)
+    grpc (1.81.1-x86_64-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
     grpc-google-iam-v1 (1.11.0)
@@ -2453,7 +2453,7 @@ DEPENDENCIES
   gitlab-http!
   gitlab-iam-grpc!
   gitlab-kas-grpc (~> 19.1.0.pre.rc2)
-  gitlab-labkit (~> 2.6.0)
+  gitlab-labkit (~> 2.6.1)
   gitlab-license (~> 2.6)
   gitlab-mail_room (~> 1.1.0)
   gitlab-markup (~> 2.0.0)
@@ -2961,7 +2961,7 @@ CHECKSUMS
   gitlab-http (0.1.0)
   gitlab-iam-grpc (0.1.0)
   gitlab-kas-grpc (19.1.0.pre.rc2) sha256=d63d683a7295de4e5f2edd294cb4f1069633859aa496792750604f662f6fe950
-  gitlab-labkit (2.6.0) sha256=7a7ec84c0e2ea6d68ab5a7a1067ce93bad66a60f7c75637e0678baa0b1b17d38
+  gitlab-labkit (2.6.1) sha256=4734c1f108c269f32c329000581268279dfb3b8338a5fe7715aba3b80a01e102
   gitlab-license (2.6.0) sha256=2c1f8ae73835640ec77bf758c1d0c9730635043c01cf77902f7976e826d7d016
   gitlab-mail_room (1.1.0) sha256=784847b914a6636b30264fd8a042c15e39f3473f3acd78ebd254ac0a885a5878
   gitlab-markup (2.0.0) sha256=951a1c871463a8f329e6c002b2da337cd547febcc1e33d84df4a212419fba02e
@@ -3033,12 +3033,12 @@ CHECKSUMS
   graphlyte (1.0.0) sha256=b5af4ab67dde6e961f00ea1c18f159f73b52ed11395bb4ece297fe628fa1804d
   graphql (2.6.3) sha256=31fe845b509fda27db38d09380f27ffc0de1c7ea2f9f3b12fa42bdde8317239b
   graphql-docs (5.2.0) sha256=44d41724529f531adf9265ded7478b74b0c4b927cddc8b9f114337a73f32de08
-  grpc (1.81.0) sha256=892c57e5accb0da0a8ec0210528e87a168674117d79fa480cf827469d2d342f1
-  grpc (1.81.0-aarch64-linux-gnu) sha256=456708adccce93793508397020e7c15c52cbbc609a2a66a8467202da8e72f8f2
-  grpc (1.81.0-arm64-darwin) sha256=c12a41463d410320ce5f846ee1c96e8761b5c211afd3b7fbc6ca50e6ae3a7e50
-  grpc (1.81.0-x86-linux-gnu) sha256=da12ca5f0670bd88dc93a9ffac56cf78ce7eb91a1c80b3e89c272f32431eb4e1
-  grpc (1.81.0-x86_64-darwin) sha256=0db040e7cb5ce3eba72257bd7cdb12e3123d6cb2f1193f6f8d022b4ee56b0ec1
-  grpc (1.81.0-x86_64-linux-gnu) sha256=9676501f1abd2305ca9bdc1247d4014f59547bef56800064c05a359023331a2c
+  grpc (1.81.1) sha256=9e5772153fe13a389654e9d397a90400f0077307fb4369f79f941d96c72e89cb
+  grpc (1.81.1-aarch64-linux-gnu) sha256=aa24d7253a2b15d2c3570265a2f58bb8aca0ecd2e1116b7a259d633ebf582445
+  grpc (1.81.1-arm64-darwin) sha256=6def610da088597e1a94bafbb36a92f19c456cb7df7bbe9618aeb63e8805ae9a
+  grpc (1.81.1-x86-linux-gnu) sha256=05d85380ea3177e57b64b3a3cf5558fa6276ea5e81035e7e50f3d66b0a1dfe86
+  grpc (1.81.1-x86_64-darwin) sha256=f8c44cdfc26270247f2beb49ecbc983d0c184b6c24ac4670d1d24f0efba811ed
+  grpc (1.81.1-x86_64-linux-gnu) sha256=cf1053a594d026d2ec560457111258cd207bc67847aab24f96e04e2fbeddc4dd
   grpc-google-iam-v1 (1.11.0) sha256=8f0aa8a8503b3e001cb1561f31e43aa0445752fb675334afa1afac7f023f368c
   grpc-tools (1.80.0) sha256=49076fbc7b34556365694202ed7ffd1e959e68ba8c339e99b437ba2a985a2cf2
   grpc_reflection (0.2.0) sha256=f9c5308216c62185c26cacad764a1bf6cf67515dc110871441bafbb2825333e4

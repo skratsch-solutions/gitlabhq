@@ -33,6 +33,7 @@ export default {
       default: null,
     },
   },
+  emits: ['busy', 'close'],
   data() {
     return {
       selectedRole: null,

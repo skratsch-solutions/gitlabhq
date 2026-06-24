@@ -21,6 +21,7 @@ export default {
       default: () => ({}),
     },
   },
+  emits: ['delete-pod', 'flux-reconcile', 'flux-resume', 'flux-suspend'],
   data() {
     return {
       selectedItem: {},

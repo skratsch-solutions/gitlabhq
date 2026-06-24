@@ -15972,6 +15972,9 @@ msgstr ""
 msgid "CheckAgentStatusService|Unavailable - no credits"
 msgstr ""
 
+msgid "CheckAgentStatusService|Unavailable - subscription is not eligible for usage-based billing"
+msgstr ""
+
 msgid "CheckAgentStatusService|Unavailable - unknown reason"
 msgstr ""
 
@@ -25035,7 +25038,16 @@ msgstr ""
 msgid "Database update failed"
 msgstr ""
 
+msgid "DatabaseDiagnostics|%{milliseconds} ms"
+msgstr ""
+
 msgid "DatabaseDiagnostics|An error occurred while starting diagnostics"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Anti-wraparound"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Autovacuum"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Collation health check"
@@ -25062,6 +25074,12 @@ msgstr ""
 msgid "DatabaseDiagnostics|Database: %{name}"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Dead tuples"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Delay time"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Details"
 msgstr ""
 
@@ -25077,13 +25095,25 @@ msgstr ""
 msgid "DatabaseDiagnostics|Foreign keys"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Heap scanned"
+msgstr ""
+
 msgid "DatabaseDiagnostics|How to fix these?"
+msgstr ""
+
+msgid "DatabaseDiagnostics|In-progress vacuum operations for each database connection."
 msgstr ""
 
 msgid "DatabaseDiagnostics|Incorrect ownership"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Index passes"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Indexes"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Indexes processed"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Issues detected"
@@ -25092,10 +25122,22 @@ msgstr ""
 msgid "DatabaseDiagnostics|Last checked: %{timestamp}"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Long-running"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Manual VACUUM"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Memory pressure"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Missing items"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Missing sequences"
+msgstr ""
+
+msgid "DatabaseDiagnostics|More than one index pass means the dead-tuple store filled up. Consider increasing maintenance_work_mem or autovacuum_work_mem."
 msgstr ""
 
 msgid "DatabaseDiagnostics|More than one schema in the search path contains objects: %{schemas}. GitLab's objects should all live in a single schema. If they are split across multiple schemas, unqualified references can resolve unexpectedly."
@@ -25104,10 +25146,19 @@ msgstr ""
 msgid "DatabaseDiagnostics|No schema issues detected."
 msgstr ""
 
+msgid "DatabaseDiagnostics|No vacuum operations are currently running."
+msgstr ""
+
+msgid "DatabaseDiagnostics|Not available"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Owner"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Ownership issues"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Phase"
 msgstr ""
 
 msgid "DatabaseDiagnostics|PostgreSQL configuration and metadata for each database connection."
@@ -25117,6 +25168,9 @@ msgid "DatabaseDiagnostics|Run collation check"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Run schema check"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Running for"
 msgstr ""
 
 msgid "DatabaseDiagnostics|Schema"
@@ -25140,6 +25194,9 @@ msgstr ""
 msgid "DatabaseDiagnostics|Sequences"
 msgstr ""
 
+msgid "DatabaseDiagnostics|Table"
+msgstr ""
+
 msgid "DatabaseDiagnostics|Tables"
 msgstr ""
 
@@ -25150,6 +25207,21 @@ msgid "DatabaseDiagnostics|The search path contains a GitLab partition schema. P
 msgstr ""
 
 msgid "DatabaseDiagnostics|These issues require manual remediation."
+msgstr ""
+
+msgid "DatabaseDiagnostics|This vacuum has been running for over six hours. Large tables can legitimately take this long, but a vacuum that never finishes may be blocked or starved of resources and is worth investigating."
+msgstr ""
+
+msgid "DatabaseDiagnostics|This vacuum is preventing transaction ID wraparound. It will not auto-cancel and must not be terminated casually, as doing so risks the database forcing a shutdown to protect against data loss."
+msgstr ""
+
+msgid "DatabaseDiagnostics|Type"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Vacuum activity"
+msgstr ""
+
+msgid "DatabaseDiagnostics|Vacuum information"
 msgstr ""
 
 msgid "DatadogIntegration|%{link_start}API key%{link_end} used for authentication with Datadog."
@@ -29083,6 +29155,9 @@ msgstr ""
 msgid "DuoCodeReview|:warning: Something went wrong while starting Code Review Flow. Please try again later."
 msgstr ""
 
+msgid "DuoCodeReview|:warning: Usage billing is not available for this account. To continue using Code Review Flow, contact your administrator."
+msgstr ""
+
 msgid "DuoCodeReview|:wave: There's nothing for me to review."
 msgstr ""
 
@@ -29402,6 +29477,9 @@ msgid "DuoFeatures|View examples of exclusions."
 msgstr ""
 
 msgid "DuoFoundationalFlows|:warning: %{user_reference}, you need to set a default GitLab Duo namespace to use this flow. Please set a default GitLab Duo namespace in your %{link_start}preferences%{link_end}."
+msgstr ""
+
+msgid "DuoFoundationalFlows|Usage billing is not available for this account. To continue using this feature, contact your administrator."
 msgstr ""
 
 msgid "DuoProDiscover|A single platform integrates the best AI model for each use case across the entire development workflow."
@@ -61502,6 +61580,9 @@ msgstr ""
 msgid "ReleaseAssetLinkType|Runbooks"
 msgstr ""
 
+msgid "ReleaseCreation|%{selectedServices} of %{totalServices} services selected"
+msgstr ""
+
 msgid "ReleaseCreation|A human-readable label. The release identity is the set of service versions below, not this string."
 msgstr ""
 
@@ -61520,7 +61601,25 @@ msgstr ""
 msgid "ReleaseCreation|Description cannot exceed %{maxLength} characters."
 msgstr ""
 
+msgid "ReleaseCreation|Failed to load services. Refresh the page to try again."
+msgstr ""
+
+msgid "ReleaseCreation|No services to display."
+msgstr ""
+
 msgid "ReleaseCreation|Release"
+msgstr ""
+
+msgid "ReleaseCreation|Select %{name}"
+msgstr ""
+
+msgid "ReleaseCreation|Service"
+msgstr ""
+
+msgid "ReleaseCreation|Services and versions"
+msgstr ""
+
+msgid "ReleaseCreation|Version"
 msgstr ""
 
 msgid "ReleaseCreation|e.g. May production release"

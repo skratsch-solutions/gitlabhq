@@ -841,11 +841,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       before do
         sign_in(admin)
 
-        allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-          allow(strategy)
-          .to receive(:increment)
-          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_download_export][:threshold].call + 1)
-        end
+        allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
+          .with(:group_download_export, scope: anything).and_return(true)
       end
 
       it 'throttles the endpoint', :aggregate_failures do

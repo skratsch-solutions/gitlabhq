@@ -37,6 +37,7 @@ export default {
       default: undefined,
     },
   },
+  emits: ['error', 'sign-in'],
   data() {
     return {
       loading: false,

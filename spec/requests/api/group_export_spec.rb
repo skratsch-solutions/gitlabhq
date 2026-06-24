@@ -100,11 +100,8 @@ RSpec.describe API::GroupExport, feature_category: :importers do
 
     context 'when the requests have exceeded the rate limit' do
       before do
-        allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-          allow(strategy)
-            .to receive(:increment)
-            .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_download_export][:threshold].call + 1)
-        end
+        allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
+          .with(:group_download_export, scope: anything).and_return(true)
       end
 
       it 'throttles the endpoint' do
@@ -192,11 +189,8 @@ RSpec.describe API::GroupExport, feature_category: :importers do
       before do
         group.add_owner(user)
 
-        allow_next_instance_of(Gitlab::ApplicationRateLimiter::BaseStrategy) do |strategy|
-          allow(strategy)
-            .to receive(:increment)
-            .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_export][:threshold].call + 1)
-        end
+        allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?)
+          .with(:group_export, scope: anything).and_return(true)
       end
 
       it 'throttles the endpoint' do

@@ -32,6 +32,7 @@ export default {
       default: s__('MemberRole|Change role'),
     },
   },
+  emits: ['input'],
   computed: {
     manageRolesText() {
       return this.manageMemberRolesPath ? s__('MemberRole|Manage roles') : '';
