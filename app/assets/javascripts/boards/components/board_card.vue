@@ -52,6 +52,7 @@ export default {
       default: 0,
     },
   },
+  emits: ['setFilters'],
   data() {
     return {
       activeBoardItem: undefined,

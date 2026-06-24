@@ -57,6 +57,7 @@ export default {
       required: true,
     },
   },
+  emits: ['setFilters'],
   computed: {
     tokensCE() {
       const { fetchLabels } = issueBoardFilters(this.$apollo, this.fullPath, this.isGroupBoard);

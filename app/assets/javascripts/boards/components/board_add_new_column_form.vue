@@ -26,6 +26,7 @@ export default {
       required: true,
     },
   },
+  emits: ['add-list', 'setAddColumnFormVisibility'],
   methods: {
     onSubmit() {
       this.$emit('add-list');

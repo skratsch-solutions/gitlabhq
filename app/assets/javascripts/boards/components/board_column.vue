@@ -66,6 +66,15 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'cannot-find-active-item',
+    'dragStart',
+    'dragStop',
+    'focus-adjacent',
+    'highlight-list',
+    'setActiveList',
+    'setFilters',
+  ],
   data() {
     return {
       showNewForm: false,

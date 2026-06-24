@@ -40,6 +40,7 @@ export default {
       required: true,
     },
   },
+  emits: ['setFilters', 'switchBoard', 'toggleSwimlanes', 'updateBoard'],
   data() {
     return {
       board: {},

@@ -14,6 +14,7 @@ export default {
       required: true,
     },
   },
+  emits: ['setAddColumnFormVisibility'],
   methods: {
     handleClick() {
       this.$emit('setAddColumnFormVisibility', true);

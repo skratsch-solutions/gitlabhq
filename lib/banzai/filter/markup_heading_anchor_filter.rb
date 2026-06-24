@@ -53,9 +53,8 @@ module Banzai
       end
 
       def generate_unique_slug(text, heading_name, used_slugs)
-        base_slug = ActiveSupport::Inflector.parameterize(text)
-        # Non-ASCII headings produce blank slugs. Use tag name as a fallback.
-        base_slug = heading_name if base_slug.blank?
+        # Fall back to tag name when the slug is blank
+        base_slug = generate_slug(text).presence || heading_name
 
         if used_slugs.key?(base_slug)
           used_slugs[base_slug] += 1
@@ -64,6 +63,13 @@ module Banzai
           used_slugs[base_slug] = 0
           base_slug
         end
+      end
+
+      # Mimics Comrak's anchorize(): https://github.com/kivikakk/comrak/blob/v0.52.0/src/html/anchorizer.rs
+      def generate_slug(text)
+        text.downcase
+          .gsub(/[^\p{L}\p{M}\p{N}\p{Pc} -]/, '')
+          .tr(' ', '-')
       end
     end
   end

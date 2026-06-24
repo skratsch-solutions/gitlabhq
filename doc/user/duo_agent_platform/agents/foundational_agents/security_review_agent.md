@@ -33,7 +33,7 @@ suggested fix you can apply with one action.
 Use Security Review Agent when you need help with:
 
 - Access control review: Identify missing or misconfigured authorization checks on state-changing operations.
-- Authorization gap detection: Surface broken object-level and function-level authorization issues (OWASP API #1 and #3).
+- Authorization gap detection: Surface broken object-level and function-level authorization issues.
 - Business logic analysis: Detect flaws in application workflows that could be exploited, such as race conditions in financial or stateful operations.
 - Information disclosure: Identify code paths that can leak sensitive data to unauthorized callers.
 - Mass assignment risk: Flag endpoints or models that can expose unintended fields to user input.
@@ -57,19 +57,19 @@ To use Security Review Agent:
 
 ## Cost
 
-Security Review Agent uses [GitLab Credits](../../../../subscriptions/gitlab_credits.md) each time it performs
-a review. Credit consumption scales with the complexity of the merge request diff.
+Security Review Agent uses [GitLab Credits](../../../../subscriptions/gitlab_credits.md) each time it
+performs a review. Credit usage scales with diff complexity and the model you select.
 
-These rough estimates can help you assess typical credit usage:
+The following estimates apply to the [default model](../../../../user/duo_agent_platform/model_selection.md#default-models):
 
-| Review complexity | Approximate LLM calls | Estimated credits |
-|-------------------|-----------------------|-------------------|
-| Basic             | ~6                    | TBD               |
-| Medium            | ~16                   | TBD               |
-| Complex           | ~30                   | TBD               |
+| Review complexity                        | Approximate LLM calls | Estimated credits |
+|------------------------------------------|-----------------------|-------------------|
+| Small diff or a few changed files        | ~16                   | ~8                |
+| Standard feature branch                  | ~28                   | ~14               |
+| Large or logic-heavy multi-file change   | ~40                   | ~20               |
 
-During the beta release, reviews are always initiated manually. This lets you assess typical
-credit usage in your codebase before broader adoption.
+During the beta release, you always start reviews manually. This lets you assess typical credit
+usage in your codebase before broader adoption.
 
 ## Use Security Review Agent
 
@@ -86,21 +86,22 @@ To request a review:
 1. Search for and select `duo-security-reviewer`. This service account is
    automatically created when the Security Review flow is turned on for your group.
 
-When the review is complete, the agent posts an internal comment that summarizes any findings and a brief
-description of the review scope. For each finding, the agent opens a diff thread at the relevant line. If you
+When the review is complete, the agent posts an internal note. The note summarizes any findings and
+the review scope. If the review produces no findings, the agent states this in the internal note.
+
+For each finding, the agent opens a diff thread at the relevant line. If you
 reply to a thread (for example, to accept the risk or disagree with the assessment), the agent reads your reply
-and responds accordingly.
+and responds accordingly. On public projects, findings are posted in the internal note only, with no inline
+diff comments. Posting findings privately avoids exposing security details.
 
-On public projects, findings are posted in the internal summary note only, with no inline diff comments.
-This avoids exposing security details publicly.
-
-The agent sets the reviewer state based on the severity of findings:
+The agent sets the reviewer state based on the severity of findings. The agent never sets the
+**Approve** state, even when it finds no issues:
 
 | Severity             | Reviewer state |
 | -------------------- | -------------- |
 | `critical` or `high` | **Request changes** |
 | `medium` or `low`    | **Comment**    |
-| None                 | **Approve**    |
+| None                 | **Comment**    |
 
 ### Respond to a finding
 
@@ -148,8 +149,8 @@ The following CWE classifications can appear in findings:
 To resolve a finding:
 
 - To apply the fix, select **Apply suggestion**. To commit the suggestion to a new
-  branch instead, select the dropdown next to **Apply suggestion**.
-- To dismiss the finding, select **Resolve thread** if you have reviewed it and
+  branch instead, select the dropdown list next to **Apply suggestion**.
+- To dismiss the finding, select **Resolve thread** if you reviewed the finding and
   determined it is a false positive or accepted risk.
 - To track the vulnerability for future remediation, use the standard GitLab
   [thread actions](../../../../user/project/merge_requests/_index.md#move-open-threads-to-an-issue)
@@ -158,7 +159,7 @@ To resolve a finding:
   feedback helps improve the model. You can also share detailed feedback in
   [the feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/600304).
 
-After you resolve the findings, to request another review, reassign the agent as a reviewer. The agent analyzes
+To request another review after you resolve the findings, reassign the agent as a reviewer. The agent analyzes
 the updated diff and performs an action depending on the state of the finding:
 
 - Resolved findings: The agent confirms the fix and resolves the original thread.
@@ -188,8 +189,8 @@ Confirm you meet all [prerequisites](#prerequisites), then check that the agent 
 
 ### The agent does not review every merge request
 
-Small merge requests without any changes to code logic might produce no findings. For example, this can
-happen with documentation-only changes.
+Small merge requests without any changes to code logic might produce no findings. For example,
+documentation-only changes can produce no findings.
 
 ### Suggested changes do not apply cleanly
 

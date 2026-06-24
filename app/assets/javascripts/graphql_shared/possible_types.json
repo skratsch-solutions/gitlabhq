@@ -306,7 +306,8 @@
     "UserUploadRegistry",
     "VulnerabilityArchiveExportUploadRegistry",
     "VulnerabilityExportPartUploadRegistry",
-    "VulnerabilityExportUploadRegistry"
+    "VulnerabilityExportUploadRegistry",
+    "VulnerabilityRemediationUploadRegistry"
   ],
   "RegistryInterface": [
     "ContainerRegistry",

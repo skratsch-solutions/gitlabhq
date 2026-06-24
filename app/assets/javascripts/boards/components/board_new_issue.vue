@@ -27,6 +27,7 @@ export default {
       required: true,
     },
   },
+  emits: ['addNewIssue', 'toggleNewForm'],
   data() {
     return {
       selectedProject: {},

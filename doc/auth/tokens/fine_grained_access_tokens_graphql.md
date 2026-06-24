@@ -56,6 +56,7 @@ Grants the ability to read secrets managers.
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Read | Group | Type | `SecretsManagerEntitlement` |
+| Read | Group | Mutation | `SecretsManagerStartTrial` |
 
 #### Vulnerability
 

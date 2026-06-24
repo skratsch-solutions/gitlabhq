@@ -47,7 +47,7 @@ RSpec.describe 'Setting locked status of a merge request', feature_category: :co
     post_graphql_mutation(mutation, current_user: current_user)
 
     expect(response).to have_gitlab_http_status(:success)
-    expect(mutation_response).to eq(true)
+    expect(mutation_response).to be(true)
   end
 
   it 'does not do anything if the merge request was already locked' do
@@ -56,7 +56,7 @@ RSpec.describe 'Setting locked status of a merge request', feature_category: :co
     post_graphql_mutation(mutation, current_user: current_user)
 
     expect(response).to have_gitlab_http_status(:success)
-    expect(mutation_response).to eq(true)
+    expect(mutation_response).to be(true)
   end
 
   context 'when passing locked false as input' do
@@ -66,7 +66,7 @@ RSpec.describe 'Setting locked status of a merge request', feature_category: :co
       post_graphql_mutation(mutation, current_user: current_user)
 
       expect(response).to have_gitlab_http_status(:success)
-      expect(mutation_response).to eq(false)
+      expect(mutation_response).to be(false)
     end
 
     it 'unmarks the merge request as locked' do
@@ -75,7 +75,7 @@ RSpec.describe 'Setting locked status of a merge request', feature_category: :co
       post_graphql_mutation(mutation, current_user: current_user)
 
       expect(response).to have_gitlab_http_status(:success)
-      expect(mutation_response).to eq(false)
+      expect(mutation_response).to be(false)
     end
   end
 end

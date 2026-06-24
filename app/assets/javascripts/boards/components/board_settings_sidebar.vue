@@ -53,6 +53,7 @@ export default {
       required: true,
     },
   },
+  emits: ['unsetActiveId'],
   data() {
     return {
       ListType,

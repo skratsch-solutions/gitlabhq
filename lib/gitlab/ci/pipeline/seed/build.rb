@@ -86,6 +86,10 @@ module Gitlab
                attributes_hash.dig(:options, :bridge_needs, :pipeline).present?)
           end
 
+          def deployment?
+            dig(:environment).present?
+          end
+
           def to_resource
             logger.instrument(:pipeline_seed_build_to_resource) do
               if bridge?

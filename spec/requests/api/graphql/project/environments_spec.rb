@@ -140,9 +140,9 @@ RSpec.describe 'Project Environments query', feature_category: :continuous_deliv
       subject
 
       permission_data = graphql_data.dig('project', 'environment', 'userPermissions')
-      expect(permission_data['updateEnvironment']).to eq(true)
-      expect(permission_data['destroyEnvironment']).to eq(false)
-      expect(permission_data['stopEnvironment']).to eq(true)
+      expect(permission_data['updateEnvironment']).to be(true)
+      expect(permission_data['destroyEnvironment']).to be(false)
+      expect(permission_data['stopEnvironment']).to be(true)
     end
 
     context 'when fetching user permissions for multiple environments' do

@@ -49,28 +49,41 @@ RSpec.describe Banzai::Filter::MarkupHeadingAnchorFilter, :aggregate_failures, f
       expect(result.at_css('h6 a.anchor')['href']).to eq('#heading-6')
     end
 
-    it 'handles special characters in heading text' do
-      result = filter('<h1>Foo & Bar: The "Baz" Edition</h1>')
-      heading = result.at_css('h1')
+    describe 'heading slug generation' do
+      using RSpec::Parameterized::TableSyntax
 
-      expect(heading['id']).to eq('user-content-foo-bar-the-baz-edition')
-      expect(heading.at_css('a.anchor')['data-heading-content']).to eq('Foo & Bar: The "Baz" Edition')
+      where(:heading_text, :expected_slug, :case_name) do
+        [
+          ['path/to/file.rb', 'pathtofilerb', 'removes non-permitted characters'],
+          ['(Tips & Tricks)', 'tips--tricks', 'converts spaces to dashes'],
+          ['Café', 'café', 'preserves accented characters'],
+          ['日本語の見出し', '日本語の見出し', 'preserves non-Latin heading text'],
+          ['!#$%&*+,./:;=?@\^`|~<>[]{}()', 'h1', 'falls back to heading name when slug would be empty']
+        ]
+      end
+
+      with_them do
+        it 'generates correct id and anchor href' do
+          doc = Nokogiri::HTML5.fragment('<h1>')
+          doc.at_css('h1').content = heading_text
+          result = filter(doc)
+          heading = result.at_css('h1')
+
+          expect(heading['id']).to eq("user-content-#{expected_slug}")
+          expect(heading.at_css('a.anchor')['href']).to eq("##{expected_slug}")
+        end
+      end
     end
 
     it 'handles duplicate heading slugs by appending a suffix' do
       result = filter('<h1>Foo</h1><h2>Foo</h2><h3>Foo</h3>')
 
       expect(result.at_css('h1')['id']).to eq('user-content-foo')
+      expect(result.at_css('h1 a.anchor')['href']).to eq('#foo')
       expect(result.at_css('h2')['id']).to eq('user-content-foo-1')
+      expect(result.at_css('h2 a.anchor')['href']).to eq('#foo-1')
       expect(result.at_css('h3')['id']).to eq('user-content-foo-2')
-    end
-
-    it 'handles empty text slugs by falling back to heading element name' do
-      result = filter('<h1>!!!</h1>')
-      heading = result.at_css('h1')
-
-      expect(heading['id']).to eq('user-content-h1')
-      expect(heading.at_css('a.anchor')).to be_present
+      expect(result.at_css('h3 a.anchor')['href']).to eq('#foo-2')
     end
   end
 
@@ -111,7 +124,9 @@ RSpec.describe Banzai::Filter::MarkupHeadingAnchorFilter, :aggregate_failures, f
       heading = result.at_css('h1')
 
       expect(heading['id']).to eq('user-content-hello-world')
-      expect(heading.at_css('a.anchor')['data-heading-content']).to eq('Hello World!')
+      anchor = heading.at_css('a.anchor')
+      expect(anchor['href']).to eq('#hello-world')
+      expect(anchor['data-heading-content']).to eq('Hello World!')
     end
   end
 

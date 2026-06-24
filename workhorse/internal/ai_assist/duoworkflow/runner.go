@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
-	"slices"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -18,99 +16,9 @@ import (
 
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/api"
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/log"
-
-	"github.com/gorilla/websocket"
-	"google.golang.org/protobuf/encoding/protojson"
 )
-
-const wsWriteDeadline = 60 * time.Second
-const wsCloseTimeout = 5 * time.Second
-const wsStopWorkflowTimeout = 10 * time.Second
-
-// wsPingInterval controls how often the server sends WebSocket ping frames to
-// the client. This keeps the connection alive through load-balancer idle
-// timeouts and provides early detection of silently-dropped TCP connections.
-// The value must be less than any intermediate idle-connection timeout (GKE's
-// default is 30s for HTTP/1.1 upgrades).
-const wsPingInterval = 20 * time.Second
-
-// wsPongTimeout is the read deadline set after each pong (or at startup before
-// the first ping). If no pong arrives within this window, ReadMessage returns a
-// timeout error and the connection is treated as dead. It is longer than
-// wsPingInterval to tolerate one missed pong before declaring the connection
-// broken.
-const wsPongTimeout = wsPingInterval + 10*time.Second
-
-type capability string
-
-const (
-	// Client capabilities
-	capabilityIncrementalStreaming capability = "incremental_streaming"
-	capabilityShellCommand         capability = "shell_command"
-	capabilityReadFileChunked      capability = "read_file_chunked"
-	capabilityCommandTimeout       capability = "command_timeout"
-	capabilityWebSearch            capability = "web_search"
-
-	// Server capabilities
-	capabilityAdvancedSearch          capability = "advanced_search"
-	capabilityToolCallApproval        capability = "tool_call_approval"
-	capabilityToolCallPatternApproval capability = "tool_call_pattern_approval"
-	capabilityJobTracePagination      capability = "job_trace_pagination"
-)
-
-// ClientCapabilities is how gitlab-lsp -> workhorse -> Duo Workflow Service communicates
-// capabilities that can be used by Duo Workflow Service without breaking
-// backwards compatibility. We intersect the capabilities of all parties and
-// then new behavior can only depend on that behavior if it makes it all the
-// way through. Whenever you add to this list you must also update the gitlab-lsp and
-// either updates the constant in ee/app/assets/javascripts/ai/constants.js or
-// conditionally add to the capabilities in passed to buildStartRequest in
-// ee/app/assets/javascripts/ai/duo_agentic_chat/components/duo_agentic_chat.vue.
-var ClientCapabilities = []capability{
-	capabilityIncrementalStreaming,
-	capabilityShellCommand,
-	capabilityReadFileChunked,
-	capabilityCommandTimeout,
-	capabilityWebSearch,
-}
-
-// ServerCapabilities defines the list of allowed server capabilities that
-// can be communicated to Duo Workflow Service. This allowlist ensures only
-// explicitly approved capabilities are sent.
-//
-// To add a new server capability:
-// 1. Add a constant above (e.g., capabilityNewFeature capability = "new_feature")
-// 2. Add it to this ServerCapabilities list
-// 3. Update compute_server_capabilities in ee/lib/api/ai/duo_workflows/workflows.rb
-var ServerCapabilities = []capability{
-	capabilityAdvancedSearch,
-	capabilityToolCallApproval,
-	capabilityToolCallPatternApproval,
-	capabilityJobTracePagination,
-}
 
 var errFailedToAcquireLockError = errors.New("handleWebSocketMessages: failed to acquire lock")
-
-var normalClosureErrCodes = []int{websocket.CloseGoingAway, websocket.CloseNormalClosure}
-
-var marshaler = protojson.MarshalOptions{
-	UseProtoNames:   true,
-	EmitUnpopulated: true,
-}
-
-var unmarshaler = protojson.UnmarshalOptions{
-	DiscardUnknown: true,
-}
-
-type websocketConn interface {
-	ReadMessage() (int, []byte, error)
-	WriteMessage(int, []byte) error
-	WriteControl(int, []byte, time.Time) error
-	SetReadDeadline(time.Time) error
-	SetWriteDeadline(time.Time) error
-	SetPongHandler(h func(appData string) error)
-	Close() error
-}
 
 type workflowStream interface {
 	Send(*pb.ClientEvent) error
@@ -165,8 +73,7 @@ type stopCoordinator struct {
 type runner struct {
 	originalReq         *http.Request
 	httpActionHandler   *runHTTPActionHandler
-	marshalBuf          []byte
-	conn                websocketConn
+	ws                  *wsManager
 	lockManager         *workflowLockManager
 	workflowID          string
 	mutex               *redsync.Mutex
@@ -174,7 +81,6 @@ type runner struct {
 	serverCapabilities  []string
 	streamManager       *streamManager
 	mcpManager          mcpManager
-	websocketClosed     atomic.Bool
 	stop                stopCoordinator
 	stopWorkflowTimeout time.Duration
 }
@@ -211,8 +117,7 @@ func newRunner(conn websocketConn, rails *api.API, backend http.Handler, r *http
 	return &runner{
 		originalReq:        r,
 		httpActionHandler:  httpActionHandler,
-		marshalBuf:         make([]byte, ActionResponseBodyLimit),
-		conn:               conn,
+		ws:                 newWsManager(conn),
 		lockManager:        newWorkflowLockManager(rdb),
 		lockFlow:           lockFlow,
 		serverCapabilities: cfg.ServerCapabilities,
@@ -230,8 +135,8 @@ func (r *runner) Execute(ctx context.Context) error {
 	// In gorilla/websocket, pong frames are dispatched inside ReadMessage, so
 	// if a pong arrives before SetPongHandler is called the default no-op
 	// handler runs and the read deadline is never reset.
-	r.conn.SetPongHandler(func(string) error {
-		return r.conn.SetReadDeadline(time.Now().Add(wsPongTimeout))
+	r.ws.SetPongHandler(func(string) error {
+		return r.ws.SetReadDeadline(time.Now().Add(wsPongTimeout))
 	})
 
 	errCh := make(chan error, 3) // one slot per goroutine: WS reader, agent reader, pinger
@@ -262,11 +167,11 @@ func (r *runner) Execute(ctx context.Context) error {
 // pingWebSocket sends periodic WebSocket ping frames. It sets an initial read
 // deadline before the first ping fires; after that the pong handler (registered
 // in Execute) resets the deadline on every pong reply. A missing pong causes
-// ReadMessage to return a timeout error which terminates handleWebSocketMessages.
+// ReadClientEvent to return a timeout error which terminates handleWebSocketMessages.
 func (r *runner) pingWebSocket(ctx context.Context, errCh chan<- error, interval time.Duration) {
 	// Set the initial read deadline before any ping is sent. Subsequent resets
 	// are handled by the pong handler registered in Execute().
-	if err := r.conn.SetReadDeadline(time.Now().Add(wsPongTimeout)); err != nil {
+	if err := r.ws.SetReadDeadline(time.Now().Add(wsPongTimeout)); err != nil {
 		errCh <- fmt.Errorf("pingWebSocket: failed to set initial read deadline: %w", err)
 		return
 	}
@@ -279,8 +184,7 @@ func (r *runner) pingWebSocket(ctx context.Context, errCh chan<- error, interval
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			if err := r.conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(wsWriteDeadline)); err != nil {
-				r.websocketClosed.Store(true)
+			if err := r.ws.Ping(); err != nil {
 				errCh <- r.stopAndWrapError("pingWebSocket", "WORKHORSE_WEBSOCKET_PING_FAILED", err)
 				return
 			}
@@ -290,36 +194,21 @@ func (r *runner) pingWebSocket(ctx context.Context, errCh chan<- error, interval
 
 func (r *runner) handleWebSocketMessages(errCh chan<- error) {
 	for {
-		_, message, err := r.conn.ReadMessage()
+		event, err := r.ws.ReadClientEvent()
 		if err != nil {
-			r.websocketClosed.Store(true)
-			errCh <- r.handleWebSocketReadError(err)
+			if reason, ok := r.ws.ReadError(err); ok {
+				errCh <- r.stopAndWrapError("handleWebSocketMessages", reason, err)
+			} else {
+				errCh <- fmt.Errorf("handleWebSocketMessages: failed to read a WS message: %v", err)
+			}
 			return
 		}
 
-		if err := r.handleWebSocketMessage(message); err != nil {
+		if err := r.handleWebSocketMessage(event); err != nil {
 			errCh <- err
 			return
 		}
 	}
-}
-
-// handleWebSocketReadError determines the appropriate response to a WebSocket
-// read failure. For expected closures (normal close, going away, pong timeout)
-// it sends a StopWorkflowRequest to DWS and returns the result. For unexpected
-// errors it wraps and returns them directly.
-func (r *runner) handleWebSocketReadError(err error) error {
-	if e, ok := err.(*websocket.CloseError); ok && slices.Contains(normalClosureErrCodes, e.Code) {
-		reason := fmt.Sprintf("WORKHORSE_WEBSOCKET_CLOSE_%d", e.Code)
-		return r.stopAndWrapError("handleWebSocketMessages", reason, err)
-	}
-
-	var netErr net.Error
-	if errors.As(err, &netErr) && netErr.Timeout() {
-		return r.stopAndWrapError("handleWebSocketMessages", "WORKHORSE_WEBSOCKET_PONG_TIMEOUT", err)
-	}
-
-	return fmt.Errorf("handleWebSocketMessages: failed to read a WS message: %v", err)
 }
 
 // stopAndWrapError sends a StopWorkflowRequest and returns the result. If the
@@ -389,48 +278,13 @@ func (r *runner) Close() error {
 	}
 
 	streamManagerCloseErr := r.logClose("stream manager", r.streamManager.Close())
-	wsCloseErr := r.logClose("websocket connection", r.closeWebSocketConnection())
+	wsCloseErr := r.logClose("websocket connection", r.ws.Close())
 	mcpManagerCloseErr := r.logClose("mcp manager", r.mcpManager.Close())
 
 	return errors.Join(streamManagerCloseErr, wsCloseErr, mcpManagerCloseErr)
 }
 
-func (r *runner) closeWebSocketConnection() error {
-	if r.websocketClosed.Load() {
-		return nil
-	}
-
-	deadline := time.Now().Add(wsCloseTimeout)
-	if err := r.conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""), deadline); err != nil {
-		// If we can't send the close message, just close the connection
-		closeErr := r.conn.Close()
-		if closeErr != nil {
-			return fmt.Errorf("failed to send close message and failed to close connection: %w", closeErr)
-		}
-		return fmt.Errorf("failed to send close message: %w", err)
-	}
-
-	if err := r.conn.SetReadDeadline(deadline); err != nil {
-		closeErr := r.conn.Close()
-		if closeErr != nil {
-			return fmt.Errorf("failed to set read deadline and failed to close connection: %w", closeErr)
-		}
-		return fmt.Errorf("failed to set read deadline: %w", err)
-	}
-
-	if err := r.conn.Close(); err != nil {
-		return fmt.Errorf("failed to close connection: %w", err)
-	}
-
-	return nil
-}
-
-func (r *runner) handleWebSocketMessage(message []byte) error {
-	response := &pb.ClientEvent{}
-	if err := unmarshaler.Unmarshal(message, response); err != nil {
-		return fmt.Errorf("handleWebSocketMessage: failed to unmarshal a WS message: %v", err)
-	}
-
+func (r *runner) handleWebSocketMessage(response *pb.ClientEvent) error {
 	if startReq := response.GetStartRequest(); startReq != nil {
 		// Acquire distributed lock when workflow starts
 		if r.lockFlow {
@@ -472,34 +326,6 @@ func (r *runner) handleWebSocketMessage(message []byte) error {
 	return nil
 }
 
-// intersectClientCapabilities returns the intersection of what gitlab-lsp passed in and what workhorse
-// supports.
-func intersectClientCapabilities(fromClient []string) []string {
-	result := []string{}
-
-	for _, cap := range ClientCapabilities {
-		if slices.Contains(fromClient, string(cap)) {
-			result = append(result, string(cap))
-		}
-	}
-
-	return result
-}
-
-// intersectServerCapabilities returns the intersection of what is passed from server and what workhorse
-// supports.
-func intersectServerCapabilities(fromServer []string) []string {
-	result := []string{}
-
-	for _, cap := range ServerCapabilities {
-		if slices.Contains(fromServer, string(cap)) {
-			result = append(result, string(cap))
-		}
-	}
-
-	return result
-}
-
 func (r *runner) acquireWorkflowLock(startReq *pb.StartWorkflowRequest) error {
 	r.workflowID = startReq.WorkflowID
 
@@ -538,7 +364,7 @@ func (r *runner) handleAgentAction(ctx context.Context, action *pb.Action) error
 		// If a tool is not recongnized, propagate the message to the client
 		// It's possible when a user has local MCP servers configured in IDE
 		if !r.mcpManager.HasTool(mcpTool.Name) {
-			return r.sendActionToWs(action)
+			return r.ws.WriteAction(ctx, action)
 		}
 
 		event, err := r.mcpManager.CallTool(ctx, action)
@@ -552,42 +378,7 @@ func (r *runner) handleAgentAction(ctx context.Context, action *pb.Action) error
 	case *pb.Action_TrackLlmCallForSelfHosted:
 		return r.streamManager.HandleCloudServiceTracking(ctx, action)
 	default:
-		return r.sendActionToWs(action)
-	}
-
-	return nil
-}
-
-func (r *runner) sendActionToWs(action *pb.Action) error {
-	if r.websocketClosed.Load() {
-		log.WithRequest(r.originalReq).Info("sendActionToWs: skipping sending WS message because websocket already closed")
-		return nil
-	}
-
-	var err error
-	r.marshalBuf, err = marshaler.MarshalAppend(r.marshalBuf[:0], action)
-	if err != nil {
-		return fmt.Errorf("sendActionToWs: failed to unmarshal action: %v", err)
-	}
-
-	deadline := time.Now().Add(wsWriteDeadline)
-	if deadlineErr := r.conn.SetWriteDeadline(deadline); deadlineErr != nil {
-		return fmt.Errorf("sendActionToWs: failed to set write deadline: %v", deadlineErr)
-	}
-
-	if err = r.conn.WriteMessage(websocket.BinaryMessage, r.marshalBuf); err != nil {
-		if err == websocket.ErrCloseSent {
-			log.WithRequest(r.originalReq).Info("sendActionToWs: failed to send WS message because websocket closed, ignoring")
-			return nil
-		}
-
-		return fmt.Errorf("sendActionToWs: failed to send WS message: %v", err)
-	}
-
-	// Clear the write deadline after a successful write so it does not affect
-	// subsequent operations (including reads on the same net.Conn).
-	if deadlineErr := r.conn.SetWriteDeadline(time.Time{}); deadlineErr != nil {
-		return fmt.Errorf("sendActionToWs: failed to clear write deadline: %v", deadlineErr)
+		return r.ws.WriteAction(ctx, action)
 	}
 
 	return nil
@@ -682,16 +473,10 @@ func (r *runner) Shutdown(ctx context.Context) error {
 	// when the request context fired first (client is already gone) or when
 	// the workflow ended naturally (nothing to reconnect to).
 	if !requestContextDone && !workflowEnded {
-		deadline := time.Now().Add(wsCloseTimeout)
-		closeMsg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutdown")
-		if wsErr := r.conn.WriteControl(websocket.CloseMessage, closeMsg, deadline); wsErr != nil {
+		if wsErr := r.ws.SendGoingAway(); wsErr != nil {
 			log.WithRequest(r.originalReq).WithError(wsErr).Info("Shutdown: failed to send CloseGoingAway to client")
 		} else {
 			log.WithRequest(r.originalReq).Info("Shutdown: successfully sent CloseGoingAway to client")
-
-			// Mark the WebSocket as closed so that Close() skips sending
-			// CloseNormalClosure (1000) on top of the 1001 we just sent.
-			r.websocketClosed.Store(true)
 		}
 	}
 

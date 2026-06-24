@@ -93,6 +93,7 @@ Gitlab::Application.config.to_prepare do
         Ai::ActiveContext::Code::EnabledNamespace,
         Ai::ActiveContext::Code::Repository,
         Ai::DuoWorkflows::Checkpoint,
+        Ai::DuoWorkflows::CheckpointBlob,
         Analytics::KnowledgeGraph::CodeIndexingTask,
         AuditEvents::AiAuditEvent
       ])

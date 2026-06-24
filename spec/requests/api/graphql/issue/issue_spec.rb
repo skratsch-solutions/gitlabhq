@@ -156,7 +156,7 @@ RSpec.describe 'Query.issue(id)', feature_category: :team_planning do
         post_graphql(query, current_user: current_user)
 
         expect(issue_data.keys).to eq %w[moved movedTo]
-        expect(issue_data['moved']).to eq(true)
+        expect(issue_data['moved']).to be(true)
         expect(issue_data['movedTo']['title']).to eq(new_issue.title)
       end
     end
@@ -193,7 +193,7 @@ RSpec.describe 'Query.issue(id)', feature_category: :team_planning do
         let(:duplicate_issue) { create(:issue) }
 
         it 'does not return the related issue' do
-          expect(issue_data['closedAsDuplicateOf']).to eq(nil)
+          expect(issue_data['closedAsDuplicateOf']).to be_nil
         end
       end
     end

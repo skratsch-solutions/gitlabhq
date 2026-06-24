@@ -15,7 +15,7 @@ The following tools are available to custom agents.
 |------|------|-------------|
 | Add New Task | `add_new_task` | Add a task. |
 | Build Review Merge Request Context | `build_review_merge_request_context` | Build comprehensive merge request context for code review. |
-| Ci Linter | `ci_linter` | Validate CI/CD YAML configurations against CI/CD syntax rules. |
+| CI Linter | `ci_linter` | Validate CI/CD YAML configurations against CI/CD syntax rules. |
 | Confirm Vulnerability | `confirm_vulnerability` | Change the state of a vulnerability in a project to `CONFIRMED`. |
 | Create Commit | `create_commit` | Create a commit with multiple file actions in a repository. |
 | Create Epic | `create_epic` | Create epics in a group. |

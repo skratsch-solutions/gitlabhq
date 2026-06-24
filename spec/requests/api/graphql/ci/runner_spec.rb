@@ -693,7 +693,7 @@ RSpec.describe 'Query.runner(id)', :freeze_time, feature_category: :fleet_visibi
     shared_examples 'has no register url' do
       it 'retrieves no register url' do
         post_graphql(query, current_user: user)
-        expect(graphql_data_at(:runner, :ephemeral_register_url)).to eq(nil)
+        expect(graphql_data_at(:runner, :ephemeral_register_url)).to be_nil
       end
     end
 
@@ -1221,7 +1221,7 @@ RSpec.describe 'Query.runner(id)', :freeze_time, feature_category: :fleet_visibi
           it 'returns paged result' do
             expect(projects_data).not_to be_nil
             expect(projects_data['count']).to eq 2
-            expect(projects_data['pageInfo']['hasNextPage']).to eq true
+            expect(projects_data['pageInfo']['hasNextPage']).to be true
           end
         end
 
@@ -1231,7 +1231,7 @@ RSpec.describe 'Query.runner(id)', :freeze_time, feature_category: :fleet_visibi
           it 'returns non-paged result' do
             expect(projects_data).not_to be_nil
             expect(projects_data['count']).to eq 2
-            expect(projects_data['pageInfo']['hasNextPage']).to eq false
+            expect(projects_data['pageInfo']['hasNextPage']).to be false
           end
         end
       end
@@ -1247,7 +1247,7 @@ RSpec.describe 'Query.runner(id)', :freeze_time, feature_category: :fleet_visibi
           it 'returns paged result with no additional pages' do
             expect(projects_data).not_to be_nil
             expect(projects_data['count']).to eq 1
-            expect(projects_data['pageInfo']['hasNextPage']).to eq false
+            expect(projects_data['pageInfo']['hasNextPage']).to be false
           end
         end
       end

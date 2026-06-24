@@ -1276,6 +1276,7 @@ type:VulnerabilityManagementPolicyAttributesType
 type:VulnerabilityNamespaceStatisticType
 type:VulnerabilityPermissions
 type:VulnerabilityRemediationType
+type:VulnerabilityRemediationUploadRegistry
 type:VulnerabilityReportTypeCount
 type:VulnerabilityRepresentationInformation
 type:VulnerabilityRequest

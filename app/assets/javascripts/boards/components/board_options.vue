@@ -41,6 +41,7 @@ export default {
       default: false,
     },
   },
+  emits: ['toggleSwimlanes'],
   data() {
     return {
       isShowingLabels: null,

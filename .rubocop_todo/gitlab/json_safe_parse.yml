@@ -88,7 +88,6 @@ Gitlab/JsonSafeParse:
     - 'ee/app/services/sbom/ingestion/vulnerability_data.rb'
     - 'ee/app/workers/click_house/rebuild_materialized_view_cron_worker.rb'
     - 'ee/app/workers/observability/alert_query_worker.rb'
-    - 'ee/lib/ai/duo_workflow/duo_workflow_service/client.rb'
     - 'ee/lib/api/ai/duo_workflows/workflows_internal.rb'
     - 'ee/lib/audit_events/streaming/destinations/google_cloud_logging_stream_destination.rb'
     - 'ee/lib/gitlab/ci/parsers/requirements_management/requirement.rb'

@@ -74,7 +74,7 @@ RSpec.describe 'package details', feature_category: :package_registry do
         end
 
         it '`public_package` returns true' do
-          expect(graphql_data_at(:package, :public_package)).to eq(true)
+          expect(graphql_data_at(:package, :public_package)).to be(true)
         end
       end
     end
@@ -100,7 +100,7 @@ RSpec.describe 'package details', feature_category: :package_registry do
     end
 
     it '`public_package` returns true' do
-      expect(graphql_data_at(:package, :public_package)).to eq(true)
+      expect(graphql_data_at(:package, :public_package)).to be(true)
     end
   end
 
@@ -358,7 +358,7 @@ RSpec.describe 'package details', feature_category: :package_registry do
         it 'returns false' do
           subject
 
-          expect(graphql_data_at(:package, :public_package)).to eq(false)
+          expect(graphql_data_at(:package, :public_package)).to be(false)
         end
 
         context 'with access to package registry for everyone' do
@@ -368,7 +368,7 @@ RSpec.describe 'package details', feature_category: :package_registry do
           end
 
           it 'returns true' do
-            expect(graphql_data_at(:package, :public_package)).to eq(true)
+            expect(graphql_data_at(:package, :public_package)).to be(true)
           end
         end
       end
@@ -383,7 +383,7 @@ RSpec.describe 'package details', feature_category: :package_registry do
         end
 
         it 'returns true' do
-          expect(graphql_data_at(:package, :public_package)).to eq(true)
+          expect(graphql_data_at(:package, :public_package)).to be(true)
         end
       end
     end

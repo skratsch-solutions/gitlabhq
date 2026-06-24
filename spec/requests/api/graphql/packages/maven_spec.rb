@@ -49,7 +49,7 @@ RSpec.describe 'maven package details', feature_category: :package_registry do
     it 'has an empty version' do
       subject
 
-      expect(metadata_response['appVersion']).to eq(nil)
+      expect(metadata_response['appVersion']).to be_nil
     end
   end
 end

@@ -80,6 +80,13 @@ export default {
       required: true,
     },
   },
+  emits: [
+    'drawer-closed',
+    'drawer-opened',
+    'setActiveList',
+    'setAddColumnFormVisibility',
+    'setFilters',
+  ],
   data() {
     return {
       highlightedLists: [],

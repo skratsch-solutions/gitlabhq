@@ -166,6 +166,19 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION assign_p_duo_workflows_checkpoint_blobs_id_value() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."id" IS NOT NULL THEN
+  RAISE WARNING 'Manually assigning ids is not allowed, the value will be ignored';
+END IF;
+NEW."id" := nextval('p_duo_workflows_checkpoint_blobs_id_seq'::regclass);
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION assign_p_duo_workflows_checkpoints_id_value() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -2454,6 +2467,22 @@ IF NEW."project_id" IS NULL THEN
   INTO NEW."project_id"
   FROM "terraform_state_versions"
   WHERE "terraform_state_versions"."id" = NEW."terraform_state_version_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
+CREATE FUNCTION trigger_2a550aba90e3() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."project_id" IS NULL THEN
+  SELECT "project_id"
+  INTO NEW."project_id"
+  FROM "vulnerability_remediation_uploads"
+  WHERE "vulnerability_remediation_uploads"."id" = NEW."vulnerability_remediation_upload_id";
 END IF;
 
 RETURN NEW;
@@ -6792,6 +6821,30 @@ CREATE TABLE p_ci_finished_pipeline_ch_sync_events (
     processed boolean DEFAULT false NOT NULL
 )
 PARTITION BY LIST (partition);
+
+CREATE TABLE p_duo_workflows_checkpoint_blobs (
+    id bigint NOT NULL,
+    workflow_id bigint NOT NULL,
+    project_id bigint,
+    namespace_id bigint,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    current_thread integer DEFAULT 0 NOT NULL,
+    thread_ts text NOT NULL,
+    channel text NOT NULL,
+    version text NOT NULL,
+    write_type text NOT NULL,
+    step_action text NOT NULL,
+    data bytea NOT NULL,
+    CONSTRAINT check_7738849f6c CHECK ((char_length(step_action) <= 255)),
+    CONSTRAINT check_7b23937719 CHECK ((char_length(thread_ts) <= 255)),
+    CONSTRAINT check_a33120de27 CHECK ((char_length(version) <= 255)),
+    CONSTRAINT check_a35b9c8003 CHECK ((char_length(write_type) <= 255)),
+    CONSTRAINT check_duo_wf_checkpoint_blobs_data_size CHECK ((octet_length(data) <= 1048576)),
+    CONSTRAINT check_duo_wf_checkpoint_blobs_sharding_key CHECK ((num_nonnulls(namespace_id, project_id) = 1)),
+    CONSTRAINT check_f7e2b28e64 CHECK ((char_length(channel) <= 255))
+)
+PARTITION BY RANGE (created_at);
 
 CREATE TABLE p_duo_workflows_checkpoints (
     id bigint NOT NULL,
@@ -26363,6 +26416,15 @@ CREATE SEQUENCE p_ci_workloads_id_seq
 
 ALTER SEQUENCE p_ci_workloads_id_seq OWNED BY p_ci_workloads.id;
 
+CREATE SEQUENCE p_duo_workflows_checkpoint_blobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE p_duo_workflows_checkpoint_blobs_id_seq OWNED BY p_duo_workflows_checkpoint_blobs.id;
+
 CREATE SEQUENCE p_duo_workflows_checkpoints_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -34396,6 +34458,29 @@ CREATE SEQUENCE vulnerability_reads_id_seq
 
 ALTER SEQUENCE vulnerability_reads_id_seq OWNED BY vulnerability_reads.id;
 
+CREATE TABLE vulnerability_remediation_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    vulnerability_remediation_upload_id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_693dd6ca39 CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE vulnerability_remediation_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE vulnerability_remediation_upload_states_id_seq OWNED BY vulnerability_remediation_upload_states.id;
+
 CREATE TABLE vulnerability_remediation_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
     size bigint NOT NULL,
@@ -38128,6 +38213,8 @@ ALTER TABLE ONLY vulnerability_occurrences ALTER COLUMN id SET DEFAULT nextval('
 
 ALTER TABLE ONLY vulnerability_reads ALTER COLUMN id SET DEFAULT nextval('vulnerability_reads_id_seq'::regclass);
 
+ALTER TABLE ONLY vulnerability_remediation_upload_states ALTER COLUMN id SET DEFAULT nextval('vulnerability_remediation_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY vulnerability_remediations ALTER COLUMN id SET DEFAULT nextval('vulnerability_remediations_id_seq'::regclass);
 
 ALTER TABLE ONLY vulnerability_scanners ALTER COLUMN id SET DEFAULT nextval('vulnerability_scanners_id_seq'::regclass);
@@ -41515,6 +41602,9 @@ ALTER TABLE ONLY p_ci_workload_variable_inclusions
 ALTER TABLE ONLY p_ci_workloads
     ADD CONSTRAINT p_ci_workloads_pkey PRIMARY KEY (id, partition_id);
 
+ALTER TABLE ONLY p_duo_workflows_checkpoint_blobs
+    ADD CONSTRAINT p_duo_workflows_checkpoint_blobs_pkey PRIMARY KEY (id, created_at);
+
 ALTER TABLE ONLY p_duo_workflows_checkpoints
     ADD CONSTRAINT p_duo_workflows_checkpoints_pkey PRIMARY KEY (id, created_at);
 
@@ -42618,6 +42708,9 @@ ALTER TABLE ONLY vulnerability_partial_scans
 
 ALTER TABLE ONLY vulnerability_reads
     ADD CONSTRAINT vulnerability_reads_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY vulnerability_remediation_upload_states
+    ADD CONSTRAINT vulnerability_remediation_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY vulnerability_remediation_uploads
     ADD CONSTRAINT vulnerability_remediation_uploads_pkey PRIMARY KEY (id, model_type);
@@ -45805,6 +45898,8 @@ CREATE INDEX idx_dlep_upl_states_on_verification_state ON dependency_list_export
 
 CREATE INDEX idx_dlep_upl_states_pending_verification ON dependency_list_export_part_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
+CREATE UNIQUE INDEX idx_duo_wf_checkpoint_blobs_unique ON ONLY p_duo_workflows_checkpoint_blobs USING btree (project_id, workflow_id, thread_ts, channel, version, created_at) NULLS NOT DISTINCT;
+
 CREATE INDEX idx_elastic_reindexing_slices_on_elastic_reindexing_subtask_id ON elastic_reindexing_slices USING btree (elastic_reindexing_subtask_id);
 
 CREATE UNIQUE INDEX idx_enabled_flows_on_namespace_catalog_item ON enabled_foundational_flows USING btree (namespace_id, catalog_item_id) WHERE (namespace_id IS NOT NULL);
@@ -46554,6 +46649,8 @@ CREATE UNIQUE INDEX idx_vulnerability_issue_links_on_vulnerability_id_and_link_t
 CREATE INDEX idx_vulnerability_reads_for_traversal_ids_queries_srt_severity ON vulnerability_reads USING btree (state, report_type, severity, traversal_ids, vulnerability_id) WHERE (archived = false);
 
 CREATE INDEX idx_vulnerability_reads_project_id_scanner_id_vulnerability_id ON vulnerability_reads USING btree (project_id, scanner_id, vulnerability_id);
+
+CREATE UNIQUE INDEX idx_vulnerability_remediation_uploads_on_id ON vulnerability_remediation_uploads USING btree (id);
 
 CREATE INDEX idx_vulnerability_statistics_on_traversal_ids_and_letter_grade ON vulnerability_statistics USING btree (traversal_ids, letter_grade) WHERE (archived = false);
 
@@ -48180,6 +48277,10 @@ CREATE INDEX index_dts_on_expiring_at_seven_days_notification_sent_at ON deploy_
 CREATE INDEX index_dts_on_expiring_at_sixty_days_notification_sent_at ON deploy_tokens USING btree (expires_at, id) WHERE ((revoked = false) AND (sixty_days_notification_sent_at IS NULL));
 
 CREATE INDEX index_dts_on_expiring_at_thirty_days_notification_sent_at ON deploy_tokens USING btree (expires_at, id) WHERE ((revoked = false) AND (thirty_days_notification_sent_at IS NULL));
+
+CREATE INDEX index_duo_wf_checkpoint_blobs_on_namespace_id ON ONLY p_duo_workflows_checkpoint_blobs USING btree (namespace_id);
+
+CREATE INDEX index_duo_wf_checkpoint_blobs_on_workflow_id ON ONLY p_duo_workflows_checkpoint_blobs USING btree (workflow_id);
 
 CREATE INDEX index_duo_wf_session_artifacts_on_namespace_id_updated_at ON duo_workflow_session_artifacts USING btree (namespace_id, workflow_updated_at DESC);
 
@@ -51645,6 +51746,18 @@ CREATE INDEX index_vuln_reads_on_project_id_owasp_top_10 ON vulnerability_reads 
 
 CREATE INDEX index_vuln_reads_on_project_id_state_severity_and_vuln_id ON vulnerability_reads USING btree (project_id, state, severity, vulnerability_id DESC);
 
+CREATE INDEX index_vuln_remediation_upload_states_failed_verification ON vulnerability_remediation_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX index_vuln_remediation_upload_states_needs_verification_id ON vulnerability_remediation_upload_states USING btree (vulnerability_remediation_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE UNIQUE INDEX index_vuln_remediation_upload_states_on_upload_id ON vulnerability_remediation_upload_states USING btree (vulnerability_remediation_upload_id);
+
+CREATE INDEX index_vuln_remediation_upload_states_on_verification_started ON vulnerability_remediation_upload_states USING btree (vulnerability_remediation_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE INDEX index_vuln_remediation_upload_states_on_verification_state ON vulnerability_remediation_upload_states USING btree (verification_state);
+
+CREATE INDEX index_vuln_remediation_upload_states_pending_verification ON vulnerability_remediation_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
 CREATE INDEX index_vuln_rep_info_on_project_id ON vulnerability_representation_information USING btree (project_id);
 
 CREATE INDEX index_vuln_severity_overrides_on_security_policy_id ON vulnerability_severity_overrides USING btree (security_policy_id) WHERE (security_policy_id IS NOT NULL);
@@ -51826,6 +51939,8 @@ CREATE INDEX index_vulnerability_reads_on_uuid_project_id_and_state ON vulnerabi
 CREATE UNIQUE INDEX index_vulnerability_reads_on_vulnerability_id ON vulnerability_reads USING btree (vulnerability_id);
 
 CREATE UNIQUE INDEX index_vulnerability_reads_on_vulnerability_occurrence_id_unique ON vulnerability_reads USING btree (vulnerability_occurrence_id);
+
+CREATE INDEX index_vulnerability_remediation_upload_states_on_project_id ON vulnerability_remediation_upload_states USING btree (project_id);
 
 CREATE UNIQUE INDEX index_vulnerability_remediations_on_project_id_and_checksum ON vulnerability_remediations USING btree (project_id, checksum);
 
@@ -56563,6 +56678,8 @@ CREATE TRIGGER assign_p_ci_pipelines_id_trigger BEFORE INSERT ON p_ci_pipelines 
 
 CREATE TRIGGER assign_p_ci_stages_id_trigger BEFORE INSERT ON p_ci_stages FOR EACH ROW EXECUTE FUNCTION assign_p_ci_stages_id_value();
 
+CREATE TRIGGER assign_p_duo_workflows_checkpoint_blobs_id_trigger BEFORE INSERT ON p_duo_workflows_checkpoint_blobs FOR EACH ROW EXECUTE FUNCTION assign_p_duo_workflows_checkpoint_blobs_id_value();
+
 CREATE TRIGGER assign_p_duo_workflows_checkpoints_id_trigger BEFORE INSERT ON p_duo_workflows_checkpoints FOR EACH ROW EXECUTE FUNCTION assign_p_duo_workflows_checkpoints_id_value();
 
 CREATE TRIGGER assign_p_knowledge_graph_code_indexing_tasks_id_trigger BEFORE INSERT ON p_knowledge_graph_code_indexing_tasks FOR EACH ROW EXECUTE FUNCTION assign_p_knowledge_graph_code_indexing_tasks_id_value();
@@ -56792,6 +56909,8 @@ CREATE TRIGGER trigger_25fe4f7da510 BEFORE INSERT OR UPDATE ON vulnerability_iss
 CREATE TRIGGER trigger_29128c51c7c6 BEFORE INSERT OR UPDATE ON dast_pre_scan_verification_steps FOR EACH ROW EXECUTE FUNCTION trigger_29128c51c7c6();
 
 CREATE TRIGGER trigger_292097dea85c BEFORE INSERT OR UPDATE ON terraform_state_version_states FOR EACH ROW EXECUTE FUNCTION trigger_292097dea85c();
+
+CREATE TRIGGER trigger_2a550aba90e3 BEFORE INSERT OR UPDATE ON vulnerability_remediation_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_2a550aba90e3();
 
 CREATE TRIGGER trigger_2a994bb5629f BEFORE INSERT OR UPDATE ON incident_management_pending_alert_escalations FOR EACH ROW EXECUTE FUNCTION trigger_2a994bb5629f();
 
@@ -57873,6 +57992,9 @@ ALTER TABLE ONLY user_namespace_callouts
 ALTER TABLE ONLY user_details
     ADD CONSTRAINT fk_27ac767d6a FOREIGN KEY (bot_namespace_id) REFERENCES namespaces(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY vulnerability_remediation_upload_states
+    ADD CONSTRAINT fk_27ebcc42ba FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY issuable_slas
     ADD CONSTRAINT fk_282ef683a5 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
@@ -58328,6 +58450,9 @@ ALTER TABLE ONLY saved_views
 
 ALTER TABLE ONLY bulk_import_batch_trackers
     ADD CONSTRAINT fk_4cd59701d0 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY vulnerability_remediation_upload_states
+    ADD CONSTRAINT fk_4cf1afa581 FOREIGN KEY (vulnerability_remediation_upload_id) REFERENCES vulnerability_remediation_uploads(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY packages_conan_recipe_revisions
     ADD CONSTRAINT fk_4d18bd6f82 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -60086,6 +60211,9 @@ ALTER TABLE ONLY work_item_number_field_values
 
 ALTER TABLE ONLY issues
     ADD CONSTRAINT fk_df75a7c8b8 FOREIGN KEY (promoted_to_epic_id) REFERENCES epics(id) ON DELETE SET NULL;
+
+ALTER TABLE p_duo_workflows_checkpoint_blobs
+    ADD CONSTRAINT fk_duo_wf_checkpoint_blobs_workflow_id FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY duo_workflows_workflows
     ADD CONSTRAINT fk_duo_workflows_workflows_ai_catalog_item_id FOREIGN KEY (ai_catalog_item_id) REFERENCES ai_catalog_items(id) ON DELETE SET NULL;

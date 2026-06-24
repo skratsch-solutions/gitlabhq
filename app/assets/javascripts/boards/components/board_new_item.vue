@@ -27,6 +27,7 @@ export default {
       default: __('Create issue'),
     },
   },
+  emits: ['form-cancel', 'form-submit'],
   data() {
     return {
       title: '',

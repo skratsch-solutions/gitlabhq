@@ -95,7 +95,7 @@ RSpec.describe 'getting container repositories in a group', feature_category: :s
             expect(repository_response.dig('node', 'userPermissions', 'destroyContainerRepository')).to eq(destroy_container_repository)
           end
         else
-          expect(container_repositories_response).to eq(nil)
+          expect(container_repositories_response).to be_nil
         end
       end
     end

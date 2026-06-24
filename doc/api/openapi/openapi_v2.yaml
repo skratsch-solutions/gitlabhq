@@ -68271,7 +68271,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       created_at:
         type: string
@@ -68320,7 +68320,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       project_path:
         type: string
@@ -73112,7 +73112,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       status:
         type: string
@@ -73154,11 +73154,11 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       bulk_import_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       status:
         type: string
@@ -73191,15 +73191,15 @@ definitions:
         example: destination_path
       parent_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       namespace_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       created_at:
         type: string
@@ -75863,6 +75863,28 @@ definitions:
         type: string
       vulnerability_export_uploads_oldest_unsynced_time:
         type: string
+      vulnerability_remediation_uploads_count:
+        type: string
+      vulnerability_remediation_uploads_checksum_total_count:
+        type: string
+      vulnerability_remediation_uploads_checksummed_count:
+        type: string
+      vulnerability_remediation_uploads_checksum_failed_count:
+        type: string
+      vulnerability_remediation_uploads_synced_count:
+        type: string
+      vulnerability_remediation_uploads_failed_count:
+        type: string
+      vulnerability_remediation_uploads_registry_count:
+        type: string
+      vulnerability_remediation_uploads_verification_total_count:
+        type: string
+      vulnerability_remediation_uploads_verified_count:
+        type: string
+      vulnerability_remediation_uploads_verification_failed_count:
+        type: string
+      vulnerability_remediation_uploads_oldest_unsynced_time:
+        type: string
       git_fetch_event_count_weekly:
         type: string
       git_push_event_count_weekly:
@@ -76038,6 +76060,10 @@ definitions:
       vulnerability_export_uploads_synced_in_percentage:
         type: string
       vulnerability_export_uploads_verified_in_percentage:
+        type: string
+      vulnerability_remediation_uploads_synced_in_percentage:
+        type: string
+      vulnerability_remediation_uploads_verified_in_percentage:
         type: string
       repositories_count:
         type: string
@@ -76550,6 +76576,17 @@ definitions:
     - vulnerability_export_uploads_verified_count
     - vulnerability_export_uploads_verification_failed_count
     - vulnerability_export_uploads_oldest_unsynced_time
+    - vulnerability_remediation_uploads_count
+    - vulnerability_remediation_uploads_checksum_total_count
+    - vulnerability_remediation_uploads_checksummed_count
+    - vulnerability_remediation_uploads_checksum_failed_count
+    - vulnerability_remediation_uploads_synced_count
+    - vulnerability_remediation_uploads_failed_count
+    - vulnerability_remediation_uploads_registry_count
+    - vulnerability_remediation_uploads_verification_total_count
+    - vulnerability_remediation_uploads_verified_count
+    - vulnerability_remediation_uploads_verification_failed_count
+    - vulnerability_remediation_uploads_oldest_unsynced_time
     - git_fetch_event_count_weekly
     - git_push_event_count_weekly
     - proxy_remote_requests_event_count_weekly
@@ -76638,6 +76675,8 @@ definitions:
     - vulnerability_export_part_uploads_verified_in_percentage
     - vulnerability_export_uploads_synced_in_percentage
     - vulnerability_export_uploads_verified_in_percentage
+    - vulnerability_remediation_uploads_synced_in_percentage
+    - vulnerability_remediation_uploads_verified_in_percentage
     - repositories_count
     - replication_slots_count
     - replication_slots_used_count

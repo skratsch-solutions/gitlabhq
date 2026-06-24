@@ -96,6 +96,14 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'cannot-find-active-item',
+    'dragStart',
+    'dragStop',
+    'focus-adjacent',
+    'setFilters',
+    'toggleNewForm',
+  ],
   data() {
     return {
       showCount: false,

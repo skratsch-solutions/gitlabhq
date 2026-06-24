@@ -7,6 +7,7 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   mixins: [Tracking.mixin()],
+  emits: ['setAddColumnFormVisibility'],
   methods: {
     handleClick() {
       this.$emit('setAddColumnFormVisibility', true);

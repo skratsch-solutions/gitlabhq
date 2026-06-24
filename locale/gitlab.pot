@@ -22021,6 +22021,12 @@ msgstr ""
 msgid "ContinuousDeployment|%{environmentsCount} of %{totalEnvironmentsCount} environments"
 msgstr ""
 
+msgid "ContinuousDeployment|1"
+msgstr ""
+
+msgid "ContinuousDeployment|A short name and description."
+msgstr ""
+
 msgid "ContinuousDeployment|Add Environment"
 msgstr ""
 
@@ -22033,10 +22039,19 @@ msgstr ""
 msgid "ContinuousDeployment|All types"
 msgstr ""
 
+msgid "ContinuousDeployment|Application identity"
+msgstr ""
+
+msgid "ContinuousDeployment|Application name"
+msgstr ""
+
 msgid "ContinuousDeployment|Applications"
 msgstr ""
 
 msgid "ContinuousDeployment|Approval needed"
+msgstr ""
+
+msgid "ContinuousDeployment|Brief description"
 msgstr ""
 
 msgid "ContinuousDeployment|Continuous Deployment"
@@ -22058,6 +22073,9 @@ msgid "ContinuousDeployment|Deploying"
 msgstr ""
 
 msgid "ContinuousDeployment|Deployment in progress"
+msgstr ""
+
+msgid "ContinuousDeployment|Description"
 msgstr ""
 
 msgid "ContinuousDeployment|Environment name"
@@ -22112,6 +22130,9 @@ msgid "ContinuousDeployment|Staging"
 msgstr ""
 
 msgid "ContinuousDeployment|Waiting for your approval"
+msgstr ""
+
+msgid "ContinuousDeployment|e.g. acme-platform"
 msgstr ""
 
 msgid "Contribute to GitLab"
@@ -34780,6 +34801,12 @@ msgid "Geo|Vulnerability Export Upload"
 msgstr ""
 
 msgid "Geo|Vulnerability Export Uploads"
+msgstr ""
+
+msgid "Geo|Vulnerability Remediation Upload"
+msgstr ""
+
+msgid "Geo|Vulnerability Remediation Uploads"
 msgstr ""
 
 msgid "Geo|Whether this site's database is connected to the primary database directly or through data replication"

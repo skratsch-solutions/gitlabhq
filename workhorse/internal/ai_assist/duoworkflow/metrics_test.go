@@ -156,7 +156,7 @@ func TestConnectionErrorsTotal(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "/", nil)
 		grpcErr := status.Error(codes.Internal, "boom")
 		sm := newTestStreamManager(t, &mockWorkflowStream{recvError: grpcErr})
-		runner := &runner{streamManager: sm, conn: &mockWebSocketConn{}}
+		runner := &runner{streamManager: sm, ws: newWsManager(&mockWebSocketConn{})}
 
 		h.executeRunner(r, nil, runner)
 
@@ -196,7 +196,7 @@ func TestConnectionErrorsTotal(t *testing.T) {
 		sm := newTestStreamManager(t, &mockWorkflowStream{recvError: io.EOF})
 		runner := &runner{
 			streamManager: sm,
-			conn:          &mockWebSocketConn{blockCh: make(chan bool)},
+			ws:            newWsManager(&mockWebSocketConn{blockCh: make(chan bool)}),
 		}
 
 		h.executeRunner(r, nil, runner)

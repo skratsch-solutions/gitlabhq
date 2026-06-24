@@ -49,6 +49,7 @@ export default {
       default: null,
     },
   },
+  emits: ['filter-items', 'hide', 'highlight-list', 'setAddColumnFormVisibility'],
   data() {
     return {
       selectedId: null,

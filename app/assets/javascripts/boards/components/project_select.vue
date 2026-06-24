@@ -35,6 +35,7 @@ export default {
       required: true,
     },
   },
+  emits: ['selectProject'],
   data() {
     return {
       initialLoading: true,

@@ -104,6 +104,7 @@ export default {
       default: null,
     },
   },
+  emits: ['addBoard', 'cancel', 'showBoardModal', 'shown', 'updateBoard'],
   data() {
     return {
       board: { ...boardDefaults, ...this.currentBoard },

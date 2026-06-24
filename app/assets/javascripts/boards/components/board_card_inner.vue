@@ -73,6 +73,7 @@ export default {
       default: false,
     },
   },
+  emits: ['setFilters', 'view-all-sessions'],
   data() {
     return {
       limitBeforeCounter: 2,

@@ -41,7 +41,7 @@ RSpec.describe 'getting a detailed sentry error', feature_category: :observabili
     end
 
     it "is expected to return an empty error" do
-      expect(error_data).to eq nil
+      expect(error_data).to be_nil
     end
   end
 

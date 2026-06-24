@@ -54,6 +54,7 @@ export default {
       required: true,
     },
   },
+  emits: ['setFilters'],
   data() {
     return {
       filterParams: this.initialFilterParams,
