@@ -32,7 +32,6 @@ import {
   WIDGET_TYPE_CURRENT_USER_TODOS,
   WIDGET_TYPE_DESCRIPTION,
   WORK_ITEM_TYPE_NAME_OBJECTIVE,
-  WIDGET_TYPE_LINKED_ITEMS,
   WIDGET_TYPE_DESIGNS,
   WORK_ITEM_REFERENCE_CHAR,
   WORK_ITEM_TYPE_NAME_EPIC,
@@ -56,6 +55,7 @@ import {
   findDevelopmentWidget,
   findErrorTrackingWidget,
   findHierarchyWidget,
+  findLinkedItemsWidget,
   findLinkedResourcesWidget,
   findHierarchyWidgetDefinition,
   findNotesWidget,
@@ -466,8 +466,8 @@ export default {
     },
     workItemLinkedItems() {
       return this.workItemType === WORK_ITEM_TYPE_NAME_EPIC
-        ? this.findWidget(WIDGET_TYPE_LINKED_ITEMS) && this.hasLinkedItemsEpicsFeature
-        : this.findWidget(WIDGET_TYPE_LINKED_ITEMS);
+        ? findLinkedItemsWidget(this.workItem) && this.hasLinkedItemsEpicsFeature
+        : findLinkedItemsWidget(this.workItem);
     },
     showWorkItemTree() {
       return findHierarchyWidget(this.workItem) && this.allowedChildTypes?.length > 0;

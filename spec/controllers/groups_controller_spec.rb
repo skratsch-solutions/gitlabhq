@@ -442,26 +442,6 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
   end
 
-  describe 'GET #index' do
-    context 'as a user' do
-      it 'redirects to Groups Dashboard' do
-        sign_in(user)
-
-        get :index
-
-        expect(response).to redirect_to(dashboard_groups_path)
-      end
-    end
-
-    context 'as a guest' do
-      it 'redirects to Explore Groups' do
-        get :index
-
-        expect(response).to redirect_to(explore_groups_path)
-      end
-    end
-  end
-
   describe 'GET #issues' do
     before do
       sign_in(user)

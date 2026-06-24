@@ -50,7 +50,10 @@ RSpec.describe 'Abuse reports', :js, feature_category: :insider_threat do
 
       before do
         visit incident_project_issues_path(project, incident)
-        click_button 'Incident actions'
+
+        within_testid('issue-header') do
+          find_by_testid('desktop-dropdown').click
+        end
       end
 
       it_behaves_like 'reports the user with an abuse category'

@@ -275,9 +275,18 @@ lib/api/entities/ci/variable.rb:
 - value
 - variable_type
 lib/api/entities/cluster.rb:
+- cluster_type
+- created_at
+- domain
+- enabled
+- environment_scope
 - id
+- managed
 - management_project
+- name
+- namespace_per_environment
 - platform_kubernetes
+- platform_type
 - provider_gcp
 - provider_type
 - user

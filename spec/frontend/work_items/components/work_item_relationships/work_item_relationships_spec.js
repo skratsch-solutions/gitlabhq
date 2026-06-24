@@ -24,6 +24,7 @@ import {
 import {
   removeLinkedWorkItemResponse,
   workItemLinkedItemsResponse,
+  workItemLinkedItemsFeaturesResponse,
   workItemEmptyLinkedItemsResponse,
   workItemSingleLinkedItemResponse,
   mockLinkedItems,
@@ -124,6 +125,22 @@ describe('WorkItemRelationships', () => {
       });
     },
   );
+
+  describe('when workItemFeaturesField flag is enabled', () => {
+    beforeEach(async () => {
+      await createComponent({
+        workItemLinkedItemsHandler: jest
+          .fn()
+          .mockResolvedValue(workItemLinkedItemsFeaturesResponse),
+        glFeatures: { workItemFeaturesField: true },
+      });
+    });
+
+    it('renders linked items list from features.linkedItems data', () => {
+      expect(findAllWorkItemRelationshipListComponents()).toHaveLength(3);
+      expect(findLinkedItemsCountBadge().text()).toBe('3');
+    });
+  });
 
   it('shows loader when query is not processed', () => {
     createComponent();

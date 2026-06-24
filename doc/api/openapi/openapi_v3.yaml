@@ -73362,6 +73362,7 @@ components:
       properties:
         namespace_id:
           type: integer
+          format: int64
           example: 123
         expires_at:
           type: string
@@ -75513,12 +75514,14 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         iid:
           type: integer
           example: 2
         project_id:
           type: integer
+          format: int64
           example: 3
         sha:
           type: string
@@ -78938,12 +78941,14 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         iid:
           type: integer
           example: 2
         project_id:
           type: integer
+          format: int64
           example: 3
         sha:
           type: string
@@ -79296,9 +79301,13 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         agent_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         url:
           type: string
         public_key:
@@ -79314,9 +79323,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         runner_controller_id:
           type: integer
+          format: int64
           example: 1
         description:
           type: string
@@ -79335,9 +79346,11 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         runner_controller_id:
           type: integer
+          format: int64
           example: 1
         description:
           type: string
@@ -79367,6 +79380,7 @@ components:
       properties:
         runner_id:
           type: integer
+          format: int64
         created_at:
           type: string
           format: date-time
@@ -79378,6 +79392,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         description:
           type: string
@@ -79396,6 +79411,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         description:
           type: string
@@ -84536,12 +84552,14 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         iid:
           type: integer
           example: 2
         project_id:
           type: integer
+          format: int64
           example: 3
         sha:
           type: string
@@ -86776,6 +86794,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         freeze_start:
           type: string
@@ -86858,6 +86877,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         iid:
           type: integer
@@ -86870,6 +86890,7 @@ components:
           example: user1,user2
         project_id:
           type: integer
+          format: int64
           example: 2
         created_at:
           type: string
@@ -86888,6 +86909,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         environment_scope:
           type: string
@@ -86897,6 +86919,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         iid:
           type: integer
@@ -86912,6 +86935,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -86985,6 +87009,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -87032,6 +87057,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 8
         description:
           type: string
@@ -87074,6 +87100,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 8
         system_id:
           type: string
@@ -87110,6 +87137,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         status:
           type: string
@@ -87200,6 +87228,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 41
         iid:
           type: integer
@@ -87231,22 +87260,28 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         name:
           type: string
         config_project:
           "$ref": "#/components/schemas/APIEntitiesProjectIdentity"
         created_at:
           type: string
+          format: date-time
         created_by_user_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         is_receptive:
-          type: string
+          type: boolean
     APIEntitiesEnvironment:
       type: object
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -87384,6 +87419,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 41
         iid:
           type: integer
@@ -87610,6 +87646,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 93
         sha:
           type: string
@@ -87649,6 +87686,7 @@ components:
           example: 98.29
         pipeline_id:
           type: integer
+          format: int64
           example: 101
         author:
           "$ref": "#/components/schemas/APIEntitiesUserBasic"
@@ -87703,71 +87741,95 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         name:
           type: string
         description:
           type: string
         agent_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         status:
           type: string
         created_at:
           type: string
+          format: date-time
         created_by_user_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
     APIEntitiesClustersAgentToken:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         name:
           type: string
         description:
           type: string
         agent_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         status:
           type: string
         created_at:
           type: string
+          format: date-time
         created_by_user_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         last_used_at:
           type: string
+          format: date-time
     APIEntitiesClustersAgentTokenWithToken:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         name:
           type: string
         description:
           type: string
         agent_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         status:
           type: string
         created_at:
           type: string
+          format: date-time
         created_by_user_id:
-          type: string
+          type: integer
+          format: int64
+          example: 1
         last_used_at:
           type: string
+          format: date-time
         token:
           type: string
     APIEntitiesDiscoveredClusters:
       type: object
       properties:
         groups:
-          type: string
+          type: object
         projects:
-          type: string
+          type: object
     APIEntitiesTrigger:
       type: object
       properties:
         id:
           type: integer
+          format: int64
           example: 10
         token:
           type: string
@@ -87805,6 +87867,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 13
         description:
           type: string
@@ -87842,6 +87905,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 13
         description:
           type: string
@@ -87883,12 +87947,14 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         iid:
           type: integer
           example: 2
         project_id:
           type: integer
+          format: int64
           example: 3
         sha:
           type: string
@@ -87961,6 +88027,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         status:
           type: string
@@ -88170,6 +88237,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 123
         name:
           type: string
@@ -88200,6 +88268,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 8
         description:
           type: string
@@ -88268,6 +88337,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         status:
           type: string
@@ -88565,6 +88635,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         key:
           type: string
@@ -88585,6 +88656,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         status:
           type: string

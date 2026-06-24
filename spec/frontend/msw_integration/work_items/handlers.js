@@ -14,11 +14,45 @@ export const workItemsFullResponse = fixtures.getWorkItemsFull;
 
 const { id, name } = fixtures.getWorkItemsRest.data.namespace;
 
+const LINKABLE_WORK_ITEM = {
+  id: 'gid://gitlab/WorkItem/99',
+  iid: '99',
+  title: 'Linkable test issue',
+  confidential: false,
+  webUrl: 'http://localhost/group1/project-1/-/work_items/99',
+  namespace: {
+    id: 'gid://gitlab/Namespaces::ProjectNamespace/8',
+    fullPath: 'group1/project-1',
+    __typename: 'Namespace',
+  },
+  workItemType: {
+    id: 'gid://gitlab/WorkItems::Type/1',
+    name: 'Issue',
+    iconName: 'work-item-issue',
+    __typename: 'WorkItemType',
+  },
+  __typename: 'WorkItem',
+};
+
 const GET_WORK_ITEMS_REST_GQL_MOCK = {
   data: {
     namespace: { id, fullPath: 'gitlab-org/gitlab', name, __typename: 'Namespace' },
   },
 };
+
+const linkedItemsWidget = (workItem) => workItem.widgets.find((w) => w.type === 'LINKED_ITEMS');
+
+// The linked-items query fixtures have no nodes; seed one from the add-mutation
+// fixtures so the relationships list renders a row on mount for the remove-path spec.
+linkedItemsWidget(fixtures.workItemLinkedItems.data.namespace.workItem).linkedItems.nodes = [
+  linkedItemsWidget(fixtures.addLinkedItems.data.workItemAddLinkedItems.workItem).linkedItems
+    .nodes[0],
+];
+fixtures.workItemLinkedItemsFeatures.data.namespace.workItem.features.linkedItems.linkedItems.nodes =
+  [
+    fixtures.addLinkedItemsFeatures.data.workItemAddLinkedItems.workItem.features.linkedItems
+      .linkedItems.nodes[0],
+  ];
 
 export const GET_WORK_ITEMS_REST_ENDPOINT = {
   name: 'getWorkItemsRest',
@@ -50,6 +84,41 @@ const STATIC_OPERATION_HANDLERS = Object.fromEntries(
 
 const MUTATION_OPERATION_HANDLERS = {
   createWorkItemNote: () => fixtures.createWorkItemNote,
+
+  namespaceWorkItem: ({ variables }) =>
+    variables.useWorkItemFeatures
+      ? { data: fixtures.namespaceWorkItemFeatures.data }
+      : { data: fixtures.namespaceWorkItem.data },
+
+  projectWorkItems: () => ({
+    data: {
+      namespace: {
+        id: 'gid://gitlab/Project/4',
+        workItems: { nodes: [LINKABLE_WORK_ITEM], __typename: 'WorkItemConnection' },
+        __typename: 'Project',
+      },
+    },
+  }),
+
+  workItemLinkedItems: ({ variables }) =>
+    variables.useWorkItemFeatures
+      ? { data: fixtures.workItemLinkedItemsFeatures.data }
+      : { data: fixtures.workItemLinkedItems.data },
+
+  addLinkedItems: ({ variables }) =>
+    variables.useWorkItemFeatures
+      ? { data: fixtures.addLinkedItemsFeatures.data }
+      : { data: fixtures.addLinkedItems.data },
+
+  removeLinkedItems: () => ({
+    data: {
+      workItemRemoveLinkedItems: {
+        errors: [],
+        message: 'Successfully unlinked',
+        __typename: 'WorkItemRemoveLinkedItemsPayload',
+      },
+    },
+  }),
 
   workItemSubscribe: ({ variables }) => ({
     data: {

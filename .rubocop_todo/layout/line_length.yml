@@ -2023,7 +2023,6 @@ Layout/LineLength:
     - 'qa/qa/specs/features/ee/browser_ui/2_plan/issue_boards/group_issue_boards_spec.rb'
     - 'qa/qa/specs/features/ee/browser_ui/2_plan/issue_boards/read_only_board_configuration_spec.rb'
     - 'qa/qa/specs/features/ee/browser_ui/2_plan/issue_boards/sum_of_issues_weights_spec.rb'
-    - 'qa/qa/specs/features/ee/browser_ui/2_plan/issues_analytics/issues_analytics_spec.rb'
     - 'qa/qa/specs/features/ee/browser_ui/2_plan/issues_weight/issue_weight_visualization_spec.rb'
     - 'qa/qa/specs/features/ee/browser_ui/2_plan/iterations/create_group_iteration_spec.rb'
     - 'qa/qa/specs/features/ee/browser_ui/2_plan/multiple_assignees_for_issues/four_assignees_spec.rb'

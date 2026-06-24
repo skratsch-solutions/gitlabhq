@@ -27,6 +27,7 @@ describe('WorkItemRelationshipList', () => {
     canUpdate = true,
     isLoggedIn = true,
     activeChildItemId = null,
+    glFeatures = {},
   } = {}) => {
     if (isLoggedIn) {
       window.gon.current_user_id = 1;
@@ -45,6 +46,7 @@ describe('WorkItemRelationshipList', () => {
           { id: 'gid://gitlab/WorkItems::Type/8', name: 'Epic', useIssueView: false },
           { id: 'gid://gitlab/WorkItems::Type/9', name: 'Ticket', useIssueView: true },
         ],
+        glFeatures,
       },
       propsData: {
         parentWorkItemId,
@@ -306,9 +308,33 @@ describe('WorkItemRelationshipList', () => {
               linkType: 'BLOCKED_BY',
               workItemsIds: [mockItem.dataset.workItemId],
             },
+            useWorkItemFeatures: false,
           },
         }),
       );
+    });
+
+    describe('when the workItemFeaturesField flag is enabled', () => {
+      beforeEach(() => {
+        createComponent({
+          linkedItems: mockLinkedItems,
+          glFeatures: { workItemFeaturesField: true },
+        });
+      });
+
+      it('passes useWorkItemFeatures as true to the add mutation', async () => {
+        await emitDragEnd(mockFrom, mockTo);
+
+        await waitForPromises();
+
+        expect(mutationSpy).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({
+            mutation: addLinkedItemsMutation,
+            variables: expect.objectContaining({ useWorkItemFeatures: true }),
+          }),
+        );
+      });
     });
   });
 });

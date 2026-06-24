@@ -1316,6 +1316,23 @@ export const workItemLinkedItemsResponse = {
   },
 };
 
+export const workItemLinkedItemsFeaturesResponse = {
+  data: {
+    namespace: {
+      __typename: 'Namespace',
+      id: 'gid://gitlab/Group/1',
+      workItem: {
+        id: 'gid://gitlab/WorkItem/2',
+        features: {
+          __typename: 'WorkItemFeatures',
+          linkedItems: mockLinkedItems,
+        },
+        __typename: 'WorkItem',
+      },
+    },
+  },
+};
+
 export const workItemEmptyLinkedItemsResponse = {
   data: {
     namespace: {
@@ -1452,6 +1469,7 @@ export const workItemBlockedByLinkedItemsResponseWithFeatures = {
         id: 'gid://gitlab/WorkItem/2',
         features: {
           linkedItems: {
+            type: WIDGET_TYPE_LINKED_ITEMS,
             linkedItems: mockBlockedByLinkedItem.linkedItems,
             __typename: 'WorkItemWidgetLinkedItems',
           },
@@ -1472,6 +1490,7 @@ export const workItemNoBlockedByLinkedItemsResponseWithFeatures = {
         id: 'gid://gitlab/WorkItem/2',
         features: {
           linkedItems: {
+            type: WIDGET_TYPE_LINKED_ITEMS,
             linkedItems: { nodes: [], __typename: 'LinkedWorkItemTypeConnection' },
             __typename: 'WorkItemWidgetLinkedItems',
           },

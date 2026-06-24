@@ -252,6 +252,8 @@ RSpec.shared_examples 'work items labels' do |namespace_type|
   it 'creates, auto-selects, and adds new label' do
     within_testid 'work-item-labels' do
       click_button 'Edit'
+      expect(page).to have_selector('.gl-new-dropdown-item[role="option"]', minimum: 1)
+
       click_button "Create #{namespace_type} label"
       send_keys 'Quintessence'
       click_button 'Create'
@@ -339,14 +341,13 @@ RSpec.shared_examples 'work items description' do
 
     it 'shows conflict message when description changes', :aggregate_failures do
       click_button 'Edit', match: :first
+      expect(page).to have_field _('Description'), with: ''
 
       ::WorkItems::UpdateService.new(
         container: work_item.project,
         current_user: other_user,
         params: { description: "oh no!" }
       ).execute(work_item)
-
-      wait_for_requests
 
       fill_in _('Description'), with: 'oh yeah!'
 

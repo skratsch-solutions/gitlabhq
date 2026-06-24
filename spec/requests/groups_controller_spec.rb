@@ -89,6 +89,22 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
       it_behaves_like 'does not enforce step-up authentication'
     end
+
+    context 'redirect behaviour' do
+      it 'redirects an authenticated user to the groups dashboard' do
+        sign_in(create(:user))
+
+        get groups_path
+
+        expect(response).to redirect_to(dashboard_groups_path)
+      end
+
+      it 'redirects an anonymous user to the explore groups page' do
+        get groups_path
+
+        expect(response).to redirect_to(explore_groups_path)
+      end
+    end
   end
 
   describe 'GET #show' do

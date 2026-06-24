@@ -10248,6 +10248,9 @@ msgstr ""
 msgid "AnalyticsDashboards|Enter a title"
 msgstr ""
 
+msgid "AnalyticsDashboards|Enter and run a query to add it to the dashboard."
+msgstr ""
+
 msgid "AnalyticsDashboards|Failed to create dashboard. Please try again."
 msgstr ""
 
@@ -10297,6 +10300,9 @@ msgid "AnalyticsDashboards|This table doesn't include GitLab Duo Agent Platform 
 msgstr ""
 
 msgid "AnalyticsDashboards|View analytics dashboards"
+msgstr ""
+
+msgid "AnalyticsDashboards|You have pending changes. Run the query to add the latest version to the dashboard."
 msgstr ""
 
 msgid "Analytics|%{linkStart}Learn more%{linkEnd} about managing and interacting with analytics dashboards."
@@ -72009,6 +72015,21 @@ msgstr ""
 msgid "SemanticSearch|Changing the embeddings model or dimensions results in a backfill"
 msgstr ""
 
+msgid "SemanticSearch|Chunk size"
+msgstr ""
+
+msgid "SemanticSearch|Chunk strategy"
+msgstr ""
+
+msgid "SemanticSearch|Chunking strategy"
+msgstr ""
+
+msgid "SemanticSearch|Chunking strategy can only be set before a model is configured for the first time"
+msgstr ""
+
+msgid "SemanticSearch|Chunking strategy examples:"
+msgstr ""
+
 msgid "SemanticSearch|Configure"
 msgstr ""
 
@@ -72072,6 +72093,12 @@ msgstr ""
 msgid "SemanticSearch|Failed to connect: %{error}."
 msgstr ""
 
+msgid "SemanticSearch|Files are split by Bytes strategy with a chunk size of 1000 bytes"
+msgstr ""
+
+msgid "SemanticSearch|Files are split by PreBert strategy with a chunk size of 240 tokens"
+msgstr ""
+
 msgid "SemanticSearch|For GitLab-managed models, make sure you have access to GitLab-operated %{ai_gateway_link_start}AI Gateway%{ai_gateway_link_end}."
 msgstr ""
 
@@ -72094,6 +72121,9 @@ msgid "SemanticSearch|Name of the PostgreSQL database."
 msgstr ""
 
 msgid "SemanticSearch|Next model"
+msgstr ""
+
+msgid "SemanticSearch|Once a model has been set, changing the chunk strategy will require a full re-indexing. This will be supported later."
 msgstr ""
 
 msgid "SemanticSearch|OpenSearch"
@@ -72144,6 +72174,9 @@ msgstr ""
 msgid "SemanticSearch|Select the search adapter to use for vector storage."
 msgstr ""
 
+msgid "SemanticSearch|Select the strategy for splitting documents into chunks. Code Bytes: Splits code into fixed-size byte chunks. Code PreBert: Splits code using semantic boundaries optimized for BERT-based models."
+msgstr ""
+
 msgid "SemanticSearch|Semantic search %{collection} embeddings"
 msgstr ""
 
@@ -72189,7 +72222,16 @@ msgstr ""
 msgid "SemanticSearch|The URLs for connecting to the OpenSearch cluster. For clustering, add the URLs separated by commas."
 msgstr ""
 
+msgid "SemanticSearch|The chunking strategy determines how code files are split into smaller pieces before being embedded. This affects how semantic search indexes and retrieves information."
+msgstr ""
+
+msgid "SemanticSearch|The maximum number of bytes or tokens per chunk."
+msgstr ""
+
 msgid "SemanticSearch|This action is destructive. Disabling semantic search will remove all indexed data. If you reconnect in the future, a full index will be performed."
+msgstr ""
+
+msgid "SemanticSearch|This cannot be changed when there is already a current model."
 msgstr ""
 
 msgid "SemanticSearch|This process can take several hours depending on your codebase size. Semantic search will remain available during the backfill."

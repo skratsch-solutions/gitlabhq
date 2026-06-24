@@ -4,6 +4,7 @@
 
 fragment WorkItemLinkedItemsFeaturesFragment on WorkItemFeatures {
   linkedItems {
+    type
     linkedItems {
       nodes {
         linkId

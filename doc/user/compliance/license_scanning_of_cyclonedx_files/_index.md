@@ -275,6 +275,29 @@ To configure the preferred source of license information for a project:
      - To overwrite a license, update the license data directly in this file.
    - **PMDB** - Uses license information from the external license database.
 
+### Enable or disable license scanning for CycloneDX files
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/500716) in GitLab 19.0 [with a flag](../../../administration/feature_flags/_index.md) named `license_scanning_for_cyclonedx_setting`. Disabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241413) in GitLab 19.2. Feature flag `license_scanning_for_cyclonedx_setting` removed.
+
+{{< /history >}}
+
+License scanning runs by default on all ingested CycloneDX SBOM files.
+You can disable license scanning per project from the Security configuration page. When disabled,
+licenses from SBOM ingestion appear as `unknown` on the dependency list.
+
+Prerequisites:
+
+- You must have the Maintainer, Owner, or Security Manager role for the project.
+
+To enable or disable license scanning for CycloneDX files:
+
+1. In the top bar, select **Search or go to** and find your project.
+1. In the left sidebar, select **Secure** > **Security configuration**.
+1. In the **License Scanning for CycloneDX** section, turn the toggle on or off.
+
 ## Troubleshooting
 
 ### A CycloneDX file is not being scanned and appears to provide no results

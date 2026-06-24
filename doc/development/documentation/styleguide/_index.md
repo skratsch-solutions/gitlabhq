@@ -146,6 +146,15 @@ Do not add an `H1` heading in Markdown because there can be only one for each pa
 - If you use code in topic titles, ensure the code is in backticks.
 - Do not use bold text in topic titles.
 
+To prevent a heading from appearing in the table of contents (TOC),
+add the `{.no_toc}` attribute after the heading text:
+
+```markdown
+## My heading {.no_toc}
+```
+
+The heading still renders on the page, but it is excluded from the TOC.
+
 ### Description lists in Markdown
 
 To define terms or differentiate between options, use description lists. For a list of UI elements,

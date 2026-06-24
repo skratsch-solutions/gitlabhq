@@ -51883,7 +51883,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 8
       description:
         type: string
@@ -52730,7 +52730,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -52738,7 +52738,7 @@ definitions:
         example: 2
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       sha:
         type: string
@@ -56894,7 +56894,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       status:
         type: string
@@ -57107,7 +57107,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -57115,7 +57115,7 @@ definitions:
         example: 2
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       sha:
         type: string
@@ -57229,7 +57229,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 8
       system_id:
         type: string
@@ -57326,7 +57326,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       status:
         type: string
@@ -57420,7 +57420,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       key:
         type: string
@@ -57470,7 +57470,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 123
       name:
         type: string
@@ -57561,7 +57561,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -57569,7 +57569,7 @@ definitions:
         example: 2
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       sha:
         type: string
@@ -57738,7 +57738,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -57746,7 +57746,7 @@ definitions:
         example: 2
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 3
       sha:
         type: string
@@ -57846,7 +57846,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       status:
         type: string
@@ -58153,7 +58153,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 13
       description:
         type: string
@@ -58213,7 +58213,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 13
       description:
         type: string
@@ -58427,7 +58427,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 10
       token:
         type: string
@@ -58561,19 +58561,26 @@ definitions:
     type: object
     properties:
       id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       name:
         type: string
       description:
         type: string
       agent_id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       status:
         type: string
       created_at:
         type: string
+        format: date-time
       created_by_user_id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
     required:
     - id
     - name
@@ -58587,21 +58594,29 @@ definitions:
     type: object
     properties:
       id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       name:
         type: string
       description:
         type: string
       agent_id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       status:
         type: string
       created_at:
         type: string
+        format: date-time
       created_by_user_id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       last_used_at:
         type: string
+        format: date-time
     required:
     - id
     - name
@@ -58628,21 +58643,29 @@ definitions:
     type: object
     properties:
       id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       name:
         type: string
       description:
         type: string
       agent_id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       status:
         type: string
       created_at:
         type: string
+        format: date-time
       created_by_user_id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       last_used_at:
         type: string
+        format: date-time
       token:
         type: string
     required:
@@ -58660,17 +58683,22 @@ definitions:
     type: object
     properties:
       id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       name:
         type: string
       config_project:
         "$ref": "#/definitions/API_Entities_ProjectIdentity"
       created_at:
         type: string
+        format: date-time
       created_by_user_id:
-        type: string
+        type: integer
+        format: int64
+        example: 1
       is_receptive:
-        type: string
+        type: boolean
     required:
     - id
     - name
@@ -58982,7 +59010,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 93
       sha:
         type: string
@@ -59022,7 +59050,7 @@ definitions:
         example: 98.29
       pipeline_id:
         type: integer
-        format: int32
+        format: int64
         example: 101
       author:
         "$ref": "#/definitions/API_Entities_UserBasic"
@@ -59444,7 +59472,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 41
       iid:
         type: integer
@@ -59490,7 +59518,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -59522,7 +59550,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 41
       iid:
         type: integer
@@ -60005,7 +60033,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -60275,7 +60303,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -60298,7 +60326,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       environment_scope:
         type: string
@@ -60311,7 +60339,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -60439,7 +60467,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -60453,7 +60481,7 @@ definitions:
         example: user1,user2
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       created_at:
         type: string
@@ -60584,7 +60612,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       freeze_start:
         type: string
@@ -73338,7 +73366,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 8
       description:
         type: string
@@ -73482,7 +73510,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       status:
         type: string
@@ -79060,9 +79088,9 @@ definitions:
     type: object
     properties:
       groups:
-        type: string
+        type: object
       projects:
-        type: string
+        type: object
     required:
     - groups
     - projects
