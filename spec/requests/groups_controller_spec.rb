@@ -176,6 +176,117 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
         end
       end
     end
+
+    context 'rendering the group page' do
+      include Namespaces::DeletableHelper
+      include ActionView::Helpers::TagHelper
+      include SafeFormatHelper
+
+      let_it_be_with_reload(:group) { create(:group, :public) }
+      let_it_be(:user) { create(:user, owner_of: group) }
+
+      before do
+        sign_in(user)
+      end
+
+      context 'when the group is not importing' do
+        it 'renders the show template' do
+          get group_path(group)
+
+          expect(response).to render_template('groups/show')
+        end
+
+        it 'tracks a page view', :snowplow do
+          get group_path(group)
+
+          expect_snowplow_event(category: 'group_overview', action: 'render', user: user, namespace: group)
+        end
+
+        context 'as an atom feed' do
+          let_it_be(:project) { create(:project, namespace: group) }
+          let_it_be(:event) { create(:event, project: project) }
+
+          it 'renders the show template with the group events', :aggregate_failures do
+            get group_path(group, format: :atom)
+
+            expect(response).to render_template('groups/show')
+            expect(assigns(:events).map(&:id)).to contain_exactly(event.id)
+          end
+        end
+      end
+
+      context 'when the group is importing' do
+        before do
+          create(:group_import_state, group: group)
+        end
+
+        it 'redirects to the import status page' do
+          get group_path(group)
+
+          expect(response).to redirect_to(group_import_path(group))
+        end
+
+        it 'does not track a page view', :snowplow do
+          get group_path(group)
+
+          expect_no_snowplow_event(category: 'group_overview', action: 'render', user: user, namespace: group)
+        end
+      end
+
+      context 'with adjourned deletion', :freeze_time do
+        let_it_be(:active_subgroup) { create(:group, :private, parent: group) }
+        let_it_be(:deleted_subgroup) { create(:group, :deletion_scheduled, :private, parent: group) }
+
+        let(:deletion_date) { permanent_deletion_date_formatted(Date.current) }
+        let(:ancestor_notice) do
+          safe_format(
+            _('The parent group is pending deletion. This group will be ' \
+              '%{strongOpen}permanently deleted%{strongClose} on %{date}.'),
+            tag_pair(tag.strong, :strongOpen, :strongClose),
+            date: tag.strong(deletion_date)
+          )
+        end
+
+        let(:subgroup) { active_subgroup }
+
+        context 'when the parent group has not been scheduled for deletion' do
+          it 'does not show the notice' do
+            get group_path(subgroup)
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(response.body).not_to include(ancestor_notice)
+          end
+        end
+
+        context 'when the parent group has been scheduled for deletion' do
+          before do
+            group.schedule_deletion!(transition_user: user)
+            create(:group_deletion_schedule, group: group, marked_for_deletion_on: Date.current, deleting_user: user)
+          end
+
+          it 'shows the notice that the parent group has been scheduled for deletion' do
+            get group_path(subgroup)
+
+            expect(response.body).to include(ancestor_notice)
+          end
+
+          context 'when the group itself has also been scheduled for deletion' do
+            let(:subgroup) { deleted_subgroup }
+
+            it 'shows the group deletion notice instead of the parent one', :aggregate_failures do
+              get group_path(subgroup)
+
+              expect(response.body).not_to include(ancestor_notice)
+              expect(response.body).to include(safe_format(
+                _('This group and all its data will be %{strongOpen}permanently deleted%{strongClose} on %{date}.'),
+                tag_pair(tag.strong, :strongOpen, :strongClose),
+                date: tag.strong(deletion_date)
+              ))
+            end
+          end
+        end
+      end
+    end
   end
 
   describe 'GET #details' do

@@ -8,7 +8,7 @@ RSpec.describe RebaseWorker, '#perform', feature_category: :source_code_manageme
 
   describe 'ui_button_rebase UX SLI', :freeze_time do
     let_it_be(:project) { create(:project, :repository) }
-    let_it_be_with_reload(:merge_request) do
+    let_it_be(:merge_request) do
       create(:merge_request, source_project: project, source_branch: 'feature', target_branch: 'master')
     end
 

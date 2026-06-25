@@ -7827,6 +7827,9 @@ msgstr ""
 msgid "AgentArtifacts|Details"
 msgstr ""
 
+msgid "AgentArtifacts|Download Session Artifacts"
+msgstr ""
+
 msgid "AgentArtifacts|Error message"
 msgstr ""
 
@@ -23336,6 +23339,9 @@ msgid "Created branch '%{branch_name}' and a merge request to resolve this issue
 msgstr ""
 
 msgid "Created by"
+msgstr ""
+
+msgid "Created by %{author}"
 msgstr ""
 
 msgid "Created by:"
@@ -51916,6 +51922,9 @@ msgstr ""
 msgid "Onboarding|(optional)"
 msgstr ""
 
+msgid "Onboarding|Add a CODEOWNERS rule so the files Duo reads as instructions (AGENTS.md, .gitlab/duo/, skills/) require code-owner review before changes merge."
+msgstr ""
+
 msgid "Onboarding|Analyze the repository and create a .gitlab/duo/mr-review-instructions.yaml file so the Code Review flow enforces your project conventions."
 msgstr ""
 
@@ -51995,6 +52004,9 @@ msgid "Onboarding|Project name"
 msgstr ""
 
 msgid "Onboarding|Projects help you organize your work. They contain your file repository, issues, merge requests, and so much more."
+msgstr ""
+
+msgid "Onboarding|Protect agent files with Code Owners"
 msgstr ""
 
 msgid "Onboarding|Select a country or region"
@@ -81116,6 +81128,9 @@ msgid "Updated %{updatedAt}"
 msgstr ""
 
 msgid "Updated Date"
+msgstr ""
+
+msgid "Updated by %{author}"
 msgstr ""
 
 msgid "Updated date"

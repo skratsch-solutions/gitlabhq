@@ -822,12 +822,9 @@ Dangerfile
 /lib/gitlab/utils.rb
 /lib/gitlab/path_traversal.rb
 
-^[Gitaly] @proglottis @toon
-lib/gitlab/git_access.rb
-lib/gitlab/git_access_*.rb
-ee/lib/ee/gitlab/git_access.rb
-ee/lib/ee/gitlab/git_access_*.rb
-ee/lib/ee/gitlab/checks/
+^[Gitaly] @gl-gitaly
+**/git_access*
+**/gitaly*
 lib/gitlab/checks/
 
 ^[Technical writing] @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
@@ -1196,8 +1193,8 @@ lib/gitlab/checks/
 /doc/development/exact_code_search.md @gitlab-org/search-team/maintainers/advanced-framework
 /doc/development/fe_guide/ @gitlab-org/analytics-section/product-analytics/engineers/frontend
 /doc/development/fe_guide/keyboard_shortcuts.md @gitlab-org/growth
-/doc/development/git_object_deduplication.md @proglottis @toon
-/doc/development/gitaly.md @proglottis @toon
+/doc/development/git_object_deduplication.md @gl-gitaly
+/doc/development/gitaly.md @gl-gitaly
 /doc/development/gitpod_internals.md @gl-dx/pipeline-maintainers
 /doc/development/identity_verification.md @gitlab-org/software-supply-chain-security/authorization/approvers
 /doc/development/image_scaling.md @abdwdd @alexpooley

@@ -1,7 +1,7 @@
 ---
 name: gitlab_release_notes.DocumentationLink
 description: Ensures feature release notes use a relative `documentation_link` without a file extension.
-message: "The `documentation_link` metadata is required and must be a relative link that starts with `../`, without a `.md` extension or `_index` (for example, `../../../user/feature/`)."
+message: "The `documentation_link` metadata is required and must be a relative link that starts with `../`, or an absolute `https://docs.gitlab.com/` link to a documentation set published from another repository (`charts`, `omnibus`, `operator`, `runner`, or `cli`), without a `.md` extension or `_index` (for example, `../../../user/feature/` or `https://docs.gitlab.com/runner`)."
 link: https://docs.gitlab.com/development/documentation/release_notes/#feature-release-note-metadata
 level: error
 extends: script
@@ -29,8 +29,12 @@ script: |
           if hi >= 0 { p = p[0:hi] }
           if v == "" {
             matches = append(matches, span)
-          } else if !text.has_prefix(v, "../") {
-            // Must climb back to the docs root; rejects absolute "/...",
+          } else if !text.has_prefix(v, "../") && !text.re_match("^https://docs\\.gitlab\\.com/(charts|omnibus|operator|runner|cli)([/#?]|$)", v) {
+            // Must climb back to the docs root, or be an absolute
+            // "https://docs.gitlab.com/" link to a documentation set published
+            // from another repository (charts, omnibus, operator, runner, cli).
+            // Pages in this repo live at the docs root with no prefix, so they
+            // must use a relative "../" link. Rejects other absolute "/...",
             // protocol-relative "//...", and "http..." links.
             matches = append(matches, span)
           } else if text.re_match("\\.md/?$", p) {

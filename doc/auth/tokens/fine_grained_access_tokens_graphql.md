@@ -85,7 +85,7 @@ Grants the ability to create and delete CI catalog resources.
 
 #### CD Application
 
-Grants the ability to create and read continuous deployment applications.
+Grants the ability to create, read, and update continuous deployment applications.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
@@ -103,16 +103,43 @@ Grants the ability to create and read continuous deployment applications.
 | Read | Instance | Type | `CdVersion` |
 | Read | Instance | Type | `CdVersionSet` |
 | Read | Instance | Type | `CdVersionSetEntry` |
+| Update | Instance | Mutation | `CdApplicationUpdate` |
+
+#### CD Artifact Source
+
+Grants the ability to create continuous deployment artifact sources.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdArtifactSourceCreate` |
 
 #### CD Environment
 
-Grants the ability to create and read continuous deployment environments.
+Grants the ability to create, read, and update continuous deployment environments.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdEnvironmentCreate` |
 | Read | Instance | Type | `CdEnvironment` |
 | Read | Instance | Type | `CdEnvironmentDriverBinding` |
+| Update | Instance | Mutation | `CdEnvironmentUpdate` |
+
+#### CD Service
+
+Grants the ability to create and update continuous deployment services.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdServiceCreate` |
+| Update | Instance | Mutation | `CdServiceUpdate` |
+
+#### CD Version Set
+
+Grants the ability to create continuous deployment version sets.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdVersionSetCreate` |
 
 #### CI Config
 

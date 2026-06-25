@@ -664,7 +664,6 @@ Style/InlineDisableAnnotation:
     - 'app/workers/chaos/leak_mem_worker.rb'
     - 'app/workers/chaos/sleep_worker.rb'
     - 'app/workers/chat_notification_worker.rb'
-    - 'app/workers/ci/archive_trace_worker.rb'
     - 'app/workers/ci/archive_traces_cron_worker.rb'
     - 'app/workers/ci/build_finished_worker.rb'
     - 'app/workers/ci/build_prepare_worker.rb'

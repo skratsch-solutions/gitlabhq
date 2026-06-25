@@ -2540,7 +2540,7 @@
   :urgency: :low
   :resource_boundary: :unknown
   :weight: 1
-  :idempotent: false
+  :idempotent: true
   :tags: []
   :queue_namespace: :pipeline_background
 - :name: pipeline_background:ci_build_trace_chunk_flush
