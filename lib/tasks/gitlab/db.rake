@@ -193,8 +193,16 @@ namespace :gitlab do
 
       return unless databases_loaded.present? && databases_loaded.all?
 
-      alter_cell_sequences_range
-      # Re-enable and execute skipped tasks
+      # Fetch sequence ranges from the Topology Service eagerly, before
+      # running any further tasks. This ensures that any error (CellNotFoundError,
+      # missing ranges, etc.) aborts the configure task before partitions are
+      # re-enabled or the database is seeded.
+      sequence_ranges = fetch_cell_sequence_ranges
+
+      # Re-enable and execute skipped partition tasks only after the sequence
+      # range has been applied.
+      alter_cell_sequences_range(sequence_ranges)
+
       skipped_partition_tasks.each do |task_name|
         Rake::Task[task_name].reenable
         Rake::Task[task_name].invoke
@@ -245,7 +253,17 @@ namespace :gitlab do
       puts 'Topology Service is HEALTHY.'
     end
 
-    def alter_cell_sequences_range
+    def fetch_cell_sequence_ranges
+      return unless Gitlab.config.cell.enabled
+      return if Gitlab.config.cell.database.skip_sequence_alteration
+
+      ranges = Gitlab::TopologyServiceClient::CellService.new.cell_sequence_ranges
+      raise 'No sequence ranges provided from Topology Service' unless ranges.present?
+
+      ranges
+    end
+
+    def alter_cell_sequences_range(sequence_ranges)
       unless Gitlab.config.cell.enabled
         return puts 'Skipping altering cell sequences range due to the cell being disabled'
       end
@@ -253,10 +271,6 @@ namespace :gitlab do
       if Gitlab.config.cell.database.skip_sequence_alteration
         return puts "Skipping altering cell sequences range due to cell sequences alteration being disabled"
       end
-
-      sequence_ranges = Gitlab::TopologyServiceClient::CellService.new.cell_sequence_ranges
-
-      return unless sequence_ranges.present?
 
       # The first range is chosen because others are additionally provided ranges,
       # which will be used to bump the range for saturating sequences.

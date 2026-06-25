@@ -820,7 +820,7 @@ Settings.monitoring['ip_whitelist'] ||= ['127.0.0.1/8']
 Settings.monitoring['sidekiq_exporter'] ||= {}
 Settings.monitoring.sidekiq_exporter['enabled'] ||= false
 Settings.monitoring.sidekiq_exporter['log_enabled'] ||= false
-Settings.monitoring.sidekiq_exporter['address'] ||= 'localhost'
+Settings.monitoring.sidekiq_exporter['address'] = 'localhost' unless Settings.monitoring.sidekiq_exporter.key?('address')
 Settings.monitoring.sidekiq_exporter['port'] ||= 8082
 Settings.monitoring.sidekiq_exporter['tls_enabled'] ||= false
 Settings.monitoring.sidekiq_exporter['tls_cert_path'] ||= nil
@@ -828,13 +828,13 @@ Settings.monitoring.sidekiq_exporter['tls_key_path'] ||= nil
 
 Settings.monitoring['sidekiq_health_checks'] ||= {}
 Settings.monitoring.sidekiq_health_checks['enabled'] ||= false
-Settings.monitoring.sidekiq_health_checks['address'] ||= 'localhost'
+Settings.monitoring.sidekiq_health_checks['address'] = 'localhost' unless Settings.monitoring.sidekiq_health_checks.key?('address')
 Settings.monitoring.sidekiq_health_checks['port'] ||= 8092
 
 Settings.monitoring['web_exporter'] ||= {}
 Settings.monitoring.web_exporter['enabled'] ||= false
 Settings.monitoring.web_exporter['log_enabled'] ||= true
-Settings.monitoring.web_exporter['address'] ||= 'localhost'
+Settings.monitoring.web_exporter['address'] = 'localhost' unless Settings.monitoring.web_exporter.key?('address')
 Settings.monitoring.web_exporter['port'] ||= 8083
 Settings.monitoring.web_exporter['tls_enabled'] ||= false
 Settings.monitoring.web_exporter['tls_cert_path'] ||= nil

@@ -102,13 +102,13 @@ module Gitlab
         find_user_from_job_token_query_params_or_header if can_authenticate_job_token_request?
       end
 
-      def find_user_from_basic_auth_password
+      def find_user_from_basic_auth_password_for_git
         return unless has_basic_credentials?(current_request)
 
         login, password = user_name_and_password(current_request)
         return if ::Gitlab::Auth::CI_JOB_USER == login
 
-        Gitlab::Auth.find_with_user_password(login.to_s, password.to_s)
+        Gitlab::Auth.find_with_user_password(login.to_s, password.to_s, activity: :git)
       end
 
       def find_user_from_lfs_token
@@ -633,7 +633,7 @@ module Gitlab
         strong_memoize(:find_user_for_git_or_lfs_request) do
           next unless git_or_lfs_request?
 
-          find_user_from_lfs_token || find_user_from_basic_auth_password
+          find_user_from_lfs_token || find_user_from_basic_auth_password_for_git
         end
       end
 

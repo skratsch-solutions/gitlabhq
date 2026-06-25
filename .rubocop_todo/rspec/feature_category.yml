@@ -2444,7 +2444,6 @@ RSpec/FeatureCategory:
     - 'spec/models/merge_request_context_commit_diff_file_spec.rb'
     - 'spec/models/milestone_note_spec.rb'
     - 'spec/models/milestone_release_spec.rb'
-    - 'spec/models/namespace/admin_note_spec.rb'
     - 'spec/models/namespace/aggregation_schedule_spec.rb'
     - 'spec/models/namespace_ci_cd_setting_spec.rb'
     - 'spec/models/namespaces/randomized_suffix_path_spec.rb'

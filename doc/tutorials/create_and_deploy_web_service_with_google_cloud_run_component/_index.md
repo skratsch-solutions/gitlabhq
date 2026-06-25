@@ -232,7 +232,7 @@ unless you follow all the set up instructions again.
 For information on GitLab and Google pricing and project management, see the following
 resources:
 
-- [GitLab pricing](https://about.gitlab.com/free-trial/devsecops)
+- [GitLab pricing](https://about.gitlab.com/free-trial/devsecops/)
 - [Google pricing](https://cloud.google.com/pricing)
 - [Delete a GitLab project](../../user/project/working_with_projects.md#delete-a-project)
 

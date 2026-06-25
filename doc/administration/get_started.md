@@ -229,7 +229,7 @@ You can learn more about how to administer GitLab.
 
 ### Paid GitLab training
 
-- GitLab education services: Learn more about [GitLab and DevOps best practices](https://about.gitlab.com/services/education/) through our specialized training courses. See our full course catalog.
+- GitLab education services: Learn more about [GitLab and DevOps best practices](https://about.gitlab.com/professional-services/education/) through our specialized training courses. See our full course catalog.
 
 ### Free GitLab training
 

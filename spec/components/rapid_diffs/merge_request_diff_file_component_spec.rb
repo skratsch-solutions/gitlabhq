@@ -57,6 +57,20 @@ RSpec.describe RapidDiffs::MergeRequestDiffFileComponent, type: :component, feat
           expect(options_menu_items[1]['href']).to include(source_project.full_path)
         end
       end
+
+      context 'when the source project no longer exists' do
+        before do
+          allow(merge_request).to receive(:source_project).and_return(nil)
+        end
+
+        it 'renders without raising and omits the edit option', :aggregate_failures do
+          expect { render_component }.not_to raise_error
+
+          options_menu_items = Gitlab::Json.parse(page.find('script', visible: false).text)
+
+          expect(options_menu_items.pluck('text')).not_to include('Edit in single-file editor')
+        end
+      end
     end
   end
 

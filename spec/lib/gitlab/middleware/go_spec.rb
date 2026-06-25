@@ -181,6 +181,25 @@ RSpec.describe Gitlab::Middleware::Go, feature_category: :source_code_management
               context 'using basic auth' do
                 let(:current_user) { project.creator }
 
+                context 'using a password' do
+                  before do
+                    env['REMOTE_ADDR'] = "192.168.0.1"
+                    env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(current_user.username, current_user.password)
+                  end
+
+                  it_behaves_like 'when authenticated'
+
+                  context 'when instance does not allow password authentication for Git over HTTP(S)' do
+                    before do
+                      stub_application_setting(password_authentication_enabled_for_git: false)
+                    end
+
+                    it 'returns 404' do
+                      expect_404_response(go)
+                    end
+                  end
+                end
+
                 context 'using a personal access token' do
                   let(:personal_access_token) { create(:personal_access_token, user: current_user) }
 

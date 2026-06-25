@@ -390,6 +390,38 @@ RSpec.describe 'gitlab:db namespace rake task', :silence_stdout, feature_categor
           end
         end
 
+        context 'when has cell configuration but has no sequence range available' do
+          before do
+            allow(connection).to receive(:tables).and_return([])
+
+            allow_next_instance_of(Gitlab::TopologyServiceClient::HealthService) do |instance|
+              allow(instance).to receive(:service_healthy?).and_return(topology_service_healthy)
+            end
+
+            allow_next_instance_of(Gitlab::TopologyServiceClient::CellService) do |instance|
+              allow(instance).to receive(:cell_sequence_ranges).and_return(nil)
+            end
+          end
+
+          it 'loads the schema but raises before creating partitions, seeding, or altering cell sequences range', :aggregate_failures do
+            # create_dynamic_partitions is invoked once as a no-op (skip) during schema load,
+            # but must NOT be re-enabled and re-invoked because the raise happens before that step.
+            expect(Rake::Task['gitlab:db:create_dynamic_partitions']).to receive(:invoke).once
+            expect(Rake::Task['gitlab:db:create_dynamic_partitions']).not_to receive(:reenable)
+
+            expect(Rake::Task['db:schema:load']).to receive(:invoke)
+            expect(Rake::Task['db:migrate']).not_to receive(:invoke)
+
+            expect(Rake::Task['gitlab:db:lock_writes']).not_to receive(:invoke)
+            expect(Rake::Task['db:seed_fu']).not_to receive(:invoke)
+
+            expect(Rake::Task['gitlab:db:alter_cell_sequences_range']).not_to receive(:invoke)
+
+            expect { run_rake_task('gitlab:db:configure') }
+              .to raise_error(RuntimeError, /No sequence ranges provided from Topology Service/)
+          end
+        end
+
         context 'when has cell configuration but config skips altering cell sequences' do
           let(:skip_sequence_alteration) { true }
 
@@ -581,11 +613,13 @@ RSpec.describe 'gitlab:db namespace rake task', :silence_stdout, feature_categor
             end
           end
 
-          it 'loads the schema, seeds all the databases but does not alter cell sequences range' do
-            expect(Rake::Task['gitlab:db:create_dynamic_partitions:main']).to receive(:invoke).twice
-            expect(Rake::Task['gitlab:db:create_dynamic_partitions:main']).to receive(:reenable)
-            expect(Rake::Task['gitlab:db:create_dynamic_partitions:ci']).to receive(:invoke).twice
-            expect(Rake::Task['gitlab:db:create_dynamic_partitions:ci']).to receive(:reenable)
+          it 'loads the schema but raises before creating partitions, seeding, or altering cell sequences range', :aggregate_failures do
+            # create_dynamic_partitions is invoked once as a no-op (skip) during schema load,
+            # but must NOT be re-enabled and re-invoked because the raise happens before that step.
+            expect(Rake::Task['gitlab:db:create_dynamic_partitions:main']).to receive(:invoke).once
+            expect(Rake::Task['gitlab:db:create_dynamic_partitions:main']).not_to receive(:reenable)
+            expect(Rake::Task['gitlab:db:create_dynamic_partitions:ci']).to receive(:invoke).once
+            expect(Rake::Task['gitlab:db:create_dynamic_partitions:ci']).not_to receive(:reenable)
 
             expect(Rake::Task['db:schema:load:main']).to receive(:invoke)
             expect(Rake::Task['db:schema:load:ci']).to receive(:invoke)
@@ -593,12 +627,17 @@ RSpec.describe 'gitlab:db namespace rake task', :silence_stdout, feature_categor
             expect(Rake::Task['db:migrate:main']).not_to receive(:invoke)
             expect(Rake::Task['db:migrate:ci']).not_to receive(:invoke)
 
-            expect(Rake::Task['gitlab:db:lock_writes']).to receive(:invoke)
-            expect(Rake::Task['db:seed_fu']).to receive(:invoke)
+            expect(Rake::Task['gitlab:db:lock_writes']).not_to receive(:invoke)
+            expect(Rake::Task['db:seed_fu']).not_to receive(:invoke)
 
             expect(Rake::Task['gitlab:db:alter_cell_sequences_range']).not_to receive(:invoke)
 
-            run_rake_task('gitlab:db:configure')
+            expect do
+              run_rake_task('gitlab:db:configure')
+            end.to raise_error(
+              RuntimeError,
+              /No sequence ranges provided from Topology Service/
+            )
           end
         end
 

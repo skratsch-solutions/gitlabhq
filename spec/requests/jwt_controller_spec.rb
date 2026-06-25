@@ -338,6 +338,14 @@ RSpec.describe JwtController, feature_category: :system_access do
 
         it_behaves_like 'rejecting a blocked user'
 
+        context 'when internal auth is disabled' do
+          before do
+            stub_application_setting(password_authentication_enabled_for_git: false)
+          end
+
+          it_behaves_like 'with invalid credentials'
+        end
+
         context 'when passing a flat array of scopes' do
           # We use this trick to make rails to generate a query_string:
           # scope=scope1&scope=scope2
@@ -626,6 +634,14 @@ RSpec.describe JwtController, feature_category: :system_access do
       let(:credential_password) { user.password }
 
       it_behaves_like 'with valid credentials'
+
+      context 'when internal auth is disabled' do
+        before do
+          stub_application_setting(password_authentication_enabled_for_git: false)
+        end
+
+        it_behaves_like 'with invalid credentials'
+      end
     end
 
     context 'with group access token' do

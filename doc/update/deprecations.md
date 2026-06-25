@@ -1350,7 +1350,7 @@ For migration instructions, see
 - Removal in GitLab 17.11 ([breaking change](https://docs.gitlab.com/update/terminology/#breaking-change))
 - To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/issues/535298).
 
-GitLab.com requires client authentication for OAuth Resource Owner Password Credentials (ROPC) OAuth grant as of April 8, 2025. ROPC was omitted by the OAuth working group in RFC Version 2.1. Existing ROPC integrations without client credentials will experience service disruption after this date. If you experience disruption, update your integrations to include client credentials before the deadline. More information can be found [on our blog](https://about.gitlab.com/blog/2025/04/01/improving-oauth-ropc-security-on-gitlab-com/).
+GitLab.com requires client authentication for OAuth Resource Owner Password Credentials (ROPC) OAuth grant as of April 8, 2025. ROPC was omitted by the OAuth working group in RFC Version 2.1. Existing ROPC integrations without client credentials will experience service disruption after this date. If you experience disruption, update your integrations to include client credentials before the deadline. More information can be found [on our blog](https://about.gitlab.com/blog/improving-oauth-ropc-security-on-gitlab-com/).
 
 ## GitLab 17.9
 
@@ -2416,7 +2416,7 @@ We are deprecating the built-in pull-based deployment features of the GitLab age
 
 The GitLab agent for Kubernetes **is not deprecated**. This change affects only the pull-based functionality of the agent. All other functionality will remain intact, and GitLab will continue to support the agent for Kubernetes.
 
-If you use the agent for pull-based deployments, you should [migrate to Flux](https://docs.gitlab.com/user/clusters/agent/gitops/agent/#migrate-to-flux). Because Flux is a mature CNCF project for GitOps, we decided to [integrate Flux with GitLab in February 2023](https://about.gitlab.com/blog/2023/02/08/why-did-we-choose-to-integrate-fluxcd-with-gitlab/).
+If you use the agent for pull-based deployments, you should [migrate to Flux](https://docs.gitlab.com/user/clusters/agent/gitops/agent/#migrate-to-flux). Because Flux is a mature CNCF project for GitOps, we decided to [integrate Flux with GitLab in February 2023](https://about.gitlab.com/blog/why-did-we-choose-to-integrate-fluxcd-with-gitlab/).
 
 ### Twitter OmniAuth login option is deprecated from GitLab Self-Managed
 

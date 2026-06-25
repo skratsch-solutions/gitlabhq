@@ -247,7 +247,7 @@ to improve efficiency and productivity across various GitLab features, all lever
 
 These AI-powered workflows boost efficiency and reduce cycle times in every phase of the software development lifecycle.
 
-Learn more about [AI-powered workflows](https://about.gitlab.com/solutions/ai/)
+Learn more about [AI-powered workflows](https://about.gitlab.com/gitlab-duo-agent-platform/)
 
 ### Code Suggestions improvements
 

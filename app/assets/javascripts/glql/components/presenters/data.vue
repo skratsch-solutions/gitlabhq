@@ -1,10 +1,13 @@
 <script>
+import { __, sprintf } from '~/locale';
 import { DISPLAY_TYPES } from '../../constants';
 import ColumnChartPresenter from './column_chart.vue';
 import LineChartPresenter from './line_chart.vue';
 import ListPresenter from './list.vue';
 import StatPresenter from './stat.vue';
 import TablePresenter from './table.vue';
+
+const SUPPORTED_DISPLAY_TYPES = Object.values(DISPLAY_TYPES);
 
 export default {
   name: 'DataPresenter',
@@ -50,6 +53,27 @@ export default {
     },
     listType() {
       return this.displayType === DISPLAY_TYPES.LIST ? 'ul' : 'ol';
+    },
+    unsupportedDisplayTypeError() {
+      if (SUPPORTED_DISPLAY_TYPES.includes(this.displayType)) return null;
+
+      return sprintf(
+        __(
+          'Unknown display type: `%{displayType}`. Supported display types are: %{supportedDisplayTypes}.',
+        ),
+        {
+          displayType: this.displayType,
+          supportedDisplayTypes: SUPPORTED_DISPLAY_TYPES.map((type) => `\`${type}\``).join(', '),
+        },
+      );
+    },
+  },
+  watch: {
+    unsupportedDisplayTypeError: {
+      immediate: true,
+      handler(message) {
+        if (message) this.$emit('error', new Error(message));
+      },
     },
   },
   DISPLAY_TYPES,

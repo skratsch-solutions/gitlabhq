@@ -187,7 +187,6 @@
 - './ee/spec/features/projects/settings/issues_settings_spec.rb'
 - './ee/spec/features/projects/settings/merge_request_approvals_settings_spec.rb'
 - './ee/spec/features/projects/settings/merge_requests_settings_spec.rb'
-- './ee/spec/features/projects/settings/pipeline_subscriptions_spec.rb'
 - './ee/spec/features/projects/settings/protected_environments_spec.rb'
 - './ee/spec/features/projects/settings/push_rules_settings_spec.rb'
 - './ee/spec/features/projects/settings/user_manages_approval_settings_spec.rb'

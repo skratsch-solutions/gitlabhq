@@ -80839,6 +80839,9 @@ msgstr ""
 msgid "Unknown conflict"
 msgstr ""
 
+msgid "Unknown display type: `%{displayType}`. Supported display types are: %{supportedDisplayTypes}."
+msgstr ""
+
 msgid "Unknown error"
 msgstr ""
 

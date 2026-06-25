@@ -328,7 +328,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
     describe 'to completed' do
       # need pre-created object to avoid another InternalEvent being triggers in the models create hook
-      let!(:pipeline) { create(:ci_empty_pipeline, user: user, project: project) }
+      let_it_be_with_reload(:pipeline) { create(:ci_empty_pipeline, user: user, project: project) }
 
       {
         succeed!: 'success',
@@ -3620,7 +3620,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#manual_actions' do
     subject { pipeline.manual_actions }
 
-    let(:pipeline) { create(:ci_empty_pipeline, :created) }
+    let_it_be_with_reload(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     it 'when none defined' do
       is_expected.to be_empty
@@ -4203,7 +4203,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '.latest_pipeline_per_commit' do
-    let!(:commit_123_ref_master) do
+    let_it_be(:commit_123_ref_master) do
       create(
         :ci_empty_pipeline,
         status: 'success',
@@ -4212,7 +4212,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       )
     end
 
-    let!(:commit_123_ref_develop) do
+    let_it_be(:commit_123_ref_develop) do
       create(
         :ci_empty_pipeline,
         status: 'success',
@@ -4221,7 +4221,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       )
     end
 
-    let!(:commit_456_ref_test) do
+    let_it_be(:commit_456_ref_test) do
       create(
         :ci_empty_pipeline,
         status: 'success',
@@ -5789,11 +5789,11 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#find_job_with_archive_artifacts' do
-    let(:pipeline) { create(:ci_pipeline) }
-    let!(:old_job) { create(:ci_build, name: 'rspec', retried: true, pipeline: pipeline) }
-    let!(:job_without_artifacts) { create(:ci_build, name: 'rspec', pipeline: pipeline) }
-    let!(:expected_job) { create(:ci_build, :artifacts, name: 'rspec', pipeline: pipeline) }
-    let!(:different_job) { create(:ci_build, name: 'deploy', pipeline: pipeline) }
+    let_it_be_with_refind(:pipeline) { create(:ci_pipeline) }
+    let_it_be(:old_job) { create(:ci_build, name: 'rspec', retried: true, pipeline: pipeline) }
+    let_it_be(:job_without_artifacts) { create(:ci_build, name: 'rspec', pipeline: pipeline) }
+    let_it_be(:expected_job) { create(:ci_build, :artifacts, name: 'rspec', pipeline: pipeline) }
+    let_it_be(:different_job) { create(:ci_build, name: 'deploy', pipeline: pipeline) }
 
     subject { pipeline.find_job_with_archive_artifacts('rspec') }
 
@@ -6579,12 +6579,12 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   end
 
   describe '#total_size' do
-    let(:pipeline) { create(:ci_pipeline) }
-    let!(:build_job1) { create(:ci_build, pipeline: pipeline, stage_idx: 0) }
-    let!(:build_job2) { create(:ci_build, pipeline: pipeline, stage_idx: 0) }
-    let!(:test_job_failed_and_retried) { create(:ci_build, :failed, :retried, pipeline: pipeline, stage_idx: 1) }
-    let!(:second_test_job) { create(:ci_build, pipeline: pipeline, stage_idx: 1) }
-    let!(:deploy_job) { create(:ci_build, pipeline: pipeline, stage_idx: 2) }
+    let_it_be_with_refind(:pipeline) { create(:ci_pipeline) }
+    let_it_be(:build_job1) { create(:ci_build, pipeline: pipeline, stage_idx: 0) }
+    let_it_be(:build_job2) { create(:ci_build, pipeline: pipeline, stage_idx: 0) }
+    let_it_be(:test_job_failed_and_retried) { create(:ci_build, :failed, :retried, pipeline: pipeline, stage_idx: 1) }
+    let_it_be(:second_test_job) { create(:ci_build, pipeline: pipeline, stage_idx: 1) }
+    let_it_be(:deploy_job) { create(:ci_build, pipeline: pipeline, stage_idx: 2) }
 
     it 'returns all jobs (including failed and retried)' do
       expect(pipeline.total_size).to eq(5)

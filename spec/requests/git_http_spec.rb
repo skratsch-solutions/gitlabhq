@@ -252,7 +252,7 @@ RSpec.describe 'Git HTTP requests', feature_category: :source_code_management do
 
         context 'when authenticated' do
           before do
-            allow(Gitlab::QueryLimiting::Transaction).to receive(:threshold).and_return(102)
+            allow(Gitlab::QueryLimiting::Transaction).to receive(:threshold).and_return(103)
           end
 
           it 'creates a new project under the existing namespace' do

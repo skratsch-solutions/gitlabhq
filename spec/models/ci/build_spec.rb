@@ -1177,7 +1177,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     subject(:locked_artifacts) { build.locked_artifacts? }
 
     context 'when pipeline is artifacts_locked' do
-      let(:pipeline) { create(:ci_pipeline, locked: :artifacts_locked) }
+      let_it_be(:pipeline) { create(:ci_pipeline, locked: :artifacts_locked) }
 
       context 'artifacts archive does not exist' do
         let(:build) { create(:ci_build, pipeline: pipeline) }
@@ -1193,7 +1193,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     end
 
     context 'when pipeline is unlocked' do
-      let(:pipeline) { create(:ci_pipeline, locked: :unlocked) }
+      let_it_be(:pipeline) { create(:ci_pipeline, locked: :unlocked) }
 
       context 'artifacts archive does not exist' do
         let(:build) { create(:ci_build, pipeline: pipeline) }
@@ -2566,9 +2566,9 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   end
 
   describe '#artifact_for_type' do
-    let(:build) { create(:ci_build) }
-    let!(:archive) { create(:ci_job_artifact, :archive, job: build) }
-    let!(:codequality) { create(:ci_job_artifact, :codequality, job: build) }
+    let_it_be(:build) { create(:ci_build) }
+    let_it_be(:archive) { create(:ci_job_artifact, :archive, job: build) }
+    let_it_be(:codequality) { create(:ci_job_artifact, :codequality, job: build) }
     let(:file_type) { :archive }
 
     subject { build.artifact_for_type(file_type) }
@@ -5607,9 +5607,9 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   describe '#each_report' do
     let(:report_types) { Ci::JobArtifact.file_types_for_report(:coverage) }
 
-    let!(:codequality) { create(:ci_job_artifact, :codequality, job: build) }
-    let!(:coverage) { create(:ci_job_artifact, :coverage_gocov_xml, job: build) }
-    let!(:junit) { create(:ci_job_artifact, :junit, job: build) }
+    let_it_be(:codequality) { create(:ci_job_artifact, :codequality, job: build) }
+    let_it_be(:coverage) { create(:ci_job_artifact, :coverage_gocov_xml, job: build) }
+    let_it_be(:junit) { create(:ci_job_artifact, :junit, job: build) }
 
     it 'yields job artifact blob that matches the type' do
       expect { |b| build.each_report(report_types, &b) }.to yield_with_args(coverage.file_type, String, coverage)
@@ -5644,7 +5644,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     subject { build.report_artifacts }
 
     context 'when the build has reports' do
-      let!(:report) { create(:ci_job_artifact, :codequality, job: build) }
+      let_it_be(:report) { create(:ci_job_artifact, :codequality, job: build) }
 
       it 'returns the artifacts with reports' do
         expect(subject).to contain_exactly(report)
@@ -6452,7 +6452,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   end
 
   describe '.without_coverage' do
-    let!(:build_with_coverage) { create(:ci_build, pipeline: pipeline, coverage: 100.0) }
+    let_it_be(:build_with_coverage) { create(:ci_build, pipeline: pipeline, coverage: 100.0) }
 
     it 'returns builds without coverage values' do
       expect(described_class.without_coverage).to eq([build])
@@ -6460,7 +6460,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   end
 
   describe '.with_coverage_regex' do
-    let!(:build_with_coverage_regex) { create(:ci_build, pipeline: pipeline, coverage_regex: '\d') }
+    let_it_be(:build_with_coverage_regex) { create(:ci_build, pipeline: pipeline, coverage_regex: '\d') }
 
     it 'returns builds with coverage regex values' do
       expect(described_class.with_coverage_regex).to eq([build_with_coverage_regex])

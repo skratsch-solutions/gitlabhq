@@ -40,8 +40,7 @@ Tasks are a type of work item, a step towards [default issue types](https://gitl
 in GitLab.
 For the roadmap of migrating issues and [epics](group/epics/_index.md)
 to work items and adding custom work item types, see
-[epic 6033](https://gitlab.com/groups/gitlab-org/-/epics/6033) or the
-[Plan direction page](https://about.gitlab.com/direction/plan/).
+[epic 6033](https://gitlab.com/groups/gitlab-org/-/epics/6033).
 
 ## View tasks
 

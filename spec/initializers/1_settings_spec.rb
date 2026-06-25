@@ -456,4 +456,35 @@ RSpec.describe '1_settings', feature_category: :settings do
       end
     end
   end
+
+  describe 'webrick listener addresses' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:exporter) do
+      %w[sidekiq_exporter sidekiq_health_checks web_exporter]
+    end
+
+    with_them do
+      it 'defaults to localhost when not configured' do
+        stub_config(monitoring: { exporter => {} })
+        load_settings
+
+        expect(Settings.monitoring[exporter]['address']).to eq('localhost')
+      end
+
+      it 'preserves an explicit nil address' do
+        stub_config(monitoring: { exporter => { address: nil } })
+        load_settings
+
+        expect(Settings.monitoring[exporter]['address']).to be_nil
+      end
+
+      it 'uses the configured value' do
+        stub_config(monitoring: { exporter => { address: '0.0.0.0' } })
+        load_settings
+
+        expect(Settings.monitoring[exporter]['address']).to eq('0.0.0.0')
+      end
+    end
+  end
 end

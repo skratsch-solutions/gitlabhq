@@ -201,14 +201,14 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
       env['SCRIPT_NAME'] = '/group/project.git/info/refs'
     end
 
-    it 'calls find_user_from_basic_auth_password only once across multiple find_authenticated_requester calls' do
+    it 'calls find_user_from_basic_auth_password_for_git only once across multiple find_authenticated_requester calls' do
       expect_any_instance_of(described_class)
-        .to receive(:find_user_from_basic_auth_password)
+        .to receive(:find_user_from_basic_auth_password_for_git)
         .once
         .and_return(user)
 
-      result1 = request_authenticator.find_authenticated_requester([:api, :rss, :ics])
-      result2 = request_authenticator.find_authenticated_requester([:api])
+      result1 = request_authenticator.find_authenticated_requester([:api, :git, :rss, :ics])
+      result2 = request_authenticator.find_authenticated_requester([:api, :git])
 
       expect(result1).to eq(user)
       expect(result2).to eq(user)
@@ -216,7 +216,7 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
 
     it 'memoizes nil result for failed authentication' do
       expect_any_instance_of(described_class)
-        .to receive(:find_user_from_basic_auth_password)
+        .to receive(:find_user_from_basic_auth_password_for_git)
         .once
         .and_return(nil)
 
@@ -341,7 +341,7 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
 
       it 'returns basic_auth_access_password user if no basic_auth_access_token user found' do
         allow_any_instance_of(described_class)
-          .to receive(:find_user_from_basic_auth_password)
+          .to receive(:find_user_from_basic_auth_password_for_git)
           .and_return(basic_auth_password_user)
 
         expect(request_authenticator.find_sessionless_user(nil)).to eq basic_auth_password_user

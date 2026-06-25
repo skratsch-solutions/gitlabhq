@@ -2594,14 +2594,10 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#get_issue' do
-    let_it_be_with_reload(:project) { create(:project) }
     let_it_be(:user) { create(:user) }
+    let_it_be_with_reload(:project) { create(:project, developers: user) }
 
-    let!(:issue) { create(:issue, project: project) }
-
-    before_all do
-      project.add_developer(user)
-    end
+    let_it_be(:issue) { create(:issue, project: project) }
 
     context 'with default issues tracker' do
       it 'returns an issue' do
@@ -2623,7 +2619,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'with external issues tracker' do
-      let!(:internal_issue) { create(:issue, project: project) }
+      let_it_be(:internal_issue) { create(:issue, project: project) }
 
       before do
         allow(project).to receive(:external_issue_tracker).and_return(true)
@@ -3393,8 +3389,8 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '.visible_to_user' do
-    let!(:project) { create(:project, :private) }
-    let!(:user)    { create(:user) }
+    let_it_be(:project) { create(:project, :private) }
+    let_it_be(:user)    { create(:user) }
 
     subject { described_class.visible_to_user(user) }
 
@@ -6569,13 +6565,13 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '.wrap_with_cte' do
-    let!(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
-    let!(:private_project) do
+    let_it_be(:private_project) do
       create(:project, :private, creator: user, namespace: user.namespace)
     end
 
-    let!(:public_project) { create(:project, :public) }
+    let_it_be(:public_project) { create(:project, :public) }
 
     let(:projects) { described_class.all.public_or_visible_to_user(user) }
 
@@ -7664,8 +7660,8 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
     context 'when resource access token hooks for expiry notification' do
       let_it_be_with_reload(:project) { create(:project) }
-      let!(:hook) { create(:project_hook, project: project, resource_access_token_events: true) }
-      let!(:hook_scope) { :resource_access_token_hooks }
+      let_it_be(:hook) { create(:project_hook, project: project, resource_access_token_events: true) }
+      let(:hook_scope) { :resource_access_token_hooks }
 
       context 'when interval is seven days' do
         let(:data) { { interval: :seven_days } }
@@ -7720,8 +7716,8 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
     context 'when resource deploy token hooks for expiry notification' do
       let_it_be_with_reload(:project) { create(:project) }
-      let!(:hook) { create(:project_hook, project: project, resource_deploy_token_events: true) }
-      let!(:hook_scope) { :resource_deploy_token_hooks }
+      let_it_be(:hook) { create(:project_hook, project: project, resource_deploy_token_events: true) }
+      let(:hook_scope) { :resource_deploy_token_hooks }
 
       context 'when interval is seven days' do
         let(:data) { { interval: :seven_days } }
@@ -9526,15 +9522,9 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   describe '#bots' do
     subject { project.bots }
 
-    let_it_be(:project) { create(:project) }
     let_it_be(:project_bot) { create(:user, :project_bot) }
     let_it_be(:user) { create(:user) }
-
-    before_all do
-      [project_bot, user].each do |member|
-        project.add_maintainer(member)
-      end
-    end
+    let_it_be(:project) { create(:project, maintainers: [project_bot, user]) }
 
     it { is_expected.to contain_exactly(project_bot) }
     it { is_expected.not_to include(user) }

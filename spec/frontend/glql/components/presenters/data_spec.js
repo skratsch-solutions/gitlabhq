@@ -112,4 +112,32 @@ describe('DataPresenter', () => {
       expect(wrapper.emitted('error')).toEqual([[error]]);
     });
   });
+
+  describe('unsupported display type', () => {
+    let wrapper;
+
+    beforeEach(() => {
+      wrapper = shallowMountExtended(DataPresenter, {
+        propsData: { data: MOCK_ISSUES, displayType: 'pieChart', fields: MOCK_FIELDS },
+      });
+    });
+
+    it('emits an error listing the supported display types', () => {
+      const [[error]] = wrapper.emitted('error');
+
+      expect(error).toEqual(expect.any(Error));
+      expect(error.message).toBe(
+        'Unknown display type: `pieChart`. Supported display types are: ' +
+          '`list`, `orderedList`, `table`, `stat`, `columnChart`, `lineChart`.',
+      );
+    });
+
+    it('does not render any presenter', () => {
+      expect(wrapper.findComponent(ListPresenter).exists()).toBe(false);
+      expect(wrapper.findComponent(TablePresenter).exists()).toBe(false);
+      expect(wrapper.findComponent(StatPresenter).exists()).toBe(false);
+      expect(wrapper.findComponent(ColumnChartPresenter).exists()).toBe(false);
+      expect(wrapper.findComponent(LineChartPresenter).exists()).toBe(false);
+    });
+  });
 });

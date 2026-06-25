@@ -506,7 +506,7 @@ RSpec.describe Projects::PipelinesController, feature_category: :continuous_inte
       end
 
       context 'when it does have permission to read other projects' do
-        before do
+        before_all do
           source_project.add_developer(user)
           target_project.add_developer(user)
         end
@@ -644,8 +644,8 @@ RSpec.describe Projects::PipelinesController, feature_category: :continuous_inte
   end
 
   describe 'GET stages.json' do
-    let(:pipeline) { create(:ci_pipeline, project: project) }
-    let(:build_stage) { create(:ci_stage, name: 'build', pipeline: pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:build_stage) { create(:ci_stage, name: 'build', pipeline: pipeline) }
 
     context 'when accessing existing stage' do
       before do
@@ -926,8 +926,8 @@ RSpec.describe Projects::PipelinesController, feature_category: :continuous_inte
       }, format: :json
     end
 
-    let!(:pipeline) { create(:ci_pipeline, :failed, project: project) }
-    let!(:build) { create(:ci_build, :failed, pipeline: pipeline) }
+    let_it_be(:pipeline) { create(:ci_pipeline, :failed, project: project) }
+    let_it_be(:build) { create(:ci_build, :failed, pipeline: pipeline) }
 
     let(:worker_spy) { class_spy(::Ci::RetryPipelineWorker) }
 

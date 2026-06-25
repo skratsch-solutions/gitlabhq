@@ -154,7 +154,6 @@ RSpec/AvoidWaitForRequests:
     - 'ee/spec/features/projects/settings/merge_requests/user_manages_merge_trains_spec.rb'
     - 'ee/spec/features/projects/settings/merge_requests_settings_spec.rb'
     - 'ee/spec/features/projects/settings/packages_spec.rb'
-    - 'ee/spec/features/projects/settings/pipeline_subscriptions_spec.rb'
     - 'ee/spec/features/projects/settings/protected_environments_spec.rb'
     - 'ee/spec/features/projects/settings/repository_spec.rb'
     - 'ee/spec/features/projects/settings/user_manages_merge_trains_spec.rb'

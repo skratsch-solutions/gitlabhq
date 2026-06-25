@@ -1140,4 +1140,74 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       it_behaves_like 'disabled when using an external authorization service'
     end
   end
+
+  describe 'GET #unfoldered_environment_names' do
+    let_it_be(:group, freeze: false) { create(:group, :public) }
+    let_it_be(:project) { create(:project, :private, group: group) }
+
+    # The route only matches the atom/ics format extension, so the JSON format
+    # must be requested through the Accept header (`as: :json`) rather than a
+    # `.json` path suffix.
+    subject(:get_unfoldered_environment_names) { get unfoldered_environment_names_group_path(group), as: :json }
+
+    context 'for an anonymous user' do
+      context 'with a public project' do
+        let_it_be(:public_project) { create(:project, :public, group: group) }
+
+        before do
+          create(:environment, project: public_project, name: 'foo')
+        end
+
+        it 'shows the environment names', :aggregate_failures do
+          get_unfoldered_environment_names
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to eq(%w[foo])
+        end
+      end
+
+      context 'with a private project' do
+        before do
+          create(:environment, project: project, name: 'foo')
+        end
+
+        it 'does not show the environment names', :aggregate_failures do
+          get_unfoldered_environment_names
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to be_empty
+        end
+      end
+    end
+
+    context 'for a group member' do
+      let_it_be(:developer) { create(:user, developer_of: group) }
+
+      before do
+        create(:environment, project: project, name: 'foo')
+        sign_in(developer)
+      end
+
+      it 'shows the environment names of private projects', :aggregate_failures do
+        get_unfoldered_environment_names
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to eq(%w[foo])
+      end
+    end
+
+    context 'for a logged-in non-member' do
+      before do
+        create(:environment, project: project, name: 'foo')
+        sign_in(create(:user))
+      end
+
+      it 'does not show the environment names of private projects', :aggregate_failures do
+        get_unfoldered_environment_names
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to be_empty
+      end
+    end
+  end
 end
