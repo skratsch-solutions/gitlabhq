@@ -19,6 +19,7 @@ require_relative 'sync/links'
 require_relative 'sync/workflow'
 require_relative 'sync/auto_mr'
 require_relative 'sync/manifest'
+require_relative 'sync/validator'
 
 module Gitlab
   module PrinciplesDistiller

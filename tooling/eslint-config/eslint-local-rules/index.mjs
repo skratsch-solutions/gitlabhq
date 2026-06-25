@@ -9,6 +9,7 @@ import { vueNoWebUrl } from './vue_no_web_url.mjs';
 import { noMixedJestAliases } from './no_mixed_jest_aliases.mjs';
 import { pageEntrypointMustExecute } from './page_entrypoint_must_execute.mjs';
 import { noApolloMock } from './no_apollo_mock.mjs';
+import { vueNoUnusedInjects } from './vue_no_unused_injects.mjs';
 
 export const eslintLocalRules = {
   rules: {
@@ -23,5 +24,6 @@ export const eslintLocalRules = {
     'no-mixed-jest-aliases': noMixedJestAliases,
     'page-entrypoint-must-execute': pageEntrypointMustExecute,
     'no-apollo-mock': noApolloMock,
+    'vue-no-unused-injects': vueNoUnusedInjects,
   },
 };

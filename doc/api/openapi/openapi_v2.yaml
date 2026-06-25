@@ -49306,7 +49306,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -49323,7 +49323,7 @@ definitions:
         example: '2020-06-28T10:52:04Z'
       awardable_id:
         type: integer
-        format: int32
+        format: int64
         example: 42
       awardable_type:
         type: string
@@ -55114,7 +55114,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 84
       iid:
         type: integer
@@ -55122,7 +55122,7 @@ definitions:
         example: 14
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       title:
         type: string
@@ -55248,7 +55248,7 @@ definitions:
         example: false
       moved_to_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       imported:
         type: boolean
@@ -55311,13 +55311,13 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
       iid:
         type: integer
-        format: int32
+        format: int64
       project_id:
         type: integer
-        format: int32
+        format: int64
       group_id:
         type: string
       title:
@@ -55431,7 +55431,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -55443,7 +55443,7 @@ definitions:
         example: 1
       group_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       title:
         type: string
@@ -55668,7 +55668,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 84
       iid:
         type: integer
@@ -55676,7 +55676,7 @@ definitions:
         example: 14
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       title:
         type: string
@@ -56325,13 +56325,13 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
       iid:
         type: integer
-        format: int32
+        format: int64
       project_id:
         type: integer
-        format: int32
+        format: int64
       group_id:
         type: string
       title:
@@ -56534,7 +56534,7 @@ definitions:
         example: deploy
       wiki_page_meta_id:
         type: integer
-        format: int32
+        format: int64
         example: 123
     required:
     - format
@@ -56556,7 +56556,7 @@ definitions:
         example: deploy
       wiki_page_meta_id:
         type: integer
-        format: int32
+        format: int64
         example: 123
       content:
         type: string
@@ -56690,7 +56690,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 23
       created_at:
         type: string
@@ -64695,7 +64695,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 84
       iid:
         type: integer
@@ -64703,7 +64703,7 @@ definitions:
         example: 14
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       title:
         type: string
@@ -64829,7 +64829,7 @@ definitions:
         example: false
       moved_to_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       imported:
         type: boolean
@@ -64850,7 +64850,7 @@ definitions:
         type: string
       issue_link_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       link_type:
         type: string
@@ -64932,7 +64932,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       source_issue:
         "$ref": "#/definitions/API_Entities_IssueBasic"
@@ -64952,7 +64952,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 84
       iid:
         type: integer
@@ -64960,7 +64960,7 @@ definitions:
         example: 14
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       title:
         type: string
@@ -65376,7 +65376,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       created_at:
         type: string
@@ -65621,7 +65621,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 84
       iid:
         type: integer
@@ -65629,7 +65629,7 @@ definitions:
         example: 14
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       title:
         type: string
@@ -66020,7 +66020,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 84
       iid:
         type: integer
@@ -66028,7 +66028,7 @@ definitions:
         example: 14
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       title:
         type: string
@@ -66566,7 +66566,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 84
       iid:
         type: integer
@@ -66574,7 +66574,7 @@ definitions:
         example: 14
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       title:
         type: string
@@ -67472,18 +67472,18 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       action_name:
         type: string
         example: closed
       target_id:
         type: integer
-        format: int32
+        format: int64
         example: 160
       target_iid:
         type: integer
@@ -67494,7 +67494,7 @@ definitions:
         example: Issue
       author_id:
         type: integer
-        format: int32
+        format: int64
         example: 25
       target_title:
         type: string
@@ -67538,7 +67538,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       type:
         type: string
@@ -67561,14 +67561,14 @@ definitions:
         example: false
       noteable_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       noteable_type:
         type: string
         example: Issue
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       commit_id:
         type: string
@@ -72089,7 +72089,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 142
       user:
         "$ref": "#/definitions/API_Entities_UserBasic"
@@ -72102,7 +72102,7 @@ definitions:
         example: Issue
       resource_id:
         type: integer
-        format: int32
+        format: int64
         example: 253
       milestone:
         "$ref": "#/definitions/API_Entities_Milestone"

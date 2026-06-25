@@ -658,6 +658,21 @@ export default [
       'local-rules/no-apollo-mock': 'error',
     },
   },
+  // Flag unused `inject` declarations in Vue components, mirroring
+  // `vue/no-unused-properties` for props/data/computed/methods/setup. Scoped to
+  // `*.vue` (the `local-rules` plugin must be co-located with the non-`off` rule
+  // in flat config). Existing offenders are grandfathered in
+  // `.eslint_todo/local-rules-vue-no-unused-injects.mjs` and surfaced non-blocking
+  // by the `eslint-todo` CI job (REVEAL_ESLINT_TODO=true).
+  {
+    files: ['*.vue', '**/*.vue'],
+    plugins: {
+      'local-rules': eslintLocalRules,
+    },
+    rules: {
+      'local-rules/vue-no-unused-injects': 'error',
+    },
+  },
   // Storybook stories
   {
     files: ['**/*.stories.js'],

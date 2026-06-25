@@ -185,6 +185,27 @@ docs-lint generated-content:
     - bundle exec rake gitlab:docs:check_events
     - bundle exec rake gitlab:organizations:release:check_docs
 
+ai-principles-manifest:
+  # Intentionally lightweight: the validator is Rails-free and its only runtime
+  # dependency is the `rainbow` gem, so this runs on a bare Ruby image with a
+  # single `gem install rainbow` instead of the full bundle/Rails-gems setup.
+  # The trigger is deliberately broad (any doc/** change can orphan a manifest
+  # reference), so keeping the job cheap is what makes the broad trigger
+  # acceptable. See gitlab-org/gitlab#604077.
+  image: ${GITLAB_DEPENDENCY_PROXY_ADDRESS}ruby:${RUBY_VERSION}
+  stage: lint
+  needs: []
+  extends:
+    - .default-retry
+    - .docs:rules:ai-principles-manifest
+  variables:
+    GIT_DEPTH: "1"
+    RUBY_RUN: "ruby"
+  before_script:
+    - gem install rainbow --no-document
+  script:
+    - scripts/lint-ai-principles-manifest.sh
+
 docs-lint redirects:
   image: ${GITLAB_DEPENDENCY_PROXY_ADDRESS}ruby:${RUBY_VERSION}-alpine
   stage: lint

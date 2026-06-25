@@ -42,6 +42,8 @@ The script that drives the sync is the
 [`gitlab-ai-principles-distiller`](https://gitlab.com/gitlab-org/gitlab/-/tree/master/gems/gitlab-ai-principles-distiller)
 gem.
 
+For a diagram of the full flow, see [AI principles distillation flow](distillation_flow.md).
+
 ## Add a principle group
 
 Use this procedure when your team owns documentation under `doc/development/`

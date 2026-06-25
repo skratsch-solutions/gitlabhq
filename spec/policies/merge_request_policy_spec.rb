@@ -327,18 +327,12 @@ RSpec.describe MergeRequestPolicy, feature_category: :code_review_workflow do
   end
 
   context 'when user is an inherited member from the parent group' do
-    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:group) do
+      create(:group, :public, guests: [guest, author], planners: planner, reporters: reporter,
+        developers: [developer, bot])
+    end
 
     let(:merge_request) { create(:merge_request, source_project: project, target_project: project, author: author) }
-
-    before_all do
-      group.add_guest(guest)
-      group.add_guest(author)
-      group.add_planner(planner)
-      group.add_reporter(reporter)
-      group.add_developer(developer)
-      group.add_developer(bot)
-    end
 
     context 'when the project is public' do
       let(:project) { create(:project, :public, group: group) }

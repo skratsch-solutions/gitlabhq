@@ -18253,12 +18253,6 @@ msgstr ""
 msgid "CodeSuggestionsAcceptanceByLanguageChart|Accepted GitLab Duo Code Suggestions by programming language. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 
-msgid "CodeSuggestionsAcceptanceByLanguageChart|Failed to load code suggestions data by language."
-msgstr ""
-
-msgid "CodeSuggestionsAcceptanceByLanguageChart|Failed to load metrics for: %{languages}"
-msgstr ""
-
 msgid "CodeSuggestions|%{addOnName} status"
 msgstr ""
 
@@ -23618,9 +23612,6 @@ msgid "Custom analyzers: language support"
 msgstr ""
 
 msgid "Custom attributes"
-msgstr ""
-
-msgid "Custom confirmation message: %{message}"
 msgstr ""
 
 msgid "Custom emoji"
@@ -89982,6 +89973,9 @@ msgstr ""
 msgid "Your name"
 msgstr ""
 
+msgid "Your namespace %{namespace_name} has been placed in %{link_start}a read-only state%{link_end}"
+msgstr ""
+
 msgid "Your namespace %{namespace_name} is over %{link_start}the %{free_limit} user limit%{link_end}"
 msgstr ""
 
@@ -90050,6 +90044,9 @@ msgid "Your personal access tokens have expired"
 msgstr ""
 
 msgid "Your personal access tokens will expire in %{days_to_expire} days or less"
+msgstr ""
+
+msgid "Your private namespace is over %{link_start}the %{free_limit} user limit%{link_end}. To remove the read-only state, an Owner can reduce the number of users in the namespace to %{free_limit} or fewer, make the namespace public, or upgrade to a paid tier. If you need more time, you can start a free %{duration}-day Ultimate trial to get unlimited users."
 msgstr ""
 
 msgid "Your project %{project_name} has been marked for deletion and will be removed in %{days}."

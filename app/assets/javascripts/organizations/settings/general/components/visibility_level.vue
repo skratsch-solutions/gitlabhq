@@ -51,6 +51,7 @@ export default {
       required: true,
     },
   },
+  emits: ['toggle-expand'],
   data() {
     return {
       formValues: {

@@ -13,8 +13,6 @@ auto_mr:
 # Non-distilled .ai/ files included in AGENTS.md Context Loading.
 # These are manually maintained and have no SSOT sources.
 static_entries:
-  - description: Code style or linting
-    path: .ai/code-style.md
   - description: Git, commits, or branches
     path: .ai/git.md
   - description: CI/CD pipelines or `.gitlab-ci.yml`

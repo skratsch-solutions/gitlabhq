@@ -93,6 +93,7 @@ export default {
       default: true,
     },
   },
+  emits: ['submit'],
   data() {
     return {
       formValues: this.initialFormValues,

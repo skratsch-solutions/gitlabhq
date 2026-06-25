@@ -78,6 +78,7 @@ export default {
       default: SORT_DIRECTION_ASC,
     },
   },
+  emits: ['page-change'],
   data() {
     return {
       groups: {},

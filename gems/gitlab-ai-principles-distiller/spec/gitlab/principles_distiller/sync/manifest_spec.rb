@@ -209,6 +209,106 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     end
   end
 
+  describe '.source_file_exists?' do
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+    end
+
+    context 'when the file exists on disk' do
+      before do
+        FileUtils.mkdir_p(File.join(tmpdir, 'doc'))
+        File.write(File.join(tmpdir, 'doc', 'backend.md'), 'content')
+      end
+
+      it { expect(manifest.source_file_exists?('doc/backend.md')).to be(true) }
+    end
+
+    context 'when the file was converted to a directory with an _index.md' do
+      before do
+        FileUtils.mkdir_p(File.join(tmpdir, 'doc', 'backend'))
+        File.write(File.join(tmpdir, 'doc', 'backend', '_index.md'), 'content')
+      end
+
+      it 'resolves via the _index.md fallback' do
+        expect(manifest.source_file_exists?('doc/backend.md')).to be(true)
+      end
+    end
+
+    context 'when neither the file nor an _index.md exists' do
+      it { expect(manifest.source_file_exists?('doc/missing.md')).to be(false) }
+    end
+  end
+
+  describe '.missing_source_files' do
+    subject(:missing) { manifest.missing_source_files }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      FileUtils.mkdir_p(File.join(tmpdir, 'doc'))
+      FileUtils.mkdir_p(File.join(tmpdir, '.ai'))
+      manifest.data = manifest_data
+    end
+
+    let(:manifest_data) do
+      {
+        'principles' => {
+          'backend' => {
+            'baseline' => '.ai/principles/baselines/backend.md',
+            'sources' => [
+              { 'path' => 'doc/present.md' },
+              { 'path' => 'doc/missing.md' }
+            ]
+          },
+          'qa' => {
+            'sources' => [{ 'path' => 'doc/present.md' }]
+          }
+        },
+        'static_entries' => [
+          { 'path' => '.ai/present-static.md' },
+          { 'path' => '.ai/missing-static.md' }
+        ]
+      }
+    end
+
+    context 'when some referenced paths are missing' do
+      before do
+        File.write(File.join(tmpdir, 'doc', 'present.md'), 'content')
+        File.write(File.join(tmpdir, '.ai', 'present-static.md'), 'content')
+      end
+
+      it 'returns the sorted, de-duplicated list of missing paths including baselines and static entries' do
+        expect(missing).to eq(
+          [
+            '.ai/missing-static.md',
+            '.ai/principles/baselines/backend.md',
+            'doc/missing.md'
+          ]
+        )
+      end
+
+      it 'does not include a path that is shared by multiple principles and exists' do
+        expect(missing).not_to include('doc/present.md')
+      end
+
+      it 'does not include a static entry that exists' do
+        expect(missing).not_to include('.ai/present-static.md')
+      end
+    end
+
+    context 'when every referenced path resolves on disk' do
+      before do
+        File.write(File.join(tmpdir, 'doc', 'present.md'), 'content')
+        File.write(File.join(tmpdir, 'doc', 'missing.md'), 'content')
+        File.write(File.join(tmpdir, '.ai', 'present-static.md'), 'content')
+        File.write(File.join(tmpdir, '.ai', 'missing-static.md'), 'content')
+        FileUtils.mkdir_p(File.join(tmpdir, '.ai', 'principles', 'baselines'))
+        File.write(File.join(tmpdir, '.ai', 'principles', 'baselines', 'backend.md'), 'content')
+      end
+
+      it { is_expected.to be_empty }
+    end
+  end
+
   describe '.sources_footer' do
     subject(:footer) { manifest.sources_footer(config) }
 

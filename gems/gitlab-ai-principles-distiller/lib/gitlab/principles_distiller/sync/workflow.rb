@@ -188,13 +188,15 @@ module Gitlab
         end
 
         # Pre-empts late agent failures by verifying every SSOT source
-        # file exists on disk before triggering the workflow.
+        # file (each `sources[].path` plus the `baseline:`) exists on disk
+        # before triggering the workflow. Delegates both the path set and the
+        # existence rule (including the `_index.md` fallback) to Manifest so
+        # the shift-left Validator and this runtime guard stay in lockstep.
         def validate_sources!(config)
-          config.fetch('sources', []).each do |source|
-            full_path = Workspace.safe_join(source['path'])
-            next if File.exist?(full_path) || File.exist?(full_path.sub(/(\.md)$/, '/_index.md'))
+          manifest.config_source_paths(config).each do |path|
+            next if manifest.source_file_exists?(path)
 
-            raise "SSOT source file not found: #{source['path']} — " \
+            raise "SSOT source file not found: #{path} — " \
               'check that the path in manifest.yml matches an existing file on the current branch'
           end
         end

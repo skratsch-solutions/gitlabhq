@@ -808,11 +808,9 @@ RSpec.describe 'Pipeline', :js, feature_category: :continuous_integration do
     end
 
     describe 'GET /:project/-/pipelines/:id' do
-      before do
-        visit project_pipeline_path(project, pipeline)
-      end
-
       it 'shows the pipeline with a bridge job' do
+        visit project_pipeline_path(project, pipeline)
+
         expect(page).to have_selector('.js-pipeline-graph')
         expect(page).to have_content('cross-build')
       end

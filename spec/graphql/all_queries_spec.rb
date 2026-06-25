@@ -72,6 +72,7 @@ RSpec.describe 'graphql queries', feature_category: :api do
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/ai_agent_platform_flows_usage_by_user.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/ai_metrics.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/code_suggestions_acceptance_by_ide.query.graphql
+    app/assets/javascripts/analytics/dashboards/ai_impact/graphql/code_suggestions_acceptance_by_language.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/code_suggestions_acceptance_rate.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/code_suggestions_users_count.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/duo_agent_platform_agent_flows_users_count.query.graphql

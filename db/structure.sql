@@ -30593,6 +30593,7 @@ CREATE TABLE sbom_occurrences_vulnerabilities (
     updated_at timestamp with time zone NOT NULL,
     project_id bigint,
     vulnerability_occurrence_id bigint,
+    sbom_occurrence_ref_id bigint,
     CONSTRAINT check_a02e48df9c CHECK ((project_id IS NOT NULL))
 );
 
@@ -46382,6 +46383,8 @@ CREATE INDEX idx_sbom_graph_paths_project_created ON sbom_graph_paths USING btre
 
 CREATE INDEX idx_sbom_graph_paths_project_path_length_created ON sbom_graph_paths USING btree (project_id, path_length, created_at);
 
+CREATE INDEX idx_sbom_occ_vulns_on_sbom_occurrence_ref_id ON sbom_occurrences_vulnerabilities USING btree (sbom_occurrence_ref_id);
+
 CREATE INDEX idx_sbom_occ_vulns_on_vulnerability_occurrence_id ON sbom_occurrences_vulnerabilities USING btree (vulnerability_occurrence_id);
 
 CREATE INDEX idx_sbom_occurr_on_project_component_version_input_file_path ON sbom_occurrences USING btree (project_id, component_version_id, input_file_path);
@@ -59835,6 +59838,9 @@ ALTER TABLE ONLY cd_version_set_entries
 
 ALTER TABLE ONLY zoekt_indices
     ADD CONSTRAINT fk_bf205d4773 FOREIGN KEY (zoekt_enabled_namespace_id) REFERENCES zoekt_enabled_namespaces(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY sbom_occurrences_vulnerabilities
+    ADD CONSTRAINT fk_bfde8e0cbf FOREIGN KEY (sbom_occurrence_ref_id) REFERENCES sbom_occurrence_refs(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY import_export_upload_upload_states
     ADD CONSTRAINT fk_c00443947b FOREIGN KEY (import_export_upload_upload_id) REFERENCES import_export_upload_uploads(id) ON DELETE CASCADE;

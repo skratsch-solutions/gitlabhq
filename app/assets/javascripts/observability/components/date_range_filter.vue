@@ -38,6 +38,7 @@ export default {
       default: null,
     },
   },
+  emits: ['on-date-range-selected'],
   data() {
     return {
       dateRange: this.selected ?? {

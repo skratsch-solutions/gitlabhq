@@ -81,8 +81,8 @@ ee/app/models/security/scan_profile_project_status.rb:
   - profile_failed?: Will be used in follow-up MR to expose profile statuses via GraphQL (Task 4, #593133)
 app/models/work_item.rb:
   - descendant_ids_for: will be used in follow-up MR
-ee/app/models/concerns/security/pipeline_execution_policy_bot_access.rb:
-  - allows_pipeline_execution_policy_bot_access?: Will be called from CI config file access integration in a follow-up MR
+ee/app/models/ee/user.rb:
+  - security_policy_bot_project: Returns the bot's associated project; preserved for backward compatibility with bot-specific access flows
 ee/app/models/ai/catalog/item.rb:
   - starred_by?: Will be used in follow-up MR adding GraphQL mutation for starring AI catalog items
 ee/app/models/ee/application_setting.rb:

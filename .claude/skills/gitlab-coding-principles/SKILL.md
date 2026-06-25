@@ -74,6 +74,5 @@ ALWAYS load Database principles regardless of which files you are editing.
 **Analytics:**
 - **Analytics instrumentation and metrics**: Read .ai/principles/distilled/analytics.md
 
-- **Code style or linting**: Read .ai/code-style.md
 - **Git, commits, or branches**: Read .ai/git.md
 - **CI/CD pipelines or `.gitlab-ci.yml`**: Read .ai/ci-cd.md

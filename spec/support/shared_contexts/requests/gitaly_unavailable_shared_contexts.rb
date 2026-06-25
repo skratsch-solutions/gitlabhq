@@ -20,6 +20,15 @@ RSpec.shared_context 'when Repository#blob_at raises Gitaly error' do
   end
 end
 
+RSpec.shared_context 'when Repository#blob_at_branch raises Gitaly error' do
+  let(:allow_gitaly_to_raise_error) do
+    allow_next_instance_of(Repository) do |repository|
+      allow(repository).to receive(:blob_at_branch)
+        .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
+    end
+  end
+end
+
 RSpec.shared_context 'when Repository#commit_by raises Gitaly error' do
   let(:allow_gitaly_to_raise_error) do
     allow_next_instance_of(Repository) do |repository|

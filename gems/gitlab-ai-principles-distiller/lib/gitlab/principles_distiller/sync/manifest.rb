@@ -298,12 +298,38 @@ module Gitlab
               if File.exist?(full_path)
                 File.read(full_path)
               else
-                dir = full_path.sub(%r{(\.md|/)$}, '')
-                idx_path = File.join(dir, '_index.md')
+                idx_path = index_fallback_path(full_path)
                 File.read(idx_path) if File.exist?(idx_path)
               end
             end
           end
+        end
+
+        # Whether a manifest-referenced SSOT path resolves to a file on disk,
+        # accounting for docs that were converted to a directory with an
+        # `_index.md` (e.g. `doc/foo.md` -> `doc/foo/_index.md`). Shared by
+        # the Validator and Workflow so the existence rule lives in one place.
+        def source_file_exists?(path)
+          full_path = Workspace.safe_join(path)
+
+          File.exist?(full_path) || File.exist?(index_fallback_path(full_path))
+        end
+
+        # Every manifest-referenced SSOT path (each principle's `sources[].path`
+        # plus its `baseline:`) that does not resolve to a file on disk. Returns
+        # a flat, de-duplicated, sorted list so callers can report all broken
+        # references at once rather than failing on the first.
+        def missing_source_files
+          referenced_source_paths.uniq.reject { |path| source_file_exists?(path) }.sort
+        end
+
+        # Every SSOT path a single principle's config references: its
+        # `sources[].path` entries plus its `baseline:`. The runtime guard
+        # (Workflow#validate_sources!) and the aggregate shift-left check both
+        # build on this so they cover the same set of paths.
+        def config_source_paths(config)
+          paths = Array(config['sources']).filter_map { |source| source['path'] }
+          paths + [config['baseline']].compact
         end
 
         def sources_footer(config)
@@ -473,6 +499,26 @@ module Gitlab
         end
 
         private
+
+        # `doc/foo.md` -> `doc/foo/_index.md`; `doc/foo/` -> `doc/foo/_index.md`.
+        # Mirrors the directory-index convention used across docs.gitlab.com.
+        def index_fallback_path(full_path)
+          dir = full_path.sub(%r{(\.md|/)$}, '')
+          File.join(dir, '_index.md')
+        end
+
+        # Flat list of every on-disk path the manifest references: each
+        # principle's `sources[].path` and `baseline:`, plus every
+        # `static_entries[].path`. Static entries are wired into the generated
+        # AGENTS.md / SKILL.md routing table (see build_skill_routing_table), so
+        # a renamed static-entry file produces a dead `Read .ai/...` link, the
+        # same silent-staleness failure mode this validator guards against.
+        def referenced_source_paths
+          principle_paths = principles.flat_map { |_name, config| config_source_paths(config) }
+          static_paths = static_entries.filter_map { |entry| entry['path'] }
+
+          principle_paths + static_paths
+        end
 
         # Surfaces misconfigured principles at load time. Only invoked
         # from `load`; specs injecting via `data=` skip this.

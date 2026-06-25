@@ -19,6 +19,7 @@ export default {
       default: false,
     },
   },
+  emits: ['input'],
   computed: {
     title() {
       return n__(

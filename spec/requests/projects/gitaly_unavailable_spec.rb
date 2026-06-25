@@ -182,6 +182,18 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     end
   end
 
+  describe 'Projects::AvatarsController' do
+    include_context 'when Repository#blob_at_branch raises Gitaly error'
+
+    describe '#show' do
+      let(:make_request) do
+        get namespace_project_avatar_path(namespace_id: project.namespace, project_id: project)
+      end
+
+      it_behaves_like 'handles Gitaly errors for request specs'
+    end
+  end
+
   describe 'Projects::BlameController' do
     include_context 'when Gitlab::Git::Commit.find raises Gitaly error'
 

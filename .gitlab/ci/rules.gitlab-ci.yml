@@ -375,6 +375,18 @@
   - "scripts/frontend/lint_docs_links.mjs"
   - "tooling/eslint-config/eslint-local-rules/**/*"
 
+.ai-principles-manifest-patterns: &ai-principles-manifest-patterns
+  # See the `ai-principles-manifest` job in docs.gitlab-ci.yml for why this
+  # trigger is intentionally broad. gitlab-org/gitlab#604077
+  - ".ai/*.md"
+  - ".ai/principles/baselines/**/*.md"
+  - ".ai/principles/manifest.yml"
+  - ".gitlab/ci/docs.gitlab-ci.yml"
+  - ".gitlab/ci/rules.gitlab-ci.yml"
+  - "doc/**/*.md"
+  - "gems/gitlab-ai-principles-distiller/**/*"
+  - "scripts/lint-ai-principles-manifest.sh"
+
 .docs-i18n-patterns: &docs-i18n-patterns
   - ".gitlab/ci/docs.gitlab-ci.yml"
   - ".gitlab/ci/rules.gitlab-ci.yml"
@@ -1512,6 +1524,11 @@
   rules:
     - <<: *if-default-refs
       changes: *docs-patterns
+
+.docs:rules:ai-principles-manifest:
+  rules:
+    - <<: *if-default-refs
+      changes: *ai-principles-manifest-patterns
 
 .docs:rules:docs-i18n-lint:
   rules:
