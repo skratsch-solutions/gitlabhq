@@ -4,8 +4,6 @@ class MergeRequest::CommitsMetadata < ApplicationRecord # rubocop:disable Style/
   include PartitionedTable
   include ShaAttribute
 
-  ignore_column :trailers, remove_with: '18.7', remove_after: '2025-11-20'
-
   # Need this to be set as calling `id` will return [id, project_id] since
   # this table is partitioned by `project_id`.
   self.primary_key = :id

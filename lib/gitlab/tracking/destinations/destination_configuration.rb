@@ -6,6 +6,8 @@ module Gitlab
       class DestinationConfiguration
         PRODUCT_USAGE_EVENT_COLLECT_ENDPOINT = 'https://events.gitlab.net'
         PRODUCT_USAGE_EVENT_COLLECT_ENDPOINT_STG = 'https://events-stg.gitlab.net'
+        BILLING_COLLECT_ENDPOINT = 'https://billing.prdsub.gitlab.net'
+        BILLING_COLLECT_ENDPOINT_STG = 'https://billing.stgsub.gitlab.net'
         SNOWPLOW_MICRO_DEFAULT_URI = 'http://localhost:9091'
 
         class << self
@@ -15,6 +17,10 @@ module Gitlab
 
           def snowplow_micro_configuration
             new(snowplow_micro_uri)
+          end
+
+          def billing_configuration
+            new(billing_uri)
           end
 
           def non_production_environment?
@@ -42,6 +48,14 @@ module Gitlab
               URI(PRODUCT_USAGE_EVENT_COLLECT_ENDPOINT_STG)
             else
               URI(PRODUCT_USAGE_EVENT_COLLECT_ENDPOINT)
+            end
+          end
+
+          def billing_uri
+            if non_production_environment?
+              URI(BILLING_COLLECT_ENDPOINT_STG)
+            else
+              URI(BILLING_COLLECT_ENDPOINT)
             end
           end
 

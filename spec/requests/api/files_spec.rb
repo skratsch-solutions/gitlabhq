@@ -1680,6 +1680,18 @@ RSpec.describe API::Files, feature_category: :source_code_management do
       end
     end
 
+    context 'when file_path is a directory' do
+      # 'files%2Fruby' is a directory in the test repository
+      let(:url) { api(route('files%2Fruby'), user) }
+
+      it 'returns a 400 bad request' do
+        workhorse_body_upload(url, params)
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']).to include(_('Path is a directory, not a file'))
+      end
+    end
+
     context 'when committing to a fork as a maintainer' do
       include_context 'merge request allowing collaboration'
 

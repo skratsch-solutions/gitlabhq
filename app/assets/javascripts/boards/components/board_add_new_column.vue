@@ -16,6 +16,7 @@ import { setError } from '../graphql/cache_updates';
 import { getListByTypeId } from '../boards_util';
 
 export default {
+  name: 'BoardAddNewColumn',
   i18n: {
     value: __('Value'),
     noResults: __('No matching results'),

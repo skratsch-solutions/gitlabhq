@@ -3,6 +3,7 @@ import { GlTooltipDirective } from '@gitlab/ui';
 import Tracking from '~/tracking';
 
 export default {
+  name: 'BoardAddNewColumnBetween',
   directives: {
     GlTooltip: GlTooltipDirective,
   },

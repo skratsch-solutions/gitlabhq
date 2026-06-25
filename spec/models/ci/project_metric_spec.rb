@@ -111,6 +111,56 @@ RSpec.describe Ci::ProjectMetric, feature_category: :pipeline_composition do
         expect(result).to be_nil
       end.not_to change { described_class.count }
     end
+
+    describe 'ci_config_first_generated_at' do
+      it 'sets ci_config_first_generated_at on insert' do
+        freeze_time do
+          described_class.track_ai_generated_config!(project.id, author_source: 'ci_expert_agent/v1')
+
+          metric = described_class.find_by(project_id: project.id)
+          expect(metric.ci_config_first_generated_at).to be_like_time(Time.current)
+        end
+      end
+
+      it 'preserves the original ci_config_first_generated_at when called again' do
+        first_generated_at = travel_to(2.days.ago) do
+          described_class.track_ai_generated_config!(project.id, author_source: 'ci_expert_agent/v1')
+          described_class.find_by(project_id: project.id).ci_config_first_generated_at
+        end
+
+        described_class.track_ai_generated_config!(project.id, author_source: 'ci_expert_agent/v1')
+
+        expect(described_class.find_by(project_id: project.id).ci_config_first_generated_at)
+          .to be_within(1.second).of(first_generated_at)
+      end
+
+      it 'backfills ci_config_first_generated_at on an existing row where it is nil', :aggregate_failures do
+        create(:ci_project_metric, project: project, ci_config_generated_by: nil, ci_config_first_generated_at: nil)
+
+        freeze_time do
+          described_class.track_ai_generated_config!(project.id, author_source: 'ci_expert_agent/v1')
+
+          metric = described_class.find_by(project_id: project.id)
+          expect(metric.ci_config_generated_by).to eq('ci_expert_agent/v1')
+          expect(metric.ci_config_first_generated_at).to be_like_time(Time.current)
+        end
+      end
+
+      it 'updates ci_config_generated_by to the latest agent, preserving the first timestamp', :aggregate_failures do
+        stub_const('Ci::ProjectMetric::KNOWN_AGENT_SOURCES', %w[ci_expert_agent/v1 ci_expert_agent/v2])
+
+        first_generated_at = travel_to(2.days.ago) do
+          described_class.track_ai_generated_config!(project.id, author_source: 'ci_expert_agent/v1')
+          described_class.find_by(project_id: project.id).ci_config_first_generated_at
+        end
+
+        described_class.track_ai_generated_config!(project.id, author_source: 'ci_expert_agent/v2')
+
+        metric = described_class.find_by(project_id: project.id)
+        expect(metric.ci_config_generated_by).to eq('ci_expert_agent/v2')
+        expect(metric.ci_config_first_generated_at).to be_within(1.second).of(first_generated_at)
+      end
+    end
   end
 
   describe 'factory' do

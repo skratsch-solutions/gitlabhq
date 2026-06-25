@@ -54732,6 +54732,9 @@ msgstr ""
 msgid "Path"
 msgstr ""
 
+msgid "Path is a directory, not a file"
+msgstr ""
+
 msgid "Path:"
 msgstr ""
 
@@ -78375,6 +78378,9 @@ msgstr ""
 msgid "This project reached the limit of custom domains. (Max %d)"
 msgstr ""
 
+msgid "This project requires merge requests to go through the merge train. Set auto_merge to true to add this merge request to the train instead."
+msgstr ""
+
 msgid "This project was scheduled for deletion, but failed with the following message:"
 msgstr ""
 
@@ -85150,6 +85156,9 @@ msgstr ""
 msgid "Vulnerability|False positive detected"
 msgstr ""
 
+msgid "Vulnerability|File"
+msgstr ""
+
 msgid "Vulnerability|File:"
 msgstr ""
 
@@ -85210,7 +85219,13 @@ msgstr ""
 msgid "Vulnerability|Possibly active secret"
 msgstr ""
 
+msgid "Vulnerability|Project"
+msgstr ""
+
 msgid "Vulnerability|Project:"
+msgstr ""
+
+msgid "Vulnerability|Properties"
 msgstr ""
 
 msgid "Vulnerability|References"
@@ -85228,6 +85243,9 @@ msgstr ""
 msgid "Vulnerability|Removing this flag will not change the vulnerability's status. The vulnerability will remain in its current state but will no longer be marked as a false positive."
 msgstr ""
 
+msgid "Vulnerability|Report type"
+msgstr ""
+
 msgid "Vulnerability|Reproduction Assets"
 msgstr ""
 
@@ -85235,6 +85253,9 @@ msgid "Vulnerability|Request/Response"
 msgstr ""
 
 msgid "Vulnerability|Resolve the vulnerability in these dependencies to see additional paths. GitLab shows a maximum of 20 dependency paths per vulnerability."
+msgstr ""
+
+msgid "Vulnerability|Scanner"
 msgstr ""
 
 msgid "Vulnerability|Security Audit"

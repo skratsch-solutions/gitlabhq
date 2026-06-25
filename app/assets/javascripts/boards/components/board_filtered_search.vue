@@ -29,6 +29,7 @@ import { AssigneeFilterType, GroupByParamType } from 'ee_else_ce/boards/constant
 const customFieldRegex = /custom-field\[([0-9]+)\]/g;
 
 export default {
+  name: 'BoardFilteredSearch',
   i18n: {
     search: __('Search'),
   },

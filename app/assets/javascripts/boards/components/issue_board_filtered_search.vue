@@ -38,6 +38,7 @@ import WorkItemTypeToken from '~/vue_shared/components/filtered_search_bar/token
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 export default {
+  name: 'IssueBoardFilteredSearch',
   components: { BoardFilteredSearch },
   mixins: [glFeatureFlagMixin()],
   inject: ['isSignedIn', 'releasesFetchPath', 'fullPath', 'isGroupBoard'],

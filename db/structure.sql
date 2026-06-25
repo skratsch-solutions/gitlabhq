@@ -31443,29 +31443,6 @@ CREATE SEQUENCE security_scheduled_pipeline_execution_policy_test_runs_id_seq
 
 ALTER SEQUENCE security_scheduled_pipeline_execution_policy_test_runs_id_seq OWNED BY security_scheduled_pipeline_execution_policy_test_runs.id;
 
-CREATE TABLE security_training_providers (
-    id bigint NOT NULL,
-    name text NOT NULL,
-    description text,
-    url text NOT NULL,
-    logo_url text,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    CONSTRAINT check_544b3dc935 CHECK ((char_length(url) <= 512)),
-    CONSTRAINT check_6fe222f071 CHECK ((char_length(logo_url) <= 512)),
-    CONSTRAINT check_a8ff21ced5 CHECK ((char_length(description) <= 512)),
-    CONSTRAINT check_dae433eed6 CHECK ((char_length(name) <= 256))
-);
-
-CREATE SEQUENCE security_training_providers_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE security_training_providers_id_seq OWNED BY security_training_providers.id;
-
 CREATE TABLE security_trainings (
     id bigint NOT NULL,
     project_id bigint NOT NULL,
@@ -37975,8 +37952,6 @@ ALTER TABLE ONLY security_scans ALTER COLUMN id SET DEFAULT nextval('security_sc
 
 ALTER TABLE ONLY security_scheduled_pipeline_execution_policy_test_runs ALTER COLUMN id SET DEFAULT nextval('security_scheduled_pipeline_execution_policy_test_runs_id_seq'::regclass);
 
-ALTER TABLE ONLY security_training_providers ALTER COLUMN id SET DEFAULT nextval('security_training_providers_id_seq'::regclass);
-
 ALTER TABLE ONLY security_trainings ALTER COLUMN id SET DEFAULT nextval('security_trainings_id_seq'::regclass);
 
 ALTER TABLE ONLY sentry_issues ALTER COLUMN id SET DEFAULT nextval('sentry_issues_id_seq'::regclass);
@@ -42283,9 +42258,6 @@ ALTER TABLE ONLY security_scans
 
 ALTER TABLE ONLY security_scheduled_pipeline_execution_policy_test_runs
     ADD CONSTRAINT security_scheduled_pipeline_execution_policy_test_runs_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY security_training_providers
-    ADD CONSTRAINT security_training_providers_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY security_trainings
     ADD CONSTRAINT security_trainings_pkey PRIMARY KEY (id);
@@ -51114,8 +51086,6 @@ CREATE INDEX index_security_scans_on_pipeline_id_and_scan_type ON security_scans
 
 CREATE INDEX index_security_scans_on_project_id ON security_scans USING btree (project_id);
 
-CREATE UNIQUE INDEX index_security_training_providers_on_unique_name ON security_training_providers USING btree (name);
-
 CREATE INDEX index_security_trainings_on_project_id ON security_trainings USING btree (project_id);
 
 CREATE INDEX index_security_trainings_on_provider_id ON security_trainings USING btree (provider_id);
@@ -52569,6 +52539,10 @@ CREATE INDEX tmp_idx_p_sent_notifications_on_noteable_id_for_epics ON ONLY p_sen
 CREATE INDEX tmp_idx_redirect_routes_on_source_type_id_where_namespace_null ON redirect_routes USING btree (source_type, id) WHERE (namespace_id IS NULL);
 
 CREATE INDEX tmp_idx_sbom_occurrence_refs_on_project_id_id ON sbom_occurrence_refs USING btree (project_id, id);
+
+CREATE INDEX tmp_idx_vuln_occurrences_on_project_id_sec_prj_trck_cnxt_id_id ON vulnerability_occurrences USING btree (project_id, security_project_tracked_context_id, id);
+
+CREATE INDEX tmp_idx_vuln_reads_on_project_id_sec_prj_trck_cnxt_id_id ON vulnerability_reads USING btree (project_id, security_project_tracked_context_id, id);
 
 CREATE INDEX tmp_idx_vulnerabilities_state_id ON vulnerabilities USING btree (state, id) WHERE ((resolved_at IS NOT NULL) OR (dismissed_at IS NOT NULL));
 

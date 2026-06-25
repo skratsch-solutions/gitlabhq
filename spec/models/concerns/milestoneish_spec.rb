@@ -40,6 +40,12 @@ RSpec.describe Milestone, 'Milestoneish', factory_default: :keep do
       expect(issues.third).not_to eq(closed_issue_1)
     end
 
+    it 'includes work item types beyond the issue/epic/task/incident set' do
+      ticket = create(:work_item, :ticket, milestone: milestone)
+
+      expect(milestone.milestone_issues(member)).to include(ticket)
+    end
+
     it 'limits issue count' do
       stub_const('Milestoneish::DISPLAY_ISSUES_LIMIT', 4)
 

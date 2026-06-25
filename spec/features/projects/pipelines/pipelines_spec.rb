@@ -477,14 +477,20 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
               stage: 'test')
 
             create(:ci_job_artifact, :codequality, job: build)
+            create(:ci_job_artifact, :archive, job: build)
           end
 
           before do
             visit_project_pipelines
           end
 
-          it 'has artifacts dropdown' do
-            expect(page).to have_selector('[data-testid="pipeline-multi-actions-dropdown"]')
+          it 'lists the downloadable artifacts in the dropdown', :aggregate_failures do
+            find('[data-testid="pipeline-multi-actions-dropdown"] button').click
+
+            within_testid('pipeline-multi-actions-dropdown') do
+              expect(page).to have_link('rspec tests:archive')
+              expect(page).to have_link('rspec tests:codequality')
+            end
           end
         end
 

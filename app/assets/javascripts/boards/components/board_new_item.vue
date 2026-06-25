@@ -3,6 +3,7 @@ import { GlForm, GlFormInput, GlButton } from '@gitlab/ui';
 import { __ } from '~/locale';
 
 export default {
+  name: 'BoardNewItem',
   i18n: {
     cancel: __('Cancel'),
   },

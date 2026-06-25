@@ -128,6 +128,9 @@ For example:
 }
 ```
 
+> [!note]
+> `GlobalUserId` is a deterministic but de-identified identifier. The `GlobalUserId` is generated from the instance ID and user ID in the GitLab code with SHA-256. It is possible for customers to map it back to a specific user if the customer builds the lookup.
+
 Inference data, including code inputs, model prompts, and model responses, does not leave the customer network.
 
 GitLab does not capture which model or model provider the customer uses.

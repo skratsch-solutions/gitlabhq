@@ -9,6 +9,7 @@ import ToggleFocus from './toggle_focus.vue';
 import BoardOptions from './board_options.vue';
 
 export default {
+  name: 'BoardTopBar',
   components: {
     BoardOptions,
     BoardsSelector,

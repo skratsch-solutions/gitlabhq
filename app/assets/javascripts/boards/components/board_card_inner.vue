@@ -18,6 +18,7 @@ import IssueDueDate from './issue_due_date.vue';
 import IssueTimeEstimate from './issue_time_estimate.vue';
 
 export default {
+  name: 'BoardCardInner',
   components: {
     GlLabel,
     GlLoadingIcon,

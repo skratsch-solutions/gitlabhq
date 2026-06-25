@@ -454,6 +454,18 @@ RSpec.describe Gitlab::ImportExport::Project::ObjectBuilder do
         expect(commits_metadata.committed_date).to eq(commit_attrs['committed_date'])
       end
 
+      # The trailers entry in this list is temporary - it will be removed with
+      # https://gitlab.com/gitlab-org/gitlab/-/work_items/603480
+      it 'strips columns that move to commits_metadata before instantiation' do
+        stripped_columns = %w[sha message authored_date committed_date trailers commit_author committer]
+
+        expect(MergeRequestDiffCommit).to receive(:new)
+          .with(hash_excluding(*stripped_columns))
+          .and_call_original
+
+        described_class.build(MergeRequestDiffCommit, commit_attrs)
+      end
+
       context 'when metadata is not found or created' do
         before do
           allow(MergeRequest::CommitsMetadata)

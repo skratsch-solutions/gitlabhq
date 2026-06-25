@@ -105,3 +105,5 @@ module Mutations
     end
   end
 end
+
+Mutations::MergeRequests::Accept.prepend_mod

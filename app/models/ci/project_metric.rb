@@ -28,7 +28,15 @@ module Ci
     def self.track_ai_generated_config!(project_id, author_source:)
       return unless author_source.in?(KNOWN_AGENT_SOURCES)
 
-      upsert({ project_id: project_id, ci_config_generated_by: author_source }, unique_by: :project_id)
+      upsert(
+        { project_id: project_id, ci_config_generated_by: author_source, ci_config_first_generated_at: Time.current },
+        unique_by: :project_id,
+        on_duplicate: Arel.sql(<<~SQL.squish)
+          ci_config_generated_by = EXCLUDED.ci_config_generated_by,
+          ci_config_first_generated_at = COALESCE(ci_project_metrics.ci_config_first_generated_at, EXCLUDED.ci_config_first_generated_at),
+          updated_at = EXCLUDED.updated_at
+        SQL
+      )
     end
   end
 end

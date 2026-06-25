@@ -27,6 +27,7 @@ import BoardColumn from './board_column.vue';
 import BoardDrawerWrapper from './board_drawer_wrapper.vue';
 
 export default {
+  name: 'BoardContent',
   draggableItemTypes: DraggableItemTypes,
   VIEW_CONTEXT,
   components: {

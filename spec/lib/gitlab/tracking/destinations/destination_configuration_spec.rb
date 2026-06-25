@@ -49,6 +49,49 @@ RSpec.describe Gitlab::Tracking::Destinations::DestinationConfiguration, feature
     end
   end
 
+  describe '.billing_configuration' do
+    subject(:configuration) { described_class.billing_configuration }
+
+    before do
+      stub_application_setting(snowplow_enabled?: false)
+      stub_config_setting(host: host)
+    end
+
+    context 'on production instance' do
+      let(:host) { 'mysite.com' }
+
+      it 'returns configuration with production billing endpoint' do
+        expect(configuration.hostname).to eq('billing.prdsub.gitlab.net')
+        expect(configuration.protocol).to eq('https')
+        expect(configuration.uri.to_s).to eq(described_class::BILLING_COLLECT_ENDPOINT)
+      end
+    end
+
+    context 'on staging instance' do
+      let(:host) { 'mysite.com' }
+
+      before do
+        allow(Gitlab).to receive(:staging?).and_return(true)
+      end
+
+      it 'returns configuration with staging billing endpoint' do
+        expect(configuration.hostname).to eq('billing.stgsub.gitlab.net')
+        expect(configuration.protocol).to eq('https')
+        expect(configuration.uri.to_s).to eq(described_class::BILLING_COLLECT_ENDPOINT_STG)
+      end
+    end
+
+    context 'on GitLab qa instance' do
+      let(:host) { 'gitlab-123456789.test' }
+
+      it 'returns configuration with staging billing endpoint' do
+        expect(configuration.hostname).to eq('billing.stgsub.gitlab.net')
+        expect(configuration.protocol).to eq('https')
+        expect(configuration.uri.to_s).to eq(described_class::BILLING_COLLECT_ENDPOINT_STG)
+      end
+    end
+  end
+
   describe '.snowplow_micro_configuration' do
     subject(:configuration) { described_class.snowplow_micro_configuration }
 

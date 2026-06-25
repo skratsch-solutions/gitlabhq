@@ -2,6 +2,7 @@
 import { GlFormCheckbox } from '@gitlab/ui';
 
 export default {
+  name: 'BoardConfigurationOptions',
   components: {
     GlFormCheckbox,
   },

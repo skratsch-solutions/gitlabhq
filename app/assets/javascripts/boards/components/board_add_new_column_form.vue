@@ -3,6 +3,7 @@ import { GlButton, GlFormGroup } from '@gitlab/ui';
 import { __ } from '~/locale';
 
 export default {
+  name: 'BoardAddNewColumnForm',
   i18n: {
     add: __('Add to board'),
     cancel: __('Cancel'),

@@ -64,20 +64,17 @@ class MergeRequestDiffCommit < ApplicationRecord
 
     rows = commit_hashes.map.with_index do |commit_hash, index|
       raw_sha = commit_hash.delete(:id)
-      trailers = commit_hash.fetch(:trailers, {})
 
       author = users[[commit_hash[:author_name], commit_hash[:author_email], organization_id]]
       committer = users[[commit_hash[:committer_name], commit_hash[:committer_email], organization_id]]
 
-      # These fields are only used to determine the author/committer IDs, we
-      # don't store them in the DB.
-      #
-      # Trailers are stored in the DB here in order to allow changelog parsing.
-      # Rather than add an additional column for :extended_trailers, we're instead
-      # ignoring it for now until we deprecate the :trailers field and replace it with
-      # the new functionality.
+      # Author/committer names and emails are only used to determine the IDs;
+      # they are not stored on the diff_commits row. Trailers and
+      # extended_trailers are also dropped here - trailers was not migrated to
+      # the partitioned diff_commits table or to merge_request_commits_metadata,
+      # so we stop writing it in preparation for the table swap.
       commit_hash = commit_hash
-        .except(:author_name, :author_email, :committer_name, :committer_email, :extended_trailers)
+        .except(:author_name, :author_email, :committer_name, :committer_email, :extended_trailers, :trailers)
 
       commit_hash = commit_hash.merge(
         commit_author_id: author.id,
@@ -86,8 +83,7 @@ class MergeRequestDiffCommit < ApplicationRecord
         relative_order: index,
         sha: Gitlab::Database::ShaAttribute.serialize(raw_sha),
         authored_date: Gitlab::Database.sanitize_timestamp(commit_hash[:authored_date]),
-        committed_date: Gitlab::Database.sanitize_timestamp(commit_hash[:committed_date]),
-        trailers: Gitlab::Json.dump(trailers)
+        committed_date: Gitlab::Database.sanitize_timestamp(commit_hash[:committed_date])
       )
 
       # Need to add `raw_sha` to commit_hash as we will use that when
@@ -244,13 +240,10 @@ class MergeRequestDiffCommit < ApplicationRecord
     )
   end
 
-  # `trailers` was not migrated to `merge_request_diff_commits_b5377a7a34` or
-  # `merge_request_commits_metadata`. Once the FF is on, the read paths source
-  # commit data from metadata; the column may also be gone post-swap.
+  # Placeholder while the trailers references are being removed.
+  # Tracked in https://gitlab.com/gitlab-org/gitlab/-/work_items/603480
   def trailers
-    return {} if Feature.enabled?(:mr_diff_commits_read_new_table, Project.actor_from_id(project_id))
-
-    super
+    {}
   end
 
   def author_name

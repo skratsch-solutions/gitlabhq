@@ -74,6 +74,43 @@ RSpec.describe Gitlab::Kas::Client, feature_category: :deployment_management do
       it { is_expected.to eq(server_info) }
     end
 
+    describe '#start_workflow' do
+      let(:stub) { instance_double(Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub) }
+      let(:response) { instance_double(Gitlab::Agent::AutoFlow::Rpc::StartWorkflowResponse) }
+
+      subject(:result) do
+        client.start_workflow(
+          identity_key: 'rollout-1',
+          workflow_definition: "def main(w):\n    pass\n",
+          namespace_id: 600956,
+          kwargs: { 'environment' => { 'id' => '42' } }
+        )
+      end
+
+      before do
+        expect(Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub).to receive(:new)
+          .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
+          .and_return(stub)
+      end
+
+      it 'builds the request from plain arguments and returns the response' do
+        expect(stub).to receive(:start_workflow) do |request, metadata:|
+          expect(metadata).to eq('authorization' => 'bearer test-token', **feature_flags)
+          expect(request.identity_key).to eq('rollout-1')
+          expect(request.namespace_id).to eq(600956)
+          expect(request.kwargs.map(&:name)).to eq(['environment'])
+
+          key_value = request.kwargs.first.value.dict_value.key_values.first
+          expect(key_value.key.string_value).to eq('id')
+          expect(key_value.val.string_value).to eq('42')
+
+          response
+        end
+
+        expect(result).to eq(response)
+      end
+    end
+
     describe '#get_connected_agentks_by_agent_ids' do
       let(:stub) { instance_double(Gitlab::Agent::AgentTracker::Rpc::AgentTracker::Stub) }
       let(:request) { instance_double(Gitlab::Agent::AgentTracker::Rpc::GetConnectedAgentksByAgentIDsRequest) }

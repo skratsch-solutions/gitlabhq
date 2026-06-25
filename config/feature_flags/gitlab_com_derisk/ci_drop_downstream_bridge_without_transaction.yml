@@ -1,0 +1,10 @@
+---
+name: ci_drop_downstream_bridge_without_transaction
+description: Drops the bridge job and inserts the downstream error messages without wrapping them in a single transaction, to reduce idle_in_transaction time in CreateDownstreamPipelineService
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/589828
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/242354
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/604001
+milestone: '19.2'
+group: group::pipeline execution
+type: gitlab_com_derisk
+default_enabled: false

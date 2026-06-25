@@ -3,6 +3,7 @@ import { GlButton, GlIcon } from '@gitlab/ui';
 import Tracking from '~/tracking';
 
 export default {
+  name: 'BoardAddNewColumnTrigger',
   components: {
     GlButton,
     GlIcon,

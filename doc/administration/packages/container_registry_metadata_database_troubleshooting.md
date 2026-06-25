@@ -107,6 +107,13 @@ which can happen if you:
 - Tried to run the import again after any of the previous actions.
 - Ran the import against the wrong configuration file.
 
+> [!warning]
+> Only truncate the `tags` table to retry an import that failed before it completed.
+> After a successful import, the metadata database is the only copy of your registry metadata.
+> If you truncate the table on a migrated or production registry, you permanently delete tag metadata.
+> You cannot rebuild that metadata by re-importing from object storage.
+> Never run this procedure on a registry that already serves traffic from the metadata database.
+
 To resolve this issue, you must delete the existing entries in the tags table.
 You must truncate the table manually on your PostgreSQL instance:
 
@@ -223,6 +230,13 @@ By default, the online garbage collector will only start deleting unreferenced l
 that all tags they were associated with were deleted. This delay ensures that the garbage collector does
 not interfere with long-running or interrupted image pushes, as layers are pushed to the registry before
 they are associated with an image and tag.
+
+> [!note]
+> Online garbage collection deletes unreferenced objects from storage.
+> Your object storage provider then decides when to reclaim the space.
+> If object versioning or a retention policy keeps deleted objects indefinitely, the provider
+> never frees the space.
+> Configure a lifecycle rule that expires the non-current versions to reclaim the space.
 
 ### Error: `permission denied for schema public (SQLSTATE 42501)`
 

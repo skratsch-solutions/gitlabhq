@@ -26,6 +26,7 @@ const boardDefaults = {
 };
 
 export default {
+  name: 'BoardForm',
   i18n: {
     [formType.new]: { title: s__('Boards|Create new board'), btnText: s__('Boards|Create board') },
     [formType.delete]: { title: s__('Boards|Delete board'), btnText: __('Delete') },

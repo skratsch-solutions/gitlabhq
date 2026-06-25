@@ -14,11 +14,11 @@ module Authn
       ROUTING_HEADER_VALUE = 'iam-auth-grpc'
 
       REQUEST_TYPES = {
-        health: ::Auth::V1::HealthRequest,
-        accept_login_challenge: ::Auth::V1::LoginServiceAcceptRequest,
-        get_consent_challenge: ::Auth::V1::ConsentServiceGetRequest,
-        accept_consent_challenge: ::Auth::V1::ConsentServiceAcceptRequest,
-        reject_consent_challenge: ::Auth::V1::ConsentServiceRejectRequest
+        health: ::Gitlab::Iam::Auth::V1::HealthRequest,
+        accept_login_challenge: ::Gitlab::Iam::Auth::V1::LoginServiceAcceptRequest,
+        get_consent_challenge: ::Gitlab::Iam::Auth::V1::ConsentServiceGetRequest,
+        accept_consent_challenge: ::Gitlab::Iam::Auth::V1::ConsentServiceAcceptRequest,
+        reject_consent_challenge: ::Gitlab::Iam::Auth::V1::ConsentServiceRejectRequest
       }.freeze
 
       def health(**kwargs)
@@ -63,15 +63,15 @@ module Authn
       end
 
       def stub
-        build_stub(::Auth::V1::AuthService::Stub)
+        build_stub(::Gitlab::Iam::Auth::V1::AuthService::Stub)
       end
 
       def login_stub
-        build_stub(::Auth::V1::LoginService::Stub)
+        build_stub(::Gitlab::Iam::Auth::V1::LoginService::Stub)
       end
 
       def consent_stub
-        build_stub(::Auth::V1::ConsentService::Stub)
+        build_stub(::Gitlab::Iam::Auth::V1::ConsentService::Stub)
       end
 
       def build_stub(stub_class)

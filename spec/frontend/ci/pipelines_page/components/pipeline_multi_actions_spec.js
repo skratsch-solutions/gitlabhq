@@ -83,6 +83,8 @@ describe('Pipeline Multi Actions Dropdown', () => {
         name: text,
         path: href,
       }));
+  const findAllArtifactNames = () =>
+    wrapper.findAllComponents(GlDisclosureDropdownItem).wrappers.map((item) => item.text());
   const findSearchBox = () => wrapper.findComponent(GlSearchBoxByType);
   const findEmptyMessage = () => wrapper.findByTestId('artifacts-empty-message');
   const findWarning = () => wrapper.findByTestId('artifacts-fetch-warning');
@@ -181,6 +183,11 @@ describe('Pipeline Multi Actions Dropdown', () => {
 
         it('should render the correct artifact name and path', () => {
           expect(findAllArtifactItemsData()).toEqual(artifacts);
+        });
+
+        it('renders the loaded artifacts as dropdown items', () => {
+          // Preserve this test for Vue 3 compatibility
+          expect(findAllArtifactNames()).toEqual(artifacts.map(({ name }) => name));
         });
 
         describe('when opened again with new artifacts', () => {

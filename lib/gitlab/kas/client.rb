@@ -11,7 +11,8 @@ module Gitlab
         configuration_project: Gitlab::Agent::ConfigurationProject::Rpc::ConfigurationProject::Stub,
         notifications: Gitlab::Agent::Notifications::Rpc::Notifications::Stub,
         managed_resources: Gitlab::Agent::ManagedResources::Rpc::Provisioner::Stub,
-        events_platform: Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub
+        events_platform: Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub,
+        autoflow: Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub
       }.freeze
 
       # Default deadline for a single subscribe stream. Chosen to sit slightly below KAS's
@@ -251,6 +252,30 @@ module Gitlab
           project: ::Feature::Kas.project_actor(managed_resource.project),
           group: ::Feature::Kas.group_actor(managed_resource.project)
         ))
+      end
+
+      # Starts an AutoFlow workflow on GitLab Relay.
+      #
+      # @param identity_key [String] caller-chosen idempotency key.
+      #   (e.g. "cd-rollout-42")
+      # @param workflow_definition [String] the workflow program bytes.
+      #   (e.g. "def main(w, *args, **kwargs):\n    pass\n")
+      # @param namespace_id [Integer] GitLab namespace or organization the workflow belongs to.
+      # @param args [Array] positional arguments bound to the workflow's main().
+      #   (e.g. ["production", 3])
+      # @param kwargs [Hash{String => Object}] named arguments bound to the workflow's main().
+      #   (e.g. { "environment" => { "id" => "42" }, "version_set" => { "services" => [...] } })
+      # @return [Gitlab::Agent::AutoFlow::Rpc::StartWorkflowResponse]
+      def start_workflow(identity_key:, workflow_definition:, namespace_id:, args: [], kwargs: {})
+        request = Gitlab::Agent::AutoFlow::Rpc::StartWorkflowRequest.new(
+          identity_key: identity_key,
+          workflow_definition: workflow_definition,
+          namespace_id: namespace_id,
+          args: Autoflow::ValueConverter.values(args),
+          kwargs: Autoflow::ValueConverter.named_values(kwargs)
+        )
+
+        stub_for(:autoflow).start_workflow(request, metadata: metadata)
       end
 
       private

@@ -399,7 +399,6 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           merge_request_diff_id: merge_request_diff_id,
           relative_order: 0,
           sha: Gitlab::Database::ShaAttribute.serialize("5937ac0a7beb003549fc5fd26fc247adbce4a52e"),
-          trailers: {}.to_json,
           merge_request_commits_metadata_id: an_instance_of(Integer),
           project_id: an_instance_of(Integer)
         },
@@ -412,7 +411,6 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           merge_request_diff_id: merge_request_diff_id,
           relative_order: 1,
           sha: Gitlab::Database::ShaAttribute.serialize("570e7b2abdd848b95f2f578043fc23bd6f6fd24d"),
-          trailers: {}.to_json,
           merge_request_commits_metadata_id: an_instance_of(Integer),
           project_id: an_instance_of(Integer)
         }
@@ -428,8 +426,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           :authored_date,
           :committed_date,
           :sha,
-          :message,
-          :trailers)
+          :message)
       end
     end
 
@@ -484,17 +481,6 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
 
       expect(commit_row.commit_author).to eq(commit_user_row)
       expect(commit_row.committer).to eq(commit_user_row)
-    end
-
-    context 'when mr_diff_commits_read_new_table is disabled' do
-      before do
-        stub_feature_flags(mr_diff_commits_read_new_table: false)
-      end
-
-      # Legacy code path keeps :trailers in the rows passed to legacy_bulk_insert.
-      let(:deduplicated_rows) { super().map { |row| row.merge(trailers: {}.to_json) } }
-
-      include_examples 'inserts the commits into the database en masse'
     end
 
     context 'for merge_request_commits_metadata' do
@@ -581,7 +567,6 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           merge_request_diff_id: merge_request_diff_id,
           relative_order: 0,
           sha: Gitlab::Database::ShaAttribute.serialize("ba3343bc4fa403a8dfbfcab7fc1a8c29ee34bd69"),
-          trailers: {}.to_json,
           merge_request_commits_metadata_id: an_instance_of(Integer),
           project_id: an_instance_of(Integer)
         }]
@@ -789,7 +774,7 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
     end
 
     describe '#message' do
-      it 'returns blank string' do
+      it 'returns blank string', :aggregate_failures do
         expect(diff_commit_with_metadata.message).to eq('')
         expect(diff_commit_without_metadata.message).to eq('')
       end
@@ -800,6 +785,13 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
         end
 
         it_behaves_like 'delegated method to merge_request_commits_metadata', :message
+      end
+    end
+
+    describe '#trailers' do
+      it 'returns an empty hash regardless of stored value or metadata presence', :aggregate_failures do
+        expect(diff_commit_with_metadata.trailers).to eq({})
+        expect(diff_commit_without_metadata.trailers).to eq({})
       end
     end
   end

@@ -51,6 +51,9 @@ module API
       def ci_params
         {}
       end
+
+      # Overridden in EE
+      def validate_immediate_merge!(merge_request); end
     end
 
     def self.mr_update?(request)
@@ -160,6 +163,8 @@ module API
       end
 
       def execute_immediate_merge!(merge_request, merge_params)
+        validate_immediate_merge!(merge_request)
+
         render_api_error!('Branch cannot be merged', 422) unless merge_request.mergeable?
 
         ::MergeRequests::MergeService

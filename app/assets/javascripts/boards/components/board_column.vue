@@ -6,6 +6,7 @@ import BoardList from './board_list.vue';
 import BoardAddNewColumnBetween from './board_add_new_column_between.vue';
 
 export default {
+  name: 'BoardColumn',
   components: {
     BoardAddNewColumn,
     BoardAddNewColumnBetween,

@@ -5,6 +5,7 @@ import { s__ } from '~/locale';
 import Tracking from '~/tracking';
 
 export default {
+  name: 'ConfigToggle',
   components: {
     GlButton,
   },

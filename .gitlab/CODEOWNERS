@@ -1842,8 +1842,6 @@ lib/gitlab/checks/
 /ee/**/serializers/ci/*_ai_*.rb @gitlab-org/maintainers/rails-backend
 /lib/gitlab/ci/templates/ @gitlab-org/maintainers/cicd-templates
 /ee/lib/**/ci/templates/ @gitlab-org/maintainers/cicd-templates
-/spec/lib/gitlab/ci/templates/ @gitlab-org/maintainers/cicd-templates
-/ee/spec/lib/gitlab/ci/templates/ @gitlab-org/maintainers/cicd-templates
 
 ^[Security reports]
 /ee/lib/gitlab/ci/parsers/license_compliance/ @gitlab-org/secure/composition-analysis-be
