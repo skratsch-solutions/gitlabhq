@@ -50,7 +50,7 @@ RSpec.describe Projects::AutoDevops::DisableService, '#execute', feature_categor
         it 'disables Auto DevOps for project' do
           subject
 
-          expect(auto_devops.enabled).to eq(false)
+          expect(auto_devops.enabled).to be(false)
         end
       end
 
@@ -62,7 +62,7 @@ RSpec.describe Projects::AutoDevops::DisableService, '#execute', feature_categor
         it 'explicitly disables Auto DevOps for project' do
           subject
 
-          expect(auto_devops.reload.enabled).to eq(false)
+          expect(auto_devops.reload.enabled).to be(false)
         end
       end
 
@@ -90,7 +90,7 @@ RSpec.describe Projects::AutoDevops::DisableService, '#execute', feature_categor
         subject
         auto_devops = project.reload.auto_devops
 
-        expect(auto_devops.enabled).to eq(false)
+        expect(auto_devops.enabled).to be(false)
       end
 
       it 'creates a ProjectAutoDevops record' do

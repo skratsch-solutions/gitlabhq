@@ -54,6 +54,15 @@ RSpec.describe SandboxController, feature_category: :shared do
         expect(directives['script-src']).not_to include("'unsafe-inline'")
       end
 
+      it 'lists the instance origin explicitly in script-src and style-src', :aggregate_failures do
+        get_mermaid
+
+        origin = Gitlab.config.gitlab.base_url
+
+        expect(directives['script-src']).to include(origin)
+        expect(directives['style-src']).to include(origin)
+      end
+
       it 'sets restrictive defaults' do
         get_mermaid
 

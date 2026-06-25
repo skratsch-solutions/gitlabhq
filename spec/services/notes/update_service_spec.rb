@@ -53,7 +53,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
       it 'deletes the note and reports command errors' do
         updated_note = described_class.new(project, user, edit_note_text).execute(note)
 
-        expect(updated_note.destroyed?).to eq(true)
+        expect(updated_note.destroyed?).to be(true)
         expect(updated_note.quick_actions_status.error?).to be(true)
         expect(updated_note.quick_actions_status.error_messages).to eq(['Commands did not apply'])
       end
@@ -135,7 +135,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
         it "delete note and return commands_only error" do
           updated_note = described_class.new(project, user, { note: "/close\n" }).execute(note)
 
-          expect(updated_note.destroyed?).to eq(true)
+          expect(updated_note.destroyed?).to be(true)
           expect(updated_note.errors).to match_array([
             "Note can't be blank"
           ])

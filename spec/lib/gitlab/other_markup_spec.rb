@@ -8,7 +8,7 @@ RSpec.describe Gitlab::OtherMarkup, :aggregate_failures, feature_category: :wiki
   context 'when org-mode content' do
     let(:file_name) { 'unimportant_name.org' }
     let(:rendered) { render(file_name, input, context) }
-    let(:doc) { Nokogiri::HTML.fragment(rendered) }
+    let(:doc) { Nokogiri::HTML5.fragment(rendered) }
     let(:pre) { doc.css('pre').first }
 
     context 'with headings' do
@@ -35,7 +35,9 @@ RSpec.describe Gitlab::OtherMarkup, :aggregate_failures, feature_category: :wiki
         end
 
         expect(doc.at_css('h1')['id']).to eq('user-content-heading-1')
+        expect(doc.at_css('h1 a.anchor')['href']).to eq('#heading-1')
         expect(doc.at_css('h6')['id']).to eq('user-content-heading-6')
+        expect(doc.at_css('h6 a.anchor')['href']).to eq('#heading-6')
       end
     end
 
@@ -142,11 +144,8 @@ RSpec.describe Gitlab::OtherMarkup, :aggregate_failures, feature_category: :wiki
         ORG
       end
 
-      it 'applies the canonical language attribute' do
+      it 'renders mermaid diagrams' do
         expect(pre['data-canonical-lang']).to eq('mermaid')
-      end
-
-      it 'adds the JS hook for client-side rendering' do
         expect(pre.at_css('code')[:class]).to include('js-render-mermaid')
       end
     end
@@ -160,89 +159,183 @@ RSpec.describe Gitlab::OtherMarkup, :aggregate_failures, feature_category: :wiki
         ORG
       end
 
-      it 'applies the canonical language attribute' do
+      it 'renders math source blocks' do
         expect(pre['data-canonical-lang']).to eq('math')
-      end
-
-      it 'preserves the math style attribute' do
         expect(pre['data-math-style']).to eq('display')
-      end
-
-      it 'adds the JS hook for math rendering' do
         expect(pre[:class]).to include('js-render-math')
       end
     end
   end
 
   context 'when restructured text' do
-    it 'renders' do
-      input = <<~RST
-        Header
-        ======
+    let(:file_name) { 'unimportant_name.rst' }
+    let(:rendered) { render(file_name, input, context) }
+    let(:doc) { Nokogiri::HTML5.fragment(rendered) }
+    let(:pre) { doc.css('pre').first }
 
-        *emphasis*; **strong emphasis**; `interpreted text`
-      RST
+    context 'with headings' do
+      let(:input) do
+        <<~RST
+          Heading 1
+          =========
 
-      output = <<~HTML
-        <h1>Header</h1>
-        <p><em>emphasis</em>; <strong>strong emphasis</strong>; <cite>interpreted text</cite></p>
-      HTML
+          Text.
 
-      expect(render('unimportant_name.rst', input, context)).to include(output.strip)
+          Heading 2
+          ---------
+
+          Text.
+
+          Heading 3
+          ~~~~~~~~~
+
+          Text.
+
+          Heading 4
+          ^^^^^^^^^
+
+          Text.
+
+          Heading 5
+          '''''''''
+
+          Text.
+
+          Heading 6
+          """""""""
+
+          Text.
+
+          Another H2
+          ----------
+        RST
+      end
+
+      it 'adds heading IDs and anchor links for table of contents' do
+        headings = doc.css('h1, h2, h3, h4, h5, h6')
+
+        expect(headings.size).to eq(7)
+
+        headings.each do |heading|
+          expect(heading['id']).to start_with('user-content-')
+          expect(heading.at_css('a.anchor')).to be_present
+        end
+
+        expect(doc.at_css('h1')['id']).to eq('user-content-heading-1')
+        expect(doc.at_css('h1 a.anchor')['href']).to eq('#heading-1')
+        expect(doc.at_css('h6')['id']).to eq('user-content-heading-6')
+        expect(doc.at_css('h6 a.anchor')['href']).to eq('#heading-6')
+      end
+    end
+
+    context 'with contents directive' do
+      let(:input) do
+        <<~RST
+          .. contents::
+
+          Heading A
+          =========
+
+          Text.
+
+          Heading B
+          ---------
+
+          Text.
+
+          Heading C
+          ~~~~~~~~~
+
+          Text.
+
+          Heading D
+          ^^^^^^^^^
+
+          Text.
+
+          Heading E
+          '''''''''
+
+          Text.
+
+          Another Heading B
+          -----------------
+        RST
+      end
+
+      it 'adds heading IDs and anchor links for table of contents' do
+        headings = doc.css('h1, h2, h3, h4, h5, h6')
+
+        expect(headings.size).to eq(6)
+
+        headings.each do |heading|
+          expect(heading['id']).to start_with('user-content-')
+          expect(heading.at_css('a.anchor')).to be_present
+        end
+
+        expect(doc.at_css('h2')['id']).to eq('user-content-heading-a')
+        expect(doc.at_css('h2 a.anchor')['href']).to eq('#heading-a')
+        expect(doc.at_css('h6')['id']).to eq('user-content-heading-e')
+        expect(doc.at_css('h6 a.anchor')['href']).to eq('#heading-e')
+      end
     end
 
     context 'when PlantUML is enabled' do
-      it 'generates the diagram' do
-        Gitlab::CurrentSettings.current_application_settings.update!(plantuml_enabled: true, plantuml_url: 'https://plantuml.com/plantuml')
-
-        input = <<~RST
+      let(:input) do
+        <<~RST
           .. plantuml::
                  :caption: Caption with **bold** and *italic*
 
                  Bob -> Alice: hello
                  Alice -> Bob: hi
         RST
+      end
+
+      it 'generates the diagram' do
+        Gitlab::CurrentSettings.current_application_settings.update!(plantuml_enabled: true, plantuml_url: 'https://plantuml.com/plantuml')
 
         output = <<~HTML
           <img class="plantuml" src="https://plantuml.com/plantuml/png/U9npoazIqBLJSCp9J4wrKiX8pSd9vm9pGA9E-Kb0iKm0o4SAt000" data-diagram="plantuml" data-diagram-src="data:text/plain;base64,Qm9iIC0+IEFsaWNlOiBoZWxsbwpBbGljZSAtPiBCb2I6IGhp">
           <p>Caption with <strong>bold</strong> and <em>italic</em></p>
         HTML
 
-        expect(render('unimportant_name.rst', input, context)).to include(output.strip)
+        expect(rendered).to include(output.strip)
       end
     end
 
-    it 'renders mermaid diagrams' do
-      input = <<~RST
-        .. code:: mermaid
+    context 'with a mermaid block' do
+      let(:input) do
+        <<~RST
+          .. code:: mermaid
 
-           graph TD;
-               A-->B;
-               A-->C;
-               B-->D;
-               C-->D;
-      RST
+             graph TD;
+                 A-->B;
+                 A-->C;
+                 B-->D;
+                 C-->D;
+        RST
+      end
 
-      result = render('unimportant_name.rst', input, context)
-      doc = Nokogiri::HTML.fragment(result)
-      pre = doc.css('pre').first
-      expect(pre['data-canonical-lang']).to eq('mermaid')
-      expect(pre.at_css('code')[:class]).to include('js-render-mermaid')
+      it 'renders mermaid diagrams' do
+        expect(pre['data-canonical-lang']).to eq('mermaid')
+        expect(pre.at_css('code')[:class]).to include('js-render-mermaid')
+      end
     end
 
-    it 'renders math source blocks' do
-      input = <<~RST
-        .. code:: math
+    context 'with a math block' do
+      let(:input) do
+        <<~RST
+          .. code:: math
 
-           \\sqrt{2}
-      RST
+             \\sqrt{2}
+        RST
+      end
 
-      result = render('unimportant_name.rst', input, context)
-      doc = Nokogiri::HTML.fragment(result)
-      pre = doc.css('pre').first
-      expect(pre['data-canonical-lang']).to eq('math')
-      expect(pre['data-math-style']).to eq('display')
-      expect(pre[:class]).to include('js-render-math')
+      it 'renders math source blocks' do
+        expect(pre['data-canonical-lang']).to eq('math')
+        expect(pre['data-math-style']).to eq('display')
+        expect(pre[:class]).to include('js-render-math')
+      end
     end
   end
 
@@ -262,26 +355,45 @@ RSpec.describe Gitlab::OtherMarkup, :aggregate_failures, feature_category: :wiki
   end
 
   context 'when mediawiki content' do
-    links = {
-      'p' => {
-        file: 'file.mediawiki',
-        input: 'Red Bridge (JRuby Embed)',
-        output: "\n<p>Red Bridge (JRuby Embed)</p>"
-      },
-      'h1' => {
-        file: 'file.mediawiki',
-        input: '= Red Bridge (JRuby Embed) =',
-        output: "\n\n<h1>\n<a name=\"Red_Bridge_JRuby_Embed\"></a><span>Red Bridge (JRuby Embed)</span>\n</h1>\n"
-      },
-      'h2' => {
-        file: 'file.mediawiki',
-        input: '== Red Bridge (JRuby Embed) ==',
-        output: "\n\n<h2>\n<a name=\"Red_Bridge_JRuby_Embed\"></a><span>Red Bridge (JRuby Embed)</span>\n</h2>\n"
-      }
-    }
-    links.each do |name, data|
-      it "does render into #{name} element" do
-        expect(render(data[:file], data[:input], context)).to eq_html(data[:output], trim_text_nodes: true)
+    let(:file_name) { 'file.mediawiki' }
+    let(:rendered) { render(file_name, input, context) }
+    let(:doc) { Nokogiri::HTML5.fragment(rendered) }
+
+    context 'with headings' do
+      let(:input) do
+        <<~MEDIAWIKI
+          = Heading 1 =
+
+          == Heading 2 ==
+
+          === Heading 3 ===
+
+          ==== Heading 4 ====
+
+          ===== Heading 5 =====
+
+          ====== Heading 6 ======
+
+          == Another H2 ==
+        MEDIAWIKI
+      end
+
+      it 'adds heading IDs and anchor links for table of contents' do
+        headings = doc.css('h1, h2, h3, h4, h5, h6')
+
+        # WikiCloth renders an auto-generated table of contents with <h2>Table of Contents</h2>,
+        # so the total is 7 content headings + 1 TOC heading = 8
+        expect(headings.size).to eq(8)
+
+        headings.each do |heading|
+          expect(heading['id']).to start_with('user-content-')
+          expect(heading.at_css('a.anchor')).to be_present
+        end
+
+        expect(doc.at_css('h1')['id']).to eq('user-content-heading-1')
+        expect(doc.at_css('h1 a.anchor')['href']).to eq('#heading-1')
+        expect(doc.at_css('h6')['id']).to eq('user-content-heading-6')
+        expect(doc.at_css('h6 a.anchor')['href']).to eq('#heading-6')
       end
     end
   end

@@ -5,6 +5,9 @@ module Mutations
     class SetReviewers < Base
       graphql_name 'MergeRequestSetReviewers'
 
+      authorize_granular_token permissions: :update_merge_request, boundary_argument: :project_path,
+        boundary_type: :project
+
       argument :reviewer_usernames,
         [GraphQL::Types::String],
         required: true,

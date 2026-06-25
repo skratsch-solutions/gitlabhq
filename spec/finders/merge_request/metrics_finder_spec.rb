@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe MergeRequest::MetricsFinder do
+RSpec.describe MergeRequest::MetricsFinder, feature_category: :code_review_workflow do
   let_it_be(:current_user) { create(:user) }
   let_it_be(:project) { create(:project, :repository) }
   let_it_be(:merge_request_not_merged) { create(:merge_request, :unique_branches, source_project: project) }

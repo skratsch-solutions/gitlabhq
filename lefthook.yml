@@ -257,6 +257,12 @@ pre-commit:
       files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD) --cached
       glob: 'config/gitlab_loose_foreign_keys.yml'
       run: scripts/validate_loose_foreign_keys_ordering
+    db-migration-checksum:
+      skip: false
+      tags: database
+      files: git diff --name-only --staged
+      glob: '{db/migrate/*.rb,db/post_migrate/*.rb,db/schema_migrations/*}'
+      run: scripts/validate_migration_checksum
     prevent_graphql_schema_deletion:
       tags: graphql schema
       run: |

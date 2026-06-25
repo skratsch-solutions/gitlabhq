@@ -725,7 +725,22 @@ Grants the ability to approve, create, delete, merge, read, subscribe, and updat
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
+| Create | Project | Mutation | `MergeRequestCreate` |
+| Merge | Project | Mutation | `MergeRequestAccept` |
+| Read | Project | Type | `MergeRequest` |
 | Read | Project | Type | `MergeRequestApprovalState` |
+| Update | Project | Mutation | `DismissPolicyViolations` |
+| Update | Project | Mutation | `MergeRequestBypassSecurityPolicy` |
+| Update | Project | Mutation | `MergeRequestDestroyRequestedChanges` |
+| Update | Project | Mutation | `MergeRequestRequestChanges` |
+| Update | Project | Mutation | `MergeRequestSetAssignees` |
+| Update | Project | Mutation | `MergeRequestSetBlockingMergeRequests` |
+| Update | Project | Mutation | `MergeRequestSetDraft` |
+| Update | Project | Mutation | `MergeRequestSetLabels` |
+| Update | Project | Mutation | `MergeRequestSetLocked` |
+| Update | Project | Mutation | `MergeRequestSetMilestone` |
+| Update | Project | Mutation | `MergeRequestSetReviewers` |
+| Update | Project | Mutation | `MergeRequestUpdate` |
 
 #### Push Rule
 

@@ -171,7 +171,6 @@ mutation:DestroyPackages
 mutation:DevfileValidate
 mutation:DisableDevopsAdoptionNamespace
 mutation:DiscussionToggleResolve
-mutation:DismissPolicyViolations
 mutation:DuoSettingsUpdate
 mutation:DuoUserFeedback
 mutation:EchoCreate
@@ -262,21 +261,8 @@ mutation:MavenVirtualRegistryUpstreamUpdate
 mutation:MemberRoleDelete
 mutation:MemberRoleToUserAssign
 mutation:MemberRoleUpdate
-mutation:MergeRequestAccept
-mutation:MergeRequestBypassSecurityPolicy
-mutation:MergeRequestCreate
-mutation:MergeRequestDestroyRequestedChanges
-mutation:MergeRequestRequestChanges
 mutation:MergeRequestReviewerRereview
-mutation:MergeRequestSetAssignees
-mutation:MergeRequestSetBlockingMergeRequests
-mutation:MergeRequestSetDraft
-mutation:MergeRequestSetLabels
-mutation:MergeRequestSetLocked
-mutation:MergeRequestSetMilestone
-mutation:MergeRequestSetReviewers
 mutation:MergeRequestSetSubscription
-mutation:MergeRequestUpdate
 mutation:MergeTrainsDeleteCar
 mutation:MlModelCreate
 mutation:MlModelDelete
@@ -924,7 +910,6 @@ type:MavenUpstreamRule
 type:MemberApproval
 type:MemberRole
 type:MergeAccessLevel
-type:MergeRequest
 type:MergeRequestDiff
 type:MergeRequestDiffRegistry
 type:MergeRequestExternalIssue

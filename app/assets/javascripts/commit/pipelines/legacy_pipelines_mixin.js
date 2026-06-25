@@ -1,14 +1,12 @@
 import Visibility from 'visibilityjs';
 import { createAlert } from '~/alert';
-import { helpPagePath } from '~/helpers/help_page_helper';
 import { historyPushState, buildUrlWithCurrentLocation } from '~/lib/utils/common_utils';
 import { reportToSentry } from '~/ci/utils';
-import { HTTP_STATUS_UNAUTHORIZED } from '~/lib/utils/http_status';
 import Poll from '~/lib/utils/poll';
 import { __ } from '~/locale';
 import { validateParams } from '~/ci/pipeline_details/utils';
-import { CANCEL_REQUEST, TOAST_MESSAGE } from '~/ci/pipeline_details/constants';
-import eventHub from './legacy_pipelines_event_hub';
+
+export const CANCEL_REQUEST = 'CANCEL_REQUEST';
 
 export default {
   data() {
@@ -51,15 +49,6 @@ export default {
         this.poll.stop();
       }
     });
-
-    eventHub.$on('postAction', this.postAction);
-    eventHub.$on('updateTable', this.updateTable);
-    eventHub.$on('runMergeRequestPipeline', this.runMergeRequestPipeline);
-  },
-  beforeDestroy() {
-    eventHub.$off('postAction', this.postAction);
-    eventHub.$off('updateTable', this.updateTable);
-    eventHub.$off('runMergeRequestPipeline', this.runMergeRequestPipeline);
   },
   destroyed() {
     this.poll.stop();
@@ -183,52 +172,6 @@ export default {
         );
     },
 
-    /**
-     * When the user clicks on the run pipeline button
-     * we toggle the state of the button to be disabled
-     *
-     * Once the post request has finished, we fetch the
-     * pipelines again to show the most recent data
-     *
-     * Once the pipeline has been updated, we toggle back the
-     * loading state and re-enable the run pipeline button
-     */
-    runMergeRequestPipeline(options) {
-      if (this.state.isRunningMergeRequestPipeline) return; // Guards against duplicate submissions
-
-      this.store.toggleIsRunningMergeRequestPipeline(true);
-
-      this.service
-        .runMRPipeline(options)
-        .then(() => {
-          if (!options.isAsync) {
-            this.$toast.show(TOAST_MESSAGE);
-            this.updateTable();
-          }
-        })
-        .catch((e) => {
-          const unauthorized = e.response.status === HTTP_STATUS_UNAUTHORIZED;
-          let errorMessage = __(
-            'An error occurred while trying to run a new pipeline for this merge request.',
-          );
-
-          if (unauthorized) {
-            errorMessage = __('You do not have permission to run a pipeline on this branch.');
-          }
-
-          createAlert({
-            message: errorMessage,
-            primaryButton: {
-              text: __('Learn more'),
-              link: helpPagePath('ci/pipelines/merge_request_pipelines.md'),
-            },
-          });
-          reportToSentry('run_mr_pipeline', e);
-        })
-        .finally(() => {
-          this.store.toggleIsRunningMergeRequestPipeline(false);
-        });
-    },
     onChangePage(page) {
       /* URLS parameters are strings, we need to parse to match types */
       let params = {

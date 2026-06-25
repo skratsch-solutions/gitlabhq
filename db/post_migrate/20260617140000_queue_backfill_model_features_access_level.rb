@@ -1,27 +1,24 @@
 # frozen_string_literal: true
 
+# Disabled (no-op).
+#
+# This migration originally enqueued the BackfillModelFeaturesAccessLevel batched
+# background migration. It is reverted together with the default change (!242424)
+# so the backfill does not run, since the feature it supported is being rolled
+# back and the backfill will be resubmitted later. Running it twice would be a
+# confusing experience for self-managed and Dedicated.
+#
+# Left as a no-op (per the deleting migrations guidance) so it does not enqueue
+# the backfill on environments where it has not yet run. Where it already ran,
+# the BBM is removed by 20260625005917_delete_backfill_model_features_access_level.
 class QueueBackfillModelFeaturesAccessLevel < Gitlab::Database::Migration[2.3]
   milestone '19.2'
 
-  restrict_gitlab_migration gitlab_schema: :gitlab_main_org
-
-  MIGRATION = "BackfillModelFeaturesAccessLevel"
-  DELAY_INTERVAL = 2.minutes
-  BATCH_SIZE = 1_000
-  SUB_BATCH_SIZE = 100
-
   def up
-    queue_batched_background_migration(
-      MIGRATION,
-      :project_features,
-      :id,
-      job_interval: DELAY_INTERVAL,
-      batch_size: BATCH_SIZE,
-      sub_batch_size: SUB_BATCH_SIZE
-    )
+    # no-op
   end
 
   def down
-    delete_batched_background_migration(MIGRATION, :project_features, :id, [])
+    # no-op
   end
 end

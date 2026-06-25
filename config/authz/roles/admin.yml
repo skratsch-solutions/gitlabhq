@@ -16,6 +16,7 @@ group:
   permissions: []
   raw_permissions:
   - delete_custom_attribute
+  - lock_namespace_duo_feature
   - read_custom_attribute
   - update_custom_attribute
   - update_max_artifacts_size

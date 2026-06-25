@@ -1,20 +1,26 @@
 # frozen_string_literal: true
 
-# Drops the DB-level default on the model registry / experiments access level
-# columns so a new ProjectFeature record starts with NULL, letting the
-# `set_model_features_access_level` after_initialize callback compute a
-# visibility-based default (mirrors how `pages_access_level` works).
+# Disabled (no-op).
 #
-# Runs as a post-deployment migration so the default only changes after code
-# declaring `columns_changing_default` for these columns is deployed, per
-# https://docs.gitlab.com/development/database/avoiding_downtime_in_migrations/#changing-column-defaults
+# This migration originally dropped the DB-level default on
+# project_features.model_registry_access_level and model_experiments_access_level.
+# Combined with partial_inserts, nodes running the previous release omitted those
+# columns from inserts and relied on the default, so once it was gone they wrote
+# NULL into NOT NULL columns and raised PG::NotNullViolation, breaking project
+# creation during the rolling deploy. See the incident and !242424.
 #
-# Metadata-only change in PostgreSQL: existing rows are untouched.
+# It is left as a no-op (per the deleting migrations guidance) so the default is
+# never dropped on environments where it has not yet run. On environments where
+# it already ran, the default is restored by
+# 20260624225217_restore_model_features_access_level_defaults.
 class RemoveModelFeaturesAccessLevelDefaults < Gitlab::Database::Migration[2.3]
   milestone '19.2'
 
-  def change
-    change_column_default(:project_features, :model_registry_access_level, from: 20, to: nil)
-    change_column_default(:project_features, :model_experiments_access_level, from: 20, to: nil)
+  def up
+    # no-op
+  end
+
+  def down
+    # no-op
   end
 end

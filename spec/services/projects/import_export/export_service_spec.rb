@@ -239,7 +239,7 @@ RSpec.describe Projects::ImportExport::ExportService, feature_category: :importe
         expect { service.execute }.to raise_error(Gitlab::ImportExport::Error)
 
         expect(project.import_export_upload_by_user(user)).to be_nil
-        expect(File.exist?(shared.archive_path)).to eq(false)
+        expect(File.exist?(shared.archive_path)).to be(false)
       end
     end
 

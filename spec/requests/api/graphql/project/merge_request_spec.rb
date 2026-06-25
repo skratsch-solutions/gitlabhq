@@ -20,6 +20,20 @@ RSpec.describe 'getting merge request information nested in a project', feature_
     )
   end
 
+  it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_project, :read_merge_request] do
+    let(:user) { current_user }
+    let(:boundary_object) { project }
+    let(:query) do
+      graphql_query_for(
+        :project,
+        { full_path: project.full_path },
+        query_graphql_field(:merge_request, { iid: merge_request.iid.to_s }, 'id')
+      )
+    end
+
+    let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+  end
+
   it_behaves_like 'a working graphql query' do
     # we exclude Project.pipeline because it needs arguments,
     # codequalityReportsComparer because it is behind a feature flag

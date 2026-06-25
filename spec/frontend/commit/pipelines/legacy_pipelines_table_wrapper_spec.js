@@ -18,7 +18,7 @@ import {
   HTTP_STATUS_UNAUTHORIZED,
 } from '~/lib/utils/http_status';
 import { createAlert } from '~/alert';
-import { TOAST_MESSAGE } from '~/ci/pipeline_details/constants';
+import { CREATING_PIPELINE_TOAST_MESSAGE } from '~/ci/pipeline_details/constants';
 import axios from '~/lib/utils/axios_utils';
 import getPipelineCreationRequests from '~/ci/merge_requests/graphql/queries/get_pipeline_creation_requests.query.graphql';
 import pipelineCreationRequestsUpdatedSubscription from '~/ci/merge_requests/graphql/subscriptions/pipeline_creation_requests_updated.subscription.graphql';
@@ -319,10 +319,9 @@ describe('Pipelines table in Commits and Merge requests', () => {
         });
 
         describe('when the table is a merge request table', () => {
-          beforeEach(async () => {
+          it('shows a loading button', async () => {
             createComponent({
               props: {
-                canRunPipeline: true,
                 isMergeRequestTable: true,
                 mergeRequestId: 3,
                 projectId: '5',
@@ -331,20 +330,74 @@ describe('Pipelines table in Commits and Merge requests', () => {
             });
 
             await waitForPromises();
-          });
-
-          it('shows a loading button', async () => {
-            await findRunPipelineBtn().vm.$emit('run-pipeline');
 
             expect(findRunPipelineBtn().props('isLoading')).toBe(true);
+          });
+
+          it('refetches creation requests so the button stays disabled across a creationRequestsResponse gap', async () => {
+            getPipelineCreationRequestsHandler.mockResolvedValue(
+              generatePipelineCreationRequestsResponse({ requests: [] }),
+            );
+
+            createComponent({
+              props: {
+                isMergeRequestTable: true,
+                mergeRequestId: 3,
+                projectId: '5',
+                targetProjectFullPath: 'test/project',
+              },
+            });
+            await waitForPromises();
+
+            expect(findRunPipelineBtn().props('isLoading')).toBe(false);
+
+            getPipelineCreationRequestsHandler.mockResolvedValue(
+              generatePipelineCreationRequestsResponse({
+                requests: [
+                  { status: 'IN_PROGRESS', pipelineId: null, error: null, pipeline: null },
+                ],
+              }),
+            );
+
+            await findRunPipelineBtn().vm.$emit('run-pipeline');
+            await waitForPromises();
+
+            expect(findRunPipelineBtn().props('isLoading')).toBe(true);
+          });
+
+          it('allows running another pipeline when the creation requests refetch fails', async () => {
+            createComponent({
+              props: {
+                isMergeRequestTable: true,
+                mergeRequestId: 3,
+                projectId: '5',
+                targetProjectFullPath: 'test/project',
+              },
+            });
+            await waitForPromises();
+
+            // The post-creation refetch that gates re-submission fails.
+            getPipelineCreationRequestsHandler.mockRejectedValue(new Error('refetch failed'));
+
+            await findRunPipelineBtn().vm.$emit('run-pipeline');
+            await waitForPromises();
+
+            // The in-flight guard is still released, so the user is not stuck:
+            // a second submission goes through instead of being silently ignored.
+            await findRunPipelineBtn().vm.$emit('run-pipeline');
+            await waitForPromises();
+
+            expect(Api.postMergeRequestPipeline).toHaveBeenCalledTimes(2);
           });
         });
 
         describe('when the table is not a merge request table', () => {
           it('displays a toast message during pipeline creation', async () => {
-            await findRunPipelineBtn().vm.$emit('run-pipeline');
+            findRunPipelineBtn().vm.$emit('run-pipeline');
 
-            expect($toast.show).toHaveBeenCalledWith(TOAST_MESSAGE);
+            await waitForPromises();
+
+            expect($toast.show).toHaveBeenCalledWith(CREATING_PIPELINE_TOAST_MESSAGE);
           });
 
           it('shows a loading button', async () => {
@@ -356,6 +409,26 @@ describe('Pipelines table in Commits and Merge requests', () => {
 
             expect(findRunPipelineBtn().props('isLoading')).toBe(false);
           });
+
+          it('does not show the creating-pipeline toast when the run fails', async () => {
+            jest
+              .spyOn(Api, 'postMergeRequestPipeline')
+              .mockRejectedValue({ response: { status: HTTP_STATUS_BAD_REQUEST } });
+
+            await findRunPipelineBtn().vm.$emit('run-pipeline');
+            await waitForPromises();
+
+            expect(createAlert).toHaveBeenCalledWith({
+              message:
+                'An error occurred while trying to run a new pipeline for this merge request.',
+              primaryButton: {
+                text: 'Learn more',
+                link: '/help/ci/pipelines/merge_request_pipelines.md',
+              },
+            });
+
+            expect($toast.show).not.toHaveBeenCalledWith('Creating pipeline.');
+          });
         });
       });
 
@@ -365,14 +438,13 @@ describe('Pipelines table in Commits and Merge requests', () => {
           'An error occurred while trying to run a new pipeline for this merge request.';
 
         it.each`
-          status                               | message
-          ${HTTP_STATUS_BAD_REQUEST}           | ${defaultMsg}
-          ${HTTP_STATUS_UNAUTHORIZED}          | ${permissionsMsg}
-          ${HTTP_STATUS_INTERNAL_SERVER_ERROR} | ${defaultMsg}
-        `('displays permissions error message', async ({ status, message }) => {
-          const response = { response: { status } };
-
-          jest.spyOn(Api, 'postMergeRequestPipeline').mockRejectedValue(response);
+          response                                         | message
+          ${{ status: HTTP_STATUS_BAD_REQUEST }}           | ${defaultMsg}
+          ${{ status: HTTP_STATUS_UNAUTHORIZED }}          | ${permissionsMsg}
+          ${{ status: HTTP_STATUS_INTERNAL_SERVER_ERROR }} | ${defaultMsg}
+          ${undefined}                                     | ${defaultMsg}
+        `('displays error message for "$response"', async ({ response, message }) => {
+          jest.spyOn(Api, 'postMergeRequestPipeline').mockRejectedValue({ response });
 
           await findRunPipelineBtn().vm.$emit('run-pipeline');
 

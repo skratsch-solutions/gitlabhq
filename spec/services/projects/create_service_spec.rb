@@ -494,7 +494,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
   context 'error handling' do
     it 'handles invalid options' do
       opts[:invalid] = 'option'
-      expect(create_project(user, opts)).to eq(nil)
+      expect(create_project(user, opts)).to be_nil
     end
   end
 
@@ -1286,7 +1286,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
             params = opts.merge(namespace_id: group.id, shared_runners_enabled: desired_config_for_new_project)
             project = create_project(user, params)
 
-            expect(project.persisted?).to eq(false)
+            expect(project.persisted?).to be(false)
             expect(project).to be_invalid
             expect(project.errors[:shared_runners_enabled]).to include('cannot be enabled because parent group does not allow it')
             expect(project.project_namespace).to be_in_sync_with_project(project)
@@ -1384,7 +1384,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
 
         project = create_project(user, opts)
 
-        expect(project.project_setting.pages_unique_domain_enabled).to eq(true)
+        expect(project.project_setting.pages_unique_domain_enabled).to be(true)
         expect(project.project_setting.pages_unique_domain).to be_present
       end
     end
@@ -1400,7 +1400,7 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
 
         project = create_project(user, opts)
 
-        expect(project.project_setting.pages_unique_domain_enabled).to eq(false)
+        expect(project.project_setting.pages_unique_domain_enabled).to be(false)
         expect(project.project_setting.pages_unique_domain).to be_nil
       end
     end

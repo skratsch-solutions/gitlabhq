@@ -54,7 +54,6 @@ export default {
     'app/assets/javascripts/ci/runner/components/runner_pause_button.vue',
     'app/assets/javascripts/ci/runner/components/runner_pause_disclosure_dropdown_item.vue',
     'app/assets/javascripts/clusters_list/components/install_agent_modal.vue',
-    'app/assets/javascripts/commit/pipelines/legacy_pipelines_table_wrapper.vue',
     'app/assets/javascripts/content_editor/components/content_editor.vue',
     'app/assets/javascripts/diffs/components/app.vue',
     'app/assets/javascripts/diffs/components/diff_app_controls.vue',

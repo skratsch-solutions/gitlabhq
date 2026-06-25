@@ -16,6 +16,8 @@ import pipelineCreationRequestsUpdatedSubscription from '~/ci/merge_requests/gra
 import { getIdFromGraphQLId, convertToGraphQLId } from '~/graphql_shared/utils';
 import { TYPENAME_CI_PIPELINE } from '~/graphql_shared/constants';
 import { createAlert } from '~/alert';
+import { HTTP_STATUS_UNAUTHORIZED } from '~/lib/utils/http_status';
+import { CREATING_PIPELINE_TOAST_MESSAGE } from '~/ci/pipeline_details/constants';
 import retryPipelineMutation from '~/ci/pipelines_page/graphql/mutations/retry_pipeline.mutation.graphql';
 import cancelPipelineMutation from '~/ci/pipelines_page/graphql/mutations/cancel_pipeline.mutation.graphql';
 import { MR_PIPELINE_TYPE_DETACHED } from '~/ci/merge_requests/constants';
@@ -23,7 +25,6 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import PipelineStore from './legacy_pipelines_store';
 import PipelinesService from './legacy_pipelines_service';
 import PipelinesMixin from './legacy_pipelines_mixin';
-import eventHub from './legacy_pipelines_event_hub';
 
 export default {
   name: 'LegacyPipelinesTableWrapper',
@@ -286,18 +287,62 @@ export default {
       }
     },
     /**
-     * When the user clicks on the "Run pipeline" button
-     * we need to make a post request and
-     * to update the table content once the request is finished.
-     *
-     * We are emitting an event through the eventHub using the old pattern
-     * to make use of the code in mixins/pipelines.js that handles all the
-     * table events
-     *
+     * Runs a pipeline for the merge request when the "Run pipeline" button is
+     * clicked.
+     */
+    async runMergeRequestPipeline(options) {
+      if (this.state.isRunningMergeRequestPipeline) return; // Guards against duplicate submissions
+
+      this.store.toggleIsRunningMergeRequestPipeline(true);
+
+      try {
+        await this.service.runMRPipeline(options);
+
+        if (!options.isAsync) {
+          this.$toast.show(CREATING_PIPELINE_TOAST_MESSAGE);
+          this.updateTable();
+        }
+      } catch (e) {
+        const unauthorized = e.response?.status === HTTP_STATUS_UNAUTHORIZED;
+        let errorMessage = __(
+          'An error occurred while trying to run a new pipeline for this merge request.',
+        );
+
+        if (unauthorized) {
+          errorMessage = __('You do not have permission to run a pipeline on this branch.');
+        }
+
+        createAlert({
+          message: errorMessage,
+          primaryButton: {
+            text: __('Learn more'),
+            link: helpPagePath('ci/pipelines/merge_request_pipelines.md'),
+          },
+        });
+        Sentry.captureException(e);
+      } finally {
+        if (options.isAsync) {
+          // force pipeline creation requests to update before allowing
+          // users to create more pipelines by clicking repeatedly
+          try {
+            await this.$apollo.queries.pipelineCreationRequests.refetch();
+          } catch (e) {
+            Sentry.captureException(e);
+          } finally {
+            this.store.toggleIsRunningMergeRequestPipeline(false);
+          }
+        } else {
+          this.store.toggleIsRunningMergeRequestPipeline(false);
+        }
+      }
+    },
+    /**
+     * Triggers a pipeline run for the merge request and starts the debounced
+     * loader so the table shows a skeleton while the pipeline is created.
      */
     onClickRunPipeline() {
       this.startDebouncedPipelineLoader();
-      eventHub.$emit('runMergeRequestPipeline', {
+      this.runMergeRequestPipeline({
         projectId: this.projectId,
         mergeRequestId: this.mergeRequestId,
         isAsync: this.isMergeRequestTable,

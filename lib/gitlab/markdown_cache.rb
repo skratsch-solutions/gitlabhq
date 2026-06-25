@@ -16,7 +16,7 @@ module Gitlab
     # `doc/development/gitlab_flavored_markdown/banzai_pipeline_and_parsing.md`.
     #
     # See https://gitlab.com/gitlab-org/gitlab/-/work_items/597379.
-    CACHE_COMMONMARK_VERSION       = 33
+    CACHE_COMMONMARK_VERSION       = 34
     CACHE_COMMONMARK_VERSION_START = 10
 
     # Set to the previous `CACHE_COMMONMARK_VERSION` only during a rollout
@@ -29,7 +29,7 @@ module Gitlab
     #
     # See `doc/development/gitlab_flavored_markdown/banzai_pipeline_and_parsing.md`
     # for the full rollout procedure.
-    CACHE_COMMONMARK_VERSION_PREVIOUS = nil
+    CACHE_COMMONMARK_VERSION_PREVIOUS = 33
 
     CACHE_COMMONMARK_VERSION_SHIFTED = CACHE_COMMONMARK_VERSION << 16
     CACHE_COMMONMARK_VERSION_PREVIOUS_SHIFTED =

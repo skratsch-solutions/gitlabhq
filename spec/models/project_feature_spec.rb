@@ -30,6 +30,8 @@ RSpec.describe ProjectFeature, feature_category: :groups_and_projects do
     specify { expect(subject.releases_access_level).to eq(ProjectFeature::ENABLED) }
     specify { expect(subject.package_registry_access_level).to eq(ProjectFeature::ENABLED) }
     specify { expect(subject.container_registry_access_level).to eq(ProjectFeature::ENABLED) }
+    specify { expect(subject.model_experiments_access_level).to eq(ProjectFeature::ENABLED) }
+    specify { expect(subject.model_registry_access_level).to eq(ProjectFeature::ENABLED) }
   end
 
   describe 'PRIVATE_FEATURES_MIN_ACCESS_LEVEL_FOR_PRIVATE_PROJECT' do
@@ -107,67 +109,6 @@ RSpec.describe ProjectFeature, feature_category: :groups_and_projects do
         end
 
         it { is_expected.to eq(ProjectFeature::PRIVATE) }
-      end
-    end
-  end
-
-  describe 'default model features access level' do
-    # The project factory sets these access levels after creation, so rebuild the
-    # project_feature to exercise the model's own visibility-based default.
-    let(:project_feature) do
-      project.project_feature.destroy!
-      project.build_project_feature.save!
-      project.project_feature
-    end
-
-    context 'when the new project is private' do
-      let(:project) { create(:project, :private) }
-
-      it 'defaults to private', :aggregate_failures do
-        expect(project_feature.model_registry_access_level).to eq(described_class::PRIVATE)
-        expect(project_feature.model_experiments_access_level).to eq(described_class::PRIVATE)
-      end
-    end
-
-    context 'when the new project is internal' do
-      let(:project) { create(:project, :internal) }
-
-      it 'defaults to private', :aggregate_failures do
-        expect(project_feature.model_registry_access_level).to eq(described_class::PRIVATE)
-        expect(project_feature.model_experiments_access_level).to eq(described_class::PRIVATE)
-      end
-    end
-
-    context 'when the new project is public' do
-      let(:project) { create(:project, :public) }
-
-      it 'defaults to enabled', :aggregate_failures do
-        expect(project_feature.model_registry_access_level).to eq(described_class::ENABLED)
-        expect(project_feature.model_experiments_access_level).to eq(described_class::ENABLED)
-      end
-    end
-
-    context 'when an explicit value is passed' do
-      let(:project) { build(:project) }
-
-      it 'does not override it with the default', :aggregate_failures do
-        feature = described_class.new(
-          project: project,
-          model_registry_access_level: described_class::DISABLED,
-          model_experiments_access_level: described_class::DISABLED
-        )
-
-        expect(feature.model_registry_access_level).to eq(described_class::DISABLED)
-        expect(feature.model_experiments_access_level).to eq(described_class::DISABLED)
-      end
-    end
-
-    context 'when there is no associated project' do
-      it 'defaults to private', :aggregate_failures do
-        feature = described_class.new
-
-        expect(feature.model_registry_access_level).to eq(described_class::PRIVATE)
-        expect(feature.model_experiments_access_level).to eq(described_class::PRIVATE)
       end
     end
   end

@@ -13,51 +13,100 @@ title: GitLab installation requirements
 
 {{< /details >}}
 
-GitLab has specific installation requirements.
+GitLab has specific installation requirements. Hardware and component requirements vary based on the number of users and expected workload.
 
-## Storage
+## Hardware
 
-The necessary storage space largely depends on the size of the repositories you want to have in GitLab.
-As a guideline, you should have at least as much free space as all your repositories combined.
+You can deploy GitLab a single node or distributed across multiple nodes. The minimum
+hardware requirements for a single-node installation are listed below. For distributed
+deployments, requirements are allocated per component type and scale with load. Use the
+[sizing guide](../administration/reference_architectures/sizing.md) to determine the right
+specifications based on expected load and workload composition.
 
-The Linux package requires about 2.5 GB of storage space for installation.
-When combined with PostgreSQL, logs, temporary files, and operating system overhead,
-plan for at least 40 GB of disk space for a basic GitLab installation with no repository data.
-For storage flexibility, consider mounting your hard drive through logical volume management.
-You should have a hard drive with at least 7,200 RPM or a solid-state drive to reduce response times.
+### CPU
 
-Because file system performance might affect the overall performance of GitLab, you should
-[avoid using cloud-based file systems for storage](../administration/nfs.md#avoid-using-cloud-based-file-systems).
+For a single-node installation, 8 vCPU is the baseline. ARM-based processors are supported.
+For distributed deployments, CPU is allocated per component type and scales with load.
 
-## CPU
+> [!note]
+> Burstable instance types are not recommended due to inconsistent performance.
 
-CPU requirements depend on the number of users and expected workload.
-The workload includes your users' activity, use of automation and mirroring, and repository size.
+### Memory
 
-For a maximum of 20 requests per second or 1,000 users, you should have 8 vCPU.
-For more users or higher workload,
-see [reference architectures](../administration/reference_architectures/_index.md).
+For a single-node installation, 16 GB is the baseline. For distributed deployments, memory
+is allocated per component type and scales with load.
 
-## Memory
-
-Memory requirements depend on the number of users and expected workload.
-The workload includes your users' activity, use of automation and mirroring, and repository size.
-
-For a maximum of 20 requests per second or 1,000 users, you should have 16 GB of memory.
-For more users or higher workload,
-see [reference architectures](../administration/reference_architectures/_index.md).
-
-In some cases, GitLab can run with at least 8 GB of memory.
+For single-node installations in memory-constrained environments, GitLab can run with at least 8 GB of memory.
 For more information, see
 [running GitLab in a memory-constrained environment](https://docs.gitlab.com/omnibus/settings/memory_constrained_envs/).
 
-## PostgreSQL
+> [!note]
+> Disable swap where possible. Swap can cause significant performance degradation under load.
+> If swap cannot be disabled, provision sufficient memory so GitLab never uses it.
 
-[PostgreSQL](https://www.postgresql.org/) is the only supported database and is bundled with the Linux package.
-You can also use an [external PostgreSQL database](https://docs.gitlab.com/omnibus/settings/database/#using-a-non-packaged-postgresql-database-management-server),
-which must be [configured correctly](../administration/postgresql/tune.md#required-settings-for-external-instances).
+### Storage
 
-### Supported versions
+Storage requirements are component-specific. For single-node installations, total all requirements on one machine. For distributed deployments, apply each to the relevant node type:
+
+| Component | Minimum storage | Notes |
+|-----------|----------------|-------|
+| Application nodes (Rails, Sidekiq, Puma) | 40 GB | Package installation (~2.5 GB) plus OS, logs, and temporary files. |
+| Repository storage (Gitaly) | At least as much as all repositories combined | See [Gitaly disk requirements](../administration/gitaly/_index.md#disk-requirements). |
+| Database (PostgreSQL) | 5-12 GB | See [PostgreSQL storage requirements](#storage-requirements). |
+
+Avoid network file systems such as NFS, Amazon EFS, and Azure Files, as they can significantly affect performance.
+For more information, see [avoiding cloud-based file systems](../administration/nfs.md#avoid-using-cloud-based-file-systems).
+
+> [!note]
+> For best performance, use SSD-backed storage. This is particularly important for Gitaly, which is I/O intensive.
+> Burstable disk types are not recommended due to inconsistent performance.
+
+## Infrastructure
+
+GitLab runs on a range of infrastructure types. The following sections cover supported
+platforms and high availability requirements.
+
+### Supported infrastructure
+
+GitLab runs on cloud providers and self-managed infrastructure, provided the underlying
+environment meets the hardware and component requirements described in this guide.
+Commonly used cloud providers include AWS, GCP, and Azure.
+[GitLab Support](https://support.gitlab.com/hc/en-us/articles/11625911285404-Statement-of-Support) covers GitLab itself; issues with the underlying infrastructure or platform are outside its scope.
+
+For Cloud Native deployments, GitLab runs on any Kubernetes distribution meeting the
+[GitLab Helm chart prerequisites](https://docs.gitlab.com/charts/installation/tools/).
+Kubernetes platform-specific behavior such as networking, storage classes, and authentication is outside the scope of GitLab Support.
+
+### High availability
+
+HA deployments have specific network requirements:
+
+- Latency between nodes must be lower than 5 ms to support synchronous replication.
+- Deploying across availability zones is recommended for resilience. Use an odd number of zones to satisfy quorum requirements.
+- Deploying across multiple self-managed data centers requires synchronous-capable latency, redundant network links, and an odd number of centers in the same geographic region.
+
+> [!warning]
+> A single GitLab instance must not span multiple geographic regions. For multi-region
+> deployments, use [GitLab Geo](../administration/geo/_index.md), which is designed for
+> geographically distributed installations.
+> Infrastructure-related issues in multi-data-center deployments might be outside the scope of GitLab Support.
+
+## Component requirements
+
+### PostgreSQL
+
+[PostgreSQL](https://www.postgresql.org/) is the only supported database and is available:
+
+- As a [bundled instance](https://docs.gitlab.com/omnibus/settings/database/) with the Linux package.
+- As an [external service](https://docs.gitlab.com/omnibus/settings/database/#using-a-non-packaged-postgresql-database-management-server).
+
+For external instances, see:
+
+- [Required settings](../administration/postgresql/tune.md#required-settings-for-external-instances) for externally managed instances.
+- [Database schemas](../administration/postgresql/external.md#database-schemas) for schema guidance.
+- [When to check locale compatibility](../administration/postgresql/upgrading_os.md#when-to-check-locale-compatibility) for locale considerations.
+
+#### Supported versions
 
 For the following versions of GitLab, use these PostgreSQL versions:
 
@@ -75,7 +124,7 @@ For more information, see [issue 364763](https://gitlab.com/gitlab-org/gitlab/-/
 To use a later major version of PostgreSQL than specified, check if a
 [later version is bundled with the Linux package](http://gitlab-org.gitlab.io/omnibus-gitlab/licenses.html).
 
-### Storage requirements
+#### Storage requirements
 
 Depending on the [number of users](../administration/reference_architectures/_index.md),
 the PostgreSQL server should have:
@@ -84,7 +133,7 @@ the PostgreSQL server should have:
 - For GitLab Ultimate, at least 12 GB of storage
   (1 GB of vulnerability data must be imported).
 
-### Extensions
+#### Extensions
 
 To install extensions, PostgreSQL requires superuser privileges. For instructions, see
 [Manage PostgreSQL extensions](../administration/postgresql/extensions.md).
@@ -97,22 +146,35 @@ To install extensions, PostgreSQL requires superuser privileges. For instruction
 | `plpgsql`            | 11.7                   | Required    | Main, [Geo secondary tracking databases](../administration/geo/_index.md) (minimum version 9.0) |
 | `pg_stat_statements` | -                      | Recommended | All |
 
-### GitLab Geo
+#### Gitaly Cluster (Praefect)
 
-For [GitLab Geo](../administration/geo/_index.md), you should use the Linux package or
-[supported infrastructure](../administration/reference_architectures/_index.md#infrastructure-and-services)
-to install GitLab.
-Compatibility with other external databases is not guaranteed.
+[Gitaly Cluster](../administration/gitaly/praefect/_index.md) requires a dedicated PostgreSQL instance separate from the main GitLab database.
+For full HA, use a third-party PostgreSQL solution.
+A non-HA PostgreSQL instance using the Linux package is sufficient for environments that don't require database-level redundancy for Gitaly.
 
-For more information, see [requirements for running Geo](../administration/geo/_index.md#requirements-for-running-geo).
+### Redis
 
-For external PostgreSQL instances, see:
+[Redis](https://redis.io/) or [Valkey](https://valkey.io/) stores all user sessions and background tasks
+and requires about 25 kB per user on average.
 
-- [Required settings](../administration/postgresql/tune.md#required-settings-for-external-instances) for externally managed instances.
-- [Database schemas](../administration/postgresql/external.md#database-schemas) for schema guidance.
-- [When to check locale compatibility](../administration/postgresql/upgrading_os.md#when-to-check-locale-compatibility) for locale considerations.
+Redis 7.2 or Valkey 7.2 is required.
+For more information about end-of-life dates for Redis, see the
+[Redis documentation](https://redis.io/docs/latest/operate/oss_and_stack/install/version-mgmt/).
 
-## Puma
+- Use a standalone instance (with or without high availability).
+  Redis Cluster is not supported.
+- Serverless Redis and Valkey variants are not supported.
+- Set the [eviction policy](../administration/redis/replication_and_failover_external.md#setting-the-eviction-policy) as appropriate.
+
+### Object storage
+
+Object storage is required for distributed deployments and recommended for all installations.
+It stores binary data including LFS objects, CI/CD artifacts, uploads, container registry data, and backups.
+
+Use any S3-compatible object storage service. For configuration and a list of tested providers, see
+[object storage](../administration/object_storage.md).
+
+### Puma
 
 The recommended [Puma](https://puma.io/) settings depend on your [installation](install_methods.md).
 By default, the Linux package uses the recommended settings.
@@ -126,35 +188,75 @@ To adjust Puma settings:
 For worker and thread sizing guidance, see
 [Puma worker and thread sizing](../administration/operations/puma.md#worker-and-thread-sizing).
 
-## Redis
+### Sidekiq
 
-[Redis](https://redis.io/) or [Valkey](https://valkey.io/) stores all user sessions and background tasks
-and requires about 25 kB per user on average.
+[Sidekiq](https://sidekiq.org/) processes background jobs using multiple threads.
+Each process requires at least 200 MB of memory and can grow significantly under load.
+For environments with more than 10,000 users, allocate at least 1 GB per Sidekiq process.
 
-Redis 7.2 or Valkey 7.2 is required.
-For more information about end-of-life dates, see the
-[Redis documentation](https://redis.io/docs/latest/operate/oss_and_stack/install/version-mgmt/).
+## Optional components
 
-- Use a standalone instance (with or without high availability).
-  Redis Cluster is not supported.
-- Set the [eviction policy](../administration/redis/replication_and_failover_external.md#setting-the-eviction-policy) as appropriate.
+These components are not required for a core GitLab installation but have separate infrastructure or resource requirements when used.
 
-## Sidekiq
+### AI Gateway
 
-[Sidekiq](https://sidekiq.org/) uses a multi-threaded process for background jobs.
-This process initially consumes more than 200 MB of memory
-and might grow over time due to memory leaks.
+[AI Gateway](install_ai_gateway.md) provides the backend service for GitLab Duo AI features.
+It runs as a standalone service deployable on Docker or Kubernetes and requires:
 
-On a very active server with more than 10,000 billable users,
-the Sidekiq process might consume more than 1 GB of memory.
+- At a minimum, 2 CPU cores and 512 MB of memory.
+- For production, a baseline of 2 cores and 8 GB of memory supports approximately 40 concurrent AI requests.
 
-## Prometheus
+### ClickHouse
 
-By default, [Prometheus](https://prometheus.io) and its related exporters are enabled to monitor GitLab.
-These processes consume approximately 200 MB of memory.
+[ClickHouse](../integration/clickhouse.md) is an open-source column-oriented database used for product analytics features.
+It runs as a separate database service and resource requirements scale with user count:
 
-For more information, see
+- From 4 vCPU and 16 GB for up to 2,000 users.
+- To 32 vCPU and 128 GB for 25,000 users.
+
+### Container Registry
+
+[GitLab Container Registry](../administration/packages/container_registry.md) stores Docker and OCI images for GitLab projects
+and requires:
+
+- A domain.
+- TLS certificates.
+- Either a file system or S3-compatible object storage.
+
+For high-traffic environments, the registry can run on dedicated infrastructure separate from the main GitLab instance.
+
+### Elasticsearch and OpenSearch
+
+[Advanced search](../integration/advanced_search/elasticsearch.md) powers faster and more capable search across GitLab content.
+It requires a separate Elasticsearch or OpenSearch cluster.
+Cluster size depends on the volume of indexed data.
+
+### GitLab Pages
+
+[GitLab Pages](../administration/pages/_index.md) hosts static websites for projects and groups.
+It runs as a separate daemon and requires a wildcard DNS record.
+Custom domain support requires a secondary IP address and TLS certificates.
+
+### Prometheus
+
+[Prometheus](https://prometheus.io) monitoring is bundled with the Linux package and enabled by default.
+For information on configuring or disabling it, see
 [monitoring GitLab with Prometheus](../administration/monitoring/prometheus/_index.md).
+
+### Secrets Manager
+
+[GitLab Secrets Manager](../administration/secrets_manager/_index.md) provides native secrets management powered by OpenBao.
+It runs as a separate Kubernetes service and requires a dedicated PostgreSQL database and load balancer.
+Resource requirements scale with secret fetch rate.
+
+### Zoekt
+
+[Zoekt](../integration/zoekt/_index.md) provides exact code search across repositories
+and runs as a separate service. Resource requirements scale with the volume of indexed
+repository data:
+
+- From 2 cores and 16 GB for smaller deployments.
+- To 16 cores and 256 GB for larger deployments.
 
 ## Supported web browsers
 
@@ -177,3 +279,4 @@ Running GitLab with JavaScript disabled in these browsers is not supported.
 
 - [Install GitLab Runner](https://docs.gitlab.com/runner/install/)
 - [Secure your installation](../security/_index.md)
+- [Requirements for running Geo](../administration/geo/_index.md#requirements-for-running-geo)

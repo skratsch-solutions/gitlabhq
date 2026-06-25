@@ -6,18 +6,7 @@ require 'spec_helper'
 require 'mime/types'
 
 RSpec.describe Projects::Ml::ModelRegistryHelper, feature_category: :mlops do
-  let_it_be(:project) do
-    # model_registry/experiments no longer default to ENABLED at the model level,
-    # and a build_stubbed project has no real membership for a PRIVATE access-level
-    # check, so set the features as ENABLED to keep them available to the owner.
-    build_stubbed(:project).tap do |stubbed_project|
-      stubbed_project.project_feature.assign_attributes(
-        model_registry_access_level: ProjectFeature::ENABLED,
-        model_experiments_access_level: ProjectFeature::ENABLED
-      )
-    end
-  end
-
+  let_it_be(:project) { build_stubbed(:project) }
   let_it_be(:user) { project.first_owner }
 
   describe '#index_ml_model_data' do

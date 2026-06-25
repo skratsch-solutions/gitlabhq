@@ -2,15 +2,8 @@
 
 class ProjectFeature < ApplicationRecord
   include Featurable
-  include SafelyChangeColumnDefault
   extend Gitlab::ConfigHelper
   extend ::Gitlab::Utils::Override
-
-  # Defaults are being dropped from these columns (see the post-deployment
-  # migration that removes their `DEFAULT 20`). Remove this declaration and the
-  # SafelyChangeColumnDefault include in the next minor release:
-  # https://gitlab.com/gitlab-org/gitlab/-/issues/603381
-  columns_changing_default :model_registry_access_level, :model_experiments_access_level
 
   # When updating this array, make sure to update rubocop/cop/gitlab/feature_available_usage.rb as well.
   FEATURES = %i[
@@ -88,6 +81,8 @@ class ProjectFeature < ApplicationRecord
   attribute :infrastructure_access_level, default: ENABLED
   attribute :feature_flags_access_level, default: ENABLED
   attribute :environments_access_level, default: ENABLED
+  attribute :model_experiments_access_level, default: ENABLED
+  attribute :model_registry_access_level, default: ENABLED
 
   attribute :package_registry_access_level, default: -> do
     if ::Gitlab.config.packages.enabled
@@ -106,7 +101,6 @@ class ProjectFeature < ApplicationRecord
   end
 
   after_initialize :set_pages_access_level, if: :new_record?
-  after_initialize :set_model_features_access_level, if: :new_record?
   after_initialize :set_default_values, unless: :new_record?
 
   # "enabled" here means "not disabled". It includes private features!
@@ -195,19 +189,6 @@ class ProjectFeature < ApplicationRecord
                                 else
                                   self.project&.public? ? ENABLED : PRIVATE
                                 end
-  end
-
-  # Model registry and experiments share the same default: enabled for public
-  # projects, member-only (private) for internal and private projects. This
-  # mirrors the access ProjectPolicy grants today, so the values stay correct
-  # once the policy carve-out is removed.
-  def set_model_features_access_level
-    # No associated project (e.g. a bare `ProjectFeature.new`) is treated as
-    # non-public, so the default falls to PRIVATE.
-    default_access_level = project&.public? ? ENABLED : PRIVATE
-
-    self.model_registry_access_level ||= default_access_level
-    self.model_experiments_access_level ||= default_access_level
   end
 
   def set_default_values

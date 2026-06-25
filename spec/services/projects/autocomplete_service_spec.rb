@@ -455,9 +455,9 @@ RSpec.describe Projects::AutocompleteService, :with_current_organization, featur
         assigned_label_titles = issue.labels.map(&:title)
         results.each do |hash|
           if assigned_label_titles.include?(hash['title'])
-            expect(hash[:set]).to eq(true)
+            expect(hash[:set]).to be(true)
           else
-            expect(hash.key?(:set)).to eq(false)
+            expect(hash.key?(:set)).to be(false)
           end
         end
       end

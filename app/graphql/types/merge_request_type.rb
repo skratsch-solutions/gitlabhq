@@ -11,6 +11,8 @@ module Types
     implements Types::TodoableInterface
 
     authorize :read_merge_request
+    authorize_granular_token permissions: :read_merge_request,
+      boundary: :project, boundary_type: :project
 
     def self.authorization_scopes
       super + [:ai_workflows]

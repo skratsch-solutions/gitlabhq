@@ -477,7 +477,7 @@ RSpec.describe Notes::QuickActionsService, feature_category: :text_editors do
         execute(note)
 
         expect(noteable.valid?).to be_truthy
-        expect(noteable.work_item_parent).to eq(nil)
+        expect(noteable.work_item_parent).to be_nil
       end
 
       context 'when user has no access to the work_item' do

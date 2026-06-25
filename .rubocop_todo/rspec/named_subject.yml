@@ -214,7 +214,6 @@ RSpec/NamedSubject:
     - 'ee/spec/lib/environments/protected_environment_authorization_rule_changes_auditor_spec.rb'
     - 'ee/spec/lib/gitlab/analytics/cycle_analytics/distinct_stage_loader_spec.rb'
     - 'ee/spec/lib/gitlab/analytics/cycle_analytics/request_params_spec.rb'
-    - 'ee/spec/lib/gitlab/analytics/cycle_analytics/summary/change_failure_rate_spec.rb'
     - 'ee/spec/lib/gitlab/analytics/cycle_analytics/summary/group/stage_summary_spec.rb'
     - 'ee/spec/lib/gitlab/analytics/cycle_analytics/summary/lead_time_for_changes_spec.rb'
     - 'ee/spec/lib/gitlab/analytics/cycle_analytics/summary/lead_time_spec.rb'

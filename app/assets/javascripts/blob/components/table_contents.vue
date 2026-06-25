@@ -53,16 +53,16 @@ export default {
       const firstHeader = getHeaderNumber(headers[0]);
 
       this.items = headers
-        .filter((el) => el.querySelector('a'))
+        .filter((el) => el.querySelector('a.anchor'))
         .map((el) => {
           let href;
-          const anchor = el.querySelector('a');
-          // Check if this is AsciiDoc (heading has id) or Markdown (anchor has id)
+          const anchor = el.querySelector('a.anchor');
+          // Check if this is AsciiDoc (heading has id) or Markdown / other markup (anchor has id)
           if (el.id) {
             // AsciiDoc: use anchor's href
             href = anchor.getAttribute('href');
           } else {
-            // Markdown: use anchor's id with #
+            // Markdown and other markup: use anchor's id with #
             href = `#${anchor.getAttribute('id')}`;
           }
 

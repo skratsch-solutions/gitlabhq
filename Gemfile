@@ -567,7 +567,7 @@ group :development, :test do
   gem 'yard', '~> 0.9', require: false, feature_category: :tooling
 
   # Gems required for Dangerfile
-  gem 'gitlab-dangerfiles', '~> 4.11.1', require: false, feature_category: :tooling
+  gem 'gitlab-dangerfiles', '~> 4.12.0', require: false, feature_category: :tooling
 
   # Gems required for code coverage
   gem 'simplecov', '~> 0.22', require: false, feature_category: :tooling

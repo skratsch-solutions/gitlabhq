@@ -80,7 +80,7 @@ RSpec.describe Projects::ImportExport::RelationExportService, feature_category: 
         it 'assigns finished status and relation file' do
           service.execute
 
-          expect(relation_export.finished?).to eq(true)
+          expect(relation_export.finished?).to be(true)
           expect(relation_export.upload.export_file.filename).to eq("#{relation}.tar.gz")
         end
 
