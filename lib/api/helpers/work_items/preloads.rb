@@ -10,6 +10,11 @@ module API
           { namespace: { parent: :route } }
         ].freeze
 
+        WORK_ITEM_POLICY_PRELOADS = [
+          { project: [:project_feature, { namespace: :route }] },
+          { namespace: { parent: :route } }
+        ].freeze
+
         NOTE_REFERENCE_PRELOADS = %i[author project noteable updated_by system_note_metadata].freeze
 
         FEATURE_PRELOADS = {

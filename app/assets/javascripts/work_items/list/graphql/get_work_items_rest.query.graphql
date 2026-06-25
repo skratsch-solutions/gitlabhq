@@ -116,7 +116,15 @@ query getWorkItemsRest(
         webUrl
         state
         widgets(
-          onlyTypes: [LABELS, ASSIGNEES, MILESTONE, START_AND_DUE_DATE, HIERARCHY, AWARD_EMOJI]
+          onlyTypes: [
+            LABELS
+            ASSIGNEES
+            MILESTONE
+            START_AND_DUE_DATE
+            HIERARCHY
+            AWARD_EMOJI
+            DEVELOPMENT
+          ]
         ) {
           type
           ... on WorkItemWidgetLabels {
@@ -174,6 +182,11 @@ query getWorkItemsRest(
             upvotes
             downvotes
           }
+          ... on WorkItemWidgetDevelopment {
+            closingMergeRequests {
+              count
+            }
+          }
         }
         features {
           labels {
@@ -230,6 +243,11 @@ query getWorkItemsRest(
           awardEmoji {
             upvotes
             downvotes
+          }
+          development {
+            closingMergeRequests {
+              count
+            }
           }
         }
         workItemType {

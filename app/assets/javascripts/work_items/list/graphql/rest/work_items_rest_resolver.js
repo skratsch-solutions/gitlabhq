@@ -133,8 +133,19 @@ function mapAwardEmojiFeature(features) {
   };
 }
 
+function mapDevelopmentFeature(features) {
+  const developmentData = features?.development;
+  return {
+    __typename: 'WorkItemWidgetDevelopment',
+    closingMergeRequests: {
+      count: developmentData?.closing_merge_requests_count ?? 0,
+      __typename: 'WorkItemClosingMergeRequestConnection',
+    },
+  };
+}
+
 export function mapWidgetsFromFeatures(features, itemNamespace) {
-  return [
+  const widgets = [
     { ...mapLabelsFeature(features), type: 'LABELS' },
     { ...mapAssigneesFeature(features), type: 'ASSIGNEES' },
     { ...mapMilestoneFeature(features), type: 'MILESTONE' },
@@ -142,6 +153,12 @@ export function mapWidgetsFromFeatures(features, itemNamespace) {
     { ...mapHierarchyFeature(features, itemNamespace), type: 'HIERARCHY' },
     { ...mapAwardEmojiFeature(features), type: 'AWARD_EMOJI' },
   ];
+
+  if (features?.development) {
+    widgets.push({ ...mapDevelopmentFeature(features), type: 'DEVELOPMENT' });
+  }
+
+  return widgets;
 }
 
 export function mapFeaturesFromRestResponse(features, itemNamespace) {
@@ -153,6 +170,7 @@ export function mapFeaturesFromRestResponse(features, itemNamespace) {
     startAndDueDate: mapStartAndDueDateFeature(features),
     hierarchy: mapHierarchyFeature(features, itemNamespace),
     awardEmoji: mapAwardEmojiFeature(features),
+    development: features?.development ? mapDevelopmentFeature(features) : null,
   };
 }
 
@@ -168,6 +186,7 @@ export function nullWorkItemFeatures() {
     startAndDueDate: null,
     hierarchy: null,
     awardEmoji: null,
+    development: null,
   };
 }
 
@@ -266,7 +285,10 @@ export async function workItemsRestResolver(namespace, args) {
     'fields',
     'id,iid,global_id,title,title_html,state,created_at,updated_at,closed_at,reference,web_path,web_url,author,work_item_type,confidential,hidden,user_discussions_count,namespace',
   );
-  restParams.set('features', 'labels,assignees,milestone,start_and_due_date,hierarchy,award_emoji');
+  restParams.set(
+    'features',
+    'labels,assignees,milestone,start_and_due_date,hierarchy,award_emoji,development',
+  );
 
   const pathTemplate = isGroupNamespace(namespace) ? GROUPS_PATH : NAMESPACES_PATH;
   const url = buildApiUrl(pathTemplate).replace(':full_path', encodeURIComponent(fullPath));

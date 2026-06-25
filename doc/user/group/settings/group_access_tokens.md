@@ -63,7 +63,7 @@ To create a group access token:
    - By default, the expiry date cannot be more than 365 days from today. On GitLab 17.6 and later,
      administrators can [modify the maximum lifetime of access tokens](../../../administration/settings/account_and_limit_settings.md#limit-the-lifetime-of-access-tokens).
 1. Select a role for the token.
-1. Select one or more [group access token scopes](#group-access-token-scopes).
+1. Select one or more [group access token scopes](../../../security/tokens/access_token_scopes.md).
 1. Select **Create group access token**.
 
 A group access token is displayed. Save the group access token somewhere safe. After you leave
@@ -119,34 +119,6 @@ If you are an administrator, you can create group access tokens in the Rails con
 
    1. Use the group token to [clone a group's project](../../../topics/git/clone.md#clone-with-https)
       using HTTPS.
-
-### Group access token scopes
-
-{{< history >}}
-
-- `k8s_proxy` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/422408) in GitLab 16.4 [with a flag](../../../administration/feature_flags/_index.md) named `k8s_proxy_pat`. Enabled by default.
-- Feature flag `k8s_proxy_pat` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/131518) in GitLab 16.5.
-- `self_rotate` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/178111) in GitLab 17.9. Enabled by default.
-
-{{< /history >}}
-
-Scopes define the actions available when you authenticate with a group access token.
-
-| Scope                    | Description |
-| ------------------------ | ----------- |
-| `api`                    | Grants complete read and write access to the scoped group and related project API, including the [container registry](../../packages/container_registry/_index.md), the [dependency proxy](../../packages/dependency_proxy/_index.md), and the [package registry](../../packages/package_registry/_index.md). |
-| `read_api`               | Grants read access to the scoped group and related project API, including the [package registry](../../packages/package_registry/_index.md). |
-| `read_repository`        | Grants read access (pull) to all repositories in the group. |
-| `write_repository`       | Grants read and write access (pull and push) to all repositories in the group. |
-| `read_registry`          | Grants read access (pull) to [container registry](../../packages/container_registry/_index.md) images if any project in the group is private and authorization is required. Available only when the container registry is enabled. |
-| `write_registry`         | Grants write access (push) to the [container registry](../../packages/container_registry/_index.md). To push images, you must include the `read_registry` scope. Available only when the container registry is enabled. |
-| `read_virtual_registry`  | Grants read access (pull) to container images through the [dependency proxy](../../packages/dependency_proxy/_index.md). Available only when the dependency proxy is enabled. |
-| `write_virtual_registry` | Grants read and write access (pull, push, and delete) to container images through the [dependency proxy](../../packages/dependency_proxy/_index.md). Available only when the dependency proxy is enabled. |
-| `create_runner`          | Grants permission to create runners in the group. |
-| `manage_runner`          | Grants permission to manage runners in the group. |
-| `ai_features`            | Grants permission to perform API actions for GitLab Duo, the Code Suggestions API, and the GitLab Duo Chat API. Designed to work with the GitLab Duo Plugin for JetBrains. For all other extensions, see the individual extension documentation. Does not work for GitLab Self-Managed versions 16.5, 16.6, and 16.7. On GitLab Self-Managed and GitLab Dedicated, this scope is only available when GitLab Duo is enabled. |
-| `k8s_proxy`              | Grants permission to perform Kubernetes API calls using the agent for Kubernetes in the group. |
-| `self_rotate`            | Grants permission to rotate this token using the [personal access token API](../../../api/personal_access_tokens.md#rotate-a-personal-access-token). Does not allow rotation of other tokens. |
 
 ## View your access tokens
 

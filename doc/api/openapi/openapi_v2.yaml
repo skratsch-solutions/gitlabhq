@@ -72156,7 +72156,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       iid:
         type: integer
@@ -72176,10 +72176,10 @@ definitions:
         example: '2025-09-17T02:26:10.898Z'
       project_id:
         type: integer
-        format: int32
+        format: int64
       build_id:
         type: integer
-        format: int32
+        format: int64
       status:
         type: string
         example: success

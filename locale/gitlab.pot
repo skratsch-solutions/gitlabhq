@@ -64996,9 +64996,6 @@ msgstr ""
 msgid "ScanProfiles|When and how scans are run."
 msgstr ""
 
-msgid "ScanProfile|schema not found for scan type '%{scan_type}'"
-msgstr ""
-
 msgid "ScanResultPolicy|%{boldStart}Warning:%{boldEnd} Using this status in strictly enforced policies can block merge requests even if there are no new vulnerabilities found in the latest scan. It's recommended that you use warn mode only with this status."
 msgstr ""
 

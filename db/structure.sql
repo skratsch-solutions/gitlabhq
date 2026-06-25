@@ -17194,6 +17194,7 @@ CREATE TABLE cd_artifact_sources (
     organization_id bigint,
     source_ref text,
     source_config jsonb DEFAULT '{}'::jsonb NOT NULL,
+    CONSTRAINT check_892918d4b4 CHECK ((source_ref IS NOT NULL)),
     CONSTRAINT check_cd_artifact_sources_source_config_is_hash CHECK ((jsonb_typeof(source_config) = 'object'::text)),
     CONSTRAINT check_cec135cb4a CHECK ((char_length(source_ref) <= 255)),
     CONSTRAINT check_f9ef894005 CHECK ((organization_id IS NOT NULL))
@@ -17374,6 +17375,7 @@ CREATE TABLE cd_rollouts (
     application_id bigint,
     application_flow_definition_id bigint,
     workflow_ref text,
+    CONSTRAINT check_045d7fb2e1 CHECK ((workflow_ref IS NOT NULL)),
     CONSTRAINT check_311909ffdc CHECK ((char_length(workflow_ref) <= 255)),
     CONSTRAINT check_4ca25c42db CHECK ((application_id IS NOT NULL)),
     CONSTRAINT check_a1261339a4 CHECK ((organization_id IS NOT NULL))
@@ -22280,6 +22282,7 @@ CREATE TABLE group_secrets_managers (
     root_namespace_id bigint,
     CONSTRAINT check_06b6f117ae CHECK ((root_namespace_id IS NOT NULL)),
     CONSTRAINT check_7ea8ce3f98 CHECK ((char_length(root_namespace_path) <= 64)),
+    CONSTRAINT check_e16c32e4c1 CHECK ((group_id IS NOT NULL)),
     CONSTRAINT check_f88f28737e CHECK ((char_length(group_path) <= 64)),
     CONSTRAINT check_fc46e746ca CHECK ((organization_id IS NOT NULL))
 );
@@ -29237,6 +29240,7 @@ CREATE TABLE project_secrets_managers (
     organization_id bigint,
     root_namespace_id bigint,
     CONSTRAINT check_36f529abba CHECK ((char_length(project_path) <= 64)),
+    CONSTRAINT check_3b4b1e0e65 CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_b225d5174f CHECK ((organization_id IS NOT NULL)),
     CONSTRAINT check_bbdf5d083f CHECK ((char_length(namespace_path) <= 64)),
     CONSTRAINT check_be490407a7 CHECK ((root_namespace_id IS NOT NULL))
@@ -40156,6 +40160,9 @@ ALTER TABLE epic_issues
 ALTER TABLE workspaces
     ADD CONSTRAINT check_2a89035b04 CHECK ((personal_access_token_id IS NOT NULL)) NOT VALID;
 
+ALTER TABLE vulnerability_occurrences
+    ADD CONSTRAINT check_3225d02bda CHECK ((partition_id IS NOT NULL)) NOT VALID;
+
 ALTER TABLE vulnerability_scanners
     ADD CONSTRAINT check_37608c9db5 CHECK ((char_length(vendor) <= 255)) NOT VALID;
 
@@ -40176,6 +40183,9 @@ ALTER TABLE abuse_reports
 
 ALTER TABLE related_epic_links
     ADD CONSTRAINT check_a6d9d7c276 CHECK ((issue_link_id IS NOT NULL)) NOT VALID;
+
+ALTER TABLE vulnerability_occurrence_identifiers
+    ADD CONSTRAINT check_aacd1ff57e CHECK ((partition_id IS NOT NULL)) NOT VALID;
 
 ALTER TABLE sprints
     ADD CONSTRAINT check_ccd8a1eae0 CHECK ((start_date IS NOT NULL)) NOT VALID;

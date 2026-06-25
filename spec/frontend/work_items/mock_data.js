@@ -6320,6 +6320,13 @@ const emptyRestFeatures = {
     upvotes: 0,
     downvotes: 0,
   },
+  development: {
+    __typename: 'WorkItemWidgetDevelopment',
+    closingMergeRequests: {
+      count: 0,
+      __typename: 'WorkItemClosingMergeRequestConnection',
+    },
+  },
 };
 
 const subChildBaseNodes = [
@@ -6889,6 +6896,7 @@ const nullRestFeatures = {
   iteration: null,
   linkedItems: null,
   awardEmoji: null,
+  development: null,
 };
 
 const buildWorkItemsRestQueryResponse = (features) => ({

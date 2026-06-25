@@ -1,6 +1,5 @@
 <script>
 import { computed } from 'vue';
-import { GlTooltipDirective } from '@gitlab/ui';
 import { GlBreakpointInstance, breakpoints } from '@gitlab/ui/src/utils'; // eslint-disable-line no-restricted-syntax -- GlBreakpointInstance is used intentionally here. In this case we must obtain viewport breakpoints
 import { Mousetrap } from '~/lib/mousetrap';
 import { TAB_KEY_CODE } from '~/lib/utils/keycodes';
@@ -30,9 +29,6 @@ export default {
     SidebarPortalTarget,
     ScrollScrim,
     TrialWidget: () => import('jh_else_ee/contextual_sidebar/components/trial_widget.vue'),
-  },
-  directives: {
-    GlTooltip: GlTooltipDirective,
   },
   mixins: [Tracking.mixin()],
   i18n: {

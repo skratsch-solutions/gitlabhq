@@ -19,6 +19,9 @@ $detail-layout-gap: 2rem;
   gap: var(--gl-detail-layout-gap);
 }
 
+.gl-detail-layout-content,
+.gl-detail-layout-sidebar,
+.gl-detail-layout-activity,
 .gl-detail-layout-widgets {
   min-width: 0; // Allow grid item to shrink below its content size, preventing overflow of the visible area
 }

@@ -15,7 +15,9 @@ module API
           feature_keys = requested_feature_keys(params[:features])
           preloads = preload_associations_for(field_keys, feature_keys, resource_parent)
 
-          work_items_relation = build_work_items_relation(resource_parent, preloads: preloads)
+          work_items_relation = build_work_items_relation(
+            resource_parent, preloads: (preloads + Preloads::WORK_ITEM_POLICY_PRELOADS).uniq
+          )
 
           params[:pagination] = 'keyset' if keyset_supported_for_order?
 
@@ -23,6 +25,8 @@ module API
             preload_hierarchy_authorization(records, feature_keys)
             records
           end.to_a
+
+          work_items = filter_readable_work_items(work_items)
 
           present work_items,
             with: Entities::WorkItemBasic,
@@ -97,12 +101,7 @@ module API
             records
           end
 
-          records = Array(paginated)
-          preload_work_item_policies(records)
-
-          visible = DeclarativePolicy.user_scope do
-            records.select { |record| Ability.allowed?(current_user, :read_work_item, record) }
-          end
+          visible = filter_readable_work_items(Array(paginated))
 
           present visible,
             with: entity,
@@ -151,6 +150,14 @@ module API
         end
 
         private
+
+        def filter_readable_work_items(work_items)
+          preload_work_item_policies(work_items)
+
+          DeclarativePolicy.user_scope do
+            work_items.select { |work_item| Ability.allowed?(current_user, :read_work_item, work_item) }
+          end
+        end
 
         def keyset_supported_for_order?
           ::WorkItem.supported_keyset_orderings[params[:order_by].to_sym]&.include?(params[:sort].to_sym)

@@ -728,6 +728,45 @@ describe('workItemsRestResolver', () => {
     });
   });
 
+  describe('DEVELOPMENT widget mapping', () => {
+    describe('when features.development is not present', () => {
+      beforeEach(() => {
+        const item = makeRestItem({ features: {} });
+        mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+      });
+
+      it('does not include the DEVELOPMENT widget', async () => {
+        const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+        const developmentWidget = nodes[0].widgets.find((w) => w.type === 'DEVELOPMENT');
+
+        expect(developmentWidget).toBeUndefined();
+      });
+    });
+
+    it('maps closing_merge_requests_count to the DEVELOPMENT widget', async () => {
+      const item = makeRestItem({
+        features: {
+          development: {
+            closing_merge_requests_count: 3,
+          },
+        },
+      });
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+      const developmentWidget = nodes[0].widgets.find((w) => w.type === 'DEVELOPMENT');
+
+      expect(developmentWidget).toMatchObject({
+        __typename: 'WorkItemWidgetDevelopment',
+        type: 'DEVELOPMENT',
+        closingMergeRequests: {
+          count: 3,
+          __typename: 'WorkItemClosingMergeRequestConnection',
+        },
+      });
+    });
+  });
+
   describe('error handling', () => {
     it('throws when axios request fails', async () => {
       mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_INTERNAL_SERVER_ERROR);
@@ -924,6 +963,23 @@ describe('workItemsRestResolver', () => {
         });
       });
 
+      it('maps development to features.development', async () => {
+        const item = makeRestItem({
+          features: { development: { closing_merge_requests_count: 1 } },
+        });
+        mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+        const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+
+        expect(nodes[0].features.development).toMatchObject({
+          __typename: 'WorkItemWidgetDevelopment',
+          closingMergeRequests: {
+            count: 1,
+            __typename: 'WorkItemClosingMergeRequestConnection',
+          },
+        });
+      });
+
       describe('when REST features are absent', () => {
         beforeEach(() => {
           const item = makeRestItem({ features: null });
@@ -938,6 +994,20 @@ describe('workItemsRestResolver', () => {
           expect(nodes[0].features.startAndDueDate.startDate).toBeNull();
           expect(nodes[0].features.hierarchy.parent).toBeNull();
           expect(nodes[0].features.awardEmoji).toMatchObject({ upvotes: 0, downvotes: 0 });
+          expect(nodes[0].features.development).toBeNull();
+        });
+      });
+
+      describe('when development feature is not present', () => {
+        beforeEach(() => {
+          const item = makeRestItem({ features: {} });
+          mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+        });
+
+        it('returns null for features.development', async () => {
+          const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+
+          expect(nodes[0].features.development).toBeNull();
         });
       });
     });

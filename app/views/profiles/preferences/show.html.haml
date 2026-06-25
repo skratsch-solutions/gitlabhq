@@ -54,7 +54,7 @@
         .gl-grid.gl-gap-5.gl-grid-cols-2.gl-mb-5{ class: '@sm/panel:gl-grid-cols-3 @md/panel:gl-grid-cols-4 @lg/panel:gl-grid-cols-6', data: { testid: 'syntax-highlighting-light-color-scheme' } }
           - Gitlab::ColorSchemes.each do |scheme|
             %label
-              .gl-mb-3= image_tag "#{scheme.css_class}-scheme-preview.png", alt: "#{scheme.css_class} scheme preview", class: 'gl-rounded-base gl-max-w-full'
+              .gl-mb-3= image_tag "#{scheme.css_class}-scheme-preview.png", alt: "#{scheme.css_class} scheme preview", class: 'gl-border gl-rounded-lg gl-max-w-full'
               = f.gitlab_ui_radio_component :color_scheme_id, scheme.id,
                 scheme.name,
                 radio_options: { checked: user_light_color_schema_id == scheme.id }
@@ -64,7 +64,7 @@
         .gl-grid.gl-gap-5.gl-grid-cols-2.gl-mb-5{ class: '@sm/panel:gl-grid-cols-3 @md/panel:gl-grid-cols-4 @lg/panel:gl-grid-cols-6', data: { testid: 'syntax-highlighting-dark-color-scheme' } }
           - Gitlab::ColorSchemes.each do |scheme|
             %label
-              .gl-mb-3= image_tag "#{scheme.css_class}-scheme-preview.png", alt: "#{scheme.css_class} scheme preview", class: 'gl-rounded-base gl-max-w-full'
+              .gl-mb-3= image_tag "#{scheme.css_class}-scheme-preview.png", alt: "#{scheme.css_class} scheme preview", class: 'gl-border gl-rounded-lg gl-max-w-full'
               = f.gitlab_ui_radio_component :dark_color_scheme_id, scheme.id,
                 scheme.name,
                 radio_options: { checked: user_dark_color_scheme_id == scheme.id }

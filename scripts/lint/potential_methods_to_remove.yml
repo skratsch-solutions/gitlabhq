@@ -5,8 +5,6 @@
 # If it turns out that a method you are attempting to remove is in fact in use,
 #   remove it from this file and add it to `excluded_methods.yml`.
 #
-ee/app/models/concerns/geo/verifiable_replicator.rb:
-  - secondary_checksum
 ee/app/models/concerns/product_analytics_helpers.rb:
   - product_analytics_funnels
 ee/app/models/concerns/security/pipeline_execution_schedule_policy.rb:
