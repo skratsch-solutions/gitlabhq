@@ -143,7 +143,7 @@ function mountPipelines() {
   }).$mount();
 
   // $mount(el) replaces the el with the new rendered component. We need it in order to mount
-  // it everytime this tab is clicked - https://vuejs.org/v2/api/#vm-mount
+  // it every time this tab is clicked - https://vuejs.org/v2/api/#vm-mount
   pipelineTableViewEl.appendChild(table.$el);
 
   return table;

@@ -4095,22 +4095,6 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       allow(subject).to receive(:diff_head_sha).and_return(diff_head_sha)
     end
 
-    describe '#head_pipeline' do
-      it 'returns nil for MR without head_pipeline_id' do
-        subject.update_attribute(:head_pipeline_id, nil)
-
-        expect(subject.head_pipeline).to be_nil
-      end
-
-      context 'when the source project does not exist' do
-        it 'returns nil' do
-          allow(subject).to receive(:source_project).and_return(nil)
-
-          expect(subject.head_pipeline).to be_nil
-        end
-      end
-    end
-
     describe '#diff_head_pipeline' do
       it 'returns nil for MR with old pipeline' do
         pipeline = create(:ci_empty_pipeline, sha: 'notlatestsha')
@@ -4262,37 +4246,26 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#head_pipeline' do
-    let_it_be_with_reload(:merge_request) { create(:merge_request) }
-
-    let_it_be(:pipeline) do
-      create(:ci_empty_pipeline, project: merge_request.project, sha: merge_request.diff_head_sha)
+    it_behaves_like 'a partition-pruned pipeline association', :head_pipeline do
+      let(:related_resource) { create(:merge_request, head_pipeline_id: pipeline.id) }
     end
 
-    it 'finds head_pipeline using partition-aware lookup' do
-      merge_request.update_columns(head_pipeline_id: pipeline.id)
+    context 'when head_pipeline_id is nil' do
+      let_it_be_with_reload(:merge_request) { create(:merge_request) }
 
-      expect(merge_request.head_pipeline).to eq(pipeline)
-    end
+      before do
+        merge_request.update_columns(head_pipeline_id: nil)
+      end
 
-    it 'returns nil when head_pipeline_id is nil' do
-      merge_request.update_columns(head_pipeline_id: nil)
+      it 'returns nil' do
+        expect(merge_request.head_pipeline).to be_nil
+      end
 
-      expect(merge_request.head_pipeline).to be_nil
-    end
+      it 'does not execute any queries' do
+        recorder = ActiveRecord::QueryRecorder.new { merge_request.head_pipeline }
 
-    it 'does not execute any queries when head_pipeline_id is nil' do
-      merge_request.update_columns(head_pipeline_id: nil)
-
-      recorder = ActiveRecord::QueryRecorder.new { merge_request.head_pipeline }
-
-      expect(recorder.count).to eq(0)
-    end
-
-    it 'caches the result in the association target' do
-      merge_request.update_columns(head_pipeline_id: pipeline.id)
-      merge_request.head_pipeline
-
-      expect(merge_request.association(:head_pipeline).loaded?).to eq(true)
+        expect(recorder.count).to eq(0)
+      end
     end
   end
 

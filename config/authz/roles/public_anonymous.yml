@@ -7,6 +7,7 @@ project:
   raw_permissions:
   - _read_public_build
   - _read_public_ci_cd_analytics
+  - _read_public_pipeline
   - _read_public_pipeline_schedule
   - download_code
   - download_debian_package

@@ -47,7 +47,7 @@ The **Workplan** widget appears on the work item and shows the workplan status:
 
 ## When to use a workplan
 
-Use a workplan when you plan to give work to an agent, either by selecting **Implement workplan**
+Use a workplan when you plan to give work to an agent, either by selecting **Implement**
 or by providing the plan to a coding agent yourself. A workplan adds the most value when an agent runs
 the work.
 
@@ -71,7 +71,7 @@ Prerequisites:
 
 To generate a workplan with GitLab Duo:
 
-1. On the work item, in the **Workplan** widget, select **Generate workplan**.
+1. On the work item, in the **Workplan** widget, select **Generate**.
 1. In GitLab Duo Chat, answer the [Planner Agent](../duo_agent_platform/agents/foundational_agents/planner.md)
    questions until the agent has enough context.
 1. Review the proposed plan and approve it.
@@ -95,7 +95,7 @@ that end in `.plan`.
 
 To view a workplan:
 
-- On the work item, in the **Workplan** widget, select **View workplan**.
+- On the work item, in the **Workplan** widget, select **View**.
 
 The workplan opens in a panel and shows the rendered content.
 
@@ -107,7 +107,7 @@ Prerequisites:
 
 To edit a workplan:
 
-1. On the work item, in the **Workplan** widget, select **View workplan**.
+1. On the work item, in the **Workplan** widget, select **View**.
 1. In the panel, select **Edit**.
 1. Make your changes.
 1. Select **Save changes**.
@@ -124,7 +124,7 @@ Prerequisites:
 
 To regenerate a workplan:
 
-1. On the work item, in the **Workplan** widget, select **View workplan**.
+1. On the work item, in the **Workplan** widget, select **View**.
 1. In the panel, select **More actions** ({{< icon name="ellipsis_v" >}}) > **Regenerate workplan**.
 1. In GitLab Duo Chat, answer the Planner Agent questions until the agent has enough context.
 
@@ -138,7 +138,7 @@ Prerequisites:
 
 To delete a workplan:
 
-1. On the work item, in the **Workplan** widget, select **View workplan**.
+1. On the work item, in the **Workplan** widget, select **View**.
 1. In the panel, select **More actions** ({{< icon name="ellipsis_v" >}}) > **Delete workplan**.
 1. In the confirmation dialog, select **Delete**.
 
@@ -156,7 +156,7 @@ Prerequisites:
 
 To implement a workplan with GitLab Duo:
 
-- On the work item, in the **Workplan** widget, select **Implement workplan**.
+- On the work item, in the **Workplan** widget, select **Implement**.
 
 ## Related topics
 

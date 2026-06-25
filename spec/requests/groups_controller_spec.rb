@@ -326,6 +326,72 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
       it_behaves_like 'does not enforce step-up authentication'
     end
+
+    context 'when creating a subgroup' do
+      include AdminModeHelper
+
+      let_it_be(:group, freeze: false) { create(:group, :public) }
+      let_it_be(:owner) { create(:user, owner_of: group) }
+      let_it_be(:maintainer) { create(:user, maintainer_of: group) }
+      let_it_be(:developer) { create(:user, developer_of: group) }
+      let_it_be(:guest) { create(:user, guest_of: group) }
+      let_it_be(:admin_with_admin_mode) { create(:admin) }
+      let_it_be(:admin_without_admin_mode) { create(:admin) }
+
+      before do
+        enable_admin_mode!(admin_with_admin_mode)
+      end
+
+      shared_examples 'member with ability to create subgroups' do
+        it 'renders the new page', :aggregate_failures do
+          sign_in(member)
+
+          get new_group_path(parent_id: group.id)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template(:new)
+        end
+      end
+
+      shared_examples 'member without ability to create subgroups' do
+        it 'renders the 404 page', :aggregate_failures do
+          sign_in(member)
+
+          get new_group_path(parent_id: group.id)
+
+          expect(response).not_to render_template(:new)
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      members_who_can_create_subgroups = %i[admin_with_admin_mode owner maintainer]
+      members_who_cannot_create_subgroups = %i[guest developer admin_without_admin_mode]
+
+      [true, false].each do |can_create_group_status|
+        context "and can_create_group is #{can_create_group_status}" do
+          before_all do
+            User.where(id: [admin_with_admin_mode, admin_without_admin_mode, owner, maintainer, developer, guest])
+              .update_all(can_create_group: can_create_group_status)
+          end
+
+          members_who_can_create_subgroups.each do |member_type|
+            context "and logged in as #{member_type.capitalize}" do
+              it_behaves_like 'member with ability to create subgroups' do
+                let(:member) { send(member_type) }
+              end
+            end
+          end
+
+          members_who_cannot_create_subgroups.each do |member_type|
+            context "and logged in as #{member_type.capitalize}" do
+              it_behaves_like 'member without ability to create subgroups' do
+                let(:member) { send(member_type) }
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   describe 'POST #create' do
@@ -1207,6 +1273,177 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to be_empty
+      end
+    end
+  end
+
+  describe '#ensure_canonical_path' do
+    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:user) { create(:user, owner_of: group) }
+
+    before do
+      sign_in(user)
+    end
+
+    def group_moved_message(redirect_route, group)
+      "Group '#{redirect_route.path}' was moved to '#{group.full_path}'. " \
+        "Please update any links and bookmarks that may still have the old path."
+    end
+
+    context 'for a GET request' do
+      context 'when requesting groups at the root path' do
+        context 'when requesting the canonical path with exactly matching casing' do
+          it 'does not redirect' do
+            get group_path(group)
+
+            expect(response).not_to have_gitlab_http_status(:moved_permanently)
+          end
+        end
+
+        context 'when requesting the canonical path with different casing' do
+          it 'redirects to the correct casing', :aggregate_failures do
+            get group_path(group.to_param.upcase)
+
+            expect(response).to redirect_to(group)
+            expect(flash[:notice]).to be_nil
+          end
+        end
+
+        context 'when requesting a redirected path' do
+          let(:redirect_route) { group.redirect_routes.create!(path: 'old-path') }
+
+          it 'redirects to the canonical path', :aggregate_failures do
+            get group_path(redirect_route.path)
+
+            expect(response).to redirect_to(group)
+            expect(flash[:notice]).to eq(group_moved_message(redirect_route, group))
+          end
+
+          context 'when the old group path is a substring of the scheme or host' do
+            let(:redirect_route) { group.redirect_routes.create!(path: 'http') }
+
+            it 'does not modify the requested host', :aggregate_failures do
+              get group_path(redirect_route.path)
+
+              expect(response).to redirect_to(group)
+              expect(flash[:notice]).to eq(group_moved_message(redirect_route, group))
+            end
+          end
+
+          context 'when the old group path is a substring of groups' do
+            let(:redirect_route) { group.redirect_routes.create!(path: 'oups') }
+
+            it 'does not modify the /groups part of the path', :aggregate_failures do
+              get group_path(redirect_route.path)
+
+              expect(response).to redirect_to(group)
+              expect(flash[:notice]).to eq(group_moved_message(redirect_route, group))
+            end
+          end
+        end
+      end
+
+      context 'when requesting groups under the /groups path' do
+        context 'when requesting the canonical path with exactly matching casing' do
+          it 'does not redirect' do
+            get issues_group_path(group)
+
+            expect(response).not_to have_gitlab_http_status(:moved_permanently)
+          end
+        end
+
+        context 'when requesting the canonical path with different casing' do
+          it 'redirects to the correct casing', :aggregate_failures do
+            get issues_group_path(group.to_param.upcase)
+
+            expect(response).to redirect_to(issues_group_path(group.to_param))
+            expect(flash[:notice]).to be_nil
+          end
+        end
+
+        context 'when requesting a redirected path' do
+          let(:redirect_route) { group.redirect_routes.create!(path: 'old-path') }
+
+          it 'redirects to the canonical path', :aggregate_failures do
+            get issues_group_path(redirect_route.path)
+
+            expect(response).to redirect_to(issues_group_path(group.to_param))
+            expect(flash[:notice]).to eq(group_moved_message(redirect_route, group))
+          end
+
+          context 'when the old group path is a substring of the scheme or host' do
+            let(:redirect_route) { group.redirect_routes.create!(path: 'http') }
+
+            it 'does not modify the requested host', :aggregate_failures do
+              get issues_group_path(redirect_route.path)
+
+              expect(response).to redirect_to(issues_group_path(group.to_param))
+              expect(flash[:notice]).to eq(group_moved_message(redirect_route, group))
+            end
+          end
+
+          context 'when the old group path is a substring of groups' do
+            let(:redirect_route) { group.redirect_routes.create!(path: 'oups') }
+
+            it 'does not modify the /groups part of the path', :aggregate_failures do
+              get issues_group_path(redirect_route.path)
+
+              expect(response).to redirect_to(issues_group_path(group.to_param))
+              expect(flash[:notice]).to eq(group_moved_message(redirect_route, group))
+            end
+          end
+
+          context 'when the old group path is a substring of groups plus the new path' do
+            let(:redirect_route) { group.redirect_routes.create!(path: 'oups/oup') }
+
+            it 'does not modify the /groups part of the path', :aggregate_failures do
+              get issues_group_path(redirect_route.path)
+
+              expect(response).to redirect_to(issues_group_path(group.to_param))
+              expect(flash[:notice]).to eq(group_moved_message(redirect_route, group))
+            end
+          end
+        end
+      end
+    end
+
+    context 'for a PATCH request' do
+      context 'when requesting the canonical path with different casing' do
+        it 'does not 404 and does not redirect to the correct casing', :aggregate_failures do
+          patch group_path(group.to_param.upcase), params: { group: { path: 'new_path' } }
+
+          expect(response).not_to have_gitlab_http_status(:not_found)
+          expect(response).not_to have_gitlab_http_status(:moved_permanently)
+        end
+      end
+
+      context 'when requesting a redirected path' do
+        let(:redirect_route) { group.redirect_routes.create!(path: 'old-path') }
+
+        it 'is not routable' do
+          expect { patch group_path(redirect_route.path), params: { group: { path: 'new_path' } } }
+            .to raise_error(ActionController::RoutingError)
+        end
+      end
+    end
+
+    context 'for a DELETE request' do
+      context 'when requesting the canonical path with different casing' do
+        it 'does not 404 and does not redirect to the correct casing', :aggregate_failures do
+          delete group_path(group.to_param.upcase)
+
+          expect(response).not_to have_gitlab_http_status(:not_found)
+          expect(response).not_to have_gitlab_http_status(:moved_permanently)
+        end
+      end
+
+      context 'when requesting a redirected path' do
+        let(:redirect_route) { group.redirect_routes.create!(path: 'old-path') }
+
+        it 'is not routable' do
+          expect { delete group_path(redirect_route.path) }
+            .to raise_error(ActionController::RoutingError)
+        end
       end
     end
   end

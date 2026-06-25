@@ -7932,10 +7932,10 @@ msgstr ""
 msgid "AgentPlan|Edit"
 msgstr ""
 
-msgid "AgentPlan|Generate with GitLab Duo"
+msgid "AgentPlan|Generate"
 msgstr ""
 
-msgid "AgentPlan|Generate workplan"
+msgid "AgentPlan|Generate with GitLab Duo"
 msgstr ""
 
 msgid "AgentPlan|More options"
@@ -7954,9 +7954,6 @@ msgid "AgentPlan|Ready to view"
 msgstr ""
 
 msgid "AgentPlan|Regenerate workplan"
-msgstr ""
-
-msgid "AgentPlan|View workplan"
 msgstr ""
 
 msgid "AgentPlan|Workplan"
@@ -22018,6 +22015,9 @@ msgstr ""
 msgid "ContinuousDeployment|%{environmentsCount} of %{totalEnvironmentsCount} environments"
 msgstr ""
 
+msgid "ContinuousDeployment|%{pods} pods"
+msgstr ""
+
 msgid "ContinuousDeployment|1"
 msgstr ""
 
@@ -22028,6 +22028,12 @@ msgid "ContinuousDeployment|Add Environment"
 msgstr ""
 
 msgid "ContinuousDeployment|Add application"
+msgstr ""
+
+msgid "ContinuousDeployment|Alert"
+msgstr ""
+
+msgid "ContinuousDeployment|All"
 msgstr ""
 
 msgid "ContinuousDeployment|All systems healthy"
@@ -22048,10 +22054,19 @@ msgstr ""
 msgid "ContinuousDeployment|Approval needed"
 msgstr ""
 
+msgid "ContinuousDeployment|Artifact source"
+msgstr ""
+
+msgid "ContinuousDeployment|Back to services"
+msgstr ""
+
 msgid "ContinuousDeployment|Brief description"
 msgstr ""
 
 msgid "ContinuousDeployment|Continuous Deployment"
+msgstr ""
+
+msgid "ContinuousDeployment|Created"
 msgstr ""
 
 msgid "ContinuousDeployment|Declare the topology of your application — services, environments, integrations — and Deploy will orchestrate rollouts for it."
@@ -22075,6 +22090,12 @@ msgstr ""
 msgid "ContinuousDeployment|Description"
 msgstr ""
 
+msgid "ContinuousDeployment|Dev"
+msgstr ""
+
+msgid "ContinuousDeployment|Digest"
+msgstr ""
+
 msgid "ContinuousDeployment|Environment name"
 msgstr ""
 
@@ -22096,6 +22117,12 @@ msgstr ""
 msgid "ContinuousDeployment|Healthy"
 msgstr ""
 
+msgid "ContinuousDeployment|Last deployed %{timeAgo}"
+msgstr ""
+
+msgid "ContinuousDeployment|Last deployed %{timeAgo} by %{user}"
+msgstr ""
+
 msgid "ContinuousDeployment|Last deployed %{time}"
 msgstr ""
 
@@ -22105,7 +22132,22 @@ msgstr ""
 msgid "ContinuousDeployment|New application"
 msgstr ""
 
+msgid "ContinuousDeployment|No artifact sources configured."
+msgstr ""
+
+msgid "ContinuousDeployment|No versions recorded."
+msgstr ""
+
+msgid "ContinuousDeployment|Out of sync"
+msgstr ""
+
+msgid "ContinuousDeployment|Pre-production"
+msgstr ""
+
 msgid "ContinuousDeployment|Production"
+msgstr ""
+
+msgid "ContinuousDeployment|QA"
 msgstr ""
 
 msgid "ContinuousDeployment|Register application"
@@ -22120,10 +22162,19 @@ msgstr ""
 msgid "ContinuousDeployment|Register your first environment"
 msgstr ""
 
+msgid "ContinuousDeployment|Running"
+msgstr ""
+
 msgid "ContinuousDeployment|Search by name, team, or description"
 msgstr ""
 
 msgid "ContinuousDeployment|Staging"
+msgstr ""
+
+msgid "ContinuousDeployment|Synced"
+msgstr ""
+
+msgid "ContinuousDeployment|Version"
 msgstr ""
 
 msgid "ContinuousDeployment|Waiting for your approval"
@@ -27935,13 +27986,13 @@ msgstr ""
 msgid "DuoAgentPlatform|Image registry"
 msgstr ""
 
+msgid "DuoAgentPlatform|Implement"
+msgstr ""
+
 msgid "DuoAgentPlatform|Implement work item"
 msgstr ""
 
 msgid "DuoAgentPlatform|Implement work item with GitLab Duo"
-msgstr ""
-
-msgid "DuoAgentPlatform|Implement workplan"
 msgstr ""
 
 msgid "DuoAgentPlatform|Job IDs"
@@ -31495,9 +31546,6 @@ msgid "EscalationPolicies|The escalation policy could not be updated. Please try
 msgstr ""
 
 msgid "EscalationPolicies|This policy has no escalation rules."
-msgstr ""
-
-msgid "EscalationPolicies|When a new alert is received, the users specified in the policy receive an email."
 msgstr ""
 
 msgid "EscalationPolicies|mins"
@@ -53356,6 +53404,12 @@ msgid "Organization|Step %{currentStep} / %{totalSteps}"
 msgstr ""
 
 msgid "Organization|Switch organizations"
+msgstr ""
+
+msgid "Organization|The visibility of this group will be changed to internal because the Organization is internal."
+msgstr ""
+
+msgid "Organization|The visibility of this group will be changed to private because the Organization is private."
 msgstr ""
 
 msgid "Organization|These Organizations will be deleted"

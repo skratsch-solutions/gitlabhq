@@ -254,7 +254,6 @@ Gitlab/JsonSafeParse:
     - 'lib/gitlab/diff/highlight_cache.rb'
     - 'lib/gitlab/graphql/pagination/click_house_connection.rb'
     - 'lib/gitlab/import_export/json/ndjson_reader.rb'
-    - 'lib/gitlab/kas/user_access.rb'
     - 'lib/gitlab/manifest_import/metadata.rb'
     - 'lib/gitlab/merge_requests/mergeability/redis_interface.rb'
     - 'lib/gitlab/prometheus_client.rb'

@@ -47591,8 +47591,6 @@ CREATE INDEX index_ci_deleted_objects_on_project_id ON ci_deleted_objects USING 
 
 CREATE INDEX index_ci_finished_build_ch_sync_events_for_partitioned_query ON ONLY p_ci_finished_build_ch_sync_events USING btree (((build_id % (100)::bigint)), build_id) WHERE (processed = false);
 
-CREATE INDEX index_ci_finished_build_ch_sync_events_on_mode_filter ON ONLY p_ci_finished_build_ch_sync_events USING btree (((build_id % (100)::bigint)), build_finished_at, build_id) WHERE (processed = false);
-
 CREATE INDEX index_ci_finished_pipeline_ch_sync_events_for_partitioned_query ON ONLY p_ci_finished_pipeline_ch_sync_events USING btree (((pipeline_id % (100)::bigint)), pipeline_id) WHERE (processed = false);
 
 CREATE INDEX index_ci_freeze_periods_on_project_id ON ci_freeze_periods USING btree (project_id);

@@ -25,6 +25,7 @@ class MergeRequest < ApplicationRecord
   include IdInOrdered
   include Todoable
   include Spammable
+  include Ci::Partitionable::AssociationFinder
 
   extend ::Gitlab::Utils::Override
 
@@ -104,6 +105,7 @@ class MergeRequest < ApplicationRecord
   end
 
   belongs_to :head_pipeline, class_name: "Ci::Pipeline", inverse_of: :merge_requests_as_head_pipeline
+  partitionable_belongs_to_loader :head_pipeline
 
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
@@ -937,12 +939,6 @@ class MergeRequest < ApplicationRecord
 
   def self.participant_includes
     [:assignees, :reviewers] + super
-  end
-
-  def head_pipeline
-    return super unless head_pipeline_id
-
-    association(:head_pipeline).target ||= Ci::Pipeline.find_by_id(head_pipeline_id)
   end
 
   def recent_commits(limit: MergeRequestDiff::COMMITS_SAFE_SIZE, load_from_gitaly: false, page: nil, preload_metadata: false)
