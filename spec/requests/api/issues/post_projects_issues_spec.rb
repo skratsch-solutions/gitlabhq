@@ -818,6 +818,12 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
   end
 
   describe 'POST :id/issues/:issue_iid/subscribe' do
+    it_behaves_like 'authorizing granular token permissions', :subscribe_issue,
+      expected_success_status: :not_modified do
+      let(:boundary_object) { project }
+      let(:request) { post api("/projects/#{project.id}/issues/#{issue.iid}/subscribe", personal_access_token: pat) }
+    end
+
     it 'subscribes to an issue' do
       post api("/projects/#{project.id}/issues/#{issue.iid}/subscribe", user2)
 
@@ -851,6 +857,11 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
   end
 
   describe 'POST :id/issues/:issue_id/unsubscribe' do
+    it_behaves_like 'authorizing granular token permissions', :subscribe_issue do
+      let(:boundary_object) { project }
+      let(:request) { post api("/projects/#{project.id}/issues/#{issue.iid}/unsubscribe", personal_access_token: pat) }
+    end
+
     it 'unsubscribes from an issue' do
       post api("/projects/#{project.id}/issues/#{issue.iid}/unsubscribe", user)
 

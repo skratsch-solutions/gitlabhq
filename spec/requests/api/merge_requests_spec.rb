@@ -4886,6 +4886,14 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
       let(:params) { {} }
     end
 
+    it_behaves_like 'authorizing granular token permissions', :subscribe_merge_request,
+      expected_success_status: :not_modified do
+      let(:boundary_object) { project }
+      let(:request) do
+        post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/subscribe", personal_access_token: pat)
+      end
+    end
+
     it 'subscribes to a merge request' do
       post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/subscribe", admin, admin_mode: true)
 
@@ -4922,6 +4930,13 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
   end
 
   describe 'POST :id/merge_requests/:merge_request_iid/unsubscribe' do
+    it_behaves_like 'authorizing granular token permissions', :subscribe_merge_request do
+      let(:boundary_object) { project }
+      let(:request) do
+        post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/unsubscribe", personal_access_token: pat)
+      end
+    end
+
     it 'unsubscribes from a merge request' do
       post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/unsubscribe", user)
 

@@ -1645,6 +1645,8 @@ export default {
       });
     },
     handleFilter(tokens) {
+      const previousQueryVariables = this.queryVariables;
+
       this.filterTokens = tokens;
       this.hasStateToken = this.checkIfStateTokenExists();
       this.updateState(tokens);
@@ -1655,6 +1657,13 @@ export default {
 
       if (this.isSavedView) {
         this.persistSavedViewDraft();
+      }
+
+      // onFilter fires on every search submit (search icon / Enter). When the
+      // variables change, Apollo re-runs the list query on its own. When they
+      // don't, force a reload so the query still re-runs on every submit.
+      if (isEqual(previousQueryVariables, this.queryVariables)) {
+        this.refetchItems({ refetchCounts: true });
       }
     },
     handleSetPageParams(pageParams) {

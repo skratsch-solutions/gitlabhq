@@ -64,6 +64,7 @@ module API
             documentation: { example: "'source/full/path' not 'https://example.com/source/full/path'" }
         end
       end
+      route_setting :authorization, permissions: :create_offline_export, boundary_type: :user
       post do
         check_rate_limit!(:offline_export, scope: current_user)
 
@@ -102,6 +103,7 @@ module API
         optional :status, type: String, values: Import::Offline::Export.all_human_statuses,
           desc: 'Return offline transfer exports with specified status'
       end
+      route_setting :authorization, permissions: :read_offline_export, boundary_type: :user
       get do
         present paginate(offline_exports), with: Entities::Import::Offline::Export
       end
@@ -113,6 +115,7 @@ module API
       params do
         requires :id, type: Integer, desc: "The ID of user's offline transfer export"
       end
+      route_setting :authorization, permissions: :read_offline_export, boundary_type: :user
       get ':id' do
         present offline_export, with: Entities::Import::Offline::Export
       end

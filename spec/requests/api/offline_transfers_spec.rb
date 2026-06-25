@@ -53,6 +53,21 @@ RSpec.describe API::OfflineTransfers, feature_category: :importers do
       allow(::Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(false)
     end
 
+    it_behaves_like 'authorizing granular token permissions', :create_offline_export do
+      let(:boundary_object) { :user }
+
+      before do
+        service_response = instance_double(ServiceResponse, success?: true, payload: export_1)
+        allow(Import::Offline::Exports::CreateService).to receive(:new)
+          .and_return(instance_double(Import::Offline::Exports::CreateService, execute: service_response))
+      end
+
+      let(:request) do
+        post api('/offline_exports', personal_access_token: pat),
+          params: { bucket: bucket, aws_s3_configuration: aws_s3_credentials, entities: entity_params }
+      end
+    end
+
     shared_examples 'starting a new export' do |provider|
       let(:service_response) { instance_double(ServiceResponse, success?: true, payload: export_1) }
       let(:service_double) { instance_double(Import::Offline::Exports::CreateService, execute: service_response) }
@@ -210,6 +225,11 @@ RSpec.describe API::OfflineTransfers, feature_category: :importers do
     let(:request) { get api('/offline_exports', user), params: params }
     let(:params) { {} }
 
+    it_behaves_like 'authorizing granular token permissions', :read_offline_export do
+      let(:boundary_object) { :user }
+      let(:request) { get api('/offline_exports', personal_access_token: pat) }
+    end
+
     it 'returns offline exports authored by the user ordered by created_at descending' do
       request
 
@@ -297,6 +317,11 @@ RSpec.describe API::OfflineTransfers, feature_category: :importers do
 
   describe 'GET /offline_exports/:id' do
     let(:request) { get api("/offline_exports/#{export_1.id}", user) }
+
+    it_behaves_like 'authorizing granular token permissions', :read_offline_export do
+      let(:boundary_object) { :user }
+      let(:request) { get api("/offline_exports/#{export_1.id}", personal_access_token: pat) }
+    end
 
     it 'returns specified offline export' do
       request

@@ -459,4 +459,61 @@ RSpec.describe API::AlertManagementAlerts, feature_category: :incident_managemen
       it_behaves_like 'feature flag returns 404', :get
     end
   end
+
+  describe 'granular token authorization' do
+    include WorkhorseHelpers
+    include_context 'workhorse headers'
+
+    let_it_be(:metric_image_dev) { create(:user, developer_of: project) }
+
+    let(:boundary_object) { project }
+    let(:user) { metric_image_dev }
+    let(:base_path) { "/projects/#{project.id}/alert_management_alerts/#{alert.iid}/metric_images" }
+
+    before do
+      stub_feature_flags(hide_incident_management_features: false)
+      stub_uploads_object_storage(MetricImageUploader, enabled: false)
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_alert_metric_image do
+      let(:request) { get api(base_path, personal_access_token: pat) }
+    end
+
+    context 'when uploading an image' do
+      before do
+        allow_next_instance_of(MetricImageUploader) do |uploader|
+          allow(uploader).to receive(:file_storage?).and_return(true)
+        end
+      end
+
+      it_behaves_like 'authorizing granular token permissions', :create_alert_metric_image do
+        let(:request) do
+          workhorse_finalize(
+            api(base_path, personal_access_token: pat),
+            method: :post,
+            file_key: :file,
+            params: { file: fixture_file_upload('spec/fixtures/rails_sample.jpg', 'image/jpg'),
+                      url: 'http://gitlab.com' },
+            headers: workhorse_headers,
+            send_rewritten_field: true
+          )
+        end
+      end
+    end
+
+    context 'with an existing image' do
+      let!(:image) { create(:alert_metric_image, alert: alert) }
+
+      it_behaves_like 'authorizing granular token permissions', :update_alert_metric_image do
+        let(:request) do
+          put api("#{base_path}/#{image.id}", personal_access_token: pat),
+            params: { url: 'http://test.example.com', url_text: 'Example website' }
+        end
+      end
+
+      it_behaves_like 'authorizing granular token permissions', :delete_alert_metric_image do
+        let(:request) { delete api("#{base_path}/#{image.id}", personal_access_token: pat) }
+      end
+    end
+  end
 end

@@ -216,6 +216,11 @@ RSpec.describe API::GroupExport, feature_category: :importers do
     end
 
     describe 'POST /groups/:id/export_relations' do
+      it_behaves_like 'authorizing granular token permissions', :create_project_relation_export do
+        let(:boundary_object) { group }
+        let(:request) { post api(path, personal_access_token: pat) }
+      end
+
       it 'accepts the request' do
         post api(path, user)
 
@@ -270,6 +275,17 @@ RSpec.describe API::GroupExport, feature_category: :importers do
     end
 
     describe 'GET /groups/:id/export_relations/download' do
+      it_behaves_like 'authorizing granular token permissions', :download_project_relation_export do
+        let(:boundary_object) { group }
+        let(:request) { get api(download_path, personal_access_token: pat) }
+
+        before do
+          export = create(:bulk_import_export, group: group, relation: 'labels', user: user)
+          upload = create(:bulk_import_export_upload, export: export)
+          upload.update!(export_file: fixture_file_upload('spec/fixtures/bulk_imports/gz/labels.ndjson.gz'))
+        end
+      end
+
       context 'when export request is not batched' do
         let(:export) { create(:bulk_import_export, group: group, relation: 'labels', user: user) }
         let(:upload) { create(:bulk_import_export_upload, export: export) }
@@ -402,6 +418,11 @@ RSpec.describe API::GroupExport, feature_category: :importers do
     end
 
     describe 'GET /groups/:id/export_relations/status' do
+      it_behaves_like 'authorizing granular token permissions', :read_project_relation_export do
+        let(:boundary_object) { group }
+        let(:request) { get api(status_path, personal_access_token: pat) }
+      end
+
       let_it_be(:started_export) { create(:bulk_import_export, :started, group: group, relation: 'labels', user: user) }
       let_it_be(:finished_export) do
         create(:bulk_import_export, :finished, group: group, relation: 'milestones', user: user)

@@ -37,6 +37,7 @@ module API
               ]
               tags %w[vscode]
             end
+            route_setting :authorization, permissions: :read_vscode_setting, boundary_type: :user
             get '/v1/manifest' do
               settings = SettingsFinder.new(current_user: current_user,
                 setting_types: SETTINGS_TYPES,
@@ -62,6 +63,7 @@ module API
                 values: SETTINGS_TYPES
               requires :id, type: String, desc: 'ID of the resource to retrieve'
             end
+            route_setting :authorization, permissions: :read_vscode_setting, boundary_type: :user
             get '/v1/resource/:resource_name/:id' do
               settings = find_settings
 
@@ -94,6 +96,7 @@ module API
               requires :resource_name, type: String, desc: 'Name of the resource such as settings',
                 values: SETTINGS_TYPES
             end
+            route_setting :authorization, permissions: :read_vscode_setting, boundary_type: :user
             get '/v1/resource/:resource_name' do
               settings = find_settings
               present settings, with: Entities::VsCodeSettingReference,
@@ -112,6 +115,7 @@ module API
               requires :resource_name, type: String, desc: 'Name of the resource such as settings',
                 values: SETTINGS_TYPES
             end
+            route_setting :authorization, permissions: :update_vscode_setting, boundary_type: :user
             post '/v1/resource/:resource_name' do
               response = CreateOrUpdateService.new(current_user: current_user,
                 params: {
@@ -137,6 +141,7 @@ module API
               ]
               tags %w[vscode]
             end
+            route_setting :authorization, permissions: :delete_vscode_setting, boundary_type: :user
             delete '/v1/collection' do
               DeleteService.new(current_user: current_user).execute
 

@@ -10,6 +10,11 @@ RSpec.describe API::ProjectEvents, feature_category: :user_profile do
   let_it_be(:closed_issue_event) { create(:closed_issue_event, project: private_project, author: user, target: closed_issue, created_at: Date.new(2016, 12, 30)) }
 
   describe 'GET /projects/:id/events' do
+    it_behaves_like 'authorizing granular token permissions', :read_event do
+      let(:boundary_object) { private_project }
+      let(:request) { get api("/projects/#{private_project.id}/events", personal_access_token: pat) }
+    end
+
     context 'when unauthenticated ' do
       it 'returns 404 for private project' do
         get api("/projects/#{private_project.id}/events")

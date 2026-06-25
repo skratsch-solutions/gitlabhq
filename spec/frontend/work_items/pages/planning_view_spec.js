@@ -1185,6 +1185,56 @@ describe('planning-view', () => {
         in: 'TITLE',
       });
     });
+
+    describe('when the same filter is submitted again', () => {
+      const filterTokens = [
+        { type: TOKEN_TYPE_AUTHOR, value: { data: 'homer', operator: OPERATOR_IS } },
+      ];
+      const getCache = () => wrapper.vm.$apollo.provider.defaultClient.cache;
+
+      it('reloads the list by evicting the cached work items, even though the filter is unchanged', async () => {
+        await mountComponent();
+
+        // First submit changes the variables, so Apollo reloads the list reactively.
+        findFilteredSearchBar().vm.$emit('onFilter', filterTokens);
+        await waitForPromises();
+
+        const evictSpy = jest.spyOn(getCache(), 'evict');
+
+        // Re-submitting identical tokens does not change the variables, so the list
+        // must be reloaded explicitly.
+        findFilteredSearchBar().vm.$emit('onFilter', [...filterTokens]);
+        await waitForPromises();
+
+        expect(evictSpy).toHaveBeenCalledWith(expect.objectContaining({ fieldName: 'workItems' }));
+      });
+
+      it('refetches the work item counts', async () => {
+        await mountComponent();
+
+        findFilteredSearchBar().vm.$emit('onFilter', filterTokens);
+        await waitForPromises();
+        const initialCallCount = defaultCountsOnlyHandler.mock.calls.length;
+
+        findFilteredSearchBar().vm.$emit('onFilter', [...filterTokens]);
+        await waitForPromises();
+
+        expect(defaultCountsOnlyHandler.mock.calls.length).toBeGreaterThan(initialCallCount);
+      });
+
+      it('does not force a reload when the submitted filter actually changes', async () => {
+        await mountComponent();
+
+        const evictSpy = jest.spyOn(getCache(), 'evict');
+
+        findFilteredSearchBar().vm.$emit('onFilter', filterTokens);
+        await waitForPromises();
+
+        // A changed filter changes the variables, so Apollo reloads reactively and no
+        // explicit cache eviction is needed.
+        expect(evictSpy).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe('iid filter search', () => {

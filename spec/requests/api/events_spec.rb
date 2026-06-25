@@ -12,6 +12,11 @@ RSpec.describe API::Events, feature_category: :user_profile do
   let_it_be(:closed_issue_event2) { create(:event, :closed, project: private_project, author: non_member, imported_from: :github, target: closed_issue2, created_at: Date.new(2016, 12, 30)) }
 
   describe 'GET /events' do
+    it_behaves_like 'authorizing granular token permissions', :read_event do
+      let(:boundary_object) { :user }
+      let(:request) { get api('/events', personal_access_token: pat) }
+    end
+
     context 'when unauthenticated' do
       it 'returns authentication error' do
         get api('/events')
@@ -104,6 +109,11 @@ RSpec.describe API::Events, feature_category: :user_profile do
 
         expect(response).to have_gitlab_http_status(:forbidden)
       end
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_event do
+      let(:boundary_object) { :user }
+      let(:request) { get api("/users/#{user.id}/events", personal_access_token: pat) }
     end
 
     context "as a user that cannot see another user" do

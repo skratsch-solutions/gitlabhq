@@ -297,4 +297,36 @@ RSpec.describe Gitlab::TopologyServiceClient::ClaimService, feature_category: :c
       end
     end
   end
+
+  describe '#warmup!' do
+    let(:expected_request) do
+      Gitlab::Cells::TopologyService::Claims::V1::ListLeasesRequest.new(limit: 1, cell_id: cell_id)
+    end
+
+    before do
+      allow(service).to receive(:client).and_return(client_double)
+      allow(GRPC::Core::TimeConsts).to receive(:from_relative_time)
+        .with(described_class::WARMUP_TIMEOUT_IN_SECONDS).and_return('warmup-deadline')
+    end
+
+    it 'establishes the connection via a lightweight ListLeases and returns nil' do
+      expect(client_double).to receive(:list_leases)
+        .with(expected_request, deadline: 'warmup-deadline')
+        .and_return(Gitlab::Cells::TopologyService::Claims::V1::ListLeasesResponse.new)
+
+      expect(service.warmup!).to be_nil
+    end
+  end
+
+  describe '#channel_args' do
+    it 'adds keepalive settings on top of the base channel args' do
+      expect(service.send(:channel_args)).to include(
+        'grpc.max_receive_message_length' => Gitlab::TopologyServiceClient::MAX_RECEIVE_MESSAGE_BYTES,
+        'grpc.keepalive_time_ms' => described_class::KEEPALIVE_TIME_MS,
+        'grpc.keepalive_timeout_ms' => described_class::KEEPALIVE_TIMEOUT_MS,
+        'grpc.keepalive_permit_without_calls' => 1,
+        'grpc.client_idle_timeout_ms' => described_class::CLIENT_IDLE_TIMEOUT_MS
+      )
+    end
+  end
 end

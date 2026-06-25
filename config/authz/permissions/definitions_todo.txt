@@ -141,7 +141,6 @@ admin_wiki
 admin_work_item
 admin_work_item_lifecycle
 admin_work_item_link
-apply_suggestion
 assign_default_duo_group
 audit_event_definitions
 award_achievement
@@ -396,7 +395,6 @@ read_ci_minutes_limited_summary
 read_ci_pipeline_schedules_plan_limit
 read_cloud_connector_status
 read_cluster_environments
-read_code_review_analytics
 read_commit_committer_check
 read_commit_committer_name_check
 read_compliance_adherence_report
@@ -432,7 +430,6 @@ read_ephemeral_token
 read_epic_iid
 read_epic_link_relation
 read_epic_relation
-read_event
 read_external_emails
 read_external_status_check_response
 read_finding_token_status
@@ -469,7 +466,6 @@ read_insights
 read_instance_security_dashboard
 read_internal_note
 read_issuable
-read_issuable_metric_image
 read_issuable_participables
 read_issuable_resource_link
 read_issue_analytics
@@ -646,7 +642,6 @@ update_group_deploy_key_for_group
 update_group_link
 update_group_member
 update_group_stage
-update_issuable_metric_image
 update_issue_link
 update_max_artifacts_size
 update_max_pages_size

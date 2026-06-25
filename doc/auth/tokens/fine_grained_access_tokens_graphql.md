@@ -571,7 +571,7 @@ Grants the ability to delete, read, and update custom attributes.
 
 #### Label
 
-Grants the ability to create, delete, promote, read, and update labels.
+Grants the ability to create, delete, promote, read, subscribe, and update labels.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
@@ -721,7 +721,7 @@ Grants the ability to download, push, and read code via Git.
 
 #### Merge Request
 
-Grants the ability to approve, create, delete, merge, read, and update merge requests.
+Grants the ability to approve, create, delete, merge, read, subscribe, and update merge requests.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |

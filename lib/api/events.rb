@@ -38,6 +38,7 @@ module API
         use :sort_params
       end
 
+      route_setting :authorization, permissions: :read_event, boundary_type: :user
       get do
         authenticate!
 
@@ -66,6 +67,7 @@ module API
         use :sort_params
       end
 
+      route_setting :authorization, permissions: :read_event, boundary_type: :user
       get ':id/events' do
         user = find_user(params[:id])
         not_found!('User') unless user

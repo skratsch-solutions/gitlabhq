@@ -33,6 +33,7 @@ module API
         use :sort_params
       end
 
+      route_setting :authorization, permissions: :read_event, boundary_type: :project
       get ":id/events" do
         events = find_events(user_project)
 
