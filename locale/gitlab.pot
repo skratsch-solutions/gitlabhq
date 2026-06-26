@@ -1191,7 +1191,7 @@ msgstr ""
 msgid "%{label_name} was removed"
 msgstr ""
 
-msgid "%{label}:"
+msgid "%{label}"
 msgstr ""
 
 msgid "%{lessThan} 1 hour"

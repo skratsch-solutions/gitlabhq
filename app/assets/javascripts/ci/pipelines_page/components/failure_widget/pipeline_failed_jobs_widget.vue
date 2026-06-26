@@ -21,7 +21,7 @@ export default {
     FailedJobsList,
     CrudComponent,
   },
-  inject: ['fullPath', 'graphqlPath'],
+  inject: ['graphqlPath'],
   props: {
     pipelineIid: {
       required: true,

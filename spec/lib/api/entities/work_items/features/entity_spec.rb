@@ -4,9 +4,13 @@ require 'spec_helper'
 
 # Features not yet implemented in the REST API
 UNIMPLEMENTED_FEATURES = %w[
-  agent_plan ai_session crm_contacts current_user_todos custom_fields
+  agent_plan ai_session crm_contacts current_user_todos
   email_participants linked_resources notes participants test_reports vulnerabilities
 ].freeze
+
+# custom_fields is intentionally exposed only on the detail (show) entity, not on the
+# basic (list) entity, to avoid the per-work-item cost on collection endpoints.
+LIST_ENDPOINT_EXCLUDED_FEATURES = %w[custom_fields].freeze
 
 # linked_items is only exposed via the EE prepend on Features::Entity. In FOSS-only test
 # runs the prepend doesn't apply, so add it to the exception list for that context only.
@@ -19,7 +23,7 @@ RSpec.describe API::Entities::WorkItems::Features::Entity, feature_category: :te
   it_behaves_like 'work item widget entity parity',
     described_class,
     Types::WorkItems::FeaturesType,
-    exceptions: UNIMPLEMENTED_FEATURES + FOSS_ONLY_UNIMPLEMENTED_FEATURES
+    exceptions: UNIMPLEMENTED_FEATURES + LIST_ENDPOINT_EXCLUDED_FEATURES + FOSS_ONLY_UNIMPLEMENTED_FEATURES
 
   subject(:representation) do
     described_class

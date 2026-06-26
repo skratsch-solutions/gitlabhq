@@ -200,7 +200,7 @@ In this release, we have introduced `project` and `ref` subkeys to `rules:exists
 
 - Tier: Ultimate
 - Offering: GitLab Dedicated
-- Links: [Documentation](../../administration/dedicated/configure_instance/_index.md#view-the-configuration-change-log) | [Related issue](https://about.gitlab.com/dedicated/)
+- Links: [Documentation](../../administration/dedicated/configure_instance/_index.md#view-the-change-log) | [Related issue](https://about.gitlab.com/dedicated/)
 
 {{< /details >}}
 

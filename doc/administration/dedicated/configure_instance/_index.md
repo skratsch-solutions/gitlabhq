@@ -37,7 +37,7 @@ Prerequisites:
 To make a configuration change:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Follow the instructions in the relevant sections below.
 
 For all other instance configurations, submit a support ticket according to the
@@ -59,9 +59,9 @@ When you apply changes immediately:
 After deployment completes, all users with access to view or edit your tenant receive a notification for each change.
 To turn notifications on or off, see [manage notification settings](users_notifications.md#manage-notification-settings).
 
-## Configuration change log
+## Change log
 
-The **Configuration change log** page in Switchboard tracks changes made to your GitLab Dedicated instance.
+The **Change log** page in Switchboard tracks changes made to your GitLab Dedicated instance.
 
 Each change log entry includes the following details:
 
@@ -83,12 +83,12 @@ Each configuration change has a status:
 | Complete    | Configuration change has been deployed to the instance. |
 | Delayed     | Initial job to deploy a change has failed and the change has not yet been assigned to a new job. |
 
-### View the configuration change log
+### View the change log
 
-To view the configuration change log:
+To view the change log:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration change log**.
+1. In the left sidebar, select **Change log**.
 
 Each configuration change appears as an entry in the table. Select **View details** to see more information about each change.
 

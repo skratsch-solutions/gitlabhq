@@ -1,5 +1,5 @@
 <script>
-import { GlAvatar, GlButton, GlIcon, GlNavItem, GlTooltipDirective } from '@gitlab/ui';
+import { GlAvatar, GlBadge, GlButton, GlIcon, GlNavItem, GlTooltipDirective } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
 import {
   CLICK_MENU_ITEM_ACTION,
@@ -19,6 +19,7 @@ export default {
   name: 'NavItem',
   components: {
     GlAvatar,
+    GlBadge,
     GlButton,
     GlIcon,
     GlNavItem,
@@ -173,6 +174,9 @@ export default {
     isActive() {
       return this.item.is_active;
     },
+    hasBadge() {
+      return Boolean(this.item.badge);
+    },
   },
   mounted() {
     if (this.isActive && !this.isFlyout) {
@@ -256,6 +260,14 @@ export default {
         data-testid="nav-item-link-label"
       >
         {{ item.title }}
+        <gl-badge
+          v-if="hasBadge"
+          variant="info"
+          size="sm"
+          data-testid="nav-item-feature-announcement-badge"
+        >
+          {{ item.badge.label }}
+        </gl-badge>
         <span v-if="item.subtitle" class="gl-truncate-end gl-text-sm gl-text-subtle">
           {{ item.subtitle }}
         </span>

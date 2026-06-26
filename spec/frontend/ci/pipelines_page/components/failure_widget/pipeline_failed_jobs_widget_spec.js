@@ -25,7 +25,6 @@ describe('PipelineFailedJobsWidget component', () => {
   };
 
   const defaultProvide = {
-    fullPath: 'namespace/project/',
     graphqlPath: 'api/graphql',
   };
 

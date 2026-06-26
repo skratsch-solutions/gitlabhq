@@ -90,14 +90,16 @@ module PerTestCoverage
       # after `since_time` (UTC), excluding `exclude_pipeline_id` (the current
       # pipeline, which would otherwise count itself).
       #
-      # `per_page=100` is enough for the 2-hourly maintenance schedule (max ~24
-      # pipelines per weekend window, ~84 in the trailing 7 days). If the
-      # schedule cadence ever quickens or this endpoint starts returning
-      # manual-rerun pipelines too, this cap may silently drop history; pagination
-      # via `Link` headers would be the fix.
+      # `sort=desc` is required: this endpoint returns pipelines oldest-first by
+      # default, so without it `per_page=100` only ever sees the schedule's
+      # earliest runs (the count of recent pipelines is then always zero, which
+      # pins every weekend slot to bucket 0). Newest-first, 100 covers the
+      # 2-hourly schedule comfortably (max ~24 pipelines per weekend window). If
+      # the cadence ever quickens past that, paginating via the `Link` headers
+      # would be the fix.
       def count_schedule_pipelines_since(schedule_id:, since_time:, exclude_pipeline_id: nil)
         uri = URI.parse(
-          "#{@api_url}/projects/#{@project_id}/pipeline_schedules/#{schedule_id}/pipelines?per_page=100"
+          "#{@api_url}/projects/#{@project_id}/pipeline_schedules/#{schedule_id}/pipelines?per_page=100&sort=desc"
         )
         body = http_get(uri)
         pipelines = JSON.parse(body)

@@ -50,7 +50,7 @@ export default {
     PipelinesTable,
     RunPipelineButton,
   },
-  inject: ['graphqlPath', 'mergeRequestId', 'targetProjectFullPath'],
+  inject: ['mergeRequestId', 'targetProjectFullPath'],
   props: {
     errorStateSvgPath: {
       type: String,

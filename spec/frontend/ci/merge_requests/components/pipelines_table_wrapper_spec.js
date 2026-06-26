@@ -73,7 +73,6 @@ let apolloMock;
 const showMock = jest.fn();
 
 const defaultProvide = {
-  graphqlPath: '/api/graphql/',
   mergeRequestId: 1,
   targetProjectFullPath: '/group/project',
   newPipelinePath: '/group/project/-/pipelines/new',

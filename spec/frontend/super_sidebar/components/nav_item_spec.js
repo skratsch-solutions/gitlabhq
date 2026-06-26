@@ -16,6 +16,7 @@ describe('NavItem component', () => {
   const findAvatar = () => wrapper.findComponent(GlAvatar);
   const findLink = () => wrapper.findByTestId('nav-item-link');
   const findPill = () => wrapper.findByTestId('pill-badge');
+  const findBadge = () => wrapper.findByTestId('nav-item-feature-announcement-badge');
   const findPinButton = () => wrapper.findComponent(GlButton);
   const findNavItem = () => wrapper.findComponent(GlNavItem);
 
@@ -166,6 +167,21 @@ describe('NavItem component', () => {
 
         expect(findPill().text()).toBe('10');
       });
+    });
+  });
+
+  describe('feature announcement badge', () => {
+    it('renders the badge with its label when `item.badge` is present', () => {
+      createWrapper({ item: { title: 'Foo', badge: { label: 'New' } } });
+
+      expect(findBadge().exists()).toBe(true);
+      expect(findBadge().text()).toBe('New');
+    });
+
+    it('does not render the badge when `item.badge` is absent', () => {
+      createWrapper({ item: { title: 'Foo' } });
+
+      expect(findBadge().exists()).toBe(false);
     });
   });
 

@@ -49,14 +49,6 @@ export default {
   },
   mixins: [glFeatureFlagsMixin(), InternalEvents.mixin()],
   inject: {
-    jobStatuses: {
-      default: null,
-      required: false,
-    },
-    url: {
-      default: '',
-      required: false,
-    },
     canUpdateAllJobs: {
       default: false,
       required: true,

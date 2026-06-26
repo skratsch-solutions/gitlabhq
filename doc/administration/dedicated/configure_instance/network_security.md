@@ -70,7 +70,7 @@ Use this information to:
 To view your custom domain details:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. Select the **Configuration** tab.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Custom domains**.
 
 #### DNSSEC details
@@ -255,7 +255,7 @@ over time.
 To view your container registry FQDN:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. Select the **Configuration** tab.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Resource access**.
 1. Under **Container registry**, select **Copy to clipboard**
    ({{< icon name="copy-to-clipboard" >}}).
@@ -284,7 +284,7 @@ separately.
 To add a custom certificate:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Custom certificate authorities**.
 1. Select **+ Add Certificate**.
 1. Paste a single certificate into the text box. Include the
@@ -357,7 +357,7 @@ Prerequisites:
 To create an inbound PrivateLink connection:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Inbound PrivateLink connections**.
 1. Select **Add endpoint service**.
 1. Select a region.
@@ -517,7 +517,7 @@ Prerequisites:
 To create a service connection:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Outbound PrivateLink connections**, then select **Outbound PrivateLink connections**.
 1. Expand **Set up endpoint service in AWS** and copy the ARN from
    **Outbound PrivateLink IAM principal**.
@@ -570,7 +570,7 @@ Changes to custom DNS records, or to service connections when using GitLab-manag
 To add a custom DNS record:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Outbound PrivateLink connections**, then select **Outbound PrivateLink connections**.
 1. Select the **Custom DNS records** tab.
 1. Select **Create DNS record**.
@@ -610,7 +610,7 @@ tab in Switchboard: **Service connections** and **VPC endpoints**.
 To delete a service connection:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Outbound PrivateLink connections**.
 1. Select the **Service connections** tab.
 1. Go to the connection you want to delete, then select
@@ -620,7 +620,7 @@ To delete a service connection:
 To delete a VPC endpoint:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Outbound PrivateLink connections**.
 1. Select the **VPC endpoints** tab.
 1. Go to the endpoint you want to delete, then select
@@ -641,7 +641,7 @@ if Switchboard is unavailable.
 To add IP addresses to the allowlist:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **IP allowlist**, then select **IP allowlist** to go to the IP allowlist page.
 1. To enable the IP allowlist, select the vertical ellipsis
    ({{< icon name="ellipsis_v" >}}), then select **Enabled**.
@@ -672,7 +672,7 @@ To add IP addresses to the allowlist:
 To delete IP addresses from the allowlist:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. At the top of the page, select **Configuration**.
+1. In the left sidebar, select **Configuration**.
 1. Expand **IP allowlist**, then select **IP allowlist** to go to the IP allowlist page.
 1. Do one of the following:
 
@@ -736,7 +736,7 @@ services to accept connections from your instance.
 To view your NAT gateway IP addresses:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com/).
-1. Select the **Configuration** tab.
+1. In the left sidebar, select **Configuration**.
 1. Expand **Resource access**.
 1. Under **NAT gateways**, select **Copy to clipboard**
    ({{< icon name="copy-to-clipboard" >}}).

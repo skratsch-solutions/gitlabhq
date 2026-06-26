@@ -17165,7 +17165,6 @@ ALTER SEQUENCE cd_application_flow_definitions_id_seq OWNED BY cd_application_fl
 
 CREATE TABLE cd_applications (
     id bigint NOT NULL,
-    group_id bigint,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     name text NOT NULL,
@@ -17288,7 +17287,6 @@ ALTER SEQUENCE cd_environment_driver_bindings_id_seq OWNED BY cd_environment_dri
 
 CREATE TABLE cd_environments (
     id bigint NOT NULL,
-    group_id bigint,
     organization_id bigint,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
@@ -52593,11 +52591,7 @@ CREATE UNIQUE INDEX uniq_idx_audit_events_instance_ext_audit_event_stream_dests 
 
 CREATE UNIQUE INDEX uniq_idx_audit_events_instance_gcp_configs_stream_dests ON audit_events_instance_google_cloud_logging_configurations USING btree (stream_destination_id) WHERE (stream_destination_id IS NOT NULL);
 
-CREATE UNIQUE INDEX uniq_idx_cd_applications_on_group_id_and_name ON cd_applications USING btree (group_id, name) WHERE (group_id IS NOT NULL);
-
 CREATE UNIQUE INDEX uniq_idx_cd_applications_on_organization_id_and_name ON cd_applications USING btree (organization_id, name) WHERE (organization_id IS NOT NULL);
-
-CREATE UNIQUE INDEX uniq_idx_cd_environments_on_group_id_and_name ON cd_environments USING btree (group_id, name) WHERE (group_id IS NOT NULL);
 
 CREATE UNIQUE INDEX uniq_idx_cd_environments_on_organization_id_and_name ON cd_environments USING btree (organization_id, name) WHERE (organization_id IS NOT NULL);
 
@@ -59468,9 +59462,6 @@ ALTER TABLE ONLY deployment_merge_requests
 ALTER TABLE ONLY project_compliance_violations
     ADD CONSTRAINT fk_a066372b6c FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY cd_environments
-    ADD CONSTRAINT fk_a124ccc042 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
-
 ALTER TABLE ONLY issues
     ADD CONSTRAINT fk_a194299be1 FOREIGN KEY (moved_to_id) REFERENCES issues(id) ON DELETE SET NULL;
 
@@ -59605,9 +59596,6 @@ ALTER TABLE ONLY audit_events_streaming_instance_namespace_filters
 
 ALTER TABLE ONLY work_item_transitions
     ADD CONSTRAINT fk_ac61084d25 FOREIGN KEY (moved_to_id) REFERENCES issues(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY cd_applications
-    ADD CONSTRAINT fk_ac9b2d76ca FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY work_item_progresses
     ADD CONSTRAINT fk_acdc04a1e3 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;

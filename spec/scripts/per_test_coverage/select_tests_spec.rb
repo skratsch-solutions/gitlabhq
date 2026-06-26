@@ -437,7 +437,7 @@ RSpec.describe PerTestCoverage::SelectTests::GitlabApi, :silence_stdout, feature
   let(:since_time) { Time.utc(2026, 5, 16, 0, 0, 0) }
   let(:schedule_id) { 23_503 }
   let(:expected_url) do
-    URI.parse("#{api_url}/projects/#{project_id}/pipeline_schedules/#{schedule_id}/pipelines?per_page=100")
+    URI.parse("#{api_url}/projects/#{project_id}/pipeline_schedules/#{schedule_id}/pipelines?per_page=100&sort=desc")
   end
 
   subject(:client) do
@@ -490,6 +490,21 @@ RSpec.describe PerTestCoverage::SelectTests::GitlabApi, :silence_stdout, feature
 
       expect(captured_request['PRIVATE-TOKEN']).to eq(private_token)
       expect(captured_request['JOB-TOKEN']).to be_nil
+    end
+
+    it 'requests the most recent pipelines first so recent runs are counted' do
+      captured_request = nil
+      response = instance_double(Net::HTTPResponse, code: '200', body: '[]')
+      http = instance_double(Net::HTTP)
+      allow(http).to receive(:request) do |req|
+        captured_request = req
+        response
+      end
+      allow(Net::HTTP).to receive(:start).and_yield(http).and_return(response)
+
+      client.count_schedule_pipelines_since(schedule_id: schedule_id, since_time: since_time)
+
+      expect(captured_request.path).to eq(expected_url.request_uri)
     end
 
     it 'raises on a non-2xx response' do

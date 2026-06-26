@@ -96,7 +96,7 @@ For each instance, you can create one runner of each type and size combination. 
 To create hosted runners:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com).
-1. At the top of the page, select **Hosted runners**.
+1. In the left sidebar, select **Hosted runners**.
 1. Select **New hosted runner**.
 1. Choose a size for the runner, then select **Create hosted runner**.
 
@@ -109,7 +109,7 @@ You will receive an email notification when your hosted runner is ready to use.
 To view hosted runners:
 
 1. Sign in to [Switchboard](https://console.gitlab-dedicated.com).
-1. At the top of the page, select **Hosted runners**.
+1. In the left sidebar, select **Hosted runners**.
 1. Optional. From the list of hosted runners, copy the **Runner ID** of the runner you want to access in GitLab.
 
 ### View and configure hosted runners in GitLab
