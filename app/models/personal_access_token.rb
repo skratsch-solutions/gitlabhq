@@ -82,6 +82,11 @@ class PersonalAccessToken < ApplicationRecord
   scope :for_group, ->(group) { where(group: group) }
   scope :preload_users, -> { preload(:user) }
   scope :preload_granular_scopes, -> { preload(granular_scopes: [:namespace]) }
+  scope :preload_last_used_ips, -> { preload(:last_used_ips) }
+  scope :preload_bot_user_associations_for_group, -> { preload(user: [:members, { user_detail: :bot_namespace }]) }
+  scope :preload_bot_user_associations_for_project, -> {
+    preload(user: [:members, { user_detail: { bot_namespace: :project } }])
+  }
   scope :order_name_asc_id_asc, -> { reorder(name: :asc, id: :asc) }
   scope :order_name_desc_id_desc, -> { reorder(name: :desc, id: :desc) }
   scope :order_created_at_asc_id_asc, -> { reorder(created_at: :asc, id: :asc) }

@@ -88,7 +88,6 @@ RSpec.describe Authn::IamService::GrpcClient, feature_category: :system_access d
       'localhost:5004'                  | 'localhost:5004'              | false
       'tls://iam.example.com:5004'      | 'iam.example.com:5004'        | true
       'tcp://iam.example.com:5004'      | 'iam.example.com:5004'        | false
-      'dns+tls:///iam.example.com:5004' | 'dns:///iam.example.com:5004' | true
       ':::invalid'                      | ':::invalid'                  | false
     end
 

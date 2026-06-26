@@ -272,10 +272,10 @@ conditionally_enables:
 Use `null` when no public permission supersedes the private one. This generally applies when the private permission conditionally prevents versus conditionally enables:
 
 ```yaml
-# config/authz/permissions/build/_read_external.yml
+# config/authz/permissions/job/_update_protected.yml
 ---
-name: _read_external_build
-description: Grants the ability to read a build whose pipeline originated from an external CI integration.
+name: _update_protected_job
+description: Private permission to enable/prevent job update and write abilities
 conditionally_enables: null
 ```
 

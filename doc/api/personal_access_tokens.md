@@ -77,11 +77,17 @@ Example response:
         ],
         "user_id": 3,
         "last_used_at": "2021-10-06T17:58:37.550Z",
+        "last_used_ips": ["192.0.2.10"],
         "active": true,
         "expires_at": null
     }
 ]
 ```
+
+> [!note]
+> The `last_used_ips` attribute lists up to five unique IP addresses that have authenticated with
+> this token. When the limit is reached, the oldest IP address is removed. The list updates once
+> per minute per token.
 
 If successful, returns a list of tokens.
 

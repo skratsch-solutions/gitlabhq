@@ -19,6 +19,7 @@ Use this API to interact with project access tokens. For more information, see [
 {{< history >}}
 
 - `state` attribute [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/462217) in GitLab 17.2.
+- `last_used_ips` attribute [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/600347) in GitLab 19.2.
 
 {{< /history >}}
 
@@ -63,6 +64,7 @@ curl --request GET \
       "created_at" : "2021-01-20T22:11:48.151Z",
       "description": "Test Token description",
       "last_used_at" : null,
+      "last_used_ips" : [],
       "revoked" : false,
       "access_level" : 40
    },
@@ -79,10 +81,16 @@ curl --request GET \
       "description": "Test Token description",
       "revoked" : true,
       "last_used_at" : "2021-02-13T10:34:57.178Z",
+      "last_used_ips" : ["192.0.2.10"],
       "access_level" : 40
    }
 ]
 ```
+
+> [!note]
+> The `last_used_ips` attribute lists up to five unique IP addresses that have authenticated with
+> this token. When the limit is reached, the oldest IP address is removed. The list updates once
+> per minute per token.
 
 ## Retrieve details on a project access token
 
@@ -117,7 +125,8 @@ curl --request GET \
    "description": "Test Token description",
    "revoked" : false,
    "access_level": 40,
-   "last_used_at": "2022-03-15T11:05:42.437Z"
+   "last_used_at": "2022-03-15T11:05:42.437Z",
+   "last_used_ips": ["192.0.2.10"]
 }
 ```
 
@@ -220,6 +229,7 @@ Example response:
     "scopes": ["api"],
     "user_id": 1337,
     "last_used_at": null,
+    "last_used_ips": [],
     "active": true,
     "expires_at": "2023-08-15",
     "access_level": 30,

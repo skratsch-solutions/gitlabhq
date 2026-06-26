@@ -2,7 +2,7 @@
 
 module Authn
   module IamService
-    class GrpcClient
+    class GrpcClient < BaseClient
       RequestError = Class.new(StandardError)
 
       TIMEOUT_SECONDS = 5
@@ -63,41 +63,19 @@ module Authn
       end
 
       def stub
-        build_stub(::Gitlab::Iam::Auth::V1::AuthService::Stub)
+        build_stub(::Gitlab::Iam::Auth::V1::AuthService::Stub, grpc_address, timeout: TIMEOUT_SECONDS)
       end
 
       def login_stub
-        build_stub(::Gitlab::Iam::Auth::V1::LoginService::Stub)
+        build_stub(::Gitlab::Iam::Auth::V1::LoginService::Stub, grpc_address, timeout: TIMEOUT_SECONDS)
       end
 
       def consent_stub
-        build_stub(::Gitlab::Iam::Auth::V1::ConsentService::Stub)
+        build_stub(::Gitlab::Iam::Auth::V1::ConsentService::Stub, grpc_address, timeout: TIMEOUT_SECONDS)
       end
 
-      def build_stub(stub_class)
-        address = Authn::IamAuthService.grpc_address
-        stub_class.new(
-          strip_scheme(address),
-          channel_credentials(address),
-          interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
-          timeout: TIMEOUT_SECONDS
-        )
-      end
-
-      def channel_credentials(address)
-        uri = URI(address)
-
-        if uri.scheme == 'tls' || uri.scheme == 'dns+tls'
-          GRPC::Core::ChannelCredentials.new(::Gitlab::X509::Certificate.ca_certs_bundle)
-        else
-          :this_channel_is_insecure
-        end
-      rescue URI::InvalidURIError
-        :this_channel_is_insecure
-      end
-
-      def strip_scheme(address)
-        address.sub(%r{^tcp://|^tls://}, '').sub(%r{^dns\+tls:}, 'dns:')
+      def grpc_address
+        Authn::IamAuthService.grpc_address
       end
 
       def metadata

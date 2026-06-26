@@ -233,7 +233,6 @@ RSpec/NamedSubject:
     - 'ee/spec/lib/gitlab/ci/parsers/license_compliance/license_scanning_spec.rb'
     - 'ee/spec/lib/gitlab/ci/parsers/metrics/generic_spec.rb'
     - 'ee/spec/lib/gitlab/ci/pipeline/chain/create_cross_database_associations_spec.rb'
-    - 'ee/spec/lib/gitlab/ci/reports/coverage_fuzzing/report_spec.rb'
     - 'ee/spec/lib/gitlab/ci/reports/license_scanning/dependency_spec.rb'
     - 'ee/spec/lib/gitlab/ci/reports/license_scanning/license_spec.rb'
     - 'ee/spec/lib/gitlab/ci/reports/license_scanning/report_spec.rb'

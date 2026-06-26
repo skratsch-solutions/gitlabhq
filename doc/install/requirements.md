@@ -13,7 +13,10 @@ title: GitLab installation requirements
 
 {{< /details >}}
 
-GitLab has specific installation requirements. Hardware and component requirements vary based on the number of users and expected workload.
+GitLab Self-Managed has specific hardware, component, and infrastructure requirements that
+vary based on your deployment size and workload. For larger or distributed deployments, use the
+[sizing guide](../administration/reference_architectures/sizing.md) to determine the right
+specifications for your environment.
 
 ## Hardware
 
@@ -175,14 +178,6 @@ For more information about end-of-life dates for Redis, see the
 - Serverless Redis and Valkey variants are not supported.
 - Set the [eviction policy](../administration/redis/replication_and_failover_external.md#setting-the-eviction-policy) as appropriate.
 
-### Object storage
-
-Object storage is required for distributed deployments and recommended for all installations.
-It stores binary data including LFS objects, CI/CD artifacts, uploads, container registry data, and backups.
-
-Use any S3-compatible object storage service. For configuration and a list of tested providers, see
-[object storage](../administration/object_storage.md).
-
 ### Puma
 
 The recommended [Puma](https://puma.io/) settings depend on your [installation](install_methods.md).
@@ -203,25 +198,17 @@ For worker and thread sizing guidance, see
 Each process requires at least 200 MB of memory and can grow significantly under load.
 For environments with more than 10,000 users, allocate at least 1 GB per Sidekiq process.
 
+### Object storage
+
+Object storage is required for distributed deployments and recommended for all installations.
+It stores binary data including LFS objects, CI/CD artifacts, uploads, container registry data, and backups.
+
+Use any S3-compatible object storage service. For configuration and a list of tested providers, see
+[object storage](../administration/object_storage.md).
+
 ## Optional components
 
 These components are not required for a core GitLab installation but have separate infrastructure or resource requirements when used.
-
-### AI Gateway
-
-[AI Gateway](install_ai_gateway.md) provides the backend service for GitLab Duo AI features.
-It runs as a standalone service deployable on Docker or Kubernetes and requires:
-
-- At a minimum, 2 CPU cores and 512 MB of memory.
-- For production, a baseline of 2 cores and 8 GB of memory supports approximately 40 concurrent AI requests.
-
-### ClickHouse
-
-[ClickHouse](../integration/clickhouse.md) is an open-source column-oriented database used for product analytics features.
-It runs as a separate database service and resource requirements scale with user count:
-
-- From 4 vCPU and 16 GB for up to 2,000 users.
-- To 32 vCPU and 128 GB for 25,000 users.
 
 ### Container Registry
 
@@ -234,17 +221,17 @@ and requires:
 
 For high-traffic environments, the registry can run on dedicated infrastructure separate from the main GitLab instance.
 
-### Elasticsearch and OpenSearch
-
-[Advanced search](../integration/advanced_search/elasticsearch.md) powers faster and more capable search across GitLab content.
-It requires a separate Elasticsearch or OpenSearch cluster.
-Cluster size depends on the volume of indexed data.
-
 ### GitLab Pages
 
 [GitLab Pages](../administration/pages/_index.md) hosts static websites for projects and groups.
 It runs as a separate daemon and requires a wildcard DNS record.
 Custom domain support requires a secondary IP address and TLS certificates.
+
+### Elasticsearch and OpenSearch
+
+[Advanced search](../integration/advanced_search/elasticsearch.md) powers faster and more capable search across GitLab content.
+It requires a separate Elasticsearch or OpenSearch cluster.
+Cluster size depends on the volume of indexed data.
 
 ### Prometheus
 
@@ -252,20 +239,28 @@ Custom domain support requires a secondary IP address and TLS certificates.
 For information on configuring or disabling it, see
 [monitoring GitLab with Prometheus](../administration/monitoring/prometheus/_index.md).
 
+### Zoekt
+
+[Zoekt](../integration/zoekt/_index.md) provides exact code search across repositories
+and runs as a separate service. For resource requirements, see
+[Zoekt administration](../integration/zoekt/_index.md).
+
+### ClickHouse
+
+[ClickHouse](../integration/clickhouse.md) is an open-source column-oriented database used for product analytics features.
+It runs as a separate database service. For resource requirements, see
+[ClickHouse configuration](../integration/clickhouse.md).
+
+### AI Gateway
+
+[AI Gateway](install_ai_gateway.md) provides the backend service for GitLab Duo AI features.
+It runs as a standalone service deployable on Docker or Kubernetes. For resource requirements,
+see the installation guide.
+
 ### Secrets Manager
 
 [GitLab Secrets Manager](../administration/secrets_manager/_index.md) provides native secrets management powered by OpenBao.
 It runs as a separate Kubernetes service and requires a dedicated PostgreSQL database and load balancer.
-Resource requirements scale with secret fetch rate.
-
-### Zoekt
-
-[Zoekt](../integration/zoekt/_index.md) provides exact code search across repositories
-and runs as a separate service. Resource requirements scale with the volume of indexed
-repository data:
-
-- From 2 cores and 16 GB for smaller deployments.
-- To 16 cores and 256 GB for larger deployments.
 
 ## Supported web browsers
 

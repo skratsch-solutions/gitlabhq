@@ -56481,6 +56481,17 @@ definitions:
         type: string
         format: date-time
         example: '2020-08-31T15:53:00.073Z'
+      last_used_ips:
+        type: array
+        items:
+          type: string
+        example:
+        - 127.0.0.1
+        - 127.0.0.2
+        - 127.0.0.3
+        description: The five most recent unique IP addresses that have authenticated
+          with this token. When the limit is reached, the oldest IP address is removed.
+          The list updates once per minute per token.
       access_level:
         type: integer
         format: int32
@@ -77813,10 +77824,15 @@ definitions:
         example: '2020-08-31T15:53:00.073Z'
       last_used_ips:
         type: array
+        items:
+          type: string
         example:
         - 127.0.0.1
         - 127.0.0.2
         - 127.0.0.3
+        description: The five most recent unique IP addresses that have authenticated
+          with this token. When the limit is reached, the oldest IP address is removed.
+          The list updates once per minute per token.
     required:
     - id
     - name
@@ -77829,7 +77845,6 @@ definitions:
     - active
     - granular
     - expires_at
-    - last_used_ips
     description: API_Entities_PersonalAccessTokenWithLastUsedIps model
   API_Entities_PersonalAccessToken:
     type: object
