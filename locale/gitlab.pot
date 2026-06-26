@@ -29979,9 +29979,6 @@ msgstr ""
 msgid "Edit in pipeline editor"
 msgstr ""
 
-msgid "Edit in single-file editor"
-msgstr ""
-
 msgid "Edit inline"
 msgstr ""
 
@@ -56042,9 +56039,6 @@ msgstr ""
 msgid "Pipelines|There was an error fetching the pipelines."
 msgstr ""
 
-msgid "Pipelines|There was an error fetching the pipelines. Try again in a few moments or contact your support team."
-msgstr ""
-
 msgid "Pipelines|This GitLab CI configuration is invalid. %{linkStart}Learn more%{linkEnd}"
 msgstr ""
 
@@ -56352,9 +56346,6 @@ msgid "Pipeline|Raw text search is not currently supported. Please use the avail
 msgstr ""
 
 msgid "Pipeline|Run for branch name or tag"
-msgstr ""
-
-msgid "Pipeline|Run merge request pipeline"
 msgstr ""
 
 msgid "Pipeline|Run new pipeline"
@@ -77663,9 +77654,6 @@ msgid "There was an error fetching the top labels for the selected group"
 msgstr ""
 
 msgid "There was an error fetching the variables."
-msgstr ""
-
-msgid "There was an error fetching this merge request's pipelines."
 msgstr ""
 
 msgid "There was an error fetching value stream analytics stages."

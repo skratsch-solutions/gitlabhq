@@ -8,10 +8,8 @@ describe('PipelinesErrorState', () => {
 
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
 
-  const createComponent = ({ props = {} } = {}) => {
-    wrapper = shallowMountExtended(PipelinesErrorState, {
-      propsData: props,
-    });
+  const createComponent = () => {
+    wrapper = shallowMountExtended(PipelinesErrorState);
   };
 
   it('renders the failed-job illustration', () => {
@@ -20,14 +18,12 @@ describe('PipelinesErrorState', () => {
     expect(findEmptyState().props('svgPath')).toBe(ERROR_STATE_SVG);
   });
 
-  it('forwards the title and description props', () => {
-    createComponent({
-      props: { title: 'There was an error', description: 'Try again later' },
-    });
+  it('renders the error title and description', () => {
+    createComponent();
 
     expect(findEmptyState().props()).toMatchObject({
-      title: 'There was an error',
-      description: 'Try again later',
+      title: 'There was an error fetching the pipelines.',
+      description: 'Try again in a few moments or contact your support team.',
     });
   });
 });

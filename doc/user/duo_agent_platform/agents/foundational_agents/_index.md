@@ -50,6 +50,8 @@ Tier availability varies by agent. For details, see each agent's page.
   debugging, and optimizing GitLab CI/CD pipelines.
 - [Permissions Assistant](permissions_assistant.md), for selecting permissions
   when creating a fine-grained personal access token.
+- [Support Assistant](support_assistant.md), for diagnosing and resolving
+  GitLab product problems.
 
 ## Duplicate an agent
 

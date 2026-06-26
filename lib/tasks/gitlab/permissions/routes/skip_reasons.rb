@@ -7,6 +7,7 @@ module Tasks
         module SkipReasons
           REASON_LABELS = {
             ai_workflows_oauth_auth: 'AI workflows OAuth token',
+            catch_all: 'Catch-all fallback',
             compliance_external_auth: 'Compliance external control token',
             container_registry_event_auth: 'Container registry event token',
             deprecated_endpoint: 'Deprecated endpoint',

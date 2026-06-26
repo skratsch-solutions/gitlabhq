@@ -10,6 +10,8 @@ import waitForPromises from 'helpers/wait_for_promises';
 import Api from '~/api';
 import LegacyPipelinesTableWrapper from '~/commit/pipelines/legacy_pipelines_table_wrapper.vue';
 import PipelinesTable from '~/ci/common/pipelines_table.vue';
+import PipelinesEmptyState from '~/ci/common/empty_state/pipelines_empty_state.vue';
+import PipelinesErrorState from '~/ci/common/empty_state/pipelines_error_state.vue';
 import RunPipelineButton from '~/ci/common/run_pipeline_button.vue';
 import {
   HTTP_STATUS_BAD_REQUEST,
@@ -89,8 +91,8 @@ describe('Pipelines table in Commits and Merge requests', () => {
 
   const findRunPipelineBtn = () => wrapper.findComponent(RunPipelineButton);
   const findLoadingState = () => wrapper.findComponent(GlLoadingIcon);
-  const findErrorEmptyState = () => wrapper.findByTestId('pipeline-error-empty-state');
-  const findEmptyState = () => wrapper.findByTestId('pipeline-empty-state');
+  const findErrorEmptyState = () => wrapper.findComponent(PipelinesErrorState);
+  const findEmptyState = () => wrapper.findComponent(PipelinesEmptyState);
   const findTable = () => wrapper.findComponent(GlTableLite);
   const findTableRows = () => wrapper.findAllByTestId('pipeline-table-row');
   const findModal = () => wrapper.findComponent(GlModal);
@@ -529,9 +531,7 @@ describe('Pipelines table in Commits and Merge requests', () => {
     });
 
     it('should render error state', () => {
-      expect(findErrorEmptyState().text()).toBe(
-        'There was an error fetching the pipelines. Try again in a few moments or contact your support team.',
-      );
+      expect(findErrorEmptyState().exists()).toBe(true);
     });
   });
 

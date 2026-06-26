@@ -176,21 +176,9 @@ To enable a flow:
 1. Select the **Managed** tab, then select the flow you want to enable.
 1. In the upper-right corner, select **Enable**.
 1. Under **Project**, select the project you want to enable the flow in.
-1. For **Add triggers**, select which events trigger the flow:
-   - **Mention**: When the service account user is mentioned
-     in a comment on an issue or merge request.
-   - **Assign**: When the service account user is assigned
-     to an issue or merge request.
-   - **Assign reviewer**: When the service account user is assigned
-     as a reviewer to a merge request.
-   - **Pipeline events**: When a pipeline changes state.
-     The possible states are `created`, `started`, `succeeded`, and `failed`.
-   - **Merge request ready**: When a draft merge request is marked as ready for review.
-   - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
-   - **Merge request**: When a selected merge request action occurs.
-   - **Work item**: When a selected work item action occurs.
-1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section, from the **Trigger when** dropdown list, select **Approved**.
-1. Optional. If you selected **Work item**, in the **Work item events configuration** section, from the **Trigger when** dropdown list, select one or more of the following actions: **Created**, **Status changed**.
+1. For **Add triggers**, select:
+   - The [event types that trigger the flow](../triggers/_index.md#trigger-event-types).
+   - If needed for the trigger event type, a trigger event action.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -204,19 +192,9 @@ To enable a flow:
 1. Select the flow you want to enable.
 1. In the upper-right corner, select **Enable**.
 1. Under **Project**, select the project you want to enable the flow in.
-1. For **Add triggers**, select which events trigger the flow:
-   - **Mention**: When the service account user is mentioned
-     in a comment on an issue or merge request.
-   - **Assign**: When the service account user is assigned
-     to an issue or merge request.
-   - **Assign reviewer**: When the service account user is assigned
-     as a reviewer to a merge request.
-   - **Merge request ready**: When a draft merge request is marked as ready for review.
-   - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
-   - **Merge request**: When a selected merge request action occurs.
-   - **Work item**: When a selected work item action occurs.
-1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section, from the **Trigger when** dropdown list, select **Approved**.
-1. Optional. If you selected **Work item**, in the **Work item events configuration** section, from the **Trigger when** dropdown list, select one or more of the following states: **Created**, **Status changed**.
+1. For **Add triggers**, select:
+   - The [event types that trigger the flow](../triggers/_index.md#trigger-event-types).
+   - If needed for the trigger event type, a trigger event action.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -244,19 +222,9 @@ To enable a flow in a project:
 1. In the left sidebar, select **AI** > **Flows**.
 1. In the upper-right corner, select **Enable flow from group**.
 1. From the dropdown list, select the flow you want to enable.
-1. For **Add triggers**, select which events trigger the flow:
-   - **Mention**: When the service account user is mentioned
-     in a comment on an issue or merge request.
-   - **Assign**: When the service account user is assigned
-     to an issue or merge request.
-   - **Assign reviewer**: When the service account user is assigned
-     as a reviewer to a merge request.
-   - **Merge request ready**: When a draft merge request is marked as ready for review.
-   - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
-   - **Merge request**: When a selected merge request action occurs.
-   - **Work item**: When a selected work item action occurs.
-1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section, from the **Trigger when** dropdown list, select **Approved**.
-1. Optional. If you selected **Work item**, in the **Work item events configuration** section, from the **Trigger when** dropdown list, select one or more of the following actions: **Created**, **Status changed**.
+1. For **Add triggers**, select:
+   - The [event types that trigger the flow](../triggers/_index.md#trigger-event-types).
+   - If needed for the trigger event type, a trigger event action.
 1. Select **Enable**.
 
 The flow appears in the project's **AI** > **Flows** list.

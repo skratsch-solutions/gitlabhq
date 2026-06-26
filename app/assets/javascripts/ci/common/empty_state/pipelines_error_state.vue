@@ -7,21 +7,13 @@ export default {
   components: {
     GlEmptyState,
   },
-  props: {
-    title: {
-      type: String,
-      required: false,
-      default: '',
-    },
-    description: {
-      type: String,
-      required: false,
-      default: '',
-    },
-  },
   ERROR_STATE_SVG,
 };
 </script>
 <template>
-  <gl-empty-state :svg-path="$options.ERROR_STATE_SVG" :title="title" :description="description" />
+  <gl-empty-state
+    :svg-path="$options.ERROR_STATE_SVG"
+    :title="s__('Pipelines|There was an error fetching the pipelines.')"
+    :description="s__('Pipelines|Try again in a few moments or contact your support team.')"
+  />
 </template>

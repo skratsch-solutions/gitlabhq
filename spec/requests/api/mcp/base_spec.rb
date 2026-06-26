@@ -206,6 +206,15 @@ RSpec.describe API::Mcp::Base, feature_category: :mcp_server do
         expect(response).to have_gitlab_http_status(:ok)
       end
     end
+
+    context 'with granular token authorization' do
+      it_behaves_like 'authorizing granular token permissions', :execute_mcp_tool, legacy_token_scopes: [:mcp] do
+        let(:boundary_object) { :user }
+        let(:request) do
+          post api('/mcp', personal_access_token: pat), params: { jsonrpc: '2.0', method: 'tools/list', id: '1' }
+        end
+      end
+    end
   end
 
   describe 'GET /mcp' do
@@ -222,6 +231,14 @@ RSpec.describe API::Mcp::Base, feature_category: :mcp_server do
         get api('/mcp', user, oauth_access_token: access_token)
 
         expect(response).to have_gitlab_http_status(:method_not_allowed)
+      end
+    end
+
+    context 'with granular token authorization' do
+      it_behaves_like 'authorizing granular token permissions', :execute_mcp_tool,
+        expected_success_status: :method_not_allowed, legacy_token_scopes: [:mcp] do
+        let(:boundary_object) { :user }
+        let(:request) { get api('/mcp', personal_access_token: pat) }
       end
     end
   end

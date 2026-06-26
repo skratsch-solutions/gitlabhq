@@ -11,6 +11,8 @@ import Api from '~/api';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { setupQueryPollingByVisibility } from '~/ci/pipeline_details/graph/utils';
 import PipelinesTable from '~/ci/common/pipelines_table.vue';
+import PipelinesEmptyState from '~/ci/common/empty_state/pipelines_empty_state.vue';
+import PipelinesErrorState from '~/ci/common/empty_state/pipelines_error_state.vue';
 import { DEFAULT_MANUAL_ACTIONS_LIMIT } from '~/ci/constants';
 import PipelinesTableWrapper from '~/ci/merge_requests/components/pipelines_table_wrapper.vue';
 import RunPipelineButton from '~/ci/common/run_pipeline_button.vue';
@@ -82,8 +84,6 @@ const defaultProps = {
   canRunPipeline: true,
   projectId: '5',
   mergeRequestId: 3,
-  errorStateSvgPath: 'error-svg',
-  emptyStateSvgPath: 'empty-svg',
 };
 
 const createResponseWithPageInfo = ({ hasNextPage, hasPreviousPage }) => {
@@ -153,8 +153,8 @@ const createComponent = ({ mountFn = shallowMountExtended, props = {} } = {}) =>
   return waitForPromises();
 };
 
-const findEmptyState = () => wrapper.findByTestId('pipeline-empty-state');
-const findErrorEmptyState = () => wrapper.findByTestId('pipeline-error-empty-state');
+const findEmptyState = () => wrapper.findComponent(PipelinesEmptyState);
+const findErrorEmptyState = () => wrapper.findComponent(PipelinesErrorState);
 const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
 const findModal = () => wrapper.findComponent(GlModal);
 const findMrPipelinesDocsLink = () => wrapper.findByTestId('mr-pipelines-docs-link');
@@ -220,9 +220,7 @@ describe('PipelinesTableWrapper component', () => {
     });
 
     it('should render error state', () => {
-      expect(findErrorEmptyState().text()).toBe(
-        'There was an error fetching the pipelines. Try again in a few moments or contact your support team.',
-      );
+      expect(findErrorEmptyState().exists()).toBe(true);
     });
 
     it('does not render pagination', () => {

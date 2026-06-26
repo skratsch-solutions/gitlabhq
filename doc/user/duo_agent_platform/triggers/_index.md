@@ -61,25 +61,9 @@ To create a trigger:
 1. In the left sidebar, select **AI** > **Triggers**.
 1. Select **New flow trigger**.
 1. In **Description**, enter a description for the trigger.
-1. From the **Event types** dropdown list, select one or more event types:
-   - **Mention**: When the service account user is mentioned
-     in a comment on an issue or merge request.
-   - **Assign**: When the service account user is assigned
-     to an issue or merge request.
-   - **Assign reviewer**: When the service account user is assigned
-     as a reviewer to a merge request.
-   - **Pipeline events**: When a pipeline changes state.
-   - **Merge request ready**: When a draft merge request is marked as ready for review.
-   - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
-   - **Merge request**: When a selected merge request action occurs.
-   - **Work item**: When a selected work item action occurs.
-1. Optional. If you selected **Pipeline events**, in the **Pipeline events configuration** section,
-   from the **Trigger when** dropdown list, select one or more of the following states:
-   **Running**, **Passed**, **Failed**, or **Canceled**.
-1. Optional. If you selected **Merge request**, in the **Merge request events configuration** section,
-   from the **Trigger when** dropdown list, select **Approved**.
-1. Optional. If you selected **Work item**, in the **Work item events configuration** section,
-   from the **Trigger when** dropdown list, select one or more of the following states: **Created**, **Status changed**.
+1. From the **Event types** dropdown list, select:
+   - One or more [trigger event types](#trigger-event-types).
+   - If needed for the trigger event type, a trigger event action.
 1. From the **Service account** dropdown list,
    select a user to be [the composite identity](../composite_identity.md).
 1. For **Configuration source**, select one of the following:
@@ -92,14 +76,25 @@ To create a trigger:
 
 The trigger now appears in **AI** > **Triggers**.
 
-### Edit a trigger
+### Trigger event types
+
+| Name            | Description                                                                           | Configuration |
+|-----------------|---------------------------------------------------------------------------------------|------|
+| Mention         | When the service account user is mentioned in a comment on an issue or merge request. | None |
+| Assign          | When the service account user is assigned to an issue or merge request.               | None |
+| Assign reviewer | When the service account user is assigned as a reviewer to a merge request.           | None |
+| Pipeline events | When a pipeline changes state.                                                        | From the **Trigger when** dropdown list, select one or more of the following:<br>- **Running**<br>- **Passed**<br>- **Failed**<br>- **Canceled** |
+| Merge request   | When a selected merge request action occurs.                                          | From the **Trigger when** dropdown list, select one of the following:<br>- **Approved**: When a merge request has all required approvals<br>- **Ready**: When a draft merge request is marked as ready for review<br>- **Merge conflict**: When a merge request can no longer be merged due to a code conflict |
+| Work item       | When a selected work item action occurs.                                              | From the **Trigger when** dropdown list, select one of the following:<br>- **Created**: When a work item is created<br>- **Status changed**: When a work item's status changes |
+
+## Edit a trigger
 
 1. In the top bar, select **Search or go to** and find your project.
 1. In the left sidebar, select **AI** > **Triggers**.
 1. For the trigger you want to change, select **Edit flow trigger** ({{< icon name="pencil" >}}).
 1. Make the changes and select **Save changes**.
 
-### Delete a trigger
+## Delete a trigger
 
 1. In the top bar, select **Search or go to** and find your project.
 1. In the left sidebar, select **AI** > **Triggers**.

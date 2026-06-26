@@ -38,6 +38,15 @@ Use GitLab Duo and SDLC trends to:
 - Track SDLC trends in relation to your GitLab Duo journey: Examine how trends in GitLab Duo usage in a project or group influence other crucial productivity metrics such as mean time to merge and CI/CD statistics. GitLab Duo usage metrics are displayed for the last six months, including the current one.
 - Monitor GitLab Duo feature adoption: Track the use of seats and features in a project or group over the last 30 days.
 
+The following table lists the availability of GitLab Duo and SDLC metrics:
+
+| Feature | Requires GitLab Duo Pro or Enterprise | Requires [ClickHouse](../../integration/clickhouse.md) |
+|---------|:-----------------------:|:-------------------:|
+| GitLab Duo and SDLC trends dashboard | {{< yes >}} | {{< yes >}} |
+| `AiMetrics` API | {{< yes >}} | {{< yes >}} |
+| `AiUserMetrics` API | {{< yes >}} | {{< yes >}} |
+| `AiUsageData` API | {{< no >}} | {{< no >}} (PostgreSQL only) |
+
 To learn how you can optimize your license utilization,
 see [GitLab Duo add-ons](../../subscriptions/subscription-add-ons.md).
 

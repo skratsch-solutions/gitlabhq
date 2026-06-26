@@ -361,6 +361,77 @@ if msg['additional_context'].is_a?(Array)
 end
 ```
 
+## Let an agent edit a UI form
+
+Foundational agents can read the state of a form on a page and write changes back to it. The
+**Add permissions with Duo** button on the granular access token form is the reference
+implementation.
+
+The pattern has two halves:
+
+- Read: pass the form state to the agent in a `form_context` context variable.
+- Write: the agent calls a form-editing tool, and the consumer applies the returned changes.
+
+The read half builds on [context variables](#context-variables). The sections below cover what the
+form-editing pattern adds for the consumer.
+
+### Pass the form state to the agent
+
+Send the current form state to the agent as a `form_context` [context variable](#context-variables).
+Use the `buildFormContext` helper from `ee/app/assets/javascripts/ai/shared/utils/form_context_utils.js`
+to wrap the form identity and contents in the envelope. The consumer passes only `formId` and
+`formContent`, so it does not carry the envelope shape (`category`, JSON-encoded content, and
+`metadata`):
+
+```javascript
+import { buildFormContext } from 'ee/ai/shared/utils/form_context_utils';
+
+// In the consumer component:
+computed: {
+  additionalContext() {
+    return buildFormContext({ formId: 'ask-duo-pat', formContent: this.formContent });
+  },
+}
+```
+
+`formId` identifies the form so the agent only edits this form. `formContent` is the current form
+state, which the agent treats as ground truth. Pass the result through the `additional-context` prop
+of `open_agentic_chat_button.vue`. For the underlying envelope shape, see
+[Wire context variables from the GitLab monolith](#wire-context-variables-from-the-gitlab-monolith).
+For a reference implementation, see
+`ee/app/assets/javascripts/personal_access_tokens/components/create_granular_token/ask_dap_permissions.vue`.
+
+### Apply the agent's changes
+
+The agent applies changes by calling a form-editing tool that returns the fields to change. The
+reference tool is
+[`update_form_fields`](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/duo_workflow_service/tools/update_form_fields.py),
+with this contract:
+
+```plaintext
+form_id: str        # echoed from the system prompt; identifies the target form
+select: list[str]   # field or option names to select or enable
+clear:  list[str]   # field or option names to clear or disable
+```
+
+The system prompt pins `form_id` from the `form_context` envelope, so the agent echoes the correct
+value back instead of inventing one.
+
+In the consumer, handle the `tool-completed` event. Act only on tool calls whose `form_id` matches
+the form, so multiple form-editing buttons on the same page do not cross-fire:
+
+```javascript
+handleToolCompleted({ name, args } = {}) {
+  if (name !== 'update_form_fields' || args?.form_id !== 'ask-duo-pat') return;
+
+  // Apply args.select and args.clear to the form.
+}
+```
+
+The `select` and `clear` contract covers any form control whose value is a set of named options:
+checkbox groups, multi-select dropdowns, token fields, and boolean toggles. Enable a toggle with
+`select` and disable it with `clear`. It does not yet support text fields.
+
 ## Developing foundational agents locally
 
   For AI catalog created agents, you need to sync the agents locally. To do so, either create the agent in the local AI Catalog or on GitLab.com AI Catalog.

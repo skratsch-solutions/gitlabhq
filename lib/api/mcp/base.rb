@@ -59,7 +59,8 @@ module API
           not_found!
         end
 
-        forbidden! unless AccessTokenValidationService.new(access_token).include_any_scope?([Gitlab::Auth::MCP_SCOPE])
+        forbidden! unless AccessTokenValidationService.new(access_token)
+          .include_any_scope?([Gitlab::Auth::MCP_SCOPE, Gitlab::Auth::GRANULAR_SCOPE])
       end
 
       helpers do
@@ -188,6 +189,7 @@ module API
           ]
           tags ['mcp']
         end
+        route_setting :authorization, permissions: :execute_mcp_tool, boundary_type: :user
         post do
           status :ok
 
@@ -217,6 +219,7 @@ module API
           ]
           tags ['mcp']
         end
+        route_setting :authorization, permissions: :execute_mcp_tool, boundary_type: :user
         get do
           status :method_not_allowed
         end

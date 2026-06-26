@@ -39,7 +39,7 @@ RSpec.describe Gitlab::Middleware::Go, feature_category: :source_code_management
 
       shared_examples 'go-get=1' do |enabled_protocol:|
         context 'with simple 2-segment project path' do
-          let!(:project) { create(:project, :public, :repository) }
+          let_it_be_with_reload(:project) { create(:project, :public, :small_repo) }
 
           context 'with subpackages' do
             let(:path) { "#{project.full_path}/subpackage" }
@@ -119,8 +119,8 @@ RSpec.describe Gitlab::Middleware::Go, feature_category: :source_code_management
         end
 
         context 'with a nested project path' do
-          let(:group) { create(:group, :nested) }
-          let!(:project) { create(:project, :public, :repository, namespace: group) }
+          let_it_be(:group) { create(:group, :nested) }
+          let!(:project) { create(:project, :public, :small_repo, namespace: group) }
 
           shared_examples 'a nested project' do
             context 'when the project is public' do
@@ -315,7 +315,7 @@ RSpec.describe Gitlab::Middleware::Go, feature_category: :source_code_management
         end
 
         context 'with a public project without a repository' do
-          let!(:project) { create(:project, :public) }
+          let_it_be(:project) { create(:project, :public) }
           let(:path) { project.full_path }
 
           it 'returns 404' do

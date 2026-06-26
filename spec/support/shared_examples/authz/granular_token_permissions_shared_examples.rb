@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'authorizing granular token permissions' do |permissions, expected_success_status: :success,
-    context_type: :rest|
+    context_type: :rest, legacy_token_scopes: nil|
   granular_permissions = Array(permissions)
   individual_permission_labels = granular_permissions.map do |permission|
     assignable = Authz::PermissionGroups::Assignable.for_permission(permission).first
@@ -59,7 +59,7 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
   end
 
   context 'when authenticating with a legacy personal access token' do
-    let(:pat) { create(:personal_access_token, :admin_mode, user:) }
+    let(:pat) { create(:personal_access_token, :admin_mode, user: user, scopes: legacy_token_scopes || %w[api]) }
     let(:root_ancestor) { boundary.namespace&.root_ancestor }
 
     it_behaves_like 'granting access'

@@ -733,6 +733,15 @@ Grants the ability to create Git commands.
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/ai/llm/git_command` |
 
+#### MCP tool
+
+Grants the ability to execute tools through the MCP server.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Execute | User | `GET` | `/mcp` |
+| Execute | User | `POST` | `/mcp` |
+
 #### Third Party Agent Direct Access Token
 
 Grants the ability to create direct access tokens for third-party agents
@@ -1487,6 +1496,15 @@ Grants the ability to create, delete, and read knowledge graph enabled namespace
 | Create | Instance | `PUT` | `/admin/knowledge_graph/namespaces/:id` |
 | Delete | Instance | `DELETE` | `/admin/knowledge_graph/namespaces/:id` |
 | Read | Instance | `GET` | `/admin/knowledge_graph/namespaces` |
+
+#### Orbit MCP tool
+
+Grants the ability to execute tools through the Orbit Knowledge Graph MCP server.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Execute | User | `GET` | `/orbit/mcp` |
+| Execute | User | `POST` | `/orbit/mcp` |
 
 ### Organizations resources
 
@@ -3825,6 +3843,7 @@ incompatible with personal access tokens.
 
 | Method | Path | Reason |
 | ------ | ---- | ------ |
+| `*` | `/*path` | Catch-all fallback |
 | `POST` | `/ai/duo_workflows/agent_workflows` | AI workflows OAuth token |
 | `POST` | `/ai/duo_workflows/code_review/add_comments` | AI workflows OAuth token |
 | `GET` | `/ai/duo_workflows/code_review/custom_instructions` | AI workflows OAuth token |
@@ -3856,6 +3875,7 @@ incompatible with personal access tokens.
 | `PATCH` | `/api/scim/:version/groups/:group/Users/:id` | SCIM token |
 | `DELETE` | `/api/scim/:version/groups/:group/Users/:id` | SCIM token |
 | `POST` | `/container_registry_event/events` | Container registry event token |
+| `POST` | `/duo_code_review/evaluations` | Internal testing |
 | `GET` | `/feature_flags/unleash/:project_id` | Unleash token |
 | `GET` | `/feature_flags/unleash/:project_id/client/features` | Unleash token |
 | `POST` | `/feature_flags/unleash/:project_id/client/metrics` | Unleash token |
@@ -3969,8 +3989,6 @@ incompatible with personal access tokens.
 | `POST` | `/jobs/:id/sbom_scans/authorize` | CI job token |
 | `PATCH` | `/jobs/:id/trace` | CI job token |
 | `POST` | `/jobs/request` | Runner token |
-| `GET` | `/orbit/mcp` | Orbit internal token |
-| `POST` | `/orbit/mcp` | Orbit internal token |
 | `PUT` | `/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name/authorize` | Workhorse pre-authorization |
 | `PUT` | `/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name/authorize` | Workhorse pre-authorization |
 | `GET` | `/packages/npm/*package_name` | External registry redirect |
@@ -4020,5 +4038,7 @@ incompatible with personal access tokens.
 | `GET` | `/runners/router/discovery` | Runner token |
 | `POST` | `/runners/verify` | Runner token |
 | `POST` | `/slack/trigger` | Project integration token |
+| `GET` | `/swagger_doc` | Internal testing |
+| `GET` | `/swagger_doc/:name` | Internal testing |
 | `POST` | `/token_exchange` | Modular service token exchange |
 | `GET` | `/usage_data/metric_definitions` | Usage data token |

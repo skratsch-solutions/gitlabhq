@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Import::SourceUserPlaceholderReference, feature_category: :importers do
+RSpec.describe Import::SourceUserPlaceholderReference, factory_default: :keep, feature_category: :importers do
   describe 'associations' do
     it { is_expected.to belong_to(:source_user).class_name('Import::SourceUser') }
   end
@@ -266,6 +266,8 @@ RSpec.describe Import::SourceUserPlaceholderReference, feature_category: :import
   end
 
   describe 'model_record methods' do
+    let_it_be(:project) { create_default(:project) }
+
     let_it_be(:source_user_1) { create(:import_source_user) }
     let_it_be(:source_user_2) { create(:import_source_user) }
 

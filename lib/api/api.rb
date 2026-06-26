@@ -56,6 +56,7 @@ module API
     prefix :api
 
     version 'v3', using: :path do
+      route_setting :authorization, skip_granular_token_authorization: :catch_all
       route :any, '*path' do
         error!('API V3 is no longer supported. Use API V4 instead.', 410)
       end
@@ -443,6 +444,7 @@ module API
     mount ::API::Internal::Shellhorse
     mount ::API::Internal::Gitaly
 
+    route_setting :authorization, skip_granular_token_authorization: :catch_all
     route :any, '*path', feature_category: :not_owned do
       error!('404 Not Found', 404)
     end

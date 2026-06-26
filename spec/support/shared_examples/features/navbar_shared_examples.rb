@@ -18,7 +18,7 @@ RSpec.shared_examples 'verified navigation bar' do
         badge_text = link.all('[data-testid="nav-item-feature-announcement-badge"]', visible: :all,
           wait: false).first&.text(:all)
         text = text.gsub(badge_text, '').strip if badge_text.present?
-        text.gsub(/\s+\d+$/, '')
+        text.gsub(/\s+(?:\d+|-)$/, '')
       end
 
       { nav_item: item.text, nav_sub_items: nav_sub_items }

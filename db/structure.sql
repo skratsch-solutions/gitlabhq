@@ -233,6 +233,28 @@ BEGIN
 END
 $$;
 
+CREATE FUNCTION bulk_import_exports_sharding_key() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF NEW."organization_id" IS NULL THEN
+    IF NEW."project_id" IS NOT NULL THEN
+      SELECT "organization_id"
+      INTO NEW."organization_id"
+      FROM "projects"
+      WHERE "projects"."id" = NEW."project_id";
+    ELSIF NEW."group_id" IS NOT NULL THEN
+      SELECT "organization_id"
+      INTO NEW."organization_id"
+      FROM "namespaces"
+      WHERE "namespaces"."id" = NEW."group_id";
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END
+$$;
+
 CREATE FUNCTION bulk_import_trackers_sharding_key() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -57175,6 +57197,8 @@ CREATE TRIGGER trigger_b83b7e51e2f5 BEFORE INSERT OR UPDATE ON scan_result_polic
 CREATE TRIGGER trigger_b8eecea7f351 BEFORE INSERT OR UPDATE ON dependency_proxy_manifest_states FOR EACH ROW EXECUTE FUNCTION trigger_b8eecea7f351();
 
 CREATE TRIGGER trigger_bulk_import_batch_trackers_sharding_key BEFORE INSERT OR UPDATE ON bulk_import_batch_trackers FOR EACH ROW EXECUTE FUNCTION bulk_import_batch_trackers_sharding_key();
+
+CREATE TRIGGER trigger_bulk_import_exports_sharding_key BEFORE INSERT OR UPDATE ON bulk_import_exports FOR EACH ROW EXECUTE FUNCTION bulk_import_exports_sharding_key();
 
 CREATE TRIGGER trigger_bulk_import_trackers_sharding_key BEFORE INSERT OR UPDATE ON bulk_import_trackers FOR EACH ROW EXECUTE FUNCTION bulk_import_trackers_sharding_key();
 

@@ -104,7 +104,7 @@ module Gitlab
         attr_reader :json_writer, :relations_schema, :exportable, :logger, :current_user
 
         def serialize_many_relations(key, records, options, batch_order:)
-          log_relation_export(key, records.size)
+          log_relation_export(key, record_count(key, records))
 
           # Temporarily skip preloading associations for epics as that results in not preloading
           # epic work item associations
@@ -318,6 +318,13 @@ module Gitlab
           log = { importer: 'Import/Export' }
           log.merge!(Gitlab::ImportExport::LogUtil.exportable_to_log_payload(exportable))
           log
+        end
+
+        # Skip `records.size` for commit_notes due to a lack of good database index
+        def record_count(key, records)
+          return if key == :commit_notes
+
+          records.size
         end
 
         def log_relation_export(relation, size = nil)

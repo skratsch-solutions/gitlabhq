@@ -127,8 +127,6 @@ function mountPipelines() {
       return createElement('merge-request-pipelines-table', {
         props: {
           endpoint: pipelineTableViewEl.dataset.endpoint,
-          emptyStateSvgPath: pipelineTableViewEl.dataset.emptyStateSvgPath,
-          errorStateSvgPath: pipelineTableViewEl.dataset.errorStateSvgPath,
           canCreatePipelineInTargetProject: Boolean(
             mrWidgetData?.can_create_pipeline_in_target_project,
           ),

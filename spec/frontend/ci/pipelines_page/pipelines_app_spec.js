@@ -207,9 +207,6 @@ describe('Pipelines App', () => {
       await waitForPromises();
 
       expect(findPipelineErrorState().exists()).toBe(true);
-      expect(findPipelineErrorState().props('title')).toBe(
-        'There was an error fetching the pipelines.',
-      );
     });
 
     it('shows tab empty state when not on the All tab', async () => {

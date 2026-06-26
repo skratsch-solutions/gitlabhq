@@ -618,6 +618,29 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
       end
     end
 
+    context 'when serializing commit notes' do
+      let(:json_writer) do
+        Class.new do
+          def write_relation_array(_, _, enumerator)
+            enumerator.each(&:itself)
+          end
+        end.new
+      end
+
+      let_it_be(:commit_note, freeze: false) { create(:note_on_commit, project: exportable) }
+
+      it 'logs the relation without counting the records', :aggregate_failures do
+        allow(logger).to receive(:info)
+
+        serializer.serialize_relation({ commit_notes: { include: [] } })
+
+        expect(logger).to have_received(:info).with(
+          hash_including(message: 'Exporting relation: commit_notes', relation: 'commit_notes')
+        )
+        expect(logger).not_to have_received(:info).with(hash_including(number_of_records: anything))
+      end
+    end
+
     context 'when the record is a user' do
       let(:json_writer) do
         Class.new do

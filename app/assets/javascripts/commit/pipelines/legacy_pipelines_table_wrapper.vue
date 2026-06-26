@@ -1,7 +1,7 @@
 <script>
-import { GlAlert, GlEmptyState, GlLoadingIcon, GlModal, GlLink, GlSprintf } from '@gitlab/ui';
-import EMPTY_STATE_SVG from '@gitlab/svgs/dist/illustrations/empty-state/empty-pipeline-md.svg?url';
-import ERROR_STATE_SVG from '@gitlab/svgs/dist/illustrations/empty-state/empty-job-failed-md.svg?url';
+import { GlAlert, GlLoadingIcon, GlModal, GlLink, GlSprintf } from '@gitlab/ui';
+import PipelinesEmptyState from '~/ci/common/empty_state/pipelines_empty_state.vue';
+import PipelinesErrorState from '~/ci/common/empty_state/pipelines_error_state.vue';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import { getParameterByName } from '~/lib/utils/url_utility';
 import PipelinesTable from '~/ci/common/pipelines_table.vue';
@@ -30,11 +30,12 @@ export default {
   name: 'LegacyPipelinesTableWrapper',
   components: {
     GlAlert,
-    GlEmptyState,
     GlLink,
     GlLoadingIcon,
     GlModal,
     GlSprintf,
+    PipelinesEmptyState,
+    PipelinesErrorState,
     PipelinesTable,
     TablePagination,
     RunPipelineButton,
@@ -444,7 +445,6 @@ export default {
     },
   },
   i18n: {
-    runPipelinePopoverTitle: s__('Pipeline|Run merge request pipeline'),
     runPipelinePopoverDescription: s__(
       `Pipeline|To run a merge request pipeline, the jobs in the CI/CD configuration file %{ciDocsLinkStart}must be configured%{ciDocsLinkEnd} to run in merge request pipelines
       and you must have %{permissionDocsLinkStart}sufficient permissions%{permissionDocsLinkEnd} in the source project.`,
@@ -464,8 +464,6 @@ export default {
       anchor: 'run-pipelines-in-the-parent-project',
     },
   ),
-  EMPTY_STATE_SVG,
-  ERROR_STATE_SVG,
 };
 </script>
 <template>
@@ -483,56 +481,44 @@ export default {
       class="gl-mt-5"
     />
 
-    <gl-empty-state
-      v-else-if="shouldRenderErrorState"
-      :svg-path="$options.ERROR_STATE_SVG"
-      :title="
-        s__(`Pipelines|There was an error fetching the pipelines.
-        Try again in a few moments or contact your support team.`)
-      "
-      data-testid="pipeline-error-empty-state"
-    />
-    <template v-else-if="shouldRenderEmptyState">
-      <gl-empty-state
-        :svg-path="$options.EMPTY_STATE_SVG"
-        :svg-height="150"
-        :title="$options.i18n.emptyStateTitle"
-        data-testid="pipeline-empty-state"
-      >
-        <template #description>
-          <gl-sprintf :message="$options.i18n.runPipelinePopoverDescription">
-            <template #ciDocsLink="{ content }">
-              <gl-link
-                :href="$options.mrPipelinesDocsPath"
-                target="_blank"
-                data-testid="mr-pipelines-docs-link"
-                >{{ content }}</gl-link
-              >
-            </template>
-            <template #permissionDocsLink="{ content }">
-              <gl-link
-                :href="$options.userPermissionsDocsPath"
-                target="_blank"
-                data-testid="user-permissions-docs-link"
-                >{{ content }}</gl-link
-              >
-            </template>
-          </gl-sprintf>
-        </template>
+    <pipelines-error-state v-else-if="shouldRenderErrorState" />
+    <pipelines-empty-state
+      v-else-if="shouldRenderEmptyState"
+      :title="$options.i18n.emptyStateTitle"
+    >
+      <template #description>
+        <gl-sprintf :message="$options.i18n.runPipelinePopoverDescription">
+          <template #ciDocsLink="{ content }">
+            <gl-link
+              :href="$options.mrPipelinesDocsPath"
+              target="_blank"
+              data-testid="mr-pipelines-docs-link"
+              >{{ content }}</gl-link
+            >
+          </template>
+          <template #permissionDocsLink="{ content }">
+            <gl-link
+              :href="$options.userPermissionsDocsPath"
+              target="_blank"
+              data-testid="user-permissions-docs-link"
+              >{{ content }}</gl-link
+            >
+          </template>
+        </gl-sprintf>
+      </template>
 
-        <template #actions>
-          <div class="gl-align-middle">
-            <run-pipeline-button
-              variant="confirm"
-              data-testid="run_pipeline_button"
-              :is-loading="showRunPipelineButtonLoader"
-              :merge-request-id="mergeRequestId"
-              @run-pipeline="tryRunPipeline"
-            />
-          </div>
-        </template>
-      </gl-empty-state>
-    </template>
+      <template #actions>
+        <div class="gl-align-middle">
+          <run-pipeline-button
+            variant="confirm"
+            data-testid="run_pipeline_button"
+            :is-loading="showRunPipelineButtonLoader"
+            :merge-request-id="mergeRequestId"
+            @run-pipeline="tryRunPipeline"
+          />
+        </div>
+      </template>
+    </pipelines-empty-state>
 
     <div v-else-if="shouldRenderTable">
       <div

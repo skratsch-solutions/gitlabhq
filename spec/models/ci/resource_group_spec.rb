@@ -2,8 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe Ci::ResourceGroup, feature_category: :continuous_delivery do
-  let_it_be(:group) { create(:group) }
+RSpec.describe Ci::ResourceGroup, feature_category: :continuous_delivery, factory_default: :keep do
+  let_it_be(:namespace) { create_default(:namespace) }
+  let_it_be(:project)   { create_default(:project) }
+  let_it_be(:group)     { create(:group) }
 
   it_behaves_like 'cleanup by a loose foreign key' do
     let!(:parent) { create(:project, group: group) }

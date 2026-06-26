@@ -71,7 +71,7 @@ module RapidDiffs
       )
 
       {
-        text: _('Edit in single-file editor'),
+        text: _('Edit single file'),
         href: editor_path,
         position: 2
       }

@@ -99,7 +99,7 @@ RSpec.describe Ci::Workloads::Workload, feature_category: :continuous_integratio
     end
 
     describe 'cleanup refs after transition to finished or failed' do
-      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:project) { create(:project, :small_repo) }
       let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
       let_it_be(:ref_path) { 'refs/workloads/7db' }
       # `freeze: false` is required in this spec: one or more `let_it_be` subjects
@@ -146,7 +146,7 @@ RSpec.describe Ci::Workloads::Workload, feature_category: :continuous_integratio
   end
 
   describe '#cleanup_refs' do
-    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :small_repo) }
     let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
     let(:ref_path) { 'refs/workloads/test123' }
     let(:workload) { create(:ci_workload, project: project, pipeline: pipeline, branch_name: ref_path) }

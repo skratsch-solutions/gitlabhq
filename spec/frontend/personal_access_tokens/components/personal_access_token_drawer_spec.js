@@ -3,6 +3,7 @@ import { MountingPortal } from 'portal-vue';
 import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import DynamicPanel from '~/vue_shared/components/dynamic_panel.vue';
 import DetailLayout from '~/vue_shared/components/detail_layout.vue';
+import BaseLayout from '~/vue_shared/components/base_layout.vue';
 import PageHeading from '~/vue_shared/components/page_heading.vue';
 import { stubComponent } from 'helpers/stub_component';
 import { shallowMountExtended, mountExtended } from 'helpers/vue_test_utils_helper';
@@ -37,6 +38,7 @@ describe('PersonalAccessTokenDrawer', () => {
       stubs: {
         DynamicPanel,
         DetailLayout,
+        BaseLayout,
         PageHeading,
         MountingPortal: stubComponent(MountingPortal, { name: 'MountingPortal' }),
       },

@@ -22,7 +22,6 @@ import { DEFAULT_PAGE_SIZE, issuableListTabs } from '~/vue_shared/issuable/list/
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { fetchPolicies } from '~/lib/graphql';
 import { isPositiveInteger } from '~/lib/utils/number_utils';
-import AccessorUtilities from '~/lib/utils/accessor';
 import { AutocompleteCache } from '~/issues/dashboard/utils';
 import { setPageFullWidth, setPageDefaultWidth, isLoggedIn } from '~/lib/utils/common_utils';
 import { confirmAction } from '~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal';
@@ -124,6 +123,11 @@ import {
   setPlanningViewAllItemsFilters,
   setPlanningViewSavedViewFilterTokens,
 } from '~/work_items/pages/planning_view_state';
+import {
+  getSavedViewDraft,
+  saveSavedViewDraft,
+  clearSavedViewDraft,
+} from '~/work_items/list/saved_view_draft';
 
 import searchProjectsQuery from '../list/graphql/search_projects.query.graphql';
 
@@ -395,7 +399,7 @@ export default {
               this.lastTrackedSavedViewId = this.savedViewId;
               this.trackEvent('saved_view_view');
             }
-            const draft = this.getSavedViewDraft();
+            const draft = getSavedViewDraft(this.draftStorageContext);
             const tokens = this.getFilterTokensFromSavedView(savedView?.filters || {});
             this.initialViewTokens = tokens;
             this.initialViewSortKey = savedView?.sort;
@@ -1126,8 +1130,8 @@ export default {
         viewMode: this.viewMode,
       };
     },
-    savedViewDraftStorageKey() {
-      return `${this.rootPageFullPath}-saved-view-${this.$route.params.view_id}`;
+    draftStorageContext() {
+      return { rootPageFullPath: this.rootPageFullPath, viewId: this.$route.params.view_id };
     },
   },
 
@@ -1174,7 +1178,7 @@ export default {
         const sessionFilters = planningViewSavedViewFilterTokens.value[this.$route.params.view_id];
         this.filterTokens = sessionFilters ?? tokens;
         this.updateState(this.filterTokens);
-        const draft = this.getSavedViewDraft();
+        const draft = getSavedViewDraft(this.draftStorageContext);
         if (draft) {
           this.restoreViewDraft();
         }
@@ -1305,24 +1309,13 @@ export default {
       );
       return convertLegacyTypeFormat(filteredTokens, this.getWorkItemTypeConfiguration);
     },
-    getSavedViewDraft() {
-      if (!AccessorUtilities.canUseLocalStorage()) return null;
-      return localStorage.getItem(this.savedViewDraftStorageKey);
-    },
     restoreViewDraft() {
-      const draft = this.getSavedViewDraft();
+      const draft = getSavedViewDraft(this.draftStorageContext);
       if (!draft) return;
 
-      let parsedData;
-      try {
-        parsedData = JSON.parse(draft);
-      } catch {
-        return;
-      }
-
-      this.sortKey = parsedData.sortKey;
-      this.localDisplaySettings = parsedData.displaySettings;
-      this.viewMode = parsedData.viewMode;
+      this.sortKey = draft.sortKey;
+      this.localDisplaySettings = draft.displaySettings;
+      this.viewMode = draft.viewMode;
     },
     handleClickTab(state) {
       if (this.state === state) {
@@ -1365,14 +1358,6 @@ export default {
         document.title = `${prefix} · ${middleCrumb} · GitLab`;
       }
     },
-    clearLocalSavedViewsConfig() {
-      if (!AccessorUtilities.canUseLocalStorage()) return;
-      try {
-        localStorage.removeItem(this.savedViewDraftStorageKey);
-      } catch {
-        // Storage may be unavailable (e.g. quota or private mode); ignore.
-      }
-    },
     async updateView() {
       const mutationKey = 'workItemSavedViewUpdate';
       try {
@@ -1399,7 +1384,7 @@ export default {
         }
 
         this.$toast.show(s__('WorkItem|View has been saved.'));
-        this.clearLocalSavedViewsConfig();
+        clearSavedViewDraft(this.draftStorageContext);
       } catch (e) {
         Sentry.captureException(e);
         this.error = s__('WorkItem|Something went wrong while saving the view');
@@ -1436,7 +1421,7 @@ export default {
       this.sortKey = this.initialViewSortKey;
       this.localDisplaySettings = this.initialViewDisplaySettings;
       this.viewMode = this.initialViewMode;
-      this.clearLocalSavedViewsConfig();
+      clearSavedViewDraft(this.draftStorageContext);
     },
     addStateToken() {
       this.hasStateToken = this.checkIfStateTokenExists();
@@ -1592,16 +1577,11 @@ export default {
     },
     persistSavedViewDraft() {
       if (!this.viewConfigChanged) {
-        this.clearLocalSavedViewsConfig();
+        clearSavedViewDraft(this.draftStorageContext);
         return;
       }
 
-      if (!AccessorUtilities.canUseLocalStorage()) return;
-      try {
-        localStorage.setItem(this.savedViewDraftStorageKey, JSON.stringify(this.viewDraftData));
-      } catch {
-        // Storage may be unavailable (e.g. quota or private mode); ignore.
-      }
+      saveSavedViewDraft(this.draftStorageContext, this.viewDraftData);
     },
     handleAllIssuablesCheckedInput(value) {
       if (value) {

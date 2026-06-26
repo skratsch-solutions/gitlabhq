@@ -1,13 +1,13 @@
 import { mount } from '@vue/test-utils';
 import { GlLoadingIcon } from '@gitlab/ui';
-import IndexLayout from '~/vue_shared/components/index_layout.vue';
+import BaseLayout from '~/vue_shared/components/base_layout.vue';
 import PageHeading from '~/vue_shared/components/page_heading.vue';
 
-describe('IndexLayout', () => {
+describe('BaseLayout', () => {
   let wrapper;
 
   const createComponent = (props = {}, slots = {}) => {
-    wrapper = mount(IndexLayout, {
+    wrapper = mount(BaseLayout, {
       propsData: props,
       slots,
     });
@@ -18,8 +18,8 @@ describe('IndexLayout', () => {
   const findHeading = () => wrapper.find('[data-testid="page-heading"]');
   const findDescription = () => wrapper.find('[data-testid="page-heading-description"]');
   const findActions = () => wrapper.find('[data-testid="page-heading-actions"]');
-  const findAlerts = () => wrapper.find('[data-testid="index-layout-alerts"]');
-  const findContent = () => wrapper.find('[data-testid="index-layout-content"]');
+  const findAlerts = () => wrapper.find('[data-testid="base-layout-alerts"]');
+  const findContent = () => wrapper.find('[data-testid="base-layout-content"]');
 
   describe('PageHeading', () => {
     describe('heading', () => {

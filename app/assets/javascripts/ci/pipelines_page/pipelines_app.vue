@@ -679,11 +679,7 @@ export default {
       />
 
       <!-- Error state -->
-      <pipelines-error-state
-        v-else-if="pipelinesError"
-        :title="s__('Pipelines|There was an error fetching the pipelines.')"
-        :description="s__('Pipelines|Try again in a few moments or contact your support team.')"
-      />
+      <pipelines-error-state v-else-if="pipelinesError" />
 
       <!-- Empty states -->
       <external-config-empty-state
