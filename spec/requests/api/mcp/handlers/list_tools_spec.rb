@@ -52,7 +52,8 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
         'get_merge_request_pipelines',
         'get_mcp_server_version',
         'create_workitem_note',
-        'get_workitem_notes'
+        'get_workitem_notes',
+        'get_merge_request_notes'
       )
     end
 
@@ -209,7 +210,8 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
       read_only_tools = %w[
         get_mcp_server_version get_issue get_merge_request
         get_merge_request_commits get_merge_request_diffs
-        get_merge_request_pipelines get_pipeline_jobs get_job_log
+        get_merge_request_pipelines get_merge_request_notes
+        get_pipeline_jobs get_job_log
         get_workitem_notes search search_labels
       ]
 

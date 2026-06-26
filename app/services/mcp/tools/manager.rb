@@ -47,7 +47,8 @@ module Mcp
         'get_saved_view_work_items' => ::Mcp::Tools::WorkItems::GraphqlGetSavedViewWorkItemsService,
         'search_labels' => ::Mcp::Tools::Labels::GraphqlSearchService,
         'link_work_items' => ::Mcp::Tools::WorkItems::GraphqlLinkWorkItemsService,
-        'get_work_item_types' => ::Mcp::Tools::WorkItems::GraphqlGetWorkItemTypesService
+        'get_work_item_types' => ::Mcp::Tools::WorkItems::GraphqlGetWorkItemTypesService,
+        'get_merge_request_notes' => ::Mcp::Tools::MergeRequests::GetMergeRequestNotesService
       }.freeze
 
       def initialize

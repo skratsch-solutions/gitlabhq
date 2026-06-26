@@ -79,7 +79,7 @@ module Mcp
         end
 
         # Get raw conflict content
-        conflict_list_service = MergeRequests::Conflicts::ListService.new(mr)
+        conflict_list_service = ::MergeRequests::Conflicts::ListService.new(mr)
 
         # Build conflict text with file markers
         conflict_text = conflict_list_service.conflicts.files.map do |file|

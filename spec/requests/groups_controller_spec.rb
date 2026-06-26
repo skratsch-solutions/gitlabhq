@@ -628,6 +628,33 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
       it_behaves_like 'enforces step-up authentication (request spec)'
     end
+
+    context 'list behaviour' do
+      let_it_be(:group) { create(:group, :public) }
+      let_it_be(:user, freeze: false) { create(:user, developer_of: group) }
+
+      before do
+        sign_in(user)
+      end
+
+      it 'saves the sort order to the user preferences' do
+        get issues_group_path(group, sort: 'priority')
+
+        expect(user.reload.user_preference.issues_sort).to eq('priority')
+      end
+
+      it 'redirects to the work items path without a type filter' do
+        get issues_group_path(group)
+
+        expect(response).to redirect_to(group_work_items_path(group))
+      end
+
+      it 'preserves the query parameters except type when redirecting' do
+        get issues_group_path(group, search: 'bug', sort: 'created_desc', type: 'old_type')
+
+        expect(response).to redirect_to(group_work_items_path(group, params: { search: 'bug', sort: 'created_desc' }))
+      end
+    end
   end
 
   describe 'GET #merge_requests' do
@@ -643,6 +670,28 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       end
 
       it_behaves_like 'enforces step-up authentication (request spec)'
+    end
+
+    context 'rendering the index', :sidekiq_might_not_need_inline do
+      let_it_be(:group) { create(:group, :public) }
+      let_it_be(:project) { create(:project, namespace: group) }
+      let_it_be(:user) { create(:user, developer_of: group) }
+      let_it_be(:merge_request_1) { create(:merge_request, source_project: project) }
+      let_it_be(:merge_request_2) { create(:merge_request, :simple, source_project: project) }
+
+      before do
+        create_list(:award_emoji, 3, awardable: merge_request_2)
+        create_list(:award_emoji, 2, awardable: merge_request_1)
+        create_list(:award_emoji, 2, :downvote, awardable: merge_request_2)
+
+        sign_in(user)
+      end
+
+      it 'renders the merge requests index template' do
+        get merge_requests_group_path(group)
+
+        expect(response).to render_template('groups/merge_requests')
+      end
     end
   end
 

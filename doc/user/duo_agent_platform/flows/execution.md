@@ -464,10 +464,12 @@ Each token requires an `aud` (audience) claim:
 
 ```yaml
 id_tokens:
-  SIGSTORE_ID_TOKEN:
-    aud: sigstore
   VAULT_ID_TOKEN:
     aud: https://vault.example.com
+
+network_policy:
+  allowed_domains:
+    - vault.example.com
 ```
 
 The `aud` claim can be a single string or a list of strings:
@@ -478,10 +480,15 @@ id_tokens:
     aud:
       - https://first.service.example.com
       - https://second.service.example.com
+
+network_policy:
+  allowed_domains:
+    - first.service.example.com
+    - second.service.example.com
 ```
 
 Each token is available in the flow job as an environment variable that uses the name of the token.
-For the previous examples, the flow can use `$SIGSTORE_ID_TOKEN`, `$VAULT_ID_TOKEN`, and `$MY_ID_TOKEN`.
+For the previous examples, the flow can use `$VAULT_ID_TOKEN` and `$MY_ID_TOKEN`.
 
 If a token name matches a variable name declared elsewhere in your configuration, the ID token
 takes precedence.
@@ -526,7 +533,7 @@ network_policy:
   include_recommended_allowed: true
   allow_all_unix_sockets: true
   allowed_domains:
-    - my-own-site.com
+    - vault.example.com
   denied_domains:
     - malicious.com
 

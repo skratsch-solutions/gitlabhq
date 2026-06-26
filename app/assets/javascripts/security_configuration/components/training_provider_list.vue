@@ -213,8 +213,6 @@ export default {
               :value="provider.isEnabled"
               :label="__('Training mode')"
               label-position="hidden"
-              data-testid="security-training-toggle"
-              :data-qa-training-provider="provider.name"
               @change="toggleProvider(provider)"
             />
             <div class="gl-flex gl-justify-between gl-gap-2">

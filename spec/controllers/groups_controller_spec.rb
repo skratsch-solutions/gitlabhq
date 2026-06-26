@@ -244,49 +244,6 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
   end
 
-  describe 'GET #issues' do
-    before do
-      sign_in(user)
-    end
-
-    it 'saves the sort order to user preferences' do
-      get :issues, params: { id: group.to_param, sort: 'priority' }
-
-      expect(user.reload.user_preference.issues_sort).to eq('priority')
-    end
-
-    it 'redirects to work items path without type filter in FOSS' do
-      get :issues, params: { id: group.to_param }
-
-      expect(response).to redirect_to(group_work_items_path(group))
-    end
-
-    it 'preserves query parameters except type when redirecting' do
-      get :issues, params: { id: group.to_param, search: 'bug', sort: 'created_desc', type: 'old_type' }
-
-      expect(response).to redirect_to(group_work_items_path(group, params: { search: 'bug', sort: 'created_desc' }))
-    end
-  end
-
-  describe 'GET #merge_requests', :sidekiq_might_not_need_inline do
-    let(:merge_request_1) { create(:merge_request, source_project: project) }
-    let(:merge_request_2) { create(:merge_request, :simple, source_project: project) }
-
-    before do
-      create_list(:award_emoji, 3, awardable: merge_request_2)
-      create_list(:award_emoji, 2, awardable: merge_request_1)
-      create_list(:award_emoji, 2, :downvote, awardable: merge_request_2)
-
-      sign_in(user)
-    end
-
-    it 'renders merge requests index template' do
-      get :merge_requests, params: { id: group.to_param }
-
-      expect(response).to render_template('groups/merge_requests')
-    end
-  end
-
   describe 'PUT update' do
     before do
       sign_in(user)

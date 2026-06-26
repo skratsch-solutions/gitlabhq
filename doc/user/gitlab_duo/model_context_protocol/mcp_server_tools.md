@@ -204,6 +204,34 @@ Example:
 Show me all pipelines for merge request 42 in project gitlab-org/gitlab
 ```
 
+## `get_merge_request_notes`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/597494) in GitLab 19.2.
+
+{{< /history >}}
+
+Retrieves the notes (comments and system notes) for a specific GitLab merge request.
+
+| Parameter           | Type    | Required | Description                                                                                    |
+|---------------------|---------|----------|------------------------------------------------------------------------------------------------|
+| `url`               | string  | No       | URL of the GitLab merge request. Required if `project_id` and `merge_request_iid` are missing. |
+| `project_id`        | string  | No       | ID or URL-encoded path of the project. Required if `url` is missing.                           |
+| `merge_request_iid` | integer | No       | Internal ID of the merge request. Required if `url` is missing.                                |
+| `after`             | string  | No       | Cursor for forward pagination.                                                                 |
+| `before`            | string  | No       | Cursor for backward pagination.                                                                |
+| `first`             | integer | No       | Number of notes to return for forward pagination.                                              |
+| `last`              | integer | No       | Number of notes to return for backward pagination.                                             |
+
+Each returned note includes its discussion ID, so related notes can be grouped into threads.
+
+Example:
+
+```plaintext
+Show me all comments on merge request 5 in project gitlab-org/gitlab
+```
+
 ## `get_pipeline_jobs`
 
 {{< history >}}

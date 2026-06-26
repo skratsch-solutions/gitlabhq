@@ -665,6 +665,41 @@ GRAPHQL_TOOLS = {
 - Update test in `ee/spec/services/ee/mcp/tools/manager_spec.rb`
 - Update tests in `spec/requests/api/mcp/handlers/list_tools_spec.rb` and `ee/spec/requests/api/mcp/handlers/list_tools_spec.rb`
 
+### Store queries in `.graphql` files
+
+Inline `<<~GRAPHQL` heredocs work, but you can instead keep a query in a standalone `.graphql`
+file under `app/graphql/queries/mcp/`. Mirror the tool's subdirectory and use the `*.query.graphql`
+or `*.mutation.graphql` suffix:
+
+```plaintext
+app/graphql/queries/mcp/merge_requests/get_merge_request_notes.query.graphql
+```
+
+`spec/graphql/all_queries_spec.rb` validates every file in `app/graphql/queries` against
+`GitlabSchema`, so a query that drifts from the schema fails in CI. The file also gets GraphQL
+syntax highlighting and drops Ruby string indentation.
+
+Load the document with the `load_graphql` helper on `GraphqlTool`, passing the path relative to
+`app/graphql/queries/mcp/`:
+
+```ruby
+class GetMergeRequestNotesTool < GraphqlTool
+  def self.build_query
+    load_graphql('merge_requests/get_merge_request_notes.query.graphql')
+  end
+
+  register_version '0.1.0', {
+    operation_name: 'project',
+    graphql_operation: build_query
+  }
+end
+```
+
+> [!note]
+> This works only for static queries. A tool that builds its query dynamically (for example,
+> composing fields, arguments, or the operation at runtime) cannot store a single `.graphql` file
+> and must keep building the query in Ruby.
+
 ## Alternative Solutions
 
 ### Alternative 1: Direct GraphQL Execution in Services

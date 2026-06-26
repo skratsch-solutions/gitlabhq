@@ -819,6 +819,8 @@
   - 1
 - - organizations_check_organization_isolation_status
   - 1
+- - organizations_confirm
+  - 1
 - - organizations_groups_transfer
   - 1
 - - organizations_hard_delete

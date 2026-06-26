@@ -4,8 +4,6 @@ module Mcp
   module Tools
     module Labels
       class SearchTool < Mcp::Tools::GraphqlTool
-        include Mcp::Tools::Concerns::Constants
-
         class << self
           def build_query
             <<~GRAPHQL

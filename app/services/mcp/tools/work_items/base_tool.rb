@@ -4,7 +4,6 @@ module Mcp
   module Tools
     module WorkItems
       class BaseTool < Mcp::Tools::GraphqlTool
-        include Mcp::Tools::Concerns::Constants
         include Mcp::Tools::Concerns::ResourceFinder
         include Mcp::Tools::Concerns::UrlParser
 
