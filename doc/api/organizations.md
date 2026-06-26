@@ -61,6 +61,7 @@ Example response:
 ```json
 {
   "id": 42,
+  "uuid": "0192f8c2-1a2b-7cde-89ab-0123456789ab",
   "name": "New Organization",
   "path": "new-org",
   "description": "A new organization",

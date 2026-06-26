@@ -152,12 +152,21 @@ To install extensions, PostgreSQL requires superuser privileges. For instruction
 For full HA, use a third-party PostgreSQL solution.
 A non-HA PostgreSQL instance using the Linux package is sufficient for environments that don't require database-level redundancy for Gitaly.
 
-### Redis
+### Redis or Valkey
 
-[Redis](https://redis.io/) or [Valkey](https://valkey.io/) stores all user sessions and background tasks
-and requires about 25 kB per user on average.
+[Redis](https://redis.io/) or [Valkey](https://valkey.io/) stores all user sessions and background tasks.
 
-Redis 7.2 or Valkey 7.2 is required.
+The supported versions of Redis or Valkey are:
+
+| Datastore | Recommended version | Minimum version |
+| --------- | ------------------- | --------------- |
+| Redis     | 7.2                 | 7.0<sup>1</sup> |
+| Valkey    | 7.2                 | 7.2             |
+
+<sup>1</sup> Redis 7.0 has reached end-of-life (EOL) upstream, but in some cases is actively
+maintained by vendors. For example, Amazon ElastiCache for Redis 7.1 uses its own version number
+but is built on Redis 7.0.
+
 For more information about end-of-life dates for Redis, see the
 [Redis documentation](https://redis.io/docs/latest/operate/oss_and_stack/install/version-mgmt/).
 

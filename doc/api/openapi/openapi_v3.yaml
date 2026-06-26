@@ -85552,6 +85552,9 @@ components:
           type: integer
           format: int64
           example: 1
+        uuid:
+          type: string
+          example: '0192f8c2-1a2b-7cde-89ab-0123456789ab'
         name:
           type: string
           example: GitLab

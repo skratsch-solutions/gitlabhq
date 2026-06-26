@@ -672,7 +672,7 @@ persistence and is used to store session data, temporary cache information, and 
 1. Under **Cluster info** give the cluster a name (`gitlab-redis`) and a description.
 1. Under **Location** select **AWS Cloud** and enable **Multi-AZ** option.
 1. In the Cluster settings section:
-   1. For the Engine version, select the Redis version as defined for your GitLab version in our [Redis requirements](../requirements.md#redis).
+   1. For the Engine version, select the Redis version as defined for your GitLab version in our [Redis requirements](../requirements.md#redis-or-valkey).
    1. Leave the port as `6379` because this is what we previously used in our Redis security group.
    1. Select the node type (at least `cache.t3.medium`, but adjust to your needs) and the number of replicas.
 1. In the Connectivity settings section:

@@ -229,8 +229,10 @@ distribution. Before upgrading to GitLab 19.0, migrate to Ubuntu 22.04 or anothe
 - Affected versions: 19.0.0
 
 Support for Redis 6 is removed in GitLab 19.0. If you use an external Redis 6 deployment, migrate
-to Redis 7.2 or Valkey 7.2 before upgrading. The bundled Redis included with the Linux package has
-used Redis 7 since GitLab 16.2 and is not affected.
+to Redis 7.0 or higher, or Valkey 7.2, before upgrading. Redis 7.2 or Valkey 7.2 is recommended.
+Redis 7.0 has reached end-of-life (EOL) upstream, but in some cases is actively maintained by
+vendors, such as Amazon ElastiCache for Redis 7.1. The bundled Redis included with the Linux
+package has used Redis 7 since GitLab 16.2 and is not affected.
 
 ### Mattermost removed from the Linux package
 

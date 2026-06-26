@@ -77694,6 +77694,9 @@ definitions:
         type: integer
         format: int64
         example: 1
+      uuid:
+        type: string
+        example: '0192f8c2-1a2b-7cde-89ab-0123456789ab'
       name:
         type: string
         example: GitLab
@@ -77722,6 +77725,7 @@ definitions:
         example: https://example.com/uploads/-/system/organizations/organization_detail/avatar/1/avatar.png
     required:
     - id
+    - uuid
     - name
     - path
     - description

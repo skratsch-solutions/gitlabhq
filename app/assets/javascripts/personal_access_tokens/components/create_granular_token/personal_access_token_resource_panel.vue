@@ -1,6 +1,7 @@
 <script>
 import { GlSearchBoxByType, GlSkeletonLoader, GlSegmentedControl, GlBadge } from '@gitlab/ui';
 import { s__, __ } from '~/locale';
+import { ACCESS_SCOPES } from '~/personal_access_tokens/constants';
 import PersonalAccessTokenResourcesList from './personal_access_token_resources_list.vue';
 
 export default {
@@ -13,10 +14,6 @@ export default {
     PersonalAccessTokenResourcesList,
   },
   props: {
-    accessOptions: {
-      type: Array,
-      required: true,
-    },
     activeBoundary: {
       type: String,
       required: true,
@@ -27,9 +24,9 @@ export default {
       default: () => [],
     },
     selectedResources: {
-      type: Array,
+      type: Object,
       required: false,
-      default: () => [],
+      default: () => ({}),
     },
     isLoading: {
       type: Boolean,
@@ -44,6 +41,16 @@ export default {
     };
   },
   computed: {
+    accessOptions() {
+      return ACCESS_SCOPES.map(({ key }) => ({
+        value: key,
+        text: this.$options.i18n[key].title,
+        count: this.selectedResources[key]?.length ?? 0,
+      }));
+    },
+    activeResources() {
+      return this.selectedResources[this.activeBoundary] ?? [];
+    },
     filteredPermissions() {
       if (!this.searchTerm) {
         return this.permissions;
@@ -60,6 +67,15 @@ export default {
     accessLabel: s__('AccessTokens|Resource access'),
     searchPlaceholder: s__('AccessTokens|Search for resources to add'),
     noResourcesFound: __('No resources found'),
+    namespace: {
+      title: s__('AccessTokens|Group and project'),
+    },
+    user: {
+      title: s__('AccessTokens|User'),
+    },
+    instance: {
+      title: s__('AccessTokens|Global'),
+    },
   },
 };
 </script>
@@ -94,7 +110,7 @@ export default {
     <personal-access-token-resources-list
       v-else-if="filteredPermissions.length"
       :key="activeBoundary"
-      :value="selectedResources"
+      :value="activeResources"
       :permissions="filteredPermissions"
       :scope="activeBoundary"
       :is-filtering="Boolean(searchTerm)"

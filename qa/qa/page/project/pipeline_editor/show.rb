@@ -39,10 +39,7 @@ module QA
 
           def submit_changes
             wait_until(reload: false) do
-              button = find_element('commit-changes-button')
-              # Check both native disabled and aria-disabled (used by GlButton when
-              # accessibleDisabledButton config is enabled)
-              !button.disabled? && button['aria-disabled'] != 'true'
+              !element_disabled?('commit-changes-button')
             end
             click_element('commit-changes-button')
 

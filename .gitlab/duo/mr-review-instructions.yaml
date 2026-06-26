@@ -204,9 +204,10 @@ instructions:
       21. When asserting on collections where order does not matter, use `match_array` instead of `eq` or `match` to avoid dataset-specific flakiness. For example, prefer `expect(result).to match_array([item1, item2])` over `expect(result).to eq([item1, item2])`
       22. Avoid calling `.first`, `.last`, or `.take` on ActiveRecord relations without an explicit `.order()` clause — PostgreSQL does not guarantee row ordering without ORDER BY, which causes dataset-specific flaky tests
       23. When using `Faker` or random values in tests, ensure the test handles edge cases that random input might produce. If the test depends on a specific format, use a hardcoded value instead of a random one
-      24. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/best_practices.md
-      25. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/testing_levels.md
-      26. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/unhealthy_tests.md
+      24. For single-line blocks containing logic (e.g. `collection.map { do_thing(it) }`, `n.times { do_thing }`), verify a test exercises the block body with a non-empty receiver. Ruby's line-based `Coverage` marks the whole line as covered when the enclosing call runs, even if the block body never executes, and blocks are not branch points, so `rspec:undercoverage` will not flag the gap. Suggest a test covering the populated case, or expanding the block to multiple lines so coverage tooling can detect the missing coverage
+      25. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/best_practices.md
+      26. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/testing_levels.md
+      27. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/unhealthy_tests.md
 
   # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
   # distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911

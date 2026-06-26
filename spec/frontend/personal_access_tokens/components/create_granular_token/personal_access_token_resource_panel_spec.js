@@ -7,19 +7,12 @@ import { mockGroupPermissions } from '../../mock_data';
 describe('PersonalAccessTokenResourcePanel', () => {
   let wrapper;
 
-  const accessOptions = [
-    { value: 'namespace', text: 'Group and project', count: 0 },
-    { value: 'user', text: 'User', count: 0 },
-    { value: 'instance', text: 'Global', count: 0 },
-  ];
-
   const createComponent = ({ props = {} } = {}) => {
     wrapper = shallowMountExtended(PersonalAccessTokenResourcePanel, {
       propsData: {
-        accessOptions,
         activeBoundary: 'namespace',
         permissions: mockGroupPermissions,
-        selectedResources: [],
+        selectedResources: { namespace: [], user: [], instance: [] },
         ...props,
       },
     });
@@ -39,9 +32,27 @@ describe('PersonalAccessTokenResourcePanel', () => {
       expect(wrapper.text()).toContain('Resource access');
     });
 
-    it('renders the access toggle with the provided options and active boundary', () => {
-      expect(findSegmentedControl().props('options')).toBe(accessOptions);
+    it('renders the access toggle with an option for each scope and the active boundary', () => {
+      expect(findSegmentedControl().props('options')).toEqual([
+        { value: 'namespace', text: 'Group and project', count: 0 },
+        { value: 'user', text: 'User', count: 0 },
+        { value: 'instance', text: 'Global', count: 0 },
+      ]);
       expect(findSegmentedControl().props('value')).toBe('namespace');
+    });
+
+    it('shows the selected resource count per scope on the access toggle', () => {
+      createComponent({
+        props: {
+          selectedResources: { namespace: ['project', 'repository'], user: ['user'], instance: [] },
+        },
+      });
+
+      expect(findSegmentedControl().props('options')).toMatchObject([
+        { value: 'namespace', count: 2 },
+        { value: 'user', count: 1 },
+        { value: 'instance', count: 0 },
+      ]);
     });
 
     it('renders the search box', () => {

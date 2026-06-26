@@ -46377,6 +46377,8 @@ CREATE INDEX idx_resource_iteration_events_on_namespace_id ON resource_iteration
 
 CREATE INDEX idx_resource_milestone_events_on_namespace_id ON resource_milestone_events USING btree (namespace_id);
 
+CREATE UNIQUE INDEX idx_sbom_comp_versions_on_comp_id_version_and_org_id ON sbom_component_versions USING btree (component_id, version, organization_id);
+
 CREATE UNIQUE INDEX idx_sbom_components_on_name_purl_type_component_type_and_org_id ON sbom_components USING btree (name, purl_type, component_type, organization_id);
 
 CREATE INDEX idx_sbom_graph_paths_project_created ON sbom_graph_paths USING btree (project_id, created_at);
@@ -50900,8 +50902,6 @@ CREATE INDEX index_saved_views_on_namespace_private_created_by ON saved_views US
 CREATE INDEX index_saved_views_on_private ON saved_views USING btree (private);
 
 CREATE INDEX index_saved_views_on_updated_by_id ON saved_views USING btree (updated_by_id);
-
-CREATE UNIQUE INDEX index_sbom_component_versions_on_component_id_and_version ON sbom_component_versions USING btree (component_id, version);
 
 CREATE INDEX index_sbom_component_versions_on_organization_id ON sbom_component_versions USING btree (organization_id);
 

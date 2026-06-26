@@ -132,6 +132,7 @@ type RedisConfig struct {
 	SentinelMaster   string
 	SentinelUsername string
 	SentinelPassword string
+	Username         string
 	Password         string
 	DB               *int
 	MaxIdle          *int

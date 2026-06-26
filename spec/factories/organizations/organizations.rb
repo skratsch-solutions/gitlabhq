@@ -6,6 +6,8 @@ FactoryBot.define do
   factory :organization, class: 'Organizations::Organization' do
     sequence(:name) { |n| "Organization ##{n}" }
     path { name.parameterize }
+    uuid { Gitlab::Utils.uuid_v7 }
+
     visibility_level { Organizations::Organization::PUBLIC }
     state { :active }
 
@@ -24,6 +26,7 @@ FactoryBot.define do
     trait :default do
       id { Organizations::Organization::DEFAULT_ORGANIZATION_ID }
       name { 'Default' }
+      uuid { '00000000-0000-7000-8000-000000000001' }
       visibility_level { Organizations::Organization::PUBLIC }
 
       initialize_with do

@@ -57,23 +57,12 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
       expect(wrapper.text()).toContain('Resource and permission selector');
     });
 
-    it('passes the access options with resource counts to the resource panel', () => {
-      expect(findResourcePanel().props('accessOptions')).toEqual([
-        { value: 'namespace', text: 'Group and project', count: 0 },
-        { value: 'user', text: 'User', count: 0 },
-        { value: 'instance', text: 'Global', count: 0 },
-      ]);
-    });
-
-    it('updates the boundary resource count when resources are selected', async () => {
-      await waitForPromises();
-      await setResources(['project', 'repository']);
-
-      expect(findResourcePanel().props('accessOptions')).toMatchObject([
-        { value: 'namespace', count: 2 },
-        { value: 'user', count: 0 },
-        { value: 'instance', count: 0 },
-      ]);
+    it('passes the selected resources for every boundary to the resource panel', () => {
+      expect(findResourcePanel().props('selectedResources')).toEqual({
+        namespace: [],
+        user: [],
+        instance: [],
+      });
     });
 
     it('defaults the active boundary to namespace', () => {
@@ -160,10 +149,14 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
       expect(findResourcePanel().props('permissions')).toStrictEqual(mockInstancePermissions);
     });
 
-    it('passes the active boundary selected resources to the resource panel', async () => {
+    it('passes the updated selected resources to the resource panel', async () => {
       await setResources(['project']);
 
-      expect(findResourcePanel().props('selectedResources')).toEqual(['project']);
+      expect(findResourcePanel().props('selectedResources')).toEqual({
+        namespace: ['project'],
+        user: [],
+        instance: [],
+      });
     });
   });
 

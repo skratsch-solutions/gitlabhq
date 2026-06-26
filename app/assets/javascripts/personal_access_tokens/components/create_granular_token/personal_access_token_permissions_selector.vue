@@ -74,13 +74,6 @@ export default {
 
       return result;
     },
-    accessOptions() {
-      return ACCESS_SCOPES.map(({ key }) => ({
-        value: key,
-        text: this.$options.i18n[key].title,
-        count: this.selectedResources[key].length,
-      }));
-    },
   },
   watch: {
     value() {
@@ -193,15 +186,6 @@ export default {
     },
   },
   i18n: {
-    namespace: {
-      title: s__('AccessTokens|Group and project'),
-    },
-    user: {
-      title: s__('AccessTokens|User'),
-    },
-    instance: {
-      title: s__('AccessTokens|Global'),
-    },
     selectorTitle: s__('AccessTokens|Resource and permission selector'),
     fetchError: s__('AccessTokens|Error loading permissions. Please refresh page.'),
   },
@@ -222,10 +206,9 @@ export default {
       <div class="gl-flex gl-flex-col @md/panel:gl-flex-row">
         <personal-access-token-resource-panel
           class="gl-w-full gl-min-w-0 gl-p-4 @md/panel:gl-min-h-75 @md/panel:gl-w-2/5 @md/panel:gl-border-r-1 @md/panel:gl-border-r-section @md/panel:gl-border-r-solid"
-          :access-options="accessOptions"
           :active-boundary="activeBoundary"
           :permissions="permissionsByBoundary[activeBoundary]"
-          :selected-resources="selectedResources[activeBoundary]"
+          :selected-resources="selectedResources"
           :is-loading="isLoading"
           @boundary-change="activeBoundary = $event"
           @resources-input="handleResourcesInput"
