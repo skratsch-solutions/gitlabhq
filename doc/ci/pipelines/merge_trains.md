@@ -294,6 +294,47 @@ The project limit cannot exceed the [instance limit](../../administration/cicd/l
 You can also use the [projects API](../../api/projects.md), or the
 [GraphQL API](../../api/graphql/reference/_index.md#projectcicdsetting).
 
+## Enforce merge trains
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/597962) in GitLab 19.2 [with a flag](../../administration/feature_flags/_index.md) named `merge_train_enforcement`. Disabled by default.
+
+{{< /history >}}
+
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
+> This feature is available for testing, but not ready for production use.
+
+By default, users with permission to merge can bypass the merge train and merge directly,
+for example with **Merge immediately** or a direct API request.
+Merge train enforcement requires all changes to go through the train.
+
+When enforcement is enabled:
+
+- GitLab hides the **Merge immediately** options, including **Merge now and don't restart train**.
+- GitLab rejects direct merges through the REST API and GraphQL API.
+- GitLab routes all merges through auto-merge, which adds the merge request to the train.
+
+Prerequisites:
+
+- You must have the Maintainer role.
+- You must [enable merge trains](#enable-merge-trains) for the project.
+
+To configure merge train enforcement:
+
+1. In the top bar, select **Search or go to** and find your project.
+1. In the left sidebar, select **Settings** > **Merge requests**.
+1. In the **Merge options** section, under **Merge train enforcement**, select one of:
+   - **Allow bypass**: Users with permission to merge can bypass the merge train through the UI or API.
+     This is the default.
+   - **Enforce for all users**: All merge requests must go through the merge train.
+     No one can bypass the merge train. This applies to Owners and administrators.
+   - **Enforce with Owner override**: All merge requests must go through the merge train,
+     but Owners and administrators can bypass the merge train for individual merge requests.
+1. Select **Save changes**.
+
 ## Troubleshooting
 
 ### Merge request dropped from the merge train

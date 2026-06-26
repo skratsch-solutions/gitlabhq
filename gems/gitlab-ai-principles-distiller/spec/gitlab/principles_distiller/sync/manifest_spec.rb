@@ -10,6 +10,15 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
   let(:tmpdir) { mktmpdir }
   let(:manifest) { described_class.new }
 
+  describe 'TOOLING_PATHS' do
+    it 'includes the Duo review-instructions file so its generated fences are staged' do
+      # generate_duo_review_instructions rewrites this file inside
+      # regenerate_static_artifacts; it must be in TOOLING_PATHS or the
+      # auto-MR tooling branch would never stage the change.
+      expect(described_class::TOOLING_PATHS).to include(described_class::DUO_REVIEW_INSTRUCTIONS_PATH)
+    end
+  end
+
   describe '.load_frontmatter_data' do
     subject(:frontmatter_data) { manifest.load_frontmatter_data }
 
@@ -1003,6 +1012,232 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       it 'skips generation without raising' do
         expect { manifest.generate_codeowners }.not_to raise_error
       end
+    end
+  end
+
+  describe '.extract_checklist_body' do
+    it 'returns the section headers and bullets, dropping frontmatter and footer' do
+      content = <<~MD
+        ---
+        source_checksum: abc
+        ---
+        <!-- Auto-generated -->
+
+        # Title
+
+        ## Checklist
+
+        ### Voice and Tone
+
+        - Write in US English.
+
+        ## Authoritative sources
+
+        - doc/development/documentation/styleguide/_index.md
+      MD
+
+      expect(manifest.extract_checklist_body(content)).to eq(
+        "### Voice and Tone\n\n- Write in US English."
+      )
+    end
+
+    it 'returns an empty string when there is no section header' do
+      expect(manifest.extract_checklist_body("---\nx: y\n---\n# Title\n")).to eq('')
+    end
+  end
+
+  describe '.build_duo_fences' do
+    let(:principles_dir) { File.join(tmpdir, '.ai', 'principles', 'distilled') }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      FileUtils.mkdir_p(principles_dir)
+      File.write(File.join(principles_dir, 'documentation.md'), <<~MD)
+        ---
+        source_checksum: sum123
+        distilled_at_sha: sha456
+        ---
+        # Documentation
+
+        ### Voice and Tone
+
+        - Write in US English.
+
+        ## Authoritative sources
+
+        - doc/development/documentation/styleguide/_index.md
+      MD
+
+      manifest.data = {
+        'principles' => {
+          'documentation' => {
+            'group' => 'Documentation',
+            'file_filters' => ['doc/**/*.md'],
+            'sources' => [
+              { 'path' => 'a.md', 'url' => 'https://docs.gitlab.com/a/' },
+              { 'path' => 'b.md', 'url' => 'https://docs.gitlab.com/b/' }
+            ]
+          }
+        }
+      }
+    end
+
+    it 'assembles fence data from the distilled frontmatter and manifest config' do
+      fences = manifest.build_duo_fences(['documentation'])
+
+      expect(fences['documentation']).to eq(
+        name: 'Documentation',
+        file_filters: ['doc/**/*.md'],
+        distilled_body: "### Voice and Tone\n\n- Write in US English.",
+        distilled_at_sha: 'sha456',
+        source_checksum: 'sum123',
+        references: ['a.md', 'b.md']
+      )
+    end
+
+    it 'skips a principle whose distilled file is missing' do
+      expect(manifest.build_duo_fences(['nonexistent'])).to eq({})
+    end
+  end
+
+  describe '.generate_duo_review_instructions' do
+    let(:duo_dir) { File.join(tmpdir, '.gitlab', 'duo') }
+    let(:duo_path) { File.join(duo_dir, 'mr-review-instructions.yaml') }
+    let(:principles_dir) { File.join(tmpdir, '.ai', 'principles', 'distilled') }
+
+    let(:duo_content) do
+      <<~YAML
+        instructions:
+          # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
+          # distilled_at_sha: stale
+          # source_checksum: stale
+          - name: Documentation
+            fileFilters:
+              - "doc/**/*.md"
+            instructions: |
+              old body
+          # <<< end generated: documentation
+      YAML
+    end
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      FileUtils.mkdir_p(duo_dir)
+      FileUtils.mkdir_p(principles_dir)
+      File.write(duo_path, duo_content)
+      File.write(File.join(principles_dir, 'documentation.md'), <<~MD)
+        ---
+        source_checksum: fresh
+        distilled_at_sha: fresh
+        ---
+        # Documentation
+
+        ### Voice and Tone
+
+        - Write in US English.
+
+        ## Authoritative sources
+
+        - doc/development/documentation/styleguide/_index.md
+      MD
+
+      manifest.data = {
+        'principles' => {
+          'documentation' => {
+            'group' => 'Documentation',
+            'file_filters' => ['doc/**/*.md'],
+            'sources' => [{ 'path' => 'a.md', 'url' => 'https://docs.gitlab.com/a/' }]
+          }
+        }
+      }
+    end
+
+    it 'refreshes the fenced region from the distilled file' do
+      manifest.generate_duo_review_instructions
+
+      content = File.read(duo_path)
+      expect(content).to include('  # distilled_at_sha: fresh')
+      expect(content).to include('      - Write in US English.')
+      expect(content).not_to include('old body')
+    end
+
+    it 'is idempotent' do
+      manifest.generate_duo_review_instructions
+      first = File.read(duo_path)
+
+      manifest.generate_duo_review_instructions
+
+      expect(File.read(duo_path)).to eq(first)
+    end
+
+    it 'skips generation without raising when the file is absent' do
+      FileUtils.rm_f(duo_path)
+      expect { manifest.generate_duo_review_instructions }.not_to raise_error
+    end
+  end
+
+  describe '.stale_duo_review_instructions' do
+    let(:duo_dir) { File.join(tmpdir, '.gitlab', 'duo') }
+    let(:duo_path) { File.join(duo_dir, 'mr-review-instructions.yaml') }
+    let(:principles_dir) { File.join(tmpdir, '.ai', 'principles', 'distilled') }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      FileUtils.mkdir_p(duo_dir)
+      FileUtils.mkdir_p(principles_dir)
+      File.write(duo_path, <<~YAML)
+        instructions:
+          # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
+          # distilled_at_sha: recorded
+          # source_checksum: recorded
+          - name: Documentation
+            fileFilters:
+              - "doc/**/*.md"
+            instructions: |
+              body
+          # <<< end generated: documentation
+      YAML
+
+      manifest.data = {
+        'principles' => {
+          'documentation' => {
+            'group' => 'Documentation',
+            'file_filters' => ['doc/**/*.md'],
+            'sources' => [{ 'path' => 'a.md', 'url' => 'https://docs.gitlab.com/a/' }]
+          }
+        }
+      }
+    end
+
+    def write_distilled(sha:, checksum:)
+      File.write(File.join(principles_dir, 'documentation.md'), <<~MD)
+        ---
+        source_checksum: #{checksum}
+        distilled_at_sha: #{sha}
+        ---
+        ### Voice and Tone
+
+        - x.
+
+        ## Authoritative sources
+
+        - a.md
+      MD
+    end
+
+    it 'reports the principle when the distilled file has drifted' do
+      write_distilled(sha: 'newer', checksum: 'newer')
+      expect(manifest.stale_duo_review_instructions).to eq(['documentation'])
+    end
+
+    it 'reports nothing when the recorded directives match the distilled file' do
+      write_distilled(sha: 'recorded', checksum: 'recorded')
+      expect(manifest.stale_duo_review_instructions).to eq([])
+    end
+
+    it 'returns an empty array when the file is absent' do
+      FileUtils.rm_f(duo_path)
+      expect(manifest.stale_duo_review_instructions).to eq([])
     end
   end
 end

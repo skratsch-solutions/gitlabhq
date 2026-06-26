@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'duo_instructions'
+
 module Gitlab
   module PrinciplesDistiller
     class Sync
@@ -16,6 +18,7 @@ module Gitlab
         CLAUDE_SKILL_PATH = "#{CLAUDE_SKILL_DIR}/SKILL.md".freeze
         AGENTS_SKILL_PATH = '.agents/skills/gitlab-coding-principles/SKILL.md'
         CODEOWNERS_PATH = '.gitlab/CODEOWNERS'
+        DUO_REVIEW_INSTRUCTIONS_PATH = DuoInstructions::DUO_PATH
 
         # Markers delimiting the gem-managed per-file CODEOWNERS block. The
         # block is inserted right after the broad `/.ai/` rule so that, by
@@ -28,16 +31,24 @@ module Gitlab
         # file). Kept in sync with .gitlab/CODEOWNERS.
         CODEOWNERS_AI_RULE = %r{^/\.ai/ .+$}
 
-        # Global, cross-cutting files regenerated from the manifest on every
-        # run. They embed the full routing table for ALL principles, so SSOT
-        # teams have no stake in their content; the per-team MR fan-out routes
-        # them to a separate "tooling" MR (see Sync::AutoMr).
+        # Files regenerated from the manifest/distilled principles on every
+        # run that are committed to the separate "tooling" MR rather than any
+        # per-team branch (see Sync::AutoMr). AGENTS.md, CLAUDE.md, and the
+        # SKILL.md files embed the full routing table for ALL principles, so
+        # SSOT teams have no stake in their content. The Duo review-instructions
+        # file is included so its generated fences (rewritten by
+        # generate_duo_review_instructions in regenerate_static_artifacts) are
+        # actually staged; without it, regenerated fences would be silently
+        # dropped from the auto-MR. Its CODEOWNERS routing is intentionally left
+        # to the broad `/.gitlab/` rule (it is not assigned per-principle), so
+        # the tooling MR is the consistent home for it.
         TOOLING_PATHS = [
           'AGENTS.md',
           'CLAUDE.md',
           AGENTS_SKILL_PATH,
           CLAUDE_SKILL_PATH,
-          CODEOWNERS_PATH
+          CODEOWNERS_PATH,
+          DUO_REVIEW_INSTRUCTIONS_PATH
         ].freeze
 
         AUTO_MR_REQUIRED_KEYS = %w[branch_prefix title_template labels remove_source_branch].freeze
@@ -445,6 +456,88 @@ module Gitlab
 
           File.write(path, updated)
           puts "  Updated #{CODEOWNERS_PATH} (#{principles.size} per-file owner rules)"
+        end
+
+        # Regenerates the gem-managed fenced regions in the Duo Code Review
+        # custom-instructions file from the distilled principles. Only
+        # principles that already have a fence are refreshed (marker-only
+        # discovery); seeding a new fence is a deliberate manual step.
+        #
+        # Idempotent: rewrites each region's body and directives from the
+        # current distilled file, preserving the hand-authored group name and
+        # fileFilters. Skips silently when the file is absent.
+        def generate_duo_review_instructions
+          path = Workspace.safe_join(DUO_REVIEW_INSTRUCTIONS_PATH)
+          unless File.exist?(path)
+            puts Rainbow("  #{DUO_REVIEW_INSTRUCTIONS_PATH} not found; skipping Duo review instructions").faint
+            return
+          end
+
+          content = File.read(path)
+          fences = build_duo_fences(DuoInstructions.fenced_principles(content))
+          updated = DuoInstructions.regenerate(content, fences: fences)
+
+          if updated == content
+            puts Rainbow('  Duo review instructions already up to date').faint
+            return
+          end
+
+          File.write(path, updated)
+          puts "  Updated #{DUO_REVIEW_INSTRUCTIONS_PATH} (#{fences.size} generated region(s))"
+        end
+
+        # Returns the fenced principles whose region is stale relative to its
+        # distilled file (recorded directives differ from current frontmatter),
+        # or an empty array when every region is current. Read-only; drives the
+        # --check-duo-instructions CI guard.
+        def stale_duo_review_instructions
+          path = Workspace.safe_join(DUO_REVIEW_INSTRUCTIONS_PATH)
+          return [] unless File.exist?(path)
+
+          content = File.read(path)
+          fences = build_duo_fences(DuoInstructions.fenced_principles(content))
+          DuoInstructions.check(content, fences: fences)
+        end
+
+        # Builds the DuoInstructions fence data for the given principle names by
+        # reading each distilled file's frontmatter and checklist body. Skips
+        # principles whose distilled file or frontmatter is missing so a fence
+        # for a not-yet-distilled principle is left untouched rather than
+        # blanked.
+        def build_duo_fences(names)
+          names.each_with_object({}) do |name, fences|
+            config = principle_config(name)
+            next unless config
+
+            path = Workspace.safe_join(principles_path(name))
+            next unless File.exist?(path)
+
+            content = File.read(path)
+            frontmatter = extract_frontmatter(content)
+            next unless frontmatter&.key?('source_checksum')
+
+            fences[name] = {
+              name: config['group'],
+              file_filters: Array(config['file_filters']),
+              distilled_body: extract_checklist_body(content),
+              distilled_at_sha: frontmatter['distilled_at_sha'],
+              source_checksum: frontmatter['source_checksum'],
+              references: Array(config['sources']).filter_map { |s| s['path'] }
+            }
+          end
+        end
+
+        # Extracts the checklist sections from a distilled file: every line from
+        # the first `### ` section header up to (but excluding) the
+        # `## Authoritative sources` footer. Returns '' when no section header
+        # is present.
+        def extract_checklist_body(content)
+          lines = strip_frontmatter(content).lines
+          first = lines.index { |line| line.start_with?('### ') }
+          return '' unless first
+
+          last = lines.index { |line| line.start_with?('## Authoritative sources') } || lines.length
+          lines[first...last].join.rstrip
         end
 
         # Idempotent. Updates existing notes if wording changed.

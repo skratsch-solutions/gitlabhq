@@ -84,7 +84,9 @@ The trigger now appears in **AI** > **Triggers**.
 | Assign          | When the service account user is assigned to an issue or merge request.               | None |
 | Assign reviewer | When the service account user is assigned as a reviewer to a merge request.           | None |
 | Pipeline events | When a pipeline changes state.                                                        | From the **Trigger when** dropdown list, select one or more of the following:<br>- **Running**<br>- **Passed**<br>- **Failed**<br>- **Canceled** |
-| Merge request   | When a selected merge request action occurs.                                          | From the **Trigger when** dropdown list, select one of the following:<br>- **Approved**: When a merge request has all required approvals<br>- **Ready**: When a draft merge request is marked as ready for review<br>- **Merge conflict**: When a merge request can no longer be merged due to a code conflict |
+| Merge request   | When a merge request has all required approvals.                                      | From the **Trigger when** dropdown list, select **Approved** |
+| Merge request ready  | When a merge request is marked as ready for review.                              | From the **Trigger when** dropdown list, select **Ready** |
+| Merge request code conflict  | When a merge request can no longer be merged due to a code conflict.     | From the **Trigger when** dropdown list, select **Merge conflict** |
 | Work item       | When a selected work item action occurs.                                              | From the **Trigger when** dropdown list, select one of the following:<br>- **Created**: When a work item is created<br>- **Status changed**: When a work item's status changes |
 
 ## Edit a trigger

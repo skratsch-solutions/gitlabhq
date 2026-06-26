@@ -69,6 +69,25 @@ ruleTester.run('vue-no-unused-injects', vueNoUnusedInjects, {
         };
       `,
     },
+    {
+      // vuex/pinia map-helpers are collected by vue/no-unused-properties as
+      // methods/computed regardless of `groups`; this rule must not flag them.
+      filename: 'test.vue',
+      code: `
+        <script>
+        import { mapActions } from 'pinia';
+        export default {
+          inject: ['used'],
+          methods: {
+            ...mapActions(useStore, ['fetchThing']),
+            doThing() {
+              return this.used;
+            },
+          },
+        };
+        </script>
+      `,
+    },
   ],
 
   invalid: [
@@ -97,6 +116,23 @@ ruleTester.run('vue-no-unused-injects', vueNoUnusedInjects, {
         export default {
           inject: {
             searchPath: { default: '' },
+          },
+        };
+        </script>
+      `,
+      errors: [{ messageId: 'unused' }],
+    },
+    {
+      // An unused inject alongside map-helpers is still flagged (guards against the
+      // group filter accidentally suppressing every report).
+      filename: 'test.vue',
+      code: `
+        <script>
+        import { mapActions } from 'pinia';
+        export default {
+          inject: ['unused'],
+          methods: {
+            ...mapActions(useStore, ['fetchThing']),
           },
         };
         </script>

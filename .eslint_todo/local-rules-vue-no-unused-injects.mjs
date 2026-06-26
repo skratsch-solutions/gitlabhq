@@ -4,7 +4,6 @@
 export default {
   files: [
     'app/assets/javascripts/access_tokens/components/access_token_table_app.vue',
-    'app/assets/javascripts/add_context_commits_modal/components/add_context_commits_modal_wrapper.vue',
     'app/assets/javascripts/analytics/shared/components/analytics_dashboard_panel.vue',
     'app/assets/javascripts/boards/components/board_add_new_column.vue',
     'app/assets/javascripts/boards/components/board_card_inner.vue',
@@ -20,8 +19,6 @@ export default {
     'app/assets/javascripts/ml/model_registry/components/model_detail.vue',
     'app/assets/javascripts/ml/model_registry/components/model_list_empty_state.vue',
     'app/assets/javascripts/ml/model_registry/components/model_version_create.vue',
-    'app/assets/javascripts/notes/components/noteable_discussion.vue',
-    'app/assets/javascripts/notes/components/noteable_note.vue',
     'app/assets/javascripts/organizations/groups/edit/components/app.vue',
     'app/assets/javascripts/packages_and_registries/settings/project/components/registry_settings_app.vue',
     'app/assets/javascripts/pages/projects/forks/new/components/fork_form.vue',
@@ -36,7 +33,6 @@ export default {
     'app/assets/javascripts/rapid_diffs/app/discussions/diff_line_discussions.vue',
     'app/assets/javascripts/rapid_diffs/app/discussions/timeline.vue',
     'app/assets/javascripts/rapid_diffs/app/image_viewer/image_diff_viewer_with_discussions.vue',
-    'app/assets/javascripts/ref/components/ref_selector.vue',
     'app/assets/javascripts/repository/components/header_area.vue',
     'app/assets/javascripts/repository/components/header_area/breadcrumbs.vue',
     'app/assets/javascripts/security_configuration/components/app.vue',
@@ -45,7 +41,6 @@ export default {
     'app/assets/javascripts/token_access/components/inbound_token_access.vue',
     'app/assets/javascripts/vue_shared/alert_details/components/alert_details.vue',
     'app/assets/javascripts/vue_shared/components/mr_more_dropdown.vue',
-    'app/assets/javascripts/vue_shared/components/notes/system_note.vue',
     'app/assets/javascripts/wikis/components/clone_wiki_modal.vue',
     'app/assets/javascripts/wikis/components/wiki_form.vue',
     'app/assets/javascripts/wikis/components/wiki_header.vue',

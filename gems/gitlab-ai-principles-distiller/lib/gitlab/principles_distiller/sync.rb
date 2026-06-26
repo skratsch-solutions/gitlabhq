@@ -16,6 +16,7 @@ require_relative 'graphql_client'
 require_relative 'workspace'
 require_relative 'sync/diff'
 require_relative 'sync/links'
+require_relative 'sync/duo_instructions'
 require_relative 'sync/workflow'
 require_relative 'sync/auto_mr'
 require_relative 'sync/manifest'
@@ -54,6 +55,8 @@ module Gitlab
 
       def run
         options = parse_options
+
+        return check_duo_instructions if options[:check_duo_instructions]
 
         workflow.validate_config! unless options[:dry_run]
 
@@ -134,9 +137,32 @@ module Gitlab
           opts.on('--rewrite', 'Drop rule 9 (preserve wording) so Duo rewrites all items from scratch') do
             options[:rewrite] = true
           end
+
+          opts.on('--check-duo-instructions', 'Report Duo Code Review fences that are stale ' \
+            'relative to their distilled files, then exit (read-only; non-zero on drift)') do
+            options[:check_duo_instructions] = true
+          end
         end.parse!
 
         options
+      end
+
+      # Read-only guard: reports any Duo Code Review instruction fence whose
+      # recorded directives no longer match its distilled file, and exits
+      # non-zero on drift so CI can fail. Loads the manifest (for sources/
+      # filters) but performs no distillation or writes.
+      def check_duo_instructions
+        manifest.load
+        stale = manifest.stale_duo_review_instructions
+
+        if stale.empty?
+          puts Rainbow('Duo review instruction fences are up to date.').green
+          return
+        end
+
+        warn Rainbow("Stale Duo review instruction fences: #{stale.join(', ')}").red
+        warn 'Run the principles sync to regenerate them.'
+        exit 1
       end
 
       # Informational only; the Duo agent reads the file itself via the
@@ -194,6 +220,9 @@ module Gitlab
 
         banner("\nGenerating per-file CODEOWNERS rules...")
         manifest.generate_codeowners
+
+        banner("\nRegenerating Duo Code Review instruction fences...")
+        manifest.generate_duo_review_instructions
 
         banner("\nInjecting prerequisite notes into distilled files...")
         manifest.inject_prerequisite_notes

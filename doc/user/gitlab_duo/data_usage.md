@@ -24,7 +24,10 @@ GitLab Duo AI-native features are in a variety of [feature support levels](../..
 
 ## Data privacy
 
-GitLab Duo AI-native features are powered by a generative AI model. The processing of any personal data is in accordance with our [Privacy Statement](https://about.gitlab.com/privacy/). You may also visit the [Sub-Processors page](https://about.gitlab.com/privacy/subprocessors/#third-party-sub-processors) to see the list of Sub-Processors we use to provide these features.
+GitLab Duo AI-native features are powered by a generative AI model.
+GitLab processes any personal data in accordance with the [GitLab Privacy Statement](https://about.gitlab.com/privacy/).
+For a list of sub-processors GitLab uses to provide these features,
+see [third-party sub-processors](https://about.gitlab.com/privacy/subprocessors/#third-party-sub-processors).
 
 ## Data retention
 

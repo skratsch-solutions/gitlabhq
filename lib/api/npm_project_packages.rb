@@ -51,6 +51,10 @@ module API
         headers['Npm-Command'] == 'deprecate'
       end
       strong_memoize_attr :npm_command_deprecate?
+
+      # Overridden in EE to enforce the Dependency Firewall before a locally
+      # hosted package tarball is served. CE intentionally does nothing.
+      def enforce_dependency_firewall_on_download!(_package); end
     end
 
     def self.authorization_boundary_options
@@ -91,6 +95,8 @@ module API
 
         package_file = ::Packages::PackageFileFinder
           .new(package, params[:file_name]).execute!
+
+        enforce_dependency_firewall_on_download!(package)
 
         track_package_event('pull_package', :npm, category: 'API::NpmPackages', project: project, namespace: project.namespace)
 
@@ -222,3 +228,5 @@ module API
     end
   end
 end
+
+API::NpmProjectPackages.prepend_mod

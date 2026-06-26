@@ -23,12 +23,17 @@ export const vueNoUnusedInjects = {
     schema: [],
   },
   create(context) {
-    // Force `groups: ['inject']` without exposing options to consumers.
-    // `Object.create` keeps the original context's prototype intact (methods and
-    // getters such as `report`, `sourceCode`, `getSourceCode`) while shadowing
-    // only `options`.
+    // Force `groups: ['inject']` without exposing options to consumers, and only
+    // forward `inject` reports.
     const patchedContext = Object.create(context, {
       options: { value: [{ groups: ['inject'] }], enumerable: true },
+      report: {
+        enumerable: true,
+        value(descriptor) {
+          if (descriptor.data?.group !== 'inject') return;
+          context.report(descriptor);
+        },
+      },
     });
 
     return vueNoUnusedProperties.create(patchedContext);

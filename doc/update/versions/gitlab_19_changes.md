@@ -140,6 +140,20 @@ The `s3_v2` driver introduces two breaking changes for non-AWS S3-compatible bac
   versions, OVH S3, and other S3-compatible backends may reject these with HTTP 400
   (`XAmzContentSHA256Mismatch`). Add `'checksum_disabled' => true` to disable this behavior.
 
+  The `checksum_disabled` setting only suppresses checksums on upload (`PutObject`) calls.
+  The `DeleteObjects` code path also sends a CRC32 checksum header that some S3-compatible
+  backends do not support. If your backend rejects this header, image pushes that trigger
+  blob deletions fail with a `MissingContentMD5` or `InvalidRequest` error even when
+  `checksum_disabled` is set to `true`.
+
+  To resolve this issue, upgrade your S3-compatible storage backend to a version that
+  supports CRC32 checksum headers. Consult your storage provider's documentation for
+  the minimum version required.
+
+  No `gitlab.rb` configuration workaround exists for the `DeleteObjects` code path.
+  For more information, see
+  [issue 2309](https://gitlab.com/gitlab-org/container-registry/-/issues/2309).
+
 For Ceph RGW and most S3-compatible backends, update your configuration as follows:
 
 ```ruby

@@ -1246,7 +1246,7 @@ first place.
 
 ## Storing JSON in database
 
-The Rails 5 natively supports `JSONB` (binary JSON) column type.
+Rails 5 natively supports `JSONB` (binary JSON) column type.
 Example migration adding this column:
 
 ```ruby

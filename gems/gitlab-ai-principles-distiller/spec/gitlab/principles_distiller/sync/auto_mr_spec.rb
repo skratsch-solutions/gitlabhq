@@ -701,6 +701,25 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       expect(sync.workflow).to have_received(:post_json).twice
     end
 
+    it 'stages the Duo review-instructions file on the tooling branch' do
+      staged = []
+      # Mirror the default stub (return true), but record the paths passed to
+      # `git add -f` so we can assert the Duo file is among them.
+      allow(sync).to receive(:system) do |*args, **_kwargs|
+        staged.concat(args[5..]) if args[0,
+          5] == ['git', '-C', Gitlab::PrinciplesDistiller::Workspace.path, 'add', '-f']
+
+        true
+      end
+
+      create_branch_and_mr
+
+      # The regenerated fences in mr-review-instructions.yaml must be staged
+      # on the tooling branch; otherwise generate_duo_review_instructions
+      # rewrites the file but the change is silently dropped from the auto-MR.
+      expect(staged).to include(described_class::Manifest::DUO_REVIEW_INSTRUCTIONS_PATH)
+    end
+
     context 'when the assignee and milestone lookups succeed' do
       before do
         allow(sync).to receive_messages(mr_assignee_id: 4242, current_milestone_id: 6177882)
