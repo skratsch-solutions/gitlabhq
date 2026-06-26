@@ -95,7 +95,13 @@ module Gitlab
             it into that item, do not add a duplicate), and DROP an item ONLY when
             you confirm its rule is absent from the FULL SSOT sources (grep them).
             NEVER drop an item just because it is missing from a diff — keep it
-            when unsure (system prompt rule 16c). Then apply the imperative-mood
+            when unsure (system prompt rule 16c). But if a prior item's topic is
+            wholly absent from the full SSOT sources (confirmed by grep), DROP it
+            even if it looks useful — it belongs to another principle's SSOT
+            (system prompt rule 16d). Likewise, DO NOT emit a standalone bullet
+            for an SSOT mapping row that only delegates detail to another guide
+            or is already covered by a generic rule you emit (rule 16d). Then
+            apply the imperative-mood
             rule to every item. Do not simply re-emit the prior checklist. Keep
             all other lines untouched (system prompt rule 18).
 

@@ -17292,6 +17292,7 @@ CREATE TABLE cd_environments (
     updated_at timestamp with time zone NOT NULL,
     name text NOT NULL,
     description text,
+    tier smallint DEFAULT 0 NOT NULL,
     CONSTRAINT check_19cc3798cd CHECK ((char_length(description) <= 1024)),
     CONSTRAINT check_1e10b71edc CHECK ((organization_id IS NOT NULL)),
     CONSTRAINT check_7fb5aed63b CHECK ((char_length(name) <= 255))

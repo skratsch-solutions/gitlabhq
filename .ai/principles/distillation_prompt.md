@@ -294,6 +294,32 @@ adds those wrappers automatically.
         Each of those was wrongly dropped in a prior run because it was
         merely absent from the truncated diff — exactly the failure this
         rule forbids.
+     d) **Drop content confirmed absent from the FULL SSOT — even when it
+        looks useful.** Clause (c)'s "keep when unsure" governs the SSOT
+        *diff* only; it NEVER overrides a confirmed full-source check. When
+        a prior checklist item's subject is wholly absent from THIS
+        principle's full SSOT sources and baseline (confirmed by grepping
+        the source files for its key identifiers), DROP it — the topic is
+        owned by a different principle whose SSOT covers it. This is a
+        domain split, not diff noise. Example: migration-mechanic rules
+        (`require_migration!`, `migrate!`, the `table` helper,
+        `have_scheduled_batched_migration`) do not appear in the RSpec
+        testing-guide sources, so they MUST be dropped from an RSpec
+        checklist even though they are valid testing rules under the
+        migrations principle.
+
+        This also applies when the topic IS present in this principle's SSOT
+        but only as a pointer that delegates the detail elsewhere — for
+        example a single source→spec mapping row whose Notes column links to
+        another guide ("More details in the Testing Rails migrations
+        guide"), or a row already subsumed by a generic rule you emit (such
+        as "place unit tests in the `spec/` subdirectory matching the source
+        path"). DO NOT emit a standalone bullet for such a row; the generic
+        rule covers it and the linked principle owns the specifics. Example:
+        the `db/{post_,}migrate/` → `spec/migrations/` row in
+        `testing_levels.md` yields NO RSpec bullet — it is covered by the
+        generic "matching source path" rule and detailed under the
+        migrations principle.
 
      Capturing new SSOT content and revising changed rules is REQUIRED work,
      not diff noise — a re-run that misses new sections or leaves a rule

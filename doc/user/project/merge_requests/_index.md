@@ -194,8 +194,8 @@ To filter by `Deployed before` or `Deployed after`, enter a deploy date manually
 If you have permission to add changes to a merge request, you can do so in several ways. The method to use depends on the complexity of your change, and whether you need access to a development
 environment:
 
-- [Edit changes in the Web IDE](../web_ide/_index.md) in your browser with the
-  <kbd>.</kbd> keyboard shortcut. Use this
+- [Edit changes in the Web IDE](../web_ide/_index.md) in your browser. Press <kbd>.</kbd> (period)
+  on any project page in GitLab to open the Web IDE. Use this
   browser-based method to edit multiple files, or if you are not comfortable with Git commands.
   You cannot run tests from the Web IDE.
 - [Edit changes in Ona](../../../integration/gitpod.md#launch-ona-in-gitlab), if you

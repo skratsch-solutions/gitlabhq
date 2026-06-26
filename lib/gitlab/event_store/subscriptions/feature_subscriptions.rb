@@ -5,6 +5,10 @@ module Gitlab
     module Subscriptions
       class FeatureSubscriptions < BaseSubscriptions
         def register
+          store.subscribe ::Organizations::RootGroupOrganizationBackfillWorker,
+            to: ::Gitlab::FeatureFlags::FeatureFlagModifiedEvent,
+            if: ->(event) { event.data[:feature_key] == 'root_group_organization_backfill' }
+
           # Example: Subscribe a worker to feature flag changes
           # store.subscribe ::YourWorker, to: ::Gitlab::FeatureFlags::FeatureFlagModifiedEvent,
           #   if: ->(event) { event.data[:feature_key] == 'your_feature_flag_name' }

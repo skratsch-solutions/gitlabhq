@@ -127,7 +127,7 @@ principles:
   # ── ClickHouse ────────────────────────────────────────────────────────────
 
   clickhouse:
-    description: ClickHouse and Siphon CDC concerns, including adding the matching column to the siphon_ ClickHouse table when adding a column to a Postgres table replicated by Siphon
+    description: ClickHouse and Siphon CDC concerns, including adding the matching column to the respective siphon_ ClickHouse table when adding a column to a Postgres table replicated by Siphon
     group: Database
     owner_team: '@gitlab-org/maintainers/clickhouse'
     file_filters:
@@ -561,18 +561,21 @@ principles:
       - path: doc/development/fe_guide/accessibility/best_practices.md
         url: https://docs.gitlab.com/development/fe_guide/accessibility/best_practices/
 
-  # ── QA (2 sub-domains) ───────────────────────────────────────────────────
+  # ── Testing  ───────────────────────────────────────────────────
 
-  qa-rspec:
+  testing-rspec:
     description: RSpec patterns, factories, shared examples
     group: Testing
-    owner_team: '@abdwdd @alexpooley'
+    owner_team: '@gitlab-org/maintainers/rails-backend'
     team_slug: qa
     file_filters:
       - 'spec/**/*_spec.rb'
       - 'ee/spec/**/*_spec.rb'
-      - 'qa/**/*'
-    baseline: .ai/principles/baselines/qa-rspec.md
+      - '!spec/migrations/db/**/*_spec.rb'
+      - '!ee/spec/migrations/db/**/*.rb'
+      - '!ee/db/geo/migrate/**/*.rb'
+      - '!ee/db/geo/post_migrate/**/*.rb'
+    baseline: .ai/principles/baselines/testing-rspec.md
     sources:
       - path: doc/development/testing_guide/_index.md
         url: https://docs.gitlab.com/development/testing_guide/
@@ -580,18 +583,14 @@ principles:
         url: https://docs.gitlab.com/development/testing_guide/best_practices/
       - path: doc/development/testing_guide/testing_levels.md
         url: https://docs.gitlab.com/development/testing_guide/testing_levels/
-      - path: doc/development/testing_guide/testing_migrations_guide.md
-        url: https://docs.gitlab.com/development/testing_guide/testing_migrations_guide/
       - path: doc/development/testing_guide/testing_rake_tasks.md
         url: https://docs.gitlab.com/development/testing_guide/testing_rake_tasks/
 
-  qa-jest:
+  testing-jest:
     description: Jest, jsdom, Vue Test Utils patterns
     group: Testing
     owner_team: '@gitlab-org/maintainers/frontend'
     ping_team: false
-    secondary_teams:
-      - '@abdwdd @alexpooley'
     file_filters:
       - 'spec/frontend/**/*'
       - 'ee/spec/frontend/**/*'
@@ -599,7 +598,20 @@ principles:
       - path: doc/development/testing_guide/frontend_testing.md
         url: https://docs.gitlab.com/development/testing_guide/frontend_testing/
 
-  qa-frontend-testing-hierarchy:
+  testing-migrations:
+    description: Rails migrations testing patterns
+    group: Testing
+    owner_team: '@gitlab-org/maintainers/database'
+    file_filters:
+      - 'spec/migrations/db/**/*_spec.rb'
+      - 'ee/spec/migrations/db/**/*.rb'
+      - 'ee/db/geo/migrate/**/*.rb'
+      - 'ee/db/geo/post_migrate/**/*.rb'
+    sources:
+      - path: doc/development/testing_guide/testing_migrations_guide.md
+        url: https://docs.gitlab.com/development/testing_guide/testing_migrations_guide/
+
+  testing-frontend-testing-hierarchy:
     description: Frontend testing hierarchy — which test type to write (unit vs MSW integration vs Capybara vs QA), lazy-load discovery, and cross-layer anti-patterns
     group: Testing
     owner_team: '@gitlab-org/maintainers/frontend'
@@ -610,14 +622,14 @@ principles:
       - 'ee/spec/frontend/**/*'
       - 'spec/features/**/*'
       - 'ee/spec/features/**/*'
-    baseline: .ai/principles/baselines/qa-frontend-testing-hierarchy.md
+    baseline: .ai/principles/baselines/testing-frontend-testing-hierarchy.md
     sources:
       - path: doc/development/testing_guide/frontend_testing.md
         url: https://docs.gitlab.com/development/testing_guide/frontend_testing/
       - path: doc/development/testing_guide/testing_levels.md
         url: https://docs.gitlab.com/development/testing_guide/testing_levels/
 
-  qa-msw:
+  testing-msw:
     description: How to write MSW integration tests correctly (setup, mounting, handlers, fixtures, request counting)
     group: Testing
     owner_team: '@gitlab-org/maintainers/frontend'
@@ -626,10 +638,37 @@ principles:
     file_filters:
       - 'spec/frontend/msw_integration/**/*'
       - 'ee/spec/frontend/msw_integration/**/*'
-    baseline: .ai/principles/baselines/qa-msw.md
+    baseline: .ai/principles/baselines/testing-msw.md
     sources:
       - path: doc/development/testing_guide/frontend_testing.md
         url: https://docs.gitlab.com/development/testing_guide/frontend_testing/
+
+  testing-e2e:
+    description: End-to-end (QA) test patterns — resource readiness and explicit waits, reliable navigation, and avoiding timing-based flakiness in qa/ specs
+    group: Testing
+    owner_team: '@gitlab-org/maintainers/rails-backend'
+    team_slug: qa
+    file_filters:
+      - 'qa/**/*'
+    sources:
+      - path: doc/development/testing_guide/end_to_end/style_guide.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/style_guide/
+      - path: doc/development/testing_guide/end_to_end/beginners_guide/flows.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/beginners_guide/flows/
+      - path: doc/development/testing_guide/end_to_end/beginners_guide/page_objects.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/beginners_guide/page_objects/
+      - path: doc/development/testing_guide/end_to_end/beginners_guide/resources.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/beginners_guide/resources/
+      - path: doc/development/testing_guide/end_to_end/best_practices/_index.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/best_practices/
+      - path: doc/development/testing_guide/end_to_end/best_practices/dynamic_element_validation.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/best_practices/dynamic_element_validation/
+      - path: doc/development/testing_guide/end_to_end/best_practices/execution_context_selection.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/best_practices/execution_context_selection/
+      - path: doc/development/testing_guide/end_to_end/best_practices/feature_flags.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/best_practices/feature_flags/
+      - path: doc/development/testing_guide/end_to_end/best_practices/waits.md
+        url: https://docs.gitlab.com/development/testing_guide/end_to_end/best_practices/waits/
 
   # ── Remaining (unchanged) ─────────────────────────────────────────────────
 

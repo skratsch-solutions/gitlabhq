@@ -47,9 +47,11 @@ describe('CopyAsGFM', () => {
     // This emulates the behavior of `getData` with that data.
     function callPasteGFM(data = { 'text/plain': 'code', 'text/x-gfm': '`code`' }) {
       const e = {
-        clipboardData: {
-          getData(mimeType) {
-            return data[mimeType] || null;
+        originalEvent: {
+          clipboardData: {
+            getData(mimeType) {
+              return data[mimeType] || null;
+            },
           },
         },
         preventDefault() {},
@@ -107,12 +109,14 @@ describe('CopyAsGFM', () => {
 
     const simulateCopy = () => {
       const e = {
-        clipboardData,
+        originalEvent: {
+          clipboardData,
+        },
         preventDefault() {},
         stopPropagation() {},
         stopImmediatePropagation() {},
       };
-      CopyAsGFM.copyAsGFM(e, null, CopyAsGFM.transformGFMSelection);
+      CopyAsGFM.copyAsGFM(e, CopyAsGFM.transformGFMSelection);
 
       return waitForPromises();
     };

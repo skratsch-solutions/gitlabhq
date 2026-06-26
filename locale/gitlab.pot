@@ -7911,6 +7911,9 @@ msgstr ""
 msgid "AgentArtifacts|View full session details"
 msgstr ""
 
+msgid "AgentPlan|A workplan breaks a work item into clear, ordered steps that guide implementation. Create one manually, or generate it with GitLab Duo. %{linkStart}Learn more%{linkEnd}."
+msgstr ""
+
 msgid "AgentPlan|A workplan breaks down your work item into a step-by-step implementation guide for GitLab Duo to execute. Create one manually or let Duo generate it for you."
 msgstr ""
 
@@ -7954,6 +7957,9 @@ msgid "AgentPlan|Ready to view"
 msgstr ""
 
 msgid "AgentPlan|Regenerate workplan"
+msgstr ""
+
+msgid "AgentPlan|What is a workplan?"
 msgstr ""
 
 msgid "AgentPlan|Workplan"

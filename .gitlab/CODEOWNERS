@@ -208,8 +208,12 @@ yarn.lock @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/frontend-style.md @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/frontend-haml.md @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/frontend-a11y.md @gitlab-org/maintainers/frontend
-/.ai/principles/distilled/qa-rspec.md @abdwdd @alexpooley
-/.ai/principles/distilled/qa-jest.md @gitlab-org/maintainers/frontend @abdwdd @alexpooley
+/.ai/principles/distilled/testing-rspec.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/testing-jest.md @gitlab-org/maintainers/frontend
+/.ai/principles/distilled/testing-migrations.md @gitlab-org/maintainers/database
+/.ai/principles/distilled/testing-frontend-testing-hierarchy.md @gitlab-org/maintainers/frontend @gitlab-org/plan-stage/frontend-engineers
+/.ai/principles/distilled/testing-msw.md @gitlab-org/maintainers/frontend @gitlab-org/plan-stage/frontend-engineers
+/.ai/principles/distilled/testing-e2e.md @gitlab-org/maintainers/rails-backend
 /.ai/principles/distilled/performance.md @gitlab-org/maintainers/rails-backend
 /.ai/principles/distilled/documentation.md @gitlab-org/technical-writing/tw-docops
 /.ai/principles/distilled/documentation-topics.md @gitlab-org/technical-writing/tw-docops

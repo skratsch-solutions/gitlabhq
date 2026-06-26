@@ -557,6 +557,15 @@ expect(page).to have_testid('search-filter')   # confirm page is loaded
 expect(page).to have_no_link('Edit')           # then check absence
 ```
 
+Confirm the page has reached the expected state with a positive matcher before
+the next interaction or assertion - not only before absence checks, but also
+before reading database or model state and before navigating. `wait_for_requests`
+is not sufficient on its own: it waits for in-flight AJAX requests tracked by the
+test harness to settle, but not for Vue re-render, redirect completion, async
+follow-up writes, or browser-initiated downloads (which are not tracked XHR or
+fetch requests). Prefer asserting the expected visible outcome (`have_content`,
+`have_current_path`, `have_css`).
+
 Use `wait: 0` to skip the wait in conditional logic. **Note:** Only use it
 when you can't avoid conditional logic, and only inside a region you have
 already confirmed loaded; otherwise you get the wrong answer. Conditional
@@ -699,6 +708,12 @@ is a signal that the view has too many responsibilities.
   For instance, if you want to verify that a record was created, add
   expectations that its attributes are displayed on the page, not that
   `Model.count` increased by one.
+- When a test must assert backend or model state after a UI action, first wait
+  for a visible success indicator (`have_content`, `have_current_path`,
+  `have_css`) and only then read `model.reload`. A Capybara action returns once
+  the request is dispatched, not once it completes, so reading model state
+  immediately after races the request. This is the most common cause of
+  feature-spec flakiness.
 - It's ok to look for DOM elements, but don't abuse it, because it makes the tests
   more brittle
 
@@ -1245,6 +1260,15 @@ Therefore, the solution is to use `let` or `let!` instead of `let_it_be(:bar)`.
 [`ActiveSupport::Testing::TimeHelpers`](https://api.rubyonrails.org/classes/ActiveSupport/Testing/TimeHelpers.html)
 can be used to verify things that are time-sensitive. Any test that exercises or verifies something time-sensitive
 should make use of these helpers to prevent transient test failures.
+
+Two recurring sources of time-related flakiness to avoid:
+
+- When a test orders records by a timestamp column, give the records distinct
+  timestamps (for example with `travel_to` and explicit offsets). Equal
+  timestamps produce non-deterministic ordering and flaky assertions.
+- Do not hardcode future-date constants in specs that gate behavior on "today".
+  They pass until the date arrives, then fail. Use `travel_to` or compute the
+  date relative to `Time.current`.
 
 Example:
 
@@ -1866,6 +1890,12 @@ Testing query performance allows us to:
 
 - Assert that N+1 problems do not exist in a block of code.
 - Ensure that the number of queries in a block of code does not increase unnoticed.
+
+Do not assert N+1 or query counts in feature (`:js`) specs - query-count
+baselines are flaky in the browser context. Put `QueryRecorder` and
+`exceed_query_limit` assertions in request or controller specs. When the first
+call lazily loads caches, prime the recorded baseline with a warmup request
+before measuring.
 
 #### QueryRecorder
 

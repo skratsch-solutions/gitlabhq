@@ -1,11 +1,6 @@
+import $ from 'jquery';
 import { sanitize } from '~/lib/dompurify';
 import { getSelectedFragment, insertText } from '~/lib/utils/common_utils';
-
-const delegatedTarget = (event, selector) => {
-  const el =
-    event.target.nodeType === Node.ELEMENT_NODE ? event.target : event.target.parentElement;
-  return el?.closest(selector);
-};
 
 export class CopyAsGFM {
   constructor() {
@@ -16,31 +11,23 @@ export class CopyAsGFM {
     const isIOS = /\b(iPad|iPhone|iPod)(?=;)/.test(userAgent);
     if (isIOS) return;
 
-    document.addEventListener('copy', (e) => {
-      const mdTarget = delegatedTarget(e, '.md, .duo-chat-message');
-      if (mdTarget) {
-        CopyAsGFM.copyAsGFM(e, mdTarget, CopyAsGFM.transformGFMSelection);
-        return;
-      }
-
-      const codeTarget = delegatedTarget(
-        e,
-        'pre.code.highlight, table.code td.line_content, .code pre',
-      );
-      if (codeTarget) {
-        CopyAsGFM.copyAsGFM(e, codeTarget, CopyAsGFM.transformCodeSelection);
-      }
+    $(document).on('copy', '.md, .duo-chat-message', (e) => {
+      CopyAsGFM.copyAsGFM(e, CopyAsGFM.transformGFMSelection);
     });
+    $(document).on('copy', 'pre.code.highlight, table.code td.line_content, .code pre', (e) => {
+      CopyAsGFM.copyAsGFM(e, CopyAsGFM.transformCodeSelection);
+    });
+    $(document).on('paste', '.js-gfm-input', CopyAsGFM.pasteGFM);
   }
 
-  static copyAsGFM(e, target, transformer) {
-    const { clipboardData } = e;
+  static copyAsGFM(e, transformer) {
+    const { clipboardData } = e.originalEvent;
     if (!clipboardData) return;
 
     const documentFragment = getSelectedFragment();
     if (!documentFragment) return;
 
-    const el = transformer(documentFragment.cloneNode(true), target);
+    const el = transformer(documentFragment.cloneNode(true), e.currentTarget);
     if (!el) return;
 
     e.preventDefault();
@@ -67,7 +54,7 @@ export class CopyAsGFM {
   }
 
   static pasteGFM(e) {
-    const { clipboardData } = e;
+    const { clipboardData } = e.originalEvent;
     if (!clipboardData) return;
 
     const text = clipboardData.getData('text/plain');

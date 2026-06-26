@@ -56,8 +56,12 @@ ALWAYS load Database principles regardless of which files you are editing.
 - **Frontend accessibility patterns and requirements**: Read .ai/principles/distilled/frontend-a11y.md *(also load: .ai/principles/distilled/frontend-vue.md)*
 
 **Testing:**
-- **RSpec patterns, factories, shared examples**: Read .ai/principles/distilled/qa-rspec.md
-- **Jest, jsdom, Vue Test Utils patterns**: Read .ai/principles/distilled/qa-jest.md
+- **RSpec patterns, factories, shared examples**: Read .ai/principles/distilled/testing-rspec.md
+- **Jest, jsdom, Vue Test Utils patterns**: Read .ai/principles/distilled/testing-jest.md
+- **Rails migrations testing patterns**: Read .ai/principles/distilled/testing-migrations.md
+- **Frontend testing hierarchy — which test type to write (unit vs MSW integration vs Capybara vs QA), lazy-load discovery, and cross-layer anti-patterns**: Read .ai/principles/distilled/testing-frontend-testing-hierarchy.md
+- **How to write MSW integration tests correctly (setup, mounting, handlers, fixtures, request counting)**: Read .ai/principles/distilled/testing-msw.md
+- **End-to-end (QA) test patterns — resource readiness and explicit waits, reliable navigation, and avoiding timing-based flakiness in qa/ specs**: Read .ai/principles/distilled/testing-e2e.md
 
 **Performance:**
 - **Performance and scalability**: Read .ai/principles/distilled/performance.md
