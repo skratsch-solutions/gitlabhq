@@ -519,9 +519,9 @@ export default {
             :current-user="schedules.currentUser"
             :sort-by="sortBy"
             :sort-desc="sortDesc"
-            @showTakeOwnershipModal="setTakeOwnershipModal"
-            @showDeleteModal="setDeleteModal"
-            @playPipelineSchedule="playPipelineSchedule"
+            @show-take-ownership-modal="setTakeOwnershipModal"
+            @show-delete-modal="setDeleteModal"
+            @play-pipeline-schedule="playPipelineSchedule"
             @update-sorting="onUpdateSorting"
           />
 
@@ -552,14 +552,14 @@ export default {
 
     <take-ownership-modal
       :visible="showTakeOwnershipModal"
-      @takeOwnership="takeOwnership"
-      @hideModal="hideModal"
+      @take-ownership="takeOwnership"
+      @hide-modal="hideModal"
     />
 
     <delete-pipeline-schedule-modal
       :visible="showDeleteModal"
-      @deleteSchedule="deleteSchedule"
-      @hideModal="hideModal"
+      @delete-schedule="deleteSchedule"
+      @hide-modal="hideModal"
     />
   </div>
 </template>

@@ -47,6 +47,7 @@ describe('GlqlFacade', () => {
 
   const findResolver = () => wrapper.findComponent(GlqlResolver);
   const findCrudComponent = () => wrapper.findComponent(CrudComponent);
+  const findContent = () => wrapper.findByTestId('glql-content');
 
   const triggerIntersectionObserver = async () => {
     wrapper.findComponent(GlIntersectionObserver).vm.$emit('appear');
@@ -106,6 +107,31 @@ describe('GlqlFacade', () => {
         await emitResolverChange({ config: { display } });
 
         expect(findCrudComponent().props('title')).toBe('Embedded view');
+      },
+    );
+  });
+
+  describe('content padding', () => {
+    beforeEach(async () => {
+      await createComponent();
+      await triggerIntersectionObserver();
+    });
+
+    it.each(['stat', 'columnChart', 'lineChart'])(
+      'insets block display "%s" so the card owns its padding',
+      async (display) => {
+        await emitResolverChange({ config: { display } });
+
+        expect(findContent().classes()).toEqual(['gl-px-5', 'gl-py-5']);
+      },
+    );
+
+    it.each(['list', 'orderedList', 'table'])(
+      'renders full-bleed display "%s" without padding',
+      async (display) => {
+        await emitResolverChange({ config: { display } });
+
+        expect(findContent().classes()).toEqual([]);
       },
     );
   });

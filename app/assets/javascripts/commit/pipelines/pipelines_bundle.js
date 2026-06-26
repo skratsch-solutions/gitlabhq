@@ -35,7 +35,6 @@ export default () => {
         provide: {
           artifactsEndpoint: pipelineTableViewEl.dataset.artifactsEndpoint,
           artifactsEndpointPlaceholder: pipelineTableViewEl.dataset.artifactsEndpointPlaceholder,
-          fullPath: pipelineTableViewEl.dataset.fullPath,
           manualActionsLimit: DEFAULT_MANUAL_ACTIONS_LIMIT,
         },
         render(createElement) {

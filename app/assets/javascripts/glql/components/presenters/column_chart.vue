@@ -74,7 +74,7 @@ export default {
 </script>
 
 <template>
-  <div class="gl-px-5 gl-py-5">
+  <div>
     <gl-skeleton-loader v-if="loading" />
     <template v-else-if="!validationError">
       <single-dimension-column-chart

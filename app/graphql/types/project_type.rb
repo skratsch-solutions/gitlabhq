@@ -26,6 +26,14 @@ module Types
       description: 'ID of the project.',
       scopes: [:api, :read_api, :ai_workflows]
 
+    field :wiki_pages, Types::Wikis::WikiPageType.connection_type,
+      null: true,
+      resolver: Resolvers::Wikis::WikiPagesResolver,
+      description: 'Wiki pages of the project.',
+      experiment: { milestone: '19.2' },
+      connection_extension: Gitlab::Graphql::Extensions::ForwardOnlyExternallyPaginatedArrayExtension,
+      calls_gitaly: true
+
     field :ci_config_path_or_default, GraphQL::Types::String,
       null: false,
       description: 'Path of the CI configuration file.'

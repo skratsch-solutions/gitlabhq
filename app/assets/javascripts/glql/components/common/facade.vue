@@ -7,7 +7,7 @@ import { renderMarkdown } from '~/notes/utils';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { InternalEvents } from '~/tracking';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
-import { MODE_ANALYTICS } from '../../constants';
+import { MODE_ANALYTICS, FULL_BLEED_DISPLAY_TYPES } from '../../constants';
 import { copyGLQLNodeAsGFM } from '../../utils/copy_as_gfm';
 import Counter from '../../utils/counter';
 import GlqlResolver from './resolver.vue';
@@ -99,6 +99,11 @@ export default {
     },
     showEmptyState() {
       return this.data?.nodes?.length === 0;
+    },
+    isInsetDisplay() {
+      // Full-bleed displays (list/table) render edge-to-edge; every other display
+      // gets its inset from the card here, so presenters can render flush.
+      return this.config?.display && !FULL_BLEED_DISPLAY_TYPES.has(this.config.display);
     },
     showCopyContentsAction() {
       return Boolean(this.data?.count) && !this.isCollapsed;
@@ -247,7 +252,7 @@ export default {
         :show-zero-count="showZeroCount"
         class="!gl-mt-5"
         :body-class="{
-          '!gl-m-0 !gl-p-0': loading || (data && data.count),
+          '!gl-m-0 !gl-p-0': data && data.count,
           '!gl-overflow-hidden': true,
         }"
         @collapsed="isCollapsed = true"
@@ -270,14 +275,16 @@ export default {
           />
         </template>
 
-        <glql-resolver
-          v-if="showResolver"
-          ref="resolver"
-          :key="retryCount"
-          :glql-query="queryYaml"
-          tracking-event-name="render_glql_block"
-          @change="onResolverChange"
-        />
+        <div :class="{ 'gl-px-5 gl-py-5': isInsetDisplay }" data-testid="glql-content">
+          <glql-resolver
+            v-if="showResolver"
+            ref="resolver"
+            :key="retryCount"
+            :glql-query="queryYaml"
+            tracking-event-name="render_glql_block"
+            @change="onResolverChange"
+          />
+        </div>
 
         <template v-if="showEmptyState" #empty>
           {{ __('No data found for this query.') }}

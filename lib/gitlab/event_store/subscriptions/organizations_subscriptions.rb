@@ -5,8 +5,7 @@ module Gitlab
     module Subscriptions
       class OrganizationsSubscriptions < BaseSubscriptions
         def register
-          # Subscribers for Organizations::ConfirmedEvent will be added here.
-          # See: https://gitlab.com/gitlab-org/gitlab/-/work_items/597856
+          store.subscribe ::Organizations::ActivateWorker, to: ::Organizations::ConfirmedEvent
         end
       end
     end

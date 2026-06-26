@@ -147,21 +147,24 @@ module Gitlab
         options
       end
 
-      # Read-only guard: reports any Duo Code Review instruction fence whose
-      # recorded directives no longer match its distilled file, and exits
-      # non-zero on drift so CI can fail. Loads the manifest (for sources/
-      # filters) but performs no distillation or writes.
+      # Read-only guard: reports any Duo Code Review instruction fence that is
+      # stale (recorded directives no longer match its distilled file),
+      # malformed (a BEGIN marker without exactly one matching region), or
+      # orphaned (a fence with no backing distilled file / manifest entry), and
+      # exits non-zero so CI can fail. Loads the manifest (for sources/filters)
+      # but performs no distillation or writes.
       def check_duo_instructions
         manifest.load
-        stale = manifest.stale_duo_review_instructions
+        problematic = manifest.problematic_duo_review_instructions
 
-        if stale.empty?
+        if problematic.empty?
           puts Rainbow('Duo review instruction fences are up to date.').green
           return
         end
 
-        warn Rainbow("Stale Duo review instruction fences: #{stale.join(', ')}").red
-        warn 'Run the principles sync to regenerate them.'
+        warn Rainbow("Duo review instruction fences need attention: #{problematic.join(', ')}").red
+        warn 'Re-run the principles sync to regenerate stale fences; for a malformed or ' \
+          'orphaned fence, fix its markers or remove the fence.'
         exit 1
       end
 

@@ -463,6 +463,7 @@ This heading is referenced by a script: `scripts/cells/application-settings-anal
 - `allow_account_deletion` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/412411) in GitLab 16.1.
 - `allow_project_creation_for_guest_and_below` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/134625) in GitLab 16.8.
 - `silent_admin_exports_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148918) in GitLab 17.0.
+- `ai_action_api_rate_limit` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/149945) in GitLab 17.2.
 - `require_personal_access_token_expiry` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/470192) in GitLab 17.3.
 - `receptive_cluster_agents_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/463427) in GitLab 17.4.
 - `allow_all_integrations` and `allowed_integrations` [added](https://gitlab.com/gitlab-org/gitlab/-/issues/500610) in GitLab 17.6.
@@ -484,6 +485,7 @@ to configure other related settings. These requirements are in the `Required` co
 | `email_restrictions_enabled`             | boolean          | no                                   | Prevent new users from creating an account by email. |
 | `email_restrictions`                     | string           | required by: `email_restrictions_enabled` | Regular expression that is checked against the email used during registration. |
 | `after_sign_up_text`                     | string           | no                                   | Text shown to the user after signing up. |
+| `ai_action_api_rate_limit`               | integer          | no                                   | Maximum number of requests allowed to the `aiAction` GraphQL mutation per user per eight hours. Default: `160`. Set to `0` to disable the rate limit. |
 | `akismet_api_key`                        | string           | required by: `akismet_enabled`       | API key for Akismet spam protection. |
 | `akismet_enabled`                        | boolean          | no                                   | (**If enabled, requires**: `akismet_api_key`) Enable or disable Akismet spam protection. |
 | `allow_all_integrations`                 | boolean          | no                                   | When `false`, only integrations in `allowed_integrations` are allowed on the instance. Ultimate only. |

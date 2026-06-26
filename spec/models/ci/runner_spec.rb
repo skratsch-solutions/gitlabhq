@@ -32,6 +32,131 @@ RSpec.describe Ci::Runner, factory_default: :keep, feature_category: :runner_cor
     it { is_expected.to have_many(:tags).class_name('Ci::Tag') }
   end
 
+  describe 'partition pruning' do
+    # `ci_runners` and `ci_runner_machines` are LIST-partitioned by `runner_type`.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/594861.
+
+    let_it_be(:pp_group) { create(:group) }
+    let_it_be(:pp_project) { create(:project, group: pp_group) }
+    let_it_be(:pp_group_runner) { create(:ci_runner, :group, groups: [pp_group]) }
+    let_it_be(:pp_project_runner) { create(:ci_runner, :project, projects: [pp_project]) }
+
+    # Strips quoting so join-correlation assertions don't couple to ActiveRecord's
+    # exact quoting, which has changed across Rails upgrades.
+    def unquoted_sql(relation)
+      relation.to_sql.delete('"')
+    end
+
+    describe '.belonging_to_project' do
+      subject(:relation) { described_class.belonging_to_project(pp_project.id) }
+
+      context 'when the feature flag is enabled' do
+        before do
+          stub_feature_flags(ci_runner_partition_pruning: true)
+        end
+
+        it 'filters by the project runner_type so Postgres can prune partitions' do
+          expect(relation.where_values_hash).to include('runner_type' => described_class.runner_types[:project_type])
+        end
+      end
+
+      context 'when the feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_runner_partition_pruning: false)
+        end
+
+        it 'does not filter by runner_type' do
+          expect(relation.where_values_hash).not_to have_key('runner_type')
+        end
+      end
+    end
+
+    describe '.belonging_to_group' do
+      subject(:relation) { described_class.belonging_to_group(pp_group.id) }
+
+      context 'when the feature flag is enabled' do
+        before do
+          stub_feature_flags(ci_runner_partition_pruning: true)
+        end
+
+        it 'filters by the group runner_type so Postgres can prune partitions' do
+          expect(relation.where_values_hash).to include('runner_type' => described_class.runner_types[:group_type])
+        end
+      end
+
+      context 'when the feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_runner_partition_pruning: false)
+        end
+
+        it 'does not filter by runner_type' do
+          expect(relation.where_values_hash).not_to have_key('runner_type')
+        end
+      end
+    end
+
+    # The runner_type filter is logically a no-op: ci_runner_projects only ever
+    # references project runners and ci_runner_namespaces only group runners.
+    # Enabling the flag must therefore not change which runners are returned.
+    describe 'result-set equivalence with and without the flag' do
+      let_it_be(:other_project) { create(:project, group: pp_group) }
+      let_it_be(:other_project_runner) { create(:ci_runner, :project, projects: [other_project]) }
+      let_it_be(:other_group_runner) { create(:ci_runner, :group, groups: [pp_group]) }
+
+      shared_examples 'returns the same runners regardless of the flag' do
+        it 'returns the same runners with the flag enabled and disabled' do
+          stub_feature_flags(ci_runner_partition_pruning: false)
+          without_flag = relation.pluck(:id)
+
+          stub_feature_flags(ci_runner_partition_pruning: true)
+          with_flag = relation.pluck(:id)
+
+          expect(with_flag).to match_array(without_flag)
+        end
+      end
+
+      context 'for .belonging_to_project' do
+        let(:relation) { described_class.belonging_to_project(pp_project.id) }
+
+        it_behaves_like 'returns the same runners regardless of the flag'
+      end
+
+      context 'for .belonging_to_group' do
+        let(:relation) { described_class.belonging_to_group(pp_group.id) }
+
+        it_behaves_like 'returns the same runners regardless of the flag'
+      end
+    end
+
+    # `has_many :runner_managers` declares a composite foreign key
+    # (runner_id, runner_type). This correlates the bare association reads and
+    # joins(:runner_managers) on runner_type, so the join target
+    # (ci_runner_machines, also partitioned by runner_type) can be pruned.
+    describe 'runner_managers composite foreign key' do
+      let(:join_correlation) do
+        'INNER JOIN ci_runner_machines ON ci_runner_machines.runner_id = ci_runners.id ' \
+          'AND ci_runner_machines.runner_type = ci_runners.runner_type'
+      end
+
+      it 'correlates joins(:runner_managers) on runner_id and runner_type' do
+        expect(unquoted_sql(described_class.joins(:runner_managers))).to include(join_correlation)
+      end
+
+      it 'filters the runner_managers association by runner_type' do
+        expect(pp_project_runner.runner_managers.where_values_hash)
+          .to include('runner_type' => pp_project_runner.runner_type)
+      end
+
+      it 'correlates the .with_version_prefix join on runner_type' do
+        expect(unquoted_sql(described_class.with_version_prefix('15.'))).to include(join_correlation)
+      end
+
+      it 'correlates the .with_upgrade_status join on runner_type' do
+        expect(unquoted_sql(described_class.send(:with_upgrade_status, :available))).to include(join_correlation)
+      end
+    end
+  end
+
   it_behaves_like 'having unique enum values'
 
   describe 'loose foreign keys' do

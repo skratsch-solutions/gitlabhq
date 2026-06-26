@@ -218,6 +218,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         result = service.execute
 
         expect(result).to be_error
+        expect(result.reason).to eq(:group_not_root)
         expect(result.message).to eq(
           format(
             s_('TransferOrganization|Group organization transfer failed: %{error_message}'),
@@ -246,6 +247,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         result = service.execute
 
         expect(result).to be_error
+        expect(result.reason).to eq(:already_transferred)
         expect(result.message).to eq(
           format(
             s_('TransferOrganization|Group organization transfer failed: %{error_message}'),
@@ -260,6 +262,50 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
 
       it 'does not enqueue TransferOrganizationWorker' do
         expect(Ci::Runners::TransferOrganizationWorker).not_to receive(:perform_async)
+
+        service.execute
+      end
+    end
+
+    context 'when top-level group is at the target but descendants are not' do
+      # Simulates the activation flow: Organizations::ConfirmService has
+      # moved the top-level group's organization_id, but the descendants
+      # and their projects still belong to the previous organization.
+      let_it_be_with_refind(:top_level) { create(:group, organization: old_organization, owners: user) }
+      let_it_be_with_refind(:subgroup) { create(:group, parent: top_level, organization: old_organization) }
+      let_it_be_with_refind(:nested_project) do
+        create(:project, namespace: subgroup, organization: old_organization)
+      end
+
+      let(:service) do
+        described_class.new(group: top_level, new_organization: new_organization, current_user: user)
+      end
+
+      before do
+        # Mimic Organizations::ConfirmService having moved only the top-level
+        # group's organization_id forward, without touching descendants.
+        top_level.update_column(:organization_id, new_organization.id)
+      end
+
+      it 'transfers the descendants to the new organization' do
+        expect(service.execute).to be_success
+
+        expect(subgroup.reload.organization_id).to eq(new_organization.id)
+        expect(nested_project.reload.organization_id).to eq(new_organization.id)
+        expect(nested_project.project_namespace.reload.organization_id).to eq(new_organization.id)
+      end
+
+      it 'publishes GroupTransferredEvent with the descendants source organization' do
+        expect { service.execute }.to publish_event(Organizations::GroupTransferredEvent).with(
+          group_id: top_level.id,
+          old_organization_id: old_organization.id,
+          new_organization_id: new_organization.id
+        )
+      end
+
+      it 'enqueues TransferOrganizationWorker with the descendants source organization' do
+        expect(Ci::Runners::TransferOrganizationWorker).to receive(:perform_async)
+          .with(top_level.id, old_organization.id, new_organization.id)
 
         service.execute
       end
@@ -406,6 +452,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         result = service.execute
 
         expect(result).to be_error
+        expect(result.reason).to eq(:missing_permission)
         expect(result.message).to eq(
           format(
             s_('TransferOrganization|Group organization transfer failed: %{error_message}'),
@@ -680,6 +727,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         result = service.async_execute
 
         expect(result).to be_error
+        expect(result.reason).to eq(:group_not_root)
         expect(result.message).to eq(
           format(
             s_('TransferOrganization|Group organization transfer failed: %{error_message}'),
@@ -706,6 +754,7 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         result = service.async_execute
 
         expect(result).to be_error
+        expect(result.reason).to eq(:missing_permission)
         expect(result.message).to eq(
           format(
             s_('TransferOrganization|Group organization transfer failed: %{error_message}'),

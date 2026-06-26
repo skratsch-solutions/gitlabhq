@@ -159,6 +159,15 @@ include:
     - .rspec-base
     - .use-pg17-valkey
 
+.rspec-base-pg17-redis70:
+  needs:
+    - !reference [.rspec-base, needs]
+    - job: "db:setup pg17"
+      optional: true
+  extends:
+    - .rspec-base
+    - .use-pg17-redis70
+
 .rspec-base-pg17-clickhouse25:
   extends:
     - .rspec-base

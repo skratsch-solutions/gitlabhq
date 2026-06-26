@@ -1200,7 +1200,6 @@ Gitlab/BoundedContexts:
     - 'app/models/timelog.rb'
     - 'app/models/todo.rb'
     - 'app/models/tree.rb'
-    - 'app/models/trending_project.rb'
     - 'app/models/upload.rb'
     - 'app/models/uploads/base.rb'
     - 'app/models/uploads/fog.rb'

@@ -75,6 +75,8 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       # LFK already present on vulnerability_occurrence with cascade delete.
       'ldap_group_links.group_id',
       'namespace_descendants.namespace_id',
+      # FK removed as table is soon to be dropped. https://gitlab.com/gitlab-org/gitlab/-/work_items/600951
+      'work_item_descriptions.namespace_id',
       'p_batched_git_ref_updates_deletions.project_id',
       'p_catalog_resource_sync_events.project_id',
       'project_data_transfers.project_id', # https://gitlab.com/gitlab-org/gitlab/-/issues/439201

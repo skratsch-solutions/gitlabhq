@@ -28,3 +28,11 @@ export const FIELD_TYPES = {
   DIMENSION: 'dimension',
   METRIC: 'metric',
 };
+
+// list/table render edge-to-edge (they own their row/cell spacing); every other
+// display is a self-contained block that needs an outer inset from its container.
+export const FULL_BLEED_DISPLAY_TYPES = new Set([
+  DISPLAY_TYPES.LIST,
+  DISPLAY_TYPES.ORDERED_LIST,
+  DISPLAY_TYPES.TABLE,
+]);

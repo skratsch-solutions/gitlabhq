@@ -1482,6 +1482,26 @@ rspec system pg17 valkey:
     - .rspec-system-parallel
     - .rails:rules:default-branch-schedule-weekly--code-backstage-default-rules
 
+# Compatibility tests against Redis 7.0 (the minimum version), using the production PG version (PG17)
+
+rspec unit pg17 redis70:
+  extends:
+    - .rspec-base-pg17-redis70
+    - .rspec-unit-parallel
+    - .rails:rules:default-branch-schedule-weekly--code-backstage-default-rules
+
+rspec integration pg17 redis70:
+  extends:
+    - .rspec-base-pg17-redis70
+    - .rspec-integration-parallel
+    - .rails:rules:default-branch-schedule-weekly--code-backstage-default-rules
+
+rspec system pg17 redis70:
+  extends:
+    - .rspec-base-pg17-redis70
+    - .rspec-system-parallel
+    - .rails:rules:default-branch-schedule-weekly--code-backstage-default-rules
+
 # Default branch weekly scheduled jobs #
 ##################################################
 

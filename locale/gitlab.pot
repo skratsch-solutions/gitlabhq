@@ -33829,9 +33829,6 @@ msgstr ""
 msgid "Generate new export"
 msgstr ""
 
-msgid "Generate page path from title"
-msgstr ""
-
 msgid "Generate project access tokens scoped to this project for your applications that need access to the GitLab API."
 msgstr ""
 
@@ -53117,10 +53114,16 @@ msgstr ""
 msgid "Organization ID cannot be nil"
 msgstr ""
 
+msgid "Organization could not be activated"
+msgstr ""
+
 msgid "Organization has already been deleted"
 msgstr ""
 
 msgid "Organization is not soft-deleted"
+msgstr ""
+
+msgid "Organization must be confirmed"
 msgstr ""
 
 msgid "Organization must be empty before it can be deleted"
@@ -86427,9 +86430,6 @@ msgstr ""
 msgid "WikiPage|Generate path from title"
 msgstr ""
 
-msgid "WikiPage|Learn more."
-msgstr ""
-
 msgid "WikiPage|Page path"
 msgstr ""
 
@@ -86460,16 +86460,7 @@ msgstr ""
 msgid "WikiPage|The path where your page is located. Use \"/\" to create nested pages."
 msgstr ""
 
-msgid "WikiPage|Tip: You can move this page by adding the path to the beginning of the title."
-msgstr ""
-
-msgid "WikiPage|Tip: You can specify the full path for the new file. We will automatically create any missing directories."
-msgstr ""
-
 msgid "WikiPage|Title"
-msgstr ""
-
-msgid "WikiPage|To link to a (new) page, type %{linkExample}. %{linkStart}What types of links are supported?%{linkEnd}"
 msgstr ""
 
 msgid "WikiPage|Update %{pageTitle}"
@@ -90027,8 +90018,21 @@ msgstr ""
 msgid "Your namespace %{namespace_name} is over %{link_start}the %{free_limit} user limit%{link_end}"
 msgstr ""
 
+msgid "Your namespace has exceeded its seat limit"
+msgstr ""
+
 msgid "Your namespace has reached its seat limit"
 msgstr ""
+
+msgid "Your namespace has used %{used_seats} of %{total_seats} seat (%{overage_count} over limit). Purchase more seats and turn on restricted access to prevent further overages."
+msgid_plural "Your namespace has used %{used_seats} of %{total_seats} seats (%{overage_count} over limit). Purchase more seats and turn on restricted access to prevent further overages."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Your namespace has used %{used_seats} of %{total_seats} seat (%{overage_count} over limit). Restricted access is blocking new users from being added. Purchase more seats to resolve the overage."
+msgid_plural "Your namespace has used %{used_seats} of %{total_seats} seats (%{overage_count} over limit). Restricted access is blocking new users from being added. Purchase more seats to resolve the overage."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Your namespace has used %{used_seats} of %{total_seats} seats. When no seats remain, adding new users will put your namespace into overage. Purchase more seats and turn on restricted access to block new users automatically."
 msgstr ""

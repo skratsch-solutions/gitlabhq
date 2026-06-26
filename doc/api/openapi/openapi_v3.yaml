@@ -73654,6 +73654,13 @@ components:
         group_id:
           type: integer
           example: 1
+        member_role_id:
+          type: integer
+          format: int64
+          example: 42
+        member_role_name:
+          type: string
+          example: Lead Developer
     APIEntitiesGroupProtectedBranch:
       type: object
       properties:
@@ -73877,6 +73884,13 @@ components:
         group_id:
           type: integer
           example: 1
+        member_role_id:
+          type: integer
+          format: int64
+          example: 42
+        member_role_name:
+          type: string
+          example: Lead Developer
         group_inheritance_type:
           type: integer
           example: 0

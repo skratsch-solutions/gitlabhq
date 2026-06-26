@@ -13,11 +13,10 @@ module Organizations
         @group = group
         @new_organization = new_organization
         @current_user = current_user
-        @old_organization = group.organization
       end
 
       def async_execute
-        return ServiceResponse.error(message: transfer_error) unless can_transfer?
+        return ServiceResponse.error(message: transfer_error, reason: transfer_error_reason) unless can_transfer?
 
         Organizations::Groups::TransferWorker.perform_async(
           {
@@ -33,7 +32,7 @@ module Organizations
       end
 
       def execute
-        return ServiceResponse.error(message: transfer_error) unless can_transfer?
+        return ServiceResponse.error(message: transfer_error, reason: transfer_error_reason) unless can_transfer?
 
         Group.transaction do
           perform_transfer
@@ -48,7 +47,31 @@ module Organizations
 
       private
 
-      attr_reader :group, :new_organization, :current_user, :old_organization
+      attr_reader :group, :new_organization, :current_user
+
+      # The "old" organization is the source of the transfer. By default it is
+      # the group's current organization, but Organizations::ConfirmService
+      # moves the top-level group's organization_id ahead of the descendants;
+      # in that case the actual source is taken from the first descendant
+      # that has not yet been transferred so the runners transfer, the
+      # GroupTransferredEvent, and the EE subscription transfer all receive
+      # the real source organization.
+      def old_organization
+        return group.organization unless new_organization&.id == group.organization_id
+
+        Organizations::Organization.find_by_id(untransferred_descendant_organization_id) ||
+          group.organization
+      end
+      strong_memoize_attr :old_organization
+
+      def untransferred_descendant_organization_id
+        descendant_ids = group.self_and_descendant_ids(skope: Namespace)
+
+        Namespace.id_in(descendant_ids)
+          .where.not(organization_id: new_organization.id) # rubocop:disable CodeReuse/ActiveRecord -- used only in this service
+          .limit(1)
+          .pick(:organization_id)
+      end
 
       def perform_transfer
         transfer_namespaces_and_projects
@@ -168,6 +191,13 @@ module Organizations
           s_("TransferOrganization|Group organization transfer failed: %{error_message}"),
           error_message: error
         )
+      end
+
+      def transfer_error_reason
+        return :group_not_root unless group_is_root?
+        return :already_transferred if already_transferred?
+
+        :missing_permission unless has_permission?
       end
 
       def group_is_root?

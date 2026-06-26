@@ -89,7 +89,12 @@ export default {
       required: true,
     },
   },
-  emits: ['playPipelineSchedule', 'showDeleteModal', 'showTakeOwnershipModal', 'update-sorting'],
+  emits: [
+    'play-pipeline-schedule',
+    'show-delete-modal',
+    'show-take-ownership-modal',
+    'update-sorting',
+  ],
   methods: {
     fetchSortedData({ sortBy, sortDesc }) {
       const field = this.$options.fields.find(({ key }) => key === sortBy);
@@ -154,9 +159,9 @@ export default {
       <pipeline-schedule-actions
         :schedule="item"
         :current-user="currentUser"
-        @showTakeOwnershipModal="$emit('showTakeOwnershipModal', $event)"
-        @showDeleteModal="$emit('showDeleteModal', $event)"
-        @playPipelineSchedule="$emit('playPipelineSchedule', $event)"
+        @show-take-ownership-modal="$emit('show-take-ownership-modal', $event)"
+        @show-delete-modal="$emit('show-delete-modal', $event)"
+        @play-pipeline-schedule="$emit('play-pipeline-schedule', $event)"
       />
     </template>
   </gl-table>

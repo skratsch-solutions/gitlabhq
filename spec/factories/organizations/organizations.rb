@@ -57,6 +57,17 @@ FactoryBot.define do
 
     trait :confirmed do
       state { :confirmed }
+
+      after(:create) do |organization, evaluator|
+        confirming_user = Array.wrap(evaluator.owners).first
+        next unless confirming_user
+
+        organization.state_metadata.merge!(
+          'confirmed_at' => Time.current.as_json,
+          'confirmed_by_user_id' => confirming_user.id
+        )
+        organization.organization_detail.save!
+      end
     end
   end
 end

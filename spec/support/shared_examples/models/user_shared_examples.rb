@@ -133,7 +133,6 @@ RSpec.shared_examples 'associations with defined deletion strategies', :aggregat
       vulnerability_export_part_uploads
       vulnerability_export_uploads
       vulnerability_remediation_uploads
-      work_item_descriptions
       ai_settings
       catalog_resource_versions
       incident_management_timeline_events

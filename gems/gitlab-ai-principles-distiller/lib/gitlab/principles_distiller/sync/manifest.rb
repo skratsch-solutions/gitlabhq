@@ -486,11 +486,13 @@ module Gitlab
           puts "  Updated #{DUO_REVIEW_INSTRUCTIONS_PATH} (#{fences.size} generated region(s))"
         end
 
-        # Returns the fenced principles whose region is stale relative to its
-        # distilled file (recorded directives differ from current frontmatter),
-        # or an empty array when every region is current. Read-only; drives the
+        # Returns the fenced principles whose region needs attention: stale
+        # (recorded directives differ from the distilled frontmatter), malformed
+        # (a BEGIN marker without exactly one matching region), or orphaned (a
+        # fence with no backing distilled file / manifest entry). Returns an
+        # empty array when every region is current. Read-only; drives the
         # --check-duo-instructions CI guard.
-        def stale_duo_review_instructions
+        def problematic_duo_review_instructions
           path = Workspace.safe_join(DUO_REVIEW_INSTRUCTIONS_PATH)
           return [] unless File.exist?(path)
 

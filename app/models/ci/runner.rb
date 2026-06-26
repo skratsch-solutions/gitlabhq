@@ -93,7 +93,8 @@ module Ci
 
     TAG_LIST_MAX_LENGTH = 50
 
-    has_many :runner_managers, inverse_of: :runner
+    has_many :runner_managers, inverse_of: :runner,
+      foreign_key: [:runner_id, :runner_type], primary_key: [:id, :runner_type]
     has_many :builds
     has_many :running_builds, inverse_of: :runner
     has_many :runner_projects, inverse_of: :runner, autosave: true, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -136,11 +137,13 @@ module Ci
     scope :deprecated_specific, -> { project_type.or(group_type) }
 
     scope :belonging_to_project, ->(project_id) {
-      joins(:runner_projects).where(ci_runner_projects: { project_id: project_id })
+      scope = joins(:runner_projects).where(ci_runner_projects: { project_id: project_id })
+      ci_runner_partition_pruning_enabled? ? scope.project_type : scope
     }
 
     scope :belonging_to_group, ->(group_id) {
-      joins(:runner_namespaces).where(ci_runner_namespaces: { namespace_id: group_id })
+      scope = joins(:runner_namespaces).where(ci_runner_namespaces: { namespace_id: group_id })
+      ci_runner_partition_pruning_enabled? ? scope.group_type : scope
     }
 
     scope :created_by_admins, -> { with_creator_id(User.admins.ids) }
@@ -353,6 +356,21 @@ module Ci
 
     def self.taggings_join_model
       ::Ci::RunnerTagging
+    end
+
+    # Gates the `runner_type` filter added to scopes like `belonging_to_project`
+    # and `belonging_to_group` so PostgreSQL can prune `ci_runners` partitions.
+    #
+    # We gate on `Feature.current_request` rather than a project/group actor on
+    # purpose: these are class-level scopes invoked with raw ids, id arrays, and
+    # relations (e.g. `belonging_to_group(namespace_id_batch)`), so there is no
+    # single domain actor to key on. The change is a logical no-op (identical
+    # result sets), so the flag only needs to derisk the query-plan change; a
+    # per-request gate keeps every runner query within one request consistent,
+    # which makes the rollout observable on the database dashboards.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/594861.
+    def self.ci_runner_partition_pruning_enabled?
+      Feature.enabled?(:ci_runner_partition_pruning, Feature.current_request)
     end
 
     def self.created_runner_prefix

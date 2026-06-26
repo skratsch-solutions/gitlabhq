@@ -2494,7 +2494,6 @@ RSpec/FeatureCategory:
     - 'spec/models/subscription_spec.rb'
     - 'spec/models/synthetic_note_spec.rb'
     - 'spec/models/term_agreement_spec.rb'
-    - 'spec/models/trending_project_spec.rb'
     - 'spec/models/upload_spec.rb'
     - 'spec/models/uploads/fog_spec.rb'
     - 'spec/models/uploads/local_spec.rb'

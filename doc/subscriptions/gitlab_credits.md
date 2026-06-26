@@ -394,7 +394,7 @@ The dashboard displays summary cards of key metrics:
 > This dashboard displays usage of all GitLab Duo Agent Platform features, including non-billable
 > beta and experiment features. To view billable usage only, go to the Customers Portal.
 >
-> Some pre-release features, such as the Security Review Agent, are billable and subject to
+> Some pre-release features, such as the Security Review Flow, are billable and subject to
 > GitLab Credits charges.
 
 The GitLab Credits dashboard in GitLab provides operational visibility into the usage of credits in your organization.

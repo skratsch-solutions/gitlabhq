@@ -860,7 +860,6 @@ RSpec/BeEq:
     - 'spec/models/snippet_spec.rb'
     - 'spec/models/suggestion_spec.rb'
     - 'spec/models/todo_spec.rb'
-    - 'spec/models/trending_project_spec.rb'
     - 'spec/models/user_preference_spec.rb'
     - 'spec/models/user_spec.rb'
     - 'spec/models/users/anonymous_spec.rb'

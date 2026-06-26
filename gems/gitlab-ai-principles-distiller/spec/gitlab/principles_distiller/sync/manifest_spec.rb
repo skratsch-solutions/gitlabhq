@@ -1176,7 +1176,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     end
   end
 
-  describe '.stale_duo_review_instructions' do
+  describe '.problematic_duo_review_instructions' do
     let(:duo_dir) { File.join(tmpdir, '.gitlab', 'duo') }
     let(:duo_path) { File.join(duo_dir, 'mr-review-instructions.yaml') }
     let(:principles_dir) { File.join(tmpdir, '.ai', 'principles', 'distilled') }
@@ -1227,17 +1227,17 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
 
     it 'reports the principle when the distilled file has drifted' do
       write_distilled(sha: 'newer', checksum: 'newer')
-      expect(manifest.stale_duo_review_instructions).to eq(['documentation'])
+      expect(manifest.problematic_duo_review_instructions).to eq(['documentation'])
     end
 
     it 'reports nothing when the recorded directives match the distilled file' do
       write_distilled(sha: 'recorded', checksum: 'recorded')
-      expect(manifest.stale_duo_review_instructions).to eq([])
+      expect(manifest.problematic_duo_review_instructions).to eq([])
     end
 
     it 'returns an empty array when the file is absent' do
       FileUtils.rm_f(duo_path)
-      expect(manifest.stale_duo_review_instructions).to eq([])
+      expect(manifest.problematic_duo_review_instructions).to eq([])
     end
   end
 end

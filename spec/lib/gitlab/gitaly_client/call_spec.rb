@@ -342,6 +342,99 @@ RSpec.describe Gitlab::GitalyClient::Call, :clean_gitlab_redis_rate_limiting, fe
       end
     end
 
+    describe 'gitaly_client_calls SLI' do
+      let(:subject_call) do
+        described_class.new(storage, service, rpc, request, remote_storage, timeout, gitaly_context: gitaly_context)
+      end
+
+      context 'when the response is not an enumerator' do
+        let(:response) { Gitaly::FindLocalBranchesResponse.new }
+
+        it 'records a successful call with no error' do
+          expect(Gitlab::Metrics::GitalyClientSlis).to receive(:record_error_rate).with(
+            storage: storage, error: nil
+          ).once
+
+          subject
+        end
+
+        context 'when the call raises a BadStatus error' do
+          before do
+            allow(client).to receive(:execute).and_raise(GRPC::Unavailable)
+          end
+
+          it 'records the call passing the exception' do
+            expect(Gitlab::Metrics::GitalyClientSlis).to receive(:record_error_rate).with(
+              storage: storage, error: an_instance_of(GRPC::Unavailable)
+            ).once
+
+            expect { subject }.to raise_error(GRPC::Unavailable)
+          end
+        end
+
+        context 'when the circuit breaker is open' do
+          before do
+            allow(subject_call.send(:circuit_breaker)).to receive(:check!)
+              .and_raise(Gitlab::Git::ResourceExhaustedError)
+          end
+
+          it 'records the call passing the exception' do
+            expect(Gitlab::Metrics::GitalyClientSlis).to receive(:record_error_rate).with(
+              storage: storage, error: an_instance_of(Gitlab::Git::ResourceExhaustedError)
+            ).once
+
+            expect { subject_call.call }.to raise_error(Gitlab::Git::ResourceExhaustedError)
+          end
+        end
+
+        context 'when the feature flag is disabled' do
+          before do
+            stub_feature_flags(rails_gitaly_client_calls_sli: false)
+          end
+
+          it 'does not record the SLI' do
+            expect(Gitlab::Metrics::GitalyClientSlis).not_to receive(:record_error_rate)
+
+            subject
+          end
+        end
+      end
+
+      context 'when the response is an enumerator' do
+        let(:response) do
+          Enumerator.new do |yielder|
+            yielder << 1
+            yielder << 2
+          end
+        end
+
+        it 'records a successful call once the stream is consumed' do
+          expect(Gitlab::Metrics::GitalyClientSlis).to receive(:record_error_rate).with(
+            storage: storage, error: nil
+          ).once
+
+          subject.to_a
+        end
+
+        context 'when the stream raises a BadStatus error' do
+          let(:response) do
+            Enumerator.new do |yielder|
+              yielder << 1
+              raise GRPC::Unavailable
+            end
+          end
+
+          it 'records the call once passing the exception' do
+            expect(Gitlab::Metrics::GitalyClientSlis).to receive(:record_error_rate).with(
+              storage: storage, error: an_instance_of(GRPC::Unavailable)
+            ).once
+
+            expect { subject.to_a }.to raise_error(GRPC::Unavailable)
+          end
+        end
+      end
+    end
+
     describe 'circuit breaker integration' do
       let(:exhausted_exception) { GRPC::ResourceExhausted.new("Gitaly exhausted") }
 

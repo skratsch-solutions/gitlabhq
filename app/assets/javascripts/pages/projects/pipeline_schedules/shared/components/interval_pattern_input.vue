@@ -128,7 +128,7 @@ export default {
         });
       }
 
-      this.$emit('cronValue', val);
+      this.$emit('cron-value', val);
     },
     radioValue: {
       immediate: true,

@@ -32649,20 +32649,6 @@ CREATE SEQUENCE topics_id_seq
 
 ALTER SEQUENCE topics_id_seq OWNED BY topics.id;
 
-CREATE TABLE trending_projects (
-    id bigint NOT NULL,
-    project_id bigint NOT NULL
-);
-
-CREATE SEQUENCE trending_projects_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE trending_projects_id_seq OWNED BY trending_projects.id;
-
 CREATE TABLE upcoming_reconciliations (
     id bigint NOT NULL,
     namespace_id bigint,
@@ -38074,8 +38060,6 @@ ALTER TABLE ONLY todos ALTER COLUMN id SET DEFAULT nextval('todos_id_seq'::regcl
 
 ALTER TABLE ONLY topics ALTER COLUMN id SET DEFAULT nextval('topics_id_seq'::regclass);
 
-ALTER TABLE ONLY trending_projects ALTER COLUMN id SET DEFAULT nextval('trending_projects_id_seq'::regclass);
-
 ALTER TABLE ONLY upcoming_reconciliations ALTER COLUMN id SET DEFAULT nextval('upcoming_reconciliations_id_seq'::regclass);
 
 ALTER TABLE ONLY upload_states ALTER COLUMN upload_id SET DEFAULT nextval('upload_states_upload_id_seq'::regclass);
@@ -42451,9 +42435,6 @@ ALTER TABLE ONLY todos
 
 ALTER TABLE ONLY topics
     ADD CONSTRAINT topics_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY trending_projects
-    ADD CONSTRAINT trending_projects_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY upcoming_reconciliations
     ADD CONSTRAINT upcoming_reconciliations_pkey PRIMARY KEY (id);
@@ -51465,8 +51446,6 @@ CREATE INDEX index_topics_on_organization_id_and_non_private_projects_count ON t
 CREATE UNIQUE INDEX index_topics_on_organization_id_slug_and ON topics USING btree (organization_id, slug) WHERE (slug IS NOT NULL);
 
 CREATE INDEX index_topics_total_projects_count ON topics USING btree (total_projects_count DESC, id);
-
-CREATE UNIQUE INDEX index_trending_projects_on_project_id ON trending_projects USING btree (project_id);
 
 CREATE INDEX index_unarchived_occurrences_for_aggregations_component_name ON sbom_occurrences USING btree (traversal_ids, component_name, component_id, component_version_id) WHERE (archived = false);
 
@@ -60753,9 +60732,6 @@ ALTER TABLE ONLY security_policies
 ALTER TABLE ONLY virtual_registries_packages_npm_upstreams
     ADD CONSTRAINT fk_rails_08949a6736 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY trending_projects
-    ADD CONSTRAINT fk_rails_09feecd872 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
-
 ALTER TABLE ONLY security_orchestration_policy_configurations
     ADD CONSTRAINT fk_rails_0a22dcd52d FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -61124,9 +61100,6 @@ ALTER TABLE ONLY resource_state_events
 
 ALTER TABLE ONLY group_import_states
     ADD CONSTRAINT fk_rails_31c3e0503a FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
-
-ALTER TABLE work_item_descriptions
-    ADD CONSTRAINT fk_rails_31c499d2ce FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY zoom_meetings
     ADD CONSTRAINT fk_rails_3263f29616 FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE;
@@ -61550,9 +61523,6 @@ ALTER TABLE ONLY project_to_security_attributes
 
 ALTER TABLE ONLY incident_management_oncall_participants
     ADD CONSTRAINT fk_rails_5fe86ea341 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
-
-ALTER TABLE work_item_descriptions
-    ADD CONSTRAINT fk_rails_600bd0d333 FOREIGN KEY (last_edited_by_id) REFERENCES users(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY work_item_parent_links
     ADD CONSTRAINT fk_rails_601d5bec3a FOREIGN KEY (work_item_id) REFERENCES issues(id) ON DELETE CASCADE;
@@ -62408,9 +62378,6 @@ ALTER TABLE ONLY organization_settings
 
 ALTER TABLE ONLY system_access_microsoft_applications
     ADD CONSTRAINT fk_rails_c5b7765d04 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
-
-ALTER TABLE work_item_descriptions
-    ADD CONSTRAINT fk_rails_c5e6229ed2 FOREIGN KEY (work_item_id) REFERENCES issues(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY custom_software_licenses
     ADD CONSTRAINT fk_rails_c68163fae6 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

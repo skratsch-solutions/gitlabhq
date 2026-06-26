@@ -90,21 +90,55 @@ module Gitlab
           end
         end
 
-        # Returns the principle keys whose recorded region directives no longer
-        # match the current distilled file, i.e. the region is stale relative
-        # to its distilled source. `fences` carries the current
-        # distilled_at_sha / source_checksum for each principle.
+        # Returns the principle keys whose region is stale, malformed, or
+        # orphaned:
+        #
+        # - stale: the recorded distilled_at_sha / source_checksum directives no
+        #   longer match the current distilled file.
+        # - malformed: a BEGIN marker exists but does not pair into exactly one
+        #   whole region: a missing END marker, or a duplicate same-key BEGIN
+        #   (the non-greedy REGION_PATTERN backref would merge both into one
+        #   match). Such a region is invisible to `regenerate`/`check` by
+        #   directive comparison, so the drift guard must flag it loudly rather
+        #   than let it slip past.
+        # - orphaned: a fence exists in the YAML for a principle that has no
+        #   entry in `fences` (its distilled file or manifest entry is gone), so
+        #   the fenced guidance no longer has a source of truth. `regenerate`
+        #   deliberately leaves such a region untouched (a transient missing
+        #   file must not blank a fence), but the read-only guard should still
+        #   surface it.
+        #
+        # `fences` carries the current distilled_at_sha / source_checksum for
+        # each principle whose distilled file was found.
         def check(yaml_text, fences:)
-          each_region(yaml_text).filter_map do |principle, region|
+          malformed = malformed_principles(yaml_text)
+          orphaned = fenced_principles(yaml_text).uniq.reject { |p| fences.key?(p) }
+
+          stale = each_region(yaml_text).filter_map do |principle, region|
             data = fences[principle]
             next unless data
 
             recorded_sha = region[DISTILLED_AT_SHA_DIRECTIVE, :sha]
             recorded_checksum = region[SOURCE_CHECKSUM_DIRECTIVE, :checksum]
 
-            stale = recorded_sha != data[:distilled_at_sha] ||
+            drifted = recorded_sha != data[:distilled_at_sha] ||
               recorded_checksum != data[:source_checksum]
-            principle if stale
+            principle if drifted
+          end
+
+          (malformed + orphaned + stale).uniq
+        end
+
+        # Returns principle keys whose BEGIN-marker count does not equal the
+        # number of whole regions they pair into. Catches a BEGIN with no
+        # matching END, and duplicate same-key BEGINs that the non-greedy
+        # REGION_PATTERN collapses into a single match.
+        def malformed_principles(yaml_text)
+          begin_counts = fenced_principles(yaml_text).tally
+          region_counts = each_region(yaml_text).map { |principle, _region| principle }.tally
+
+          begin_counts.filter_map do |principle, begins|
+            principle if begins != region_counts.fetch(principle, 0)
           end
         end
 
@@ -123,7 +157,15 @@ module Gitlab
         # Assembles a full generated region, preserving the hand-authored
         # name/fileFilters block from the existing region and regenerating the
         # directives and instructions body.
+        #
+        # Raises when the distilled body is empty: emitting `instructions: |`
+        # with no body parses as a nil mapping value and silently blanks the
+        # review guidance for that group, so fail loudly instead.
         def build_region(principle, data, existing_region)
+          if data[:distilled_body].to_s.strip.empty?
+            raise "refusing to generate empty instructions body for '#{principle}'"
+          end
+
           [
             begin_marker(principle),
             *directive_comments(data),
@@ -174,9 +216,10 @@ module Gitlab
         end
 
         # Indents each body line by BODY_INDENT, leaving blank lines empty so
-        # the YAML block scalar has no trailing whitespace.
+        # the YAML block scalar has no trailing whitespace. A whitespace-only
+        # line is treated as blank so it does not emit trailing whitespace.
         def indent(text)
-          text.lines(chomp: true).map { |line| line.empty? ? '' : "#{BODY_INDENT}#{line}" }
+          text.lines(chomp: true).map { |line| line.strip.empty? ? '' : "#{BODY_INDENT}#{line}" }
         end
       end
     end

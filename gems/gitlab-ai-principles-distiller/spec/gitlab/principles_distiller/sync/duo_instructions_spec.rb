@@ -87,7 +87,11 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::DuoInstructions do
   end
 
   describe '.regenerate' do
-    subject(:regenerated) { described_class.regenerate(fixture, fences: fences) }
+    subject(:regenerated) { described_class.regenerate(yaml, fences: regenerate_fences) }
+
+    # Defaults; inner contexts override `yaml` and/or `regenerate_fences`.
+    let(:yaml) { fixture }
+    let(:regenerate_fences) { fences }
 
     it 'refreshes the distilled_at_sha and source_checksum directives' do
       expect(regenerated).to include('  # distilled_at_sha: newsha222')
@@ -138,45 +142,170 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::DuoInstructions do
       expect(twice).to eq(once)
     end
 
-    it 'preserves a "# fileFilters:" override directive when present' do
-      with_override = fixture.sub(
-        "    fileFilters:\n      - \"doc/**/*.md\"",
-        "    fileFilters:\n      - \"doc/api/**/*.md\""
-      )
-      result = described_class.regenerate(with_override, fences: fences)
-      expect(result).to include("      - \"doc/api/**/*.md\"")
-      expect(result).not_to include("      - \"doc/**/*.md\"")
+    context 'when the fence carries a "# fileFilters:" override directive' do
+      let(:yaml) do
+        fixture.sub(
+          "    fileFilters:\n      - \"doc/**/*.md\"",
+          "    fileFilters:\n      - \"doc/api/**/*.md\""
+        )
+      end
+
+      it 'preserves the override' do
+        expect(regenerated).to include("      - \"doc/api/**/*.md\"")
+        expect(regenerated).not_to include("      - \"doc/**/*.md\"")
+      end
     end
 
     context 'when a fenced principle is absent from the fences data' do
+      let(:regenerate_fences) { {} }
+
       it 'leaves that region untouched' do
-        result = described_class.regenerate(fixture, fences: {})
-        expect(result).to eq(fixture)
+        expect(regenerated).to eq(fixture)
+      end
+    end
+
+    context 'with an empty distilled body' do
+      let(:regenerate_fences) do
+        fences.transform_values { |data| data.merge(distilled_body: "   \n") }
+      end
+
+      it 'raises rather than emitting an empty instructions body' do
+        expect { regenerated }.to raise_error(/empty instructions body for 'documentation'/)
+      end
+    end
+
+    context 'with whitespace-only body lines' do
+      let(:regenerate_fences) do
+        fences.transform_values do |data|
+          data.merge(distilled_body: "### Section\n   \n- A bullet.")
+        end
+      end
+
+      it 'does not emit trailing whitespace' do
+        expect(regenerated).not_to match(/^ +$/)
       end
     end
   end
 
   describe '.check' do
-    it 'returns the principle when the recorded directives are stale' do
-      expect(described_class.check(fixture, fences: fences)).to eq(['documentation'])
-    end
+    subject(:checked) { described_class.check(yaml, fences: check_fences) }
 
-    it 'returns an empty array when the recorded directives match' do
-      current = fences.transform_values do |data|
-        data.merge(distilled_at_sha: 'oldsha111', source_checksum: 'oldsum11')
+    # Defaults; inner contexts override `yaml` and/or `check_fences`.
+    let(:yaml) { fixture }
+    let(:check_fences) { fences }
+
+    context 'when the recorded directives are stale' do
+      it 'returns the principle' do
+        expect(checked).to eq(['documentation'])
       end
-      expect(described_class.check(fixture, fences: current)).to eq([])
     end
 
-    it 'ignores fenced principles absent from the fences data' do
-      expect(described_class.check(fixture, fences: {})).to eq([])
-    end
-
-    it 'detects staleness when only the checksum differs' do
-      partial = fences.transform_values do |data|
-        data.merge(distilled_at_sha: 'oldsha111', source_checksum: 'different')
+    context 'when the recorded directives match' do
+      let(:check_fences) do
+        fences.transform_values do |data|
+          data.merge(distilled_at_sha: 'oldsha111', source_checksum: 'oldsum11')
+        end
       end
-      expect(described_class.check(fixture, fences: partial)).to eq(['documentation'])
+
+      it 'returns an empty array' do
+        expect(checked).to eq([])
+      end
+    end
+
+    context 'when only the checksum differs' do
+      let(:check_fences) do
+        fences.transform_values do |data|
+          data.merge(distilled_at_sha: 'oldsha111', source_checksum: 'different')
+        end
+      end
+
+      it 'detects the staleness' do
+        expect(checked).to eq(['documentation'])
+      end
+    end
+
+    context 'when a fenced principle is orphaned (absent from the fences data)' do
+      let(:check_fences) { {} }
+
+      # A fence exists in the YAML but its distilled file / manifest entry is
+      # gone, so build_duo_fences omits it. The read-only guard must still
+      # surface it rather than silently report "up to date".
+      it 'flags the orphaned principle' do
+        expect(checked).to eq(['documentation'])
+      end
+    end
+
+    context 'when a region has a BEGIN marker but no matching END' do
+      let(:yaml) { fixture.sub(/^  # <<< end generated: documentation$/, '  - name: Orphaned') }
+      let(:check_fences) do
+        fences.transform_values do |data|
+          data.merge(distilled_at_sha: 'oldsha111', source_checksum: 'oldsum11')
+        end
+      end
+
+      it 'flags the principle as malformed even when directives would otherwise match' do
+        expect(checked).to eq(['documentation'])
+      end
+    end
+
+    context 'when the same principle has duplicate BEGIN markers' do
+      # Two BEGINs for `documentation` but the first END removed: the
+      # non-greedy REGION_PATTERN backref collapses both into one match, so
+      # the begin count (2) exceeds the region count (1).
+      let(:yaml) do
+        extra = <<~EXTRA.gsub(/^/, '  ')
+          # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
+          # distilled_at_sha: oldsha111
+          # source_checksum: oldsum11
+          - name: Documentation duplicate
+            fileFilters:
+              - "doc/**/*.md"
+            instructions: |
+              another body
+          # <<< end generated: documentation
+        EXTRA
+        fixture.sub(/^  # <<< end generated: documentation$\n/, '') + extra
+      end
+
+      let(:check_fences) do
+        fences.transform_values do |data|
+          data.merge(distilled_at_sha: 'oldsha111', source_checksum: 'oldsum11')
+        end
+      end
+
+      it 'flags the duplicated principle as malformed' do
+        expect(checked).to eq(['documentation'])
+      end
+    end
+  end
+
+  describe '.malformed_principles' do
+    subject(:malformed) { described_class.malformed_principles(yaml) }
+
+    let(:yaml) { fixture }
+
+    context 'when every BEGIN pairs with one region' do
+      it 'returns an empty array' do
+        expect(malformed).to eq([])
+      end
+    end
+
+    context 'when an END marker is missing' do
+      let(:yaml) { fixture.sub(/^  # <<< end generated: documentation$/, '  - name: Orphaned') }
+
+      it 'flags the principle' do
+        expect(malformed).to eq(['documentation'])
+      end
+    end
+
+    context 'when a principle has duplicate BEGIN markers' do
+      # A second BEGIN for the same key without its own END: the begin count
+      # (2) exceeds the number of whole regions REGION_PATTERN pairs (1).
+      let(:yaml) { "#{fixture}  # >>> generated: documentation #{described_class::BEGIN_SUFFIX}\n" }
+
+      it 'flags the principle' do
+        expect(malformed).to eq(['documentation'])
+      end
     end
   end
 end

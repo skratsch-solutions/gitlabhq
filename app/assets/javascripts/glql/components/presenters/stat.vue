@@ -72,7 +72,7 @@ export default {
 </script>
 
 <template>
-  <div class="gl-px-5 gl-py-5">
+  <div>
     <gl-skeleton-loader v-if="loading" />
     <gl-single-stat
       v-else-if="!validationError && metric"
