@@ -2,7 +2,7 @@
 
 require 'fast_spec_helper'
 
-RSpec.describe Bitbucket::Page do
+RSpec.describe Bitbucket::Page, feature_category: :importers do
   let(:response) { { 'values' => [{ 'username' => 'Ben' }], 'pagelen' => 2, 'next' => '' } }
 
   before do

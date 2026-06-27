@@ -19477,7 +19477,8 @@ CREATE TABLE conversational_development_index_metrics (
     percentage_milestones double precision DEFAULT 0.0 NOT NULL,
     percentage_notes double precision DEFAULT 0.0 NOT NULL,
     percentage_projects_prometheus_active double precision DEFAULT 0.0 NOT NULL,
-    percentage_service_desk_issues double precision DEFAULT 0.0 NOT NULL
+    percentage_service_desk_issues double precision DEFAULT 0.0 NOT NULL,
+    usage_data_id bigint
 );
 
 CREATE SEQUENCE conversational_development_index_metrics_id_seq

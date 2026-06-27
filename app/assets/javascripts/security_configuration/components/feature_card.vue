@@ -25,6 +25,7 @@ export default {
       required: true,
     },
   },
+  emits: ['error'],
   computed: {
     available() {
       return this.feature.available;

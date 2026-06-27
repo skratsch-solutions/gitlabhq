@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mutations::MergeRequests::SetSubscription do
+RSpec.describe Mutations::MergeRequests::SetSubscription, feature_category: :api do
   let_it_be_with_reload(:project) { create(:project) }
   let_it_be(:user) { create(:user) }
 

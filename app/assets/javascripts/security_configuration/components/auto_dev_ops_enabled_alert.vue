@@ -10,6 +10,7 @@ export default {
     GlSprintf,
   },
   inject: ['autoDevopsHelpPagePath'],
+  emits: ['dismiss'],
   i18n: {
     body: s__(
       'AutoDevopsAlert|Security testing tools enabled with %{linkStart}Auto DevOps%{linkEnd}',

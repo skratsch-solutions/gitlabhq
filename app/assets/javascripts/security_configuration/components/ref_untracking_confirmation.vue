@@ -16,6 +16,7 @@ export default {
       default: null,
     },
   },
+  emits: ['cancel', 'confirm'],
   computed: {
     modalTitle() {
       if (!this.refToUntrack) return '';
