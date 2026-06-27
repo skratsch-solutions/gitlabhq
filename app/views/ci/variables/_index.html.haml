@@ -26,8 +26,7 @@
   group_path: @group&.full_path,
   maskable_raw_regex: ci_variable_maskable_raw_regex,
   maskable_regex: ci_variable_maskable_regex,
-  protected_by_default: ci_variable_protected_by_default?.to_s,
-  masked_environment_variables_link: help_page_path('ci/variables/_index.md', anchor: 'mask-a-cicd-variable') } }
+  protected_by_default: ci_variable_protected_by_default?.to_s } }
 
 - if !@group && @project.group
   = render 'ci/group_variables/header'
