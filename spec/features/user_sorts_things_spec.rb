@@ -30,12 +30,14 @@ RSpec.describe "User sorts things", :js do
     visit(project_issues_path(project))
     expect(page).to have_content(issue.title)
 
+    click_button 'Display'
     pajamas_sort_by sort_option, from: s_('SortOptions|Created date')
     expect(page).to have_content(issue.title)
 
     visit(project_path(project))
     visit(project_issues_path(project))
 
+    click_button 'Display'
     expect(page).to have_button(sort_option)
   end
 

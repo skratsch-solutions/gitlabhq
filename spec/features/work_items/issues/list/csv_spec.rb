@@ -88,7 +88,9 @@ RSpec.describe 'Issues csv', :js, feature_category: :team_planning do
   it 'ignores sorting from issue index', :sidekiq_inline do
     issue2 = create(:labeled_issue, project: project, author: user, labels: [feature_label])
 
+    click_button 'Display'
     pajamas_sort_by 'Label priority', from: 'Created date'
+    send_keys :escape # close the display settings drawer so it does not overlay the CSV export buttons
     request_csv
 
     expected = [issue.iid.to_s, issue2.iid.to_s]

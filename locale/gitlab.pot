@@ -86787,9 +86787,6 @@ msgstr ""
 msgid "WorkItems|Display"
 msgstr ""
 
-msgid "WorkItems|Display options"
-msgstr ""
-
 msgid "WorkItems|Fields"
 msgstr ""
 

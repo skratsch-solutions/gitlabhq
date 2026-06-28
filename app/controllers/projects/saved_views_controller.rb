@@ -17,7 +17,6 @@ module Projects
       push_frontend_feature_flag(:planning_view_boards, current_user)
       push_frontend_feature_flag(:work_item_rest_api_index, current_user)
       push_frontend_feature_flag(:work_item_rest_api, current_user)
-      push_frontend_feature_flag(:work_item_list_display_settings_drawer, current_user)
     end
 
     def show

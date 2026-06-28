@@ -359,10 +359,6 @@ RSpec.configure do |config|
       # enabling it by default breaks existing specs that use strict receive(:track_event) expectations
       stub_feature_flags(track_api_request_from_personal_access_token: false)
 
-      # The user preferences and sort options are being merged in a drawer
-      # and it will be a WIP feature that will be enabled in a future milestone.
-      # https://gitlab.com/gitlab-org/gitlab/-/work_items/597602
-      stub_feature_flags(work_item_list_display_settings_drawer: false)
     else
       unstub_all_feature_flags
     end

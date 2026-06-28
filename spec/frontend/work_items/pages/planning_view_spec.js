@@ -87,7 +87,6 @@ import ListView from 'ee_else_ce/work_items/list/list_view.vue';
 import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
 import WorkItemsSavedViewsSelectors from '~/work_items/list/components/work_items_saved_views_selectors.vue';
 import WorkItemsNewSavedViewModal from '~/work_items/list/components/work_items_new_saved_view_modal.vue';
-import WorkItemUserPreferences from '~/work_items/list/components/work_item_user_preferences.vue';
 import WorkItemDisplaySettingsDrawer from '~/work_items/list/components/work_item_display_settings_drawer.vue';
 import InfoBanner from '~/work_items/list/components/info_banner.vue';
 import WorkItemListActions from '~/work_items/list/components/work_item_list_actions.vue';
@@ -237,7 +236,6 @@ const findNewSavedViewModal = () => wrapper.findComponent(WorkItemsNewSavedViewM
 const findWorkItemsSavedViewsSelectors = () => wrapper.findComponent(WorkItemsSavedViewsSelectors);
 const findViewNotFoundModal = () => wrapper.findByTestId('view-not-found-modal');
 const findViewLimitWarningModal = () => wrapper.findByTestId('view-limit-warning-modal');
-const findWorkItemUserPreferences = () => wrapper.findComponent(WorkItemUserPreferences);
 const findDisplaySettingsDrawer = () => wrapper.findComponent(WorkItemDisplaySettingsDrawer);
 const findDisplaySettingsButton = () => wrapper.findByTestId('display-settings-button');
 const findServiceDeskInfoBanner = () => wrapper.findComponent(InfoBanner);
@@ -397,17 +395,6 @@ describe('planning-view', () => {
       sort: CREATED_DESC,
       state: STATUS_OPEN,
       firstPageSize: 20,
-    });
-  });
-
-  it('renders the WorkItemUserPreferences component', async () => {
-    await mountComponent();
-
-    expect(findWorkItemUserPreferences().props()).toMatchObject({
-      fullPath: 'full/path',
-      // TODO re-add shouldOpenItemsInSidePanel
-      commonPreferences: {},
-      namespacePreferences: {},
     });
   });
 
@@ -977,7 +964,7 @@ describe('planning-view', () => {
           },
         });
 
-        expect(findFilteredSearchBar().props('sortOptions')).toEqual([
+        expect(findDisplaySettingsDrawer().props('sortOptions')).toEqual([
           expect.objectContaining({ title: 'Priority' }),
           expect.objectContaining({ title: 'Created date' }),
           expect.objectContaining({ title: 'Updated date' }),
@@ -1008,7 +995,7 @@ describe('planning-view', () => {
           },
         });
 
-        expect(findFilteredSearchBar().props('sortOptions')).toEqual([
+        expect(findDisplaySettingsDrawer().props('sortOptions')).toEqual([
           expect.objectContaining({ title: 'Priority' }),
           expect.objectContaining({ title: 'Created date' }),
           expect.objectContaining({ title: 'Updated date' }),
@@ -1036,7 +1023,7 @@ describe('planning-view', () => {
           },
         });
 
-        expect(findFilteredSearchBar().props('sortOptions')).toEqual([
+        expect(findDisplaySettingsDrawer().props('sortOptions')).toEqual([
           expect.objectContaining({ title: 'Created date' }),
           expect.objectContaining({ title: 'Updated date' }),
           expect.objectContaining({ title: 'Closed date' }),
@@ -1062,7 +1049,7 @@ describe('planning-view', () => {
             workItemType: WORK_ITEM_TYPE_NAME_TICKET,
           },
         });
-        const sortOptions = findFilteredSearchBar()
+        const sortOptions = findDisplaySettingsDrawer()
           .props('sortOptions')
           .map((sort) => sort.title);
 
@@ -1701,7 +1688,7 @@ describe('planning-view', () => {
         });
 
         it('renders "Save changes" and "Reset to defaults" buttons when display preferences change', async () => {
-          findWorkItemUserPreferences().vm.$emit('local-update', {
+          findDisplaySettingsDrawer().vm.$emit('update-settings', {
             hiddenMetadataKeys: ['labels'],
           });
 
@@ -1870,7 +1857,7 @@ describe('planning-view', () => {
           route: { name: 'savedView', params: { type: 'work_items', view_id: '3' } },
         });
 
-        findWorkItemUserPreferences().vm.$emit('local-update', {
+        findDisplaySettingsDrawer().vm.$emit('update-settings', {
           hiddenMetadataKeys: ['labels'],
         });
 
@@ -2580,118 +2567,74 @@ describe('planning-view', () => {
   });
 
   describe('display settings drawer', () => {
-    describe('when work_item_list_display_settings_drawer is enabled', () => {
-      beforeEach(async () => {
-        await mountComponent({
-          provide: {
-            glFeatures: { workItemListDisplaySettingsDrawer: true },
-          },
-        });
-      });
+    beforeEach(async () => {
+      await mountComponent();
+    });
 
-      it('renders the Display button', () => {
-        expect(findDisplaySettingsButton().exists()).toBe(true);
-      });
+    it('renders the Display button', () => {
+      expect(findDisplaySettingsButton().exists()).toBe(true);
+    });
 
-      it('renders the drawer closed by default', () => {
-        expect(findDisplaySettingsDrawer().props('open')).toBe(false);
-      });
+    it('renders the drawer closed by default', () => {
+      expect(findDisplaySettingsDrawer().props('open')).toBe(false);
+    });
 
-      it('opens the drawer when the Display button is clicked', async () => {
-        findDisplaySettingsButton().vm.$emit('click');
-        await nextTick();
+    it('opens the drawer when the Display button is clicked', async () => {
+      findDisplaySettingsButton().vm.$emit('click');
+      await nextTick();
 
-        expect(findDisplaySettingsDrawer().props('open')).toBe(true);
-      });
+      expect(findDisplaySettingsDrawer().props('open')).toBe(true);
+    });
 
-      it('closes the drawer when the drawer emits close', async () => {
-        findDisplaySettingsButton().vm.$emit('click');
-        await nextTick();
+    it('closes the drawer when the drawer emits close', async () => {
+      findDisplaySettingsButton().vm.$emit('click');
+      await nextTick();
 
-        findDisplaySettingsDrawer().vm.$emit('close');
-        await nextTick();
+      findDisplaySettingsDrawer().vm.$emit('close');
+      await nextTick();
 
-        expect(findDisplaySettingsDrawer().props('open')).toBe(false);
-      });
+      expect(findDisplaySettingsDrawer().props('open')).toBe(false);
+    });
 
-      it('does not render the existing user preferences dropdown', () => {
-        expect(findWorkItemUserPreferences().exists()).toBe(false);
-      });
+    it('hides the sort dropdown by passing an empty sortOptions array to FilteredSearchBar', () => {
+      expect(findFilteredSearchBar().props('sortOptions')).toEqual([]);
+    });
 
-      it('hides the sort dropdown by passing an empty sortOptions array to FilteredSearchBar', () => {
-        expect(findFilteredSearchBar().props('sortOptions')).toEqual([]);
-      });
+    it('still propagates sort changes when FilteredSearchBar emits onSort', async () => {
+      expect(findFilteredSearchBar().props('initialSortBy')).toBe(CREATED_DESC);
 
-      it('still propagates sort changes when FilteredSearchBar emits onSort', async () => {
-        expect(findFilteredSearchBar().props('initialSortBy')).toBe(CREATED_DESC);
+      findFilteredSearchBar().vm.$emit('onSort', UPDATED_DESC);
+      await waitForPromises();
 
-        findFilteredSearchBar().vm.$emit('onSort', UPDATED_DESC);
-        await waitForPromises();
+      expect(findFilteredSearchBar().props('initialSortBy')).toBe(UPDATED_DESC);
+      expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
+    });
 
-        expect(findFilteredSearchBar().props('initialSortBy')).toBe(UPDATED_DESC);
-        expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
-      });
+    it('passes sortOptions and the current sortKey to the drawer', () => {
+      const drawerProps = findDisplaySettingsDrawer().props();
 
-      it('passes sortOptions and the current sortKey to the drawer', () => {
-        const drawerProps = findDisplaySettingsDrawer().props();
+      expect(drawerProps.sortKey).toBe(CREATED_DESC);
+      expect(Array.isArray(drawerProps.sortOptions)).toBe(true);
+      expect(drawerProps.sortOptions.length).toBeGreaterThan(0);
+    });
 
-        expect(drawerProps.sortKey).toBe(CREATED_DESC);
-        expect(Array.isArray(drawerProps.sortOptions)).toBe(true);
-        expect(drawerProps.sortOptions.length).toBeGreaterThan(0);
-      });
-
-      it('passes commonPreferences to the drawer', () => {
-        expect(findDisplaySettingsDrawer().props('commonPreferences')).toEqual({
-          shouldOpenItemsInSidePanel: true,
-        });
-      });
-
-      it('updates sort and saves the preference when the drawer emits sort', async () => {
-        findDisplaySettingsDrawer().vm.$emit('sort', UPDATED_DESC);
-        await waitForPromises();
-        await nextTick();
-
-        expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
-        expect(findDisplaySettingsDrawer().props('sortKey')).toBe(UPDATED_DESC);
-        expect(userPreferenceMutationHandler).toHaveBeenCalledWith({
-          sort: UPDATED_DESC,
-          namespace: 'full/path',
-          workItemTypeId: 'gid://gitlab/WorkItems::Type/1',
-        });
+    it('passes commonPreferences to the drawer', () => {
+      expect(findDisplaySettingsDrawer().props('commonPreferences')).toEqual({
+        shouldOpenItemsInSidePanel: true,
       });
     });
 
-    describe('when work_item_list_display_settings_drawer is disabled', () => {
-      beforeEach(async () => {
-        await mountComponent();
-      });
+    it('updates sort and saves the preference when the drawer emits sort', async () => {
+      findDisplaySettingsDrawer().vm.$emit('sort', UPDATED_DESC);
+      await waitForPromises();
+      await nextTick();
 
-      it('does not render the Display button', () => {
-        expect(findDisplaySettingsButton().exists()).toBe(false);
-      });
-
-      it('does not render the drawer', () => {
-        expect(findDisplaySettingsDrawer().exists()).toBe(false);
-      });
-
-      it('still renders the existing user preferences dropdown', () => {
-        expect(findWorkItemUserPreferences().exists()).toBe(true);
-      });
-
-      it('passes the full sortOptions array to FilteredSearchBar', () => {
-        const sortOptions = findFilteredSearchBar().props('sortOptions');
-        expect(Array.isArray(sortOptions)).toBe(true);
-        expect(sortOptions.length).toBeGreaterThan(0);
-      });
-
-      it('still propagates sort changes when FilteredSearchBar emits onSort', async () => {
-        expect(findFilteredSearchBar().props('initialSortBy')).toBe(CREATED_DESC);
-
-        findFilteredSearchBar().vm.$emit('onSort', UPDATED_DESC);
-        await waitForPromises();
-
-        expect(findFilteredSearchBar().props('initialSortBy')).toBe(UPDATED_DESC);
-        expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
+      expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
+      expect(findDisplaySettingsDrawer().props('sortKey')).toBe(UPDATED_DESC);
+      expect(userPreferenceMutationHandler).toHaveBeenCalledWith({
+        sort: UPDATED_DESC,
+        namespace: 'full/path',
+        workItemTypeId: 'gid://gitlab/WorkItems::Type/1',
       });
     });
   });
@@ -2728,7 +2671,6 @@ describe('planning-view', () => {
           provide: {
             glFeatures: {
               planningViewBoards: true,
-              workItemListDisplaySettingsDrawer: true,
             },
           },
           stubs: {
@@ -2814,7 +2756,6 @@ describe('planning-view', () => {
           provide: {
             glFeatures: {
               planningViewBoards: true,
-              workItemListDisplaySettingsDrawer: true,
             },
           },
           stubs: {
@@ -2871,7 +2812,6 @@ describe('planning-view', () => {
           provide: {
             glFeatures: {
               planningViewBoards: true,
-              workItemListDisplaySettingsDrawer: true,
             },
           },
           savedViewHandler: jest

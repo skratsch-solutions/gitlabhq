@@ -136,7 +136,6 @@ import SavedViewsLimitWarningModal from '../list/components/work_items_saved_vie
 import SavedViewsSelectors from '../list/components/work_items_saved_views_selectors.vue';
 import ListActions from '../list/components/work_item_list_actions.vue';
 import CreateWorkItemModal from '../components/create_work_item_modal.vue';
-import UserPreferences from '../list/components/work_item_user_preferences.vue';
 import EmptyStateWithAnyIssues from '../list/components/empty_state_with_any_issues.vue';
 import EmptyStateWithoutAnyIssues from '../list/components/empty_state_without_any_issues.vue';
 import EmptyStateWithAnyTickets from '../list/components/empty_state_with_any_tickets.vue';
@@ -204,7 +203,6 @@ export default {
     ListActions,
     CreateWorkItemModal,
     FilteredSearchBar,
-    UserPreferences,
     WorkItemDisplaySettingsDrawer,
     EmptyStateWithAnyIssues,
     EmptyStateWithoutAnyIssues,
@@ -509,9 +507,6 @@ export default {
   },
 
   computed: {
-    isDisplaySettingsDrawerEnabled() {
-      return Boolean(this.glFeatures.workItemListDisplaySettingsDrawer);
-    },
     isPlanningViewBoardEnabled() {
       return Boolean(this.glFeatures.planningViewBoards);
     },
@@ -1091,12 +1086,6 @@ export default {
         hasLabelPriority: !this.isEpicsList,
         hasWeight: !this.isEpicsList,
       });
-    },
-    filteredSearchSortOptions() {
-      if (this.isDisplaySettingsDrawerEnabled) {
-        return [];
-      }
-      return this.isBoardView ? this.boardSortOptions : this.sortOptions;
     },
     preselectedWorkItemType() {
       return this.isEpicsList ? WORK_ITEM_TYPE_NAME_EPIC : WORK_ITEM_TYPE_NAME_ISSUE;
@@ -1911,7 +1900,6 @@ export default {
         recent-searches-storage-key="issues"
         :search-input-placeholder="__('Search or filter results…')"
         :tokens="searchTokens"
-        :sort-options="filteredSearchSortOptions"
         :initial-filter-value="filterTokens"
         :initial-sort-by="effectiveSortKey"
         sync-filter-and-sort
@@ -1928,25 +1916,12 @@ export default {
         <!-- eslint-enable vue/v-on-event-hyphenation -->
         <template #user-preference>
           <gl-button
-            v-if="isDisplaySettingsDrawerEnabled"
             icon="preferences"
             data-testid="display-settings-button"
             @click="isDisplayDrawerOpen = true"
           >
             {{ __('Display') }}
           </gl-button>
-          <user-preferences
-            v-else
-            :namespace-preferences="displaySettingsSoT.namespacePreferences"
-            :common-preferences="displaySettings.commonPreferences"
-            :full-path="rootPageFullPath"
-            :is-group="isGroup"
-            :is-service-desk-list="isServiceDeskList"
-            :work-item-type-id="workItemTypeId"
-            :sort-key="sortKey"
-            :prevent-auto-submit="isSavedView"
-            @local-update="handleLocalDisplayPreferencesUpdate"
-          />
         </template>
       </filtered-search-bar>
       <gl-intersection-observer
@@ -1964,7 +1939,6 @@ export default {
               recent-searches-storage-key="issues"
               :search-input-placeholder="__('Search or filter results…')"
               :tokens="searchTokens"
-              :sort-options="filteredSearchSortOptions"
               :initial-filter-value="filterTokens"
               :initial-sort-by="effectiveSortKey"
               sync-filter-and-sort
@@ -1981,25 +1955,12 @@ export default {
               <!-- eslint-enable vue/v-on-event-hyphenation -->
               <template #user-preference>
                 <gl-button
-                  v-if="isDisplaySettingsDrawerEnabled"
                   icon="preferences"
                   data-testid="display-settings-button"
                   @click="isDisplayDrawerOpen = true"
                 >
                   {{ __('Display') }}
                 </gl-button>
-                <user-preferences
-                  v-else
-                  :namespace-preferences="displaySettingsSoT.namespacePreferences"
-                  :common-preferences="displaySettings.commonPreferences"
-                  :full-path="rootPageFullPath"
-                  :is-group="isGroup"
-                  :is-service-desk-list="isServiceDeskList"
-                  :work-item-type-id="workItemTypeId"
-                  :sort-key="sortKey"
-                  :prevent-auto-submit="isSavedView"
-                  @local-update="handleLocalDisplayPreferencesUpdate"
-                />
               </template>
             </filtered-search-bar>
           </div>
@@ -2186,7 +2147,6 @@ export default {
       @set-error="($evt) => (error = $evt)"
     />
     <work-item-display-settings-drawer
-      v-if="isDisplaySettingsDrawerEnabled"
       :open="isDisplayDrawerOpen"
       :view-mode="viewMode"
       :sort-options="drawerSortOptions"
