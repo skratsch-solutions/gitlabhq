@@ -106,7 +106,7 @@ module Sidebars
             container_html_options: { class: 'shortcuts-issue-boards' },
             item_id: :boards,
             description: _('Visualize and manage work with kanban-style boards'),
-            library_icon: 'work-item-issue-boards'
+            library_icon: 'work-item-issue-board'
           )
         end
 

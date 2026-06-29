@@ -20,8 +20,9 @@ module API
     end
 
     resource :events do
-      desc "List currently authenticated user's events" do
-        detail 'This feature was introduced in GitLab 9.3.'
+      desc 'List all events' do
+        detail 'Lists all events for the authenticated user. Does not return events associated with epics or merge ' \
+          'requests. Returns bulk push events with limited commit details.'
         success Entities::Event
         is_array true
         tags %w[events]
@@ -52,8 +53,9 @@ module API
       requires :id, type: String, desc: 'The ID or username of the user'
     end
     resource :users do
-      desc 'Get the contribution events of a specified user' do
-        detail 'This feature was introduced in GitLab 8.13.'
+      desc 'Retrieve contribution events for a user' do
+        detail 'Retrieves the contribution events for a specified user. Does not return events associated with epics ' \
+          'or merge requests. Returns bulk push events with limited commit details.'
         success Entities::Event
         tags %w[events]
         is_array true

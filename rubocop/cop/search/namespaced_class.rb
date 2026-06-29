@@ -26,6 +26,7 @@ module RuboCop
           Keeps
           Gitlab::SidekiqMiddleware::PauseControl::Strategies::AdvancedSearch
           Gitlab::Metrics::GlobalSearchSlis EE::Gitlab::Metrics::GlobalSearchSlis
+          Gitlab::Metrics
         ].map { |x| x.split('::') }.freeze
 
         SEARCH_REGEXES = [

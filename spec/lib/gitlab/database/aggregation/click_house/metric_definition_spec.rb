@@ -29,7 +29,7 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::MetricDefinition, feat
 
     context 'when an expression is provided' do
       it 'calls the expression and returns its result' do
-        expr = -> { Arel.sql('COUNT(*)') }
+        expr = ->(_params) { Arel.sql('COUNT(*)') }
         metric = described_class.new(:event_count, :integer, expr)
 
         result = metric.to_inner_arel(context)

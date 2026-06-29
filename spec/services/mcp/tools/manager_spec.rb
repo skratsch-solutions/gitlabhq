@@ -13,7 +13,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
 
     # Stub the GRAPHQL_TOOLS with GraphQL tools
     graphql_tools = {
-      'create_workitem_note' => Mcp::Tools::WorkItems::GraphqlCreateWorkItemNoteService
+      'create_workitem_note' => Mcp::Tools::WorkItems::CreateWorkItemNoteService
     }
     stub_const("#{described_class}::GRAPHQL_TOOLS", graphql_tools)
   end
@@ -63,7 +63,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
           'create_user' => api_tool1,
           'delete_user' => api_tool2,
           'get_mcp_server_version' => be_a(Mcp::Tools::GetServerVersionService),
-          'create_workitem_note' => be_a(Mcp::Tools::WorkItems::GraphqlCreateWorkItemNoteService)
+          'create_workitem_note' => be_a(Mcp::Tools::WorkItems::CreateWorkItemNoteService)
         )
         expect(manager.tools.size).to eq(4)
       end
@@ -196,7 +196,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         expect(manager.tools).to include(
           'valid_tool' => api_tool1,
           'get_mcp_server_version' => be_a(Mcp::Tools::GetServerVersionService),
-          'create_workitem_note' => be_a(Mcp::Tools::WorkItems::GraphqlCreateWorkItemNoteService)
+          'create_workitem_note' => be_a(Mcp::Tools::WorkItems::CreateWorkItemNoteService)
         )
         expect(manager.tools.size).to eq(3)
         expect(Mcp::Tools::ApiTool).to have_received(:new).once.with(name: 'valid_tool', route: route1)
@@ -340,7 +340,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         it 'returns the correct version' do
           tool = manager.get_tool(name: 'create_workitem_note', version: '0.1.0')
 
-          expect(tool).to be_a(Mcp::Tools::WorkItems::GraphqlCreateWorkItemNoteService)
+          expect(tool).to be_a(Mcp::Tools::WorkItems::CreateWorkItemNoteService)
           expect(tool.version).to eq('0.1.0')
         end
       end
@@ -349,7 +349,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         it 'returns the latest version' do
           tool = manager.get_tool(name: 'create_workitem_note')
 
-          expect(tool).to be_a(Mcp::Tools::WorkItems::GraphqlCreateWorkItemNoteService)
+          expect(tool).to be_a(Mcp::Tools::WorkItems::CreateWorkItemNoteService)
           expect(tool.version).to eq('0.1.0')
         end
       end

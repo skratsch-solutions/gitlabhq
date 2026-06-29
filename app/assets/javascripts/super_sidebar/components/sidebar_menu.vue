@@ -308,7 +308,7 @@ export default {
     </gl-nav-item>
     <feature-library-modal
       v-if="supportsPins && glFeatures.featureLibraryModal"
-      :panel-type="panelType"
+      :sections="nonStaticItems"
       :current-pinned-ids="changedPinnedItemIds.ids"
       @pin-toggle="onModalPinToggle"
     />

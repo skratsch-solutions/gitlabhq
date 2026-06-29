@@ -33,7 +33,7 @@ module Banzai
           Filter::MermaidFilter,
           Filter::VideoLinkFilter,
           Filter::AudioLinkFilter,
-          Filter::HeadingAccessibilityFilter,
+          Filter::HeadingLocalizationFilter,
           Filter::TableOfContentsTagFilter,
           Filter::SuggestionFilter,
           Filter::FootnoteFilter,

@@ -63,7 +63,7 @@ module Sidebars
             active_routes: { path: 'pipelines#charts' },
             item_id: :ci_cd_analytics,
             description: _('Analyze CI/CD pipeline metrics and performance'),
-            library_icon: 'ci-cd-analytics'
+            library_icon: 'cicd-analytics'
           )
         end
 

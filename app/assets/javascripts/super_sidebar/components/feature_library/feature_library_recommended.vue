@@ -41,9 +41,9 @@ export default {
     >
       <feature-library-item
         v-for="item in items"
-        :key="item.item_id"
+        :key="item.id"
         :item="item"
-        :pinned="isPinned(item.item_id)"
+        :pinned="isPinned(item.id)"
         solid-background
         @pin-toggle="onPinToggle"
       />

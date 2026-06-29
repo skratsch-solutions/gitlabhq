@@ -23,10 +23,7 @@
     - c.with_description do
       = s_('Preferences|Choose a color mode.')
     - c.with_body do
-      - Gitlab::ColorModes.each do |mode|
-        = f.gitlab_ui_radio_component :color_mode_id, mode.id,
-          mode.name,
-          radio_options: { checked: user_color_mode_id == mode.id }
+      #js-color-mode-selector{ data: { color_modes: @color_modes, initial_color_mode_id: user_color_mode_id } }
 
   = render ::Layouts::SettingsSectionComponent.new(s_('Preferences|Theme'),
     id: 'application-theme',

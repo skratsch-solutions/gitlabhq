@@ -200,7 +200,6 @@ RSpec/FeatureCategory:
     - 'ee/spec/lib/gitlab/insights/loader_spec.rb'
     - 'ee/spec/lib/gitlab/insights/reducers/base_reducer_spec.rb'
     - 'ee/spec/lib/gitlab/insights/reducers/count_per_label_reducer_spec.rb'
-    - 'ee/spec/lib/gitlab/insights/reducers/count_per_period_reducer_spec.rb'
     - 'ee/spec/lib/gitlab/insights/reducers/label_count_per_period_reducer_spec.rb'
     - 'ee/spec/lib/gitlab/insights/serializers/chartjs/bar_serializer_spec.rb'
     - 'ee/spec/lib/gitlab/insights/serializers/chartjs/bar_time_series_serializer_spec.rb'

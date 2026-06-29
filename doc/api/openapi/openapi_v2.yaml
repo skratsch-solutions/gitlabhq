@@ -4242,10 +4242,9 @@ paths:
       operationId: getApiV4GroupsIdPackages
   "/api/v4/groups/{id}/placeholder_reassignments":
     get:
-      summary: Download the list of pending placeholder assignments for a group
-      description: |-
-        Downloads a CSV file of pending placeholder assignments for a group.
-                  This feature was added in GitLab 17.10
+      summary: Retrieve pending reassignments
+      description: Retrieves a CSV file with a list of pending reassignments. This
+        feature was added in GitLab 17.10
       produces:
       - application/json
       parameters:
@@ -4256,8 +4255,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download the list of pending placeholder assignments for a
-            group
+          description: Retrieve pending reassignments
       tags:
       - groups
       operationId: getApiV4GroupsIdPlaceholderReassignments
@@ -25153,8 +25151,8 @@ paths:
       operationId: getApiV4ProjectsIdIssuesIssueIidLinks
     post:
       summary: Create an issue link
-      description: Creates a two-way relation between two issues.The user must be
-        allowed to update both issues to succeed.
+      description: Creates a two-way relationship between two issues. The user must
+        be allowed to update both issues to succeed.
       produces:
       - application/json
       consumes:
@@ -44143,8 +44141,10 @@ paths:
       operationId: getApiV4DatabasesDatabaseNameDictionaryTables
   "/api/v4/events":
     get:
-      summary: List currently authenticated user's events
-      description: This feature was introduced in GitLab 9.3.
+      summary: List all events
+      description: Lists all events for the authenticated user. Does not return events
+        associated with epics or merge requests. Returns bulk push events with limited
+        commit details.
       produces:
       - application/json
       parameters:
@@ -44213,7 +44213,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List currently authenticated user's events
+          description: List all events
           schema:
             type: array
             items:
@@ -44225,8 +44225,10 @@ paths:
       operationId: getApiV4Events
   "/api/v4/users/{id}/events":
     get:
-      summary: Get the contribution events of a specified user
-      description: This feature was introduced in GitLab 8.13.
+      summary: Retrieve contribution events for a user
+      description: Retrieves the contribution events for a specified user. Does not
+        return events associated with epics or merge requests. Returns bulk push events
+        with limited commit details.
       produces:
       - application/json
       parameters:
@@ -44294,7 +44296,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get the contribution events of a specified user
+          description: Retrieve contribution events for a user
           schema:
             type: array
             items:

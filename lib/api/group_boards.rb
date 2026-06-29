@@ -23,8 +23,8 @@ module API
     end
     resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       segment ':id/boards' do
-        desc 'Get all group boards' do
-          detail 'This feature was introduced in 10.6'
+        desc 'List all group issue boards in a group' do
+          detail 'Lists all group issue boards for a specified group.'
           success Entities::Board
           tags ['boards']
         end
@@ -37,8 +37,8 @@ module API
           present paginate(board_parent.boards.with_associations), with: Entities::Board
         end
 
-        desc 'Find a group board' do
-          detail 'This feature was introduced in 10.6'
+        desc 'Retrieve a group issue board' do
+          detail 'Retrieves a specified group issue board.'
           success Entities::Board
           tags ['boards']
         end
@@ -48,8 +48,8 @@ module API
           present board, with: Entities::Board
         end
 
-        desc 'Update a group board' do
-          detail 'This feature was introduced in 11.0'
+        desc 'Update a group issue board' do
+          detail 'Updates a specified group issue board.'
           success Entities::Board
           tags ['boards']
         end
@@ -68,8 +68,8 @@ module API
         requires :board_id, type: Integer, desc: 'The ID of a board'
       end
       segment ':id/boards/:board_id' do
-        desc 'Get the lists of a group board' do
-          detail 'Does not include backlog and closed lists. This feature was introduced in 10.6'
+        desc 'List all group issue board lists' do
+          detail 'Lists all group issue board lists for a specified board. Does not include `open` and `closed` lists.'
           success Entities::List
           tags ['boards']
         end
@@ -82,8 +82,8 @@ module API
           present paginate(board_lists), with: Entities::List
         end
 
-        desc 'Get a list of a group board' do
-          detail 'This feature was introduced in 10.6'
+        desc 'Retrieve a group issue board list' do
+          detail 'Retrieves a specified group issue board list.'
           success Entities::List
           tags ['boards']
         end
@@ -96,8 +96,8 @@ module API
           present board_lists.find(params[:list_id]), with: Entities::List
         end
 
-        desc 'Create a new board list' do
-          detail 'This feature was introduced in 10.6'
+        desc 'Create a group issue board list' do
+          detail 'Creates a group issue board list for a specified board.'
           success Entities::List
           tags ['boards']
         end
@@ -111,8 +111,8 @@ module API
           create_list
         end
 
-        desc 'Moves a board list to a new position' do
-          detail 'This feature was introduced in 10.6'
+        desc 'Update a group issue board list' do
+          detail 'Updates a specified group issue board list. This call is used to change list position.'
           success Entities::List
           tags ['boards']
         end
@@ -129,8 +129,9 @@ module API
           move_list(list)
         end
 
-        desc 'Delete a board list' do
-          detail 'This feature was introduced in 10.6'
+        desc 'Delete a group issue board list' do
+          detail 'Deletes a specified group issue board list. Only for administrators and users with the Owner ' \
+            'role for the group.'
           success Entities::List
           tags ['boards']
         end

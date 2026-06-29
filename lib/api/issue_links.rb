@@ -42,8 +42,8 @@ module API
       end
 
       desc 'Create an issue link' do
-        detail 'Creates a two-way relation between two issues.'\
-          'The user must be allowed to update both issues to succeed.'
+        detail 'Creates a two-way relationship between two issues. The user must be allowed to update both issues to ' \
+          'succeed.'
         success Entities::IssueLink
         failure [
           { code: 400, message: 'Bad Request' },

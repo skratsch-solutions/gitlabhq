@@ -562,8 +562,17 @@ describe('Sidebar Menu', () => {
         expect(findFeatureLibraryModal().exists()).toBe(true);
       });
 
-      it('passes panelType to the modal', () => {
-        expect(findFeatureLibraryModal().props('panelType')).toBe(PANELS_WITH_PINS[0]);
+      it('passes the section nav items (those with subitems) to the modal', () => {
+        createWrapper({
+          items: menuItems,
+          panelType: PANELS_WITH_PINS[0],
+          provide: { glFeatures: { featureLibraryModal: true } },
+        });
+        expect(
+          findFeatureLibraryModal()
+            .props('sections')
+            .map((s) => s.id),
+        ).toEqual([2, 4]);
       });
     });
 

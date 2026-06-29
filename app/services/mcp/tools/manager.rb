@@ -42,13 +42,13 @@ module Mcp
       }.freeze
 
       GRAPHQL_TOOLS = {
-        'create_workitem_note' => ::Mcp::Tools::WorkItems::GraphqlCreateWorkItemNoteService,
-        'get_workitem_notes' => ::Mcp::Tools::WorkItems::GraphqlGetWorkItemNotesService,
-        'get_saved_view_work_items' => ::Mcp::Tools::WorkItems::GraphqlGetSavedViewWorkItemsService,
-        'search_labels' => ::Mcp::Tools::Labels::GraphqlSearchService,
-        'link_work_items' => ::Mcp::Tools::WorkItems::GraphqlLinkWorkItemsService,
-        'get_work_item_types' => ::Mcp::Tools::WorkItems::GraphqlGetWorkItemTypesService,
-        'get_merge_request_notes' => ::Mcp::Tools::MergeRequests::GetMergeRequestNotesService
+        'create_workitem_note' => ::Mcp::Tools::WorkItems::CreateWorkItemNoteService,
+        'get_merge_request_notes' => ::Mcp::Tools::MergeRequests::GetMergeRequestNotesService,
+        'get_saved_view_work_items' => ::Mcp::Tools::WorkItems::GetSavedViewWorkItemsService,
+        'get_workitem_notes' => ::Mcp::Tools::WorkItems::GetWorkItemNotesService,
+        'get_work_item_types' => ::Mcp::Tools::WorkItems::GetWorkItemTypesService,
+        'link_work_items' => ::Mcp::Tools::WorkItems::LinkWorkItemsService,
+        'search_labels' => ::Mcp::Tools::Labels::SearchService
       }.freeze
 
       def initialize

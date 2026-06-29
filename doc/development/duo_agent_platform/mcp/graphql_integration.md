@@ -79,7 +79,7 @@ Introduce a **two-layer architecture** for GraphQL-based MCP tools:
 
 ```mermaid
 graph TB
-    A[AI Client<br/>Claude/Cursor] -->|MCP Request| B[GraphqlCreateIssueService<br/>GraphqlService]
+    A[AI Client<br/>Claude/Cursor] -->|MCP Request| B[CreateIssueService<br/>GraphqlService]
     B -->|params, version| E[CreateIssueTool<br/>GraphqlTool]
     E -->|GraphQL Mutation| F[GitlabSchema.execute]
     F -->|Response| E
@@ -116,6 +116,20 @@ graph TB
 ```
 
 ## Design and Implementation Details
+
+### Naming conventions
+
+Name service and tool subclasses after the operation, without a `Graphql` prefix. Only the base
+classes `GraphqlService` and `GraphqlTool` keep the prefix. Every subclass already inherits from one
+of them, and there is no separate `graphql` folder, so the prefix adds no information.
+
+| Layer | Pattern | Example |
+| ----- | ------- | ------- |
+| Service wrapper | `<Operation>Service` | `Mcp::Tools::Labels::SearchService` |
+| GraphQL tool | `<Operation>Tool` | `Mcp::Tools::CreateIssueTool` |
+
+The `tool_name` keys registered in `Mcp::Tools::Manager` are a public, append-only contract.
+Renaming a Ruby class does not rename its registered tool, so keep the keys unchanged.
 
 ### Layer 1: GraphQL Tool Base Class
 
@@ -346,7 +360,7 @@ end
 
 ### Service Wrapper Pattern
 
-**File**: `app/services/mcp/tools/graphql_create_issue_service.rb`
+**File**: `app/services/mcp/tools/create_issue_service.rb`
 
 **Purpose**: Provides input validation, MCP protocol compliance, and version
 management. Authorization is delegated to GraphQL layer.
@@ -354,7 +368,7 @@ management. Authorization is delegated to GraphQL layer.
 ```ruby
 module Mcp
   module Tools
-    class GraphqlCreateIssueService < GraphqlService
+    class CreateIssueService < GraphqlService
       # Register version 0.1.0 with metadata
       register_version '0.1.0', {
         description: 'Create a new issue in a GitLab project using GraphQL mutation',
@@ -562,10 +576,10 @@ GraphqlService.execute_graphql_tool → Response.error → MCP Client
 **Step 1: Define GraphQL Tool Class**
 
 ```ruby
-# app/services/mcp/tools/your_graphql_tool.rb
+# app/services/mcp/tools/your_tool.rb
 module Mcp
   module Tools
-    class YourGraphqlTool < GraphqlTool
+    class YourTool < GraphqlTool
       # Register version with operation in metadata
       register_version '0.1.0', {
         operation_name: 'yourMutation',
@@ -630,7 +644,7 @@ module Mcp
 
       # Specify the GraphQL tool class to use
       def graphql_tool_class
-        Mcp::Tools::YourGraphqlTool
+        Mcp::Tools::YourTool
       end
 
       # Version 0.1.0 implementation
@@ -707,7 +721,7 @@ end
 **Approach**: Execute GraphQL directly in service classes without abstraction layer.
 
 ```ruby
-class GraphqlCreateIssueService < GraphqlService
+class CreateIssueService < GraphqlService
   def perform_0_1_0(params)
     result = GitlabSchema.execute(MUTATION, variables: params, context: {...})
     # Handle result inline
@@ -734,7 +748,7 @@ end
 **Approach**: Generic service that accepts arbitrary GraphQL queries from MCP clients.
 
 ```ruby
-class GraphqlProxyService < GraphqlService
+class ProxyService < GraphqlService
   def perform_0_1_0(params)
     query = params[:query]
     GitlabSchema.execute(query, variables: params[:variables], context: {...})

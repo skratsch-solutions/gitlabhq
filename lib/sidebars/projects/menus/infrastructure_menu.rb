@@ -56,7 +56,7 @@ module Sidebars
             active_routes: { controller: [:cluster_agents, :clusters] },
             container_html_options: { class: 'shortcuts-kubernetes' },
             item_id: :kubernetes,
-            description: _('Connect and manage your Kubernetes clusters.'),
+            description: _('Manage Kubernetes clusters and agents'),
             library_icon: 'kubernetes'
           )
         end
@@ -72,7 +72,7 @@ module Sidebars
             super_sidebar_parent: Sidebars::Projects::SuperSidebarMenus::OperationsMenu,
             active_routes: { controller: :terraform },
             item_id: :terraform_states,
-            description: _('Store and manage your Terraform state files.'),
+            description: _('Manage Terraform state files'),
             library_icon: 'terraform'
           )
         end

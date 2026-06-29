@@ -6,18 +6,10 @@ module Gitlab
       module ParameterizedDefinition
         extend ActiveSupport::Concern
 
-        included do
-          class << self
-            attr_accessor :supported_parameters
-          end
-        end
-
         attr_reader :parameters
 
         def initialize(*args, parameters: {}, **kwargs)
           super
-
-          guard_parameters_definition!(parameters)
 
           @parameters = parameters || {}
         end
@@ -42,14 +34,6 @@ module Gitlab
 
         def parameterized?
           parameters.present?
-        end
-
-        def guard_parameters_definition!(params)
-          params.each_key do |identifier|
-            unless identifier.in?(self.class.supported_parameters || [])
-              raise "Parameter `#{identifier}` is not in supported parameters: #{self.class.supported_parameters}"
-            end
-          end
         end
       end
     end

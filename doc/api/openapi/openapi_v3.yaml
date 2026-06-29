@@ -12131,8 +12131,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_fe9841796934"
     get:
       operationId: getApiV4GroupsIdBoards
-      summary: Get all group boards
-      description: This feature was introduced in 10.6
+      summary: List all group issue boards in a group
+      description: Lists all group issue boards for a specified group.
       tags:
       - Boards
       responses:
@@ -12204,8 +12204,8 @@ paths:
         in: path
     get:
       operationId: getApiV4GroupsIdBoardsBoardId
-      summary: Find a group board
-      description: This feature was introduced in 10.6
+      summary: Retrieve a group issue board
+      description: Retrieves a specified group issue board.
       tags:
       - Boards
       responses:
@@ -12234,8 +12234,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdBoardsBoardId
-      summary: Update a group board
-      description: This feature was introduced in 11.0
+      summary: Update a group issue board
+      description: Updates a specified group issue board.
       tags:
       - Boards
       responses:
@@ -20822,7 +20822,8 @@ paths:
   "/api/v4/groups/{id}/milestones":
     get:
       operationId: getApiV4GroupsIdMilestones
-      summary: Get a list of group milestones
+      summary: List all group milestones
+      description: Lists all group milestones for a specified group.
       tags:
       - Milestones
       responses:
@@ -20939,7 +20940,8 @@ paths:
         in: query
     post:
       operationId: postApiV4GroupsIdMilestones
-      summary: Create a new group milestone
+      summary: Create a group milestone
+      description: Creates a milestone for a specified group.
       tags:
       - Milestones
       responses:
@@ -20969,7 +20971,8 @@ paths:
   "/api/v4/groups/{id}/milestones/{milestone_id}":
     get:
       operationId: getApiV4GroupsIdMilestonesMilestoneId
-      summary: Get a single group milestone
+      summary: Retrieve a group milestone
+      description: Retrieves a specified group milestone.
       tags:
       - Milestones
       responses:
@@ -20998,7 +21001,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdMilestonesMilestoneId
-      summary: Update an existing group milestone
+      summary: Update a group milestone
+      description: Updates an existing group milestone.
       tags:
       - Milestones
       responses:
@@ -21033,7 +21037,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_f36339d4af0b"
     delete:
       operationId: deleteApiV4GroupsIdMilestonesMilestoneId
-      summary: Remove a project milestone
+      summary: Delete a group milestone
+      description: Deletes a specified group milestone.
       tags:
       - Milestones
       responses:
@@ -21059,7 +21064,8 @@ paths:
   "/api/v4/groups/{id}/milestones/{milestone_id}/issues":
     get:
       operationId: getApiV4GroupsIdMilestonesMilestoneIdIssues
-      summary: Get all issues for a single group milestone
+      summary: List all issues assigned to a single milestone
+      description: Lists all issues assigned to a specified group milestone.
       tags:
       - Milestones
       responses:
@@ -21107,8 +21113,8 @@ paths:
   "/api/v4/groups/{id}/milestones/{milestone_id}/merge_requests":
     get:
       operationId: getApiV4GroupsIdMilestonesMilestoneIdMergeRequests
-      summary: Get all merge requests for a single group milestone
-      description: This feature was introduced in GitLab 9.
+      summary: List all merge requests assigned to a single milestone
+      description: Lists all merge requests assigned to a specified group milestone.
       tags:
       - Milestones
       responses:
@@ -21538,8 +21544,8 @@ paths:
   "/api/v4/groups/{id}/labels":
     get:
       operationId: getApiV4GroupsIdLabels
-      summary: Get all labels of the group
-      description: This feature was added in GitLab 11.8
+      summary: List all group labels
+      description: Lists all group labels for a specified group.
       tags:
       - Labels
       responses:
@@ -21626,8 +21632,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdLabels
-      summary: Create a new label
-      description: This feature was added in GitLab 11.8
+      summary: Create a group label
+      description: Creates a group label.
       tags:
       - Labels
       responses:
@@ -21656,9 +21662,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_02089c8031f0"
     put:
       operationId: putApiV4GroupsIdLabels
-      summary: Update an existing label. At least one optional parameter is required.
-      description: This feature was added in GitLab 11.8 and deprecated in GitLab
-        12.4.
+      summary: Update a group label
+      description: Updates an existing group label. At least one parameter is required
+        to update the group label.
       tags:
       - Labels
       responses:
@@ -21687,9 +21693,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_433478749095"
     delete:
       operationId: deleteApiV4GroupsIdLabels
-      summary: Delete an existing label
-      description: This feature was added in GitLab 11.8 and deprecated in GitLab
-        12.4.
+      summary: Delete a group label
+      description: Deletes a specified group label.
       tags:
       - Labels
       responses:
@@ -21720,8 +21725,8 @@ paths:
   "/api/v4/groups/{id}/labels/{name}":
     get:
       operationId: getApiV4GroupsIdLabelsName
-      summary: Get a single label
-      description: This feature was added in GitLab 12.4.
+      summary: Retrieve a single group label
+      description: Retrieves a specified group label.
       tags:
       - Labels
       responses:
@@ -21841,9 +21846,9 @@ paths:
   "/api/v4/groups/{id}/boards/{board_id}/lists":
     get:
       operationId: getApiV4GroupsIdBoardsBoardIdLists
-      summary: Get the lists of a group board
-      description: Does not include backlog and closed lists. This feature was introduced
-        in 10.6
+      summary: List all group issue board lists
+      description: Lists all group issue board lists for a specified board. Does not
+        include `open` and `closed` lists.
       tags:
       - Boards
       responses:
@@ -21890,8 +21895,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdBoardsBoardIdLists
-      summary: Create a new board list
-      description: This feature was introduced in 10.6
+      summary: Create a group issue board list
+      description: Creates a group issue board list for a specified board.
       tags:
       - Boards
       responses:
@@ -21927,8 +21932,8 @@ paths:
   "/api/v4/groups/{id}/boards/{board_id}/lists/{list_id}":
     get:
       operationId: getApiV4GroupsIdBoardsBoardIdListsListId
-      summary: Get a list of a group board
-      description: This feature was introduced in 10.6
+      summary: Retrieve a group issue board list
+      description: Retrieves a specified group issue board list.
       tags:
       - Boards
       responses:
@@ -21963,8 +21968,9 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdBoardsBoardIdListsListId
-      summary: Moves a board list to a new position
-      description: This feature was introduced in 10.6
+      summary: Update a group issue board list
+      description: Updates a specified group issue board list. This call is used to
+        change list position.
       tags:
       - Boards
       responses:
@@ -22005,8 +22011,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_9463da96bbc1"
     delete:
       operationId: deleteApiV4GroupsIdBoardsBoardIdListsListId
-      summary: Delete a board list
-      description: This feature was introduced in 10.6
+      summary: Delete a group issue board list
+      description: Deletes a specified group issue board list. Only for administrators
+        and users with the Owner role for the group.
       tags:
       - Boards
       responses:
@@ -45824,8 +45831,8 @@ paths:
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidLinks
       summary: Create an issue link
-      description: Creates a two-way relation between two issues.The user must be
-        allowed to update both issues to succeed.
+      description: Creates a two-way relationship between two issues. The user must
+        be allowed to update both issues to succeed.
       tags:
       - Issues
       responses:
@@ -53249,10 +53256,9 @@ paths:
   "/api/v4/groups/{id}/placeholder_reassignments":
     get:
       operationId: getApiV4GroupsIdPlaceholderReassignments
-      summary: Download the list of pending placeholder assignments for a group
-      description: |-
-        Downloads a CSV file of pending placeholder assignments for a group.
-                  This feature was added in GitLab 17.10
+      summary: Retrieve pending reassignments
+      description: Retrieves a CSV file with a list of pending reassignments. This
+        feature was added in GitLab 17.10
       tags:
       - Groups
       responses:
@@ -55511,8 +55517,10 @@ paths:
   "/api/v4/events":
     get:
       operationId: getApiV4Events
-      summary: List currently authenticated user's events
-      description: This feature was introduced in GitLab 9.3.
+      summary: List all events
+      description: Lists all events for the authenticated user. Does not return events
+        associated with epics or merge requests. Returns bulk push events with limited
+        commit details.
       tags:
       - Events
       responses:
@@ -55605,8 +55613,10 @@ paths:
   "/api/v4/users/{id}/events":
     get:
       operationId: getApiV4UsersIdEvents
-      summary: Get the contribution events of a specified user
-      description: This feature was introduced in GitLab 8.13.
+      summary: Retrieve contribution events for a user
+      description: Retrieves the contribution events for a specified user. Does not
+        return events associated with epics or merge requests. Returns bulk push events
+        with limited commit details.
       tags:
       - Events
       responses:

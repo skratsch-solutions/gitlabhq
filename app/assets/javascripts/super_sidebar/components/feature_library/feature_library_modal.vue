@@ -1,9 +1,7 @@
 <script>
 import { GlModal, GlSearchBoxByType, GlScrollableTabs, GlTab, GlEmptyState } from '@gitlab/ui';
-import { MOCK_CATALOG } from './mock_catalog';
-import { CATEGORIES, ALL_CATEGORY_ID, MODAL_ID } from './constants';
+import { ALL_CATEGORY, ALL_CATEGORY_ID, MODAL_ID } from './constants';
 import FeatureLibraryItem from './feature_library_item.vue';
-import FeatureLibraryRecommended from './feature_library_recommended.vue';
 
 export default {
   name: 'FeatureLibraryModal',
@@ -14,14 +12,13 @@ export default {
     GlTab,
     GlEmptyState,
     FeatureLibraryItem,
-    FeatureLibraryRecommended,
   },
   modalId: MODAL_ID,
-  categories: CATEGORIES,
   props: {
-    panelType: {
-      type: String,
-      required: true,
+    sections: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
     currentPinnedIds: {
       type: Array,
@@ -37,12 +34,33 @@ export default {
     };
   },
   computed: {
-    matchesPanel() {
-      return MOCK_CATALOG.filter((i) => i.panels.includes(this.panelType));
+    // Sections that hold at least one feature-library-enriched item, mapped to category tabs.
+    libraryCategories() {
+      return [ALL_CATEGORY, ...this.catalogSections.map(({ id, title }) => ({ id, label: title }))];
+    },
+    catalogSections() {
+      return this.sections
+        .map((section) => ({
+          ...section,
+          items: (section.items || []).filter((item) => item.description),
+        }))
+        .filter((section) => section.items.length > 0);
+    },
+    catalog() {
+      return this.catalogSections.flatMap((section) =>
+        section.items.map((item) => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          icon: item.library_icon || item.icon,
+          tier: item.tier,
+          category: section.id,
+        })),
+      );
     },
     filteredItems() {
       const q = this.searchQuery.trim().toLowerCase();
-      return this.matchesPanel.filter((item) => {
+      return this.catalog.filter((item) => {
         if (this.activeCategoryId !== ALL_CATEGORY_ID && item.category !== this.activeCategoryId) {
           return false;
         }
@@ -52,24 +70,8 @@ export default {
         );
       });
     },
-    recommendedItems() {
-      return this.matchesPanel.filter((i) => i.recommended);
-    },
-    showRecommended() {
-      return (
-        !this.searchQuery &&
-        this.activeCategoryId === ALL_CATEGORY_ID &&
-        this.recommendedItems.length > 0
-      );
-    },
-    gridItems() {
-      if (this.showRecommended) {
-        return this.filteredItems.filter((i) => !i.recommended);
-      }
-      return this.filteredItems;
-    },
     showEmptyState() {
-      return this.gridItems.length === 0 && !this.showRecommended;
+      return this.filteredItems.length === 0;
     },
   },
   methods: {
@@ -111,7 +113,7 @@ export default {
     />
     <gl-scrollable-tabs>
       <gl-tab
-        v-for="cat in $options.categories"
+        v-for="cat in libraryCategories"
         :key="cat.id"
         :title="cat.label"
         :active="cat.id === activeCategoryId"
@@ -119,22 +121,19 @@ export default {
       />
     </gl-scrollable-tabs>
     <div data-testid="feature-library-scroll-area" class="gl-min-h-0 gl-grow gl-overflow-y-auto">
-      <feature-library-recommended
-        v-if="showRecommended"
-        :items="recommendedItems"
-        :pinned-ids="currentPinnedIds"
-        @pin-toggle="onPinToggle"
-      />
+      <!-- TODO: render <feature-library-recommended> here once nav items expose a `recommended`
+           data point. The component exists but is unrendered: the server-driven catalog has no
+           recommended flag yet. -->
       <ul
-        v-if="gridItems.length > 0"
+        v-if="filteredItems.length > 0"
         data-testid="feature-library-grid"
         class="gl-grid gl-list-none gl-grid-cols-1 gl-gap-3 gl-p-0 sm:gl-grid-cols-2 md:gl-grid-cols-3"
       >
         <feature-library-item
-          v-for="item in gridItems"
-          :key="item.item_id"
+          v-for="item in filteredItems"
+          :key="item.id"
           :item="item"
-          :pinned="isPinned(item.item_id)"
+          :pinned="isPinned(item.id)"
           @pin-toggle="onPinToggle"
         />
       </ul>

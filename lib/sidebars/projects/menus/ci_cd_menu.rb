@@ -48,7 +48,7 @@ module Sidebars
             container_html_options: { class: 'shortcuts-pipelines' },
             active_routes: { path: pipelines_routes },
             item_id: :pipelines,
-            description: _('Build, test, and deploy your code with pipelines.'),
+            description: _('Automate your build and deployment process'),
             library_icon: 'pipeline'
           )
         end
@@ -80,8 +80,8 @@ module Sidebars
             super_sidebar_parent: ::Sidebars::Projects::SuperSidebarMenus::BuildMenu,
             active_routes: { path: 'projects/ci/pipeline_editor#show' },
             item_id: :pipelines_editor,
-            description: _('Edit and validate your pipeline configuration.'),
-            library_icon: 'doc-code'
+            description: _('Configure your automation workflows visually'),
+            library_icon: 'pipeline-editor'
           )
         end
 
@@ -93,8 +93,8 @@ module Sidebars
             container_html_options: { class: 'shortcuts-builds' },
             active_routes: { controller: :jobs },
             item_id: :jobs,
-            description: _('View the jobs run by your pipelines.'),
-            library_icon: 'task-done'
+            description: _('Monitor individual build tasks and their results'),
+            library_icon: 'job'
           )
         end
 
@@ -106,8 +106,8 @@ module Sidebars
             container_html_options: { class: 'shortcuts-builds' },
             active_routes: { path: 'artifacts#index' },
             item_id: :artifacts,
-            description: _('Browse and download artifacts produced by jobs.'),
-            library_icon: 'archive'
+            description: _('Access build outputs and compiled binaries'),
+            library_icon: 'doc-compressed'
           )
         end
 
@@ -119,8 +119,8 @@ module Sidebars
             container_html_options: { class: 'shortcuts-builds' },
             active_routes: { controller: :pipeline_schedules },
             item_id: :pipeline_schedules,
-            description: _('Schedule pipelines to run automatically.'),
-            library_icon: 'clock'
+            description: _('Run your automation on a recurring schedule'),
+            library_icon: 'pipeline-schedule'
           )
         end
 

@@ -17,6 +17,8 @@
 
 = render 'ci/variables/attributes'
 
+= render_if_exists 'ci/variables/nudge_secrets_manager'
+
 #js-ci-variables{ data: { endpoint: save_endpoint,
   is_project: is_project.to_s,
   project_id: @project&.id || '',

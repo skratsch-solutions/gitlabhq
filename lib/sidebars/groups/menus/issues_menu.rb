@@ -89,7 +89,7 @@ module Sidebars
             active_routes: { path: %w[boards#index boards#show] },
             item_id: context.is_super_sidebar ? :issue_boards : :boards,
             description: _('Visualize and manage work with kanban-style boards'),
-            library_icon: 'work-item-issue-boards'
+            library_icon: 'work-item-issue-board'
           )
         end
 

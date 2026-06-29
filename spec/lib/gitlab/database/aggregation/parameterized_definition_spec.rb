@@ -6,8 +6,6 @@ RSpec.describe Gitlab::Database::Aggregation::ParameterizedDefinition, feature_c
   let(:definition_class) do
     Class.new(Gitlab::Database::Aggregation::PartDefinition) do
       include Gitlab::Database::Aggregation::ParameterizedDefinition
-
-      self.supported_parameters = %i[bar]
     end
   end
 
@@ -16,25 +14,7 @@ RSpec.describe Gitlab::Database::Aggregation::ParameterizedDefinition, feature_c
   end
 
   let(:definition_without_params) do
-    definition_class.new(:foo, :sting)
-  end
-
-  let(:defintion_class_with_no_supported_params) do
-    Class.new(Gitlab::Database::Aggregation::PartDefinition) do
-      include Gitlab::Database::Aggregation::ParameterizedDefinition
-    end
-  end
-
-  describe '#initialize' do
-    it 'raises an error for unknown parameter' do
-      expect do
-        definition_class.new(:foo, :string, nil, parameters: { unknown: { type: :string } })
-      end.to raise_error("Parameter `unknown` is not in supported parameters: [:bar]")
-
-      expect do
-        defintion_class_with_no_supported_params.new(:foo, :string, nil, parameters: { unknown: { type: :string } })
-      end.to raise_error("Parameter `unknown` is not in supported parameters: ")
-    end
+    definition_class.new(:foo, :string)
   end
 
   describe '#instance_key' do

@@ -7,8 +7,6 @@ module Gitlab
         class DateBucketDimension < DimensionDefinition
           include ParameterizedDefinition
 
-          self.supported_parameters = %i[granularity]
-
           GRANULARITIES_MAP = {
             daily: :day,
             weekly: :week,

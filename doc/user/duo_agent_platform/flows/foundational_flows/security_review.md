@@ -78,13 +78,16 @@ usage in your codebase before broader adoption.
 You can request a review at any time after a merge request is created. When you request a review, the flow
 analyzes the merge request diff and its surrounding context.
 
+The **Duo Security Review** service account is created for your top-level group when the Security Review flow is
+turned on, and is available to all projects and subgroups within it. Each service account name includes the
+associated top-level group, for example `duo-security-review-gitlab-org`.
+
 To request a review:
 
 1. In the left sidebar, select **Search or go to** and find your project.
 1. Select **Code** > **Merge requests** and open your merge request.
 1. In the **Reviewers** section of the right sidebar, select **Edit**.
-1. Search for and select `duo-security-reviewer`. This service account is
-   automatically created when the Security Review flow is turned on for your group.
+1. In the search box, enter `Duo Security Review` and select the account from the list.
 
 When the review is complete, the flow posts an internal note. The note summarizes any findings and
 the review scope. If the review produces no findings, the flow states this in the internal note.
@@ -112,7 +115,8 @@ To respond to a finding:
 
 1. In the left sidebar, select **Search or go to** and find your project.
 1. Select **Code** > **Merge requests** and open your merge request.
-1. In any comment thread, type `@duo-security-reviewer` followed by your message, then submit.
+1. In any comment thread, enter `@duo-security-review` and select **Duo Security Review** from the list.
+1. Add your message and select **Comment**.
 
 Security Review Flow reads the thread context and replies directly.
 
@@ -174,14 +178,17 @@ When you use Security Review Flow, you might encounter the following issues.
 
 ### The flow is not available to assign
 
-The `duo-security-reviewer` service account is automatically created when the flow is turned on for your group.
+The **Duo Security Review** service account is created for your top-level group when the
+Security Review flow is turned on. The service account name includes the top-level group
+name, for example `duo-security-review-gitlab-org`.
+
 Confirm the status of the Security Review flow.
 
 ### The flow does not provide findings
 
 Confirm you meet all [prerequisites](#prerequisites), then check that the flow was correctly assigned.
 
-- Verify that you mentioned `@duo-security-reviewer` exactly, with no spaces or capital letters.
+- Verify that you mentioned the **Duo Security Review** account (its username begins with `@duo-security-review-`).
 - Verify [**Allow foundational flows**](_index.md#turn-foundational-flows-on-or-off)
   and [**Code Review**](code_review.md) settings are turned on for the top-level group.
 - For GitLab Self-Managed, verify your instance is

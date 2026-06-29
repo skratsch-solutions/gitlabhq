@@ -886,6 +886,47 @@ test-job:
   script: echo $[[ inputs.test | expand_vars | posix_escape ]]
 ```
 
+#### `split`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/19368) in GitLab 19.2
+  [with a flag](../../administration/feature_flags/_index.md) named `ci_interpolation_split_function`.
+  Disabled by default.
+
+{{< /history >}}
+
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
+
+Use `split` to divide a string input into an array of substrings on a separator. For example:
+
+- `split('<separator>')`
+
+| Name        | Type   | Description |
+| ----------- | ------ | ----------- |
+| `separator` | String | Character or string to split on. |
+
+`split` strips leading and trailing whitespace from each element and removes empty elements.
+
+Example:
+
+```yaml
+spec:
+  inputs:
+    runner_tags:
+      default: 'docker,linux'
+---
+
+deploy:
+  tags: $[[ inputs.runner_tags | split(',') ]]
+  script: echo "Deploying..."
+```
+
+In this example, `inputs.runner_tags` with `'docker,linux'` produces `['docker', 'linux']`,
+which is assigned to `tags` as an array.
+
 ## Troubleshooting
 
 ### YAML syntax errors when using `inputs` in `rules`

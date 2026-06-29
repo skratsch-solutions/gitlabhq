@@ -48,6 +48,9 @@ Check the Rails upgrade guide at https://guides.rubyonrails.org/upgrading_ruby_o
 for more information on how to upgrade.
 called from
 
+# The omniauth-azure-activedirectory-v2 gem was renamed to omniauth-entra-id and logs this on load.
+This gem has been renamed to 'omniauth-entra-id' and will no longer be supported
+
 # Ignore labkit-ruby's baseline-mode banner. The gem logs deprecated logging fields without failing CI.
 LabKit Logging: Baseline generation mode active
 Deprecated fields detected but skip_ci_failure is enabled\.

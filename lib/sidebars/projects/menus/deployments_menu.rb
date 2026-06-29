@@ -50,8 +50,8 @@ module Sidebars
             active_routes: { controller: :feature_flags },
             container_html_options: { class: 'shortcuts-feature-flags' },
             item_id: :feature_flags,
-            description: _('Roll out features gradually with feature flags.'),
-            library_icon: 'feature-flag'
+            description: _('Manage feature flags and toggles'),
+            library_icon: 'flag'
           )
         end
 
@@ -67,7 +67,7 @@ module Sidebars
             active_routes: { controller: :environments },
             container_html_options: { class: 'shortcuts-environments' },
             item_id: :environments,
-            description: _('Track and manage your deployment environments.'),
+            description: _('Manage your staging and production deployments'),
             library_icon: 'environment'
           )
         end
@@ -85,8 +85,8 @@ module Sidebars
             item_id: :releases,
             active_routes: { controller: :releases },
             container_html_options: { class: 'shortcuts-deployments-releases' },
-            description: _('Publish and manage releases of your project.'),
-            library_icon: 'rocket'
+            description: _('Create and manage project releases'),
+            library_icon: 'release'
           )
         end
 

@@ -189,6 +189,8 @@ The following metrics are available:
 | `gitlab_vulnerability_report_branch_comparison_real_duration_seconds`          | Histogram | 15.11 |                                                                         | Wall clock execution duration of vulnerability report on default branch SQL query |
 | `http_elasticsearch_requests_duration_seconds`                                 | Histogram |  13.1 | `controller`, `action`, `endpoint_id`                                   | Elasticsearch requests duration during web transactions. Premium and Ultimate only. |
 | `http_elasticsearch_requests_total`                                            | Counter   |  13.1 | `controller`, `action`, `endpoint_id`                                   | Elasticsearch requests count during web transactions. Premium and Ultimate only. |
+| `http_zoekt_requests_duration_seconds`                                         | Histogram |  19.2 | `controller`, `action`, `endpoint_id`                                   | Query time for Zoekt servers during web transactions. Premium and Ultimate only. |
+| `http_zoekt_requests_total`                                                    | Counter   |  19.2 | `controller`, `action`, `endpoint_id`                                   | Amount of calls to Zoekt servers during web transactions. Premium and Ultimate only. |
 | `http_request_duration_seconds`                                                | Histogram |   9.4 | `method`                                                                | HTTP response time from rack middleware for successful requests |
 | `http_requests_total`                                                          | Counter   |   9.4 | `method`, `status`                                                      | Rack request count |
 | `job_queue_duration_seconds`                                                   | Histogram |   9.5 |                                                                         | Request handling execution time |
@@ -212,6 +214,63 @@ The following metrics are available:
 | `validity_check_partner_api_duration_seconds`                                  | Histogram |  18.6 | `partner`                                                               | Partner API response time in seconds for token verification requests. Ultimate only. |
 | `validity_check_partner_api_requests_total`                                    | Counter   |  18.6 | `partner`, `status`, `error_type`                                       | Total partner API verification requests with success/failure status. Ultimate only. |
 | `validity_check_rate_limit_hits_total`                                         | Counter   |  18.6 | `limit_type`                                              | Total rate limit hits during partner token verification. Ultimate only. |
+
+## Zoekt metrics
+
+{{< details >}}
+
+- Tier: Premium, Ultimate
+- Offering: GitLab Self-Managed
+
+{{< /details >}}
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241045) in GitLab 19.2.
+
+{{< /history >}}
+
+Metrics for [exact code search](../../../user/search/exact_code_search.md) powered by Zoekt.
+
+### Per-request and per-job metrics
+
+These metrics are emitted for every HTTP request from GitLab Rails to a Zoekt
+node, both from web/Grape requests and from Sidekiq jobs.
+
+| Metric | Type | Since | Labels | Description |
+|:-------|:-----|------:|:-------|:------------|
+| `http_zoekt_requests_total` | Counter | 19.2 | `controller`, `action`, `endpoint_id` | Amount of calls to Zoekt servers during web transactions. Premium and Ultimate only. |
+| `http_zoekt_requests_duration_seconds` | Histogram | 19.2 | `controller`, `action`, `endpoint_id` | Query time for Zoekt servers during web transactions. Premium and Ultimate only. |
+| `sidekiq_zoekt_requests_total` | Counter | 19.2 | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Zoekt requests during a Sidekiq job execution. Premium and Ultimate only. |
+| `sidekiq_zoekt_requests_duration_seconds` | Histogram | 19.2 | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Duration in seconds that a Sidekiq job spent in requests to a Zoekt server. Premium and Ultimate only. |
+
+The two `sidekiq_zoekt_*` rows are also listed in the Sidekiq metrics table
+alongside the equivalent Elasticsearch and Redis metrics.
+
+Database-derived Zoekt metrics (node status, task queue depth, index state,
+storage bytes) are emitted by the `gitlab-exporter` process under the
+`search_zoekt_*` prefix. See the [`gitlab-exporter` source](https://gitlab.com/gitlab-org/ruby/gems/gitlab-exporter/-/blob/master/lib/gitlab_exporter/database/zoekt.rb)
+for the full list.
+
+### SLI metrics
+
+The global search SLI metrics include Zoekt searches under the `search_type="zoekt"` label.
+For more information, see [Application SLIs](../../../development/application_slis/_index.md).
+
+| Metric | Type | Since | Labels | Description |
+|:-------|:-----|------:|:-------|:------------|
+| `gitlab_sli_global_search_apdex_success_total` | Counter | 14.4 | `search_type`, `search_level`, `search_scope`, `endpoint_id` | Total number of Zoekt searches that met the latency target (15.52 seconds for code search). Filter by `search_type="zoekt"` |
+| `gitlab_sli_global_search_apdex_total` | Counter | 14.4 | `search_type`, `search_level`, `search_scope`, `endpoint_id` | Total number of Zoekt search Apdex measurements. Filter by `search_type="zoekt"` |
+| `gitlab_sli_global_search_error_total` | Counter | 14.4 | `search_type`, `search_level`, `search_scope`, `endpoint_id` | Total number of Zoekt search error measurements. Filter by `search_type="zoekt"` |
+
+### Zoekt task SLI metrics
+
+| Metric | Type | Since | Labels | Description |
+|:-------|:-----|------:|:-------|:------------|
+| `gitlab_sli_search_zoekt_tasks_apdex_success_total` | Counter | 16.0 | `zoekt_node`, `task_type` | Total number of Zoekt indexing tasks that completed within the 30-minute target |
+| `gitlab_sli_search_zoekt_tasks_apdex_total` | Counter | 16.0 | `zoekt_node`, `task_type` | Total number of Zoekt indexing task Apdex measurements |
+| `gitlab_sli_search_zoekt_tasks_error_total` | Counter | 16.0 | `zoekt_node`, `task_type` | Total number of Zoekt indexing task errors |
+| `gitlab_sli_search_zoekt_tasks_requests_total` | Counter | 16.0 | `zoekt_node`, `task_type` | Total number of Zoekt tasks added to the queue |
 
 ## Metrics controlled by a feature flag
 
@@ -684,6 +743,8 @@ configuration option in `gitlab.yml`. These metrics are served from the
 | `sidekiq_concurrency`                                    | Gauge     | 12.5  |                                                                                           | Maximum number of Sidekiq jobs |
 | `sidekiq_elasticsearch_requests_duration_seconds`        | Histogram | 13.1  | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Duration in seconds that a Sidekiq job spent in requests to an Elasticsearch server |
 | `sidekiq_elasticsearch_requests_total`                   | Counter   | 13.1  | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Elasticsearch requests during a Sidekiq job execution |
+| `sidekiq_zoekt_requests_duration_seconds`                | Histogram | 19.2  | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Duration in seconds that a Sidekiq job spent in requests to a Zoekt server. |
+| `sidekiq_zoekt_requests_total`                           | Counter   | 19.2  | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Zoekt requests during a Sidekiq job execution. |
 | `sidekiq_jobs_completion_seconds`                        | Histogram | 12.2  | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Seconds to complete Sidekiq job |
 | `sidekiq_jobs_cpu_seconds`                               | Histogram | 12.4  | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Seconds of CPU time to run Sidekiq job |
 | `sidekiq_jobs_db_seconds`                                | Histogram | 12.9  | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` | Seconds of DB time to run Sidekiq job |

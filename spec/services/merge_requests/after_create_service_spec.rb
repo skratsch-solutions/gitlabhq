@@ -68,66 +68,6 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
       execute_service
     end
 
-    context 'when async_mr_pipeline_creation feature flag is disabled' do
-      before do
-        stub_feature_flags(async_mr_pipeline_creation: false)
-      end
-
-      it 'creates a pipeline synchronously and updates the HEAD pipeline' do
-        expect(after_create_service)
-          .to receive(:create_pipeline_for).with(merge_request, merge_request.author, async: false)
-        expect(merge_request).to receive(:update_head_pipeline)
-
-        execute_service
-      end
-
-      context 'PipelineCreationCompletedEvent publish' do
-        before do
-          allow(after_create_service)
-            .to receive(:create_pipeline_for)
-            .and_return(ServiceResponse.success(payload: pipeline))
-          allow(merge_request).to receive(:update_head_pipeline)
-        end
-
-        context 'when no pipeline was persisted' do
-          let(:pipeline) { Ci::Pipeline.new }
-
-          it 'publishes the event with nil pipeline_id' do
-            expect { execute_service }
-              .to publish_event(::MergeRequests::PipelineCreationCompletedEvent)
-              .with(merge_request_id: merge_request.id, project_id: project.id)
-          end
-        end
-
-        context 'when a pipeline was persisted' do
-          let(:pipeline) { create(:ci_pipeline, project: project) }
-
-          it 'publishes the event with pipeline_id set' do
-            expect { execute_service }
-              .to publish_event(::MergeRequests::PipelineCreationCompletedEvent)
-              .with(
-                merge_request_id: merge_request.id,
-                project_id: project.id,
-                pipeline_id: pipeline.id
-              )
-          end
-        end
-
-        context 'when trigger_auto_merge_after_pipeline_creation is disabled' do
-          let(:pipeline) { Ci::Pipeline.new }
-
-          before do
-            stub_feature_flags(trigger_auto_merge_after_pipeline_creation: false)
-          end
-
-          it 'does not publish the event' do
-            expect { execute_service }
-              .not_to publish_event(::MergeRequests::PipelineCreationCompletedEvent)
-          end
-        end
-      end
-    end
-
     it 'executes hooks and integrations' do
       expected_payload = hash_including(
         object_kind: 'merge_request',
@@ -357,35 +297,6 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
         end
 
         execute_service
-      end
-
-      context 'when async_mr_pipeline_creation feature flag is disabled' do
-        before do
-          stub_feature_flags(async_mr_pipeline_creation: false)
-        end
-
-        it 'logs specific events' do
-          ::Gitlab::ApplicationContext.push(caller_id: 'NewMergeRequestWorker')
-
-          allow(Gitlab::AppLogger).to receive(:info).and_call_original
-
-          [
-            'Executing hooks',
-            'Executed hooks',
-            'Creating pipeline',
-            'Pipeline created'
-          ].each do |message|
-            expect(Gitlab::AppLogger).to receive(:info).with(
-              hash_including(
-                'meta.caller_id' => 'NewMergeRequestWorker',
-                message: message,
-                merge_request_id: merge_request.id
-              )
-            ).and_call_original
-          end
-
-          execute_service
-        end
       end
     end
   end

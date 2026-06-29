@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require_relative 'shared_examples'
 
 RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :markdown do
   include RepoHelpers
@@ -10,6 +11,9 @@ RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :markdown do
   let_it_be(:issue)   { create(:issue, project: project) }
 
   it_behaves_like 'sanitize pipeline'
+  it_behaves_like 'applies heading localization filter',
+    heading_input: '## My Heading',
+    heading_text: 'My Heading'
 
   describe 'References' do
     before do

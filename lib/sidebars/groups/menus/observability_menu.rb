@@ -213,7 +213,7 @@ module Sidebars
             super_sidebar_parent: ::Sidebars::Groups::SuperSidebarMenus::ObservabilityMenu,
             item_id: :exceptions,
             description: s_('Observability|Track application exceptions'),
-            library_icon: 'exceptions',
+            library_icon: 'exception',
             container_html_options: { class: 'shortcuts-exceptions js-observability-nav' }
           )
         end

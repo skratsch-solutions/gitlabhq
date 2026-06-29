@@ -3,23 +3,64 @@ import { nextTick } from 'vue';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import FeatureLibraryModal from '~/super_sidebar/components/feature_library/feature_library_modal.vue';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
-import FeatureLibraryRecommended from '~/super_sidebar/components/feature_library/feature_library_recommended.vue';
-import { CATEGORIES } from '~/super_sidebar/components/feature_library/constants';
-import { MOCK_CATALOG } from '~/super_sidebar/components/feature_library/mock_catalog';
+
+// Mirrors the nav tree shape passed down from sidebar_menu.vue: sections (menu
+// groups) holding leaf nav items enriched with feature-library metadata.
+const sections = [
+  {
+    id: 'plan_menu',
+    title: 'Plan',
+    items: [
+      {
+        id: 'project_issue_list',
+        title: 'Work items',
+        description: 'Track tasks and issues',
+        library_icon: 'issues',
+      },
+      {
+        id: 'boards',
+        title: 'Boards',
+        description: 'Visualize work with boards',
+        library_icon: 'list-numbered',
+      },
+      // No description: should be excluded from the catalog.
+      { id: 'milestones', title: 'Milestones', library_icon: 'milestone' },
+    ],
+  },
+  {
+    id: 'code_menu',
+    title: 'Code',
+    items: [
+      {
+        id: 'repository',
+        title: 'Repository',
+        description: 'Browse and manage your code',
+        library_icon: 'code',
+        tier: 'free',
+      },
+    ],
+  },
+  // Section with no enriched items: should not produce a tab.
+  {
+    id: 'manage_menu',
+    title: 'Manage',
+    items: [{ id: 'members', title: 'Members', library_icon: 'users' }],
+  },
+];
 
 describe('FeatureLibraryModal', () => {
   let wrapper;
 
-  const createWrapper = ({ panelType = 'project', currentPinnedIds = [] } = {}) => {
+  const createWrapper = ({ currentPinnedIds = [] } = {}) => {
     wrapper = mountExtended(FeatureLibraryModal, {
-      propsData: { panelType, currentPinnedIds },
+      propsData: { sections, currentPinnedIds },
       stubs: { GlModal: { template: '<div><slot /></div>' } },
     });
   };
 
   const findSearch = () => wrapper.findComponent(GlSearchBoxByType);
   const findAllTabs = () => wrapper.findAllComponents(GlTab);
-  const findRecommended = () => wrapper.findComponent(FeatureLibraryRecommended);
+  const findTabLabels = () => wrapper.findAllByRole('tab').wrappers.map((w) => w.text());
   const findItems = () => wrapper.findAllComponents(FeatureLibraryItem);
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
   const findScrollArea = () => wrapper.findByTestId('feature-library-scroll-area');
@@ -28,8 +69,9 @@ describe('FeatureLibraryModal', () => {
   describe('rendering', () => {
     beforeEach(() => createWrapper());
 
-    it('renders a tab per category', () => {
-      expect(findAllTabs()).toHaveLength(CATEGORIES.length);
+    it('renders an "All" tab plus one tab per section that has enriched items', () => {
+      // manage_menu has no enriched items, so it gets no tab.
+      expect(findTabLabels()).toEqual(['All', 'Plan', 'Code']);
     });
 
     it('wraps content in a flexible scroll area that fills available height and scrolls overflow', () => {
@@ -53,22 +95,13 @@ describe('FeatureLibraryModal', () => {
     it('adds a top margin above the search input', () => {
       expect(findSearch().classes()).toContain('gl-mt-3');
     });
-
-    it('shows the Recommended row by default', () => {
-      expect(findRecommended().exists()).toBe(true);
-    });
-
-    it('hides the Recommended row when the panel has no recommended items', () => {
-      createWrapper({ panelType: 'group' });
-      expect(findRecommended().exists()).toBe(false);
-    });
   });
 
   describe('modal layout', () => {
     // Mount with the real GlModal so we can read the props/attrs it receives.
     beforeEach(() => {
       wrapper = mountExtended(FeatureLibraryModal, {
-        propsData: { panelType: 'project', currentPinnedIds: [] },
+        propsData: { sections, currentPinnedIds: [] },
       });
     });
 
@@ -90,16 +123,27 @@ describe('FeatureLibraryModal', () => {
     });
   });
 
-  describe('filtering', () => {
-    beforeEach(() => createWrapper({ panelType: 'project' }));
+  describe('catalog', () => {
+    beforeEach(() => createWrapper());
 
-    it('only renders items whose panels include panelType', () => {
-      const rendered = findItems().wrappers.map((w) => w.props('item').item_id);
-      const expected = MOCK_CATALOG.filter((i) => i.panels.includes('project')).map(
-        (i) => i.item_id,
-      );
-      expect(rendered.sort()).toEqual(expected.sort());
+    it('only lists items that carry feature-library metadata (a description)', () => {
+      const ids = findItems().wrappers.map((w) => w.props('item').id);
+      expect(ids.sort()).toEqual(['boards', 'project_issue_list', 'repository']);
     });
+
+    it('maps library_icon onto the item icon', () => {
+      const repository = findItems().wrappers.find((w) => w.props('item').id === 'repository');
+      expect(repository.props('item').icon).toBe('code');
+    });
+
+    it('tags each item with the id of its parent section as its category', () => {
+      const repository = findItems().wrappers.find((w) => w.props('item').id === 'repository');
+      expect(repository.props('item').category).toBe('code_menu');
+    });
+  });
+
+  describe('filtering', () => {
+    beforeEach(() => createWrapper());
 
     it('filters by search query (substring on title or description)', async () => {
       await findSearch().vm.$emit('input', 'Repository');
@@ -107,25 +151,12 @@ describe('FeatureLibraryModal', () => {
       expect(titles).toEqual(['Repository']);
     });
 
-    it('hides Recommended when search is non-empty', async () => {
-      await findSearch().vm.$emit('input', 'Repository');
-      expect(findRecommended().exists()).toBe(false);
-    });
-
-    it('filters by active category', async () => {
-      // Categories: 'plan' contains project_issue_list and activity.
-      const planIndex = CATEGORIES.findIndex((c) => c.id === 'plan');
-      await findAllTabs().at(planIndex).vm.$emit('click');
+    it('filters by active category (section)', async () => {
+      // Tabs order: All (0), Plan (1), Code (2).
+      await findAllTabs().at(1).vm.$emit('click');
       await nextTick();
       const categories = findItems().wrappers.map((w) => w.props('item').category);
-      expect(categories.every((c) => c === 'plan')).toBe(true);
-    });
-
-    it('hides Recommended when active category is not "all"', async () => {
-      const planIndex = CATEGORIES.findIndex((c) => c.id === 'plan');
-      await findAllTabs().at(planIndex).vm.$emit('click');
-      await nextTick();
-      expect(findRecommended().exists()).toBe(false);
+      expect(categories.every((c) => c === 'plan_menu')).toBe(true);
     });
 
     it('renders empty state when no items match', async () => {
@@ -141,21 +172,12 @@ describe('FeatureLibraryModal', () => {
       findItems().at(0).vm.$emit('pin-toggle', 'some_id', true, 'Some title');
       expect(wrapper.emitted('pin-toggle')).toEqual([['some_id', true, 'Some title']]);
     });
-
-    it('re-emits pin-toggle (with title) from the Recommended row', () => {
-      createWrapper();
-      findRecommended().vm.$emit('pin-toggle', 'some_id', false, 'Some title');
-      expect(wrapper.emitted('pin-toggle')).toEqual([['some_id', false, 'Some title']]);
-    });
   });
 
   describe('currentPinnedIds', () => {
     it('passes pinned=true to items whose id is in currentPinnedIds', () => {
-      const firstProjectItem = MOCK_CATALOG.find((i) => i.panels.includes('project'));
-      createWrapper({ currentPinnedIds: [firstProjectItem.item_id] });
-      const matchingItem = findItems().wrappers.find(
-        (w) => w.props('item').item_id === firstProjectItem.item_id,
-      );
+      createWrapper({ currentPinnedIds: ['repository'] });
+      const matchingItem = findItems().wrappers.find((w) => w.props('item').id === 'repository');
       expect(matchingItem.props('pinned')).toBe(true);
     });
   });

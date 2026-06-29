@@ -2,8 +2,6 @@
 
 module MergeRequests
   class AfterCreateService < MergeRequests::BaseService
-    include MergeRequests::PublishesPipelineCreationCompletedEvent
-
     def execute(merge_request)
       merge_request.ensure_merge_request_diff
 
@@ -19,21 +17,9 @@ module MergeRequests
     private
 
     def prepare_for_mergeability(merge_request)
-      if async_pipeline_creation?(merge_request)
-        logger.info(**log_payload(merge_request, 'Creating pipeline async'))
-        create_pipeline_for(merge_request, current_user, async: true)
-        logger.info(**log_payload(merge_request, 'Pipeline creating async'))
-      else
-        logger.info(**log_payload(merge_request, 'Creating pipeline'))
-        result = create_pipeline_for(merge_request, current_user, async: false)
-        merge_request.update_head_pipeline
-        publish_pipeline_creation_completed_event(
-          project: project,
-          merge_request_id: merge_request.id,
-          pipeline_id: result&.payload&.id
-        )
-        logger.info(**log_payload(merge_request, 'Pipeline created'))
-      end
+      logger.info(**log_payload(merge_request, 'Creating pipeline async'))
+      create_pipeline_for(merge_request, current_user, async: true)
+      logger.info(**log_payload(merge_request, 'Pipeline creating async'))
 
       check_mergeability(merge_request)
     end
@@ -86,10 +72,6 @@ module MergeRequests
         merge_request_id: merge_request.id,
         message: message
       )
-    end
-
-    def async_pipeline_creation?(merge_request)
-      Feature.enabled?(:async_mr_pipeline_creation, merge_request.target_project)
     end
   end
 end

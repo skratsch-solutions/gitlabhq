@@ -1,7 +1,7 @@
 <script>
 import { GlButton, GlBadge, GlIcon } from '@gitlab/ui';
 import { sprintf, __, s__ } from '~/locale';
-import { TIERS, BADGES } from './constants';
+import { TIERS } from './constants';
 
 export default {
   name: 'FeatureLibraryItem',
@@ -11,8 +11,6 @@ export default {
     premium: __('Premium'),
     ultimate: __('Ultimate'),
     addOn: __('Add-on'),
-    freeEnhancedPremium: s__('FeatureLibrary|Free · Enhanced with Premium'),
-    freeEnhancedUltimate: s__('FeatureLibrary|Free · Enhanced with Ultimate'),
     pinLabel: s__('FeatureLibrary|Pin %{title}'),
     unpinLabel: s__('FeatureLibrary|Unpin %{title}'),
   },
@@ -34,17 +32,7 @@ export default {
   },
   emits: ['pin-toggle'],
   computed: {
-    isBeta() {
-      return Array.isArray(this.item.badges) && this.item.badges.includes(BADGES.BETA);
-    },
     tierLabel() {
-      const enhanced = this.item.enhanced_tiers || [];
-      if (this.item.tier === TIERS.FREE && enhanced.includes(TIERS.PREMIUM)) {
-        return this.$options.i18n.freeEnhancedPremium;
-      }
-      if (this.item.tier === TIERS.FREE && enhanced.includes(TIERS.ULTIMATE)) {
-        return this.$options.i18n.freeEnhancedUltimate;
-      }
       switch (this.item.tier) {
         case TIERS.PREMIUM:
           return this.$options.i18n.premium;
@@ -67,7 +55,7 @@ export default {
   },
   methods: {
     onPinClick() {
-      this.$emit('pin-toggle', this.item.item_id, !this.pinned, this.item.title);
+      this.$emit('pin-toggle', this.item.id, !this.pinned, this.item.title);
     },
   },
 };
@@ -86,14 +74,9 @@ export default {
       <gl-icon :name="item.icon" :size="16" />
     </span>
     <div class="gl-min-w-0 gl-flex-grow">
-      <div class="gl-flex gl-items-center gl-gap-2">
-        <span data-testid="feature-library-item-title" class="gl-font-bold">
-          {{ item.title }}
-        </span>
-        <gl-badge v-if="isBeta" data-testid="feature-library-item-beta" size="sm" variant="warning">
-          {{ __('BETA') }}
-        </gl-badge>
-      </div>
+      <span data-testid="feature-library-item-title" class="gl-font-bold">
+        {{ item.title }}
+      </span>
       <p data-testid="feature-library-item-description" class="gl-mb-1 gl-text-sm">
         {{ item.description }}
       </p>

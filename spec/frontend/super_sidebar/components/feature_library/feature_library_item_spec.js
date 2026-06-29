@@ -1,19 +1,15 @@
 import { GlButton, GlIcon } from '@gitlab/ui';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
-import { TIERS, BADGES } from '~/super_sidebar/components/feature_library/constants';
+import { TIERS } from '~/super_sidebar/components/feature_library/constants';
 
 const baseItem = {
-  item_id: 'repository',
+  id: 'repository',
   title: 'Repository',
   description: 'Browse and manage your code',
   icon: 'code',
   category: 'code',
   tier: TIERS.FREE,
-  enhanced_tiers: [],
-  badges: [],
-  panels: ['project'],
-  recommended: false,
 };
 
 describe('FeatureLibraryItem', () => {
@@ -29,7 +25,6 @@ describe('FeatureLibraryItem', () => {
   const findDescription = () => wrapper.findByTestId('feature-library-item-description');
   const findTierLabel = () => wrapper.findByTestId('feature-library-item-tier');
   const findIcon = () => wrapper.findComponent(GlIcon);
-  const findBetaBadge = () => wrapper.findByTestId('feature-library-item-beta');
   const findPinButton = () => wrapper.findComponent(GlButton);
 
   describe('rendering', () => {
@@ -50,27 +45,14 @@ describe('FeatureLibraryItem', () => {
 
   describe('tier label', () => {
     it.each([
-      [{ tier: TIERS.FREE, enhanced_tiers: [] }, 'Free'],
-      [{ tier: TIERS.FREE, enhanced_tiers: [TIERS.PREMIUM] }, 'Free · Enhanced with Premium'],
-      [{ tier: TIERS.FREE, enhanced_tiers: [TIERS.ULTIMATE] }, 'Free · Enhanced with Ultimate'],
-      [{ tier: TIERS.PREMIUM, enhanced_tiers: [] }, 'Premium'],
-      [{ tier: TIERS.ULTIMATE, enhanced_tiers: [] }, 'Ultimate'],
-      [{ tier: TIERS.ADD_ON, enhanced_tiers: [] }, 'Add-on'],
+      [{ tier: TIERS.FREE }, 'Free'],
+      [{ tier: undefined }, 'Free'],
+      [{ tier: TIERS.PREMIUM }, 'Premium'],
+      [{ tier: TIERS.ULTIMATE }, 'Ultimate'],
+      [{ tier: TIERS.ADD_ON }, 'Add-on'],
     ])('renders %j as "%s"', (tierProps, expected) => {
       createWrapper({ item: { ...baseItem, ...tierProps } });
       expect(findTierLabel().text()).toBe(expected);
-    });
-  });
-
-  describe('BETA badge', () => {
-    it('does not render when badges is empty', () => {
-      createWrapper();
-      expect(findBetaBadge().exists()).toBe(false);
-    });
-
-    it('renders when badges includes "beta"', () => {
-      createWrapper({ item: { ...baseItem, badges: [BADGES.BETA] } });
-      expect(findBetaBadge().text()).toBe('BETA');
     });
   });
 

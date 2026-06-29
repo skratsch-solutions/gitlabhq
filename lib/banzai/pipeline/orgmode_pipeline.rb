@@ -17,7 +17,7 @@ module Banzai
           Filter::KrokiFilter,
           Filter::MathFilter,
           Filter::MermaidFilter,
-          Filter::HeadingAccessibilityFilter,
+          Filter::HeadingLocalizationFilter,
           Filter::SyntaxHighlightFilter # this filter should remain at the end
         ]
       end

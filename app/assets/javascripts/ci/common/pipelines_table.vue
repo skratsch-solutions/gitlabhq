@@ -196,6 +196,9 @@ export default {
     isFailed(item) {
       return item?.details?.status?.group === 'failed' || item?.detailedStatus?.name === 'FAILED';
     },
+    isLatest(item) {
+      return Boolean(item?.flags?.latest || item?.latest);
+    },
     getPipelinePath(item) {
       if (item.path) {
         return `${gon.gitlab_url}${item.path}`;
@@ -209,7 +212,12 @@ export default {
       return mergeRequestSourceBranch || refName || null;
     },
     showDuoWorkflowAction(item) {
-      return this.isFailed(item) && this.mergeRequestPath && this.currentBranch(item);
+      return (
+        this.isFailed(item) &&
+        this.isLatest(item) &&
+        Boolean(this.mergeRequestPath) &&
+        Boolean(this.currentBranch(item))
+      );
     },
     getAdditionalContext(item) {
       return buildFixPipelineContext({

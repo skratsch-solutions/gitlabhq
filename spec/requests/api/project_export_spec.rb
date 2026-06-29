@@ -910,26 +910,6 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
       context 'with bulk_import is disabled' do
         before do
           stub_application_setting(bulk_import_enabled: false)
-          stub_feature_flags(override_bulk_import_disabled: false)
-        end
-
-        shared_examples 'flag override' do |expected_http_status:|
-          it 'enables the feature when override flag is enabled for the user' do
-            stub_feature_flags(override_bulk_import_disabled: user)
-
-            request
-
-            expect(response).to have_gitlab_http_status(expected_http_status)
-          end
-
-          it 'does not enable the feature when override flag is enabled for another user' do
-            other_user = create(:user)
-            stub_feature_flags(override_bulk_import_disabled: other_user)
-
-            request
-
-            expect(response).to have_gitlab_http_status(:not_found)
-          end
         end
 
         describe 'POST /projects/:id/export_relations' do
@@ -938,8 +918,6 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
           it_behaves_like '404 response' do
             let(:message) { '404 Not Found' }
           end
-
-          it_behaves_like 'flag override', expected_http_status: :accepted
         end
 
         describe 'GET /projects/:id/export_relations/download' do
@@ -955,8 +933,6 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
           it_behaves_like '404 response' do
             let(:message) { '404 Not Found' }
           end
-
-          it_behaves_like 'flag override', expected_http_status: :ok
         end
 
         describe 'GET /projects/:id/export_relations/status' do
@@ -965,8 +941,6 @@ RSpec.describe API::ProjectExport, :aggregate_failures, :clean_gitlab_redis_cach
           it_behaves_like '404 response' do
             let(:message) { '404 Not Found' }
           end
-
-          it_behaves_like 'flag override', expected_http_status: :ok
         end
       end
     end

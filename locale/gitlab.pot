@@ -4286,6 +4286,9 @@ msgstr ""
 msgid "Access Token"
 msgstr ""
 
+msgid "Access build outputs and compiled binaries"
+msgstr ""
+
 msgid "Access credentials are valid."
 msgstr ""
 
@@ -7938,9 +7941,6 @@ msgstr ""
 msgid "AgentPlan|Generate"
 msgstr ""
 
-msgid "AgentPlan|Generate with GitLab Duo"
-msgstr ""
-
 msgid "AgentPlan|More options"
 msgstr ""
 
@@ -10424,9 +10424,6 @@ msgstr ""
 msgid "Analytics|You have insufficient %{linkStart}permissions%{linkEnd} to view this panel."
 msgstr ""
 
-msgid "Analyze"
-msgstr ""
-
 msgid "Analyze CI/CD pipeline metrics and performance"
 msgstr ""
 
@@ -12165,6 +12162,9 @@ msgstr ""
 msgid "Automate"
 msgstr ""
 
+msgid "Automate your build and deployment process"
+msgstr ""
+
 msgid "Automatic certificate management using %{lets_encrypt_link_start}Let's Encrypt%{lets_encrypt_link_end}"
 msgstr ""
 
@@ -12238,9 +12238,6 @@ msgid "AwsDestinationValidator validates only aws external audit event destinati
 msgstr ""
 
 msgid "B"
-msgstr ""
-
-msgid "BETA"
 msgstr ""
 
 msgid "Back"
@@ -14575,10 +14572,7 @@ msgstr ""
 msgid "Browse Files"
 msgstr ""
 
-msgid "Browse and download artifacts produced by jobs."
-msgstr ""
-
-msgid "Browse and manage your repository files."
+msgid "Browse and manage repository files and code"
 msgstr ""
 
 msgid "Browse artifacts"
@@ -14596,9 +14590,6 @@ msgstr ""
 msgid "Browse your repository files and folders with the tree view sidebar."
 msgstr ""
 
-msgid "Build"
-msgstr ""
-
 msgid "Build a new repository or import existing work."
 msgstr ""
 
@@ -14606,9 +14597,6 @@ msgid "Build cannot be erased"
 msgstr ""
 
 msgid "Build stronger customer relationships by tracking interactions and organizations"
-msgstr ""
-
-msgid "Build, test, and deploy your code with pipelines."
 msgstr ""
 
 msgid "BuildArtifacts|An error occurred while fetching the artifacts"
@@ -18890,7 +18878,7 @@ msgstr ""
 msgid "Compare changes"
 msgstr ""
 
-msgid "Compare changes between branches, tags, or commits."
+msgid "Compare changes between revisions"
 msgstr ""
 
 msgid "Compare revisions"
@@ -21190,6 +21178,9 @@ msgstr ""
 msgid "Configure your Git identity locally to use it only for this project:"
 msgstr ""
 
+msgid "Configure your automation workflows visually"
+msgstr ""
+
 msgid "Configure your environments to be deployed to specific geographical regions"
 msgstr ""
 
@@ -21284,9 +21275,6 @@ msgid "Connect a cluster"
 msgstr ""
 
 msgid "Connect all repositories"
-msgstr ""
-
-msgid "Connect and manage your Kubernetes clusters."
 msgstr ""
 
 msgid "Connect repositories from GitHub"
@@ -23015,6 +23003,12 @@ msgid "Create an incident. Incidents are created for each alert triggered."
 msgstr ""
 
 msgid "Create and manage documentation"
+msgstr ""
+
+msgid "Create and manage project releases"
+msgstr ""
+
+msgid "Create and manage release tags"
 msgstr ""
 
 msgid "Create branch"
@@ -25570,6 +25564,9 @@ msgid "Define a custom deploy freeze pattern with %{cronSyntaxStart}cron syntax%
 msgstr ""
 
 msgid "Define a custom pattern with cron syntax"
+msgstr ""
+
+msgid "Define and manage test cases for your project"
 msgstr ""
 
 msgid "Define custom rules for what constitutes spam, independent of Akismet"
@@ -29913,9 +29910,6 @@ msgstr ""
 msgid "Edit Slack integration"
 msgstr ""
 
-msgid "Edit and validate your pipeline configuration."
-msgstr ""
-
 msgid "Edit application"
 msgstr ""
 
@@ -32946,12 +32940,6 @@ msgid "FeatureFlag|User IDs"
 msgstr ""
 
 msgid "FeatureFlag|User List"
-msgstr ""
-
-msgid "FeatureLibrary|Free · Enhanced with Premium"
-msgstr ""
-
-msgid "FeatureLibrary|Free · Enhanced with Ultimate"
 msgstr ""
 
 msgid "FeatureLibrary|GitLab features"
@@ -44696,6 +44684,12 @@ msgstr ""
 msgid "Manage Harbor container registry"
 msgstr ""
 
+msgid "Manage Kubernetes clusters and agents"
+msgstr ""
+
+msgid "Manage Terraform state files"
+msgstr ""
+
 msgid "Manage access"
 msgstr ""
 
@@ -44726,6 +44720,9 @@ msgstr ""
 msgid "Manage deployments"
 msgstr ""
 
+msgid "Manage feature flags and toggles"
+msgstr ""
+
 msgid "Manage file locks to prevent conflicting changes"
 msgstr ""
 
@@ -44745,6 +44742,9 @@ msgid "Manage members"
 msgstr ""
 
 msgid "Manage milestones"
+msgstr ""
+
+msgid "Manage project branches and branch protection"
 msgstr ""
 
 msgid "Manage project labels"
@@ -44771,10 +44771,10 @@ msgstr ""
 msgid "Manage templates…"
 msgstr ""
 
-msgid "Manage the branches of your repository."
+msgid "Manage usage"
 msgstr ""
 
-msgid "Manage usage"
+msgid "Manage your staging and production deployments"
 msgstr ""
 
 msgid "Manage your subscription"
@@ -48061,6 +48061,9 @@ msgid "Monitor and observe AI agent behavior and activities across your group."
 msgstr ""
 
 msgid "Monitor and observe AI agent behavior and activities across your project."
+msgstr ""
+
+msgid "Monitor individual build tasks and their results"
 msgstr ""
 
 msgid "Monitor open source libraries and their known vulnerabilities"
@@ -56507,9 +56510,6 @@ msgstr ""
 msgid "Plan and communicate your group's strategic direction with a visual timeline"
 msgstr ""
 
-msgid "Plan and track test cases for your project."
-msgstr ""
-
 msgid "Plan releases and group work into time-based phases"
 msgstr ""
 
@@ -60811,9 +60811,6 @@ msgstr ""
 msgid "Publish a static website from your repository."
 msgstr ""
 
-msgid "Publish and manage releases of your project."
-msgstr ""
-
 msgid "Publish and share packages across your organization"
 msgstr ""
 
@@ -63142,9 +63139,6 @@ msgstr ""
 msgid "Roles and permissions"
 msgstr ""
 
-msgid "Roll out features gradually with feature flags."
-msgstr ""
-
 msgid "Roll up totals may reflect child items you don’t have access to."
 msgstr ""
 
@@ -63221,6 +63215,9 @@ msgid "Run with eid not found"
 msgstr ""
 
 msgid "Run with id not found"
+msgstr ""
+
+msgid "Run your automation on a recurring schedule"
 msgstr ""
 
 msgid "Runner"
@@ -65697,9 +65694,6 @@ msgstr ""
 msgid "Schedule a new pipeline"
 msgstr ""
 
-msgid "Schedule pipelines to run automatically."
-msgstr ""
-
 msgid "Schedule-based escalation rules must have a schedule in the same project as the policy"
 msgstr ""
 
@@ -66335,6 +66329,9 @@ msgstr ""
 msgid "SecretsManager|Configure OpenBao"
 msgstr ""
 
+msgid "SecretsManager|Contact your GitLab administrator for a trial."
+msgstr ""
+
 msgid "SecretsManager|Delete secret"
 msgstr ""
 
@@ -66374,6 +66371,9 @@ msgstr ""
 msgid "SecretsManager|Introducing GitLab Secrets Manager"
 msgstr ""
 
+msgid "SecretsManager|Keep secrets secure with GitLab Secrets Manager"
+msgstr ""
+
 msgid "SecretsManager|Learn more about GitLab Secrets Manager."
 msgstr ""
 
@@ -66384,6 +66384,9 @@ msgid "SecretsManager|New secret"
 msgstr ""
 
 msgid "SecretsManager|Please wait while the secrets manager is provisioned. You can refresh at any time."
+msgstr ""
+
+msgid "SecretsManager|Protect your organization from potential leaks."
 msgstr ""
 
 msgid "SecretsManager|Protected Branches"
@@ -66450,9 +66453,6 @@ msgid "SecretsManager|Use the GitLab Secrets Manager to securely store and manag
 msgstr ""
 
 msgid "SecretsManager|Use the secrets manager to store your sensitive credentials, and then safely use them in your processes."
-msgstr ""
-
-msgid "Secure"
 msgstr ""
 
 msgid "Secure Code Warrior"
@@ -71847,9 +71847,6 @@ msgstr ""
 msgid "See a complete record of all changes and access events"
 msgstr ""
 
-msgid "See commit statistics for each contributor."
-msgstr ""
-
 msgid "See example DevOps Score page in our documentation."
 msgstr ""
 
@@ -74724,6 +74721,9 @@ msgstr ""
 msgid "Start date:"
 msgstr ""
 
+msgid "Start free 30-day trial"
+msgstr ""
+
 msgid "Start free trial"
 msgstr ""
 
@@ -75091,9 +75091,6 @@ msgid "Store and manage machine learning models"
 msgstr ""
 
 msgid "Store and manage project secrets"
-msgstr ""
-
-msgid "Store and manage your Terraform state files."
 msgstr ""
 
 msgid "Store and share code snippets"
@@ -75955,9 +75952,6 @@ msgid "Tag name should not start with %{prefixes}"
 msgstr ""
 
 msgid "Tag push"
-msgstr ""
-
-msgid "Tag specific points in your repository history."
 msgstr ""
 
 msgid "Tag this commit."
@@ -80005,9 +79999,6 @@ msgstr ""
 msgid "Track and manage machine learning experiments"
 msgstr ""
 
-msgid "Track and manage your deployment environments."
-msgstr ""
-
 msgid "Track and prioritize work across all group projects"
 msgstr ""
 
@@ -83652,6 +83643,9 @@ msgstr ""
 msgid "View commit %{commit_id}"
 msgstr ""
 
+msgid "View commit history and changes"
+msgstr ""
+
 msgid "View commits for tag %{tag}"
 msgstr ""
 
@@ -83776,13 +83770,7 @@ msgstr ""
 msgid "View the %{code_open}last_activity_at%{code_close} attribute for %{project_link} using the %{projects_api_link}."
 msgstr ""
 
-msgid "View the commit history of your repository."
-msgstr ""
-
 msgid "View the documentation"
-msgstr ""
-
-msgid "View the jobs run by your pipelines."
 msgstr ""
 
 msgid "View the latest successful deployment to this environment"
@@ -84601,7 +84589,7 @@ msgstr ""
 msgid "Visualize epic workflow and manage progress using kanban-style boards"
 msgstr ""
 
-msgid "Visualize the branch and commit graph of your repository."
+msgid "Visualize repository commit history and branches"
 msgstr ""
 
 msgid "Volume's name must be less than %{character_limit} characters"
@@ -84668,6 +84656,9 @@ msgid "Vulnerabilities|Vulnerability Report"
 msgstr ""
 
 msgid "Vulnerabilities|Vulnerability Report export"
+msgstr ""
+
+msgid "Vulnerabilities|Your personal dashboard"
 msgstr ""
 
 msgid "Vulnerabilities|changed vulnerability status to Needs Triage because it was redetected in pipeline %{pipeline_link}"

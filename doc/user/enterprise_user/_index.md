@@ -68,7 +68,7 @@ To add a custom domain for a group:
      - If you do not have or do not want to use an SSL/TLS certificate, select
        **Automatic certificate management using Let's Encrypt**.
      - If you want to provide your own SSL/TLS certificate, select
-       **Manually enter certificate information**. You can also add a certificate and key later.
+       **Manually enter certificate information**.
 
        > [!note]
        > A valid certificate is not required for domain verification. You can ignore self-signed certificate warnings
