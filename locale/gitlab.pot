@@ -33077,6 +33077,9 @@ msgstr ""
 msgid "File size exceeds preview limit."
 msgstr ""
 
+msgid "File stored in LFS. %{linkStart}Learn more%{linkEnd}."
+msgstr ""
+
 msgid "File suppressed by a .gitattributes entry, the file's encoding is unsupported, or the file size exceeds the limit."
 msgstr ""
 
@@ -45300,6 +45303,9 @@ msgid "Maximum npm package file size in bytes"
 msgstr ""
 
 msgid "Maximum number of %{name} (%{count}) exceeded"
+msgstr ""
+
+msgid "Maximum number of CI Lint requests for a user. Resets after 1 minute. Set to 0 for unlimited requests per minute."
 msgstr ""
 
 msgid "Maximum number of Helm packages per channel"
@@ -62282,22 +62288,22 @@ msgstr ""
 msgid "ReportAbuse|Something else."
 msgstr ""
 
-msgid "ReportAbuse|They're being offensive or abusive."
+msgid "ReportAbuse|They're being offensive, harassing, or abusive."
 msgstr ""
 
-msgid "ReportAbuse|They're crypto mining."
+msgid "ReportAbuse|They're distributing malware or malicious code."
 msgstr ""
 
-msgid "ReportAbuse|They're phishing."
-msgstr ""
-
-msgid "ReportAbuse|They're posting malware."
+msgid "ReportAbuse|They're phishing or impersonating others."
 msgstr ""
 
 msgid "ReportAbuse|They're posting personal information or credentials."
 msgstr ""
 
-msgid "ReportAbuse|They're posting spam."
+msgid "ReportAbuse|They're posting spam or unsolicited content."
+msgstr ""
+
+msgid "ReportAbuse|They're using GitLab to mine cryptocurrency."
 msgstr ""
 
 msgid "ReportAbuse|They're violating a copyright or trademark."
@@ -71050,6 +71056,9 @@ msgstr ""
 msgid "SecurityReports|A dismissal reason is required."
 msgstr ""
 
+msgid "SecurityReports|AI evaluates for false positives, helping to tune the noise to signal ratio."
+msgstr ""
+
 msgid "SecurityReports|Active secret"
 msgstr ""
 
@@ -71176,7 +71185,7 @@ msgstr ""
 msgid "SecurityReports|Critical"
 msgstr ""
 
-msgid "SecurityReports|Critical and High SAST vulnerabilities"
+msgid "SecurityReports|Critical & High SAST vulnerabilities"
 msgstr ""
 
 msgid "SecurityReports|Critical risk"
@@ -71245,6 +71254,12 @@ msgstr ""
 msgid "SecurityReports|Enable"
 msgstr ""
 
+msgid "SecurityReports|Enable False Positive Detection"
+msgstr ""
+
+msgid "SecurityReports|Enable Vulnerability Resolution"
+msgstr ""
+
 msgid "SecurityReports|Ensure that %{trackingStart}issue tracking%{trackingEnd} is enabled for this project and you have %{permissionsStart}permission to create new issues%{permissionsEnd}."
 msgstr ""
 
@@ -71284,7 +71299,10 @@ msgstr ""
 msgid "SecurityReports|Failed updating vulnerabilities with the following IDs: %{ids}"
 msgstr ""
 
-msgid "SecurityReports|False Positive detection"
+msgid "SecurityReports|False Positive Detection"
+msgstr ""
+
+msgid "SecurityReports|False Positive Detection not enabled. Ask a maintainer to enable."
 msgstr ""
 
 msgid "SecurityReports|False positive"
@@ -71494,6 +71512,9 @@ msgid "SecurityReports|Reachability"
 msgstr ""
 
 msgid "SecurityReports|Reachable:"
+msgstr ""
+
+msgid "SecurityReports|Reduce time and effort with proposed fixes from AI-created MRs."
 msgstr ""
 
 msgid "SecurityReports|Remove project from dashboard"
@@ -71712,6 +71733,9 @@ msgid "SecurityReports|Vulnerability Resolution"
 msgstr ""
 
 msgid "SecurityReports|Vulnerability Resolution available"
+msgstr ""
+
+msgid "SecurityReports|Vulnerability Resolution not enabled. Ask a maintainer to enable."
 msgstr ""
 
 msgid "SecurityReports|Vulnerability Resolution unavailable"
@@ -85241,6 +85265,9 @@ msgid "Vulnerability|Information related to how the vulnerability was discovered
 msgstr ""
 
 msgid "Vulnerability|Likely FP"
+msgstr ""
+
+msgid "Vulnerability|Links"
 msgstr ""
 
 msgid "Vulnerability|NOT a false positive"

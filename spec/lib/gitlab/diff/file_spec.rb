@@ -1375,6 +1375,11 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
       allow(diff_file).to receive(:too_large?).and_return(true)
       expect(diffable_text?).to be(false)
     end
+
+    it 'returns false for files stored externally' do
+      allow(diff_file).to receive(:stored_externally?).and_return(true)
+      expect(diffable_text?).to be(false)
+    end
   end
 
   describe '#whitespace_only?' do

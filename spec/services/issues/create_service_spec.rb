@@ -524,7 +524,7 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
         end
 
         it 'does not assign the sentry error' do
-          expect(issue.sentry_issue).to eq(nil)
+          expect(issue.sentry_issue).to be_nil
         end
 
         context 'user is reporter or above' do
@@ -853,7 +853,7 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
 
           reloaded_discussion = MergeRequest.find(merge_request.id).discussions.first
 
-          expect(reloaded_discussion.last_note.system).to eq(true)
+          expect(reloaded_discussion.last_note.system).to be(true)
         end
 
         it 'sets default title and description values if not provided' do
@@ -913,7 +913,7 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
 
           reloaded_discussion = MergeRequest.find(merge_request.id).discussions.first
 
-          expect(reloaded_discussion.last_note.system).to eq(true)
+          expect(reloaded_discussion.last_note.system).to be(true)
         end
 
         it 'sets default title and description values if not provided' do

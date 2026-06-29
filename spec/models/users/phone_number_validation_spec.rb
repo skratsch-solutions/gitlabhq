@@ -92,7 +92,7 @@ RSpec.describe Users::PhoneNumberValidation, feature_category: :instance_resilie
           )
         end
 
-        it { is_expected.to eq(false) }
+        it { is_expected.to be(false) }
       end
 
       context 'and the matching record has been verified' do
@@ -106,7 +106,7 @@ RSpec.describe Users::PhoneNumberValidation, feature_category: :instance_resilie
           )
         end
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
     end
 
@@ -122,7 +122,7 @@ RSpec.describe Users::PhoneNumberValidation, feature_category: :instance_resilie
         )
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when banned user does not have the same international dial code' do
@@ -136,7 +136,7 @@ RSpec.describe Users::PhoneNumberValidation, feature_category: :instance_resilie
         )
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when banned user does not have the same phone number' do
@@ -150,7 +150,7 @@ RSpec.describe Users::PhoneNumberValidation, feature_category: :instance_resilie
         )
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when not-banned user has the same international dial code and phone number' do
@@ -164,7 +164,7 @@ RSpec.describe Users::PhoneNumberValidation, feature_category: :instance_resilie
         )
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 

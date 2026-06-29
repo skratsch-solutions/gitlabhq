@@ -1111,7 +1111,7 @@ RSpec.describe Snippet, feature_category: :source_code_management do
         double(:reference_counter, value: 2)
       end
 
-      expect(subject).to eq true
+      expect(subject).to be true
     end
 
     it 'returns false when there are not git transfers' do
@@ -1119,7 +1119,7 @@ RSpec.describe Snippet, feature_category: :source_code_management do
         double(:reference_counter, value: 0)
       end
 
-      expect(subject).to eq false
+      expect(subject).to be false
     end
   end
 
@@ -1135,13 +1135,13 @@ RSpec.describe Snippet, feature_category: :source_code_management do
     context 'when the author is not banned' do
       let_it_be(:author) { build(:user) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when author is banned' do
       let_it_be(:author) { build(:user, :banned) }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
   end
 end

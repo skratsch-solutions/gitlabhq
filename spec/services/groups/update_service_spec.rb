@@ -419,7 +419,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
       it 'does not update the group to public' do
         result = described_class.new(private_group, user, visibility_level: Gitlab::VisibilityLevel::PUBLIC).execute
 
-        expect(result).to eq(false)
+        expect(result).to be(false)
         expect(private_group.errors.count).to eq(1)
         expect(private_group).to be_private
       end
@@ -427,7 +427,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
       it 'does not update the group to public with tricky value' do
         result = described_class.new(private_group, user, visibility_level: Gitlab::VisibilityLevel::PUBLIC.to_s + 'r').execute
 
-        expect(result).to eq(false)
+        expect(result).to be(false)
         expect(private_group.errors.count).to eq(1)
         expect(private_group).to be_private
       end
@@ -441,7 +441,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
       it 'does not update the group to private' do
         result = described_class.new(public_group, user, visibility_level: Gitlab::VisibilityLevel::PRIVATE).execute
 
-        expect(result).to eq(false)
+        expect(result).to be(false)
         expect(public_group.errors.count).to eq(1)
         expect(public_group).to be_public
       end
@@ -449,7 +449,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
       it 'does not update the group to private with invalid string value' do
         result = described_class.new(public_group, user, visibility_level: 'invalid').execute
 
-        expect(result).to eq(false)
+        expect(result).to be(false)
         expect(public_group.errors.count).to eq(1)
         expect(public_group).to be_public
       end
@@ -457,7 +457,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
       it 'does not update the group to private with valid string value' do
         result = described_class.new(public_group, user, visibility_level: 'private').execute
 
-        expect(result).to eq(false)
+        expect(result).to be(false)
         expect(public_group.errors.count).to eq(1)
         expect(public_group).to be_public
       end
@@ -466,7 +466,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
       it 'does not update the group to private because of Active Record typecasting' do
         result = described_class.new(public_group, user, visibility_level: 'public').execute
 
-        expect(result).to eq(true)
+        expect(result).to be(true)
         expect(public_group.errors.count).to eq(0)
         expect(public_group).to be_public
       end
@@ -765,7 +765,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
     end
 
     it 'returns true' do
-      expect(service.execute).to eq(true)
+      expect(service.execute).to be(true)
     end
 
     context 'for GroupPathChangedEvent' do
@@ -850,7 +850,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
     it 'changes settings' do
       subject
 
-      expect(group.namespace_settings.reload.allow_mfa_for_subgroups).to eq(false)
+      expect(group.namespace_settings.reload.allow_mfa_for_subgroups).to be(false)
     end
 
     it 'enqueues update subgroups and its members' do

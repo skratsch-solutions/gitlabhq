@@ -64,7 +64,7 @@ export default {
         :has-reached-snooze-timestamp="!isSnoozed"
       />
 
-      {{ formattedCreatedAt }}
+      <time :datetime="todo.createdAt">{{ formattedCreatedAt }}</time>
     </span>
     <span v-if="formattedDueDate" class="gl-inline @sm/panel:gl-hidden"> &middot; </span>
     <span

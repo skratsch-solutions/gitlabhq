@@ -701,7 +701,8 @@ describe('IssuableItem', () => {
       expect(timestampEl.attributes('title')).toBe(
         localeDateFormat.asDateTimeFullWithWeekday.format(mockIssuable.updatedAt),
       );
-      expect(timestampEl.text()).toBe(wrapper.vm.formattedTimestamp);
+      expect(timestampEl.find('time').attributes('datetime')).toBe(mockIssuable.updatedAt);
+      expect(timestampEl.text()).toContain('updated');
     });
 
     describe('when issuable is closed', () => {
@@ -724,7 +725,8 @@ describe('IssuableItem', () => {
         expect(timestampEl.attributes('title')).toBe(
           localeDateFormat.asDateTimeFullWithWeekday.format(closedAt),
         );
-        expect(timestampEl.text()).toBe(wrapper.vm.formattedTimestamp);
+        expect(timestampEl.find('time').attributes('datetime')).toBe(closedAt);
+        expect(timestampEl.text()).toContain('closed');
       });
     });
 

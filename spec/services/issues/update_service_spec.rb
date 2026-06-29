@@ -199,7 +199,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
           it 'does not assign the sentry error' do
             update_issue(opts)
 
-            expect(issue.sentry_issue).to eq(nil)
+            expect(issue.sentry_issue).to be_nil
           end
         end
       end
@@ -309,7 +309,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
 
             note = find_note('changed type to **Incident**')
 
-            expect(note).not_to eq(nil)
+            expect(note).not_to be_nil
           end
 
           it 'creates an escalation status' do
@@ -770,7 +770,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         end
 
         it 'marks pending todos as done' do
-          expect(todo.reload.done?).to eq true
+          expect(todo.reload.done?).to be true
         end
 
         it 'does not create any new todos' do
@@ -784,7 +784,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         end
 
         it 'marks todos as done' do
-          expect(todo.reload.done?).to eq true
+          expect(todo.reload.done?).to be true
         end
 
         it 'creates only 1 new todo' do
@@ -798,7 +798,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         end
 
         it 'marks previous assignee todos as done' do
-          expect(todo.reload.done?).to eq true
+          expect(todo.reload.done?).to be true
         end
 
         it 'creates a todo for new assignee' do
@@ -906,7 +906,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         it 'marks todos as done' do
           update_issue(milestone_id: create(:milestone, project: project).id)
 
-          expect(todo.reload.done?).to eq true
+          expect(todo.reload.done?).to be true
         end
 
         it 'sends notifications for subscribers of changed milestone', :sidekiq_might_not_need_inline do
@@ -972,7 +972,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         end
 
         it 'marks todos as done' do
-          expect(todo.reload.done?).to eq true
+          expect(todo.reload.done?).to be true
         end
 
         it 'updates updated_at' do
@@ -1036,7 +1036,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         update_issue(description: "- [ ] Task 1\n- [ ] Task 2")
       end
 
-      it { expect(issue.tasks?).to eq(true) }
+      it { expect(issue.tasks?).to be(true) }
 
       it_behaves_like 'updating a single task'
 

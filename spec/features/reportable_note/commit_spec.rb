@@ -33,11 +33,11 @@ RSpec.describe 'Reportable note on commit', :js, feature_category: :source_code_
         find_by_testid('report-abuse-button').click
       end
 
-      choose "They're posting spam."
+      choose "They're posting spam or unsolicited content."
       click_button 'Next'
 
       expect(find('#user_name')['value']).to match(note.author.username)
-      expect(find('#abuse_report_category', visible: false)['value']).to match('spam')
+      expect(find('#abuse_report_category', visible: false)['value']).to match(/spam/i)
     end
   end
 

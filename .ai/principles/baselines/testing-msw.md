@@ -6,7 +6,7 @@
 
 This baseline covers only the gaps and additions not already in `testing-jest.md`.
 For the decision of *which* test type to write, see
-`.ai/principles/baselines/testing-frontend-testing-hierarchy.md`.
+`.ai/principles/distilled/testing-frontend-testing-hierarchy.md`.
 
 ---
 

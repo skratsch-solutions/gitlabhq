@@ -220,19 +220,6 @@ export default {
         ? this.issuable.closedAt
         : this.issuable.updatedAt;
     },
-    formattedTimestamp() {
-      if (this.isClosed && this.issuable.closedAt) {
-        return sprintf(__('closed %{timeago}'), {
-          timeago: this.timeFormatted(this.issuable.closedAt),
-        });
-      }
-      if (this.issuable.updatedAt !== this.issuable.createdAt) {
-        return sprintf(__('updated %{timeAgo}'), {
-          timeAgo: this.timeFormatted(this.issuable.updatedAt),
-        });
-      }
-      return undefined;
-    },
     issuableTitleProps() {
       if (this.isIssuableUrlExternal) {
         return {
@@ -519,7 +506,7 @@ export default {
                 data-testid="issuable-created-at"
                 class="button-reset gl-text-subtle"
               >
-                {{ createdAt }}
+                <time :datetime="issuable.createdAt">{{ createdAt }}</time>
               </button>
             </template>
             <template #author>
@@ -544,14 +531,15 @@ export default {
           </gl-sprintf>
           <gl-sprintf v-else :message="__('created %{timeAgo}')">
             <template #timeAgo>
-              <span
+              <time
                 v-if="issuable.createdAt"
                 v-gl-tooltip.bottom
+                :datetime="issuable.createdAt"
                 :title="tooltipTitle(issuable.createdAt)"
                 data-testid="issuable-created-at"
               >
                 {{ createdAt }}
-              </span>
+              </time>
             </template>
           </gl-sprintf>
         </span>
@@ -685,7 +673,19 @@ export default {
           class="button-reset gl-text-subtle @sm/panel:gl-inline-block"
           data-testid="issuable-timestamp"
         >
-          {{ formattedTimestamp }}
+          <gl-sprintf v-if="isClosed && issuable.closedAt" :message="__('closed %{timeago}')">
+            <template #timeago>
+              <time :datetime="timestamp">{{ timeFormatted(timestamp) }}</time>
+            </template>
+          </gl-sprintf>
+          <gl-sprintf
+            v-else-if="issuable.updatedAt !== issuable.createdAt"
+            :message="__('updated %{timeAgo}')"
+          >
+            <template #timeAgo>
+              <time :datetime="timestamp">{{ timeFormatted(timestamp) }}</time>
+            </template>
+          </gl-sprintf>
         </button>
       </div>
     </div>

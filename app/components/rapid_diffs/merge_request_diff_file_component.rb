@@ -62,6 +62,7 @@ module RapidDiffs
 
     def edit_in_sfe
       return unless @diff_file.text?
+      return if @diff_file.stored_externally?
       return unless @merge_request.source_project
 
       editor_path = helpers.project_edit_blob_path(

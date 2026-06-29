@@ -44,7 +44,9 @@ export default {
 
         <template #timeAgo>
           <span v-gl-tooltip :title="tooltipTitle(packageEntity.created_at)">
-            &nbsp;{{ timeFormatted(packageEntity.created_at) }}
+            <time :datetime="packageEntity.created_at">{{
+              timeFormatted(packageEntity.created_at)
+            }}</time>
           </span>
         </template>
       </gl-sprintf>

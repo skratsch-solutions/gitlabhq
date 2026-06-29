@@ -105,7 +105,7 @@ export default {
             <span class="gl-break-all gl-text-sm">{{ author.name }}</span>
           </template>
           <template #time>
-            <span class="gl-text-sm">{{ noteCreatedAt }}</span>
+            <time :datetime="note?.createdAt" class="gl-text-sm">{{ noteCreatedAt }}</time>
           </template>
         </gl-sprintf>
       </div>

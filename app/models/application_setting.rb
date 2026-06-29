@@ -692,6 +692,7 @@ class ApplicationSetting < ApplicationRecord
 
   with_options(numericality: { only_integer: true, greater_than_or_equal_to: 0 }) do
     validates :bulk_import_max_download_file_size,
+      :ci_lint_limit_per_user,
       :ci_max_includes,
       :ci_max_total_yaml_size_bytes,
       :container_registry_cleanup_tags_service_max_list_size,
@@ -1317,6 +1318,7 @@ class ApplicationSetting < ApplicationRecord
       concurrent_bitbucket_server_import_jobs_limit: [:integer, { default: 100 }],
       concurrent_github_import_jobs_limit: [:integer, { default: 1000 }],
       concurrent_relation_batch_export_limit: [:integer, { default: 8 }],
+      ci_lint_limit_per_user: [:integer, { default: 0 }],
       downstream_pipeline_trigger_limit_per_project_user_sha: [:integer, { default: 0 }],
       group_api_limit: [:integer, { default: 400 }],
       group_invited_groups_api_limit: [:integer, { default: 60 }],

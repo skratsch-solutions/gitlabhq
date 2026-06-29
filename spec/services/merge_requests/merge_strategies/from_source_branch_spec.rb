@@ -403,24 +403,5 @@ RSpec.describe MergeRequests::MergeStrategies::FromSourceBranch, feature_categor
           )
       end
     end
-
-    context 'when the verify_ff_merge_advancement feature flag is disabled' do
-      before do
-        stub_feature_flags(verify_ff_merge_advancement: false)
-        project.merge_method = :ff
-        project.save!
-      end
-
-      it 'records the merge without guarding advancement (legacy behavior)' do
-        # The legacy call must be byte-for-byte identical to the pre-fix code:
-        # no target_sha: keyword is forwarded to ff_merge when the flag is off.
-        expect(merge_request.target_project.repository)
-          .to receive(:ff_merge)
-          .with(user, anything, merge_request.target_branch, { merge_request: merge_request })
-          .and_return(target_branch_sha)
-
-        expect(strategy.execute_git_merge!).to eq({ commit_sha: target_branch_sha })
-      end
-    end
   end
 end

@@ -1979,7 +1979,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
       end
 
       it 'is true' do
-        is_expected.to eq(true)
+        is_expected.to be(true)
       end
     end
 
@@ -1991,7 +1991,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
       end
 
       it 'is false' do
-        is_expected.to eq(false)
+        is_expected.to be(false)
       end
     end
   end
@@ -2221,14 +2221,14 @@ RSpec.describe Repository, feature_category: :source_code_management do
       expect(repository.raw_repository).to receive(:has_visible_content?)
         .and_return(true)
 
-      expect(repository.has_visible_content?).to eq(true)
+      expect(repository.has_visible_content?).to be(true)
     end
 
     it 'delegates to raw_repository when false' do
       expect(repository.raw_repository).to receive(:has_visible_content?)
         .and_return(false)
 
-      expect(repository.has_visible_content?).to eq(false)
+      expect(repository.has_visible_content?).to be(false)
     end
 
     it_behaves_like 'asymmetric cached method', :has_visible_content?
@@ -2242,7 +2242,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
     it 'batch loads requested refs' do
       expect(repository).to receive(:list_refs).with(["refs/heads/#{branch}"]).and_call_original
 
-      is_expected.to eq(true)
+      is_expected.to be(true)
     end
 
     context 'when default branch is provided' do
@@ -2251,7 +2251,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
       it 'does not make list_refs query and rely on root_ref cache' do
         expect(repository).not_to receive(:list_refs).with(["refs/heads/#{branch}"])
 
-        is_expected.to eq(true)
+        is_expected.to be(true)
       end
     end
 
@@ -2275,7 +2275,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
         repository.expire_branches_cache
 
         expect(repository).to receive(:branch_names).and_call_original
-        is_expected.to eq(true)
+        is_expected.to be(true)
       end
 
       it 'uses redis set caching when the cache is filled' do
@@ -2286,7 +2286,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
                 .with(branch)
                 .and_call_original
 
-        is_expected.to eq(true)
+        is_expected.to be(true)
       end
     end
   end
@@ -2299,7 +2299,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
     it 'batch loads requested refs' do
       expect(repository).to receive(:list_refs).with(["refs/tags/#{tag}"]).and_call_original
 
-      is_expected.to eq(true)
+      is_expected.to be(true)
     end
 
     context 'when "ref_existence_check_gitaly" is disabled' do
@@ -2311,7 +2311,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
         repository.expire_tags_cache
 
         expect(repository).to receive(:tag_names).and_call_original
-        is_expected.to eq(true)
+        is_expected.to be(true)
       end
 
       it 'uses redis set caching when the cache is filled' do
@@ -2322,7 +2322,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
                 .with(tag)
                 .and_call_original
 
-        is_expected.to eq(true)
+        is_expected.to be(true)
       end
     end
   end
@@ -3916,8 +3916,8 @@ RSpec.describe Repository, feature_category: :source_code_management do
       create_remote_branch('joe', 'remote_branch', masterrev)
       repository.add_branch(user, 'local_branch', masterrev.id)
 
-      expect(repository.local_branches.any? { |branch| branch.name == 'remote_branch' }).to eq(false)
-      expect(repository.local_branches.any? { |branch| branch.name == 'local_branch' }).to eq(true)
+      expect(repository.local_branches.any? { |branch| branch.name == 'remote_branch' }).to be(false)
+      expect(repository.local_branches.any? { |branch| branch.name == 'local_branch' }).to be(true)
     end
   end
 
@@ -4030,22 +4030,22 @@ RSpec.describe Repository, feature_category: :source_code_management do
     let(:ancestor) { commit.parents.first }
 
     it 'is an ancestor' do
-      expect(repository.ancestor?(ancestor.id, commit.id)).to eq(true)
+      expect(repository.ancestor?(ancestor.id, commit.id)).to be(true)
     end
 
     it 'is not an ancestor' do
-      expect(repository.ancestor?(commit.id, ancestor.id)).to eq(false)
+      expect(repository.ancestor?(commit.id, ancestor.id)).to be(false)
     end
 
     it 'returns false on nil-values' do
-      expect(repository.ancestor?(nil, commit.id)).to eq(false)
-      expect(repository.ancestor?(ancestor.id, nil)).to eq(false)
-      expect(repository.ancestor?(nil, nil)).to eq(false)
+      expect(repository.ancestor?(nil, commit.id)).to be(false)
+      expect(repository.ancestor?(ancestor.id, nil)).to be(false)
+      expect(repository.ancestor?(nil, nil)).to be(false)
     end
 
     it 'returns false for invalid commit IDs' do
-      expect(repository.ancestor?(commit.id, Gitlab::Git::SHA1_BLANK_SHA)).to eq(false)
-      expect(repository.ancestor?(Gitlab::Git::SHA1_BLANK_SHA, commit.id)).to eq(false)
+      expect(repository.ancestor?(commit.id, Gitlab::Git::SHA1_BLANK_SHA)).to be(false)
+      expect(repository.ancestor?(Gitlab::Git::SHA1_BLANK_SHA, commit.id)).to be(false)
     end
   end
 
@@ -4303,7 +4303,7 @@ RSpec.describe Repository, feature_category: :source_code_management do
     end
 
     it 'returns true' do
-      expect(repository.create_if_not_exists).to eq(true)
+      expect(repository.create_if_not_exists).to be(true)
     end
 
     it 'calls out to the repository client to create a repo' do

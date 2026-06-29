@@ -600,7 +600,7 @@ group :test do
   gem 'test-prof', '~> 1.6.0', feature_category: :tooling
   gem 'rspec_junit_formatter', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
   gem 'guard-rspec', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
-  gem 'axe-core-rspec', '~> 4.10.0', feature_category: :tooling
+  gem 'axe-core-rspec', '~> 4.11.0', feature_category: :tooling
   gem 'state_machines-rspec', '~> 0.6', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
   # Moved in `test` because https://gitlab.com/gitlab-org/gitlab/-/issues/217527

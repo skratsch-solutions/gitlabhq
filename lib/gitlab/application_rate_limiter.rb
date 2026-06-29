@@ -26,6 +26,7 @@ module Gitlab
           bulk_delete_todos: { threshold: 6, interval: 1.minute },
           bulk_import: { threshold: 6, interval: 1.minute },
           ci_job_processed_subscription: { threshold: 50, interval: 1.minute },
+          ci_lint: { threshold: -> { application_settings.ci_lint_limit_per_user }, interval: 1.minute },
           ci_pipeline_statuses_subscription: { threshold: 50, interval: 1.minute },
           code_suggestions_api_endpoint: { threshold: -> { application_settings.code_suggestions_api_rate_limit }, interval: 1.minute },
           create_organization_api: { threshold: -> { application_settings.create_organization_api_limit }, interval: 1.minute },

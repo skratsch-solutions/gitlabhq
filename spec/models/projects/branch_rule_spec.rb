@@ -41,7 +41,7 @@ RSpec.describe Projects::BranchRule, feature_category: :source_code_management d
   end
 
   it 'is protected' do
-    expect(subject.protected?).to eq(true)
+    expect(subject.protected?).to be(true)
   end
 
   it 'branch protection returns protected branch' do

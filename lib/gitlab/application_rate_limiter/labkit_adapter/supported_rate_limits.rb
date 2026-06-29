@@ -83,6 +83,12 @@ module Gitlab
               characteristics: %i[project],
               action: :block
             },
+            ci_lint: {
+              limiter_name: 'applimiter_ci_lint',
+              rule_name: 'limit_ci_lint_by_user',
+              characteristics: %i[user],
+              action: :block
+            },
             ci_pipeline_statuses_subscription: {
               limiter_name: 'applimiter_ci_pipeline_statuses_subscription',
               rule_name: 'limit_ci_pipeline_status_subscriptions_by_project',

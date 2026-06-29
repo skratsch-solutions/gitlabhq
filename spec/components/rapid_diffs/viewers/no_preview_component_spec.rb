@@ -159,6 +159,19 @@ RSpec.describe RapidDiffs::Viewers::NoPreviewComponent, type: :component, featur
       end
     end
 
+    context 'when file is stored in LFS' do
+      before do
+        allow(diff_file).to receive(:stored_externally?).and_return(true)
+      end
+
+      it 'shows stored in LFS message with docs link', :aggregate_failures do
+        render_component
+        expect(page).to have_text("File stored in LFS. Learn more.")
+        expect(page).to have_link('Learn more', href: %r{topics/git/lfs})
+        verify_virtual_rendering_params
+      end
+    end
+
     context 'when diff is collapsed because the file is generated' do
       before do
         allow(diff_file).to receive_messages(collapsed?: true, generated?: true)

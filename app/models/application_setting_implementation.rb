@@ -380,6 +380,7 @@ module ApplicationSettingImplementation
         duo_external_agents_enabled: true,
         lock_duo_external_agents_enabled: false,
         pipeline_limit_per_user: 0,
+        ci_lint_limit_per_user: 0,
         background_operations_max_jobs: 10,
         oauth_access_token_expires_in: ApplicationSetting::DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN
       }.tap do |hsh|

@@ -163,10 +163,10 @@ RSpec.describe Projects::Forks::Details, feature_category: :source_code_manageme
       details = described_class.new(fork_repo.project, fork_branch)
 
       expect(details.exclusive_lease.try_obtain).to be_present
-      expect(details.syncing?).to eq(true)
+      expect(details.syncing?).to be(true)
 
       details.exclusive_lease.cancel
-      expect(details.syncing?).to eq(false)
+      expect(details.syncing?).to be(false)
     end
   end
 end

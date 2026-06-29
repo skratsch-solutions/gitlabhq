@@ -299,13 +299,13 @@ RSpec.describe Todo, feature_category: :notifications do
     it 'returns true when target is a commit' do
       subject.target_type = 'Commit'
 
-      expect(subject.for_commit?).to eq true
+      expect(subject.for_commit?).to be true
     end
 
     it 'returns false when target is an issuable' do
       subject.target_type = 'Issue'
 
-      expect(subject.for_commit?).to eq false
+      expect(subject.for_commit?).to be false
     end
   end
 
@@ -313,13 +313,13 @@ RSpec.describe Todo, feature_category: :notifications do
     it 'returns true when target is a Design' do
       subject.target_type = 'DesignManagement::Design'
 
-      expect(subject.for_design?).to eq(true)
+      expect(subject.for_design?).to be(true)
     end
 
     it 'returns false when target is not a Design' do
       subject.target_type = 'Issue'
 
-      expect(subject.for_design?).to eq(false)
+      expect(subject.for_design?).to be(false)
     end
   end
 
@@ -730,25 +730,25 @@ RSpec.describe Todo, feature_category: :notifications do
     it 'returns true if there are todos for a given target' do
       todo = create(:todo)
 
-      expect(described_class.any_for_target?(todo.target)).to eq(true)
+      expect(described_class.any_for_target?(todo.target)).to be(true)
     end
 
     it 'returns true if there is at least one todo for a given target with state pending' do
       create(:todo, state: :done, target: issue)
       create(:todo, state: :pending, target: issue)
 
-      expect(described_class.any_for_target?(issue)).to eq(true)
+      expect(described_class.any_for_target?(issue)).to be(true)
     end
 
     it 'returns false if there are only todos for a given target with state done while searching for pending' do
       create(:todo, state: :done, target: issue)
       create(:todo, state: :done, target: issue)
 
-      expect(described_class.any_for_target?(issue, :pending)).to eq(false)
+      expect(described_class.any_for_target?(issue, :pending)).to be(false)
     end
 
     it 'returns false if there are no todos for a given target' do
-      expect(described_class.any_for_target?(issue)).to eq(false)
+      expect(described_class.any_for_target?(issue)).to be(false)
     end
   end
 

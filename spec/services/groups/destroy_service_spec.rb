@@ -357,13 +357,13 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
           shared_examples 'updates project authorizations so users of the destroyed group no longer have access' do
             it 'updates project authorizations so users of the destroyed group no longer have access',
               :aggregate_failures do
-              expect(group1_user.can?(:read_project, group1_project)).to eq(true)
-              expect(group2_user.can?(:read_project, group1_project)).to eq(true)
+              expect(group1_user.can?(:read_project, group1_project)).to be(true)
+              expect(group2_user.can?(:read_project, group1_project)).to be(true)
 
               destroy_group(group2, group2_user, false)
 
-              expect(group1_user.can?(:read_project, group1_project)).to eq(true)
-              expect(group2_user.can?(:read_project, group1_project)).to eq(false)
+              expect(group1_user.can?(:read_project, group1_project)).to be(true)
+              expect(group2_user.can?(:read_project, group1_project)).to be(false)
             end
           end
 
@@ -373,12 +373,12 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
             end
 
             it 'retains the user\'s direct access to the project' do
-              expect(group2_user.can?(:read_project, group1_project)).to eq(true)
+              expect(group2_user.can?(:read_project, group1_project)).to be(true)
               expect(group1_project.team.human_max_access(group2_user.id)).to eq('Developer')
 
               destroy_group(group2, group2_user, false)
 
-              expect(group2_user.can?(:read_project, group1_project)).to eq(true)
+              expect(group2_user.can?(:read_project, group1_project)).to be(true)
               expect(group1_project.team.human_max_access(group2_user.id)).to eq('Guest')
             end
           end
@@ -430,15 +430,15 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
 
           shared_examples 'updates project authorizations so group2 and group3 users no longer have access' do
             it 'updates project authorizations so group2 and group3 users no longer have access', :aggregate_failures do
-              expect(group1_user.can?(:read_project, group1_project)).to eq(true)
-              expect(group2_user.can?(:read_project, group1_project)).to eq(true)
-              expect(group3_user.can?(:read_project, group1_project)).to eq(true)
+              expect(group1_user.can?(:read_project, group1_project)).to be(true)
+              expect(group2_user.can?(:read_project, group1_project)).to be(true)
+              expect(group3_user.can?(:read_project, group1_project)).to be(true)
 
               destroy_group(group2, group2_user, false)
 
-              expect(group1_user.can?(:read_project, group1_project)).to eq(true)
-              expect(group2_user.can?(:read_project, group1_project)).to eq(false)
-              expect(group3_user.can?(:read_project, group1_project)).to eq(false)
+              expect(group1_user.can?(:read_project, group1_project)).to be(true)
+              expect(group2_user.can?(:read_project, group1_project)).to be(false)
+              expect(group3_user.can?(:read_project, group1_project)).to be(false)
             end
           end
 
@@ -469,13 +469,13 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
           shared_examples 'updates project authorizations since the project has been deleted with the group' do
             it 'updates project authorizations since the project has been deleted with the group',
               :aggregate_failures do
-              expect(group1_user.can?(:read_project, group2_project)).to eq(true)
-              expect(group2_user.can?(:read_project, group2_project)).to eq(true)
+              expect(group1_user.can?(:read_project, group2_project)).to be(true)
+              expect(group2_user.can?(:read_project, group2_project)).to be(true)
 
               destroy_group(group2, group2_user, false)
 
-              expect(group1_user.can?(:read_project, group2_project)).to eq(false)
-              expect(group2_user.can?(:read_project, group2_project)).to eq(false)
+              expect(group1_user.can?(:read_project, group2_project)).to be(false)
+              expect(group2_user.can?(:read_project, group2_project)).to be(false)
             end
           end
 
@@ -501,17 +501,17 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
 
           shared_examples 'updates project authorizations so users of both groups lose access' do
             it 'updates project authorizations so users of both groups lose access', :aggregate_failures do
-              expect(group1_user.can?(:read_project, group2_project)).to eq(true)
-              expect(group2_user.can?(:read_project, group2_project)).to eq(true)
-              expect(group1_user.can?(:read_project, group2_subgroup_project)).to eq(true)
-              expect(group2_user.can?(:read_project, group2_subgroup_project)).to eq(true)
+              expect(group1_user.can?(:read_project, group2_project)).to be(true)
+              expect(group2_user.can?(:read_project, group2_project)).to be(true)
+              expect(group1_user.can?(:read_project, group2_subgroup_project)).to be(true)
+              expect(group2_user.can?(:read_project, group2_subgroup_project)).to be(true)
 
               destroy_group(group1, group1_user, false)
 
-              expect(group1_user.can?(:read_project, group2_project)).to eq(false)
-              expect(group2_user.can?(:read_project, group2_project)).to eq(true)
-              expect(group1_user.can?(:read_project, group2_subgroup_project)).to eq(false)
-              expect(group2_user.can?(:read_project, group2_subgroup_project)).to eq(true)
+              expect(group1_user.can?(:read_project, group2_project)).to be(false)
+              expect(group2_user.can?(:read_project, group2_project)).to be(true)
+              expect(group1_user.can?(:read_project, group2_subgroup_project)).to be(false)
+              expect(group2_user.can?(:read_project, group2_subgroup_project)).to be(true)
             end
           end
 
@@ -521,15 +521,15 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
             end
 
             it 'retains the user\'s direct access to the shared group\'s projects' do
-              expect(group1_user.can?(:read_project, group2_project)).to eq(true)
-              expect(group1_user.can?(:read_project, group2_subgroup_project)).to eq(true)
+              expect(group1_user.can?(:read_project, group2_project)).to be(true)
+              expect(group1_user.can?(:read_project, group2_subgroup_project)).to be(true)
               expect(group2_project.team.human_max_access(group1_user.id)).to eq('Developer')
               expect(group2_subgroup_project.team.human_max_access(group1_user.id)).to eq('Developer')
 
               destroy_group(group1, group1_user, false)
 
-              expect(group1_user.can?(:read_project, group2_project)).to eq(true)
-              expect(group1_user.can?(:read_project, group2_subgroup_project)).to eq(true)
+              expect(group1_user.can?(:read_project, group2_project)).to be(true)
+              expect(group1_user.can?(:read_project, group2_subgroup_project)).to be(true)
               expect(group2_project.team.human_max_access(group1_user.id)).to eq('Guest')
               expect(group2_subgroup_project.team.human_max_access(group1_user.id)).to eq('Guest')
             end
@@ -587,13 +587,13 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
       context 'the shared_with group is deleted' do
         shared_examples 'updates project authorization' do
           it 'updates project authorization', :aggregate_failures do
-            expect(user.can?(:read_project, project)).to eq(true)
-            expect(shared_with_group_user.can?(:read_project, project)).to eq(true)
+            expect(user.can?(:read_project, project)).to be(true)
+            expect(shared_with_group_user.can?(:read_project, project)).to be(true)
 
             destroy_group(shared_with_group, user, false)
 
-            expect(user.can?(:read_project, project)).to eq(true)
-            expect(shared_with_group_user.can?(:read_project, project)).to eq(false)
+            expect(user.can?(:read_project, project)).to be(true)
+            expect(shared_with_group_user.can?(:read_project, project)).to be(false)
           end
         end
 

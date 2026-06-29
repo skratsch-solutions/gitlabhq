@@ -71,6 +71,20 @@ RSpec.describe RapidDiffs::MergeRequestDiffFileComponent, type: :component, feat
           expect(options_menu_items.pluck('text')).not_to include('Edit in single-file editor')
         end
       end
+
+      context 'when the file is stored externally' do
+        before do
+          allow(diff_file).to receive(:stored_externally?).and_return(true)
+        end
+
+        it 'omits the edit option' do
+          render_component
+
+          options_menu_items = Gitlab::Json.parse(page.find('script', visible: false).text)
+
+          expect(options_menu_items.pluck('text')).not_to include('Edit in single-file editor')
+        end
+      end
     end
   end
 

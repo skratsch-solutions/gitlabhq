@@ -128,7 +128,7 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
 
         create(:project, path: "random-unique-domain.example.com")
 
-        expect(project_setting.update(pages_unique_domain: "random-unique-domain")).to eq(false)
+        expect(project_setting.update(pages_unique_domain: "random-unique-domain")).to be(false)
         expect(project_setting.errors.full_messages_for(:pages_unique_domain))
           .to match(["Pages unique domain already in use"])
       end
@@ -272,7 +272,7 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
     let_it_be_with_reload(:project) { create(:project, project_setting: settings, group: group) }
 
     it 'returns true' do
-      expect(project.runner_registration_enabled).to eq true
+      expect(project.runner_registration_enabled).to be true
     end
 
     context 'when project has runner registration disabled' do
@@ -281,7 +281,7 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
       end
 
       it 'returns false' do
-        expect(project.runner_registration_enabled).to eq false
+        expect(project.runner_registration_enabled).to be false
       end
     end
 
@@ -291,7 +291,7 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
       end
 
       it 'returns false' do
-        expect(project.runner_registration_enabled).to eq false
+        expect(project.runner_registration_enabled).to be false
       end
     end
   end

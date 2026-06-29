@@ -16879,7 +16879,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_bfbf3ab4435a"
+              "$ref": "#/components/schemas/RequestBody_b64063b7ea61"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -81715,6 +81715,8 @@ components:
           type: string
         pipeline_limit_per_user:
           type: string
+        ci_lint_limit_per_user:
+          type: string
         invitation_flow_enforcement:
           type: string
         can_create_group:
@@ -94735,7 +94737,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_bfbf3ab4435a:
+    RequestBody_b64063b7ea61:
       type: object
       properties:
         admin_mode:
@@ -95492,6 +95494,11 @@ components:
           type: integer
           description: Maximum number of pipeline creation requests allowed per minute
             per user. Set to 0 for unlimited requests per minute.
+          nullable: true
+        ci_lint_limit_per_user:
+          type: integer
+          description: Maximum number of CI Lint requests allowed per minute per user.
+            Set to 0 for unlimited requests per minute.
           nullable: true
         jira_connect_application_key:
           type: string

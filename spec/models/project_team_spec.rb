@@ -238,7 +238,7 @@ RSpec.describe ProjectTeam, feature_category: :groups_and_projects do
     context 'when source_project does not exist' do
       let_it_be(:source_project) { nil }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -359,7 +359,7 @@ RSpec.describe ProjectTeam, feature_category: :groups_and_projects do
 
     context 'when the user is an invited member' do
       it 'returns false when nil is passed' do
-        expect(invited_project_member.user).to eq(nil)
+        expect(invited_project_member.user).to be_nil
         expect(project.team.has_user?(invited_project_member.user)).to be_falsey
       end
     end

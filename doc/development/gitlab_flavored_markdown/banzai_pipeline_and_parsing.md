@@ -159,15 +159,15 @@ Two MRs and feature flag adjustments are required for the rollout. The example b
 1. **Enable `percentage_of_time` at a low value** (for example, `1`) on the version-stamped flag through chatops.
 
    ```slack
-   /chatops gitlab run feature set markdown_cache_stochastic_rollout_34 1 --random --ignore-random-deprecation-check
+   /chatops gitlab run feature set markdown_cache_stochastic_rollout_34 1 --random
    ```
 
-   You **must use the deprecated `--random` option** for this flag. Using `--actors` with it is a no-op. This flag is explicitly designed to be used with the `--random` option.
+   You **must use the `--random` option** for this flag. Using `--actors` with it is a no-op. This flag is explicitly designed to be used with the `--random` option.
 
 1. **Ramp.** Watch `gitlab_markdown_cache_version_upgrades_total` and database write rate. Increase the percentage gradually (for example, `5`, `25`, `50`, `100`) as headroom allows.
 
    ```slack
-   /chatops gitlab run feature set markdown_cache_stochastic_rollout_34 5 --random --ignore-random-deprecation-check
+   /chatops gitlab run feature set markdown_cache_stochastic_rollout_34 5 --random
    ```
 
 1. **Observe convergence.** At `100%`, every read of a row still at the previous version triggers a rewrite. The counter rises and then tapers as the hot population converges. Cold rows that are never read remain at the previous version indefinitely; this is intentional and harmless because nothing reads them, and they get picked up automatically on the next bump.

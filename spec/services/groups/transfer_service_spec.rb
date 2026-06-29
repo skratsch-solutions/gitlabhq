@@ -824,7 +824,7 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
         it 'does not update group two factor authentication setting' do
           transfer_service.execute(new_parent_group)
 
-          expect(group.require_two_factor_authentication).to eq(true)
+          expect(group.require_two_factor_authentication).to be(true)
         end
 
         context 'when new parent disallows two factor authentication switched on for descendants' do
@@ -835,7 +835,7 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
           it 'updates group two factor authentication setting' do
             transfer_service.execute(new_parent_group)
 
-            expect(group.require_two_factor_authentication).to eq(false)
+            expect(group.require_two_factor_authentication).to be(false)
           end
 
           it 'schedules update of group two factor authentication setting for descendants' do

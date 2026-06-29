@@ -77,7 +77,7 @@ RSpec.describe LooseForeignKeys::CleanerService, feature_category: :database do
 
           cleaner_service.execute
 
-          expect(Issue.exists?(id: issue.id)).to eq(false)
+          expect(Issue.exists?(id: issue.id)).to be(false)
         end
 
         context 'when delete_limit is configured' do
@@ -92,7 +92,7 @@ RSpec.describe LooseForeignKeys::CleanerService, feature_category: :database do
 
             cleaner_service.execute
 
-            expect(Issue.exists?(id: issue.id)).to eq(false)
+            expect(Issue.exists?(id: issue.id)).to be(false)
           end
         end
 
@@ -143,7 +143,7 @@ RSpec.describe LooseForeignKeys::CleanerService, feature_category: :database do
 
           cleaner_service.execute
 
-          expect(Issue.exists?(id: issue.id)).to eq(false)
+          expect(Issue.exists?(id: issue.id)).to be(false)
         end
 
         context 'when delete_limit is configured' do
@@ -158,7 +158,7 @@ RSpec.describe LooseForeignKeys::CleanerService, feature_category: :database do
 
             cleaner_service.execute
 
-            expect(Issue.exists?(id: issue.id)).to eq(false)
+            expect(Issue.exists?(id: issue.id)).to be(false)
           end
         end
 
@@ -232,7 +232,7 @@ RSpec.describe LooseForeignKeys::CleanerService, feature_category: :database do
 
           cleaner_service.execute
 
-          expect(ProjectAuthorization.exists?(user_id: user.id)).to eq(false)
+          expect(ProjectAuthorization.exists?(user_id: user.id)).to be(false)
         end
       end
 
@@ -247,7 +247,7 @@ RSpec.describe LooseForeignKeys::CleanerService, feature_category: :database do
 
           cleaner_service.execute
 
-          expect(ProjectAuthorization.exists?(user_id: user.id)).to eq(false)
+          expect(ProjectAuthorization.exists?(user_id: user.id)).to be(false)
         end
       end
 

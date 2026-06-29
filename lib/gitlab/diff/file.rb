@@ -429,7 +429,7 @@ module Gitlab
       end
 
       def diffable_text?
-        !too_large? && diffable? && text? && !whitespace_only?
+        !too_large? && diffable? && text? && !whitespace_only? && !stored_externally?
       end
 
       def whitespace_only?

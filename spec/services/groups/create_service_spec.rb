@@ -55,7 +55,7 @@ RSpec.describe Groups::CreateService, '#execute', feature_category: :groups_and_
     let(:extra_params) { { setup_for_company: true } }
 
     it 'has the specified setup_for_company' do
-      expect(created_group.setup_for_company).to eq(true)
+      expect(created_group.setup_for_company).to be(true)
     end
   end
 
@@ -148,7 +148,7 @@ RSpec.describe Groups::CreateService, '#execute', feature_category: :groups_and_
       describe 'handling of allow_runner_registration_token default' do
         context 'when on self-managed' do
           it 'does not disallow runner registration token' do
-            expect(created_group.allow_runner_registration_token?).to eq true
+            expect(created_group.allow_runner_registration_token?).to be true
           end
         end
       end
@@ -420,8 +420,8 @@ RSpec.describe Groups::CreateService, '#execute', feature_category: :groups_and_
 
     context 'for root group' do
       it 'follows default config' do
-        expect(created_group.shared_runners_enabled).to eq(true)
-        expect(created_group.allow_descendants_override_disabled_shared_runners).to eq(false)
+        expect(created_group.shared_runners_enabled).to be(true)
+        expect(created_group.allow_descendants_override_disabled_shared_runners).to be(false)
       end
     end
   end

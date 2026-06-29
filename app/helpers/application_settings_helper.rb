@@ -607,6 +607,7 @@ module ApplicationSettingsHelper
       :project_runner_token_expiration_interval,
       :pipeline_limit_per_project_user_sha,
       :pipeline_limit_per_user,
+      :ci_lint_limit_per_user,
       :invitation_flow_enforcement,
       :can_create_group,
       :can_create_organization,

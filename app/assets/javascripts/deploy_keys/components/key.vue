@@ -192,7 +192,8 @@ export default {
       </div>
       <div class="table-mobile-content key-created-at gl-text-subtle">
         <span v-gl-tooltip :title="tooltipTitle(deployKey.createdAt)">
-          <gl-icon name="calendar" /> <span>{{ timeFormatted(deployKey.createdAt) }}</span>
+          <gl-icon name="calendar" />
+          <time :datetime="deployKey.createdAt">{{ timeFormatted(deployKey.createdAt) }}</time>
         </span>
       </div>
     </div>
@@ -207,7 +208,8 @@ export default {
           :title="tooltipTitle(deployKey.expiresAt)"
           data-testid="expires-at-tooltip"
         >
-          <gl-icon name="calendar" /> <span>{{ timeFormatted(deployKey.expiresAt) }}</span>
+          <gl-icon name="calendar" />
+          <time :datetime="deployKey.expiresAt">{{ timeFormatted(deployKey.expiresAt) }}</time>
         </span>
         <span v-else>
           <span data-testid="expires-never">{{ __('Never') }}</span>
