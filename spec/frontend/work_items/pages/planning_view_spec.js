@@ -2647,9 +2647,47 @@ describe('planning-view', () => {
     };
     const boardViewStub = {
       name: 'BoardView',
-      props: ['rootPageFullPath', 'queryVariables'],
+      props: ['rootPageFullPath', 'queryVariables', 'collapsedGroups'],
       template: '<div />',
     };
+
+    // get_user_preferences response carrying namespace-level display settings.
+    const preferencesHandlerWith = (displaySettings) =>
+      jest.fn().mockResolvedValue({
+        data: {
+          currentUser: {
+            id: 'gid://gitlab/User/1',
+            userPreferences: {
+              workItemsDisplaySettings: { shouldOpenItemsInSidePanel: true },
+              __typename: 'UserPreferences',
+            },
+            workItemPreferences: {
+              displaySettings,
+              __typename: 'WorkItemTypesUserPreference',
+            },
+            workItemPreferencesWithType: {
+              sort: CREATED_DESC,
+              __typename: 'WorkItemTypesUserPreference',
+            },
+            __typename: 'CurrentUser',
+          },
+        },
+      });
+
+    const userPrefUpdateHandlerWith = (displaySettings) =>
+      jest.fn().mockResolvedValue({
+        data: {
+          workItemUserPreferenceUpdate: {
+            errors: [],
+            userPreferences: {
+              displaySettings,
+              sort: CREATED_DESC,
+              __typename: 'WorkItemTypesUserPreference',
+            },
+            __typename: 'WorkItemUserPreferenceUpdatePayload',
+          },
+        },
+      });
 
     describe('by default', () => {
       beforeEach(async () => {
@@ -2878,6 +2916,158 @@ describe('planning-view', () => {
           expect(saveSavedView).toHaveBeenCalledWith(
             expect.objectContaining({
               displaySettings: expect.objectContaining({ viewMode: VIEW_MODE_BOARD }),
+            }),
+          );
+        });
+      });
+    });
+
+    describe('column collapse', () => {
+      const collapsedId = 'status:gid://gitlab/WorkItems::Statuses::Custom::Status/2';
+
+      const mountAllItemsBoard = async (options = {}) => {
+        await mountComponent({
+          provide: {
+            glFeatures: {
+              planningViewBoards: true,
+              workItemListDisplaySettingsDrawer: true,
+            },
+          },
+          stubs: {
+            WorkItemsSavedViewsSelectors: savedViewsSelectorsStub,
+            BoardView: boardViewStub,
+          },
+          ...options,
+        });
+        findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+        await waitForPromises();
+      };
+
+      describe('on All Items', () => {
+        it('passes the persisted collapsed columns to the board view', async () => {
+          await mountAllItemsBoard({
+            mockPreferencesHandler: preferencesHandlerWith({ collapsedGroups: [collapsedId] }),
+          });
+
+          expect(findBoardView().props('collapsedGroups')).toEqual([collapsedId]);
+        });
+
+        it('persists a newly collapsed column, merged with existing display settings', async () => {
+          const mutationHandler = userPrefUpdateHandlerWith({
+            hiddenMetadataKeys: ['labels'],
+            collapsedGroups: [collapsedId],
+          });
+          await mountAllItemsBoard({
+            mockPreferencesHandler: preferencesHandlerWith({ hiddenMetadataKeys: ['labels'] }),
+            userPreferenceMutationResponse: mutationHandler,
+          });
+
+          findBoardView().vm.$emit('toggle-collapse', collapsedId);
+          await waitForPromises();
+
+          expect(mutationHandler).toHaveBeenCalledWith({
+            namespace: 'full/path',
+            displaySettings: {
+              hiddenMetadataKeys: ['labels'],
+              collapsedGroups: [collapsedId],
+            },
+          });
+        });
+
+        it('removes a column from collapsed columns when toggled again', async () => {
+          const mutationHandler = userPrefUpdateHandlerWith({ collapsedGroups: [] });
+          await mountAllItemsBoard({
+            mockPreferencesHandler: preferencesHandlerWith({ collapsedGroups: [collapsedId] }),
+            userPreferenceMutationResponse: mutationHandler,
+          });
+
+          findBoardView().vm.$emit('toggle-collapse', collapsedId);
+          await waitForPromises();
+
+          expect(mutationHandler).toHaveBeenCalledWith({
+            namespace: 'full/path',
+            displaySettings: { collapsedGroups: [] },
+          });
+        });
+
+        it('does not call the mutation when signed out', async () => {
+          await mountAllItemsBoard({ isLoggedInValue: false });
+
+          findBoardView().vm.$emit('toggle-collapse', collapsedId);
+          await waitForPromises();
+
+          expect(userPreferenceMutationHandler).not.toHaveBeenCalled();
+        });
+
+        it('shows an alert when persisting the collapse fails', async () => {
+          await mountAllItemsBoard({
+            userPreferenceMutationResponse: jest.fn().mockRejectedValue(new Error('boom')),
+          });
+
+          findBoardView().vm.$emit('toggle-collapse', collapsedId);
+          await waitForPromises();
+
+          expect(createAlert).toHaveBeenCalledWith({
+            message: 'Something went wrong while saving the preference.',
+            captureError: true,
+            error: expect.any(Error),
+          });
+        });
+      });
+
+      describe('on a saved view', () => {
+        const mountSavedViewBoard = async (displaySettings = {}) => {
+          const savedView = {
+            ...singleSavedView[0],
+            displaySettings: { viewMode: VIEW_MODE_BOARD, ...displaySettings },
+          };
+          await mountComponent({
+            provide: {
+              glFeatures: {
+                planningViewBoards: true,
+                workItemListDisplaySettingsDrawer: true,
+              },
+            },
+            savedViewHandler: jest
+              .fn()
+              .mockResolvedValue(savedViewResponseFactory({ savedViews: [savedView] })),
+            stubs: {
+              WorkItemsSavedViewsSelectors: savedViewsSelectorsStub,
+              BoardView: boardViewStub,
+            },
+            route: { name: 'savedView', params: { type: 'work_items', view_id: '3' } },
+          });
+          await waitForPromises();
+        };
+
+        it('writes the collapse to the localStorage draft without calling the mutation', async () => {
+          await mountSavedViewBoard();
+
+          findBoardView().vm.$emit('toggle-collapse', collapsedId);
+          await nextTick();
+
+          expect(localStorage.setItem).toHaveBeenCalledWith(
+            'full/path-saved-view-3',
+            expect.stringContaining(collapsedId),
+          );
+          expect(userPreferenceMutationHandler).not.toHaveBeenCalled();
+          expect(findUpdateViewButton().exists()).toBe(true);
+        });
+
+        it('includes the collapsed columns in the payload when the view is saved', async () => {
+          saveSavedView.mockResolvedValue({
+            data: { workItemSavedViewUpdate: { errors: [], savedView: singleSavedView[0] } },
+          });
+          await mountSavedViewBoard();
+
+          findBoardView().vm.$emit('toggle-collapse', collapsedId);
+          await nextTick();
+          await findUpdateViewButton().vm.$emit('click');
+          await waitForPromises();
+
+          expect(saveSavedView).toHaveBeenCalledWith(
+            expect.objectContaining({
+              displaySettings: expect.objectContaining({ collapsedGroups: [collapsedId] }),
             }),
           );
         });

@@ -107,6 +107,7 @@ export default {
         : [...this.hiddenMetadataKeys, metadataKey];
 
       const input = {
+        ...this.namespacePreferences,
         hiddenMetadataKeys: newHiddenKeys,
       };
 
@@ -131,9 +132,7 @@ export default {
             workItemUserPreferenceUpdate: {
               errors: [],
               userPreferences: {
-                displaySettings: {
-                  hiddenMetadataKeys: newHiddenKeys,
-                },
+                displaySettings: input,
                 sort: this.sortKey,
                 __typename: 'WorkItemTypesUserPreference',
               },

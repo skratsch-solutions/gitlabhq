@@ -1559,6 +1559,29 @@ RSpec.describe Feature, :clean_gitlab_redis_feature_flag, stub_feature_flags: fa
       it { is_expected.to be_truthy }
     end
 
+    context 'when :feature_flag_state_logs is on the recursion stack' do
+      # While :feature_flag_state_logs is mid-resolution it is on the stack, so
+      # the gate must short-circuit instead of re-evaluating it.
+      let(:milestone) { "14.6" }
+
+      # Seed the stack in a nested `before` so it runs after the outer `before`,
+      # whose `enable` calls would otherwise pop the seeded entry off the stack.
+      before do
+        stub_version('14.5.123', 'deadbeef')
+        Thread.current[:feature_flag_recursion_check] = [:feature_flag_state_logs]
+      end
+
+      after do
+        Thread.current[:feature_flag_recursion_check] = nil
+      end
+
+      it 'short-circuits without delegating to Feature::Definition.log_states?', :aggregate_failures do
+        expect(Feature::Definition).not_to receive(:log_states?)
+
+        is_expected.to be(false)
+      end
+    end
+
     context 'when milestone is nil' do
       let(:milestone) { nil }
 

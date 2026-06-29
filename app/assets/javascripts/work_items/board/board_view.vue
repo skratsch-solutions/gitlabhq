@@ -11,8 +11,9 @@ import updateBoardWorkItemMutation from './graphql/update_board_work_item.mutati
 import {
   boardColumnQuery,
   boardColumnQueryVariables,
-  getMovePositionIds,
   boardColumnCountVariables,
+  getGroupId,
+  getMovePositionIds,
 } from './utils';
 import {
   addWorkItemToColumn,
@@ -40,8 +41,13 @@ export default {
       type: Object,
       required: true,
     },
+    collapsedGroups: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
-  emits: ['set-error'],
+  emits: ['set-error', 'toggle-collapse'],
   data() {
     return {
       groupBy: { property: 'status' },
@@ -85,6 +91,12 @@ export default {
     },
   },
   methods: {
+    groupId(value) {
+      return getGroupId({ groupBy: this.groupBy, value });
+    },
+    isColumnCollapsed(value) {
+      return this.collapsedGroups.includes(this.groupId(value));
+    },
     statusById(statusId) {
       return this.groupByValues.find(({ id }) => id === statusId) ?? null;
     },
@@ -237,7 +249,9 @@ export default {
       :root-page-full-path="rootPageFullPath"
       :base-query-variables="queryVariables"
       :drag-disabled="moveInProgress"
+      :collapsed="isColumnCollapsed(value)"
       @card-move="onCardMove"
+      @toggle-collapse="$emit('toggle-collapse', groupId(value))"
     />
   </div>
 </template>

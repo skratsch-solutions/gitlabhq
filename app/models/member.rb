@@ -16,18 +16,8 @@ class Member < ApplicationRecord
   include RestrictedSignup
   include Gitlab::Experiment::Dsl
   include Ci::PipelineScheduleOwnershipValidator
-  include Cells::Claimable
 
   ignore_column :last_activity_on, remove_with: '17.8', remove_after: '2024-12-23'
-
-  cells_claims_attribute :invite_email,
-    type: CLAIMS_BUCKET_TYPE::INVITE_EMAILS,
-    feature_flag: :cells_claims_members,
-    if: ->(record) { record.invite_email.present? }
-
-  cells_claims_scope { where.not(invite_email: nil) }
-
-  cells_claims_metadata subject_type: CLAIMS_SUBJECT_TYPE::NAMESPACE, subject_key: :member_namespace_id
 
   AVATAR_SIZE = 40
   ACCESS_REQUEST_APPROVERS_TO_BE_NOTIFIED_LIMIT = 10

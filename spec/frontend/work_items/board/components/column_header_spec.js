@@ -15,6 +15,7 @@ describe('ColumnHeader', () => {
   const findIconByName = (name) => findIcons().wrappers.find((icon) => icon.props('name') === name);
   const findHeading = () => wrapper.findByTestId('column-header-name');
   const findCount = () => wrapper.findByTestId('column-header-count');
+  const findCollapseToggle = () => wrapper.findByTestId('column-collapse-toggle');
 
   const createComponent = ({ props = {} } = {}) => {
     wrapper = shallowMountExtended(ColumnHeader, {
@@ -45,14 +46,59 @@ describe('ColumnHeader', () => {
   });
 
   describe('chrome icons', () => {
-    it.each(['chevron-down', 'work-items', 'ellipsis_v', 'plus'])(
-      'renders the "%s" icon',
-      (iconName) => {
-        createComponent();
+    it.each(['work-items', 'ellipsis_v', 'plus'])('renders the "%s" icon', (iconName) => {
+      createComponent();
 
-        expect(findIconByName(iconName)).not.toBeUndefined();
-      },
-    );
+      expect(findIconByName(iconName)).not.toBeUndefined();
+    });
+  });
+
+  describe('collapse toggle', () => {
+    it('renders a chevron-down toggle when expanded', () => {
+      createComponent();
+
+      expect(findCollapseToggle().props('icon')).toBe('chevron-down');
+      expect(findCollapseToggle().attributes('aria-expanded')).toBe('true');
+    });
+
+    it('renders a chevron-right toggle and hides the column actions when collapsed', () => {
+      createComponent({ props: { collapsed: true } });
+
+      expect(findCollapseToggle().props('icon')).toBe('chevron-right');
+      expect(findCollapseToggle().attributes('aria-expanded')).toBe('false');
+      expect(findIconByName('ellipsis_v')).toBeUndefined();
+      expect(findIconByName('plus')).toBeUndefined();
+    });
+
+    it('emits toggle-collapse when clicked', () => {
+      createComponent();
+
+      findCollapseToggle().vm.$emit('click');
+
+      expect(wrapper.emitted('toggle-collapse')).toHaveLength(1);
+    });
+
+    it('points aria-controls at the region it expands and collapses', () => {
+      createComponent({ props: { controlsId: 'board-column-body-42' } });
+
+      expect(findCollapseToggle().attributes('aria-controls')).toBe('board-column-body-42');
+    });
+  });
+
+  describe('vertical layout when collapsed', () => {
+    beforeEach(() => {
+      createComponent({ props: { collapsed: true } });
+    });
+
+    it('lays the title and count out vertically', () => {
+      expect(findHeading().attributes('style')).toContain('writing-mode: vertical-rl');
+      expect(findCount().attributes('style')).toContain('writing-mode: vertical-rl');
+    });
+
+    it('rotates the status and count icons to match the vertical text', () => {
+      expect(findIconByName('status-waiting').classes()).toContain('gl-rotate-90');
+      expect(findIconByName('work-items').classes()).toContain('gl-rotate-90');
+    });
   });
 
   describe('status icon', () => {

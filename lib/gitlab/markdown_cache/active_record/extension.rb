@@ -52,7 +52,7 @@ module Gitlab
           # where persisted > current).
           return if cached_markdown_version.to_i < cached_markdown_version_in_database.to_i
 
-          if cached_markdown_version.to_i > cached_markdown_version_in_database.to_i
+          if !cached_markdown_version_in_database.nil? && cached_markdown_version.to_i > cached_markdown_version_in_database
             # Concurrent requests both rolling "current" against the same
             # previous-version row will each pass the above check against their
             # load-time snapshot, so a single row can be counted more than once.

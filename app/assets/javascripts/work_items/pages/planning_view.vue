@@ -102,6 +102,7 @@ import {
   saveSavedView,
   getSavedViewFilterTokens,
   convertToSearchQuery,
+  updateNamespaceDisplaySettings,
 } from 'ee_else_ce/work_items/list/utils';
 
 import {
@@ -581,10 +582,13 @@ export default {
 
       const currentPreferences = {
         hiddenMetadataKeys: this.namespacePreferences.hiddenMetadataKeys ?? [],
+        collapsedGroups: this.namespacePreferences.collapsedGroups ?? [],
       };
       const viewPreferences = {
         hiddenMetadataKeys:
           this.initialViewDisplaySettings?.namespacePreferences?.hiddenMetadataKeys ?? [],
+        collapsedGroups:
+          this.initialViewDisplaySettings?.namespacePreferences?.collapsedGroups ?? [],
       };
       const comparePreferences = this.isSavedView ? viewPreferences : this.initialPreferences;
 
@@ -1023,6 +1027,9 @@ export default {
     },
     displaySettingsToSave() {
       return { ...this.namespacePreferences, viewMode: this.viewMode };
+    },
+    collapsedGroups() {
+      return this.namespacePreferences.collapsedGroups ?? [];
     },
     savedViewId() {
       return convertToGraphQLId('WorkItems::SavedViews::SavedView', this.$route.params.view_id);
@@ -1580,13 +1587,52 @@ export default {
       }
     },
     async handleLocalDisplayPreferencesUpdate(newSettings) {
+      // Merge incoming keys so independent settings (hidden metadata fields and
+      // collapsed board columns) don't clobber each other on a saved view draft.
       this.localDisplaySettings = {
         ...this.localDisplaySettings,
         namespacePreferences: {
-          hiddenMetadataKeys: [...newSettings.hiddenMetadataKeys],
+          ...this.localDisplaySettings.namespacePreferences,
+          ...newSettings,
         },
       };
       this.persistSavedViewDraft();
+    },
+    handleToggleGroupCollapse(groupId) {
+      const current = this.namespacePreferences.collapsedGroups ?? [];
+      const collapsedGroups = current.includes(groupId)
+        ? current.filter((id) => id !== groupId)
+        : [...current, groupId];
+      const newSettings = { ...this.namespacePreferences, collapsedGroups };
+
+      if (this.isSavedView) {
+        this.handleLocalDisplayPreferencesUpdate(newSettings);
+        return;
+      }
+
+      this.persistNamespaceDisplaySettings(newSettings);
+    },
+    async persistNamespaceDisplaySettings(displaySettings) {
+      if (!this.isLoggedIn) {
+        return;
+      }
+
+      try {
+        await updateNamespaceDisplaySettings({
+          apolloClient: this.$apollo,
+          namespacePath: this.rootPageFullPath,
+          workItemTypeId: this.workItemTypeId,
+          isSavedView: this.isSavedView,
+          sort: this.sortKey,
+          displaySettings,
+        });
+      } catch (error) {
+        createAlert({
+          message: __('Something went wrong while saving the preference.'),
+          captureError: true,
+          error,
+        });
+      }
     },
     updateRouterQueryParams() {
       if (this.isSavedView) {
@@ -2144,7 +2190,9 @@ export default {
       v-if="viewMode === $options.VIEW_MODE_BOARD && isPlanningViewBoardEnabled"
       :root-page-full-path="rootPageFullPath"
       :query-variables="queryVariables"
+      :collapsed-groups="collapsedGroups"
       @set-error="($evt) => (error = $evt)"
+      @toggle-collapse="handleToggleGroupCollapse"
     />
     <work-item-display-settings-drawer
       :open="isDisplayDrawerOpen"

@@ -333,6 +333,12 @@ module Feature
     end
 
     def log_feature_flag_states?(key)
+      # Skip the gate while :feature_flag_state_logs is mid-resolution: its DB
+      # read re-enters flag checks that evaluate it again, raising a spurious
+      # RecursionError. Checks the literal flag (not `key`) so the gate is
+      # skipped for every flag while that flag is on the stack.
+      return false if recursion_stack.include?(:feature_flag_state_logs)
+
       Feature::Definition.log_states?(key)
     end
 
@@ -412,7 +418,7 @@ module Feature
 
       return unless database_exists?
 
-      flag_stack = ::Thread.current[:feature_flag_recursion_check] || []
+      flag_stack = recursion_stack
       Thread.current[:feature_flag_recursion_check] = flag_stack
 
       # Prevent more than 10 levels of recursion. This limit was chosen as a fairly
@@ -433,6 +439,10 @@ module Feature
     def pop_recursion_stack
       flag_stack = Thread.current[:feature_flag_recursion_check]
       flag_stack.pop if flag_stack
+    end
+
+    def recursion_stack
+      ::Thread.current[:feature_flag_recursion_check] || []
     end
 
     def flipper

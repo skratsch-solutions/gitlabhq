@@ -108,9 +108,7 @@ export default {
           validators: [formValidators.required(s__('Organization|Organization name is required.'))],
           groupAttrs: {
             class: 'gl-w-full',
-            description: s__(
-              'Organization|Must start with a letter, digit, emoji, or underscore. Can also contain periods, dashes, spaces, and parentheses.',
-            ),
+            description: s__('Organization|Start with a letter, digit, emoji, or underscore.'),
           },
           inputAttrs: {
             class: 'gl-md-form-input-lg',

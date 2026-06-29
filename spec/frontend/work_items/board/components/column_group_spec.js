@@ -122,6 +122,48 @@ describe('ColumnGroup', () => {
     });
   });
 
+  describe('collapsed state', () => {
+    it('is expanded by default: full-height wide column showing the card list', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(findColumnHeader().props('collapsed')).toBe(false);
+      expect(findDraggable().isVisible()).toBe(true);
+      expect(wrapper.classes()).toEqual(expect.arrayContaining(['gl-h-full', 'gl-w-48']));
+    });
+
+    it('renders a narrow, content-height strip and hides the card list when collapsed', async () => {
+      createComponent({ props: { collapsed: true } });
+      await waitForPromises();
+
+      expect(findColumnHeader().props('collapsed')).toBe(true);
+      // The card list stays in the DOM (so aria-controls stays valid) but is hidden.
+      expect(findDraggable().isVisible()).toBe(false);
+      expect(wrapper.classes()).toEqual(expect.arrayContaining(['gl-w-8', 'gl-self-start']));
+      expect(wrapper.classes()).not.toContain('gl-h-full');
+    });
+
+    it('links the header collapse toggle to the card list via a shared id', async () => {
+      createComponent();
+      await waitForPromises();
+
+      const controlsId = findColumnHeader().props('controlsId');
+
+      expect(controlsId).toEqual(expect.any(String));
+      expect(controlsId).not.toBe('');
+      expect(findDraggable().element.closest(`#${controlsId}`)).not.toBe(null);
+    });
+
+    it('forwards toggle-collapse from the header', async () => {
+      createComponent({ props: { collapsed: true } });
+      await waitForPromises();
+
+      findColumnHeader().vm.$emit('toggle-collapse');
+
+      expect(wrapper.emitted('toggle-collapse')).toHaveLength(1);
+    });
+  });
+
   describe('while loading the initial page', () => {
     it('renders skeleton ghost cards and no real cards or empty state', () => {
       createComponent();

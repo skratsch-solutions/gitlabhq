@@ -33,9 +33,7 @@ export default {
     inputs: {
       name: {
         placeholder: __('My group'),
-        description: s__(
-          'Groups|Must start with letter, digit, emoji, or underscore. Can also contain periods, dashes, spaces, and parentheses.',
-        ),
+        description: s__('Groups|Start with a letter, digit, emoji, or underscore.'),
         invalidFeedback: s__('Groups|Enter a descriptive name for your group.'),
         warningForUsingDotInName: s__(
           'Groups|Your group name must not contain a period if you intend to use SCIM integration, as it can lead to errors.',

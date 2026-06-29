@@ -1,4 +1,5 @@
 <script>
+import { uniqueId } from 'lodash-es';
 import { s__ } from '~/locale';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -61,8 +62,13 @@ export default {
       required: false,
       default: false,
     },
+    collapsed: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
-  emits: ['card-move'],
+  emits: ['card-move', 'toggle-collapse'],
   data() {
     return {
       workItemsConnection: { nodes: [], pageInfo: {} },
@@ -70,6 +76,7 @@ export default {
       error: null,
       loadMoreError: false,
       fetchNextPageInProgress: false,
+      columnBodyId: uniqueId('board-column-body-'),
     };
   },
   computed: {
@@ -199,10 +206,22 @@ export default {
 
 <template>
   <div
-    class="gl-flex gl-h-full gl-w-48 gl-shrink-0 gl-flex-col gl-rounded-lg gl-bg-strong dark:gl-bg-subtle"
+    class="gl-flex gl-shrink-0 gl-flex-col gl-rounded-xl gl-bg-strong dark:gl-bg-subtle"
+    :class="collapsed ? 'gl-w-8 gl-self-start' : 'gl-h-full gl-w-48'"
   >
-    <column-header :value="value" :group-property="groupProperty" :count="totalCount" />
-    <div class="gl-flex gl-min-h-0 gl-flex-1 gl-flex-col gl-overflow-y-auto gl-px-3 gl-pb-3">
+    <column-header
+      :value="value"
+      :group-property="groupProperty"
+      :count="totalCount"
+      :collapsed="collapsed"
+      :controls-id="columnBodyId"
+      @toggle-collapse="$emit('toggle-collapse')"
+    />
+    <div
+      v-show="!collapsed"
+      :id="columnBodyId"
+      class="gl-flex gl-min-h-0 gl-flex-1 gl-flex-col gl-overflow-y-auto gl-px-3 gl-pb-3"
+    >
       <p
         v-if="error"
         data-testid="error-state"

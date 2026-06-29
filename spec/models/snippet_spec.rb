@@ -5,6 +5,31 @@ require 'spec_helper'
 RSpec.describe Snippet, feature_category: :source_code_management do
   include FakeBlobHelpers
 
+  it_behaves_like 'cells claimable model',
+    subject_type: Cells::Claimable::CLAIMS_SUBJECT_TYPE::ORGANIZATION,
+    subject_key: Proc,
+    source_type: Cells::Claimable::CLAIMS_SOURCE_TYPE::RAILS_TABLE_SNIPPETS,
+    claiming_attributes: [:id]
+
+  describe '#cells_claims_subject_key' do
+    context 'with a personal snippet' do
+      let(:snippet) { build(:personal_snippet) }
+
+      it 'returns the snippet organization_id' do
+        expect(snippet.__send__(:cells_claims_subject_key)).to eq(snippet.organization_id)
+      end
+    end
+
+    context 'with a project snippet' do
+      let(:snippet) { build(:project_snippet) }
+
+      it 'resolves the organization_id through the project' do
+        expect(snippet.organization_id).to be_nil
+        expect(snippet.__send__(:cells_claims_subject_key)).to eq(snippet.project.organization_id)
+      end
+    end
+  end
+
   describe 'modules' do
     subject { described_class }
 

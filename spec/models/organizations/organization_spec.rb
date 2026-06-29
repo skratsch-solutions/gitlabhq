@@ -9,7 +9,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
     subject_type: Cells::Claimable::CLAIMS_SUBJECT_TYPE::ORGANIZATION,
     subject_key: :id,
     source_type: Cells::Claimable::CLAIMS_SOURCE_TYPE::RAILS_TABLE_ORGANIZATIONS,
-    claiming_attributes: [:path]
+    claiming_attributes: [:path, :id]
 
   describe 'associations' do
     it { is_expected.to have_one(:organization_detail).inverse_of(:organization).autosave(true) }

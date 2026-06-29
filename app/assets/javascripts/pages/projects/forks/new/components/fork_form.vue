@@ -138,9 +138,7 @@ export default {
         return null;
       }
 
-      return s__(
-        'ProjectsNew|Must start with a lowercase or uppercase letter, digit, emoji, or underscore. Can also contain dots, pluses, dashes, or spaces.',
-      );
+      return s__('ProjectsNew|Start with a letter, digit, emoji, or underscore.');
     },
     projectVisibilityLevel() {
       return VISIBILITY_LEVELS_STRING_TO_INTEGER[this.projectVisibility];

@@ -10,6 +10,24 @@ export const boardColumnQuery = (glFeatures) =>
     ? getWorkItemsRestQuery
     : getBoardWorkItemsQuery;
 
+// Group identity helpers are shared across grouped views (board columns now,
+// list grouping later), so they speak in terms of "groups" rather than columns.
+
+// Sentinel value id for the null/unassigned group of groupings that have one
+// (for example "No label", "Unassigned"). Status always has a value, so a
+// "No status" group does not exist — this is here for future groupings.
+export const GROUP_NONE = 'none';
+
+// The grouping dimension a group belongs to, including a sub-key when the
+// dimension itself is parameterized (for example a specific custom field).
+export const getGroupKey = (groupBy) =>
+  groupBy.key ? `${groupBy.property}.${groupBy.key}` : groupBy.property;
+
+// Canonical, grouping-scoped group identifier used to persist per-group state
+// (collapse now; hide and order later) in `displaySettings`.
+export const getGroupId = ({ groupBy, value }) =>
+  `${getGroupKey(groupBy)}:${value?.id ?? GROUP_NONE}`;
+
 // The initial (non-paginated) query variables — the cache key `fetchMore` merges
 // pages into, which the drag-and-drop cache updates must match exactly.
 export const boardColumnQueryVariables = ({

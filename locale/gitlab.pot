@@ -37821,9 +37821,6 @@ msgstr ""
 msgid "Groups|Groups that are archived or pending deletion will appear here."
 msgstr ""
 
-msgid "Groups|Must start with letter, digit, emoji, or underscore. Can also contain periods, dashes, spaces, and parentheses."
-msgstr ""
-
 msgid "Groups|No inactive groups found"
 msgstr ""
 
@@ -37834,6 +37831,9 @@ msgid "Groups|Save changes"
 msgstr ""
 
 msgid "Groups|Show children of %{avatarLabel}"
+msgstr ""
+
+msgid "Groups|Start with a letter, digit, emoji, or underscore."
 msgstr ""
 
 msgid "Groups|Subgroup URL"
@@ -48273,9 +48273,6 @@ msgstr ""
 msgid "Must be in the following format: `5B`, `5b`, `1KB`, `1kb`, `2MB`, `2mb`, `1GB`, or `1gb`"
 msgstr ""
 
-msgid "Must start with a lowercase or uppercase letter, digit, emoji, or underscore. Can also contain dots, pluses, dashes, or spaces."
-msgstr ""
-
 msgid "My company or team"
 msgstr ""
 
@@ -53270,9 +53267,6 @@ msgstr ""
 msgid "Organization|Manage"
 msgstr ""
 
-msgid "Organization|Must start with a letter, digit, emoji, or underscore. Can also contain periods, dashes, spaces, and parentheses."
-msgstr ""
-
 msgid "Organization|My organization"
 msgstr ""
 
@@ -53404,6 +53398,9 @@ msgid "Organization|Search for an organization"
 msgstr ""
 
 msgid "Organization|Select an organization"
+msgstr ""
+
+msgid "Organization|Start with a letter, digit, emoji, or underscore."
 msgstr ""
 
 msgid "Organization|Step %{currentStep} / %{totalSteps}"
@@ -59809,9 +59806,6 @@ msgstr ""
 msgid "ProjectsEdit|Project was successfully updated."
 msgstr ""
 
-msgid "ProjectsNewEdit|Must start with a letter, digit, emoji, or underscore. Can also contain periods, dashes, spaces, and parentheses."
-msgstr ""
-
 msgid "ProjectsNewEdit|My project"
 msgstr ""
 
@@ -59825,6 +59819,9 @@ msgid "ProjectsNewEdit|Project description is too long (maximum is %{count} char
 msgstr ""
 
 msgid "ProjectsNewEdit|Project name is required."
+msgstr ""
+
+msgid "ProjectsNewEdit|Start with a letter, digit, emoji, or underscore."
 msgstr ""
 
 msgid "ProjectsNew|%d group or namespace found"
@@ -59946,9 +59943,6 @@ msgstr ""
 msgid "ProjectsNew|More templates are available after you create an account."
 msgstr ""
 
-msgid "ProjectsNew|Must start with a lowercase or uppercase letter, digit, emoji, or underscore. Can also contain dots, pluses, dashes, or spaces."
-msgstr ""
-
 msgid "ProjectsNew|My project"
 msgstr ""
 
@@ -60040,6 +60034,9 @@ msgid "ProjectsNew|Select a template"
 msgstr ""
 
 msgid "ProjectsNew|Select where to create this project."
+msgstr ""
+
+msgid "ProjectsNew|Start with a letter, digit, emoji, or underscore."
 msgstr ""
 
 msgid "ProjectsNew|To move or copy an entire GitLab project from another GitLab installation to this one, navigate to the original project's settings page, generate an export file, and upload it here."
@@ -74755,6 +74752,9 @@ msgid "Start thread"
 msgstr ""
 
 msgid "Start time"
+msgstr ""
+
+msgid "Start with a letter, digit, emoji, or underscore."
 msgstr ""
 
 msgid "Start your free trial"

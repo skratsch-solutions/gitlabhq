@@ -101,6 +101,8 @@ import getSubscribedSavedViewsQuery from '~/work_items/list/graphql/work_item_sa
 import namespaceSavedViewQuery from '~/work_items/list/graphql/namespace_saved_view.query.graphql';
 import workItemSavedViewUnsubscribe from '~/work_items/list/graphql/unsubscribe_from_saved_view.mutation.graphql';
 import workItemSavedViewReorder from '~/work_items/graphql/reorder_saved_view.mutation.graphql';
+import getUserWorkItemsPreferences from '~/work_items/graphql/get_user_preferences.query.graphql';
+import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_item_list_user_preferences.mutation.graphql';
 
 export const getInitialPageParams = (
   pageSize,
@@ -1416,3 +1418,61 @@ export const reorderSavedView = async ({
       }),
   });
 };
+
+// Persists namespace-level work item display settings (for example collapsed
+// groups or hidden metadata fields) and patches the cached preferences so the
+// change is reflected without a refetch. Errors propagate to the caller.
+export const updateNamespaceDisplaySettings = ({
+  apolloClient,
+  namespacePath,
+  workItemTypeId,
+  isSavedView = false,
+  sort,
+  displaySettings,
+}) =>
+  apolloClient.mutate({
+    mutation: updateWorkItemListUserPreference,
+    variables: {
+      namespace: namespacePath,
+      displaySettings,
+    },
+    optimisticResponse: {
+      workItemUserPreferenceUpdate: {
+        errors: [],
+        userPreferences: {
+          displaySettings,
+          sort,
+          __typename: 'WorkItemTypesUserPreference',
+        },
+        __typename: 'WorkItemUserPreferenceUpdatePayload',
+      },
+    },
+    update(
+      cache,
+      {
+        data: {
+          workItemUserPreferenceUpdate: { userPreferences },
+        },
+      },
+    ) {
+      cache.updateQuery(
+        {
+          query: getUserWorkItemsPreferences,
+          variables: {
+            namespace: namespacePath,
+            workItemTypeId,
+            userPreferencesOnly: isSavedView,
+          },
+        },
+        (existingData) =>
+          produce(existingData, (draftData) => {
+            if (draftData?.currentUser) {
+              draftData.currentUser.workItemPreferences = {
+                ...(draftData?.currentUser?.workItemPreferences ?? {}),
+                displaySettings: userPreferences.displaySettings,
+              };
+            }
+          }),
+      );
+    },
+  });

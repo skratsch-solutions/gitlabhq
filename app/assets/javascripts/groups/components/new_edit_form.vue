@@ -100,9 +100,7 @@ export default {
             placeholder: __('My group'),
           },
           groupAttrs: {
-            description: s__(
-              'Groups|Must start with letter, digit, emoji, or underscore. Can also contain periods, dashes, spaces, and parentheses.',
-            ),
+            description: s__('Groups|Start with a letter, digit, emoji, or underscore.'),
           },
         },
         [FORM_FIELD_PATH]: {

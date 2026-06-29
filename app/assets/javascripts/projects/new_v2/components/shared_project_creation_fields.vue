@@ -130,11 +130,7 @@ export default {
     <gl-form-group
       :label="s__('ProjectsNew|Project name')"
       label-for="project[name]"
-      :description="
-        s__(
-          'ProjectsNew|Must start with a lowercase or uppercase letter, digit, emoji, or underscore. Can also contain dots, pluses, dashes, or spaces.',
-        )
-      "
+      :description="s__('ProjectsNew|Start with a letter, digit, emoji, or underscore.')"
       :invalid-feedback="form.fields['project[name]'].feedback"
       data-testid="project-name-group"
     >

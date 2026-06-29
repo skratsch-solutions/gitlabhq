@@ -406,6 +406,16 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
 
         expect(counter).not_to have_received(:increment)
       end
+
+      it 'does not increment for a first-time cache fill' do
+        row = persisted_row_at_version(nil)
+        counter = instance_double(Prometheus::Client::Counter, increment: nil)
+        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+
+        Banzai::Renderer.render_field(row, :title)
+
+        expect(counter).not_to have_received(:increment)
+      end
     end
   end
 
