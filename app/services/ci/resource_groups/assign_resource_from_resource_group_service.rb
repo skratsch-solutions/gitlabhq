@@ -81,7 +81,7 @@ module Ci
       end
 
       def release_resource_from_stale_jobs(resource_group)
-        resource_group.resources.stale_processables.find_each do |processable|
+        resource_group.stale_processables.find_each do |processable|
           resource_group.release_resource_from(processable)
         end
       end

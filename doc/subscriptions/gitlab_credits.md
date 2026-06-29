@@ -257,10 +257,10 @@ You are charged for model usage based on the following billing methods:
 
 - Variable pricing for GitLab-managed models: A request is equivalent to a single LLM call. One flow makes one or many calls. The credit cost depends on the model used.
 - Variable pricing for self-hosted models: A request is equivalent to a single LLM call. One flow makes one or many calls. You can make eight requests with one credit for any [supported](../administration/gitlab_duo_self_hosted/supported_models_and_hardware_requirements.md#supported-models) or [compatible](../administration/gitlab_duo_self_hosted/supported_models_and_hardware_requirements.md#compatible-models) self-hosted model.
-- Flat pricing for GitLab Duo features: Each successful end-to-end execution consumes a pre-set amount of credits, regardless of how many LLM calls (GitLab-managed and self-hosted models) are made during execution. Features that run on a self-hosted model receive a 20% discount on the credits consumed for an execution.
-
-Only completed calls or executions are billed.
-If a call or execution fails, no credits are deducted.
+- Flat pricing for GitLab Duo features: Each end-to-end execution consumes a pre-set amount of credits, regardless of how many LLM calls (GitLab-managed and self-hosted models) are made during execution. Features that run on a self-hosted model receive a 20% discount on the credits consumed for an execution.
+- Credit deduction for a failed execution depends on the offering:
+  - On GitLab.com with GitLab-managed models, a flow that fails before it completes deducts no credits, even if some LLM calls were already made.
+  - On GitLab Self-Managed with self-hosted models, for features that do not use a flat price, billing is based on individual LLM calls, not flow completion. Each call is metered when it starts, so calls made before a flow fails are still billed. This means a flow that fails partway through may still consume credits for the calls that were already initiated. For flat-priced features, the full flat price is charged even if the flow fails, regardless of how many LLM calls were actually made.
 
 For subsidized models with basic integration:
 

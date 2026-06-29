@@ -1,0 +1,10 @@
+---
+name: ci_resource_group_partition_aware_stale_processables
+description: Scope the stale processables lookup in resource group assignment by partition_id to enable partition pruning on p_ci_builds
+feature_issue_url:
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/242782
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/issues/604274
+milestone: '19.2'
+group: group::continuous delivery
+type: gitlab_com_derisk
+default_enabled: false

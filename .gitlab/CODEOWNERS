@@ -222,13 +222,13 @@ yarn.lock @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/feature-flags.md @gitlab-org/maintainers/rails-backend
 /.ai/principles/distilled/analytics.md @gitlab-org/analytics-section/analytics-instrumentation/engineers @gitlab-org/analytics-section/product-analytics/engineers/frontend
 # END GENERATED: gitlab-ai-principles-distiller
-/.claude/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
-/AGENTS.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
-/CLAUDE.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
-/opencode.example.json @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
-/scripts/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
-/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
-/spec/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
+/.claude/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
+/AGENTS.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
+/CLAUDE.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
+/opencode.example.json @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
+/scripts/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
+/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
+/spec/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
 
 config/bounded_contexts.yml @fabiopitino @grzesiek @stanhu @cwoolley-gitlab @tkuah
 

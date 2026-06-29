@@ -50,7 +50,6 @@ Lint/AssignmentInCondition:
     - 'app/services/issues/zoom_link_service.rb'
     - 'app/services/lfs/file_transformer.rb'
     - 'app/services/merge_requests/base_service.rb'
-    - 'app/services/merge_requests/mergeability_check_service.rb'
     - 'app/services/packages/debian/parse_debian822_service.rb'
     - 'app/services/projects/unlink_fork_service.rb'
     - 'app/services/releases/update_service.rb'

@@ -805,6 +805,44 @@ RSpec.describe MergeRequests::RefreshService, feature_category: :code_review_wor
           )
         end
       end
+
+      context 'when closed or merged merge requests share the source branch' do
+        it 'only caches closing issues for open merge requests', :aggregate_failures do
+          open_mr = create(
+            :merge_request,
+            target_branch: 'master',
+            source_branch: 'feature',
+            source_project: project
+          )
+          closed_mr = create(
+            :merge_request,
+            :closed,
+            :skip_diff_creation,
+            target_branch: 'test',
+            source_branch: 'feature',
+            source_project: project
+          )
+          merged_mr = create(
+            :merge_request,
+            :merged,
+            :skip_diff_creation,
+            target_branch: 'fix',
+            source_branch: 'feature',
+            source_project: project
+          )
+
+          cached_for = []
+          allow_any_instance_of(MergeRequest).to receive(:cache_merge_request_closes_issues!) do |merge_request, _user|
+            cached_for << merge_request.id
+          end
+
+          refresh_service = service.new(project: project, current_user: user)
+          refresh_service.execute(@oldrev, @newrev, 'refs/heads/feature')
+
+          expect(cached_for).to include(open_mr.id)
+          expect(cached_for).not_to include(closed_mr.id, merged_mr.id)
+        end
+      end
     end
 
     context 'marking the merge request as draft' do

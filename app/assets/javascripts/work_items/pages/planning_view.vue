@@ -2199,7 +2199,7 @@ export default {
       :view-mode="viewMode"
       :sort-options="drawerSortOptions"
       :sort-key="effectiveSortKey"
-      :namespace-preferences="displaySettingsSoT.namespacePreferences"
+      :namespace-preferences="namespacePreferences"
       :common-preferences="displaySettings.commonPreferences"
       :full-path="rootPageFullPath"
       :is-group="isGroup"

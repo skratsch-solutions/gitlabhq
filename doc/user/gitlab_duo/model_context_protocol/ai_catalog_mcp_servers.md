@@ -200,7 +200,13 @@ You do not need to provide OAuth credentials manually.
 
 ## Available MCP servers
 
-You can add the following MCP servers to the AI Catalog.
+{{< details >}}
+
+- Offering: GitLab.com
+
+{{< /details >}}
+
+You can add the following MCP servers from the AI Catalog to your custom agents.
 For more servers proposed for the catalog, see [issue 591969](https://gitlab.com/gitlab-org/gitlab/-/work_items/591969).
 
 ### Linear

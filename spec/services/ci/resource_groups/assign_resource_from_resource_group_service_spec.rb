@@ -303,7 +303,9 @@ RSpec.describe Ci::ResourceGroups::AssignResourceFromResourceGroupService, featu
           other_build.update_column(:updated_at, 10.minutes.ago)
         end
 
-        it 'releases the resource from the stale build and assignes to the waiting build' do
+        it 'releases the stale resource via the resource group and assigns the waiting build' do
+          expect(resource_group).to receive(:stale_processables).and_call_original
+
           subject
 
           expect(ci_build.reload).to be_pending

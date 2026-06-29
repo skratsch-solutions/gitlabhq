@@ -294,6 +294,10 @@ Remove or deactivate a user on the identity provider to remove their access to:
 
 After the identity provider performs a sync based on its configured schedule,
 the user's membership is revoked and they lose access.
+The user's GitLab account is not deleted, it continues to exist on GitLab.com.
+
+If you have configured [Enterprise users](../../../user/enterprise_user/_index.md),
+you can [delete the user](../../../user/enterprise_user/_index.md#delete-an-enterprise-user).
 
 When you enable SCIM, this does not automatically remove existing users who do
 not have a SAML identity.
