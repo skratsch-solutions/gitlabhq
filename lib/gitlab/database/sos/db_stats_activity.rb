@@ -65,8 +65,31 @@ module Gitlab
             WHERE collprovider = 'c';
           SQL
 
-          pg_class_settings: <<~SQL
+          pg_class_settings: <<~SQL,
             SELECT * FROM pg_class;
+          SQL
+
+          # Detects sequences with corrupted ownership: a sequence should only
+          # ever have an automatic ('a') OWNED BY dependency, but pg_upgrade
+          # can leave a spurious normal ('n') dependency pointing the sequence at an
+          # unrelated table column.
+          # See https://gitlab.com/gitlab-org/gitlab/-/issues/473337.
+          broken_sequence_ownership: <<~SQL
+            SELECT
+              seq.relname AS seq_name,
+              tbl.relname AS table_name,
+              att.attname AS col_name,
+              dep.deptype
+            FROM pg_class seq
+            JOIN pg_depend dep
+              ON seq.oid = dep.objid
+              AND dep.classid = 'pg_class'::regclass
+              AND dep.refclassid = 'pg_class'::regclass
+            JOIN pg_class tbl ON dep.refobjid = tbl.oid
+            JOIN pg_attribute att ON tbl.oid = att.attrelid AND dep.refobjsubid = att.attnum
+            WHERE seq.relkind = 'S'
+              AND dep.deptype = 'n'
+            ORDER BY seq.relname, tbl.relname;
           SQL
         }.merge(
           # Backlog of pending loose foreign key cleanups per source table, one query

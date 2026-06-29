@@ -13,7 +13,6 @@ import { setupQueryPollingByVisibility } from '~/ci/pipeline_details/graph/utils
 import PipelinesTable from '~/ci/common/pipelines_table.vue';
 import PipelinesEmptyState from '~/ci/common/empty_state/pipelines_empty_state.vue';
 import PipelinesErrorState from '~/ci/common/empty_state/pipelines_error_state.vue';
-import { DEFAULT_MANUAL_ACTIONS_LIMIT } from '~/ci/constants';
 import PipelinesTableWrapper from '~/ci/merge_requests/components/pipelines_table_wrapper.vue';
 import RunPipelineButton from '~/ci/common/run_pipeline_button.vue';
 import {
@@ -133,7 +132,6 @@ const createComponent = ({ mountFn = shallowMountExtended, props = {} } = {}) =>
     apolloProvider: apolloMock,
     provide: {
       ...defaultProvide,
-      manualActionsLimit: DEFAULT_MANUAL_ACTIONS_LIMIT,
     },
     propsData: {
       ...defaultProps,

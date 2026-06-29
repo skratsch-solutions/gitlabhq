@@ -567,6 +567,18 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
       end
     end
 
+    context 'when repository is empty' do
+      let_it_be(:project) { create(:project, :empty_repo, creator: user) }
+      let_it_be(:maintainer) { create(:project_member, :maintainer, user: user, project: project) }
+
+      it 'returns 404', :aggregate_failures do
+        get api("/projects/#{project_id}/repository/archive.tar.bz2", user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(json_response['message']).to eq('404 File Not Found')
+      end
+    end
+
     it_behaves_like 'authorizing granular token permissions', :read_repository_archive do
       let(:boundary_object) { project }
       let(:request) do

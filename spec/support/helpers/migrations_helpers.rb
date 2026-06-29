@@ -78,7 +78,10 @@ module MigrationsHelpers
 
       attr_readonly by if partitioning_options[:strategy] == :sliding_list
 
-      partitioned_by by, **partitioning_options.reverse_merge(strategy: :monthly)
+      options = partitioning_options.reverse_merge(strategy: :monthly)
+      options = options.reverse_merge(retain_for: :forever) if %i[monthly daily].include?(options[:strategy])
+
+      partitioned_by by, **options
 
       def self.name
         table_name.singularize.camelcase

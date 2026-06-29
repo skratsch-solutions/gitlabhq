@@ -4318,7 +4318,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
 
     describe '/set_parent command' do
       let_it_be(:parent) { create(:work_item, :issue, project: project) }
-      let_it_be(:work_item) { create(:work_item, :task, project: project) }
+      let_it_be(:work_item) { create(:work_item, :task, :confidential, project: project) }
       let_it_be(:parent_ref) { parent.to_reference(project) }
 
       let(:command) { "/set_parent #{parent_ref}" }

@@ -804,7 +804,7 @@ GEM
       mime-types
       net-http-persistent (~> 4.0)
       nokogiri (~> 1, >= 1.10.8)
-    gitlab-gkg-proto (0.37.0)
+    gitlab-gkg-proto (0.82.0)
       grpc (~> 1.0)
     gitlab-glaz (0.0.3)
       google-protobuf (~> 4.35)
@@ -1172,7 +1172,7 @@ GEM
     invisible_captcha (2.3.0)
       rails (>= 5.2)
     io-console (0.8.2)
-    io-event (1.14.5)
+    io-event (1.16.2)
     ipaddress (0.8.3)
     irb (1.18.0)
       pp (>= 0.6.0)
@@ -2445,7 +2445,7 @@ DEPENDENCIES
   gitlab-duo-workflow-service-client (~> 0.8)!
   gitlab-experiment (~> 1.5.0)
   gitlab-fog-azure-rm (~> 2.5.0)
-  gitlab-gkg-proto (~> 0.37.0)
+  gitlab-gkg-proto (~> 0.82.0)
   gitlab-glaz (~> 0.0.3)
   gitlab-glfm-markdown (~> 0.0.41)
   gitlab-grape-openapi (~> 0.1)
@@ -2945,7 +2945,7 @@ CHECKSUMS
   gitlab-duo-workflow-service-client (0.8)
   gitlab-experiment (1.5.0) sha256=6ecf16423ec94ce2e49fffecc20335ee42f0733ce6b5870f11be8d810a1ed24a
   gitlab-fog-azure-rm (2.5.0) sha256=f10fd3f6667925e4ce97cea2fa707b926320c7b7fa06978788e2f452ee7f4db0
-  gitlab-gkg-proto (0.37.0) sha256=3cbb5eec14158a4122fc0131008989a0eb6d045ead993a0ad9d59b653f6ada71
+  gitlab-gkg-proto (0.82.0) sha256=ca9501272c7c9830a53bff1999d7c5f1090f9515b284577ea1c3c297585c72c2
   gitlab-glaz (0.0.3) sha256=f484a1eaf28849d7c19cccf2dabc2ee045c7c9fd870af0d4974a638593634829
   gitlab-glaz (0.0.3-aarch64-linux-gnu) sha256=68f1e940294d2bfef97aad376ab151c8eaf7f821a9b467a3cf04646c577e8de9
   gitlab-glaz (0.0.3-arm64-darwin) sha256=f04aac78729dc7a98675a63ab871d574c9122ec3d31bc062be9a4d973e54a306
@@ -3073,7 +3073,7 @@ CHECKSUMS
   imagen (0.2.0) sha256=369fe912078877dba92615ebfc6f35a7d833e31f24f47bdd3ad5371a4139e24b
   invisible_captcha (2.3.0) sha256=309ee5a5e891ecfb732c85b12f1aa9252a648df6f2761b3b41205e824e30ff15
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
-  io-event (1.14.5) sha256=68ac367032a3873416dc2e0b67332dfaf2e23b65b58e6465d301c7e5cd9163b1
+  io-event (1.16.2) sha256=9f9cb0a96ea5c3850a672606c65f27bc96d7621399ef6196acbfe2be0cd1279c
   ipaddress (0.8.3) sha256=85640c4f9194c26937afc8c78e3074a8e7c97d5d1210358d1440f01034d006f5
   ipynbdiff (0.4.8)
   irb (1.18.0) sha256=de9454a0703a54704b9811a5ef31a60c86949fbf4013fcf244fabc7c775248e3

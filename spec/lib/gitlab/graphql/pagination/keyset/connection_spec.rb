@@ -478,4 +478,124 @@ RSpec.describe Gitlab::Graphql::Pagination::Keyset::Connection do
       end
     end
   end
+
+  describe 'pagination with redaction' do
+    let_it_be(:project_list) { create_list(:project, 5) }
+    let(:nodes) { Project.where(id: project_list.map(&:id)).order(id: :asc) }
+    let(:redact) { [] }
+
+    before do
+      subject.redactor = Class.new do
+        attr_accessor :remove_ids
+
+        def initialize(remove_ids)
+          @remove_ids = remove_ids
+        end
+
+        def redact(items)
+          items.reject { |item| remove_ids.include?(item.id) }
+        end
+      end.new(redact)
+    end
+
+    shared_examples "a pagination response with further results" do
+      it "has_next_page is true" do
+        expect(subject.has_next_page).to be_truthy
+      end
+
+      it "has a matching end_cursor" do
+        expect(subject.end_cursor).to eq end_cursor
+      end
+    end
+
+    shared_examples "a pagination response with no further results" do
+      it "has_next_page is false" do
+        expect(subject.has_next_page).to be_falsey
+      end
+
+      it "has a matching end_cursor" do
+        expect(subject.end_cursor).to eq end_cursor
+      end
+    end
+
+    context 'when redaction removes all nodes' do
+      let(:arguments) { { first: 5, max_page_size: 5 } }
+      let(:redact) { project_list.map(&:id) }
+      let(:end_cursor) { subject.cursor_for(project_list.last) }
+
+      it_behaves_like "a pagination response with no further results"
+
+      it "returns no nodes" do
+        expect(subject.nodes.map(&:id)).to be_empty
+      end
+    end
+
+    context 'when redaction removes some nodes but not all' do
+      let(:arguments) { { first: 2 } }
+      let(:redact) { [project_list[0].id] }
+      let(:end_cursor) { subject.cursor_for(project_list[1]) }
+
+      it_behaves_like "a pagination response with further results"
+
+      it "returns expected nodes" do
+        expect(subject.nodes.map(&:id)).to eq([project_list[1].id])
+      end
+    end
+
+    context 'when redaction removes all nodes but more records exist in the db' do
+      let(:arguments) { { first: 2 } }
+      let(:redact) { [project_list[0].id, project_list[1].id] }
+      let(:end_cursor) { subject.cursor_for(project_list[1]) }
+
+      it_behaves_like "a pagination response with further results"
+
+      it "returns no nodes" do
+        expect(subject.nodes.map(&:id)).to be_empty
+      end
+    end
+
+    context 'when first and after are provided' do
+      let(:arguments) { { first: 2, after: encoded_cursor(project_list[1]) } }
+
+      context 'and redactor removes the node that should be used for the end_cursor' do
+        let(:redact) { [project_list[3].id] }
+        let(:end_cursor) { subject.cursor_for(project_list[3]) }
+
+        it_behaves_like "a pagination response with further results"
+
+        it "returns expected nodes" do
+          expect(subject.nodes.map(&:id)).to eq([project_list[2].id])
+        end
+      end
+
+      context 'and redactor removes entire next page after the cursor' do
+        let(:redact) { [project_list[2].id, project_list[3].id] }
+        let(:end_cursor) { subject.cursor_for(project_list[3]) }
+
+        it_behaves_like "a pagination response with further results"
+      end
+    end
+
+    context 'when last and before are provided' do
+      let(:arguments) { { last: 2, before: encoded_cursor(project_list[4]) } }
+
+      context 'and redactor removes the node that should be used for the end_cursor' do
+        let(:redact) { [project_list[3].id] }
+        let(:end_cursor) { subject.cursor_for(project_list[3]) }
+
+        it_behaves_like "a pagination response with further results"
+
+        it "returns expected nodes" do
+          expect(subject.nodes.map(&:id)).to eq([project_list[2].id])
+        end
+      end
+
+      context 'and redactor removes entire next page after the cursor' do
+        let(:redact) { [project_list[2].id, project_list[3].id] }
+        let(:end_cursor) { subject.cursor_for(project_list[3]) }
+
+        it_behaves_like "a pagination response with further results"
+      end
+    end
+  end
 end

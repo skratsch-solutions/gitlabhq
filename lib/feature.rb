@@ -333,10 +333,8 @@ module Feature
     end
 
     def log_feature_flag_states?(key)
-      # Skip the gate while :feature_flag_state_logs is mid-resolution: its DB
-      # read re-enters flag checks that evaluate it again, raising a spurious
-      # RecursionError. Checks the literal flag (not `key`) so the gate is
-      # skipped for every flag while that flag is on the stack.
+      # Short-circuit while :feature_flag_state_logs is mid-resolution to avoid a recursive
+      # cycle through the DB load balancer's own flag checks.
       return false if recursion_stack.include?(:feature_flag_state_logs)
 
       Feature::Definition.log_states?(key)

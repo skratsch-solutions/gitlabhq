@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Mutations::MergeRequests::SetSubscription, feature_category: :api do
-  let_it_be_with_reload(:project) { create(:project) }
   let_it_be(:user) { create(:user) }
+  let_it_be_with_reload(:project) { create(:project) }
 
   let(:resource) { create(:merge_request, source_project: project, target_project: project) }
 
@@ -15,7 +15,7 @@ RSpec.describe Mutations::MergeRequests::SetSubscription, feature_category: :api
   end
 
   context 'when user is developer member of the project' do
-    before do
+    before_all do
       project.add_developer(user)
     end
 

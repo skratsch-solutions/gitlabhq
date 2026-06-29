@@ -21,7 +21,7 @@ RSpec.describe WorkItems::ParentLinks::DestroyService, feature_category: :team_p
       create(:support_bot)
     end
 
-    before do
+    before_all do
       project.add_guest(guest)
     end
 

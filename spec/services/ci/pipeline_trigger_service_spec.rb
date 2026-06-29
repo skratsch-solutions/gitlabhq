@@ -13,13 +13,9 @@ RSpec.describe Ci::PipelineTriggerService, feature_category: :continuous_integra
   end
 
   describe '#execute' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user) { create(:user, developer_of: project) }
 
     let(:result) { described_class.new(project, user, params).execute }
-
-    before do
-      project.add_developer(user)
-    end
 
     shared_examples 'detecting an unprocessable pipeline trigger' do
       context 'when the pipeline was not created successfully' do

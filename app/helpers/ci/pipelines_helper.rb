@@ -48,15 +48,10 @@ module Ci
     end
 
     def pipelines_list_data(project)
-      artifacts_endpoint_placeholder = ':pipeline_artifacts_id'
-
       {
         project_id: project.id,
         default_branch_name: project.default_branch,
         params: params.to_json,
-        artifacts_endpoint: downloadable_artifacts_project_pipeline_path(project, artifacts_endpoint_placeholder,
-          format: :json),
-        artifacts_endpoint_placeholder: artifacts_endpoint_placeholder,
         pipeline_schedules_path: pipeline_schedules_path(project),
         can_create_pipeline: can?(current_user, :create_pipeline, project).to_s,
         new_pipeline_path: can?(current_user, :create_pipeline, project) && new_project_pipeline_path(project),
@@ -91,7 +86,6 @@ module Ci
         var_param: params[:var].to_json,
         file_param: params[:file_var].to_json,
         project_path: project.full_path,
-        project_refs_endpoint: refs_project_path(project, sort: 'updated_desc'),
         settings_link: project_settings_ci_cd_path(project),
         max_warnings: ::Gitlab::Ci::Warnings::MAX_LIMIT,
         user_role: project.team.human_max_access(current_user&.id),

@@ -538,7 +538,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
     end
 
     describe 'merge' do
-      let(:project) { create(:project, :private, :repository, group: group) }
+      let(:project) { create(:project, :private, :repository, group: group, maintainers: user) }
 
       let(:opts) do
         {
@@ -547,10 +547,6 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
       end
 
       let(:service) { described_class.new(project: project, current_user: user, params: opts) }
-
-      before do
-        project.add_maintainer(user)
-      end
 
       context 'without pipeline' do
         before do

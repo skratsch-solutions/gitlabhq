@@ -35127,15 +35127,6 @@ msgstr ""
 msgid "GitLab Duo Core"
 msgstr ""
 
-msgid "GitLab Duo Workflow Service at %{host} is not operational."
-msgstr ""
-
-msgid "GitLab Duo Workflow Service at %{host} is operational. The model for Agents & flows is set to a GitLab managed model"
-msgstr ""
-
-msgid "GitLab Duo Workflow Service at %{host} is operational. The model for Agents & flows is set to a self-hosted model."
-msgstr ""
-
 msgid "GitLab Duo features"
 msgstr ""
 
@@ -49326,9 +49317,6 @@ msgstr ""
 msgid "No milestone"
 msgstr ""
 
-msgid "No more seats in subscription"
-msgstr ""
-
 msgid "No more than %{max_frameworks} compliance frameworks can be updated at the same time."
 msgstr ""
 
@@ -56048,13 +56036,7 @@ msgstr ""
 msgid "Pipelines|This GitLab CI configuration is invalid. %{linkStart}Learn more%{linkEnd}"
 msgstr ""
 
-msgid "Pipelines|This GitLab CI configuration is invalid:"
-msgstr ""
-
 msgid "Pipelines|This GitLab CI configuration is invalid: %{reason}. %{linkStart}Learn more%{linkEnd}"
-msgstr ""
-
-msgid "Pipelines|This GitLab CI configuration is valid."
 msgstr ""
 
 msgid "Pipelines|This pipeline is stuck"
@@ -66067,18 +66049,6 @@ msgid "Seats"
 msgstr ""
 
 msgid "Seats owed"
-msgstr ""
-
-msgid "SeatsManagement|Turn off restricted access"
-msgstr ""
-
-msgid "SeatsManagement|Turn on restricted access"
-msgstr ""
-
-msgid "SeatsManagement|Your namespace has used all the seats in your subscription, so users can no longer be invited or added to the namespace. To add new users, purchase more seats or turn off restricted access."
-msgstr ""
-
-msgid "SeatsManagement|Your namespace has used all the seats in your subscription. To avoid overages from adding new users, purchase more seats or turn on restricted access."
 msgstr ""
 
 msgid "Secondary email:"
@@ -76816,6 +76786,12 @@ msgstr ""
 msgid "The branch to merge into."
 msgstr ""
 
+msgid "The cloud-connected GitLab Duo Agent Platform service at %{host} is not reachable."
+msgstr ""
+
+msgid "The cloud-connected GitLab Duo Agent Platform service at %{host} is operational."
+msgstr ""
+
 msgid "The comment you are editing has been changed by another user. Would you like to keep your changes and overwrite the new description or discard your changes?"
 msgstr ""
 
@@ -77300,6 +77276,12 @@ msgid "The selected project is not available"
 msgstr ""
 
 msgid "The selected projects use different configuration profiles. Choosing a new profile will replace their existing ones."
+msgstr ""
+
+msgid "The self-hosted GitLab Duo Agent Platform service at %{host} is not reachable."
+msgstr ""
+
+msgid "The self-hosted GitLab Duo Agent Platform service at %{host} is operational."
 msgstr ""
 
 msgid "The snippet can be accessed without any authentication."
@@ -90123,6 +90105,9 @@ msgid "Your personal access tokens have expired"
 msgstr ""
 
 msgid "Your personal access tokens will expire in %{days_to_expire} days or less"
+msgstr ""
+
+msgid "Your private namespace is over %{link_start}the %{free_limit} user limit%{link_end}. Contact your group Owner to reduce the number of users in the namespace, make the namespace public, or upgrade to a paid tier."
 msgstr ""
 
 msgid "Your private namespace is over %{link_start}the %{free_limit} user limit%{link_end}. To remove the read-only state, an Owner can reduce the number of users in the namespace to %{free_limit} or fewer, make the namespace public, or upgrade to a paid tier. If you need more time, you can start a free %{duration}-day Ultimate trial to get unlimited users."

@@ -263,6 +263,28 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
         end
       end
     end
+
+    context 'when ref is blank' do
+      where(:ref) { [nil, ''] }
+
+      with_them do
+        it 'falls back to root_ref' do
+          expect(metadata['CommitId']).to start_with(TestEnv::BRANCH_SHA['master'])
+        end
+      end
+    end
+
+    context 'when the repository is empty' do
+      let_it_be(:empty_project, freeze: false) { create(:project, :empty_repo) }
+      let_it_be(:repository, freeze: false) { empty_project.repository.raw }
+
+      let(:ref) { nil }
+
+      it 'returns empty metadata without raising', :aggregate_failures do
+        expect { metadata }.not_to raise_error
+        expect(metadata).to eq({})
+      end
+    end
   end
 
   describe '#size' do

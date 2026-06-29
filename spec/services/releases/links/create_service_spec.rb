@@ -31,7 +31,7 @@ RSpec.describe Releases::Links::CreateService, feature_category: :release_orches
     end
 
     context 'when user does not have access to create release link' do
-      before do
+      before_all do
         project.add_guest(user)
       end
 

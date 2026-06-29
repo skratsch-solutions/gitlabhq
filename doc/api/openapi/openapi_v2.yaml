@@ -12733,6 +12733,81 @@ paths:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdJobs
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/bridges":
     get:
+      summary: List all bridge jobs by pipeline
+      description: Deprecated in GitLab 19.2. Use trigger_jobs endpoint instead.
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        description: The project ID or URL-encoded path
+        type: string
+        required: true
+        example: '11'
+      - in: path
+        name: pipeline_id
+        description: The pipeline ID
+        type: integer
+        format: int32
+        required: true
+        example: 18
+      - in: query
+        name: scope
+        description: The scope of builds to show
+        type: string
+        enum:
+        - created
+        - waiting_for_resource
+        - preparing
+        - waiting_for_callback
+        - pending
+        - running
+        - success
+        - failed
+        - canceling
+        - canceled
+        - skipped
+        - manual
+        - scheduled
+        required: false
+        example:
+        - pending
+        - running
+      - in: query
+        name: page
+        description: Current page number
+        type: integer
+        format: int32
+        default: 1
+        required: false
+        example: 1
+      - in: query
+        name: per_page
+        description: Number of items per page
+        type: integer
+        format: int32
+        default: 20
+        required: false
+        example: 20
+      responses:
+        '200':
+          description: List all bridge jobs by pipeline
+          schema:
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_Ci_Bridge"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+      - pipelines
+      operationId: getApiV4ProjectsIdPipelinesPipelineIdBridges
+      deprecated: true
+  "/api/v4/projects/{id}/pipelines/{pipeline_id}/trigger_jobs":
+    get:
       summary: List all trigger jobs by pipeline
       description: Lists all trigger jobs for a specified pipeline.
       produces:
@@ -12804,7 +12879,7 @@ paths:
           description: Not found
       tags:
       - pipelines
-      operationId: getApiV4ProjectsIdPipelinesPipelineIdBridges
+      operationId: getApiV4ProjectsIdPipelinesPipelineIdTriggerJobs
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/variables":
     get:
       summary: List all pipeline variables

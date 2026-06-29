@@ -114,7 +114,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionManager, feature_categor
       Class.new(ApplicationRecord) do
         include PartitionedTable
 
-        partitioned_by :created_at, strategy: :monthly
+        partitioned_by :created_at, strategy: :monthly, retain_for: :forever
       end
     end
 
@@ -183,7 +183,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionManager, feature_categor
           Class.new(base_model) do
             include PartitionedTable
 
-            partitioned_by :created_at, strategy: :monthly
+            partitioned_by :created_at, strategy: :monthly, retain_for: :forever
           end
         end
 

@@ -40,7 +40,7 @@ RSpec.describe Releases::Links::UpdateService, feature_category: :release_orches
     end
 
     context 'when user does not have access to update release link' do
-      before do
+      before_all do
         project.add_guest(user)
       end
 

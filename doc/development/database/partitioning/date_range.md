@@ -140,10 +140,33 @@ partitioned_by :created_at, strategy: :monthly, retain_for: 3.months, analyze_in
 
 - `column`: The column to partition on (required, must be a timestamp or date column)
 - `strategy`: Either `:daily` or `:monthly` (required)
-- `retain_for`: Duration to retain partitions (optional)
+- `retain_for`: How long to retain partitions: a duration, or `:forever` (required, see [Retention](#retention))
 - `analyze_interval`: How often to run ANALYZE on new partitions (optional)
 
 Choose `:daily` for high-volume tables that need fine-grained partitioning, or `:monthly` for tables with moderate data volume where daily partitioning would be excessive.
+
+### Retention
+
+Time-based strategies require `retain_for` so each table makes a conscious retention
+decision. Without retention, the table keeps every partition forever, which costs
+storage and slows down queries that do not bound the partition key.
+
+Pass a duration to prune old partitions automatically:
+
+```ruby
+partitioned_by :created_at, strategy: :monthly, retain_for: 6.months
+```
+
+To keep all partitions, opt out explicitly with `retain_for: :forever` and a comment that
+explains why:
+
+```ruby
+# Audit events are retained indefinitely for compliance.
+partitioned_by :created_at, strategy: :monthly, retain_for: :forever
+```
+
+`retain_for` must be a duration or `:forever`. Omitting it, or passing any other value
+such as `nil`, raises an `ArgumentError`.
 
 ## Example
 
@@ -182,7 +205,7 @@ Gitlab::Database::Partitioning.register_tables(
     {
       limit_connection_names: %i[main],
       table_name: 'audit_events_partitioned_table_name',
-      partitioned_column: :created_at, strategy: :monthly
+      partitioned_column: :created_at, strategy: :monthly, retain_for: :forever
     }
   ]
 )
@@ -194,12 +217,15 @@ The example includes the following:
   (for example, `audit_events_b8088ecbd2`).
 - `partitioned_column`: The column used for partitioning.
 - `strategy`: Either `:daily` or `:monthly`.
+- `retain_for`: Set to `:forever` for this registration (see the following warning).
 
 > [!warning]
-> Do not add `retain_for` to this registration, even if your data should be deleted after a certain period.
-> During the backfill, the partition manager might detach old partitions if `retain_for` is set,
-> causing the backfill to fail when it tries to copy data into detached partitions.
-> Add `retain_for` to your model only after the table swap is complete (Step 4).
+> Set `retain_for: :forever` for this registration. Time-based strategies require `retain_for`,
+> but you must not set a real duration here, even if your data should be deleted after a
+> certain period. During the backfill, the partition manager might detach old partitions if
+> `retain_for` is set to a duration, causing the backfill to fail when it tries to copy data
+> into detached partitions. Set the real `retain_for` on your model only after the table swap
+> is complete (Step 4).
 
 After the table swap is complete (Step 4), you can remove this registration.
 

@@ -1,6 +1,5 @@
 ---
 Gitlab/AvoidGitlabDedicatedInstanceChecks:
-  Details: grace period
   Exclude:
     - 'app/controllers/admin/registrations/groups_controller.rb'
     - 'app/controllers/admin/registrations/profiles_controller.rb'

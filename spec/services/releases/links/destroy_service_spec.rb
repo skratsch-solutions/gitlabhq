@@ -27,7 +27,7 @@ RSpec.describe Releases::Links::DestroyService, feature_category: :release_orche
     end
 
     context 'when user does not have access to delete release link' do
-      before do
+      before_all do
         project.add_guest(user)
       end
 

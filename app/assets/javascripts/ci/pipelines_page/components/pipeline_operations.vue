@@ -158,7 +158,7 @@ export default {
         @click="handleCancelClick"
       />
 
-      <pipeline-multi-actions :pipeline-id="pipelineId" />
+      <pipeline-multi-actions :pipeline-id="pipelineId" :full-path="fullPath" />
     </gl-button-group>
   </div>
 </template>

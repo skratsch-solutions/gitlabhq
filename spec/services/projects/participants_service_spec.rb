@@ -272,7 +272,7 @@ RSpec.describe Projects::ParticipantsService, feature_category: :groups_and_proj
 
       let(:service) { described_class.new(public_project, create(:user)) }
 
-      before do
+      before_all do
         public_group.add_owner(public_group_owner)
       end
 

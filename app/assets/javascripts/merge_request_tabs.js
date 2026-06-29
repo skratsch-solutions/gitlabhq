@@ -109,12 +109,9 @@ function mountPipelines() {
     },
     apolloProvider,
     provide: {
-      artifactsEndpoint: pipelineTableViewEl.dataset.artifactsEndpoint,
-      artifactsEndpointPlaceholder: pipelineTableViewEl.dataset.artifactsEndpointPlaceholder,
       targetProjectFullPath: mrWidgetData?.target_project_full_path || '',
       newPipelinePath: pipelineTableViewEl.dataset.newPipelinePath,
       graphqlPath: pipelineTableViewEl.dataset.graphqlPath,
-      manualActionsLimit: 50,
       mergeRequestId: mrWidgetData ? mrWidgetData.iid : null,
       sourceProjectFullPath: mrWidgetData?.source_project_full_path || '',
       useFailedJobsWidget: true,

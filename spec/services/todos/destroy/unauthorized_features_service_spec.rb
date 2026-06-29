@@ -34,7 +34,7 @@ RSpec.describe Todos::Destroy::UnauthorizedFeaturesService, feature_category: :t
     end
 
     context 'when issues are visible only to project members but the user is a member' do
-      before do
+      before_all do
         project.project_feature.update!(issues_access_level: ProjectFeature::PRIVATE)
         project.add_developer(user)
       end

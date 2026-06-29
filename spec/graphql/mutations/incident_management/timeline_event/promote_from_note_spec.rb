@@ -7,7 +7,7 @@ RSpec.describe Mutations::IncidentManagement::TimelineEvent::PromoteFromNote, fe
   include NotesHelper
 
   let_it_be(:current_user) { create(:user) }
-  let_it_be_with_reload(:project) { create(:project) }
+  let_it_be_with_reload(:project) { create(:project, developers: current_user) }
   let_it_be(:incident) { create(:incident, project: project) }
   let_it_be(:comment) { create(:note, project: project, noteable: incident) }
   let_it_be(:issue) { create(:issue, project: project) }
@@ -35,10 +35,6 @@ RSpec.describe Mutations::IncidentManagement::TimelineEvent::PromoteFromNote, fe
           promoted_from_note: comment,
           editable: true
         )
-      end
-
-      before do
-        project.add_developer(current_user)
       end
 
       it_behaves_like 'creating an incident timeline event'

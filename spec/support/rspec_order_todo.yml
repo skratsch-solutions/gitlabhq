@@ -5386,7 +5386,6 @@
 - './spec/models/blob_viewer/changelog_spec.rb'
 - './spec/models/blob_viewer/composer_json_spec.rb'
 - './spec/models/blob_viewer/gemspec_spec.rb'
-- './spec/models/blob_viewer/gitlab_ci_yml_spec.rb'
 - './spec/models/blob_viewer/go_mod_spec.rb'
 - './spec/models/blob_viewer/license_spec.rb'
 - './spec/models/blob_viewer/markup_spec.rb'

@@ -587,7 +587,7 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
     end
   end
 
-  describe 'GET /projects/:id/pipelines/:pipeline_id/bridges' do
+  shared_examples 'listing trigger jobs by pipeline' do |route_suffix|
     let_it_be(:bridge) { create(:ci_bridge, pipeline: pipeline, user: pipeline.user) }
 
     let(:downstream_pipeline) { create(:ci_pipeline) }
@@ -610,7 +610,7 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
       before do |example|
         unless example.metadata[:skip_before_request]
           project.update!(public_builds: false)
-          get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges", api_user), params: query
+          get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}", api_user), params: query
         end
       end
 
@@ -661,7 +661,7 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
             let(:query) { { 'scope' => 'pending' } }
 
             it :skip_before_request, :aggregate_failures do
-              get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges", api_user), params: query
+              get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}", api_user), params: query
 
               expect(response).to have_gitlab_http_status(:ok)
               expect(json_response).to be_an Array
@@ -674,7 +674,7 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
             let(:query) { { scope: %w[pending running] } }
 
             it :skip_before_request, :aggregate_failures do
-              get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges", api_user), params: query
+              get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}", api_user), params: query
 
               expect(response).to have_gitlab_http_status(:ok)
               expect(json_response).to be_an Array
@@ -716,20 +716,20 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
         it 'avoids N+1 queries', :use_sql_query_cache, :request_store,
           quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/562015' do
           control = ActiveRecord::QueryRecorder.new(skip_cached: false) do
-            get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges", api_user), params: query
+            get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}", api_user), params: query
           end
 
           3.times { create_bridge(pipeline) }
 
           expect do
-            get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges", api_user), params: query
+            get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}", api_user), params: query
           end.to issue_same_number_of_queries_as(control)
         end
       end
 
       context 'no pipeline is found' do
         it 'does not return bridges', :aggregate_failures do
-          get api("/projects/#{project2.id}/pipelines/#{pipeline.id}/bridges", user)
+          get api("/projects/#{project2.id}/pipelines/#{pipeline.id}/#{route_suffix}", user)
 
           expect(json_response['message']).to eq '404 Project Not Found'
           expect(response).to have_gitlab_http_status(:not_found)
@@ -761,7 +761,7 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
           end
 
           it 'does not return bridges' do
-            get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges", api_user)
+            get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}", api_user)
             expect(response).to have_gitlab_http_status(:forbidden)
           end
         end
@@ -786,17 +786,26 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
       it_behaves_like 'enforcing job token policies', :read_pipelines,
         allow_public_access_for_enabled_project_features: [:repository, :builds] do
         let(:request) do
-          get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges"), params: { job_token: target_job.token }
+          get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}"),
+            params: { job_token: target_job.token }
         end
       end
 
       it_behaves_like 'authorizing granular token permissions', :read_pipeline_bridge do
         let(:boundary_object) { project }
         let(:request) do
-          get api("/projects/#{project.id}/pipelines/#{pipeline.id}/bridges", personal_access_token: pat)
+          get api("/projects/#{project.id}/pipelines/#{pipeline.id}/#{route_suffix}", personal_access_token: pat)
         end
       end
     end
+  end
+
+  describe 'GET /projects/:id/pipelines/:pipeline_id/trigger_jobs' do
+    it_behaves_like 'listing trigger jobs by pipeline', 'trigger_jobs'
+  end
+
+  describe 'GET /projects/:id/pipelines/:pipeline_id/bridges' do
+    it_behaves_like 'listing trigger jobs by pipeline', 'bridges'
   end
 
   describe 'POST /projects/:id/pipeline ' do

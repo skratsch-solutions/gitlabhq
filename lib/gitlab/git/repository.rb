@@ -264,7 +264,8 @@ module Gitlab
       end
 
       def archive_metadata(ref, storage_path, project_path, format = "tar.gz", append_sha:, path: nil)
-        ref ||= root_ref
+        ref = ref.presence || root_ref
+        return {} if ref.blank?
 
         commit_id = extract_commit_id_from_ref(ref)
         return {} if commit_id.nil?

@@ -155,7 +155,7 @@ RSpec.describe ProtectedBranches::CacheService, :clean_gitlab_redis_cache, featu
     let_it_be_with_reload(:entity) { project.group }
     let_it_be_with_reload(:user) { create(:user) }
 
-    before do
+    before_all do
       entity.add_owner(user)
     end
 

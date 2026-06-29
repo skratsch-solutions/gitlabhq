@@ -36,7 +36,7 @@ RSpec.describe MergeRequest::MetricsFinder, feature_category: :code_review_workf
   end
 
   context 'when user is part of the project' do
-    before do
+    before_all do
       project.add_developer(current_user)
     end
 

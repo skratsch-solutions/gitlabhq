@@ -225,8 +225,9 @@ CI/CD job tokens can access the following REST API endpoints:
 | Permission | API endpoint | Permission name | Scope |
 | ---------- | ------------ | --------------- | ----- |
 | Get the pipelines for a single project package | `GET /projects/:id/packages/:package_id/pipelines` | `READ_PIPELINES` | Read |
+| List all bridge jobs by pipeline | `GET /projects/:id/pipelines/:pipeline_id/bridges` | `READ_PIPELINES` | Read |
 | List all project pipelines | `GET /projects/:id/pipelines` | `READ_PIPELINES` | Read |
-| List all trigger jobs by pipeline | `GET /projects/:id/pipelines/:pipeline_id/bridges` | `READ_PIPELINES` | Read |
+| List all trigger jobs by pipeline | `GET /projects/:id/pipelines/:pipeline_id/trigger_jobs` | `READ_PIPELINES` | Read |
 | Retrieve a pipeline | `GET /projects/:id/pipelines/:pipeline_id` | `READ_PIPELINES` | Read |
 | Update pipeline metadata | `PUT /projects/:id/pipelines/:pipeline_id/metadata` | `ADMIN_PIPELINES` | Read and write |
 

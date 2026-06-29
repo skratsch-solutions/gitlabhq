@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import createDefaultClient from '~/lib/graphql';
-import { DEFAULT_MANUAL_ACTIONS_LIMIT } from '~/ci/constants';
 import { initPipelineCountListener } from './utils';
 
 Vue.use(VueApollo);
@@ -32,11 +31,6 @@ export default () => {
             import('~/commit/pipelines/legacy_pipelines_table_wrapper.vue'),
         },
         apolloProvider,
-        provide: {
-          artifactsEndpoint: pipelineTableViewEl.dataset.artifactsEndpoint,
-          artifactsEndpointPlaceholder: pipelineTableViewEl.dataset.artifactsEndpointPlaceholder,
-          manualActionsLimit: DEFAULT_MANUAL_ACTIONS_LIMIT,
-        },
         render(createElement) {
           return createElement('commit-pipelines-table', {
             props: {

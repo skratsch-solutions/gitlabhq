@@ -216,6 +216,33 @@ module API
           present paginate(builds), with: Entities::Ci::Job
         end
 
+        desc 'List all bridge jobs by pipeline' do
+          detail 'Deprecated in GitLab 19.2. Use trigger_jobs endpoint instead.'
+          success status: 200, model: Entities::Ci::Bridge
+          failure [
+            { code: 401, message: 'Unauthorized' },
+            { code: 403, message: 'Forbidden' },
+            { code: 404, message: 'Not found' }
+          ]
+          is_array true
+          tags ['pipelines']
+          deprecated true
+        end
+        params do
+          requires :pipeline_id, type: Integer, desc: 'The pipeline ID', documentation: { example: 18 }
+          use :optional_scope
+          use :pagination
+        end
+
+        route_setting :authentication, job_token_allowed: true
+        route_setting :authorization, job_token_policies: :read_pipelines,
+          allow_public_access_for_enabled_project_features: [:repository, :builds],
+          permissions: :read_pipeline_bridge, boundary_type: :project
+        get ':id/pipelines/:pipeline_id/bridges',
+          urgency: :low, feature_category: :pipeline_composition do
+          present_pipeline_trigger_jobs
+        end
+
         desc 'List all trigger jobs by pipeline' do
           detail 'Lists all trigger jobs for a specified pipeline.'
           success status: 200, model: Entities::Ci::Bridge
@@ -237,19 +264,9 @@ module API
         route_setting :authorization, job_token_policies: :read_pipelines,
           allow_public_access_for_enabled_project_features: [:repository, :builds],
           permissions: :read_pipeline_bridge, boundary_type: :project
-        get ':id/pipelines/:pipeline_id/bridges', urgency: :low, feature_category: :pipeline_composition do
-          authorize!(:read_build, user_project)
-
-          pipeline = user_project.all_pipelines.find(params[:pipeline_id])
-
-          bridges = ::Ci::JobsFinder
-            .new(current_user: current_user, pipeline: pipeline, params: params, type: ::Ci::Bridge)
-            .execute
-          # rubocop:disable CodeReuse/ActiveRecord -- Preload is only related to this endpoint
-          bridges = bridges.with_preloads.preload(:ci_stage)
-          # rubocop:enable CodeReuse/ActiveRecord
-
-          present paginate(bridges), with: Entities::Ci::Bridge
+        get ':id/pipelines/:pipeline_id/trigger_jobs',
+          urgency: :low, feature_category: :pipeline_composition do
+          present_pipeline_trigger_jobs
         end
 
         desc 'List all pipeline variables' do
@@ -449,6 +466,19 @@ module API
       end
 
       helpers do
+        def present_pipeline_trigger_jobs
+          authorize!(:read_build, user_project)
+
+          bridges = ::Ci::JobsFinder
+            .new(current_user: current_user, pipeline: pipeline, params: params, type: ::Ci::Bridge)
+            .execute
+          # rubocop:disable CodeReuse/ActiveRecord -- Preload is only related to this endpoint
+          bridges = bridges.with_preloads.preload(:ci_stage)
+          # rubocop:enable CodeReuse/ActiveRecord
+
+          present paginate(bridges), with: Entities::Ci::Bridge
+        end
+
         def pipeline
           strong_memoize(:pipeline) do
             user_project.all_pipelines.find(params[:pipeline_id])

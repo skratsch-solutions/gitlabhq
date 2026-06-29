@@ -380,6 +380,7 @@ Grants the ability to create, delete, read, and update pipelines.
 | Read | Project | `GET` | `/projects/:id/pipelines/:pipeline_id/jobs` |
 | Read | Project | `GET` | `/projects/:id/pipelines/:pipeline_id/test_report` |
 | Read | Project | `GET` | `/projects/:id/pipelines/:pipeline_id/test_report_summary` |
+| Read | Project | `GET` | `/projects/:id/pipelines/:pipeline_id/trigger_jobs` |
 | Read | Project | `GET` | `/projects/:id/pipelines/:pipeline_id/variables` |
 | Read | Project | `GET` | `/projects/:id/pipelines/latest` |
 | Update | Project | `POST` | `/projects/:id/pipelines/:pipeline_id/cancel` |

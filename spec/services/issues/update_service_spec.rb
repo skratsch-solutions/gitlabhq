@@ -532,7 +532,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
       end
 
       context 'when moving issue between issues from different projects' do
-        let(:group) { create(:group) }
+        let(:group) { create(:group, developers: user) }
         let(:subgroup) { create(:group, parent: group) }
 
         let(:project_1) { create(:project, namespace: group) }
@@ -542,10 +542,6 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
         let(:issue_1) { create(:issue, project: project_1) }
         let(:issue_2) { create(:issue, project: project_2) }
         let(:issue_3) { create(:issue, project: project_3) }
-
-        before do
-          group.add_developer(user)
-        end
 
         it 'sorts issues as specified by parameters' do
           # Moving all issues to end here like the last example won't work since
