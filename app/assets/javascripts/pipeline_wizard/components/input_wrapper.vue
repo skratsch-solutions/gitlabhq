@@ -54,6 +54,7 @@ export default {
       default: false,
     },
   },
+  emits: ['beforeUpdate:compiled', 'highlight', 'update:compiled', 'update:valid'],
   computed: {
     path() {
       if (!this.target) return null;

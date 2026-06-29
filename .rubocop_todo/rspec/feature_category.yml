@@ -186,7 +186,6 @@ RSpec/FeatureCategory:
     - 'ee/spec/lib/gitlab/graphql/aggregations/issuables/lazy_links_aggregate_spec.rb'
     - 'ee/spec/lib/gitlab/graphql/aggregations/issues/lazy_links_aggregate_spec.rb'
     - 'ee/spec/lib/gitlab/graphql/aggregations/security_orchestration_policies/lazy_dast_profile_aggregate_spec.rb'
-    - 'ee/spec/lib/gitlab/graphql/aggregations/vulnerability_statistics/lazy_aggregate_spec.rb'
     - 'ee/spec/lib/gitlab/graphql/loaders/bulk_epic_aggregate_loader_spec.rb'
     - 'ee/spec/lib/gitlab/graphql/loaders/oncall_participant_loader_spec.rb'
     - 'ee/spec/lib/gitlab/group_plans_preloader_spec.rb'

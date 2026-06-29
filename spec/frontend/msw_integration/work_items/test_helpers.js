@@ -91,6 +91,8 @@ export const findTokenSelectorInput = () =>
   withinDrawer()?.queryByTestId('work-item-token-select-input')?.querySelector('input') ?? null;
 export const findTokenSelectorResult = () =>
   withinDrawer()?.queryByText('Linkable test issue', { exact: false }) ?? null;
+export const findTodosToggleButton = () =>
+  withinDrawer()?.queryByRole('button', { name: /mark to-do items done/i }) ?? null;
 
 export const findIssuableTitleLink = () =>
   within(findIssueToEdit()).queryByTestId('issuable-title-link');

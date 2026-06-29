@@ -154,6 +154,7 @@ export default {
       default: () => () => false,
     },
   },
+  emits: ['collapse', 'expand'],
   data() {
     return {
       searchTerm: '',

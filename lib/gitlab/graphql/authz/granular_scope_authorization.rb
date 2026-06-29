@@ -21,6 +21,11 @@ module Gitlab
 
           return true if object.nil?
 
+          # types that intentionally skip granular token authorization have
+          # their access enforced elsewhere (see the directive's declared
+          # skip_reason), so allow them through
+          return true if skip_authorization?
+
           # if no gPAT directives are defined, granular token should deny access
           return false if directives.empty?
 
@@ -28,6 +33,10 @@ module Gitlab
         end
 
         private
+
+        def skip_authorization?
+          directives.any? { |directive| directive.arguments[:skip_reason].present? }
+        end
 
         def permissions
           @permissions ||= directives.first.arguments.fetch(:permissions, []).sort

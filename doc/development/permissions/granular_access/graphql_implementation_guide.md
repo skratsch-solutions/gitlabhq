@@ -114,6 +114,7 @@ authorize_granular_token(permissions:, boundary_type:, boundary: nil, boundary_a
 | `boundary` | Symbol representing the method to call on the resolved object to extract the boundary (for example, `:project`). Use `:user` or `:instance` for standalone resources. |
 | `boundary_argument` | Symbol representing the argument name containing the boundary path (for example, `:project_path`). |
 | `traversal` | Set to `true` on a per-field directive (passed through `granular_scope_directive`) for entry-point fields. The token is checked for boundary visibility (`read_boundary`) only. The listed permissions are not enforced. For more details, see [Entry-point fields](#entry-point-fields). |
+| `skip_reason` | Symbol declaring that a type intentionally opts out of granular-token authorization. Use instead of `permissions:` and a boundary, not alongside them. For more details, see [Skip authorization with `skip_reason`](#skip-authorization-with-skip_reason). |
 
 **For object types:**
 
@@ -234,6 +235,17 @@ fields all return plain scalars (for example, `RepositoryLanguageType`,
 the collection-level check always fires. This is required because an empty
 collection or `nil` result produces no per-item resolvers, so the
 collection-level check is the only enforcement point.
+
+#### Skip authorization with `skip_reason`
+
+Some object types intentionally do not declare their own permissions. For these
+types, declare a skip with `skip_reason:` to record why authorization is omitted.
+The value names the reason, which documents the decision and lets the validator
+distinguish an intentional skip from a type that is missing authorization.
+
+The `gitlab:permissions:graphql:validate` Rake task requires every object type
+to declare either a directive or a skip. You cannot combine `skip_reason:` with
+`permissions:` or a boundary argument.
 
 ### Step 6: Add Authorization Tests
 

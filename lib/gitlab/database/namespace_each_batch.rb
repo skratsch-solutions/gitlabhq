@@ -58,6 +58,17 @@ module Gitlab
           break if new_cursor.nil?
 
           first_iteration = false
+
+          action, adjusted_cursor = next_iteration_action(new_cursor)
+          case action
+          when :stop
+            break
+          when :reseed
+            current_cursor = adjusted_cursor
+            first_iteration = true
+            next
+          end
+
           current_cursor = new_cursor
 
           # Skip empty batches when filtering by type, but continue iteration
@@ -245,6 +256,14 @@ module Gitlab
         ).from('cte')
           .where("cte.depth <> '{}'")
           .limit(1)
+      end
+
+      # Hook for subclasses to influence iteration after each batch is loaded.
+      # Return [:continue, nil] (default) to proceed with the loaded batch,
+      # [:reseed, cursor] to discard the batch and resume from a new cursor,
+      # or [:stop, nil] to terminate iteration.
+      def next_iteration_action(_new_cursor)
+        [:continue, nil]
       end
 
       def base_namespace_class

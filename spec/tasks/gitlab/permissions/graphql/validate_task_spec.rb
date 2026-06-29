@@ -14,9 +14,17 @@ RSpec.describe Tasks::Gitlab::Permissions::Graphql::ValidateTask, :silence_stdou
     end
   end
 
+  def mock_skip_directive(reason)
+    Class.new(Directives::Authz::GranularScope).allocate.tap do |d|
+      allow(d).to receive(:arguments).and_return(skip_reason: reason.to_s)
+    end
+  end
+
   # Helper to create a mock GraphQL object type
-  def mock_type(name, directive: nil, fields: nil)
-    directives = directive ? [directive] : []
+  def mock_type(name, directive: nil, fields: nil, skip_reason: nil)
+    directives = []
+    directives << directive if directive
+    directives << mock_skip_directive(skip_reason) if skip_reason
 
     type = Object.new
     type.define_singleton_method(:name) { name }
@@ -24,12 +32,13 @@ RSpec.describe Tasks::Gitlab::Permissions::Graphql::ValidateTask, :silence_stdou
     type.define_singleton_method(:object?) { true }
     type.define_singleton_method(:directives) { directives }
 
+    responding = %i[kind directives]
     if fields
-      type.define_singleton_method(:respond_to?) { |method, *| %i[kind directives fields].include?(method) }
+      responding << :fields
       type.define_singleton_method(:fields) { fields }
-    else
-      type.define_singleton_method(:respond_to?) { |method, *| %i[kind directives].include?(method) }
     end
+
+    type.define_singleton_method(:respond_to?) { |method, *| responding.include?(method) }
 
     type
   end
@@ -661,6 +670,62 @@ RSpec.describe Tasks::Gitlab::Permissions::Graphql::ValidateTask, :silence_stdou
 
       it 'completes successfully' do
         expect { run }.to output(/GraphQL permissions are valid/).to_stdout
+      end
+    end
+
+    context 'when a type declares a valid skip_reason' do
+      let(:type) { mock_type('VulnerabilityIdentifier', skip_reason: :parent_authorizes) }
+
+      before do
+        allow(GitlabSchema).to receive(:types).and_return(
+          'VulnerabilityIdentifier' => type, 'Mutation' => empty_mutation_type
+        )
+      end
+
+      it 'completes successfully' do
+        expect { run }.to output(/GraphQL permissions are valid/).to_stdout
+      end
+
+      it 'does not report the type as missing_authorization' do
+        run
+
+        expect(task.send(:violations)[:missing_authorization]).to be_empty
+      end
+    end
+
+    context 'when a type declares an invalid skip_reason' do
+      let(:type) { mock_type('VulnerabilityIdentifier', skip_reason: :not_a_real_reason) }
+
+      before do
+        allow(GitlabSchema).to receive(:types).and_return(
+          'VulnerabilityIdentifier' => type, 'Mutation' => empty_mutation_type
+        )
+      end
+
+      it 'returns an error listing the invalid reason' do
+        expect { run }.to raise_error(SystemExit).and output(
+          /skip_reason.*VulnerabilityIdentifier: not_a_real_reason/m
+        ).to_stdout
+      end
+    end
+
+    context 'when a type declares authorize_granular_token with both permissions and a skip_reason' do
+      let(:directive) { mock_directive(permissions: :read_project, boundary_type: :project) }
+      let(:type) { mock_type('ConflictType', directive: directive, skip_reason: :parent_authorizes) }
+      let(:mock_assignable) { instance_double(Authz::PermissionGroups::Assignable, boundaries: %w[project]) }
+
+      before do
+        allow(GitlabSchema).to receive(:types).and_return(
+          'ConflictType' => type, 'Mutation' => empty_mutation_type
+        )
+        allow(Authz::PermissionGroups::Assignable).to receive(:available_for_permission)
+          .with(:read_project).and_return([mock_assignable])
+      end
+
+      it 'returns a conflicting_authorization error' do
+        expect { run }.to raise_error(SystemExit).and output(
+          /both permissions and a skip_reason.*ConflictType/m
+        ).to_stdout
       end
     end
 

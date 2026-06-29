@@ -48,6 +48,14 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
         end
       end
 
+      context 'when a directive declares a skip reason' do
+        let(:directives) { [create_directive(skip_reason: 'parent_authorizes')] }
+
+        it 'allows the object through because authorization is enforced elsewhere' do
+          expect(ok).to be(true)
+        end
+      end
+
       context 'when the token has the required permission on the boundary' do
         it { is_expected.to be(true) }
       end

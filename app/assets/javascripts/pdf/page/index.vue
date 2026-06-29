@@ -11,6 +11,7 @@ export default {
       required: true,
     },
   },
+  emits: ['pdflaberror'],
   data() {
     return {
       scale: 2,

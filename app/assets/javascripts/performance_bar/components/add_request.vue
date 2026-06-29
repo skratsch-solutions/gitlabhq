@@ -16,6 +16,7 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
+  emits: ['add-request'],
   data() {
     return {
       inputEnabled: false,

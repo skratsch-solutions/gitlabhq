@@ -2,6 +2,7 @@
 import { GlButton, GlTooltipDirective, GlAnimatedTodoIcon } from '@gitlab/ui';
 
 import { s__ } from '~/locale';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { updateGlobalTodoCount } from '~/sidebar/utils';
 import createWorkItemTodosMutation from '../../graphql/create_work_item_todos.mutation.graphql';
 import updateWorkItemCurrentUserTodosMutation from '../../graphql/update_work_item_current_user_todos.mutation.graphql';
@@ -20,6 +21,7 @@ export default {
     GlButton,
     GlAnimatedTodoIcon,
   },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     itemId: {
       type: String,
@@ -140,6 +142,7 @@ export default {
                 action: 'MARK_AS_DONE',
               },
             },
+            useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
           },
           update: (cache) => {
             this.$emit('todosUpdated', { cache, todos: [] });

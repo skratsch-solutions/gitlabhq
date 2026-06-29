@@ -82,6 +82,7 @@ export const findCrmContactsWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_CRM_CONTACTS);
 
 export const findCurrentUserTodosWidget = (workItem) =>
+  workItem?.features?.currentUserTodos ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_CURRENT_USER_TODOS);
 
 export const findCustomFieldsWidget = (workItem) =>

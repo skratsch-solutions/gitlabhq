@@ -9,6 +9,7 @@ import {
   WIDGET_TYPE_NOTES,
   WIDGET_TYPE_ERROR_TRACKING,
   WIDGET_TYPE_CRM_CONTACTS,
+  WIDGET_TYPE_CURRENT_USER_TODOS,
   WIDGET_TYPE_DEVELOPMENT,
   WIDGET_TYPE_DESIGNS,
   WIDGET_TYPE_LABELS,
@@ -54,6 +55,7 @@ import {
   findNotesWidget,
   findOpenChildItemsCountsByType,
   findCrmContactsWidget,
+  findCurrentUserTodosWidget,
   findHealthStatusWidget,
   findLabelsWidget,
   findWeightWidget,
@@ -1296,6 +1298,49 @@ describe('findCrmContactsWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findCrmContactsWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findCurrentUserTodosWidget', () => {
+  const currentUserTodosWidget = {
+    type: WIDGET_TYPE_CURRENT_USER_TODOS,
+    currentUserTodos: { nodes: [{ id: 'gid://gitlab/Todo/1', state: 'pending' }] },
+  };
+  const featuresCurrentUserTodos = {
+    currentUserTodos: { nodes: [{ id: 'gid://gitlab/Todo/2', state: 'pending' }] },
+  };
+
+  describe('when features.currentUserTodos is present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = {
+        features: { currentUserTodos: featuresCurrentUserTodos },
+        widgets: [currentUserTodosWidget],
+      };
+    });
+
+    it('returns features.currentUserTodos', () => {
+      expect(findCurrentUserTodosWidget(workItem)).toBe(featuresCurrentUserTodos);
+    });
+  });
+
+  describe('when features is not present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = { widgets: [currentUserTodosWidget] };
+    });
+
+    it('falls back to the widgets array', () => {
+      expect(findCurrentUserTodosWidget(workItem)).toBe(currentUserTodosWidget);
+    });
+  });
+
+  describe('when neither features nor widget is present', () => {
+    it('returns undefined', () => {
+      expect(findCurrentUserTodosWidget({ widgets: [] })).toBeUndefined();
+    });
   });
 });
 

@@ -62,6 +62,7 @@ export default {
       default: 'labelId',
     },
   },
+  emits: ['change', 'first-open'],
   data() {
     return {
       searchText: '',

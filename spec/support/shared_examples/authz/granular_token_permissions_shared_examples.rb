@@ -196,3 +196,35 @@ end
 RSpec.shared_examples 'authorizing granular token permissions for GraphQL' do |permissions|
   it_behaves_like 'authorizing granular token permissions', permissions, context_type: :graphql
 end
+
+RSpec.shared_examples 'authorizing granular token permissions for GraphQL with a skipped child type' do |permissions|
+  context 'when a granular token authorizes the parent type' do
+    let(:assignables) do
+      Array(permissions).map do |permission|
+        ::Authz::PermissionGroups::Assignable.for_permission(permission).min_by(&:name).name
+      end.uniq
+    end
+
+    let(:pat) do
+      create(:granular_pat, user: user, boundary: ::Authz::Boundary.for(boundary_object), permissions: assignables)
+    end
+
+    it 'returns the data of the type that skips granular token authorization', :aggregate_failures do
+      request
+
+      expect(graphql_errors).to be_nil
+      expect(graphql_data_at(*skipped_data_path)).to be_present
+    end
+  end
+
+  context 'when a granular token does not authorize the parent type' do
+    let(:pat) { create(:granular_pat, user: user, boundary: ::Authz::Boundary.for(boundary_object)) }
+
+    it 'does not return the data of the type that skips granular token authorization', :aggregate_failures do
+      request
+
+      expect(graphql_errors).to be_nil
+      expect(graphql_data_at(*skipped_data_path)).to be_nil
+    end
+  end
+end

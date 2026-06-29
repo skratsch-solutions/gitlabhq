@@ -42,6 +42,7 @@ export default {
       default: false,
     },
   },
+  emits: ['change-request'],
   detailedMetrics: [
     {
       metric: 'active-record',

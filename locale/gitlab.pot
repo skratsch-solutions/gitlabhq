@@ -51482,6 +51482,15 @@ msgstr ""
 msgid "OfflineTransferImport|Import groups and projects from a previously exported offline transfer."
 msgstr ""
 
+msgid "OfflineTransferImport|The export was created on %{strong_open}%{hostname}%{strong_close}. This source is self-reported by the export and is not verified, so it may not be trustworthy."
+msgstr ""
+
+msgid "OfflineTransferImport|The offline transfer import you started on %{start_date} from export %{strong_open}%{export_prefix}%{strong_close} has completed. You can now review your import results."
+msgstr ""
+
+msgid "OfflineTransferImport|The offline transfer import you started on %{start_date} has completed. You can now review your import results."
+msgstr ""
+
 msgid "OfflineTransfer|Configure"
 msgstr ""
 
@@ -51521,6 +51530,9 @@ msgstr ""
 msgid "OfflineTransfer|Offline transfer"
 msgstr ""
 
+msgid "OfflineTransfer|Offline transfer import completed"
+msgstr ""
+
 msgid "OfflineTransfer|One or more destination paths is invalid."
 msgstr ""
 
@@ -51534,6 +51546,9 @@ msgid "OfflineTransfer|Unable to access object storage bucket."
 msgstr ""
 
 msgid "OfflineTransfer|Unsupported GitLab version. The minimum supported version is '%{version}'."
+msgstr ""
+
+msgid "OfflineTransfer|View import results"
 msgstr ""
 
 msgid "Oh no!"
@@ -69037,9 +69052,6 @@ msgid "SecurityOrchestration|No Longer Detected"
 msgstr ""
 
 msgid "SecurityOrchestration|No actions defined - policy will not run."
-msgstr ""
-
-msgid "SecurityOrchestration|No attributes"
 msgstr ""
 
 msgid "SecurityOrchestration|No compliance frameworks"

@@ -87,6 +87,19 @@ RSpec.describe Import::Offline::Imports::ScheduleImportService, :aggregate_failu
         expect(result.message).to eq('Invalid source version')
         expect(bulk_import.reload.failed?).to be(true)
       end
+
+      it 'logs the failure tagged as offline transfer' do
+        logger = instance_double(BulkImports::Logger)
+        allow(BulkImports::Logger).to receive(:build).and_return(logger)
+
+        expect(logger).to receive(:error).with(
+          message: 'Invalid source version',
+          bulk_import_id: bulk_import.id,
+          importer: Import::SOURCE_OFFLINE_TRANSFER.to_s
+        )
+
+        service.execute
+      end
     end
 
     context 'when the entity path has no mapping in metadata' do

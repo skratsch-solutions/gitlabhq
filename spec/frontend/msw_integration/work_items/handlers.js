@@ -1,4 +1,5 @@
 import { join } from 'node:path';
+import { findCurrentUserTodosWidget } from '~/work_items/utils';
 import { buildUpdateResponse, loadFixturesMap } from '../fixture_utils';
 
 const FIXTURES_PATH = join('tmp/tests/frontend/fixtures-ee/graphql/work_items/integration/');
@@ -53,6 +54,56 @@ fixtures.workItemLinkedItemsFeatures.data.namespace.workItem.features.linkedItem
     fixtures.addLinkedItemsFeatures.data.workItemAddLinkedItems.workItem.features.linkedItems
       .linkedItems.nodes[0],
   ];
+
+// Seed a pending to-do so the To-do toggle renders in "mark as done" state on the
+// work item drawer, on both the legacy widgets path and the features path.
+const PENDING_TODO = { id: 'gid://gitlab/Todo/1', state: 'pending', __typename: 'Todo' };
+
+findCurrentUserTodosWidget(
+  fixtures.namespaceWorkItem.data.namespace.workItem,
+).currentUserTodos.nodes = [PENDING_TODO];
+// The features fixture predates the currentUserTodos migration, so the feature
+// field is absent; add it so the features path renders the toggle.
+fixtures.namespaceWorkItemFeatures.data.namespace.workItem.features.currentUserTodos = {
+  __typename: 'WorkItemWidgetCurrentUserTodos',
+  currentUserTodos: { nodes: [PENDING_TODO], __typename: 'TodoConnection' },
+};
+
+const currentUserTodosUpdateResponse = ({ useWorkItemFeatures, workItemId }) => {
+  const emptyTodos = { nodes: [], __typename: 'TodoConnection' };
+
+  return {
+    data: {
+      workItemUpdate: {
+        __typename: 'WorkItemUpdatePayload',
+        errors: [],
+        workItem: {
+          __typename: 'WorkItem',
+          id: workItemId,
+          ...(useWorkItemFeatures
+            ? {
+                features: {
+                  __typename: 'WorkItemFeatures',
+                  currentUserTodos: {
+                    __typename: 'WorkItemWidgetCurrentUserTodos',
+                    currentUserTodos: emptyTodos,
+                  },
+                },
+              }
+            : {
+                widgets: [
+                  {
+                    __typename: 'WorkItemWidgetCurrentUserTodos',
+                    type: 'CURRENT_USER_TODOS',
+                    currentUserTodos: emptyTodos,
+                  },
+                ],
+              }),
+        },
+      },
+    },
+  };
+};
 
 export const GET_WORK_ITEMS_REST_ENDPOINT = {
   name: 'getWorkItemsRest',
@@ -119,6 +170,12 @@ const MUTATION_OPERATION_HANDLERS = {
       },
     },
   }),
+
+  workItemUpdateCurrentUserTodos: ({ variables }) =>
+    currentUserTodosUpdateResponse({
+      useWorkItemFeatures: variables.useWorkItemFeatures,
+      workItemId: variables.input.id,
+    }),
 
   workItemSubscribe: ({ variables }) => ({
     data: {

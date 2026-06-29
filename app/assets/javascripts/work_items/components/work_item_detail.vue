@@ -29,7 +29,6 @@ import { keysFor, ISSUABLE_EDIT_DESCRIPTION } from '~/behaviors/shortcuts/keybin
 import ShortcutsWorkItems from '~/behaviors/shortcuts/shortcuts_work_items';
 import {
   i18n,
-  WIDGET_TYPE_CURRENT_USER_TODOS,
   WIDGET_TYPE_DESCRIPTION,
   WORK_ITEM_TYPE_NAME_OBJECTIVE,
   WIDGET_TYPE_DESIGNS,
@@ -52,6 +51,7 @@ import workspacePermissionsQuery from '../graphql/workspace_permissions.query.gr
 import {
   findAssigneesWidget,
   findAwardEmojiWidget,
+  findCurrentUserTodosWidget,
   findDevelopmentWidget,
   findErrorTrackingWidget,
   findHierarchyWidget,
@@ -420,7 +420,7 @@ export default {
       return this.hasDesignWidget && this.workspacePermissions.moveDesign;
     },
     workItemCurrentUserTodos() {
-      return this.findWidget(WIDGET_TYPE_CURRENT_USER_TODOS);
+      return findCurrentUserTodosWidget(this.workItem);
     },
     showWorkItemCurrentUserTodos() {
       return Boolean(this.$options.isLoggedIn && this.workItemCurrentUserTodos);

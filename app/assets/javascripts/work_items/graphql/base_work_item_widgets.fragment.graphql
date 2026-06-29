@@ -33,7 +33,7 @@ fragment BaseWorkItemWidgets on WorkItemWidget {
       }
     }
   }
-  ... on WorkItemWidgetCurrentUserTodos {
+  ... on WorkItemWidgetCurrentUserTodos @skip(if: $useWorkItemFeatures) {
     currentUserTodos(state: pending) {
       nodes {
         id

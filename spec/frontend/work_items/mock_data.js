@@ -2015,6 +2015,13 @@ export const mockWorkItemFeaturesData = ({ discussionLocked = false } = {}) => (
     },
     __typename: 'WorkItemWidgetCrmContacts',
   },
+  currentUserTodos: {
+    currentUserTodos: {
+      nodes: [],
+      __typename: 'TodoConnection',
+    },
+    __typename: 'WorkItemWidgetCurrentUserTodos',
+  },
   linkedResources: {
     linkedResources: {
       nodes: [],

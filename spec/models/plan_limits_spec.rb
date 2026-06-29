@@ -348,11 +348,22 @@ RSpec.describe PlanLimits do
 
     context 'when plan is nil' do
       it 'sets plan_name_uid to nil without raising an error' do
-        limits = build(:plan_limits, plan: nil)
+        limits = build(:plan_limits, plan: nil, plan_name_uid: nil)
 
         limits.set_plan_name_uid
 
         expect(limits.plan_name_uid).to be_nil
+      end
+    end
+
+    context 'when plan_id changes and plan_name_uid is stale' do
+      it 're-derives plan_name_uid from the new plan' do
+        premium_plan = create(:plan, name: 'premium')
+
+        plan_limits.plan = premium_plan
+        plan_limits.set_plan_name_uid
+
+        expect(plan_limits.plan_name_uid).to eq(Plan::PLAN_NAME_UID_LIST[:premium])
       end
     end
   end

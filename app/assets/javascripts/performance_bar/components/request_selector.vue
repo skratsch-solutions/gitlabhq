@@ -15,6 +15,7 @@ export default {
       required: true,
     },
   },
+  emits: ['change-current-request'],
   data() {
     return {
       currentRequestId: this.currentRequest.id,

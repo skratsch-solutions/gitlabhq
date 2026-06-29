@@ -16,6 +16,7 @@ export default {
       required: true,
     },
   },
+  emits: ['pdflaberror', 'pdflabload'],
   data() {
     return {
       pages: [],

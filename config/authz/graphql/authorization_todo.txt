@@ -1246,7 +1246,6 @@ type:VulnerabilityExternalIssueLink
 type:VulnerabilityFindingTokenStatus
 type:VulnerabilityFlag
 type:VulnerabilityFunnelStep
-type:VulnerabilityIdentifier
 type:VulnerabilityIssueLink
 type:VulnerabilityLink
 type:VulnerabilityLocationClusterImageScanning
