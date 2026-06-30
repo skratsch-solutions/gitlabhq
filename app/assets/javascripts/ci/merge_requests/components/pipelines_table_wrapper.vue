@@ -45,7 +45,6 @@ export default {
     PipelinesTable,
     RunPipelineButton,
   },
-  inject: ['mergeRequestId', 'targetProjectFullPath'],
   props: {
     canCreatePipelineInTargetProject: {
       type: Boolean,
@@ -57,10 +56,20 @@ export default {
       required: false,
       default: '',
     },
+    targetProjectFullPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
     projectId: {
       type: String,
       required: false,
       default: '',
+    },
+    mergeRequestId: {
+      type: Number,
+      required: false,
+      default: null,
     },
   },
   data() {

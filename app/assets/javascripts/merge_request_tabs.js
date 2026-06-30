@@ -109,11 +109,8 @@ function mountPipelines() {
     },
     apolloProvider,
     provide: {
-      targetProjectFullPath: mrWidgetData?.target_project_full_path || '',
       newPipelinePath: pipelineTableViewEl.dataset.newPipelinePath,
       graphqlPath: pipelineTableViewEl.dataset.graphqlPath,
-      mergeRequestId: mrWidgetData ? mrWidgetData.iid : null,
-      sourceProjectFullPath: mrWidgetData?.source_project_full_path || '',
       useFailedJobsWidget: true,
       mergeRequestPath: mrWidgetData?.merge_request_path
         ? `${gon.gitlab_url}${mrWidgetData.merge_request_path}`
@@ -122,7 +119,6 @@ function mountPipelines() {
     render(createElement) {
       return createElement('merge-request-pipelines-table', {
         props: {
-          endpoint: pipelineTableViewEl.dataset.endpoint,
           canCreatePipelineInTargetProject: Boolean(
             mrWidgetData?.can_create_pipeline_in_target_project,
           ),
@@ -130,6 +126,9 @@ function mountPipelines() {
           targetProjectFullPath: mrWidgetData?.target_project_full_path || '',
           projectId: pipelineTableViewEl.dataset.projectId,
           mergeRequestId: mrWidgetData ? mrWidgetData.iid : null,
+
+          // Only used by legacy_pipelines_table_wrapper.vue:
+          endpoint: pipelineTableViewEl.dataset.endpoint,
           isMergeRequestTable: true,
         },
       });

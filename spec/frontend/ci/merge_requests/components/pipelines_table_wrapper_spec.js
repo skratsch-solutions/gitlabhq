@@ -74,15 +74,14 @@ let apolloMock;
 const showMock = jest.fn();
 
 const defaultProvide = {
-  mergeRequestId: 1,
-  targetProjectFullPath: '/group/project',
   newPipelinePath: '/group/project/-/pipelines/new',
 };
 
 const defaultProps = {
   canRunPipeline: true,
   projectId: '5',
-  mergeRequestId: 3,
+  mergeRequestId: 1,
+  targetProjectFullPath: '/group/project',
 };
 
 const createResponseWithPageInfo = ({ hasNextPage, hasPreviousPage }) => {
@@ -673,7 +672,7 @@ describe('PipelinesTableWrapper component', () => {
 
         it('refetches the single pipeline', () => {
           expect(getSinglePipelineRequest).toHaveBeenCalledWith({
-            fullPath: defaultProvide.targetProjectFullPath,
+            fullPath: defaultProps.targetProjectFullPath,
             id: pipeline.graphqlId,
           });
         });
@@ -1123,8 +1122,8 @@ describe('PipelinesTableWrapper component', () => {
         expect(getPipelinesDownstreamRequest).toHaveBeenCalledTimes(1);
         expect(getPipelinesDownstreamRequest).toHaveBeenCalledWith(
           expect.objectContaining({
-            fullPath: defaultProvide.targetProjectFullPath,
-            mergeRequestIid: String(defaultProvide.mergeRequestId),
+            fullPath: defaultProps.targetProjectFullPath,
+            mergeRequestIid: String(defaultProps.mergeRequestId),
           }),
         );
       });

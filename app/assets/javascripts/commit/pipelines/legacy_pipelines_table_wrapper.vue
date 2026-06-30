@@ -47,25 +47,6 @@ export default {
       required: false,
       default: false,
     },
-    endpoint: {
-      type: String,
-      required: true,
-    },
-    isMergeRequestTable: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    mergeRequestId: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    projectId: {
-      type: String,
-      required: false,
-      default: '',
-    },
     sourceProjectFullPath: {
       type: String,
       required: false,
@@ -76,10 +57,24 @@ export default {
       required: false,
       default: '',
     },
-    viewType: {
+    projectId: {
       type: String,
       required: false,
-      default: 'root',
+      default: '',
+    },
+    mergeRequestId: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    endpoint: {
+      type: String,
+      required: true,
+    },
+    isMergeRequestTable: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   apollo: {
@@ -540,7 +535,6 @@ export default {
         :merge-request-id="mergeRequestId"
         :pipeline-id-type="$options.pipelineIdKey"
         :pipelines="state.pipelines"
-        :view-type="viewType"
         class="@lg/panel:-gl-mt-px"
         @cancel-pipeline="cancelPipeline"
         @run-pipeline="tryRunPipeline"

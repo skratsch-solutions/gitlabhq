@@ -22058,6 +22058,9 @@ msgstr ""
 msgid "ContinuousDeployment|Application name"
 msgstr ""
 
+msgid "ContinuousDeployment|Application not found"
+msgstr ""
+
 msgid "ContinuousDeployment|Applications"
 msgstr ""
 
@@ -22071,6 +22074,18 @@ msgid "ContinuousDeployment|Back to services"
 msgstr ""
 
 msgid "ContinuousDeployment|Brief description"
+msgstr ""
+
+msgid "ContinuousDeployment|Collapse deployments"
+msgstr ""
+
+msgid "ContinuousDeployment|Collapse links"
+msgstr ""
+
+msgid "ContinuousDeployment|Collapse releases"
+msgstr ""
+
+msgid "ContinuousDeployment|Collapse services"
 msgstr ""
 
 msgid "ContinuousDeployment|Continuous Deployment"
@@ -22091,10 +22106,16 @@ msgstr ""
 msgid "ContinuousDeployment|Deploy"
 msgstr ""
 
+msgid "ContinuousDeployment|Deployed"
+msgstr ""
+
 msgid "ContinuousDeployment|Deploying"
 msgstr ""
 
 msgid "ContinuousDeployment|Deployment in progress"
+msgstr ""
+
+msgid "ContinuousDeployment|Deployments"
 msgstr ""
 
 msgid "ContinuousDeployment|Description"
@@ -22113,6 +22134,21 @@ msgid "ContinuousDeployment|Environments"
 msgstr ""
 
 msgid "ContinuousDeployment|Environments are places where code gets deployed, such as staging or production."
+msgstr ""
+
+msgid "ContinuousDeployment|Expand deployments"
+msgstr ""
+
+msgid "ContinuousDeployment|Expand links"
+msgstr ""
+
+msgid "ContinuousDeployment|Expand releases"
+msgstr ""
+
+msgid "ContinuousDeployment|Expand services"
+msgstr ""
+
+msgid "ContinuousDeployment|Failed to load the application. Please try again later."
 msgstr ""
 
 msgid "ContinuousDeployment|Filter applications..."
@@ -22134,6 +22170,9 @@ msgid "ContinuousDeployment|Last deployed %{timeAgo} by %{user}"
 msgstr ""
 
 msgid "ContinuousDeployment|Last deployed %{time}"
+msgstr ""
+
+msgid "ContinuousDeployment|Links"
 msgstr ""
 
 msgid "ContinuousDeployment|Name cannot exceed %{maxLength} characters."
@@ -22172,16 +22211,37 @@ msgstr ""
 msgid "ContinuousDeployment|Register your first environment"
 msgstr ""
 
+msgid "ContinuousDeployment|Releases"
+msgstr ""
+
 msgid "ContinuousDeployment|Running"
 msgstr ""
 
 msgid "ContinuousDeployment|Search by name, team, or description"
 msgstr ""
 
+msgid "ContinuousDeployment|Service"
+msgstr ""
+
+msgid "ContinuousDeployment|Services"
+msgstr ""
+
 msgid "ContinuousDeployment|Staging"
 msgstr ""
 
+msgid "ContinuousDeployment|Status"
+msgstr ""
+
+msgid "ContinuousDeployment|Sync"
+msgstr ""
+
 msgid "ContinuousDeployment|Synced"
+msgstr ""
+
+msgid "ContinuousDeployment|The application may have been removed or you may not have access to it."
+msgstr ""
+
+msgid "ContinuousDeployment|Type"
 msgstr ""
 
 msgid "ContinuousDeployment|Version"
