@@ -200,6 +200,7 @@ After you purchase GitLab Duo Pro or Enterprise, you can assign seats to users t
 Prerequisites:
 
 - You must have the Owner role.
+- The user must have at least the Guest role.
 
 To use GitLab Duo features in any project or group, you must assign the user to a seat in at least one top-level group.
 
@@ -215,6 +216,7 @@ The user is sent a confirmation email.
 Prerequisites:
 
 - You must be an administrator.
+- The user must be not blocked, banned or deactivated.
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **GitLab Duo**.

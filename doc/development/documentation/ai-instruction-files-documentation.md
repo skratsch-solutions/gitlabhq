@@ -76,9 +76,8 @@ with AI-generated content:
 - Repetition: Content that restates what has already been said on the page
   or in a linked topic.
 - Vague or unverifiable claims: Descriptions of how a feature works that
-- Vague or unverifiable claims: Descriptions of how a feature works that
   are not grounded in the codebase or existing documentation.
-  page already exists. If you are unsure, Technical Writers can help identify a location
+  If you are unsure, Technical Writers can help identify a location
   in the documentation.
 - Style guide adherence: Terms, grammar, and formatting that do not align with [the style guide](styleguide/_index.md).
 

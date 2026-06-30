@@ -256,8 +256,9 @@ In this example, replace `<your-proxy>` and `<your-no-proxy>` with your proxy co
 
 ### Add custom certificates
 
-To push to a registry using custom CA certificates, add the certificate to the
-container's certificate store before building. For example:
+To push to a registry with a custom CA certificate, configure the certificate in a BuildKit
+configuration file before the daemon starts.
+For example:
 
 ```yaml
 build-with-custom-certs:
@@ -268,11 +269,17 @@ build-with-custom-certs:
   variables:
     BUILDKITD_FLAGS: --oci-worker-no-process-sandbox
   before_script:
-    - export SSL_CERT_FILE="$HOME/ca_chain.pem"
-    - cat /etc/ssl/certs/ca-certificates.crt > "$SSL_CERT_FILE"
-    - echo "$MY_CA_CERT" >> "$SSL_CERT_FILE"
-    - mkdir -p ~/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > ~/.docker/config.json
+    - mkdir -p "$HOME/.docker"
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > "$HOME/.docker/config.json"
+    - REG_HOST="${CI_REGISTRY%%/*}"
+    - mkdir -p "$HOME/.config/buildkit/certs/$REG_HOST"
+    - echo "$CA_CERT" > "$HOME/.config/buildkit/certs/$REG_HOST/ca.pem"
+    - |
+      cat > "$HOME/.config/buildkit/buildkitd.toml" << EOT
+      [registry."$REG_HOST"]
+        ca = ["$HOME/.config/buildkit/certs/$REG_HOST/ca.pem"]
+      EOT
+    - export SSL_CERT_FILE="$HOME/.config/buildkit/certs/$REG_HOST/ca.pem"
   script:
     - |
       buildctl-daemonless.sh build \
@@ -282,13 +289,24 @@ build-with-custom-certs:
         --output type=image,name=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA,push=true
 ```
 
-In this example, populate the `MY_CA_CERT` variable with the full contents of your CA certificate, including both the root and any intermediate certificates.
+In this example:
+
+- `REG_HOST="${CI_REGISTRY%%/*}"` extracts the hostname from the registry URL.
+- `buildkitd.toml` configures BuildKit to trust the CA certificate for the target registry.
+  BuildKit auto-discovers this file from `$HOME/.config/buildkit/`.
+- `SSL_CERT_FILE` is required in addition to `buildkitd.toml` to cover TLS connections
+  made before the BuildKit daemon fully initializes.
+
+Add a `CA_CERT` CI/CD variable with the full certificate chain, including the root and
+any intermediate certificates.
+Because PEM certificates contain newlines, the value of `CA_CERT` cannot be masked.
+To mask the value, use a [file-type variable](../../ci/variables/_index.md#use-file-type-cicd-variables)
+instead and replace `echo "$CA_CERT"` with `cat "$CA_CERT"` in the `before_script`.
 
 ## Migrate from Kaniko to BuildKit
 
-BuildKit rootless is a secure alternative for Kaniko.
-It offers improved performance, better caching, and enhanced security features while
-maintaining rootless operation.
+BuildKit rootless is a secure alternative for Kaniko that offers improved performance, better
+caching, and enhanced security features without privileged containers.
 
 ### Update your configuration
 
@@ -328,6 +346,23 @@ build:
         --local dockerfile=. \
         --output type=image,name=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA,push=true
 ```
+
+### Custom CA certificates
+
+If your Kaniko jobs used custom CA certificates, you must configure those certificates explicitly
+for BuildKit rootless.
+Unlike Kaniko, the `moby/buildkit:rootless` image does not include a system certificate store.
+You must configure CA certificates in a BuildKit configuration file before the daemon starts.
+
+To migrate custom CA certificate configuration to BuildKit rootless:
+
+1. Store the full certificate chain in a [CI/CD variable](../../ci/variables/_index.md) named
+   `CA_CERT`.
+   Include the root and any intermediate certificates.
+
+1. Update your job configuration to use a `buildkitd.toml` file and the `SSL_CERT_FILE`
+   environment variable.
+   For the full example, see [add custom certificates](#add-custom-certificates).
 
 ## Alternative BuildKit methods
 

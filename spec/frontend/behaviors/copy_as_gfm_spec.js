@@ -8,6 +8,31 @@ jest.mock('~/emoji');
 describe('CopyAsGFM', () => {
   const createFragment = (html) => document.createRange().createContextualFragment(html);
 
+  // Stub getSelection to return the contents of `node` as the selection,
+  // mirroring what the browser produces when the user selects within `node`.
+  const stubSelectionFor = (node) => {
+    window.getSelection = jest.fn(() => ({
+      rangeCount: 1,
+      getRangeAt: () => ({
+        commonAncestorContainer: node,
+        cloneContents: () => {
+          const fragment = document.createDocumentFragment();
+          Array.from(node.cloneNode(true).childNodes).forEach((child) =>
+            fragment.appendChild(child),
+          );
+          return fragment;
+        },
+      }),
+    }));
+  };
+
+  const dispatchClipboardEvent = (type, el, clipboardData) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    event.clipboardData = clipboardData;
+    el.dispatchEvent(event);
+    return event;
+  };
+
   beforeAll(() => {
     initCopyAsGFM();
 
@@ -19,16 +44,20 @@ describe('CopyAsGFM', () => {
     resetHTMLFixture();
   });
 
-  it('copies .duo-chat-message content as markdown', () => {
-    setHTMLFixture('<div class="duo-chat-message"></div>');
+  it('copies .duo-chat-message content as markdown', async () => {
+    setHTMLFixture(
+      '<div class="duo-chat-message"><div class="md"><ul><li>List Item1</li><li>List Item2</li></ul></div></div>',
+    );
 
     const el = document.querySelector('.duo-chat-message');
-    const copyAsGFMSpy = jest.spyOn(CopyAsGFM, 'copyAsGFM');
-    const event = new Event('copy', { bubbles: true, cancelable: true });
+    stubSelectionFor(el);
 
-    el.dispatchEvent(event);
+    const clipboardData = { setData: jest.fn() };
+    const event = dispatchClipboardEvent('copy', el, clipboardData);
+    await waitForPromises();
 
-    expect(copyAsGFMSpy).toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(true);
+    expect(clipboardData.setData).toHaveBeenCalledWith('text/x-gfm', '* List Item1\n* List Item2');
   });
 
   describe('CopyAsGFM.pasteGFM', () => {
@@ -47,11 +76,9 @@ describe('CopyAsGFM', () => {
     // This emulates the behavior of `getData` with that data.
     function callPasteGFM(data = { 'text/plain': 'code', 'text/x-gfm': '`code`' }) {
       const e = {
-        originalEvent: {
-          clipboardData: {
-            getData(mimeType) {
-              return data[mimeType] || null;
-            },
+        clipboardData: {
+          getData(mimeType) {
+            return data[mimeType] || null;
           },
         },
         preventDefault() {},
@@ -109,14 +136,12 @@ describe('CopyAsGFM', () => {
 
     const simulateCopy = () => {
       const e = {
-        originalEvent: {
-          clipboardData,
-        },
+        clipboardData,
         preventDefault() {},
         stopPropagation() {},
         stopImmediatePropagation() {},
       };
-      CopyAsGFM.copyAsGFM(e, CopyAsGFM.transformGFMSelection);
+      CopyAsGFM.copyAsGFM(e, null, CopyAsGFM.transformGFMSelection);
 
       return waitForPromises();
     };
@@ -145,6 +170,54 @@ describe('CopyAsGFM', () => {
 
         expect(clipboardData.setData).toHaveBeenCalledWith('text/x-gfm', expectedGFM);
       });
+    });
+  });
+
+  describe('clipboard event chain', () => {
+    it('copies GFM when a copy event bubbles up from inside a .md element', async () => {
+      setHTMLFixture('<div class="md"><ul><li>List Item1</li><li>List Item2</li></ul></div>');
+
+      const leaf = document.querySelector('li');
+      stubSelectionFor(document.querySelector('.md'));
+
+      const clipboardData = { setData: jest.fn() };
+      const event = dispatchClipboardEvent('copy', leaf, clipboardData);
+      await waitForPromises();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(clipboardData.setData).toHaveBeenCalledWith(
+        'text/x-gfm',
+        '* List Item1\n* List Item2',
+      );
+    });
+
+    it('copies code when a copy event bubbles up from inside a code line', async () => {
+      setHTMLFixture('<pre class="code highlight"><span class="line">code line</span></pre>');
+
+      const leaf = document.querySelector('span.line');
+      stubSelectionFor(document.querySelector('pre.code.highlight'));
+
+      const clipboardData = { setData: jest.fn() };
+      const event = dispatchClipboardEvent('copy', leaf, clipboardData);
+      await waitForPromises();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(clipboardData.setData).toHaveBeenCalledWith('text/x-gfm', '`code line`');
+    });
+
+    it('transforms pasted GFM when a paste event fires on a .js-gfm-input', () => {
+      setHTMLFixture('<textarea class="js-gfm-input"></textarea>');
+
+      const target = document.querySelector('.js-gfm-input');
+      target.value = 'This is code: ';
+      document.execCommand = jest.fn(() => false);
+
+      const data = { 'text/plain': 'code', 'text/x-gfm': '`code`' };
+      const clipboardData = { getData: (mimeType) => data[mimeType] || null };
+      const event = dispatchClipboardEvent('paste', target, clipboardData);
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(target.value).toBe('This is code: `code`');
     });
   });
 

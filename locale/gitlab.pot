@@ -13256,8 +13256,13 @@ msgstr ""
 msgid "Billings|Your trial includes all the benefits of Ultimate, plus access to advanced AI features."
 msgstr ""
 
+msgid "Billing|%d user has been assigned a seat."
+msgid_plural "Billing|%d users have been assigned seats."
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Billing|%d user has been successfully assigned a seat."
-msgid_plural "Billing|%d users have been successfully assigned a seat."
+msgid_plural "Billing|%d users have been successfully assigned seats."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -13271,6 +13276,11 @@ msgstr ""
 
 msgid "Billing|%{plan} SaaS Plan seats used"
 msgstr ""
+
+msgid "Billing|%{users} could not be assigned a seat because they are not %{linkStart}eligible%{linkEnd}."
+msgid_plural "Billing|%{users} could not be assigned seats because they are not %{linkStart}eligible%{linkEnd}."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Billing|%{user} was successfully approved"
 msgstr ""

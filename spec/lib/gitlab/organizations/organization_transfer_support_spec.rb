@@ -31,7 +31,6 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       cd_deployment_transitions
       cd_deployments
       cd_environment_driver_bindings
-      cd_environments
       cd_rollout_environments
       cd_rollout_transitions
       cd_rollouts
@@ -100,6 +99,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       bulk_import_entities
       bulk_import_failures
       bulk_import_trackers
+      cd_environments
       dependency_list_exports
       enabled_foundational_flow_check_results
       import_offline_configurations
