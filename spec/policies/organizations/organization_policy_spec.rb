@@ -45,7 +45,7 @@ RSpec.describe Organizations::OrganizationPolicy, feature_category: :organizatio
 
       context 'when org_admin_area feature flag is disabled' do
         before do
-          stub_feature_flags(org_admin_area: false)
+          stub_organization_release(:org_admin_area, enabled: false)
         end
 
         it { is_expected.to be_disallowed(:access_organization_admin_area) }
@@ -106,7 +106,7 @@ RSpec.describe Organizations::OrganizationPolicy, feature_category: :organizatio
 
     context 'when org_admin_area feature flag is disabled' do
       before do
-        stub_feature_flags(org_admin_area: false)
+        stub_organization_release(:org_admin_area, enabled: false)
       end
 
       it { expect_disallowed(:access_organization_admin_area) }

@@ -278,7 +278,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         it 'returns the latest version' do
           tool = manager.get_tool(name: 'search')
 
-          expect(tool).to be_a(Mcp::Tools::SearchService)
+          expect(tool).to be_a(Mcp::Tools::Search::SearchService)
           expect(tool.version).to eq('0.1.0')
         end
       end
@@ -287,7 +287,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         it 'returns the correct version' do
           tool = manager.get_tool(name: 'search', version: '0.1.0')
 
-          expect(tool).to be_a(Mcp::Tools::SearchService)
+          expect(tool).to be_a(Mcp::Tools::Search::SearchService)
           expect(tool.version).to eq('0.1.0')
         end
       end
@@ -309,7 +309,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         it 'resolves to the canonical tool' do
           tool = manager.get_tool(name: 'gitlab_search')
 
-          expect(tool).to be_a(Mcp::Tools::SearchService)
+          expect(tool).to be_a(Mcp::Tools::Search::SearchService)
           expect(tool.version).to eq('0.1.0')
         end
       end
@@ -318,7 +318,7 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         it 'resolves to the canonical tool with correct version' do
           tool = manager.get_tool(name: 'gitlab_search', version: '0.1.0')
 
-          expect(tool).to be_a(Mcp::Tools::SearchService)
+          expect(tool).to be_a(Mcp::Tools::Search::SearchService)
           expect(tool.version).to eq('0.1.0')
         end
       end

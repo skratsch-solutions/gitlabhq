@@ -73,7 +73,7 @@ module API
         route_setting :mcp,
           tool_name: :list_pipelines,
           params: [:id, :ref, :page, :per_page],
-          aggregators: [::Mcp::Tools::PipelineService],
+          aggregators: [::Mcp::Tools::Pipelines::PipelineService],
           resource_name: "project"
         route_setting :authentication, job_token_allowed: true
         route_setting :authorization, job_token_policies: :read_pipelines,
@@ -107,7 +107,7 @@ module API
         route_setting :mcp,
           tool_name: :create_pipeline,
           params: [:id, :ref, :variables, :inputs],
-          aggregators: [::Mcp::Tools::PipelineService],
+          aggregators: [::Mcp::Tools::Pipelines::PipelineService],
           resource_name: "project"
         route_setting :authorization, permissions: :create_pipeline, boundary_type: :project
         route_setting :log_safety, { unsafe: %w[inputs] }
@@ -349,7 +349,7 @@ module API
         route_setting :mcp,
           tool_name: :delete_pipeline,
           params: [:id, :pipeline_id],
-          aggregators: [::Mcp::Tools::PipelineService],
+          aggregators: [::Mcp::Tools::Pipelines::PipelineService],
           resource_name: "pipeline"
         route_setting :authorization, permissions: :delete_pipeline, boundary_type: :project
         delete ':id/pipelines/:pipeline_id', urgency: :low, feature_category: :continuous_integration do
@@ -381,7 +381,7 @@ module API
         route_setting :mcp,
           tool_name: :update_pipeline,
           params: [:id, :pipeline_id, :name],
-          aggregators: [::Mcp::Tools::PipelineService],
+          aggregators: [::Mcp::Tools::Pipelines::PipelineService],
           resource_name: "pipeline"
         route_setting :authentication, job_token_allowed: true
         route_setting :authorization, permissions: :update_pipeline_metadata, boundary_type: :project,
@@ -418,7 +418,7 @@ module API
         route_setting :mcp,
           tool_name: :retry_pipeline,
           params: [:id, :pipeline_id],
-          aggregators: [::Mcp::Tools::PipelineService],
+          aggregators: [::Mcp::Tools::Pipelines::PipelineService],
           resource_name: "pipeline"
         route_setting :authorization, permissions: :retry_pipeline, boundary_type: :project
         post ':id/pipelines/:pipeline_id/retry', urgency: :low, feature_category: :continuous_integration do
@@ -450,7 +450,7 @@ module API
         route_setting :mcp,
           tool_name: :cancel_pipeline,
           params: [:id, :pipeline_id],
-          aggregators: [::Mcp::Tools::PipelineService],
+          aggregators: [::Mcp::Tools::Pipelines::PipelineService],
           resource_name: "pipeline"
         route_setting :authorization, permissions: :cancel_pipeline, boundary_type: :project
         post ':id/pipelines/:pipeline_id/cancel', urgency: :low, feature_category: :continuous_integration do

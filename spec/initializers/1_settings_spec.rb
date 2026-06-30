@@ -356,6 +356,7 @@ RSpec.describe '1_settings', feature_category: :settings do
         ci_schedule_delete_objects_worker
         ci_schedule_old_pipelines_removal_cron_worker
         ci_schedule_unlock_pipelines_in_queue_worker
+        ci_stuck_pipelines_process_worker
         cleanup_container_registry_worker
         cleanup_dangling_debian_package_files_worker
         cleanup_dependency_proxy_worker

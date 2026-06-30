@@ -636,6 +636,16 @@
   :idempotent: true
   :tags: []
   :queue_namespace: :cronjob
+- :name: cronjob:ci_stuck_pipelines_process
+  :worker_name: Ci::StuckPipelines::ProcessWorker
+  :feature_category: :continuous_integration
+  :has_external_dependencies: false
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: true
+  :tags: []
+  :queue_namespace: :cronjob
 - :name: cronjob:ci_timed_out_builds_drop_timed_out
   :worker_name: Ci::TimedOutBuilds::DropTimedOutWorker
   :feature_category: :continuous_integration

@@ -10,10 +10,23 @@ RSpec.describe 'admin/sessions/two_factor.html.haml', feature_category: :system_
   context 'when user has otp active' do
     let(:user) { create(:admin, :two_factor) }
 
-    it 'shows enter otp form' do
+    it 'renders the Vue mount point instead of the otp form' do
       render
 
-      expect(rendered).to have_field('user[otp_attempt]')
+      expect(rendered).to have_selector('#js-2fa')
+      expect(rendered).not_to have_field('user[otp_attempt]')
+    end
+
+    context 'when two_factor_vue is disabled' do
+      before do
+        stub_feature_flags(two_factor_vue: false)
+      end
+
+      it 'shows enter otp form' do
+        render
+
+        expect(rendered).to have_field('user[otp_attempt]')
+      end
     end
   end
 

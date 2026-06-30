@@ -10,9 +10,9 @@ module Organizations
     desc 'Organization is public'
     condition(:public_organization, scope: :subject, score: 0) { @subject.public? }
 
-    desc 'Organization admin area feature flag is enabled'
+    desc 'Organization admin area is enabled'
     condition(:organization_admin_area_enabled, scope: :subject) do
-      Feature.enabled?(:org_admin_area, @subject)
+      Organizations::Release.enabled?(:org_admin_area, @subject)
     end
 
     desc "Organization is the default"

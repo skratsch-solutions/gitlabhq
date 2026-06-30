@@ -124,8 +124,13 @@ module Groups
       project_ids = Set.new
 
       group.shared_group_links.each_batch(of: 50, column: :shared_group_id) do |batch|
-        descendant_ids = Namespace.where(id: batch.pluck(:shared_group_id)).self_and_descendant_ids
-        project_ids.merge(Project.where(namespace_id: descendant_ids).pluck(:id))
+        # Use the instance-level `all_projects` (which calls `self_and_descendant_ids` via
+        # the fast `traversal_ids @> '{id}'` GIN-indexed operator) rather than the class-level
+        # `Namespace.where(...).self_and_descendant_ids` (which uses the expensive
+        # `next_traversal_ids_sibling` PL/pgSQL CTE that can time out on large hierarchies).
+        Namespace.id_in(batch.pluck(:shared_group_id)).each do |ns|
+          project_ids.merge(ns.all_projects.pluck(:id))
+        end
       end
 
       group.project_group_links.each_batch(of: 50, column: :project_id) do |batch|

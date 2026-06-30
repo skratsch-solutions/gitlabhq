@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mcp::Tools::SearchService, feature_category: :mcp_server do
+RSpec.describe Mcp::Tools::Search::SearchService, feature_category: :mcp_server do
   let(:mock_tool_global) { instance_double(Mcp::Tools::ApiTool, name: :gitlab_search_in_instance) }
   let(:mock_tool_group) { instance_double(Mcp::Tools::ApiTool, name: :gitlab_search_in_group) }
   let(:mock_tool_project) { instance_double(Mcp::Tools::ApiTool, name: :gitlab_search_in_project) }

@@ -25,7 +25,7 @@ export default {
       isStepComplete: Object.fromEntries(tabFields),
       showFetchError: false,
       showSelectError: false,
-      search: null,
+      search: '',
       startCursor: null,
       endCursor: null,
       selectedGroups: [],
@@ -35,6 +35,8 @@ export default {
   apollo: {
     offlineTransferSourceOwnedGroups: {
       query: offlineTransferSourceOwnedGroupsQuery,
+      // Lets us leverage `loading` on both search + pagination, not just initial query
+      notifyOnNetworkStatusChange: true,
       update(data) {
         return data.groups;
       },
@@ -75,12 +77,14 @@ export default {
     isLoading() {
       return this.$apollo.queries.offlineTransferSourceOwnedGroups.loading;
     },
+    isInitialLoading() {
+      return this.isLoading && !this.offlineTransferSourceOwnedGroups;
+    },
     selectedGroupsCount() {
       return this.selectedGroups.length;
     },
   },
   watch: {
-    // TODO: When adding searchbox, also watch search, reset cursors
     selectedGroupsCount() {
       this.showSelectError = false;
     },
@@ -89,6 +93,11 @@ export default {
   methods: {
     onComplete() {
       this.isFormComplete = true;
+    },
+    onSearch(searchTerm) {
+      this.search = searchTerm;
+      this.startCursor = null;
+      this.endCursor = null;
     },
     isGroupSelected(group) {
       return this.selectedGroups.some((selected) => selected.id === group.id);
@@ -134,8 +143,7 @@ export default {
       }
     },
     validateStep(stepIndex) {
-      // each tab/step has a unique validation logic
-      // passed down to formstepper that if false prevents
+      // each tab/step has a unique validation logic passed to formstepper that prevents
       // continuing to the next tab
       switch (stepIndex) {
         case 0:
@@ -168,7 +176,7 @@ export default {
       <p class="gl-max-w-2xl">
         {{
           s__(
-            'OfflineTransferExport|Export your groups to an AWS S3 storage service you control. You can import them to any GitLab instance, even without a network connection between this instance and the destination instance.',
+            'OfflineTransferExport|Export your groups to an AWS S3 storage service you control. You can import them to any GitLab instance, even without a network connection between this instance and the destination instance. Each group is exported with all of its subgroups and projects.',
           )
         }}
       </p>
@@ -221,24 +229,20 @@ export default {
         <h2 class="gl-heading-3">
           {{ s__('OfflineTransferExport|Select groups to export') }}
         </h2>
-        <p>
-          {{
-            s__(
-              'OfflineTransferExport|Each group is exported with all of its subgroups and projects.',
-            )
-          }}
-        </p>
         <select-groups-tab
           :page-groups="pageGroups"
           :selected-ids="selectedGroupIds"
           :loading="isLoading"
+          :initial-loading="isInitialLoading"
           :page-info="pageInfo"
           :show-select-error="showSelectError"
+          :search-term="search"
           @toggle="onToggleGroup"
           @select-current-page="onSelectAllCurrentPage"
           @deselect-all="onDeselectAll"
           @next="onNext"
           @prev="onPrev"
+          @search="onSearch"
         />
       </template>
 

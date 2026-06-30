@@ -10,7 +10,7 @@ RSpec.describe Admin::Organizations::DashboardController, feature_category: :org
 
   shared_examples 'the feature flag is disabled' do
     before do
-      stub_feature_flags(org_admin_area: false)
+      stub_organization_release(:org_admin_area, enabled: false)
     end
 
     it 'denies access' do

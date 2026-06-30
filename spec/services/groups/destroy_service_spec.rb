@@ -543,6 +543,19 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
 
             destroy_group(group1, group1_user, false)
           end
+
+          it 'collects descendant project ids via the GIN-indexed containment path' do
+            service = described_class.new(group1, group1_user)
+            project_ids = nil
+
+            recorder = ActiveRecord::QueryRecorder.new do
+              project_ids = service.send(:obtain_project_ids_for_authorization_refresh)
+            end
+
+            expect(project_ids).to include(group2_project.id, group2_subgroup_project.id)
+            expect(recorder.log).to include(a_string_matching(/traversal_ids @>/))
+            expect(recorder.log).not_to include(a_string_matching(/next_traversal_ids_sibling/))
+          end
         end
       end
     end

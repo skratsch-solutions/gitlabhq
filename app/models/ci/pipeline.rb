@@ -543,6 +543,14 @@ module Ci
       )
     end
 
+    scope :without_active_builds, ->(partition_id) do
+      build_join_condition = Arel.sql('partition_id = p_ci_builds.partition_id AND build_id = p_ci_builds.id')
+      builds = Ci::Build.scoped_pipeline.in_partition(partition_id)
+
+      where_not_exists(builds.where_exists(Ci::PendingBuild.where(build_join_condition)))
+        .where_not_exists(builds.where_exists(Ci::RunningBuild.where(build_join_condition)))
+    end
+
     # Returns the pipelines that associated with the given merge request.
     # In general, please use `Ci::PipelinesForMergeRequestFinder` instead,
     # for checking permission of the actor.
@@ -557,6 +565,7 @@ module Ci
     scope :order_id_asc, -> { order(id: :asc) }
     scope :order_id_desc, -> { order(id: :desc) }
     scope :order_created_at_asc_id_asc, -> { order(created_at: :asc, id: :asc) }
+    scope :order_updated_at_asc_id_asc, -> { order(updated_at: :asc, id: :asc) }
 
     scope :not_archived, -> do
       archive_cutoff = Gitlab::CurrentSettings.archive_builds_older_than

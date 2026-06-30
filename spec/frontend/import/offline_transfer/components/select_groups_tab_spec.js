@@ -1,4 +1,4 @@
-import { GlLoadingIcon, GlEmptyState, GlKeysetPagination } from '@gitlab/ui';
+import { GlLoadingIcon, GlEmptyState, GlKeysetPagination, GlSearchBoxByType } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
 import SelectGroupRow from '~/import/offline_transfer/components/select_group_row.vue';
@@ -27,6 +27,8 @@ describe('SelectGroupsTab', () => {
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
   const findNoGroupsSelectedError = () => wrapper.findByTestId('selected-error');
   const findPagination = () => wrapper.findComponent(GlKeysetPagination);
+  const findSearchBox = () => wrapper.findComponent(GlSearchBoxByType);
+  const findResults = () => wrapper.findByTestId('groups-results');
 
   describe('group list', () => {
     it('shows the empty message when not loading and there are no groups', () => {
@@ -62,18 +64,42 @@ describe('SelectGroupsTab', () => {
   });
 
   describe('loading state', () => {
-    it('shows the loading icon while loading', () => {
-      createComponent({ loading: true });
+    it('shows the loading spinner only on initial load', () => {
+      createComponent({ initialLoading: true, pageGroups: [] });
 
       expect(findLoadingIcon().exists()).toBe(true);
       expect(findList().exists()).toBe(false);
       expect(findEmptyState().exists()).toBe(false);
     });
 
-    it('does not show the loading icon once loaded', () => {
-      createComponent({ loading: false });
+    it('does not show the loading spinner once data has loaded', () => {
+      createComponent({ initialLoading: false });
 
       expect(findLoadingIcon().exists()).toBe(false);
+    });
+
+    it('keeps the list mounted but dimmed while a refetch is loading', () => {
+      createComponent({ loading: true });
+      expect(findLoadingIcon().exists()).toBe(false);
+      expect(findList().exists()).toBe(true);
+      expect(findResults().classes()).toContain('gl-opacity-5');
+    });
+
+    it('does not dim the list once the refetch settles', () => {
+      createComponent({ loading: false });
+
+      expect(findResults().classes()).not.toContain('gl-opacity-5');
+    });
+
+    it('shows a loading indicator inside the search box while loading', () => {
+      createComponent({ loading: true });
+
+      expect(findSearchBox().props('isLoading')).toBe(true);
+    });
+
+    it('does not flash the empty state while a search is loading', () => {
+      createComponent({ loading: true, pageGroups: [], searchTerm: 'no match' });
+      expect(findEmptyState().exists()).toBe(false);
     });
   });
 
@@ -151,6 +177,12 @@ describe('SelectGroupsTab', () => {
       expect(findPagination().exists()).toBe(true);
     });
 
+    it('disables pagination while a refetch is loading', () => {
+      createComponent({ loading: true, pageInfo: { hasNextPage: true, hasPreviousPage: true } });
+
+      expect(findPagination().props('disabled')).toBe(true);
+    });
+
     it('correctly emits `next` with the cursor', () => {
       createComponent({ pageInfo: { hasNextPage: true, hasPreviousPage: false } });
 
@@ -165,6 +197,32 @@ describe('SelectGroupsTab', () => {
       findPagination().vm.$emit('prev', 'cursor456');
 
       expect(wrapper.emitted('prev')).toEqual([['cursor456']]);
+    });
+  });
+
+  describe('search', () => {
+    it('term is correctly passed to input search box', () => {
+      createComponent({ searchTerm: 'flight' });
+      expect(findSearchBox().props('value')).toBe('flight');
+    });
+
+    it('term is emitted when the search input changes', () => {
+      createComponent();
+      findSearchBox().vm.$emit('input', 'flight');
+      expect(wrapper.emitted('search')).toEqual([['flight']]);
+    });
+  });
+
+  describe('empty state', () => {
+    it('when user owns no groups informs the user that there are no groups', () => {
+      createComponent({ pageGroups: [] });
+      expect(findEmptyState().props('title')).toBe('You have no groups available to export');
+    });
+
+    it('when search does not return a match informs the user there is no match', () => {
+      createComponent({ pageGroups: [], searchTerm: 'no match' });
+
+      expect(findEmptyState().props('title')).toBe('No groups match your search');
     });
   });
 });

@@ -22,5 +22,6 @@ The stage determines who can use a flag and whether it can be disabled.
 
 ## Organization flags
 
-No organization flags are registered yet. Add a flag to
-`config/organizations_release.yml` when a feature adopts the release layer.
+| Flag | Stage | Description |
+|------|-------|-------------|
+| `org_admin_area` | Experimental | Organization admin area for organization owners. |

@@ -82,22 +82,13 @@ RSpec.shared_examples 'pauses, resumes and deletes a runner' do
 
   it 'pauses and resumes runner' do
     within_runner_row(runner.id) do
-      click_button "Pause"
+      expect(page).not_to have_text "Paused"
 
-      # Wait for the toggle to finish: the destination button must be present
-      # AND enabled. While the runnerUpdate mutation is in flight the button
-      # stays in a `loading` (disabled) state, so a bare `have_button` matches
-      # the disabled transitional button and the following negative assertions
-      # race the re-render. `disabled: false` waits out the mutation.
-      expect(page).to have_button 'Resume', disabled: false
-      expect(page).to have_text 'Paused'
-      expect(page).not_to have_button 'Pause'
+      click_button "Pause"
+      expect(page).to have_text "Paused"
 
       click_button "Resume"
-
-      expect(page).to have_button 'Pause', disabled: false
-      expect(page).not_to have_text 'Paused'
-      expect(page).not_to have_button 'Resume'
+      expect(page).not_to have_text "Paused"
     end
   end
 

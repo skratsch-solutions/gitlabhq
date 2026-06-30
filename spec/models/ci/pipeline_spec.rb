@@ -1237,6 +1237,18 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
   end
 
+  describe '.order_updated_at_asc_id_asc', :freeze_time do
+    subject(:pipelines_ordered_by_updated_at_id) { described_class.order_updated_at_asc_id_asc }
+
+    let_it_be(:pipeline1) { create(:ci_pipeline, project: project, updated_at: 1.week.ago) }
+    let_it_be(:pipeline2) { create(:ci_pipeline, project: project, updated_at: 1.day.ago) }
+    let_it_be(:pipeline3) { create(:ci_pipeline, project: project, updated_at: 1.day.ago) }
+
+    it 'returns pipelines sorted by updated_at ascending and id ascending' do
+      expect(pipelines_ordered_by_updated_at_id).to eq([pipeline1, pipeline2, pipeline3])
+    end
+  end
+
   describe '.jobs_count_in_alive_pipelines' do
     before do
       ::Ci::HasStatus::ALIVE_STATUSES.each do |status|
@@ -1704,6 +1716,64 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
       it 'does not select the pipeline' do
         is_expected.to be_empty
+      end
+    end
+  end
+
+  describe '.without_active_builds' do
+    subject { described_class.without_active_builds(pipeline_with_completed_build.partition_id) }
+
+    let_it_be(:pipeline_with_completed_build) do
+      create(:ci_pipeline, project: project).tap do |pipeline|
+        create(:ci_build, :success, pipeline: pipeline)
+      end
+    end
+
+    context 'with a pipeline that still has pending builds' do
+      let_it_be(:pipeline_with_pending_build) do
+        create(:ci_pipeline, project: project).tap do |pipeline|
+          pending_build = create(:ci_build, :pending, pipeline: pipeline)
+          Ci::PendingBuild.upsert_from_build!(pending_build)
+        end
+      end
+
+      it { is_expected.to contain_exactly(pipeline_with_completed_build) }
+    end
+
+    context 'with a pipeline that still has running builds' do
+      let_it_be(:pipeline_with_running_build) do
+        create(:ci_pipeline, project: project).tap do |pipeline|
+          running_build = create(:ci_build, :picked, pipeline: pipeline)
+          Ci::RunningBuild.upsert_build!(running_build)
+        end
+      end
+
+      it { is_expected.to contain_exactly(pipeline_with_completed_build) }
+    end
+
+    context 'with a pipeline that has an active build alongside a finished one' do
+      let_it_be(:pipeline_with_mixed_builds) do
+        create(:ci_pipeline, project: project).tap do |pipeline|
+          create(:ci_build, :success, pipeline: pipeline)
+          running_build = create(:ci_build, :picked, pipeline: pipeline)
+          Ci::RunningBuild.upsert_build!(running_build)
+        end
+      end
+
+      it 'excludes the pipeline that still has an active build' do
+        is_expected.to contain_exactly(pipeline_with_completed_build)
+      end
+    end
+
+    context 'with a pipeline that has multiple finished builds' do
+      let_it_be(:pipeline_with_multiple_finished_builds) do
+        create(:ci_pipeline, project: project).tap do |pipeline|
+          create_list(:ci_build, 2, :success, pipeline: pipeline)
+        end
+      end
+
+      it 'returns the pipeline once' do
+        is_expected.to contain_exactly(pipeline_with_completed_build, pipeline_with_multiple_finished_builds)
       end
     end
   end

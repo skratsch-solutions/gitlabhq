@@ -112,12 +112,16 @@ describe('OfflineTransferExportApp', () => {
 
     it('receives query loading state', async () => {
       createComponent();
-
       expect(findSelectGroupsTab().props('loading')).toBe(true);
-
       await waitForPromises();
-
       expect(findSelectGroupsTab().props('loading')).toBe(false);
+    });
+
+    it('receives initialLoading until the first response lands', async () => {
+      createComponent();
+      expect(findSelectGroupsTab().props('initialLoading')).toBe(true);
+      await waitForPromises();
+      expect(findSelectGroupsTab().props('initialLoading')).toBe(false);
     });
 
     it('shows the fetch error alert when groups query fails', async () => {
@@ -251,6 +255,80 @@ describe('OfflineTransferExportApp', () => {
         await nextTick();
 
         expect(findSelectGroupsTab().props('selectedIds')).toEqual([...PAGE_1_IDS, ...PAGE_2_IDS]);
+      });
+    });
+
+    describe('when search changes', () => {
+      const SEARCH_TERM = 'flight';
+
+      it('re-runs the query with the new search', async () => {
+        createComponent();
+        expect(findSelectGroupsTab().props('searchTerm')).toBe('');
+
+        findSelectGroupsTab().vm.$emit('search', SEARCH_TERM);
+        await nextTick();
+
+        expect(defaultHandler).toHaveBeenLastCalledWith(
+          expect.objectContaining({ search: SEARCH_TERM }),
+        );
+
+        expect(findSelectGroupsTab().props('searchTerm')).toBe(SEARCH_TERM);
+      });
+
+      it('if the user is not on first page, resets pagination to the first page', async () => {
+        const handler = jest
+          .fn()
+          .mockResolvedValueOnce(mockGroupsPage1Response)
+          .mockResolvedValueOnce(mockGroupsPage2Response)
+          .mockResolvedValue(mockGroupsResponse);
+        createComponent({ handler });
+        await waitForPromises();
+
+        // navigate to the second page
+        findSelectGroupsTab().vm.$emit(
+          'next',
+          mockGroupsPage1Response.data.groups.pageInfo.endCursor,
+        );
+        await waitForPromises();
+        expect(handler).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            search: '',
+            after: mockGroupsPage1Response.data.groups.pageInfo.endCursor,
+            before: null,
+            first: 20,
+            last: null,
+          }),
+        );
+
+        findSelectGroupsTab().vm.$emit('search', SEARCH_TERM);
+        await waitForPromises();
+
+        expect(handler).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            search: SEARCH_TERM,
+            after: null,
+            before: null,
+            first: 20,
+            last: null,
+          }),
+        );
+      });
+
+      it('preserves selections across a search', async () => {
+        createComponent();
+        findSelectGroupsTab().vm.$emit('toggle', mockGroups[0]);
+        findSelectGroupsTab().vm.$emit('toggle', mockGroups[1]);
+        await nextTick();
+        expect(findSelectGroupsTab().props('selectedIds')).toEqual([
+          mockGroups[0].id,
+          mockGroups[1].id,
+        ]);
+
+        findSelectGroupsTab().vm.$emit('search', 'flight');
+        expect(findSelectGroupsTab().props('selectedIds')).toEqual([
+          mockGroups[0].id,
+          mockGroups[1].id,
+        ]);
       });
     });
 

@@ -211,7 +211,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
       before do
         ActionMailer::Base.deliveries.clear
         submit_sign_in_form_for(user)
-        expect(page).to have_content('Enter verification code') # rubocop:disable RSpec/ExpectInHook -- this assertion is the Capybara waiter ensuring the OTP form is rendered before the examples run
+        expect(page).to have_button(s_('TwoFactorAuth|Verify code')) # rubocop:disable RSpec/ExpectInHook -- this assertion is the Capybara waiter ensuring the OTP form is rendered before the examples run
       end
 
       it 'sends email OTP and shows verification form when button clicked' do
@@ -255,7 +255,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
       end
 
       it 'allows switching to TOTP and using email OTP fallback' do
-        expect(page).to have_content('Enter verification code')
+        expect(page).to have_button('Verify code')
 
         # Email OTP fallback should be available
         expect(page).to have_link('Enter recovery code')

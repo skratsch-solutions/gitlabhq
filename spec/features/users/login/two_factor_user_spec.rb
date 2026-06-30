@@ -29,7 +29,8 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
         click_button _("Sign in via 2FA code")
       end
 
-      fill_in _('Enter verification code'), with: code
+      # When :two_factor_vue is removed, replace it for s_('TwoFactorAuth|6-digit code')
+      fill_in 'user_otp_attempt', with: code
       click_button _('Verify code')
     end
 
@@ -121,87 +122,95 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
     context 'with valid username/password', :freeze_time do
       let(:user) { create(:user, :two_factor) }
 
-      before do
-        submit_sign_in_form_for(user, remember: true)
-      end
+      # TOTP and recovery codes are exercised with two_factor_vue on (Vue) and off (HAML).
+      # WebAuthn users keep the legacy form regardless of the flag, so they stay below.
+      with_and_without_ff(:two_factor_vue) do
+        before do
+          submit_sign_in_form_for(user, remember: true)
+        end
 
-      it 'does not show a "You are already signed in." error message' do
-        expect(authentication_metrics)
-          .to increment(:user_authenticated_counter)
-          .and increment(:user_two_factor_authenticated_counter)
-
-        enter_code(user.current_otp)
-        expect(page).to have_content('Welcome to GitLab')
-        expect(page).not_to have_content(I18n.t('devise.failure.already_authenticated'))
-        expect_single_session_with_authenticated_ttl
-      end
-
-      it 'does not allow sign-in if the user password is updated before entering a one-time code' do
-        expect(page).to have_content('Enter verification code')
-
-        user.update!(password: User.random_password)
-        enter_code(user.current_otp)
-
-        expect(page).to have_content('An error occurred. Please sign in again.')
-      end
-
-      context 'when using a one-time code' do
-        it 'allows login with valid code' do
+        it 'does not show a "You are already signed in." error message' do
           expect(authentication_metrics)
             .to increment(:user_authenticated_counter)
             .and increment(:user_two_factor_authenticated_counter)
 
           enter_code(user.current_otp)
           expect(page).to have_content('Welcome to GitLab')
+          expect(page).not_to have_content(I18n.t('devise.failure.already_authenticated'))
           expect_single_session_with_authenticated_ttl
-          expect(page).to have_current_path root_path, ignore_query: true
         end
 
-        it 'persists remember_me value via hidden field' do
-          expect(page).to have_field('user_remember_me', type: :hidden, with: '1')
-        end
+        it 'does not allow sign-in if the user password is updated before entering a one-time code' do
+          expect(page).to have_button(_('Verify code'))
 
-        it 'blocks login with invalid code' do
-          # TODO invalid 2FA code does not generate any events
-          # See gitlab-org/gitlab-ce#49785
-
-          enter_code('foo')
-
-          expect(page).to have_content('Invalid two-factor code')
-        end
-
-        it 'allows login with invalid code, then valid code' do
-          expect(authentication_metrics)
-            .to increment(:user_authenticated_counter)
-            .and increment(:user_two_factor_authenticated_counter)
-
-          enter_code('foo')
-          expect(page).to have_content('Invalid two-factor code')
-
+          user.update!(password: User.random_password)
           enter_code(user.current_otp)
-          expect(page).to have_content('Welcome to GitLab')
-          expect_single_session_with_authenticated_ttl
-          expect(page).to have_current_path root_path, ignore_query: true
+
+          expect(page).to have_content('An error occurred. Please sign in again.')
         end
 
-        it 'triggers ActiveSession.cleanup for the user' do
-          expect(authentication_metrics)
-            .to increment(:user_authenticated_counter)
-            .and increment(:user_two_factor_authenticated_counter)
-          expect(ActiveSession).to receive(:cleanup).with(user).once.and_call_original
+        context 'when using a one-time code' do
+          it 'allows login with valid code' do
+            expect(authentication_metrics)
+              .to increment(:user_authenticated_counter)
+              .and increment(:user_two_factor_authenticated_counter)
 
-          enter_code(user.current_otp)
+            enter_code(user.current_otp)
+            expect(page).to have_content('Welcome to GitLab')
+            expect_single_session_with_authenticated_ttl
+            expect(page).to have_current_path root_path, ignore_query: true
+          end
+
+          it 'persists remember_me value via hidden field' do
+            expect(page).to have_field('user[remember_me]', type: :hidden, with: '1')
+          end
+
+          it 'blocks login with invalid code' do
+            # TODO invalid 2FA code does not generate any events
+            # See gitlab-org/gitlab-ce#49785
+
+            enter_code('foo')
+
+            expect(page).to have_content('Invalid two-factor code')
+          end
+
+          it 'allows login with invalid code, then valid code' do
+            expect(authentication_metrics)
+              .to increment(:user_authenticated_counter)
+              .and increment(:user_two_factor_authenticated_counter)
+
+            enter_code('foo')
+            expect(page).to have_content('Invalid two-factor code')
+
+            enter_code(user.current_otp)
+            expect(page).to have_content('Welcome to GitLab')
+            expect_single_session_with_authenticated_ttl
+            expect(page).to have_current_path root_path, ignore_query: true
+          end
+
+          it 'triggers ActiveSession.cleanup for the user' do
+            expect(authentication_metrics)
+              .to increment(:user_authenticated_counter)
+              .and increment(:user_two_factor_authenticated_counter)
+            expect(ActiveSession).to receive(:cleanup).with(user).once.and_call_original
+
+            enter_code(user.current_otp)
+          end
         end
-      end
 
-      context 'when user with TOTP enabled' do
-        let(:user) { create(:user, :two_factor) }
+        context 'when user with TOTP enabled' do
+          let(:user) { create(:user, :two_factor) }
 
-        include_examples 'can login with recovery codes'
+          include_examples 'can login with recovery codes'
+        end
       end
 
       context 'when user with only Webauthn enabled' do
         let(:user) { create(:user, :two_factor_via_webauthn, registrations_count: 1) }
+
+        before do
+          submit_sign_in_form_for(user, remember: true)
+        end
 
         include_examples 'can login with recovery codes', only_two_factor_webauthn_enabled: true
       end
@@ -321,7 +330,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
           sign_in_using_saml!
           expect(page).to have_content('Welcome to GitLab')
           expect_single_session_with_authenticated_ttl
-          expect(page).not_to have_content(_('Enter verification code'))
+          expect(page).not_to have_button(_('Verify code'))
           expect(page).to have_current_path root_path, ignore_query: true
         end
       end
@@ -337,7 +346,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
           sign_in_using_saml!
 
-          expect(page).to have_content('Enter verification code')
+          expect(page).to have_button(_('Verify code'))
 
           enter_code(user.current_otp)
           expect(page).to have_content('Welcome to GitLab')

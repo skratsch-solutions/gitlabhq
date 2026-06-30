@@ -114,7 +114,9 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
   shared_examples_for 'two factor prompt or successful login' do
     it 'shows the 2FA prompt when enabled or redirects to the root path' do
       if user.two_factor_enabled?
-        expect(response.body).to include('Enter verification code')
+        # Matches both the Vue mount (id="js-2fa") and the legacy HAML form (class "js-2fa-form"),
+        # so the assertion holds with :two_factor_vue on or off.
+        expect(response.body).to include('js-2fa')
       else
         expect(response).to redirect_to(root_path)
       end

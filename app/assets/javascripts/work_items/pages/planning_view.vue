@@ -1,6 +1,6 @@
 <script>
 import { GlButton, GlAlert, GlFilteredSearchToken, GlIntersectionObserver } from '@gitlab/ui';
-import { isEmpty, isEqual, sortBy } from 'lodash-es';
+import { isEmpty, isEqual } from 'lodash-es';
 import produce from 'immer';
 import fuzzaldrinPlus from 'fuzzaldrin-plus';
 import axios from '~/lib/utils/axios_utils';
@@ -129,6 +129,13 @@ import {
   saveSavedViewDraft,
   clearSavedViewDraft,
 } from '~/work_items/list/saved_view_draft';
+import {
+  ALL_ITEMS_DEFAULT_FILTER_TOKENS,
+  filtersChanged,
+  sortChanged,
+  viewModeChanged,
+  preferencesChanged,
+} from '~/work_items/list/view_change_detection';
 
 import searchProjectsQuery from '../list/graphql/search_projects.query.graphql';
 
@@ -580,64 +587,30 @@ export default {
     preferencesChanged() {
       if (!this.initialPreferences) return false;
 
-      const currentPreferences = {
-        hiddenMetadataKeys: this.namespacePreferences.hiddenMetadataKeys ?? [],
-        collapsedGroups: this.namespacePreferences.collapsedGroups ?? [],
-      };
-      const viewPreferences = {
-        hiddenMetadataKeys:
-          this.initialViewDisplaySettings?.namespacePreferences?.hiddenMetadataKeys ?? [],
-        collapsedGroups:
-          this.initialViewDisplaySettings?.namespacePreferences?.collapsedGroups ?? [],
-      };
-      const comparePreferences = this.isSavedView ? viewPreferences : this.initialPreferences;
-
-      return !isEqual(currentPreferences, comparePreferences);
-    },
-    allItemsDefaultFilterTokens() {
-      return [
-        {
-          type: TOKEN_TYPE_STATE,
-          value: {
-            data: STATUS_OPEN,
-            operator: OPERATOR_IS,
-          },
-        },
-      ];
+      return preferencesChanged({
+        currentPreferences: this.namespacePreferences,
+        baselinePreferences: this.isSavedView
+          ? this.initialViewDisplaySettings?.namespacePreferences
+          : this.initialPreferences,
+      });
     },
     filtersChanged() {
-      const filteredTokens = this.filterTokens
-        .filter((token) => {
-          if (token.type === FILTERED_SEARCH_TERM) {
-            return Boolean(token.value?.data);
-          }
-
-          return true;
-        })
-        .map(({ id, ...rest }) => {
-          // Explicitly set undefined operator in filtered-search-term operator
-          if (rest.type === FILTERED_SEARCH_TERM) {
-            return {
-              ...rest,
-              value: { ...rest.value, operator: undefined },
-            };
-          }
-          return rest;
-        });
-
-      const compareFilters = !this.isSavedView
-        ? this.allItemsDefaultFilterTokens
-        : this.initialViewTokens;
-
-      // The sequence of the object can be changed so setting sortBy before comparing
-      return !isEqual(sortBy(filteredTokens, ['type']), sortBy(compareFilters, ['type']));
+      return filtersChanged({
+        filterTokens: this.filterTokens,
+        baselineTokens: this.isSavedView ? this.initialViewTokens : ALL_ITEMS_DEFAULT_FILTER_TOKENS,
+      });
     },
     sortChanged() {
-      const compareSort = !this.isSavedView ? this.initialSortKey : this.initialViewSortKey;
-      return this.sortKey !== compareSort;
+      return sortChanged({
+        sortKey: this.sortKey,
+        baselineSortKey: this.isSavedView ? this.initialViewSortKey : this.initialSortKey,
+      });
     },
     viewModeChanged() {
-      return this.viewMode !== this.initialViewMode;
+      return viewModeChanged({
+        viewMode: this.viewMode,
+        baselineViewMode: this.initialViewMode,
+      });
     },
     viewConfigChanged() {
       if (this.isSavedView) {

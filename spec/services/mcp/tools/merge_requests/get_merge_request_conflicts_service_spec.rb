@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mcp::Tools::GetMergeRequestConflictsService, feature_category: :mcp_server do
+RSpec.describe Mcp::Tools::MergeRequests::GetMergeRequestConflictsService, feature_category: :mcp_server do
   let(:service_name) { 'get_merge_request_conflicts' }
 
   describe 'version registration' do
