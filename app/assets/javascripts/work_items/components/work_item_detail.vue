@@ -35,7 +35,6 @@ import {
   WORK_ITEM_REFERENCE_CHAR,
   WORK_ITEM_TYPE_NAME_EPIC,
   STATE_OPEN,
-  WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_MILESTONE,
   WORK_ITEM_TYPE_NAME_INCIDENT,
   VIEW_CONTEXT,
@@ -55,6 +54,7 @@ import {
   findDevelopmentWidget,
   findErrorTrackingWidget,
   findHierarchyWidget,
+  findIterationWidget,
   findLinkedItemsWidget,
   findLinkedResourcesWidget,
   findHierarchyWidgetDefinition,
@@ -450,7 +450,7 @@ export default {
       return findDevelopmentWidget(this.workItem);
     },
     workItemIteration() {
-      return this.findWidget(WIDGET_TYPE_ITERATION)?.iteration;
+      return findIterationWidget(this.workItem)?.iteration;
     },
     workItemMilestone() {
       return this.findWidget(WIDGET_TYPE_MILESTONE)?.milestone;

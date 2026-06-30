@@ -369,6 +369,9 @@ export default {
     objectiveWorkItemTypeId() {
       return this.workItemTypes.find((type) => type.name === WORK_ITEM_TYPE_NAME_OBJECTIVE).id;
     },
+    currentWorkItemTypeId() {
+      return this.workItemTypes.find((type) => type.name === this.workItemType)?.id ?? '';
+    },
     showDropdownTooltip() {
       return !this.isDropdownVisible ? this.$options.i18n.moreActions : '';
     },
@@ -886,6 +889,7 @@ export default {
       :visible="isMoveWorkItemModalVisible"
       :work-item-id="workItemId"
       :work-item-iid="workItemIid"
+      :work-item-type-id="currentWorkItemTypeId"
       :full-path="fullPath"
       :project-id="projectId"
       @hideModal="isMoveWorkItemModalVisible = false"

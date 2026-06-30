@@ -87944,6 +87944,9 @@ msgstr ""
 msgid "WorkItem|Select a status"
 msgstr ""
 
+msgid "WorkItem|Select a type before moving this item."
+msgstr ""
+
 msgid "WorkItem|Select destination"
 msgstr ""
 
@@ -88167,6 +88170,9 @@ msgid "WorkItem|The CSV export will be created in the background. Once finished,
 msgstr ""
 
 msgid "WorkItem|The current item"
+msgstr ""
+
+msgid "WorkItem|The selected project does not support this work item type. Choose another project."
 msgstr ""
 
 msgid "WorkItem|The subject is used as the title of the new work item, and the message is the description. %{quickActionsLinkStart}Quick actions%{quickActionsLinkEnd} and styling with %{markdownLinkStart}Markdown%{markdownLinkEnd} are supported."

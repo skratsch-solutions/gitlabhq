@@ -10,7 +10,6 @@ Gitlab/AvoidGitlabDedicatedInstanceChecks:
     - 'ee/app/models/ee/ci/runner.rb'
     - 'ee/app/policies/ee/global_policy.rb'
     - 'ee/app/services/ci/minutes/update_gitlab_hosted_runner_monthly_usage_service.rb'
-    - 'ee/app/services/ee/ci/runners/create_runner_service.rb'
     - 'ee/app/services/security/v_a_c.rb'
     - 'ee/app/views/admin/application_settings/security_and_compliance.html.haml'
     - 'ee/lib/ai/active_context/embeddings/model_selector.rb'

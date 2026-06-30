@@ -75,6 +75,7 @@ export const findAwardEmojiWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_AWARD_EMOJI);
 
 export const findColorWidget = (workItem) =>
+  workItem?.features?.color ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_COLOR);
 
 export const findCrmContactsWidget = (workItem) =>
@@ -115,6 +116,7 @@ export const findHierarchyWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_HIERARCHY);
 
 export const findIterationWidget = (workItem) =>
+  workItem?.features?.iteration ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_ITERATION);
 
 export const findLabelsWidget = (workItem) =>

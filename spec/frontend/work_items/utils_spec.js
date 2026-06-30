@@ -18,6 +18,8 @@ import {
   WIDGET_TYPE_LINKED_ITEMS,
   WIDGET_TYPE_HEALTH_STATUS,
   WIDGET_TYPE_WEIGHT,
+  WIDGET_TYPE_ITERATION,
+  WIDGET_TYPE_COLOR,
   WORK_ITEM_TYPE_ENUM_EPIC,
   WORK_ITEM_TYPE_ENUM_INCIDENT,
   WORK_ITEM_TYPE_ENUM_ISSUE,
@@ -56,7 +58,9 @@ import {
   findOpenChildItemsCountsByType,
   findCrmContactsWidget,
   findCurrentUserTodosWidget,
+  findColorWidget,
   findHealthStatusWidget,
+  findIterationWidget,
   findLabelsWidget,
   findWeightWidget,
   findLinkedItemsWidget,
@@ -1520,6 +1524,66 @@ describe('findWeightWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findWeightWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findIterationWidget', () => {
+  const iterationWidget = {
+    type: WIDGET_TYPE_ITERATION,
+    iteration: { id: 'gid://gitlab/Iteration/1' },
+  };
+  const featuresIteration = {
+    iteration: { id: 'gid://gitlab/Iteration/2' },
+  };
+
+  it('returns features.iteration when present', () => {
+    const workItem = {
+      features: { iteration: featuresIteration },
+      widgets: [iterationWidget],
+    };
+
+    expect(findIterationWidget(workItem)).toBe(featuresIteration);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [iterationWidget] };
+
+    expect(findIterationWidget(workItem)).toBe(iterationWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findIterationWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findColorWidget', () => {
+  const colorWidget = {
+    type: WIDGET_TYPE_COLOR,
+    color: '#1068bf',
+    textColor: '#FFFFFF',
+  };
+  const featuresColor = {
+    color: '#e24329',
+    textColor: '#FFFFFF',
+  };
+
+  it('returns features.color when present', () => {
+    const workItem = {
+      features: { color: featuresColor },
+      widgets: [colorWidget],
+    };
+
+    expect(findColorWidget(workItem)).toBe(featuresColor);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [colorWidget] };
+
+    expect(findColorWidget(workItem)).toBe(colorWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findColorWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

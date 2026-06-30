@@ -264,7 +264,7 @@ gem 'gitlab-active-context', path: 'gems/gitlab-active-context', require: 'activ
 
 # Markdown and HTML processing
 gem 'html-pipeline', '~> 2.14.3', feature_category: :markdown
-gem 'gitlab-markup', '~> 2.0.0', require: 'github/markup', feature_category: :markdown
+gem 'gitlab-markup', '~> 2.1.0', require: 'github/markup', feature_category: :markdown
 gem 'commonmarker', '~> 0.23.10', feature_category: :markdown
 gem 'kramdown', '~> 2.5.0', feature_category: :markdown
 gem 'RedCloth', '~> 4.3.3', feature_category: :markdown

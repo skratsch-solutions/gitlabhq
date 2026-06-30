@@ -34,7 +34,8 @@
       .application-theme.gl-grid.gl-grid-cols-2.gl-gap-5{ class: '@sm/panel:gl-grid-cols-3 @lg/panel:gl-grid-cols-6' }
         - Gitlab::Themes.each do |theme|
           %label
-            .preview{ class: theme.css_class }
+            .preview{ class: "#{theme.css_class}-scope" }
+              = custom_icon('theme')
             = f.gitlab_ui_radio_component :theme_id, theme.id,
               theme.name,
               radio_options: { checked: user_theme_id == theme.id }

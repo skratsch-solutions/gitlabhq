@@ -1998,6 +1998,7 @@ export const mockWorkItemFeaturesData = ({ discussionLocked = false } = {}) => (
   },
   healthStatus: { healthStatus: null, rolledUpHealthStatus: [] },
   weight: { weight: null, rolledUpWeight: null, rolledUpCompletedWeight: null },
+  color: { color: null, textColor: null },
   linkedItems: { blockedByCount: 0, blockingCount: 0 },
   iteration: { iteration: null },
   errorTracking: {

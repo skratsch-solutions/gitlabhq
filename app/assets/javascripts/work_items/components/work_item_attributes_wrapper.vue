@@ -7,11 +7,9 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import WorkItemDates from 'ee_else_ce/work_items/components/work_item_dates.vue';
 
 import {
-  WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_MILESTONE,
   WIDGET_TYPE_PARTICIPANTS,
   WIDGET_TYPE_PROGRESS,
-  WIDGET_TYPE_COLOR,
   WORK_ITEM_TYPE_NAME_EPIC,
   WIDGET_TYPE_CUSTOM_FIELDS,
   WIDGET_TYPE_STATUS,
@@ -19,10 +17,12 @@ import {
 } from '../constants';
 import {
   findAssigneesWidget,
+  findColorWidget,
   findCrmContactsWidget,
   findHealthStatusWidget,
   findHierarchyWidget,
   findHierarchyWidgetDefinition,
+  findIterationWidget,
   findLabelsWidget,
   findStartAndDueDateWidget,
   findTimeTrackingWidget,
@@ -174,7 +174,7 @@ export default {
       return this.isWidgetPresent(WIDGET_TYPE_PROGRESS);
     },
     workItemIteration() {
-      return this.isWidgetPresent(WIDGET_TYPE_ITERATION);
+      return findIterationWidget(this.workItem);
     },
     workItemHealthStatus() {
       return findHealthStatusWidget(this.workItem);
@@ -200,7 +200,7 @@ export default {
       return findTimeTrackingWidget(this.workItem);
     },
     workItemColor() {
-      return this.isWidgetPresent(WIDGET_TYPE_COLOR);
+      return findColorWidget(this.workItem);
     },
     hasParent() {
       return this.workItemHierarchy?.hasParent;
