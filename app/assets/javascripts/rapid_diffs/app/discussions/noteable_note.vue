@@ -87,6 +87,11 @@ export default {
       required: false,
       default: false,
     },
+    isFirstNote: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   emits: ['cancelEditing', 'noteEdited', 'resolve', 'startEditing', 'startReplying'],
   data() {
@@ -318,6 +323,7 @@ export default {
             :restore-from-autosave="restoreFromAutosave"
             :save-note="saveNote"
             :save-note-error-messages="$options.UPDATE_COMMENT_FORM"
+            :is-first-note="isFirstNote"
             @cancelEditing="onCancelEditing"
             @input="$emit('noteEdited', $event)"
             @award="toggleAward"

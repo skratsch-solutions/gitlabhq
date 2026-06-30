@@ -170,6 +170,56 @@ instructions:
       - Reference: https://docs.gitlab.com/development/organization/sharding/
       - Reference: https://docs.gitlab.com/development/contributing/merge_request_workflow/#definition-of-done
 
+  - name: Sidekiq Worker Compatibility
+    fileFilters:
+      - "app/workers/**/*.rb"
+      - "ee/app/workers/**/*.rb"
+      - "app/controllers/**/*.rb"
+      - "ee/app/controllers/**/*.rb"
+      - "app/services/**/*.rb"
+      - "ee/app/services/**/*.rb"
+      - "lib/api/**/*.rb"
+      - "ee/lib/api/**/*.rb"
+      - "app/graphql/**/*.rb"
+      - "ee/app/graphql/**/*.rb"
+      - "!spec/**/*"
+      - "!ee/spec/**/*"
+    instructions: |
+      On GitLab.com, Sidekiq runs only on the regional cluster and is not part of the
+      canary stage, while the web/API fleet (canary and zonal clusters) deploys separately.
+      During a deployment there is a window where web/API nodes already schedule a job but the
+      Sidekiq fleet has not yet been updated. A job can therefore be enqueued by one version
+      and executed by another, so worker changes must be backward and forward compatible
+      across the versions that coexist during a rollout.
+
+      1. **New worker scheduled without a feature flag**:
+         - When this MR adds a new Sidekiq worker class (a new file under `app/workers/**` or
+           `ee/app/workers/**`) and also schedules it from a web/API request path
+           (`perform_async`, `perform_in`, `perform_at`, `bulk_perform_async`,
+           `bulk_perform_in`, `perform_bulk` called from a controller, service, API, or
+           GraphQL resolver/mutation), verify the scheduling is controlled by a feature flag.
+         - Ask: "Is the scheduling of this new worker gated behind a feature flag that will be
+           enabled only after the deploy introducing the worker has fully rolled out to Sidekiq?
+           Without it, web/API can enqueue the job before Sidekiq knows the class and the job
+           will fail or sit unprocessed until the full production deployment completes."
+         - Note: a feature flag elsewhere in the MR does not count unless it actually wraps the
+           enqueue call. Re-enqueues from within another worker are not a concern here.
+      2. **Changing arguments of an existing worker**:
+         - When the `perform` signature of an existing worker changes (arguments added,
+           removed, or reordered), verify the change is backward and forward compatible.
+         - Ask: "Will an old Sidekiq node be able to process a job enqueued with the new
+           arguments, and a new node a job enqueued with the old arguments? If not, split this
+           across releases (add with a default, then use, then remove the default)."
+      3. **Removing or renaming a worker**:
+         - When a worker class is removed or renamed, do not remove it while its queue may
+           still hold jobs. Drain the queue, verify it is empty, and confirm removal is safe
+           first; leaving enqueued jobs with no worker to process them is not acceptable.
+         - Ask: "Has this worker's queue been drained and verified empty? Keep the old class
+           able to process queued jobs for at least one release, then remove it only once the
+           queue is confirmed empty."
+      - Reference: https://docs.gitlab.com/development/sidekiq/compatibility_across_updates/
+      - Reference: https://docs.gitlab.com/development/feature_flags/
+
   # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
   # distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911
   # source_checksum: d36ccbb0679c0fc2

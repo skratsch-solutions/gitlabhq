@@ -46876,6 +46876,8 @@ CREATE INDEX index_ai_catalog_items_on_latest_released_version_id ON ai_catalog_
 
 CREATE INDEX index_ai_catalog_items_on_latest_version_id ON ai_catalog_items USING btree (latest_version_id);
 
+CREATE INDEX index_ai_catalog_items_on_org_id_and_visibility_not_deleted ON ai_catalog_items USING btree (organization_id, visibility) WHERE (deleted_at IS NULL);
+
 CREATE INDEX index_ai_catalog_items_on_project_id ON ai_catalog_items USING btree (project_id);
 
 CREATE INDEX index_ai_catalog_items_on_public ON ai_catalog_items USING btree (public);

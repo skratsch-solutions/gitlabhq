@@ -37,6 +37,50 @@ Value stream analytics has a hierarchical structure:
 - Each value stream stage list contains one or more **stages**.
 - Each stage is defined by two **events**: start and end.
 
+## Metrics
+
+The **Overview** page in value stream analytics displays key metrics of the DevSecOps lifecycle performance for projects and groups.
+
+### Lifecycle metrics
+
+Value stream analytics includes the following lifecycle metrics:
+
+- **Lead time**: Median time from when the issue was created to when it was closed.
+- **Cycle time**: Median time between when an issue is first [referenced in the commit message](../../project/issues/crosslinking_issues.md#from-commit-messages) of a merge request and when that referenced issue is closed. You must include `#` followed by the issue number (for example, `#123`) in the commit message, otherwise no data is displayed. Cycle time is typically shorter than lead time because the merge request is created after the first commit.
+- **New issues**: Number of new issues created.
+- **Deploys**: Total number of deployments to production.
+
+### DORA metrics
+
+{{< details >}}
+
+- Tier: Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+{{< /details >}}
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/355304) time to restore service tile in GitLab 15.0.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/357071) change failure rate tile in GitLab 15.0.
+
+{{< /history >}}
+
+Value stream analytics includes the following [DORA](../../analytics/dora_metrics.md) metrics:
+
+- Deployment frequency
+- Lead time for changes
+- Time to restore service
+- Change failure rate
+
+DORA metrics are calculated based on data from the
+[DORA API](../../../api/dora/metrics.md).
+
+If you have a GitLab Premium or Ultimate subscription:
+
+- The number of successful deployments is calculated with DORA data.
+- The data is filtered based on environment and environment tier.
+
 ## Value streams
 
 A value stream is the entire work process that delivers value to customers.
@@ -93,35 +137,6 @@ Value stream analytics supports the following events:
 You can share your ideas or feedback about stage events in
 [issue 520962](https://gitlab.com/gitlab-org/gitlab/-/issues/520962).
 
-## Data aggregation
-
-{{< details >}}
-
-- Tier: Premium, Ultimate
-- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-
-{{< /details >}}
-
-{{< history >}}
-
-- Enable filtering by stop date [added](https://gitlab.com/gitlab-org/gitlab/-/issues/355000) in GitLab 15.0
-
-{{< /history >}}
-
-Value stream analytics uses a backend process to collect and aggregate stage-level data, which
-ensures it can scale for large groups with a high number of issues and merge requests. Due to this process,
-there may be a slight delay between when an action is taken (for example, closing an issue) and when the data
-displays on the value stream analytics page.
-
-It may take up to 10 minutes to process the data and display results. Data collection may take
-longer than 10 minutes in the following cases:
-
-- If this is the first time you are viewing value stream analytics and have not yet created a value stream.
-- If the group hierarchy has been re-arranged.
-- If there have been bulk updates on issues and merge requests.
-
-To view when the data was most recently updated, in the right corner next to **Edit**, hover over the **Last updated** badge.
-
 ## Stage measurement
 
 Value stream analytics measures each stage from its start event to its end event.
@@ -148,6 +163,18 @@ The following table gives an overview of the pre-defined stages in value stream 
 
 > [!note]
 > Value stream analytics works on timestamp data and aggregates only the final start and stop events of the stage. For items that move back and forth between stages multiple times, the stage time is calculated solely from the final events' timestamps.
+
+### Production environment
+
+Value stream analytics identifies [production environments](../../../ci/environments/_index.md#deployment-tier-of-environments) by looking for project
+[environments](../../../ci/yaml/_index.md#environment) with a name matching any of these patterns:
+
+- `prod` or `prod/*`
+- `production` or `production/*`
+
+These patterns are not case-sensitive.
+
+You can change the name of a project environment in your GitLab CI/CD configuration.
 
 ### Example workflow
 
@@ -214,65 +241,59 @@ With cumulative label event duration calculation enabled, the duration is three 
 > [!note]
 > When you upgrade your GitLab version to 16.10 (or to a higher version), existing label-based value stream analytics stages are automatically reaggregated using the background aggregation process.
 
-#### Reaggregate data after upgrade
+### Label-based stages for custom value streams
+
+To measure complex workflows, you can use [scoped labels](../../project/labels.md#scoped-labels). For example, to measure deployment
+time from a staging environment to production, you could use the following labels:
+
+- When the code is deployed to staging, the `workflow::staging` label is added to the merge request.
+- When the code is deployed to production, the `workflow::production` label is added to the merge request.
+
+![Label-based value stream analytics stage](img/vsa_label_based_stage_v14_0.png "Creating a label-based value stream analytics stage")
+
+#### Automatic data labeling with webhooks
+
+You can automatically add labels by using [GitLab webhook events](../../project/integrations/webhook_events.md),
+so that a label is applied to merge requests or issues when a specific event occurs.
+Then, you can add label-based stages to track your workflow.
+To learn more about the implementation, see the blog post [Applying GitLab Labels Automatically](https://about.gitlab.com/blog/applying-gitlab-labels-automatically/).
+
+#### Example configuration
+
+![Example configuration](img/object_hierarchy_v14_10.png "Example custom value stream configuration")
+
+In the previous example, two independent value streams are set up for two teams that are using different development workflows in the **Test Group** (top-level namespace).
+
+The first value stream uses standard timestamp-based events for defining the stages. The second value stream uses label events.
+
+## Data aggregation
 
 {{< details >}}
 
-- Offering: GitLab Self-Managed
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 {{< /details >}}
 
-On large instances, when you upgrade the GitLab version and especially if several minor versions are skipped, the background aggregation processes might last longer. This delay can result in outdated data on the Value Stream Analytics page.
-To speed up the aggregation process and avoid outdated data, in the [rails console](../../../administration/operations/rails_console.md#starting-a-rails-console-session) you can invoke the synchronous aggregation snippet for a given group:
+{{< history >}}
 
-```ruby
-group = Group.find(-1) # put your group id here
-group_to_aggregate = group.root_ancestor
+- Enable filtering by stop date [added](https://gitlab.com/gitlab-org/gitlab/-/issues/355000) in GitLab 15.0
 
-loop do
-  cursor = {}
-  context = Analytics::CycleAnalytics::AggregationContext.new(cursor: cursor)
-  service_response = Analytics::CycleAnalytics::DataLoaderService.new(group: group_to_aggregate, model: Issue, context: context).execute
+{{< /history >}}
 
-  if service_response.success? && service_response.payload[:reason] == :limit_reached
-    cursor = service_response.payload[:context].cursor
-  elsif service_response.success?
-    puts "finished"
-    break
-  else
-    puts "failed"
-    break
-  end
-end
+Value stream analytics uses a backend process to collect and aggregate stage-level data, which
+ensures it can scale for large groups with a high number of issues and merge requests. Due to this process,
+there may be a slight delay between when an action is taken (for example, closing an issue) and when the data
+displays on the value stream analytics page.
 
-loop do
-  cursor = {}
-  context = Analytics::CycleAnalytics::AggregationContext.new(cursor: cursor)
-  service_response = Analytics::CycleAnalytics::DataLoaderService.new(group: group_to_aggregate, model: MergeRequest, context: context).execute
+It may take up to 10 minutes to process the data and display results. Data collection may take
+longer than 10 minutes in the following cases:
 
-  if service_response.success? && service_response.payload[:reason] == :limit_reached
-    cursor = service_response.payload[:context].cursor
-  elsif service_response.success?
-    puts "finished"
-    break
-  else
-    puts "failed"
-    break
-  end
-end
-```
+- If this is the first time you are viewing value stream analytics and have not yet created a value stream.
+- If the group hierarchy has been re-arranged.
+- If there have been bulk updates on issues and merge requests.
 
-## Production environment
-
-Value stream analytics identifies [production environments](../../../ci/environments/_index.md#deployment-tier-of-environments) by looking for project
-[environments](../../../ci/yaml/_index.md#environment) with a name matching any of these patterns:
-
-- `prod` or `prod/*`
-- `production` or `production/*`
-
-These patterns are not case-sensitive.
-
-You can change the name of a project environment in your GitLab CI/CD configuration.
+To view when the data was most recently updated, in the right corner next to **Edit**, hover over the **Last updated** badge.
 
 ## View value stream analytics
 
@@ -329,50 +350,6 @@ You can filter value stream analytics to view data that matches specific criteri
 - Author
 - Milestone
 - Label
-
-## Value stream analytics metrics
-
-The **Overview** page in value stream analytics displays key metrics of the DevSecOps lifecycle performance for projects and groups.
-
-### Lifecycle metrics
-
-Value stream analytics includes the following lifecycle metrics:
-
-- **Lead time**: Median time from when the issue was created to when it was closed.
-- **Cycle time**: Median time between when an issue is first [referenced in the commit message](../../project/issues/crosslinking_issues.md#from-commit-messages) of a merge request and when that referenced issue is closed. You must include `#` followed by the issue number (for example, `#123`) in the commit message, otherwise no data is displayed. Cycle time is typically shorter than lead time because the merge request is created after the first commit.
-- **New issues**: Number of new issues created.
-- **Deploys**: Total number of deployments to production.
-
-### DORA metrics
-
-{{< details >}}
-
-- Tier: Ultimate
-- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-
-{{< /details >}}
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/355304) time to restore service tile in GitLab 15.0.
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/357071) change failure rate tile in GitLab 15.0.
-
-{{< /history >}}
-
-Value stream analytics includes the following [DORA](../../analytics/dora_metrics.md) metrics:
-
-- Deployment frequency
-- Lead time for changes
-- Time to restore service
-- Change failure rate
-
-DORA metrics are calculated based on data from the
-[DORA API](../../../api/dora/metrics.md).
-
-If you have a GitLab Premium or Ultimate subscription:
-
-- The number of successful deployments is calculated with DORA data.
-- The data is filtered based on environment and environment tier.
 
 ## View lifecycle and DORA metrics
 
@@ -501,31 +478,6 @@ To create a value stream with custom stages:
 For a video explanation, see [Optimizing merge request review process with Value Stream Analytics](https://www.youtube.com/watch?v=kblpge6xeL8).
 <!-- Video published on 2024-07-29 -->
 
-## Label-based stages for custom value streams
-
-To measure complex workflows, you can use [scoped labels](../../project/labels.md#scoped-labels). For example, to measure deployment
-time from a staging environment to production, you could use the following labels:
-
-- When the code is deployed to staging, the `workflow::staging` label is added to the merge request.
-- When the code is deployed to production, the `workflow::production` label is added to the merge request.
-
-![Label-based value stream analytics stage](img/vsa_label_based_stage_v14_0.png "Creating a label-based value stream analytics stage")
-
-### Automatic data labeling with webhooks
-
-You can automatically add labels by using [GitLab webhook events](../../project/integrations/webhook_events.md),
-so that a label is applied to merge requests or issues when a specific event occurs.
-Then, you can add label-based stages to track your workflow.
-To learn more about the implementation, see the blog post [Applying GitLab Labels Automatically](https://about.gitlab.com/blog/applying-gitlab-labels-automatically/).
-
-### Example configuration
-
-![Example configuration](img/object_hierarchy_v14_10.png "Example custom value stream configuration")
-
-In the previous example, two independent value streams are set up for two teams that are using different development workflows in the **Test Group** (top-level namespace).
-
-The first value stream uses standard timestamp-based events for defining the stages. The second value stream uses label events.
-
 ## Edit a value stream
 
 {{< details >}}
@@ -598,6 +550,54 @@ The chart shows data for the last 500 workflow items.
       - In the **From** field, select a start date.
       - In the **To** field, select an end date.
 
+## Reaggregate data after upgrade
+
+{{< details >}}
+
+- Offering: GitLab Self-Managed
+
+{{< /details >}}
+
+On large instances, when you upgrade the GitLab version and especially if several minor versions are skipped, the background aggregation processes might last longer. This delay can result in outdated data on the Value Stream Analytics page.
+To speed up the aggregation process and avoid outdated data, in the [rails console](../../../administration/operations/rails_console.md#starting-a-rails-console-session) you can invoke the synchronous aggregation snippet for a given group:
+
+```ruby
+group = Group.find(-1) # put your group id here
+group_to_aggregate = group.root_ancestor
+
+loop do
+  cursor = {}
+  context = Analytics::CycleAnalytics::AggregationContext.new(cursor: cursor)
+  service_response = Analytics::CycleAnalytics::DataLoaderService.new(group: group_to_aggregate, model: Issue, context: context).execute
+
+  if service_response.success? && service_response.payload[:reason] == :limit_reached
+    cursor = service_response.payload[:context].cursor
+  elsif service_response.success?
+    puts "finished"
+    break
+  else
+    puts "failed"
+    break
+  end
+end
+
+loop do
+  cursor = {}
+  context = Analytics::CycleAnalytics::AggregationContext.new(cursor: cursor)
+  service_response = Analytics::CycleAnalytics::DataLoaderService.new(group: group_to_aggregate, model: MergeRequest, context: context).execute
+
+  if service_response.success? && service_response.payload[:reason] == :limit_reached
+    cursor = service_response.payload[:context].cursor
+  elsif service_response.success?
+    puts "finished"
+    break
+  else
+    puts "failed"
+    break
+  end
+end
+```
+
 ## Access permissions
 
 Access permissions for value stream analytics depend on the project type.
@@ -610,23 +610,23 @@ Access permissions for value stream analytics depend on the project type.
 
 ## Feature availability
 
-Value stream analytics offers different features at the project and group level for FOSS and licensed versions.
+Value stream analytics offers features for projects and groups, with availability varying by tier.
 
-- On GitLab Free, value stream analytics does not aggregate data. It queries the database directly where the date range filter is applied to the creation date of issues and merge request. You can view value stream analytics with pre-defined default stages.
-- On GitLab Premium, value stream analytics aggregates data and applies the date range filter on the end event. You can also create, edit, and delete value streams.
+- In the Free tier, value stream analytics does not aggregate data. It queries the database directly where the date range filter is applied to the creation date of issues and merge request. You can view value stream analytics with pre-defined default stages.
+- In the Premium and Ultimate tier, value stream analytics aggregates data and applies the date range filter on the end event. You can also create, edit, and delete value streams.
 
-| Feature                                              | Group level (licensed)                                                                        | Project level (licensed)        | Project level (FOSS) |
+| Feature                                              | Group (Premium, Ultimate)                                                                        | Project (Premium, Ultimate)        | Project (Free) |
 |------------------------------------------------------|-----------------------------------------------------------------------------------------------|---------------------------------|----------------------|
-| Create custom value streams                          | Yes                                                                                           | Yes                             | No, only one value stream (default) is present with the default stages |
-| Create custom stages                                 | Yes                                                                                           | Yes                             | No                   |
-| Filtering (for example, by author, label, milestone) | Yes                                                                                           | Yes                             | Yes                  |
-| Stage time chart                                     | Yes                                                                                           | Yes                             | No                   |
-| Total time chart                                     | Yes                                                                                           | Yes                             | No                   |
-| Task by type chart                                   | Yes                                                                                           | No                              | No                   |
-| DORA Metrics                                         | Yes                                                                                           | Yes                             | No                   |
-| Cycle time and lead time summary (Lifecycle metrics) | Yes                                                                                           | Yes                             | No                   |
-| New issues, commits, and deploys (Lifecycle metrics) | Yes, excluding commits                                                                        | Yes                             | Yes                  |
-| Uses aggregated backend                              | Yes                                                                                           | Yes                             | No                   |
+| Create custom value streams                          | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< no >}} Only one value stream (default) is present with the default stages |
+| Create custom stages                                 | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< no >}}                   |
+| Filtering (for example, by author, label, milestone) | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< yes >}}                  |
+| Stage time chart                                     | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< no >}}                   |
+| Total time chart                                     | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< no >}}                   |
+| Task by type chart                                   | {{< yes >}}                                                                                           | {{< no >}}                              | {{< no >}}                   |
+| DORA Metrics                                         | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< no >}}                   |
+| Cycle time and lead time summary (Lifecycle metrics) | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< no >}}                   |
+| New issues, commits, and deploys (Lifecycle metrics) | {{< yes >}} Excluding commits                                                                        | {{< yes >}}                             | {{< yes >}}                  |
+| Uses aggregated backend                              | {{< yes >}}                                                                                           | {{< yes >}}                             | {{< no >}}                   |
 | Date filter behavior                                 | Filters items [finished in the date range](https://gitlab.com/groups/gitlab-org/-/epics/6046) | Filters items by creation date. | Filters items by creation date. |
 | Authorization                                        | At least reporter                                                                             | At least reporter               | Can be public        |
 

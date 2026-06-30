@@ -3645,22 +3645,22 @@ export const adminDashboardStatsPath = /*#__PURE__*/ (...args) => {
  * Generates the Rails route:
  *
  * - href: `/admin/organization(.:format)`
- * - Path helper: `admin_org_dashboard_path`
- * - URL helper: `admin_org_dashboard_url`
+ * - Path helper: `admin_organization_dashboard_path`
+ * - URL helper: `admin_organization_dashboard_url`
  * - controller#action: `admin/organizations/dashboard#index`
  *
  * @param {object | undefined} options
  * @returns {string} route path
  */
-export const adminOrgDashboardPath = /*#__PURE__*/ (...args) => {
-  const _organizationAdminOrgDashboardPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"admin"],[2,[7,"/"],[2,[6,"organization"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
-  const _adminOrgDashboardPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"admin"],[2,[7,"/"],[2,[6,"organization"],[1,[2,[8,"."],[3,"format"]]]]]]]);
+export const adminOrganizationDashboardPath = /*#__PURE__*/ (...args) => {
+  const _organizationAdminOrganizationDashboardPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"admin"],[2,[7,"/"],[2,[6,"organization"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
+  const _adminOrganizationDashboardPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"admin"],[2,[7,"/"],[2,[6,"organization"],[1,[2,[8,"."],[3,"format"]]]]]]]);
 
   if (hasOrganizationScopedPaths()) {
-    return _organizationAdminOrgDashboardPath(gon.current_organization.path, ...args);
+    return _organizationAdminOrganizationDashboardPath(gon.current_organization.path, ...args);
   }
 
-  return _adminOrgDashboardPath(...args);
+  return _adminOrganizationDashboardPath(...args);
 };
 
 /**

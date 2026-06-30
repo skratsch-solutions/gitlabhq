@@ -94,7 +94,8 @@ module Types
         description: 'Indicates the job can be played.'
       field :previous_stage_jobs, Types::Ci::JobType.connection_type,
         null: true,
-        description: 'Jobs from the previous stage.'
+        description: 'Jobs from the previous stage.',
+        deprecated: { reason: 'No longer required. Previous stage jobs are now computed on the client side', milestone: '19.2' }
       field :previous_stage_jobs_or_needs, Types::Ci::JobNeedUnion.connection_type,
         null: true,
         description: 'Jobs that must complete before the job runs. Returns `BuildNeed`, ' \

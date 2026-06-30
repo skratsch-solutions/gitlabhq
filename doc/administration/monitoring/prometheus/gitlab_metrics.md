@@ -247,10 +247,28 @@ node, both from web/Grape requests and from Sidekiq jobs.
 The two `sidekiq_zoekt_*` rows are also listed in the Sidekiq metrics table
 alongside the equivalent Elasticsearch and Redis metrics.
 
+### Database-derived Zoekt metrics (from GitLab exporter)
+
 Database-derived Zoekt metrics (node status, task queue depth, index state,
 storage bytes) are emitted by the `gitlab-exporter` process under the
-`search_zoekt_*` prefix. See the [`gitlab-exporter` source](https://gitlab.com/gitlab-org/ruby/gems/gitlab-exporter/-/blob/master/lib/gitlab_exporter/database/zoekt.rb)
-for the full list.
+`search_zoekt_*` prefix.
+The `gitlab-exporter` endpoint emits these metrics, not the Rails `/-/metrics` endpoint.
+
+| Metric | Type | Since | Labels | Description |
+|:-------|:-----|------:|:-------|:------------|
+| `search_zoekt_task_processing_queue_size` | Gauge | **None** | `node_name`, `node_id` | Number of tasks waiting to be processed by Zoekt. |
+| `search_zoekt_repositories_schema_version_count` | Gauge | **None** | `target_schema_version`, `zoekt_node_id`, `zoekt_node_name` | Number of `zoekt_repositories` that do not have the latest schema version. |
+| `search_zoekt_nodes_status` | Gauge | **None** | `zoekt_node_id`, `zoekt_node_name` | Status of each Zoekt node. `0` is offline (last seen more than 2 minutes ago), `1` is online. |
+| `search_zoekt_node_unclaimed_storage_bytes` | Gauge | **None** | `zoekt_node_id`, `zoekt_node_name` | Unclaimed storage bytes for a Zoekt node. |
+| `search_zoekt_node_storage_percent_used` | Gauge | **None** | `zoekt_node_id`, `zoekt_node_name` | Fraction of storage used on a Zoekt node (range: `0` to `1`). |
+| `search_zoekt_repositories_states_total` | Gauge | **None** | `state` | Number of Zoekt repositories in each state. |
+| `search_zoekt_indices_states` | Gauge | **None** | `state` | Number of Zoekt indices in each state. |
+| `search_zoekt_indices_watermark_levels` | Gauge | **None** | `watermark_level` | Number of Zoekt indices in each watermark level. |
+| `search_zoekt_indices_reserved_storage_bytes` | Gauge | **None** | `zoekt_index_id`, `zoekt_node_name` | Reserved storage bytes for each Zoekt index. |
+| `search_zoekt_indices_used_storage_bytes` | Gauge | **None** | `zoekt_index_id`, `zoekt_node_name` | Used storage bytes for each Zoekt index. |
+| `search_zoekt_node_enabled_namespaces` | Gauge | 19.2 | `node_id`, `node_name` | Number of enabled namespaces per Zoekt node. |
+| `search_zoekt_node_tasks` | Gauge | 19.2 | `node_id`, `node_name`, `state` | Number of Zoekt indexing tasks on a node, broken down by state. |
+| `search_zoekt_indices_with_stale_used_storage_bytes` | Gauge | 19.2 | **None** | Number of Zoekt indices whose `used_storage_bytes` value has not been updated since the last index run. |
 
 ### SLI metrics
 

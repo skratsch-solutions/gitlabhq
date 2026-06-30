@@ -129,13 +129,14 @@ describe('NoteableNote', () => {
   });
 
   it('shows note body with correct props', () => {
-    createComponent({ autosaveKey: 'autosave-key', restoreFromAutosave: true });
+    createComponent({ autosaveKey: 'autosave-key', restoreFromAutosave: true, isFirstNote: true });
     expect(findNoteBody().props()).toMatchObject({
       note: defaultProps.note,
       canEdit: defaultProps.note.current_user.can_edit,
       isEditing: defaultProps.note.isEditing,
       autosaveKey: 'autosave-key',
       restoreFromAutosave: true,
+      isFirstNote: true,
     });
   });
 

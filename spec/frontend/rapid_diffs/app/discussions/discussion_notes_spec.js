@@ -188,6 +188,19 @@ describe('DiscussionNotes', () => {
     });
   });
 
+  describe('isFirstNote prop', () => {
+    it('passes isFirstNote to the first NoteableNote', () => {
+      const note = { id: 'foo' };
+      createComponent({ notes: [note] });
+      expect(wrapper.findComponent(NoteableNote).props('isFirstNote')).toBe(true);
+    });
+
+    it('does not pass isFirstNote to the second NoteableNote', () => {
+      createComponent({ notes: [{ id: 'foo' }, { id: 'bar' }] });
+      expect(wrapper.findAllComponents(NoteableNote).at(1).props('isFirstNote')).toBe(false);
+    });
+  });
+
   describe('multiline comment headline', () => {
     const multiLineRange = {
       start: { old_line: 5, new_line: 5, type: null },

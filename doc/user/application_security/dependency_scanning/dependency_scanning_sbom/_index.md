@@ -152,7 +152,7 @@ FIPS-enabled environments.
 Dependency scanning analyzer outputs:
 
 - A CycloneDX SBOM for each supported lockfile or dependency graph export detected.
-- A single dependency scanning report for all scanned SBOM documents (GitLab.com and GitLab Self-Managed only).
+- A single dependency scanning report for all scanned SBOM documents.
 
 > [!note]
 > If the analyzer does not find any [supported file](#supported-languages-and-files),
@@ -202,7 +202,7 @@ The following CycloneDX SBOMs are created as job artifacts:
 
 {{< details >}}
 
-- Offering: GitLab.com, GitLab Self-Managed
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 {{< /details >}}
 

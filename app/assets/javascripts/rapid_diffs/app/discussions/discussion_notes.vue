@@ -116,6 +116,7 @@ export default {
       :timeline-layout="timelineLayout"
       :show-reply-button="userPermissions.can_create_note && !individual"
       :is-last-discussion="isLastDiscussion"
+      is-first-note
       :can-resolve="canResolve"
       :is-resolved="isResolved"
       :is-resolving="isResolving"

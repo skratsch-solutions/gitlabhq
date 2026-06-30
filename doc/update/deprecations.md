@@ -80,6 +80,14 @@ The Dependency Proxy for packages is deprecated and will be removed in a future 
 
 **Action required:** Migrate your package manager configuration from the Dependency Proxy for packages endpoints to the Maven virtual registry. See the [Maven virtual registry documentation](https://docs.gitlab.com/user/packages/virtual_registry/maven/) for setup instructions.
 
+### Deprecate `previousStageJobs` from GraphQL
+
+- Announced in GitLab 19.2
+- Removal in GitLab 20.0 ([breaking change](https://docs.gitlab.com/update/terminology/#breaking-change))
+- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/issues/603950).
+
+The `previousStageJobs` field in the GraphQL `CiJob` type is deprecated and will be removed in GitLab 20.0. No server-side alternative is required because the GitLab UI no longer needs `previousStageJobs` to calculate dependencies.
+
 ### Design Management deprecated
 
 - Announced in GitLab 18.6

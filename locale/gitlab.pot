@@ -3647,6 +3647,9 @@ msgstr ""
 msgid "AICatalog|can't be made private because it is used by at least one flow"
 msgstr ""
 
+msgid "AICatalog|can't be reduced because this item is enabled in a project or group"
+msgstr ""
+
 msgid "AICatalog|cannot be enabled because your top-level group settings block enabling items outside of its hierarchy"
 msgstr ""
 
@@ -3672,6 +3675,9 @@ msgid "AICatalog|must be the same service account as the top-level group"
 msgstr ""
 
 msgid "AICatalog|must belong to this project's top-level group"
+msgstr ""
+
+msgid "AICatalog|public and visibility must be consistent"
 msgstr ""
 
 msgid "AICatalog|unable to validate definition"
@@ -25869,6 +25875,11 @@ msgid_plural "Dependencies|%d more"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Dependencies|%d ref"
+msgid_plural "Dependencies|%d refs"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Dependencies|%d vulnerability detected"
 msgid_plural "Dependencies|%d vulnerabilities detected"
 msgstr[0] ""
@@ -25960,6 +25971,9 @@ msgid "Dependencies|Policy violation"
 msgstr ""
 
 msgid "Dependencies|Projects"
+msgstr ""
+
+msgid "Dependencies|Refs"
 msgstr ""
 
 msgid "Dependencies|Report export in progress. After the report is generated, an email will be sent with the download link."
