@@ -9,7 +9,6 @@ import WorkItemDates from 'ee_else_ce/work_items/components/work_item_dates.vue'
 import {
   WIDGET_TYPE_MILESTONE,
   WIDGET_TYPE_PARTICIPANTS,
-  WIDGET_TYPE_PROGRESS,
   WORK_ITEM_TYPE_NAME_EPIC,
   WIDGET_TYPE_CUSTOM_FIELDS,
   WIDGET_TYPE_STATUS,
@@ -24,6 +23,7 @@ import {
   findHierarchyWidgetDefinition,
   findIterationWidget,
   findLabelsWidget,
+  findProgressWidget,
   findStartAndDueDateWidget,
   findTimeTrackingWidget,
   findWeightWidget,
@@ -171,7 +171,7 @@ export default {
       return findWeightWidget(this.workItem);
     },
     workItemProgress() {
-      return this.isWidgetPresent(WIDGET_TYPE_PROGRESS);
+      return findProgressWidget(this.workItem);
     },
     workItemIteration() {
       return findIterationWidget(this.workItem);

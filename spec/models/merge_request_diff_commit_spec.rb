@@ -302,30 +302,20 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
         stub_feature_flags(mr_diff_commits_read_new_table: false)
       end
 
-      # Both flag states must return identical results: the flag only swaps the SQL join strategy
-      # (LATERAL nested loop vs. plain hash-eligible LEFT JOIN), not the data.
-      [true, false].each do |lateral_join_enabled|
-        context "when commit_shas_metadata_lateral_join is #{lateral_join_enabled ? 'enabled' : 'disabled'}" do
-          before do
-            stub_feature_flags(commit_shas_metadata_lateral_join: lateral_join_enabled)
-          end
+      it 'returns commit shas from both metadata and diff commits' do
+        result = described_class
+          .for_merge_request_diff(merge_request_diff.id, project.id)
+          .commit_shas_from_metadata(project_id: project.id, limit: nil)
 
-          it 'returns commit shas from both metadata and diff commits' do
-            result = described_class
-              .for_merge_request_diff(merge_request_diff.id, project.id)
-              .commit_shas_from_metadata(project_id: project.id, limit: nil)
+        expect(result).to contain_exactly('abc123', 'def456', 'fade12')
+      end
 
-            expect(result).to contain_exactly('abc123', 'def456', 'fade12')
-          end
+      it 'respects the limit parameter' do
+        result = described_class
+          .for_merge_request_diff(merge_request_diff.id, project.id)
+          .commit_shas_from_metadata(project_id: project.id, limit: 1)
 
-          it 'respects the limit parameter' do
-            result = described_class
-              .for_merge_request_diff(merge_request_diff.id, project.id)
-              .commit_shas_from_metadata(project_id: project.id, limit: 1)
-
-            expect(result.size).to eq(1)
-          end
-        end
+        expect(result.size).to eq(1)
       end
     end
   end

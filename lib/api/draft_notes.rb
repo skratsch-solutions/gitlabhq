@@ -73,6 +73,10 @@ module API
       end
       # rubocop:enable CodeReuse/ActiveRecord
 
+      # Requested changes is an EE-only concept. Overridden in EE to clear the caller's own
+      # requested changes so a `reviewed` re-review unblocks merge. No-op in CE.
+      def clear_requested_changes_on_review(mr); end
+
       params :positional do
         optional :position, type: Hash, desc: 'Position when creating a note' do
           requires :base_sha, type: String, desc: 'Base commit SHA in the source branch'
@@ -325,6 +329,13 @@ module API
         if params[:reviewer_state].present?
           mr = merge_request(params: params)
 
+          # A prior review may have set `requested_changes`, which blocks merge until the
+          # record is destroyed. Setting the reviewer state to `reviewed` does not clear it
+          # (only `approved` does, via UpdateReviewerStateService), so a clean re-review would
+          # leave the merge request blocked. Clear the caller's own requested changes here so a
+          # `reviewed` re-review can unblock without recording a formal approval. No-op in CE.
+          clear_requested_changes_on_review(mr) if params[:reviewer_state] == 'reviewed'
+
           ::MergeRequests::UpdateReviewerStateService
             .new(project: user_project, current_user: current_user)
             .execute(mr, params[:reviewer_state])
@@ -338,3 +349,5 @@ module API
     end
   end
 end
+
+API::DraftNotes.prepend_mod_with('API::DraftNotes')

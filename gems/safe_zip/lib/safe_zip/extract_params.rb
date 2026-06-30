@@ -2,8 +2,6 @@
 
 module SafeZip
   class ExtractParams
-    include Gitlab::Utils::StrongMemoize
-
     attr_reader :directories, :files, :extract_path
 
     def initialize(to:, directories: [], files: [])
@@ -20,18 +18,14 @@ module SafeZip
     end
 
     def target_directories
-      strong_memoize(:target_directories) do
-        directories.map do |directory|
-          ::File.join(::File.expand_path(directory, extract_path), '')
-        end
+      @target_directories ||= directories.map do |directory|
+        ::File.join(::File.expand_path(directory, extract_path), '')
       end
     end
 
     def directories_wildcard
-      strong_memoize(:directories_wildcard) do
-        directories.map do |directory|
-          ::File.join(directory, '*')
-        end
+      @directories_wildcard ||= directories.map do |directory|
+        ::File.join(directory, '*')
       end
     end
 
@@ -42,10 +36,8 @@ module SafeZip
     private
 
     def target_files
-      strong_memoize(:target_files) do
-        files.map do |file|
-          ::File.join(extract_path, file)
-        end
+      @target_files ||= files.map do |file|
+        ::File.join(extract_path, file)
       end
     end
 

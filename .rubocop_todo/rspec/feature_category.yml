@@ -1388,7 +1388,6 @@ RSpec/FeatureCategory:
     - 'spec/lib/gitlab/ci/artifacts/logger_spec.rb'
     - 'spec/lib/gitlab/ci/artifacts/metrics_spec.rb'
     - 'spec/lib/gitlab/ci/badge/coverage/template_spec.rb'
-    - 'spec/lib/gitlab/ci/badge/pipeline/metadata_spec.rb'
     - 'spec/lib/gitlab/ci/badge/release/latest_release_spec.rb'
     - 'spec/lib/gitlab/ci/badge/release/template_spec.rb'
     - 'spec/lib/gitlab/ci/build/artifacts/metadata/entry_spec.rb'

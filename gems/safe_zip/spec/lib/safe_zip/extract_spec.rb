@@ -7,7 +7,8 @@ RSpec.describe SafeZip::Extract do
   let(:directories) { %w[public] }
   let(:files) { %w[public/index.html] }
   let(:object) { described_class.new(archive) }
-  let(:archive) { Rails.root.join('spec', 'fixtures', 'safe_zip', archive_name) }
+  let(:fixture_path) { File.expand_path('../../fixtures/safe_zip', __dir__) }
+  let(:archive) { File.join(fixture_path, archive_name) }
 
   after do
     FileUtils.remove_entry_secure(target_path)

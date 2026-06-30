@@ -47,6 +47,7 @@ gem 'ffi', '~> 1.17.3', feature_category: :shared # rubocop:todo Gemfile/Missing
 gem 'openssl', '~> 3.3.2', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
 gem 'gitlab-safe_request_store', path: 'gems/gitlab-safe_request_store', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
+gem 'safe_zip', path: 'gems/safe_zip', feature_category: :job_artifacts
 
 # GitLab Monorepo Gems
 group :monorepo do

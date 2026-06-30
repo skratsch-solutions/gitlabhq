@@ -15,25 +15,31 @@ module Authn
       # Assigns a role to a subject on an object by writing an ASSIGNMENT tuple.
       # The caller passes the identity pieces and this client owns the tuple shape.
       #
-      # @param organization_id [Integer] the subject's home organization (origin)
+      # @param organization_uuid [String] the subject's home organization UUID, used
+      #   as the identity origin and as the org scope IAM authorizes against
       # @param user_id [Integer] the subject user (local id)
       # @param resource_id [String] UUID of the object the role applies to
       # @param role_id [String] UUID of the role to assign
       # @param token [String] AR-scoped JWT presented as a bearer credential
       # @return [Update::V1::WriteRelationshipsResponse]
-      def assign_role(organization_id:, user_id:, resource_id:, role_id:, token:)
-        input = assignment_input(organization_id, user_id, resource_id, role_id)
+      def assign_role(organization_uuid:, user_id:, resource_id:, role_id:, token:)
+        input = assignment_input(organization_uuid, user_id, resource_id, role_id)
 
-        write_relationships([input], token: token)
+        write_relationships([input], org_id: organization_uuid, token: token)
       end
 
       # Upserts the given assignment tuples. All-or-nothing on the server.
       #
       # @param relationship_inputs [Array<Relationships::V1::RelationshipInput>]
+      # @param org_id [String] organization UUID the write is scoped to; IAM
+      #   authorizes the resources against it
       # @param token [String] AR-scoped JWT presented as a bearer credential
       # @return [Update::V1::WriteRelationshipsResponse]
-      def write_relationships(relationship_inputs, token:)
-        request = ::Gitlab::Iam::Update::V1::WriteRelationshipsRequest.new(relationships: relationship_inputs)
+      def write_relationships(relationship_inputs, org_id:, token:)
+        request = ::Gitlab::Iam::Update::V1::WriteRelationshipsRequest.new(
+          relationships: relationship_inputs,
+          org_id: org_id
+        )
 
         client.write_relationships(request, metadata: bearer_metadata(token))
       rescue ::Authn::IamDataAccessService::ConfigurationError => e
@@ -46,12 +52,12 @@ module Authn
 
       private
 
-      def assignment_input(organization_id, user_id, resource_id, role_id)
+      def assignment_input(organization_uuid, user_id, resource_id, role_id)
         ::Gitlab::Iam::Relationships::V1::RelationshipInput.new(
           subject: ::Gitlab::Iam::Relationships::V1::Subject.new(
             identity: ::Gitlab::Iam::Relationships::V1::Identity.new(
               origin: :ORIGIN_SELF,
-              origin_id: organization_id.to_s,
+              origin_id: organization_uuid,
               local_id: user_id.to_s
             )
           ),

@@ -33,6 +33,7 @@ import {
   WIDGET_TYPE_MILESTONE,
   WIDGET_TYPE_NOTIFICATIONS,
   WIDGET_TYPE_NOTES,
+  WIDGET_TYPE_PROGRESS,
   WIDGET_TYPE_START_AND_DUE_DATE,
   WIDGET_TYPE_STATUS,
   WIDGET_TYPE_TIME_TRACKING,
@@ -150,6 +151,10 @@ export const findNotificationsWidget = (workItem) =>
 export const findNotesWidget = (workItem) =>
   workItem?.features?.notes ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_NOTES);
+
+export const findProgressWidget = (workItem) =>
+  workItem?.features?.progress ||
+  workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_PROGRESS);
 
 export const findStartAndDueDateWidget = (workItem) =>
   workItem?.features?.startAndDueDate ||

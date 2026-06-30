@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
+require 'spec_helper'
 
 RSpec.describe SafeZip::ExtractParams do
   let(:target_path) { Dir.mktmpdir("safe-zip") }

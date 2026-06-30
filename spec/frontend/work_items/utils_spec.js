@@ -20,6 +20,7 @@ import {
   WIDGET_TYPE_WEIGHT,
   WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_COLOR,
+  WIDGET_TYPE_PROGRESS,
   WORK_ITEM_TYPE_ENUM_EPIC,
   WORK_ITEM_TYPE_ENUM_INCIDENT,
   WORK_ITEM_TYPE_ENUM_ISSUE,
@@ -62,6 +63,7 @@ import {
   findHealthStatusWidget,
   findIterationWidget,
   findLabelsWidget,
+  findProgressWidget,
   findWeightWidget,
   findLinkedItemsWidget,
   findLinkedResourcesWidget,
@@ -1584,6 +1586,37 @@ describe('findColorWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findColorWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findProgressWidget', () => {
+  const progressWidget = {
+    type: WIDGET_TYPE_PROGRESS,
+    progress: 30,
+    updatedAt: '2024-01-01T00:00:00Z',
+  };
+  const featuresProgress = {
+    progress: 70,
+    updatedAt: '2024-02-01T00:00:00Z',
+  };
+
+  it('returns features.progress when present', () => {
+    const workItem = {
+      features: { progress: featuresProgress },
+      widgets: [progressWidget],
+    };
+
+    expect(findProgressWidget(workItem)).toBe(featuresProgress);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [progressWidget] };
+
+    expect(findProgressWidget(workItem)).toBe(progressWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findProgressWidget({ widgets: [] })).toBeUndefined();
   });
 });
 
