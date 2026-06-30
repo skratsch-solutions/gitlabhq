@@ -260,14 +260,18 @@ To run the AI Gateway container with your internal registry image:
      --env DUO_WORKFLOW_AUTH__ENABLED="true" \
      --env DUO_WORKFLOW_SELF_SIGNED_JWT__SIGNING_KEY="$(cat duo_workflow_jwt.key)" \
      --env DUO_WORKFLOW_SELF_SIGNED_JWT__VALIDATION_KEY="$(cat duo_workflow_validation.key)" \
-     --env DUO_WORKFLOW_AUTH__OIDC_CUSTOMER_PORTAL_URL= \
+     --env DUO_WORKFLOW_AUTH__OIDC_CUSTOMER_PORTAL_URL=https://${GITLAB_DOMAIN} \
+     --env AIGW_CUSTOMER_PORTAL_URL=https://${GITLAB_DOMAIN} \
      ${INTERNAL_REGISTRY}/ai-gateway:self-hosted-v${GITLAB_VERSION}-ee
    ```
 
-When you set `DUO_WORKFLOW_AUTH__OIDC_CUSTOMER_PORTAL_URL=` to an empty string,
-you prevent the AI Gateway from attempting to reach the CustomersDot service,
-which is not available in offline environments. Without this setting, each
-request experiences a 20-second delay.
+For GitLab instances that use an offline license, in the AI Gateway container,
+set `DUO_WORKFLOW_AUTH__OIDC_CUSTOMER_PORTAL_URL` and `AIGW_CUSTOMER_PORTAL_URL`
+to your GitLab instance URL. This configuration:
+
+- Prevents the AI Gateway from attempting to reach the CustomersDot service,
+  which is not available in offline environments.
+- Avoids a 20-second delay on each request.
 
 For TLS termination and additional configuration options, see
 [Install the GitLab AI Gateway](../../install/install_ai_gateway.md).

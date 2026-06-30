@@ -79,7 +79,7 @@ module MigrationsHelpers
       attr_readonly by if partitioning_options[:strategy] == :sliding_list
 
       options = partitioning_options.reverse_merge(strategy: :monthly)
-      options = options.reverse_merge(retain_for: :forever) if %i[monthly daily].include?(options[:strategy])
+      options = options.reverse_merge(retain_for: :ever) if %i[monthly daily].include?(options[:strategy])
 
       partitioned_by by, **options
 

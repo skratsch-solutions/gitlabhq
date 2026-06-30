@@ -111,6 +111,8 @@ module Types
     mount_mutation Mutations::MergeRequests::SetReviewers
     mount_mutation Mutations::MergeRequests::ReviewerRereview
     mount_mutation Mutations::MergeRequests::RequestChanges
+    mount_mutation Mutations::MergeRequests::WorkItemRelations::Create
+    mount_mutation Mutations::MergeRequests::WorkItemRelations::Destroy
     mount_mutation Mutations::Metrics::Dashboard::Annotations::Create, deprecated: {
       reason: 'Underlying feature was removed in 16.0',
       milestone: '16.0'

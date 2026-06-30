@@ -8028,9 +8028,6 @@ msgstr ""
 msgid "AiGovernance|Action"
 msgstr ""
 
-msgid "AiGovernance|Agent artifacts"
-msgstr ""
-
 msgid "AiGovernance|Always allow"
 msgstr ""
 
@@ -8038,6 +8035,9 @@ msgid "AiGovernance|Always ask"
 msgstr ""
 
 msgid "AiGovernance|Always deny"
+msgstr ""
+
+msgid "AiGovernance|Audit events"
 msgstr ""
 
 msgid "AiGovernance|Category"
@@ -46316,6 +46316,9 @@ msgstr ""
 msgid "Mentioned"
 msgstr ""
 
+msgid "Mentioned relations are managed automatically and cannot be created."
+msgstr ""
+
 msgid "Mentions"
 msgstr ""
 
@@ -61754,9 +61757,6 @@ msgstr ""
 msgid "ReleaseAssetLinkType|Runbooks"
 msgstr ""
 
-msgid "ReleaseCreation|%{selectedServices} of %{totalServices} services selected"
-msgstr ""
-
 msgid "ReleaseCreation|A human-readable label. The release identity is the set of service versions below, not this string."
 msgstr ""
 
@@ -61784,7 +61784,7 @@ msgstr ""
 msgid "ReleaseCreation|Release"
 msgstr ""
 
-msgid "ReleaseCreation|Select %{name}"
+msgid "ReleaseCreation|Select version"
 msgstr ""
 
 msgid "ReleaseCreation|Service"
@@ -89053,6 +89053,9 @@ msgid "You are not allowed to create this tag as it is protected."
 msgstr ""
 
 msgid "You are not allowed to download code from this project."
+msgstr ""
+
+msgid "You are not allowed to link this work item to merge request %{reference}."
 msgstr ""
 
 msgid "You are not allowed to manage work item relations for this merge request."

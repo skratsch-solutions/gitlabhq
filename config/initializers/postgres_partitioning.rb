@@ -104,13 +104,13 @@ Gitlab::Application.config.to_prepare do
           limit_connection_names: %i[main],
           table_name: 'incident_management_pending_alert_escalations',
           # FOSS fallback registration; retention is owned by the EE PendingEscalations model. Keep all partitions here.
-          partitioned_column: :process_at, strategy: :monthly, retain_for: :forever
+          partitioned_column: :process_at, strategy: :monthly, retain_for: :ever
         },
         {
           limit_connection_names: %i[main],
           table_name: 'incident_management_pending_issue_escalations',
           # FOSS fallback registration; retention is owned by the EE PendingEscalations model. Keep all partitions here.
-          partitioned_column: :process_at, strategy: :monthly, retain_for: :forever
+          partitioned_column: :process_at, strategy: :monthly, retain_for: :ever
         }
       ])
   end
@@ -125,7 +125,7 @@ Gitlab::Application.config.to_prepare do
           limit_connection_names: %i[main],
           table_name: 'verification_codes',
           # Retention is owned by the JH model linked above. Keep all partitions in this fallback registration.
-          partitioned_column: :created_at, strategy: :monthly, retain_for: :forever
+          partitioned_column: :created_at, strategy: :monthly, retain_for: :ever
         }
       ])
   end

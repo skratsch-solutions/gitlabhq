@@ -1,4 +1,5 @@
 import { fetch, Request, Response, Headers } from '@whatwg-node/fetch';
+import { configure } from '@testing-library/vue';
 import {
   clearMissingOperations,
   missingOperations,
@@ -31,6 +32,10 @@ global.metadata = baseMetadata;
 // Import all test helpers as global utilities
 Object.assign(global, testHelpers);
 Object.assign(global, workItemsTestHelpers);
+
+// Under CI load a starved worker can blow @testing-library's 1000ms waitFor
+// default; 3s gives headroom and stays under the suite's testTimeout.
+configure({ asyncUtilTimeout: 3000 });
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'warn' });

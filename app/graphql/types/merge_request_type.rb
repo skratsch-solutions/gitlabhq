@@ -332,11 +332,17 @@ module Types
       [Types::MergeRequests::LinkedWorkItemType],
       null: true,
       calls_gitaly: true,
-      experiment: { milestone: '18.10' },
+      deprecated: { reason: 'Use `workItemRelations` instead', milestone: '19.2' },
       description: 'Work items linked to this merge request (closing or mentioned).',
       resolver: Resolvers::MergeRequests::LinkedWorkItemsResolver do
         extension ::Gitlab::Graphql::Limit::FieldCallCount, limit: 1
       end
+
+    field :work_item_relations,
+      null: true,
+      max_page_size: ::MergeRequests::WorkItemRelations::BaseService::MAX_RELATIONS,
+      description: 'Relations between this merge request and work items (closing or mentioned).',
+      resolver: Resolvers::MergeRequests::WorkItemRelationsResolver
 
     field :retargeted, GraphQL::Types::Boolean, null: true,
       description: 'Indicates if merge request was retargeted.'

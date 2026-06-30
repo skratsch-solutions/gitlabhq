@@ -20,7 +20,7 @@ RSpec.describe Authn::IamService::RelationshipsClient, feature_category: :system
         expect(inputs.size).to eq(1)
 
         input = inputs.first
-        expect(input.subject.identity.origin).to eq(:ORIGIN_SELF)
+        expect(input.subject.identity.origin).to eq(:ORIGIN_ORGANIZATION)
         expect(input.subject.identity.origin_id).to eq(organization_uuid)
         expect(input.subject.identity.local_id).to eq(user_id.to_s)
         expect(input.object.id).to eq(resource_id)

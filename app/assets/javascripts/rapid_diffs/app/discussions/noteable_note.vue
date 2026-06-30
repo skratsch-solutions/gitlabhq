@@ -132,6 +132,9 @@ export default {
         ? __('Automatically resolved %{timeago} by %{author}')
         : __('Resolved %{timeago} by %{author}');
     },
+    isAmazonQCodeReview() {
+      return this.author.username === 'amazon-q';
+    },
   },
   watch: {
     isEditing: {
@@ -277,6 +280,8 @@ export default {
           <note-actions
             class="gl-pt-1"
             :author-id="authorId"
+            :note-id="note.id"
+            :is-amazon-q-code-review="isAmazonQCodeReview"
             :note-url="note.noteable_note_url"
             :access-level="note.human_access"
             :is-contributor="note.is_contributor"

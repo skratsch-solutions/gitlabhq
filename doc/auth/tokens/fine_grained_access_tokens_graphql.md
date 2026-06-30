@@ -729,9 +729,12 @@ Grants the ability to approve, create, delete, merge, read, subscribe, and updat
 | Merge | Project | Mutation | `MergeRequestAccept` |
 | Read | Project | Type | `MergeRequest` |
 | Read | Project | Type | `MergeRequestApprovalState` |
+| Read | Project | Type | `MergeRequestWorkItemRelation` |
 | Update | Project | Mutation | `DismissPolicyViolations` |
 | Update | Project | Mutation | `MergeRequestBypassSecurityPolicy` |
+| Update | Project | Mutation | `MergeRequestCreateWorkItemRelations` |
 | Update | Project | Mutation | `MergeRequestDestroyRequestedChanges` |
+| Update | Project | Mutation | `MergeRequestDestroyWorkItemRelations` |
 | Update | Project | Mutation | `MergeRequestRequestChanges` |
 | Update | Project | Mutation | `MergeRequestSetAssignees` |
 | Update | Project | Mutation | `MergeRequestSetBlockingMergeRequests` |

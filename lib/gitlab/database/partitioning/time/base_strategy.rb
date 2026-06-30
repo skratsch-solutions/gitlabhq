@@ -5,7 +5,7 @@ module Gitlab
     module Partitioning
       module Time
         class BaseStrategy < Gitlab::Database::Partitioning::BaseStrategy
-          RETAIN_FOREVER = :forever
+          RETAIN_FOREVER = :ever
 
           attr_reader :model, :partitioning_key, :retain_for, :retain_non_empty_partitions, :analyze_interval
 
@@ -14,13 +14,9 @@ module Gitlab
           def initialize(
             model, partitioning_key, retain_for:, retain_non_empty_partitions: false,
             analyze_interval: nil)
-            validate_retain_for!(retain_for)
-
             @model = model
             @partitioning_key = partitioning_key
-            # `:forever` is accepted as readable input but normalized to `nil`,
-            # so `retain_for` is always a duration or nil (no retention limit).
-            @retain_for = retain_for == RETAIN_FOREVER ? nil : retain_for
+            @retain_for = retention_period(retain_for)
             @retain_non_empty_partitions = retain_non_empty_partitions
             @analyze_interval = analyze_interval
           end
@@ -64,12 +60,16 @@ module Gitlab
 
           private
 
-          def validate_retain_for!(retain_for)
-            return if retain_for == RETAIN_FOREVER || retain_for.is_a?(ActiveSupport::Duration)
+          # Validates and normalizes `retain_for`. `:ever` is accepted as readable
+          # input but normalized to `nil`, so the returned value is always a
+          # duration or `nil` (no retention limit). Anything else raises.
+          def retention_period(retain_for)
+            return if retain_for == RETAIN_FOREVER
+            return retain_for if retain_for.is_a?(ActiveSupport::Duration)
 
             raise ArgumentError,
               "retain_for must be an ActiveSupport::Duration (for example, `6.months`) " \
-                "or `:forever` to retain all partitions, got: #{retain_for.inspect}"
+                "or `:ever` to retain all partitions, got: #{retain_for.inspect}"
           end
 
           def partition_for(upper_bound:, lower_bound: nil)

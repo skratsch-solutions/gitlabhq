@@ -281,6 +281,7 @@ For premium models with optimized integration:
 | `gemini-3.5-flash` | 3.3 |
 | `gpt-5` | 3.3 |
 | `gpt-5-codex` | 3.3 |
+| `claude-sonnet-5` | 3.2 |
 | `gpt-5.2` | 2.5 |
 | `gpt-5.2-codex` | 2.5 |
 | `gpt-5.3-codex` | 2.5 |

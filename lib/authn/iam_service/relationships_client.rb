@@ -56,7 +56,7 @@ module Authn
         ::Gitlab::Iam::Relationships::V1::RelationshipInput.new(
           subject: ::Gitlab::Iam::Relationships::V1::Subject.new(
             identity: ::Gitlab::Iam::Relationships::V1::Identity.new(
-              origin: :ORIGIN_SELF,
+              origin: :ORIGIN_ORGANIZATION,
               origin_id: organization_uuid,
               local_id: user_id.to_s
             )

@@ -55813,10 +55813,10 @@ definitions:
         "$ref": "#/definitions/API_Entities_UserBasic"
       source_project_id:
         type: integer
-        format: int32
+        format: int64
       target_project_id:
         type: integer
-        format: int32
+        format: int64
       labels:
         type: array
         items:
@@ -59746,13 +59746,13 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
       user_id:
         type: integer
-        format: int32
+        format: int64
       group_id:
         type: integer
-        format: int32
+        format: int64
       access_level:
         type: integer
         format: int32
@@ -59846,30 +59846,28 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 2
       author_id:
         type: integer
-        format: int32
+        format: int64
         example: 4
       merge_request_id:
         type: integer
-        format: int32
+        format: int64
         example: 52
       resolve_discussion:
         type: boolean
         example: true
       discussion_id:
-        type: integer
-        format: int32
-        example: 613
+        type: string
+        example: 6a9c1750b37d513a43987b574953fceb50b03ce7
       note:
         type: string
         example: This is a note
       commit_id:
-        type: integer
-        format: int32
-        example: 4
+        type: string
+        example: 6104942438c14ec7bd21c6cd5bd995272b3faff6
       line_code:
         type: string
         example: 1c497fbb3a46b78edf0_2_4
@@ -65777,10 +65775,10 @@ definitions:
         "$ref": "#/definitions/API_Entities_UserBasic"
       source_project_id:
         type: integer
-        format: int32
+        format: int64
       target_project_id:
         type: integer
-        format: int32
+        format: int64
       labels:
         type: array
         items:
@@ -66176,10 +66174,10 @@ definitions:
         "$ref": "#/definitions/API_Entities_UserBasic"
       source_project_id:
         type: integer
-        format: int32
+        format: int64
       target_project_id:
         type: integer
-        format: int32
+        format: int64
       labels:
         type: array
         items:
@@ -66569,7 +66567,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -66761,7 +66759,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -66778,7 +66776,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       head_commit_sha:
         type: string
@@ -66795,7 +66793,7 @@ definitions:
         example: '2022-01-31T15:10:45.080Z'
       merge_request_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       state:
         type: string
@@ -66822,7 +66820,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       head_commit_sha:
         type: string
@@ -66839,7 +66837,7 @@ definitions:
         example: '2022-01-31T15:10:45.080Z'
       merge_request_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       state:
         type: string
@@ -67718,7 +67716,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       from_line:
         type: integer

@@ -5,14 +5,10 @@
 # If it turns out that a method you are attempting to remove is in fact in use,
 #   remove it from this file and add it to `excluded_methods.yml`.
 #
-ee/app/models/concerns/product_analytics_helpers.rb:
-  - product_analytics_funnels
 ee/app/models/concerns/security/pipeline_execution_schedule_policy.rb:
   - active_pipeline_execution_schedule_policies
 ee/app/models/concerns/security/scan_result_policy.rb:
   - applicable_scan_result_policies_with_real_index
-ee/app/models/dast_site_profile.rb:
-  - scan_file_path_or_dast_site_url
 ee/app/models/ee/ci/build.rb:
   - has_artifact?
   - collect_license_scanning_reports!

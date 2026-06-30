@@ -35,6 +35,7 @@ in the Agent Platform.
 | Claude Fable 5 <sup>1</sup> | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | Claude Sonnet 4.5           | {{< yes >}}             | {{< yes >}}                                | {{< yes >}}      |
 | Claude Sonnet 4.6           | {{< yes >}}             | {{< yes >}}                                | {{< yes >}}      |
+| Claude Sonnet 5             | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | Claude Haiku 4.5            | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | Claude Opus 4.5             | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | Claude Opus 4.6             | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |

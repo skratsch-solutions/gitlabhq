@@ -73992,10 +73992,13 @@ components:
       properties:
         id:
           type: integer
+          format: int64
         user_id:
           type: integer
+          format: int64
         group_id:
           type: integer
+          format: int64
         access_level:
           type: integer
         access_level_description:
@@ -74371,6 +74374,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -74824,6 +74828,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -75263,8 +75268,10 @@ components:
           "$ref": "#/components/schemas/APIEntitiesUserBasic"
         source_project_id:
           type: integer
+          format: int64
         target_project_id:
           type: integer
+          format: int64
         labels:
           type: array
           items:
@@ -75343,6 +75350,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 123
         blocking_merge_request:
           "$ref": "#/components/schemas/APIEntitiesMergeRequestBasic"
@@ -75350,6 +75358,7 @@ components:
           "$ref": "#/components/schemas/APIEntitiesMergeRequestBasic"
         project_id:
           type: integer
+          format: int64
           example: 312
     APIEntitiesMergeRequestApprovalSetting:
       type: object
@@ -75713,6 +75722,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 38
         merge_request:
           "$ref": "#/components/schemas/APIEntitiesMergeRequestSimple"
@@ -79056,6 +79066,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -79113,12 +79124,14 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
           example: QA
         project_id:
           type: integer
+          format: int64
           example: 1
         external_url:
           type: string
@@ -79325,8 +79338,10 @@ components:
           "$ref": "#/components/schemas/APIEntitiesUserBasic"
         source_project_id:
           type: integer
+          format: int64
         target_project_id:
           type: integer
+          format: int64
         labels:
           type: array
           items:
@@ -79440,6 +79455,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         merge_request:
           "$ref": "#/components/schemas/APIEntitiesMergeRequest"
@@ -79450,6 +79466,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -79465,6 +79482,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -79500,6 +79518,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -82574,6 +82593,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         from_line:
           type: integer
@@ -85952,6 +85972,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         head_commit_sha:
           type: string
@@ -85968,6 +85989,7 @@ components:
           example: '2022-01-31T15:10:45.080Z'
         merge_request_id:
           type: integer
+          format: int64
           example: 1
         state:
           type: string
@@ -85983,6 +86005,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         head_commit_sha:
           type: string
@@ -85999,6 +86022,7 @@ components:
           example: '2022-01-31T15:10:45.080Z'
         merge_request_id:
           type: integer
+          format: int64
           example: 1
         state:
           type: string
@@ -86042,6 +86066,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -86251,8 +86276,10 @@ components:
           "$ref": "#/components/schemas/APIEntitiesUserBasic"
         source_project_id:
           type: integer
+          format: int64
         target_project_id:
           type: integer
+          format: int64
         labels:
           type: array
           items:
@@ -87642,25 +87669,28 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 2
         author_id:
           type: integer
+          format: int64
           example: 4
         merge_request_id:
           type: integer
+          format: int64
           example: 52
         resolve_discussion:
           type: boolean
           example: true
         discussion_id:
-          type: integer
-          example: 613
+          type: string
+          example: 6a9c1750b37d513a43987b574953fceb50b03ce7
         note:
           type: string
           example: This is a note
         commit_id:
-          type: integer
-          example: 4
+          type: string
+          example: 6104942438c14ec7bd21c6cd5bd995272b3faff6
         line_code:
           type: string
           example: 1c497fbb3a46b78edf0_2_4
@@ -87706,10 +87736,13 @@ components:
       properties:
         id:
           type: integer
+          format: int64
         user_id:
           type: integer
+          format: int64
         group_id:
           type: integer
+          format: int64
         access_level:
           type: integer
         access_level_description:

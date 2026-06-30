@@ -6,7 +6,7 @@ RSpec.describe Gitlab::Database::Partitioning::Time::BaseStrategy, feature_categ
   let(:model) { class_double(ApplicationRecord, table_name: table_name) }
   let(:partitioning_key) { :created_at }
   let(:table_name) { :_test_partitioned_test }
-  let(:base_strategy) { described_class.new(model, partitioning_key, retain_for: :forever) }
+  let(:base_strategy) { described_class.new(model, partitioning_key, retain_for: :ever) }
 
   describe '#initialize' do
     subject(:strategy) { described_class.new(model, partitioning_key, retain_for: retain_for) }
@@ -19,10 +19,10 @@ RSpec.describe Gitlab::Database::Partitioning::Time::BaseStrategy, feature_categ
       end
     end
 
-    context 'when retain_for is :forever' do
-      let(:retain_for) { :forever }
+    context 'when retain_for is :ever' do
+      let(:retain_for) { :ever }
 
-      it 'normalizes :forever to no retention limit' do
+      it 'normalizes :ever to no retention limit' do
         expect(strategy.retain_for).to be_nil
       end
     end
