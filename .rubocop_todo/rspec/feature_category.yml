@@ -1538,7 +1538,6 @@ RSpec/FeatureCategory:
     - 'spec/lib/gitlab/cluster/lifecycle_events_spec.rb'
     - 'spec/lib/gitlab/cluster/mixins/puma_cluster_spec.rb'
     - 'spec/lib/gitlab/cluster/rack_timeout_observer_spec.rb'
-    - 'spec/lib/gitlab/color_schemes_spec.rb'
     - 'spec/lib/gitlab/color_spec.rb'
     - 'spec/lib/gitlab/config/entry/attributable_spec.rb'
     - 'spec/lib/gitlab/config/entry/boolean_spec.rb'

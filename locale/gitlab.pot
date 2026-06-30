@@ -75873,6 +75873,9 @@ msgstr ""
 msgid "SynthaxHighlightingTheme|Dark"
 msgstr ""
 
+msgid "SynthaxHighlightingTheme|Dracula"
+msgstr ""
+
 msgid "SynthaxHighlightingTheme|Light"
 msgstr ""
 
