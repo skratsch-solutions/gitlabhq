@@ -333,6 +333,38 @@ const mergedAdditionalContext =
     : additionalContext || [];
 ```
 
+### Contribute context from outside the chat
+
+The wiring above builds the envelope inside `duo_agentic_chat_state_manager.vue`, which suits
+context the chat component already holds. For context owned by a feature *outside* the chat, such as
+a form elsewhere on the page whose state the user edits between messages, register a
+provider instead. Providers are read fresh on every send, so the agent always sees the current
+state rather than a value frozen when the chat opened.
+
+Register from the contributing component, using `external_context_store`:
+
+```javascript
+import { registerExternalContextProvider } from 'ee/ai/duo_agentic_chat/context/external_context_store';
+
+mounted() {
+  // getContent runs on every send; return a nullish value to contribute nothing this turn.
+  this.disposeContextProvider = registerExternalContextProvider(
+    'my_context',
+    () => ({ my_var: this.currentValue }),
+  );
+},
+beforeDestroy() {
+  this.disposeContextProvider?.();
+},
+```
+
+`registerExternalContextProvider` returns a disposer; call it on teardown so the provider does not
+leak. `duo_agentic_chat_state_manager.vue` calls `getExternalContextItems()` on every send and
+merges the results, taking precedence over per-message items of the same category.
+
+Categories registered this way must still be filtered from display and GraphQL.
+For more information, see [Filter internal categories](#filter-internal-categories-from-display-and-graphql).
+
 ### Filter internal categories from display and GraphQL
 
 Internal context categories (for example, `my_context`) must not be shown in the UI or serialized
@@ -363,9 +395,7 @@ end
 
 ## Let an agent edit a UI form
 
-Foundational agents can read the state of a form on a page and write changes back to it. The
-**Add permissions with Duo** button on the granular access token form is the reference
-implementation.
+Foundational agents can read the state of a form on a page and write changes back to it.
 
 The pattern has two halves:
 
@@ -389,7 +419,7 @@ import { buildFormContext } from 'ee/ai/shared/utils/form_context_utils';
 // In the consumer component:
 computed: {
   additionalContext() {
-    return buildFormContext({ formId: 'ask-duo-pat', formContent: this.formContent });
+    return buildFormContext({ formId: 'my-form', formContent: this.formContent });
   },
 }
 ```
@@ -398,8 +428,6 @@ computed: {
 state, which the agent treats as ground truth. Pass the result through the `additional-context` prop
 of `open_agentic_chat_button.vue`. For the underlying envelope shape, see
 [Wire context variables from the GitLab monolith](#wire-context-variables-from-the-gitlab-monolith).
-For a reference implementation, see
-`ee/app/assets/javascripts/personal_access_tokens/components/create_granular_token/ask_dap_permissions.vue`.
 
 ### Apply the agent's changes
 
@@ -422,7 +450,7 @@ the form, so multiple form-editing buttons on the same page do not cross-fire:
 
 ```javascript
 handleToolCompleted({ name, args } = {}) {
-  if (name !== 'update_form_fields' || args?.form_id !== 'ask-duo-pat') return;
+  if (name !== 'update_form_fields' || args?.form_id !== 'my-form') return;
 
   // Apply args.select and args.clear to the form.
 }

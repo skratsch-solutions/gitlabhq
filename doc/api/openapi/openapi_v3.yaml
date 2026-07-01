@@ -68697,6 +68697,36 @@ paths:
         schema:
           type: integer
         in: path
+  "/api/v4/groups/{id}/shared_projects/{project_id}":
+    delete:
+      operationId: deleteApiV4GroupsIdSharedProjectsProjectId
+      summary: Remove a shared project from a group
+      description: Removes a shared project targeting this group. The group Owner
+        can remove a shared project without access to the source project.
+      tags:
+      - Groups
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad request
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      parameters:
+      - name: id
+        required: true
+        description: The ID of a group
+        schema:
+          type: string
+        in: path
+      - name: project_id
+        required: true
+        description: The ID of the shared project
+        schema:
+          type: integer
+        in: path
   "/api/v4/groups/{id}/ldap_sync":
     post:
       operationId: postApiV4GroupsIdLdapSync

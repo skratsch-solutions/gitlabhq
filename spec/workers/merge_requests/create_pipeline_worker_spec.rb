@@ -92,17 +92,6 @@ RSpec.describe MergeRequests::CreatePipelineWorker, feature_category: :pipeline_
               .to publish_event(::MergeRequests::PipelineCreationCompletedEvent)
               .with(merge_request_id: merge_request.id, project_id: project.id)
           end
-
-          context 'when trigger_auto_merge_after_pipeline_creation is disabled' do
-            before do
-              stub_feature_flags(trigger_auto_merge_after_pipeline_creation: false)
-            end
-
-            it 'does not publish the event' do
-              expect { subject }
-                .not_to publish_event(::MergeRequests::PipelineCreationCompletedEvent)
-            end
-          end
         end
 
         context 'when a pipeline was created' do

@@ -6,6 +6,7 @@ import { createAlert } from '~/alert';
 import { REF_TYPE_BRANCHES, REF_TYPE_TAGS } from '~/ref/constants';
 
 import { visitUrl } from '~/lib/utils/url_utility';
+import { newProjectForkPath } from '~/lib/utils/path_helpers/project';
 import { createBranchMRApiPathHelper } from '~/work_items/utils';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import {
@@ -174,7 +175,7 @@ export default {
       };
     },
     newForkPath() {
-      return `/${this.workItemFullPath}/-/forks/new`;
+      return newProjectForkPath(this.workItemFullPath);
     },
   },
   watch: {

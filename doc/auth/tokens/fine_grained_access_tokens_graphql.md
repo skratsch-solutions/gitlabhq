@@ -105,6 +105,14 @@ Grants the ability to create, read, and update continuous deployment application
 | Read | Instance | Type | `CdVersionSetEntry` |
 | Update | Instance | Mutation | `CdApplicationUpdate` |
 
+#### CD Application Flow Definition
+
+Grants the ability to create continuous deployment application flow definitions.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdApplicationFlowDefinitionCreate` |
+
 #### CD Artifact Source
 
 Grants the ability to create continuous deployment artifact sources.

@@ -22,6 +22,7 @@ import { shouldDisableShortcuts } from '~/behaviors/shortcuts/shortcuts_toggle';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import toast from '~/vue_shared/plugins/global_toast';
 import { isLoggedIn } from '~/lib/utils/common_utils';
+import { markAsSpamProjectIssuePath } from '~/lib/utils/path_helpers/issues';
 
 import WorkItemChangeTypeModal from 'ee_else_ce/work_items/components/work_item_change_type_modal.vue';
 import {
@@ -376,7 +377,7 @@ export default {
       return !this.isDropdownVisible ? this.$options.i18n.moreActions : '';
     },
     submitAsSpamItem() {
-      const href = this.workItemWebUrl.replaceAll('work_items', 'issues').concat('/mark_as_spam');
+      const href = markAsSpamProjectIssuePath(this.fullPath, { id: this.workItemIid });
       return { text: __('Submit as spam'), href };
     },
     isAuthor() {

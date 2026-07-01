@@ -791,6 +791,38 @@ module API
         no_content!
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      desc 'Remove a shared project from a group' do
+        detail 'Removes a shared project targeting this group. The ' \
+          'group Owner can remove a shared project without access to the source project.'
+        success code: 204
+        failure [
+          { code: 400, message: 'Bad request' },
+          { code: 403, message: 'Forbidden' },
+          { code: 404, message: 'Not found' }
+        ]
+        tags %w[groups]
+      end
+      params do
+        requires :project_id, type: Integer, desc: 'The ID of the shared project'
+      end
+      # rubocop: disable CodeReuse/ActiveRecord -- Composite-key find_by/destroy; lightweight Grape endpoint, no finder reuse
+      route_setting :authorization, permissions: :unshare_project, boundary_type: :group
+      delete ":id/shared_projects/:project_id", feature_category: :groups_and_projects do
+        authorize! :delete_group_link, user_group
+
+        link = user_group.project_group_links.find_by(project_id: params[:project_id])
+        not_found!('Project Group Link') unless link
+
+        destroy_conditionally!(link) do
+          result = ::Projects::GroupLinks::DestroyService.new(link.project, current_user).execute(link)
+
+          if result.error?
+            render_api_error!(result.message, result.reason)
+          end
+        end
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

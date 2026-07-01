@@ -5,8 +5,6 @@ module MergeRequests
     private
 
     def publish_pipeline_creation_completed_event(project:, merge_request_id:, pipeline_id:)
-      return unless ::Feature.enabled?(:trigger_auto_merge_after_pipeline_creation, project)
-
       ::Gitlab::EventStore.publish(
         ::MergeRequests::PipelineCreationCompletedEvent.new(data: {
           merge_request_id: merge_request_id,

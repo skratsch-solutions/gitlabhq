@@ -38,6 +38,7 @@ export default {
       default: false,
     },
   },
+  emits: ['hidden', 'received-captcha-response'],
   data() {
     return {
       modalId: uniqueId('captcha-modal-'),

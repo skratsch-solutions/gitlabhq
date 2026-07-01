@@ -102,6 +102,7 @@ export default {
       default: false,
     },
   },
+  emits: ['showForkMessage', 'toggleFile'],
   computed: {
     ...mapState(useLegacyDiffs, ['diffHasExpandedDiscussions', 'diffHasDiscussions']),
     ...mapState(useNotes, ['getNoteableData']),

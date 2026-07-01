@@ -2483,6 +2483,7 @@ Grants the ability to archive, create, delete, fork, read, share, transfer, and 
 | Read | User | `GET` | `/users/:user_id/starred_projects` |
 | Share | Project | `POST` | `/projects/:id/share` |
 | Share | Project | `DELETE` | `/projects/:id/share/:group_id` |
+| Share | Group | `DELETE` | `/groups/:id/shared_projects/:project_id` |
 | Transfer | Project | `PUT` | `/projects/:id/transfer` |
 | Transfer | Instance | `POST` | `/groups/:id/projects/:project_id` |
 | Update | Project | `POST` | `/projects/:id/housekeeping` |

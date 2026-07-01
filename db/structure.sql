@@ -6467,6 +6467,7 @@ CREATE TABLE p_ci_pipeline_artifact_states (
     verification_checksum bytea,
     verification_failure text,
     project_id bigint,
+    CONSTRAINT check_cfca6ea0df CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_ee83b93f85 CHECK ((char_length(verification_failure) <= 255))
 )
 PARTITION BY LIST (partition_id);

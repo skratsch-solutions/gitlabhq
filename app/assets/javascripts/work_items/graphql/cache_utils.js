@@ -1034,6 +1034,7 @@ export const setNewWorkItemCache = ({
           createdAt: null,
           updatedAt: null,
           closedAt: null,
+          // eslint-disable-next-line @gitlab/no-hardcoded-urls -- placeholder webUrl for unsaved work item in Apollo cache, actual URL not known at this point
           webUrl: `${baseURL}/groups/gitlab-org/-/work_items/new`,
           reference: '',
           createNoteEmail: null,

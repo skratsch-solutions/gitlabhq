@@ -1372,5 +1372,6 @@ type:duoWorkflowUserMetrics
 type:fixPipelineUserMetrics
 type:mcpMetrics
 type:mcpUserMetrics
+type:summarizeReviewUserMetrics
 type:troubleshootJobMetrics
 type:troubleshootJobUserMetrics

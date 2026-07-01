@@ -246,6 +246,7 @@ export default {
       );
     },
     isDesignDetailActive() {
+      // eslint-disable-next-line @gitlab/no-hardcoded-urls -- Vue Router path segment comparison, not a navigational URL
       return this.$route.path.includes('/designs/') || this.$route.name === 'design';
     },
     enablePasteOnNoDesign() {
@@ -626,7 +627,7 @@ export default {
                 :is-uploading="false"
                 :is-dragging="isDraggingDesign"
                 :work-item-iid="workItemIid"
-                :work-item-web-url="workItemWebUrl"
+                :work-item-full-path="workItemFullPath"
                 :use-router="canUseRouter"
                 data-testid="design-item"
                 @pointerup="onPointerUp"

@@ -774,6 +774,29 @@ Example response:
 ]
 ```
 
+### Delete a shared project
+
+Delete a project shared to a group. Requires the Owner role for the group.
+
+```plaintext
+DELETE /groups/:id/shared_projects/:project_id
+```
+
+Parameters:
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id` | integer or string | yes | The ID or [URL-encoded path](rest/_index.md#namespaced-paths) of the group. |
+| `project_id` | integer | yes | The ID of the project. |
+
+If successful, returns `204 No Content`.
+
+```shell
+curl --request DELETE \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/1/shared_projects/2"
+```
+
 ### List all SAML users
 
 {{< details >}}

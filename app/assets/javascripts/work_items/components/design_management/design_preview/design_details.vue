@@ -11,6 +11,7 @@ import { updateGlobalTodoCount } from '~/sidebar/utils';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { TYPENAME_ISSUE, TYPENAME_WORK_ITEM } from '~/graphql_shared/constants';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { projectPreviewMarkdownPath } from '~/lib/utils/path_helpers/project';
 import { ROUTES } from '../../../constants';
 import getDesignQuery from '../graphql/design_details.query.graphql';
 import getWorkItemDesignListQuery from '../graphql/design_collection.query.graphql';
@@ -155,7 +156,8 @@ export default {
       return this.$apollo.queries.design.loading;
     },
     markdownPreviewPath() {
-      return `/${this.fullPath}/-/preview_markdown?target_type=Issue`;
+      // eslint-disable-next-line @gitlab/require-i18n-strings -- 'Issue' is an API parameter value, not a user-facing string
+      return projectPreviewMarkdownPath(this.fullPath, { target_type: 'Issue' });
     },
     designVariables() {
       const versionId = getIdFromGraphQLId(

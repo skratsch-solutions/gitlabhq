@@ -3455,13 +3455,7 @@ msgstr ""
 msgid "AICatalog|Triage Issue, Generate Release Notes, Update Docs"
 msgstr ""
 
-msgid "AICatalog|Trigger %{itemType} when a merge request cannot be merged anymore due to a code conflict."
-msgstr ""
-
-msgid "AICatalog|Trigger %{itemType} when a merge request is approved."
-msgstr ""
-
-msgid "AICatalog|Trigger %{itemType} when a merge request's draft status is removed, and it is ready for review."
+msgid "AICatalog|Trigger %{itemType} when a merge request is ready, approved, or has conflicts."
 msgstr ""
 
 msgid "AICatalog|Trigger %{itemType} when a pipeline status changes."
@@ -27959,6 +27953,9 @@ msgstr ""
 msgid "DuoAgentPlatform|%{base} Attention required."
 msgstr ""
 
+msgid "DuoAgentPlatform|%{completed} of %{total} completed"
+msgstr ""
+
 msgid "DuoAgentPlatform|%{component} did not produce an answer"
 msgstr ""
 
@@ -28089,6 +28086,9 @@ msgid "DuoAgentPlatform|No GitLab Credits remain for this billing period. %{link
 msgstr ""
 
 msgid "DuoAgentPlatform|Paused"
+msgstr ""
+
+msgid "DuoAgentPlatform|Progress"
 msgstr ""
 
 msgid "DuoAgentPlatform|Remote GitLab Duo Flows"
@@ -46777,16 +46777,16 @@ msgstr ""
 msgid "MergeRequest|Failed to load the page"
 msgstr ""
 
+msgid "MergeRequest|Merge conflict"
+msgstr ""
+
 msgid "MergeRequest|Merge request %{currentIndex} of %{stackSize} in stack"
 msgstr ""
 
-msgid "MergeRequest|Merge request code conflict"
-msgstr ""
-
-msgid "MergeRequest|Merge request ready"
-msgstr ""
-
 msgid "MergeRequest|No files found"
+msgstr ""
+
+msgid "MergeRequest|Ready"
 msgstr ""
 
 msgid "MergeRequest|Remove reviewer"

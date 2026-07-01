@@ -221,7 +221,6 @@ export default {
 
 <template>
   <div class="boards-app gl-relative">
-    <router-view />
     <board-top-bar
       :board-id="boardId"
       :is-swimlanes-on="isSwimlanesOn"
