@@ -17,7 +17,7 @@ RSpec.describe Projects::Settings::AccessTokensController, feature_category: :sy
 
   shared_examples 'feature unavailable' do
     context 'user is not a maintainer' do
-      before do
+      before_all do
         resource.add_developer(user)
       end
 

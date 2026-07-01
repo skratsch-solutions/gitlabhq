@@ -52,6 +52,27 @@ To create a fine-grained personal access token:
 A personal access token is displayed. Save the personal access token somewhere safe. After you leave
 or refresh the page, you cannot view it again.
 
+## Impersonate users with sudo
+
+Administrators can create a fine-grained personal access token that can impersonate other users
+with the [`sudo`](../../api/rest/authentication.md#sudo) parameter on the REST API.
+
+Only an administrator can create a token with the sudo capability. A non-administrator that tries
+to create one receives an error.
+
+A fine-grained token continues to enforce its own permissions while impersonating. The token can
+perform an action only when both of the following are true:
+
+- The impersonated user is allowed to perform the action.
+- The token has a permission that allows the action.
+
+This behavior differs from a legacy personal access token with the `sudo` scope, which can perform
+any action as the impersonated user.
+
+> [!warning]
+> A token with the sudo capability can act as any user. Restrict its permissions and boundaries to
+> the minimum required, and store it securely.
+
 ## Available fine-grained permissions
 
 The permissions a fine-grained personal access token can use depend on the API the token calls:

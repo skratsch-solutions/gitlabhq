@@ -8,6 +8,7 @@ query getSourcePersonalAccessToken($userId: UserID, $id: PersonalAccessTokenID!)
         name
         description
         granular
+        sudo
         scopes {
           ... on AccessTokenGranularScope {
             access

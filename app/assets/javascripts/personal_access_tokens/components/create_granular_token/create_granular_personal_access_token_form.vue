@@ -9,6 +9,7 @@ import {
   GlLink,
   GlSprintf,
   GlLoadingIcon,
+  GlFormCheckbox,
 } from '@gitlab/ui';
 import { union } from 'lodash-es';
 import PageHeading from '~/vue_shared/components/page_heading.vue';
@@ -56,12 +57,17 @@ export default {
     GlLink,
     GlSprintf,
     GlLoadingIcon,
+    GlFormCheckbox,
     AskDapPermissions: () =>
       import(
         'ee_component/personal_access_tokens/components/create_granular_token/ask_dap_permissions.vue'
       ),
   },
-  inject: ['accessTokenMaxDate', 'accessTokenTableUrl'],
+  inject: {
+    accessTokenMaxDate: { default: '' },
+    accessTokenTableUrl: { default: '' },
+    sudoAvailable: { default: false },
+  },
   data() {
     return {
       sourceTokenId: getParameterByName('source_token_id'),
@@ -71,6 +77,7 @@ export default {
         name: '',
         description: '',
         expirationDate: defaultDate(this.accessTokenMaxDate),
+        sudo: false,
         access: null,
         namespaces: [],
         permissions: {
@@ -203,6 +210,7 @@ export default {
         name: sprintf(this.$options.i18n.duplicateTokenName, { name: token.name }),
         description: token.description || '',
         expirationDate: defaultDate(this.accessTokenMaxDate),
+        sudo: this.sudoAvailable && Boolean(token.sudo),
         access,
         namespaces: namespaces.filter(Boolean),
         permissions: {
@@ -275,6 +283,7 @@ export default {
               name: this.form.name,
               description: this.form.description,
               expiresAt: this.form.expirationDate,
+              sudo: this.form.sudo,
               granularScopes: this.granularScopes,
             },
           },
@@ -309,6 +318,10 @@ export default {
     nameError: s__('AccessTokens|Add token name.'),
     descriptionLabel: s__('AccessTokens|Description'),
     descriptionError: s__('AccessTokens|Add token description.'),
+    sudoLabel: s__('AccessTokens|Use token to act on behalf of other users (sudo)'),
+    sudoHelp: s__(
+      "AccessTokens|Enables use of the %{linkStart}sudo API parameter%{linkEnd}. Effective access is limited to actions permitted by both the impersonated user and this token's permissions.",
+    ),
     expirationDateError: s__('AccessTokens|Add token expiration date.'),
     scopeError: s__('AccessTokens|Set group and project access.'),
     namespaceError: s__('AccessTokens|At least one group or project is required.'),
@@ -329,6 +342,7 @@ export default {
     ),
   },
   fineGrainedTokensDocPath: helpPagePath('auth/tokens/fine_grained_access_tokens.md'),
+  sudoDocPath: helpPagePath('api/rest/authentication.md', { anchor: 'sudo' }),
   publiclyAccessibleEndpointsDocPath: helpPagePath(
     'auth/tokens/fine_grained_access_tokens_rest.md',
     {
@@ -399,6 +413,22 @@ export default {
             v-model="form.expirationDate"
             :error="errors.expirationDate"
           />
+
+          <gl-form-checkbox
+            v-if="sudoAvailable"
+            v-model="form.sudo"
+            class="gl-mt-5"
+            data-testid="sudo-checkbox"
+          >
+            {{ $options.i18n.sudoLabel }}
+            <template #help>
+              <gl-sprintf :message="$options.i18n.sudoHelp">
+                <template #link="{ content }">
+                  <gl-link :href="$options.sudoDocPath" target="_blank">{{ content }}</gl-link>
+                </template>
+              </gl-sprintf>
+            </template>
+          </gl-form-checkbox>
         </section>
         <section class="gl-mt-8">
           <personal-access-token-scope-selector v-model="form.access" :error="errors.access">

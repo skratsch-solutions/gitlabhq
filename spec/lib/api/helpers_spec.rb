@@ -829,9 +829,12 @@ RSpec.describe API::Helpers, feature_category: :api do
         it_behaves_like 'private group without access'
 
         context 'with access' do
+          before_all do
+            group.add_developer(user)
+          end
+
           before do
             group.update_column(:visibility_level, Gitlab::VisibilityLevel.level_value('private'))
-            group.add_developer(user)
           end
 
           it 'returns requested group with access' do
@@ -1026,8 +1029,8 @@ RSpec.describe API::Helpers, feature_category: :api do
           let_it_be(:developer_user) { create(:user) }
           let(:current_user) { developer_user }
 
-          before do
-            project.add_developer(current_user)
+          before_all do
+            project.add_developer(developer_user)
           end
 
           it 'returns the project namespace' do
@@ -1087,8 +1090,8 @@ RSpec.describe API::Helpers, feature_category: :api do
           let_it_be(:developer_user) { create(:user) }
           let(:current_user) { developer_user }
 
-          before do
-            project.add_developer(current_user)
+          before_all do
+            project.add_developer(developer_user)
           end
 
           it 'returns the project namespace' do
@@ -2309,7 +2312,7 @@ RSpec.describe API::Helpers, feature_category: :api do
         end
 
         it 'returns true' do
-          expect(helper.send(:authorize_granular_token?)).to be(true)
+          expect(helper.send(:authorize_granular_token?, token)).to be(true)
         end
 
         it 'authorizes granular tokens' do
@@ -2327,7 +2330,7 @@ RSpec.describe API::Helpers, feature_category: :api do
         it 'returns false' do
           allow(helper).to receive(:authorization_settings).and_return({})
 
-          expect(helper.send(:authorize_granular_token?)).to be(false)
+          expect(helper.send(:authorize_granular_token?, token)).to be(false)
         end
 
         it 'does not authorize granular tokens' do
@@ -2349,7 +2352,7 @@ RSpec.describe API::Helpers, feature_category: :api do
         end
 
         it 'returns true' do
-          expect(helper.send(:authorize_granular_token?)).to be(true)
+          expect(helper.send(:authorize_granular_token?, token)).to be(true)
         end
 
         it 'authorizes granular tokens' do
@@ -2365,7 +2368,7 @@ RSpec.describe API::Helpers, feature_category: :api do
         end
 
         it 'returns true' do
-          expect(helper.send(:authorize_granular_token?)).to be(true)
+          expect(helper.send(:authorize_granular_token?, token)).to be(true)
         end
 
         it 'authorizes granular tokens' do
@@ -2381,7 +2384,7 @@ RSpec.describe API::Helpers, feature_category: :api do
         end
 
         it 'returns false' do
-          expect(helper.send(:authorize_granular_token?)).to be(false)
+          expect(helper.send(:authorize_granular_token?, token)).to be(false)
         end
 
         it 'does not authorize granular tokens' do
@@ -2398,7 +2401,7 @@ RSpec.describe API::Helpers, feature_category: :api do
         end
 
         it 'returns false' do
-          expect(helper.send(:authorize_granular_token?)).to be(false)
+          expect(helper.send(:authorize_granular_token?, token)).to be(false)
         end
 
         it 'does not authorize granular tokens' do
@@ -2409,15 +2412,11 @@ RSpec.describe API::Helpers, feature_category: :api do
       end
     end
 
-    context 'when access token is nil' do
-      before do
-        allow(helper).to receive(:access_token).and_return(nil)
-      end
-
+    context 'when the token is nil' do
       it 'returns falsey' do
         allow(helper).to receive(:authorization_settings).and_return({})
 
-        expect(helper.send(:authorize_granular_token?)).to be_falsey
+        expect(helper.send(:authorize_granular_token?, nil)).to be_falsey
       end
     end
   end

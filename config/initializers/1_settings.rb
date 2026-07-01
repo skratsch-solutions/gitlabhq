@@ -494,6 +494,8 @@ Settings['jira_connect'] ||= {}
 Settings.jira_connect['atlassian_js_url'] ||= 'https://connect-cdn.atl-paas.net/all.js'
 Settings.jira_connect['enforce_jira_base_url_https'] = true if Settings.jira_connect['enforce_jira_base_url_https'].nil?
 Settings.jira_connect['additional_iframe_ancestors'] ||= []
+# Forge app ARI, used as the expected audience for FITs. Nil disables the check.
+Settings.jira_connect['forge_app_id'] ||= nil
 
 #
 # Gravatar

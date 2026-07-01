@@ -1,6 +1,6 @@
 ---
-source_checksum: e2e6ec25dd4fc23f
-distilled_at_sha: 446a9cf853f53fba2ba736df164bec025a2b6caf
+source_checksum: c1fe7e050cd10330
+distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -114,6 +114,11 @@ distilled_at_sha: 446a9cf853f53fba2ba736df164bec025a2b6caf
 - Use `within_modal` helper to interact with GitLab UI modals; use `accept_gl_confirm` for confirmation modals that only need to be accepted.
 - Use `be_axe_clean` matcher to run automated accessibility testing in feature tests.
 - Call the same externalizing method (for example, `_('...')`) in RSpec expectations against externalized content
+- Assert on a stable end-state (such as a status text or alert message) after an asynchronous mutation — DO NOT assert on a button's label or `disabled` state to synchronize, as controls pass through transient loading states before settling.
+- Use the `wait_for` helper (from `spec/support/helpers/wait_helpers.rb`) only as a last resort when there is no visible UI outcome to assert on (for example, browser-initiated downloads or interactions that must be retried); DO NOT use the deprecated `wait_for_requests` in new specs.
+- Assert with a waiting Capybara matcher (`have_field`, `have_selector`, `have_content`) rather than reading a value directly from an element (`find(...).value`, `find(...).text`, `all(...).count`) — direct reads capture state at that exact moment and race asynchronous updates.
+- Use the `:enable_admin_mode` RSpec metadata tag to activate admin mode in specs; DO NOT use `enable_admin_mode!(admin, use_ui: true)` — it is slow and race-prone.
+- Wrap both the triggering UI action and the assertion on its visible outcome inside `perform_enqueued_jobs` when testing delayed mail delivery — wrapping only the click can end the block before the AJAX request enqueues the job.
 
 ### View Specs
 

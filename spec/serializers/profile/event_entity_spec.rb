@@ -41,7 +41,7 @@ RSpec.describe Profile::EventEntity, feature_category: :user_profile do
 
   subject { entity.as_json }
 
-  before do
+  before_all do
     group.add_maintainer(user)
   end
 

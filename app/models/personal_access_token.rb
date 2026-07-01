@@ -108,6 +108,7 @@ class PersonalAccessToken < ApplicationRecord
 
   validate :validate_scopes
   validate :expires_at_before_instance_max_expiry_date, on: :create
+  validate :sudo_only_for_admins
 
   delegate :permitted_for_boundary?, to: :granular_scopes
 
@@ -214,6 +215,13 @@ class PersonalAccessToken < ApplicationRecord
     unless revoked || scopes.all? { |scope| Gitlab::Auth.all_available_scopes.include?(scope.to_sym) }
       errors.add :scopes, "can only contain available scopes"
     end
+  end
+
+  def sudo_only_for_admins
+    return unless sudo?
+    return if user&.can_admin_all_resources?
+
+    errors.add :sudo, _('can only be enabled for administrators')
   end
 
   def set_default_scopes

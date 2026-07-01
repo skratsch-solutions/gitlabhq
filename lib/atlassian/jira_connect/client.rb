@@ -47,7 +47,7 @@ module Atlassian
       private
 
       def get(path, query_params)
-        uri = URI.join(@base_uri, path)
+        uri = build_uri(path)
         uri.query = URI.encode_www_form(query_params)
 
         Integrations::Clients::HTTP.get(uri, headers: headers(uri, 'GET'))
@@ -131,15 +131,22 @@ module Atlassian
       end
 
       def post(path, payload)
-        uri = URI.join(@base_uri, path)
+        uri = build_uri(path)
 
         Integrations::Clients::HTTP.post(uri, headers: headers(uri), body: metadata.merge(payload).to_json)
       end
 
       def delete(path)
-        uri = URI.join(@base_uri, path)
+        uri = build_uri(path)
 
         Integrations::Clients::HTTP.delete(uri, headers: headers(uri, 'DELETE'))
+      end
+
+      # append_path (not URI.join) so a base that carries a path prefix (e.g. the
+      # Forge apiBaseUrl https://api.atlassian.com/ex/jira/<cloudId>) keeps it;
+      # URI.join would drop the prefix for an absolute path.
+      def build_uri(path)
+        URI.parse(Gitlab::Utils.append_path(@base_uri, path))
       end
 
       def headers(uri, http_method = 'POST')

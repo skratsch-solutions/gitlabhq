@@ -18,6 +18,7 @@ module Tasks
             gitlab_shell_token_auth: 'GitLab Shell token',
             integration_token_auth: 'Project integration token',
             internal_testing: 'Internal testing',
+            jira_forge_app_auth: 'GitLab for Jira (Forge) app token',
             job_token_auth: 'CI job token',
             kas_jwt_auth: 'Kubernetes agent JWT',
             mailroom_token_auth: 'Mailroom token',

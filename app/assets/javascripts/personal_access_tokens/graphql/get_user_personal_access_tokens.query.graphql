@@ -40,6 +40,7 @@ query getUserPersonalAccessTokens(
         name
         description
         granular
+        sudo
         revoked
         active
         lastUsedAt

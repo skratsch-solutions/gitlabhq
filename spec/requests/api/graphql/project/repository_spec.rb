@@ -120,11 +120,7 @@ RSpec.describe 'getting a repository in a project', feature_category: :source_co
   end
 
   context 'as a non-admin' do
-    let(:current_user) { create(:user) }
-
-    before do
-      project.add_role(current_user, :developer)
-    end
+    let(:current_user) { create(:user, developer_of: project) }
 
     it 'does not return diskPath' do
       post_graphql(query, current_user: current_user)

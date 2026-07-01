@@ -55,7 +55,7 @@ RSpec.describe Gitlab::GitAccessWiki do
     with_them do
       before do
         project.update!(visibility_level: project_visibility)
-        project.add_developer(user) if project_member?
+        project.add_developer(user) if project_member? # rubocop:disable RSpec/BeforeAllRoleAssignment -- parameterized via with_them; `project_member?` is not available in `before_all`
         project.project_feature.update_attribute(:wiki_access_level, wiki_access_level)
         allow(wiki.repository).to receive(:exists?).and_return(wiki_repo?)
       end
@@ -77,7 +77,7 @@ RSpec.describe Gitlab::GitAccessWiki do
     subject { access.check('git-receive-pack', changes) }
 
     context 'when user can :create_wiki' do
-      before do
+      before_all do
         project.add_developer(user)
       end
 
@@ -96,6 +96,70 @@ RSpec.describe Gitlab::GitAccessWiki do
 
     context 'the user cannot :create_wiki' do
       it { expect { subject }.to raise_wiki_not_found }
+    end
+  end
+
+  describe '#check_granular_pat_permissions!', feature_category: :source_code_management do
+    let(:access) do
+      described_class.new(user, wiki, 'web',
+        authentication_abilities: authentication_abilities,
+        personal_access_token: personal_access_token)
+    end
+
+    let(:personal_access_token) do
+      create(:granular_pat, user: user, boundary: boundary, permissions: permissions)
+    end
+
+    let(:boundary) { Authz::Boundary.for(project) }
+    let(:pull_access_check) { access.check('git-upload-pack', changes) }
+    let(:push_access_check) { access.check('git-receive-pack', changes) }
+
+    before_all do
+      project.add_developer(user)
+    end
+
+    context 'when the token has read_wiki permission' do
+      let(:permissions) { :read_wiki }
+
+      it 'allows git pull' do
+        expect { pull_access_check }.not_to raise_error
+      end
+
+      it 'denies git push' do
+        expect { push_access_check }.to raise_error(Gitlab::GitAccess::ForbiddenError,
+          'Access denied: This operation requires a fine-grained personal access token ' \
+            'with the following project permissions: [Wiki: Create].')
+      end
+    end
+
+    context 'when the token has create_wiki permission' do
+      let(:permissions) { :create_wiki }
+
+      it 'allows git push' do
+        expect { push_access_check }.not_to raise_error
+      end
+
+      it 'denies git pull' do
+        expect { pull_access_check }.to raise_error(Gitlab::GitAccess::ForbiddenError,
+          'Access denied: This operation requires a fine-grained personal access token ' \
+            'with the following project permissions: [Wiki: Read].')
+      end
+    end
+
+    context 'when the token has no wiki permissions' do
+      let(:permissions) { [] }
+
+      it 'denies git pull' do
+        expect { pull_access_check }.to raise_error(Gitlab::GitAccess::ForbiddenError,
+          'Access denied: This operation requires a fine-grained personal access token ' \
+            'with the following project permissions: [Wiki: Read].')
+      end
+
+      it 'denies git push' do
+        expect { push_access_check }.to raise_error(Gitlab::GitAccess::ForbiddenError,
+          'Access denied: This operation requires a fine-grained personal access token ' \
+            'with the following project permissions: [Wiki: Create].')
+      end
     end
   end
 

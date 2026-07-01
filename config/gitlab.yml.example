@@ -627,6 +627,7 @@ production: &base
     # atlassian_js_url: 'http://localhost:9292/atlassian.js'
     # enforce_jira_base_url_https: false
     # additional_iframe_ancestors: ['localhost:*']
+    # forge_app_id: 'ari:cloud:ecosystem::app/00000000-0000-0000-0000-000000000000'
 
   ## Gravatar
   ## If using gravatar.com, there's nothing to change here. For Libravatar

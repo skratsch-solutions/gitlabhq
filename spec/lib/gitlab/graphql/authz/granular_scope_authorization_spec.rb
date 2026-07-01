@@ -70,7 +70,11 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
         it 'caches the denied result so the boundary is not re-checked' do
           ok
 
-          expect(context[:granular_scope_authz_cache]).to eq({ [['read_wiki'], [['Project', project.id]]] => false })
+          expect(context[:granular_scope_authz_cache]).to eq(
+            { [['read_wiki'], [['Project', project.id]]] =>
+              [false, 'Access denied: This operation requires a fine-grained personal access token ' \
+                'with the following project permissions: [Wiki: Read].'] }
+          )
         end
       end
 
@@ -177,7 +181,7 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
         it 'caches the authorized result and reuses it without re-running the service' do
           expect { ok }.to change { context[:granular_scope_authz_cache] }
             .from(nil)
-            .to({ [['read_wiki'], [['Project', project.id]]] => true })
+            .to({ [['read_wiki'], [['Project', project.id]]] => [true, nil] })
 
           expect(::Authz::Tokens::AuthorizeGranularScopesService).not_to receive(:new)
 
@@ -193,7 +197,7 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
           it 'caches the boundary as its type symbol' do
             ok
 
-            expect(context[:granular_scope_authz_cache]).to eq({ [['read_runner'], [:instance]] => true })
+            expect(context[:granular_scope_authz_cache]).to eq({ [['read_runner'], [:instance]] => [true, nil] })
           end
         end
 
@@ -214,9 +218,75 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
             ok
 
             expect(context[:granular_scope_authz_cache]).to eq(
-              { [%w[create_work_item read_wiki], [['Group', group.id], ['Project', project.id]]] => true }
+              { [%w[create_work_item read_wiki], [['Group', group.id], ['Project', project.id]]] => [true, nil] }
             )
           end
+        end
+      end
+    end
+  end
+
+  describe '#authorize!' do
+    subject(:authorize) { authorization.authorize!(object, context) }
+
+    let(:access_token) do
+      create(:granular_pat, user: user, boundary: Authz::Boundary.for(project), permissions: [:read_wiki])
+    end
+
+    context 'when authorization succeeds' do
+      it 'does not raise' do
+        expect { authorize }.not_to raise_error
+      end
+    end
+
+    context 'when authorization fails' do
+      let(:access_token) do
+        create(:granular_pat, user: user, boundary: Authz::Boundary.for(project), permissions: [:create_work_item])
+      end
+
+      it 'raises an ArgumentError with the denial message from the authorization service' do
+        expect { authorize }.to raise_error(
+          Gitlab::Graphql::Errors::ArgumentError,
+          'Access denied: This operation requires a fine-grained personal access token ' \
+            'with the following project permissions: [Wiki: Read].'
+        )
+      end
+    end
+
+    context 'when boundaries are resolved from arguments (mutation path)' do
+      subject(:authorize) { authorization.authorize!(nil, context, arguments: arguments) }
+
+      let(:directives) do
+        [create_directive(boundary_argument: 'project_path', permissions: ['read_wiki'], boundary_type: 'project')]
+      end
+
+      let(:arguments) { { project_path: project.full_path } }
+
+      context 'when the token has the required permission on the resolved boundary' do
+        it 'does not raise' do
+          expect { authorize }.not_to raise_error
+        end
+      end
+
+      context 'when the token does not have the required permission on the resolved boundary' do
+        let(:access_token) do
+          create(:granular_pat, user: user, boundary: Authz::Boundary.for(project), permissions: [:create_work_item])
+        end
+
+        it 'raises an ArgumentError with the denial message from the authorization service' do
+          expect { authorize }.to raise_error(
+            Gitlab::Graphql::Errors::ArgumentError,
+            'Access denied: This operation requires a fine-grained personal access token ' \
+              'with the following project permissions: [Wiki: Read].'
+          )
+        end
+      end
+
+      context 'when the arguments do not resolve to a boundary' do
+        let(:arguments) { { project_path: 'nonexistent/path' } }
+
+        it 'raises an ArgumentError with a not found message' do
+          expect { authorize }.to raise_error(Gitlab::Graphql::Errors::ArgumentError, '404 Not Found')
         end
       end
     end

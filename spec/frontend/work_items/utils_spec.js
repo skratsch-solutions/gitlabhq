@@ -21,6 +21,7 @@ import {
   WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_COLOR,
   WIDGET_TYPE_PROGRESS,
+  WIDGET_TYPE_STATUS,
   WORK_ITEM_TYPE_ENUM_EPIC,
   WORK_ITEM_TYPE_ENUM_INCIDENT,
   WORK_ITEM_TYPE_ENUM_ISSUE,
@@ -66,6 +67,7 @@ import {
   findLabelsWidget,
   findProgressWidget,
   findWeightWidget,
+  findStatusWidget,
   findLinkedItemsWidget,
   findLinkedResourcesWidget,
   findStartAndDueDateWidget,
@@ -1528,6 +1530,52 @@ describe('findWeightWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findWeightWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findStatusWidget', () => {
+  const statusWidget = {
+    type: WIDGET_TYPE_STATUS,
+    status: { id: 'gid://gitlab/WorkItems::Statuses::SystemDefined::Status/1', name: 'To do' },
+  };
+  const featuresStatus = {
+    status: {
+      id: 'gid://gitlab/WorkItems::Statuses::SystemDefined::Status/2',
+      name: 'In progress',
+    },
+  };
+
+  describe('when features.status is present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = {
+        features: { status: featuresStatus },
+        widgets: [statusWidget],
+      };
+    });
+
+    it('returns features.status', () => {
+      expect(findStatusWidget(workItem)).toBe(featuresStatus);
+    });
+  });
+
+  describe('when features is not present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = { widgets: [statusWidget] };
+    });
+
+    it('falls back to the widgets array', () => {
+      expect(findStatusWidget(workItem)).toBe(statusWidget);
+    });
+  });
+
+  describe('when neither features nor widget is present', () => {
+    it('returns undefined', () => {
+      expect(findStatusWidget({ widgets: [] })).toBeUndefined();
+    });
   });
 });
 

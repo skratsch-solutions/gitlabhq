@@ -23,6 +23,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Place EE-only initializer code in `ee/config/initializers`; use `Gitlab.ee { ... }` in `config/initializers` only when splitting is not possible.
 - Place EE-only routes using `Gitlab.ee { draw :ee_only }`; use `draw_all` only when both CE and EE route files exist.
 - Place all Dedicated-specific code in the `ee/` directory structure.
+- Place EE logic that overrides CE `lib/` code in the top-level `EE` module namespace under `ee/lib/ee/`; place EE-only `lib/` classes (no CE counterpart) in `ee/lib/` without the `EE` namespace.
 
 ### EE Module Injection Pattern
 

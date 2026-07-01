@@ -124,6 +124,7 @@ RSpec.describe 'Database schema',
       gitlab_subscription_histories: %w[gitlab_subscription_id hosted_plan_id namespace_id],
       issues: %w[last_edited_by_id state_id work_item_type_id],
       issue_emails: %w[email_message_id],
+      jira_connect_installations: %w[cloud_id], # cloud_id is the Jira site (cloud) id, not a GitLab foreign key
       jira_tracker_data: %w[jira_issue_transition_id],
       keys: %w[user_id],
       label_links: %w[target_id],

@@ -1,6 +1,6 @@
 ---
-source_checksum: 39f86a1ffab6710c
-distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
+source_checksum: 0f6cd1f65890add0
+distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -95,6 +95,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Review links and images in documentation MRs
 - Consult `@gitlab-com/gl-security/appsec` before manually starting any pipeline for suspicious community MRs.
 - Only set the milestone when the MR is likely to be included in the current milestone
+- When taking over an unresponsive community MR: comment that you are taking over, add the `~"coach will finish"` label, create a feature branch from main, merge their branch into it, open a new MR linking the original, add the `~"Community contribution"` label, and notify the contributor.
 
 ### Review Process
 
@@ -104,7 +105,6 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Prefer domain-specific approvals before generic approvals for efficiency.
 - Ensure the MR author (or DRI) remains as the Assignee throughout the review lifecycle.
 - Address all GitLab Duo automated review comments before requesting human review; leave Duo discussion threads unresolved so reviewers can verify responses.
-- Push feedback-based commits as isolated commits; DO NOT squash until the branch is ready to merge.
 - Re-request review once all feedback has been addressed and the MR is ready for another round.
 - Post a summary note after each round of line comments (for example, "Looks good to me" or "Just a couple things to address").
 - Ensure open dependencies are resolved; set an MR dependency if blocked by open MRs.

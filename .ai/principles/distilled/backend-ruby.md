@@ -1,6 +1,6 @@
 ---
-source_checksum: b60336bffbaaf0ca
-distilled_at_sha: f61a71870e300699d0cbf5f4ba05fb6666928907
+source_checksum: 2ae6dee0ddd180fc
+distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -26,12 +26,12 @@ distilled_at_sha: f61a71870e300699d0cbf5f4ba05fb6666928907
 
 - DO NOT add new lifecycle logic via ActiveRecord callbacks; put it in a service class instead. Exception: callbacks are acceptable when overriding a dependency's callback, incrementing cache counts, or normalizing data that only relates to the current model.
 - DO NOT override `has_many through:` or `has_one through:` associations; overriding changes `destroy()` behavior and can cause data loss.
-- DO NOT open database connections or issue queries from Rails initializers; tasks like `db:drop` and `db:test:prepare` will fail if an active session is held.
-- DO NOT issue database queries in routes.
+- DO NOT open database connections or issue queries from Rails initializers or routes (see Rails Initializers).
 
 ### JSON
 
 - Use `Gitlab::Json` in place of all calls to the default `JSON` class, `.to_json`, and similar methods.
+- Use `Gitlab::Json::SafeParser.parse` when parsing JSON from untrusted sources; DO NOT use the deprecated `Gitlab::Json.safe_parse`.
 - Use `Gitlab::Json::LimitedEncoder` when JSON output size must be bounded.
 
 ### Logging
@@ -102,7 +102,15 @@ distilled_at_sha: f61a71870e300699d0cbf5f4ba05fb6666928907
 ### Rails Initializers
 
 - DO NOT open database connections or issue queries from Rails initializers; tasks like `db:drop` and `db:test:prepare` will fail if an active session is held.
+- DO NOT issue database queries in routes.
 - Place initializers that must run before Zeitwerk loads (e.g., those modifying `config.autoload_paths` or Zeitwerk inflections) in `config/initializers_before_autoloader` instead of `config/initializers`.
+
+### Changelog
+
+- Add a `Changelog` Git trailer to commits that introduce database migrations, security fixes, user-facing changes, or client-facing REST/GraphQL API changes.
+- Add `EE: true` trailer to commits whose changes are exclusively for GitLab Enterprise Edition; DO NOT add it for changes that apply to both EE and CE.
+- DO NOT add a changelog entry for developer-facing changes (refactoring, test suite changes), experiment changes, documentation-only MRs, or regressions fixed in the same release.
+- Add the `Changelog` trailer to the first commit when a merge request has multiple commits, to ensure correct entry generation on squash.
 
 ### Code Comments
 

@@ -39,7 +39,6 @@ module Types
       # We want to avoid the overhead of this in prod
       extension ::Gitlab::Graphql::CallsGitaly::FieldExtension if Gitlab.dev_or_test_env?
       extension ::Gitlab::Graphql::Present::FieldExtension
-      extension ::Gitlab::Graphql::Authz::GranularTokenAuthorization if mutation_field?
       extension ::Gitlab::Graphql::Authorize::FieldExtension
 
       after_connection_extensions.each { extension _1 } if after_connection_extensions.any?
@@ -106,10 +105,6 @@ module Types
     end
 
     private
-
-    def mutation_field?
-      @resolver_class && @resolver_class < ::Mutations::BaseMutation
-    end
 
     def field_authorized?(object, ctx)
       object = object.node if object.is_a?(GraphQL::Pagination::Connection::Edge)

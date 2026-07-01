@@ -13,9 +13,12 @@ RSpec.describe Ci::CreatePipelineService,
     let(:service)  { described_class.new(project, user, { ref: ref }) }
     let(:pipeline) { service.execute(source).payload }
 
+    before_all do
+      project.add_developer(user)
+    end
+
     before do
       stub_ci_pipeline_yaml_file(config)
-      project.add_developer(user)
     end
 
     context 'with a valid config' do

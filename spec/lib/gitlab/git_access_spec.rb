@@ -354,9 +354,22 @@ RSpec.describe Gitlab::GitAccess, :aggregate_failures, feature_category: :system
       end
     end
 
-    context 'without a granular personal access token' do
+    context 'without a personal access token' do
       it 'delegates to check_legacy_authentication_abilities!' do
         instance = access
+        expect(instance).not_to receive(:check_granular_pat_permissions!)
+        expect(instance).to receive(:check_legacy_authentication_abilities!)
+
+        instance.send(:check_authentication_abilities!)
+      end
+    end
+
+    context 'with a non-granular personal access token' do
+      let(:personal_access_token) { build(:personal_access_token) }
+
+      it 'delegates to both check_granular_pat_permissions! and check_legacy_authentication_abilities!' do
+        instance = access
+        expect(instance).to receive(:check_granular_pat_permissions!)
         expect(instance).to receive(:check_legacy_authentication_abilities!)
 
         instance.send(:check_authentication_abilities!)
@@ -426,10 +439,36 @@ RSpec.describe Gitlab::GitAccess, :aggregate_failures, feature_category: :system
     context 'with a non-granular personal access token' do
       let(:personal_access_token) { create(:personal_access_token, user: user) }
 
-      it 'does not check granular permissions for download' do
-        expect(::Authz::Tokens::AuthorizeGranularScopesService).not_to receive(:new)
+      it 'authorizes via the granular scopes service without denying access' do
+        expect(::Authz::Tokens::AuthorizeGranularScopesService).to receive(:new).and_call_original
 
         expect { pull_access_check }.not_to raise_error
+      end
+
+      context 'when granular tokens are enforced for the namespace' do
+        let(:group) { create(:group) }
+        let(:project) { create(:project, :repository, group: group) }
+
+        before do
+          stub_feature_flags(granular_personal_access_tokens_enforcement_saas: group)
+
+          group.namespace_settings.update!(
+            enforce_granular_tokens: true,
+            granular_tokens_enforced_after: Date.current
+          )
+        end
+
+        it 'denies git pull' do
+          expect { pull_access_check }.to raise_error(described_class::ForbiddenError,
+            'Access denied: This operation requires a fine-grained personal access token ' \
+            "with the following project permissions: [Code: Download].")
+        end
+
+        it 'denies git push' do
+          expect { push_access_check }.to raise_error(described_class::ForbiddenError,
+            'Access denied: This operation requires a fine-grained personal access token ' \
+            "with the following project permissions: [Code: Push].")
+        end
       end
     end
 

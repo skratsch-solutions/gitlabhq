@@ -170,6 +170,10 @@ tags:
   description: Operations related to iterations.
 - name: Jira Connect subscriptions
   description: Operations related to Jira Connect subscriptions.
+- name: Jira forge installation
+  description: Operations related to jira forge installation.
+- name: Jira forge subscriptions
+  description: Operations related to jira forge subscriptions.
 - name: Job artifacts
   description: Operations related to job artifacts.
 - name: Jobs
@@ -46240,6 +46244,128 @@ paths:
         schema:
           type: string
         in: path
+  "/api/v4/integrations/jira_forge/subscriptions":
+    post:
+      operationId: postApiV4IntegrationsJiraForgeSubscriptions
+      summary: Create a GitLab for Jira (Forge) namespace subscription
+      description: Subscribes a GitLab namespace to the Forge installation so its
+        development data syncs to Jira. Authenticated as the GitLab user (OAuth);
+        the Jira installation and user are resolved from the Forge invocation context.
+      tags:
+      - Jira forge subscriptions
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBasicSuccess"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '422':
+          description: Unprocessable entity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_cbeedcc1e5c4"
+    get:
+      operationId: getApiV4IntegrationsJiraForgeSubscriptions
+      summary: List GitLab for Jira (Forge) namespace subscriptions
+      description: Lists the GitLab namespaces subscribed to the Forge installation.
+      tags:
+      - Jira forge subscriptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JiraConnectSubscriptionEntity"
+        '401':
+          description: Unauthorized
+  "/api/v4/integrations/jira_forge/subscriptions/{id}":
+    delete:
+      operationId: deleteApiV4IntegrationsJiraForgeSubscriptionsId
+      summary: Delete a GitLab for Jira (Forge) namespace subscription
+      description: Unsubscribes a GitLab namespace from the Forge installation.
+      tags:
+      - Jira forge subscriptions
+      responses:
+        '204':
+          description: No Content
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBasicSuccess"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '422':
+          description: Unprocessable entity
+      parameters:
+      - name: id
+        required: true
+        description: ID of the subscription to delete
+        schema:
+          type: integer
+        in: path
+  "/api/v4/integrations/jira_forge/installation":
+    put:
+      operationId: putApiV4IntegrationsJiraForgeInstallation
+      summary: Update the GitLab for Jira (Forge) installation instance URL
+      description: Sets the GitLab instance the installation points at. Omit instance_url
+        (or send null) for GitLab.com. Requires a Jira site or organization admin.
+      tags:
+      - Jira forge installation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBasicSuccess"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable entity
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_ea4d1c061e68"
+  "/api/v4/integrations/jira_forge/installation/forge_token":
+    post:
+      operationId: postApiV4IntegrationsJiraForgeInstallationForgeToken
+      summary: Register the GitLab for Jira (Forge) system token for direct dev-info
+        sync
+      description: Stores the Forge app system OAuth token (X-Forge-Oauth-System header)
+        and the Jira apiBaseUrl (from the FIT), so GitLab pushes dev-info directly
+        to Jira. See Atlassian::Forge::SystemTokenClient.
+      tags:
+      - Jira forge installation
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBasicSuccess"
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unprocessable entity
   "/api/v4/integrations/jira_connect/subscriptions":
     post:
       operationId: postApiV4IntegrationsJiraConnectSubscriptions
@@ -86898,6 +87024,26 @@ components:
           type: string
         created_by_name:
           type: string
+    JiraConnectGroupEntity:
+      type: object
+      properties:
+        name:
+          type: string
+        avatar_url:
+          type: string
+        full_name:
+          type: string
+        description:
+          type: string
+    JiraConnectSubscriptionEntity:
+      type: object
+      properties:
+        created_at:
+          type: string
+        unlink_path:
+          type: string
+        group:
+          "$ref": "#/components/schemas/JiraConnectGroupEntity"
     APIEntitiesIntegrationBasic:
       type: object
       properties:
@@ -105388,6 +105534,24 @@ components:
           type: integer
           description: The ID of a member role for the invited user
           nullable: true
+    RequestBody_cbeedcc1e5c4:
+      type: object
+      properties:
+        namespace_path:
+          type: string
+          description: Path of the namespace to subscribe
+          nullable: true
+          maxLength: 255
+      required:
+      - namespace_path
+    RequestBody_ea4d1c061e68:
+      type: object
+      properties:
+        instance_url:
+          type: string
+          description: Base URL of the self-managed GitLab instance; null for GitLab.com
+          nullable: true
+          maxLength: 1024
     RequestBody_93c93c9a4a46:
       type: object
       properties:

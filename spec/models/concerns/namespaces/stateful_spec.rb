@@ -15,6 +15,20 @@ RSpec.describe Namespaces::Stateful, feature_category: :groups_and_projects do
     it { is_expected.to define_enum_for(:state).with_values(**states).without_instance_methods }
   end
 
+  describe 'state classification constants' do
+    it 'partitions all enum states between PROPAGATED_STATES and NON_PROPAGATED_STATES' do
+      classified = described_class::PROPAGATED_STATES + described_class::NON_PROPAGATED_STATES
+
+      expect(classified.sort).to eq(states.keys.map(&:to_sym).sort)
+    end
+
+    it 'has no overlap between PROPAGATED_STATES and NON_PROPAGATED_STATES' do
+      overlap = described_class::PROPAGATED_STATES & described_class::NON_PROPAGATED_STATES
+
+      expect(overlap).to be_empty
+    end
+  end
+
   describe '.with_state' do
     let_it_be(:archived_namespace) { create(:namespace, state: :archived) }
     let_it_be(:deletion_scheduled_namespace) { create(:namespace, state: :deletion_scheduled) }

@@ -8,8 +8,8 @@ module Mutations
       authorize :create_todo
       authorize_granular_token permissions: :create_todo,
         boundaries: [
-          { boundary_argument: :target_id, boundary_type: :project },
-          { boundary_argument: :target_id, boundary_type: :group }
+          { boundary_argument: :target_id, boundary: :resource_parent, boundary_type: :project },
+          { boundary_argument: :target_id, boundary: :resource_parent, boundary_type: :group }
         ]
 
       argument :target_id,

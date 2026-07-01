@@ -16,7 +16,7 @@ RSpec.describe Groups::Settings::AccessTokensController, feature_category: :syst
 
   shared_examples 'feature unavailable' do
     context 'user is not a owner' do
-      before do
+      before_all do
         resource.add_maintainer(user)
       end
 

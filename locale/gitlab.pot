@@ -4520,6 +4520,9 @@ msgstr ""
 msgid "AccessTokens|Enable DPoP"
 msgstr ""
 
+msgid "AccessTokens|Enables use of the %{linkStart}sudo API parameter%{linkEnd}. Effective access is limited to actions permitted by both the impersonated user and this token's permissions."
+msgstr ""
+
 msgid "AccessTokens|Error loading groups and projects. Please refresh page."
 msgstr ""
 
@@ -4867,6 +4870,9 @@ msgstr ""
 msgid "AccessTokens|Status"
 msgstr ""
 
+msgid "AccessTokens|Sudo"
+msgstr ""
+
 msgid "AccessTokens|The form contains the following errors:"
 msgstr ""
 
@@ -4931,6 +4937,9 @@ msgid "AccessTokens|Use DPoP to protect your REST or GraphQL API access when usi
 msgstr ""
 
 msgid "AccessTokens|Use Demonstrating Proof of Possession (DPoP)"
+msgstr ""
+
+msgid "AccessTokens|Use token to act on behalf of other users (sudo)"
 msgstr ""
 
 msgid "AccessTokens|User"
@@ -90680,6 +90689,9 @@ msgid "can only be changed by a group admin."
 msgstr ""
 
 msgid "can only be configured on a top-level group."
+msgstr ""
+
+msgid "can only be enabled for administrators"
 msgstr ""
 
 msgid "can only be set for root group namespace"

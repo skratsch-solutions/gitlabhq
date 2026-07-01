@@ -91,21 +91,8 @@ module API
 
       sudo!
 
-      unless sudo?
-        token = validate_and_save_access_token!(scopes: scopes_registered_for_endpoint)
-
-        if token && authorize_granular_token?
-          result = ::Authz::Tokens::AuthorizeGranularScopesService.new(
-            boundaries: boundaries_for_endpoint, permissions: permissions_for_endpoint, token: token
-          ).execute
-
-          if result.error?
-            not_found! if result.reason == :resource_not_found
-
-            raise Gitlab::Auth::GranularPermissionsError, result.message
-          end
-        end
-      end
+      token = sudo? ? access_token : validate_and_save_access_token!(scopes: scopes_registered_for_endpoint)
+      authorize_granular_token_scopes!(token)
 
       save_current_user_in_env(@current_user) if @current_user
 
@@ -1048,6 +1035,10 @@ module API
         forbidden!('Must be authenticated using an OAuth or personal access token to use sudo')
       end
 
+      if access_token.try(:granular?) && !access_token.sudo?
+        forbidden!('Fine-grained token must have sudo enabled to use sudo')
+      end
+
       validate_and_save_access_token!(scopes: [:sudo])
 
       sudoed_user = find_user(sudo_identifier)
@@ -1254,8 +1245,21 @@ module API
       (respond_to?(:route_setting) && route_setting(:authorization)) || {}
     end
 
-    def authorize_granular_token?
-      access_token.respond_to?(:granular?) && !authorization_settings[:skip_granular_token_authorization]
+    def authorize_granular_token?(token)
+      token.respond_to?(:granular?) && !authorization_settings[:skip_granular_token_authorization]
+    end
+
+    def authorize_granular_token_scopes!(token)
+      return unless authorize_granular_token?(token)
+
+      result = ::Authz::Tokens::AuthorizeGranularScopesService.new(
+        boundaries: boundaries_for_endpoint, permissions: permissions_for_endpoint, token: token
+      ).execute
+      return unless result.error?
+
+      not_found! if result.reason == :resource_not_found
+
+      raise Gitlab::Auth::GranularPermissionsError, result.message
     end
 
     def permissions_for_endpoint

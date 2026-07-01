@@ -60,8 +60,8 @@ RSpec.describe Projects::GoogleCloud::DatabasesController, :snowplow, feature_ca
   end
 
   context '-/google_cloud/databases/create' do
-    let_it_be(:project) { create(:project) }
     let_it_be(:user) { create(:user) }
+    let_it_be(:project) { create(:project, maintainers: user) }
     let_it_be(:renders_template) { nil }
     let_it_be(:redirects_to) { project_google_cloud_databases_path(project) }
 
@@ -71,7 +71,6 @@ RSpec.describe Projects::GoogleCloud::DatabasesController, :snowplow, feature_ca
 
     context 'when the request is valid' do
       before do
-        project.add_maintainer(user)
         sign_in(user)
 
         allow_next_instance_of(GoogleApi::CloudPlatform::Client) do |client|

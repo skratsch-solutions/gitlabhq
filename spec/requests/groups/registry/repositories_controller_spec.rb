@@ -3,14 +3,13 @@
 require 'spec_helper'
 
 RSpec.describe Groups::Registry::RepositoriesController, feature_category: :container_registry do
-  let_it_be_with_reload(:group) { create(:group) }
   let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be_with_reload(:group) { create(:group, reporters: user) }
 
   before do
     stub_container_registry_config(enabled: true, key: 'spec/fixtures/x509_certificate_pk.key')
     stub_container_registry_tags(repository: :any, tags: [])
     stub_container_registry_info
-    group.add_reporter(user) # -- Does not work in before_all
     login_as(user)
   end
 

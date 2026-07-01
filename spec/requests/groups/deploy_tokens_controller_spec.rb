@@ -3,16 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe Groups::DeployTokensController, feature_category: :continuous_delivery do
-  let_it_be(:group) { create(:group) }
   let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:group) { create(:group, owners: user) }
   let_it_be(:deploy_token) { create(:deploy_token, :group, groups: [group]) }
   let_it_be(:params) do
     { id: deploy_token.id, group_id: group }
   end
 
   before do
-    group.add_owner(user)
-
     sign_in(user)
   end
 

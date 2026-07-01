@@ -288,7 +288,6 @@ destroy_vulnerability_feedback
 destroy_wiki
 destroy_work_item
 disable_two_factor
-download_wiki_code
 duo_generate_direct_access_token
 duo_workflow
 edit_approval_rule

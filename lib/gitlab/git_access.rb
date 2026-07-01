@@ -229,11 +229,8 @@ module Gitlab
     end
 
     def check_authentication_abilities!
-      if personal_access_token&.granular?
-        check_granular_pat_permissions!
-      else
-        check_legacy_authentication_abilities!
-      end
+      check_granular_pat_permissions! if personal_access_token
+      check_legacy_authentication_abilities! unless personal_access_token&.granular?
     end
 
     def check_legacy_authentication_abilities!
@@ -251,7 +248,7 @@ module Gitlab
 
     def check_granular_pat_permissions!
       result = ::Authz::Tokens::AuthorizeGranularScopesService.new(
-        boundaries: ::Authz::Boundary.for(project),
+        boundaries: granular_pat_boundaries,
         permissions: permission_for_command,
         token: personal_access_token
       ).execute
@@ -262,12 +259,19 @@ module Gitlab
       raise ForbiddenError, result.message
     end
 
+    def granular_pat_boundaries
+      ::Authz::Boundary.for(project)
+    end
+
+    # The granular permission required for the command. Each access type's
+    # download/push ability is a raw permission covered by an assignable
+    # group, so we reuse them as the required granular permission.
     def permission_for_command
       case cmd
       when *DOWNLOAD_COMMANDS
-        :download_code
+        download_ability
       when *PUSH_COMMANDS
-        :push_code
+        push_ability
       end
     end
 

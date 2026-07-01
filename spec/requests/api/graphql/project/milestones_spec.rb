@@ -84,7 +84,7 @@ RSpec.describe 'getting milestone listings nested in a project', feature_categor
     context 'the user has access' do
       let(:expected) { milestones }
 
-      before do
+      before_all do
         project.add_guest(current_user)
       end
 

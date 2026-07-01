@@ -81,5 +81,42 @@ RSpec.describe Groups::ImportsController, feature_category: :importers do
         expect(response).to have_gitlab_http_status :not_found
       end
     end
+
+    context 'when the group belongs to another organization' do
+      let_it_be(:group) { create(:group, :private, organization: create(:organization)) }
+
+      before_all do
+        group.add_maintainer(user)
+      end
+
+      before do
+        sign_in(user)
+      end
+
+      it 'returns a 404' do
+        get :show, params: { group_id: group }
+
+        expect(response).to have_gitlab_http_status :not_found
+      end
+    end
+
+    context 'when the group belongs to the current organization' do
+      let_it_be(:group) { create(:group, :private, organization: current_organization) }
+
+      before_all do
+        group.add_maintainer(user)
+        create(:group_import_state, group: group)
+      end
+
+      before do
+        sign_in(user)
+      end
+
+      it 'renders the show template' do
+        get :show, params: { group_id: group }
+
+        expect(response).to render_template :show
+      end
+    end
   end
 end

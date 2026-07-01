@@ -82,7 +82,7 @@ RSpec.describe MergeRequestPollWidgetEntity, feature_category: :merge_trains do
   end
 
   describe 'auto merge' do
-    before do
+    before_all do
       project.add_maintainer(user)
     end
 

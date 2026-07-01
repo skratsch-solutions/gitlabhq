@@ -11,7 +11,6 @@ import {
   WIDGET_TYPE_PARTICIPANTS,
   WORK_ITEM_TYPE_NAME_EPIC,
   WIDGET_TYPE_CUSTOM_FIELDS,
-  WIDGET_TYPE_STATUS,
   STATE_CLOSED,
 } from '../constants';
 import {
@@ -25,6 +24,7 @@ import {
   findLabelsWidget,
   findProgressWidget,
   findStartAndDueDateWidget,
+  findStatusWidget,
   findTimeTrackingWidget,
   findWeightWidget,
 } from '../utils';
@@ -159,7 +159,7 @@ export default {
       return findLabelsWidget(this.workItem);
     },
     workItemStatus() {
-      return this.isWidgetPresent(WIDGET_TYPE_STATUS);
+      return findStatusWidget(this.workItem);
     },
     workItemStartAndDueDate() {
       return findStartAndDueDateWidget(this.workItem);

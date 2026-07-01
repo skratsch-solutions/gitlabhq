@@ -82,6 +82,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Define CE events and publish them in CE code; define EE events and publish them in EE code; subscribers may cross CE/EE boundaries
 - DO NOT use EventStore when logic must run synchronously as part of the main business transaction rather than as a side-effect
 - Use `Gitlab::EventStore.publish_group` when publishing multiple events of the same type in a single transaction to reduce Sidekiq load; configure `group_size` on the subscription as needed
+- Consider configuring a concurrency limit on subscriber workers if there is a risk of saturating shared resources
 
 ### Modules and Instance Variables
 
@@ -100,7 +101,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Cover all GitLab.com plans (`default`, `free`, `premium`, `premium_trial`, `ultimate`, `ultimate_trial`, `ultimate_trial_paid_customer`, `opensource`) in limit migrations; omitting a plan causes those customers to receive the default (possibly `0`/unlimited)
 - Expose every new plan limit column through the admin Plan Limits API by adding it as an `optional` parameter on `PUT /application/plan_limits` and to the response entity in `lib/api/entities/plan_limit.rb`; `plan_limits` is cell-scoped configuration, so this API is the only way administrators can tune limits per cell
 - Use `PlanLimits#exceeded?` or the `Limitable` concern to enforce limits; DO NOT implement ad-hoc count checks
-- Use `Rack::Attack` for middleware-level rate limiting and `Gitlab::ApplicationRateLimiter` for controller/API-level throttling
+- Use `Rack::Attack` for middleware-level rate limiting (add fields to `ApplicationSetting`'s `rate_limits` JSONB column, update the JSON schema validator, extend `Gitlab::RackAttack`, and document the new settings) and `Gitlab::ApplicationRateLimiter` for controller/API-level throttling
 
 ### Backwards Compatibility Across Updates
 
@@ -109,6 +110,11 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Ensure new GraphQL fields or REST API fields added in release N are not used by frontend code until release N+1 (or are behind a default-disabled feature flag, or degrade gracefully)
 - DO NOT add a `NOT NULL` column constraint without a default value when old application nodes are still inserting rows without that column
 - Ensure route changes follow expand-and-contract: add new route first, then generate new-format links, then remove old route
+
+### Cells Compatibility
+
+- Design all new code with Cells compatibility in mind; follow the [Cells development principles](https://docs.gitlab.com/development/cells/)
+- DO NOT introduce plan limits that must stay consistent across cells — `plan_limits` is cell-scoped configuration and is not migrated between cells
 
 ### CE/EE Code Separation
 

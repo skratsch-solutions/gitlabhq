@@ -23672,8 +23672,16 @@ CREATE TABLE jira_connect_installations (
     instance_url text,
     organization_id bigint,
     display_url text,
+    cloud_id text,
+    jira_api_base_url text,
+    encrypted_forge_system_token text,
+    encrypted_forge_system_token_iv text,
+    CONSTRAINT check_063517862b CHECK ((char_length(cloud_id) <= 255)),
+    CONSTRAINT check_1fc8a8132b CHECK ((char_length(jira_api_base_url) <= 512)),
     CONSTRAINT check_4c6abed669 CHECK ((char_length(instance_url) <= 255)),
+    CONSTRAINT check_5c01235545 CHECK ((char_length(encrypted_forge_system_token) <= 8192)),
     CONSTRAINT check_dc0d039821 CHECK ((organization_id IS NOT NULL)),
+    CONSTRAINT check_f231586546 CHECK ((char_length(encrypted_forge_system_token_iv) <= 255)),
     CONSTRAINT check_fb61e0d5f7 CHECK ((char_length(display_url) <= 255))
 );
 
@@ -27735,6 +27743,7 @@ CREATE TABLE personal_access_tokens (
     group_id bigint,
     user_type smallint,
     granular boolean DEFAULT false NOT NULL,
+    sudo boolean DEFAULT false NOT NULL,
     CONSTRAINT check_6d2ddc9355 CHECK ((char_length(description) <= 255))
 );
 
@@ -45860,8 +45869,6 @@ CREATE INDEX idx_container_registry_protection_tag_rules_on_min_access_level ON 
 
 CREATE INDEX idx_container_repos_on_exp_cleanup_status_project_id_start_date ON container_repositories USING btree (expiration_policy_cleanup_status, project_id, expiration_policy_started_at);
 
-CREATE INDEX idx_cpmt_last_usages_on_catalog_resource_id ON catalog_resource_component_last_usages USING btree (catalog_resource_id);
-
 CREATE UNIQUE INDEX idx_custom_field_select_options_on_custom_field_id_lower_value ON custom_field_select_options USING btree (custom_field_id, lower(value));
 
 CREATE UNIQUE INDEX idx_custom_fields_on_namespace_id_and_lower_name ON custom_fields USING btree (namespace_id, lower(name));
@@ -49116,6 +49123,8 @@ CREATE INDEX index_iterations_cadences_on_group_id ON iterations_cadences USING 
 
 CREATE INDEX index_jira_connect_installations_on_instance_url ON jira_connect_installations USING btree (instance_url);
 
+CREATE INDEX index_jira_connect_installations_on_org_id_cloud_id ON jira_connect_installations USING btree (organization_id, cloud_id);
+
 CREATE INDEX index_jira_connect_subscriptions_on_namespace_id ON jira_connect_subscriptions USING btree (namespace_id);
 
 CREATE INDEX index_jira_imports_on_label_id ON jira_imports USING btree (label_id);
@@ -49199,6 +49208,8 @@ CREATE INDEX index_labels_on_title_varchar ON labels USING btree (title varchar_
 CREATE INDEX index_labels_on_type_project_id_and_id ON labels USING btree (type, project_id, id);
 
 CREATE INDEX index_last_usages_on_last_used_date ON catalog_resource_component_last_usages USING btree (last_used_date);
+
+CREATE INDEX index_last_usages_on_resource_id_date_and_used_by_project ON catalog_resource_component_last_usages USING btree (catalog_resource_id, last_used_date, used_by_project_id);
 
 CREATE INDEX index_ldap_admin_role_links_on_member_role_id ON ldap_admin_role_links USING btree (member_role_id);
 

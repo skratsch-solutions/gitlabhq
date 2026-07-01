@@ -63,7 +63,8 @@ module AccessTokensHelper
         revoke: expose_path(api_v4_personal_access_tokens_path),
         rotate: expose_path(api_v4_personal_access_tokens_path),
         show: "#{expose_path(api_v4_personal_access_tokens_path)}?user_id=:id",
-        granular_tokens_enforced: granular_tokens_enforced?(user).to_s
+        granular_tokens_enforced: granular_tokens_enforced?(user).to_s,
+        sudo_available: user.can_admin_all_resources?.to_s
       }
     }
   end

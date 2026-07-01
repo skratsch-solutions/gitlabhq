@@ -8,7 +8,9 @@ import {
   GlLink,
   GlSprintf,
   GlLoadingIcon,
+  GlFormCheckbox,
 } from '@gitlab/ui';
+import { cloneDeep } from 'lodash-es';
 import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
 import createMockApollo from 'helpers/mock_apollo_helper';
@@ -111,6 +113,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
   const findConfirmDialog = () => wrapper.findComponent(ConfirmUnsavedChangesDialog);
   const findCreatedToken = () => wrapper.findComponent(CreatedPersonalAccessToken);
   const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
+  const findSudoCheckbox = () => wrapper.findComponent(GlFormCheckbox);
 
   const fillFormWithValidData = async (
     options = { groupPermissions: true, userPermissions: true, instancePermissions: false },
@@ -151,6 +154,31 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
   it('renders the experiment badge', () => {
     expect(findExperimentBadge().exists()).toBe(true);
     expect(findExperimentBadge().props('type')).toBe('beta');
+  });
+
+  describe('sudo checkbox', () => {
+    it('is hidden when sudo is not available', () => {
+      createComponent();
+
+      expect(findSudoCheckbox().exists()).toBe(false);
+    });
+
+    it('is shown when sudo is available', () => {
+      createComponent({ provide: { sudoAvailable: true } });
+
+      expect(findSudoCheckbox().exists()).toBe(true);
+    });
+
+    it('submits the form with sudo enabled when the checkbox is checked', async () => {
+      createComponent({ provide: { sudoAvailable: true } });
+
+      findSudoCheckbox().vm.$emit('input', true);
+      await fillAndSubmitForm();
+
+      expect(mockMutationHandler).toHaveBeenCalledWith({
+        input: expect.objectContaining({ sudo: true }),
+      });
+    });
   });
 
   describe('form fields', () => {
@@ -370,6 +398,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
           name: mockCreateMutationInput.name,
           description: mockCreateMutationInput.description,
           expiresAt: mockCreateMutationInput.expirationDate,
+          sudo: false,
           granularScopes: [
             {
               access: mockCreateMutationInput.group.access,
@@ -393,6 +422,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
           name: mockCreateMutationInput.name,
           description: mockCreateMutationInput.description,
           expiresAt: mockCreateMutationInput.expirationDate,
+          sudo: false,
           granularScopes: [
             {
               access: mockCreateMutationInput.user.access,
@@ -411,6 +441,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
           name: mockCreateMutationInput.name,
           description: mockCreateMutationInput.description,
           expiresAt: mockCreateMutationInput.expirationDate,
+          sudo: false,
           granularScopes: [
             {
               access: mockCreateMutationInput.group.access,
@@ -434,6 +465,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
           name: mockCreateMutationInput.name,
           description: mockCreateMutationInput.description,
           expiresAt: mockCreateMutationInput.expirationDate,
+          sudo: false,
           granularScopes: [
             {
               access: mockCreateMutationInput.instance.access,
@@ -659,6 +691,41 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       expect(findNamespaceSelector().props('value')).toEqual([
         expect.objectContaining({ id: 'gid://gitlab/Project/10' }),
       ]);
+    });
+
+    describe('sudo capability', () => {
+      const sudoSourceTokenHandler = () => {
+        const response = cloneDeep(mockGroupScopedTokenQueryResponse);
+        response.data.user.personalAccessTokens.nodes[0].sudo = true;
+        return jest.fn().mockResolvedValue(response);
+      };
+
+      it('retains sudo when an admin duplicates a sudo-enabled token', async () => {
+        createComponent({
+          provide: { sudoAvailable: true },
+          sourceTokenHandler: sudoSourceTokenHandler(),
+        });
+        await waitForPromises();
+
+        findCreateButton().vm.$emit('click');
+        await waitForPromises();
+
+        expect(mockMutationHandler).toHaveBeenCalledWith({
+          input: expect.objectContaining({ sudo: true }),
+        });
+      });
+
+      it('does not retain sudo when the user cannot use sudo', async () => {
+        createComponent({ sourceTokenHandler: sudoSourceTokenHandler() });
+        await waitForPromises();
+
+        findCreateButton().vm.$emit('click');
+        await waitForPromises();
+
+        expect(mockMutationHandler).toHaveBeenCalledWith({
+          input: expect.objectContaining({ sudo: false }),
+        });
+      });
     });
   });
 });

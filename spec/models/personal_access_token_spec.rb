@@ -513,6 +513,29 @@ RSpec.describe PersonalAccessToken, feature_category: :system_access do
       end
     end
 
+    describe 'sudo' do
+      let_it_be(:user) { create(:user) }
+
+      it 'is valid when sudo is enabled and the user can administer all resources' do
+        allow(user).to receive(:can_admin_all_resources?).and_return(true)
+
+        expect(build(:personal_access_token, :sudo, user: user)).to be_valid
+      end
+
+      it 'is invalid when sudo is enabled and the user cannot administer all resources', :aggregate_failures do
+        allow(user).to receive(:can_admin_all_resources?).and_return(false)
+
+        token = build(:personal_access_token, :sudo, user: user)
+
+        expect(token).not_to be_valid
+        expect(token.errors[:sudo].first).to eq 'can only be enabled for administrators'
+      end
+
+      it 'is valid when sudo is disabled' do
+        expect(build(:personal_access_token, user: user)).to be_valid
+      end
+    end
+
     describe 'scopes' do
       it "requires at least one scope" do
         personal_access_token.scopes = []

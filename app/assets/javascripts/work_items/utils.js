@@ -161,6 +161,7 @@ export const findStartAndDueDateWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_START_AND_DUE_DATE);
 
 export const findStatusWidget = (workItem) =>
+  workItem?.features?.status ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_STATUS);
 
 export const findTimeTrackingWidget = (workItem) =>

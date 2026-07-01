@@ -297,7 +297,7 @@ RSpec.describe 'getting a work item list for a project', feature_category: :port
   end
 
   context 'when the user can see confidential items' do
-    before do
+    before_all do
       project.add_developer(current_user)
     end
 
@@ -561,7 +561,7 @@ RSpec.describe 'getting a work item list for a project', feature_category: :port
       GRAPHQL
     end
 
-    before do
+    before_all do
       project.add_guest(current_user)
     end
 

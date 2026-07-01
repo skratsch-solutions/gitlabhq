@@ -7,7 +7,7 @@ RSpec.describe Subscriptions::WorkItemUpdated, feature_category: :team_planning 
   include Graphql::Subscriptions::WorkItems::Helper
 
   let_it_be(:reporter) { create(:user) }
-  let_it_be(:project) { create(:project) }
+  let_it_be(:project) { create(:project, reporters: reporter) }
   let_it_be_with_reload(:task) { create(:work_item, :task, project: project) }
 
   let(:current_user) { nil }
@@ -17,7 +17,6 @@ RSpec.describe Subscriptions::WorkItemUpdated, feature_category: :team_planning 
   before do
     stub_const('GitlabSchema', Graphql::Subscriptions::ActionCable::MockGitlabSchema)
     Graphql::Subscriptions::ActionCable::MockActionCable.clear_mocks
-    project.add_reporter(reporter)
   end
 
   subject(:response) do

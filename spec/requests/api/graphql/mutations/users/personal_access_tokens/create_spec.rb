@@ -387,6 +387,58 @@ RSpec.describe 'Create personal access token with granular scopes', feature_cate
     end
   end
 
+  context 'with the sudo capability' do
+    let(:input) do
+      {
+        'name' => 'Sudo token',
+        'expiresAt' => (Time.zone.today + 30).to_s,
+        'sudo' => true,
+        'granularScopes' => [{ 'access' => 'USER', 'permissions' => ['create_personal_access_token'] }]
+      }
+    end
+
+    context 'when the token owner is not an administrator' do
+      it 'does not create a token' do
+        expect { mutation_request }.not_to change { current_user.personal_access_tokens.count }
+
+        expect(graphql_data_at(:personalAccessTokenCreate, :errors))
+          .to include(a_string_matching(/can only be enabled for administrators/))
+      end
+    end
+
+    context 'when the token owner is an administrator', :enable_admin_mode do
+      let_it_be(:admin) { create(:admin, :with_namespace) }
+      let_it_be(:admin_token) do
+        { personal_access_token: create(:personal_access_token, user: admin, scopes: %w[api]) }
+      end
+
+      it 'creates a token with sudo enabled', :aggregate_failures do
+        expect { post_graphql_mutation(mutation, current_user: admin, token: admin_token) }
+          .to change { admin.personal_access_tokens.where(sudo: true).count }.by(1)
+
+        expect(graphql_errors).to be_nil
+      end
+    end
+
+    context 'when authenticated with a granular token that does not have sudo' do
+      let_it_be(:admin) { create(:admin, :with_namespace) }
+      let!(:calling_token) do
+        create(:granular_pat, user: admin,
+          boundary: ::Authz::Boundary.for(:user),
+          permissions: [:create_personal_access_token])
+      end
+
+      it 'cannot escalate by minting a token with sudo' do
+        expect { post_graphql_mutation(mutation, token: { personal_access_token: calling_token }) }
+          .not_to change { admin.personal_access_tokens.count }
+
+        expect_graphql_errors_to_include(
+          'A granular token without sudo cannot create a token with sudo.'
+        )
+      end
+    end
+  end
+
   context 'when the granular_personal_access_tokens feature flag is disabled' do
     before do
       stub_feature_flags(granular_personal_access_tokens: false)

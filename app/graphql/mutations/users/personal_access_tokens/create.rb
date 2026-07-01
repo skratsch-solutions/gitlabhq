@@ -27,6 +27,12 @@ module Mutations
           required: false,
           description: 'Expiration date of the token.'
 
+        argument :sudo, GraphQL::Types::Boolean,
+          required: false,
+          default_value: false,
+          description: 'Whether the token can impersonate other users with sudo. ' \
+            'Requires the token owner to be an administrator.'
+
         argument :granular_scopes, [::Mutations::Authz::AccessTokens::GranularScopeInputType],
           required: true,
           description: 'List of granular scopes to assign to the token.'
@@ -42,6 +48,7 @@ module Mutations
 
           if (calling_token = context[:access_token])&.granular?
             validate_no_privilege_escalation!(granular_scopes, calling_token)
+            validate_sudo_not_escalated!(args[:sudo], calling_token)
           end
 
           response = ::Authn::PersonalAccessTokens::CreateGranularService.new(
@@ -109,6 +116,15 @@ module Mutations
 
             raise_resource_not_available_error!
           end
+        end
+
+        def validate_sudo_not_escalated!(sudo, calling_token)
+          return unless sudo
+          return if calling_token.sudo?
+
+          raise_resource_not_available_error!(
+            'A granular token without sudo cannot create a token with sudo.'
+          )
         end
 
         def validate_no_privilege_escalation!(new_scopes, calling_token)

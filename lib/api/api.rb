@@ -297,6 +297,8 @@ module API
         mount ::API::Integrations::Slack::Interactions
         mount ::API::Integrations::Slack::Options
         mount ::API::Integrations::JiraConnect::Subscriptions
+        mount ::API::Integrations::JiraForge::Installations
+        mount ::API::Integrations::JiraForge::Subscriptions
         mount ::API::Invitations
         mount ::API::IssueLinks
         mount ::API::Issues
