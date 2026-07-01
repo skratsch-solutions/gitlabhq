@@ -336,6 +336,7 @@ module ApplicationSettingsHelper
       # TODO Remove domain_allowlist_raw in APIv5 (See https://gitlab.com/gitlab-org/gitlab-foss/issues/67204)
       :domain_allowlist_raw,
       :outbound_local_requests_allowlist_raw,
+      :outbound_local_requests_whitelist,
       :dsa_key_restriction,
       :ecdsa_key_restriction,
       :ecdsa_sk_key_restriction,

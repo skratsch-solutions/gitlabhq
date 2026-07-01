@@ -2053,6 +2053,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
           'id_token_sub_claim_components' => 'ci_',
           'delete_pipelines_in_seconds' => 'ci_',
           'display_pipeline_variables' => 'ci_',
+          'skip_branch_pipelines_for_mrs' => 'ci_',
           'resource_group_default_process_mode' => ''
         }
       end
@@ -2148,6 +2149,12 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     describe '#ci_display_pipeline_variables?' do
       it_behaves_like 'a ci_cd_settings predicate method', prefix: 'ci_' do
         let(:delegated_method) { :display_pipeline_variables? }
+      end
+    end
+
+    describe '#ci_skip_branch_pipelines_for_mrs?' do
+      it_behaves_like 'a ci_cd_settings predicate method', prefix: 'ci_' do
+        let(:delegated_method) { :skip_branch_pipelines_for_mrs? }
       end
     end
 

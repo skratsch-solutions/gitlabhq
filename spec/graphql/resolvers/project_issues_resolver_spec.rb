@@ -5,12 +5,12 @@ require 'spec_helper'
 RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_planning do
   include GraphqlHelpers
 
-  let_it_be(:current_user, freeze: false) { create(:user) }
-  let_it_be(:reporter, freeze: false) { create(:user) }
-
   let_it_be(:group) { create(:group) }
   let_it_be(:project, freeze: false) { create(:project, group: group) }
   let_it_be(:other_project) { create(:project, group: group) }
+
+  let_it_be(:current_user, freeze: false) { create(:user, developer_of: project) }
+  let_it_be(:reporter, freeze: false) { create(:user, reporter_of: project) }
 
   let_it_be(:started_milestone) { create(:milestone, project: project, title: "started milestone", start_date: 1.day.ago) }
   let_it_be(:assignee, freeze: false) { create(:user) }
@@ -28,9 +28,6 @@ RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_plannin
 
   context "with a project" do
     before_all do
-      project.add_developer(current_user)
-      project.add_reporter(reporter)
-
       create(:crm_settings, group: group, enabled: true)
 
       create(:label_link, label: label1, target: issue1)
@@ -286,7 +283,7 @@ RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_plannin
         end
 
         context "when user is not allowed to see confidential issues" do
-          before do
+          before_all do
             project.add_guest(current_user)
           end
 

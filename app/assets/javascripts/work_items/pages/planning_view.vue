@@ -120,9 +120,9 @@ import {
 } from '~/work_items/list/constants';
 import {
   planningViewAllItemsFilters,
-  planningViewSavedViewFilterTokens,
   setPlanningViewAllItemsFilters,
-  setPlanningViewSavedViewFilterTokens,
+  getSavedViewSessionFilters,
+  setSavedViewSessionFilters,
 } from '~/work_items/pages/planning_view_state';
 import {
   getSavedViewDraft,
@@ -415,8 +415,7 @@ export default {
               namespacePreferences: savedView.displaySettings,
             };
 
-            const sessionFilters =
-              planningViewSavedViewFilterTokens.value[this.$route.params.view_id];
+            const sessionFilters = getSavedViewSessionFilters(this.$route.params.view_id);
             this.filterTokens = sessionFilters ?? tokens;
             this.updateState(this.filterTokens);
 
@@ -1144,7 +1143,7 @@ export default {
       if (this.isSavedView && Boolean(this.savedView)) {
         const tokens = this.getFilterTokensFromSavedView(this.savedView.filters);
         this.initialViewTokens = tokens;
-        const sessionFilters = planningViewSavedViewFilterTokens.value[this.$route.params.view_id];
+        const sessionFilters = getSavedViewSessionFilters(this.$route.params.view_id);
         this.filterTokens = sessionFilters ?? tokens;
         this.updateState(this.filterTokens);
         const draft = getSavedViewDraft(this.draftStorageContext);
@@ -1217,10 +1216,7 @@ export default {
   methods: {
     saveSessionFilters(tokens) {
       if (this.isSavedView) {
-        setPlanningViewSavedViewFilterTokens({
-          ...planningViewSavedViewFilterTokens.value,
-          [this.$route.params.view_id]: [...tokens],
-        });
+        setSavedViewSessionFilters(this.$route.params.view_id, tokens);
       } else {
         setPlanningViewAllItemsFilters({
           filterTokens: [...tokens],

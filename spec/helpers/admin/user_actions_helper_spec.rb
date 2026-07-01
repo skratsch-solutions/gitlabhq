@@ -151,7 +151,7 @@ RSpec.describe Admin::UserActionsHelper, feature_category: :user_management do
       let_it_be(:group) { create(:group) }
       let_it_be(:user, freeze: false) { create(:user) }
 
-      before do
+      before_all do
         group.add_owner(user)
       end
 

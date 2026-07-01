@@ -70,8 +70,8 @@ module API
         find_authorized_group!
       end
 
-      desc 'Composer packages endpoint at group level' do
-        detail 'This feature was introduced in GitLab 13.1'
+      desc 'Retrieve repository URL templates' do
+        detail 'Retrieves the repository URL templates for requesting individual packages for a group.'
         success code: 200
         failure [
           { code: 401, message: 'Unauthorized' },
@@ -85,8 +85,8 @@ module API
         presenter.root
       end
 
-      desc 'Composer packages endpoint at group level for packages list' do
-        detail 'This feature was introduced in GitLab 13.1'
+      desc 'List all packages for a group' do
+        detail 'Lists all repository packages for a specified group. Composer V2 is recommended over V1.'
         success code: 200
         failure [
           { code: 401, message: 'Unauthorized' },
@@ -155,8 +155,8 @@ module API
         route_setting :authorization, job_token_policies: :admin_packages, permissions: :publish_composer_package,
           boundary_type: :project
 
-        desc 'Composer packages endpoint for registering packages' do
-          detail 'This feature was introduced in GitLab 13.1'
+        desc 'Create a package' do
+          detail 'Creates a Composer package from a specified Git tag or branch for a project.'
           success code: 201
           failure [
             { code: 400, message: 'Bad Request' },

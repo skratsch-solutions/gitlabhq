@@ -37,9 +37,11 @@ RSpec.describe BulkImports::Projects::Pipelines::PipelineSchedulesPipeline, :cle
 
   subject(:pipeline) { described_class.new(context) }
 
-  before do
+  before_all do
     group.add_owner(user)
+  end
 
+  before do
     allow_next_instance_of(BulkImports::Common::Extractors::NdjsonExtractor) do |extractor|
       allow(extractor).to receive(:extract).and_return(BulkImports::Pipeline::ExtractedData.new(data: [schedule]))
     end

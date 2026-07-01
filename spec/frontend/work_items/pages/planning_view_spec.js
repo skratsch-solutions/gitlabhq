@@ -20,9 +20,8 @@ import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_
 import { getParameterByName, removeParams, updateHistory } from '~/lib/utils/url_utility';
 import {
   planningViewAllItemsFilters,
-  planningViewSavedViewFilterTokens,
-  setPlanningViewAllItemsFilters,
-  setPlanningViewSavedViewFilterTokens,
+  getSavedViewSessionFilters,
+  resetPlanningViewState,
 } from '~/work_items/pages/planning_view_state';
 
 import {
@@ -382,8 +381,7 @@ describe('planning-view', () => {
     getParameterByName.mockImplementation((...args) =>
       jest.requireActual('~/lib/utils/url_utility').getParameterByName(...args),
     );
-    setPlanningViewAllItemsFilters(null);
-    setPlanningViewSavedViewFilterTokens({});
+    resetPlanningViewState();
   });
 
   it('passes correct queryVariables to list-view', async () => {
@@ -1716,7 +1714,7 @@ describe('planning-view', () => {
           ]);
           await nextTick();
 
-          expect(planningViewSavedViewFilterTokens.value['3']).toEqual(
+          expect(getSavedViewSessionFilters('3')).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
                 type: TOKEN_TYPE_AUTHOR,

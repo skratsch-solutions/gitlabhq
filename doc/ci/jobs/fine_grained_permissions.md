@@ -134,10 +134,8 @@ CI/CD job tokens can access the following REST API endpoints:
 | Download package file | `GET /projects/:id/packages/generic/:package_name/*package_version/(*path/):file_name` | `READ_PACKAGES` | Read |
 | Download package files | `GET /packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name` | `READ_PACKAGES` | Read |
 | Download package files | `GET /projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name` | `READ_PACKAGES` | Read |
-| Download package files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name` | `READ_PACKAGES` | Read |
 | Download recipe files | `GET /packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name` | `READ_PACKAGES` | Read |
 | Download recipe files | `GET /projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name` | `READ_PACKAGES` | Read |
-| Download recipe files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name` | `READ_PACKAGES` | Read |
 | Download the NPM tarball | `GET /projects/:id/packages/npm/*package_name/-/*file_name` | `READ_PACKAGES` | Read |
 | Download the maven package file at a group level | `GET /groups/:id/-/packages/maven/*path/:file_name` | `READ_PACKAGES` | Read |
 | Download the maven package file at a project level | `GET /projects/:id/packages/maven/*path/:file_name` | `READ_PACKAGES` | Read |
@@ -149,7 +147,6 @@ CI/CD job tokens can access the following REST API endpoints:
 | Get all tags for a given an NPM package | `GET /projects/:id/packages/npm/-/package/*package_name/dist-tags` | `READ_PACKAGES` | Read |
 | Get package references metadata | `GET /packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
 | Get package references metadata | `GET /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
-| Get package references metadata | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/search` | `READ_PACKAGES` | Read |
 | Get package references metadata | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
 | Get the latest package revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/latest` | `READ_PACKAGES` | Read |
 | Get the latest recipe revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/latest` | `READ_PACKAGES` | Read |
@@ -183,12 +180,15 @@ CI/CD job tokens can access the following REST API endpoints:
 | Recipe Snapshot | `GET /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` | `READ_PACKAGES` | Read |
 | Recipe Upload Urls | `POST /packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/upload_urls` | `READ_PACKAGES` | Read |
 | Recipe Upload Urls | `POST /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/upload_urls` | `READ_PACKAGES` | Read |
+| Retrieve a package file | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name` | `READ_PACKAGES` | Read |
+| Retrieve a recipe file | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name` | `READ_PACKAGES` | Read |
+| Retrieve package references metadata by recipe revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/search` | `READ_PACKAGES` | Read |
 | The PyPi Simple Project Package Endpoint | `GET /projects/:id/packages/pypi/simple/*package_name` | `READ_PACKAGES` | Read |
 | The PyPi package download endpoint | `GET /projects/:id/packages/pypi/files/:sha256/*file_identifier` | `READ_PACKAGES` | Read |
 | Version metadata | `GET /projects/:id/packages/go/*module_name/@v/:module_version.info` | `READ_PACKAGES` | Read |
 | Authorize NPM package upload | `PUT /projects/:id/packages/npm/:package_name/authorize` | `ADMIN_PACKAGES` | Read and write |
 | Authorize the PyPi package upload from workhorse | `POST /projects/:id/packages/pypi/authorize` | `ADMIN_PACKAGES` | Read and write |
-| Composer packages endpoint for registering packages | `POST /projects/:id/packages/composer` | `ADMIN_PACKAGES` | Read and write |
+| Create a package | `POST /projects/:id/packages/composer` | `ADMIN_PACKAGES` | Read and write |
 | Create or Update the given tag for the given NPM package and version | `PUT /groups/:id/-/packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
 | Create or Update the given tag for the given NPM package and version | `PUT /packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
 | Create or Update the given tag for the given NPM package and version | `PUT /projects/:id/packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
@@ -196,8 +196,8 @@ CI/CD job tokens can access the following REST API endpoints:
 | Delete Package | `DELETE /packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` | `ADMIN_PACKAGES` | Read and write |
 | Delete Package | `DELETE /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` | `ADMIN_PACKAGES` | Read and write |
 | Delete a package file | `DELETE /projects/:id/packages/:package_id/package_files/:package_file_id` | `ADMIN_PACKAGES` | Read and write |
+| Delete a package revision | `DELETE /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision` | `ADMIN_PACKAGES` | Read and write |
 | Delete a project package | `DELETE /projects/:id/packages/:package_id` | `ADMIN_PACKAGES` | Read and write |
-| Delete package revision | `DELETE /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision` | `ADMIN_PACKAGES` | Read and write |
 | Delete recipe revision | `DELETE /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision` | `ADMIN_PACKAGES` | Read and write |
 | Deletes the given tag | `DELETE /groups/:id/-/packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
 | Deletes the given tag | `DELETE /packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
@@ -301,9 +301,9 @@ CI/CD job tokens cannot access the following endpoints:
 | Delete repository tags (in bulk) | `DELETE /projects/:id/registry/repositories/:repository_id/tags` |
 | Delete repository tag | `DELETE /projects/:id/registry/repositories/:repository_id/tags/:tag_name` |
 | Composer packages endpoint at group level for package versions metadata | `GET /group/:id/-/packages/composer/*package_name` |
-| Composer packages endpoint at group level for packages list | `GET /group/:id/-/packages/composer/p/:sha` |
+| List all packages for a group | `GET /group/:id/-/packages/composer/p/:sha` |
 | Composer v2 packages p2 endpoint at group level for package versions metadata | `GET /group/:id/-/packages/composer/p2/*package_name` |
-| Composer packages endpoint at group level | `GET /group/:id/-/packages/composer/packages` |
+| Retrieve repository URL templates | `GET /group/:id/-/packages/composer/packages` |
 | NPM registry metadata endpoint | `GET /groups/:id/-/packages/npm/*package_name` |
 | Download a package file from a group | `GET /groups/:id/-/packages/pypi/files/:sha256/*file_identifier` |
 | List all packages for a group | `GET /groups/:id/-/packages/pypi/simple` |

@@ -358,6 +358,22 @@ creating scheduled pipeline execution policies:
 
 ## Troubleshooting
 
+### First scheduled run may be delayed
+
+When you create or update a scheduled pipeline execution policy, a background worker creates the schedule record asynchronously.
+If the background worker queue experiences delays (for example, due to high system load), the background worker might
+create the schedule record after the intended first run time passes.
+In this case, the first run occurs at the next scheduled occurrence instead of immediately.
+
+For example, if you create a policy at 2:00 PM for a 6:00 PM run, but the background worker doesn't process the policy until 7:00 PM, the first run is scheduled for 6:00 PM the following day (or the next applicable day based on your schedule configuration).
+
+To work around this behavior:
+
+- Create policies well in advance of the intended first run time.
+- Use the [test run feature](#test-a-scheduled-pipeline-execution-policy) to verify the policy works correctly before the first scheduled run.
+
+### Scheduled pipelines not running
+
 If your scheduled pipelines are not running as expected, follow these troubleshooting steps:
 
 1. **Check policy access**: Verify that:

@@ -1198,7 +1198,9 @@ paths:
       operationId: postApiV4Groups
   "/api/v4/groups/{id}":
     put:
-      description: Update a group. Available only for users who can administrate groups.
+      summary: Update group attributes
+      description: Updates the attributes for a specified group. You must be an administrator
+        or have the Owner role for the group.
       produces:
       - application/json
       consumes:
@@ -1216,15 +1218,15 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsId"
       responses:
         '200':
-          description: Update a group. Available only for users who can administrate
-            groups.
+          description: Update group attributes
           schema:
             "$ref": "#/definitions/API_Entities_Group"
       tags:
       - groups
       operationId: putApiV4GroupsId
     get:
-      description: Get a single group, with containing projects.
+      summary: Retrieve a group
+      description: Retrieves a specified group by ID or path.
       produces:
       - application/json
       parameters:
@@ -1247,14 +1249,17 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a single group, with containing projects.
+          description: Retrieve a group
           schema:
             "$ref": "#/definitions/API_Entities_GroupDetail"
       tags:
       - groups
       operationId: getApiV4GroupsId
     delete:
-      description: Remove a group.
+      summary: Schedule a group for deletion
+      description: Schedules a group for deletion. Groups are deleted at the end of
+        the retention period (30 days by default). Use the `permanently_remove` param
+        to override the retention period.
       produces:
       - application/json
       parameters:
@@ -1296,7 +1301,9 @@ paths:
       operationId: postApiV4GroupsIdArchive
   "/api/v4/groups/{id}/unarchive":
     post:
-      description: Unarchive a group
+      summary: Unarchive a group
+      description: Unarchives a specified group. You must be an administrator or have
+        the Owner role for the group.
       produces:
       - application/json
       consumes:
@@ -1319,7 +1326,9 @@ paths:
       operationId: postApiV4GroupsIdUnarchive
   "/api/v4/groups/{id}/restore":
     post:
-      description: Restore a group.
+      summary: Restore a group
+      description: Restores a specified group that was previously scheduled for deletion.
+        Can not restore groups outside of the retention period (30 days by default).
       produces:
       - application/json
       consumes:
@@ -1332,13 +1341,14 @@ paths:
         required: true
       responses:
         '201':
-          description: Restore a group.
+          description: Restore a group
       tags:
       - groups
       operationId: postApiV4GroupsIdRestore
   "/api/v4/groups/{id}/groups/shared":
     get:
-      description: Get a list of shared groups this group was invited to
+      summary: List all shared groups
+      description: Lists all groups shared with a specified group.
       produces:
       - application/json
       parameters:
@@ -1427,7 +1437,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of shared groups this group was invited to
+          description: List all shared groups
           schema:
             type: array
             items:
@@ -1437,7 +1447,8 @@ paths:
       operationId: getApiV4GroupsIdGroupsShared
   "/api/v4/groups/{id}/invited_groups":
     get:
-      description: Get a list of invited groups in this group
+      summary: List all invited groups
+      description: Lists all groups invited to a specified group.
       produces:
       - application/json
       parameters:
@@ -1499,7 +1510,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of invited groups in this group
+          description: List all invited groups
           schema:
             type: array
             items:
@@ -1509,7 +1520,10 @@ paths:
       operationId: getApiV4GroupsIdInvitedGroups
   "/api/v4/groups/{id}/projects":
     get:
-      description: Get a list of projects in this group.
+      summary: List all projects in a group
+      description: Lists all projects in a specified group accessible to the authenticated
+        user. Unauthenticated requests return only public projects with a limited
+        subset of attributes.
       produces:
       - application/json
       parameters:
@@ -1658,7 +1672,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of projects in this group.
+          description: List all projects in a group
           schema:
             type: array
             items:
@@ -1668,7 +1682,8 @@ paths:
       operationId: getApiV4GroupsIdProjects
   "/api/v4/groups/{id}/projects/shared":
     get:
-      description: Get a list of shared projects in this group
+      summary: List all shared projects
+      description: Lists all projects shared with a specified group.
       produces:
       - application/json
       parameters:
@@ -1781,7 +1796,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of shared projects in this group
+          description: List all shared projects
           schema:
             type: array
             items:
@@ -1791,7 +1806,8 @@ paths:
       operationId: getApiV4GroupsIdProjectsShared
   "/api/v4/groups/{id}/subgroups":
     get:
-      description: Get a list of subgroups in this group.
+      summary: List all subgroups
+      description: Lists all subgroups for a specified group.
       produces:
       - application/json
       parameters:
@@ -1924,7 +1940,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of subgroups in this group.
+          description: List all subgroups
           schema:
             type: array
             items:
@@ -1934,7 +1950,8 @@ paths:
       operationId: getApiV4GroupsIdSubgroups
   "/api/v4/groups/{id}/descendant_groups":
     get:
-      description: Get a list of descendant groups of this group.
+      summary: List all descendant groups
+      description: Lists all descendant groups for a specified group.
       produces:
       - application/json
       parameters:
@@ -2067,7 +2084,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of descendant groups of this group.
+          description: List all descendant groups
           schema:
             type: array
             items:
@@ -2077,7 +2094,9 @@ paths:
       operationId: getApiV4GroupsIdDescendantGroups
   "/api/v4/groups/{id}/projects/{project_id}":
     post:
-      description: Transfer a project to the group namespace. Available only for admin.
+      summary: Transfer a project to a group
+      description: Transfers a specified project to another group. Administrators
+        only.
       produces:
       - application/json
       consumes:
@@ -2095,8 +2114,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Transfer a project to the group namespace. Available only for
-            admin.
+          description: Transfer a project to a group
           schema:
             "$ref": "#/definitions/API_Entities_GroupDetail"
       tags:
@@ -2104,7 +2122,9 @@ paths:
       operationId: postApiV4GroupsIdProjectsProjectId
   "/api/v4/groups/{id}/transfer_locations":
     get:
-      description: Get the groups to where the current group can be transferred to
+      summary: List all transfer locations for a group
+      description: Lists all groups that a specified source group can be transferred
+        to.
       produces:
       - application/json
       parameters:
@@ -2136,8 +2156,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get the groups to where the current group can be transferred
-            to
+          description: List all transfer locations for a group
           schema:
             type: array
             items:
@@ -2147,8 +2166,10 @@ paths:
       operationId: getApiV4GroupsIdTransferLocations
   "/api/v4/groups/{id}/transfer":
     post:
-      description: Transfer a group to a new parent group or promote a subgroup to
-        a top-level group
+      summary: Transfer a group
+      description: Transfers a group to another parent group or transforms a subgroup
+        into a top-level group. You must be an administrator or have the Owner role
+        for the group.
       produces:
       - application/json
       consumes:
@@ -2166,8 +2187,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdTransfer"
       responses:
         '201':
-          description: Transfer a group to a new parent group or promote a subgroup
-            to a top-level group
+          description: Transfer a group
       tags:
       - groups
       operationId: postApiV4GroupsIdTransfer
@@ -2209,7 +2229,8 @@ paths:
       operationId: postApiV4GroupsIdTransferToOrganization
   "/api/v4/groups/{id}/share":
     post:
-      description: Share a group with a group
+      summary: Add a group to a group
+      description: Adds a group to a group.
       produces:
       - application/json
       consumes:
@@ -2227,7 +2248,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdShare"
       responses:
         '201':
-          description: Share a group with a group
+          description: Add a group to a group
           schema:
             "$ref": "#/definitions/API_Entities_GroupDetail"
       tags:
@@ -2235,7 +2256,8 @@ paths:
       operationId: postApiV4GroupsIdShare
   "/api/v4/groups/{id}/share/{group_id}":
     delete:
-      description: Unshare a group with a group
+      summary: Remove a group from a group
+      description: Removes a group from a group.
       produces:
       - application/json
       parameters:
@@ -15264,8 +15286,9 @@ paths:
       operationId: postApiV4ProjectsIdStatusesSha
   "/api/v4/projects/{id}/packages/composer":
     post:
-      summary: Composer packages endpoint for registering packages
-      description: This feature was introduced in GitLab 13.1
+      summary: Create a package
+      description: Creates a Composer package from a specified Git tag or branch for
+        a project.
       produces:
       - application/json
       consumes:
@@ -15283,7 +15306,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdPackagesComposer"
       responses:
         '201':
-          description: Composer packages endpoint for registering packages
+          description: Create a package
         '400':
           description: Bad Request
         '401':
@@ -16760,8 +16783,9 @@ paths:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFiles
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/files/{file_name}"
   : get:
-      summary: Download recipe files
-      description: This feature was introduced in GitLab 17.8
+      summary: Retrieve a recipe file
+      description: Retrieves a specified recipe file from the package registry. This
+        feature was introduced in GitLab 17.8.
       produces:
       - application/json
       parameters:
@@ -16815,7 +16839,7 @@ paths:
         example: conanfile.py
       responses:
         '200':
-          description: Download recipe files
+          description: Retrieve a recipe file
         '400':
           description: Bad Request
         '401':
@@ -16975,8 +16999,9 @@ paths:
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFilesFileNameAuthorize
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/search"
   : get:
-      summary: Get package references metadata
-      description: This feature was introduced in GitLab 18.1
+      summary: Retrieve package references metadata by recipe revision
+      description: Retrieves the metadata for all package references associated with
+        a specified recipe revision. This feature was introduced in GitLab 18.1.
       produces:
       - application/json
       parameters:
@@ -17017,7 +17042,7 @@ paths:
         example: df28fd816be3a119de5ce4d374436b25
       responses:
         '200':
-          description: Get package references metadata
+          description: Retrieve package references metadata by recipe revision
         '400':
           description: Bad Request
         '401':
@@ -17159,8 +17184,10 @@ paths:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisions
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}"
   : delete:
-      summary: Delete package revision
-      description: This feature was introduced in GitLab 18.1
+      summary: Delete a package revision
+      description: Deletes a specified package revision from the registry. If the
+        package reference has only one package revision, the package reference is
+        deleted as well. This feature was introduced in GitLab 18.1.
       produces:
       - application/json
       parameters:
@@ -17213,7 +17240,7 @@ paths:
         example: 3bdd2d8c8e76c876ebd1ac0469a4e72c
       responses:
         '204':
-          description: Delete package revision
+          description: Delete a package revision
         '400':
           description: Bad Request
         '401':
@@ -17297,8 +17324,9 @@ paths:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFiles
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}/files/{file_name}"
   : get:
-      summary: Download package files
-      description: This feature was introduced in GitLab 17.11
+      summary: Retrieve a package file
+      description: Retrieves a specified package file from the package registry. This
+        feature was introduced in GitLab 17.11.
       produces:
       - application/json
       parameters:
@@ -17364,7 +17392,7 @@ paths:
         example: conaninfo.txt
       responses:
         '200':
-          description: Download package files
+          description: Retrieve a package file
         '400':
           description: Bad Request
         '401':
@@ -20875,7 +20903,7 @@ paths:
   "/api/v4/projects/{id}/packages/helm/{channel}/index.yaml":
     get:
       summary: Download a chart index
-      description: This feature was introduced in GitLab 14.0
+      description: Downloads a specified chart index for a project.
       produces:
       - application/json
       parameters:
@@ -20904,7 +20932,7 @@ paths:
   "/api/v4/projects/{id}/packages/helm/{channel}/charts/{file_name}.tgz":
     get:
       summary: Download a chart
-      description: This feature was introduced in GitLab 14.0
+      description: Downloads a specified chart for a project.
       produces:
       - application/json
       parameters:
@@ -20974,7 +21002,7 @@ paths:
   "/api/v4/projects/{id}/packages/helm/api/{channel}/charts":
     post:
       summary: Upload a chart
-      description: This feature was introduced in GitLab 14.0
+      description: Uploads a specified chart for a project.
       produces:
       - application/json
       consumes:
@@ -42568,8 +42596,9 @@ paths:
       operationId: getApiV4JobsIdArtifacts
   "/api/v4/group/{id}/-/packages/composer/packages":
     get:
-      summary: Composer packages endpoint at group level
-      description: This feature was introduced in GitLab 13.1
+      summary: Retrieve repository URL templates
+      description: Retrieves the repository URL templates for requesting individual
+        packages for a group.
       produces:
       - application/json
       parameters:
@@ -42580,7 +42609,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Composer packages endpoint at group level
+          description: Retrieve repository URL templates
         '401':
           description: Unauthorized
         '404':
@@ -42590,8 +42619,9 @@ paths:
       operationId: getApiV4GroupIdPackagesComposerPackages
   "/api/v4/group/{id}/-/packages/composer/p/{sha}":
     get:
-      summary: Composer packages endpoint at group level for packages list
-      description: This feature was introduced in GitLab 13.1
+      summary: List all packages for a group
+      description: Lists all repository packages for a specified group. Composer V2
+        is recommended over V1.
       produces:
       - application/json
       parameters:
@@ -42608,7 +42638,7 @@ paths:
         example: 673594f85a55fe3c0eb45df7bd2fa9d95a1601ab
       responses:
         '200':
-          description: Composer packages endpoint at group level for packages list
+          description: List all packages for a group
         '401':
           description: Unauthorized
         '404':
@@ -50636,7 +50666,7 @@ definitions:
       lock_built_in_project_templates_enabled:
         type: boolean
         description: Enforce the built-in project templates setting for all subgroups
-    description: Update a group. Available only for users who can administrate groups.
+    description: Update group attributes
   API_Entities_GroupDetail:
     type: object
     properties:
@@ -51733,8 +51763,7 @@ definitions:
         format: int32
         description: The ID of the target group to which the group needs to be transferred
           to.If not provided, the source group will be promoted to a top-level group.
-    description: Transfer a group to a new parent group or promote a subgroup to a
-      top-level group
+    description: Transfer a group
   postApiV4GroupsIdTransferToOrganization:
     type: object
     properties:
@@ -51775,7 +51804,7 @@ definitions:
     required:
     - group_id
     - group_access
-    description: Share a group with a group
+    description: Add a group to a group
   API_Entities_AuditEvent:
     type: object
     properties:
@@ -59273,7 +59302,7 @@ definitions:
         type: string
         description: The name of the tag
         example: v1.0.0
-    description: Composer packages endpoint for registering packages
+    description: Create a package
   API_Entities_Packages_Conan_PackageSnapshot:
     type: object
     properties:

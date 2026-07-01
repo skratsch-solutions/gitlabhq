@@ -257,8 +257,9 @@ module API
                         documentation: { example: 'conanfile.py' }
                     end
                     namespace ':file_name', requirements: FILE_NAME_REQUIREMENTS do
-                      desc 'Download recipe files' do
-                        detail 'This feature was introduced in GitLab 17.8'
+                      desc 'Retrieve a recipe file' do
+                        detail 'Retrieves a specified recipe file from the package registry. This feature was ' \
+                          'introduced in GitLab 17.8.'
                         success code: 200
                         failure [
                           { code: 400, message: 'Bad Request' },
@@ -325,8 +326,9 @@ module API
                     end
                   end
 
-                  desc 'Get package references metadata' do
-                    detail 'This feature was introduced in GitLab 18.1'
+                  desc 'Retrieve package references metadata by recipe revision' do
+                    detail 'Retrieves the metadata for all package references associated with a specified recipe ' \
+                      'revision. This feature was introduced in GitLab 18.1.'
                     success code: 200
                     failure [
                       { code: 400, message: 'Bad Request' },
@@ -420,8 +422,10 @@ module API
                           desc: 'Package revision', documentation: { example: '3bdd2d8c8e76c876ebd1ac0469a4e72c' }
                       end
                       namespace ':package_revision' do
-                        desc 'Delete package revision' do
-                          detail 'This feature was introduced in GitLab 18.1'
+                        desc 'Delete a package revision' do
+                          detail 'Deletes a specified package revision from the registry. If the package reference ' \
+                            'has only one package revision, the package reference is deleted as well. ' \
+                            'This feature was introduced in GitLab 18.1.'
                           success code: 200
                           failure [
                             { code: 400, message: 'Bad Request' },
@@ -487,8 +491,9 @@ module API
                               documentation: { example: 'conaninfo.txt' }
                           end
                           namespace ':file_name', requirements: FILE_NAME_REQUIREMENTS do
-                            desc 'Download package files' do
-                              detail 'This feature was introduced in GitLab 17.11'
+                            desc 'Retrieve a package file' do
+                              detail 'Retrieves a specified package file from the package registry. This feature was ' \
+                                'introduced in GitLab 17.11.'
                               success code: 200
                               failure [
                                 { code: 400, message: 'Bad Request' },

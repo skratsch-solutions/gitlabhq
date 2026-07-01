@@ -1276,7 +1276,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_6c703c7de3c0"
+              "$ref": "#/components/schemas/RequestBody_70df885a8506"
     get:
       operationId: getApiV4AiDuoWorkflowsWorkflowsIdCheckpoints
       summary: List all workflow checkpoints
@@ -16879,7 +16879,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_b64063b7ea61"
+              "$ref": "#/components/schemas/RequestBody_1ba203e57854"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -52906,7 +52906,7 @@ paths:
     get:
       operationId: getApiV4ProjectsIdPackagesHelmChannelIndexYaml
       summary: Download a chart index
-      description: This feature was introduced in GitLab 14.0
+      description: Downloads a specified chart index for a project.
       tags:
       - 'Packages: Helm'
       responses:
@@ -52937,7 +52937,7 @@ paths:
     get:
       operationId: getApiV4ProjectsIdPackagesHelmChannelChartsFileNameTgz
       summary: Download a chart
-      description: This feature was introduced in GitLab 14.0
+      description: Downloads a specified chart for a project.
       tags:
       - 'Packages: Helm'
       responses:
@@ -53010,7 +53010,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdPackagesHelmApiChannelCharts
       summary: Upload a chart
-      description: This feature was introduced in GitLab 14.0
+      description: Uploads a specified chart for a project.
       tags:
       - 'Packages: Helm'
       responses:
@@ -58659,8 +58659,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/files/{file_name}"
   : get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFilesFileName
-      summary: Download recipe files
-      description: This feature was introduced in GitLab 17.8
+      summary: Retrieve a recipe file
+      description: Retrieves a specified recipe file from the package registry. This
+        feature was introduced in GitLab 17.8.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58895,8 +58896,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/search"
   : get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionSearch
-      summary: Get package references metadata
-      description: This feature was introduced in GitLab 18.1
+      summary: Retrieve package references metadata by recipe revision
+      description: Retrieves the metadata for all package references associated with
+        a specified recipe revision. This feature was introduced in GitLab 18.1.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59103,8 +59105,10 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}"
   : delete:
       operationId: deleteApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevision
-      summary: Delete package revision
-      description: This feature was introduced in GitLab 18.1
+      summary: Delete a package revision
+      description: Deletes a specified package revision from the registry. If the
+        package reference has only one package revision, the package reference is
+        deleted as well. This feature was introduced in GitLab 18.1.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59259,8 +59263,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}/files/{file_name}"
   : get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFilesFileName
-      summary: Download package files
-      description: This feature was introduced in GitLab 17.11
+      summary: Retrieve a package file
+      description: Retrieves a specified package file from the package registry. This
+        feature was introduced in GitLab 17.11.
       tags:
       - 'Packages: Conan'
       responses:
@@ -61784,8 +61789,9 @@ paths:
   "/api/v4/group/{id}/-/packages/composer/packages":
     get:
       operationId: getApiV4GroupIdDashPackagesComposerPackages
-      summary: Composer packages endpoint at group level
-      description: This feature was introduced in GitLab 13.1
+      summary: Retrieve repository URL templates
+      description: Retrieves the repository URL templates for requesting individual
+        packages for a group.
       tags:
       - 'Packages: Composer'
       responses:
@@ -61807,8 +61813,9 @@ paths:
   "/api/v4/group/{id}/-/packages/composer/p/{sha}":
     get:
       operationId: getApiV4GroupIdDashPackagesComposerPSha
-      summary: Composer packages endpoint at group level for packages list
-      description: This feature was introduced in GitLab 13.1
+      summary: List all packages for a group
+      description: Lists all repository packages for a specified group. Composer V2
+        is recommended over V1.
       tags:
       - 'Packages: Composer'
       responses:
@@ -61837,8 +61844,9 @@ paths:
   "/api/v4/projects/{id}/packages/composer":
     post:
       operationId: postApiV4ProjectsIdPackagesComposer
-      summary: Composer packages endpoint for registering packages
-      description: This feature was introduced in GitLab 13.1
+      summary: Create a package
+      description: Creates a Composer package from a specified Git tag or branch for
+        a project.
       tags:
       - 'Packages: Composer'
       responses:
@@ -67418,7 +67426,9 @@ paths:
   "/api/v4/groups/{id}":
     put:
       operationId: putApiV4GroupsId
-      summary: Update a group. Available only for users who can administrate groups.
+      summary: Update group attributes
+      description: Updates the attributes for a specified group. You must be an administrator
+        or have the Owner role for the group.
       tags:
       - Groups
       responses:
@@ -67447,7 +67457,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_3dcc9961f5b4"
     get:
       operationId: getApiV4GroupsId
-      summary: Get a single group, with containing projects.
+      summary: Retrieve a group
+      description: Retrieves a specified group by ID or path.
       tags:
       - Groups
       responses:
@@ -67492,7 +67503,10 @@ paths:
         in: query
     delete:
       operationId: deleteApiV4GroupsId
-      summary: Remove a group.
+      summary: Schedule a group for deletion
+      description: Schedules a group for deletion. Groups are deleted at the end of
+        the retention period (30 days by default). Use the `permanently_remove` param
+        to override the retention period.
       tags:
       - Groups
       responses:
@@ -67537,6 +67551,8 @@ paths:
     post:
       operationId: postApiV4GroupsIdUnarchive
       summary: Unarchive a group
+      description: Unarchives a specified group. You must be an administrator or have
+        the Owner role for the group.
       tags:
       - Groups
       responses:
@@ -67558,7 +67574,9 @@ paths:
   "/api/v4/groups/{id}/restore":
     post:
       operationId: postApiV4GroupsIdRestore
-      summary: Restore a group.
+      summary: Restore a group
+      description: Restores a specified group that was previously scheduled for deletion.
+        Can not restore groups outside of the retention period (30 days by default).
       tags:
       - Groups
       responses:
@@ -67578,7 +67596,8 @@ paths:
   "/api/v4/groups/{id}/groups/shared":
     get:
       operationId: getApiV4GroupsIdGroupsShared
-      summary: Get a list of shared groups this group was invited to
+      summary: List all shared groups
+      description: Lists all groups shared with a specified group.
       tags:
       - Groups
       responses:
@@ -67702,7 +67721,8 @@ paths:
   "/api/v4/groups/{id}/invited_groups":
     get:
       operationId: getApiV4GroupsIdInvitedGroups
-      summary: Get a list of invited groups in this group
+      summary: List all invited groups
+      description: Lists all groups invited to a specified group.
       tags:
       - Groups
       responses:
@@ -67791,7 +67811,10 @@ paths:
   "/api/v4/groups/{id}/projects":
     get:
       operationId: getApiV4GroupsIdProjects
-      summary: Get a list of projects in this group.
+      summary: List all projects in a group
+      description: Lists all projects in a specified group accessible to the authenticated
+        user. Unauthenticated requests return only public projects with a limited
+        subset of attributes.
       tags:
       - Groups
       responses:
@@ -67986,7 +68009,8 @@ paths:
   "/api/v4/groups/{id}/projects/shared":
     get:
       operationId: getApiV4GroupsIdProjectsShared
-      summary: Get a list of shared projects in this group
+      summary: List all shared projects
+      description: Lists all projects shared with a specified group.
       tags:
       - Groups
       responses:
@@ -68137,7 +68161,8 @@ paths:
   "/api/v4/groups/{id}/subgroups":
     get:
       operationId: getApiV4GroupsIdSubgroups
-      summary: Get a list of subgroups in this group.
+      summary: List all subgroups
+      description: Lists all subgroups for a specified group.
       tags:
       - Groups
       responses:
@@ -68319,7 +68344,8 @@ paths:
   "/api/v4/groups/{id}/descendant_groups":
     get:
       operationId: getApiV4GroupsIdDescendantGroups
-      summary: Get a list of descendant groups of this group.
+      summary: List all descendant groups
+      description: Lists all descendant groups for a specified group.
       tags:
       - Groups
       responses:
@@ -68501,7 +68527,9 @@ paths:
   "/api/v4/groups/{id}/projects/{project_id}":
     post:
       operationId: postApiV4GroupsIdProjectsProjectId
-      summary: Transfer a project to the group namespace. Available only for admin.
+      summary: Transfer a project to a group
+      description: Transfers a specified project to another group. Administrators
+        only.
       tags:
       - Groups
       responses:
@@ -68531,7 +68559,9 @@ paths:
   "/api/v4/groups/{id}/transfer_locations":
     get:
       operationId: getApiV4GroupsIdTransferLocations
-      summary: Get the groups to where the current group can be transferred to
+      summary: List all transfer locations for a group
+      description: Lists all groups that a specified source group can be transferred
+        to.
       tags:
       - Groups
       responses:
@@ -68580,8 +68610,10 @@ paths:
   "/api/v4/groups/{id}/transfer":
     post:
       operationId: postApiV4GroupsIdTransfer
-      summary: Transfer a group to a new parent group or promote a subgroup to a top-level
-        group
+      summary: Transfer a group
+      description: Transfers a group to another parent group or transforms a subgroup
+        into a top-level group. You must be an administrator or have the Owner role
+        for the group.
       tags:
       - Groups
       responses:
@@ -68644,7 +68676,8 @@ paths:
   "/api/v4/groups/{id}/share":
     post:
       operationId: postApiV4GroupsIdShare
-      summary: Share a group with a group
+      summary: Add a group to a group
+      description: Adds a group to a group.
       tags:
       - Groups
       responses:
@@ -68674,7 +68707,8 @@ paths:
   "/api/v4/groups/{id}/share/{group_id}":
     delete:
       operationId: deleteApiV4GroupsIdShareGroupId
-      summary: Unshare a group with a group
+      summary: Remove a group from a group
+      description: Removes a group from a group.
       tags:
       - Groups
       responses:
@@ -81329,6 +81363,8 @@ components:
           type: string
         outbound_local_requests_allowlist_raw:
           type: string
+        outbound_local_requests_whitelist:
+          type: string
         dsa_key_restriction:
           type: string
         ecdsa_key_restriction:
@@ -90540,7 +90576,7 @@ components:
           nullable: true
       required:
       - status_event
-    RequestBody_6c703c7de3c0:
+    RequestBody_70df885a8506:
       type: object
       properties:
         thread_ts:
@@ -90566,6 +90602,51 @@ components:
         model_metadata_json:
           type: string
           description: JSON string of the model metadata
+          nullable: true
+        current_thread:
+          type: integer
+          default: 0
+          description: Thread grouping hint for blob reconstruction
+          nullable: true
+        channel_blobs:
+          type: array
+          description: Per-channel blobs for incremental checkpoint storage
+          items:
+            type: object
+            properties:
+              channel:
+                type: string
+                description: Channel name
+                nullable: true
+                maxLength: 255
+              version:
+                type: string
+                description: Channel version
+                nullable: true
+                maxLength: 255
+              write_type:
+                type: string
+                description: Serialization type (e.g. msgpack)
+                nullable: true
+                maxLength: 255
+              step_action:
+                type: string
+                enum:
+                - conversation
+                - compaction
+                description: Append or replace signal (conversation or compaction)
+                minLength: 1
+              data:
+                type: string
+                description: Base64-encoded blob bytes
+                nullable: true
+                maxLength: 1398104
+            required:
+            - channel
+            - version
+            - write_type
+            - step_action
+            - data
           nullable: true
       required:
       - thread_ts
@@ -94909,7 +94990,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_b64063b7ea61:
+    RequestBody_1ba203e57854:
       type: object
       properties:
         admin_mode:
@@ -95140,6 +95221,13 @@ components:
           description: 'ONLY users with e-mail addresses that match these domain(s)
             will be able to sign-up. Wildcards allowed. Enter multiple entries on
             separate lines. Ex: domain.com, *.domain.com'
+          nullable: true
+        outbound_local_requests_whitelist:
+          type: array
+          items:
+            type: string
+          description: List of trusted domains or IP addresses to which local requests
+            are allowed when local requests for webhooks and integrations are disabled.
           nullable: true
         email_otp_enabled:
           type: boolean

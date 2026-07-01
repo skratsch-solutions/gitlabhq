@@ -71,6 +71,7 @@ class ProjectCiCdSetting < ApplicationRecord
 
   attribute :display_pipeline_variables, default: false
   attribute :forward_deployment_enabled, default: true
+  attribute :skip_branch_pipelines_for_mrs, default: false
   attribute :separated_caches, default: true
   validates :merge_trains_skip_train_allowed, inclusion: { in: [true, false] }
   validates :max_pipelines_per_merge_train,

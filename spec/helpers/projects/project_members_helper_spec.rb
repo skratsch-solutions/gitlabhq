@@ -38,9 +38,12 @@ RSpec.describe Projects::ProjectMembersHelper, feature_category: :groups_and_pro
         )
       end
 
+      before_all do
+        project.add_maintainer(current_user)
+      end
+
       before do
         allow(helper).to receive(:project_project_member_path).with(project, ':id').and_return('/foo-bar/-/project_members/:id')
-        project.add_maintainer(current_user)
       end
 
       it 'returns expected json' do

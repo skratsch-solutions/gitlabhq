@@ -956,6 +956,32 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
       end
     end
 
+    context 'outbound_local_requests_whitelist settings' do
+      it 'allows array for outbound_local_requests_whitelist', :aggregate_failures do
+        put api('/application/settings', admin),
+          params: { outbound_local_requests_whitelist: ['192.168.1.1', 'example.com'] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['outbound_local_requests_whitelist']).to match_array(['192.168.1.1', 'example.com'])
+      end
+
+      it 'allows a comma-separated string for outbound_local_requests_whitelist', :aggregate_failures do
+        put api('/application/settings', admin),
+          params: { outbound_local_requests_whitelist: '192.168.1.1, example.com' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['outbound_local_requests_whitelist']).to match_array(['192.168.1.1', 'example.com'])
+      end
+
+      it 'allows clearing outbound_local_requests_whitelist with an empty array', :aggregate_failures do
+        put api('/application/settings', admin),
+          params: { outbound_local_requests_whitelist: [] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['outbound_local_requests_whitelist']).to eq([])
+      end
+    end
+
     it 'supports legacy admin_notification_email' do
       put api('/application/settings', admin),
         params: { admin_notification_email: 'test@example.com' }

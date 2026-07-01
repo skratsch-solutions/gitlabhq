@@ -234,6 +234,20 @@ RSpec.describe ProjectCiCdSetting, feature_category: :continuous_integration do
     end
   end
 
+  describe '#skip_branch_pipelines_for_mrs' do
+    let_it_be(:project, freeze: false) { create(:project) }
+
+    it 'defaults to false' do
+      expect(project.ci_cd_settings.skip_branch_pipelines_for_mrs).to be(false)
+    end
+
+    it 'returns the value' do
+      project.ci_cd_settings.update!(skip_branch_pipelines_for_mrs: true)
+
+      expect(project.ci_cd_settings.skip_branch_pipelines_for_mrs).to be(true)
+    end
+  end
+
   describe '#pipeline_override_role_privileged?' do
     let(:project) { build(:project) }
     let(:setting) { project.ci_cd_settings }

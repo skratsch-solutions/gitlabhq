@@ -53,7 +53,7 @@ RSpec.describe TimeboxesHelper, feature_category: :team_planning do
 
     subject { helper.recent_releases_with_counts(milestone_open, user) }
 
-    before do
+    before_all do
       project.add_developer(user)
     end
 

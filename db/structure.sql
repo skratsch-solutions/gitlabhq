@@ -6881,6 +6881,7 @@ CREATE TABLE p_duo_workflows_checkpoints (
     checkpoint jsonb NOT NULL,
     metadata jsonb NOT NULL,
     ui_chat_log jsonb,
+    current_thread integer DEFAULT 0 NOT NULL,
     CONSTRAINT check_70d1d05b50 CHECK ((num_nonnulls(namespace_id, project_id) = 1)),
     CONSTRAINT check_b55c120f3f CHECK ((char_length(thread_ts) <= 255)),
     CONSTRAINT check_e63817afa6 CHECK ((char_length(parent_ts) <= 255))
@@ -22533,6 +22534,35 @@ CREATE SEQUENCE historical_data_id_seq
 
 ALTER SEQUENCE historical_data_id_seq OWNED BY historical_data.id;
 
+CREATE TABLE iam_outbox (
+    id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    entity_id bigint NOT NULL,
+    l0_delivered_at timestamp with time zone,
+    l2_delivered_at timestamp with time zone,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    event_type smallint NOT NULL,
+    l0_attempts smallint DEFAULT 0 NOT NULL,
+    l2_attempts smallint DEFAULT 0 NOT NULL,
+    entity_type text NOT NULL,
+    l0_last_error text,
+    l2_last_error text,
+    payload jsonb DEFAULT '{}'::jsonb NOT NULL,
+    CONSTRAINT check_27fec748e7 CHECK ((char_length(l2_last_error) <= 4096)),
+    CONSTRAINT check_b3ceb42087 CHECK ((char_length(l0_last_error) <= 4096)),
+    CONSTRAINT check_d9f087270c CHECK ((char_length(entity_type) <= 255))
+);
+
+CREATE SEQUENCE iam_outbox_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE iam_outbox_id_seq OWNED BY iam_outbox.id;
+
 CREATE TABLE identities (
     id bigint NOT NULL,
     extern_uid character varying,
@@ -28628,7 +28658,8 @@ CREATE TABLE project_ci_cd_settings (
     resource_group_default_process_mode smallint DEFAULT 0 NOT NULL,
     max_pipelines_per_merge_train smallint,
     cross_project_push_for_job_token_allowed boolean DEFAULT false NOT NULL,
-    merge_train_enforcement smallint DEFAULT 0 NOT NULL
+    merge_train_enforcement smallint DEFAULT 0 NOT NULL,
+    skip_branch_pipelines_for_mrs boolean DEFAULT false NOT NULL
 );
 
 CREATE SEQUENCE project_ci_cd_settings_id_seq
@@ -37284,6 +37315,8 @@ ALTER TABLE ONLY groups_visits ALTER COLUMN id SET DEFAULT nextval('groups_visit
 
 ALTER TABLE ONLY historical_data ALTER COLUMN id SET DEFAULT nextval('historical_data_id_seq'::regclass);
 
+ALTER TABLE ONLY iam_outbox ALTER COLUMN id SET DEFAULT nextval('iam_outbox_id_seq'::regclass);
+
 ALTER TABLE ONLY identities ALTER COLUMN id SET DEFAULT nextval('identities_id_seq'::regclass);
 
 ALTER TABLE ONLY import_export_upload_upload_states ALTER COLUMN id SET DEFAULT nextval('import_export_upload_upload_states_id_seq'::regclass);
@@ -40961,6 +40994,9 @@ ALTER TABLE ONLY groups_visits
 
 ALTER TABLE ONLY historical_data
     ADD CONSTRAINT historical_data_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY iam_outbox
+    ADD CONSTRAINT iam_outbox_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY identities
     ADD CONSTRAINT identities_pkey PRIMARY KEY (id);
@@ -48767,6 +48803,12 @@ CREATE INDEX index_groups_visits_on_user_id_and_entity_id_and_visited_at ON ONLY
 CREATE INDEX index_historical_data_on_recorded_at ON historical_data USING btree (recorded_at);
 
 CREATE UNIQUE INDEX index_http_integrations_on_project_and_endpoint ON alert_management_http_integrations USING btree (project_id, endpoint_identifier);
+
+CREATE INDEX index_iam_outbox_l0_undelivered_lookup ON iam_outbox USING btree (entity_type, entity_id, event_type) WHERE (l0_delivered_at IS NULL);
+
+CREATE INDEX index_iam_outbox_l2_undelivered_lookup ON iam_outbox USING btree (entity_type, entity_id, event_type) WHERE (l2_delivered_at IS NULL);
+
+CREATE INDEX index_iam_outbox_on_organization_id ON iam_outbox USING btree (organization_id);
 
 CREATE INDEX index_identities_on_saml_provider_id ON identities USING btree (saml_provider_id) WHERE (saml_provider_id IS NOT NULL);
 
@@ -61257,6 +61299,9 @@ ALTER TABLE ONLY batched_background_migration_jobs
 
 ALTER TABLE ONLY operations_strategies_user_lists
     ADD CONSTRAINT fk_rails_43241e8d29 FOREIGN KEY (strategy_id) REFERENCES operations_strategies(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY iam_outbox
+    ADD CONSTRAINT fk_rails_432d441dae FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY activity_pub_releases_subscriptions
     ADD CONSTRAINT fk_rails_4337598314 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

@@ -46,6 +46,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       dependency_list_export_parts
       dependency_list_export_upload_states
       dependency_list_export_uploads
+      iam_outbox
       issue_tracker_data
       jira_connect_installations
       jira_tracker_data

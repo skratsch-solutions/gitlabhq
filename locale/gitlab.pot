@@ -51587,7 +51587,13 @@ msgstr ""
 msgid "OfflineTransferImport|The offline transfer import you started on %{start_date} has completed. You can now review your import results."
 msgstr ""
 
+msgid "OfflineTransfer|Choose top-level groups to export to an object storage location."
+msgstr ""
+
 msgid "OfflineTransfer|Configure"
+msgstr ""
+
+msgid "OfflineTransfer|Do you need offline transfer?"
 msgstr ""
 
 msgid "OfflineTransfer|Export"
@@ -51602,19 +51608,37 @@ msgstr ""
 msgid "OfflineTransfer|Export files not found for relation: %{relation}"
 msgstr ""
 
+msgid "OfflineTransfer|Export groups"
+msgstr ""
+
 msgid "OfflineTransfer|Export relation batch file not found for relation: %{relation}, batch: %{batch_number}"
+msgstr ""
+
+msgid "OfflineTransfer|If your GitLab instances can access each other over a network, use direct transfer instead. Direct transfer migrates groups and projects directly without separate export and import steps."
 msgstr ""
 
 msgid "OfflineTransfer|Import"
 msgstr ""
 
+msgid "OfflineTransfer|Import groups"
+msgstr ""
+
+msgid "OfflineTransfer|Import groups from object storage that contains exported groups."
+msgstr ""
+
 msgid "OfflineTransfer|Invalid source version"
 msgstr ""
 
-msgid "OfflineTransfer|Missing source hostname in metadata"
+msgid "OfflineTransfer|Learn more"
 msgstr ""
 
-msgid "OfflineTransfer|Move groups and their contents to any GitLab instance, even with no network connection between this and the destination instance. With offline transfer you can export groups to an object storage you control, then import the files into the destination instance."
+msgid "OfflineTransfer|Learn more about offline transfer"
+msgstr ""
+
+msgid "OfflineTransfer|Migrate groups and projects between GitLab instances that have no network connection between them. Export top-level groups that you own to an object storage you control, then import them into the destination GitLab instance."
+msgstr ""
+
+msgid "OfflineTransfer|Missing source hostname in metadata"
 msgstr ""
 
 msgid "OfflineTransfer|Offline export complete"
@@ -51629,6 +51653,9 @@ msgstr ""
 msgid "OfflineTransfer|Offline transfer import completed"
 msgstr ""
 
+msgid "OfflineTransfer|Offline transfer requires a configured %{boldStart}AWS S3 object storage service%{boldEnd}. Set up your bucket and credentials before exporting."
+msgstr ""
+
 msgid "OfflineTransfer|One or more destination paths is invalid."
 msgstr ""
 
@@ -51636,6 +51663,12 @@ msgid "OfflineTransfer|Review"
 msgstr ""
 
 msgid "OfflineTransfer|Select entities"
+msgstr ""
+
+msgid "OfflineTransfer|Start offline export"
+msgstr ""
+
+msgid "OfflineTransfer|Start offline import"
 msgstr ""
 
 msgid "OfflineTransfer|Unable to access object storage bucket."
@@ -72291,6 +72324,9 @@ msgstr ""
 msgid "SemanticSearch|Advanced Search cluster"
 msgstr ""
 
+msgid "SemanticSearch|All existing indexed data will be removed. Semantic search results will be unavailable until re-indexing completes. This process can take several hours depending on your codebase size."
+msgstr ""
+
 msgid "SemanticSearch|Change model"
 msgstr ""
 
@@ -72327,13 +72363,7 @@ msgstr ""
 msgid "SemanticSearch|Current status of semantic code search."
 msgstr ""
 
-msgid "SemanticSearch|Custom Elasticsearch settings"
-msgstr ""
-
-msgid "SemanticSearch|Custom OpenSearch settings"
-msgstr ""
-
-msgid "SemanticSearch|Custom PostgreSQL settings"
+msgid "SemanticSearch|Custom connection"
 msgstr ""
 
 msgid "SemanticSearch|Database"
@@ -72444,7 +72474,10 @@ msgstr ""
 msgid "SemanticSearch|Save changes"
 msgstr ""
 
-msgid "SemanticSearch|Search adapter"
+msgid "SemanticSearch|Saving changes replaces the active connection and triggers a full re-index"
+msgstr ""
+
+msgid "SemanticSearch|Search settings"
 msgstr ""
 
 msgid "SemanticSearch|Select embedding dimensions"
@@ -72460,6 +72493,12 @@ msgid "SemanticSearch|Select the strategy for splitting documents into chunks. C
 msgstr ""
 
 msgid "SemanticSearch|Semantic search %{collection} embeddings"
+msgstr ""
+
+msgid "SemanticSearch|Semantic search is already configured. Go to %{link_start}Search settings%{link_end} to disable it and configure a custom adapter."
+msgstr ""
+
+msgid "SemanticSearch|Semantic search is already configured. Go to %{link_start}Search settings%{link_end} to disable it and switch to the Advanced Search cluster."
 msgstr ""
 
 msgid "SemanticSearch|Semantic search will be disabled soon."

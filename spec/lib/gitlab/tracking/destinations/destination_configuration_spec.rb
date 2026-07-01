@@ -60,10 +60,11 @@ RSpec.describe Gitlab::Tracking::Destinations::DestinationConfiguration, feature
     context 'on production instance' do
       let(:host) { 'mysite.com' }
 
-      it 'returns configuration with production billing endpoint' do
+      it 'returns configuration with production billing endpoint', :aggregate_failures do
         expect(configuration.hostname).to eq('billing.prdsub.gitlab.net')
         expect(configuration.protocol).to eq('https')
         expect(configuration.uri.to_s).to eq(described_class::BILLING_COLLECT_ENDPOINT)
+        expect(configuration.app_id_suffix).to eq('_billing')
       end
     end
 
@@ -146,6 +147,10 @@ RSpec.describe Gitlab::Tracking::Destinations::DestinationConfiguration, feature
 
     it 'sets the URI' do
       expect(configuration.uri).to eq(uri)
+    end
+
+    it 'defaults app_id_suffix to nil' do
+      expect(configuration.app_id_suffix).to be_nil
     end
   end
 

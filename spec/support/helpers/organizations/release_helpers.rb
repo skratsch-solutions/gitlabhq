@@ -2,18 +2,20 @@
 
 module Organizations
   module ReleaseHelpers
-    # Toggles a logical Organizations release flag in specs by stubbing whichever
-    # shared stage flag currently backs it (resolved through the registry in
-    # config/organizations_release.yml), so specs do not hard-code the stage a
-    # feature happens to sit at. When the feature advances to another stage the
-    # spec keeps testing the right flag.
-    #
-    # Disabling a flag disables its whole stage, which mirrors how the shared
-    # stage flags behave in production.
-    def stub_organization_release(flag, enabled:)
-      stage_flag = ::Organizations::Release::Registry.instance.find(flag).stage.flag
+    # Pins organization release flags in specs, like `stub_feature_flags`:
+    # `stub_organization_release(my_flag: false)`. Stubs `Organizations::Release.enabled?`
+    # per flag, so features are pinned independently of the stage flags backing them.
+    def stub_organization_release(**flags)
+      # Resolve each flag so an unknown one raises, the same as a typo'd feature flag.
+      flags.each_key { |flag| ::Organizations::Release::Registry.instance.find(flag) }
 
-      stub_feature_flags(stage_flag => enabled)
+      @organization_release_stubs ||= {}
+      @organization_release_stubs.merge!(flags)
+      stubs = @organization_release_stubs
+
+      allow(::Organizations::Release).to receive(:enabled?).and_wrap_original do |original, flag, actor|
+        stubs.fetch(flag) { original.call(flag, actor) }
+      end
     end
   end
 end
