@@ -42,6 +42,7 @@ import {
   WIDGET_TYPE_MILESTONE,
   WIDGET_TYPE_START_AND_DUE_DATE,
   WIDGET_TYPE_TIME_TRACKING,
+  WIDGET_TYPE_VULNERABILITIES,
 } from '~/work_items/constants';
 import {
   autocompleteDataSources,
@@ -69,6 +70,7 @@ import {
   findLinkedResourcesWidget,
   findStartAndDueDateWidget,
   findTimeTrackingWidget,
+  findVulnerabilitiesWidget,
   formatLabelForListbox,
   formatUserForListbox,
   newWorkItemPath,
@@ -1712,6 +1714,35 @@ describe('findTimeTrackingWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findTimeTrackingWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findVulnerabilitiesWidget', () => {
+  const vulnerabilitiesWidget = {
+    type: WIDGET_TYPE_VULNERABILITIES,
+    relatedVulnerabilities: { nodes: [], count: 0 },
+  };
+  const featuresVulnerabilities = {
+    relatedVulnerabilities: { nodes: [], count: 3 },
+  };
+
+  it('returns features.vulnerabilities when present', () => {
+    const workItem = {
+      features: { vulnerabilities: featuresVulnerabilities },
+      widgets: [vulnerabilitiesWidget],
+    };
+
+    expect(findVulnerabilitiesWidget(workItem)).toBe(featuresVulnerabilities);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [vulnerabilitiesWidget] };
+
+    expect(findVulnerabilitiesWidget(workItem)).toBe(vulnerabilitiesWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findVulnerabilitiesWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

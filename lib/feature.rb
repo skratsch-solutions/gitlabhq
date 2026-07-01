@@ -619,11 +619,11 @@ module Feature
     end
 
     def gate_specified?
-      %i[user project group feature_group namespace repository runner endpoint].any? { |key| params.key?(key) }
+      %i[user project group feature_group namespace organization repository runner endpoint].any? { |key| params.key?(key) }
     end
 
     def targets
-      [feature_group, users, projects, groups, namespaces, repositories, runners, endpoints].flatten.compact
+      [feature_group, users, projects, groups, namespaces, organizations, repositories, runners, endpoints].flatten.compact
     end
 
     private
@@ -656,6 +656,10 @@ module Feature
 
     def namespaces
       find_targets(:namespace) { |arg| Namespace.without_project_namespaces.find_by_full_path(arg) }
+    end
+
+    def organizations
+      find_targets(:organization) { |arg| Organizations::Organization.find_by_id(arg) }
     end
 
     def repositories

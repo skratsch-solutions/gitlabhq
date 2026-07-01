@@ -74436,6 +74436,9 @@ definitions:
         type: string
         description: A projects path, for example `gitlab-org/gitlab-foss`, or comma-separated
           multiple project paths
+      organization:
+        type: string
+        description: An organization ID, or comma-separated list of organization IDs
       repository:
         type: string
         description: A repository path, for example `gitlab-org/gitlab-test.git`,

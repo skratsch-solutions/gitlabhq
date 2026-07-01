@@ -1802,6 +1802,37 @@ RSpec.describe Feature, :clean_gitlab_redis_feature_flag, stub_feature_flags: fa
           expect(subject.targets).to eq(targets.map(&:repository))
         end
       end
+
+      context 'when organization target is specified' do
+        let_it_be(:organization) { create(:organization) }
+
+        subject { described_class.new(organization: organization.id.to_s) }
+
+        it 'returns the organization as a target' do
+          expect(subject.targets).to eq([organization])
+        end
+
+        context 'with multiple organizations' do
+          let_it_be(:organization2) { create(:organization) }
+
+          subject { described_class.new(organization: "#{organization.id},#{organization2.id}") }
+
+          it 'returns all organizations as targets' do
+            expect(subject.targets).to match_array([organization, organization2])
+          end
+        end
+
+        context 'when organization does not exist' do
+          subject { described_class.new(organization: '999999') }
+
+          it 'raises UnknownTargetError' do
+            expect { subject.targets }.to raise_error(
+              Feature::Target::UnknownTargetError,
+              '999999 is not found!'
+            )
+          end
+        end
+      end
     end
   end
 

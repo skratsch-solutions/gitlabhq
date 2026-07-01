@@ -55102,7 +55102,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_364c1989dcd7"
+              "$ref": "#/components/schemas/RequestBody_f06a84ea1e01"
     delete:
       operationId: deleteApiV4FeaturesName
       summary: Delete a feature
@@ -108828,7 +108828,7 @@ components:
           nullable: true
       required:
       - file
-    RequestBody_364c1989dcd7:
+    RequestBody_f06a84ea1e01:
       type: object
       properties:
         value:
@@ -108863,6 +108863,11 @@ components:
           type: string
           description: A projects path, for example `gitlab-org/gitlab-foss`, or comma-separated
             multiple project paths
+          nullable: true
+        organization:
+          type: string
+          description: An organization ID, or comma-separated list of organization
+            IDs
           nullable: true
         repository:
           type: string
