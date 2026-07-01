@@ -5,9 +5,9 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { RELATIVE_POSITION_ASC } from '~/work_items/list/constants';
 
-import getBoardNamespaceStatusesQuery from 'ee_else_ce/work_items/board/graphql/get_namespace_statuses.query.graphql';
 import getWorkItemsCountOnlyQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_count_only.query.graphql';
 import updateBoardWorkItemMutation from './graphql/update_board_work_item.mutation.graphql';
+import { groupingStrategyFor } from './grouping';
 import {
   boardColumnQuery,
   boardColumnQueryVariables,
@@ -61,6 +61,9 @@ export default {
     isLoading() {
       return this.$apollo.queries.groupByValues.loading;
     },
+    strategy() {
+      return groupingStrategyFor(this.groupBy.property);
+    },
     columnQuery() {
       return boardColumnQuery(this.glFeatures);
     },
@@ -71,23 +74,26 @@ export default {
     },
   },
   apollo: {
-    groupByValues: {
-      query: getBoardNamespaceStatusesQuery,
-      variables() {
-        return { fullPath: this.rootPageFullPath };
-      },
-      update(data) {
-        return data?.namespace?.rootNamespace?.statuses?.nodes ?? [];
-      },
-      error(error) {
-        this.$emit(
-          'set-error',
-          s__(
-            'WorkItemBoard|Something went wrong when fetching the board columns. Please try again.',
-          ),
-        );
-        Sentry.captureException(error);
-      },
+    groupByValues() {
+      return {
+        query: this.strategy?.valuesQuery,
+        skip() {
+          return !this.strategy;
+        },
+        variables() {
+          return { fullPath: this.rootPageFullPath };
+        },
+        update: (data) => this.strategy?.extractValues(data) ?? [],
+        error: (error) => {
+          this.$emit(
+            'set-error',
+            s__(
+              'WorkItemBoard|Something went wrong when fetching the board columns. Please try again.',
+            ),
+          );
+          Sentry.captureException(error);
+        },
+      };
     },
   },
   methods: {
@@ -97,15 +103,14 @@ export default {
     isColumnCollapsed(value) {
       return this.collapsedGroups.includes(this.groupId(value));
     },
-    statusById(statusId) {
-      return this.groupByValues.find(({ id }) => id === statusId) ?? null;
+    valueById(valueId) {
+      return this.groupByValues.find(({ id }) => id === valueId) ?? null;
     },
     columnVariables(value) {
       return boardColumnQueryVariables({
         rootPageFullPath: this.rootPageFullPath,
         baseQueryVariables: this.queryVariables,
-        groupProperty: this.groupBy.property,
-        value,
+        columnFilter: this.strategy.columnFilter(value),
       });
     },
     columnCountVariables(value) {
@@ -117,22 +122,22 @@ export default {
       });
     },
     async onCardMove({ from, to, item, oldIndex, newIndex }) {
-      const fromStatusId = from?.dataset?.statusId;
-      const toStatusId = to?.dataset?.statusId;
+      const fromValueId = from?.dataset?.groupValueId;
+      const toValueId = to?.dataset?.groupValueId;
       const workItemId = item?.dataset?.workItemId;
 
-      if (!fromStatusId || !toStatusId || !workItemId) {
+      if (!fromValueId || !toValueId || !workItemId) {
         return;
       }
 
-      const fromValue = this.statusById(fromStatusId);
-      const toValue = this.statusById(toStatusId);
+      const fromValue = this.valueById(fromValueId);
+      const toValue = this.valueById(toValueId);
       if (!fromValue || !toValue) {
         return;
       }
 
-      // Columns are statuses, so an unchanged status means a same-column reorder.
-      const statusChanged = fromStatusId !== toStatusId;
+      // Columns are grouped values, so an unchanged value means a same-column reorder.
+      const valueChanged = fromValueId !== toValueId;
 
       const { cache } = this.$apollo.getClient();
       const query = this.columnQuery;
@@ -144,27 +149,27 @@ export default {
       const { moveBeforeId, moveAfterId } = this.isManualSort
         ? getMovePositionIds({
             nodes: readWorkItemsFromColumn({ cache, query, variables: toVariables }),
-            sameColumn: !statusChanged,
+            sameColumn: !valueChanged,
             oldIndex,
             newIndex,
           })
         : {};
 
-      // Nothing to persist: dropped back in place with no status or position change.
-      if (!statusChanged && !moveBeforeId && !moveAfterId) {
+      // Nothing to persist: dropped back in place with no value or position change.
+      if (!valueChanged && !moveBeforeId && !moveAfterId) {
         return;
       }
 
       // Snapshot the moved card so the cache update can reinsert it into the target
-      // column (with the new status) on both the optimistic and the confirmed pass.
+      // column (with the new value) on both the optimistic and the confirmed pass.
       const node = readWorkItemFromColumn({ cache, query, variables: fromVariables, workItemId });
       if (!node) {
         return;
       }
 
       const input = { id: workItemId };
-      if (statusChanged) {
-        input.statusWidget = { status: toStatusId };
+      if (valueChanged) {
+        Object.assign(input, this.strategy.moveInput(toValue));
       }
       if (moveBeforeId) {
         input.moveBeforeId = moveBeforeId;
@@ -200,8 +205,10 @@ export default {
               variables: toVariables,
               workItem: node,
               index: newIndex,
-              // Only patch the status badge on a cross-column move; a reorder keeps it.
-              status: statusChanged ? toValue : null,
+              // Only patch the card on a cross-column move; a reorder keeps its value.
+              patchCard: valueChanged
+                ? (draftNode) => this.strategy.patchCard(draftNode, toValue)
+                : null,
             });
 
             // The header counts live in their own count-only query cache, so keep them
@@ -245,7 +252,7 @@ export default {
       v-for="value in groupByValues"
       :key="value.id"
       :value="value"
-      :group-property="groupBy.property"
+      :strategy="strategy"
       :root-page-full-path="rootPageFullPath"
       :base-query-variables="queryVariables"
       :drag-disabled="moveInProgress"

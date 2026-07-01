@@ -1,6 +1,42 @@
-import { GROUP_NONE, getGroupKey, getGroupId, getMovePositionIds } from '~/work_items/board/utils';
+import {
+  GROUP_NONE,
+  getGroupKey,
+  getGroupId,
+  getMovePositionIds,
+  boardColumnQueryVariables,
+} from '~/work_items/board/utils';
 
 describe('work item board utils', () => {
+  describe('boardColumnQueryVariables', () => {
+    const baseQueryVariables = { state: 'opened', sort: 'CREATED_DESC' };
+
+    it('merges the column filter over the base variables and adds paging', () => {
+      expect(
+        boardColumnQueryVariables({
+          rootPageFullPath: 'full/path',
+          baseQueryVariables,
+          columnFilter: { status: { name: 'To do' } },
+        }),
+      ).toEqual({
+        fullPath: 'full/path',
+        state: 'opened',
+        sort: 'CREATED_DESC',
+        firstPageSize: 20,
+        status: { name: 'To do' },
+      });
+    });
+
+    it('lets the column filter override colliding base variables', () => {
+      expect(
+        boardColumnQueryVariables({
+          rootPageFullPath: 'full/path',
+          baseQueryVariables: { ...baseQueryVariables, status: { name: 'overridden' } },
+          columnFilter: { status: { name: 'To do' } },
+        }),
+      ).toMatchObject({ status: { name: 'To do' } });
+    });
+  });
+
   describe('getMovePositionIds', () => {
     const nodes = [
       { id: 'gid://gitlab/WorkItem/1' },

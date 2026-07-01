@@ -391,7 +391,7 @@ module API
               regexp: Gitlab::Regex.nuget_version_regex, documentation: { example: '1.0.1' }
           end
           route_setting :authorization, permissions: :delete_nuget_package, boundary_type: :project
-          delete '*package_name/*package_version', format: false, urgency: :low do
+          delete '*package_name/*package_version', urgency: :low, requirements: API::NO_FORMAT_SUFFIX_REQUIREMENT do
             authorize_destroy_package!(project_or_group)
 
             destroy_conditionally!(find_package) do |pkg|

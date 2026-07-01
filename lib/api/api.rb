@@ -13,6 +13,10 @@ module API
     NAMESPACE_OR_PROJECT_REQUIREMENTS = { id: NO_SLASH_URL_PART_REGEX }.freeze
     COMMIT_ENDPOINT_REQUIREMENTS = NAMESPACE_OR_PROJECT_REQUIREMENTS.merge(sha: NO_SLASH_URL_PART_REGEX).freeze
     USER_REQUIREMENTS = { user_id: NO_SLASH_URL_PART_REGEX }.freeze
+    # Grape 2.4+ no longer honors route-level `format: false`; this never-matching `:format`
+    # requirement re-suppresses the implicit `(.:format)` suffix so a trailing extension or
+    # dot stays inside the wildcard/param instead of being parsed off as a response format.
+    NO_FORMAT_SUFFIX_REQUIREMENT = { format: /(?!)/ }.freeze
     LOG_FILTERS = ::Rails.application.config.filter_parameters + [/^output$/]
     LOG_FILTER_EXCEPTIONS = %w[controller action format Content-Type].freeze
     LOG_FORMATTER = Gitlab::GrapeLogging::Formatters::LogrageWithTimestamp.new

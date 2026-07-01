@@ -93,11 +93,15 @@ describe('work item board cache updates', () => {
       ]);
     });
 
-    it('patches the node status widget to the target status', () => {
+    it('runs patchCard on the inserted node so it matches the target column', () => {
       const cache = buildCacheWith([]);
       const movedNode = buildWorkItemNode(3, {
         widgets: [buildStatusWidget({ ...toDoStatus })],
       });
+      const patchCard = (node) => {
+        const widget = node.widgets.find((w) => w.type === 'STATUS');
+        widget.status = { ...widget.status, name: 'In progress' };
+      };
 
       addWorkItemToColumn({
         cache,
@@ -105,21 +109,11 @@ describe('work item board cache updates', () => {
         variables,
         workItem: movedNode,
         index: 0,
-        status: {
-          id: 'gid://gitlab/Status/2',
-          name: 'In progress',
-          iconName: 'status-running',
-          color: '#1f75cb',
-          category: 'IN_PROGRESS',
-        },
+        patchCard,
       });
 
       const statusWidget = nodesOf(cache)[0].widgets.find((w) => w.type === 'STATUS');
-      expect(statusWidget.status).toMatchObject({
-        id: 'gid://gitlab/Status/2',
-        name: 'In progress',
-        iconName: 'status-running',
-      });
+      expect(statusWidget.status.name).toBe('In progress');
     });
 
     it('does not insert a duplicate when the node is already present', () => {

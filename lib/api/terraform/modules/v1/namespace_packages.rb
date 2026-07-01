@@ -237,10 +237,10 @@ module API
               end
 
               # This endpoint has to be the last within namespace '*module_version' block
-              # due to how the route matching works in grape
-              # format: false is required, otherwise grape splits the semver version into 2 params:
-              # params[:module_version] and params[:format],
-              # thus leading to an invalid/not found module version
+              # due to how the route matching works in grape.
+              # The never-matching :format requirement (API::NO_FORMAT_SUFFIX_REQUIREMENT) stops grape
+              # from splitting the semver version into params[:module_version] and params[:format],
+              # which would lead to an invalid/not found module version.
               desc 'Get details about specific version of a module' do
                 detail 'Get details about specific version of a module'
                 success code: 200, model: Entities::Terraform::ModuleVersion
@@ -252,7 +252,7 @@ module API
               end
               route_setting :authorization, permissions: :read_terraform_module,
                 boundary_type: :group, boundary_param: :module_namespace
-              get format: false do
+              get requirements: API::NO_FORMAT_SUFFIX_REQUIREMENT do
                 presenter = ::Terraform::ModuleVersionPresenter.new(package, params[:module_system])
                 present presenter, with: ::API::Entities::Terraform::ModuleVersion
               end

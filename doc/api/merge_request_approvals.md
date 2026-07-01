@@ -784,6 +784,14 @@ regardless of whether those approvals satisfy any approval rule. For more detail
 the approval rules in a merge request, and whether the approvals received satisfy those rules, see
 the [`/approval_state` endpoint](#retrieve-approval-details-for-a-merge-request).
 
+The `approved` field reflects whether the merge request meets its approval requirements, and its
+value depends on the deployed edition:
+
+- On GitLab Enterprise Edition, including without a license, `approved` is `true` when the configured
+  approval rules are satisfied.
+  When no approval rules apply, `approved` is `true` even when `approved_by` is empty.
+- On GitLab Community Edition, `approved` is `true` only when at least one approval exists.
+
 ```plaintext
 GET /projects/:id/merge_requests/:merge_request_iid/approvals
 ```
@@ -808,6 +816,7 @@ Supported attributes:
   "merge_status": "cannot_be_merged",
   "approvals_required": 2,
   "approvals_left": 1,
+  "approved": true,
   "approved_by": [
     {
       "user": {

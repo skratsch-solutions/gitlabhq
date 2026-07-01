@@ -64,7 +64,9 @@ module API
           # 2. When a package exists, authorize_read_package!(project) provides authorization inside the block
           route_setting :authorization, skip_job_token_policies: true,
             skip_granular_token_authorization: :external_registry_redirect
-          get '*package_name', format: false, requirements: ::API::Helpers::Packages::Npm::NPM_ENDPOINT_REQUIREMENTS do
+          get '*package_name',
+            requirements: ::API::Helpers::Packages::Npm::NPM_ENDPOINT_REQUIREMENTS
+              .merge(API::NO_FORMAT_SUFFIX_REQUIREMENT) do
             package_name = declared_params[:package_name]
             packages =
               if Feature.enabled?(:npm_allow_packages_in_multiple_projects, group_or_namespace)

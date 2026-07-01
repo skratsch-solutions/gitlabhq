@@ -190,6 +190,23 @@ describe('Markdown table of contents component', () => {
       expect(texts).not.toContain('Title Without Anchor');
     });
   });
+
+  describe('viewer switching from simple to rich', () => {
+    beforeEach(() => {
+      document.querySelector('.blob-viewer').dataset.type = 'simple';
+      document.querySelector('.blob-viewer').dataset.loaded = 'true';
+    });
+
+    it('shows TOC when data-type transitions to rich and data-loaded is true', async () => {
+      createComponent();
+
+      document.querySelector('.blob-viewer').dataset.type = 'rich';
+      await nextTick();
+
+      expect(findDropdown().exists()).toBe(true);
+      expect(findDropdownItems()).toHaveLength(4);
+    });
+  });
 });
 
 describe('AsciiDoc table of contents component', () => {

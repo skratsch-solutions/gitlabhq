@@ -29,17 +29,18 @@ export const getGroupId = ({ groupBy, value }) =>
   `${getGroupKey(groupBy)}:${value?.id ?? GROUP_NONE}`;
 
 // The initial (non-paginated) query variables — the cache key `fetchMore` merges
-// pages into, which the drag-and-drop cache updates must match exactly.
+// pages into, which the drag-and-drop cache updates must match exactly. The
+// grouping strategy supplies `columnFilter` (e.g. `{ status: { name } }`), so the
+// board stays agnostic to which attribute it is grouped by.
 export const boardColumnQueryVariables = ({
   rootPageFullPath,
   baseQueryVariables,
-  groupProperty,
-  value,
+  columnFilter,
 }) => ({
   fullPath: rootPageFullPath,
   ...baseQueryVariables,
   firstPageSize: DEFAULT_PAGE_SIZE_BOARD_COLUMN,
-  [groupProperty]: { name: value.name }, // must be last to override base
+  ...columnFilter, // must be last to override colliding base variables
 });
 
 // The count-only query uses a different query document so it always has its own cache

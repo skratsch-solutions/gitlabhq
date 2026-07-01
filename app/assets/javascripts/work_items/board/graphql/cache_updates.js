@@ -1,6 +1,5 @@
 import produce from 'immer';
 import { cloneDeep } from 'lodash-es';
-import { findStatusWidget } from '~/work_items/utils';
 
 const getConnection = (data) => data?.namespace?.workItems;
 
@@ -36,9 +35,10 @@ export const removeWorkItemFromColumn = ({ cache, query, variables, workItemId }
   });
 };
 
-// Inserts at index and patches the status widget so the card badge matches the
-// target column during the optimistic window. No-op on a missing cache entry.
-export const addWorkItemToColumn = ({ cache, query, variables, workItem, index, status }) => {
+// Inserts at index and runs the optional `patchCard` callback on the inserted
+// (cloned) node so its grouped attribute matches the target column during the
+// optimistic window. No-op on a missing cache entry.
+export const addWorkItemToColumn = ({ cache, query, variables, workItem, index, patchCard }) => {
   cache.updateQuery({ query, variables }, (sourceData) => {
     if (!getConnection(sourceData)) {
       return sourceData;
@@ -51,17 +51,8 @@ export const addWorkItemToColumn = ({ cache, query, variables, workItem, index, 
       }
 
       const node = cloneDeep(workItem);
-      const statusWidget = status && findStatusWidget(node);
-      if (statusWidget) {
-        // Keep the existing widget/status __typename; only refresh display fields.
-        statusWidget.status = {
-          ...statusWidget.status,
-          id: status.id,
-          name: status.name,
-          iconName: status.iconName,
-          color: status.color,
-          category: status.category,
-        };
+      if (patchCard) {
+        patchCard(node);
       }
 
       nodes.splice(index, 0, node);

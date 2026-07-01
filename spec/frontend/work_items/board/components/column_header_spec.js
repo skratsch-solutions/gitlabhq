@@ -21,7 +21,7 @@ describe('ColumnHeader', () => {
     wrapper = shallowMountExtended(ColumnHeader, {
       propsData: {
         value: mockStatus,
-        groupProperty: 'status',
+        decoration: { type: 'icon', name: 'status-waiting', color: '#737278' },
         count: 5,
         ...props,
       },
@@ -101,13 +101,13 @@ describe('ColumnHeader', () => {
     });
   });
 
-  describe('status icon', () => {
-    describe('when groupProperty is "status" and value.iconName is set', () => {
+  describe('icon decoration', () => {
+    describe('when the decoration is an icon with a name', () => {
       beforeEach(() => {
         createComponent();
       });
 
-      it('renders an icon with the value.iconName', () => {
+      it('renders an icon with the decoration name', () => {
         expect(findIconByName('status-waiting')).not.toBeUndefined();
       });
 
@@ -117,25 +117,27 @@ describe('ColumnHeader', () => {
       });
     });
 
-    describe('when value.color is not set', () => {
+    describe('when the decoration has no color', () => {
       it('renders the icon without an inline color style', () => {
-        createComponent({ props: { value: { ...mockStatus, color: null } } });
+        createComponent({
+          props: { decoration: { type: 'icon', name: 'status-waiting', color: null } },
+        });
 
         expect(findIconByName('status-waiting').element.style.color).toBe('');
       });
     });
 
-    describe('when groupProperty is not "status"', () => {
-      it('does not render the status icon', () => {
-        createComponent({ props: { groupProperty: 'label' } });
+    describe('when the decoration type is not "icon"', () => {
+      it('does not render an icon', () => {
+        createComponent({ props: { decoration: { type: 'none' } } });
 
         expect(findIconByName('status-waiting')).toBeUndefined();
       });
     });
 
-    describe('when value.iconName is empty', () => {
-      it('does not render the status icon', () => {
-        createComponent({ props: { value: { ...mockStatus, iconName: '' } } });
+    describe('when the decoration name is empty', () => {
+      it('does not render an icon', () => {
+        createComponent({ props: { decoration: { type: 'icon', name: '' } } });
 
         expect(findIconByName('status-waiting')).toBeUndefined();
       });

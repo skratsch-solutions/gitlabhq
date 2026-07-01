@@ -63,7 +63,7 @@ module Gitlab
             sort_by: normalized_sort,
             per_page: effective_per_page,
             page_token: page_token,
-            ignore_case: true
+            ignore_case: search.present?
           }
 
           if exact_match_search?

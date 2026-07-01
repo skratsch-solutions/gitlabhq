@@ -443,6 +443,7 @@ See [Run `:js` spec in a visible browser](#run-js-spec-in-a-visible-browser) for
 ##### Search for `Capybara::DSL#` when using profiling
 
 <!-- TODO: Add the search keywords -->
+
 When using [`stackprof` flamegraphs](#profiling-see-where-your-test-spend-its-time), search for `Capybara::DSL#` in the search to see the capybara actions that are made, and how long they take!
 
 #### Identify slow tests
@@ -577,34 +578,156 @@ within_testid('search-filter') do
 end
 ```
 
-#### Wait for a control to be enabled, not just present
+#### Assert on a stable end-state, not on a transient control
 
-After an action that triggers an asynchronous mutation, a control often stays
-disabled (in a `loading` state) until the mutation resolves, and its label or
-the surrounding state can change once it does. A bare `have_button` or
-`have_link` matches the control while it is still disabled, so the assertion
-passes mid-transition and the next assertion races the re-render.
+After an action that triggers an asynchronous mutation, the control you just
+interacted with often passes through a transient `loading`/disabled state and
+swaps its label before the component re-renders. Asserting on that control to
+confirm the action completed is racy, because the control changes several times
+before settling.
 
-Assert that the destination control is both present and enabled with
-`disabled: false`. This waits out the in-flight mutation before the following
-assertions run:
+Avoid asserting on the button's label or `disabled` state to synchronize. Assert
+on a stable end-state that only appears once the mutation has fully resolved,
+such as a status text or alert message:
 
 ```ruby
-click_button 'Resume'
+# Bad: races the in-flight mutation. The button passes through a transient
+# loading/disabled state and keeps its old label, so these assertions can
+# pass before the runnerUpdate mutation re-renders the row.
+click_button 'Pause'
+expect(page).to have_button 'Resume', disabled: false
+expect(page).not_to have_button 'Pause'
 
-# Bad: matches the button while it is still disabled (mid-mutation), so the
-# next assertion races the re-render.
-expect(page).to have_button 'Pause'
+click_button 'Resume'
+expect(page).to have_button 'Pause', disabled: false
+expect(page).not_to have_button 'Resume'
+
+# Good: assert on the stable end-state text that only appears once the
+# mutation has resolved. This still exercises the pause/resume round-trip.
 expect(page).not_to have_text 'Paused'
 
-# Good: waits until the mutation settles and the button is interactive.
-expect(page).to have_button 'Pause', disabled: false
+click_button 'Pause'
+expect(page).to have_text 'Paused'
+
+click_button 'Resume'
 expect(page).not_to have_text 'Paused'
 ```
 
-This is reliable when the control and the state you check next derive from the
-same updated data, so once the control is enabled the dependent state has also
-re-rendered.
+#### Poll for browser side-effects with `wait_for`
+
+Always prefer asserting on a visible UI outcome (`have_content`,
+`have_current_path`, `have_css`) to confirm an action has completed. Use the
+`wait_for` helper (defined in `spec/support/helpers/wait_helpers.rb`) only as a
+last resort, when there is nothing in the UI you can assert on. Some side-effects
+have no visible signal:
+
+- Browser-initiated downloads, which are not XHR or `fetch` requests.
+- Interactions that must be retried because the element is not yet interactive
+  (for example, hovering a diff line does nothing until the page is fully
+  loaded).
+
+(Do not reach for `wait_for_requests` here either: it is deprecated and should
+not be used in new specs.)
+
+```ruby
+# Bad: click_link triggers a browser-initiated download and returns before the
+# request is logged, so `artifact_request` can be nil.
+requests = inspect_requests { click_link 'Download' }
+artifact_request = requests.find { |r| r.url.include?('artifacts/download') }
+
+# Good: poll until the download request has been recorded.
+requests = inspect_requests do
+  click_link 'Download'
+
+  wait_for('artifact download request') do
+    Gitlab::Testing::RequestInspectorMiddleware.requests.any? do |r|
+      r.url.include?('artifacts/download')
+    end
+  end
+end
+artifact_request = requests.find { |r| r.url.include?('artifacts/download') }
+```
+
+When an interaction must be retried because the target is not yet interactive,
+wrap the whole sequence in `wait_for` and rescue `Capybara::ElementNotFound`. In
+the example below, hovering a diff line does nothing until the page has finished
+loading, so the hover (not just the click) must be retried:
+
+```ruby
+# Bad: hovering an unloaded diff line is a no-op, so the button never appears.
+line_holder.hover
+line[:num].find('.js-add-diff-note-button').click
+
+# Good: retry the hover until the note form appears and is focused.
+wait_for('note form to appear') do
+  line_holder.hover
+  line[:num].find('.js-add-diff-note-button', wait: 0.2).click
+  page.has_field?('note_note', focused: true, wait: 0.2)
+rescue Capybara::ElementNotFound
+end
+```
+
+#### Prefer waiting matchers over reading element values
+
+Reading a value, text, or count directly from an element (`find(...).value`,
+`find(...).text`, `all(...).count`) captures the state at that exact moment. If
+the page is still rendering an asynchronous update, you read the old value and
+the test fails or passes for the wrong reason. The `have_*` matchers instead
+retry until the expectation holds (or the wait times out), so they synchronize
+with the UI rather than racing it.
+
+Assert with a waiting matcher rather than reading a value and comparing it:
+
+```ruby
+# Bad: reads the field value now and compares; races an in-flight update.
+expect(find('#cadence-title').value).to eq(cadence.title)
+
+# Good: waits for the field to have the expected value.
+expect(page).to have_field('cadence-title', with: cadence.title)
+```
+
+```ruby
+# Bad: all_by_testid returns as soon as one match exists, then compares count.
+expect(all_by_testid('cache-entry-row').count).to eq(cache_entries.size)
+
+# Good: waits for the DOM to have the expected number of matches.
+expect(page).to have_selector('[data-testid="cache-entry-row"]', count: cache_entries.size)
+```
+
+```ruby
+# Bad: reads the element's text content at this point in time.
+expect(find_by_testid("user-project-count-#{admin.id}").text).to eq('1')
+
+# Good: waits for the element to have the expected content.
+within_testid("user-project-count-#{admin.id}") do
+  expect(page).to have_content('1')
+end
+```
+
+#### Enter admin mode with metadata, not the UI
+
+Driving admin mode through the browser UI with
+`enable_admin_mode!(admin, use_ui: true)` is slow and introduces a race: the
+mode-activation request may not complete before the next action runs. Use the
+`:enable_admin_mode` RSpec metadata tag instead, which activates admin mode at
+the session level without any UI interaction:
+
+```ruby
+# Bad: slow and race-prone.
+before do
+  enable_admin_mode!(admin, use_ui: true)
+end
+
+# Good: activates admin mode without touching the browser.
+it 'does something as admin', :enable_admin_mode do
+  ...
+end
+
+# Or on a describe/context block:
+context 'when in admin mode', :enable_admin_mode do
+  ...
+end
+```
 
 #### Mock expensive external operations
 
@@ -696,6 +819,9 @@ is a signal that the view has too many responsibilities.
 > Before writing a new system test,
 > [consider this guide around their use](testing_levels.md#white-box-tests-at-the-system-level-formerly-known-as-system--feature-tests)
 
+- Place feature specs in `spec/features/`, or `ee/spec/features/` for
+  EE-only features.
+  End-to-end specs live separately, in `qa/`.
 - Feature specs should be named `ROLE_ACTION_spec.rb`, such as
   `user_changes_password_spec.rb`.
 - Use scenario titles that describe the success and failure paths.
@@ -1467,6 +1593,26 @@ The usage of `perform_enqueued_jobs` is useful only for testing delayed mail
 deliveries, because our Sidekiq workers aren't inheriting from `ApplicationJob`
 / `ActiveJob::Base`.
 
+In feature specs, wrap both the triggering UI action and an assertion on its
+visible outcome (mail delivery, confirmation modal, updated page state) inside
+the `perform_enqueued_jobs` block. The click only kicks off an AJAX request that
+later enqueues the job. If the block wraps just the click, it can end before that
+request enqueues the job, so the job runs through the default test adapter
+instead of inline and is never processed. Asserting on the outcome inside the
+block keeps it open until the request has completed and the job has run inline:
+
+```ruby
+# Bad: the email is not yet delivered when the assertion runs.
+perform_enqueued_jobs { click_button 'Approve' }
+expect(page).to have_content('Approval email sent')
+
+# Good: the assertion runs only after the enqueued jobs complete.
+perform_enqueued_jobs do
+  click_button 'Approve'
+  expect(page).to have_content('Approval email sent')
+end
+```
+
 #### DNS
 
 DNS requests are stubbed universally in the test suite
@@ -1796,7 +1942,7 @@ On Linux, `Time` can have the maximum precision of 9 and
 However, the actual value `created_at` (like `2023-04-28 05:53:30.808033`) stored to and loaded from the database
 doesn't have the same precision, and the match would fail.
 On macOS X, the precision of `Time` matches that of the PostgreSQL timestamp type
- and the match could succeed.
+and the match could succeed.
 
 To avoid the issue, we can use `be_like_time` or `be_within` to compare
 that times are within one second of each other.

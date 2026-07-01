@@ -18,6 +18,7 @@ import {
   addWorkItemToColumn,
   removeWorkItemFromColumn,
 } from '~/work_items/board/graphql/cache_updates';
+import { statusStrategy } from '~/work_items/board/grouping/status_strategy';
 import {
   mockStatus,
   buildWorkItemNode,
@@ -65,7 +66,7 @@ describe('ColumnGroup', () => {
       },
       propsData: {
         value: mockStatus,
-        groupProperty: 'status',
+        strategy: statusStrategy,
         rootPageFullPath: 'full/path',
         baseQueryVariables,
         ...props,
@@ -80,12 +81,17 @@ describe('ColumnGroup', () => {
   });
 
   describe('column header', () => {
-    it('passes the value and groupProperty to ColumnHeader', async () => {
+    it('passes the value, decoration, and item count to ColumnHeader', async () => {
       createComponent();
       await waitForPromises();
 
       expect(findColumnHeader().props('value')).toEqual(mockStatus);
-      expect(findColumnHeader().props('groupProperty')).toBe('status');
+      expect(findColumnHeader().props('decoration')).toEqual({
+        type: 'icon',
+        name: 'status-waiting',
+        color: '#737278',
+      });
+      expect(findColumnHeader().props('count')).toBe(1);
     });
 
     it('passes the total count from the count query, not the number of loaded items', async () => {
@@ -236,7 +242,7 @@ describe('ColumnGroup', () => {
       expect(findDraggable().props('itemKey')).toBe('id');
       expect(findDraggable().attributes('group')).toBe('work-item-board');
       expect(findDraggable().attributes('tag')).toBe('ul');
-      expect(findDraggable().attributes('data-status-id')).toBe(mockStatus.id);
+      expect(findDraggable().attributes('data-group-value-id')).toBe(mockStatus.id);
     });
 
     it('emits card-move with the drag event when a card is dropped', () => {
@@ -273,13 +279,17 @@ describe('ColumnGroup', () => {
       );
     });
 
-    it('uses groupProperty as the variable key for the grouped value', async () => {
-      createComponent({ props: { groupProperty: 'customGroup' } });
+    it('uses the strategy columnFilter for the grouped value variables', async () => {
+      const strategy = {
+        ...statusStrategy,
+        columnFilter: () => ({ customGroup: { name: 'Custom' } }),
+      };
+      createComponent({ props: { strategy } });
       await waitForPromises();
 
       expect(boardQueryHandler).toHaveBeenCalledWith(
         expect.objectContaining({
-          customGroup: { name: mockStatus.name },
+          customGroup: { name: 'Custom' },
         }),
       );
     });
@@ -511,8 +521,7 @@ describe('ColumnGroup', () => {
       boardColumnQueryVariables({
         rootPageFullPath: 'full/path',
         baseQueryVariables,
-        groupProperty: 'status',
-        value: mockStatus,
+        columnFilter: statusStrategy.columnFilter(mockStatus),
       });
     const cachedNodeIds = () => {
       const { cache } = apolloProvider.defaultClient;
@@ -554,7 +563,7 @@ describe('ColumnGroup', () => {
     });
 
     it('keeps the paginated column a drop target keyed by its value id', () => {
-      expect(findDraggable().attributes('data-status-id')).toBe(mockStatus.id);
+      expect(findDraggable().attributes('data-group-value-id')).toBe(mockStatus.id);
     });
 
     it('removes a card on a later page', () => {
@@ -579,7 +588,6 @@ describe('ColumnGroup', () => {
         variables: columnVariables(),
         workItem: buildWorkItemNode(5),
         index: 4,
-        status: mockStatus,
       });
 
       expect(cachedNodeIds()).toEqual([

@@ -31,7 +31,7 @@ module API
             desc: 'The SHA-256 hash of the artifact'
         end
         route_setting :authorization, permissions: :read_attestation, boundary_type: :project
-        get ':id/attestations/:subject_digest', urgency: :low, format: false,
+        get ':id/attestations/:subject_digest', urgency: :low,
           requirements: { subject_digest: /[A-Fa-f0-9]{64}/ } do
           subject_digest = params[:subject_digest]
           attestations = ::SupplyChain::Attestation.for_project(user_project.id).with_digest(subject_digest)
@@ -52,7 +52,7 @@ module API
           requires :attestation_iid, types: [String, Integer], desc: 'The iid of the attestation'
         end
         route_setting :authorization, permissions: :read_attestation, boundary_type: :project
-        get ':id/attestations/:attestation_iid/download', urgency: :low, format: false do
+        get ':id/attestations/:attestation_iid/download', urgency: :low do
           attestation = ::SupplyChain::Attestation.for_project(user_project.id).with_iid(params[:attestation_iid]).sole
 
           content_type 'text/json'

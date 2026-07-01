@@ -45,8 +45,8 @@ export default {
       type: Object,
       required: true,
     },
-    groupProperty: {
-      type: String,
+    strategy: {
+      type: Object,
       required: true,
     },
     rootPageFullPath: {
@@ -101,16 +101,17 @@ export default {
       return boardColumnQueryVariables({
         rootPageFullPath: this.rootPageFullPath,
         baseQueryVariables: this.baseQueryVariables,
-        groupProperty: this.groupProperty,
-        value: this.value,
+        columnFilter: this.strategy.columnFilter(this.value),
       });
+    },
+    decoration() {
+      return this.strategy.headerDecoration(this.value);
     },
     countQueryVariables() {
       return boardColumnCountVariables({
         rootPageFullPath: this.rootPageFullPath,
         baseQueryVariables: this.baseQueryVariables,
-        groupProperty: this.groupProperty,
-        value: this.value,
+        columnFilter: this.strategy.columnFilter(this.value),
       });
     },
   },
@@ -211,7 +212,7 @@ export default {
   >
     <column-header
       :value="value"
-      :group-property="groupProperty"
+      :decoration="decoration"
       :count="totalCount"
       :collapsed="collapsed"
       :controls-id="columnBodyId"
@@ -235,7 +236,7 @@ export default {
         :value="workItems"
         item-key="id"
         tag="ul"
-        :data-status-id="value.id"
+        :data-group-value-id="value.id"
         v-bind="$options.sortableOptions"
         :disabled="dragDisabled"
         class="gl-m-0 gl-flex gl-flex-1 gl-list-none gl-flex-col gl-gap-3 gl-p-0"

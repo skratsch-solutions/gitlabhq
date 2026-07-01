@@ -22,8 +22,10 @@ export default {
       type: Object,
       required: true,
     },
-    groupProperty: {
-      type: String,
+    // Grouping-strategy descriptor of how to render this column's value, e.g.
+    // `{ type: 'icon', name, color }`. See board/grouping/index.js.
+    decoration: {
+      type: Object,
       required: true,
     },
     count: {
@@ -43,11 +45,11 @@ export default {
   },
   emits: ['toggle-collapse'],
   computed: {
-    showStatusIcon() {
-      return this.groupProperty === 'status' && Boolean(this.value.iconName);
+    showIcon() {
+      return this.decoration.type === 'icon' && Boolean(this.decoration.name);
     },
     iconColorStyle() {
-      return this.value.color ? { color: getAdaptiveStatusColor(this.value.color) } : {};
+      return this.decoration.color ? { color: getAdaptiveStatusColor(this.decoration.color) } : {};
     },
     toggleLabel() {
       return this.collapsed ? this.$options.i18n.expand : this.$options.i18n.collapse;
@@ -77,8 +79,8 @@ export default {
       @click="$emit('toggle-collapse')"
     />
     <gl-icon
-      v-if="showStatusIcon"
-      :name="value.iconName"
+      v-if="showIcon"
+      :name="decoration.name"
       :size="12"
       :style="iconColorStyle"
       class="gl-shrink-0"

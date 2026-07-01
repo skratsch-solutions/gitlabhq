@@ -77,7 +77,9 @@ module API
                   desc: "The symbol file name. Must match the 'file_name' parameter"
               end
               route_setting :authorization, skip_granular_token_authorization: :public_endpoint
-              get '*file_name/*signature/*same_file_name', format: false, urgency: :low do
+              get '*file_name/*signature/*same_file_name',
+                urgency: :low,
+                requirements: API::NO_FORMAT_SUFFIX_REQUIREMENT do
                 bad_request!('Missing checksum header') if headers['Symbolchecksum'].blank?
 
                 project_ids = if project_or_group_without_auth.is_a?(::Project)

@@ -17,7 +17,7 @@ export default {
   },
   mounted() {
     const fileHolder = this.$el.closest('.file-holder');
-    this.blobViewer = fileHolder?.querySelector('.blob-viewer[data-type="rich"]');
+    this.blobViewer = fileHolder?.querySelector('.blob-viewer');
     const blobViewerAttr = (attr) => this.blobViewer.getAttribute(attr);
 
     this.observer = new MutationObserver(() => {

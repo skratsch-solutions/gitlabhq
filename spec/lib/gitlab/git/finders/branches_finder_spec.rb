@@ -92,9 +92,25 @@ RSpec.describe Gitlab::Git::Finders::BranchesFinder, feature_category: :source_c
     context 'when searching with mixed case' do
       let(:params) { { search: 'Feature' } }
 
-      it 'returns case-insensitive matches with exact match first' do
+      it 'returns case-insensitive matches with exact match first', :aggregate_failures do
         expect(branches.first.name).to eq('feature')
         expect(branches.second.name).to eq('feature_conflict')
+      end
+    end
+
+    context 'with conditional ignore_case behavior' do
+      it 'disables ignore_case for search-less listings' do
+        expect(Gitlab::Git::Finders::RefsFinder)
+          .to receive(:new).with(repository, hash_including(ignore_case: false)).and_call_original
+
+        described_class.new(repository, {}).execute
+      end
+
+      it 'enables ignore_case when a search term is present' do
+        expect(Gitlab::Git::Finders::RefsFinder)
+          .to receive(:new).with(repository, hash_including(ignore_case: true)).and_call_original
+
+        described_class.new(repository, { search: 'fix' }).execute
       end
     end
 
