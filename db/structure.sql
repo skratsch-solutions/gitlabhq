@@ -20841,7 +20841,7 @@ CREATE TABLE duo_workflow_session_artifacts (
     workflow_updated_at timestamp with time zone NOT NULL,
     CONSTRAINT check_6928cf5db3 CHECK ((char_length(workflow_definition) <= 255)),
     CONSTRAINT check_7b8006375a CHECK ((char_length(model_used) <= 255)),
-    CONSTRAINT check_ff5e4d9247 CHECK ((num_nonnulls(namespace_id, project_id) = 1))
+    CONSTRAINT check_8610fce682 CHECK ((namespace_id IS NOT NULL))
 );
 
 CREATE SEQUENCE duo_workflow_session_artifacts_id_seq
@@ -48276,7 +48276,7 @@ CREATE INDEX index_duo_wf_checkpoint_blobs_on_namespace_id ON ONLY p_duo_workflo
 
 CREATE INDEX index_duo_wf_checkpoint_blobs_on_workflow_id ON ONLY p_duo_workflows_checkpoint_blobs USING btree (workflow_id);
 
-CREATE INDEX index_duo_wf_session_artifacts_on_namespace_id_updated_at ON duo_workflow_session_artifacts USING btree (namespace_id, workflow_updated_at DESC);
+CREATE INDEX index_duo_wf_session_artifacts_on_ns_wf_updated_wf_id ON duo_workflow_session_artifacts USING btree (namespace_id, workflow_updated_at DESC, workflow_id DESC);
 
 CREATE INDEX index_duo_wf_session_artifacts_on_project_id_updated_at ON duo_workflow_session_artifacts USING btree (project_id, workflow_updated_at DESC);
 

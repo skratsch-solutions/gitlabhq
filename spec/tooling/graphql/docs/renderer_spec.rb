@@ -298,7 +298,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
          | Name | Type | Description |
          | ---- | ---- | ----------- |
-         | <a id="deprecatedtest-foo-fooarg"></a>`fooArg` {{< icon name="warning-solid" >}} | [`String`](#string) | **Deprecated** in GitLab 101.2. Bad argument. |
+         | <a id="deprecatedtest-foo-fooarg"></a>`fooArg` {{< icon name="warning-solid" >}} | [`String`](#string) | Deprecated in GitLab 101.2. Bad argument. |
         DOC
       end
 
@@ -345,17 +345,18 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
-          | <a id="deprecatedtest-bar"></a>`bar` {{< icon name="warning-solid" >}} | [`String!`](#string) | **Deprecated** in GitLab 1.10. This was renamed. Use: [`Query.boom`](#query-boom). |
-          | <a id="deprecatedtest-foo"></a>`foo` {{< icon name="warning-solid" >}} | [`String!`](#string) | **Deprecated** in GitLab 1.10. This is deprecated. |
+          | <a id="deprecatedtest-bar"></a>`bar` {{< icon name="warning-solid" >}} | [`String!`](#string) | Deprecated in GitLab 1.10. Renamed. Use [`Query.boom`](#query-boom) instead. |
+          | <a id="deprecatedtest-foo"></a>`foo` {{< icon name="warning-solid" >}} | [`String!`](#string) | Deprecated in GitLab 1.10. This is deprecated. |
 
           #### Fields with arguments
 
           ##### `DeprecatedTest.fooWithArgs`
 
           {{< details >}}
-          **Deprecated** in GitLab 1.10.
-          Do not use.
-          Use: [`X.y`](#x-y).
+
+          - Deprecated in GitLab 1.10.
+          - Do not use. Use [`X.y`](#x-y) instead.
+
           {{< /details >}}
 
           A description.
@@ -390,9 +391,10 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
           ### `Query.bar`
 
           {{< details >}}
-          **Deprecated** in GitLab 10.11.
-          This was renamed.
-          Use: [`Query.foo`](#query-foo).
+
+          - Deprecated in GitLab 10.11.
+          - Renamed. Use [`Query.foo`](#query-foo) instead.
+
           {{< /details >}}
 
           A bar.
@@ -434,7 +436,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
          | Name | Type | Description |
          | ---- | ---- | ----------- |
-         | <a id="alphatest-foo-fooarg"></a>`fooArg` {{< icon name="warning-solid" >}} | [`String`](#string) | **Introduced** in GitLab 101.2. **Status**: Experiment. Argument description. |
+         | <a id="alphatest-foo-fooarg"></a>`fooArg` {{< icon name="warning-solid" >}} | [`String`](#string) | Introduced in GitLab 101.2. Status: Experiment. Argument description. |
         DOC
       end
 
@@ -472,15 +474,17 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
-          | <a id="alphatest-foo"></a>`foo` {{< icon name="warning-solid" >}} | [`String!`](#string) | **Introduced** in GitLab 1.10. **Status**: Experiment. A description. |
+          | <a id="alphatest-foo"></a>`foo` {{< icon name="warning-solid" >}} | [`String!`](#string) | Introduced in GitLab 1.10. Status: Experiment. A description. |
 
           #### Fields with arguments
 
           ##### `AlphaTest.fooWithArgs`
 
           {{< details >}}
-          **Introduced** in GitLab 1.10.
-          **Status**: Experiment.
+
+          - Introduced in GitLab 1.10.
+          - Status: Experiment.
+
           {{< /details >}}
 
           A description.
@@ -515,8 +519,10 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
           ### `Query.bar`
 
           {{< details >}}
-          **Introduced** in GitLab 10.11.
-          **Status**: Experiment.
+
+          - Introduced in GitLab 10.11.
+          - Status: Experiment.
+
           {{< /details >}}
 
           A bar.
@@ -559,9 +565,9 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           | Value | Description |
           | ----- | ----------- |
-          | <a id="myenum-bar"></a>`BAR` {{< icon name="warning-solid" >}} | **Deprecated** in GitLab 1.10. This is deprecated. |
+          | <a id="myenum-bar"></a>`BAR` {{< icon name="warning-solid" >}} | Deprecated in GitLab 1.10. This is deprecated. |
           | <a id="myenum-baz"></a>`BAZ` | A description of BAZ. |
-          | <a id="myenum-boop"></a>`BOOP` {{< icon name="warning-solid" >}} | **Deprecated** in GitLab 1.10. This was renamed. Use: [`MyEnum.BAR`](#myenum-bar). |
+          | <a id="myenum-boop"></a>`BOOP` {{< icon name="warning-solid" >}} | Deprecated in GitLab 1.10. Renamed. Use [`MyEnum.BAR`](#myenum-bar) instead. |
         DOC
       end
 
@@ -681,9 +687,9 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
             | Name | Type | Description |
             | ---- | ---- | ----------- |
             | <a id="mutation-makeitpretty-clientmutationid"></a>`clientMutationId` | [`String`](#string) | A unique identifier for the client performing the mutation. |
-            | <a id="mutation-makeitpretty-experimentalarg"></a>`experimentalArg` {{< icon name="warning-solid" >}} | [`Float`](#float) | **Introduced** in GitLab 12.34. **Status**: Experiment. An argument. |
+            | <a id="mutation-makeitpretty-experimentalarg"></a>`experimentalArg` {{< icon name="warning-solid" >}} | [`Float`](#float) | Introduced in GitLab 12.34. Status: Experiment. An argument. |
             | <a id="mutation-makeitpretty-prettinessfactor"></a>`prettinessFactor` | [`Float!`](#float) | How much prettier?. |
-            | <a id="mutation-makeitpretty-pulchritude"></a>`pulchritude` {{< icon name="warning-solid" >}} | [`Float`](#float) | **Deprecated** in GitLab 72.34. This was renamed. Use: `prettinessFactor`. |
+            | <a id="mutation-makeitpretty-pulchritude"></a>`pulchritude` {{< icon name="warning-solid" >}} | [`Float`](#float) | Deprecated in GitLab 72.34. Renamed. Use `prettinessFactor` instead. |
 
             Fields:
 
@@ -692,8 +698,8 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
             | <a id="mutation-makeitpretty-clientmutationid"></a>`clientMutationId` | [`String`](#string) | A unique identifier for the client performing the mutation. |
             | <a id="mutation-makeitpretty-errors"></a>`errors` | [`[String!]!`](#string) | Errors encountered during the mutation. |
             | <a id="mutation-makeitpretty-everything"></a>`everything` | [`String`](#string) | What we made prettier. |
-            | <a id="mutation-makeitpretty-experimentalfield"></a>`experimentalField` {{< icon name="warning-solid" >}} | [`String`](#string) | **Introduced** in GitLab 72.34. **Status**: Experiment. A field. |
-            | <a id="mutation-makeitpretty-omnis"></a>`omnis` {{< icon name="warning-solid" >}} | [`String`](#string) | **Deprecated** in GitLab 72.34. This was renamed. Use: `everything`. |
+            | <a id="mutation-makeitpretty-experimentalfield"></a>`experimentalField` {{< icon name="warning-solid" >}} | [`String`](#string) | Introduced in GitLab 72.34. Status: Experiment. A field. |
+            | <a id="mutation-makeitpretty-omnis"></a>`omnis` {{< icon name="warning-solid" >}} | [`String`](#string) | Deprecated in GitLab 72.34. Renamed. Use `everything` instead. |
           DOC
         end
       end
@@ -777,8 +783,8 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
-          | <a id="filterinput-experimentalfield"></a>`experimentalField` {{< icon name="warning-solid" >}} | [`String`](#string) | **Introduced** in GitLab 16.0. **Status**: Experiment. An experimental filter. |
-          | <a id="filterinput-legacyfield"></a>`legacyField` {{< icon name="warning-solid" >}} | [`String`](#string) | **Deprecated** in GitLab 15.0. This was renamed. Use: `name`. |
+          | <a id="filterinput-experimentalfield"></a>`experimentalField` {{< icon name="warning-solid" >}} | [`String`](#string) | Introduced in GitLab 16.0. Status: Experiment. An experimental filter. |
+          | <a id="filterinput-legacyfield"></a>`legacyField` {{< icon name="warning-solid" >}} | [`String`](#string) | Deprecated in GitLab 15.0. Renamed. Use `name` instead. |
           | <a id="filterinput-name"></a>`name` | [`String`](#string) | Name to filter by. |
         DOC
       end
