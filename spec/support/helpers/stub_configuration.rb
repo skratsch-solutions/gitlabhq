@@ -151,7 +151,7 @@ module StubConfiguration
       messages[storage_name] = Gitlab::GitalyClient::StorageSettings.new(storage_hash.to_h)
     end
 
-    allow(Gitlab.config.repositories).to receive(:storages).and_return(::GitlabSettings::Options.build(messages))
+    allow(Gitlab.config.repositories).to receive(:storages).and_return(::Gitlab::Configs.build_options(messages))
   end
 
   def stub_sentry_settings(enabled: true)
@@ -199,11 +199,11 @@ module StubConfiguration
     end
   end
 
-  # Support nested hashes by converting all values into GitlabSettings::Objects objects
+  # Support nested hashes by converting all values into Gitlab::Configs::Options objects
   def to_settings(hash)
     hash.transform_values do |value|
       if value.is_a? Hash
-        ::GitlabSettings::Options.build(value)
+        ::Gitlab::Configs.build_options(value)
       else
         value
       end

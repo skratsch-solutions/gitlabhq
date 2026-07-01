@@ -725,6 +725,11 @@ module API
     end
 
     def render_api_error!(message, status)
+      # Coerce non-primitive messages (e.g. ActiveModel::Errors) into a Hash so they
+      # serialize to a structured body. Grape 2.4 binds Grape::Json to ::JSON, which
+      # serializes such objects via #to_s instead of #as_json (see issue 603720).
+      message = message.to_hash if message.respond_to?(:to_hash)
+
       render_structured_api_error!({ 'message' => message }, status)
     end
 

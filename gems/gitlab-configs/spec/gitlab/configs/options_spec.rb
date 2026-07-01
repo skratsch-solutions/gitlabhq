@@ -2,43 +2,48 @@
 
 require 'spec_helper'
 
-RSpec.describe GitlabSettings::Options, :aggregate_failures, feature_category: :settings do
+RSpec.describe Gitlab::Configs::Options, :aggregate_failures, feature_category: :settings do
   let(:config) { { foo: { bar: 'baz' } } }
 
   subject(:options) { described_class.build(config) }
 
   shared_examples 'do not mutate' do |method|
-    context 'when in production env' do
-      it 'returns the unchanged internal hash' do
-        stub_rails_env('production')
+    context 'when no callback is installed (default)' do
+      it 'raises an exception to avoid changing the internal keys' do
+        exception = "Warning: Do not mutate Gitlab::Configs::Options objects: `#{method}`"
 
-        expect(Gitlab::AppJsonLogger)
-          .to receive(:warn)
-          .with(hash_including(
-            message: "Warning: Do not mutate GitlabSettings::Options objects: `#{method}`",
-            method: method))
-          .and_call_original
-
-        expect(options.send(method)).to be_truthy
+        expect { options.send(method) }.to raise_error(exception)
       end
     end
 
-    context 'when not in production env' do
-      it 'raises an exception to avoid changing the internal keys' do
-        exception = "Warning: Do not mutate GitlabSettings::Options objects: `#{method}`"
+    context 'when a callback is installed' do
+      let(:received_messages) { [] }
 
-        stub_rails_env('development')
-        expect { options.send(method) }.to raise_error(exception)
+      before do
+        Gitlab::Configs.on_mutation_warning = ->(message, extra) { received_messages << { message: message, extra: extra } }
+      end
 
-        stub_rails_env('test')
-        expect { options.send(method) }.to raise_error(exception)
+      after do
+        Gitlab::Configs.on_mutation_warning = nil
+      end
+
+      it 'invokes the callback with the message, method, and caller, and returns the converted hash' do
+        result = options.send(method)
+
+        expect(result).to be_truthy
+        expect(received_messages.length).to eq(1)
+        expect(received_messages.first[:message]).to eq(
+          "Warning: Do not mutate Gitlab::Configs::Options objects: `#{method}`"
+        )
+        expect(received_messages.first[:extra]).to include(method: method)
+        expect(received_messages.first[:extra][:caller]).to be_an(Array).and(be_present)
       end
     end
   end
 
   describe '.build' do
     context 'when argument is a hash' do
-      it 'creates a new GitlabSettings::Options instance' do
+      it 'creates a new Gitlab::Configs::Options instance' do
         options = described_class.build(config)
 
         expect(options).to be_a described_class
@@ -222,7 +227,7 @@ RSpec.describe GitlabSettings::Options, :aggregate_failures, feature_category: :
   end
 
   describe '#is_a?' do
-    it 'returns false for anything different of Hash or GitlabSettings::Options' do
+    it 'returns false for anything different of Hash or Gitlab::Configs::Options' do
       expect(options.is_a?(described_class)).to be true
       expect(options.is_a?(Hash)).to be true
       expect(options.is_a?(String)).to be false
@@ -251,41 +256,45 @@ RSpec.describe GitlabSettings::Options, :aggregate_failures, feature_category: :
     end
 
     context 'when method is not an option' do
-      context 'when in production env' do
-        it 'delegates the method to the internal options hash' do
-          stub_rails_env('production')
+      context 'when no callback is installed (default)' do
+        it 'raises to prevent unintended hash method delegation' do
+          exception = 'Calling a hash method on Gitlab::Configs::Options: `delete`'
 
-          expect(Gitlab::AppJsonLogger)
-            .to receive(:warn)
-            .with(hash_including(
-              message: 'Calling a hash method on GitlabSettings::Options: `delete`',
-              method: :delete))
-            .and_call_original
-
-          expect { options.foo.delete('bar') }
-            .to change { options.to_hash }
-            .to({ 'foo' => {} })
+          expect { options.foo.delete('bar') }.to raise_error(exception)
         end
       end
 
-      context 'when not in production env' do
-        it 'delegates the method to the internal options hash' do
-          exception = 'Calling a hash method on GitlabSettings::Options: `delete`'
+      context 'when a callback is installed' do
+        let(:received_messages) { [] }
 
-          stub_rails_env('development')
-          expect { options.foo.delete('bar') }.to raise_error(exception)
+        before do
+          Gitlab::Configs.on_mutation_warning = ->(message, extra) { received_messages << { message: message, extra: extra } }
+        end
 
-          stub_rails_env('test')
-          expect { options.foo.delete('bar') }.to raise_error(exception)
+        after do
+          Gitlab::Configs.on_mutation_warning = nil
+        end
+
+        it 'invokes the callback and delegates the method to the internal options hash' do
+          expect { options.foo.delete('bar') }
+            .to change { options.to_hash }
+            .to({ 'foo' => {} })
+
+          expect(received_messages.length).to eq(1)
+          expect(received_messages.first[:message]).to eq(
+            'Calling a hash method on Gitlab::Configs::Options: `delete`'
+          )
+          expect(received_messages.first[:extra]).to include(method: :delete)
+          expect(received_messages.first[:extra][:caller]).to be_an(Array).and(be_present)
         end
       end
     end
 
     context 'when method is not an option and does not exist in hash' do
-      it 'raises GitlabSettings::MissingSetting' do
+      it 'raises Gitlab::Configs::MissingConfig' do
         expect { options.anything }
           .to raise_error(
-            ::GitlabSettings::MissingSetting,
+            ::Gitlab::Configs::MissingConfig,
             "option 'anything' not defined"
           )
       end

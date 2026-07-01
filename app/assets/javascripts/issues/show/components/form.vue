@@ -66,6 +66,7 @@ export default {
       default: '',
     },
   },
+  emits: ['updateForm'],
   data() {
     const autosaveKey = [document.location.pathname, document.location.search];
     const descriptionAutosaveKey = [...autosaveKey, 'description'];

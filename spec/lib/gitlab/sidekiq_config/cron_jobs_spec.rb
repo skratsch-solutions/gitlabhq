@@ -95,7 +95,7 @@ RSpec.describe Gitlab::SidekiqConfig::CronJobs, feature_category: :build do
       before do
         allow(Gitlab).to receive_messages(ee?: false, com?: false, jh?: false)
         allow(Gitlab.config).to receive(:cron_jobs).and_return(
-          GitlabSettings::Options.build('pipeline_schedule_worker' => { 'cron' => '*/5 * * * *' })
+          Gitlab::Configs.build_options('pipeline_schedule_worker' => { 'cron' => '*/5 * * * *' })
         )
       end
 
@@ -116,7 +116,7 @@ RSpec.describe Gitlab::SidekiqConfig::CronJobs, feature_category: :build do
       before do
         allow(Gitlab).to receive_messages(ee?: false, com?: false, jh?: false)
         allow(Gitlab.config).to receive(:cron_jobs).and_return(
-          GitlabSettings::Options.build(
+          Gitlab::Configs.build_options(
             'cells_schedule_claims_verification_worker' => {
               'args' => { 'worker_class' => 'Cells::ScheduleClaimsVerificationWorker',
                           'within_minutes' => 30, 'within_hours' => 12 }
@@ -140,7 +140,7 @@ RSpec.describe Gitlab::SidekiqConfig::CronJobs, feature_category: :build do
       before do
         allow(Gitlab).to receive_messages(ee?: false, com?: false, jh?: false)
         allow(Gitlab.config).to receive(:cron_jobs).and_return(
-          GitlabSettings::Options.build('pipeline_schedule_worker' => {
+          Gitlab::Configs.build_options('pipeline_schedule_worker' => {
             'class' => 'SomeOtherWorker', 'status' => 'disabled'
           })
         )
@@ -157,7 +157,7 @@ RSpec.describe Gitlab::SidekiqConfig::CronJobs, feature_category: :build do
       before do
         allow(Gitlab).to receive_messages(ee?: false, com?: false, jh?: false)
         allow(Gitlab.config).to receive(:cron_jobs).and_return(
-          GitlabSettings::Options.build('pipeline_schedule_worker' => { 'cron' => '3-59/10 * * * *' })
+          Gitlab::Configs.build_options('pipeline_schedule_worker' => { 'cron' => '3-59/10 * * * *' })
         )
       end
 

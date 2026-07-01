@@ -1096,7 +1096,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
     context 'step_up_auth_required_oauth_provider attribute' do
       let(:ommiauth_provider_config) do
-        GitlabSettings::Options.new(
+        Gitlab::Configs.build_options(
           name: "openid_connect",
           step_up_auth: {
             namespace: {
@@ -1461,7 +1461,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
       context 'updating the `step_up_auth_required_oauth_provider` attribute' do
         let(:ommiauth_provider_config) do
-          GitlabSettings::Options.new(
+          Gitlab::Configs.build_options(
             name: "openid_connect",
             step_up_auth: {
               namespace: {

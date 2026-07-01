@@ -107,7 +107,9 @@ RSpec.describe Gitlab::SidekiqConfig::CronJobInitializer, feature_category: :bui
 
         context 'when a cron override is configured in gitlab.yml' do
           before do
-            cron_overrides = GitlabSettings::Options.build('pipeline_schedule_worker' => { 'cron' => '*/1 * * * *' })
+            cron_overrides = Gitlab::Configs.build_options(
+              'pipeline_schedule_worker' => { 'cron' => '*/1 * * * *' }
+            )
             allow(Gitlab.config).to receive(:cron_jobs).and_return(cron_overrides)
           end
 

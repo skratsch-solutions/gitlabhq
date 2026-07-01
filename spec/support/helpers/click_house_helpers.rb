@@ -71,6 +71,32 @@ module ClickHouseHelpers
     insert_ci_pipelines_to_siphon(pipelines)
   end
 
+  def insert_ci_builds_to_siphon(builds, replicated_at: Time.current, deleted: false)
+    result = clickhouse_fixture(:siphon_p_ci_builds, builds.map do |build|
+      project = build.project
+
+      {
+        id: build.id,
+        partition_id: build.try(:partition_id) || 100,
+        project_id: project&.id || 0,
+        commit_id: build.commit_id || build.pipeline_id,
+        status: build.status,
+        name: build.name,
+        stage_id: build.stage_id,
+        type: build.try(:type) || 'Ci::Build',
+        started_at: build.started_at,
+        finished_at: build.finished_at,
+        created_at: build.created_at,
+        updated_at: build.try(:updated_at) || build.created_at,
+        traversal_path: project&.project_namespace&.traversal_path(with_organization: true) || '0/',
+        _siphon_replicated_at: replicated_at,
+        _siphon_deleted: deleted
+      }
+    end)
+
+    expect(result).to be(true)
+  end
+
   def insert_ci_pipelines_to_siphon(pipelines, replicated_at: Time.current, deleted: false)
     result = clickhouse_fixture(:siphon_p_ci_pipelines, pipelines.map do |pipeline|
       project = pipeline.project

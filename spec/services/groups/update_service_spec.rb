@@ -577,7 +577,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
     let_it_be(:user) { create(:user, owner_of: group) }
 
     let(:ommiauth_provider_config_oidc) do
-      GitlabSettings::Options.new(
+      Gitlab::Configs.build_options(
         name: 'openid_connect',
         step_up_auth: {
           namespace: {
@@ -592,7 +592,7 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
     end
 
     let(:ommiauth_provider_config_oidc_aad) do
-      GitlabSettings::Options.new(
+      Gitlab::Configs.build_options(
         name: 'openid_connect_aad',
         step_up_auth: {
           namespace: {

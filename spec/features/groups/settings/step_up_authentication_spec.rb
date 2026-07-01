@@ -7,7 +7,7 @@ RSpec.describe 'Group Step-up Authentication Settings', :js, feature_category: :
   let_it_be(:user) { create(:user, owner_of: group) }
 
   let(:ommiauth_provider_config_oidc) do
-    GitlabSettings::Options.new(
+    Gitlab::Configs.build_options(
       name: 'openid_connect',
       label: 'OpenID Connect',
       step_up_auth: {
@@ -58,7 +58,7 @@ RSpec.describe 'Group Step-up Authentication Settings', :js, feature_category: :
   describe 'provider configuration' do
     context 'with configured step-up omniauth providers' do
       let_it_be(:omniauth_provider_config_oidc) do
-        GitlabSettings::Options.new(
+        Gitlab::Configs.build_options(
           name: 'openid_connect',
           label: 'OpenID Connect',
           step_up_auth: {

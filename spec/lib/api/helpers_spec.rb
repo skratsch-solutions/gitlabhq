@@ -1914,6 +1914,45 @@ RSpec.describe API::Helpers, feature_category: :api do
     end
   end
 
+  describe '#render_api_error!' do
+    before do
+      allow(helper).to receive(:env).and_return({})
+      allow(helper).to receive(:header).and_return({})
+      allow(helper).to receive(:error!)
+    end
+
+    it 'passes a String message through unchanged' do
+      expect(helper).to receive(:error!).with({ 'message' => 'a message' }, 400, {})
+
+      helper.render_api_error!('a message', 400)
+    end
+
+    it 'passes a Hash message through unchanged' do
+      message = { 'base' => ['is invalid'] }
+
+      expect(helper).to receive(:error!).with({ 'message' => message }, 400, {})
+
+      helper.render_api_error!(message, 400)
+    end
+
+    it 'passes an Array message through unchanged' do
+      message = ['is invalid']
+
+      expect(helper).to receive(:error!).with({ 'message' => message }, 400, {})
+
+      helper.render_api_error!(message, 400)
+    end
+
+    it 'coerces a non-String/non-Hash message that responds to #to_hash into a Hash' do
+      errors = ActiveModel::Errors.new(Project.new)
+      errors.add(:unsafe_import_url, 'is blocked')
+
+      expect(helper).to receive(:error!).with({ 'message' => { unsafe_import_url: ['is blocked'] } }, 400, {})
+
+      helper.render_api_error!(errors, 400)
+    end
+  end
+
   describe '#render_api_error_with_reason!' do
     before do
       allow(helper).to receive(:env).and_return({})

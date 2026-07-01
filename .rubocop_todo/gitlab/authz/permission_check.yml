@@ -505,6 +505,7 @@ Gitlab/Authz/PermissionCheck:
     - 'ee/app/graphql/mutations/virtual_registries/cleanup/policy/upsert.rb'
     - 'ee/app/graphql/mutations/virtual_registries/setting/update.rb'
     - 'ee/app/graphql/mutations/vulnerabilities/archival/archive.rb'
+    - 'ee/app/graphql/mutations/vulnerabilities/auto_remediation.rb'
     - 'ee/app/graphql/mutations/vulnerabilities/bulk_dismiss.rb'
     - 'ee/app/graphql/mutations/vulnerabilities/bulk_set_vulnerability_findings_due_dates.rb'
     - 'ee/app/graphql/mutations/vulnerabilities/bulk_severity_override.rb'

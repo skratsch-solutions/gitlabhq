@@ -63,6 +63,7 @@ export default {
       default: '',
     },
   },
+  emits: ['related-issue-remove-request'],
   data() {
     return {
       isReportDrawerOpen: false,

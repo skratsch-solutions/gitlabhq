@@ -11,7 +11,7 @@ RSpec.describe 'querying namespace settings', feature_category: :api do
   let_it_be(:user) { create(:user) }
 
   let(:omniauth_provider_config_oidc) do
-    GitlabSettings::Options.new(
+    Gitlab::Configs.build_options(
       name: 'openid_connect',
       label: 'OpenID Connect',
       step_up_auth: {

@@ -30,6 +30,7 @@ export default {
       required: true,
     },
   },
+  emits: ['input'],
   computed: {
     issuableTemplatesJson() {
       return JSON.stringify(this.issuableTemplates);

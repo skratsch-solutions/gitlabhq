@@ -58,6 +58,7 @@ export default {
       default: false,
     },
   },
+  emits: ['selected'],
   data() {
     return {
       current: this.default,

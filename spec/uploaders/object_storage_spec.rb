@@ -503,7 +503,7 @@ RSpec.describe ObjectStorage, :clean_gitlab_redis_shared_state, feature_category
   end
 
   describe '#fog_credentials' do
-    let(:connection) { GitlabSettings::Options.build("provider" => "AWS") }
+    let(:connection) { Gitlab::Configs.build_options("provider" => "AWS") }
 
     before do
       allow(uploader_class).to receive(:options) do
@@ -536,7 +536,7 @@ RSpec.describe ObjectStorage, :clean_gitlab_redis_shared_state, feature_category
         }
       end
 
-      let(:options) { GitlabSettings::Options.build(raw_options) }
+      let(:options) { Gitlab::Configs.build_options(raw_options) }
 
       before do
         allow(uploader_class).to receive(:options) do

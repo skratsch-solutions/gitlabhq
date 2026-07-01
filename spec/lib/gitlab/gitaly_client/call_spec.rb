@@ -386,18 +386,6 @@ RSpec.describe Gitlab::GitalyClient::Call, :clean_gitlab_redis_rate_limiting, fe
             expect { subject_call.call }.to raise_error(Gitlab::Git::ResourceExhaustedError)
           end
         end
-
-        context 'when the feature flag is disabled' do
-          before do
-            stub_feature_flags(rails_gitaly_client_calls_sli: false)
-          end
-
-          it 'does not record the SLI' do
-            expect(Gitlab::Metrics::GitalyClientSlis).not_to receive(:record_error_rate)
-
-            subject
-          end
-        end
       end
 
       context 'when the response is an enumerator' do

@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
+require 'spec_helper'
+require 'tempfile'
 
-RSpec.describe GitlabSettings::Settings, :aggregate_failures, feature_category: :settings do
+RSpec.describe Gitlab::Configs::Settings, :aggregate_failures, feature_category: :settings do
   let(:config) do
     {
       section1: {

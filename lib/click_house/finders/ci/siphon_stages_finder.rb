@@ -37,8 +37,8 @@ module ClickHouse # rubocop:disable Gitlab/BoundedContexts -- existing module
 
         attr_reader :inner_query, :outer_query
 
-        def self.for_project(project)
-          new.for_project(project)
+        def self.for_container(container)
+          new.for_container(container)
         end
 
         def initialize(inner_query: nil, outer_query: nil)
@@ -46,15 +46,25 @@ module ClickHouse # rubocop:disable Gitlab/BoundedContexts -- existing module
           @outer_query = outer_query || base_outer_query
         end
 
-        def for_project(project)
-          path = project.project_namespace.traversal_path(with_organization: true)
-
-          with_inner(inner_query.where(traversal_path: path))
+        def for_container(container)
+          if container.is_a?(Project)
+            path = container.project_namespace.traversal_path(with_organization: true)
+            with_inner(inner_query.where(traversal_path: path))
+          else
+            path = container.traversal_path(with_organization: true)
+            condition = inner_query.func('startsWith', [inner_query[:traversal_path], inner_query.quote(path)])
+            with_inner(inner_query.where(condition))
+          end
         end
 
+        # Accepts an Array of IDs (id IN (1, 2, 3)) or a QueryLike subquery
+        # (id IN (SELECT ...)), letting a caller scope stages by a build
+        # subquery's stage_id list without round-tripping.
         def for_ids(ids)
-          ids = Array(ids).compact
-          return self if ids.empty?
+          unless ids.is_a?(::ClickHouse::Client::QueryLike)
+            ids = Array(ids).compact
+            return self if ids.empty?
+          end
 
           with_inner(inner_query.where(id: ids))
         end

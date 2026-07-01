@@ -39,6 +39,7 @@ export default {
     },
   },
   inject: ['projectFullPath'],
+  emits: ['select'],
   data() {
     return {
       project: {},

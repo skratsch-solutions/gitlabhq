@@ -80,6 +80,12 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'saveDescription',
+    'taskListUpdateFailed',
+    'taskListUpdateStarted',
+    'taskListUpdateSucceeded',
+  ],
   data() {
     return {
       hasTaskListItemActions: false,

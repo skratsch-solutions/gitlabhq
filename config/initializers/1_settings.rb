@@ -174,7 +174,7 @@ saml_provider_enabled = Settings.omniauth.providers.any? do |provider|
 end
 
 if Gitlab.ee? && Rails.env.test? && !saml_provider_enabled
-  Settings.omniauth.providers << GitlabSettings::Options.build({ 'name' => 'group_saml' })
+  Settings.omniauth.providers << Gitlab::Configs.build_options({ 'name' => 'group_saml' })
 end
 
 Settings['issues_tracker'] ||= {}
@@ -739,7 +739,7 @@ Gitlab.ee do
   Settings.kerberos['port'] ||= Settings.kerberos.https ? 8443 : 8088
 
   if Settings.kerberos['enabled'] && Settings.omniauth.providers.map(&:name).exclude?('kerberos')
-    Settings.omniauth.providers << GitlabSettings::Options.build({ 'name' => 'kerberos' })
+    Settings.omniauth.providers << Gitlab::Configs.build_options({ 'name' => 'kerberos' })
   end
 end
 

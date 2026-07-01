@@ -35,7 +35,7 @@ module Gitlab
           def snowplow_micro_uri
             url = Gitlab.config.snowplow_micro.address
             URI("http://#{url}")
-          rescue GitlabSettings::MissingSetting
+          rescue Gitlab::Configs::MissingConfig
             URI(SNOWPLOW_MICRO_DEFAULT_URI)
           end
 

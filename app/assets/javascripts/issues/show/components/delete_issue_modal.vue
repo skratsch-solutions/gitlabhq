@@ -30,6 +30,7 @@ export default {
       required: true,
     },
   },
+  emits: ['delete'],
   computed: {
     actionPrimary() {
       return {

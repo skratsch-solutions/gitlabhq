@@ -70,6 +70,7 @@ export default {
       required: true,
     },
   },
+  emits: ['hide', 'show'],
   computed: {
     isOpen() {
       return this.issuableState === STATUS_OPEN || this.issuableState === STATUS_REOPENED;

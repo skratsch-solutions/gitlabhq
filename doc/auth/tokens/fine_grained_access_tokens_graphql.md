@@ -67,6 +67,7 @@ Grants the ability to create, read, and update vulnerabilities.
 | Create | Project | Mutation | `VulnerabilityCreate` |
 | Read | Project | Type | `CountableVulnerability` |
 | Read | Project | Type | `Vulnerability` |
+| Update | Project | Mutation | `VulnerabilityAutoRemediation` |
 | Update | Project | Mutation | `VulnerabilityConfirm` |
 | Update | Project | Mutation | `VulnerabilityDismiss` |
 | Update | Project | Mutation | `VulnerabilityResolve` |

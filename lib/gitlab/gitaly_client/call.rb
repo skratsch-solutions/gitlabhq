@@ -159,8 +159,6 @@ module Gitlab
       end
 
       def record_client_call_sli(error: nil)
-        return unless Feature.enabled?(:rails_gitaly_client_calls_sli, :current_request, type: :gitlab_com_derisk)
-
         Gitlab::Metrics::GitalyClientSlis.record_error_rate(
           storage: @storage,
           error: error

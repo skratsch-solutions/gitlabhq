@@ -18,6 +18,7 @@ export default {
     GlDisclosureDropdownItem,
   },
   inject: ['iid', 'issueType', 'projectPath', 'fullPath'],
+  emits: ['closeActionsDropdown'],
   data() {
     return {
       confidential: false,

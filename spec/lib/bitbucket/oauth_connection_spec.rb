@@ -8,7 +8,7 @@ RSpec.describe Bitbucket::OauthConnection, feature_category: :importers do
   before do
     allow_next_instance_of(described_class) do |instance|
       allow(instance).to receive(:provider).and_return(
-        GitlabSettings::Options.build({ 'app_id' => '', 'app_secret' => '' })
+        Gitlab::Configs.build_options({ 'app_id' => '', 'app_secret' => '' })
       )
     end
   end

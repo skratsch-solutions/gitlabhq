@@ -31,7 +31,7 @@ RSpec.describe Import::BitbucketImport::TokenRefreshStrategy, feature_category: 
   before do
     allow_next_instance_of(Bitbucket::OauthConnection) do |conn|
       allow(conn).to receive(:provider).and_return(
-        GitlabSettings::Options.build({ 'app_id' => '', 'app_secret' => '' })
+        Gitlab::Configs.build_options({ 'app_id' => '', 'app_secret' => '' })
       )
     end
     stub_exclusive_lease("bitbucket-import:refresh:#{project.id}", 'uuid', timeout: described_class::LOCK_TTL)

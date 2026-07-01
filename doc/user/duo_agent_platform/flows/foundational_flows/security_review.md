@@ -30,6 +30,12 @@ alongside [GitLab Duo Code Review](../../../gitlab_duo/code_review.md) and posts
 comments, each with a CWE classification, severity rating, explanation, and where possible, an inline
 suggested fix you can apply with one action.
 
+> [!note]
+> Security Review Flow results are AI-generated and are advisory input, not an authoritative or
+> complete security assessment. A review that reports no findings is not proof that a merge request
+> is secure, and findings can include false positives that need human judgment. For more information,
+> see [Known limitations](#known-limitations).
+
 Use Security Review Flow when you need help with:
 
 - Access control review: Identify missing or misconfigured authorization checks on state-changing operations.
@@ -172,6 +178,21 @@ the updated diff and performs an action depending on the state of the finding:
 - New findings: The flow detects any new vulnerabilities introduced by the fix and creates new comment threads
   for them.
 
+## Known limitations
+
+Understand the following limitations before you rely on Security Review Flow output.
+
+- Findings are advisory, not a coverage guarantee. Security Review Flow results are AI-generated.
+  The flow might not surface every vulnerability in a change: its analysis works within a bounded
+  search and read budget, so very large files or diffs might not be fully reviewed. A review that
+  reports no findings is not proof that the merge request is secure.
+- Findings can include false positives. Treat findings as input that needs human judgment, not
+  as a final verdict.
+- Security Review Flow complements other tooling. It does not replace human security review or
+  other GitLab security tools, such as
+  [SAST](../../../application_security/sast/_index.md) and
+  [GitLab Advanced SAST](../../../application_security/sast/gitlab_advanced_sast.md).
+
 ## Troubleshooting
 
 When you use Security Review Flow, you might encounter the following issues.
@@ -196,8 +217,20 @@ Confirm you meet all [prerequisites](#prerequisites), then check that the flow w
 
 ### The flow does not review every merge request
 
-Small merge requests without any changes to code logic might produce no findings. For example,
-documentation-only changes can produce no findings.
+To run this security scan, you must manually trigger the flow on a merge request. It will not run
+automatically on every merge request. If you assigned the flow but received no findings, see
+[The flow does not provide findings](#the-flow-does-not-provide-findings).
+
+When the flow reviews a merge request, a report with no findings typically means:
+
+- No security issues were detected: The code logic was analyzed, and no vulnerabilities were identified.
+- No security-relevant logic: The change does not contain code that impacts security (for example,
+  documentation-only updates).
+
+Note on large changes: For large merge requests, the flow operates within a bounded search and read
+budget. In these cases, the flow might report no findings or still output findings but fail to cover the full
+merge request, meaning important vulnerabilities could be missed. A completed review is not a guarantee of full
+coverage. For more information, see [Known limitations](#known-limitations).
 
 ### Suggested changes do not apply cleanly
 

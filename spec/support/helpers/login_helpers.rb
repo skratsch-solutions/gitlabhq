@@ -355,7 +355,7 @@ module LoginHelpers
   end
 
   def stub_omniauth_config(messages)
-    allow(Gitlab.config.omniauth).to receive_messages(GitlabSettings::Options.build(messages))
+    allow(Gitlab.config.omniauth).to receive_messages(Gitlab::Configs.build_options(messages))
   end
 
   def stub_basic_saml_config

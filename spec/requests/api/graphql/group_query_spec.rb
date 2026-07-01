@@ -307,7 +307,7 @@ RSpec.describe 'getting group information', :with_license, feature_category: :gr
 
     context 'with general settings' do
       let(:omniauth_provider_config_oidc) do
-        GitlabSettings::Options.new(
+        Gitlab::Configs.build_options(
           name: 'openid_connect',
           label: 'OpenID Connect',
           step_up_auth: {
