@@ -47,43 +47,45 @@ RSpec.describe Mcp::Tools::WorkItems::LinkWorkItemsService, feature_category: :m
   end
 
   describe 'input schema' do
-    let(:schema) { described_class.version_metadata('0.1.0')[:input_schema] }
-    let(:properties) { schema[:properties] }
-
-    it 'defines object type schema' do
-      expect(schema[:type]).to eq('object')
-    end
-
-    it 'requires work_items_ids field' do
-      expect(schema[:required]).to eq(['work_items_ids'])
-    end
-
-    it 'defines url property' do
-      expect(properties[:url][:type]).to eq('string')
-    end
-
-    it 'defines group_id property' do
-      expect(properties[:group_id][:type]).to eq('string')
-    end
-
-    it 'defines project_id property' do
-      expect(properties[:project_id][:type]).to eq('string')
-    end
-
-    it 'defines work_item_iid property' do
-      expect(properties[:work_item_iid][:type]).to eq('integer')
-    end
-
-    it 'defines work_items_ids as array with constraints' do
-      expect(properties[:work_items_ids][:type]).to eq('array')
-      expect(properties[:work_items_ids][:minItems]).to eq(1)
-      expect(properties[:work_items_ids][:maxItems]).to eq(10)
-    end
-
-    it 'defines link_type with CE enum values only' do
-      expect(properties[:link_type][:type]).to eq('string')
-      expect(properties[:link_type][:enum]).to match_array(%w[relates_to])
-      expect(properties[:link_type][:default]).to eq('relates_to')
+    it 'matches the expected contract (CE enum values only)' do
+      expect(described_class.version_metadata('0.1.0')[:input_schema]).to eq(
+        {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'GitLab URL for the source work item.'
+            },
+            group_id: {
+              type: 'string',
+              description: 'ID or path of the group. Required if URL and project_id are not provided.'
+            },
+            project_id: {
+              type: 'string',
+              description: 'ID or path of the project. Required if URL and group_id are not provided.'
+            },
+            work_item_iid: {
+              type: 'integer',
+              description: 'Internal ID of the source work item. Required if URL is not provided.'
+            },
+            work_items_ids: {
+              type: 'array',
+              description: 'Global IDs of the work items to link to ' \
+                '(format: gid://gitlab/WorkItem/<id>). Maximum 10 items.',
+              items: { type: 'string' },
+              minItems: 1,
+              maxItems: 10
+            },
+            link_type: {
+              type: 'string',
+              description: 'Type of relationship between the work items. Defaults to "relates_to".',
+              enum: ['relates_to'],
+              default: 'relates_to'
+            }
+          },
+          required: ['work_items_ids']
+        }
+      )
     end
   end
 

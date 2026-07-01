@@ -423,6 +423,18 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       group.add_maintainer(maintainer)
     end
 
+    context 'when the user is an owner' do
+      before do
+        login_as(owner)
+      end
+
+      it 'sets the badge API endpoint' do
+        get url
+
+        expect(assigns(:badge_api_endpoint)).not_to be_nil
+      end
+    end
+
     context 'when the group is archived' do
       before do
         group.namespace_settings.update!(archived: true)
@@ -720,6 +732,243 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
         it 'responds with 404 before step-up authentication is triggered because user is not authorized' do
           make_request
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'updating group attributes' do
+      let_it_be(:group, freeze: false) { create(:group, :public) }
+      let_it_be(:user, freeze: false) { create(:user, owner_of: group) }
+
+      before do
+        sign_in(user)
+      end
+
+      it 'updates the path', :aggregate_failures do
+        patch group_path(group), params: { group: { path: 'new_path' } }
+
+        expect(response).to have_gitlab_http_status(:found)
+        expect(flash[:notice]).to be_present
+      end
+
+      it 'updates the project_creation_level', :aggregate_failures do
+        patch group_path(group),
+          params: { group: { project_creation_level: ::Gitlab::Access::MAINTAINER_PROJECT_ACCESS } }
+
+        expect(response).to have_gitlab_http_status(:found)
+        expect(group.reload.project_creation_level).to eq(::Gitlab::Access::MAINTAINER_PROJECT_ACCESS)
+      end
+
+      context 'when updating default_branch_protection' do
+        subject(:update_group) do
+          patch group_path(group),
+            params: { group: { default_branch_protection: ::Gitlab::Access::PROTECTION_DEV_CAN_MERGE } }
+        end
+
+        context 'when the user has the ability to update it' do
+          it 'updates the attribute', :aggregate_failures do
+            update_group
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(group.reload.default_branch_protection).to eq(::Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
+          end
+        end
+
+        context 'when the user does not have the ability to update it' do
+          it 'does not update the attribute', :aggregate_failures do
+            allow(Ability).to receive(:allowed?).and_call_original
+            allow(Ability).to receive(:allowed?).with(user, :update_default_branch_protection, group).and_return(false)
+
+            update_group
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(group.reload.default_branch_protection).not_to eq(::Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
+          end
+        end
+      end
+
+      context 'when updating default_branch_name' do
+        let(:branch_name) { 'example_branch_name' }
+
+        subject(:update_group) do
+          patch group_path(group), params: { group: { default_branch_name: branch_name } }
+        end
+
+        it 'updates the attribute', :aggregate_failures do
+          expect { update_group }
+            .to change { group.namespace_settings.reload.default_branch_name }
+            .from(nil).to(branch_name)
+
+          expect(response).to have_gitlab_http_status(:found)
+        end
+
+        context 'when set to an empty string' do
+          let(:branch_name) { '' }
+
+          it 'does not update the attribute' do
+            update_group
+
+            expect(group.namespace_settings.reload.default_branch_name).not_to eq('')
+          end
+        end
+      end
+
+      context 'when there is a conflicting group path' do
+        let_it_be(:conflict_group) { create(:group, path: SecureRandom.hex(12)) }
+
+        it 'does not render references to the conflicting group', :aggregate_failures do
+          old_name = group.name
+
+          patch group_path(group), params: { group: { path: conflict_group.path } }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(group.reload.name).to eq(old_name)
+          expect(response.body).not_to include(conflict_group.path)
+        end
+      end
+
+      context 'when a project inside the group has container repositories' do
+        let_it_be(:project) { create(:project, namespace: group) }
+
+        before_all do
+          create(:container_repository, project: project, name: :image)
+        end
+
+        before do
+          stub_container_registry_config(enabled: true)
+          stub_container_registry_tags(repository: /image/, tags: %w[rc1])
+        end
+
+        it 'allows the group to be renamed', :aggregate_failures do
+          patch group_path(group), params: { group: { name: 'new_name' } }
+
+          expect(response).to have_gitlab_http_status(:found)
+          expect(flash[:notice]).to be_present
+          expect(group.reload.name).to eq('new_name')
+        end
+
+        it 'does not allow the group path to be changed', :aggregate_failures do
+          patch group_path(group), params: { group: { path: 'new_path' } }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(group.reload.path).not_to eq('new_path')
+          expect(response.body).to include('Docker images in their container registry')
+        end
+      end
+    end
+
+    context 'when updating :resource_access_token_creation_allowed' do
+      let_it_be(:group, freeze: false) { create(:group, :public) }
+
+      subject(:update_group) do
+        patch group_path(group), params: { group: { resource_access_token_creation_allowed: false } }
+      end
+
+      context 'when the user is a group owner' do
+        let_it_be(:user) { create(:user, owner_of: group) }
+
+        before do
+          sign_in(user)
+        end
+
+        it 'updates the attribute', :aggregate_failures do
+          expect { update_group }
+            .to change { group.namespace_settings.reload.resource_access_token_creation_allowed }
+            .from(true).to(false)
+
+          expect(response).to have_gitlab_http_status(:found)
+        end
+      end
+
+      context 'when the user is not a group owner' do
+        let_it_be(:user) { create(:user, developer_of: group) }
+
+        before do
+          sign_in(user)
+        end
+
+        it 'does not update the attribute' do
+          expect { update_group }
+            .not_to change { group.namespace_settings.reload.resource_access_token_creation_allowed }
+        end
+      end
+    end
+
+    context 'when updating :prevent_sharing_groups_outside_hierarchy' do
+      let_it_be(:group, freeze: false) { create(:group, :public) }
+
+      subject(:update_group) do
+        patch group_path(group), params: { group: { prevent_sharing_groups_outside_hierarchy: true } }
+      end
+
+      context 'when the user is a group owner' do
+        let_it_be(:user) { create(:user, owner_of: group) }
+
+        before do
+          sign_in(user)
+        end
+
+        it 'updates the attribute', :aggregate_failures do
+          expect { update_group }
+            .to change { group.namespace_settings.reload.prevent_sharing_groups_outside_hierarchy }
+            .from(false).to(true)
+
+          expect(response).to have_gitlab_http_status(:found)
+        end
+      end
+
+      context 'when the user is not a group owner' do
+        let_it_be(:user) { create(:user, maintainer_of: group) }
+
+        before do
+          sign_in(user)
+        end
+
+        it 'does not update the attribute', :aggregate_failures do
+          expect { update_group }.not_to change { group.reload.prevent_sharing_groups_outside_hierarchy }
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'when updating :enforce_granular_tokens and :granular_tokens_enforced_after', :freeze_time do
+      let_it_be(:group, freeze: false) { create(:group, :public) }
+
+      let(:settings) { group.namespace_settings }
+
+      subject(:update_group) do
+        patch group_path(group),
+          params: { group: { enforce_granular_tokens: true, granular_tokens_enforced_after: Date.current.to_s } }
+      end
+
+      context 'when the user is a group owner' do
+        let_it_be(:user) { create(:user, owner_of: group) }
+
+        before do
+          sign_in(user)
+        end
+
+        it 'updates the attributes', :aggregate_failures do
+          update_group
+
+          expect(response).to have_gitlab_http_status(:found)
+          expect(settings.reload.enforce_granular_tokens).to be(true)
+          expect(settings.granular_tokens_enforced_after).to eq(Date.current)
+        end
+      end
+
+      context 'when the user is not a group owner' do
+        let_it_be(:user) { create(:user, maintainer_of: group) }
+
+        before do
+          sign_in(user)
+        end
+
+        it 'does not update the attributes', :aggregate_failures do
+          expect { update_group }.not_to change { settings.reload.enforce_granular_tokens }
 
           expect(response).to have_gitlab_http_status(:not_found)
         end

@@ -74600,7 +74600,8 @@ definitions:
           multiple project paths
       organization:
         type: string
-        description: An organization ID, or comma-separated list of organization IDs
+        description: An organization ID or path, for example `1` or `default`, or
+          comma-separated multiple organization IDs or paths
       repository:
         type: string
         description: A repository path, for example `gitlab-org/gitlab-test.git`,

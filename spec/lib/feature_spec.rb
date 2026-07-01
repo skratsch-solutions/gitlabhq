@@ -1812,10 +1812,18 @@ RSpec.describe Feature, :clean_gitlab_redis_feature_flag, stub_feature_flags: fa
           expect(subject.targets).to eq([organization])
         end
 
+        context 'when organization is specified by path' do
+          subject { described_class.new(organization: organization.path) }
+
+          it 'returns the organization as a target' do
+            expect(subject.targets).to eq([organization])
+          end
+        end
+
         context 'with multiple organizations' do
           let_it_be(:organization2) { create(:organization) }
 
-          subject { described_class.new(organization: "#{organization.id},#{organization2.id}") }
+          subject { described_class.new(organization: "#{organization.id},#{organization2.path}") }
 
           it 'returns all organizations as targets' do
             expect(subject.targets).to match_array([organization, organization2])

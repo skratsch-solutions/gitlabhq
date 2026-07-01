@@ -314,6 +314,14 @@ RSpec.describe Snippet, feature_category: :source_code_management do
     end
   end
 
+  describe '#title_html' do
+    let(:snippet) { create(:personal_snippet, title: 'hello `friend`') }
+
+    it 'renders inline code using the issuable_title pipeline' do
+      expect(snippet.title_html).to eq('hello <code>friend</code>')
+    end
+  end
+
   describe '#file_name' do
     let(:snippet) { build(:personal_snippet, file_name: file_name) }
 

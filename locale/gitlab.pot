@@ -22013,28 +22013,10 @@ msgstr ""
 msgid "Continuous Vulnerability Scanning for Dependency Scanning"
 msgstr ""
 
-msgid "ContinuousDeployment|%{count} all"
-msgstr ""
-
-msgid "ContinuousDeployment|%{count} awaiting approval"
-msgstr ""
-
-msgid "ContinuousDeployment|%{count} degraded"
-msgstr ""
-
-msgid "ContinuousDeployment|%{count} deploying"
-msgstr ""
-
-msgid "ContinuousDeployment|%{count} healthy"
-msgstr ""
-
 msgid "ContinuousDeployment|%{environmentsCount} of %{totalEnvironmentsCount} environments"
 msgstr ""
 
 msgid "ContinuousDeployment|%{pods} pods"
-msgstr ""
-
-msgid "ContinuousDeployment|1"
 msgstr ""
 
 msgid "ContinuousDeployment|A short name and description."
@@ -22074,6 +22056,9 @@ msgid "ContinuousDeployment|Approval needed"
 msgstr ""
 
 msgid "ContinuousDeployment|Artifact source"
+msgstr ""
+
+msgid "ContinuousDeployment|Awaiting approval"
 msgstr ""
 
 msgid "ContinuousDeployment|Back to services"
@@ -61805,16 +61790,13 @@ msgstr ""
 msgid "ReleaseAssetLinkType|Runbooks"
 msgstr ""
 
-msgid "ReleaseCreation|A human-readable label. The release identity is the set of service versions below, not this string."
-msgstr ""
-
-msgid "ReleaseCreation|A release is a set of service versions — pick a version for each service. Any built version is eligible, whether or not it's deployed anywhere yet. Where it gets deployed is a separate step taken after the release exists. The release's identity is derived from its set of service versions."
-msgstr ""
-
 msgid "ReleaseCreation|Build new release"
 msgstr ""
 
 msgid "ReleaseCreation|Bundle new release"
+msgstr ""
+
+msgid "ReleaseCreation|Create release"
 msgstr ""
 
 msgid "ReleaseCreation|Description"
@@ -61823,10 +61805,19 @@ msgstr ""
 msgid "ReleaseCreation|Description cannot exceed %{maxLength} characters."
 msgstr ""
 
+msgid "ReleaseCreation|Failed to create the release. Refresh the page to try again."
+msgstr ""
+
 msgid "ReleaseCreation|Failed to load services. Refresh the page to try again."
 msgstr ""
 
 msgid "ReleaseCreation|No services to display."
+msgstr ""
+
+msgid "ReleaseCreation|Optional. The release identity is the set of service versions below."
+msgstr ""
+
+msgid "ReleaseCreation|Pick a version for each service."
 msgstr ""
 
 msgid "ReleaseCreation|Release"
@@ -61844,10 +61835,16 @@ msgstr ""
 msgid "ReleaseCreation|Version"
 msgstr ""
 
+msgid "ReleaseCreation|Version name cannot exceed %{maxLength} characters."
+msgstr ""
+
 msgid "ReleaseCreation|e.g. May production release"
 msgstr ""
 
 msgid "ReleaseCreation|e.g. eu-west-1-prod"
+msgstr ""
+
+msgid "ReleaseCreation|e.g. v 2_5_1"
 msgstr ""
 
 msgid "Released"
@@ -68290,6 +68287,9 @@ msgstr ""
 msgid "SecurityOrchestration|Block violations and take configured actions"
 msgstr ""
 
+msgid "SecurityOrchestration|Blocks known malware"
+msgstr ""
+
 msgid "SecurityOrchestration|Branch Event"
 msgstr ""
 
@@ -69070,6 +69070,9 @@ msgstr ""
 msgid "SecurityOrchestration|MRs that would trigger"
 msgstr ""
 
+msgid "SecurityOrchestration|Malware blocking is available but turned off."
+msgstr ""
+
 msgid "SecurityOrchestration|Malware settings"
 msgstr ""
 
@@ -69130,6 +69133,9 @@ msgid "SecurityOrchestration|Merge request approval policy syntax changes"
 msgstr ""
 
 msgid "SecurityOrchestration|Merge request pipeline"
+msgstr ""
+
+msgid "SecurityOrchestration|Merge requests that introduce known malware are blocked and require approval to proceed."
 msgstr ""
 
 msgid "SecurityOrchestration|Minimum Risk Level"
@@ -70148,6 +70154,9 @@ msgid "SecurityOrchestration|This is a project-level policy"
 msgstr ""
 
 msgid "SecurityOrchestration|This is an instance policy"
+msgstr ""
+
+msgid "SecurityOrchestration|This merge request approval policy can block known malware — enable it when editing the policy."
 msgstr ""
 
 msgid "SecurityOrchestration|This merge request approval policy targets the default branch, but the default branch is not protected in this project. To set up this policy, the default branch must be protected."
@@ -85285,6 +85294,9 @@ msgstr ""
 msgid "Vulnerability|CISA (the Cybersecurity & Infrastructure Security Agency, a part of the U.S. Department of Homeland Security) maintains the Known Exploited Vulnerabilities (aka \"KEV\") catalog of vulnerabilities that have been exploited in the wild."
 msgstr ""
 
+msgid "Vulnerability|CVSS score"
+msgstr ""
+
 msgid "Vulnerability|CVSS v3"
 msgstr ""
 
@@ -85360,6 +85372,9 @@ msgstr ""
 msgid "Vulnerability|Duo is determining if this is a false positive"
 msgstr ""
 
+msgid "Vulnerability|EPSS"
+msgstr ""
+
 msgid "Vulnerability|Enter the associated CVE or CWE entries for this vulnerability."
 msgstr ""
 
@@ -85429,6 +85444,9 @@ msgstr ""
 msgid "Vulnerability|Information related to how the vulnerability was discovered and its impact on the system."
 msgstr ""
 
+msgid "Vulnerability|KEV listed"
+msgstr ""
+
 msgid "Vulnerability|Likely FP"
 msgstr ""
 
@@ -85462,6 +85480,9 @@ msgstr ""
 msgid "Vulnerability|Properties"
 msgstr ""
 
+msgid "Vulnerability|Reachability"
+msgstr ""
+
 msgid "Vulnerability|References"
 msgstr ""
 
@@ -85487,6 +85508,9 @@ msgid "Vulnerability|Request/Response"
 msgstr ""
 
 msgid "Vulnerability|Resolve the vulnerability in these dependencies to see additional paths. GitLab shows a maximum of 20 dependency paths per vulnerability."
+msgstr ""
+
+msgid "Vulnerability|Risk"
 msgstr ""
 
 msgid "Vulnerability|Scanner"

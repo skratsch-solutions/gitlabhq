@@ -7,8 +7,7 @@ module Mcp
         register_version '0.1.0', {
           description: 'Search labels in a GitLab project or group',
           annotations: {
-            readOnlyHint: true,
-            destructiveHint: false
+            readOnlyHint: true
           },
           input_schema: {
             type: 'object',

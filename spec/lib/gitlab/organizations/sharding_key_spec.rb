@@ -126,6 +126,8 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       "abuse_report_assignees" => "https://gitlab.com/gitlab-org/gitlab/-/issues/553428",
       "abuse_report_labels" => "https://gitlab.com/gitlab-org/gitlab/-/issues/553427",
       "achievement_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
+      # organization_id column added nullable; NOT NULL + validated FK land in a follow-up once call sites are migrated.
+      "ai_settings" => "https://gitlab.com/gitlab-org/gitlab/-/issues/531356",
       "ai_catalog_item_consumers" => "https://gitlab.com/gitlab-org/gitlab/-/work_items/596012",
       "ai_vectorizable_file_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "alert_management_alert_metric_image_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",

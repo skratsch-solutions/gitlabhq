@@ -1306,6 +1306,12 @@ Mcp/UseApiService:
   Include:
     - 'app/services/mcp/tools/*'
 
+Mcp/UseGraphqlQueryFile:
+  Enabled: true
+  Include:
+    - 'app/services/mcp/tools/**/*'
+    - 'ee/app/services/ee/mcp/tools/**/*'
+
 Migration/ComplexIndexesRequireName:
   Exclude:
     - !ruby/regexp /\Adb\/(post_)?migrate\/201.*\.rb\z/

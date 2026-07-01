@@ -79,6 +79,7 @@ export default {
       default: false,
     },
   },
+  emits: ['error', 'fetchedPermissions', 'hideModal'],
   data() {
     return {
       isLoading: false,

@@ -71,6 +71,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['assigneesUpdated', 'error', 'updateWidgetDraft'],
   data() {
     return {
       localAssigneeIds: [],

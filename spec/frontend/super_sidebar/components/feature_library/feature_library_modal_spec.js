@@ -137,8 +137,14 @@ describe('FeatureLibraryModal', () => {
     });
 
     it('tags each item with the id of its parent section as its category', () => {
-      const repository = findItems().wrappers.find((w) => w.props('item').id === 'repository');
-      expect(repository.props('item').category).toBe('code_menu');
+      const items = findItems().wrappers.map((w) => w.props('item'));
+      expect(items.filter((i) => i.category === 'plan_menu').map((i) => i.id)).toEqual([
+        'project_issue_list',
+        'boards',
+      ]);
+      expect(items.filter((i) => i.category === 'code_menu').map((i) => i.id)).toEqual([
+        'repository',
+      ]);
     });
   });
 

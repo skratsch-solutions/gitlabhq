@@ -157,7 +157,6 @@ export const sidebarData = {
   admin_mode: {
     user_is_admin: false,
   },
-  admin_url: '/admin',
   current_menu_items: [
     {
       id: 'homepage_menu',
@@ -178,8 +177,6 @@ export const sidebarData = {
     assigned_merge_requests: 3,
     review_requested_merge_requests: 1,
   },
-  issues_dashboard_path: 'path/to/issues',
-  todos_dashboard_path: 'path/to/todos',
   create_new_menu_groups: createNewMenuGroups,
   merge_request_menu: mergeRequestMenuGroup,
   projects_path: 'path/to/projects',
@@ -203,7 +200,6 @@ export const sidebarData = {
   pinned_items: [],
   panel_type: 'your_work',
   update_pins_url: 'path/to/pins',
-  stop_impersonation_path: '/admin/impersonation',
   shortcut_links: [
     {
       title: 'Shortcut link',
@@ -275,15 +271,11 @@ export const userMenuMockData = {
   },
   avatar_url: invalidUrl,
   has_link_to_profile: true,
-  link_to_profile: '/thefox',
   status: userMenuMockStatus,
-  settings: {
-    profile_path: invalidUrl,
-    profile_preferences_path: invalidUrl,
-  },
   pipeline_minutes: userMenuMockPipelineMinutes,
   can_sign_out: false,
-  sign_out_link: invalidUrl,
+  gitlab_com_but_not_canary: true,
+  canary_toggle_com_url: 'https://next.gitlab.com',
 };
 
 export const frecentGroupsMock = [

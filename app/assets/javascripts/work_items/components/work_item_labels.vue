@@ -66,6 +66,7 @@ export default {
       default: false,
     },
   },
+  emits: ['error', 'labelsUpdated', 'updateWidgetDraft'],
   data() {
     return {
       searchLabels: [],

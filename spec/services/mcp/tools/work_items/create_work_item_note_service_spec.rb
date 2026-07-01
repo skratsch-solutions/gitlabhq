@@ -46,55 +46,45 @@ RSpec.describe Mcp::Tools::WorkItems::CreateWorkItemNoteService, feature_categor
   end
 
   describe 'input schema' do
-    let(:schema) { described_class.version_metadata('0.1.0')[:input_schema] }
-
-    it 'defines object type schema' do
-      expect(schema[:type]).to eq('object')
-    end
-
-    it 'requires body field' do
-      expect(schema[:required]).to eq(['body'])
-    end
-
-    context 'with work item identification properties' do
-      let(:properties) { schema[:properties] }
-
-      where(:property_name, :property_type, :description_includes) do
-        [
-          [:url, 'string', 'GitLab URL for the work item'],
-          [:group_id, 'string', 'ID or path of the group'],
-          [:project_id, 'string', 'ID or path of the project'],
-          [:work_item_iid, 'integer', 'Internal ID of the work item']
-        ]
-      end
-
-      with_them do
-        it 'defines property with correct type and description' do
-          expect(properties[property_name][:type]).to eq(property_type)
-          expect(properties[property_name][:description]).to include(description_includes)
-        end
-      end
-    end
-
-    context 'with note content properties' do
-      let(:properties) { schema[:properties] }
-
-      it 'defines body with max length' do
-        expect(properties[:body][:type]).to eq('string')
-        expect(properties[:body][:maxLength]).to eq(1_048_576)
-        expect(properties[:body][:description]).to include('Content of the note/comment')
-      end
-
-      it 'defines internal flag' do
-        expect(properties[:internal][:type]).to eq('boolean')
-        expect(properties[:internal][:default]).to be false
-        expect(properties[:internal][:description]).to include('Mark note as internal')
-      end
-
-      it 'defines discussion_id' do
-        expect(properties[:discussion_id][:type]).to eq('string')
-        expect(properties[:discussion_id][:description]).to include('Global ID of the discussion')
-      end
+    it 'matches the expected contract' do
+      expect(described_class.version_metadata('0.1.0')[:input_schema]).to eq(
+        {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'GitLab URL for the work item.'
+            },
+            group_id: {
+              type: 'string',
+              description: 'ID or path of the group. Required if URL and project_path are not provided.'
+            },
+            project_id: {
+              type: 'string',
+              description: 'ID or path of the project. Required if URL and group_id are not provided.'
+            },
+            work_item_iid: {
+              type: 'integer',
+              description: 'Internal ID of the work item. Required if URL is not provided.'
+            },
+            body: {
+              type: 'string',
+              description: 'Content of the note/comment (max 1,048,576 characters)',
+              maxLength: 1_048_576
+            },
+            internal: {
+              type: 'boolean',
+              description: 'Mark note as internal (visible only to project members with Reporter role or higher)',
+              default: false
+            },
+            discussion_id: {
+              type: 'string',
+              description: 'Global ID of the discussion to reply to (format: gid://gitlab/Discussion/<id>)'
+            }
+          },
+          required: ['body']
+        }
+      )
     end
   end
 

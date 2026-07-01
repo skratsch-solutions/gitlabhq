@@ -1,6 +1,6 @@
 ---
-source_checksum: da5a69585138ce1a
-distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
+source_checksum: a9ee8fe00bd4e2b4
+distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -40,6 +40,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Create a definition file for every private permission under `config/authz/permissions/<resource>/_<action>_<qualifier>.yml`.
 - Use qualifiers that correspond to a real attribute or relationship on the resource (e.g., `confidential`, `authored`, `assigned`); DO NOT use qualifiers that describe the actor.
 - Prefer past-participle or adjective forms for qualifiers that read naturally as a description of the resource; introduce qualifiers only when the same action on the same resource requires different access levels depending on the resource's state.
+- Declare a `conditionally_enables` field in every private permission YAML, listing the broader public permission(s) that imply it; use `null` when no public permission supersedes the private one (the validation task fails if this field is omitted).
 
 ### Role Definition YAML Files
 

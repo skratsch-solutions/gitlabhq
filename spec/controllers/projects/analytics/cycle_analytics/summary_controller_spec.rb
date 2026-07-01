@@ -50,7 +50,7 @@ RSpec.describe Projects::Analytics::CycleAnalytics::SummaryController do
       let_it_be(:issue_with_other_author) { create(:issue, project: project, author: user, created_at: Date.new(2010, 1, 15)) }
       let_it_be(:issue_with_milestone) { create(:issue, project: project, milestone: milestone, created_at: Date.new(2010, 1, 15)) }
 
-      before do
+      before_all do
         project.add_reporter(user)
       end
 

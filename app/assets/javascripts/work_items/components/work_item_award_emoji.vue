@@ -46,6 +46,7 @@ export default {
       default: null,
     },
   },
+  emits: ['emoji-updated', 'error'],
   data() {
     return {
       newCustomEmojiPath: '',

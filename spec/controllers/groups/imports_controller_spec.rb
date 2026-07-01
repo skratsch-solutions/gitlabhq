@@ -8,9 +8,12 @@ RSpec.describe Groups::ImportsController, feature_category: :importers do
     let_it_be(:group) { create(:group, :private) }
 
     context 'when the user has permission to view the group' do
+      before_all do
+        group.add_maintainer(user)
+      end
+
       before do
         sign_in(user)
-        group.add_maintainer(user)
       end
 
       context 'when the import is in progress' do

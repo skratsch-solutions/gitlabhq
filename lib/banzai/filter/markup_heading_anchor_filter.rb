@@ -18,6 +18,7 @@ module Banzai
     #   JavaScript (handleLocationHash) resolves the resulting id/href mismatch.
     class MarkupHeadingAnchorFilter < HTML::Pipeline::Filter
       prepend Concerns::PipelineTimingCheck
+      include ::Gitlab::Utils::StrongMemoize
 
       HEADER_CSS = 'h1, h2, h3, h4, h5, h6'
       HEADER_XPATH = Gitlab::Utils::Nokogiri.css_to_xpath(HEADER_CSS).freeze
@@ -55,6 +56,7 @@ module Banzai
       def generate_unique_slug(text, heading_name, used_slugs)
         # Fall back to tag name when the slug is blank
         base_slug = generate_slug(text).presence || heading_name
+        base_slug = "#{filename_prefix}#{base_slug}" if filename_prefix
 
         if used_slugs.key?(base_slug)
           used_slugs[base_slug] += 1
@@ -64,6 +66,19 @@ module Banzai
           base_slug
         end
       end
+
+      def filename_prefix
+        path = context[:requested_path] if context[:use_filename_in_anchor]
+        return unless path
+
+        name = File.basename(path, File.extname(path))
+
+        slug = generate_slug(name)
+        return if slug.blank?
+
+        "#{slug}-"
+      end
+      strong_memoize_attr :filename_prefix
 
       # Mimics Comrak's anchorize(): https://github.com/kivikakk/comrak/blob/v0.52.0/src/html/anchorizer.rs
       def generate_slug(text)

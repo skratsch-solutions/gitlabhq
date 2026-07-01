@@ -239,6 +239,13 @@ RSpec.describe API::Features, :clean_gitlab_redis_feature_flag, stub_feature_fla
       end
     end
 
+    context 'when enabling for an organization by path' do
+      it_behaves_like 'enables the flag for the actor', :organization do
+        let_it_be_with_reload(:actor) { create(:organization) }
+        let(:actor_value) { actor.path }
+      end
+    end
+
     context 'when the value argument is missing' do
       it 'returns a 400' do
         post api("/features/#{feature_name}", admin, admin_mode: true)

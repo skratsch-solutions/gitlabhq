@@ -5226,6 +5226,14 @@ RSpec.describe Repository, feature_category: :source_code_management do
 
       it { is_expected.to be_kind_of(Gitlab::RepositorySetCache) }
     end
+
+    context 'when the repository has no project' do
+      before do
+        allow(repository).to receive(:project).and_return(nil)
+      end
+
+      it { is_expected.to be_kind_of(Gitlab::RepositorySetCache) }
+    end
   end
 
   describe '#incremental_ref_cache_update' do

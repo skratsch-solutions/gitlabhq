@@ -103,7 +103,6 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
         is_admin: false,
         name: user.name,
         username: user.username,
-        admin_url: admin_root_path,
         admin_mode: {
           admin_mode_feature_enabled: true,
           admin_mode_active: false,
@@ -113,7 +112,6 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
         },
         avatar_url: user.avatar_url,
         has_link_to_profile: helper.current_user_menu?(:profile),
-        link_to_profile: user_path(user),
         status: {
           can_update: helper.can?(user, :update_user_status, user),
           busy: user.status&.busy?,
@@ -125,9 +123,7 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
           clear_after: nil
         },
         settings: {
-          has_settings: helper.current_user_menu?(:settings),
-          profile_path: user_settings_profile_path,
-          profile_preferences_path: profile_preferences_path
+          has_settings: helper.current_user_menu?(:settings)
         },
         user_counts: {
           assigned_issues: 1,
@@ -137,10 +133,7 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
           last_update: 1609459200000
         },
         can_sign_out: helper.current_user_menu?(:sign_out),
-        sign_out_link: destroy_user_session_path,
-        issues_dashboard_path: work_items_dashboard_path(assignee_username: user.username),
         explore_analytics_dashboards_path: explore_analytics_dashboards_path,
-        todos_dashboard_path: dashboard_todos_path,
         projects_path: dashboard_projects_path,
         groups_path: dashboard_groups_path,
         gitlab_com_and_canary: Gitlab.com_and_canary?,
@@ -151,10 +144,6 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
         work_items: nil,
         has_multiple_organizations: false
       })
-    end
-
-    it 'sets issues_dashboard_path to work_items dashboard', :use_clean_rails_memory_store_caching do
-      expect(subject[:issues_dashboard_path]).to eq(work_items_dashboard_path(assignee_username: user.username))
     end
 
     it 'returns sidebar values for work item context with group id', :use_clean_rails_memory_store_caching do
@@ -608,10 +597,6 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
     describe 'impersonation data' do
       it 'sets is_impersonating to `false` when not impersonating' do
         expect(subject[:is_impersonating]).to be(false)
-      end
-
-      it 'passes the stop_impersonation_path property' do
-        expect(subject[:stop_impersonation_path]).to eq(admin_impersonation_path)
       end
 
       describe 'when impersonating' do

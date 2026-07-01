@@ -31,6 +31,7 @@ export default {
       default: null,
     },
   },
+  emits: ['error', 'selectGroup'],
   data() {
     return {
       group: {},

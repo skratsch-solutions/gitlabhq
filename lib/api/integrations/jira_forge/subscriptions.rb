@@ -37,6 +37,7 @@ module API
                 requires :namespace_path, type: String, limit: 255,
                   desc: 'Path of the namespace to subscribe'
               end
+              route_setting :lifecycle, :experiment
               route_setting :authorization, skip_granular_token_authorization: :jira_forge_app_auth
               post do
                 authenticate!
@@ -66,6 +67,7 @@ module API
                 failure [{ code: 401, message: 'Unauthorized' }]
                 tags %w[jira_forge_subscriptions]
               end
+              route_setting :lifecycle, :experiment
               route_setting :authorization, skip_granular_token_authorization: :jira_forge_app_auth
               get do
                 installation = forge_installation
@@ -89,6 +91,7 @@ module API
               params do
                 requires :id, type: Integer, desc: 'ID of the subscription to delete'
               end
+              route_setting :lifecycle, :experiment
               route_setting :authorization, skip_granular_token_authorization: :jira_forge_app_auth
               delete ':id' do
                 installation = forge_installation

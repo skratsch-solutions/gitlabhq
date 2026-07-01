@@ -88,6 +88,7 @@ export default {
       default: false,
     },
   },
+  emits: ['descriptionUpdated'],
   data() {
     return {
       childDescription: '',

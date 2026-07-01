@@ -38,27 +38,26 @@ RSpec.describe Mcp::Tools::WorkItems::GetWorkItemTypesService, feature_category:
   end
 
   describe 'input schema' do
-    let(:schema) { described_class.version_metadata('0.1.0')[:input_schema] }
-    let(:properties) { schema[:properties] }
-
-    it 'defines object type schema' do
-      expect(schema[:type]).to eq('object')
-    end
-
-    it 'defines url property' do
-      expect(properties[:url][:type]).to eq('string')
-    end
-
-    it 'defines group_id property' do
-      expect(properties[:group_id][:type]).to eq('string')
-    end
-
-    it 'defines project_id property' do
-      expect(properties[:project_id][:type]).to eq('string')
-    end
-
-    it 'has no required fields (namespace resolved from any of url/group_id/project_id)' do
-      expect(schema[:required]).to be_nil
+    it 'matches the expected contract' do
+      expect(described_class.version_metadata('0.1.0')[:input_schema]).to eq(
+        {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'GitLab URL for the namespace (project or group).'
+            },
+            group_id: {
+              type: 'string',
+              description: 'ID or path of the group. Required if URL and project_id are not provided.'
+            },
+            project_id: {
+              type: 'string',
+              description: 'ID or path of the project. Required if URL and group_id are not provided.'
+            }
+          }
+        }
+      )
     end
   end
 

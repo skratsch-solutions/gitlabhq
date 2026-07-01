@@ -176,6 +176,7 @@ module Projects
 
         if group_access_level > GroupMember::NO_ACCESS
           ProjectAuthorization.find_or_create_authorization_for(current_user.id, @project.id, group_access_level)
+          @project.team.purge_member_access_cache_for_user_id(current_user.id)
         end
 
         AuthorizedProjectUpdate::ProjectRecalculateWorker.perform_async(@project.id)

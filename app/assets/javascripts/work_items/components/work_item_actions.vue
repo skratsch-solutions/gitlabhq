@@ -239,6 +239,19 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'deleteWorkItem',
+    'dropdown-show',
+    'error',
+    'promotedToObjective',
+    'toggleReportAbuseModal',
+    'toggleSidebar',
+    'toggleTruncationEnabled',
+    'toggleWorkItemConfidentiality',
+    'work-item-created',
+    'workItemStateUpdated',
+    'workItemTypeChanged',
+  ],
   data() {
     return {
       isLockDiscussionUpdating: false,

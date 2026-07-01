@@ -138,6 +138,7 @@ export default {
       default: false,
     },
   },
+  emits: ['add-child', 'show-modal'],
   data() {
     return {
       error: undefined,

@@ -1220,6 +1220,11 @@ func Test_intersectServerCapabilities(t *testing.T) {
 			fromServer: []string{"advanced_search", "tool_call_approval", "tool_call_pattern_approval", "job_trace_pagination"},
 			expected:   []string{"advanced_search", "tool_call_approval", "tool_call_pattern_approval", "job_trace_pagination"},
 		},
+		{
+			name:       "incremental_checkpoints server capability passes through",
+			fromServer: []string{"incremental_checkpoints"},
+			expected:   []string{"incremental_checkpoints"},
+		},
 	}
 
 	for _, tt := range tests {

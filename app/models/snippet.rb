@@ -40,7 +40,7 @@ class Snippet < ApplicationRecord
   cells_claims_metadata subject_type: CLAIMS_SUBJECT_TYPE::ORGANIZATION,
     subject_key: -> { organization_id || project&.organization_id }
 
-  cache_markdown_field :title, pipeline: :single_line
+  cache_markdown_field :title, pipeline: :issuable_title
   cache_markdown_field :description
   cache_markdown_field :content
 

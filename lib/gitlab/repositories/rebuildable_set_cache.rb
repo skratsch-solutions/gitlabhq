@@ -22,6 +22,16 @@ module Gitlab
       # Value used for Redis flag keys (trust, rebuild)
       FLAG_VALUE = '1'
 
+      MISSING_PROJECT_ERROR =
+        'RebuildableSetCache requires a repository with a project ' \
+          '(needed for the {project.id} Redis Cluster hash tag)'
+
+      # Cache keys actually backed by this set cache. #expire is called with the
+      # full list of repository methods being invalidated (e.g. branch_count,
+      # has_visible_content?), but only these have set/trust keys here, so only
+      # these are worth logging.
+      SET_BACKED_KEYS = %w[branch_names tag_names].freeze
+
       # Cache key suffixes for different status types
       CACHE_KEYS_STATUSES = {
         pending: 'pending',
@@ -58,12 +68,39 @@ module Gitlab
         return -1
       LUA
 
+      # Sets the trust flag (KEYS[2]) only if the set (KEYS[1]) still exists, so a
+      # concurrent UNLINK cannot strand a trusted-but-empty cache. ARGV[1] = trust
+      # TTL (seconds), ARGV[2] = flag value. Same-slot via the {project.id} hash
+      # tag. Returns 1 if trust was granted, 0 if the set was absent.
+      TRUST_IF_EXISTS_SCRIPT = <<~LUA
+        if redis.call('EXISTS', KEYS[1]) == 1 then
+          redis.call('SET', KEYS[2], ARGV[2], 'EX', tonumber(ARGV[1]))
+          return 1
+        end
+        return 0
+      LUA
+
+      # Atomically deletes the trust flag (KEYS[2]) and UNLINKs the set (KEYS[1])
+      # so a concurrent rebuild cannot grant trust between the two, which would
+      # strand a trusted-but-empty cache. Leaves pending_key/rebuild_flag_key for
+      # an in-flight #write. Same-slot via the {project.id} hash tag. Returns the
+      # number of set keys deleted (0 or 1), matching #expire's contract.
+      EXPIRE_KEY_SCRIPT = <<~LUA
+        redis.call('DEL', KEYS[2])
+        return redis.call('UNLINK', KEYS[1])
+      LUA
+
       attr_reader :repository, :namespace, :expires_in
 
       def initialize(repository, extra_namespace: nil, expires_in: 2.weeks)
+        # The multi-key EVALs (expire, grant trust) require the set and trust keys to
+        # share a Redis Cluster slot, which the {project.id} hash tag guarantees. A
+        # project-less repository has no hash tag, so its keys diverge and raise
+        # CROSSSLOT; such repositories must use Gitlab::RepositorySetCache instead.
+        raise ArgumentError, MISSING_PROJECT_ERROR unless repository.project
+
         @repository = repository
-        @namespace = repository.full_path.to_s
-        @namespace += ":{#{repository.project.id}}" if repository.project
+        @namespace = "#{repository.full_path}:{#{repository.project.id}}"
         @namespace = "#{@namespace}:#{extra_namespace}" if extra_namespace
         @expires_in = expires_in
       end
@@ -92,21 +129,23 @@ module Gitlab
         exists_in_redis?(rebuild_flag_key(key))
       end
 
-      # Untrust *before* super so a racing #fetch sees an untrusted set and
-      # rebuilds, rather than serving the now-empty set as a trusted cache_hit
-      # (the original incident). mark_untrusted uses a per-key DEL, which is also
-      # cluster-safe (no cross-slot UNLINK). We deliberately leave pending_key
-      # and rebuild_flag_key alone: rebuild_flag_key is an in-flight rebuild
-      # lock, and pending_key holds unrecoverable ref events a concurrent #write
-      # still needs.
+      # Expires each key. SET_BACKED_KEYS (branch_names/tag_names) carry a trust
+      # flag, so they are expired atomically (set + trust in one eval) to avoid
+      # stranding a trusted-but-empty cache that #fetch would serve as a 0-count
+      # cache_hit; see EXPIRE_KEY_SCRIPT for why super cannot be reused. All other
+      # keys are plain sets with no trust flag, so they fall through to the parent's
+      # UNLINK (which also handles Redis Cluster batching).
       def expire(*keys)
         return 0 if keys.empty?
 
-        keys.each { |key| mark_untrusted(key) }
+        set_backed, other = keys.partition { |key| SET_BACKED_KEYS.include?(key.to_s) }
 
-        deleted = super
+        deleted = expire_with_trust(set_backed) + super(*other)
 
-        keys.each { |key| log_event(:cache_expired, key) }
+        set_backed.each do |key|
+          log_event(:cache_marked_untrusted, key)
+          log_event(:cache_expired, key)
+        end
 
         deleted
       end
@@ -192,12 +231,12 @@ module Gitlab
               apply_pending_events(key, post_drain_additions, post_drain_deletions)
             end
 
-            # 6. Mark cache as trusted
-            mark_trusted(key)
-
-            # Return final contents
+            # Reconcile before deciding trust so final_set.empty? matches Redis.
             final_set.merge(post_drain_additions)
             final_set.subtract(post_drain_deletions)
+
+            # 6. Grant trust
+            grant_trust(key, final_set)
 
             log_event(:rebuild_completed, key, final_count: final_set.size)
 
@@ -435,9 +474,42 @@ module Gitlab
         end
       end
 
-      def mark_trusted(key)
-        with { |redis| redis.set(trust_key(key), FLAG_VALUE, ex: TRUST_TTL) }
+      # Trusts an empty set directly (no key to race). A non-empty set is trusted
+      # only if its key survived the rebuild (see TRUST_IF_EXISTS_SCRIPT).
+      def grant_trust(key, final_set)
+        granted = final_set.empty? ? set_trust_flag(key) : grant_trust_if_present(key)
+
+        return log_event(:rebuild_trust_skipped, key, reason: 'set evicted before trust') unless granted
+
         log_event(:cache_marked_trusted, key)
+      end
+
+      # Grants trust only if the set key still exists.
+      def grant_trust_if_present(key)
+        full_key = cache_key(key)
+
+        granted = with do |redis|
+          redis.eval(TRUST_IF_EXISTS_SCRIPT, keys: [full_key, trust_key(key)], argv: [TRUST_TTL.to_i, FLAG_VALUE])
+        end
+
+        granted == 1
+      end
+
+      def set_trust_flag(key)
+        with { |redis| redis.set(trust_key(key), FLAG_VALUE, ex: TRUST_TTL) }
+
+        true
+      end
+
+      # Atomically deletes the trust flag and set for each trust-backed key.
+      def expire_with_trust(keys)
+        return 0 if keys.empty?
+
+        with do |redis|
+          keys.sum do |key|
+            redis.eval(EXPIRE_KEY_SCRIPT, keys: [cache_key(key), trust_key(key)])
+          end
+        end
       end
 
       def mark_untrusted(key)

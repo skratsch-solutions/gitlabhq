@@ -83,6 +83,7 @@ export default {
       required: true,
     },
   },
+  emits: ['attributesUpdated', 'error'],
   data() {
     return {
       workItemParticipants: {},

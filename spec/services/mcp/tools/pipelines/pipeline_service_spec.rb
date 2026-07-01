@@ -38,30 +38,59 @@ RSpec.describe Mcp::Tools::Pipelines::PipelineService, feature_category: :mcp_se
   end
 
   describe '#input_schema' do
-    let(:schema) { service.input_schema }
-
-    it 'returns a valid schema structure' do
-      expect(schema[:type]).to eq('object')
-      expect(schema[:required]).to eq(['id'])
-      expect(schema[:additionalProperties]).to be false
-    end
-
-    it 'includes all expected properties' do
-      properties = schema[:properties]
-
-      expect(properties).to include(:id, :list, :ref, :pipeline_id, :retry, :cancel, :name, :variables, :inputs)
-    end
-
-    it 'has correct property types' do
-      properties = schema[:properties]
-
-      expect(properties[:id][:type]).to eq('string')
-      expect(properties[:list][:type]).to eq('boolean')
-      expect(properties[:ref][:type]).to eq('string')
-      expect(properties[:pipeline_id][:type]).to eq('integer')
-      expect(properties[:retry][:type]).to eq('boolean')
-      expect(properties[:cancel][:type]).to eq('boolean')
-      expect(properties[:inputs][:type]).to eq('object')
+    it 'matches the expected contract' do
+      expect(service.input_schema).to eq(
+        {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'ID or URL-encoded path of the project'
+            },
+            list: {
+              type: 'boolean',
+              description: 'Set to true to list all pipelines. Required when user says "list pipelines".'
+            },
+            ref: {
+              type: 'string',
+              description: 'Branch or tag name (for create operation or filtering list)'
+            },
+            pipeline_id: {
+              type: 'integer',
+              description: 'ID of the pipeline. Must be combined with retry:true or cancel:true.'
+            },
+            retry: {
+              type: 'boolean',
+              description: 'Set to true to retry a pipeline. Required when user says "retry pipeline X".'
+            },
+            cancel: {
+              type: 'boolean',
+              description: 'Set to true to cancel a pipeline. Required when user says "cancel pipeline X".'
+            },
+            name: {
+              type: 'string',
+              description: 'New name for the pipeline (for update operation)'
+            },
+            variables: {
+              description: 'Pipeline variables as array format for create operation'
+            },
+            inputs: {
+              type: 'object',
+              description: 'Pipeline input parameters as key-value pairs'
+            },
+            page: {
+              type: 'integer',
+              description: 'Page number for pagination (default: 1)'
+            },
+            per_page: {
+              type: 'integer',
+              description: 'Number of items per page (default: 20, max: 100)'
+            }
+          },
+          required: ['id'],
+          additionalProperties: false
+        }
+      )
     end
   end
 

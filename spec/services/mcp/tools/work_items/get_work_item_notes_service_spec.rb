@@ -34,62 +34,50 @@ RSpec.describe Mcp::Tools::WorkItems::GetWorkItemNotesService, feature_category:
   end
 
   describe 'input schema' do
-    let(:schema) { described_class.version_metadata('0.1.0')[:input_schema] }
-
-    it 'defines object type schema' do
-      expect(schema[:type]).to eq('object')
-    end
-
-    it 'does not require any fields' do
-      expect(schema[:required]).to be_nil
-    end
-
-    context 'with work item identification properties' do
-      let(:properties) { schema[:properties] }
-
-      where(:property_name, :property_type, :description_includes) do
-        [
-          [:url, 'string', 'GitLab URL for the work item'],
-          [:group_id, 'string', 'ID or path of the group'],
-          [:project_id, 'string', 'ID or path of the project'],
-          [:work_item_iid, 'integer', 'Internal ID of the work item']
-        ]
-      end
-
-      with_them do
-        it 'defines property with correct type and description' do
-          expect(properties[property_name][:type]).to eq(property_type)
-          expect(properties[property_name][:description]).to include(description_includes)
-        end
-      end
-    end
-
-    context 'with pagination properties' do
-      let(:properties) { schema[:properties] }
-
-      it 'defines after cursor' do
-        expect(properties[:after][:type]).to eq('string')
-        expect(properties[:after][:description]).to include('forward pagination')
-      end
-
-      it 'defines before cursor' do
-        expect(properties[:before][:type]).to eq('string')
-        expect(properties[:before][:description]).to include('backward pagination')
-      end
-
-      it 'defines first with constraints' do
-        expect(properties[:first][:type]).to eq('integer')
-        expect(properties[:first][:minimum]).to eq(1)
-        expect(properties[:first][:maximum]).to eq(100)
-        expect(properties[:first][:description]).to include('forward pagination')
-      end
-
-      it 'defines last with constraints' do
-        expect(properties[:last][:type]).to eq('integer')
-        expect(properties[:last][:minimum]).to eq(1)
-        expect(properties[:last][:maximum]).to eq(100)
-        expect(properties[:last][:description]).to include('backward pagination')
-      end
+    it 'matches the expected contract' do
+      expect(described_class.version_metadata('0.1.0')[:input_schema]).to eq(
+        {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'GitLab URL for the work item.'
+            },
+            group_id: {
+              type: 'string',
+              description: 'ID or path of the group. Required if URL and project_id are not provided.'
+            },
+            project_id: {
+              type: 'string',
+              description: 'ID or path of the project. Required if URL and group_id are not provided.'
+            },
+            work_item_iid: {
+              type: 'integer',
+              description: 'Internal ID of the work item. Required if URL is not provided.'
+            },
+            after: {
+              type: 'string',
+              description: 'Cursor for forward pagination. Use endCursor from previous response.'
+            },
+            before: {
+              type: 'string',
+              description: 'Cursor for backward pagination. Use startCursor from previous response.'
+            },
+            first: {
+              type: 'integer',
+              description: 'Number of notes to return after the cursor (forward pagination, max 100)',
+              minimum: 1,
+              maximum: 100
+            },
+            last: {
+              type: 'integer',
+              description: 'Number of notes to return before the cursor (backward pagination, max 100)',
+              minimum: 1,
+              maximum: 100
+            }
+          }
+        }
+      )
     end
   end
 

@@ -43,6 +43,7 @@ export default {
       required: true,
     },
   },
+  emits: ['error', 'updateWidgetDraft'],
   data() {
     return {
       searchTerm: '',

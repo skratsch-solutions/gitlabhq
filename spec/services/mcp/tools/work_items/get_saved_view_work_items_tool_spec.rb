@@ -480,15 +480,25 @@ RSpec.describe Mcp::Tools::WorkItems::GetSavedViewWorkItemsTool, feature_categor
       )
     end
 
-    it 'returns work items data with proper formatting' do
+    it 'returns work items data with the full node shape the tool promises' do
       result = tool.execute
 
       expect(result[:isError]).to be(false)
       expect(result[:content]).to be_an(Array)
       expect(result[:content].first[:type]).to eq('text')
       expect(result[:structuredContent]).to be_a(Hash)
-      expect(result[:structuredContent]).to have_key('pageInfo')
-      expect(result[:structuredContent]).to have_key('nodes')
+      expect(result[:structuredContent].keys).to match_array(%w[pageInfo nodes])
+
+      node = result[:structuredContent]['nodes'].find { |n| n['iid'] == work_item.iid.to_s }
+      expect(node.keys).to match_array(
+        %w[id iid title state confidential createdAt updatedAt closedAt webUrl reference author namespace
+          workItemType widgets]
+      )
+      expect(node['author'].keys).to match_array(%w[id name username webUrl])
+      expect(node['namespace'].keys).to match_array(%w[id fullPath])
+      expect(node['workItemType'].keys).to match_array(%w[id name iconName])
+      expect(node['widgets']).to be_an(Array)
+      expect(node['widgets']).to all(include('type'))
     end
 
     it 'returns work items in the namespace' do

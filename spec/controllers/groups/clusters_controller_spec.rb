@@ -7,10 +7,9 @@ RSpec.describe Groups::ClustersController, feature_category: :deployment_managem
   include GoogleApi::CloudPlatformHelpers
 
   let_it_be(:group) { create(:group) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user) { create(:user, maintainer_of: group) }
 
   before do
-    group.add_maintainer(user)
     sign_in(user)
   end
 

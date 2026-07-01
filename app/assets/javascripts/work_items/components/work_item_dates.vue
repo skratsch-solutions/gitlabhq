@@ -67,6 +67,7 @@ export default {
       default: false,
     },
   },
+  emits: ['error', 'updateWidgetDraft'],
   data() {
     return {
       localDueDate: null,

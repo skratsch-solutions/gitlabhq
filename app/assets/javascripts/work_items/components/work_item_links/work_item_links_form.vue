@@ -91,6 +91,7 @@ export default {
       default: '',
     },
   },
+  emits: ['add-child', 'cancel', 'error', 'update-in-progress'],
   apollo: {
     workItemTypes: {
       query() {

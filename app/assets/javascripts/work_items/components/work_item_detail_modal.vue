@@ -40,7 +40,7 @@ export default {
       default: '',
     },
   },
-  emits: ['work-item-deleted', 'close', 'update-modal'],
+  emits: ['close', 'openReportAbuse', 'update-modal', 'work-item-deleted'],
   data() {
     return {
       error: undefined,

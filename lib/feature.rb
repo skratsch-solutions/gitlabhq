@@ -659,7 +659,13 @@ module Feature
     end
 
     def organizations
-      find_targets(:organization) { |arg| Organizations::Organization.find_by_id(arg) }
+      find_targets(:organization) do |arg|
+        if arg.match?(/\A\d+\z/)
+          Organizations::Organization.find_by_id(arg)
+        else
+          Organizations::Organization.find_by_path(arg)
+        end
+      end
     end
 
     def repositories

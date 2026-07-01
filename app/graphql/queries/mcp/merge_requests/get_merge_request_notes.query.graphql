@@ -1,5 +1,5 @@
 # @feature_category: mcp_server
-query MergeRequestNotes(
+query getMergeRequestNotes(
   $fullPath: ID!
   $iid: String!
   $after: String

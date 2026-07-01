@@ -13933,6 +13933,7 @@ CREATE TABLE ai_settings (
     allow_project_extension boolean DEFAULT true NOT NULL,
     allowed_domains text[] DEFAULT '{}'::text[] NOT NULL,
     denied_domains text[] DEFAULT '{}'::text[] NOT NULL,
+    organization_id bigint,
     CONSTRAINT check_3cf9826589 CHECK ((char_length(ai_gateway_url) <= 2048)),
     CONSTRAINT check_900d7a89b3 CHECK ((char_length(duo_agent_platform_service_url) <= 2048)),
     CONSTRAINT check_a02bd8868c CHECK ((char_length(amazon_q_role_arn) <= 2048)),
@@ -46991,6 +46992,8 @@ CREATE INDEX index_ai_settings_on_duo_workflow_oauth_application_id ON ai_settin
 
 CREATE INDEX index_ai_settings_on_duo_workflow_service_account_user_id ON ai_settings USING btree (duo_workflow_service_account_user_id);
 
+CREATE UNIQUE INDEX index_ai_settings_on_organization_id ON ai_settings USING btree (organization_id);
+
 CREATE UNIQUE INDEX index_ai_settings_on_singleton ON ai_settings USING btree (singleton);
 
 CREATE INDEX index_ai_tool_rules_on_project_id ON ai_tool_rules USING btree (project_id);
@@ -57878,6 +57881,9 @@ ALTER TABLE ONLY board_user_preferences
 
 ALTER TABLE ONLY approval_policy_rule_project_links
     ADD CONSTRAINT fk_1c78796d52 FOREIGN KEY (approval_policy_rule_id) REFERENCES approval_policy_rules(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY ai_settings
+    ADD CONSTRAINT fk_1ca0081d1a FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY spam_logs
     ADD CONSTRAINT fk_1cb83308b1 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

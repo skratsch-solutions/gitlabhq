@@ -65,7 +65,6 @@ module SidebarsHelper
       is_admin: user.can_admin_all_resources?,
       name: user.name,
       username: user.username,
-      admin_url: admin_root_path,
       admin_mode: {
         admin_mode_feature_enabled: Gitlab::CurrentSettings.admin_mode,
         admin_mode_active: current_user_mode.admin_mode?,
@@ -75,13 +74,10 @@ module SidebarsHelper
       },
       avatar_url: user.avatar_url,
       has_link_to_profile: current_user_menu?(:profile),
-      link_to_profile: user_path(user),
       logo_url: current_appearance&.header_logo_path,
       status: user_status_menu_data(user),
       settings: {
-        has_settings: current_user_menu?(:settings),
-        profile_path: user_settings_profile_path,
-        profile_preferences_path: profile_preferences_path
+        has_settings: current_user_menu?(:settings)
       },
       user_counts: {
         assigned_issues: user.assigned_open_issues_count,
@@ -91,13 +87,8 @@ module SidebarsHelper
         last_update: time_in_milliseconds
       },
       can_sign_out: current_user_menu?(:sign_out),
-      sign_out_link: destroy_user_session_path,
 
-      issues_dashboard_path: work_items_dashboard_path(assignee_username: user.username),
-
-      merge_request_dashboard_path: merge_requests_dashboard_path,
       explore_analytics_dashboards_path: explore_analytics_dashboards_path,
-      todos_dashboard_path: dashboard_todos_path,
       compare_plans_url: compare_plans_url(user: user, project: project, group: group),
       create_new_menu_groups: create_new_menu_groups(group: group, project: project),
       projects_path: dashboard_projects_path,
@@ -107,7 +98,6 @@ module SidebarsHelper
       pinned_items: pinned_items(user, panel_type, group: group),
       update_pins_url: pins_path,
       is_impersonating: impersonating?,
-      stop_impersonation_path: admin_impersonation_path,
       shortcut_links: shortcut_links(user: user, project: project),
       track_visits_path: track_namespace_visits_path,
       work_items: work_items_modal_data(group, project),

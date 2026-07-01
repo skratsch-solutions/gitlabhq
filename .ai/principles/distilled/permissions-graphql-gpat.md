@@ -1,6 +1,6 @@
 ---
-source_checksum: 4245f8c78c51bf39
-distilled_at_sha: 186bab0afd636fbcfc444beff09e9b796060fcea
+source_checksum: 4dc5a82ffc5fc4a6
+distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -56,6 +56,7 @@ distilled_at_sha: 186bab0afd636fbcfc444beff09e9b796060fcea
 - Apply the directive at only one level per field (field, owner type, implementing type, or return type) to avoid ambiguity; the `DirectiveFinder` stops at the first match in that priority order.
 - DO NOT declare `permissions: []` on a directive; the authorization service returns `"Unable to determine permissions for authorization"` when the permissions array is empty.
 - Use `traversal: true` on entry-point fields (e.g., `Query.group(fullPath:)`, `Query.project(fullPath:)`) that resolve a boundary from a path argument but do not expose data themselves; this causes the authorization service to verify only that the token is scoped to the boundary, not the listed permission. Note: `traversal: true` only applies to `project` and `group` boundary types.
+- Use `skip_reason:` (instead of `permissions:` and a boundary) on object types that intentionally opt out of granular-token authorization; the `gitlab:permissions:graphql:validate` Rake task requires every object type to declare either a directive or a skip, and DO NOT combine `skip_reason:` with `permissions:` or a boundary argument.
 
 ### Directive Discovery and Boundary Extraction
 

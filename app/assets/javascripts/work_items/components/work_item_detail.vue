@@ -202,6 +202,20 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'add-child',
+    'attributesUpdated',
+    'close',
+    'deleteWorkItem',
+    'openReportAbuse',
+    'promotedToObjective',
+    'update-modal',
+    'work-item-emoji-updated',
+    'work-item-updated',
+    'workItemStateUpdated',
+    'workItemTypeChanged',
+    'workItemUpdated',
+  ],
   data() {
     return {
       error: undefined,

@@ -140,6 +140,7 @@ export default {
       default: true,
     },
   },
+  emits: ['cancelCreate', 'cancelEditing', 'error', 'updateDraft', 'updateWorkItem'],
   markdownDocsPath: helpPagePath('user/markdown'),
   data() {
     return {

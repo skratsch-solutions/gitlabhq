@@ -46274,6 +46274,7 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/RequestBody_cbeedcc1e5c4"
+      x-gitlab-lifecycle: experiment
     get:
       operationId: getApiV4IntegrationsJiraForgeSubscriptions
       summary: List GitLab for Jira (Forge) namespace subscriptions
@@ -46289,6 +46290,7 @@ paths:
                 "$ref": "#/components/schemas/JiraConnectSubscriptionEntity"
         '401':
           description: Unauthorized
+      x-gitlab-lifecycle: experiment
   "/api/v4/integrations/jira_forge/subscriptions/{id}":
     delete:
       operationId: deleteApiV4IntegrationsJiraForgeSubscriptionsId
@@ -46318,6 +46320,7 @@ paths:
         schema:
           type: integer
         in: path
+      x-gitlab-lifecycle: experiment
   "/api/v4/integrations/jira_forge/installation":
     put:
       operationId: putApiV4IntegrationsJiraForgeInstallation
@@ -46345,6 +46348,7 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/RequestBody_ea4d1c061e68"
+      x-gitlab-lifecycle: experiment
   "/api/v4/integrations/jira_forge/installation/forge_token":
     post:
       operationId: postApiV4IntegrationsJiraForgeInstallationForgeToken
@@ -46366,6 +46370,7 @@ paths:
           description: Unauthorized
         '422':
           description: Unprocessable entity
+      x-gitlab-lifecycle: experiment
   "/api/v4/integrations/jira_connect/subscriptions":
     post:
       operationId: postApiV4IntegrationsJiraConnectSubscriptions
@@ -55228,7 +55233,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_f06a84ea1e01"
+              "$ref": "#/components/schemas/RequestBody_c32bddfb9bd0"
     delete:
       operationId: deleteApiV4FeaturesName
       summary: Delete a feature
@@ -109080,7 +109085,7 @@ components:
           nullable: true
       required:
       - file
-    RequestBody_f06a84ea1e01:
+    RequestBody_c32bddfb9bd0:
       type: object
       properties:
         value:
@@ -109118,8 +109123,8 @@ components:
           nullable: true
         organization:
           type: string
-          description: An organization ID, or comma-separated list of organization
-            IDs
+          description: An organization ID or path, for example `1` or `default`, or
+            comma-separated multiple organization IDs or paths
           nullable: true
         repository:
           type: string

@@ -15,7 +15,7 @@ RSpec.describe Projects::Analytics::CycleAnalytics::ValueStreamsController do
 
   describe 'GET index' do
     context 'when user is member of the project' do
-      before do
+      before_all do
         project.add_developer(user)
       end
 

@@ -158,14 +158,10 @@ RSpec.describe Projects::RawController, feature_category: :source_code_managemen
 
     context 'as a sessionless user' do
       let_it_be_with_reload(:project) { create(:project, :private, :repository) }
-      let_it_be_with_reload(:user) { create(:user, static_object_token: 'very-secure-token') }
+      let_it_be_with_reload(:user) { create(:user, static_object_token: 'very-secure-token', developer_of: project) }
       let_it_be(:file_path) { 'master/README.md' }
 
       let(:token) { user.static_object_token }
-
-      before do
-        project.add_developer(user)
-      end
 
       context 'when no token is provided' do
         it 'redirects to sign in page' do
@@ -200,7 +196,7 @@ RSpec.describe Projects::RawController, feature_category: :source_code_managemen
           context 'when password expiration is not applicable' do
             context 'when ldap user' do
               let_it_be_with_reload(:user) do
-                create(:omniauth_user, provider: 'ldap', password_expires_at: 2.minutes.ago)
+                create(:omniauth_user, provider: 'ldap', password_expires_at: 2.minutes.ago, developer_of: project)
               end
 
               it 'calls the action normally' do
@@ -250,7 +246,7 @@ RSpec.describe Projects::RawController, feature_category: :source_code_managemen
           context 'when password expiration is not applicable' do
             context 'when ldap user' do
               let_it_be_with_reload(:user) do
-                create(:omniauth_user, provider: 'ldap', password_expires_at: 2.minutes.ago)
+                create(:omniauth_user, provider: 'ldap', password_expires_at: 2.minutes.ago, developer_of: project)
               end
 
               it 'calls the action normally' do

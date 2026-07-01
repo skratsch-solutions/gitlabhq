@@ -31,45 +31,33 @@ RSpec.describe Mcp::Tools::Labels::SearchService, feature_category: :mcp_server 
       expect(service.description).to eq('Search labels in a GitLab project or group')
     end
 
-    it 'has readOnlyHint annotation' do
-      annotations = service.annotations
-      expect(annotations[:readOnlyHint]).to be(true)
-    end
-
-    it 'has destructiveHint: false annotation' do
-      annotations = service.annotations
-      expect(annotations[:destructiveHint]).to be(false)
+    it 'is annotated read-only with no destructiveHint' do
+      expect(service.annotations).to eq({ readOnlyHint: true })
     end
   end
 
   describe 'input schema' do
-    let(:schema) { described_class.version_metadata('0.1.0')[:input_schema] }
-
-    it 'defines object type schema' do
-      expect(schema[:type]).to eq('object')
-    end
-
-    it 'requires full_path and is_project fields' do
-      expect(schema[:required]).to eq(%w[full_path is_project])
-    end
-
-    context 'with label search properties' do
-      let(:properties) { schema[:properties] }
-
-      where(:property_name, :property_type, :description_includes) do
-        [
-          [:full_path, 'string', 'Full path of the project or group'],
-          [:is_project, 'boolean', 'Whether to search in a project'],
-          [:search, 'string', 'Search term to filter labels']
-        ]
-      end
-
-      with_them do
-        it 'defines property with correct type and description' do
-          expect(properties[property_name][:type]).to eq(property_type)
-          expect(properties[property_name][:description]).to include(description_includes)
-        end
-      end
+    it 'matches the expected contract' do
+      expect(described_class.version_metadata('0.1.0')[:input_schema]).to eq(
+        {
+          type: 'object',
+          properties: {
+            full_path: {
+              type: 'string',
+              description: 'Full path of the project or group. Required.'
+            },
+            is_project: {
+              type: 'boolean',
+              description: 'Whether to search in a project (true) or group (false). Required.'
+            },
+            search: {
+              type: 'string',
+              description: 'Search term to filter labels by title.'
+            }
+          },
+          required: %w[full_path is_project]
+        }
+      )
     end
   end
 

@@ -4,6 +4,7 @@ import Vue, { nextTick } from 'vue';
 import Vuex from 'vuex';
 import setWindowLocation from 'helpers/set_window_location_helper';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { visitUrl } from '~/lib/utils/url_utility';
 import MembersApp from '~/members/components/app.vue';
 import MembersTabs from '~/members/components/members_tabs.vue';
 import {
@@ -233,7 +234,7 @@ describe('MembersTabs', () => {
   it.each`
     tab                 | testId                       | href
     ${'Members'}        | ${'user-tab-title'}          | ${'https://localhost/'}
-    ${'Direct members'} | ${'directMembers-tab-title'} | ${'https://localhost/?tab=direct_members'}
+    ${'Direct members'} | ${'directMembers-tab-title'} | ${'https://localhost/?tab=direct_members&direct_members_page=1'}
     ${'Groups'}         | ${'group-tab-title'}         | ${'https://localhost/?tab=groups'}
     ${'Invite'}         | ${'invite-tab-title'}        | ${'https://localhost/?tab=invited'}
     ${'Access Request'} | ${'accessRequest-tab-title'} | ${'https://localhost/?tab=access_requests'}
@@ -253,7 +254,7 @@ describe('MembersTabs', () => {
     it.each`
       tab                 | testId                       | href
       ${'Members'}        | ${'user-tab-title'}          | ${'https://localhost/'}
-      ${'Direct members'} | ${'directMembers-tab-title'} | ${'https://localhost/?tab=direct_members'}
+      ${'Direct members'} | ${'directMembers-tab-title'} | ${'https://localhost/?tab=direct_members&direct_members_page=1'}
       ${'Groups'}         | ${'group-tab-title'}         | ${'https://localhost/?tab=groups'}
     `(
       'clears all tabs search/token params when switching to $tab tab',
@@ -289,6 +290,42 @@ describe('MembersTabs', () => {
     // This ensures we bypass the click listeners added by `GlTab` and that we trigger the redirect via the anchor tag directly.
     it('stops event propagation', () => {
       expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    });
+  });
+
+  describe('Direct members tab page param', () => {
+    it('reloads with `direct_members_page=1` when landing on the tab without the page param', async () => {
+      setWindowLocation('?tab=direct_members');
+
+      await createComponent();
+
+      expect(visitUrl).toHaveBeenCalledWith(
+        'https://localhost/?tab=direct_members&direct_members_page=1',
+      );
+    });
+
+    it('does not reload when the page param is already present', async () => {
+      setWindowLocation('?tab=direct_members&direct_members_page=2');
+
+      await createComponent();
+
+      expect(visitUrl).not.toHaveBeenCalled();
+    });
+
+    it('does not reload when another tab is active', async () => {
+      setWindowLocation('?tab=groups');
+
+      await createComponent();
+
+      expect(visitUrl).not.toHaveBeenCalled();
+    });
+
+    it('does not reload on the default (Members) tab', async () => {
+      setWindowLocation('https://localhost/');
+
+      await createComponent();
+
+      expect(visitUrl).not.toHaveBeenCalled();
     });
   });
 });

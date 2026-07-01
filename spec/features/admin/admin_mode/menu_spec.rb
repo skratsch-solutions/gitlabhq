@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Admin mode menu', :js, feature_category: :system_access do
+RSpec.describe 'Admin mode menu', :with_current_organization, :js, feature_category: :system_access do
   include MobileHelpers
   include StubENV
 
@@ -31,7 +31,9 @@ RSpec.describe 'Admin mode menu', :js, feature_category: :system_access do
 
         click_link('Edit profile')
 
-        expect(page).to have_current_path(user_settings_profile_path)
+        expect(page).to have_current_path(
+          organization_user_settings_profile_path(organization_path: current_organization.path)
+        )
       end
 
       it 'is necessary to provide credentials again before opening pages in admin scope' do
@@ -50,7 +52,7 @@ RSpec.describe 'Admin mode menu', :js, feature_category: :system_access do
         click_button 'Enter admin mode'
         click_link 'Admin'
 
-        expect(page).to have_current_path(admin_root_path)
+        expect(page).to have_current_path(organization_admin_root_path(organization_path: current_organization.path))
       end
 
       context 'on a read-only instance' do
@@ -80,7 +82,9 @@ RSpec.describe 'Admin mode menu', :js, feature_category: :system_access do
 
         click_link('Edit profile')
 
-        expect(page).to have_current_path(user_settings_profile_path)
+        expect(page).to have_current_path(
+          organization_user_settings_profile_path(organization_path: current_organization.path)
+        )
       end
 
       context 'in sidebar' do

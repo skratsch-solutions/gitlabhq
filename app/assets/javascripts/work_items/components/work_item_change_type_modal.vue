@@ -87,6 +87,7 @@ export default {
       default: () => {},
     },
   },
+  emits: ['error', 'promoteToEpic', 'workItemTypeChanged'],
   data() {
     return {
       selectedWorkItemType: null,

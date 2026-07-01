@@ -112,6 +112,7 @@ export default {
       default: true,
     },
   },
+  emits: ['click', 'drag', 'drop', 'error', 'show-modal'],
   data() {
     return {
       updateInProgress: false,

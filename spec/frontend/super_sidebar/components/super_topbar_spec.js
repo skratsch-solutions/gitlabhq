@@ -292,7 +292,7 @@ describe('SuperTopbar', () => {
               admin_mode: { user_is_admin: true, admin_mode_feature_enabled: false },
             },
           });
-          expect(findAdminLink().attributes('href')).toBe(mockSidebarData.admin_url);
+          expect(findAdminLink().attributes('href')).toBe('/admin');
         });
       });
 
@@ -308,7 +308,7 @@ describe('SuperTopbar', () => {
               },
             },
           });
-          expect(findAdminLink().attributes('href')).toBe(mockSidebarData.admin_url);
+          expect(findAdminLink().attributes('href')).toBe('/admin');
         });
       });
 

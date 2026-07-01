@@ -33,6 +33,7 @@ export default {
       default: null,
     },
   },
+  emits: ['clear', 'reset', 'selectTemplate'],
   data() {
     return {
       descriptionTemplates: [],

@@ -71,6 +71,7 @@ const (
 	capabilityToolCallApproval        capability = "tool_call_approval"
 	capabilityToolCallPatternApproval capability = "tool_call_pattern_approval"
 	capabilityJobTracePagination      capability = "job_trace_pagination"
+	capabilityIncrementalCheckpoints  capability = "incremental_checkpoints"
 )
 
 // ClientCapabilities is how gitlab-lsp -> workhorse -> Duo Workflow Service communicates
@@ -102,6 +103,7 @@ var ServerCapabilities = []capability{
 	capabilityToolCallApproval,
 	capabilityToolCallPatternApproval,
 	capabilityJobTracePagination,
+	capabilityIncrementalCheckpoints,
 }
 
 // intersectClientCapabilities returns the intersection of what gitlab-lsp passed in and what workhorse

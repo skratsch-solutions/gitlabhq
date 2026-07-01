@@ -34,6 +34,7 @@ module API
                 optional :instance_url, type: String, limit: 1024,
                   desc: 'Base URL of the self-managed GitLab instance; null for GitLab.com'
               end
+              route_setting :lifecycle, :experiment
               route_setting :authorization, skip_granular_token_authorization: :jira_forge_app_auth
               put do
                 installation = forge_installation
@@ -69,6 +70,7 @@ module API
                 tags %w[jira_forge_installation]
               end
               # The system token arrives in the X-Forge-Oauth-System header, not the body.
+              route_setting :lifecycle, :experiment
               route_setting :authorization, skip_granular_token_authorization: :jira_forge_app_auth
               post 'forge_token' do
                 installation = forge_installation

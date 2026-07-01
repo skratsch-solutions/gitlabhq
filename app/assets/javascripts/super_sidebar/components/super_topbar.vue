@@ -6,6 +6,7 @@ import BrandLogo from 'jh_else_ce/super_sidebar/components/brand_logo.vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import { EVENT_OPEN_GLOBAL_SEARCH } from '~/vue_shared/global_search/constants';
 import { staticBreadcrumbs } from '~/lib/utils/breadcrumbs_state';
+import { adminRootPath } from '~/lib/utils/path_helpers/admin';
 import SuperSidebarToggle from './super_sidebar_toggle.vue';
 import CreateMenu from './create_menu.vue';
 import UserMenu from './user_menu.vue';
@@ -84,6 +85,7 @@ export default {
     },
   },
   methods: {
+    adminRootPath,
     onSearchButtonDrop(event) {
       const text = event.dataTransfer.getData('text/plain');
       if (text) {
@@ -203,7 +205,7 @@ export default {
 
         <gl-button
           v-if="showAdminButton"
-          :href="sidebarData.admin_url"
+          :href="adminRootPath()"
           icon="admin"
           class="topbar-admin-link gl-hidden !gl-rounded-lg sm:gl-mr-1 xl:gl-flex"
           data-testid="topbar-admin-link"

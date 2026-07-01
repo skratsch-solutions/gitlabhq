@@ -31,6 +31,7 @@ export default {
       default: null,
     },
   },
+  emits: ['error'],
   data() {
     return {
       workItem: {},

@@ -33,58 +33,41 @@ RSpec.describe Mcp::Tools::WorkItems::GetSavedViewWorkItemsService, feature_cate
   end
 
   describe 'input schema' do
-    let(:schema) { described_class.version_metadata('0.1.0')[:input_schema] }
-
-    it 'defines object type schema' do
-      expect(schema[:type]).to eq('object')
-    end
-
-    it 'requires saved_view_id' do
-      expect(schema[:required]).to eq(['saved_view_id'])
-    end
-
-    context 'with namespace identification properties' do
-      let(:properties) { schema[:properties] }
-
-      where(:property_name, :property_type, :description_includes) do
-        [
-          [:url, 'string', 'GitLab URL for the namespace'],
-          [:group_id, 'string', 'ID or path of the group'],
-          [:project_id, 'string', 'ID or path of the project']
-        ]
-      end
-
-      with_them do
-        it 'defines property with correct type and description' do
-          expect(properties[property_name][:type]).to eq(property_type)
-          expect(properties[property_name][:description]).to include(description_includes)
-        end
-      end
-    end
-
-    context 'with saved view identification' do
-      let(:properties) { schema[:properties] }
-
-      it 'defines saved_view_id with correct type and description' do
-        expect(properties[:saved_view_id][:type]).to eq('string')
-        expect(properties[:saved_view_id][:description]).to include('global ID of the saved view')
-      end
-    end
-
-    context 'with pagination properties' do
-      let(:properties) { schema[:properties] }
-
-      it 'defines after cursor' do
-        expect(properties[:after][:type]).to eq('string')
-        expect(properties[:after][:description]).to include('forward pagination')
-      end
-
-      it 'defines first with constraints' do
-        expect(properties[:first][:type]).to eq('integer')
-        expect(properties[:first][:minimum]).to eq(1)
-        expect(properties[:first][:maximum]).to eq(100)
-        expect(properties[:first][:description]).to include('forward pagination')
-      end
+    it 'matches the expected contract' do
+      expect(described_class.version_metadata('0.1.0')[:input_schema]).to eq(
+        {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'GitLab URL for the namespace (project or group).'
+            },
+            group_id: {
+              type: 'string',
+              description: 'ID or path of the group. Required if URL and project_id are not provided.'
+            },
+            project_id: {
+              type: 'string',
+              description: 'ID or path of the project. Required if URL and group_id are not provided.'
+            },
+            saved_view_id: {
+              type: 'string',
+              description: 'The global ID of the saved view (format: gid://gitlab/WorkItems::SavedViews::SavedView/<id>).'
+            },
+            after: {
+              type: 'string',
+              description: 'Cursor for forward pagination. Use endCursor from previous response.'
+            },
+            first: {
+              type: 'integer',
+              description: 'Number of work items to return (forward pagination, max 100)',
+              minimum: 1,
+              maximum: 100
+            }
+          },
+          required: ['saved_view_id']
+        }
+      )
     end
 
     it 'has readOnlyHint annotation' do
@@ -411,7 +394,7 @@ RSpec.describe Mcp::Tools::WorkItems::GetSavedViewWorkItemsService, feature_cate
         service.execute(request: request, params: { arguments: params_arguments })
 
         expect(GitlabSchema).to have_received(:execute).with(
-          a_string_including('GetNamespaceSavedView'),
+          a_string_including('getNamespaceSavedView'),
           variables: hash_including(
             fullPath: group.full_path,
             id: saved_view_gid
