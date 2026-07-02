@@ -90,8 +90,8 @@ module Gitlab
           end
         end
 
-        # Returns the principle keys whose region is stale, malformed, or
-        # orphaned:
+        # Classifies each fenced principle whose region needs attention and
+        # returns a Result grouping them by category:
         #
         # - stale: the recorded distilled_at_sha / source_checksum directives no
         #   longer match the current distilled file.
@@ -101,18 +101,48 @@ module Gitlab
         #   match). Such a region is invisible to `regenerate`/`check` by
         #   directive comparison, so the drift guard must flag it loudly rather
         #   than let it slip past.
-        # - orphaned: a fence exists in the YAML for a principle that has no
-        #   entry in `fences` (its distilled file or manifest entry is gone), so
-        #   the fenced guidance no longer has a source of truth. `regenerate`
-        #   deliberately leaves such a region untouched (a transient missing
-        #   file must not blank a fence), but the read-only guard should still
-        #   surface it.
+        # - pending: a fence exists for a principle that has a manifest entry but
+        #   no distilled file yet. This is the documented seed-then-distill
+        #   state: a fence is deliberately added before its first distillation,
+        #   which the next distiller run populates. The guard warns but does not
+        #   fail, so seeding a new fence does not break the seeding author's
+        #   pipeline (or master) until the weekly sync catches up.
+        # - orphaned: a fence exists for a principle with neither a distilled
+        #   file nor a manifest entry, so the fenced guidance has no source of
+        #   truth and never will without intervention. `regenerate` deliberately
+        #   leaves such a region untouched (a transient missing file must not
+        #   blank a fence), but the read-only guard must surface it as a failure.
         #
         # `fences` carries the current distilled_at_sha / source_checksum for
-        # each principle whose distilled file was found.
-        def check(yaml_text, fences:)
+        # each principle whose distilled file was found. `seeded` is the set of
+        # principle keys that have a manifest entry (regardless of whether their
+        # distilled file exists yet); it distinguishes a valid pending seed from
+        # a truly orphaned fence. When `seeded` is nil every fence without a
+        # distilled file is treated as orphaned, preserving the prior behaviour
+        # for callers that do not supply manifest context.
+        Result = Struct.new(:stale, :malformed, :pending, :orphaned, keyword_init: true) do
+          # Fences that must fail the guard (real drift or a fence with no
+          # source of truth), in a stable, de-duplicated order.
+          def failing
+            (malformed + orphaned + stale).uniq
+          end
+
+          # True when no fence needs any attention at all.
+          def clean?
+            failing.empty? && pending.empty?
+          end
+        end
+
+        def check(yaml_text, fences:, seeded: nil)
           malformed = malformed_principles(yaml_text)
-          orphaned = fenced_principles(yaml_text).uniq.reject { |p| fences.key?(p) }
+
+          missing = fenced_principles(yaml_text).uniq.reject { |p| fences.key?(p) }
+          pending, orphaned =
+            if seeded
+              missing.partition { |p| seeded.include?(p) }
+            else
+              [[], missing]
+            end
 
           stale = each_region(yaml_text).filter_map do |principle, region|
             data = fences[principle]
@@ -126,7 +156,7 @@ module Gitlab
             principle if drifted
           end
 
-          (malformed + orphaned + stale).uniq
+          Result.new(stale: stale.uniq, malformed: malformed.uniq, pending: pending.uniq, orphaned: orphaned.uniq)
         end
 
         # Returns principle keys whose BEGIN-marker count does not equal the

@@ -21,6 +21,7 @@ import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import SettingsSection from '~/vue_shared/components/settings/settings_section.vue';
 import editBranchRuleMutation from 'ee_else_ce/projects/settings/branch_rules/mutations/edit_branch_rule.mutation.graphql';
 import { getAccessLevels, getAccessLevelInputFromEdges } from 'ee_else_ce/projects/settings/utils';
+import AccessLevelsDrawer from 'ee_else_ce/projects/settings/branch_rules/components/access_levels_drawer.vue';
 import {
   BRANCH_RULE_DETAILS_LABEL,
   CHANGED_BRANCH_RULE_TARGET,
@@ -35,7 +36,6 @@ import editSquashOptionMutation from '../mutations/edit_squash_option.mutation.g
 import deleteSquashOptionMutation from '../mutations/delete_squash_option.mutation.graphql';
 import BranchRuleModal from '../../components/branch_rule_modal.vue';
 import Protection from './protection.vue';
-import AccessLevelsDrawer from './access_levels_drawer.vue';
 import SquashSettingsDrawer from './squash_settings_drawer.vue';
 import ProtectionToggle from './protection_toggle.vue';
 import {
@@ -529,6 +529,7 @@ export default {
         :deploy-keys="accessLevelsDrawerData.deployKeys"
         :is-loading="isRuleUpdating"
         :group-id="groupId"
+        :project-path="projectPath"
         :title="accessLevelsDrawerTitle"
         :is-push-access-levels="isAllowedToPushAndMergeDrawerOpen"
         @editRule="onEditAccessLevels"

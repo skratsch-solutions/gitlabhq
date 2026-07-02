@@ -1,8 +1,17 @@
 import { GlModal, GlSearchBoxByType, GlTab, GlEmptyState } from '@gitlab/ui';
 import { nextTick } from 'vue';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import FeatureLibraryModal from '~/super_sidebar/components/feature_library/feature_library_modal.vue';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
+import {
+  EVENT_OPEN_FEATURE_LIBRARY_MODAL,
+  EVENT_SEARCH_FEATURES_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_CLICK_CATEGORY_TAB_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_PIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_UNPIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
+} from '~/super_sidebar/tracking_constants';
 
 // Mirrors the nav tree shape passed down from sidebar_menu.vue: sections (menu
 // groups) holding leaf nav items enriched with feature-library metadata.
@@ -58,6 +67,7 @@ describe('FeatureLibraryModal', () => {
     });
   };
 
+  const findModal = () => wrapper.findComponent(GlModal);
   const findSearch = () => wrapper.findComponent(GlSearchBoxByType);
   const findAllTabs = () => wrapper.findAllComponents(GlTab);
   const findTabLabels = () => wrapper.findAllByRole('tab').wrappers.map((w) => w.text());
@@ -185,6 +195,89 @@ describe('FeatureLibraryModal', () => {
       createWrapper({ currentPinnedIds: ['repository'] });
       const matchingItem = findItems().wrappers.find((w) => w.props('item').id === 'repository');
       expect(matchingItem.props('pinned')).toBe(true);
+    });
+  });
+
+  describe('internal events tracking', () => {
+    const { bindInternalEventDocument } = useMockInternalEventsTracking();
+
+    // The mixin forwards a third `category` arg (undefined) to InternalEvents.trackEvent.
+    const CATEGORY = undefined;
+
+    beforeEach(() => {
+      createWrapper();
+    });
+
+    it('tracks opening the modal when it is shown', () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findModal().vm.$emit('shown');
+      expect(trackEventSpy).toHaveBeenCalledWith(EVENT_OPEN_FEATURE_LIBRARY_MODAL, {}, CATEGORY);
+    });
+
+    it('tracks clicking a category tab, labelled with the category id', async () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      // Tabs order: All (0), Plan (1), Code (2).
+      await findAllTabs().at(1).vm.$emit('click');
+      expect(trackEventSpy).toHaveBeenCalledWith(
+        EVENT_CLICK_CATEGORY_TAB_IN_FEATURE_LIBRARY_MODAL,
+        { label: 'plan_menu' },
+        CATEGORY,
+      );
+    });
+
+    it('tracks pinning an item, labelled with the item id', () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findItems().at(0).vm.$emit('pin-toggle', 'repository', true, 'Repository');
+      expect(trackEventSpy).toHaveBeenCalledWith(
+        EVENT_PIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
+        { label: 'repository' },
+        CATEGORY,
+      );
+    });
+
+    it('tracks unpinning an item, labelled with the item id', () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findItems().at(0).vm.$emit('pin-toggle', 'repository', false, 'Repository');
+      expect(trackEventSpy).toHaveBeenCalledWith(
+        EVENT_UNPIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
+        { label: 'repository' },
+        CATEGORY,
+      );
+    });
+
+    it('tracks navigating to a feature, labelled with the item id', () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findItems().at(0).vm.$emit('navigate', 'repository');
+      expect(trackEventSpy).toHaveBeenCalledWith(
+        EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
+        { label: 'repository' },
+        CATEGORY,
+      );
+    });
+
+    // debounce is synchronous under the test mock (spec/frontend/__mocks__/lodash-es/debounce.js).
+    it('tracks a search event when the user types a query', () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findSearch().vm.$emit('input', 'repo');
+      expect(trackEventSpy).toHaveBeenCalledWith(
+        EVENT_SEARCH_FEATURES_IN_FEATURE_LIBRARY_MODAL,
+        {},
+        CATEGORY,
+      );
+    });
+
+    it('does not track a search event when the query is blank', () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findSearch().vm.$emit('input', '   ');
+      expect(trackEventSpy).not.toHaveBeenCalled();
+    });
+
+    // Guards against a pending debounced search event firing after the modal
+    // closes. (The matching beforeUnmount cancel is exercised under Vue 3.)
+    it('cancels the pending debounced search tracker when the modal is hidden', () => {
+      const cancelSpy = wrapper.vm.debouncedTrackSearch.cancel;
+      findModal().vm.$emit('hidden');
+      expect(cancelSpy).toHaveBeenCalled();
     });
   });
 });

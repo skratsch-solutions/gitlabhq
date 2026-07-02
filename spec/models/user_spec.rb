@@ -3764,7 +3764,10 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
     # Full behavior tests for `set_email_otp_required_after_based_on_restrictions`
     # are in email_otp_enrollment_spec.rb
     it 'enrolls the user in email OTP when email OTP is required at minimum', :freeze_time do
-      stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
+      stub_application_setting(
+        email_otp_enabled: true,
+        require_minimum_email_based_otp_for_users_with_passwords: true
+      )
 
       user = create(:user, :two_factor, email_otp_required_after: nil)
       user.disable_two_factor!
@@ -3928,78 +3931,47 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
     let_it_be_with_reload(:user) { create(:user) }
 
-    it 'returns false when email_otp_required_after is missing' do
-      user.email_otp_required_after = nil
-
-      is_expected.to be(false)
-    end
-
-    it 'returns false when email_otp_required_after is in the future' do
-      user.email_otp_required_after = 1.second.since
-
-      is_expected.to be(false)
-    end
-
-    it 'returns true when email_otp_required_after is in the past' do
+    it 'returns false despite email_otp_required_after is in the past' do
       user.email_otp_required_after = 1.second.ago
 
-      is_expected.to be(true)
+      is_expected.to be(false)
     end
 
-    it 'returns true when email_otp_required_after is the current time' do
-      user.email_otp_required_after = Time.current
-
-      is_expected.to be(true)
-    end
-
-    context 'when :email_based_mfa feature flag is disabled' do
+    context 'when email_otp_enabled application setting is enabled' do
       before do
-        stub_feature_flags(email_based_mfa: false)
+        stub_application_setting(email_otp_enabled: true)
       end
 
-      it 'returns false despite email_otp_required_after is in the past' do
-        user.email_otp_required_after = 1.second.ago
+      it 'returns false when email_otp_required_after is missing' do
+        user.email_otp_required_after = nil
 
         is_expected.to be(false)
       end
 
-      context 'and email_otp_enabled application setting is enabled' do
-        before do
-          stub_application_setting(email_otp_enabled: true)
-        end
+      it 'returns false when email_otp_required_after is in the future' do
+        user.email_otp_required_after = 1.second.since
 
-        it 'returns true when email_otp_required_after is in the past' do
-          user.email_otp_required_after = 1.second.ago
-
-          is_expected.to be(true)
-        end
-      end
-    end
-
-    # Ensuring the valid state of `email_otp_required_after`, by
-    # `set_email_otp_required_after_based_on_restrictions` method, is
-    # tested in depth in spec/models/concerns/users/email_otp_enrollment_spec.rb
-    it 'ensures that `email_otp_required_after` is set to a valid state' do
-      stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
-
-      expect(user).to receive(:set_email_otp_required_after_based_on_restrictions)
-        .with(save: true).and_call_original
-
-      is_expected.to be(true)
-    end
-
-    context 'when only the email_otp_enabled application setting enables email OTP' do
-      let_it_be_with_reload(:user) do
-        create(:user, password_automatically_set: false, email_otp_required_after: nil)
+        is_expected.to be(false)
       end
 
-      before do
-        stub_feature_flags(email_based_mfa: false)
-        stub_application_setting(email_otp_enabled: true)
-        stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
+      it 'returns true when email_otp_required_after is in the past' do
+        user.email_otp_required_after = 1.second.ago
+
+        is_expected.to be(true)
       end
 
+      it 'returns true when email_otp_required_after is the current time' do
+        user.email_otp_required_after = Time.current
+
+        is_expected.to be(true)
+      end
+
+      # Ensuring the valid state of `email_otp_required_after`, by
+      # `set_email_otp_required_after_based_on_restrictions` method, is
+      # tested in depth in spec/models/concerns/users/email_otp_enrollment_spec.rb
       it 'persists email_otp_required_after via set_email_otp_required_after_based_on_restrictions' do
+        stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
+
         expect(user.two_factor_enabled?).to be(false)
         expect(user.email_otp_required_after).to be_nil
         expect(user).to receive(:set_email_otp_required_after_based_on_restrictions)
@@ -10890,41 +10862,6 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
         expect(unlock_access_by_token).to be_a(described_class)
         expect(unlock_access_by_token.errors[:organization_id]).not_to be_empty
-      end
-    end
-  end
-
-  describe '#legacy_otp_secret' do
-    let_it_be_with_reload(:user) { create(:user) }
-
-    subject(:legacy_otp_secret) { user.send(:legacy_otp_secret) }
-
-    context 'when encrypted_otp_secret is nil' do
-      it { is_expected.to be_nil }
-    end
-
-    context 'when otp_secret_encryption_key is nil' do
-      before do
-        user.update!(encrypted_otp_secret: 'dummy')
-        allow(described_class).to receive(:otp_secret_encryption_key).and_return(nil)
-      end
-
-      it { is_expected.to be_nil }
-    end
-
-    context 'when user has two factor auth enabled' do
-      let_it_be_with_reload(:user) { create(:user, :two_factor) }
-      let(:otp_secret) { 'my-otp-secret' }
-
-      before do
-        encrypted_secret = user.attr_encrypted_encrypt(:otp_secret, otp_secret)
-        user.update!(encrypted_otp_secret: encrypted_secret)
-      end
-
-      it { is_expected.to eq(otp_secret) }
-
-      it 'resolves the legacy otp secret' do
-        expect(user.reload.otp_secret).to eq(otp_secret)
       end
     end
   end

@@ -134,6 +134,12 @@ const alias = {
     ROOT_PATH,
     'node_modules/@mermaid-js/parser/dist/mermaid-parser.core.mjs',
   ),
+  '@mermaid-js/layout-elk': path.join(
+    ROOT_PATH,
+    'node_modules/@mermaid-js/layout-elk/dist/mermaid-layout-elk.core.mjs',
+  ),
+  // ELK's lazily loaded chunk imports the bare `mermaid` package; map it to the aliased install.
+  mermaid$: 'mermaid-v11',
   '@chevrotain/cst-dts-gen': path.join(
     ROOT_PATH,
     'node_modules/@chevrotain/cst-dts-gen/lib/src/api.js',

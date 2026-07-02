@@ -218,8 +218,10 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
     context 'when signing in with WebAuthn' do
       let(:user) { create(:user, :two_factor_via_webauthn, organization: current_organization) }
+      let(:email_otp_enabled) { false }
 
       before do
+        stub_application_setting(email_otp_enabled: email_otp_enabled)
         visit new_user_session_path
         fill_in 'user_login', with: user.username
         fill_in 'user_password', with: user.password
@@ -227,18 +229,14 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
       end
 
       context 'when falling back to email OTP' do
-        context 'when email_based_mfa feature flag is disabled' do
-          before do
-            stub_feature_flags(email_based_mfa: false)
-          end
-
-          it 'does not show the email OTP fallback footer' do
-            expect(page).not_to have_content('Having trouble signing in?')
-            expect(page).not_to have_link('send code to email address')
-          end
+        it 'does not show the email OTP fallback footer' do
+          expect(page).not_to have_content('Having trouble signing in?')
+          expect(page).not_to have_link('send code to email address')
         end
 
-        context 'when email_based_mfa feature flag is enabled' do
+        context 'when email_otp_enabled application setting is enabled' do
+          let(:email_otp_enabled) { true }
+
           # we will not be testing different email_otp_required_after values
           # since this is covered in the unit test level
           context 'when user has email_otp_required_after set to past date' do

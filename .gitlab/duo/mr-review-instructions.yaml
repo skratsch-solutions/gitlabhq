@@ -221,8 +221,8 @@ instructions:
       - Reference: https://docs.gitlab.com/development/feature_flags/
 
   # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
-  # distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911
-  # source_checksum: d36ccbb0679c0fc2
+  # distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
+  # source_checksum: 44d40a0905de802d
   - name: Documentation
     fileFilters:
       - "doc/**/*.md"
@@ -379,6 +379,31 @@ instructions:
       - Start recommended steps with "Recommended." followed by a period.
       - Use "Complete the fields" to summarize multiple self-explanatory fields in a single task step rather than documenting each field individually.
 
+      ### Metadata
+
+      - Include `stage`, `group`, `info`, and `title` front matter on every documentation page.
+      - Use the `title` metadata attribute to set the page H1; DO NOT add a Markdown `# H1` heading.
+      - Add `gitlab_dedicated: no` (or `yes`) metadata when a page's GitLab Dedicated availability differs from its GitLab Self-Managed availability.
+      - Add `availability_details: no` metadata on pages that purposely omit availability details.
+      - Add `ignore_in_report: true` metadata to keep a page out of the global navigation; it excludes the page from the technical writing team's navigation report so the page is not prompted for a `navigation.yaml` entry.
+
+      ### Product Availability Details
+
+      - Place availability details (`{{< details >}}` shortcode) at the top of the page (after front matter) when they apply to the whole page, or under the applicable section heading when they apply to a specific section.
+      - Include tier (`Free, Premium, Ultimate` or subset), add-on (for GitLab Duo features only), offering (`GitLab.com`, `GitLab Self-Managed`, `GitLab Dedicated`, `GitLab Dedicated for Government`), and status (`Beta`, `Experiment`, or `Limited availability`) as applicable; DO NOT add a status entry for generally available features.
+      - DO NOT add availability details to tutorials, tier-comparison pages, `/development` pages, or `/solutions` pages.
+      - DO NOT repeat tier, offering, or status in a subheading's badge when it matches the parent topic's badge.
+      - Place history notes (`{{< history >}}` shortcode) after the details block and immediately after the heading; start each entry with `-` and link to the related issue, MR, or epic when possible.
+      - Remove history items and inline version references that refer to unsupported GitLab versions (current major version and two previous major versions are supported).
+      - For tools released on their own schedule (e.g., editor extensions, CLI tools), include both the GitLab version and the tool version in history entries, with a link to the tool's release page; nest tool version entries under the related instance history item when both change together.
+
+      ### Deprecations and Removals
+
+      - When deprecating a feature, add `(deprecated)` after the title, add a `> [!warning]` alert stating when it was deprecated and when it will be removed, and wrap the content in `<!-- remove_date: 'YYYY-MM-DD' -->` HTML comments (set `remove_date` to three months after the planned removal release).
+      - When removing a feature, change `(deprecated)` to `(removed)` in the title, remove all content except the deprecation/removal statement, set `remove_date` in metadata to three months after the removal release, and set `redirect_to` to a relevant replacement page.
+      - After removing a page, edit `navigation.yaml` in `docs-gitlab-com` to remove the page's entry from the global navigation, update any links in the [Deprecations and Removals](https://docs.gitlab.com/update/deprecations/) YAML files, and run `bin/rake gitlab:docs:compile_deprecations`.
+      - DO NOT follow the standard deprecation process for features that are not generally available; delete the content outright instead.
+
       ### Documentation Workflow
 
       - Include documentation in the same MR as the feature code whenever possible; DO NOT merge a feature that exposes UI, API endpoints, or user-facing behaviour without accompanying documentation.
@@ -426,7 +451,6 @@ instructions:
       - Follow the GitLab Documentation recommended word list for consistent terminology
       - Reference: doc/development/documentation/styleguide/_index.md
       - Reference: doc/development/documentation/workflow.md
-      - Reference: doc/development/documentation/styleguide/word_list.md
       - Reference: doc/development/documentation/styleguide/availability_details.md
       - Reference: doc/development/documentation/styleguide/deprecations_and_removals.md
       - Reference: doc/development/documentation/metadata.md
@@ -496,8 +520,8 @@ instructions:
   # <<< end generated: documentation-api
 
   # >>> generated: testing-rspec — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
-  # distilled_at_sha: 446a9cf853f53fba2ba736df164bec025a2b6caf
-  # source_checksum: e2e6ec25dd4fc23f
+  # distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
+  # source_checksum: c1fe7e050cd10330
   - name: RSpec
     fileFilters:
       - "spec/**/*_spec.rb"
@@ -613,6 +637,11 @@ instructions:
       - Use `within_modal` helper to interact with GitLab UI modals; use `accept_gl_confirm` for confirmation modals that only need to be accepted.
       - Use `be_axe_clean` matcher to run automated accessibility testing in feature tests.
       - Call the same externalizing method (for example, `_('...')`) in RSpec expectations against externalized content
+      - Assert on a stable end-state (such as a status text or alert message) after an asynchronous mutation — DO NOT assert on a button's label or `disabled` state to synchronize, as controls pass through transient loading states before settling.
+      - Use the `wait_for` helper (from `spec/support/helpers/wait_helpers.rb`) only as a last resort when there is no visible UI outcome to assert on (for example, browser-initiated downloads or interactions that must be retried); DO NOT use the deprecated `wait_for_requests` in new specs.
+      - Assert with a waiting Capybara matcher (`have_field`, `have_selector`, `have_content`) rather than reading a value directly from an element (`find(...).value`, `find(...).text`, `all(...).count`) — direct reads capture state at that exact moment and race asynchronous updates.
+      - Use the `:enable_admin_mode` RSpec metadata tag to activate admin mode in specs; DO NOT use `enable_admin_mode!(admin, use_ui: true)` — it is slow and race-prone.
+      - Wrap both the triggering UI action and the assertion on its visible outcome inside `perform_enqueued_jobs` when testing delayed mail delivery — wrapping only the click can end the block before the AJAX request enqueues the job.
 
       ### View Specs
 
@@ -831,6 +860,63 @@ instructions:
       - Reference: doc/development/testing_guide/end_to_end/best_practices/feature_flags.md
       - Reference: doc/development/testing_guide/end_to_end/best_practices/waits.md
   # <<< end generated: testing-e2e
+
+  # >>> generated: ai-instruction-files — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
+  # distilled_at_sha: 7e6400c6673ccad101ddf620e6bf08ad99e5325a
+  # source_checksum: af9ed0ec46eedb9d
+  - name: AI Instruction Files
+    fileFilters:
+      - ".ai/**/*"
+    instructions: |
+      ### General Review
+
+      - Treat instruction files as prompts consumed by language models, not as executable code; prefer clear, imperative, unambiguous rules and flag wording that an agent could misread or that contradicts another module.
+      - Ensure every agent session is affected immediately by any change — there is no gradual rollout and no feature flag, so a regression degrades every contributor's agent output at once.
+      - Keep instructions actionable: favor concrete `Do X` / `Don't do Y` rules over background prose.
+      - DO NOT add redundant or verbose content to instruction files; prefer concise rules and cross-references to avoid displacing useful context and increasing token cost.
+      - Keep `AGENTS.md` and `CLAUDE.md` identical; when a change references a new module, update both entry points together (`AGENTS.md` is the source of truth).
+      - DO NOT hand-author a rule that can instead be distilled from SSOT documentation; every hand-authored rule risks drifting from the docs it duplicates.
+      - Ensure changes to `.ai/` files are approved by the AI harness DRI named in the `Monolith AI harness files` block of `.gitlab/CODEOWNERS`.
+
+      ### Hand-Authored Modules
+
+      - Verify guidance in `.ai/README.md`, `.ai/ci-cd.md`, `.ai/git.md`, `.ai/merge-requests.md`, and `.ai/code-review.md` is correct and current against the practice it describes.
+      - Check for contradictions with other modules and with the distilled principles.
+      - Confirm any new module is referenced from both `AGENTS.md` and `CLAUDE.md`, and that the two entry points remain identical.
+      - Confirm a new shared module was force-added (`git add --force`), because the `.ai/*` pattern is gitignored.
+      - Prefer moving durable, broadly applicable guidance into SSOT documentation so it can be distilled, rather than growing hand-authored modules.
+
+      ### Distilled Principles
+
+      - DO NOT edit `.ai/principles/distilled/*.md` files by hand; they are regenerated from SSOT documentation and carry a generated marker. A deliberate hand-fix is acceptable only on a distiller service-account branch as a stopgap and must be called out explicitly in the merge request.
+      - To change a distilled principle's content, change its SSOT documentation (or the matching `baselines/<name>.md`) and re-run the sync instead of editing the distilled file directly.
+      - Verify the distilled changes faithfully reflect the source-doc updates and do not introduce, drop, or contradict rules that the source does not support.
+      - Confirm the distilled output contains no references to repository internals that make no sense to an agent (such as paths under `.ai/principles/baselines/` or links to other principle files); fix such leaks in the source baseline, not the distilled file.
+      - DO NOT hand-edit the front matter (`source_checksum`, `distilled_at_sha`); these drive drift detection and hand-editing them masks or forces re-distillation incorrectly.
+      - Confirm the change is routed to the correct SSOT-owning team through the generated CODEOWNERS block.
+
+      ### Baselines
+
+      - Require a justification for why a baseline rule has no SSOT home yet; baselines are an escape hatch, not the primary way to add agent instructions.
+      - Treat every baseline rule as temporary; prefer opening a follow-up to move the rule into `docs.gitlab.com`, after which it should be removed from the baseline.
+      - Watch for baseline rules that duplicate or contradict existing SSOT content, which creates a dual source of truth.
+      - Ensure baseline files do not reference the `baselines/` folder or other principle files; baseline content is merged into the distilled output verbatim, so such cross-references leak into agent-facing principles where they are meaningless.
+
+      ### Distillation Configuration
+
+      - For `manifest.yml`, validate the entry against the manifest schema: required `description`, `sources`, and `owner_team`; correct `file_filters`; and a `team_slug` that does not collide with another entry.
+      - Confirm `owner_team` routes approval to the team that actually owns the SSOT documentation.
+      - DO NOT hand-edit content inside a generated block; the sync delimits these blocks with `# BEGIN GENERATED` and `# END GENERATED` comments in `.gitlab/CODEOWNERS`, and with `# >>> generated: <name>` and `# <<< end generated: <name>` comments in `.gitlab/duo/mr-review-instructions.yaml` — regenerate them by running the sync instead.
+      - Treat changes to `distillation_prompt.md` as the highest-risk change in this directory; reason through the effect on the full set of principles (not just the one that motivated the change), and prefer distilling a sample of principles with `--force` on a branch to inspect the output before merging.
+      - Ensure `distillation_prompt.md` changes are followed by re-provisioning the catalog flow (`gitlab-ai-principles-distiller-provision-flow`); merging the file alone does not roll the new prompt out.
+
+      ### Reviewing Auto-Generated Sync Merge Requests
+
+      - Compare the distilled diff against the referenced SSOT documentation changes.
+      - Confirm no still-valid, SSOT-supported rule was dropped and no unsupported rule was added.
+      - Confirm the front matter checksums were updated by the tool, not by hand.
+      - Reference: doc/development/ai_instruction_files_review.md
+  # <<< end generated: ai-instruction-files
 
   - name: Localization template files
     fileFilters:

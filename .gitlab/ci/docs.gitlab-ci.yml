@@ -206,6 +206,29 @@ ai-principles-manifest:
   script:
     - scripts/lint-ai-principles-manifest.sh
 
+ai-duo-review-instructions:
+  # Read-only drift guard: detects Duo Code Review instruction fences in
+  # .gitlab/duo/mr-review-instructions.yaml that are stale, malformed, or
+  # orphaned relative to .ai/principles/distilled/. Rails-free; only runtime
+  # dependency is the `rainbow` gem (same bare-Ruby execution model as the
+  # sibling ai-principles-manifest job). Fails the pipeline on drift so bad
+  # fences don't land silently. To fix: re-run the principles sync to
+  # regenerate stale fences, or correct/remove malformed or orphaned markers.
+  # See gitlab-org/gitlab#604738.
+  image: ${GITLAB_DEPENDENCY_PROXY_ADDRESS}ruby:${RUBY_VERSION}
+  stage: lint
+  needs: []
+  extends:
+    - .default-retry
+    - .docs:rules:ai-principles-manifest
+  variables:
+    GIT_DEPTH: "1"
+    RUBY_RUN: "ruby"
+  before_script:
+    - gem install rainbow --no-document
+  script:
+    - scripts/lint-duo-review-instructions.sh
+
 docs-lint redirects:
   image: ${GITLAB_DEPENDENCY_PROXY_ADDRESS}ruby:${RUBY_VERSION}-alpine
   stage: lint

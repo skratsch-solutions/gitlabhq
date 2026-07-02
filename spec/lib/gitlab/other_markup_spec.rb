@@ -396,6 +396,36 @@ RSpec.describe Gitlab::OtherMarkup, :aggregate_failures, feature_category: :wiki
         expect(doc.at_css('h6 a.anchor')['href']).to eq('#heading-6')
       end
     end
+
+    context 'with <source> tags' do
+      let(:file_name) { 'file.mediawiki' }
+
+      shared_examples 'renders as preformatted escaped text' do |lang:|
+        it 'does not raise and HTML-escapes content', :aggregate_failures do
+          tag = lang ? %(<source lang="#{lang}">) : '<source>'
+          input = "#{tag}a < b && c > d</source>"
+          result = nil
+          expect { result = render(file_name, input, context) }.not_to raise_error
+          expect(result).to include('<pre>a &lt; b &amp;&amp; c &gt; d</pre>')
+        end
+      end
+
+      context 'with a known language' do
+        it_behaves_like 'renders as preformatted escaped text', lang: 'ruby'
+      end
+
+      context 'with an unknown language' do
+        it_behaves_like 'renders as preformatted escaped text', lang: 'bash'
+      end
+
+      context 'with an empty language' do
+        it_behaves_like 'renders as preformatted escaped text', lang: ''
+      end
+
+      context 'with no language specified' do
+        it_behaves_like 'renders as preformatted escaped text', lang: nil
+      end
+    end
   end
 
   context 'when rendering takes too long' do

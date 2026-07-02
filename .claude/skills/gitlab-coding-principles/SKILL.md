@@ -33,6 +33,7 @@ ALWAYS load Database principles regardless of which files you are editing.
 
 **Code Review:**
 - **General code review practices and acceptance checklist**: Read .ai/principles/distilled/code-review.md
+- **Reviewing AI instruction files under .ai/ (hand-authored modules, distilled principles, baselines, distillation config)**: Read .ai/principles/distilled/ai-instruction-files.md
 
 **Backend:**
 - **Ruby/Rails style, logging, common pitfalls**: Read .ai/principles/distilled/backend-ruby.md *(load for any backend work)*

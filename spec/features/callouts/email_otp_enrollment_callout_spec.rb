@@ -7,6 +7,7 @@ RSpec.describe 'Email OTP enrollment callout', :js, feature_category: :system_ac
   let(:expected_title) { s_('EmailOTP|Enhanced authentication coming soon') }
 
   before do
+    stub_application_setting(email_otp_enabled: true)
     stub_current_organization(user.organization)
   end
 

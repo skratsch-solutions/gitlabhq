@@ -99,3 +99,5 @@ columns:
   default_kind: DEFAULT
   default_expression: now64(6, 'UTC')
   compression_codec: CODEC(ZSTD(1))
+- name: incremental_checkpoints_enabled
+  type: Nullable(Bool)

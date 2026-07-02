@@ -1225,19 +1225,48 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       MD
     end
 
-    it 'reports the principle when the distilled file has drifted' do
+    it 'reports the principle under stale when the distilled file has drifted' do
       write_distilled(sha: 'newer', checksum: 'newer')
-      expect(manifest.problematic_duo_review_instructions).to eq(['documentation'])
+
+      result = manifest.problematic_duo_review_instructions
+      expect(result.stale).to eq(['documentation'])
+      expect(result.failing).to eq(['documentation'])
     end
 
     it 'reports nothing when the recorded directives match the distilled file' do
       write_distilled(sha: 'recorded', checksum: 'recorded')
-      expect(manifest.problematic_duo_review_instructions).to eq([])
+
+      result = manifest.problematic_duo_review_instructions
+      expect(result.failing).to eq([])
+      expect(result.pending).to eq([])
+      expect(result).to be_clean
     end
 
-    it 'returns an empty array when the file is absent' do
+    it 'classifies a fence as pending (not failing) when it is seeded but not yet distilled' do
+      # No distilled file written: the manifest entry exists but distillation
+      # has not run, so the fence is a valid pending seed rather than an orphan.
+      result = manifest.problematic_duo_review_instructions
+      expect(result.pending).to eq(['documentation'])
+      expect(result.orphaned).to eq([])
+      expect(result.failing).to eq([])
+    end
+
+    it 'classifies a fence as orphaned (failing) when it has no manifest entry and no distilled file' do
+      manifest.data = { 'principles' => {} }
+
+      result = manifest.problematic_duo_review_instructions
+      expect(result.orphaned).to eq(['documentation'])
+      expect(result.pending).to eq([])
+      expect(result.failing).to eq(['documentation'])
+    end
+
+    it 'returns an empty result when the file is absent' do
       FileUtils.rm_f(duo_path)
-      expect(manifest.problematic_duo_review_instructions).to eq([])
+
+      result = manifest.problematic_duo_review_instructions
+      expect(result.failing).to eq([])
+      expect(result.pending).to eq([])
+      expect(result).to be_clean
     end
   end
 end

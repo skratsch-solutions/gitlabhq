@@ -71,3 +71,15 @@ RSpec.shared_context 'when RefsFinder#execute raises Gitaly error' do
     end
   end
 end
+
+RSpec.shared_context 'when Conflict::Resolver#conflicts raises Gitaly error' do
+  let(:allow_gitaly_to_raise_error) do
+    allow_next_instance_of(Gitlab::Git::Conflict::Resolver) do |resolver|
+      allow(resolver).to receive(:conflicts) do
+        raise GRPC::Unavailable, 'Gitaly unavailable'
+      rescue GRPC::Unavailable
+        raise Gitlab::Git::CommandError, 'Gitaly unavailable'
+      end
+    end
+  end
+end

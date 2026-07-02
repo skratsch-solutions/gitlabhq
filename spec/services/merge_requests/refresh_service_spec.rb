@@ -479,6 +479,41 @@ RSpec.describe MergeRequests::RefreshService, feature_category: :code_review_wor
         end
       end
 
+      context 'when open MRs target the branch but their heads are not part of the push' do
+        # Regression test for the filter ordering in `post_merge_manually_merged`:
+        # the cheap persisted-column filters (diff_head_sha, diff state) must run
+        # before the Gitaly-backed `diff_head_commit` lookup, so MRs whose head is
+        # not contained in the push never trigger a Gitaly call.
+        # See https://gitlab.com/gitlab-org/gitlab/-/merge_requests/243084
+        let!(:non_matching_merge_request) do
+          create(
+            :merge_request,
+            source_project: @fork_project,
+            source_branch: 'fix',
+            target_branch: 'feature',
+            target_project: @project
+          )
+        end
+
+        before do
+          # Its persisted head SHA is not among the pushed commits, so the cheap
+          # column filter excludes it before `diff_head_commit` (Gitaly) is reached.
+          non_matching_merge_request.merge_request_diff.update_column(:head_commit_sha, 'a' * 40)
+        end
+
+        it 'only runs the Gitaly diff_head_commit lookup for MRs whose head is in the push' do
+          checked_mr_ids = []
+          allow_any_instance_of(MergeRequest).to receive(:diff_head_commit).and_wrap_original do |method|
+            checked_mr_ids << method.receiver.id
+            method.call
+          end
+
+          service.new(project: @project, current_user: @user).execute(@oldrev, @newrev, 'refs/heads/feature')
+
+          expect(checked_mr_ids).to contain_exactly(@merge_request.id, @fork_merge_request.id)
+        end
+      end
+
       context 'manual merge of source branch' do
         before do
           # Merge master -> feature branch

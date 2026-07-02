@@ -76,7 +76,6 @@ app/helpers/routing/groups/members_helper.rb:
   - approve_access_request_group_member_path
   - resend_invite_group_member_path
 app/helpers/routing/pipeline_schedules_helper.rb:
-  - edit_pipeline_schedule_path
   - play_pipeline_schedule_path
 app/helpers/routing/projects/members_helper.rb:
   - request_access_project_members_path
@@ -171,8 +170,6 @@ app/models/project.rb:
   - issue_exists?
   - enable_ci
   - valid_runners_token?
-app/models/user.rb:
-  - legacy_otp_secret
 ee/app/models/ai/duo_code_review.rb:
   - classic?
 ee/app/models/concerns/ai/user_authorizable.rb:

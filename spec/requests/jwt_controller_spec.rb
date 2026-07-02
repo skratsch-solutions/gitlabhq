@@ -412,27 +412,30 @@ RSpec.describe JwtController, feature_category: :system_access do
         context 'when user is enrolled in email-based OTP' do
           let(:user) { create(:user, email_otp_required_after: 1.second.ago) }
 
-          context 'without personal token' do
-            it_behaves_like 'with invalid credentials'
+          it 'accepts the authorization attempt' do
+            request_jwt_auth
+
+            expect(response).to have_gitlab_http_status(:ok)
           end
 
-          context 'with personal token' do
-            let(:access_token) { create(:personal_access_token, user: user) }
-            let(:headers) { { authorization: credentials(user.username, access_token.token) } }
-
-            it 'accepts the authorization attempt' do
-              request_jwt_auth
-
-              expect(response).to have_gitlab_http_status(:ok)
+          context 'when email_otp_enabled application setting is enabled' do
+            before do
+              stub_application_setting(email_otp_enabled: true)
             end
-          end
 
-          context 'when :email_based_mfa feature flag disabled' do
-            it 'accepts the authorization attempt' do
-              stub_feature_flags(email_based_mfa: false)
-              request_jwt_auth
+            context 'without personal token' do
+              it_behaves_like 'with invalid credentials'
+            end
 
-              expect(response).to have_gitlab_http_status(:ok)
+            context 'with personal token' do
+              let(:access_token) { create(:personal_access_token, user: user) }
+              let(:headers) { { authorization: credentials(user.username, access_token.token) } }
+
+              it 'accepts the authorization attempt' do
+                request_jwt_auth
+
+                expect(response).to have_gitlab_http_status(:ok)
+              end
             end
           end
         end
@@ -451,28 +454,28 @@ RSpec.describe JwtController, feature_category: :system_access do
             end
 
             context 'when username and password are provided' do
-              it_behaves_like 'with invalid credentials'
-
-              it 'calls set_email_otp_required_after_based_on_restrictions' do
-                allow_next_instance_of(User) do |instance|
-                  expect(instance).to receive(:set_email_otp_required_after_based_on_restrictions)
-                    .with(save: true).and_call_original
-                end
-
+              it 'accepts the authorization attempt' do
                 request_jwt_auth
 
-                expect(response).to have_gitlab_http_status(:unauthorized)
+                expect(response).to have_gitlab_http_status(:ok)
               end
 
-              context 'when :email_based_mfa feature flag disabled' do
+              context 'when email_otp_enabled application setting is enabled' do
                 before do
-                  stub_feature_flags(email_based_mfa: false)
+                  stub_application_setting(email_otp_enabled: true)
                 end
 
-                it 'accepts the authorization attempt' do
+                it_behaves_like 'with invalid credentials'
+
+                it 'calls set_email_otp_required_after_based_on_restrictions' do
+                  allow_next_instance_of(User) do |instance|
+                    expect(instance).to receive(:set_email_otp_required_after_based_on_restrictions)
+                      .with(save: true).and_call_original
+                  end
+
                   request_jwt_auth
 
-                  expect(response).to have_gitlab_http_status(:ok)
+                  expect(response).to have_gitlab_http_status(:unauthorized)
                 end
               end
             end

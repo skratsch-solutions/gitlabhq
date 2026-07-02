@@ -11387,6 +11387,9 @@ msgstr ""
 msgid "ArtifactRegistry|Assignee could not be found."
 msgstr ""
 
+msgid "ArtifactRegistry|Assignment %{number} on resource %{resource_id}: %{message}"
+msgstr ""
+
 msgid "ArtifactRegistry|At least one assignment is required."
 msgstr ""
 
@@ -14108,6 +14111,9 @@ msgstr ""
 msgid "BranchRules|Create wildcard"
 msgstr ""
 
+msgid "BranchRules|Custom roles"
+msgstr ""
+
 msgid "BranchRules|Delete %{statusCheckName}"
 msgstr ""
 
@@ -14250,6 +14256,9 @@ msgid "BranchRules|Something went wrong while creating branch rule."
 msgstr ""
 
 msgid "BranchRules|Something went wrong while deleting branch rule."
+msgstr ""
+
+msgid "BranchRules|Something went wrong while fetching custom roles."
 msgstr ""
 
 msgid "BranchRules|Something went wrong while updating branch rule."
@@ -22187,6 +22196,9 @@ msgstr ""
 msgid "ContinuousDeployment|Healthy"
 msgstr ""
 
+msgid "ContinuousDeployment|It may have been removed or you may not have access to it."
+msgstr ""
+
 msgid "ContinuousDeployment|Last deployed %{timeAgo}"
 msgstr ""
 
@@ -22245,6 +22257,9 @@ msgid "ContinuousDeployment|Search by name, team, or description"
 msgstr ""
 
 msgid "ContinuousDeployment|Service"
+msgstr ""
+
+msgid "ContinuousDeployment|Service not found"
 msgstr ""
 
 msgid "ContinuousDeployment|Services"
@@ -38197,6 +38212,18 @@ msgstr ""
 msgid "HealthCheck|No health problems detected"
 msgstr ""
 
+msgid "HealthCheck|Self-hosted GitLab Duo usage billing prerequisites"
+msgstr ""
+
+msgid "HealthCheck|The cloud GitLab Duo Agent Platform service at %{host} is not reachable. Self-hosted GitLab Duo usage billing will fail until connectivity is restored."
+msgstr ""
+
+msgid "HealthCheck|The cloud GitLab Duo Agent Platform service at %{host} is reachable for usage billing."
+msgstr ""
+
+msgid "HealthCheck|These cloud services must be reachable for self-hosted GitLab Duo usage billing to work."
+msgstr ""
+
 msgid "HealthCheck|Unhealthy"
 msgstr ""
 
@@ -46601,6 +46628,9 @@ msgid "MergeChecks|View policies"
 msgstr ""
 
 msgid "MergeChecks|When security policies are enforced, all pipelines for the latest commit must succeed before this merge request can be merged."
+msgstr ""
+
+msgid "MergeConflicts|Unable to load merge conflicts"
 msgstr ""
 
 msgid "MergeConflict|&gt;&gt;&gt;&gt;&gt;&gt;&gt; %{commit}: %{message} (our changes)"

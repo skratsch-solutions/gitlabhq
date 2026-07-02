@@ -1094,7 +1094,6 @@ export default {
     'ee/app/assets/javascripts/integrations/zentao/issues_list/graphql/queries/get_zentao_issues.query.graphql',
     'ee/app/assets/javascripts/invite_members/graphql/queries/billable_users_count.query.graphql',
     'ee/app/assets/javascripts/invite_members/graphql/queries/group_member_roles.query.graphql',
-    'ee/app/assets/javascripts/invite_members/graphql/queries/project_member_roles.query.graphql',
     'ee/app/assets/javascripts/invite_members/graphql/queries/subscription_eligible.customer.query.graphql',
     'ee/app/assets/javascripts/issuable/popover/queries/issue.query.graphql',
     'ee/app/assets/javascripts/issues/dashboard/queries/get_all_statuses.query.graphql',

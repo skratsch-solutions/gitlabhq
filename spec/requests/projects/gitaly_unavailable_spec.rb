@@ -669,4 +669,53 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
       it_behaves_like 'handles Gitaly errors for request specs'
     end
   end
+
+  describe 'Projects::MergeRequests::ConflictsController' do
+    include_context 'when Conflict::Resolver#conflicts raises Gitaly error'
+
+    let_it_be(:merge_request) do
+      create(:merge_request, source_branch: 'conflict-resolvable', target_branch: 'conflict-start',
+        source_project: project, merge_status: :unchecked, &:mark_as_unmergeable)
+    end
+
+    describe '#show' do
+      context 'with HTML format' do
+        let(:make_request) { get conflicts_project_merge_request_path(project, merge_request) }
+
+        it_behaves_like 'handles Gitaly errors for request specs'
+      end
+
+      context 'with JSON format' do
+        let(:make_request) { get conflicts_project_merge_request_path(project, merge_request, format: :json) }
+
+        it_behaves_like 'handles Gitaly errors for json format'
+      end
+    end
+
+    describe '#conflict_for_path' do
+      let(:make_request) do
+        get conflict_for_path_project_merge_request_path(
+          project,
+          merge_request,
+          old_path: 'files/ruby/popen.rb',
+          new_path: 'files/ruby/popen.rb',
+          format: :json
+        )
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+
+    describe '#resolve_conflicts' do
+      let(:make_request) do
+        post resolve_conflicts_project_merge_request_path(
+          project,
+          merge_request,
+          format: :json
+        ), params: { files: [], commit_message: 'Resolve conflicts' }
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+  end
 end

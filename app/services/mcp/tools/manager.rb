@@ -42,6 +42,7 @@ module Mcp
       }.freeze
 
       GRAPHQL_TOOLS = {
+        'create_merge_request_note' => ::Mcp::Tools::MergeRequests::CreateMergeRequestNoteService,
         'create_workitem_note' => ::Mcp::Tools::WorkItems::CreateWorkItemNoteService,
         'get_merge_request_notes' => ::Mcp::Tools::MergeRequests::GetMergeRequestNotesService,
         'get_saved_view_work_items' => ::Mcp::Tools::WorkItems::GetSavedViewWorkItemsService,

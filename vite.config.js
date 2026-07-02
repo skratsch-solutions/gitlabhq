@@ -58,7 +58,7 @@ try {
 }
 
 const aliasArr = Object.entries(webpackConfig.resolve.alias).map(([find, replacement]) => ({
-  find: find.includes('$') ? new RegExp(find) : find,
+  find: find.includes('$') ? new RegExp(`^${find}`) : find,
   replacement,
 }));
 

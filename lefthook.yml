@@ -208,6 +208,12 @@ pre-push:
       files: git diff --name-only $(git merge-base origin/master HEAD)..HEAD
       glob: '{.ai/*.md,.ai/principles/manifest.yml,.ai/principles/baselines/**/*.md,doc/**/*.md}'
       run: echo {files} >/dev/null && scripts/lint-ai-principles-manifest.sh
+    duo-review-instructions:
+      tags: ai-harness documentation
+      # Omit --diff-filter=d (unlike sibling hooks): a deleted distilled file must still trigger the check.
+      files: git diff --name-only $(git merge-base origin/master HEAD)..HEAD
+      glob: '{.ai/principles/distilled/**/*.md,.ai/principles/manifest.yml,.gitlab/duo/mr-review-instructions.yaml}'
+      run: echo {files} >/dev/null && scripts/lint-duo-review-instructions.sh
 
   scripts:
     'merge_conflicts':
@@ -229,6 +235,12 @@ pre-commit:
       files: git diff --name-only --staged
       glob: '{.ai/*.md,.ai/principles/manifest.yml,.ai/principles/baselines/**/*.md,doc/**/*.md}'
       run: echo {files} >/dev/null && scripts/lint-ai-principles-manifest.sh
+    duo-review-instructions:
+      tags: ai-harness documentation
+      # Omit --diff-filter=d (unlike sibling hooks): a deleted distilled file must still trigger the check.
+      files: git diff --name-only --staged
+      glob: '{.ai/principles/distilled/**/*.md,.ai/principles/manifest.yml,.gitlab/duo/mr-review-instructions.yaml}'
+      run: echo {files} >/dev/null && scripts/lint-duo-review-instructions.sh
     rubocop:
       tags: backend style
       files: git diff --name-only --diff-filter=d --staged

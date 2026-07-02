@@ -100,7 +100,10 @@ RSpec.describe Admin::UsersController, :enable_admin_mode, feature_category: :us
 
       context "when email OTP is required" do
         before do
-          stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
+          stub_application_setting(
+            email_otp_enabled: true,
+            require_minimum_email_based_otp_for_users_with_passwords: true
+          )
         end
 
         it 'cannot be set to nil' do
@@ -119,7 +122,10 @@ RSpec.describe Admin::UsersController, :enable_admin_mode, feature_category: :us
         let(:user) { create(:user, :two_factor) }
 
         before do
-          stub_application_setting(require_two_factor_authentication: true)
+          stub_application_setting(
+            email_otp_enabled: true,
+            require_two_factor_authentication: true
+          )
         end
 
         it 'cannot be set to a datetime' do

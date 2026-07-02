@@ -1016,19 +1016,19 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
           create(:user, email_otp_required_after: 1.second.ago)
         end
 
-        it 'fails' do
-          expect { gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request) }
-            .to raise_error(Gitlab::Auth::MissingPersonalAccessTokenError)
+        it 'goes through' do
+          expect(gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request))
+            .to have_attributes(actor: user, project: nil, type: :gitlab_or_ldap, authentication_abilities: described_class.full_authentication_abilities)
         end
 
-        context 'when :email_based_mfa feature flag disabled' do
+        context 'when email_otp_enabled application setting is enabled' do
           before do
-            stub_feature_flags(email_based_mfa: false)
+            stub_application_setting(email_otp_enabled: true)
           end
 
-          it 'goes through' do
-            expect(gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request))
-              .to have_attributes(actor: user, project: nil, type: :gitlab_or_ldap, authentication_abilities: described_class.full_authentication_abilities)
+          it 'fails' do
+            expect { gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request) }
+              .to raise_error(Gitlab::Auth::MissingPersonalAccessTokenError)
           end
         end
       end
@@ -1046,24 +1046,24 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
             stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
           end
 
-          it 'calls set_email_otp_required_after_based_on_restrictions and fails' do
-            allow_next_instance_of(User) do |instance|
-              expect(instance).to receive(:set_email_otp_required_after_based_on_restrictions)
-                .with(save: true).and_call_original
-            end
-
-            expect { gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request) }
-              .to raise_error(Gitlab::Auth::MissingPersonalAccessTokenError)
+          it 'goes through' do
+            expect(gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request))
+              .to have_attributes(actor: user, project: nil, type: :gitlab_or_ldap, authentication_abilities: described_class.full_authentication_abilities)
           end
 
-          context 'when :email_based_mfa feature flag disabled' do
+          context 'when email_otp_enabled application setting is enabled' do
             before do
-              stub_feature_flags(email_based_mfa: false)
+              stub_application_setting(email_otp_enabled: true)
             end
 
-            it 'goes through' do
-              expect(gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request))
-                .to have_attributes(actor: user, project: nil, type: :gitlab_or_ldap, authentication_abilities: described_class.full_authentication_abilities)
+            it 'calls set_email_otp_required_after_based_on_restrictions and fails' do
+              allow_next_instance_of(User) do |instance|
+                expect(instance).to receive(:set_email_otp_required_after_based_on_restrictions)
+                  .with(save: true).and_call_original
+              end
+
+              expect { gl_auth.find_for_git_client(user.username, user.password, project: nil, request: request) }
+                .to raise_error(Gitlab::Auth::MissingPersonalAccessTokenError)
             end
           end
         end

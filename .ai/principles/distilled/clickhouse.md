@@ -1,6 +1,6 @@
 ---
-source_checksum: 68b045be6b57fdd6
-distilled_at_sha: f61a71870e300699d0cbf5f4ba05fb6666928907
+source_checksum: 86de137923c89ec6
+distilled_at_sha: 9eb89263152259e883603c908db1e1cea6a1a74e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -27,6 +27,7 @@ distilled_at_sha: f61a71870e300699d0cbf5f4ba05fb6666928907
 - Generate post-deployment ClickHouse migrations using `bundle exec rails generate gitlab:click_house:post_deployment_migration MIGRATION_CLASS_NAME`.
 - Name migration files with a `YYYYMMDDHHMMSS_description_of_migration.rb` timestamp prefix and place them in `db/click_house/migrate/`.
 - Implement both `up` and `down` methods in every migration.
+- Commit the schema version marker file generated under `db/click_house/schema_migrations/main/<version>` together with the migration — the `clickhouse:check-schema` CI job fails when a migration is merged without its marker file; if you lack a local ClickHouse instance, run the migration to generate the marker file before committing.
 
 ### Dictionaries
 

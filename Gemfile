@@ -672,7 +672,12 @@ gem 'gitlab-experiment', '~> 1.6.0', feature_category: :acquisition
 
 # Structured logging
 gem 'lograge', '~> 0.5', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
-gem 'grape_logging', '~> 1.8', '>= 1.8.4', feature_category: :api
+
+if next?
+  gem 'grape_logging', '~> 3.0', feature_category: :api
+else
+  gem 'grape_logging', '~> 1.8', '>= 1.8.4', feature_category: :api
+end
 
 # DNS Lookup
 gem 'gitlab-net-dns', '~> 0.15.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839

@@ -305,6 +305,18 @@ principles:
       - path: doc/development/code_review.md
         url: https://docs.gitlab.com/development/code_review/
 
+  ai-instruction-files:
+    description: Reviewing AI instruction files under .ai/ (hand-authored modules, distilled principles, baselines, distillation config)
+    group: Code Review
+    owner_team: '@dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah'
+    team_slug: ai-harness
+    ping_team: false
+    file_filters:
+      - '.ai/**/*'
+    sources:
+      - path: doc/development/ai_instruction_files_review.md
+        url: https://docs.gitlab.com/development/ai_instruction_files_review/
+
   # ── Backend (3 sub-domains) ───────────────────────────────────────────────
 
   backend-ruby:

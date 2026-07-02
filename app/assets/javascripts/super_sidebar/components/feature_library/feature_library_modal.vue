@@ -1,7 +1,20 @@
 <script>
 import { GlModal, GlSearchBoxByType, GlScrollableTabs, GlTab, GlEmptyState } from '@gitlab/ui';
+import { debounce } from 'lodash-es';
+import { InternalEvents } from '~/tracking';
+import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
+import {
+  EVENT_OPEN_FEATURE_LIBRARY_MODAL,
+  EVENT_SEARCH_FEATURES_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_CLICK_CATEGORY_TAB_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_PIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_UNPIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
+  EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
+} from '../../tracking_constants';
 import { ALL_CATEGORY, ALL_CATEGORY_ID, MODAL_ID } from './constants';
 import FeatureLibraryItem from './feature_library_item.vue';
+
+const trackingMixin = InternalEvents.mixin();
 
 export default {
   name: 'FeatureLibraryModal',
@@ -13,6 +26,7 @@ export default {
     GlEmptyState,
     FeatureLibraryItem,
   },
+  mixins: [trackingMixin],
   modalId: MODAL_ID,
   props: {
     sections: {
@@ -55,6 +69,7 @@ export default {
           icon: item.library_icon || item.icon,
           tier: item.tier,
           category: section.id,
+          link: item.link,
         })),
       );
     },
@@ -74,17 +89,48 @@ export default {
       return this.filteredItems.length === 0;
     },
   },
+  created() {
+    this.debouncedTrackSearch = debounce(
+      () => this.trackEvent(EVENT_SEARCH_FEATURES_IN_FEATURE_LIBRARY_MODAL),
+      DEFAULT_DEBOUNCE_AND_THROTTLE_MS,
+    );
+  },
+  beforeUnmount() {
+    this.debouncedTrackSearch.cancel();
+  },
   methods: {
     isPinned(itemId) {
       return this.currentPinnedIds.includes(itemId);
     },
+    onShown() {
+      this.trackEvent(EVENT_OPEN_FEATURE_LIBRARY_MODAL);
+    },
     onTabClick(categoryId) {
       this.activeCategoryId = categoryId;
+      this.trackEvent(EVENT_CLICK_CATEGORY_TAB_IN_FEATURE_LIBRARY_MODAL, {
+        label: categoryId,
+      });
+    },
+    onSearchInput(value) {
+      this.searchQuery = value;
+      if (value.trim()) {
+        this.debouncedTrackSearch();
+      }
     },
     onPinToggle(itemId, nextState, title) {
       this.$emit('pin-toggle', itemId, nextState, title);
+      const event = nextState
+        ? EVENT_PIN_ITEM_IN_FEATURE_LIBRARY_MODAL
+        : EVENT_UNPIN_ITEM_IN_FEATURE_LIBRARY_MODAL;
+      this.trackEvent(event, { label: itemId });
+    },
+    onNavigate(itemId) {
+      this.trackEvent(EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL, {
+        label: itemId,
+      });
     },
     onHidden() {
+      this.debouncedTrackSearch.cancel();
       this.searchQuery = '';
       this.activeCategoryId = ALL_CATEGORY_ID;
     },
@@ -103,13 +149,14 @@ export default {
     scrollable
     hide-header
     hide-footer
+    @shown="onShown"
     @hidden="onHidden"
   >
     <gl-search-box-by-type
       :value="searchQuery"
       :placeholder="s__('FeatureLibrary|Search GitLab features')"
       class="gl-mb-4 gl-mt-3"
-      @input="searchQuery = $event"
+      @input="onSearchInput"
     />
     <gl-scrollable-tabs>
       <gl-tab
@@ -135,6 +182,7 @@ export default {
           :item="item"
           :pinned="isPinned(item.id)"
           @pin-toggle="onPinToggle"
+          @navigate="onNavigate"
         />
       </ul>
       <gl-empty-state

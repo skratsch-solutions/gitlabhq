@@ -48,6 +48,11 @@ export default {
       type: Boolean,
       required: true,
     },
+    projectPath: {
+      type: String,
+      required: false,
+      default: null,
+    },
     users: {
       type: Array,
       required: false,
@@ -97,6 +102,7 @@ export default {
       isMaintainersSelected: null,
       isDevelopersAndMaintainersSelected: null,
       isNoOneSelected: null,
+      selectedCustomRoleIds: [],
       isRuleUpdated: false,
     };
   },
@@ -114,6 +120,7 @@ export default {
       this.isMaintainersSelected = this.roles.includes(ACCESS_LEVEL_MAINTAINER_INTEGER);
       this.isDevelopersAndMaintainersSelected = this.roles.includes(ACCESS_LEVEL_DEVELOPER_INTEGER);
       this.isNoOneSelected = this.roles.includes(ACCESS_LEVEL_NO_ACCESS_INTEGER);
+      this.selectedCustomRoleIds = [];
 
       this.updatedGroups = this.groups;
       this.updatedUsers = this.users;
@@ -126,10 +133,15 @@ export default {
       this.isAdminSelected = false;
       this.isMaintainersSelected = false;
       this.isDevelopersAndMaintainersSelected = false;
+      this.selectedCustomRoleIds = [];
     },
     handleAccessLevelSelected() {
       this.isRuleUpdated = true;
       this.isNoOneSelected = false;
+    },
+    handleCustomRolesSelected(selectedIds) {
+      this.selectedCustomRoleIds = selectedIds;
+      this.handleAccessLevelSelected();
     },
     handleRuleDataUpdate(namespace, items) {
       this.isRuleUpdated = true;
@@ -218,6 +230,12 @@ export default {
             $options.accessLevelsConfig[$options.ACCESS_LEVEL_NO_ACCESS_INTEGER].accessLevelLabel
           }}
         </gl-form-checkbox>
+
+        <slot
+          name="ee-custom-roles"
+          :selected-ids="selectedCustomRoleIds"
+          :on-change="handleCustomRolesSelected"
+        ></slot>
 
         <template v-if="showEnterpriseAccessLevels">
           <items-selector

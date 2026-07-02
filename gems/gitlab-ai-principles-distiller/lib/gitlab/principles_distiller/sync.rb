@@ -41,6 +41,12 @@ module Gitlab
       # immediately would hit the same overloaded node.
       DISTILL_RETRY_BACKOFF_SECONDS = [300, 900, 1800].freeze
 
+      # Documentation pointer shown on failure so an author who trips the
+      # --check-duo-instructions guard (it also runs on doc/**/*.md changes)
+      # knows where to get context. Links the published docs page rather than a
+      # repo path, since it renders as a clickable URL in the CI log.
+      DUO_INSTRUCTIONS_DOC = 'https://docs.gitlab.com/development/documentation/ai-instruction-files-documentation/'
+
       def self.run
         new.run
       end
@@ -147,25 +153,64 @@ module Gitlab
         options
       end
 
-      # Read-only guard: reports any Duo Code Review instruction fence that is
-      # stale (recorded directives no longer match its distilled file),
-      # malformed (a BEGIN marker without exactly one matching region), or
-      # orphaned (a fence with no backing distilled file / manifest entry), and
-      # exits non-zero so CI can fail. Loads the manifest (for sources/filters)
-      # but performs no distillation or writes.
+      # Read-only guard for the Duo Code Review instruction fences in
+      # .gitlab/duo/mr-review-instructions.yaml. Loads the manifest (for
+      # sources/filters) but performs no distillation or writes.
+      #
+      # A freshly seeded fence (manifest entry present, distilled file pending)
+      # only warns: seeding a fence before its first distillation is the
+      # documented flow, so it must not fail the pipeline. Stale, malformed, or
+      # orphaned fences fail the guard (exit 1) so real drift cannot land
+      # silently. The failure message is self-service: it names the exact fix
+      # per category and links the developer docs, because this job also runs on
+      # doc/**/*.md changes and can surface to authors who never touched a fence.
       def check_duo_instructions
         manifest.load
-        problematic = manifest.problematic_duo_review_instructions
+        result = manifest.problematic_duo_review_instructions
 
-        if problematic.empty?
+        result.pending.each do |principle|
+          warn Rainbow("Duo review instruction fence '#{principle}' is seeded but not yet " \
+            'distilled; the next principles sync will populate it. No action needed.').yellow
+        end
+
+        if result.failing.empty?
           puts Rainbow('Duo review instruction fences are up to date.').green
           return
         end
 
-        warn Rainbow("Duo review instruction fences need attention: #{problematic.join(', ')}").red
-        warn 'Re-run the principles sync to regenerate stale fences; for a malformed or ' \
-          'orphaned fence, fix its markers or remove the fence.'
+        report_failing_fences(result)
         exit 1
+      end
+
+      # Prints per-category guidance for the fences that fail the guard, so the
+      # author knows exactly what to do rather than seeing a bare principle list.
+      def report_failing_fences(result)
+        warn Rainbow('Duo review instruction fences need attention ' \
+          "(#{DuoInstructions::DUO_PATH}):").red
+
+        if result.stale.any?
+          warn Rainbow("  Stale: #{result.stale.join(', ')}").red
+          warn '    The distilled file changed after the fence was generated. Regenerate the'
+          warn '    fences by running the principles sync from the repo root:'
+          warn Rainbow('      scripts/lint-duo-review-instructions.sh   # to re-check').faint
+          warn '    then commit the updated file. If you did not mean to change these fences'
+          warn "    (for example, you only edited docs), revert your change to #{DuoInstructions::DUO_PATH}."
+        end
+
+        if result.malformed.any?
+          warn Rainbow("  Malformed: #{result.malformed.join(', ')}").red
+          warn '    A BEGIN marker has no matching END, or a key is duplicated. Fix the'
+          warn '    markers so each fence is exactly one BEGIN/END pair, or remove the fence.'
+        end
+
+        if result.orphaned.any?
+          warn Rainbow("  Orphaned: #{result.orphaned.join(', ')}").red
+          warn '    The fence has no manifest entry and no distilled file, so it has no source'
+          warn '    of truth. Remove the fence, or add the matching principle to'
+          warn '    .ai/principles/manifest.yml if the fence should stay.'
+        end
+
+        warn "See #{DUO_INSTRUCTIONS_DOC} for how these fences are generated and kept in sync."
       end
 
       # Informational only; the Duo agent reads the file itself via the

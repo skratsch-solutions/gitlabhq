@@ -14,9 +14,9 @@ module API
 
     resource :organizations do
       desc 'Create an organization' do
-        detail 'This feature was introduced in GitLab 17.5. \
-                    This feature is behind the `allow_organization_creation` feature flag. \
-                    In GitLab 18.3, feature flag changed to `organization_switching`.'
+        detail 'Creates an organization. This feature was introduced in GitLab 17.5. ' \
+          'This feature is behind the `allow_organization_creation` feature flag. ' \
+          'In GitLab 18.3, the feature flag changed to `organization_switching`.'
         success Entities::Organizations::Organization
         tags %w[organizations]
       end

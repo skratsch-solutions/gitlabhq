@@ -369,11 +369,9 @@ RSpec.describe Projects::MergeRequests::ConflictsController, feature_category: :
         resolve_conflicts([])
       end
 
-      it 'returns a 500 with the error message' do
-        aggregate_failures do
-          expect(response).to have_gitlab_http_status(:internal_server_error)
-          expect(json_response['message']).to include('error')
-        end
+      it 'returns a 503 with the Gitaly unavailable error message', :aggregate_failures do
+        expect(response).to have_gitlab_http_status(:service_unavailable)
+        expect(json_response['error']).to include('Gitaly')
       end
     end
   end

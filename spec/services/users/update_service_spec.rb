@@ -82,7 +82,10 @@ RSpec.describe Users::UpdateService, feature_category: :user_profile do
       it 'calls Authn::EmailOtpEnrollment updater after setting the attribute' do
         # Create pre-conditions where email_otp_required_after is not
         # nil and may not be set to nil.
-        stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
+        stub_application_setting(
+          email_otp_enabled: true,
+          require_minimum_email_based_otp_for_users_with_passwords: true
+        )
         user.update!(email_otp_required_after: 30.days.ago)
 
         # UpdateService will first set the attribute to nil as

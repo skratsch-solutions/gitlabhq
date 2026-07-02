@@ -279,7 +279,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           within_testid('pipeline-url-table-cell') do
             expect(page).to have_link(
               'pipeline schedule',
-              href: edit_pipeline_schedule_path(schedule)
+              href: edit_project_pipeline_schedule_path(project, schedule)
             )
           end
         end

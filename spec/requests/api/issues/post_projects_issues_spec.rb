@@ -69,6 +69,13 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
   end
 
   describe 'POST /projects/:id/issues' do
+    describe 'mcp route setting' do
+      subject { post api("/projects/#{project.id}/issues", user), params: { title: 'new issue' } }
+
+      it_behaves_like 'an endpoint with mcp route setting', :create_issue,
+        expected_params: API::Helpers::IssuesHelpers.create_issue_mcp_params, status: :created
+    end
+
     it_behaves_like 'authorizing granular token permissions', :create_issue do
       let(:boundary_object) { project }
       let(:request) do

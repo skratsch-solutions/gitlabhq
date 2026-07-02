@@ -1,4 +1,4 @@
-import { GlButton, GlIcon } from '@gitlab/ui';
+import { GlButton, GlIcon, GlLink } from '@gitlab/ui';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
 import { TIERS } from '~/super_sidebar/components/feature_library/constants';
@@ -22,6 +22,7 @@ describe('FeatureLibraryItem', () => {
   };
 
   const findTitle = () => wrapper.findByTestId('feature-library-item-title');
+  const findTitleLink = () => wrapper.findComponent(GlLink);
   const findDescription = () => wrapper.findByTestId('feature-library-item-description');
   const findTierLabel = () => wrapper.findByTestId('feature-library-item-tier');
   const findIcon = () => wrapper.findComponent(GlIcon);
@@ -79,6 +80,31 @@ describe('FeatureLibraryItem', () => {
       // chip elevates with a shadow instead.
       expect(wrapper.classes()).toContain('hover:gl-shadow-md');
       expect(wrapper.classes()).not.toContain('hover:gl-bg-strong');
+    });
+  });
+
+  describe('title navigation', () => {
+    it('renders the title as a plain span (no link) when the item has no link', async () => {
+      createWrapper();
+      expect(findTitle().element.tagName).toBe('SPAN');
+      expect(findTitleLink().exists()).toBe(false);
+
+      await findTitle().trigger('click');
+      expect(wrapper.emitted('navigate')).toBeUndefined();
+    });
+
+    it('renders the title as a link when the item has a link', () => {
+      createWrapper({ item: { ...baseItem, link: '/-/repository' } });
+      expect(findTitle().element.tagName).toBe('A');
+      expect(findTitleLink().attributes('href')).toBe('/-/repository');
+    });
+
+    it('emits navigate with the item id when the title link is clicked', async () => {
+      createWrapper({ item: { ...baseItem, link: '/-/repository' } });
+      const link = findTitleLink();
+      link.element.addEventListener('click', (e) => e.preventDefault());
+      await link.trigger('click');
+      expect(wrapper.emitted('navigate')).toEqual([['repository']]);
     });
   });
 

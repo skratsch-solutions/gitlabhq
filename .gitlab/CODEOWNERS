@@ -181,8 +181,8 @@ yarn.lock @gitlab-org/maintainers/frontend
 ## Monolith AI harness files that do not need `*` rule approval,
 ## but require approval from an AI harness DRI for each file.
 ## See https://gitlab.com/groups/gitlab-org/-/work_items/20880+s
-/.agents/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
-/.ai/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah
+/.agents/ @dgruzd @pedropombeiro @ghavenga @tkuah
+/.ai/ @dgruzd @pedropombeiro @ghavenga @tkuah
 # BEGIN GENERATED: gitlab-ai-principles-distiller — do not edit manually
 /.ai/principles/distilled/database-fundamentals.md @gitlab-org/maintainers/database
 /.ai/principles/distilled/database-migrations.md @gitlab-org/maintainers/database
@@ -197,6 +197,7 @@ yarn.lock @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/permissions-graphql-gpat.md @gitlab-org/software-supply-chain-security/authorization/approvers
 /.ai/principles/distilled/permissions-rest-gpat.md @gitlab-org/software-supply-chain-security/authorization/approvers
 /.ai/principles/distilled/code-review.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/ai-instruction-files.md @dgruzd @pedropombeiro @ghavenga @tkuah
 /.ai/principles/distilled/backend-ruby.md @gitlab-org/maintainers/rails-backend
 /.ai/principles/distilled/backend-architecture.md @gitlab-org/maintainers/rails-backend
 /.ai/principles/distilled/backend-ee.md @gitlab-org/maintainers/rails-backend
@@ -222,15 +223,15 @@ yarn.lock @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/feature-flags.md @gitlab-org/maintainers/rails-backend
 /.ai/principles/distilled/analytics.md @gitlab-org/analytics-section/analytics-instrumentation/engineers @gitlab-org/analytics-section/product-analytics/engineers/frontend
 # END GENERATED: gitlab-ai-principles-distiller
-/.claude/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
-/AGENTS.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
-/CLAUDE.md @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
-/opencode.example.json @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
-/scripts/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
-/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
-/spec/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah @dmishunov
+/.claude/ @dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov
+/AGENTS.md @dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov
+/CLAUDE.md @dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov
+/opencode.example.json @dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov
+/scripts/ai_harness/ @dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov
+/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov
+/spec/tooling/ai_harness/ @dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov
 
-config/bounded_contexts.yml @fabiopitino @grzesiek @stanhu @cwoolley-gitlab @tkuah
+config/bounded_contexts.yml @fabiopitino @grzesiek @stanhu @tkuah
 
 ^[Source code editing]
 .solargraph.yml.example @igor.drozdov

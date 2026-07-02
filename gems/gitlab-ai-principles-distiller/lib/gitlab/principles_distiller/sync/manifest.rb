@@ -486,19 +486,27 @@ module Gitlab
           puts "  Updated #{DUO_REVIEW_INSTRUCTIONS_PATH} (#{fences.size} generated region(s))"
         end
 
-        # Returns the fenced principles whose region needs attention: stale
-        # (recorded directives differ from the distilled frontmatter), malformed
-        # (a BEGIN marker without exactly one matching region), or orphaned (a
-        # fence with no backing distilled file / manifest entry). Returns an
-        # empty array when every region is current. Read-only; drives the
-        # --check-duo-instructions CI guard.
+        # Classifies the fenced principles whose region needs attention and
+        # returns a DuoInstructions::Result grouping them into stale (recorded
+        # directives differ from the distilled frontmatter), malformed (a BEGIN
+        # marker without exactly one matching region), pending (a freshly seeded
+        # fence whose manifest entry exists but whose distilled file has not been
+        # generated yet), and orphaned (a fence with neither a distilled file nor
+        # a manifest entry). Every category is empty when the file is absent.
+        # Read-only; drives the --check-duo-instructions CI guard.
+        #
+        # `seeded` is the full set of manifest principle keys, so the guard can
+        # tell a valid pending seed from a truly orphaned fence.
         def problematic_duo_review_instructions
           path = Workspace.safe_join(DUO_REVIEW_INSTRUCTIONS_PATH)
-          return [] unless File.exist?(path)
+          unless File.exist?(path)
+            return DuoInstructions::Result.new(stale: [], malformed: [], pending: [],
+              orphaned: [])
+          end
 
           content = File.read(path)
           fences = build_duo_fences(DuoInstructions.fenced_principles(content))
-          DuoInstructions.check(content, fences: fences)
+          DuoInstructions.check(content, fences: fences, seeded: principles.keys)
         end
 
         # Builds the DuoInstructions fence data for the given principle names by

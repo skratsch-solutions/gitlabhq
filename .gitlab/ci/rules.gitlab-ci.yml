@@ -379,13 +379,14 @@
   # See the `ai-principles-manifest` job in docs.gitlab-ci.yml for why this
   # trigger is intentionally broad. gitlab-org/gitlab#604077
   - ".ai/*.md"
-  - ".ai/principles/baselines/**/*.md"
-  - ".ai/principles/manifest.yml"
+  - ".ai/principles/**/*"
   - ".gitlab/ci/docs.gitlab-ci.yml"
   - ".gitlab/ci/rules.gitlab-ci.yml"
+  - ".gitlab/duo/mr-review-instructions.yaml"
   - "doc/**/*.md"
   - "gems/gitlab-ai-principles-distiller/**/*"
   - "scripts/lint-ai-principles-manifest.sh"
+  - "scripts/lint-duo-review-instructions.sh"
 
 .docs-i18n-patterns: &docs-i18n-patterns
   - ".gitlab/ci/docs.gitlab-ci.yml"

@@ -1,11 +1,11 @@
 <script>
-import { GlButton, GlBadge, GlIcon } from '@gitlab/ui';
+import { GlButton, GlBadge, GlIcon, GlLink } from '@gitlab/ui';
 import { sprintf, __, s__ } from '~/locale';
 import { TIERS } from './constants';
 
 export default {
   name: 'FeatureLibraryItem',
-  components: { GlButton, GlBadge, GlIcon },
+  components: { GlButton, GlBadge, GlIcon, GlLink },
   i18n: {
     free: __('Free'),
     premium: __('Premium'),
@@ -30,7 +30,7 @@ export default {
       default: false,
     },
   },
-  emits: ['pin-toggle'],
+  emits: ['pin-toggle', 'navigate'],
   computed: {
     tierLabel() {
       switch (this.item.tier) {
@@ -57,6 +57,9 @@ export default {
     onPinClick() {
       this.$emit('pin-toggle', this.item.id, !this.pinned, this.item.title);
     },
+    onNavigate() {
+      this.$emit('navigate', this.item.id);
+    },
   },
 };
 </script>
@@ -74,7 +77,17 @@ export default {
       <gl-icon :name="item.icon" :size="16" />
     </span>
     <div class="gl-min-w-0 gl-flex-grow">
-      <span data-testid="feature-library-item-title" class="gl-font-bold">
+      <gl-link
+        v-if="item.link"
+        variant="meta"
+        :href="item.link"
+        data-testid="feature-library-item-title"
+        class="gl-font-bold"
+        @click="onNavigate"
+      >
+        {{ item.title }}
+      </gl-link>
+      <span v-else data-testid="feature-library-item-title" class="gl-font-bold">
         {{ item.title }}
       </span>
       <p data-testid="feature-library-item-description" class="gl-mb-1 gl-text-sm">

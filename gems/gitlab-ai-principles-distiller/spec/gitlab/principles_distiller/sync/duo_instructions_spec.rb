@@ -188,15 +188,19 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::DuoInstructions do
   end
 
   describe '.check' do
-    subject(:checked) { described_class.check(yaml, fences: check_fences) }
+    subject(:checked) { described_class.check(yaml, fences: check_fences, seeded: seeded) }
 
-    # Defaults; inner contexts override `yaml` and/or `check_fences`.
+    # Defaults; inner contexts override `yaml`, `check_fences`, and/or `seeded`.
     let(:yaml) { fixture }
     let(:check_fences) { fences }
+    let(:seeded) { ['documentation'] }
 
     context 'when the recorded directives are stale' do
-      it 'returns the principle' do
-        expect(checked).to eq(['documentation'])
+      it 'groups the principle under stale and marks it failing' do
+        expect(checked.stale).to eq(['documentation'])
+        expect(checked.failing).to eq(['documentation'])
+        expect(checked.pending).to be_empty
+        expect(checked).not_to be_clean
       end
     end
 
@@ -207,8 +211,10 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::DuoInstructions do
         end
       end
 
-      it 'returns an empty array' do
-        expect(checked).to eq([])
+      it 'is clean with no failing or pending fences' do
+        expect(checked.failing).to eq([])
+        expect(checked.pending).to eq([])
+        expect(checked).to be_clean
       end
     end
 
@@ -220,18 +226,50 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::DuoInstructions do
       end
 
       it 'detects the staleness' do
-        expect(checked).to eq(['documentation'])
+        expect(checked.stale).to eq(['documentation'])
+        expect(checked.failing).to eq(['documentation'])
       end
     end
 
-    context 'when a fenced principle is orphaned (absent from the fences data)' do
+    context 'when a fence has a manifest entry but no distilled file yet' do
       let(:check_fences) { {} }
+      let(:seeded) { ['documentation'] }
 
-      # A fence exists in the YAML but its distilled file / manifest entry is
-      # gone, so build_duo_fences omits it. The read-only guard must still
-      # surface it rather than silently report "up to date".
-      it 'flags the orphaned principle' do
-        expect(checked).to eq(['documentation'])
+      # The documented seed-then-distill state: a fence is added before its
+      # first distillation. build_duo_fences omits it (no distilled file), but
+      # because it has a manifest entry the guard must treat it as a pending
+      # seed (warn) rather than a failing orphan.
+      it 'classifies the fence as pending and does not fail' do
+        expect(checked.pending).to eq(['documentation'])
+        expect(checked.orphaned).to be_empty
+        expect(checked.failing).to eq([])
+        expect(checked).not_to be_clean
+      end
+    end
+
+    context 'when a fence has neither a distilled file nor a manifest entry' do
+      let(:check_fences) { {} }
+      let(:seeded) { [] }
+
+      # Truly orphaned: no source of truth and no manifest entry that would
+      # produce one. The guard must fail.
+      it 'classifies the fence as orphaned and fails' do
+        expect(checked.orphaned).to eq(['documentation'])
+        expect(checked.pending).to be_empty
+        expect(checked.failing).to eq(['documentation'])
+      end
+    end
+
+    context 'when seeded is nil (no manifest context supplied)' do
+      let(:check_fences) { {} }
+      let(:seeded) { nil }
+
+      # Backwards-compatible fallback: without manifest context every fence
+      # lacking a distilled file is treated as orphaned.
+      it 'treats a fence with no distilled file as orphaned' do
+        expect(checked.orphaned).to eq(['documentation'])
+        expect(checked.pending).to be_empty
+        expect(checked.failing).to eq(['documentation'])
       end
     end
 
@@ -244,7 +282,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::DuoInstructions do
       end
 
       it 'flags the principle as malformed even when directives would otherwise match' do
-        expect(checked).to eq(['documentation'])
+        expect(checked.malformed).to eq(['documentation'])
+        expect(checked.failing).to eq(['documentation'])
       end
     end
 
@@ -274,7 +313,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::DuoInstructions do
       end
 
       it 'flags the duplicated principle as malformed' do
-        expect(checked).to eq(['documentation'])
+        expect(checked.malformed).to eq(['documentation'])
+        expect(checked.failing).to eq(['documentation'])
       end
     end
   end

@@ -1053,6 +1053,7 @@ CREATE TABLE siphon_duo_workflows_workflows
     `summary` Nullable(String),
     `title` Nullable(String),
     `_siphon_watermark` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `incremental_checkpoints_enabled` Nullable(Bool),
     INDEX idx_siphon_watermark_minmax _siphon_watermark TYPE minmax GRANULARITY 1,
     PROJECTION pg_pkey_ordered
     (

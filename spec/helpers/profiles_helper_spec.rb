@@ -207,6 +207,7 @@ RSpec.describe ProfilesHelper, feature_category: :user_profile do
     let(:email_otp_required_after) { nil }
 
     before do
+      stub_application_setting(email_otp_enabled: true)
       allow(user).to receive_messages(email_otp_required_after: email_otp_required_after)
     end
 
@@ -309,6 +310,7 @@ RSpec.describe ProfilesHelper, feature_category: :user_profile do
     let(:email_otp_required_after) { nil }
 
     before do
+      stub_application_setting(email_otp_enabled: true)
       allow(user).to receive_messages(
         email_otp_required_as_boolean: email_otp_required_as_boolean,
         email_otp_required_after: email_otp_required_after

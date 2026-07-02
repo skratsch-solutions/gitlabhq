@@ -204,6 +204,30 @@ Example:
 Show me all pipelines for merge request 42 in project gitlab-org/gitlab
 ```
 
+## `create_merge_request_note`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/597494) in GitLab 19.2.
+
+{{< /history >}}
+
+Adds a comment or reply to a discussion on a GitLab merge request as the authenticated user.
+
+| Parameter           | Type    | Required | Description |
+|---------------------|---------|----------|-------------|
+| `url`               | string  | No       | URL of the GitLab merge request. Required if `project_id` and `merge_request_iid` are missing. |
+| `project_id`        | string  | No       | ID or URL-encoded path of the project. Required if `url` is missing. |
+| `merge_request_iid` | integer | No       | Internal ID of the merge request. Required if `url` is missing. |
+| `body`              | string  | Yes      | Content of the note. Lines cannot start with `/` to avoid triggering quick actions (for example, `/merge`). |
+| `discussion_id`     | string  | No       | Global ID of the discussion to reply to (in the format `gid://gitlab/Discussion/<id>`). If missing, creates a new top-level note. |
+
+Example:
+
+```plaintext
+Reply "Thanks, fixed in the latest push" to merge request 42 in project gitlab-org/gitlab
+```
+
 ## `get_merge_request_notes`
 
 {{< history >}}

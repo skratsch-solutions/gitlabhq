@@ -3613,6 +3613,14 @@ RSpec.describe Repository, feature_category: :source_code_management do
       expect(repository.avatar).to be_nil
     end
 
+    context 'when the repository is corrupt or headless and raises a Gitaly error (https://gitlab.com/gitlab-org/gitlab/-/issues/604218)' do
+      it 'returns nil instead of propagating the error' do
+        allow(repository).to receive(:root_ref).and_raise(Gitlab::Git::CommandError)
+
+        expect(repository.avatar).to be_nil
+      end
+    end
+
     it 'returns the first avatar file found in the repository' do
       expect(repository).to receive(:file_on_head)
                               .with(:avatar)

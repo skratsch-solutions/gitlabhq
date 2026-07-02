@@ -21040,6 +21040,7 @@ CREATE TABLE duo_workflows_workflows (
     messaging_callback_context jsonb,
     title text,
     model_metadata_json text,
+    incremental_checkpoints_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_1033e7a455 CHECK ((char_length(title) <= 40)),
     CONSTRAINT check_13bb5688db CHECK ((char_length(summary) <= 1024)),
     CONSTRAINT check_30ca07a4ef CHECK ((char_length(goal) <= 16384)),
@@ -46487,7 +46488,7 @@ CREATE INDEX idx_scan_result_policies_on_configuration_id_id_updated_at ON scan_
 
 CREATE INDEX idx_scan_result_policy_violations_on_policy_id_and_id ON scan_result_policy_violations USING btree (scan_result_policy_id, id);
 
-CREATE INDEX idx_sec_inv_filters_traversal_project_ids_aggregate_booleans ON security_inventory_filters USING btree (traversal_ids, project_id) INCLUDE (has_scanners, has_failed_or_warning, has_stale) WHERE (NOT archived);
+CREATE INDEX idx_sec_inv_filters_traversal_proj_covering ON security_inventory_filters USING btree (traversal_ids, project_id) INCLUDE (has_scanners, has_failed_or_warning, has_stale, sast, dependency_scanning, secret_detection) WHERE (NOT archived);
 
 CREATE INDEX idx_sec_inv_filters_traversals_unarchived_proj_severities_sort ON security_inventory_filters USING btree (traversal_ids, project_id, id DESC) WHERE ((NOT archived) AND ((critical > 0) OR (high > 0)));
 

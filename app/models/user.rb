@@ -1535,18 +1535,11 @@ class User < ApplicationRecord
     otp_secret_expires_at.past?
   end
 
-  # Centralised location while transitioning from Feature Flag to
-  # Application Setting.
-  # TODO: Remove after https://gitlab.com/gitlab-org/gitlab/-/work_items/599948
-  def email_otp_available?
-    ::Feature.enabled?(:email_based_mfa, self) || ::Gitlab::CurrentSettings.email_otp_enabled?
-  end
-
   def email_based_otp_required?
     # Ensure that `email_otp_required_after` is set to a valid state.
     set_email_otp_required_after_based_on_restrictions(save: true)
 
-    email_otp_available? &&
+    ::Gitlab::CurrentSettings.email_otp_enabled? &&
       email_otp_required_after.present? && email_otp_required_after <= Time.zone.now
   end
 
@@ -3365,27 +3358,6 @@ class User < ApplicationRecord
 
   def unique_attributes
     [:username, :email]
-  end
-
-  ##
-  # Decrypt and return the `encrypted_otp_secret` attribute which was used in
-  # prior versions of devise-two-factor
-  # @return [String] The decrypted OTP secret
-  def legacy_otp_secret
-    return unless self[:encrypted_otp_secret]
-    return unless self.class.otp_secret_encryption_key
-
-    hmac_iterations = 2000 # a default set by the Encryptor gem
-    key = self.class.otp_secret_encryption_key
-    salt = Base64.decode64(encrypted_otp_secret_salt)
-    iv = Base64.decode64(encrypted_otp_secret_iv)
-    cipher_text = Base64.decode64(encrypted_otp_secret)
-    cipher = OpenSSL::Cipher.new('aes-256-cbc')
-
-    cipher.decrypt
-    cipher.key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(key, salt, hmac_iterations, cipher.key_len)
-    cipher.iv = iv
-    cipher.update(cipher_text) + cipher.final
   end
 end
 

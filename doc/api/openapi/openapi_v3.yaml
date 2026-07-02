@@ -753,8 +753,10 @@ paths:
   "/api/v4/projects/{id}/compliance_external_controls/{control_id}/status":
     patch:
       operationId: patchApiV4ProjectsIdComplianceExternalControlsControlIdStatus
-      summary: Update the status of a control
-      description: Updates the status of an external compliance control
+      summary: Set status of an external control
+      description: Sets the status of a specified external control. Use this operation
+        to inform GitLab that a control has passed or failed a check by an external
+        service.
       tags:
       - Compliance policy settings
       responses:
@@ -2257,8 +2259,9 @@ paths:
   "/api/v4/group_repository_storage_moves/{repository_storage_move_id}":
     get:
       operationId: getApiV4GroupRepositoryStorageMovesRepositoryStorageMoveId
-      summary: Get a group repository storage move
-      description: This feature was introduced in GitLab 13.9.
+      summary: Retrieve a group repository storage move
+      description: Retrieves a specified group repository storage move. This feature
+        was introduced in GitLab 13.9.
       tags:
       - Storage moves
       responses:
@@ -2357,8 +2360,9 @@ paths:
   "/api/v4/groups/{id}/repository_storage_moves/{repository_storage_move_id}":
     get:
       operationId: getApiV4GroupsIdRepositoryStorageMovesRepositoryStorageMoveId
-      summary: Get a group repository storage move
-      description: This feature was introduced in GitLab 13.9.
+      summary: Retrieve a repository storage move for a group
+      description: Retrieves a specified repository storage move for a group. This
+        feature was introduced in GitLab 13.9.
       tags:
       - Storage moves
       responses:
@@ -2388,8 +2392,11 @@ paths:
   "/api/v4/projects/{id}/iterations":
     get:
       operationId: getApiV4ProjectsIdIterations
-      summary: Get a list of project iterations
-      description: This feature was introduced in GitLab 13.5
+      summary: List all project iterations
+      description: Lists all iterations for a specified project. Iterations created
+        by **Enable automatic scheduling** in iteration cadences return `null` for
+        the `title` and `description` fields. This feature was introduced in GitLab
+        13.5.
       tags:
       - Iterations
       responses:
@@ -2511,8 +2518,11 @@ paths:
   "/api/v4/groups/{id}/iterations":
     get:
       operationId: getApiV4GroupsIdIterations
-      summary: Get a list of group iterations
-      description: This feature was introduced in GitLab 13.5
+      summary: List all group iterations
+      description: Lists all iterations for a specified group. Iterations created
+        by **Enable automatic scheduling** in iteration cadences return `null` for
+        the `title` and `description` fields. This feature was introduced in GitLab
+        13.5.
       tags:
       - Iterations
       responses:
@@ -3400,10 +3410,10 @@ paths:
   "/api/v4/projects/{project_id}/product_analytics/request/load":
     post:
       operationId: postApiV4ProjectsProjectIdProductAnalyticsRequestLoad
-      summary: |-
-        Proxy analytics request to cube installation.
-                    Requires :product_analytics_features flag to be enabled.
-      description: Proxies analytics requests to the cube installation
+      summary: Create a Cube query request
+      description: Creates a query request to the Cube API for product analytics and
+        generates an access token. Requires the `product_analytics_features` flag
+        to be enabled.
       tags:
       - Analytics
       - Internal operations
@@ -3430,8 +3440,9 @@ paths:
   "/api/v4/projects/{project_id}/product_analytics/request/dry-run":
     post:
       operationId: postApiV4ProjectsProjectIdProductAnalyticsRequestDryRun
-      summary: Dry-run analytics request to cube installation.
-      description: Performs a dry-run of an analytics request to the cube installation
+      summary: Create a Cube query request
+      description: Creates a query request to the Cube API and generates an access
+        token.
       tags:
       - Analytics
       - Internal operations
@@ -8140,9 +8151,9 @@ paths:
     get:
       operationId: getApiV4Experiments
       summary: List all experiments
-      description: Get a list of all experiments. Each experiment has an enabled status
-        that indicates whetherthe experiment is enabled globally, or only in specific
-        contexts.
+      description: Lists all experiments on the GitLab instance. Each experiment has
+        an `enabled` status that indicates whether the experiment is enabled globally,
+        or only in specific contexts.
       tags:
       - Experiments
       responses:
@@ -8441,8 +8452,9 @@ paths:
   "/api/v4/groups/{id}/epic_boards":
     get:
       operationId: getApiV4GroupsIdEpicBoards
-      summary: Get all group epic boards
-      description: This feature was introduced in 15.9
+      summary: List all epic boards in a group
+      description: Lists all epic boards for a specified group. This feature was introduced
+        in GitLab 15.9.
       tags:
       - Epics
       responses:
@@ -8487,8 +8499,9 @@ paths:
   "/api/v4/groups/{id}/epic_boards/{board_id}":
     get:
       operationId: getApiV4GroupsIdEpicBoardsBoardId
-      summary: Find a group epic board
-      description: This feature was introduced in 15.9
+      summary: Retrieve a group epic board
+      description: Retrieves a specified group epic board. This feature was introduced
+        in GitLab 15.9.
       tags:
       - Epics
       responses:
@@ -8522,9 +8535,9 @@ paths:
   "/api/v4/groups/{id}/epic_boards/{board_id}/lists":
     get:
       operationId: getApiV4GroupsIdEpicBoardsBoardIdLists
-      summary: Get the lists of a group epic board
-      description: Does not include backlog and closed lists. This feature was introduced
-        in 15.9
+      summary: List all group epic board lists
+      description: Lists all group epic board lists for a specified board. Does not
+        include `open` and `closed` lists. This feature was introduced in GitLab 15.9.
       tags:
       - Epics
       responses:
@@ -8576,8 +8589,9 @@ paths:
   "/api/v4/groups/{id}/epic_boards/{board_id}/lists/{list_id}":
     get:
       operationId: getApiV4GroupsIdEpicBoardsBoardIdListsListId
-      summary: Get a list of a group epic board
-      description: This feature was introduced in 15.9
+      summary: Retrieve a group epic board list
+      description: Retrieves a specified group epic board list. This feature was introduced
+        in GitLab 15.9.
       tags:
       - Epics
       responses:
@@ -8618,8 +8632,9 @@ paths:
   "/api/v4/groups/{id}/epics":
     get:
       operationId: getApiV4GroupsIdEpics
-      summary: Get epics for the group
-      description: Gets all epics of the requested group and its subgroups
+      summary: List all group epics
+      description: Lists all epics for a specified group and its subgroups. Responses
+        are paginated and return 20 results by default.
       tags:
       - Epics
       responses:
@@ -8846,8 +8861,9 @@ paths:
   "/api/v4/groups/{id}/-/epics":
     get:
       operationId: getApiV4GroupsIdDashEpics
-      summary: Get epics for the group
-      description: Gets all epics of the requested group and its subgroups
+      summary: List all group epics
+      description: Lists all epics for a specified group and its subgroups. Responses
+        are paginated and return 20 results by default.
       tags:
       - Epics
       responses:
@@ -9443,8 +9459,8 @@ paths:
   "/api/v4/groups/{id}/(-/)epics/{epic_iid}/issues/{epic_issue_id}":
     put:
       operationId: putApiV4GroupsIdDashEpicsEpicIidIssuesEpicIssueId
-      summary: Update epic-issue association
-      description: Updates an epic-issue association
+      summary: Update a related epic link
+      description: Updates the relation of a specified issue to an epic.
       tags:
       - Epics
       responses:
@@ -9499,9 +9515,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_762bc8bc4768"
     post:
       operationId: postApiV4GroupsIdDashEpicsEpicIidIssuesIssueId
-      summary: Assign an issue to the epic
-      description: Creates an epic-issue association. If the issue in question belongs
-        to another epic it is unassigned from that epic
+      summary: Add an issue to an epic
+      description: Adds a specified issue to an epic. If the issue already belongs
+        to another epic, it is removed from the original epic.
       tags:
       - Epics
       responses:
@@ -9551,7 +9567,7 @@ paths:
     delete:
       operationId: deleteApiV4GroupsIdDashEpicsEpicIidIssuesEpicIssueId
       summary: Remove an issue from the epic
-      description: Removes an epic-issue association
+      description: Removes an issue from the epic. Does not delete the issue.
       tags:
       - Epics
       responses:
@@ -9599,9 +9615,10 @@ paths:
   "/api/v4/groups/{id}/epics/{epic_iid}/issues":
     get:
       operationId: getApiV4GroupsIdEpicsEpicIidIssues
-      summary: List issues for an epic
-      description: Gets all issues that are assigned to an epic and the authenticated
-        user has access to
+      summary: List all issues for an epic
+      description: Lists all issues assigned to a specified epic that are available
+        to the authenticated user. Responses are paginated and return 20 results by
+        default.
       tags:
       - Epics
       responses:
@@ -9658,9 +9675,10 @@ paths:
   "/api/v4/groups/{id}/-/epics/{epic_iid}/issues":
     get:
       operationId: getApiV4GroupsIdDashEpicsEpicIidIssues
-      summary: List issues for an epic
-      description: Gets all issues that are assigned to an epic and the authenticated
-        user has access to
+      summary: List all issues for an epic
+      description: Lists all issues assigned to a specified epic that are available
+        to the authenticated user. Responses are paginated and return 20 results by
+        default.
       tags:
       - Epics
       responses:
@@ -11222,7 +11240,9 @@ paths:
   "/api/v4/audit_events":
     get:
       operationId: getApiV4AuditEvents
-      summary: Get the list of audit events
+      summary: List all instance audit events
+      description: Lists all available instance audit events, limited to a maximum
+        of 30 days for each query.
       tags:
       - Audit events
       responses:
@@ -11294,7 +11314,8 @@ paths:
   "/api/v4/audit_events/{id}":
     get:
       operationId: getApiV4AuditEventsId
-      summary: Get single audit event
+      summary: Retrieve an instance audit event
+      description: Retrieves a specified instance audit event.
       tags:
       - Audit events
       responses:
@@ -37000,10 +37021,9 @@ paths:
     post:
       operationId: postApiV4Organizations
       summary: Create an organization
-      description: |-
-        This feature was introduced in GitLab 17.5. \
-                            This feature is behind the `allow_organization_creation` feature flag. \
-                            In GitLab 18.3, feature flag changed to `organization_switching`.
+      description: Creates an organization. This feature was introduced in GitLab
+        17.5. This feature is behind the `allow_organization_creation` feature flag.
+        In GitLab 18.3, the feature flag changed to `organization_switching`.
       tags:
       - Organizations
       responses:

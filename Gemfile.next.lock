@@ -1079,8 +1079,8 @@ GEM
     grape-swagger-entity (0.7.1)
       grape-entity (~> 1)
       grape-swagger (~> 2)
-    grape_logging (1.8.4)
-      grape
+    grape_logging (3.0.0)
+      grape (>= 2.4.0)
       rack
     graphlyte (1.0.0)
     graphql (2.6.3)
@@ -2521,7 +2521,7 @@ DEPENDENCIES
   grape-path-helpers (~> 2.0.1)
   grape-swagger (~> 2.1.2)
   grape-swagger-entity (~> 0.7.0)
-  grape_logging (~> 1.8, >= 1.8.4)
+  grape_logging (~> 3.0)
   graphlyte (~> 1.0.0)
   graphql (= 2.6.3)
   graphql-docs (~> 5.2.0)
@@ -3056,7 +3056,7 @@ CHECKSUMS
   grape-path-helpers (2.0.1) sha256=ad5216e52c6e796738a9118087352ab4c962900dbad1d8f8c0f96e093c6702d7
   grape-swagger (2.1.2) sha256=8ad7bd53c8baee704575808875dba8c08d269c457db3cf8f1b8a2a1dbf827294
   grape-swagger-entity (0.7.1) sha256=082144811cdd14c15b9d9f0a27a4e3ff9c27c7081130d334a3de59953769b37d
-  grape_logging (1.8.4) sha256=efcc3e322dbd5d620a68f078733b7db043cf12680144cd03c982f14115c792d1
+  grape_logging (3.0.0) sha256=7b62d984ce96df15d120508668debe307e6a59ac1c511f1d9b5f3b4bea793e13
   graphlyte (1.0.0) sha256=b5af4ab67dde6e961f00ea1c18f159f73b52ed11395bb4ece297fe628fa1804d
   graphql (2.6.3) sha256=31fe845b509fda27db38d09380f27ffc0de1c7ea2f9f3b12fa42bdde8317239b
   graphql-docs (5.2.0) sha256=44d41724529f531adf9265ded7478b74b0c4b927cddc8b9f114337a73f32de08

@@ -160,19 +160,13 @@ RSpec.describe SessionsHelper, feature_category: :system_access do
   describe '#fallback_to_email_otp_permitted?' do
     let_it_be_with_reload(:user) { create(:user) } # rubocop:disable RSpec/FactoryBot/AvoidCreate -- we need to create it
 
-    context 'when email_based_mfa feature flag is disabled' do
-      before do
-        stub_feature_flags(email_based_mfa: false)
-      end
-
-      it 'returns false' do
-        expect(helper.fallback_to_email_otp_permitted?(user)).to be false
-      end
+    it 'returns false' do
+      expect(helper.fallback_to_email_otp_permitted?(user)).to be false
     end
 
-    context 'when email_based_mfa feature flag is enabled' do
+    context 'when email_otp_enabled application setting is enabled' do
       before do
-        stub_feature_flags(email_based_mfa: user)
+        stub_application_setting(email_otp_enabled: true)
       end
 
       context 'when user has email_otp_required_after set to nil' do

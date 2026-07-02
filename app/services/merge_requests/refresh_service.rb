@@ -98,11 +98,14 @@ module MergeRequests
         .preload_merge_data(@project)
         .preload_latest_diff_commit(@project)
         .where(target_branch: @push.branch_name).to_a
-        .select(&:diff_head_commit)
+        # Filter on the cheap persisted columns (diff_head_sha, diff state) first so the
+        # Gitaly-backed `diff_head_commit` lookup only runs for the handful of MRs whose
+        # head is actually part of this push, instead of every open MR targeting the branch.
         .select do |merge_request|
           commit_ids.include?(merge_request.diff_head_sha) &&
             merge_request.merge_request_diff.state != 'empty'
         end
+        .select(&:diff_head_commit)
       merge_requests = filter_merge_requests(merge_requests)
 
       return if merge_requests.empty?
