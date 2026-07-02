@@ -133,6 +133,14 @@ Grants the ability to create, read, and update continuous deployment environment
 | Read | Instance | Type | `CdEnvironmentDriverBinding` |
 | Update | Instance | Mutation | `CdEnvironmentUpdate` |
 
+#### CD Rollout
+
+Grants the ability to create CD rollouts.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdRolloutCreate` |
+
 #### CD Service
 
 Grants the ability to create and update continuous deployment services.

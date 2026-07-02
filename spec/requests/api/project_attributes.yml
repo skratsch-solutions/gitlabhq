@@ -212,6 +212,7 @@ project_setting:
     - duo_sast_fp_detection_enabled
     - duo_sast_vr_workflow_enabled
     - duo_secret_detection_fp_enabled
+    - duo_dependency_bump_breaking_changes_enabled
     - enabled_foundational_flows
     - merge_request_title_regex
     - merge_request_title_regex_description

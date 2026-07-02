@@ -253,6 +253,8 @@
   - 1
 - - bulk_imports_user_contributions_export
   - 1
+- - cd_rollouts_start
+  - 1
 - - cells_bulk_claims
   - 1
 - - cells_claims_verification

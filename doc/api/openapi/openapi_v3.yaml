@@ -31367,7 +31367,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_11fa9d6a7a9b"
+              "$ref": "#/components/schemas/RequestBody_cddb6354bbc1"
   "/api/v4/projects/user/{user_id}":
     post:
       operationId: postApiV4ProjectsUserUserId
@@ -31400,7 +31400,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_f577394af6d6"
+              "$ref": "#/components/schemas/RequestBody_55f54cba61d3"
   "/api/v4/projects/{id}/share_locations":
     get:
       operationId: getApiV4ProjectsIdShareLocations
@@ -31520,7 +31520,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_072680597c31"
+              "$ref": "#/components/schemas/RequestBody_5338037b0cb1"
     delete:
       operationId: deleteApiV4ProjectsId
       summary: Delete a project
@@ -33965,7 +33965,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_f952cf94800f"
+              "$ref": "#/components/schemas/RequestBody_1b0c9208f451"
   "/api/v4/projects/{id}/import":
     get:
       operationId: getApiV4ProjectsIdImport
@@ -34072,7 +34072,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_259d4dd64ddf"
+              "$ref": "#/components/schemas/RequestBody_aa630e7f1cf9"
   "/api/v4/projects/import-relation/authorize":
     post:
       operationId: postApiV4ProjectsImportRelationAuthorize
@@ -34185,7 +34185,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_d2442fa68dd5"
+              "$ref": "#/components/schemas/RequestBody_b34259a2c6c7"
   "/api/v4/projects/{id}/hooks/{hook_id}/url_variables/{key}":
     put:
       operationId: putApiV4ProjectsIdHooksHookIdUrlVariablesKey
@@ -84468,6 +84468,8 @@ components:
           type: string
         duo_secret_detection_fp_enabled:
           type: string
+        duo_dependency_bump_breaking_changes_enabled:
+          type: string
         duo_sast_vr_workflow_enabled:
           type: string
         web_based_commit_signing_enabled:
@@ -84879,6 +84881,8 @@ components:
         duo_sast_fp_detection_enabled:
           type: string
         duo_secret_detection_fp_enabled:
+          type: string
+        duo_dependency_bump_breaking_changes_enabled:
           type: string
         duo_sast_vr_workflow_enabled:
           type: string
@@ -99659,7 +99663,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_11fa9d6a7a9b:
+    RequestBody_cddb6354bbc1:
       type: object
       properties:
         name:
@@ -100162,6 +100166,11 @@ components:
           type: boolean
           description: Enable GitLab Duo Secret Detection false positive detection
             for this project
+          nullable: true
+        duo_dependency_bump_breaking_changes_enabled:
+          type: boolean
+          description: Enable GitLab Duo AI-powered resolution of breaking changes
+            from dependency bumps for this project
           nullable: true
         duo_sast_vr_workflow_enabled:
           type: boolean
@@ -100217,7 +100226,7 @@ components:
           type: integer
           description: Project ID of template from which to create project
           nullable: true
-    RequestBody_f577394af6d6:
+    RequestBody_55f54cba61d3:
       type: object
       properties:
         name:
@@ -100720,6 +100729,11 @@ components:
           type: boolean
           description: Enable GitLab Duo Secret Detection false positive detection
             for this project
+          nullable: true
+        duo_dependency_bump_breaking_changes_enabled:
+          type: boolean
+          description: Enable GitLab Duo AI-powered resolution of breaking changes
+            from dependency bumps for this project
           nullable: true
         duo_sast_vr_workflow_enabled:
           type: boolean
@@ -100777,7 +100791,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_072680597c31:
+    RequestBody_5338037b0cb1:
       type: object
       properties:
         name:
@@ -101280,6 +101294,11 @@ components:
           type: boolean
           description: Enable GitLab Duo Secret Detection false positive detection
             for this project
+          nullable: true
+        duo_dependency_bump_breaking_changes_enabled:
+          type: boolean
+          description: Enable GitLab Duo AI-powered resolution of breaking changes
+            from dependency bumps for this project
           nullable: true
         duo_sast_vr_workflow_enabled:
           type: boolean
@@ -101788,7 +101807,7 @@ components:
           nullable: true
       required:
       - target_group_id
-    RequestBody_f952cf94800f:
+    RequestBody_1b0c9208f451:
       type: object
       properties:
         path:
@@ -102325,6 +102344,11 @@ components:
               description: Enable GitLab Duo Secret Detection false positive detection
                 for this project
               nullable: true
+            duo_dependency_bump_breaking_changes_enabled:
+              type: boolean
+              description: Enable GitLab Duo AI-powered resolution of breaking changes
+                from dependency bumps for this project
+              nullable: true
             duo_sast_vr_workflow_enabled:
               type: boolean
               description: Enable GitLab Duo SAST vulnerability resolution workflow
@@ -102406,7 +102430,7 @@ components:
           nullable: true
       required:
       - import_url
-    RequestBody_259d4dd64ddf:
+    RequestBody_aa630e7f1cf9:
       type: object
       properties:
         url:
@@ -102942,6 +102966,11 @@ components:
               description: Enable GitLab Duo Secret Detection false positive detection
                 for this project
               nullable: true
+            duo_dependency_bump_breaking_changes_enabled:
+              type: boolean
+              description: Enable GitLab Duo AI-powered resolution of breaking changes
+                from dependency bumps for this project
+              nullable: true
             duo_sast_vr_workflow_enabled:
               type: boolean
               description: Enable GitLab Duo SAST vulnerability resolution workflow
@@ -103027,7 +103056,7 @@ components:
       - path
       - file
       - relation
-    RequestBody_d2442fa68dd5:
+    RequestBody_b34259a2c6c7:
       type: object
       properties:
         region:
@@ -103578,6 +103607,11 @@ components:
               type: boolean
               description: Enable GitLab Duo Secret Detection false positive detection
                 for this project
+              nullable: true
+            duo_dependency_bump_breaking_changes_enabled:
+              type: boolean
+              description: Enable GitLab Duo AI-powered resolution of breaking changes
+                from dependency bumps for this project
               nullable: true
             duo_sast_vr_workflow_enabled:
               type: boolean

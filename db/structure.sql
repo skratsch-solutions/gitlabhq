@@ -17399,7 +17399,6 @@ CREATE TABLE cd_rollouts (
     application_id bigint,
     application_flow_definition_id bigint,
     workflow_ref text,
-    CONSTRAINT check_045d7fb2e1 CHECK ((workflow_ref IS NOT NULL)),
     CONSTRAINT check_311909ffdc CHECK ((char_length(workflow_ref) <= 255)),
     CONSTRAINT check_4ca25c42db CHECK ((application_id IS NOT NULL)),
     CONSTRAINT check_a1261339a4 CHECK ((organization_id IS NOT NULL))
@@ -29447,6 +29446,7 @@ CREATE TABLE project_settings (
     mr_default_title_template text,
     tool_approval_for_session_enabled boolean,
     dap_session_tracking_enabled boolean DEFAULT false NOT NULL,
+    duo_dependency_bump_breaking_changes_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_1a30456322 CHECK ((char_length(pages_unique_domain) <= 63)),
     CONSTRAINT check_237486989c CHECK ((char_length(merge_request_title_regex_description) <= 255)),
     CONSTRAINT check_3a03e7557a CHECK ((char_length(previous_default_branch) <= 4096)),

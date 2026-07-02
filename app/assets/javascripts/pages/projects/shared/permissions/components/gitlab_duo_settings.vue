@@ -100,6 +100,11 @@ export default {
       required: false,
       default: false,
     },
+    initialDuoDependencyBumpBreakingChangesEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     initialDuoSastVrWorkflowEnabled: {
       type: Boolean,
       required: false,
@@ -150,6 +155,7 @@ export default {
       duoFoundationalFlowsAvailability: this.initialDuoFoundationalFlowsAvailability,
       duoSastFpDetectionEnabled: this.initialDuoSastFpDetectionEnabled,
       duoSecretDetectionFpEnabled: this.initialDuoSecretDetectionFpEnabled,
+      duoDependencyBumpBreakingChangesEnabled: this.initialDuoDependencyBumpBreakingChangesEnabled,
       duoSastVrWorkflowEnabled: this.initialDuoSastVrWorkflowEnabled,
       toolApprovalForSessionEnabled: this.initialToolApprovalForSessionEnabled,
       dapSessionTrackingEnabled: this.initialDapSessionTrackingEnabled,
@@ -458,6 +464,38 @@ export default {
             label-position="hidden"
             name="project[project_setting_attributes][duo_secret_detection_fp_enabled]"
             data-testid="duo-secret-detection-fp-enabled"
+          />
+        </project-setting-row>
+        <project-setting-row
+          v-if="
+            glFeatures.enableDependencyBumpBreakingChanges &&
+            ultimateFeaturesAvailable &&
+            showAllSettings
+          "
+          :label="
+            s__(
+              'DuoDependencyBump|Turn on AI-powered resolution of dependency bump breaking changes',
+            )
+          "
+          class="gl-mt-5"
+          :help-text="
+            s__(
+              'DuoDependencyBump|Use AI to analyze and fix breaking changes in failed pipelines for dependency bump merge requests',
+            )
+          "
+        >
+          <gl-toggle
+            v-model="duoDependencyBumpBreakingChangesEnabled"
+            class="gl-mt-2"
+            :disabled="!duoEnabled"
+            :label="
+              s__(
+                'DuoDependencyBump|Turn on AI-powered resolution of dependency bump breaking changes',
+              )
+            "
+            label-position="hidden"
+            name="project[project_setting_attributes][duo_dependency_bump_breaking_changes_enabled]"
+            data-testid="duo-dependency-bump-breaking-changes-enabled"
           />
         </project-setting-row>
         <project-setting-row

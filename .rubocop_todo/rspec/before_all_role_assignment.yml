@@ -8,6 +8,7 @@ RSpec/BeforeAllRoleAssignment:
     - 'ee/spec/controllers/ee/projects/jobs_controller_spec.rb'
     - 'ee/spec/controllers/ee/projects/repositories_controller_spec.rb'
     - 'ee/spec/controllers/ee/projects/settings/operations_controller_spec.rb'
+    - 'ee/spec/controllers/ee/projects_controller_spec.rb'
     - 'ee/spec/controllers/groups/analytics/coverage_reports_controller_spec.rb'
     - 'ee/spec/controllers/groups/analytics/productivity_analytics_controller_spec.rb'
     - 'ee/spec/controllers/groups/audit_events_controller_spec.rb'

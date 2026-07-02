@@ -21,6 +21,7 @@ const defaultProps = {
   initialDuoFoundationalFlowsAvailability: false,
   initialDuoSastFpDetectionEnabled: false,
   initialDuoSecretDetectionFpEnabled: false,
+  initialDuoDependencyBumpBreakingChangesEnabled: false,
   initialDuoSastVrWorkflowEnabled: false,
 };
 
@@ -38,6 +39,7 @@ describe('GitlabDuoSettings', () => {
       provide: {
         glFeatures: {
           duoSecretDetectionFalsePositive: true,
+          enableDependencyBumpBreakingChanges: true,
           ...provide,
         },
       },
@@ -69,6 +71,8 @@ describe('GitlabDuoSettings', () => {
   const findDuoSastFpDetectionToggle = () => wrapper.findByTestId('duo-sast-fp-detection-enabled');
   const findDuoSecretDetectionFpToggle = () =>
     wrapper.findByTestId('duo-secret-detection-fp-enabled');
+  const findDuoDependencyBumpToggle = () =>
+    wrapper.findByTestId('duo-dependency-bump-breaking-changes-enabled');
   const findDuoSastVrWorkflowToggle = () => wrapper.findByTestId('duo-sast-vr-workflow-enabled');
   const findAutoReviewToggle = () => wrapper.findByTestId('amazon-q-auto-review-enabled');
   const findToolApprovalToggle = () => wrapper.findByTestId('tool-approval-for-session-enabled');
@@ -432,6 +436,75 @@ describe('GitlabDuoSettings', () => {
           expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(true);
 
           await findDuoSecretDetectionFpToggle().vm.$emit('change', false);
+
+          expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(false);
+        });
+      });
+
+      describe('Duo Dependency Bump Breaking Changes settings', () => {
+        it('shows Dependency Bump Breaking Changes toggle when feature flag is enabled', () => {
+          wrapper = createWrapper(
+            { duoFeaturesEnabled: true, amazonQAvailable: false },
+            { enableDependencyBumpBreakingChanges: true },
+          );
+
+          expect(findDuoDependencyBumpToggle().exists()).toBe(true);
+          expect(findDuoDependencyBumpToggle().props('disabled')).toBe(false);
+        });
+
+        it('does not show Dependency Bump Breaking Changes toggle when feature flag is disabled', () => {
+          wrapper = createWrapper(
+            { duoFeaturesEnabled: true, amazonQAvailable: false },
+            { enableDependencyBumpBreakingChanges: false },
+          );
+
+          expect(findDuoDependencyBumpToggle().exists()).toBe(false);
+        });
+
+        it('does not show Dependency Bump Breaking Changes toggle when ultimateFeaturesAvailable is false', () => {
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            ultimateFeaturesAvailable: false,
+          });
+
+          expect(findDuoDependencyBumpToggle().exists()).toBe(false);
+        });
+
+        it('does not disable Dependency Bump Breaking Changes toggle when Duo features are locked on', () => {
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            duoFeaturesLocked: true,
+            amazonQAvailable: false,
+          });
+
+          expect(findDuoDependencyBumpToggle().props('disabled')).toBe(false);
+        });
+
+        it('does not render Dependency Bump Breaking Changes toggle when Duo features are not enabled', () => {
+          wrapper = createWrapper({
+            duoFeaturesEnabled: false,
+            amazonQAvailable: false,
+          });
+
+          expect(findDuoDependencyBumpToggle().exists()).toBe(false);
+        });
+
+        it('updates the hidden input value when toggled', async () => {
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            initialDuoDependencyBumpBreakingChangesEnabled: true,
+          });
+
+          const findHiddenInput = () =>
+            wrapper.find(
+              'input[name="project[project_setting_attributes][duo_dependency_bump_breaking_changes_enabled]"]',
+            );
+
+          expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(true);
+
+          await findDuoDependencyBumpToggle().vm.$emit('change', false);
 
           expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(false);
         });
@@ -825,6 +898,7 @@ describe('GitlabDuoSettings', () => {
         expect(findDuoEnabledToggle().exists()).toBe(false);
         expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
         expect(findDuoSecretDetectionFpToggle().exists()).toBe(false);
+        expect(findDuoDependencyBumpToggle().exists()).toBe(false);
         expect(findToolApprovalToggle().exists()).toBe(false);
         expect(findDuoRemoteFlowsToggle().exists()).toBe(false);
         expect(findExclusionSettings().exists()).toBe(false);

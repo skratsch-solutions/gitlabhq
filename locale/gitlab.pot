@@ -2455,6 +2455,9 @@ msgstr ""
 msgid "A release with a date in the future is labeled as an %{linkStart}Upcoming Release%{linkEnd}."
 msgstr ""
 
+msgid "A rollout requires at least one environment."
+msgstr ""
+
 msgid "A rule must have at least a minimum access role for push or delete."
 msgstr ""
 
@@ -29455,6 +29458,12 @@ msgstr ""
 msgid "DuoCoreTrialDiscover|Write secure code faster with AI-powered suggestions in more than 20 languages, available in your favorite IDE. Automate routine tasks and accelerate development cycles."
 msgstr ""
 
+msgid "DuoDependencyBump|Turn on AI-powered resolution of dependency bump breaking changes"
+msgstr ""
+
+msgid "DuoDependencyBump|Use AI to analyze and fix breaking changes in failed pipelines for dependency bump merge requests"
+msgstr ""
+
 msgid "DuoEnterpriseDiscover|AI Impact Dashboard measures the ROI of AI"
 msgstr ""
 
@@ -52240,6 +52249,9 @@ msgstr ""
 msgid "One or more of your personal access tokens will expire in %{days_to_expire} days or less:"
 msgstr ""
 
+msgid "One or more referenced resources do not belong to the organization."
+msgstr ""
+
 msgid "One-time password authenticator (OTP)"
 msgstr ""
 
@@ -63293,6 +63305,9 @@ msgid "Roll up totals may reflect child items you don’t have access to."
 msgstr ""
 
 msgid "Rollback"
+msgstr ""
+
+msgid "Rollout cannot be started because it is not pending."
 msgstr ""
 
 msgid "Root Moved Permanently redirection response"
