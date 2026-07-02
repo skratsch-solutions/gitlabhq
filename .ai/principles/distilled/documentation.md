@@ -1,6 +1,6 @@
 ---
-source_checksum: d36ccbb0679c0fc2
-distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911
+source_checksum: 44d40a0905de802d
+distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -160,6 +160,31 @@ distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911
 - Start recommended steps with "Recommended." followed by a period.
 - Use "Complete the fields" to summarize multiple self-explanatory fields in a single task step rather than documenting each field individually.
 
+### Metadata
+
+- Include `stage`, `group`, `info`, and `title` front matter on every documentation page.
+- Use the `title` metadata attribute to set the page H1; DO NOT add a Markdown `# H1` heading.
+- Add `gitlab_dedicated: no` (or `yes`) metadata when a page's GitLab Dedicated availability differs from its GitLab Self-Managed availability.
+- Add `availability_details: no` metadata on pages that purposely omit availability details.
+- Add `ignore_in_report: true` metadata to keep a page out of the global navigation; it excludes the page from the technical writing team's navigation report so the page is not prompted for a `navigation.yaml` entry.
+
+### Product Availability Details
+
+- Place availability details (`{{< details >}}` shortcode) at the top of the page (after front matter) when they apply to the whole page, or under the applicable section heading when they apply to a specific section.
+- Include tier (`Free, Premium, Ultimate` or subset), add-on (for GitLab Duo features only), offering (`GitLab.com`, `GitLab Self-Managed`, `GitLab Dedicated`, `GitLab Dedicated for Government`), and status (`Beta`, `Experiment`, or `Limited availability`) as applicable; DO NOT add a status entry for generally available features.
+- DO NOT add availability details to tutorials, tier-comparison pages, `/development` pages, or `/solutions` pages.
+- DO NOT repeat tier, offering, or status in a subheading's badge when it matches the parent topic's badge.
+- Place history notes (`{{< history >}}` shortcode) after the details block and immediately after the heading; start each entry with `-` and link to the related issue, MR, or epic when possible.
+- Remove history items and inline version references that refer to unsupported GitLab versions (current major version and two previous major versions are supported).
+- For tools released on their own schedule (e.g., editor extensions, CLI tools), include both the GitLab version and the tool version in history entries, with a link to the tool's release page; nest tool version entries under the related instance history item when both change together.
+
+### Deprecations and Removals
+
+- When deprecating a feature, add `(deprecated)` after the title, add a `> [!warning]` alert stating when it was deprecated and when it will be removed, and wrap the content in `<!-- remove_date: 'YYYY-MM-DD' -->` HTML comments (set `remove_date` to three months after the planned removal release).
+- When removing a feature, change `(deprecated)` to `(removed)` in the title, remove all content except the deprecation/removal statement, set `remove_date` in metadata to three months after the removal release, and set `redirect_to` to a relevant replacement page.
+- After removing a page, edit `navigation.yaml` in `docs-gitlab-com` to remove the page's entry from the global navigation, update any links in the [Deprecations and Removals](https://docs.gitlab.com/update/deprecations/) YAML files, and run `bin/rake gitlab:docs:compile_deprecations`.
+- DO NOT follow the standard deprecation process for features that are not generally available; delete the content outright instead.
+
 ### Documentation Workflow
 
 - Include documentation in the same MR as the feature code whenever possible; DO NOT merge a feature that exposes UI, API endpoints, or user-facing behaviour without accompanying documentation.
@@ -212,4 +237,8 @@ For the full picture, see:
 
 - doc/development/documentation/styleguide/_index.md
 - doc/development/documentation/workflow.md
+- doc/development/documentation/styleguide/word_list.md
+- doc/development/documentation/styleguide/availability_details.md
+- doc/development/documentation/styleguide/deprecations_and_removals.md
+- doc/development/documentation/metadata.md
 

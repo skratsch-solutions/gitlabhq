@@ -97,7 +97,7 @@ RSpec.describe Resolvers::LabelsResolver do
     end
 
     context 'with a parent project' do
-      before do
+      before_all do
         group.add_developer(current_user)
       end
 

@@ -10,22 +10,26 @@ module Authn
     class RelationshipsClient < BaseClient
       RequestError = Class.new(StandardError)
 
-      TIMEOUT_SECONDS = 5
+      # Allows headroom for bulk writes, which send up to the array argument
+      # limit of tuples in a single all-or-nothing transaction.
+      TIMEOUT_SECONDS = 15
 
-      # Assigns a role to a subject on an object by writing an ASSIGNMENT tuple.
-      # The caller passes the identity pieces and this client owns the tuple shape.
+      # Assigns roles by writing one ASSIGNMENT tuple per entry in a single
+      # all-or-nothing write. Every assignment is scoped to the same organization.
+      # Each assignment is a hash of the per-subject pieces: assignee_id,
+      # resource_id, role_id.
       #
-      # @param organization_uuid [String] the subject's home organization UUID, used
+      # @param assignments [Array<Hash>] one hash per assignment
+      # @param organization_uuid [String] the subjects' home organization UUID, used
       #   as the identity origin and as the org scope IAM authorizes against
-      # @param user_id [Integer] the subject user (local id)
-      # @param resource_id [String] UUID of the object the role applies to
-      # @param role_id [String] UUID of the role to assign
       # @param token [String] AR-scoped JWT presented as a bearer credential
       # @return [Update::V1::WriteRelationshipsResponse]
-      def assign_role(organization_uuid:, user_id:, resource_id:, role_id:, token:)
-        input = assignment_input(organization_uuid, user_id, resource_id, role_id)
+      def assign_roles(assignments, organization_uuid:, token:)
+        inputs = assignments.map do |a|
+          assignment_input(organization_uuid, a.fetch(:assignee_id), a.fetch(:resource_id), a.fetch(:role_id))
+        end
 
-        write_relationships([input], org_id: organization_uuid, token: token)
+        write_relationships(inputs, org_id: organization_uuid, token: token)
       end
 
       # Upserts the given assignment tuples. All-or-nothing on the server.
@@ -52,13 +56,13 @@ module Authn
 
       private
 
-      def assignment_input(organization_uuid, user_id, resource_id, role_id)
+      def assignment_input(organization_uuid, assignee_id, resource_id, role_id)
         ::Gitlab::Iam::Relationships::V1::RelationshipInput.new(
           subject: ::Gitlab::Iam::Relationships::V1::Subject.new(
             identity: ::Gitlab::Iam::Relationships::V1::Identity.new(
               origin: :ORIGIN_ORGANIZATION,
               origin_id: organization_uuid,
-              local_id: user_id.to_s
+              local_id: assignee_id.to_s
             )
           ),
           object: ::Gitlab::Iam::Relationships::V1::Object.new(id: resource_id),

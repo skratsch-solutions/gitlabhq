@@ -23,6 +23,7 @@ eslint-report.html
 /.ruby-gemset
 /.ruby-version
 /.tool-versions
+mise.local.toml
 /.rvmrc
 /.secret
 .sass-cache/

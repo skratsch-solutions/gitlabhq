@@ -11378,6 +11378,33 @@ msgstr ""
 msgid "Artifact was successfully deleted."
 msgstr ""
 
+msgid "ArtifactRegistry|A user can hold only one Artifact Registry role per resource. The following are listed more than once."
+msgstr ""
+
+msgid "ArtifactRegistry|Assignee could not be found."
+msgstr ""
+
+msgid "ArtifactRegistry|At least one assignment is required."
+msgstr ""
+
+msgid "ArtifactRegistry|Organization could not be determined."
+msgstr ""
+
+msgid "ArtifactRegistry|Resource ID must be a valid UUID."
+msgstr ""
+
+msgid "ArtifactRegistry|Unknown Artifact Registry role: %{role}."
+msgstr ""
+
+msgid "ArtifactRegistry|You are not allowed to access the Artifact Registry service."
+msgstr ""
+
+msgid "ArtifactRegistry|You cannot grant roles in another organization."
+msgstr ""
+
+msgid "ArtifactRegistry|You must be signed in to grant a role."
+msgstr ""
+
 msgid "Artifacts"
 msgstr ""
 

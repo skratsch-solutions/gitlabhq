@@ -42,6 +42,7 @@ mutation:AiSelfHostedModelDelete
 mutation:AiSelfHostedModelUpdate
 mutation:AlertSetAssignees
 mutation:AlertTodoCreate
+mutation:ArtifactRegistryRoleBulkGrant
 mutation:ArtifactRegistryRoleGrant
 mutation:AscpComponentCreate
 mutation:AscpScanCreate

@@ -698,8 +698,6 @@ principles:
         url: https://docs.gitlab.com/development/documentation/styleguide/
       - path: doc/development/documentation/workflow.md
         url: https://docs.gitlab.com/development/documentation/workflow/
-      - path: doc/development/documentation/styleguide/word_list.md
-        url: https://docs.gitlab.com/development/documentation/styleguide/word_list/
       - path: doc/development/documentation/styleguide/availability_details.md
         url: https://docs.gitlab.com/development/documentation/styleguide/availability_details/
       - path: doc/development/documentation/styleguide/deprecations_and_removals.md

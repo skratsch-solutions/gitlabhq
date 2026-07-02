@@ -5,38 +5,35 @@ require 'spec_helper'
 RSpec.describe Authn::IamService::RelationshipsClient, feature_category: :system_access do
   subject(:client) { described_class.new }
 
-  describe '#assign_role' do
+  describe '#assign_roles' do
     let(:organization_uuid) { Gitlab::Utils.uuid_v7 }
-    let(:user_id) { 2 }
     let(:resource_id) { '019ed9d4-0000-7000-8000-000000000000' }
+    let(:other_resource_id) { '019ed9d4-0000-7000-8000-000000000001' }
     let(:role_id) { Gitlab::Utils.uuid_v7 }
     let(:token) { 'ar-token' }
+    let(:assignments) do
+      [
+        { assignee_id: 2, resource_id: resource_id, role_id: role_id },
+        { assignee_id: 3, resource_id: other_resource_id, role_id: role_id }
+      ]
+    end
 
-    it 'writes a single ASSIGNMENT tuple scoped to the org and built from the given pieces',
-      :aggregate_failures do
+    it 'writes one ASSIGNMENT tuple per assignment, all scoped to the org', :aggregate_failures do
       expect(client).to receive(:write_relationships) do |inputs, org_id:, token:|
         expect(token).to eq('ar-token')
         expect(org_id).to eq(organization_uuid)
-        expect(inputs.size).to eq(1)
-
-        input = inputs.first
-        expect(input.subject.identity.origin).to eq(:ORIGIN_ORGANIZATION)
-        expect(input.subject.identity.origin_id).to eq(organization_uuid)
-        expect(input.subject.identity.local_id).to eq(user_id.to_s)
-        expect(input.object.id).to eq(resource_id)
-        expect(input.kind).to eq(:KIND_ASSIGNMENT)
-        expect(input.role.id).to eq(role_id)
+        expect(inputs.size).to eq(2)
+        expect(inputs.map { |i| i.subject.identity.origin }).to all(eq(:ORIGIN_ORGANIZATION))
+        expect(inputs.map { |i| i.subject.identity.origin_id }).to all(eq(organization_uuid))
+        expect(inputs.map { |i| [i.subject.identity.local_id, i.object.id] })
+          .to match_array([['2', resource_id], ['3', other_resource_id]])
+        expect(inputs.map(&:kind)).to all(eq(:KIND_ASSIGNMENT))
+        expect(inputs.map { |i| i.role.id }).to all(eq(role_id))
 
         ::Gitlab::Iam::Update::V1::WriteRelationshipsResponse.new
       end
 
-      client.assign_role(
-        organization_uuid: organization_uuid,
-        user_id: user_id,
-        resource_id: resource_id,
-        role_id: role_id,
-        token: token
-      )
+      client.assign_roles(assignments, organization_uuid: organization_uuid, token: token)
     end
   end
 

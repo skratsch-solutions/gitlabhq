@@ -163,7 +163,7 @@ model_metadata = {
   field: 'test_field_v1',
   dimensions: 768
 }
-::Ai::ActiveContext::Embeddings::ModelSelector
+::Ai::ActiveContext::Embeddings::ModelFactory
   .for(model_metadata)
   .generate_embeddings('test', user: User.first)
 ```
