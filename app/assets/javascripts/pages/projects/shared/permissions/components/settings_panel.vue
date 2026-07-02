@@ -292,6 +292,11 @@ export default {
       required: false,
       default: false,
     },
+    topLevelGroupFullPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
     showVisibilityConfirmModal: {
       type: Boolean,
       required: false,
@@ -1116,6 +1121,7 @@ export default {
         context="project"
         :can-manage-secrets-manager="canManageSecretsManager"
         :full-path="confirmationPhrase"
+        :top-level-group-full-path="topLevelGroupFullPath"
       />
       <other-project-settings />
       <project-setting-row

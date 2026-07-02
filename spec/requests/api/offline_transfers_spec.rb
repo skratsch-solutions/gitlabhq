@@ -157,6 +157,21 @@ RSpec.describe API::OfflineTransfers, feature_category: :importers do
       let(:path_style_default) { true }
     end
 
+    context 'when using GCS object storage with HMAC keys' do
+      it_behaves_like 'starting a new export', :gcs_hmac do
+        let(:configuration_key) { :gcs_hmac_configuration }
+        let(:credentials) do
+          {
+            'google_storage_access_key_id' => 'GOOG1EXAMPLEACCESSKEY123',
+            'google_storage_secret_access_key' => 'AbCd+EfGh/IjKlMnOpQrStUvWxYz0123456789K=', # gitleaks:allow
+            'region' => 'us-east1'
+          }
+        end
+
+        let(:path_style_default) { true }
+      end
+    end
+
     context 'when no configuration params are provided' do
       let(:params) do
         {
@@ -472,6 +487,21 @@ RSpec.describe API::OfflineTransfers, feature_category: :importers do
       let(:configuration_key) { :s3_compatible_configuration }
       let(:credentials) { s3_compatible_credentials }
       let(:path_style_default) { true }
+    end
+
+    context 'when using GCS object storage with HMAC keys' do
+      it_behaves_like 'starting a new import', :gcs_hmac do
+        let(:configuration_key) { :gcs_hmac_configuration }
+        let(:credentials) do
+          {
+            'google_storage_access_key_id' => 'GOOG1EXAMPLEACCESSKEY123',
+            'google_storage_secret_access_key' => 'AbCd+EfGh/IjKlMnOpQrStUvWxYz0123456789K=', # gitleaks:allow
+            'region' => 'us-east1'
+          }
+        end
+
+        let(:path_style_default) { true }
+      end
     end
 
     context 'when no configuration params are provided' do

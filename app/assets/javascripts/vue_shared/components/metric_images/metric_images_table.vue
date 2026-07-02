@@ -9,9 +9,9 @@ import {
   GlSprintf,
   GlTooltipDirective,
 } from '@gitlab/ui';
-// eslint-disable-next-line no-restricted-imports
-import { mapActions } from 'vuex';
+import { mapActions } from 'pinia';
 import { __, s__ } from '~/locale';
+import { useMetricImages } from '~/vue_shared/components/metric_images/store';
 import MetricImageDetailsModal from './metric_image_details_modal.vue';
 
 export default {
@@ -88,7 +88,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['deleteImage']),
+    ...mapActions(useMetricImages, ['deleteImage']),
     toggleCollapsed() {
       this.isCollapsed = !this.isCollapsed;
     },

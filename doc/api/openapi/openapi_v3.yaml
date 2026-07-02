@@ -37085,7 +37085,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_83e523ac558b"
+              "$ref": "#/components/schemas/RequestBody_15be2094db2f"
     get:
       operationId: getApiV4OfflineExports
       summary: List all offline transfer exports
@@ -37190,7 +37190,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_76cbe3ae52d7"
+              "$ref": "#/components/schemas/RequestBody_df14f9cb9dcb"
   "/api/v4/projects/{id}/packages/nuget/index":
     get:
       operationId: getApiV4ProjectsIdPackagesNugetIndex
@@ -104480,7 +104480,7 @@ components:
       required:
       - name
       - path
-    RequestBody_83e523ac558b:
+    RequestBody_15be2094db2f:
       type: object
       properties:
         bucket:
@@ -104542,6 +104542,33 @@ components:
           - aws_secret_access_key
           - region
           - endpoint
+          nullable: true
+        gcs_hmac_configuration:
+          type: object
+          description: Google Cloud Storage configuration using S3-interoperability
+            HMAC keys
+          properties:
+            google_storage_access_key_id:
+              type: string
+              description: GCS HMAC access key ID
+              nullable: true
+            google_storage_secret_access_key:
+              type: string
+              description: GCS HMAC secret
+              nullable: true
+            region:
+              type: string
+              description: GCS bucket region
+              nullable: true
+            path_style:
+              type: boolean
+              default: true
+              description: Use path-style URLs instead of virtual-hosted-style URLs
+              nullable: true
+          required:
+          - google_storage_access_key_id
+          - google_storage_secret_access_key
+          - region
           nullable: true
         entities:
           type: array
@@ -104560,7 +104587,7 @@ components:
       required:
       - bucket
       - entities
-    RequestBody_76cbe3ae52d7:
+    RequestBody_df14f9cb9dcb:
       type: object
       properties:
         bucket:
@@ -104622,6 +104649,33 @@ components:
           - aws_secret_access_key
           - region
           - endpoint
+          nullable: true
+        gcs_hmac_configuration:
+          type: object
+          description: Google Cloud Storage configuration using S3-interoperability
+            HMAC keys
+          properties:
+            google_storage_access_key_id:
+              type: string
+              description: GCS HMAC access key ID
+              nullable: true
+            google_storage_secret_access_key:
+              type: string
+              description: GCS HMAC secret
+              nullable: true
+            region:
+              type: string
+              description: GCS bucket region
+              nullable: true
+            path_style:
+              type: boolean
+              default: true
+              description: Use path-style URLs instead of virtual-hosted-style URLs
+              nullable: true
+          required:
+          - google_storage_access_key_id
+          - google_storage_secret_access_key
+          - region
           nullable: true
         export_prefix:
           type: string

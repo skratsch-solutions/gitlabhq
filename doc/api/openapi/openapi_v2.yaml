@@ -77960,6 +77960,28 @@ definitions:
         - aws_secret_access_key
         - region
         - endpoint
+      gcs_hmac_configuration:
+        type: object
+        description: Google Cloud Storage configuration using S3-interoperability
+          HMAC keys
+        properties:
+          google_storage_access_key_id:
+            type: string
+            description: GCS HMAC access key ID
+          google_storage_secret_access_key:
+            type: string
+            description: GCS HMAC secret
+          region:
+            type: string
+            description: GCS bucket region
+          path_style:
+            type: boolean
+            description: Use path-style URLs instead of virtual-hosted-style URLs
+            default: true
+        required:
+        - google_storage_access_key_id
+        - google_storage_secret_access_key
+        - region
       entities:
         type: array
         description: List of entities to export
@@ -78028,6 +78050,28 @@ definitions:
         - aws_secret_access_key
         - region
         - endpoint
+      gcs_hmac_configuration:
+        type: object
+        description: Google Cloud Storage configuration using S3-interoperability
+          HMAC keys
+        properties:
+          google_storage_access_key_id:
+            type: string
+            description: GCS HMAC access key ID
+          google_storage_secret_access_key:
+            type: string
+            description: GCS HMAC secret
+          region:
+            type: string
+            description: GCS bucket region
+          path_style:
+            type: boolean
+            description: Use path-style URLs instead of virtual-hosted-style URLs
+            default: true
+        required:
+        - google_storage_access_key_id
+        - google_storage_secret_access_key
+        - region
       export_prefix:
         type: string
         description: Prefix of the export within the bucket

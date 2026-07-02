@@ -7020,7 +7020,7 @@ msgstr ""
 msgid "AdminStatistics|Notes"
 msgstr ""
 
-msgid "AdminStatistics|SSH Keys"
+msgid "AdminStatistics|SSH keys"
 msgstr ""
 
 msgid "AdminStatistics|Snippets"
@@ -23580,9 +23580,6 @@ msgid "CredentialsInventory|Revoke"
 msgstr ""
 
 msgid "CredentialsInventory|Revoked"
-msgstr ""
-
-msgid "CredentialsInventory|SSH Keys"
 msgstr ""
 
 msgid "CredentialsInventory|SSH keys"
@@ -64867,12 +64864,6 @@ msgstr ""
 msgid "SSH Key"
 msgstr ""
 
-msgid "SSH Keys"
-msgstr ""
-
-msgid "SSH Keys Help"
-msgstr ""
-
 msgid "SSH fingerprints verify that the client is connecting to the correct host. Check the %{config_link_start}current instance configuration%{config_link_end}."
 msgstr ""
 
@@ -64898,6 +64889,9 @@ msgid "SSH keys"
 msgstr ""
 
 msgid "SSH keys allow you to establish a secure connection between your computer and GitLab."
+msgstr ""
+
+msgid "SSH keys help"
 msgstr ""
 
 msgid "SSH keys with the following fingerprints are scheduled to expire soon. Expired SSH keys can not be used:"
@@ -66470,6 +66464,9 @@ msgstr ""
 msgid "Secrets manager"
 msgstr ""
 
+msgid "SecretsManagerEntitlement|An error occurred while fetching the secrets manager entitlement state. Please refresh the page."
+msgstr ""
+
 msgid "SecretsManagerPermissions|Allow the secrets manager to be enabled in any project or subgroup in this group."
 msgstr ""
 
@@ -66611,6 +66608,9 @@ msgstr ""
 msgid "SecretsManager|Enable Secrets Manager for this instance. When enabled, the secrets manager can be turned on for any project or group in the instance."
 msgstr ""
 
+msgid "SecretsManager|Enable on-demand billing to try GitLab Secrets Manager"
+msgstr ""
+
 msgid "SecretsManager|Enter a new value to update secret"
 msgstr ""
 
@@ -66635,7 +66635,10 @@ msgstr ""
 msgid "SecretsManager|GitLab Secrets Manager"
 msgstr ""
 
-msgid "SecretsManager|GitLab Secrets Manager is free during open beta, but will consume %{linkStart}GitLab Credits%{linkEnd} when released as generally available (GA). Credits will only be consumed if you opt in, and we'll give you advance notice before GA."
+msgid "SecretsManager|GitLab Secrets Manager is free during open beta, but will consume %{linkStart}GitLab Credits%{linkEnd} when it becomes generally available. Credits will be consumed only if you opt in. You will receive advance notice before general availability."
+msgstr ""
+
+msgid "SecretsManager|GitLab Secrets Manager will consume GitLab credits when you store or fetch secrets. %{linkStart}How is secrets manager billed?%{linkEnd}"
 msgstr ""
 
 msgid "SecretsManager|Introducing GitLab Secrets Manager"
@@ -66651,6 +66654,9 @@ msgid "SecretsManager|Maximum 200 characters."
 msgstr ""
 
 msgid "SecretsManager|New secret"
+msgstr ""
+
+msgid "SecretsManager|On-demand is enabled"
 msgstr ""
 
 msgid "SecretsManager|Please wait while the secrets manager is provisioned. You can refresh at any time."

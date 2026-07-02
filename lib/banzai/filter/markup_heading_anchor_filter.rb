@@ -2,8 +2,10 @@
 
 module Banzai
   module Filter
-    # Adds heading IDs and anchor links to markup content (Org-mode, etc.)
-    # that don't natively generate them.
+    # Adds heading IDs and anchor links to markup output
+    # that don't natively generate heading IDs (Org-mode, MediaWiki, etc.),
+    # as well as preserving existing IDs from markup that does (RDoc, etc.)
+    #
     # This enables the table of contents navigation in the blob viewer.
     #
     # Input (org-ruby output):
@@ -36,21 +38,28 @@ module Banzai
       private
 
       def annotate_heading(heading, used_slugs, doc)
-        return if heading.has_attribute?('id')
-
         text_content = heading.text.strip
-        return if text_content.blank?
 
-        slug = generate_unique_slug(text_content, heading.name, used_slugs)
-        full_id = "#{Banzai::Renderer::USER_CONTENT_ID_PREFIX}#{slug}"
-        heading.set_attribute('id', full_id)
+        # Derive slug from existing id or generate from heading text.
+        slug = if heading.has_attribute?('id')
+                 existing_id = heading['id']
+                 return if existing_id.start_with?(Banzai::Renderer::USER_CONTENT_ID_PREFIX)
 
-        anchor = Nokogiri::XML::Node.new('a', doc)
-        anchor.set_attribute('class', 'anchor')
-        anchor.set_attribute('href', "##{slug}")
-        anchor.set_attribute('aria-label', "Link to heading '#{text_content}'")
-        anchor.set_attribute('data-heading-content', text_content)
-        heading.add_child(anchor)
+                 used_slugs[existing_id] ||= 0
+                 existing_id
+               else
+                 return if text_content.blank?
+
+                 generate_unique_slug(text_content, heading.name, used_slugs)
+               end
+
+        heading.set_attribute('id', "#{Banzai::Renderer::USER_CONTENT_ID_PREFIX}#{slug}")
+        heading.add_child(doc.document.create_element('a',
+          class: 'anchor',
+          href: "##{slug}",
+          'aria-label': "Link to heading '#{text_content}'",
+          'data-heading-content': text_content
+        ))
       end
 
       def generate_unique_slug(text, heading_name, used_slugs)

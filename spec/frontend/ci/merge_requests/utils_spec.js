@@ -28,7 +28,6 @@ describe('Pipelines utility functions', () => {
       // Before update: pipeline is completed with warnings
       expect(pipeline.detailedStatus.icon).toBe('status_warning');
       expect(pipeline.detailedStatus.name).toBe('SUCCESS_WITH_WARNINGS');
-      expect(pipeline.detailedStatus.label).toBe('passed with warnings');
       expect(pipeline.duration).toBe(17);
       expect(pipeline.finishedAt).toBe('2025-09-25T16:24:02Z');
       expect(pipeline.retryable).toBe(true);
@@ -46,7 +45,6 @@ describe('Pipelines utility functions', () => {
       // After subscription update: pipeline is now running with updated status and stages
       expect(updatedPipelines[0].detailedStatus.icon).toBe('status_running');
       expect(updatedPipelines[0].detailedStatus.name).toBe('RUNNING');
-      expect(updatedPipelines[0].detailedStatus.label).toBe('running');
       expect(updatedPipelines[0].duration).toBeNull();
       expect(updatedPipelines[0].finishedAt).toBeNull();
       expect(updatedPipelines[0].retryable).toBe(false);

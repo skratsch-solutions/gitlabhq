@@ -20,7 +20,7 @@ RSpec.describe Import::Offline::Configuration, feature_category: :importers do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:provider) }
-    it { is_expected.to define_enum_for(:provider).with_values(%i[aws s3_compatible]) }
+    it { is_expected.to define_enum_for(:provider).with_values(%i[aws s3_compatible gcs_hmac]) }
 
     it { is_expected.to validate_presence_of(:export_prefix) }
     it { is_expected.to validate_presence_of(:object_storage_credentials) }
@@ -56,7 +56,7 @@ RSpec.describe Import::Offline::Configuration, feature_category: :importers do
           stub_application_setting(allow_s3_compatible_storage_for_offline_transfer: true)
         end
 
-        it { is_expected.to allow_values('s3_compatible', 'aws').for(:provider) }
+        it { is_expected.to allow_values('s3_compatible', 'aws', 'gcs_hmac').for(:provider) }
       end
 
       context 'when S3 compatible storage is not allowed for offline transfer' do
@@ -64,7 +64,7 @@ RSpec.describe Import::Offline::Configuration, feature_category: :importers do
           stub_application_setting(allow_s3_compatible_storage_for_offline_transfer: false)
         end
 
-        it { is_expected.to allow_value('aws').for(:provider) }
+        it { is_expected.to allow_values('aws', 'gcs_hmac').for(:provider) }
         it { is_expected.not_to allow_value('s3_compatible').for(:provider) }
       end
     end
@@ -166,6 +166,59 @@ RSpec.describe Import::Offline::Configuration, feature_category: :importers do
             :endpoint              | ''
             :endpoint              | nil
             :endpoint              | "https://gitlab.#{'a' * 256}.com"
+          end
+
+          with_them do
+            before do
+              valid_credentials.merge!({ credential => value })
+            end
+
+            it { is_expected.to be(false) }
+          end
+        end
+      end
+
+      context 'when provider is GCS with HMAC keys' do
+        let(:provider) { :gcs_hmac }
+        let(:valid_credentials) do
+          {
+            google_storage_access_key_id: 'GOOG1EXAMPLEACCESSKEY123',
+            google_storage_secret_access_key: 'AbCd+EfGh/IjKlMnOpQrStUvWxYz0123456789K=', # gitleaks:allow
+            region: 'us-east1',
+            path_style: true
+          }
+        end
+
+        context 'with valid credentials' do
+          it { is_expected.to be(true) }
+        end
+
+        context 'with valid credentials omitting the optional path_style' do
+          before do
+            valid_credentials.delete(:path_style)
+          end
+
+          it { is_expected.to be(true) }
+        end
+
+        context 'with an invalid credential value' do
+          where(:credential, :value) do
+            :google_storage_access_key_id     | ('a' * 256)
+            :google_storage_access_key_id     | ('a' * 23)
+            :google_storage_access_key_id     | 'GOOG1-INVALID-CHARS'
+            :google_storage_access_key_id     | ''
+            :google_storage_access_key_id     | nil
+            :google_storage_secret_access_key | ('a' * 256)
+            :google_storage_secret_access_key | ('a' * 39)
+            :google_storage_secret_access_key | 'gcs-hmac-secret-with-dashes'
+            :google_storage_secret_access_key | ''
+            :google_storage_secret_access_key | nil
+            :region                           | ('a' * 256)
+            :region                           | ''
+            :region                           | nil
+            :path_style                       | 'true'
+            :path_style                       | 1
+            :google_json_key_string           | '{"type":"service_account"}'
           end
 
           with_them do

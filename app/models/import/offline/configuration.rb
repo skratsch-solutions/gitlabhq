@@ -22,6 +22,9 @@ module Import
       validates :object_storage_credentials, json_schema: {
         filename: 'import_offline_configuration_s3_compatible_credentials', size_limit: 64.kilobytes
       }, if: :s3_compatible?
+      validates :object_storage_credentials, json_schema: {
+        filename: 'import_offline_configuration_gcs_hmac_credentials', size_limit: 64.kilobytes
+      }, if: :gcs_hmac?
       validates :endpoint, addressable_url: true, length: { maximum: 255 }, if: :s3_compatible?
       validates :entity_prefix_mapping, json_schema: {
         filename: 'import_offline_configuration_entity_prefix_mapping', size_limit: 64.kilobytes
@@ -32,7 +35,8 @@ module Import
 
       enum :provider, {
         aws: 0,
-        s3_compatible: 1
+        s3_compatible: 1,
+        gcs_hmac: 2
       }
 
       after_initialize :generate_export_prefix

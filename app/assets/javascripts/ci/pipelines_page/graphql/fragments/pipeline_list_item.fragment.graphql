@@ -6,10 +6,7 @@ fragment PipelineListItem on Pipeline {
   detailedStatus {
     ...CiIcon
     name
-    label
-    hasDetails
   }
-  createdAt
   finishedAt
   duration
   name
@@ -18,7 +15,6 @@ fragment PipelineListItem on Pipeline {
   refText
   commit {
     id
-    name
     sha
     shortId
     title

@@ -87,13 +87,39 @@ RSpec.describe Banzai::Filter::MarkupHeadingAnchorFilter, :aggregate_failures, f
     end
   end
 
-  describe 'skips headings that already have an id' do
-    it 'does not modify headings with existing id' do
-      result = filter('<h2 id="existing-id">Already Has ID</h2>')
+  describe 'handles headings with existing id' do
+    it 'transforms headings with non-prefixed id' do
+      result = filter('<h1 id="existing-id">Already Has ID</h1>')
 
-      heading = result.at_css('h2')
-      expect(heading['id']).to eq('existing-id')
+      heading = result.at_css('h1')
+      expect(heading['id']).to eq('user-content-existing-id')
+      expect(heading.at_css('a.anchor')['href']).to eq('#existing-id')
+    end
+
+    it 'does not modify headings with user-content- prefixed id' do
+      result = filter('<h1 id="user-content-existing-id">Already Annotated</h1>')
+
+      heading = result.at_css('h1')
+      expect(heading['id']).to eq('user-content-existing-id')
       expect(heading.at_css('a.anchor')).to be_nil
+    end
+
+    it 'avoids slug collision between existing id and generated slug' do
+      result = filter('<h2 id="foo">Existing</h2><h2>Foo</h2>')
+
+      headings = result.css('h2')
+      expect(headings[0]['id']).to eq('user-content-foo')
+      expect(headings[1]['id']).to eq('user-content-foo-1')
+    end
+
+    it 'allows slug collision when existing id follows matching generated slugs, but counter survives' do
+      result = filter('<h2>Foo</h2><h2>Foo</h2><h2 id="foo">Existing</h2><h2>Foo</h2>')
+
+      headings = result.css('h2')
+      expect(headings[0]['id']).to eq('user-content-foo')
+      expect(headings[1]['id']).to eq('user-content-foo-1')
+      expect(headings[2]['id']).to eq('user-content-foo')
+      expect(headings[3]['id']).to eq('user-content-foo-2')
     end
   end
 

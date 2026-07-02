@@ -1,6 +1,6 @@
 ---
-source_checksum: e8f9f80126eff090
-distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
+source_checksum: f656b261cb58247d
+distilled_at_sha: 9eb89263152259e883603c908db1e1cea6a1a74e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -20,7 +20,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Include a valid `type` for every exposed field in an entity
 - Define field types as strings inside the `documentation` hash (e.g., `documentation: { type: 'Integer', example: 1 }`)
 - Use the `using:` option when exposing a field that references another entity; pass only an `API::Entities::*` constant
-- DO NOT add new `expose` calls to high-impact entities (`UserBasic`, `ProjectIdentity`, `Commit`, etc.); create a feature-bounded entity instead
+- DO NOT add new `expose` calls to high-impact entities (`UserBasic`, `ProjectIdentity`, `Commit`, etc.); create a feature-bounded entity instead (enforced by the `API/EntityExposureGrowth` RuboCop cop)
 - Name feature-bounded entities after their domain context (e.g., `Ci::JobOwner`), not after the fields they contain (e.g., `UserWithNotificationEmail`)
 - DO NOT manually edit `api_entity_exposure_baseline.yml` to allowlist new fields; open a discussion with the API Platform team if a field genuinely belongs on a high-impact entity
 
@@ -31,7 +31,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 - Use a string literal or interpolated string for `desc` (DO NOT use a variable or method call)
 - Keep the `desc` summary to 120 characters or fewer
 - Put additional details (version introduced, feature flag, deprecation) in `detail`, not in `desc`
-- DO NOT include lifecycle terms ("experiment", "beta", "GA") in `desc` or `detail` strings; use `route_setting :lifecycle` instead
+- DO NOT include lifecycle terms ("experiment", "beta", "GA") in `desc` or `detail` strings; use `route_setting :lifecycle` instead (enforced by the `API/LifecycleInDescription` RuboCop cop)
 - Use `route_setting :lifecycle, :experiment` or `route_setting :lifecycle, :beta` for non-GA endpoints
 - Use `deprecated true` in the `desc` block when deprecating an endpoint; DO NOT use `route_setting :lifecycle` for deprecation
 - Assign at least one tag per endpoint; use plural entity names (for example, `audit_events`, `users`); DO NOT use singular or product-category-coupled names
@@ -41,7 +41,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 ### Endpoint Success Definition
 
 - Include a `success` value in every endpoint's `desc` block
-- DO NOT use the `http_codes` option to document the success response
+- DO NOT use the `http_codes` option to document the success response (enforced by the `API/DeprecatedHttpCodes` RuboCop cop)
 - Pass the `Grape::Entity` class directly or via `model:` for JSON responses; omit `model:` only for no-body responses (204, redirects)
 - Use `[Entities::MyEntity]` or `is_array: true` when the endpoint returns a collection
 - Use `example:` (single) or `examples:` (multiple, named) to illustrate response bodies; both require `model:` and are mutually exclusive

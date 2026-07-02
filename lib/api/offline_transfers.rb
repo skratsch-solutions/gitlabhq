@@ -27,7 +27,15 @@ module API
           optional :path_style, type: Boolean, default: true,
             desc: 'Use path-style URLs instead of virtual-hosted-style URLs'
         end
-        exactly_one_of :aws_s3_configuration, :s3_compatible_configuration
+        optional :gcs_hmac_configuration, type: Hash,
+          desc: 'Google Cloud Storage configuration using S3-interoperability HMAC keys' do
+          requires :google_storage_access_key_id, type: String, desc: 'GCS HMAC access key ID'
+          requires :google_storage_secret_access_key, type: String, desc: 'GCS HMAC secret'
+          requires :region, type: String, desc: 'GCS bucket region'
+          optional :path_style, type: Boolean, default: true,
+            desc: 'Use path-style URLs instead of virtual-hosted-style URLs'
+        end
+        exactly_one_of :aws_s3_configuration, :s3_compatible_configuration, :gcs_hmac_configuration
       end
 
       def offline_exports
@@ -75,6 +83,10 @@ module API
 
         if params[:s3_compatible_configuration]
           storage_config.merge!(provider: :s3_compatible, credentials: declared_params[:s3_compatible_configuration])
+        end
+
+        if params[:gcs_hmac_configuration]
+          storage_config.merge!(provider: :gcs_hmac, credentials: declared_params[:gcs_hmac_configuration])
         end
 
         set_current_organization
@@ -164,6 +176,13 @@ module API
           storage_config.merge!(
             provider: :s3_compatible,
             object_storage_credentials: declared_params[:s3_compatible_configuration]
+          )
+        end
+
+        if params[:gcs_hmac_configuration]
+          storage_config.merge!(
+            provider: :gcs_hmac,
+            object_storage_credentials: declared_params[:gcs_hmac_configuration]
           )
         end
 

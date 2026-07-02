@@ -281,6 +281,8 @@ merge_requests:
 - policy_dismissals
 - duo_workflows
 - vulnerability_merge_request_links
+- duo_workflow_links
+- linked_duo_workflows
 external_pull_requests:
 merge_data:
 - merge_request

@@ -34,6 +34,18 @@ FactoryBot.define do
       end
     end
 
+    trait :gcs_hmac do
+      provider { :gcs_hmac }
+      object_storage_credentials do
+        {
+          google_storage_access_key_id: 'GOOG1EXAMPLEACCESSKEY123',
+          google_storage_secret_access_key: 'AbCd+EfGh/IjKlMnOpQrStUvWxYz0123456789K=', # gitleaks:allow
+          region: 'us-east1',
+          path_style: true
+        }
+      end
+    end
+
     trait :with_bulk_import do
       bulk_import { association(:bulk_import, :offline) }
     end
