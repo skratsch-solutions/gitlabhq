@@ -44,6 +44,7 @@ export default {
       default: true,
     },
   },
+  emits: ['updateDraft', 'updateWorkItem'],
   data() {
     return {
       inputId: uniqueId('work-item-title-'),

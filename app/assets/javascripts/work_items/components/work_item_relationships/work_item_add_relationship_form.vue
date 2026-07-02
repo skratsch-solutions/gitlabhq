@@ -51,6 +51,7 @@ export default {
       default: false,
     },
   },
+  emits: ['cancel', 'submitted'],
   data() {
     return {
       linkedItemType: LINKED_ITEM_TYPE_VALUE.RELATED,

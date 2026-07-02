@@ -26,6 +26,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       background_operation_workers
       burned_project_routes
       cd_application_flow_definitions
+      cd_application_links
       cd_applications
       cd_artifact_sources
       cd_deployment_transitions

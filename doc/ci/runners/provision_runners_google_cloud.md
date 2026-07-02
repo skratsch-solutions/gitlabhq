@@ -37,7 +37,7 @@ Prerequisites:
 - For your Google Cloud Platform project: [Owner](https://cloud.google.com/iam/docs/understanding-roles#owner) IAM role.
 - [Billing enabled](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled#confirm_billing_is_enabled_on_a_project)
   for your Google Cloud Platform project.
-- A working [`gcloud` CLI tool](https://cloud.google.com/sdk/docs/install) authenticated with the
+- A working [`gcloud` CLI tool](https://docs.cloud.google.com/sdk/docs/install-sdk) authenticated with the
   IAM role on the Google Cloud project.
 - [Terraform v1.5 or later](https://releases.hashicorp.com/terraform/1.5.7/) and [Terraform CLI tool](https://developer.hashicorp.com/terraform/install).
 - A terminal with Bash installed.

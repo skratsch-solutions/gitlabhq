@@ -533,7 +533,7 @@ Therefore, the standard user flows do not work with the
 With a standard Azure B2C policy, GitLab cannot create a new account or
 link to an existing account with an email address.
 
-For more information on how Azure AD B2C issues tokens and claims in user flows and custom policies, see the Microsoft documentation on [user flows and custom policies](https://learn.microsoft.com/azure/active-directory-b2c/user-flow-overview) and [claims schema configuration](https://learn.microsoft.com/azure/active-directory-b2c/claimsschema).
+For more information on how Azure AD B2C issues tokens and claims in user flows and custom policies, see the Microsoft documentation on [user flows and custom policies](https://learn.microsoft.com/en-us/azure/active-directory-b2c/user-flow-overview) and [claims schema configuration](https://learn.microsoft.com/en-us/azure/active-directory-b2c/claimsschema).
 
 First, [create a custom policy](https://learn.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-user-flows?pivots=b2c-custom-policy).
 

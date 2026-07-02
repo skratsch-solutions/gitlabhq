@@ -3200,7 +3200,7 @@ job_with_workload_identity:
 
 **Related topics**:
 
-- [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation).
+- [Workload Identity Federation](https://docs.cloud.google.com/iam/docs/workload-identity-federation).
 - [Google Cloud IAM integration](../../integration/google_cloud_iam.md).
 
 ---

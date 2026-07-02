@@ -86,7 +86,7 @@ RSpec.describe 'Merge request shortcuts', :js, feature_category: :code_review_wo
     it "opens labels dropdown for editing" do
       find('body').native.send_key('l')
 
-      expect(find('.js-labels-block')).to have_selector('[data-testid="labels-select-dropdown-contents"]')
+      expect(find('.js-labels-block')).to have_selector('[data-testid="listbox-search-input"]')
     end
   end
 end

@@ -160,7 +160,7 @@ Provider-specific backup guides:
 
 - [Amazon S3 backups](https://docs.aws.amazon.com/aws-backup/latest/devguide/s3-backups.html)
 - [Google Cloud Storage Transfer Service](https://cloud.google.com/storage-transfer-service)
-- [Google Cloud Storage Object Versioning](https://cloud.google.com/storage/docs/object-versioning)
+- [Google Cloud Storage Object Versioning](https://docs.cloud.google.com/storage/docs/object-versioning)
 
 See also:
 

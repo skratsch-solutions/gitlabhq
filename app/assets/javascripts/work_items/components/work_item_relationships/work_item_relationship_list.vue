@@ -74,6 +74,7 @@ export default {
       default: false,
     },
   },
+  emits: ['removeLinkedItem', 'showModal', 'updateLinkedItem'],
   data() {
     return {
       dragCancelled: false,

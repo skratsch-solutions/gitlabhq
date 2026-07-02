@@ -122,10 +122,10 @@ the bucket used by secondary sites.
 
 If you are using Google Cloud Storage, consider using
 [Multi-Regional Storage](https://cloud.google.com/storage/docs/storage-classes#multi-regional).
-Or you can use the [Storage Transfer Service](https://cloud.google.com/storage-transfer/docs/overview),
+Or you can use the [Storage Transfer Service](https://docs.cloud.google.com/storage-transfer/docs/overview),
 although this only supports daily synchronization.
 
 For manual synchronization, or scheduled by `cron`, see:
 
 - [`s3cmd sync`](https://s3tools.org/s3cmd-sync)
-- [`gsutil rsync`](https://cloud.google.com/storage/docs/gsutil/commands/rsync)
+- [`gsutil rsync`](https://docs.cloud.google.com/storage/docs/gsutil)

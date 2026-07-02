@@ -84,6 +84,7 @@ export default {
       default: null,
     },
   },
+  emits: ['error', 'submit-comment', 'workItemStateUpdated'],
   data() {
     return {
       updateInProgress: false,

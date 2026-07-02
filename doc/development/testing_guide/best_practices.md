@@ -218,6 +218,12 @@ To avoid creation, it is worth bearing in mind that:
 
 - `instance_double` and `spy` are faster than `FactoryBot.build(...)`.
 - `FactoryBot.build(...)` and `.build_stubbed` are faster than `.create`.
+- `build_stubbed` is usually faster than `build`: it never touches the database,
+  assigns a fake `id` and timestamps, and stubs associated records instead of
+  building them, so it avoids the association cascades that `build` can still
+  trigger.
+  Prefer `build_stubbed` unless the code under test persists the object
+  or relies on real association records.
 - Don't `create` an object when you can use `build`, `build_stubbed`, `attributes_for`,
   `spy`, or `instance_double`. Database persistence is slow!
 

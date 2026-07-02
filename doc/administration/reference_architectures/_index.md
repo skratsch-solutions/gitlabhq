@@ -413,7 +413,7 @@ The following are example services for each service type, used in testing and do
 <!-- Disable ordered list rule <https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md029---ordered-list-item-prefix> -->
 <!-- markdownlint-disable MD029 -->
 1. For optimal performance, especially in larger environments (500 RPS / 25k users or higher),
-   use the [Enterprise Plus edition](https://cloud.google.com/sql/docs/editions-intro) for GCP Cloud SQL.
+   use the [Enterprise Plus edition](https://docs.cloud.google.com/sql/docs/mysql/editions-intro) for GCP Cloud SQL.
    You might have to adjust the maximum connections higher than the service's defaults, depending on your workload.
 2. Use ElastiCache for Valkey 7.2. ElastiCache for Redis 7.2 is not available on AWS. ElastiCache for Redis 7.1 is known to work but is built on Redis 7.0 OSS and is not recommended for new deployments.
 <!-- markdownlint-enable MD029 -->

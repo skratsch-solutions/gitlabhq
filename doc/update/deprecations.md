@@ -574,7 +574,7 @@ See the following resources for migrating an external Redis 6 deployment:
   ElastiCache for Redis 7.1 is built on Redis 7.0 and is known to work.
   For available upgrade paths, see [AWS ElastiCache documentation](https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/supported-engine-versions.html).
 - **GCP Memorystore**: Upgrade your Redis 6 instance to Redis 7.2 or Valkey 7.2. For available upgrade paths, see
-  [GCP Memorystore documentation](https://cloud.google.com/memorystore/docs/redis/supported-versions).
+  [GCP Memorystore documentation](https://docs.cloud.google.com/memorystore/docs/redis/supported-versions).
 - **Azure Cache for Redis**: A managed Redis 7.2 or Valkey 7.2 option is not currently available on Azure. You can
   self-host Redis 7.2 or Valkey 7.2 on Azure VMs or AKS. You can also use the GitLab Linux package installation method,
   which supports Valkey 7.2.

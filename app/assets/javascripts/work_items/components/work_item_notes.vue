@@ -149,6 +149,7 @@ export default {
       default: false,
     },
   },
+  emits: ['blur', 'error', 'focus', 'openReportAbuse', 'start-editing', 'stop-editing'],
   data() {
     return {
       isLoadingMore: false,

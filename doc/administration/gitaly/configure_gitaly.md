@@ -1516,11 +1516,11 @@ go_cloud_url = "azblob://<bucket>"
 
 Google Cloud storage (GCP) authenticates using Application Default Credentials. Set up Application Default Credentials on each Gitaly server using either:
 
-- The [`gcloud auth application-default login`](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login) command.
+- The [`gcloud auth application-default login`](https://docs.cloud.google.com/sdk/gcloud/reference/auth/application-default/login) command.
 - The `GOOGLE_APPLICATION_CREDENTIALS` environment variable. For self-compiled installations, set the environment
   variable outside of GitLab.
 
-For more information, see [Application Default Credentials](https://cloud.google.com/docs/authentication/provide-credentials-adc).
+For more information, see [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/provide-credentials-adc).
 
 The destination bucket is configured using the `go_cloud_url` option.
 

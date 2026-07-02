@@ -17188,6 +17188,28 @@ CREATE SEQUENCE cd_application_flow_definitions_id_seq
 
 ALTER SEQUENCE cd_application_flow_definitions_id_seq OWNED BY cd_application_flow_definitions.id;
 
+CREATE TABLE cd_application_links (
+    id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    application_id bigint NOT NULL,
+    link_type smallint DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    url text NOT NULL,
+    CONSTRAINT check_ea950a1d62 CHECK ((char_length(name) <= 255)),
+    CONSTRAINT check_f775f5cde5 CHECK ((char_length(url) <= 2048))
+);
+
+CREATE SEQUENCE cd_application_links_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_application_links_id_seq OWNED BY cd_application_links.id;
+
 CREATE TABLE cd_applications (
     id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -36913,6 +36935,8 @@ ALTER TABLE ONLY catalog_verified_namespaces ALTER COLUMN id SET DEFAULT nextval
 
 ALTER TABLE ONLY cd_application_flow_definitions ALTER COLUMN id SET DEFAULT nextval('cd_application_flow_definitions_id_seq'::regclass);
 
+ALTER TABLE ONLY cd_application_links ALTER COLUMN id SET DEFAULT nextval('cd_application_links_id_seq'::regclass);
+
 ALTER TABLE ONLY cd_applications ALTER COLUMN id SET DEFAULT nextval('cd_applications_id_seq'::regclass);
 
 ALTER TABLE ONLY cd_artifact_sources ALTER COLUMN id SET DEFAULT nextval('cd_artifact_sources_id_seq'::regclass);
@@ -40127,6 +40151,9 @@ ALTER TABLE ONLY catalog_verified_namespaces
 
 ALTER TABLE ONLY cd_application_flow_definitions
     ADD CONSTRAINT cd_application_flow_definitions_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_application_links
+    ADD CONSTRAINT cd_application_links_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY cd_applications
     ADD CONSTRAINT cd_applications_pkey PRIMARY KEY (id);
@@ -47527,6 +47554,10 @@ CREATE UNIQUE INDEX index_catalog_verified_namespaces_on_namespace_id ON catalog
 CREATE UNIQUE INDEX index_cd_app_flow_definitions_on_application_id_and_version ON cd_application_flow_definitions USING btree (application_id, version);
 
 CREATE INDEX index_cd_application_flow_definitions_on_organization_id ON cd_application_flow_definitions USING btree (organization_id);
+
+CREATE UNIQUE INDEX index_cd_application_links_on_application_id_and_url ON cd_application_links USING btree (application_id, url);
+
+CREATE INDEX index_cd_application_links_on_organization_id ON cd_application_links USING btree (organization_id);
 
 CREATE INDEX index_cd_artifact_sources_on_group_id ON cd_artifact_sources USING btree (group_id);
 
@@ -59431,6 +59462,9 @@ ALTER TABLE ONLY protected_branch_merge_access_levels
 ALTER TABLE ONLY notes
     ADD CONSTRAINT fk_99e097b079 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_application_links
+    ADD CONSTRAINT fk_99f9beb997 FOREIGN KEY (application_id) REFERENCES cd_applications(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY approval_group_rules_users
     ADD CONSTRAINT fk_9a4b673183 FOREIGN KEY (approval_group_rule_id) REFERENCES approval_group_rules(id) ON DELETE CASCADE;
 
@@ -60036,6 +60070,9 @@ ALTER TABLE ONLY ai_settings
 
 ALTER TABLE ONLY todos
     ADD CONSTRAINT fk_ccf0373936 FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_application_links
+    ADD CONSTRAINT fk_cd73c08170 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY packages_debian_project_architectures
     ADD CONSTRAINT fk_cd96fce0a1 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

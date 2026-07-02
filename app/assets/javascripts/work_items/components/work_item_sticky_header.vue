@@ -64,6 +64,7 @@ export default {
       default: false,
     },
   },
+  emits: ['error', 'hideStickyHeader', 'showStickyHeader', 'todosUpdated', 'toggleEditMode'],
   computed: {
     canUpdate() {
       return this.workItem.userPermissions?.updateWorkItem;

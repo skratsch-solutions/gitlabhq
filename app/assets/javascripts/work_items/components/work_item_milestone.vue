@@ -61,6 +61,7 @@ export default {
       default: false,
     },
   },
+  emits: ['error', 'milestoneUpdated', 'parentMilestone', 'updateWidgetDraft'],
   data() {
     return {
       searchTerm: '',

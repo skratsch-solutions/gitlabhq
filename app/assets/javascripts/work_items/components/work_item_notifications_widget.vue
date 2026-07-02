@@ -38,6 +38,7 @@ export default {
       default: null,
     },
   },
+  emits: ['error'],
   data() {
     return {
       workItemNotificationsSubscribed: false,
