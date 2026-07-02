@@ -412,7 +412,6 @@ Style/IfUnlessModifier:
     - 'lib/banzai/object_renderer.rb'
     - 'lib/banzai/reference_parser/base_parser.rb'
     - 'lib/banzai/renderer.rb'
-    - 'lib/bitbucket_server/representation/pull_request_comment.rb'
     - 'lib/bulk_imports/common/pipelines/uploads_pipeline.rb'
     - 'lib/bulk_imports/groups/loaders/group_loader.rb'
     - 'lib/container_registry/base_client.rb'

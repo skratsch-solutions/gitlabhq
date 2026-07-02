@@ -118,6 +118,34 @@ RSpec.describe WorkItems::ExportCsvService, :with_license, feature_category: :te
     expect { subject.csv_data }.not_to exceed_query_limit(control).with_threshold(1)
   end
 
+  describe 'association preloading strategy' do
+    context 'when export_csv_preload_in_batches is enabled' do
+      it 'lets CsvBuilder preload associations in batches' do
+        expect_next_instance_of(
+          CsvBuilder, kind_of(ActiveRecord::Relation), anything, subject.send(:associations_to_preload)
+        ) do |csv_builder|
+          expect(csv_builder).to receive(:render).and_call_original
+        end
+
+        subject.csv_data
+      end
+    end
+
+    context 'when export_csv_preload_in_batches is disabled' do
+      before do
+        stub_feature_flags(export_csv_preload_in_batches: false)
+      end
+
+      it 'preloads the whole relation up front and passes no associations to CsvBuilder' do
+        expect_next_instance_of(CsvBuilder, kind_of(ActiveRecord::Relation), anything, []) do |csv_builder|
+          expect(csv_builder).to receive(:render).and_call_original
+        end
+
+        subject.csv_data
+      end
+    end
+  end
+
   it_behaves_like 'a service that returns invalid fields from selection'
 
   # TODO - once we have a UI for this feature

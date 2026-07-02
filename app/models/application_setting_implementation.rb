@@ -382,7 +382,9 @@ module ApplicationSettingImplementation
         pipeline_limit_per_user: 0,
         ci_lint_limit_per_user: 0,
         background_operations_max_jobs: 10,
-        oauth_access_token_expires_in: ApplicationSetting::DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN
+        oauth_access_token_expires_in: ApplicationSetting::DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN,
+        logging_field_schema_version: 0,
+        logging_field_dual_emit_target: nil
       }.tap do |hsh|
         hsh.merge!(non_production_defaults) unless Rails.env.production?
       end

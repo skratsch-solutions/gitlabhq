@@ -1,6 +1,5 @@
 <script>
-// eslint-disable-next-line no-restricted-imports
-import { mapActions, mapMutations } from 'vuex';
+import { mapActions } from 'pinia';
 import { GlButton } from '@gitlab/ui';
 import { sprintf } from '~/locale';
 
@@ -23,7 +22,7 @@ import { fetchOAuthApplicationId, fetchOAuthToken } from '~/jira_connect/subscri
 import { setUrlParams } from '~/lib/utils/url_utility';
 import AccessorUtilities from '~/lib/utils/accessor';
 import { createCodeVerifier, createCodeChallenge } from '../pkce';
-import { SET_ACCESS_TOKEN, SET_ALERT } from '../store/mutation_types';
+import { useJiraConnectSubscriptions } from '../store';
 
 export default {
   components: {
@@ -65,11 +64,7 @@ export default {
     window.removeEventListener('message', this.handleWindowMessage);
   },
   methods: {
-    ...mapActions(['loadCurrentUser']),
-    ...mapMutations({
-      setAccessToken: SET_ACCESS_TOKEN,
-      setAlert: SET_ALERT,
-    }),
+    ...mapActions(useJiraConnectSubscriptions, ['loadCurrentUser', 'setAccessToken', 'setAlert']),
     async fetchOauthClientId() {
       const {
         data: { application_id: clientId },

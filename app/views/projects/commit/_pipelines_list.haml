@@ -1,7 +1,4 @@
-- disable_initialization = local_assigns.fetch(:disable_initialization, false)
-
-#commit-pipeline-table-view{ data: { disable_initialization: disable_initialization,
-  endpoint: endpoint,
+#commit-pipeline-table-view{ data: { endpoint: endpoint,
   graphql_path: api_graphql_path,
   new_pipeline_path: new_project_pipeline_path(@project),
   "project-id": @project.id,

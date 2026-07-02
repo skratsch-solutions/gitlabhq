@@ -720,10 +720,6 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer, :clean_gitlab_redis_
             expect(CommitStatus.all).to all(have_attributes(pipeline_id: a_value > 0))
           end
 
-          it 'restores a Hash for CommitStatus options' do
-            expect(CommitStatus.all.map(&:options).compact).to all(be_a(Hash))
-          end
-
           it 'restores external pull request for the restored pipeline' do
             pipeline_with_external_pr = @project.ci_pipelines.find_by(source: 'external_pull_request_event')
 

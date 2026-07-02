@@ -212,7 +212,7 @@ RSpec.describe Import::BitbucketService, feature_category: :importers do
         result = service.execute
 
         expect(result).to include(
-          message: 'Import failed due to an error: Error!',
+          message: 'Import failed due to an error',
           status: :error,
           http_status: :bad_request
         )

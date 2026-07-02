@@ -138,6 +138,7 @@ export default {
       default: false,
     },
   },
+  emits: ['handleSuggestDismissed', 'hidePreview', 'showPreview'],
   data() {
     const modifierKey = getModifierKey();
 

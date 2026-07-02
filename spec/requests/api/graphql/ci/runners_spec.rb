@@ -15,6 +15,9 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
     end
   end
 
+  # NOTE: No cross-organization isolation test for the admin path (`Query.runners`). It is cell-scoped
+  # by design (admins see every runner on the cell, across all organizations), so a second-organization
+  # runner is expected to be returned here, not filtered out.
   describe 'Query.runners', :freeze_time do
     before_all do
       freeze_time # Freeze time before `let_it_be` runs, so that runner statuses are frozen during execution
@@ -462,6 +465,33 @@ RSpec.describe 'Group.runners', feature_category: :fleet_visibility do
     end
   end
 
+  context 'with a runner outside the group' do
+    let_it_be(:group_runner) { create(:ci_runner, :group, groups: [group]) }
+    let_it_be(:other_organization) { create(:organization) }
+    let_it_be(:other_org_group) { create(:group, organization: other_organization) }
+    let_it_be(:other_org_runner) { create(:ci_runner, :group, groups: [other_org_group]) }
+
+    let(:query) do
+      %(
+        query($path: ID!) {
+          group(fullPath: $path) {
+            runners {
+              nodes { id }
+            }
+          }
+        }
+      )
+    end
+
+    it 'does not return runners outside the group', :aggregate_failures do
+      post_graphql(query, current_user: group_owner, variables: { path: group.full_path })
+
+      returned_ids = graphql_data_at(:group, :runners, :nodes).pluck('id')
+      expect(returned_ids).to include(group_runner.to_global_id.to_s)
+      expect(returned_ids).not_to include(other_org_runner.to_global_id.to_s)
+    end
+  end
+
   describe 'granular token authorization' do
     let(:query) do
       <<~GRAPHQL
@@ -518,6 +548,34 @@ RSpec.describe 'Project.runners', feature_category: :fleet_visibility do
       edit_web_url = edit_project_runner_url(project, runner)
 
       expect(edges).to contain_exactly(a_graphql_entity_for(web_url: web_url, edit_url: edit_web_url))
+    end
+  end
+
+  context 'with a runner outside the project' do
+    let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project]) }
+    let_it_be(:other_organization) { create(:organization) }
+    let_it_be(:other_org_group) { create(:group, organization: other_organization) }
+    let_it_be(:other_org_project) { create(:project, group: other_org_group) }
+    let_it_be(:other_org_runner) { create(:ci_runner, :project, projects: [other_org_project]) }
+
+    let(:query) do
+      %(
+        query($path: ID!) {
+          project(fullPath: $path) {
+            runners {
+              nodes { id }
+            }
+          }
+        }
+      )
+    end
+
+    it 'does not return runners outside the project', :aggregate_failures do
+      post_graphql(query, current_user: maintainer, variables: { path: project.full_path })
+
+      returned_ids = graphql_data_at(:project, :runners, :nodes).pluck('id')
+      expect(returned_ids).to include(project_runner.to_global_id.to_s)
+      expect(returned_ids).not_to include(other_org_runner.to_global_id.to_s)
     end
   end
 

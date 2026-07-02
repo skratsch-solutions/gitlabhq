@@ -29,7 +29,7 @@ module Ci
 
         includes(:job_definition).each_batch do |batch|
           # We only load what we need for `has_exposed_artifacts?`
-          records = batch.select(:id, :partition_id, :project_id, :options).to_a
+          records = batch.select(:id, :partition_id, :project_id).to_a
 
           ActiveRecord::Associations::Preloader.new(
             records: records,
@@ -67,7 +67,6 @@ module Ci
 
     def degenerate!
       self.class.transaction do
-        self.update!(options: nil, yaml_variables: nil)
         self.needs.all.delete_all
         self.metadata&.destroy
         self.job_definition_instance&.destroy
@@ -76,11 +75,11 @@ module Ci
     end
 
     def options
-      read_metadata_attribute(:options, :config_options, :options, {})
+      read_metadata_attribute(:config_options, :options, {})
     end
 
     def yaml_variables
-      read_metadata_attribute(:yaml_variables, :config_variables, :yaml_variables, [])
+      read_metadata_attribute(:config_variables, :yaml_variables, [])
     end
 
     def interruptible
@@ -91,7 +90,7 @@ module Ci
     end
 
     def id_tokens
-      read_metadata_attribute(nil, :id_tokens, :id_tokens, {}).deep_stringify_keys
+      read_metadata_attribute(:id_tokens, :id_tokens, {}).deep_stringify_keys
     end
 
     def id_tokens?
@@ -163,22 +162,6 @@ module Ci
       write_attribute(:exit_code, safe_value)
     end
 
-    # Should be removed when the column is dropped from p_ci_builds
-    # allows deleting data for `degenerate!`
-    def options=(value)
-      raise ActiveRecord::ReadonlyAttributeError, 'This data is read only' unless value.nil?
-
-      super
-    end
-
-    # Should be removed when the column is dropped from p_ci_builds
-    # allows deleting data for `degenerate!`
-    def yaml_variables=(value)
-      raise ActiveRecord::ReadonlyAttributeError, 'This data is read only' unless value.nil?
-
-      super
-    end
-
     def interruptible=(_value)
       raise ActiveRecord::ReadonlyAttributeError, 'This data is read only'
     end
@@ -193,10 +176,7 @@ module Ci
 
     private
 
-    def read_metadata_attribute(legacy_key, metadata_key, job_definition_key, default_value = nil)
-      result = read_attribute(legacy_key) if legacy_key
-      return result if result
-
+    def read_metadata_attribute(metadata_key, job_definition_key, default_value = nil)
       result = job_definition&.config&.dig(job_definition_key) || temp_job_definition&.config&.dig(job_definition_key)
       return result if result
 

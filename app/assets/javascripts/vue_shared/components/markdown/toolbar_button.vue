@@ -73,6 +73,7 @@ export default {
       default: null,
     },
   },
+  emits: ['click'],
   computed: {
     shortcutsString() {
       const shortcutArray = Array.isArray(this.shortcuts) ? this.shortcuts : [this.shortcuts];

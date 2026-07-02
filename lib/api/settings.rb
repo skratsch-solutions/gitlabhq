@@ -286,6 +286,13 @@ module API
       optional :enable_language_server_restrictions, type: Boolean, desc: 'Enables enforcing language server restrictions'
       optional :minimum_language_server_version, type: String, desc: 'The minimum language server version to accept requests from'
       optional :terraform_state_encryption_enabled, type: Boolean, desc: 'Enable encryption for Terraform state files'
+      optional :logging_field_schema_version, type: Integer,
+        values: ApplicationSetting::LOGGING_FIELD_SCHEMA_VERSIONS,
+        desc: 'Logging field schema version (v0, v1, …). Cannot be downgraded.'
+      optional :logging_field_dual_emit_target, type: Integer,
+        values: ApplicationSetting::LOGGING_FIELD_SCHEMA_VERSIONS.reject(&:zero?),
+        allow_blank: true,
+        desc: 'Version to dual-emit alongside schema_version. Must be strictly greater than schema_version, or omit/null to disable.'
 
       Gitlab::SSHPublicKey.supported_types.each do |type|
         optional :"#{type}_key_restriction",
@@ -350,6 +357,11 @@ module API
       attrs.delete(:hashed_storage_enabled) if attrs.has_key?(:hashed_storage_enabled)
 
       attrs = filter_attributes_using_license(attrs)
+
+      unless Feature.enabled?(:logging_field_variant_versioning, :instance)
+        attrs.delete(:logging_field_schema_version)
+        attrs.delete(:logging_field_dual_emit_target)
+      end
 
       if ApplicationSettings::UpdateService.new(current_settings, current_user, attrs).execute
         present current_settings, with: Entities::ApplicationSetting

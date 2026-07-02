@@ -61,6 +61,10 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
             expect(page).to have_css('[data-testid="pipelines-manual-actions-dropdown"]')
             expect(page).to have_css('[data-testid="pipeline-multi-actions-dropdown"]')
           end
+
+          within('.merge-request-tabs') do
+            expect(page).to have_link('Pipelines 1')
+          end
         end
 
         context 'with a detached merge request pipeline' do

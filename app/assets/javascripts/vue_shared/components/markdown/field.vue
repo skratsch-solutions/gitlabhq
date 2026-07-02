@@ -134,6 +134,7 @@ export default {
       default: false,
     },
   },
+  emits: ['enableContentEditor', 'handleSuggestDismissed'],
   data() {
     return {
       glForm: null,

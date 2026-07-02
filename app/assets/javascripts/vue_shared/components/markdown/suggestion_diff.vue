@@ -42,6 +42,7 @@ export default {
       default: false,
     },
   },
+  emits: ['addToBatch', 'apply', 'applyBatch', 'removeFromBatch'],
   computed: {
     batchSuggestionsCount() {
       return this.batchSuggestionsInfo.length;

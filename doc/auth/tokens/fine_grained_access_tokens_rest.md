@@ -1763,6 +1763,7 @@ Grants the ability to create, delete, read, and update virtual registries.
 | Create | Group | `POST` | `/groups/:id/-/virtual_registries/packages/npm/registries` |
 | Create | Group | `POST` | `/virtual_registries/container/registries/:id/upstreams` |
 | Create | Group | `POST` | `/virtual_registries/container/registry_upstreams` |
+| Create | Group | `POST` | `/virtual_registries/packages/maven/registries/:id/local/upstreams` |
 | Create | Group | `POST` | `/virtual_registries/packages/maven/registries/:id/upstreams` |
 | Create | Group | `POST` | `/virtual_registries/packages/maven/registry_upstreams` |
 | Create | Group | `POST` | `/virtual_registries/packages/npm/registry_upstreams` |

@@ -7,6 +7,10 @@ RSpec.describe 'Query.runner(id)', :freeze_time, feature_category: :fleet_visibi
 
   using RSpec::Parameterized::TableSyntax
 
+  # NOTE: No cross-organization isolation test for the single-runner lookup path (`Query.runner(id)`).
+  # It resolves a specific runner by global ID and authorizes by the requesting user's permission on
+  # that runner rather than scoping a collection by hierarchy, so there is no organization boundary to
+  # assert here (unlike the `Group.runners` / `Project.runners` collection paths).
   let_it_be(:user) { create(:user, :admin) }
   let_it_be(:another_admin) { create(:user, :admin) }
   let_it_be_with_reload(:group) { create(:group) }

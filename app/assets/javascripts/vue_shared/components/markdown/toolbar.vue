@@ -35,6 +35,7 @@ export default {
       default: false,
     },
   },
+  emits: ['enableContentEditor'],
   computed: {
     showEditorModeSwitcher() {
       return this.showContentEditorSwitcher;

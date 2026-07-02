@@ -62,6 +62,8 @@ To use the Permissions Assistant:
   requests in a single project" gives better results than "I need API access."
 - If the initial selection is too broad or too narrow, ask for adjustments.
 - Use the suggested prompts as a starting point if you are unsure how to describe your needs.
+- Suggestions are applied to the relevant access level (Group and project, User, or Global),
+  so the same permission can be added in more than one section when your request spans them.
 
 ## Example prompts
 
@@ -69,3 +71,4 @@ To use the Permissions Assistant:
 - "I need to manage CI/CD pipelines and read job logs."
 - "I want to automate issue and merge request management."
 - "I need read-only access to projects and groups."
+- "I want to read all snippets, not just my own."

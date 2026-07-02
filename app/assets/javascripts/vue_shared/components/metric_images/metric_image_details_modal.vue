@@ -50,6 +50,7 @@ export default {
       default: '',
     },
   },
+  emits: ['hidden'],
   data() {
     return {
       modalUrl: this.url,

@@ -1,23 +1,19 @@
 <script>
-import { GlSprintf } from '@gitlab/ui';
-import {
-  getStartLineNumber,
-  getEndLineNumber,
-  getLineClasses,
-} from '~/notes/components/multiline_comment_utils';
+import { getStartLineNumber, getEndLineNumber } from '~/notes/components/multiline_comment_utils';
 import ToggleRepliesWidget from '~/notes/components/toggle_replies_widget.vue';
 import DraftNote from './draft_note.vue';
 import SystemNote from './system_note.vue';
 import NoteableNote from './noteable_note.vue';
+import LineRangeHeadline from './line_range_headline.vue';
 
 export default {
   name: 'DiscussionNotes',
   components: {
-    GlSprintf,
     DraftNote,
     SystemNote,
     NoteableNote,
     ToggleRepliesWidget,
+    LineRangeHeadline,
   },
   inject: {
     userPermissions: {
@@ -89,20 +85,12 @@ export default {
     lineRange() {
       return this.firstNote.position?.line_range;
     },
-    startLineNumber() {
-      return getStartLineNumber(this.lineRange);
-    },
-    endLineNumber() {
-      return getEndLineNumber(this.lineRange);
-    },
     showMultiLineComment() {
-      if (!this.startLineNumber || !this.endLineNumber) return false;
+      const startLine = getStartLineNumber(this.lineRange);
+      const endLine = getEndLineNumber(this.lineRange);
 
-      return this.startLineNumber !== this.endLineNumber;
+      return Boolean(startLine && endLine && startLine !== endLine);
     },
-  },
-  methods: {
-    getLineClasses,
   },
 };
 </script>
@@ -127,14 +115,7 @@ export default {
       @cancelEditing="$emit('cancelEditing', firstNote)"
     >
       <template v-if="showMultiLineComment" #headline>
-        <gl-sprintf :message="__('Comment on lines %{startLine} to %{endLine}')">
-          <template #startLine>
-            <span :class="getLineClasses(startLineNumber)">{{ startLineNumber }}</span>
-          </template>
-          <template #endLine>
-            <span :class="getLineClasses(endLineNumber)">{{ endLineNumber }}</span>
-          </template>
-        </gl-sprintf>
+        <line-range-headline :line-range="lineRange" />
       </template>
       <template #avatar-badge>
         <slot name="avatar-badge"></slot>

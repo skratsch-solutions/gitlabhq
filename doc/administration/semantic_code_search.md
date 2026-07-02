@@ -65,95 +65,66 @@ you can turn on semantic code search by connecting to the same cluster:
 
 ### Configure a custom vector store
 
-To configure a custom vector store connection for Elasticsearch, OpenSearch, or PostgreSQL:
-
-- In the Rails console, create `Ai::ActiveContext::Connection` with `adapter_class` and `options`.
-
-#### Elasticsearch
-
-```ruby
-connection = Ai::ActiveContext::Connection.create!(
-  name: "elasticsearch",
-  options: options,
-  adapter_class: "ActiveContext::Databases::Elasticsearch::Adapter"
-)
-connection.activate!
-```
-
-Connection options:
-
-| Option                   | Type             | Required | Default    | Description |
-|--------------------------|------------------|----------|------------|-------------|
-| `url`                    | array of strings | Yes      | None       | Array of URLs for your Elasticsearch cluster (for example, `["http://localhost:9200"]`). |
-| `client_adapter`         | string           | No       | `typhoeus` | HTTP adapter to use. Possible values are `typhoeus` and `net_http`. |
-| `client_request_timeout` | integer          | No       | `30`       | Request timeout in seconds. |
-| `retry_on_failure`       | integer          | No       | `0`        | Number of retries on failure. |
-| `debug`                  | boolean          | No       | `false`    | Enables debug logging. |
-
-#### OpenSearch
-
-```ruby
-connection = Ai::ActiveContext::Connection.create!(
-  name: "opensearch",
-  options: options,
-  adapter_class: "ActiveContext::Databases::Opensearch::Adapter"
-)
-connection.activate!
-```
-
-Connection options:
-
-| Option                   | Type             | Required | Default    | Description |
-|--------------------------|------------------|----------|------------|-------------|
-| `url`                    | array of strings | Yes      | None       | Array of URLs for your OpenSearch cluster (for example, `["http://localhost:9200"]`). |
-| `client_adapter`         | string           | No       | `typhoeus` | HTTP adapter to use. Possible values are `typhoeus` and `net_http`. |
-| `client_request_timeout` | integer          | No       | `30`       | Request timeout in seconds. |
-| `retry_on_failure`       | integer          | No       | `0`        | Number of retries on failure. |
-| `debug`                  | boolean          | No       | `false`    | Enables debug logging. |
-| `aws`                    | boolean          | No       | `false`    | Enables AWS Signature Version 4 signing. |
-| `aws_region`             | string           | No       | None       | AWS region for your OpenSearch domain. |
-| `aws_access_key`         | string           | No       | None       | AWS access key ID. |
-| `aws_secret_access_key`  | string           | No       | None       | AWS secret access key. |
-| `aws_role_arn`           | string           | No       | None       | AWS IAM role ARN for role-based authentication. |
-
-#### PostgreSQL with `pgvector`
-
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/552311) in GitLab 18.8.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/585318) in GitLab 19.2.
 
 {{< /history >}}
 
-For PostgreSQL, use the [`pgvector`](https://github.com/pgvector/pgvector) extension:
+To configure a custom vector store connection:
 
-1. In the PostgreSQL database, create the extension:
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **Search**.
+1. Expand **Semantic search**.
+1. For **Vector storage**, select **Configure**.
+1. From the **Search adapter** dropdown list, select
+   **Elasticsearch**, **OpenSearch**, or **PostgreSQL**.
+1. Complete the fields for your adapter.
+1. Select **Save changes**.
 
-   ```sql
-   CREATE EXTENSION vector;
-   ```
+#### Elasticsearch
 
-1. In the Rails console, create the connection:
+| Setting      | Description |
+|--------------|-------------|
+| **URL**      | Comma-separated list of URLs for your Elasticsearch cluster (for example, `http://localhost:9200, http://localhost:9201`). |
+| **Username** | Username of password-protected Elasticsearch servers. |
+| **Password** | Password of password-protected Elasticsearch servers. |
 
-   ```ruby
-   connection = Ai::ActiveContext::Connection.create!(
-     name: "postgres",
-     options: options,
-     adapter_class: "ActiveContext::Databases::Postgresql::Adapter"
-   )
-   connection.activate!
-   ```
+#### OpenSearch
 
-Connection options:
+| Setting      | Description |
+|--------------|-------------|
+| **URL**      | Comma-separated list of URLs for your OpenSearch cluster (for example, `http://localhost:9200, http://localhost:9201`). |
+| **Username** | Username of password-protected OpenSearch servers. |
+| **Password** | Password of password-protected OpenSearch servers. |
 
-| Option           | Type    | Required | Default | Description |
-|------------------|---------|----------|---------|-------------|
-| `host`           | string  | Yes      | None    | PostgreSQL host. |
-| `port`           | integer | No       | None    | PostgreSQL port. |
-| `database`       | string  | No       | None    | Database name. |
-| `user`           | string  | No       | None    | PostgreSQL user. |
-| `password`       | string  | No       | None    | PostgreSQL password. |
-| `connect_timeout`| integer | No       | `5`     | Connection timeout in seconds. |
-| `pool_size`      | integer | No       | `5`     | Connection pool size. |
+To use AWS OpenSearch Service, select **Use AWS OpenSearch Service with IAM credentials**
+and complete the fields:
+
+| Setting                   | Description |
+|---------------------------|-------------|
+| **AWS region**            | AWS region of your OpenSearch domain. |
+| **AWS Access Key**        | AWS access key ID. Required only if you're not using role instance credentials. |
+| **AWS Secret Access Key** | AWS secret access key. Required only if you're not using role instance credentials. |
+| **AWS Role ARN**          | AWS IAM role ARN of `AssumeRole` authorization across accounts. |
+
+#### PostgreSQL with `pgvector`
+
+Prerequisites:
+
+- Enable the [`pgvector`](https://github.com/pgvector/pgvector) extension in your PostgreSQL database:
+
+  ```sql
+  CREATE EXTENSION vector;
+  ```
+
+| Setting      | Description |
+|--------------|-------------|
+| **Host**     | Host name of the PostgreSQL server. |
+| **Port**     | Port of the PostgreSQL server. Default is `5432`. |
+| **Database** | Name of the PostgreSQL database. |
+| **Username** | PostgreSQL username. |
+| **Password** | PostgreSQL password. |
 
 ## Configure an embedding model
 

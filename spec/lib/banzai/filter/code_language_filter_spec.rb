@@ -113,6 +113,13 @@ RSpec.describe Banzai::Filter::CodeLanguageFilter, feature_category: :markdown d
       expect(result.at_css('pre')['data-lang']).to eq('ruby')
     end
 
+    it 'prioritizes CSS class over lang attribute' do
+      result = filter('<pre lang="python"><code class="language-ruby">def fun end</code></pre>')
+
+      expect(result.at_css('pre')['data-canonical-lang']).to eq('ruby')
+      expect(result.at_css('pre')['data-lang']).to eq('ruby')
+    end
+
     it 'extracts language from code node data-lang when pre node has none' do
       doc = filter('<pre><code data-lang="javascript">code</code></pre>')
       expect(doc.at_css('pre')['data-canonical-lang']).to eq('javascript')

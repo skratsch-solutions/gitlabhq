@@ -121,13 +121,8 @@ mutation:CreateComplianceRequirement
 mutation:CreateComplianceRequirementsControl
 mutation:CreateCustomDashboard
 mutation:CreateCustomEmoji
-mutation:CreateDiffNote
-mutation:CreateDiscussion
 mutation:CreateEpic
-mutation:CreateImageDiffNote
 mutation:CreateIteration
-mutation:CreateLatestDiffNote
-mutation:CreateNote
 mutation:CreateRequirement
 mutation:CreateTestCase
 mutation:CustomFieldArchive
@@ -168,7 +163,6 @@ mutation:DestroyComplianceRequirement
 mutation:DestroyComplianceRequirementsControl
 mutation:DestroyCustomEmoji
 mutation:DestroyEpicBoard
-mutation:DestroyNote
 mutation:DestroyPackages
 mutation:DevfileValidate
 mutation:DisableDevopsAdoptionNamespace
@@ -389,9 +383,7 @@ mutation:UpdateDependencyProxyPackagesSettings
 mutation:UpdateDuoWorkflowToolCallApprovals
 mutation:UpdateEpic
 mutation:UpdateEpicBoardList
-mutation:UpdateImageDiffNote
 mutation:UpdateNamespacePackageSettings
-mutation:UpdateNote
 mutation:UpdateProjectComplianceViolation
 mutation:UpdateRequirement
 mutation:UpdateVirtualRegistriesSetting
@@ -943,7 +935,6 @@ type:NamespaceSettings
 type:NamespaceSidebar
 type:NestedEnvironment
 type:NetworkPolicyEgress
-type:Note
 type:NotePermissions
 type:NugetDependencyLinkMetadata
 type:NugetMetadata
@@ -1003,6 +994,9 @@ type:PipelineScheduleStatusCount
 type:PipelineScheduleVariable
 type:PipelineSecurityReportFinding
 type:PipelineSecurityReportFindingPermissions
+type:PipelinesAggregationResponse
+type:PipelinesAggregationResponseDimensions
+type:PipelinesAggregationScope
 type:PoliciesSyncUpdated
 type:PolicyAnyMergeRequestViolation
 type:PolicyApprovalGroup
@@ -1373,6 +1367,7 @@ type:duoWorkflowUserMetrics
 type:fixPipelineUserMetrics
 type:mcpMetrics
 type:mcpUserMetrics
+type:summarizeNewMergeRequestUserMetrics
 type:summarizeReviewUserMetrics
 type:troubleshootJobMetrics
 type:troubleshootJobUserMetrics

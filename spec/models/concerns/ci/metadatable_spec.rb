@@ -18,7 +18,6 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
 
   describe '#options' do
     let(:job) { build(:ci_build, :without_job_definition) }
-    let(:legacy_job_options) { { script: 'legacy job' } }
     let(:job_definition_options) { { script: 'job_definition' } }
     let(:temp_job_definition_options) { { script: 'temp_job_definition' } }
     let(:metadata_options) { { script: 'metadata' } }
@@ -50,14 +49,6 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
           end
 
           it { is_expected.to eq(job_definition_options) }
-
-          context 'when legacy job options are present' do
-            before do
-              job.write_attribute(:options, legacy_job_options)
-            end
-
-            it { is_expected.to eq(legacy_job_options) }
-          end
         end
       end
     end
@@ -65,7 +56,6 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
 
   describe '#yaml_variables' do
     let(:job) { build(:ci_build, :without_job_definition) }
-    let(:legacy_job_variables) { [{ key: 'VAR', value: 'legacy job' }] }
     let(:job_definition_variables) { [{ key: 'VAR', value: 'job_definition' }] }
     let(:temp_job_definition_variables) { [{ key: 'VAR', value: 'temp_job_definition' }] }
     let(:metadata_variables) { [{ key: 'VAR', value: 'metadata' }] }
@@ -97,14 +87,6 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
           end
 
           it { is_expected.to eq(job_definition_variables) }
-
-          context 'when legacy job variables are present' do
-            before do
-              job.write_attribute(:yaml_variables, legacy_job_variables)
-            end
-
-            it { is_expected.to eq(legacy_job_variables) }
-          end
         end
       end
     end
@@ -290,16 +272,6 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
         it { is_expected.to be(false) }
       end
 
-      context 'when metadata does not exist but job is not degenerated' do
-        before do
-          # Very old jobs populated this column instead of metadata
-          processable.update_column(:options, '{}')
-          processable.reload
-        end
-
-        it { is_expected.to be(false) }
-      end
-
       context 'when job is degenerated' do
         before do
           processable.degenerate!
@@ -478,26 +450,6 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
           expect(interruptible).to be(true)
         end
       end
-    end
-  end
-
-  describe '#options=' do
-    it 'raises an error when overriding data' do
-      expect { processable.options = { a: :b } }.to raise_error ActiveRecord::ReadonlyAttributeError
-    end
-
-    it 'allows nullifying data' do
-      expect { processable.options = nil }.not_to raise_error
-    end
-  end
-
-  describe '#yaml_variables=' do
-    it 'raises an error when overriding data' do
-      expect { processable.yaml_variables = { a: :b } }.to raise_error ActiveRecord::ReadonlyAttributeError
-    end
-
-    it 'allows nullifying data' do
-      expect { processable.yaml_variables = nil }.not_to raise_error
     end
   end
 

@@ -197,7 +197,6 @@ create_merge_request_approval_rules
 create_merge_request_from
 create_merge_request_in
 create_non_backlog_issues
-create_note
 create_objective
 create_observability_access_request
 create_on_demand_dast_scan
@@ -481,7 +480,6 @@ read_model_experiments
 read_model_registry
 read_namespace_cluster_agent_mapping
 read_namespace_via_membership
-read_note
 read_observability
 read_observability_portal
 read_on_demand_dast_scan
@@ -645,7 +643,6 @@ update_issue_link
 update_max_artifacts_size
 update_max_pages_size
 update_name
-update_note
 update_o11y_settings
 update_owned_user_achievement
 update_package

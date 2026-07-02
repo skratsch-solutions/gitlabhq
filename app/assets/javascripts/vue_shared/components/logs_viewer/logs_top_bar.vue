@@ -18,6 +18,7 @@ export default {
       default: false,
     },
   },
+  emits: ['scrollToBottom', 'scrollToTop', 'toggleFullScreen'],
   i18n: {
     enterFullScreen: s__('LogsViewer|Enter full screen'),
     exitFullScreen: s__('LogsViewer|Exit full screen'),

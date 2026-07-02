@@ -148,9 +148,6 @@ module Ci
     delegate :gitlab_deploy_token, to: :project
     delegate :ensure_persistent_ref, to: :pipeline
 
-    serialize :options # rubocop:disable Cop/ActiveRecordSerialize
-    serialize :yaml_variables, coder: Gitlab::Serializer::Ci::Variables # rubocop:disable Cop/ActiveRecordSerialize
-
     chronic_duration_attr_reader :timeout_human_readable, :timeout
 
     enum :timeout_source, {

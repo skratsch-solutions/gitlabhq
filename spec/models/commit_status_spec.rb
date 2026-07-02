@@ -17,6 +17,16 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
 
   it_behaves_like 'having unique enum values'
 
+  describe 'ignored columns' do
+    it 'ignores the legacy options and yaml_variables columns' do
+      expect(described_class.ignored_columns).to include('options', 'yaml_variables')
+    end
+
+    it 'does not expose the legacy columns as model attributes' do
+      expect(described_class.column_names).not_to include('options', 'yaml_variables')
+    end
+  end
+
   it do
     is_expected.to belong_to(:pipeline).class_name('Ci::Pipeline')
       .with_foreign_key(:commit_id).inverse_of(:statuses)

@@ -1,13 +1,12 @@
 <script>
-import { union } from 'lodash-es';
+import { isEqual, union } from 'lodash-es';
 import { createAlert } from '~/alert';
 import { s__ } from '~/locale';
 import getAccessTokenPermissions from '~/personal_access_tokens/graphql/get_access_token_permissions.query.graphql';
 import { ACCESS_SCOPES, ACCESS_SCOPE_KEYS } from '~/personal_access_tokens/constants';
+import { emptyByScope } from '~/personal_access_tokens/utils';
 import PersonalAccessTokenResourcePanel from './personal_access_token_resource_panel.vue';
 import PersonalAccessTokenGranularPermissionsList from './personal_access_token_granular_permissions_list.vue';
-
-const emptyByScope = () => Object.fromEntries(ACCESS_SCOPE_KEYS.map((key) => [key, []]));
 
 export default {
   name: 'PersonalAccessTokenPermissionsSelector',
@@ -30,7 +29,7 @@ export default {
     aiPermissions: {
       type: Object,
       required: false,
-      default: () => ({ suggested: [], removed: [] }),
+      default: () => ({ suggested: emptyByScope(), removed: emptyByScope() }),
     },
   },
   emits: ['input'],
@@ -131,6 +130,8 @@ export default {
       return this.pendingInput || this.value;
     },
     emitInput(updated) {
+      if (isEqual(updated, this.pendingValue())) return;
+
       this.pendingInput = updated;
       this.$emit('input', updated);
     },
@@ -158,12 +159,12 @@ export default {
       });
     },
     applyAiSuggestedPermissions(suggested) {
-      if (!suggested.length || !this.permissions.length) return;
+      if (!this.permissions.length) return;
 
       const updated = { ...this.pendingValue() };
 
       ACCESS_SCOPES.forEach(({ key }) => {
-        const names = this.selectResourcesForNames(key, suggested).map(
+        const names = this.selectResourcesForNames(key, suggested?.[key]).map(
           (permission) => permission.name,
         );
 
@@ -173,12 +174,12 @@ export default {
       this.emitInput(updated);
     },
     applyAiRemovedPermissions(removed) {
-      if (!removed.length) return;
-
-      const removalSet = new Set(removed);
       const updated = { ...this.pendingValue() };
 
       ACCESS_SCOPES.forEach(({ key }) => {
+        const removalSet = new Set(removed?.[key]);
+        if (!removalSet.size) return;
+
         updated[key] = updated[key].filter((name) => !removalSet.has(name));
       });
 

@@ -217,9 +217,16 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
       await waitForPromises();
     });
 
+    const emptySuggestion = () => ({ namespace: [], user: [], instance: [] });
+
     describe('when AI suggests permissions', () => {
       it('selects the suggested permissions and their resources in the correct boundary', async () => {
-        await wrapper.setProps({ aiPermissions: { suggested: ['read_project'], removed: [] } });
+        await wrapper.setProps({
+          aiPermissions: {
+            suggested: { ...emptySuggestion(), namespace: ['read_project'] },
+            removed: emptySuggestion(),
+          },
+        });
 
         expect(wrapper.vm.selectedResources.namespace).toContain('project');
         expect(wrapper.emitted('input')[0]).toEqual([
@@ -227,8 +234,13 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
         ]);
       });
 
-      it('buckets suggestions into the boundary they belong to', async () => {
-        await wrapper.setProps({ aiPermissions: { suggested: ['read_user'], removed: [] } });
+      it('applies each boundary bucket to its own section', async () => {
+        await wrapper.setProps({
+          aiPermissions: {
+            suggested: { ...emptySuggestion(), user: ['read_user'] },
+            removed: emptySuggestion(),
+          },
+        });
 
         expect(wrapper.vm.selectedResources.user).toContain('user');
         expect(wrapper.emitted('input')[0]).toEqual([
@@ -238,7 +250,12 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
 
       it('applies permissions when set before the permissions query resolves', async () => {
         createComponent({
-          props: { aiPermissions: { suggested: ['read_project'], removed: [] } },
+          props: {
+            aiPermissions: {
+              suggested: { ...emptySuggestion(), namespace: ['read_project'] },
+              removed: emptySuggestion(),
+            },
+          },
         });
 
         expect(wrapper.emitted('input')).toBeUndefined();
@@ -252,7 +269,12 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
 
       it('merges with already selected permissions', async () => {
         await wrapper.setProps({ value: { namespace: ['write_project'], user: [], instance: [] } });
-        await wrapper.setProps({ aiPermissions: { suggested: ['read_project'], removed: [] } });
+        await wrapper.setProps({
+          aiPermissions: {
+            suggested: { ...emptySuggestion(), namespace: ['read_project'] },
+            removed: emptySuggestion(),
+          },
+        });
 
         expect(wrapper.emitted('input').at(-1)).toEqual([
           { namespace: ['write_project', 'read_project'], user: [], instance: [] },
@@ -261,7 +283,12 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
 
       it('merges suggested resources with already selected resources', async () => {
         await setResources(['repository']);
-        await wrapper.setProps({ aiPermissions: { suggested: ['read_project'], removed: [] } });
+        await wrapper.setProps({
+          aiPermissions: {
+            suggested: { ...emptySuggestion(), namespace: ['read_project'] },
+            removed: emptySuggestion(),
+          },
+        });
 
         expect(wrapper.vm.selectedResources.namespace).toEqual(
           expect.arrayContaining(['repository', 'project']),
@@ -276,8 +303,13 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
         });
       });
 
-      it('removes the specified permissions', async () => {
-        await wrapper.setProps({ aiPermissions: { suggested: [], removed: ['read_project'] } });
+      it('removes the specified permissions from their boundary', async () => {
+        await wrapper.setProps({
+          aiPermissions: {
+            suggested: emptySuggestion(),
+            removed: { ...emptySuggestion(), namespace: ['read_project'] },
+          },
+        });
 
         expect(wrapper.emitted('input').at(-1)).toEqual([
           { namespace: ['write_project'], user: [], instance: [] },
@@ -297,7 +329,10 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
       await wrapper.setProps({ value: { namespace: ['write_project'], user: [], instance: [] } });
 
       await wrapper.setProps({
-        aiPermissions: { suggested: ['read_project'], removed: ['write_project'] },
+        aiPermissions: {
+          suggested: { ...emptySuggestion(), namespace: ['read_project'] },
+          removed: { ...emptySuggestion(), namespace: ['write_project'] },
+        },
       });
 
       expect(wrapper.emitted('input').at(-1)).toEqual([
@@ -349,6 +384,19 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
 
       expect(wrapper.vm.selectedResources.user).toContain('project');
       expect(wrapper.vm.selectedResources.namespace).toEqual([]);
+    });
+
+    it('applies an AI suggestion only to its boundary for a shared permission name', async () => {
+      await wrapper.setProps({
+        aiPermissions: {
+          suggested: { namespace: [], user: ['read_contributed_project'], instance: [] },
+          removed: { namespace: [], user: [], instance: [] },
+        },
+      });
+
+      expect(wrapper.emitted('input').at(-1)).toEqual([
+        { namespace: [], user: ['read_contributed_project'], instance: [] },
+      ]);
     });
   });
 });

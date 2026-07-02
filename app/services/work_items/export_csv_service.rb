@@ -95,6 +95,10 @@ module WorkItems
       field = attr.nil? ? widget_name : attr
       widget.try(field)
     end
+
+    def preload_associations_in_batches?
+      Feature.enabled?(:export_csv_preload_in_batches, resource_parent)
+    end
   end
 end
 

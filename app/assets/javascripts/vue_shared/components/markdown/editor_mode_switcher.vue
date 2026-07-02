@@ -12,6 +12,7 @@ export default {
       required: true,
     },
   },
+  emits: ['switch'],
   computed: {
     markdownEditorSelected() {
       return this.value === 'markdown';

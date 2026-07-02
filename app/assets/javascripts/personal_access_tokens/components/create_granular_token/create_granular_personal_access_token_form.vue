@@ -32,6 +32,7 @@ import {
 } from '~/personal_access_tokens/constants';
 import ConfirmUnsavedChangesDialog from '~/vue_shared/components/confirm_unsaved_changes_dialog.vue';
 import { defaultDate } from '~/vue_shared/access_tokens/utils';
+import { emptyByScope } from '~/personal_access_tokens/utils';
 import CreatedPersonalAccessToken from '../created_personal_access_token.vue';
 import PersonalAccessTokenExpirationDate from './personal_access_token_expiration_date.vue';
 import PersonalAccessTokenScopeSelector from './personal_access_token_scope_selector.vue';
@@ -80,11 +81,7 @@ export default {
         sudo: false,
         access: null,
         namespaces: [],
-        permissions: {
-          namespace: [],
-          user: [],
-          instance: [],
-        },
+        permissions: emptyByScope(),
       },
       errors: {
         name: '',
@@ -95,8 +92,8 @@ export default {
         permissions: '',
       },
       aiPermissions: {
-        suggested: [],
-        removed: [],
+        suggested: emptyByScope(),
+        removed: emptyByScope(),
       },
       isFormDirty: false,
       isSubmitting: false,
@@ -178,11 +175,11 @@ export default {
     },
   },
   methods: {
-    handlePermissionsSelected(permissionNames) {
-      this.aiPermissions.suggested = [...permissionNames];
+    handlePermissionsSelected(permissionsByBoundary) {
+      this.aiPermissions.suggested = { ...permissionsByBoundary };
     },
-    handlePermissionsCleared(permissionNames) {
-      this.aiPermissions.removed = [...permissionNames];
+    handlePermissionsCleared(permissionsByBoundary) {
+      this.aiPermissions.removed = { ...permissionsByBoundary };
     },
     duplicateToken(token) {
       let access = '';
@@ -468,6 +465,7 @@ export default {
             <template #header-actions>
               <ask-dap-permissions
                 v-if="$options.components.AskDapPermissions"
+                :form-permissions="form.permissions"
                 @permissions-selected="handlePermissionsSelected"
                 @permissions-cleared="handlePermissionsCleared"
               />

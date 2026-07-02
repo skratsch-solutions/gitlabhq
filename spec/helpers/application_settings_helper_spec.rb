@@ -188,6 +188,10 @@ RSpec.describe ApplicationSettingsHelper, feature_category: :shared do
     it 'includes :granular_tokens_enforced_after' do
       expect(helper.visible_attributes).to include(:granular_tokens_enforced_after)
     end
+
+    it 'includes logging_settings' do
+      expect(helper.visible_attributes).to include(:logging_field_schema_version, :logging_field_dual_emit_target)
+    end
   end
 
   describe '.mcp_server_setting_available?', feature_category: :mcp_server do

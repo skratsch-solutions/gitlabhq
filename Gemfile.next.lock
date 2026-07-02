@@ -75,6 +75,15 @@ PATH
       thor (~> 1.3)
 
 PATH
+  remote: gems/gitlab-bitbucket-server
+  specs:
+    gitlab-bitbucket-server (0.1.0)
+      activesupport (>= 7, < 9)
+      addressable (~> 2.8)
+      gitlab-http (~> 0.1)
+      gitlab-utils (~> 0.1)
+
+PATH
   remote: gems/gitlab-configs
   specs:
     gitlab-configs (0.1.0)
@@ -792,9 +801,9 @@ GEM
       terminal-table (>= 1.5.1)
     gitlab-chronic (0.10.6)
       numerizer (~> 0.2)
-    gitlab-cloud-connector (1.51.0)
+    gitlab-cloud-connector (1.52.0)
       activesupport (>= 7.0)
-      jwt (~> 2.9)
+      jwt (~> 2.10, >= 2.10.3)
     gitlab-crystalball (1.1.3)
       git (< 4)
       ostruct (< 1)
@@ -842,9 +851,9 @@ GEM
       rb_sys (~> 0.9.124)
     gitlab-glfm-markdown (0.0.41-x86_64-linux-gnu)
       rb_sys (~> 0.9.124)
-    gitlab-grape-openapi (0.2.0)
+    gitlab-grape-openapi (0.2.1)
       grape (~> 2.0)
-      grape-entity (~> 1.0.1)
+      grape-entity (~> 1.0)
       js_regex (~> 3.8)
     gitlab-kas-grpc (19.2.0.pre.rc1)
       grpc (~> 1.0)
@@ -2450,8 +2459,9 @@ DEPENDENCIES
   gitaly (~> 19.0)
   gitlab-active-context!
   gitlab-backup-cli!
+  gitlab-bitbucket-server!
   gitlab-chronic (~> 0.10.5)
-  gitlab-cloud-connector (~> 1.51)
+  gitlab-cloud-connector (~> 1.52)
   gitlab-configs!
   gitlab-crystalball (~> 1.1.3)
   gitlab-dangerfiles (~> 4.12.0)
@@ -2952,8 +2962,9 @@ CHECKSUMS
   gitlab (4.19.0) sha256=3f645e3e195dbc24f0834fbf83e8ccfb2056d8e9712b01a640aad418a6949679
   gitlab-active-context (0.0.1)
   gitlab-backup-cli (0.0.1)
+  gitlab-bitbucket-server (0.1.0)
   gitlab-chronic (0.10.6) sha256=a244d11a1396d2aac6ae9b2f326adf1605ec1ad20c29f06e8b672047d415a9ac
-  gitlab-cloud-connector (1.51.0) sha256=906ef378bbb9d555dcbe41f936286f3b56dafb95e04fa36dc01b0b7820b31413
+  gitlab-cloud-connector (1.52.0) sha256=c8dccea7cb86759182698c56b8474076af3842216d5478ed9e037f22727673c4
   gitlab-configs (0.1.0)
   gitlab-crystalball (1.1.3) sha256=ea9a90d659704a042d763ce6d343a9f664cd650e0787a19adec7036ea4390861
   gitlab-dangerfiles (4.12.0) sha256=0b8b7b00bf1ab155c3ab37cfc7c9815b5b82f403f85ddaf62aea137129403072
@@ -2972,7 +2983,7 @@ CHECKSUMS
   gitlab-glfm-markdown (0.0.41-arm64-darwin) sha256=8589ed60fd91ee564378800926518a581fdb4198c657428af2242c495de2a342
   gitlab-glfm-markdown (0.0.41-x86_64-darwin) sha256=964f5d32d09e47f1055d6b6b70fe67a9b412eb55e9008a8b1c0ba921b3206f2e
   gitlab-glfm-markdown (0.0.41-x86_64-linux-gnu) sha256=66c6b35a496848a89cef8e664854173ae49afbd4ed8fd5026e0955c27cf822ae
-  gitlab-grape-openapi (0.2.0) sha256=d23865126f2df189c76440faffca2d83c6f5b3931b91f18760c0bce4dd92da32
+  gitlab-grape-openapi (0.2.1) sha256=08268a8f1b4b2fea9788bfb42a1d2b5f0bd547fda97ef221381c12e0d9043983
   gitlab-housekeeper (0.1.0)
   gitlab-http (0.1.0)
   gitlab-iam-grpc (0.1.0)

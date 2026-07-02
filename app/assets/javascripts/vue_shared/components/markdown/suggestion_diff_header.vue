@@ -63,6 +63,7 @@ export default {
       default: false,
     },
   },
+  emits: ['addToBatch', 'apply', 'applyBatch', 'removeFromBatch'],
   data() {
     return {
       isApplyingSingle: false,

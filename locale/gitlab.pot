@@ -2449,6 +2449,9 @@ msgstr ""
 msgid "A ready-to-go template for use with iOS Swift apps"
 msgstr ""
 
+msgid "A rebase is already in progress."
+msgstr ""
+
 msgid "A relation import is already in progress for this project"
 msgstr ""
 
@@ -16159,7 +16162,7 @@ msgstr ""
 msgid "CiCatalogComponent|Name"
 msgstr ""
 
-msgid "CiCatalogComponent|The number of projects that used this version of the component in the last 30 days."
+msgid "CiCatalogComponent|Number of unique projects that used this version of the component in the last 30 days."
 msgstr ""
 
 msgid "CiCatalogComponent|There was an error fetching this resource's components"
@@ -16278,6 +16281,12 @@ msgstr ""
 msgid "CiCatalog|No versions available"
 msgstr ""
 
+msgid "CiCatalog|Number of unique projects that used a component from this catalog project in a pipeline in the last 30 days."
+msgstr ""
+
+msgid "CiCatalog|Number of unique projects that used a component from this catalog project in their pipelines in the last 30 days."
+msgstr ""
+
 msgid "CiCatalog|Oldest version"
 msgstr ""
 
@@ -16348,12 +16357,6 @@ msgid "CiCatalog|Status"
 msgstr ""
 
 msgid "CiCatalog|The list of projects that included a component from this project in a pipeline in the last 30 days. Only displays projects you have permission to view."
-msgstr ""
-
-msgid "CiCatalog|The number of projects that used a component from this catalog project in their pipelines in the last 30 days."
-msgstr ""
-
-msgid "CiCatalog|The number of unique projects that used a component from this catalog project in a pipeline in the last 30 days."
 msgstr ""
 
 msgid "CiCatalog|The project and any released versions will be removed from the CI/CD Catalog. If you re-enable this toggle, the project's existing releases are not re-added to the catalog. You must %{linkStart}create a new release%{linkEnd}."
@@ -21330,9 +21333,6 @@ msgid "Connect all repositories"
 msgstr ""
 
 msgid "Connect repositories from GitHub"
-msgstr ""
-
-msgid "Connect to the advanced search cluster"
 msgstr ""
 
 msgid "Connect with your team and collaborate on a project."
@@ -39454,6 +39454,12 @@ msgstr ""
 msgid "Import and export settings"
 msgstr ""
 
+msgid "Import failed due to a BitBucket Server error"
+msgstr ""
+
+msgid "Import failed due to an error"
+msgstr ""
+
 msgid "Import from"
 msgstr ""
 
@@ -39629,6 +39635,12 @@ msgid "ImportProjects|The remote data could not be imported."
 msgstr ""
 
 msgid "ImportProjects|The repository could not be created."
+msgstr ""
+
+msgid "ImportProjects|To enable importing projects from %{provider}, as administrator you need to configure %{link_start}OAuth integration%{link_end}"
+msgstr ""
+
+msgid "ImportProjects|To enable importing projects from %{provider}, ask your GitLab administrator to configure %{link_start}OAuth integration%{link_end}"
 msgstr ""
 
 msgid "ImportProjects|To import collaborators, or if your project has Git LFS files, you must use a classic personal access token with %{codeStart}read:org%{codeEnd} scope. %{linkStart}Learn more%{linkEnd}."
@@ -46447,6 +46459,9 @@ msgstr ""
 msgid "Merge request author cannot push to target project"
 msgstr ""
 
+msgid "Merge request blocks the maximum number of merge requests (%{max_count})"
+msgstr ""
+
 msgid "Merge request branch workflow"
 msgstr ""
 
@@ -46463,6 +46478,9 @@ msgid "Merge request fast-forward merges"
 msgstr ""
 
 msgid "Merge request homepage"
+msgstr ""
+
+msgid "Merge request is blocked by the maximum number of merge requests (%{max_count})"
 msgstr ""
 
 msgid "Merge request must be open."
@@ -47449,6 +47467,12 @@ msgid "Missing commit signatures endpoint!"
 msgstr ""
 
 msgid "Missing or invalid configuration field: :smartcard_ad_cert_format"
+msgstr ""
+
+msgid "Missing or invalid project key"
+msgstr ""
+
+msgid "Missing or invalid repository slug"
 msgstr ""
 
 msgid "Missing/invalid group"
@@ -50798,6 +50822,9 @@ msgstr ""
 msgid "Observability|API keys"
 msgstr ""
 
+msgid "Observability|API monitoring"
+msgstr ""
+
 msgid "Observability|APM & performance"
 msgstr ""
 
@@ -50925,6 +50952,9 @@ msgid "Observability|Custom dashboards with anomaly-based alerting and intellige
 msgstr ""
 
 msgid "Observability|Danger Zone"
+msgstr ""
+
+msgid "Observability|Dashboard"
 msgstr ""
 
 msgid "Observability|Dashboard templates and use cases"
@@ -51119,6 +51149,9 @@ msgstr ""
 msgid "Observability|Infrastructure"
 msgstr ""
 
+msgid "Observability|Infrastructure monitoring"
+msgstr ""
+
 msgid "Observability|Initializing your Observability service"
 msgstr ""
 
@@ -51186,6 +51219,9 @@ msgid "Observability|Messaging queues"
 msgstr ""
 
 msgid "Observability|Metrics"
+msgstr ""
+
+msgid "Observability|Metrics explorer"
 msgstr ""
 
 msgid "Observability|Metrics, logs, and traces from your pipeline runs are being collected automatically."
@@ -58564,6 +58600,12 @@ msgstr ""
 msgid "Project %{project_repo} could not be found"
 msgstr ""
 
+msgid "Project %{repo_path} could not be found"
+msgstr ""
+
+msgid "Project %{repo_path} could not be found or is invalid"
+msgstr ""
+
 msgid "Project & Group can not be assigned at the same time"
 msgstr ""
 
@@ -61998,6 +62040,12 @@ msgid "Remote object has no absolute path."
 msgstr ""
 
 msgid "RemoteDevelopment|Workspaces"
+msgstr ""
+
+msgid "RemoteDevelopment|You cannot create a workspace because there are already '%{count}' existing workspaces for the given agent which has a quota of '%{quota}' workspaces"
+msgstr ""
+
+msgid "RemoteDevelopment|You cannot create a workspace because you already have '%{count}' existing workspaces for the given agent which has a per user quota of '%{quota}' workspaces"
 msgstr ""
 
 msgid "Remove"
@@ -73780,6 +73828,9 @@ msgstr ""
 msgid "Sign up"
 msgstr ""
 
+msgid "Sign up with Jihu"
+msgstr ""
+
 msgid "Sign web-based commits"
 msgstr ""
 
@@ -75820,6 +75871,9 @@ msgid "Suggestions must all be on the same branch."
 msgstr ""
 
 msgid "Suite"
+msgstr ""
+
+msgid "Sum of max_active_hours_before_stop and max_stopped_hours_before_termination must not exceed %{maximum_hours_before_termination} hours"
 msgstr ""
 
 msgid "Summarize code changes"
@@ -78484,6 +78538,9 @@ msgstr ""
 msgid "This means you can not push code until you create an empty repository or import existing one."
 msgstr ""
 
+msgid "This merge request branch is protected from force push."
+msgstr ""
+
 msgid "This merge request does not have accessibility reports"
 msgstr ""
 
@@ -78497,6 +78554,9 @@ msgid "This merge request has reached the maximum limit of %{limit} versions and
 msgstr ""
 
 msgid "This merge request is closed. To apply this suggestion, edit this file directly."
+msgstr ""
+
+msgid "This merge request is currently in an unmergeable state, and cannot be rebased."
 msgstr ""
 
 msgid "This merge request is from a private project to a public project."
@@ -80827,6 +80887,9 @@ msgstr ""
 msgid "Unable to apply suggestions to a deleted line."
 msgstr ""
 
+msgid "Unable to authorize with Bitbucket. Check your credentials"
+msgstr ""
+
 msgid "Unable to build Slack link."
 msgstr ""
 
@@ -82733,6 +82796,9 @@ msgid "User restrictions"
 msgstr ""
 
 msgid "User settings"
+msgstr ""
+
+msgid "User was blocked due to the %{days}-day PIPL compliance block threshold being reached"
 msgstr ""
 
 msgid "User was successfully banned."
@@ -84922,6 +84988,9 @@ msgstr ""
 msgid "Vulnerability Report"
 msgstr ""
 
+msgid "Vulnerability Resolution has generated a fix in an MR for this vulnerability.%{line_break}%{line_break}In order to apply the fix, merge the following MR:%{line_break}%{resolution_mr_url}"
+msgstr ""
+
 msgid "Vulnerability management"
 msgstr ""
 
@@ -85529,6 +85598,9 @@ msgid "Vulnerability|Reachability"
 msgstr ""
 
 msgid "Vulnerability|References"
+msgstr ""
+
+msgid "Vulnerability|Remediation"
 msgstr ""
 
 msgid "Vulnerability|Remove false positive flag"
@@ -90721,6 +90793,9 @@ msgstr ""
 msgid "can"
 msgstr ""
 
+msgid "can be true only if either use_kubernetes_user_namespaces is true or default_runtime_class is non-empty"
+msgstr ""
+
 msgid "can contain only digits"
 msgstr ""
 
@@ -90842,6 +90917,9 @@ msgid "cannot be changed to %{new_type} when the work item is a legacy epic sync
 msgstr ""
 
 msgid "cannot be changed to %{new_type} with these child item types."
+msgstr ""
+
+msgid "cannot be downgraded to an earlier version"
 msgstr ""
 
 msgid "cannot be enabled because parent group does not allow it"

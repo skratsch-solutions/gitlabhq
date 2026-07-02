@@ -23,11 +23,6 @@ module Ci
 
     validates :ref, presence: true
 
-    # rubocop:disable Cop/ActiveRecordSerialize
-    serialize :options
-    serialize :yaml_variables, coder: ::Gitlab::Serializer::Ci::Variables
-    # rubocop:enable Cop/ActiveRecordSerialize
-
     state_machine :status do
       before_transition [:created, :manual, :waiting_for_resource] => :pending do |bridge|
         bridge.started_at = Time.current

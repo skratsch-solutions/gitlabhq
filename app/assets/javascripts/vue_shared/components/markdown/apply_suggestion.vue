@@ -26,6 +26,7 @@ export default {
       default: null,
     },
   },
+  emits: ['apply'],
   data() {
     return {
       message: null,

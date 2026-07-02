@@ -42,6 +42,10 @@ RSpec.describe 'Commit > Pipelines tab', :js, feature_category: :source_code_man
         expect(page).to have_css('[data-testid="pipelines-manual-actions-dropdown"]')
         expect(page).to have_css('[data-testid="pipeline-multi-actions-dropdown"]')
       end
+
+      within('.commit-ci-menu') do
+        expect(page).to have_link('Pipelines 1')
+      end
     end
   end
 

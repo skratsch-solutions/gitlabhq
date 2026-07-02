@@ -687,7 +687,9 @@ module ApplicationSettingsHelper
       :runner_jobs_endpoints_api_limit,
       :background_operations_max_jobs,
       :enforce_granular_tokens,
-      :granular_tokens_enforced_after
+      :granular_tokens_enforced_after,
+      :logging_field_schema_version,
+      :logging_field_dual_emit_target
     ].tap do |settings|
       unless Gitlab.com?
         settings << :deactivate_dormant_users

@@ -73,6 +73,10 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
     end
   end
 
+  # NOTE: No cross-organization isolation test for the user-scoped path (`GET /runners` /
+  # `User#ci_available_runners`). Organization filtering on this path was implemented in #591183
+  # (MR !226892) but reverted in MR !229222 due to a cross-database query incident, so no organization
+  # boundary is enforced in master today. A boundary test should be added once the filtering is reinstated.
   describe 'GET /runners' do
     it_behaves_like 'authorizing granular token permissions', :read_runner do
       let(:boundary_object) { :user }
@@ -399,6 +403,9 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
     end
   end
 
+  # NOTE: No cross-organization isolation test for the admin path (`GET /runners/all`). It is
+  # cell-scoped by design (admins see every runner on the cell, across all organizations), so a
+  # second-organization runner is expected to be returned here, not filtered out.
   describe 'GET /runners/all' do
     it_behaves_like 'authorizing granular token permissions', :read_runner do
       let(:boundary_object) { :instance }
@@ -2628,6 +2635,34 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
       end
     end
 
+    context 'with a runner in another organization' do
+      let_it_be(:current_org_maintainer) { create(:user) }
+      let_it_be(:current_org_project) do
+        create(:project, organization: organization, maintainers: current_org_maintainer)
+      end
+
+      let_it_be(:current_org_runner) { create(:ci_runner, :project, projects: [current_org_project]) }
+
+      let_it_be(:other_org_runner) do
+        other_organization = create(:organization)
+        other_org_group = create(:group, organization: other_organization)
+        other_org_project = create(:project, group: other_org_group, organization: other_organization)
+        create(:ci_runner, :project, projects: [other_org_project])
+      end
+
+      let(:current_user) { current_org_maintainer }
+      let(:path) { "/projects/#{current_org_project.id}/runners?#{query_path}" }
+
+      it 'returns the current organization runner and excludes the other organization runner',
+        :aggregate_failures do
+        perform_request
+
+        runner_ids = json_response.pluck('id')
+        expect(runner_ids).to include(current_org_runner.id)
+        expect(runner_ids).not_to include(other_org_runner.id)
+      end
+    end
+
     context 'with request authorized with access token' do
       include_context 'access token setup'
 
@@ -2767,6 +2802,30 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
 
           expect(json_response).to contain_exactly(a_hash_including('description' => 'Runner tagged with tag1 and tag2'))
         end
+      end
+    end
+
+    context 'with a runner in another organization' do
+      let_it_be(:current_org_owner) { create(:user) }
+      let_it_be(:current_org_group) { create(:group, organization: organization, owners: current_org_owner) }
+      let_it_be(:current_org_runner) { create(:ci_runner, :group, groups: [current_org_group]) }
+
+      let_it_be(:other_org_runner) do
+        other_organization = create(:organization)
+        other_org_group = create(:group, organization: other_organization)
+        create(:ci_runner, :group, groups: [other_org_group])
+      end
+
+      let(:current_user) { current_org_owner }
+      let(:path) { "/groups/#{current_org_group.id}/runners?#{query_path}" }
+
+      it 'returns the current organization runner and excludes the other organization runner',
+        :aggregate_failures do
+        perform_request
+
+        runner_ids = json_response.pluck('id')
+        expect(runner_ids).to include(current_org_runner.id)
+        expect(runner_ids).not_to include(other_org_runner.id)
       end
     end
 

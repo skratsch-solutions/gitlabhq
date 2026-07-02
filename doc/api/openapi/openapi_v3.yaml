@@ -16883,7 +16883,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_1ba203e57854"
+              "$ref": "#/components/schemas/RequestBody_3e00128b7f8a"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -82190,6 +82190,10 @@ components:
           type: string
         granular_tokens_enforced_after:
           type: string
+        logging_field_schema_version:
+          type: integer
+        logging_field_dual_emit_target:
+          type: integer
         deactivate_dormant_users:
           type: string
         deactivate_dormant_users_period:
@@ -95145,7 +95149,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_1ba203e57854:
+    RequestBody_3e00128b7f8a:
       type: object
       properties:
         admin_mode:
@@ -96080,6 +96084,20 @@ components:
         terraform_state_encryption_enabled:
           type: boolean
           description: Enable encryption for Terraform state files
+          nullable: true
+        logging_field_schema_version:
+          type: integer
+          enum:
+          - 0
+          - 1
+          description: Logging field schema version (v0, v1, …). Cannot be downgraded.
+          nullable: true
+        logging_field_dual_emit_target:
+          type: integer
+          enum:
+          - 1
+          description: Version to dual-emit alongside schema_version. Must be strictly
+            greater than schema_version, or omit/null to disable.
           nullable: true
         rsa_key_restriction:
           type: integer

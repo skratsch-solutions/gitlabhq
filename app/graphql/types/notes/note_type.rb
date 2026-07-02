@@ -9,6 +9,12 @@ module Types
 
       authorize :read_note
 
+      authorize_granular_token permissions: :read_note,
+        boundaries: [
+          { boundary: :resource_parent, boundary_type: :project },
+          { boundary: :resource_parent, boundary_type: :group }
+        ]
+
       expose_permissions Types::PermissionTypes::Note
 
       implements Types::Notes::BaseNoteInterface

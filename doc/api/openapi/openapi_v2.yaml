@@ -71468,6 +71468,11 @@ definitions:
               format: int32
               description: ID of a group
               example: 1
+            member_role_id:
+              type: integer
+              format: int64
+              description: ID of a custom member role
+              example: 1
             id:
               type: integer
               format: int32
@@ -71511,6 +71516,11 @@ definitions:
               format: int32
               description: ID of a group
               example: 1
+            member_role_id:
+              type: integer
+              format: int64
+              description: ID of a custom member role
+              example: 1
             id:
               type: integer
               format: int32
@@ -71543,6 +71553,11 @@ definitions:
               type: integer
               format: int32
               description: ID of a group
+              example: 1
+            member_role_id:
+              type: integer
+              format: int64
+              description: ID of a custom member role
               example: 1
             id:
               type: integer
@@ -71595,6 +71610,11 @@ definitions:
               format: int32
               description: ID of a group
               example: 1
+            member_role_id:
+              type: integer
+              format: int64
+              description: ID of a custom member role
+              example: 1
             id:
               type: integer
               format: int32
@@ -71638,6 +71658,11 @@ definitions:
               format: int32
               description: ID of a group
               example: 1
+            member_role_id:
+              type: integer
+              format: int64
+              description: ID of a custom member role
+              example: 1
             id:
               type: integer
               format: int32
@@ -71670,6 +71695,11 @@ definitions:
               type: integer
               format: int32
               description: ID of a group
+              example: 1
+            member_role_id:
+              type: integer
+              format: int64
+              description: ID of a custom member role
               example: 1
             id:
               type: integer

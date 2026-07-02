@@ -53,7 +53,7 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
     let_it_be(:supply_chain_attestation) { create(:supply_chain_attestation, build: job) }
 
     let(:clone_accessors) do
-      %i[pipeline project ref tag options name allow_failure stage_idx yaml_variables
+      %i[pipeline project ref tag name allow_failure stage_idx
         when environment coverage_regex description tag_list protected needs_attributes job_variables_attributes
         timeout timeout_source debug_trace_enabled
         resource_group scheduling_type ci_stage partition_id id_tokens]

@@ -301,8 +301,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def handle_signup_from_restricted_country_error
-    sign_up_message = "Sign up with Jihu"
-    jihu_url = ActionController::Base.helpers.link_to _(sign_up_message), "https://about.gitlab.com/pricing/faq-jihu/",
+    jihu_url = ActionController::Base.helpers.link_to _("Sign up with Jihu"), "https://about.gitlab.com/pricing/faq-jihu/",
       class: 'gl-link'
     message = safe_format(_('It looks like you are visiting GitLab from Mainland China, Macau, or Hong Kong.' \
       'We advise you to %{jihu_url} before continuing.'), jihu_url: jihu_url)

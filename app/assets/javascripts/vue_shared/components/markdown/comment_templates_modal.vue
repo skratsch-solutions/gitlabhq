@@ -68,6 +68,7 @@ export default {
       required: true,
     },
   },
+  emits: ['select'],
   data() {
     return {
       shouldFetchCommentTemplates: false,

@@ -88,6 +88,7 @@ app/models/application_setting_implementation.rb:
 app/models/ci/build.rb:
   - has_live_trace?
   - has_archived_trace?
+  - degenerate!
 app/models/ci/job_token/allowlist.rb:
   - project_link_traversal_ids
   - group_link_traversal_ids
@@ -109,6 +110,8 @@ app/models/clusters/concerns/application_version.rb:
   - update_available?
 app/models/commit.rb:
   - touch_later
+app/models/concerns/ci/metadatable.rb:
+  - degenerate!
 app/models/concerns/counter_attribute.rb:
   - update_counters_with_lease
 app/models/concerns/forced_email_confirmation.rb:

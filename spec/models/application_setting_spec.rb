@@ -172,6 +172,8 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         lock_pypi_package_requests_forwarding: false,
         lock_resource_access_token_notify_inherited: false,
         login_recaptcha_protection_enabled: false,
+        logging_field_schema_version: 0,
+        logging_field_dual_emit_target: nil,
         math_rendering_limits_enabled: true,
         maven_package_requests_forwarding: true,
         max_artifacts_content_include_size: 5.megabytes,
@@ -525,6 +527,71 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
     it { is_expected.not_to allow_value(nil).for(:pages_unique_domain_default_enabled) }
 
     it { is_expected.to allow_values([true, false]).for(:terraform_state_encryption_enabled) }
+
+    describe 'logging field version validations' do
+      let(:setting) { build(:application_setting, logging_field_schema_version: 0) }
+
+      it 'rejects schema_version not in LOGGING_FIELD_SCHEMA_VERSIONS' do
+        setting.logging_field_schema_version = 99
+        expect(setting).not_to be_valid
+        expect(setting.errors[:logging_field_schema_version]).to be_present
+      end
+
+      it 'rejects dual_emit_target not in LOGGING_FIELD_SCHEMA_VERSIONS unless nil' do
+        setting.logging_field_dual_emit_target = 99
+        expect(setting).not_to be_valid
+        expect(setting.errors[:logging_field_dual_emit_target]).to be_present
+      end
+
+      it 'allows dual_emit_target of nil' do
+        setting.logging_field_dual_emit_target = nil
+        expect(setting).to be_valid
+      end
+
+      it 'rejects dual_emit_target equal to schema_version' do
+        setting.logging_field_schema_version = 1
+        setting.logging_field_dual_emit_target = 1
+        expect(setting).not_to be_valid
+        expect(setting.errors[:logging_field_dual_emit_target]).to be_present
+      end
+
+      it 'rejects dual_emit_target less than schema_version' do
+        setting.logging_field_schema_version = 2
+        setting.logging_field_dual_emit_target = 1
+        expect(setting).not_to be_valid
+        expect(setting.errors[:logging_field_schema_version]).to be_present
+      end
+
+      it 'rejects dual_emit_target equal to zero' do
+        setting.logging_field_dual_emit_target = 0
+        expect(setting).not_to be_valid
+        expect(setting.errors[:logging_field_dual_emit_target]).to be_present
+      end
+
+      it 'accepts dual_emit_target strictly greater than schema_version' do
+        setting.logging_field_schema_version = 0
+        setting.logging_field_dual_emit_target = 1
+        expect(setting).to be_valid
+      end
+
+      context 'when persisted' do
+        before do
+          setting.save!
+        end
+
+        it 'rejects downgrading schema_version' do
+          setting.update!(logging_field_schema_version: 1)
+          setting.logging_field_schema_version = 0
+          expect(setting).not_to be_valid
+          expect(setting.errors[:logging_field_schema_version]).to be_present
+        end
+
+        it 'allows upgrading schema_version' do
+          setting.logging_field_schema_version = 1
+          expect(setting).to be_valid
+        end
+      end
+    end
 
     context 'for validating the group_settings jsonb_column`s atrributes' do
       it { is_expected.to allow_values([true, false]).for(:top_level_group_creation_enabled) }
@@ -2481,8 +2548,8 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
 
     context 'when logging_field_dual_emit_target is greater than logging_field_schema_version' do
       before do
-        setting.logging_field_schema_version = 1
-        setting.logging_field_dual_emit_target = 2
+        setting.logging_field_schema_version = 0
+        setting.logging_field_dual_emit_target = 1
       end
 
       it 'is valid' do

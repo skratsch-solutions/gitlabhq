@@ -944,7 +944,9 @@ module Ci
           end
 
           before do
-            pending_job.update_columns(options: "string")
+            allow_next_found_instance_of(Ci::Build) do |build|
+              allow(build).to receive(:options).and_return("string")
+            end
           end
 
           subject { build_on(project_runner) }

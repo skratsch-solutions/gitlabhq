@@ -1275,8 +1275,6 @@ RSpec/ContextWording:
     - 'spec/lib/banzai/reference_parser/project_parser_spec.rb'
     - 'spec/lib/banzai/reference_parser/snippet_parser_spec.rb'
     - 'spec/lib/banzai/reference_parser/user_parser_spec.rb'
-    - 'spec/lib/bitbucket_server/connection_spec.rb'
-    - 'spec/lib/bitbucket_server/representation/pull_request_spec.rb'
     - 'spec/lib/bulk_imports/clients/http_spec.rb'
     - 'spec/lib/bulk_imports/common/pipelines/lfs_objects_pipeline_spec.rb'
     - 'spec/lib/bulk_imports/common/pipelines/milestones_pipeline_spec.rb'

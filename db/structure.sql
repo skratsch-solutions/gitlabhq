@@ -15179,6 +15179,8 @@ CREATE TABLE application_settings (
     dependency_management_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     require_sha_for_merge boolean DEFAULT false NOT NULL,
     lock_require_sha_for_merge boolean DEFAULT false NOT NULL,
+    ai_audit_events_storage_enabled boolean DEFAULT false NOT NULL,
+    lock_ai_audit_events_storage_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT app_settings_container_reg_cleanup_tags_max_list_size_positive CHECK ((container_registry_cleanup_tags_service_max_list_size >= 0)),
     CONSTRAINT app_settings_dep_proxy_ttl_policies_worker_capacity_positive CHECK ((dependency_proxy_ttl_group_policy_worker_capacity >= 0)),
     CONSTRAINT app_settings_ext_pipeline_validation_service_url_text_limit CHECK ((char_length(external_pipeline_validation_service_url) <= 255)),
@@ -25489,6 +25491,8 @@ CREATE TABLE namespace_settings (
     require_sha_for_merge boolean,
     lock_require_sha_for_merge boolean DEFAULT false NOT NULL,
     admin_locked_duo_features_enabled boolean DEFAULT false NOT NULL,
+    ai_audit_events_storage_enabled boolean,
+    lock_ai_audit_events_storage_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_0ba93c78c7 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_d9644d516f CHECK ((char_length(step_up_auth_required_oauth_provider) <= 255)),
     CONSTRAINT check_namespace_settings_pat_settings_is_hash CHECK ((jsonb_typeof(personal_access_token_settings) = 'object'::text)),
@@ -28068,7 +28072,8 @@ CREATE TABLE pm_checkpoints (
     chunk smallint NOT NULL,
     data_type smallint DEFAULT 1 NOT NULL,
     version_format smallint DEFAULT 1 NOT NULL,
-    id bigint NOT NULL
+    id bigint NOT NULL,
+    full_sync_target_sequence integer
 );
 
 CREATE SEQUENCE pm_checkpoints_id_seq
@@ -29469,6 +29474,7 @@ CREATE TABLE project_settings (
     tool_approval_for_session_enabled boolean,
     dap_session_tracking_enabled boolean DEFAULT false NOT NULL,
     duo_dependency_bump_breaking_changes_enabled boolean DEFAULT false NOT NULL,
+    ai_audit_events_storage_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_1a30456322 CHECK ((char_length(pages_unique_domain) <= 63)),
     CONSTRAINT check_237486989c CHECK ((char_length(merge_request_title_regex_description) <= 255)),
     CONSTRAINT check_3a03e7557a CHECK ((char_length(previous_default_branch) <= 4096)),

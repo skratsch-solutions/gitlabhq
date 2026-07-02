@@ -169,6 +169,15 @@ export default {
       default: false,
     },
   },
+  emits: [
+    'blur',
+    'contentEditor',
+    'focus',
+    'handleSuggestDismissed',
+    'input',
+    'keydown',
+    'markdownField',
+  ],
   data() {
     let editingMode;
     switch (window.gon?.text_editor) {

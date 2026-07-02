@@ -173,7 +173,11 @@ export class CopyAsGFM {
       codeElement.className = 'code highlight';
 
       const [firstLine] = lineElements;
-      const lang = firstLine.getAttribute('lang') || firstLine.dataset.lang;
+      const lang =
+        firstLine?.dataset?.lang ||
+        firstLine?.closest('pre')?.dataset?.lang ||
+        firstLine?.closest('pre')?.dataset?.canonicalLang;
+
       if (lang) {
         codeElement.setAttribute('lang', lang);
       }

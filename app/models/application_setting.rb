@@ -53,6 +53,8 @@ class ApplicationSetting < ApplicationRecord
   DEFAULT_OAUTH_ACCESS_TOKEN_EXPIRES_IN = 7200 # 2hrs
   MIN_OAUTH_ACCESS_TOKEN_EXPIRES_IN = 300 # 5 mins
 
+  LOGGING_FIELD_SCHEMA_VERSIONS = Labkit::Fields::VARIANT_VERSION.values.uniq.sort.freeze
+
   enum :whats_new_variant, { all_tiers: 0, current_tier: 1, disabled: 2 }, prefix: true
   enum :email_confirmation_setting, { off: 0, soft: 1, hard: 2 }, prefix: true
 
@@ -943,6 +945,15 @@ class ApplicationSetting < ApplicationRecord
   validates :whats_new_variant,
     inclusion: { in: ApplicationSetting.whats_new_variants.keys }
 
+  validates :logging_field_schema_version,
+    inclusion: { in: LOGGING_FIELD_SCHEMA_VERSIONS }
+
+  validates :logging_field_dual_emit_target,
+    inclusion: { in: ApplicationSetting::LOGGING_FIELD_SCHEMA_VERSIONS.reject(&:zero?) },
+    allow_nil: true
+
+  validate :schema_version_not_downgraded
+
   validates :floc_enabled,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
 
@@ -1064,6 +1075,12 @@ class ApplicationSetting < ApplicationRecord
     background_operations_max_jobs: [:integer, { default: 10 }]
 
   validates :database_settings, json_schema: { filename: "application_setting_database_settings" }
+
+  jsonb_accessor :logging_settings,
+    logging_field_schema_version: [:integer, { default: 0 }],
+    logging_field_dual_emit_target: [:integer, { default: nil }]
+
+  validates :logging_settings, json_schema: { filename: "application_setting_logging_settings" }
 
   attr_encrypted :external_auth_client_key, encryption_options_base_32_aes_256_gcm
   attr_encrypted :external_auth_client_key_pass, encryption_options_base_32_aes_256_gcm
@@ -1482,6 +1499,17 @@ class ApplicationSetting < ApplicationRecord
     errors.add(:logging_field_dual_emit_target,
       format(_('must be greater than logging_field_schema_version (%{schema_version})'),
         schema_version: logging_field_schema_version))
+  end
+
+  def schema_version_not_downgraded
+    # Note: This guard is only performed on ActiveRecords.
+    # For a database constraint, a trigger validation would be necessary.
+    return unless persisted?
+    return unless logging_field_schema_version_changed?
+    return if logging_field_schema_version >= logging_field_schema_version_was
+
+    errors.add(:logging_field_schema_version,
+      _('cannot be downgraded to an earlier version'))
   end
 end
 

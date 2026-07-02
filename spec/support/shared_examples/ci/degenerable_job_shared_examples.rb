@@ -26,15 +26,6 @@ RSpec.shared_examples 'a degenerable job' do
       end
 
       it { is_expected.to be_degenerated }
-
-      context 'when p_ci_builds.options is present' do
-        before do
-          # Very old jobs populated this column instead of metadata
-          job.update_column(:options, { my_config: 'value' })
-        end
-
-        it { is_expected.not_to be_degenerated }
-      end
     end
   end
 

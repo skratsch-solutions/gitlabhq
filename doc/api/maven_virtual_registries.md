@@ -275,6 +275,7 @@ Example response:
   {
     "id": 1,
     "group_id": 5,
+    "upstream_type": "remote",
     "url": "https://repo.maven.apache.org/maven2",
     "name": "Maven Central",
     "description": "Maven Central repository",
@@ -283,6 +284,19 @@ Example response:
     "username": "user",
     "created_at": "2024-05-30T12:28:27.855Z",
     "updated_at": "2024-05-30T12:28:27.855Z"
+  },
+  {
+    "id": 3,
+    "group_id": 5,
+    "upstream_type": "local",
+    "name": "my-internal-group",
+    "description": null,
+    "local_group_id": 42,
+    "local_project_id": null,
+    "cache_validity_hours": 24,
+    "metadata_cache_validity_hours": 24,
+    "created_at": "2025-02-01T09:00:00.000Z",
+    "updated_at": "2025-02-01T09:00:00.000Z"
   }
 ]
 ```
@@ -372,6 +386,7 @@ Example response:
   {
     "id": 1,
     "group_id": 5,
+    "upstream_type": "remote",
     "url": "https://repo.maven.apache.org/maven2",
     "name": "Maven Central",
     "description": "Maven Central repository",
@@ -383,7 +398,27 @@ Example response:
     "registry_upstream": {
       "id": 1,
       "registry_id": 1,
-      "position": 1
+      "position": 1,
+      "local_upstream_id": null
+    }
+  },
+  {
+    "id": 3,
+    "group_id": 5,
+    "upstream_type": "local",
+    "name": "my-internal-group",
+    "description": null,
+    "local_group_id": 42,
+    "local_project_id": null,
+    "cache_validity_hours": 24,
+    "metadata_cache_validity_hours": 24,
+    "created_at": "2025-02-01T09:00:00.000Z",
+    "updated_at": "2025-02-01T09:00:00.000Z",
+    "registry_upstream": {
+      "id": 2,
+      "registry_id": 1,
+      "position": 2,
+      "local_upstream_id": 3
     }
   }
 ]
@@ -437,6 +472,7 @@ Example response:
 {
   "id": 1,
   "group_id": 5,
+  "upstream_type": "remote",
   "url": "https://repo.maven.apache.org/maven2",
   "name": "Maven Central",
   "description": "Maven Central repository",
@@ -448,7 +484,64 @@ Example response:
   "registry_upstream": {
     "id": 1,
     "registry_id": 1,
-    "position": 1
+    "position": 1,
+    "local_upstream_id": null
+  }
+}
+```
+
+### Create a local upstream registry
+
+Creates a local upstream registry for a specified Maven virtual registry. A local upstream targets a
+group or project on the same GitLab instance. Files are served directly from the package registry
+instead of being fetched and cached over HTTP.
+
+```plaintext
+POST /virtual_registries/packages/maven/registries/:id/local/upstreams
+```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id` | integer | Yes | The ID of the Maven virtual registry. |
+| `name` | string | Yes | The name of the local upstream registry. |
+| `local_group_id` | integer | Yes (one of) | The ID of the target group. Exactly one of `local_group_id` or `local_project_id` is required. |
+| `local_project_id` | integer | Yes (one of) | The ID of the target project. Exactly one of `local_group_id` or `local_project_id` is required. |
+| `cache_validity_hours` | integer | No | The cache validity period. Defaults to 24 hours. |
+| `description` | string | No | The description of the local upstream registry. |
+| `metadata_cache_validity_hours` | integer | No | The metadata cache validity period. Defaults to 24 hours. |
+
+You must set exactly one of `local_group_id` or `local_project_id`. You must have permission to read
+packages in the target group or project.
+
+Example request:
+
+```shell
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "Content-Type: application/json" \
+     --data '{"name": "Internal group", "local_group_id": 42, "cache_validity_hours": 24}' \
+     --url "https://gitlab.example.com/api/v4/virtual_registries/packages/maven/registries/1/local/upstreams"
+```
+
+Example response:
+
+```json
+{
+  "id": 3,
+  "group_id": 5,
+  "upstream_type": "local",
+  "name": "Internal group",
+  "description": null,
+  "local_group_id": 42,
+  "local_project_id": null,
+  "cache_validity_hours": 24,
+  "metadata_cache_validity_hours": 24,
+  "created_at": "2025-02-01T09:00:00.000Z",
+  "updated_at": "2025-02-01T09:00:00.000Z",
+  "registry_upstream": {
+    "id": 2,
+    "registry_id": 1,
+    "position": 1,
+    "local_upstream_id": 3
   }
 }
 ```
@@ -481,6 +574,7 @@ Example response:
 {
   "id": 1,
   "group_id": 5,
+  "upstream_type": "remote",
   "url": "https://repo.maven.apache.org/maven2",
   "name": "Maven Central",
   "description": "Maven Central repository",
@@ -493,7 +587,8 @@ Example response:
     {
       "id": 1,
       "registry_id": 1,
-      "position": 1
+      "position": 1,
+      "local_upstream_id": null
     }
   ]
 }
@@ -604,7 +699,10 @@ POST /virtual_registries/packages/maven/registry_upstreams
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
 | `registry_id` | integer | yes | The ID of the Maven virtual registry. |
-| `upstream_id` | integer | yes | The ID of the Maven upstream registry. |
+| `upstream_id` | integer | yes | The ID of the Maven upstream registry. Required if `local_upstream_id` is not set. |
+| `local_upstream_id` | integer | yes | The ID of the Maven local upstream registry. Required if `upstream_id` is not set. |
+
+You must set exactly one of `upstream_id` or `local_upstream_id`.
 
 Example request:
 

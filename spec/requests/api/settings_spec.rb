@@ -125,6 +125,8 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
       expect(json_response['email_otp_enabled']).to be(false)
       expect(json_response['authn_data_retention_cleanup_enabled']).to be(false)
       expect(json_response['allow_s3_compatible_storage_for_offline_transfer']).to be(false)
+      expect(json_response['logging_field_schema_version']).to eq(0)
+      expect(json_response['logging_field_dual_emit_target']).to be_nil
     end
   end
 
@@ -1551,6 +1553,46 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
         expect(json_response['vscode_extension_marketplace_enabled']).to be(true)
         expect(json_response['vscode_extension_marketplace'])
           .to eq({ "enabled" => true, "extension_host_domain" => "cdn.web-ide.gitlab-static.net", "single_origin_fallback_enabled" => true })
+      end
+    end
+
+    context 'with logging field version settings' do
+      it 'accepts valid schema_version' do
+        put api('/application/settings', admin), params: { logging_field_schema_version: 1 }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['logging_field_schema_version']).to eq(1)
+      end
+
+      it 'rejects dual_emit_target equal to schema_version' do
+        put api('/application/settings', admin), params: {
+          logging_field_schema_version: 0,
+          logging_field_dual_emit_target: 0
+        }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'accepts dual_emit_target strictly greater than schema_version' do
+        put api('/application/settings', admin), params: {
+          logging_field_schema_version: 0,
+          logging_field_dual_emit_target: 1
+        }
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      context 'when logging_field_variant_versioning is off' do
+        before do
+          stub_feature_flags(logging_field_variant_versioning: false)
+        end
+
+        it 'ignores valid schema_version' do
+          put api('/application/settings', admin), params: { logging_field_schema_version: 1 }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['logging_field_schema_version']).to eq(0)
+        end
       end
     end
   end
