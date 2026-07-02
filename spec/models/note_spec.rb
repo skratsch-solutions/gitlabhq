@@ -2069,6 +2069,15 @@ RSpec.describe Note, feature_category: :team_planning do
       end
     end
 
+    describe '.non_legacy_diff_notes' do
+      let_it_be(:diff_note) { create(:diff_note_on_merge_request) }
+      let_it_be(:legacy_diff_note) { create(:legacy_diff_note_on_merge_request) }
+
+      it 'returns only DiffNote records, excluding LegacyDiffNote and other notes' do
+        expect(described_class.non_legacy_diff_notes).to contain_exactly(diff_note)
+      end
+    end
+
     describe '.order_created_at_id_asc' do
       it 'returns notes in ascending order' do
         expect(described_class.order_created_at_id_asc).to eq([note1, note2])

@@ -168,6 +168,11 @@ class Note < ApplicationRecord
   end
 
   scope :diff_notes, -> { where(type: %w[LegacyDiffNote DiffNote]) }
+  scope :non_legacy_diff_notes, -> { where(type: 'DiffNote') }
+  # Deprecated: use `non_legacy_diff_notes` instead. The `new_` prefix is
+  # misleading: this scope selects `DiffNote` records (as opposed to
+  # `LegacyDiffNote`), not recently-created notes. Remove once all callers
+  # have migrated.
   scope :new_diff_notes, -> { where(type: 'DiffNote') }
   scope :non_diff_notes, -> { where(type: NON_DIFF_NOTE_TYPES) }
 

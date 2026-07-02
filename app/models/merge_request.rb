@@ -1152,7 +1152,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def note_positions_for_paths(paths, user = nil)
-    positions = notes.new_diff_notes.joins(:note_diff_file)
+    positions = notes.non_legacy_diff_notes.joins(:note_diff_file)
       .where('note_diff_files.old_path IN (?) OR note_diff_files.new_path IN (?)', paths, paths)
       .positions
 
@@ -2490,7 +2490,7 @@ class MergeRequest < ApplicationRecord
     return unless has_complete_diff_refs?
     return if new_diff_refs == old_diff_refs
 
-    active_diff_discussions = self.notes.new_diff_notes.discussions.select do |discussion|
+    active_diff_discussions = self.notes.non_legacy_diff_notes.discussions.select do |discussion|
       discussion.active?(old_diff_refs)
     end
     return if active_diff_discussions.empty?

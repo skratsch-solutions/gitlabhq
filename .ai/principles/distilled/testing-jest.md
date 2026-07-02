@@ -1,6 +1,6 @@
 ---
-source_checksum: a432c007e72d2767
-distilled_at_sha: 9b4148fa5ff3c392ae6d7bcd6b4f60365f604f49
+source_checksum: c7e9410a688b66d0
+distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -102,7 +102,7 @@ distilled_at_sha: 9b4148fa5ff3c392ae6d7bcd6b4f60365f604f49
 
 ### MSW Integration Tests
 
-- Use Capybara feature tests (`spec/features/`) only when real backend state, navigation across server-rendered pages, or server-side validations are required.
+- Default to MSW integration tests (`spec/frontend/msw_integration/`) over Capybara feature tests; use Capybara only when real backend state, navigation across server-rendered pages, server-side validations, or multi-Vue-app behavior on the same page is required.
 - Use `fullMount` from `test_helpers.js` (wraps `mount` and attaches to `document.body`) to mount the root component with the real `apolloProvider`.
 - Use native DOM APIs for all interactions and assertions in MSW integration tests; DO NOT use VTU wrapper methods (`wrapper.find()`, `wrapper.trigger()`, `wrapper.text()`, etc.).
 - DO NOT mock child components in MSW integration tests.
@@ -117,6 +117,7 @@ distilled_at_sha: 9b4148fa5ff3c392ae6d7bcd6b4f60365f604f49
 - Export new test helpers from `test_helpers.js` to make them available globally in all MSW integration tests (auto-imported via `Object.assign(global, testHelpers)` in `test_setup.js`).
 - Name fixture files so that the `camelCase`-converted filename matches the GraphQL operation name (for example, `get_work_item_state_counts.query.graphql.json` maps to `getWorkItemStateCounts`).
 - Place MSW integration fixture generators in `ee/spec/frontend/fixtures/`; generate their JSON output to `tmp/tests/frontend/fixtures-ee/graphql/` by running the fixture spec (`bin/rspec ee/spec/frontend/fixtures/<file>.rb`).
+- Use `snapshotRequests` and `expectGraphQLCalls` from `operation_helpers.js` to assert Apollo cache integrity and verify that mutations do not trigger unwanted network calls.
 - Run all MSW integration tests with `yarn jest:msw-integration`; in CI these run in the `jest-msw-integration` job.
 
 ### Capybara Feature Tests
@@ -133,7 +134,7 @@ distilled_at_sha: 9b4148fa5ff3c392ae6d7bcd6b4f60365f604f49
 ### Test Fixtures
 
 - Import JSON/HTML fixtures using the `test_fixtures` alias.
-- Generate fixtures with `bin/rake frontend:fixtures` or `bin/rspec spec/frontend/fixtures/<file>.rb`.
+- Generate fixtures with `bin/rake frontend:fixtures` or `bin/rspec spec/frontend/fixtures/<file>.rb` (see MSW Integration Tests for MSW-specific fixture generation).
 - Place CE fixture generators in `spec/frontend/fixtures/` and EE fixture generators in `ee/spec/frontend/fixtures/`.
 
 ### Test Helpers
