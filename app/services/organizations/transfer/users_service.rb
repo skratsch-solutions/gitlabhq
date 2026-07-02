@@ -22,19 +22,38 @@ module Organizations
         strong_memoize_attr :migratable_models
 
         def skipped_transfer_models
-          # For User, Project, Group we explicitly want to skip these as they're going to be migrated in
-          # another service.
-
-          ["User", "Project", "Group", "AbuseReport", "GitlabSubscriptions::AddOnPurchase",
-            "GitlabSubscriptions::SeatAssignment", "GitlabSubscriptions::UserAddOnAssignment", "Authz::AdminRole",
-            "Authz::GranularScope", "Authz::PersonalAccessTokenGranularScope",
-            "MemberRole", "Ai::Catalog::ItemConsumer", "ProjectSnippet", "Snippet", "ImportFailure",
-            "Clusters::Cluster", "AntiAbuse::Event",
+          # Kept in alphabetical order.
+          [
+            "AbuseReport",
+            "Ai::Catalog::ItemConsumer",
+            "AntiAbuse::Event",
+            "Authz::AdminRole",
+            "Authz::GranularScope",
+            "Authz::PersonalAccessTokenGranularScope",
+            # BulkImports::Export is scoped to a project or group, and its organization_id is
+            # derived from that parent via the `bulk_import_exports_sharding_key` trigger. It must
+            # not follow the user to a new organization, otherwise it would diverge from its
+            # project/group. The model declares no organization association today, so it is already
+            # excluded; this entry makes the intent explicit and guards against a future
+            # `belongs_to :organization` silently enabling the transfer.
+            "BulkImports::Export",
+            "Clusters::Cluster",
             # Dependencies::DependencyListExport is scoped to one of project/group/pipeline per
             # `only_one_exportable`. Its organization_id is derived from the project/group and
             # cannot be updated independently under the
             # num_nonnulls(group_id, organization_id, project_id) = 1 check constraint.
-            "Dependencies::DependencyListExport"]
+            "Dependencies::DependencyListExport",
+            "GitlabSubscriptions::AddOnPurchase",
+            "GitlabSubscriptions::SeatAssignment",
+            "GitlabSubscriptions::UserAddOnAssignment",
+            "Group", # migrated by a dedicated service
+            "ImportFailure",
+            "MemberRole",
+            "Project", # migrated by a dedicated service
+            "ProjectSnippet",
+            "Snippet",
+            "User" # migrated by a dedicated service
+          ]
         end
       end
 

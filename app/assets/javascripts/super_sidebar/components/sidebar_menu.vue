@@ -300,6 +300,7 @@ export default {
       v-gl-modal="$options.modalId"
       v-gl-tooltip.right.viewport="isIconOnly ? $options.i18n.browseMoreFeatures : ''"
       :aria-label="$options.i18n.browseMoreFeatures"
+      class="feature-library-shimmer"
       data-testid="feature-library-trigger"
       icon="applications"
       :is-icon-only="isIconOnly"

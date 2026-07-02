@@ -875,24 +875,25 @@ RSpec.describe Organizations::Transfer::UsersService, :aggregate_failures, featu
         context 'with self.skipped_transfer_models' do
           let(:skipped_transfer_models) do
             [
-              'User',
-              'Project',
-              'Group',
               'AbuseReport',
-              'GitlabSubscriptions::AddOnPurchase',
-              'GitlabSubscriptions::SeatAssignment',
-              'GitlabSubscriptions::UserAddOnAssignment',
+              'Ai::Catalog::ItemConsumer',
+              'AntiAbuse::Event',
               'Authz::AdminRole',
               'Authz::GranularScope',
               'Authz::PersonalAccessTokenGranularScope',
+              'BulkImports::Export',
+              'Clusters::Cluster',
+              'Dependencies::DependencyListExport',
+              'GitlabSubscriptions::AddOnPurchase',
+              'GitlabSubscriptions::SeatAssignment',
+              'GitlabSubscriptions::UserAddOnAssignment',
+              'Group',
+              'ImportFailure',
               'MemberRole',
-              'Ai::Catalog::ItemConsumer',
+              'Project',
               'ProjectSnippet',
               'Snippet',
-              'ImportFailure',
-              'Clusters::Cluster',
-              'AntiAbuse::Event',
-              'Dependencies::DependencyListExport'
+              'User'
             ]
           end
 

@@ -24583,6 +24583,7 @@ CREATE TABLE merge_request_reviewers (
     created_at timestamp with time zone NOT NULL,
     state smallint DEFAULT 0 NOT NULL,
     project_id bigint,
+    updated_at timestamp with time zone,
     CONSTRAINT check_fb72c99774 CHECK ((project_id IS NOT NULL))
 );
 
@@ -27294,6 +27295,7 @@ CREATE TABLE packages_package_file_states (
     verification_checksum bytea,
     verification_failure text,
     project_id bigint,
+    CONSTRAINT check_93a4c95829 CHECK ((project_id IS NOT NULL)),
     CONSTRAINT check_975cbbb43b CHECK ((char_length(verification_failure) <= 255))
 );
 

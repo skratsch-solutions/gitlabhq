@@ -558,6 +558,10 @@ describe('Sidebar Menu', () => {
         expect(findTrigger().props('icon')).toBe('applications');
       });
 
+      it('applies the shimmer class to draw attention to the trigger', () => {
+        expect(findTrigger().classes()).toContain('feature-library-shimmer');
+      });
+
       it('renders the modal', () => {
         expect(findFeatureLibraryModal().exists()).toBe(true);
       });

@@ -2685,7 +2685,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def batch_update_reviewer_state(user_ids, state)
-    merge_request_reviewers.where(user_id: user_ids).update_all(state: state)
+    merge_request_reviewers.where(user_id: user_ids).update_all_state(state)
   end
 
   def enabled_reports

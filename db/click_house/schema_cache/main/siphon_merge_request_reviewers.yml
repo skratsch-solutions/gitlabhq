@@ -31,6 +31,9 @@ columns:
   default_expression: '0'
 - name: project_id
   type: Nullable(Int64)
+- name: updated_at
+  type: Nullable(DateTime64(6, 'UTC'))
+  compression_codec: CODEC(Delta(8), ZSTD(1))
 - name: traversal_path
   type: String
   default_kind: DEFAULT

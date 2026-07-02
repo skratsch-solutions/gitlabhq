@@ -15,7 +15,6 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       merge_request_diff_files
       merge_request_diff_files_99208b8fac
       push_rules
-      packages_package_file_states
     ]
   end
 

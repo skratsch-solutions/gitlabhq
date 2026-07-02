@@ -3,7 +3,14 @@ title: Organizations release process
 ---
 
 You ship an organization feature by gating it behind an *organization flag* and moving that flag through a fixed ladder of shared *stages*.
-The stages are Experimental, Beta, Limited Availability (LA), and GA, each reaching a wider audience than the last.
+The stages are Experimental, Beta, Limited Availability (LA), and GA.
+
+The model rests on one idea: a feature's audience only ever grows.
+The audience grows along two axes.
+Segment is who can reach the feature, from the Organizations team, to GitLab team members and opted-in customers, to a growing share of customers, to everyone.
+Platform is where the feature runs, from GitLab.com, to GitLab Self-Managed and GitLab Dedicated at GA.
+Each stage is a point on that growing surface.
+A higher stage widens the audience on one or both axes, and never narrows it.
 
 You only ever change one thing: the stage.
 The stages are backed by a small fixed set of shared *stage flags* (`org_stage_*`), one per stage, each already configured with that stage's audience and rollout.
@@ -11,7 +18,7 @@ You do not create a flag or tune its actors or percentages.
 To advance a feature, you raise its organization flag's stage in a merge request, and it inherits that stage's rollout.
 This is the main way the process departs from the usual GitLab feature flag workflow, where each feature owns its own feature flag and drives its own rollout.
 
-The handbook defines the model: the stages, their audiences, target platforms, and rollout rules.
+The handbook holds the specifics: the stages, their audiences, target platforms, and rollout rules.
 See [Organizations release stages](https://handbook.gitlab.com/handbook/engineering/infrastructure-platforms/tenant-scale/organizations/release-stages/).
 That page is the source of truth, written for everyone working on Organizations, including product and design.
 This page is the engineering guide.
@@ -32,13 +39,24 @@ Ask the layer whether the organization flag is enabled rather than checking a fe
 return unless Organizations::Release.enabled?(:ui_for_organizations, actor)
 ```
 
-The layer looks up the organization flag's stage, maps the stage to its shared stage flag, and checks that stage flag against the actor.
+The layer looks up the organization flag's stage and checks the actor against that stage's shared stage flag.
+It also checks the earlier cascading stage flags, so the result can come from an earlier stage.
+See [Earlier stages cascade forward](#earlier-stages-cascade-forward).
 The actor is the subject the stage flag is rolled out over, such as the current user or organization.
-Pass `nil` to check the stage flag's instance-wide gate.
+Pass `nil` to check the stage flags' instance-wide gates.
 
 The layer passes the actor straight through to the feature flag library, like a direct `Feature.enabled?` check.
 Pass a consistent actor type at every call site for an organization flag, because the shared stage flags bucket by actor type for percentage rollouts.
 See [How the stage flags are operated](#how-the-stage-flags-are-operated).
+
+### Earlier stages cascade forward
+
+An actor that can see a feature at one stage keeps that access as the feature progresses to later stages.
+The audience only ever grows, so the earlier, smaller audiences are never dropped.
+A feature at Beta is therefore enabled for the Experimental audience too, not only the Beta audience.
+
+`Organizations::Release.enabled?` reflects this: it checks the flag's own stage flag and every earlier cascading stage flag.
+Only Experimental and Beta cascade. The LA stages roll out by independent percentage buckets and do not nest, and GA is already on for everyone.
 
 ### Expose a flag to the frontend
 
@@ -80,8 +98,9 @@ Like regular feature flags, the backing stage flags are enabled by default in te
 The helper resolves the organization flag through the registry to whichever stage flag currently backs it, then stubs that stage flag.
 Specs do not hard-code a stage, so they keep testing the right flag when the feature advances to another stage.
 
-The helper toggles the backing stage flag, so it enables or disables the whole stage, not just that capability.
+The helper toggles the backing stage flags, so it enables or disables the whole stage, not just that capability.
 Every organization flag at the same stage flips together, the same as the shared stage flags in production.
+To disable a feature, the helper also clears the earlier cascading stage flags, so the cascade does not leave the feature on.
 
 ## Advance it through the stages
 
