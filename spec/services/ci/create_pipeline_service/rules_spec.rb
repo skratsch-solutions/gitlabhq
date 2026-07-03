@@ -295,9 +295,9 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
       end
 
       it 'assigns job:allow_failure values to the builds' do
-        expect(find_job('job-1').allow_failure).to eq(false)
-        expect(find_job('job-2').allow_failure).to eq(true)
-        expect(find_job('job-3').allow_failure).to eq(false)
+        expect(find_job('job-1').allow_failure).to be(false)
+        expect(find_job('job-2').allow_failure).to be(true)
+        expect(find_job('job-3').allow_failure).to be(false)
       end
 
       it 'removes exit_codes if allow_failure is specified' do
@@ -474,8 +474,8 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
           expect(build_names).to contain_exactly('deploy', 'teardown')
           expect(find_job('deploy').when).to eq('on_success')
           expect(find_job('teardown').when).to eq('manual')
-          expect(find_job('deploy').allow_failure).to eq(false)
-          expect(find_job('teardown').allow_failure).to eq(false)
+          expect(find_job('deploy').allow_failure).to be(false)
+          expect(find_job('teardown').allow_failure).to be(false)
           expect(find_job('deploy').actual_persisted_environment.name).to eq('review/master')
           expect(find_job('teardown').actual_persisted_environment.name).to eq('review/master')
         end
@@ -532,10 +532,10 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
           end
 
           it 'assigns job:allow_failure values to the builds' do
-            expect(find_job('regular-job').allow_failure).to eq(false)
-            expect(find_job('master-job').allow_failure).to eq(false)
-            expect(find_job('negligible-job').allow_failure).to eq(true)
-            expect(find_job('delayed-job').allow_failure).to eq(false)
+            expect(find_job('regular-job').allow_failure).to be(false)
+            expect(find_job('master-job').allow_failure).to be(false)
+            expect(find_job('negligible-job').allow_failure).to be(true)
+            expect(find_job('delayed-job').allow_failure).to be(false)
           end
 
           it 'assigns start_in for delayed jobs' do
@@ -566,7 +566,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
           expect(pipeline).to be_persisted
           expect(build_names).to contain_exactly('regular-job')
           expect(regular_job.when).to eq('manual')
-          expect(regular_job.allow_failure).to eq(true)
+          expect(regular_job.allow_failure).to be(true)
         end
       end
 
@@ -705,7 +705,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
         end
 
         it 'sets allow_failure: for negligible job' do
-          expect(find_job('negligible-job').allow_failure).to eq(true)
+          expect(find_job('negligible-job').allow_failure).to be(true)
         end
       end
 
@@ -993,9 +993,9 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
         end
 
         it 'sets allow_failure: for all jobs' do
-          expect(regular_job.allow_failure).to eq(false)
-          expect(rules_job.allow_failure).to eq(true)
-          expect(delayed_job.allow_failure).to eq(true)
+          expect(regular_job.allow_failure).to be(false)
+          expect(rules_job.allow_failure).to be(true)
+          expect(delayed_job.allow_failure).to be(true)
         end
       end
 
@@ -1055,7 +1055,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
           expect(regular_job).to be_persisted
           expect(rules_job).to be_persisted
           expect(rules_job.when).to eq('manual')
-          expect(rules_job.allow_failure).to eq(false)
+          expect(rules_job.allow_failure).to be(false)
         end
       end
 
@@ -1133,10 +1133,10 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
       end
 
       it 'assigns job:allow_failure values to the builds' do
-        expect(find_job('job-1').allow_failure).to eq(false)
-        expect(find_job('job-4').allow_failure).to eq(false)
-        expect(find_job('job-5').allow_failure).to eq(true)
-        expect(find_job('job-6').allow_failure).to eq(true)
+        expect(find_job('job-1').allow_failure).to be(false)
+        expect(find_job('job-4').allow_failure).to be(false)
+        expect(find_job('job-5').allow_failure).to be(true)
+        expect(find_job('job-6').allow_failure).to be(true)
       end
     end
 
@@ -1206,13 +1206,13 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
       end
 
       it 'assigns job:allow_failure values to the builds' do
-        expect(find_job('job-1').allow_failure).to eq(false)
-        expect(find_job('job-2').allow_failure).to eq(true)
-        expect(find_job('job-3').allow_failure).to eq(true)
-        expect(find_job('job-4').allow_failure).to eq(false)
-        expect(find_job('job-5').allow_failure).to eq(true)
-        expect(find_job('job-6').allow_failure).to eq(false)
-        expect(find_job('job-7').allow_failure).to eq(true)
+        expect(find_job('job-1').allow_failure).to be(false)
+        expect(find_job('job-2').allow_failure).to be(true)
+        expect(find_job('job-3').allow_failure).to be(true)
+        expect(find_job('job-4').allow_failure).to be(false)
+        expect(find_job('job-5').allow_failure).to be(true)
+        expect(find_job('job-6').allow_failure).to be(false)
+        expect(find_job('job-7').allow_failure).to be(true)
       end
 
       it 'assigns job:when values to the builds' do

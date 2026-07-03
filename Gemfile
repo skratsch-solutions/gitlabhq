@@ -546,7 +546,11 @@ group :development, :test do
   gem 'spring-commands-rspec', '~> 1.0.4', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
   gem 'gitlab-styles', '~> 14.1', feature_category: :tooling, require: false
-  gem 'haml_lint', '~> 0.58', feature_category: :tooling, require: false
+  # haml_lint 0.74.0 reloads the full RuboCop configuration for every file in
+  # parallel mode, slowing the haml-lint CI job from ~2 minutes to 45+ minutes.
+  # Remove the pin once https://github.com/sds/haml-lint/issues/668 is fixed
+  # upstream.
+  gem 'haml_lint', '~> 0.73.0', feature_category: :tooling, require: false
 
   # Benchmarking & profiling
   gem 'benchmark-ips', '~> 2.14.0', require: false, feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839

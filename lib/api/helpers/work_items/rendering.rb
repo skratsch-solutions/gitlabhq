@@ -21,7 +21,13 @@ module API
 
           params[:pagination] = 'keyset' if keyset_supported_for_order?
 
-          work_items = paginate_with_strategies(work_items_relation) do |records|
+          # `without_count` is ignored by the keyset pager and only affects the offset fallback
+          # (e.g. sort=milestone), where it skips the expensive X-Total COUNT query and omits the
+          # X-Total/X-Total-Pages headers entirely. This mirrors GraphQL, which also never returns
+          # an exact total for this list. Next/prev page headers are still emitted for navigation.
+          work_items = paginate_with_strategies(
+            work_items_relation, paginator_params: { without_count: true }
+          ) do |records|
             preload_hierarchy_authorization(records, feature_keys)
             records
           end.to_a

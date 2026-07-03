@@ -113,7 +113,7 @@ authorize_granular_token(permissions:, boundary_type:, boundary: nil, boundary_a
 | `boundary_type` | **(Required)** Symbol declaring the type of authorization boundary (`:project`, `:group`, `:user`, `:instance`). Validated against the assignable permission boundaries by the `gitlab:permissions:validate` Rake task. |
 | `boundary` | Symbol representing the method to call on the resolved object to extract the boundary (for example, `:project`). Use `:user` or `:instance` for standalone resources. |
 | `boundary_argument` | Symbol representing the argument name containing the boundary path (for example, `:project_path`). |
-| `traversal` | Set to `true` on a per-field directive (passed through `granular_scope_directive`) for entry-point fields. The token is checked for boundary visibility (`read_boundary`) only. The listed permissions are not enforced. For more details, see [Entry-point fields](#entry-point-fields). |
+| `traversal` | Set to `true` on a per-field directive (passed through `granular_scope_directive`) for entry-point fields. For more details, see [Entry-point fields](#entry-point-fields). Not currently enforced. |
 | `skip_reason` | Symbol declaring that a type intentionally opts out of granular-token authorization. Use instead of `permissions:` and a boundary, not alongside them. For more details, see [Skip authorization with `skip_reason`](#skip-authorization-with-skip_reason). |
 
 **For object types:**
@@ -136,21 +136,35 @@ module Mutations
 end
 ```
 
+When the argument resolves to a record that is not itself a Project or Group, combine `boundary_argument` with `boundary`.
+The argument locates the record, and `boundary` reaches the Project or Group from it:
+
+```ruby
+module Mutations
+  module Notes
+    class Create < BaseMutation
+      authorize_granular_token permissions: :create_note, boundary_argument: :id, boundary: :project, boundary_type: :project
+    end
+  end
+end
+```
+
+For the argument `id: "gid://gitlab/Issue/1"`, the extractor locates the issue, then calls `issue.project` to reach the boundary.
+
 #### When `boundary` applies
 
-- Fields **on** the type (e.g., `issue.title` when `IssueType` has directive)
-- Query fields with `:id` argument returning the type (enables ID fallback)
-- Standalone resources using `boundary: :user` or `boundary: :instance`
-- **Does not apply to** query fields **without** `:id` argument returning the type (object not available, raises ArgumentError)
+- Fields on a resolved object (for example, `issue.title` when `IssueType` declares the directive).
+- Standalone resources using `boundary_type: :user` or `boundary_type: :instance`.
 
-##### When `boundary_argument` applies
+Use `boundary_argument` instead when the object is not yet resolved.
+
+#### When `boundary_argument` applies
 
 - Root mutations
-- Root query fields
-- Any field that receives boundary as an argument
-- Fields returning types with `boundary_argument` directive
+- Root query fields that receive a path or GlobalID argument
+- Any field that receives the boundary as an argument
 
-##### Standalone Boundaries
+#### Standalone boundaries
 
 Use `boundary: :user` or `boundary: :instance` for resources that don't belong to a specific project or group:
 
@@ -160,15 +174,34 @@ class UserSettingType < BaseObject
 end
 ```
 
-#### Choosing Between `boundary` and `boundary_argument`
+#### Multiple boundaries
 
-| Use `boundary` when                                                             | Use `boundary_argument` when                                          |
-|---------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| The type has a method to get the boundary (for example, `issue.project`).      | The boundary is passed as a field argument (for example, `projectPath`). |
-| Protecting an object type's fields.                                             | Protecting a mutation.                                                |
-| Protecting a query field with `:id` argument.                                   | Protecting a query field with a path argument.                        |
+A resource that can belong to different boundary types declares each boundary with `boundaries:`.
+`Ci::RunnerType` does this because a runner can belong to a project, belong to a group, or be instance-wide:
+
+```ruby
+class RunnerType < BaseObject
+  authorize_granular_token(
+    permissions: :read_runner,
+    boundaries: [
+      { boundary: :owner, boundary_type: :project },
+      { boundary: :owner, boundary_type: :group },
+      { boundary: :instance, boundary_type: :instance }
+    ]
+  )
+end
+```
+
+A concrete boundary (project or group) is preferred when one resolves.
+The standalone `instance` boundary applies only when the runner has no owning project or group.
+For more details, see [Multiple boundaries](graphql_architecture.md#multiple-boundaries).
 
 #### Entry-point fields
+
+> [!note]
+> `traversal` is declared on the directive but is not currently enforced by `GranularScopeAuthorization`.
+> A field marked `traversal: true` enforces the listed permissions like any other field.
+> Enforcement is pending reimplementation.
 
 Top-level fields that resolve a boundary from a path argument, such as
 `Query.group(fullPath:)` and `Query.project(fullPath:)`, do not expose data
@@ -199,6 +232,11 @@ the entry point operates on, even though the field itself does not enforce it.
 other boundary types, the listed permissions are enforced as normal.
 
 #### Traversal between authorized types
+
+> [!note]
+> `GranularScopeAuthorization` evaluates each type's and field's own directives independently.
+> The automatic owner-directive skip described in this section is not currently performed.
+> Plan permissions assuming both the owner type's and the child type's directives are enforced.
 
 When a field on an authorized type returns another type that also declares
 `authorize_granular_token`, the owner type's directive is automatically skipped.

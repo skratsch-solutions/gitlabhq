@@ -2027,7 +2027,9 @@ paths:
   "/api/v4/groups/{id}/protected_branches":
     get:
       operationId: getApiV4GroupsIdProtectedBranches
-      summary: Get a group's protected branches
+      summary: List all protected branches
+      description: Lists all protected branches from a group. If a wildcard is set,
+        it is returned instead of the exact name of the branches that match that wildcard.
       tags:
       - Protected branches
       responses:
@@ -2076,7 +2078,9 @@ paths:
         example: mai
     post:
       operationId: postApiV4GroupsIdProtectedBranches
-      summary: Protect a single branch
+      summary: Protect a repository branch
+      description: Protects a specified repository branch. Protect multiple branches
+        by using a wildcard in the `name`.
       tags:
       - Protected branches
       responses:
@@ -2110,7 +2114,9 @@ paths:
   "/api/v4/groups/{id}/protected_branches/{name}":
     get:
       operationId: getApiV4GroupsIdProtectedBranchesName
-      summary: Get a single protected branch
+      summary: Retrieve a protected branch
+      description: Retrieves a specified protected branch. Retrieve multiple branches
+        by using a wildcard in the `name`.
       tags:
       - Protected branches
       responses:
@@ -2179,7 +2185,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_a8db8c5327e1"
     delete:
       operationId: deleteApiV4GroupsIdProtectedBranchesName
-      summary: Unprotect a single branch
+      summary: Unprotect repository branches
+      description: Unprotects a specified protected branch Unprotect multiple branches
+        by using a wildcard in the `name`.
       tags:
       - Protected branches
       responses:
@@ -3719,7 +3727,8 @@ paths:
   "/api/v4/project_aliases":
     get:
       operationId: getApiV4ProjectAliases
-      summary: Get a list of all project aliases
+      summary: List all project aliases
+      description: Lists all project aliases for the instance.
       tags:
       - Project alias
       responses:
@@ -3755,6 +3764,7 @@ paths:
     post:
       operationId: postApiV4ProjectAliases
       summary: Create a project alias
+      description: Creates a project alias.
       tags:
       - Project alias
       responses:
@@ -3779,7 +3789,8 @@ paths:
   "/api/v4/project_aliases/{name}":
     get:
       operationId: getApiV4ProjectAliasesName
-      summary: Get info of specific project alias by name
+      summary: Retrieve a project alias
+      description: Retrieves details of a specified project alias.
       tags:
       - Project alias
       responses:
@@ -3800,7 +3811,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectAliasesName
-      summary: Delete a project alias by name
+      summary: Delete a project alias
+      description: Deletes a specified project alias. Administrators only.
       tags:
       - Project alias
       responses:
@@ -10263,7 +10275,10 @@ paths:
   "/api/v4/groups/{id}/approval_rules":
     get:
       operationId: getApiV4GroupsIdApprovalRules
-      summary: Get all group approval rules
+      summary: List all approval rules for a group
+      description: Lists all approval rules and any associated details for a specified
+        group. Restricted to group administrators. Use the `page` and `per_page` pagination
+        parameters to restrict the list of approval rules.
       tags:
       - Approval rules
       responses:
@@ -10304,7 +10319,11 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdApprovalRules
-      summary: Create new group approval rule
+      summary: Create an approval rule for a group
+      description: 'Creates an approval rule for a group. Restricted to group administrators.
+        Do not use the `rule_type` field when building approval rules from the API.
+        The field supports these rule types: - `any_approver`: A pre-configured default
+        rule with `approvals_required` set to `0`.'
       tags:
       - Approval rules
       responses:
@@ -24592,7 +24611,7 @@ paths:
     delete:
       operationId: deleteApiV4GroupsIdWikisSlug
       summary: Delete a wiki page for a group
-      description: Deletes a specified wiki page for a group.
+      description: Deletes a specified wiki page from a group.
       tags:
       - Wikis
       responses:
@@ -24808,7 +24827,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdWikisSlug
       summary: Delete a wiki page for a project
-      description: Deletes a specified wiki page for a project.
+      description: Deletes a specified wiki page from a project.
       tags:
       - Wikis
       responses:
@@ -24870,8 +24889,9 @@ paths:
   "/api/v4/web_commits/public_key":
     get:
       operationId: getApiV4WebCommitsPublicKey
-      summary: Get the public key for web commits
-      description: This feature was introduced in GitLab 17.4.
+      summary: Retrieve the public signing key
+      description: Retrieves the GitLab public key for signing web commits. This feature
+        was introduced in GitLab 17.4.
       tags:
       - Web commits
       responses:
@@ -35027,8 +35047,8 @@ paths:
   "/api/v4/projects/{id}/debian_distributions":
     post:
       operationId: postApiV4ProjectsIdDebianDistributions
-      summary: Create a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Create a Debian project distribution
+      description: Creates a Debian project distribution for a specified project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -35063,8 +35083,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_240ff1bbe3f5"
     get:
       operationId: getApiV4ProjectsIdDebianDistributions
-      summary: Get a list of Debian Distributions
-      description: This feature was introduced in 14.0
+      summary: List all Debian project distributions
+      description: Lists all Debian distributions for a specified project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -35198,8 +35218,8 @@ paths:
   "/api/v4/projects/{id}/debian_distributions/{codename}":
     get:
       operationId: getApiV4ProjectsIdDebianDistributionsCodename
-      summary: Get a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Retrieve a Debian project distribution
+      description: Retrieves a specified Debian project distribution for a project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -35234,8 +35254,8 @@ paths:
         example: sid
     put:
       operationId: putApiV4ProjectsIdDebianDistributionsCodename
-      summary: Update a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Update a Debian project distribution
+      description: Updates a specified Debian project distribution for a project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -35278,8 +35298,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_c66551e2db22"
     delete:
       operationId: deleteApiV4ProjectsIdDebianDistributionsCodename
-      summary: Delete a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Delete a Debian project distribution
+      description: Deletes a specified Debian project distribution for a project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -35392,8 +35412,8 @@ paths:
   "/api/v4/projects/{id}/debian_distributions/{codename}/key.asc":
     get:
       operationId: getApiV4ProjectsIdDebianDistributionsCodenameKeyAsc
-      summary: Get a Debian Distribution Key
-      description: This feature was introduced in 14.4
+      summary: Retrieve a Debian project distribution key
+      description: Retrieves a specified Debian project distribution key for a project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -53819,8 +53839,8 @@ paths:
   "/api/v4/groups/{id}/-/debian_distributions":
     post:
       operationId: postApiV4GroupsIdDashDebianDistributions
-      summary: Create a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Create a Debian group distribution
+      description: Creates a Debian group distribution for a specified group.
       tags:
       - 'Packages: Debian'
       responses:
@@ -53855,8 +53875,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_240ff1bbe3f5"
     get:
       operationId: getApiV4GroupsIdDashDebianDistributions
-      summary: Get a list of Debian Distributions
-      description: This feature was introduced in 14.0
+      summary: List all Debian group distributions
+      description: Lists all Debian distributions for a specified group.
       tags:
       - 'Packages: Debian'
       responses:
@@ -53990,8 +54010,8 @@ paths:
   "/api/v4/groups/{id}/-/debian_distributions/{codename}":
     get:
       operationId: getApiV4GroupsIdDashDebianDistributionsCodename
-      summary: Get a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Retrieve a Debian group distribution
+      description: Retrieves a specified Debian group distribution for a group.
       tags:
       - 'Packages: Debian'
       responses:
@@ -54026,8 +54046,8 @@ paths:
         example: sid
     put:
       operationId: putApiV4GroupsIdDashDebianDistributionsCodename
-      summary: Update a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Update a Debian group distribution
+      description: Updates a specified Debian group distribution for a group.
       tags:
       - 'Packages: Debian'
       responses:
@@ -54070,8 +54090,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_c66551e2db22"
     delete:
       operationId: deleteApiV4GroupsIdDashDebianDistributionsCodename
-      summary: Delete a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Delete a Debian group distribution
+      description: Deletes a specified Debian group distribution for a group.
       tags:
       - 'Packages: Debian'
       responses:
@@ -54184,8 +54204,8 @@ paths:
   "/api/v4/groups/{id}/-/debian_distributions/{codename}/key.asc":
     get:
       operationId: getApiV4GroupsIdDashDebianDistributionsCodenameKeyAsc
-      summary: Get a Debian Distribution Key
-      description: This feature was introduced in 14.4
+      summary: Retrieve a Debian group distribution key
+      description: Retrieves a specified Debian group distribution key for a group.
       tags:
       - 'Packages: Debian'
       responses:
@@ -58082,8 +58102,9 @@ paths:
     delete:
       operationId: deleteApiV4GroupsIdDependencyProxyCache
       summary: Purge the dependency proxy for a group
-      description: Schedules for deletion the cached manifests and blobs for a group.This
-        endpoint requires the Owner role for the group.
+      description: Purges the dependency proxy for a specified group and schedules
+        the cached manifests and blobs for deletion. This endpoint requires the Owner
+        role for the group.
       tags:
       - Dependency proxy
       responses:
@@ -58173,8 +58194,8 @@ paths:
   "/api/v4/projects/{id}/packages/debian/pool/{distribution}/{letter}/{package_name}/{package_version}/{file_name}":
     get:
       operationId: getApiV4ProjectsIdPackagesDebianPoolDistributionLetterPackageNamePackageVersionFileName
-      summary: Download Debian package
-      description: This feature was introduced in GitLab 14.2
+      summary: Download a Debian package file
+      description: Downloads a specified Debian package file for a project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -58236,8 +58257,8 @@ paths:
   "/api/v4/projects/{id}/packages/debian/{file_name}":
     put:
       operationId: putApiV4ProjectsIdPackagesDebianFileName
-      summary: Upload Debian package
-      description: This feature was introduced in GitLab 14.0
+      summary: Upload a Debian package file
+      description: Uploads a Debian package file for a specified project.
       tags:
       - 'Packages: Debian'
       responses:
@@ -58363,8 +58384,8 @@ paths:
   "/api/v4/registry/repositories/{id}":
     get:
       operationId: getApiV4RegistryRepositoriesId
-      summary: Get a container repository
-      description: This feature was introduced in GitLab 13.6.
+      summary: Retrieve details of a container registry repository
+      description: Retrieves details of a specified container registry repository.
       tags:
       - Container registry
       responses:
@@ -62029,7 +62050,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/statuses":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaStatuses
-      summary: Get a commit's statuses
+      summary: List all commit statuses
+      description: Lists all commit statuses for a specified project.
       tags:
       - Commit statuses
       responses:
@@ -62144,7 +62166,10 @@ paths:
   "/api/v4/projects/{id}/statuses/{sha}":
     post:
       operationId: postApiV4ProjectsIdStatusesSha
-      summary: Post status to a commit
+      summary: Create or update a commit pipeline status
+      description: Creates or updates the status of a commit represented by a job
+        in an `external` stage. If the commit is associated with a merge request,
+        target the commit in the merge request source branch.
       tags:
       - Commit statuses
       responses:
@@ -68915,7 +68940,9 @@ paths:
   "/api/v4/groups/{id}/ldap_sync":
     post:
       operationId: postApiV4GroupsIdLdapSync
-      summary: Sync a group with LDAP.
+      summary: Sync a group with LDAP
+      description: Syncs a specified group with its linked LDAP group. You must be
+        an administrator or have the Owner role for the group.
       tags:
       - LDAP
       responses:
@@ -69034,7 +69061,9 @@ paths:
   "/api/v4/groups/{id}/saml_users":
     get:
       operationId: getApiV4GroupsIdSamlUsers
-      summary: Get a list of SAML users of the group
+      summary: List all SAML users
+      description: Lists all SAML users for a specified top-level group. Use the `page`
+        and `per_page` pagination parameters to filter the results.
       tags:
       - Groups
       responses:
@@ -69122,7 +69151,8 @@ paths:
   "/api/v4/groups/{id}/provisioned_users":
     get:
       operationId: getApiV4GroupsIdProvisionedUsers
-      summary: Get a list of users provisioned by the group
+      summary: List all provisioned users
+      description: Lists all provisioned users for a specified group.
       tags:
       - Groups
       responses:

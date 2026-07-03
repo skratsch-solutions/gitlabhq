@@ -48,6 +48,19 @@ The following policy types are available:
 Use the `policy_scope` keyword to enforce the policy on only those groups, projects, compliance
 frameworks, security attributes, or a combination, that you specify.
 
+To scope a policy by security attributes, enable the `security_attributes_policy_scope` experiment
+in the `.gitlab/security-policies/policy.yml` file for your security policy project:
+
+```yaml
+experiments:
+  security_attributes_policy_scope:
+    enabled: true
+```
+
+You can scope a policy by only the four built-in security attribute categories: `business_impact`,
+`application`, `business_unit`, and `exposure`. You can create custom attribute values in these
+categories and scope by those values, but you cannot scope by custom categories.
+
 > [!note]
 > The `business_impact`, `application`, `business_unit`, and `exposure` fields scope the policy by
 > [security attributes](../attributes/_index.md). Security attribute scoping applies

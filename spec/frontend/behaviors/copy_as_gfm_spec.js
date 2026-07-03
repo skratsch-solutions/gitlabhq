@@ -205,6 +205,31 @@ describe('CopyAsGFM', () => {
       expect(clipboardData.setData).toHaveBeenCalledWith('text/x-gfm', '`code line`');
     });
 
+    it('copies code when a copy event bubbles up from inside a Rapid Diffs line', async () => {
+      // A diff line cell opts into GFM copy with `data-gfm-source` and carries
+      // presentational overlays marked `data-gfm-ignore`. The selector must match
+      // the cell so the copy is transformed to GFM; otherwise the browser falls
+      // back to a native copy that serializes block-level overlays into extra
+      // blank lines.
+      setHTMLFixture(
+        `<diff-file><table><tbody><tr><td class="rd-line-content" data-change="added" data-gfm-source="true">
+          <span class="has-tooltip" data-line-coverage="1" data-gfm-ignore="true"></span>
+          <div data-line-codequality="1" data-gfm-ignore="true"></div>
+          <pre class="rd-line-text"><span class="line" data-lang="javascript">code line</span></pre>
+        </td></tr></tbody></table></diff-file>`,
+      );
+
+      const leaf = document.querySelector('span.line');
+      stubSelectionFor(document.querySelector('.rd-line-content'));
+
+      const clipboardData = { setData: jest.fn() };
+      const event = dispatchClipboardEvent('copy', leaf, clipboardData);
+      await waitForPromises();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(clipboardData.setData).toHaveBeenCalledWith('text/x-gfm', '`code line`');
+    });
+
     it('transforms pasted GFM when a paste event fires on a .js-gfm-input', () => {
       setHTMLFixture('<textarea class="js-gfm-input"></textarea>');
 
@@ -248,6 +273,29 @@ describe('CopyAsGFM', () => {
       // mimic the result of getSelectedFragment
       fragment.originalNodes = [...parent.children];
       expect(CopyAsGFM.isGfmFragment(fragment)).toBe(true);
+    });
+  });
+
+  describe('transformCodeSelection', () => {
+    it('strips coverage and code quality overlays from a copied Rapid Diffs line', () => {
+      // In parallel view the cell carries `data-position`, so the line selector is
+      // scoped to that side. A single-line selection clones the cell's children
+      // without the `[data-position]` wrapper, so the selector misses and the raw
+      // fragment is used verbatim. The `data-gfm-ignore` overlays must still be
+      // stripped so a block-level overlay does not serialize to extra blank lines.
+      const overlays =
+        '<span class="has-tooltip" data-line-coverage="1" data-gfm-ignore="true"></span>' +
+        '<div data-line-codequality="1" data-gfm-ignore="true"></div>' +
+        '<pre class="rd-line-text"><span class="line">code line</span></pre>';
+      setHTMLFixture(
+        `<diff-file><table><tbody><tr><td class="rd-line-content" data-position="new" data-gfm-source="true">${overlays}</td></tr></tbody></table></diff-file>`,
+      );
+      const target = document.querySelector('.rd-line-content');
+
+      const el = CopyAsGFM.transformCodeSelection(createFragment(overlays), target);
+
+      expect(el.querySelector('[data-gfm-ignore]')).toBe(null);
+      expect(el.textContent).toContain('code line');
     });
   });
 

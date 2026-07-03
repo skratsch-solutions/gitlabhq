@@ -865,7 +865,7 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
           expect(project.resource_groups.count).to eq(1)
           expect(resource_group.processables.count).to eq(1)
           expect(resource_group.resources.count).to eq(1)
-          expect(resource_group.resources.first.processable).to eq(nil)
+          expect(resource_group.resources.first.processable).to be_nil
         end
 
         context 'when resource group key includes predefined variables' do
@@ -875,7 +875,7 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
             result = execute_service.payload
 
             expect(result).to be_persisted
-            expect(project.resource_groups.exists?(key: 'master-test')).to eq(true)
+            expect(project.resource_groups.exists?(key: 'master-test')).to be(true)
           end
         end
       end

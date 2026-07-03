@@ -21,7 +21,8 @@ module API
 
       before { authenticate! }
 
-      desc "Get a commit's statuses" do
+      desc 'List all commit statuses' do
+        detail 'Lists all commit statuses for a specified project.'
         tags ['commit_statuses']
         success code: 200, model: Entities::CommitStatus
         failure [
@@ -70,7 +71,9 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Post status to a commit' do
+      desc 'Create or update a commit pipeline status' do
+        detail 'Creates or updates the status of a commit represented by a job in an `external` stage. ' \
+          'If the commit is associated with a merge request, target the commit in the merge request source branch.'
         tags ['commit_statuses']
         success code: 200, model: Entities::CommitStatus
         failure [

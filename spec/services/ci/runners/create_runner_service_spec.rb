@@ -99,7 +99,7 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
 
         it 'creates runner with active set to true' do
           expect(runner).to be_an_instance_of(::Ci::Runner)
-          expect(runner.active).to eq true
+          expect(runner.active).to be true
         end
       end
 
@@ -120,7 +120,7 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
 
         it 'creates runner with active set to true' do
           expect(runner).to be_an_instance_of(::Ci::Runner)
-          expect(runner.active).to eq true
+          expect(runner.active).to be true
         end
       end
     end

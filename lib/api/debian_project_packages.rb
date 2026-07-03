@@ -49,8 +49,8 @@ module API
           use :shared_package_file_params
         end
 
-        desc 'Download Debian package' do
-          detail 'This feature was introduced in GitLab 14.2'
+        desc 'Download a Debian package file' do
+          detail 'Downloads a specified Debian package file for a project.'
           success code: 200
           failure [
             { code: 401, message: 'Unauthorized' },
@@ -73,8 +73,8 @@ module API
           content_type :json, Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
 
           # PUT {projects|groups}/:id/packages/debian/:file_name
-          desc 'Upload Debian package' do
-            detail 'This feature was introduced in GitLab 14.0'
+          desc 'Upload a Debian package file' do
+            detail 'Uploads a Debian package file for a specified project.'
             success code: 201
             failure [
               { code: 400, message: 'Bad Request' },

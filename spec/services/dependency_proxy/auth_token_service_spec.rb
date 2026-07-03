@@ -16,7 +16,7 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
         allow(JWT).to receive(:decode).and_raise(JWT::DecodeError)
       end
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
 
     context 'with an immature signature error' do
@@ -24,13 +24,13 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
         allow(JWT).to receive(:decode).and_raise(JWT::ImmatureSignature)
       end
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
 
     context 'with an expired signature error' do
       it 'returns nil' do
         travel_to(Time.zone.now + Auth::ContainerProxyAuthenticationService.token_expire_at + 1.minute) do
-          expect(subject).to eq(nil)
+          expect(subject).to be_nil
         end
       end
     end
@@ -45,7 +45,7 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
           allow(JWT).to receive(:decode).and_raise(JWT::DecodeError)
         end
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
 
       context 'with an immature signature error' do
@@ -53,13 +53,13 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
           allow(JWT).to receive(:decode).and_raise(JWT::ImmatureSignature)
         end
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
 
       context 'with an expired signature error' do
         it 'returns nil' do
           travel_to(Time.zone.now + Auth::ContainerProxyAuthenticationService.token_expire_at + 1.minute) do
-            expect(subject).to eq(nil)
+            expect(subject).to be_nil
           end
         end
       end
@@ -89,7 +89,7 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
       context 'with an invalid token' do
         let_it_be(:token) { build_jwt { |jwt| jwt['deploy_token'] = 'this_is_not_a_token' } }
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
 
       it_behaves_like 'handling token errors'
@@ -98,7 +98,7 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
     context 'with an empty token payload' do
       let_it_be(:token) { build_jwt(nil) }
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
   end
 
@@ -131,13 +131,13 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
           personal_access_token.revoke!
         end
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
 
       context 'with an invalid token' do
         let_it_be(:token) { build_jwt { |jwt| jwt['personal_access_token'] = 'this_is_not_a_token' } }
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
     end
 
@@ -151,13 +151,13 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
           group_access_token.revoke!
         end
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
 
       context 'with an invalid token' do
         let_it_be(:token) { build_jwt { |jwt| jwt['group_access_token'] = 'this_is_not_a_token' } }
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
     end
 
@@ -169,7 +169,7 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
       context 'with an invalid token' do
         let_it_be(:token) { build_jwt { |jwt| jwt['deploy_token'] = 'this_is_not_a_token' } }
 
-        it { is_expected.to eq(nil) }
+        it { is_expected.to be_nil }
       end
 
       it_behaves_like 'handling token errors'
@@ -178,7 +178,7 @@ RSpec.describe DependencyProxy::AuthTokenService, feature_category: :virtual_reg
     context 'with an empty token payload' do
       let_it_be(:token) { build_jwt(nil) }
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
   end
 

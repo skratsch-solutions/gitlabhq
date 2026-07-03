@@ -19,9 +19,8 @@ RSpec.describe Authn::IamService::RelationshipsClient, feature_category: :system
     end
 
     it 'writes one ASSIGNMENT tuple per assignment, all scoped to the org', :aggregate_failures do
-      expect(client).to receive(:write_relationships) do |inputs, org_id:, token:|
+      expect(client).to receive(:write_relationships) do |inputs, token:|
         expect(token).to eq('ar-token')
-        expect(org_id).to eq(organization_uuid)
         expect(inputs.size).to eq(2)
         expect(inputs.map { |i| i.subject.identity.origin }).to all(eq(:ORIGIN_ORGANIZATION))
         expect(inputs.map { |i| i.subject.identity.origin_id }).to all(eq(organization_uuid))
@@ -42,7 +41,7 @@ RSpec.describe Authn::IamService::RelationshipsClient, feature_category: :system
       allow(Gitlab).to receive(:dev_or_test_env?).and_return(false)
       allow(Authn::IamDataAccessService).to receive(:grpc_address).and_return('localhost:5005')
 
-      expect { client.write_relationships([], org_id: 'org-uuid', token: 'tok') }
+      expect { client.write_relationships([], token: 'tok') }
         .to raise_error(Authn::IamService::BaseClient::InsecureChannelError)
     end
   end

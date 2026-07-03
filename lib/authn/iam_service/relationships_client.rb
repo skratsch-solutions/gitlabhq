@@ -15,13 +15,13 @@ module Authn
       TIMEOUT_SECONDS = 15
 
       # Assigns roles by writing one ASSIGNMENT tuple per entry in a single
-      # all-or-nothing write. Every assignment is scoped to the same organization.
-      # Each assignment is a hash of the per-subject pieces: assignee_id,
-      # resource_id, role_id.
+      # all-or-nothing write. Each assignment is a hash of the per-subject
+      # pieces: assignee_id, resource_id, role_id.
       #
       # @param assignments [Array<Hash>] one hash per assignment
-      # @param organization_uuid [String] the subjects' home organization UUID, used
-      #   as the identity origin and as the org scope IAM authorizes against
+      # @param organization_uuid [String] the subjects' home organization UUID,
+      #   used as the identity origin. IAM derives the organization it authorizes
+      #   against from the caller's token, not from this value.
       # @param token [String] AR-scoped JWT presented as a bearer credential
       # @return [Update::V1::WriteRelationshipsResponse]
       def assign_roles(assignments, organization_uuid:, token:)
@@ -29,20 +29,17 @@ module Authn
           assignment_input(organization_uuid, a.fetch(:assignee_id), a.fetch(:resource_id), a.fetch(:role_id))
         end
 
-        write_relationships(inputs, org_id: organization_uuid, token: token)
+        write_relationships(inputs, token: token)
       end
 
       # Upserts the given assignment tuples. All-or-nothing on the server.
       #
       # @param relationship_inputs [Array<Relationships::V1::RelationshipInput>]
-      # @param org_id [String] organization UUID the write is scoped to; IAM
-      #   authorizes the resources against it
       # @param token [String] AR-scoped JWT presented as a bearer credential
       # @return [Update::V1::WriteRelationshipsResponse]
-      def write_relationships(relationship_inputs, org_id:, token:)
+      def write_relationships(relationship_inputs, token:)
         request = ::Gitlab::Iam::Update::V1::WriteRelationshipsRequest.new(
-          relationships: relationship_inputs,
-          org_id: org_id
+          relationships: relationship_inputs
         )
 
         client.write_relationships(request, metadata: bearer_metadata(token))

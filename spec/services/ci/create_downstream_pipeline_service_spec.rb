@@ -597,7 +597,7 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
 
             new_pipeline = trigger_project_bridge.downstream_pipeline
 
-            expect(new_pipeline.child?).to eq(false)
+            expect(new_pipeline.child?).to be(false)
             expect(new_pipeline.triggered_by_pipeline).to eq child_pipeline
             expect(trigger_project_bridge.reload).not_to be_failed
           end

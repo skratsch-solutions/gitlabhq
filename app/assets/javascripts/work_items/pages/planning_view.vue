@@ -136,6 +136,7 @@ import {
   viewModeChanged,
   preferencesChanged,
 } from '~/work_items/list/view_change_detection';
+import { buildInitialViewState } from '~/work_items/list/saved_view_config';
 
 import searchProjectsQuery from '../list/graphql/search_projects.query.graphql';
 
@@ -377,61 +378,19 @@ export default {
           const savedView = data?.namespace?.savedViews?.nodes[0];
           const limit = data?.namespace?.subscribedSavedViewLimit;
           const count = data?.namespace?.currentSavedViews?.nodes.length;
+
           if (!savedView) {
-            this.$router.push({ name: ROUTES.index, query: { sv_not_found: true } });
+            this.handleSavedViewNotFound();
             return;
           }
+
           if (!savedView.subscribed) {
-            if (count >= limit) {
-              this.$router.push({
-                name: ROUTES.index,
-                query: { sv_limit_id: savedView.id, sv_source_modal: this.subscribeFromModal },
-              });
-            } else {
-              const success = await this.attemptSubscription(savedView);
-              if (success) {
-                this.$toast.show(s__('WorkItem|View added to your list.'));
-                // simple way to just restart the flow once we're subscribed.
-                this.$apollo.queries.savedView.refetch();
-                this.$apollo.queries.subscribedSavedViews.refetch();
-              } else {
-                throw new Error(
-                  `Unable to subscribe to view with id ${this.savedViewId} in ${this.rootPageFullPath}`,
-                );
-              }
-            }
-          } else {
-            if (this.lastTrackedSavedViewId !== this.savedViewId) {
-              this.lastTrackedSavedViewId = this.savedViewId;
-              this.trackEvent('saved_view_view');
-            }
-            const draft = getSavedViewDraft(this.draftStorageContext);
-            const tokens = this.getFilterTokensFromSavedView(savedView?.filters || {});
-            this.initialViewTokens = tokens;
-            this.initialViewSortKey = savedView?.sort;
-            this.initialViewMode = savedView.displaySettings?.viewMode;
-            this.initialViewDisplaySettings = {
-              commonPreferences: { ...this.displaySettings.commonPreferences },
-              namespacePreferences: savedView.displaySettings,
-            };
-
-            const sessionFilters = getSavedViewSessionFilters(this.$route.params.view_id);
-            this.filterTokens = sessionFilters ?? tokens;
-            this.updateState(this.filterTokens);
-
-            if (draft) {
-              this.restoreViewDraft();
-            } else {
-              this.sortKey = savedView?.sort;
-              this.localDisplaySettings = {
-                commonPreferences: { ...this.displaySettings.commonPreferences },
-                namespacePreferences: savedView.displaySettings,
-              };
-              this.viewMode = savedView.displaySettings?.viewMode;
-            }
-
-            this.updateDocumentTitle();
+            await this.handleUnsubscribedSavedView(savedView, { count, limit });
+            return;
           }
+
+          this.trackSavedViewVisit();
+          this.applySavedViewState(savedView);
         } catch (error) {
           Sentry.captureException(error);
         }
@@ -1141,15 +1100,7 @@ export default {
     },
     eeSearchTokens() {
       if (this.isSavedView && Boolean(this.savedView)) {
-        const tokens = this.getFilterTokensFromSavedView(this.savedView.filters);
-        this.initialViewTokens = tokens;
-        const sessionFilters = getSavedViewSessionFilters(this.$route.params.view_id);
-        this.filterTokens = sessionFilters ?? tokens;
-        this.updateState(this.filterTokens);
-        const draft = getSavedViewDraft(this.draftStorageContext);
-        if (draft) {
-          this.restoreViewDraft();
-        }
+        this.applySavedViewState(this.savedView);
       }
     },
     displaySettings: {
@@ -1273,6 +1224,64 @@ export default {
         (token) => availableTokenTypes.includes(token.type) || token.type === FILTERED_SEARCH_TERM,
       );
       return convertLegacyTypeFormat(filteredTokens, this.getWorkItemTypeConfiguration);
+    },
+    handleSavedViewNotFound() {
+      this.$router.push({ name: ROUTES.index, query: { sv_not_found: true } });
+    },
+    async handleUnsubscribedSavedView(savedView, { count, limit }) {
+      if (count >= limit) {
+        this.$router.push({
+          name: ROUTES.index,
+          query: { sv_limit_id: savedView.id, sv_source_modal: this.subscribeFromModal },
+        });
+        return;
+      }
+
+      const success = await this.attemptSubscription(savedView);
+      if (!success) {
+        throw new Error(
+          `Unable to subscribe to view with id ${this.savedViewId} in ${this.rootPageFullPath}`,
+        );
+      }
+
+      this.$toast.show(s__('WorkItem|View added to your list.'));
+      // simple way to just restart the flow once we're subscribed.
+      this.$apollo.queries.savedView.refetch();
+      this.$apollo.queries.subscribedSavedViews.refetch();
+    },
+    trackSavedViewVisit() {
+      if (this.lastTrackedSavedViewId !== this.savedViewId) {
+        this.lastTrackedSavedViewId = this.savedViewId;
+        this.trackEvent('saved_view_view');
+      }
+    },
+    applySavedViewState(savedView) {
+      const draft = getSavedViewDraft(this.draftStorageContext);
+      const tokens = this.getFilterTokensFromSavedView(savedView?.filters || {});
+
+      this.initialViewTokens = tokens;
+      const { initialViewSortKey, initialViewMode, initialViewDisplaySettings } =
+        buildInitialViewState({
+          savedView,
+          commonPreferences: this.displaySettings.commonPreferences,
+        });
+      this.initialViewSortKey = initialViewSortKey;
+      this.initialViewMode = initialViewMode;
+      this.initialViewDisplaySettings = initialViewDisplaySettings;
+
+      const sessionFilters = getSavedViewSessionFilters(this.$route.params.view_id);
+      this.filterTokens = sessionFilters ?? tokens;
+      this.updateState(this.filterTokens);
+
+      if (draft) {
+        this.restoreViewDraft();
+      } else {
+        this.sortKey = initialViewSortKey;
+        this.localDisplaySettings = initialViewDisplaySettings;
+        this.viewMode = initialViewMode;
+      }
+
+      this.updateDocumentTitle();
     },
     restoreViewDraft() {
       const draft = getSavedViewDraft(this.draftStorageContext);

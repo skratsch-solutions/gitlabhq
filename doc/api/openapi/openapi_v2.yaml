@@ -2315,7 +2315,9 @@ paths:
       operationId: deleteApiV4GroupsIdSharedProjectsProjectId
   "/api/v4/groups/{id}/ldap_sync":
     post:
-      description: Sync a group with LDAP.
+      summary: Sync a group with LDAP
+      description: Syncs a specified group with its linked LDAP group. You must be
+        an administrator or have the Owner role for the group.
       produces:
       - application/json
       consumes:
@@ -2328,7 +2330,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Sync a group with LDAP.
+          description: Sync a group with LDAP
       tags:
       - ldap
       operationId: postApiV4GroupsIdLdapSync
@@ -2413,7 +2415,9 @@ paths:
       operationId: getApiV4GroupsIdAuditEventsAuditEventId
   "/api/v4/groups/{id}/saml_users":
     get:
-      description: Get a list of SAML users of the group
+      summary: List all SAML users
+      description: Lists all SAML users for a specified top-level group. Use the `page`
+        and `per_page` pagination parameters to filter the results.
       produces:
       - application/json
       parameters:
@@ -2474,7 +2478,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of SAML users of the group
+          description: List all SAML users
           schema:
             type: array
             items:
@@ -2484,7 +2488,8 @@ paths:
       operationId: getApiV4GroupsIdSamlUsers
   "/api/v4/groups/{id}/provisioned_users":
     get:
-      description: Get a list of users provisioned by the group
+      summary: List all provisioned users
+      description: Lists all provisioned users for a specified group.
       produces:
       - application/json
       parameters:
@@ -2545,7 +2550,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of users provisioned by the group
+          description: List all provisioned users
           schema:
             "$ref": "#/definitions/API_Entities_UserPublic"
       tags:
@@ -3212,8 +3217,9 @@ paths:
   "/api/v4/groups/{id}/dependency_proxy/cache":
     delete:
       summary: Purge the dependency proxy for a group
-      description: Schedules for deletion the cached manifests and blobs for a group.This
-        endpoint requires the Owner role for the group.
+      description: Purges the dependency proxy for a specified group and schedules
+        the cached manifests and blobs for deletion. This endpoint requires the Owner
+        role for the group.
       produces:
       - application/json
       parameters:
@@ -3614,8 +3620,8 @@ paths:
       operationId: getApiV4GroupsIdRegistryRepositories
   "/api/v4/groups/{id}/-/debian_distributions":
     post:
-      summary: Create a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Create a Debian group distribution
+      description: Creates a Debian group distribution for a specified group.
       produces:
       - application/json
       consumes:
@@ -3633,7 +3639,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdDebianDistributions"
       responses:
         '201':
-          description: Create a Debian Distribution
+          description: Create a Debian group distribution
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '400':
@@ -3648,8 +3654,8 @@ paths:
       - packages_debian
       operationId: postApiV4GroupsIdDebianDistributions
     get:
-      summary: Get a list of Debian Distributions
-      description: This feature was introduced in 14.0
+      summary: List all Debian group distributions
+      description: Lists all Debian distributions for a specified group.
       produces:
       - application/json
       parameters:
@@ -3738,7 +3744,7 @@ paths:
         - amd64
       responses:
         '200':
-          description: Get a list of Debian Distributions
+          description: List all Debian group distributions
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '401':
@@ -3752,8 +3758,8 @@ paths:
       operationId: getApiV4GroupsIdDebianDistributions
   "/api/v4/groups/{id}/-/debian_distributions/{codename}":
     get:
-      summary: Get a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Retrieve a Debian group distribution
+      description: Retrieves a specified Debian group distribution for a group.
       produces:
       - application/json
       parameters:
@@ -3770,7 +3776,7 @@ paths:
         example: sid
       responses:
         '200':
-          description: Get a Debian Distribution
+          description: Retrieve a Debian group distribution
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '401':
@@ -3783,8 +3789,8 @@ paths:
       - packages_debian
       operationId: getApiV4GroupsIdDebianDistributionsCodename
     put:
-      summary: Update a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Update a Debian group distribution
+      description: Updates a specified Debian group distribution for a group.
       produces:
       - application/json
       consumes:
@@ -3808,7 +3814,7 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdDebianDistributionsCodename"
       responses:
         '200':
-          description: Update a Debian Distribution
+          description: Update a Debian group distribution
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '400':
@@ -3823,8 +3829,8 @@ paths:
       - packages_debian
       operationId: putApiV4GroupsIdDebianDistributionsCodename
     delete:
-      summary: Delete a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Delete a Debian group distribution
+      description: Deletes a specified Debian group distribution for a group.
       produces:
       - application/json
       parameters:
@@ -3897,7 +3903,7 @@ paths:
         - amd64
       responses:
         '202':
-          description: Delete a Debian Distribution
+          description: Delete a Debian group distribution
         '400':
           description: Bad Request
         '401':
@@ -3911,8 +3917,8 @@ paths:
       operationId: deleteApiV4GroupsIdDebianDistributionsCodename
   "/api/v4/groups/{id}/-/debian_distributions/{codename}/key.asc":
     get:
-      summary: Get a Debian Distribution Key
-      description: This feature was introduced in 14.4
+      summary: Retrieve a Debian group distribution key
+      description: Retrieves a specified Debian group distribution key for a group.
       produces:
       - application/json
       parameters:
@@ -3929,7 +3935,7 @@ paths:
         example: sid
       responses:
         '200':
-          description: Get a Debian Distribution Key
+          description: Retrieve a Debian group distribution key
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '401':
@@ -9369,7 +9375,7 @@ paths:
       operationId: putApiV4GroupsIdWikisSlug
     delete:
       summary: Delete a wiki page for a group
-      description: Deletes a specified wiki page for a group.
+      description: Deletes a specified wiki page from a group.
       produces:
       - application/json
       parameters:
@@ -15148,7 +15154,8 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaSignature
   "/api/v4/projects/{id}/repository/commits/{sha}/statuses":
     get:
-      description: Get a commit's statuses
+      summary: List all commit statuses
+      description: Lists all commit statuses for a specified project.
       produces:
       - application/json
       parameters:
@@ -15232,7 +15239,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get a commit's statuses
+          description: List all commit statuses
           schema:
             type: array
             items:
@@ -15248,7 +15255,10 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaStatuses
   "/api/v4/projects/{id}/statuses/{sha}":
     post:
-      description: Post status to a commit
+      summary: Create or update a commit pipeline status
+      description: Creates or updates the status of a commit represented by a job
+        in an `external` stage. If the commit is associated with a merge request,
+        target the commit in the merge request source branch.
       produces:
       - application/json
       consumes:
@@ -15272,7 +15282,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdStatusesSha"
       responses:
         '200':
-          description: Post status to a commit
+          description: Create or update a commit pipeline status
           schema:
             "$ref": "#/definitions/API_Entities_CommitStatus"
         '400':
@@ -17955,8 +17965,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesDebianDists*distributionComponentBinaryArchitectureByHashSha256FileSha256
   "/api/v4/projects/{id}/packages/debian/pool/{distribution}/{letter}/{package_name}/{package_version}/{file_name}":
     get:
-      summary: Download Debian package
-      description: This feature was introduced in GitLab 14.2
+      summary: Download a Debian package file
+      description: Downloads a specified Debian package file for a project.
       produces:
       - application/json
       parameters:
@@ -17997,7 +18007,7 @@ paths:
         example: example_1.0.0~alpha2_amd64.deb
       responses:
         '200':
-          description: Download Debian package
+          description: Download a Debian package file
         '401':
           description: Unauthorized
         '403':
@@ -18009,8 +18019,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesDebianPoolDistributionLetterPackageNamePackageVersionFileName
   "/api/v4/projects/{id}/packages/debian/{file_name}":
     put:
-      summary: Upload Debian package
-      description: This feature was introduced in GitLab 14.0
+      summary: Upload a Debian package file
+      description: Uploads a Debian package file for a specified project.
       produces:
       - application/json
       consumes:
@@ -18034,7 +18044,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPackagesDebianFileName"
       responses:
         '201':
-          description: Upload Debian package
+          description: Upload a Debian package file
         '400':
           description: Bad Request
         '401':
@@ -31022,8 +31032,8 @@ paths:
       operationId: deleteApiV4ProjectsIdRegistryProtectionTagRulesProtectionRuleId
   "/api/v4/projects/{id}/debian_distributions":
     post:
-      summary: Create a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Create a Debian project distribution
+      description: Creates a Debian project distribution for a specified project.
       produces:
       - application/json
       consumes:
@@ -31041,7 +31051,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdDebianDistributions"
       responses:
         '201':
-          description: Create a Debian Distribution
+          description: Create a Debian project distribution
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '400':
@@ -31056,8 +31066,8 @@ paths:
       - packages_debian
       operationId: postApiV4ProjectsIdDebianDistributions
     get:
-      summary: Get a list of Debian Distributions
-      description: This feature was introduced in 14.0
+      summary: List all Debian project distributions
+      description: Lists all Debian distributions for a specified project.
       produces:
       - application/json
       parameters:
@@ -31146,7 +31156,7 @@ paths:
         - amd64
       responses:
         '200':
-          description: Get a list of Debian Distributions
+          description: List all Debian project distributions
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '401':
@@ -31160,8 +31170,8 @@ paths:
       operationId: getApiV4ProjectsIdDebianDistributions
   "/api/v4/projects/{id}/debian_distributions/{codename}":
     get:
-      summary: Get a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Retrieve a Debian project distribution
+      description: Retrieves a specified Debian project distribution for a project.
       produces:
       - application/json
       parameters:
@@ -31178,7 +31188,7 @@ paths:
         example: sid
       responses:
         '200':
-          description: Get a Debian Distribution
+          description: Retrieve a Debian project distribution
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '401':
@@ -31191,8 +31201,8 @@ paths:
       - packages_debian
       operationId: getApiV4ProjectsIdDebianDistributionsCodename
     put:
-      summary: Update a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Update a Debian project distribution
+      description: Updates a specified Debian project distribution for a project.
       produces:
       - application/json
       consumes:
@@ -31216,7 +31226,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdDebianDistributionsCodename"
       responses:
         '200':
-          description: Update a Debian Distribution
+          description: Update a Debian project distribution
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '400':
@@ -31231,8 +31241,8 @@ paths:
       - packages_debian
       operationId: putApiV4ProjectsIdDebianDistributionsCodename
     delete:
-      summary: Delete a Debian Distribution
-      description: This feature was introduced in 14.0
+      summary: Delete a Debian project distribution
+      description: Deletes a specified Debian project distribution for a project.
       produces:
       - application/json
       parameters:
@@ -31305,7 +31315,7 @@ paths:
         - amd64
       responses:
         '202':
-          description: Delete a Debian Distribution
+          description: Delete a Debian project distribution
         '400':
           description: Bad Request
         '401':
@@ -31319,8 +31329,8 @@ paths:
       operationId: deleteApiV4ProjectsIdDebianDistributionsCodename
   "/api/v4/projects/{id}/debian_distributions/{codename}/key.asc":
     get:
-      summary: Get a Debian Distribution Key
-      description: This feature was introduced in 14.4
+      summary: Retrieve a Debian project distribution key
+      description: Retrieves a specified Debian project distribution key for a project.
       produces:
       - application/json
       parameters:
@@ -31337,7 +31347,7 @@ paths:
         example: sid
       responses:
         '200':
-          description: Get a Debian Distribution Key
+          description: Retrieve a Debian project distribution key
           schema:
             "$ref": "#/definitions/API_Entities_Packages_Debian_Distribution"
         '401':
@@ -40376,7 +40386,7 @@ paths:
       operationId: putApiV4ProjectsIdWikisSlug
     delete:
       summary: Delete a wiki page for a project
-      description: Deletes a specified wiki page for a project.
+      description: Deletes a specified wiki page from a project.
       produces:
       - application/json
       parameters:
@@ -44139,8 +44149,8 @@ paths:
       operationId: postApiV4ContainerRegistryEventEvents
   "/api/v4/registry/repositories/{id}":
     get:
-      summary: Get a container repository
-      description: This feature was introduced in GitLab 13.6.
+      summary: Retrieve details of a container registry repository
+      description: Retrieves details of a specified container registry repository.
       produces:
       - application/json
       parameters:
@@ -44169,7 +44179,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a container repository
+          description: Retrieve details of a container registry repository
           schema:
             "$ref": "#/definitions/API_Entities_ContainerRegistry_Repository"
         '401':
@@ -49203,13 +49213,14 @@ paths:
       operationId: postApiV4TopicsMerge
   "/api/v4/web_commits/public_key":
     get:
-      summary: Get the public key for web commits
-      description: This feature was introduced in GitLab 17.4.
+      summary: Retrieve the public signing key
+      description: Retrieves the GitLab public key for signing web commits. This feature
+        was introduced in GitLab 17.4.
       produces:
       - application/json
       responses:
         '200':
-          description: Get the public key for web commits
+          description: Retrieve the public signing key
         '503':
           description: The git server, Gitaly, is not available at this time. Please
             contact your administrator.
@@ -52794,7 +52805,7 @@ definitions:
           type: string
     required:
     - codename
-    description: Create a Debian Distribution
+    description: Create a Debian group distribution
   API_Entities_Packages_Debian_Distribution:
     type: object
     properties:
@@ -52891,7 +52902,7 @@ definitions:
         - amd64
         items:
           type: string
-    description: Update a Debian Distribution
+    description: Update a Debian group distribution
   postApiV4GroupsIdExportRelations:
     type: object
     properties:
@@ -59446,7 +59457,7 @@ definitions:
           commit SHA have been triggered
     required:
     - state
-    description: Post status to a commit
+    description: Create or update a commit pipeline status
   postApiV4ProjectsIdPackagesComposer:
     type: object
     properties:
@@ -59619,7 +59630,7 @@ definitions:
     required:
     - file
     - component
-    description: Upload Debian package
+    description: Upload a Debian package file
   putApiV4ProjectsIdPackagesDebianFileNameAuthorize:
     type: object
     properties:
@@ -67724,7 +67735,7 @@ definitions:
           type: string
     required:
     - codename
-    description: Create a Debian Distribution
+    description: Create a Debian project distribution
   putApiV4ProjectsIdDebianDistributionsCodename:
     type: object
     properties:
@@ -67768,7 +67779,7 @@ definitions:
         - amd64
         items:
           type: string
-    description: Update a Debian Distribution
+    description: Update a Debian project distribution
   API_Entities_Event:
     type: object
     properties:

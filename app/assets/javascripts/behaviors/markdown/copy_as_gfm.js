@@ -25,7 +25,7 @@ export class CopyAsGFM {
 
       const codeTarget = delegatedTarget(
         e,
-        'pre.code.highlight, table.code td.line_content, .code pre',
+        'pre.code.highlight, table.code td.line_content, .code pre, [data-gfm-source]',
       );
       if (codeTarget) {
         CopyAsGFM.copyAsGFM(e, codeTarget, CopyAsGFM.transformCodeSelection);
@@ -198,6 +198,13 @@ export class CopyAsGFM {
     }
 
     [...codeElement.querySelectorAll('.idiff')].forEach((el) => el.classList.remove('idiff'));
+
+    // Elements marked `data-gfm-ignore` are presentational overlays (e.g. coverage
+    // and code quality indicators) that sit alongside the code. When a selection
+    // includes them they can end up appended verbatim above, and a block-level
+    // overlay then serializes to extra blank lines. `codeElement` is built from a
+    // clone of the selection, so removing them here does not touch the live DOM.
+    [...codeElement.querySelectorAll('[data-gfm-ignore]')].forEach((el) => el.remove());
 
     return codeElement;
   }

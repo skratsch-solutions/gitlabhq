@@ -127,7 +127,7 @@ RSpec.describe Ci::TestFailureHistoryService, :aggregate_failures, feature_categ
     end
 
     context 'when feature flag is enabled and pipeline ref is the default branch' do
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when pipeline is not equal to the project default branch' do
@@ -135,7 +135,7 @@ RSpec.describe Ci::TestFailureHistoryService, :aggregate_failures, feature_categ
         pipeline.update_column(:ref, 'some-other-branch')
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when total number of builds with failed tests exceeds the max number of trackable failures' do
@@ -143,7 +143,7 @@ RSpec.describe Ci::TestFailureHistoryService, :aggregate_failures, feature_categ
         stub_const("#{described_class.name}::MAX_TRACKABLE_FAILURES", 1)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 

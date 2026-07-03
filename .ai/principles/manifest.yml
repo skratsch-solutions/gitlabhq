@@ -308,7 +308,7 @@ principles:
   ai-instruction-files:
     description: Reviewing AI instruction files under .ai/ (hand-authored modules, distilled principles, baselines, distillation config)
     group: Code Review
-    owner_team: '@dgruzd @pedropombeiro @ghavenga @cwoolley-gitlab @tkuah'
+    owner_team: '@dgruzd @pedropombeiro @ghavenga @tkuah @dmishunov'
     team_slug: ai-harness
     ping_team: false
     file_filters:
