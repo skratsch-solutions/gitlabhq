@@ -86,6 +86,7 @@ module API
           mod = find_module
 
           content_type 'text/plain'
+          env['api.format'] = :txt
           mod.versions.map { |t| t.name }.join("\n")
         end
 
@@ -120,6 +121,7 @@ module API
           ver = find_version
 
           content_type 'text/plain'
+          env['api.format'] = :txt
           ver.gomod
         end
 

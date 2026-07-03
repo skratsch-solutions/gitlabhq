@@ -15873,8 +15873,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/todo":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidTodo
-      summary: Create a to-do item
-      description: Creates a to-do item.
+      summary: Create a to-do item for an issuable
+      description: Creates a to-do item for the current user on a specified issuable.
+        If a to-do item already exists for the user on that issuable, returns a `304`
+        status code.
       tags:
       - To-dos
       responses:
@@ -15905,8 +15907,10 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/todo":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidTodo
-      summary: Create a to-do item
-      description: Creates a to-do item.
+      summary: Create a to-do item for an issuable
+      description: Creates a to-do item for the current user on a specified issuable.
+        If a to-do item already exists for the user on that issuable, returns a `304`
+        status code.
       tags:
       - To-dos
       responses:
@@ -15937,7 +15941,10 @@ paths:
   "/api/v4/todos":
     get:
       operationId: getApiV4Todos
-      summary: Get a list of to-do items
+      summary: List all to-do items
+      description: Lists all to-do items. When no filter is applied, it returns all
+        pending to-do items for the current user. Different filters allow the user
+        to refine the request.
       tags:
       - To-dos
       responses:
@@ -16053,6 +16060,7 @@ paths:
     post:
       operationId: postApiV4TodosIdMarkAsDone
       summary: Mark a to-do item as done
+      description: Marks a to-do item for the current user as done.
       tags:
       - To-dos
       responses:
@@ -16077,6 +16085,8 @@ paths:
     post:
       operationId: postApiV4TodosMarkAsDone
       summary: Mark all to-do items as done
+      description: Marks all pending to-do items for the current user as done. It
+        returns the HTTP status code `204` with an empty response.
       tags:
       - To-dos
       responses:
@@ -18219,7 +18229,8 @@ paths:
   "/api/v4/projects/{id}/milestones":
     get:
       operationId: getApiV4ProjectsIdMilestones
-      summary: Get a list of project milestones
+      summary: List all project milestones
+      description: Lists all milestones for a specified project.
       tags:
       - Milestones
       responses:
@@ -18331,7 +18342,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdMilestones
-      summary: Create a new project milestone
+      summary: Create a project milestone
+      description: Creates a project milestone.
       tags:
       - Milestones
       responses:
@@ -18363,7 +18375,8 @@ paths:
   "/api/v4/projects/{id}/milestones/{milestone_id}":
     get:
       operationId: getApiV4ProjectsIdMilestonesMilestoneId
-      summary: Get a single project milestone
+      summary: Retrieve a project milestone
+      description: Retrieves a specified project milestone.
       tags:
       - Milestones
       responses:
@@ -18394,7 +18407,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdMilestonesMilestoneId
-      summary: Update an existing project milestone
+      summary: Update a project milestone
+      description: Updates a specified project milestone.
       tags:
       - Milestones
       responses:
@@ -18431,7 +18445,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_f36339d4af0b"
     delete:
       operationId: deleteApiV4ProjectsIdMilestonesMilestoneId
-      summary: Remove a project milestone
+      summary: Delete a project milestone
+      description: Deletes a specified project milestone. Only for users with the
+        Planner, Reporter, Developer, Maintainer, or Owner role for the project.
       tags:
       - Milestones
       responses:
@@ -18459,7 +18475,8 @@ paths:
   "/api/v4/projects/{id}/milestones/{milestone_id}/issues":
     get:
       operationId: getApiV4ProjectsIdMilestonesMilestoneIdIssues
-      summary: Get all issues for a single project milestone
+      summary: List all issues for a project milestone
+      description: Lists all issues assigned to a specified project milestone.
       tags:
       - Milestones
       responses:
@@ -18509,8 +18526,8 @@ paths:
   "/api/v4/projects/{id}/milestones/{milestone_id}/merge_requests":
     get:
       operationId: getApiV4ProjectsIdMilestonesMilestoneIdMergeRequests
-      summary: Get all merge requests for a single project milestone
-      description: This feature was introduced in GitLab 9.
+      summary: List all merge requests for a project milestone
+      description: Lists all merge requests assigned to a specified project milestone.
       tags:
       - Milestones
       responses:
@@ -18560,8 +18577,10 @@ paths:
   "/api/v4/projects/{id}/milestones/{milestone_id}/promote":
     post:
       operationId: postApiV4ProjectsIdMilestonesMilestoneIdPromote
-      summary: Promote a milestone to group milestone
-      description: This feature was introduced in GitLab 11.9
+      summary: Promote a project milestone to a group milestone
+      description: Promotes a specified project milestone to a group milestone. Only
+        for users with the Planner, Reporter, Developer, Maintainer, or Owner role
+        for the group.
       tags:
       - Milestones
       responses:
@@ -24947,8 +24966,9 @@ paths:
   "/api/v4/usage_data/queries":
     get:
       operationId: getApiV4UsageDataQueries
-      summary: Get raw SQL queries for usage data SQL metrics
-      description: This feature was introduced in GitLab 13.11.
+      summary: List all Service Ping SQL queries
+      description: Lists all raw SQL queries used to compute Service Ping. This action
+        is behind the `usage_data_queries_api` feature flag. Administrators only.
       tags:
       - Usage data
       responses:
@@ -24963,8 +24983,9 @@ paths:
   "/api/v4/usage_data/non_sql_metrics":
     get:
       operationId: getApiV4UsageDataNonSqlMetrics
-      summary: Get Non SQL usage ping metrics
-      description: This feature was introduced in GitLab 13.11.
+      summary: List all non-SQL metrics
+      description: Lists all non-SQL metrics data used in the Service ping. This action
+        is behind the `usage_data_non_sql_metrics` feature flag. Administrators only.
       tags:
       - Usage data
       responses:
@@ -25018,8 +25039,10 @@ paths:
   "/api/v4/usage_data/track_events":
     post:
       operationId: postApiV4UsageDataTrackEvents
-      summary: Track multiple gitlab internal events
-      description: This feature was introduced in GitLab 17.3.
+      summary: Track multiple internal GitLab events
+      description: Tracks one or more GitLab internal events in a single request.
+        Each event increments Service Ping counters in Redis and is optionally sent
+        to Snowplow. This feature was introduced in GitLab 17.3.
       tags:
       - Usage data
       responses:
@@ -25038,8 +25061,8 @@ paths:
   "/api/v4/usage_data/metric_definitions":
     get:
       operationId: getApiV4UsageDataMetricDefinitions
-      summary: Get a list of all metric definitions
-      description: This feature was introduced in GitLab 13.11.
+      summary: Download metric definitions
+      description: Downloads all metric definitions as a single YAML file.
       tags:
       - Metrics
       responses:
@@ -34953,7 +34976,12 @@ paths:
   "/api/v4/projects/{id}/events":
     get:
       operationId: getApiV4ProjectsIdEvents
-      summary: List a project's visible events
+      summary: List all visible events for a project
+      description: 'Lists all visible events for a specified project. When a push
+        exceeds the Push event activities limit, a single bulk push event is returned
+        instead of individual commit events. Bulk push events have limited commit
+        details: `commit_count` is `0`, `ref_count` shows the number of refs pushed,
+        and individual commit attributes are `null`.'
       tags:
       - Events
       responses:
@@ -73608,9 +73636,11 @@ paths:
   "/api/v4/usage_data/service_ping":
     get:
       operationId: getApiV4UsageDataServicePing
-      summary: Get the latest ServicePing payload
-      description: Introduces in Gitlab 16.9. Requires personal access token with
-        read_service_ping scope.
+      summary: Retrieve Service Ping payload
+      description: Retrieves the Service Ping payload from the application cache as
+        JSON. If no cached payload is available, returns an empty response. Requires
+        a personal access token with the `read_service_ping` scope. Introduced in
+        GitLab 16.9.
       tags:
       - Usage data
       responses:
@@ -73625,8 +73655,10 @@ paths:
   "/api/v4/usage_data/track_event":
     post:
       operationId: postApiV4UsageDataTrackEvent
-      summary: Track gitlab internal events
-      description: This feature was introduced in GitLab 16.2.
+      summary: Track an internal GitLab event
+      description: Tracks a GitLab internal event. This action increments Service
+        Ping counters in Redis and is optionally sent to Snowplow. Introduced in GitLab
+        16.2.
       tags:
       - Usage data
       responses:

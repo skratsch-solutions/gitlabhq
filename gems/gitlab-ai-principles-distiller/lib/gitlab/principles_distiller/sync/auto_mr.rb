@@ -9,6 +9,9 @@ module Gitlab
         DIFF_MAX_LINES = 200
         DIFF_MAX_BYTES = 8_192
 
+        PUSH_MAX_ATTEMPTS = 3
+        PUSH_RETRY_BACKOFF_SECONDS = [5, 15].freeze
+
         def distillation_base_sha
           @distillation_base_sha ||= resolve_distillation_base_sha
         end
@@ -240,8 +243,7 @@ module Gitlab
           # commit can be lost. (--force-with-lease would require a prefetch.)
           push_url = push_remote_url(project_id)
           env = git_push_env(api_token, push_url)
-          system(env, 'git', '-C', Workspace.path, 'push', '--force', push_url,
-            "#{branch}:#{branch}", exception: true)
+          push_with_retries(env, push_url, branch)
         end
 
         def git_has_staged_changes?
@@ -350,6 +352,34 @@ module Gitlab
         end
 
         private
+
+        # Force-pushes the branch, retrying on transient failures (e.g. HTTP
+        # 502, "the remote end hung up unexpectedly") with short exponential
+        # backoff. The push targets our own auto-generated branch, always
+        # rebuilt from origin/<default_branch>, so a force-push is idempotent
+        # and retrying is safe. `system(..., exception: true)` raises on a
+        # non-zero git exit or a spawn failure; we re-raise the last error once
+        # attempts are exhausted so the caller's per-team rescue records it.
+        def push_with_retries(env, push_url, branch)
+          attempt = 0
+          begin
+            attempt += 1
+            system(env, 'git', '-C', Workspace.path, 'push', '--force', push_url,
+              "#{branch}:#{branch}", exception: true)
+          rescue StandardError => e
+            raise if attempt >= PUSH_MAX_ATTEMPTS
+
+            # fetch-with-fallback so bumping PUSH_MAX_ATTEMPTS without adding a
+            # matching backoff entry degrades to the last value rather than
+            # sleep(nil).
+            backoff = PUSH_RETRY_BACKOFF_SECONDS.fetch(attempt - 1, PUSH_RETRY_BACKOFF_SECONDS.last)
+            warn Rainbow("    WARNING: push of #{branch} failed " \
+              "(attempt #{attempt}/#{PUSH_MAX_ATTEMPTS}): #{e.message}; " \
+              "retrying in #{backoff}s...").yellow
+            sleep(backoff)
+            retry
+          end
+        end
 
         # CI runners only have origin/<branch>, not a local <branch> ref.
         # Try remote-tracking first, then local, then HEAD as a fallback.

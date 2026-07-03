@@ -1231,6 +1231,8 @@ vulnerability_finding:
   - primary_identifier
   - vulnerability
   - one_vulnerability
+  - ascp_component_link
+  - ascp_component
   - state_transitions
   - issue_links
   - external_issue_links

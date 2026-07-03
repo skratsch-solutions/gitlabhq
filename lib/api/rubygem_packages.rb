@@ -244,6 +244,7 @@ module API
               end
 
               content_type 'application/octet-stream'
+              env['api.format'] = :binary
               Marshal.dump(results.flatten)
             end
           end

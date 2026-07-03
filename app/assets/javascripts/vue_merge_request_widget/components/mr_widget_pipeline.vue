@@ -10,6 +10,7 @@ import {
   GlButton,
 } from '@gitlab/ui';
 import MrWidgetPipelineDuoAction from 'ee_component/vue_merge_request_widget/components/mr_duo_fix_pipeline.vue';
+import MrWidgetPipelineDuoResolveDependencyBump from 'ee_component/vue_merge_request_widget/components/mr_duo_resolve_dependency_bump.vue';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { reportToSentry } from '~/ci/utils';
 import SafeHtml from '~/vue_shared/directives/safe_html';
@@ -113,6 +114,7 @@ export default {
     HelpPopover,
     HelpIcon,
     MrWidgetPipelineDuoAction,
+    MrWidgetPipelineDuoResolveDependencyBump,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -449,6 +451,13 @@ export default {
               </gl-tooltip>
             </div>
             <mr-widget-pipeline-duo-action
+              v-if="showDuoWorkflowAction"
+              :pipeline="pipeline"
+              :merge-request-path="mergeRequestPath"
+              :target-project-full-path="targetProjectFullPath"
+              :source-branch="sourceBranch"
+            />
+            <mr-widget-pipeline-duo-resolve-dependency-bump
               v-if="showDuoWorkflowAction"
               :pipeline="pipeline"
               :merge-request-path="mergeRequestPath"

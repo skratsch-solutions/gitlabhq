@@ -96,6 +96,11 @@ PATH
       activerecord (>= 7)
 
 PATH
+  remote: gems/gitlab-email_handler
+  specs:
+    gitlab-email_handler (0.1.0)
+
+PATH
   remote: gems/gitlab-housekeeper
   specs:
     gitlab-housekeeper (0.1.0)
@@ -2448,6 +2453,7 @@ DEPENDENCIES
   gitlab-dangerfiles (~> 4.12.0)
   gitlab-database-data_isolation!
   gitlab-duo-workflow-service-client (~> 0.8)!
+  gitlab-email_handler!
   gitlab-experiment (~> 1.6.0)
   gitlab-fog-azure-rm (~> 2.5.0)
   gitlab-gkg-proto (~> 0.82.0)
@@ -2948,6 +2954,7 @@ CHECKSUMS
   gitlab-dangerfiles (4.12.0) sha256=0b8b7b00bf1ab155c3ab37cfc7c9815b5b82f403f85ddaf62aea137129403072
   gitlab-database-data_isolation (0.1.0)
   gitlab-duo-workflow-service-client (0.8)
+  gitlab-email_handler (0.1.0)
   gitlab-experiment (1.6.0) sha256=2f2f4c96d681de8f6af03fdf8aa7ab423027406cf4e6a1cd4d9767ffcebe721c
   gitlab-fog-azure-rm (2.5.0) sha256=f10fd3f6667925e4ce97cea2fa707b926320c7b7fa06978788e2f452ee7f4db0
   gitlab-gkg-proto (0.82.0) sha256=ca9501272c7c9830a53bff1999d7c5f1090f9515b284577ea1c3c297585c72c2

@@ -1200,6 +1200,17 @@
     - <<: *if-jh
       when: never
 
+# Single source of truth for excluding a job from the dedicated
+# ai-principles-distillation schedule. That schedule should run only the
+# ai-principles-sync jobs; because rules:changes is always-true on scheduled
+# pipelines, default-branch jobs would otherwise be pulled in. `!reference`
+# this from any job (including those in other CI files) whose rules would
+# otherwise match the schedule, so the guard has one canonical phrasing.
+.ai-principles-schedule:rules:skip:
+  rules:
+    - <<: *if-default-branch-schedule-ai-principles
+      when: never
+
 .rails:rules:run-search-tests:
   rules:
     - <<: *if-merge-request-labels-run-search-tests
@@ -2015,11 +2026,7 @@
 
 .frontend:rules:test-infection-scanner:
   rules:
-    # The dedicated ai-principles-distillation schedule should only run the
-    # ai-principles-sync jobs; rules:changes is always-true on scheduled
-    # pipelines and would otherwise pull this job in.
-    - <<: *if-default-branch-schedule-ai-principles
-      when: never
+    - !reference ['.ai-principles-schedule:rules:skip', rules]
     - <<: *if-merge-request-labels-run-all-jest
     - <<: *if-not-foss
       changes: ["scripts/frontend/infection_scanner/**/*", "spec/frontend/scripts/infection_scanner/**/*"]
@@ -3401,11 +3408,7 @@
   rules:
     - <<: *if-not-canonical-namespace
       when: never
-    # The dedicated ai-principles-distillation schedule should only run the
-    # ai-principles-sync jobs; skip here since rules:changes is always-true on
-    # scheduled pipelines and would otherwise pull this job in.
-    - <<: *if-default-branch-schedule-ai-principles
-      when: never
+    - !reference ['.ai-principles-schedule:rules:skip', rules]
     - <<: *if-default-branch-or-tag
       changes: *code-backstage-qa-patterns
 

@@ -31361,7 +31361,12 @@ paths:
       operationId: getApiV4ProjectsIdDebianDistributionsCodenameKeyAsc
   "/api/v4/projects/{id}/events":
     get:
-      description: List a project's visible events
+      summary: List all visible events for a project
+      description: 'Lists all visible events for a specified project. When a push
+        exceeds the Push event activities limit, a single bulk push event is returned
+        instead of individual commit events. Bulk push events have limited commit
+        details: `commit_count` is `0`, `ref_count` shows the number of refs pushed,
+        and individual commit attributes are `null`.'
       produces:
       - application/json
       parameters:
@@ -31429,7 +31434,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List a project's visible events
+          description: List all visible events for a project
           schema:
             "$ref": "#/definitions/API_Entities_Event"
       tags:
@@ -48082,8 +48087,10 @@ paths:
       operationId: postApiV4UsageDataIncrementUniqueUsers
   "/api/v4/usage_data/track_events":
     post:
-      summary: Track multiple gitlab internal events
-      description: This feature was introduced in GitLab 17.3.
+      summary: Track multiple internal GitLab events
+      description: Tracks one or more GitLab internal events in a single request.
+        Each event increments Service Ping counters in Redis and is optionally sent
+        to Snowplow. This feature was introduced in GitLab 17.3.
       produces:
       - application/json
       consumes:
@@ -48096,7 +48103,7 @@ paths:
           "$ref": "#/definitions/postApiV4UsageDataTrackEvents"
       responses:
         '200':
-          description: Track multiple gitlab internal events
+          description: Track multiple internal GitLab events
         '400':
           description: Validation error
         '401':
@@ -48106,8 +48113,8 @@ paths:
       operationId: postApiV4UsageDataTrackEvents
   "/api/v4/usage_data/metric_definitions":
     get:
-      summary: Get a list of all metric definitions
-      description: This feature was introduced in GitLab 13.11.
+      summary: Download metric definitions
+      description: Downloads all metric definitions as a single YAML file.
       produces:
       - application/yaml
       parameters:
@@ -48120,7 +48127,7 @@ paths:
         example: true
       responses:
         '200':
-          description: Get a list of all metric definitions
+          description: Download metric definitions
         '401':
           description: Unauthorized
         '404':
@@ -48130,14 +48137,16 @@ paths:
       operationId: getApiV4UsageDataMetricDefinitions
   "/api/v4/usage_data/service_ping":
     get:
-      summary: Get the latest ServicePing payload
-      description: Introduces in Gitlab 16.9. Requires personal access token with
-        read_service_ping scope.
+      summary: Retrieve Service Ping payload
+      description: Retrieves the Service Ping payload from the application cache as
+        JSON. If no cached payload is available, returns an empty response. Requires
+        a personal access token with the `read_service_ping` scope. Introduced in
+        GitLab 16.9.
       produces:
       - application/json
       responses:
         '200':
-          description: Get the latest ServicePing payload
+          description: Retrieve Service Ping payload
         '401':
           description: 401 Unauthorized
         '403':
@@ -48149,8 +48158,10 @@ paths:
       operationId: getApiV4UsageDataServicePing
   "/api/v4/usage_data/track_event":
     post:
-      summary: Track gitlab internal events
-      description: This feature was introduced in GitLab 16.2.
+      summary: Track an internal GitLab event
+      description: Tracks a GitLab internal event. This action increments Service
+        Ping counters in Redis and is optionally sent to Snowplow. Introduced in GitLab
+        16.2.
       produces:
       - application/json
       consumes:
@@ -48163,7 +48174,7 @@ paths:
           "$ref": "#/definitions/postApiV4UsageDataTrackEvent"
       responses:
         '200':
-          description: Track gitlab internal events
+          description: Track an internal GitLab event
         '401':
           description: Unauthorized
         '404':
@@ -48173,13 +48184,14 @@ paths:
       operationId: postApiV4UsageDataTrackEvent
   "/api/v4/usage_data/non_sql_metrics":
     get:
-      summary: Get Non SQL usage ping metrics
-      description: This feature was introduced in GitLab 13.11.
+      summary: List all non-SQL metrics
+      description: Lists all non-SQL metrics data used in the Service ping. This action
+        is behind the `usage_data_non_sql_metrics` feature flag. Administrators only.
       produces:
       - application/json
       responses:
         '200':
-          description: Get Non SQL usage ping metrics
+          description: List all non-SQL metrics
         '401':
           description: Unauthorized
         '403':
@@ -48191,13 +48203,14 @@ paths:
       operationId: getApiV4UsageDataNonSqlMetrics
   "/api/v4/usage_data/queries":
     get:
-      summary: Get raw SQL queries for usage data SQL metrics
-      description: This feature was introduced in GitLab 13.11.
+      summary: List all Service Ping SQL queries
+      description: Lists all raw SQL queries used to compute Service Ping. This action
+        is behind the `usage_data_queries_api` feature flag. Administrators only.
       produces:
       - application/json
       responses:
         '200':
-          description: Get raw SQL queries for usage data SQL metrics
+          description: List all Service Ping SQL queries
         '401':
           description: Unauthorized
         '403':
@@ -79089,7 +79102,7 @@ definitions:
           - event
     required:
     - events
-    description: Track multiple gitlab internal events
+    description: Track multiple internal GitLab events
   postApiV4UsageDataTrackEvent:
     type: object
     properties:
@@ -79124,7 +79137,7 @@ definitions:
         example: true
     required:
     - event
-    description: Track gitlab internal events
+    description: Track an internal GitLab event
   API_Entities_UserCounts:
     type: object
     properties:

@@ -34166,6 +34166,24 @@ CREATE SEQUENCE vulnerability_feedback_id_seq
 
 ALTER SEQUENCE vulnerability_feedback_id_seq OWNED BY vulnerability_feedback.id;
 
+CREATE TABLE vulnerability_finding_ascp_component_links (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    vulnerability_occurrence_id bigint NOT NULL,
+    ascp_component_id bigint NOT NULL,
+    project_id bigint NOT NULL
+);
+
+CREATE SEQUENCE vulnerability_finding_ascp_component_links_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE vulnerability_finding_ascp_component_links_id_seq OWNED BY vulnerability_finding_ascp_component_links.id;
+
 CREATE TABLE vulnerability_finding_due_dates (
     id bigint NOT NULL,
     vulnerability_occurrence_id bigint NOT NULL,
@@ -38311,6 +38329,8 @@ ALTER TABLE ONLY vulnerability_exports ALTER COLUMN id SET DEFAULT nextval('vuln
 ALTER TABLE ONLY vulnerability_external_issue_links ALTER COLUMN id SET DEFAULT nextval('vulnerability_external_issue_links_id_seq'::regclass);
 
 ALTER TABLE ONLY vulnerability_feedback ALTER COLUMN id SET DEFAULT nextval('vulnerability_feedback_id_seq'::regclass);
+
+ALTER TABLE ONLY vulnerability_finding_ascp_component_links ALTER COLUMN id SET DEFAULT nextval('vulnerability_finding_ascp_component_links_id_seq'::regclass);
 
 ALTER TABLE ONLY vulnerability_finding_due_dates ALTER COLUMN id SET DEFAULT nextval('vulnerability_finding_due_dates_id_seq'::regclass);
 
@@ -42797,6 +42817,9 @@ ALTER TABLE ONLY vulnerability_external_issue_links
 
 ALTER TABLE ONLY vulnerability_feedback
     ADD CONSTRAINT vulnerability_feedback_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY vulnerability_finding_ascp_component_links
+    ADD CONSTRAINT vulnerability_finding_ascp_component_links_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY vulnerability_finding_due_dates
     ADD CONSTRAINT vulnerability_finding_due_dates_pkey PRIMARY KEY (id);
@@ -51908,6 +51931,12 @@ CREATE UNIQUE INDEX index_virtual_registries_settings_on_group_id ON virtual_reg
 
 CREATE UNIQUE INDEX index_vuln_archived_records_on_unique_attrs_and_project_id ON ONLY vulnerability_archived_records USING btree (vulnerability_identifier, date, project_id);
 
+CREATE INDEX index_vuln_finding_ascp_comp_links_on_ascp_component_id ON vulnerability_finding_ascp_component_links USING btree (ascp_component_id);
+
+CREATE UNIQUE INDEX index_vuln_finding_ascp_comp_links_on_occurrence_id ON vulnerability_finding_ascp_component_links USING btree (vulnerability_occurrence_id);
+
+CREATE INDEX index_vuln_finding_ascp_comp_links_on_project_id ON vulnerability_finding_ascp_component_links USING btree (project_id);
+
 CREATE UNIQUE INDEX index_vuln_findings_on_uuid_including_vuln_id_1 ON vulnerability_occurrences USING btree (uuid) INCLUDE (vulnerability_id);
 
 CREATE UNIQUE INDEX index_vuln_hist_stats_on_project_date_and_tracked_context_id ON vulnerability_historical_statistics USING btree (project_id, date, security_project_tracked_context_id) NULLS NOT DISTINCT;
@@ -58425,6 +58454,9 @@ ALTER TABLE ONLY cluster_providers_gcp
 ALTER TABLE ONLY protected_branch_merge_access_levels
     ADD CONSTRAINT fk_37ab3dd3ba FOREIGN KEY (protected_branch_project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY vulnerability_finding_ascp_component_links
+    ADD CONSTRAINT fk_384b6ed1ca FOREIGN KEY (vulnerability_occurrence_id) REFERENCES vulnerability_occurrences(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY protected_tag_create_access_levels
     ADD CONSTRAINT fk_386a642e13 FOREIGN KEY (deploy_key_id) REFERENCES keys(id) ON DELETE CASCADE;
 
@@ -59483,6 +59515,9 @@ ALTER TABLE ONLY audit_events_streaming_group_namespace_filters
 
 ALTER TABLE ONLY user_preferences
     ADD CONSTRAINT fk_8f5100f91c FOREIGN KEY (knowledge_graph_governing_namespace_id) REFERENCES namespaces(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY vulnerability_finding_ascp_component_links
+    ADD CONSTRAINT fk_8f5608019a FOREIGN KEY (ascp_component_id) REFERENCES ascp_components(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY compliance_requirements
     ADD CONSTRAINT fk_8f5fb77fc7 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;

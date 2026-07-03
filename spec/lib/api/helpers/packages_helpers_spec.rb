@@ -122,7 +122,7 @@ RSpec.describe API::Helpers::PackagesHelpers, feature_category: :package_registr
     let_it_be(:headers) { { 'HTTP_GITLAB_WORKHORSE' => 1 } }
     let_it_be(:params) { { subject: project } }
 
-    let(:env) { headers }
+    let(:env) { headers.dup }
     let(:request) { ActionDispatch::Request.new(env) }
 
     subject { helper.authorize_workhorse!(**params) }
@@ -141,6 +141,7 @@ RSpec.describe API::Helpers::PackagesHelpers, feature_category: :package_registr
         expect(::Packages::PackageFileUploader).to receive(:workhorse_authorize).with(workhorse_authorize_params)
 
         expect(subject).to eq nil
+        expect(env['api.format']).to eq(:json)
       end
     end
 

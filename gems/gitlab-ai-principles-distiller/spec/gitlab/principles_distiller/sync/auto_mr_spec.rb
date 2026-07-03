@@ -1468,4 +1468,71 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       expect(staged).to include(described_class::Manifest::DUO_REVIEW_INSTRUCTIONS_PATH)
     end
   end
+
+  describe '#push_with_retries' do
+    subject(:push) { sync.send(:push_with_retries, env, push_url, branch) }
+
+    let(:env) { { 'GIT_CONFIG_COUNT' => '1' } }
+    let(:push_url) { 'https://gitlab.com/gitlab-org/gitlab.git' }
+    let(:branch) { 'docs-sync/principles-20260703-tooling' }
+
+    before do
+      # Don't actually sleep between retries.
+      allow(sync).to receive(:sleep)
+    end
+
+    context 'when the push succeeds on the first attempt' do
+      before do
+        allow(sync).to receive(:system).and_return(true)
+      end
+
+      it 'pushes exactly once and does not back off' do
+        push
+
+        expect(sync).to have_received(:system)
+          .with(env, 'git', '-C', anything, 'push', '--force', push_url, "#{branch}:#{branch}", exception: true)
+          .once
+        expect(sync).not_to have_received(:sleep)
+      end
+    end
+
+    context 'when the push fails transiently then succeeds' do
+      before do
+        # `system(..., exception: true)` raises on a non-zero git exit; the
+        # first attempt raises, the second returns normally.
+        call_count = 0
+        allow(sync).to receive(:system) do
+          call_count += 1
+          raise 'the remote end hung up unexpectedly' if call_count == 1
+
+          true
+        end
+      end
+
+      it 'retries after a backoff and eventually succeeds', :aggregate_failures do
+        expect { push }.not_to raise_error
+
+        expect(sync).to have_received(:system).twice
+        expect(sync).to have_received(:sleep).with(described_class::PUSH_RETRY_BACKOFF_SECONDS[0]).once
+      end
+
+      it 'warns about the transient failure before retrying' do
+        expect { push }.to output(/push of #{Regexp.escape(branch)} failed .*retrying in/m).to_stderr
+      end
+    end
+
+    context 'when the push keeps failing' do
+      before do
+        allow(sync).to receive(:system).and_raise('HTTP 502')
+      end
+
+      it 'retries up to PUSH_MAX_ATTEMPTS then re-raises the last error', :aggregate_failures do
+        expect { push }.to raise_error(/HTTP 502/)
+
+        expect(sync).to have_received(:system).exactly(described_class::PUSH_MAX_ATTEMPTS).times
+        # One backoff between each pair of attempts: MAX_ATTEMPTS - 1 sleeps.
+        expect(sync).to have_received(:sleep).exactly(described_class::PUSH_MAX_ATTEMPTS - 1).times
+      end
+    end
+  end
 end

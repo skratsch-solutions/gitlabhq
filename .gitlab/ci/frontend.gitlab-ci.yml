@@ -758,11 +758,7 @@ bundle-size-review:
 untamper-fe-islands-lockfile:
   extends: untamper-my-lockfile
   rules:
-    # The dedicated ai-principles-distillation schedule should only run the
-    # ai-principles-sync jobs; rules:changes is always-true on scheduled
-    # pipelines and would otherwise pull this job in.
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "ai-principles-distillation"'
-      when: never
+    - !reference ['.ai-principles-schedule:rules:skip', rules]
     - if: $CI_MERGE_REQUEST_IID
       changes:
         - ee/frontend_islands/yarn.lock

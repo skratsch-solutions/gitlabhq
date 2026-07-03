@@ -23,7 +23,11 @@ module API
       optional :sort, type: String, desc: 'Sort events in asc or desc order by created_at. Default is desc'
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-      desc "List a project's visible events" do
+      desc 'List all visible events for a project' do
+        detail 'Lists all visible events for a specified project. When a push exceeds the Push event ' \
+          'activities limit, a single bulk push event is returned instead of individual commit events. ' \
+          'Bulk push events have limited commit details: `commit_count` is `0`, `ref_count` shows the ' \
+          'number of refs pushed, and individual commit attributes are `null`.'
         success Entities::Event
         tags ['events']
       end

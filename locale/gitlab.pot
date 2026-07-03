@@ -56639,6 +56639,9 @@ msgstr ""
 msgid "Pipeline|Raw text search is not currently supported. Please use the available search tokens."
 msgstr ""
 
+msgid "Pipeline|Resolve breaking changes with Duo"
+msgstr ""
+
 msgid "Pipeline|Run for branch name or tag"
 msgstr ""
 

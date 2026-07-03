@@ -1106,6 +1106,10 @@ vulnerability_feedback:
   - table: projects
     column: project_id
     on_delete: async_delete
+vulnerability_finding_ascp_component_links:
+  - table: projects
+    column: project_id
+    on_delete: async_delete
 vulnerability_finding_due_dates:
   - table: projects
     column: project_id
