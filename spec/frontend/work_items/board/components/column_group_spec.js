@@ -18,7 +18,6 @@ import {
   addWorkItemToColumn,
   removeWorkItemFromColumn,
 } from '~/work_items/board/graphql/cache_updates';
-import { statusStrategy } from '~/work_items/board/grouping/status_strategy';
 import {
   mockStatus,
   buildWorkItemNode,
@@ -52,6 +51,14 @@ describe('ColumnGroup', () => {
     sort: 'CREATED_DESC',
   };
 
+  // ColumnGroup is attribute-agnostic; it only reads `columnFilter` and
+  // `headerDecoration` off the strategy, so a small generic fixture stands in
+  // for a real (EE-only) grouping strategy.
+  const mockStrategy = {
+    columnFilter: (value) => ({ status: { name: value.name } }),
+    headerDecoration: (value) => ({ type: 'icon', name: value.iconName, color: value.color }),
+  };
+
   const createComponent = ({ props = {}, glFeatures = {} } = {}) => {
     apolloProvider = createMockApollo([
       [getBoardWorkItemsQuery, boardQueryHandler],
@@ -66,7 +73,7 @@ describe('ColumnGroup', () => {
       },
       propsData: {
         value: mockStatus,
-        strategy: statusStrategy,
+        strategy: mockStrategy,
         rootPageFullPath: 'full/path',
         baseQueryVariables,
         ...props,
@@ -281,7 +288,7 @@ describe('ColumnGroup', () => {
 
     it('uses the strategy columnFilter for the grouped value variables', async () => {
       const strategy = {
-        ...statusStrategy,
+        ...mockStrategy,
         columnFilter: () => ({ customGroup: { name: 'Custom' } }),
       };
       createComponent({ props: { strategy } });
@@ -521,7 +528,7 @@ describe('ColumnGroup', () => {
       boardColumnQueryVariables({
         rootPageFullPath: 'full/path',
         baseQueryVariables,
-        columnFilter: statusStrategy.columnFilter(mockStatus),
+        columnFilter: mockStrategy.columnFilter(mockStatus),
       });
     const cachedNodeIds = () => {
       const { cache } = apolloProvider.defaultClient;

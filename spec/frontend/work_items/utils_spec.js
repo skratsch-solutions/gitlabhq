@@ -10,6 +10,7 @@ import {
   WIDGET_TYPE_ERROR_TRACKING,
   WIDGET_TYPE_CRM_CONTACTS,
   WIDGET_TYPE_CURRENT_USER_TODOS,
+  WIDGET_TYPE_CUSTOM_FIELDS,
   WIDGET_TYPE_DEVELOPMENT,
   WIDGET_TYPE_DESIGNS,
   WIDGET_TYPE_LABELS,
@@ -61,6 +62,7 @@ import {
   findOpenChildItemsCountsByType,
   findCrmContactsWidget,
   findCurrentUserTodosWidget,
+  findCustomFieldsWidget,
   findColorWidget,
   findHealthStatusWidget,
   findIterationWidget,
@@ -1575,6 +1577,49 @@ describe('findStatusWidget', () => {
   describe('when neither features nor widget is present', () => {
     it('returns undefined', () => {
       expect(findStatusWidget({ widgets: [] })).toBeUndefined();
+    });
+  });
+});
+
+describe('findCustomFieldsWidget', () => {
+  const customFieldsWidget = {
+    type: WIDGET_TYPE_CUSTOM_FIELDS,
+    customFieldValues: [{ customField: { id: '1-text' }, value: 'Sample text' }],
+  };
+  const featuresCustomFields = {
+    customFieldValues: [{ customField: { id: '1-number' }, value: 5 }],
+  };
+
+  describe('when features.customFields is present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = {
+        features: { customFields: featuresCustomFields },
+        widgets: [customFieldsWidget],
+      };
+    });
+
+    it('returns features.customFields', () => {
+      expect(findCustomFieldsWidget(workItem)).toBe(featuresCustomFields);
+    });
+  });
+
+  describe('when features is not present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = { widgets: [customFieldsWidget] };
+    });
+
+    it('falls back to the widgets array', () => {
+      expect(findCustomFieldsWidget(workItem)).toBe(customFieldsWidget);
+    });
+  });
+
+  describe('when neither features nor widget is present', () => {
+    it('returns undefined', () => {
+      expect(findCustomFieldsWidget({ widgets: [] })).toBeUndefined();
     });
   });
 });

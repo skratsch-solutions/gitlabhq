@@ -1,4 +1,4 @@
-import { statusStrategy } from './status_strategy';
+import { strategies } from 'ee_else_ce/work_items/board/grouping/strategies';
 
 /**
  * One column's value: an `id` and `name` plus any attribute-specific fields the
@@ -23,7 +23,7 @@ import { statusStrategy } from './status_strategy';
  * by an attribute (today only `status`; assignee/label/milestone/… in future).
  * Each field isolates one attribute-specific decision, keeping `board_view` and
  * `column_group` attribute-agnostic — so a new attribute is added by writing a
- * strategy and registering it in `STRATEGIES`, with no board-component changes.
+ * strategy and adding it to the `strategies` list, with no board-component changes.
  *
  * @typedef {Object} GroupingStrategy
  * @property {string} property - The `groupBy` property it handles, e.g. 'status'.
@@ -35,10 +35,10 @@ import { statusStrategy } from './status_strategy';
  * @property {(value: GroupingValue) => HeaderDecoration} headerDecoration - How the column header renders the value.
  */
 
+// The available strategies differ by edition (status is EE-only), so the list
+// is supplied by an `ee_else_ce` module and keyed by property here.
 /** @type {Object<string, GroupingStrategy>} */
-const STRATEGIES = {
-  [statusStrategy.property]: statusStrategy,
-};
+const STRATEGIES = Object.fromEntries(strategies.map((strategy) => [strategy.property, strategy]));
 
 /**
  * @param {string} property

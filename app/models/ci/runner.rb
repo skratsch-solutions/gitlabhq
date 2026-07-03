@@ -612,8 +612,12 @@ module Ci
     end
 
     def ensure_manager(system_xid)
+      # runner_type in the find conditions enables ci_runner_machines partition pruning.
+      attrs = { runner: self, system_xid: system_xid.to_s }
+      attrs[:runner_type] = runner_type if self.class.ci_runner_partition_pruning_enabled?
+
       # rubocop: disable Performance/ActiveRecordSubtransactionMethods -- This is used only in API endpoints outside of transactions
-      RunnerManager.safe_find_or_create_by!(runner: self, system_xid: system_xid.to_s) do |m|
+      RunnerManager.safe_find_or_create_by!(**attrs) do |m|
         m.runner_type = runner_type
         m.organization_id = organization_id
       end

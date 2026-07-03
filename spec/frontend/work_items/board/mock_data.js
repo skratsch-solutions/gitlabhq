@@ -1,12 +1,12 @@
 export const mockGroupId = 'gid://gitlab/Group/1';
 
-export const buildStatus = (id, name = `Status ${id}`) => ({
+export const buildStatus = (id, name = `Status ${id}`, category = 'to_do') => ({
   __typename: 'WorkItemStatusCustom',
   id: `gid://gitlab/WorkItems::Statuses::Custom::Status/${id}`,
   name,
   iconName: 'status-waiting',
   color: '#737278',
-  category: 'TO_DO',
+  category,
 });
 
 export const mockStatus = buildStatus(1, 'To do');

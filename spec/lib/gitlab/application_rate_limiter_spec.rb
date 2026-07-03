@@ -31,12 +31,16 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
         limiter_name: 'applimiter_test_action',
         rule_name: 'limit_test_action',
         characteristics: %i[user project],
+        limit: 1,
+        period: 2.minutes,
         action: :block
       },
       another_action: {
         limiter_name: 'applimiter_another_action',
         rule_name: 'limit_another_action',
         characteristics: %i[user project],
+        limit: -> { 2 },
+        period: -> { 3.minutes },
         action: :block
       }
     }
@@ -560,19 +564,65 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
   end
 
   context 'when interval is 0' do
-    let(:rate_limits) { { test_action: { threshold: 1, interval: 0 } } }
     let(:scope) { user }
     let(:start_time) { Time.current.beginning_of_hour }
+
+    before do
+      # Stub the resolved interval (the stable seam) so the zero-disable check
+      # is exercised regardless of the resolve-from-registry flag state.
+      allow(described_class).to receive(:interval).and_call_original
+      allow(described_class).to receive(:interval).with(:test_action).and_return(0)
+    end
 
     it_behaves_like 'returns false'
   end
 
   context 'when threshold is 0' do
-    let(:rate_limits) { { test_action: { threshold: 0, interval: 1 } } }
     let(:scope) { user }
     let(:start_time) { Time.current.beginning_of_hour }
 
+    before do
+      allow(described_class).to receive(:threshold).and_call_original
+      allow(described_class).to receive(:threshold).with(:test_action).and_return(0)
+    end
+
     it_behaves_like 'returns false'
+  end
+
+  describe 'limit/period source selection (.threshold / .interval)' do
+    # rate_limits and the registry are stubbed to deliberately different values
+    # so it is unambiguous which source the flag selects.
+    let(:rate_limits) { { test_action: { threshold: 11, interval: 22 } } }
+    let(:labkit_registry) do
+      {
+        test_action: {
+          limiter_name: 'applimiter_test_action',
+          rule_name: 'limit_test_action',
+          characteristics: %i[user],
+          limit: 99,
+          period: 88,
+          action: :block
+        }
+      }
+    end
+
+    context 'when rate_limiter_resolve_limits_from_registry is enabled' do
+      it 'resolves threshold and interval from the registry', :aggregate_failures do
+        expect(described_class.threshold(:test_action)).to eq(99)
+        expect(described_class.interval(:test_action)).to eq(88)
+      end
+    end
+
+    context 'when rate_limiter_resolve_limits_from_registry is disabled' do
+      before do
+        stub_feature_flags(rate_limiter_resolve_limits_from_registry: false)
+      end
+
+      it 'resolves threshold and interval from the rate_limits hash', :aggregate_failures do
+        expect(described_class.threshold(:test_action)).to eq(11)
+        expect(described_class.interval(:test_action)).to eq(22)
+      end
+    end
   end
 
   describe 'labkit adapter dispatch from _throttled?', :clean_gitlab_redis_rate_limiting do

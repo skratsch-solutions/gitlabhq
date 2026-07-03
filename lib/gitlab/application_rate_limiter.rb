@@ -255,7 +255,7 @@ module Gitlab
       # @param key [Symbol] Key attribute registered in `.rate_limits`
       # @return [Integer, nil] The interval value in seconds, or nil if not configured
       def interval(key)
-        value = rate_limit_value_by_key(key, :interval)
+        value = limit_source_value(key, :interval, :period)
         raise InvalidKeyError if value.nil?
 
         rate_limit_value(value)
@@ -267,7 +267,7 @@ module Gitlab
       # @param key [Symbol] Key attribute registered in `.rate_limits`
       # @return [Integer] The resolved threshold; 0 when the key disables itself.
       def threshold(key)
-        value = rate_limit_value_by_key(key, :threshold)
+        value = limit_source_value(key, :threshold, :limit)
 
         rate_limit_value(value)
       end
@@ -360,6 +360,27 @@ module Gitlab
         action = rate_limits[key]
 
         action[setting] if action
+      end
+
+      # Returns the raw (unresolved) limit/period source for a key.
+      #
+      # The labkit SupportedRateLimits registry now carries each key's
+      # limit/period and is migrating toward being the single source of truth
+      # (see gitlab-com/gl-infra/production-engineering#29054). While the
+      # rate_limiter_resolve_limits_from_registry flag is enabled this reads the
+      # registry; while disabled it reads the legacy rate_limits hash. A parity
+      # spec asserts the two resolve to identical values for every key, so the
+      # flag is a value-preserving switch.
+      #
+      # @param key [Symbol] the rate limit key
+      # @param rate_limits_field [Symbol] :threshold or :interval (legacy hash)
+      # @param registry_field [Symbol] :limit or :period (registry entry)
+      def limit_source_value(key, rate_limits_field, registry_field)
+        if Feature.enabled?(:rate_limiter_resolve_limits_from_registry, Feature.current_request)
+          LabkitAdapter::SupportedRateLimits.all.dig(key, registry_field)
+        else
+          rate_limit_value_by_key(key, rate_limits_field)
+        end
       end
 
       def application_settings

@@ -26,6 +26,7 @@
       (
         $CI_PIPELINE_SOURCE != "merge_request_event"
         && $SCHEDULE_TYPE != "weekly"
+        && $SCHEDULE_TYPE != "ai-principles-distillation"
         && $TRIGGERED_BY_AI_GATEWAY_PROJECT != "true"
         &&
         (
@@ -46,9 +47,9 @@
       || $FORCE_GITLAB_CI
       '
 
-# weekly pipeline is opt-in and should not automatically run every job
+# weekly and ai-principles-distillation pipelines are opt-in and should not automatically run every job
 .if-default-branch-refs: &if-default-branch-refs
-  if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_MERGE_REQUEST_IID == null && $SCHEDULE_TYPE != "weekly"'
+  if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_MERGE_REQUEST_IID == null && $SCHEDULE_TYPE != "weekly" && $SCHEDULE_TYPE != "ai-principles-distillation"'
 
 .if-default-branch-push: &if-default-branch-push
   if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"'
@@ -260,7 +261,7 @@
   if: '($CI_SERVER_HOST != "gitlab.com" || $CI_PROJECT_NAMESPACE != "gitlab-org") && ($CI_SERVER_HOST != "jihulab.com" || $CI_PROJECT_NAMESPACE != "gitlab-cn")'
 
 .if-dot-com-gitlab-org-schedule: &if-dot-com-gitlab-org-schedule
-  if: '$CI_SERVER_HOST == "gitlab.com" && $CI_PROJECT_NAMESPACE == "gitlab-org" && $CI_PIPELINE_SOURCE == "schedule"'
+  if: '$CI_SERVER_HOST == "gitlab.com" && $CI_PROJECT_NAMESPACE == "gitlab-org" && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE != "ai-principles-distillation"'
 
 .if-dot-com-ee-schedule-default-branch-maintenance: &if-dot-com-ee-schedule-default-branch-maintenance
   if: '$CI_SERVER_HOST == "gitlab.com" && $CI_PROJECT_PATH == "gitlab-org/gitlab" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "maintenance"'
@@ -2014,6 +2015,11 @@
 
 .frontend:rules:test-infection-scanner:
   rules:
+    # The dedicated ai-principles-distillation schedule should only run the
+    # ai-principles-sync jobs; rules:changes is always-true on scheduled
+    # pipelines and would otherwise pull this job in.
+    - <<: *if-default-branch-schedule-ai-principles
+      when: never
     - <<: *if-merge-request-labels-run-all-jest
     - <<: *if-not-foss
       changes: ["scripts/frontend/infection_scanner/**/*", "spec/frontend/scripts/infection_scanner/**/*"]
@@ -3394,6 +3400,11 @@
 .setup:rules:backup-gems:
   rules:
     - <<: *if-not-canonical-namespace
+      when: never
+    # The dedicated ai-principles-distillation schedule should only run the
+    # ai-principles-sync jobs; skip here since rules:changes is always-true on
+    # scheduled pipelines and would otherwise pull this job in.
+    - <<: *if-default-branch-schedule-ai-principles
       when: never
     - <<: *if-default-branch-or-tag
       changes: *code-backstage-qa-patterns

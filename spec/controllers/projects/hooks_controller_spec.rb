@@ -284,8 +284,8 @@ RSpec.describe Projects::HooksController, feature_category: :webhooks do
 
     context 'when the endpoint receives requests above the limit', :freeze_time, :clean_gitlab_redis_rate_limiting do
       before do
-        allow(Gitlab::ApplicationRateLimiter).to receive(:rate_limits)
-          .and_return(web_hook_test: { threshold: 1, interval: 1.minute })
+        allow(Gitlab::ApplicationRateLimiter).to receive(:threshold).and_call_original
+        allow(Gitlab::ApplicationRateLimiter).to receive(:threshold).with(:web_hook_test).and_return(1)
       end
 
       it 'prevents making test requests' do

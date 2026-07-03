@@ -2224,6 +2224,47 @@ RSpec.describe Ci::Runner, factory_default: :keep, feature_category: :runner_cor
           .from([]).to([runner.organization_id])
       end
     end
+
+    # `ci_runner_machines` is LIST-partitioned by `runner_type`. Adding
+    # `runner_type` to the find conditions lets PostgreSQL prune partitions and
+    # use the unique (runner_id, runner_type, system_xid) index on this hot path.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/594861.
+    context 'with partition pruning' do
+      let_it_be(:runner) { create(:ci_runner, :project, projects: [project]) }
+
+      it 'includes runner_type in the find query' do
+        recorder = ActiveRecord::QueryRecorder.new { ensure_manager }
+
+        select = recorder.log.find { |q| q.match?(/SELECT.+FROM "ci_runner_machines"/) }
+        expect(select).not_to be_nil, 'expected a SELECT query against ci_runner_machines to be recorded'
+        expect(select).to include('"ci_runner_machines"."runner_type"')
+      end
+
+      it 'creates exactly one runner manager for the system_xid' do
+        expect { ensure_manager }
+          .to change { runner.runner_managers.with_system_xid(system_xid).count }.from(0).to(1)
+      end
+
+      it 'is idempotent' do
+        runner.ensure_manager(system_xid)
+
+        expect { ensure_manager }.not_to change { runner.runner_managers.with_system_xid(system_xid).count }
+      end
+
+      context 'when the feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_runner_partition_pruning: false)
+        end
+
+        it 'does not include runner_type in the find query' do
+          recorder = ActiveRecord::QueryRecorder.new { ensure_manager }
+
+          select = recorder.log.find { |q| q.match?(/SELECT.+FROM "ci_runner_machines"/) }
+          expect(select).not_to be_nil, 'expected a SELECT query against ci_runner_machines to be recorded'
+          expect(select).not_to include('runner_type')
+        end
+      end
+    end
   end
 
   describe '#ensure_token' do

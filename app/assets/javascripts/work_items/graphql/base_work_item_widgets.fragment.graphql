@@ -40,7 +40,7 @@ fragment BaseWorkItemWidgets on WorkItemWidget {
       }
     }
   }
-  ... on WorkItemWidgetDescription {
+  ... on WorkItemWidgetDescription @skip(if: $useWorkItemFeatures) {
     description
     descriptionHtml
     lastEditedAt
@@ -93,7 +93,7 @@ fragment BaseWorkItemWidgets on WorkItemWidget {
       }
     }
   }
-  ... on WorkItemWidgetMilestone {
+  ... on WorkItemWidgetMilestone @skip(if: $useWorkItemFeatures) {
     milestone {
       ...MilestoneFragment
     }

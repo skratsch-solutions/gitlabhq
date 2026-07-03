@@ -10239,6 +10239,9 @@ msgstr ""
 msgid "AnalyticsDashboards|All available dashboards"
 msgstr ""
 
+msgid "AnalyticsDashboards|An error occurred when trying to display this panel"
+msgstr ""
+
 msgid "AnalyticsDashboards|Are you sure you want to permanently delete this dashboard?"
 msgstr ""
 
@@ -22217,6 +22220,9 @@ msgstr ""
 msgid "ContinuousDeployment|It may have been removed or you may not have access to it."
 msgstr ""
 
+msgid "ContinuousDeployment|Last deployed"
+msgstr ""
+
 msgid "ContinuousDeployment|Last deployed %{timeAgo}"
 msgstr ""
 
@@ -22281,6 +22287,9 @@ msgid "ContinuousDeployment|Service not found"
 msgstr ""
 
 msgid "ContinuousDeployment|Services"
+msgstr ""
+
+msgid "ContinuousDeployment|Source"
 msgstr ""
 
 msgid "ContinuousDeployment|Staging"

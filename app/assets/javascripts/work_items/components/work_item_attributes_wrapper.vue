@@ -6,22 +6,18 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 
 import WorkItemDates from 'ee_else_ce/work_items/components/work_item_dates.vue';
 
-import {
-  WIDGET_TYPE_MILESTONE,
-  WIDGET_TYPE_PARTICIPANTS,
-  WORK_ITEM_TYPE_NAME_EPIC,
-  WIDGET_TYPE_CUSTOM_FIELDS,
-  STATE_CLOSED,
-} from '../constants';
+import { WIDGET_TYPE_PARTICIPANTS, WORK_ITEM_TYPE_NAME_EPIC, STATE_CLOSED } from '../constants';
 import {
   findAssigneesWidget,
   findColorWidget,
   findCrmContactsWidget,
+  findCustomFieldsWidget,
   findHealthStatusWidget,
   findHierarchyWidget,
   findHierarchyWidgetDefinition,
   findIterationWidget,
   findLabelsWidget,
+  findMilestoneWidget,
   findProgressWidget,
   findStartAndDueDateWidget,
   findStatusWidget,
@@ -132,9 +128,6 @@ export default {
     },
   },
   computed: {
-    useWorkItemFeatures() {
-      return Boolean(this.glFeatures?.workItemFeaturesField);
-    },
     workItemType() {
       return this.workItem.workItemType?.name;
     },
@@ -184,9 +177,7 @@ export default {
       return findHierarchyWidget(this.workItem);
     },
     workItemMilestone() {
-      return this.useWorkItemFeatures
-        ? this.workItem?.features?.milestone || {}
-        : this.isWidgetPresent(WIDGET_TYPE_MILESTONE);
+      return findMilestoneWidget(this.workItem);
     },
     isParentEnabled() {
       return this.workItemType === WORK_ITEM_TYPE_NAME_EPIC ? this.hasSubepicsFeature : true;
@@ -214,7 +205,7 @@ export default {
       return crmContactsWidget && crmContactsWidget.contactsAvailable ? crmContactsWidget : null;
     },
     customFields() {
-      return this.isWidgetPresent(WIDGET_TYPE_CUSTOM_FIELDS)?.customFieldValues;
+      return findCustomFieldsWidget(this.workItem)?.customFieldValues;
     },
   },
   methods: {

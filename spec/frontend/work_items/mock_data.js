@@ -2033,6 +2033,7 @@ export const mockWorkItemFeaturesData = ({ discussionLocked = false } = {}) => (
   },
   status: null,
   agentPlan: null,
+  customFields: null,
 });
 
 export const workItemResponseFactory = ({

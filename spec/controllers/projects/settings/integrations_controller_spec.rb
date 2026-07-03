@@ -224,8 +224,8 @@ RSpec.describe Projects::Settings::IntegrationsController, feature_category: :in
 
     context 'when the endpoint receives requests above the rate limit', :freeze_time do
       before do
-        allow(Gitlab::ApplicationRateLimiter).to receive(:rate_limits)
-          .and_return(project_testing_integration: { threshold: 1, interval: 1.minute })
+        allow(Gitlab::ApplicationRateLimiter).to receive(:threshold).and_call_original
+        allow(Gitlab::ApplicationRateLimiter).to receive(:threshold).with(:project_testing_integration).and_return(1)
       end
 
       it 'prevents making test requests' do

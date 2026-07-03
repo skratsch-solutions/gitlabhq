@@ -88,6 +88,7 @@ export const findCurrentUserTodosWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_CURRENT_USER_TODOS);
 
 export const findCustomFieldsWidget = (workItem) =>
+  workItem?.features?.customFields ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_CUSTOM_FIELDS);
 
 export const findDescriptionWidget = (workItem) =>
