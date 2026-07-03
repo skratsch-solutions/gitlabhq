@@ -1042,6 +1042,7 @@ type:ProjectSetting
 type:ProjectStatistics
 type:ProjectStatisticsRedirect
 type:ProjectTargetBranchRule
+type:ProjectTopicUploadRegistry
 type:ProjectUploadRegistry
 type:ProjectValueStreamAnalyticsFlowMetrics
 type:ProjectWikiRepositoryRegistry

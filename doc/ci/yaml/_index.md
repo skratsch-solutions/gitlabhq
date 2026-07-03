@@ -6165,7 +6165,7 @@ the job configuration takes precedence and the default configuration is not used
 > [!warning]
 > To enable inter-service networking, set `FF_NETWORK_PER_BUILD` to `true`.
 > Without this flag, services may not work properly. For more information, see
-> [feature flags](https://docs.gitlab.com/runner/configuration/feature-flags)
+> [feature flags](https://docs.gitlab.com/runner/configuration/feature-flags/)
 
 **Keyword type**: Job keyword. You can use it only as part of a job or in the
 [`default` section](#default).

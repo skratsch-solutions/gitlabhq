@@ -1565,7 +1565,7 @@
 
 .docs:rules:release-note-categories:
   rules:
-    - <<: *if-default-refs
+    - <<: *if-merge-request
       changes: *docs-release-note-categories-patterns
 
 .docs:rules:rubocop-docs-site:

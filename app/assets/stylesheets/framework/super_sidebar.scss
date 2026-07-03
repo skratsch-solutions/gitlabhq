@@ -356,6 +356,33 @@ $command-palette-spacing: px-to-rem(14px);
 }
 
 /**
+ * Feature Library modal
+ */
+.feature-library-modal {
+  &.gl-modal .modal-dialog {
+    align-items: flex-start;
+    margin-top: 5vh;
+
+    .modal-content {
+      min-height: auto;
+      max-height: 90vh;
+    }
+
+    @include gl-media-breakpoint-up(sm) {
+      margin-top: 10vh;
+
+      .modal-content {
+        max-height: 80vh;
+      }
+    }
+  }
+
+  .feature-library-scroll-area {
+    min-height: 20rem;
+  }
+}
+
+/**
  * Global search modal
  */
 .global-search-modal {

@@ -62,9 +62,12 @@ docs-lint markdown:
     reports:
       codequality: markdownlint-cli2-codequality.json
 
-# This job runs when release notes are added or changed.
+# This job runs on merge requests that add or change release notes.
 # It validates that every H3 feature heading has a <!-- categories: ... --> tag
 # and that the category name(s) exactly match a 'name' field in categories.yml in the www-gitlab-com repo.
+#
+# Only the release notes changed in the MR are validated. Already-published notes are
+# left alone, so renaming a category in categories.yml can't retroactively fail them.
 
 docs-lint release-note-categories:
   extends:
@@ -72,9 +75,20 @@ docs-lint release-note-categories:
   image: $DEFAULT_CI_IMAGE
   stage: lint
   needs: []
-  allow_failure: true  # TODO: Remove after https://gitlab.com/gitlab-org/gitlab/-/work_items/603549 is resolved
   script:
-    - ruby scripts/lint/validate_release_categories.rb --release-notes doc/releases/**/*.md
+    - |
+      # Fetch the merge base so we can diff against it (the CI clone is shallow).
+      git fetch --depth=1 origin "$CI_MERGE_REQUEST_DIFF_BASE_SHA"
+      # The 'doc/releases/*.md' git pathspec matches .md files at any depth ('*' spans '/'), so no extra grep is needed.
+      changed_files="$(git diff --name-only --diff-filter=d "$CI_MERGE_REQUEST_DIFF_BASE_SHA" HEAD -- 'doc/releases/*.md')"
+      if [ -z "$changed_files" ]; then
+        echo "No release note files changed in this merge request; skipping category validation."
+        exit 0
+      fi
+      echo "Validating changed release notes:"
+      echo "$changed_files"
+      # shellcheck disable=SC2086 # Word splitting is intentional to pass each path as a separate arg.
+      ruby scripts/lint/validate_release_categories.rb --release-notes $changed_files
 
 docs-lint mermaid:
   extends:

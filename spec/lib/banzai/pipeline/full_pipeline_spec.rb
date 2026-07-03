@@ -451,6 +451,31 @@ RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :markdown do
     end
   end
 
+  describe 'diagram proxy' do
+    def full_then_postprocess(markdown, context)
+      full_doc = described_class.to_document(markdown, context)
+      Banzai::Pipeline::PostProcessPipeline.to_document(full_doc, described_class.transform_context(context))
+    end
+
+    where(:diagram_type, :source, :settings) do
+      'plantuml' | 'Bob -> Sara : Hello' | { plantuml_enabled: true, plantuml_url: 'http://localhost:8080', plantuml_diagram_proxy_enabled: true }
+      'graphviz' | 'digraph { a -> b }'  | { kroki_enabled: true, kroki_url: 'http://localhost:8000', kroki_diagram_proxy_enabled: true }
+    end
+
+    with_them do
+      it 'rewrites the diagram <img> to the proxy URL' do
+        stub_application_setting(settings)
+
+        markdown = "```#{diagram_type}\n#{source}\n```"
+        result = full_then_postprocess(markdown, project: project)
+
+        # FullPipeline runs ImageLazyLoadFilter, so the rewritten proxy URL ends up in data-src.
+        uri = Addressable::URI.parse(result.at_css('img')['data-src'])
+        expect(uri.path).to start_with('/-/diagram-proxy/')
+      end
+    end
+  end
+
   describe 'pathological input' do
     it 'returns an error message for deeply nested emphasis when run in a thread' do
       thread = Thread.start do

@@ -1,6 +1,6 @@
 ---
-source_checksum: 152475f2fb04e33f
-distilled_at_sha: 45de85c05dd95accf55f90cd5dd29cc3b74dfd74
+source_checksum: ab2f08e20f161210
+distilled_at_sha: 9eb89263152259e883603c908db1e1cea6a1a74e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -48,7 +48,7 @@ distilled_at_sha: 45de85c05dd95accf55f90cd5dd29cc3b74dfd74
 
 - Create each feature release note as a separate Markdown file inside the appropriate release directory (e.g., `doc/releases/19/gitlab-19-1-released/`); use the `Release Notes Item` MR template and assign to an Engineering Manager and Technical Writer for review.
 - Keep release note body text to 125 words or fewer; DO NOT include images or videos; use relative links for documentation links; ensure work item links are not confidential.
-- Set all required metadata fields: `title` (seven words or fewer), `tier`, `offering`, `documentation_link` (relative URL, no `.md` extension), `work_item` (absolute, non-confidential URL), `categories`, `stage`, and `ignore_in_report: true`.
+- Set all required metadata fields: `title` (seven words or fewer), `tier`, `offering`, `documentation_link` (relative URL, no `.md` extension), `work_item` (absolute, non-confidential URL), `categories`, and `stage`.
 - Use `level: primary` to place a feature in the `Primary features` section; use `weight` (multiples of 10) to control ordering within a section; omit both when defaults are acceptable.
 - Merge all feature release notes by 23:59 UTC on the Friday before release day.
 

@@ -1,11 +1,12 @@
 <script>
-import { GlButton, GlBadge, GlIcon, GlLink } from '@gitlab/ui';
+import { GlButton, GlBadge, GlIcon, GlLink, GlTooltipDirective } from '@gitlab/ui';
 import { sprintf, __, s__ } from '~/locale';
 import { TIERS } from './constants';
 
 export default {
   name: 'FeatureLibraryItem',
   components: { GlButton, GlBadge, GlIcon, GlLink },
+  directives: { GlTooltip: GlTooltipDirective },
   i18n: {
     free: __('Free'),
     premium: __('Premium'),
@@ -13,6 +14,8 @@ export default {
     addOn: __('Add-on'),
     pinLabel: s__('FeatureLibrary|Pin %{title}'),
     unpinLabel: s__('FeatureLibrary|Unpin %{title}'),
+    pinTooltip: s__('FeatureLibrary|Pin'),
+    unpinTooltip: s__('FeatureLibrary|Unpin'),
   },
   props: {
     item: {
@@ -51,6 +54,9 @@ export default {
     },
     pinIconName() {
       return this.pinned ? 'thumbtack-solid' : 'thumbtack';
+    },
+    pinTooltipText() {
+      return this.pinned ? this.$options.i18n.unpinTooltip : this.$options.i18n.pinTooltip;
     },
   },
   methods: {
@@ -98,6 +104,7 @@ export default {
       </gl-badge>
     </div>
     <gl-button
+      v-gl-tooltip.hover="pinTooltipText"
       category="tertiary"
       :icon="pinIconName"
       :aria-label="pinAriaLabel"

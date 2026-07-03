@@ -4653,6 +4653,22 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION trigger_b04dea279493() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."organization_id" IS NULL THEN
+  SELECT "organization_id"
+  INTO NEW."organization_id"
+  FROM "project_topic_uploads"
+  WHERE "project_topic_uploads"."id" = NEW."project_topic_upload_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION trigger_b0f4298cadff() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -27683,6 +27699,7 @@ CREATE TABLE pages_domains (
     usage smallint DEFAULT 0 NOT NULL,
     scope smallint DEFAULT 2 NOT NULL,
     auto_ssl_failed boolean DEFAULT false NOT NULL,
+    updated_at timestamp with time zone,
     CONSTRAINT check_790fbb64fa CHECK ((project_id IS NOT NULL))
 );
 
@@ -29574,6 +29591,29 @@ CREATE SEQUENCE project_to_security_attributes_id_seq
     CACHE 1;
 
 ALTER SEQUENCE project_to_security_attributes_id_seq OWNED BY project_to_security_attributes.id;
+
+CREATE TABLE project_topic_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    project_topic_upload_id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_650fbdd97f CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE project_topic_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE project_topic_upload_states_id_seq OWNED BY project_topic_upload_states.id;
 
 CREATE TABLE project_topic_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
@@ -37870,6 +37910,8 @@ ALTER TABLE ONLY project_statistics ALTER COLUMN id SET DEFAULT nextval('project
 
 ALTER TABLE ONLY project_to_security_attributes ALTER COLUMN id SET DEFAULT nextval('project_to_security_attributes_id_seq'::regclass);
 
+ALTER TABLE ONLY project_topic_upload_states ALTER COLUMN id SET DEFAULT nextval('project_topic_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY project_topics ALTER COLUMN id SET DEFAULT nextval('project_topics_id_seq'::regclass);
 
 ALTER TABLE ONLY project_upload_states ALTER COLUMN id SET DEFAULT nextval('project_upload_states_id_seq'::regclass);
@@ -42060,6 +42102,9 @@ ALTER TABLE ONLY project_statistics
 
 ALTER TABLE ONLY project_to_security_attributes
     ADD CONSTRAINT project_to_security_attributes_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY project_topic_upload_states
+    ADD CONSTRAINT project_topic_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY project_topic_uploads
     ADD CONSTRAINT project_topic_uploads_pkey PRIMARY KEY (id, model_type);
@@ -46410,6 +46455,8 @@ CREATE INDEX idx_project_requirement_statuses_on_framework_id ON project_require
 
 CREATE INDEX idx_project_settings_on_pep_bot_access_group_id ON project_settings USING btree (pipeline_execution_policy_bot_access_group_id);
 
+CREATE UNIQUE INDEX idx_project_topic_uploads_on_id ON project_topic_uploads USING btree (id);
+
 CREATE INDEX idx_project_type_ci_runners_on_active_and_id ON project_type_ci_runners USING btree (active, id);
 
 CREATE INDEX idx_project_type_ci_runners_on_contacted_at_and_id_desc ON project_type_ci_runners USING btree (contacted_at, id DESC);
@@ -50623,6 +50670,20 @@ CREATE INDEX index_project_statistics_on_wiki_size_and_project_id ON project_sta
 CREATE INDEX index_project_to_security_attributes_on_project_id_and_id ON project_to_security_attributes USING btree (project_id, id);
 
 CREATE INDEX index_project_to_security_attributes_on_security_attribute_id ON project_to_security_attributes USING btree (security_attribute_id);
+
+CREATE INDEX index_project_topic_upload_states_failed_verification ON project_topic_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX index_project_topic_upload_states_needs_verification_id ON project_topic_upload_states USING btree (project_topic_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE INDEX index_project_topic_upload_states_on_organization_id ON project_topic_upload_states USING btree (organization_id);
+
+CREATE UNIQUE INDEX index_project_topic_upload_states_on_project_topic_upload_id ON project_topic_upload_states USING btree (project_topic_upload_id);
+
+CREATE INDEX index_project_topic_upload_states_on_verification_started ON project_topic_upload_states USING btree (project_topic_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE INDEX index_project_topic_upload_states_on_verification_state ON project_topic_upload_states USING btree (verification_state);
+
+CREATE INDEX index_project_topic_upload_states_pending_verification ON project_topic_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
 CREATE UNIQUE INDEX index_project_topics_on_project_id_and_topic_id ON project_topics USING btree (project_id, topic_id);
 
@@ -57264,6 +57325,8 @@ CREATE TRIGGER trigger_af3f17817e4d BEFORE INSERT OR UPDATE ON protected_tag_cre
 
 CREATE TRIGGER trigger_b046dd50c711 BEFORE INSERT OR UPDATE ON incident_management_oncall_rotations FOR EACH ROW EXECUTE FUNCTION trigger_b046dd50c711();
 
+CREATE TRIGGER trigger_b04dea279493 BEFORE INSERT OR UPDATE ON project_topic_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_b04dea279493();
+
 CREATE TRIGGER trigger_b0f4298cadff BEFORE INSERT OR UPDATE ON required_code_owners_sections FOR EACH ROW EXECUTE FUNCTION trigger_b0f4298cadff();
 
 CREATE TRIGGER trigger_b2612138515d BEFORE INSERT OR UPDATE ON project_relation_exports FOR EACH ROW EXECUTE FUNCTION trigger_b2612138515d();
@@ -57920,6 +57983,9 @@ ALTER TABLE ONLY work_item_current_statuses
 
 ALTER TABLE ONLY board_user_preferences
     ADD CONSTRAINT fk_1c0b27016f FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY project_topic_upload_states
+    ADD CONSTRAINT fk_1c172dba89 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY approval_policy_rule_project_links
     ADD CONSTRAINT fk_1c78796d52 FOREIGN KEY (approval_policy_rule_id) REFERENCES approval_policy_rules(id) ON DELETE CASCADE;
@@ -59591,6 +59657,9 @@ ALTER TABLE ONLY subscription_add_on_purchases
 
 ALTER TABLE ONLY approval_policy_merge_request_bypass_events
     ADD CONSTRAINT fk_a24f768758 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY project_topic_upload_states
+    ADD CONSTRAINT fk_a3987fd19e FOREIGN KEY (project_topic_upload_id) REFERENCES project_topic_uploads(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY tag_ssh_signatures
     ADD CONSTRAINT fk_a3a00301c7 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

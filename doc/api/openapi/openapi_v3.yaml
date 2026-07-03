@@ -76964,6 +76964,28 @@ components:
           type: string
         project_repositories_oldest_unsynced_time:
           type: string
+        project_topic_uploads_count:
+          type: string
+        project_topic_uploads_checksum_total_count:
+          type: string
+        project_topic_uploads_checksummed_count:
+          type: string
+        project_topic_uploads_checksum_failed_count:
+          type: string
+        project_topic_uploads_synced_count:
+          type: string
+        project_topic_uploads_failed_count:
+          type: string
+        project_topic_uploads_registry_count:
+          type: string
+        project_topic_uploads_verification_total_count:
+          type: string
+        project_topic_uploads_verified_count:
+          type: string
+        project_topic_uploads_verification_failed_count:
+          type: string
+        project_topic_uploads_oldest_unsynced_time:
+          type: string
         project_uploads_count:
           type: string
         project_uploads_checksum_total_count:
@@ -77359,6 +77381,10 @@ components:
         project_repositories_synced_in_percentage:
           type: string
         project_repositories_verified_in_percentage:
+          type: string
+        project_topic_uploads_synced_in_percentage:
+          type: string
+        project_topic_uploads_verified_in_percentage:
           type: string
         project_uploads_synced_in_percentage:
           type: string
@@ -78171,6 +78197,28 @@ components:
           type: string
         project_repositories_oldest_unsynced_time:
           type: string
+        project_topic_uploads_count:
+          type: string
+        project_topic_uploads_checksum_total_count:
+          type: string
+        project_topic_uploads_checksummed_count:
+          type: string
+        project_topic_uploads_checksum_failed_count:
+          type: string
+        project_topic_uploads_synced_count:
+          type: string
+        project_topic_uploads_failed_count:
+          type: string
+        project_topic_uploads_registry_count:
+          type: string
+        project_topic_uploads_verification_total_count:
+          type: string
+        project_topic_uploads_verified_count:
+          type: string
+        project_topic_uploads_verification_failed_count:
+          type: string
+        project_topic_uploads_oldest_unsynced_time:
+          type: string
         project_uploads_count:
           type: string
         project_uploads_checksum_total_count:
@@ -78566,6 +78614,10 @@ components:
         project_repositories_synced_in_percentage:
           type: string
         project_repositories_verified_in_percentage:
+          type: string
+        project_topic_uploads_synced_in_percentage:
+          type: string
+        project_topic_uploads_verified_in_percentage:
           type: string
         project_uploads_synced_in_percentage:
           type: string

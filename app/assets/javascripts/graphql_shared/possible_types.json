@@ -297,6 +297,7 @@
     "PipelineArtifactRegistry",
     "ProjectImportExportRelationExportUploadUploadRegistry",
     "ProjectRepositoryRegistry",
+    "ProjectTopicUploadRegistry",
     "ProjectUploadRegistry",
     "ProjectWikiRepositoryRegistry",
     "SnippetRepositoryRegistry",

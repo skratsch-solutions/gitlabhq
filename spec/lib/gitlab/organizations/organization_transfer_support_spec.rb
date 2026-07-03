@@ -62,6 +62,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       organization_users
       personal_access_token_last_used_ips
       pool_repositories
+      project_topic_upload_states
       project_topic_uploads
       queries_service_pings
       raw_usage_data

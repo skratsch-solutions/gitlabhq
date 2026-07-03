@@ -1,6 +1,6 @@
 import { GlModal, GlSearchBoxByType, GlTab, GlEmptyState } from '@gitlab/ui';
 import { nextTick } from 'vue';
-import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { mountExtended, shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import FeatureLibraryModal from '~/super_sidebar/components/feature_library/feature_library_modal.vue';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
@@ -88,7 +88,12 @@ describe('FeatureLibraryModal', () => {
       const scrollArea = findScrollArea();
       expect(scrollArea.exists()).toBe(true);
       expect(scrollArea.classes()).toEqual(
-        expect.arrayContaining(['gl-grow', 'gl-min-h-0', 'gl-overflow-y-auto']),
+        expect.arrayContaining([
+          'feature-library-scroll-area',
+          'gl-grow',
+          'gl-min-h-0',
+          'gl-overflow-y-auto',
+        ]),
       );
     });
 
@@ -108,28 +113,32 @@ describe('FeatureLibraryModal', () => {
   });
 
   describe('modal layout', () => {
-    // Mount with the real GlModal so we can read the props/attrs it receives.
     beforeEach(() => {
-      wrapper = mountExtended(FeatureLibraryModal, {
+      wrapper = shallowMountExtended(FeatureLibraryModal, {
         propsData: { sections, currentPinnedIds: [] },
       });
     });
 
     it('blurs the page behind the modal', () => {
-      const modalClass = wrapper.findComponent(GlModal).props('modalClass');
-      expect(typeof modalClass).toBe('string');
-      expect(modalClass).toContain('gl-backdrop-blur-sm');
+      expect(findModal().props('modalClass')).toContain('gl-backdrop-blur-sm');
     });
 
-    it('centers the dialog and caps its height so tall content scrolls internally', () => {
-      const { $attrs } = wrapper.findComponent(GlModal).vm;
-      expect($attrs).toHaveProperty('centered');
-      expect($attrs).toHaveProperty('scrollable');
+    it('does not use centered so the top edge stays anchored during search', () => {
+      expect(findModal().attributes('centered')).toBeUndefined();
     });
 
-    it('reserves a dismissable gutter around the dialog at every breakpoint', () => {
-      const modalClass = wrapper.findComponent(GlModal).props('modalClass');
-      expect(modalClass).toContain('gl-p-5');
+    it('caps its height so tall content scrolls internally', () => {
+      expect(findModal().attributes('scrollable')).toBeDefined();
+    });
+
+    it('applies the feature-library-modal class for top-anchored positioning', () => {
+      expect(findModal().props('modalClass')).toContain('feature-library-modal');
+    });
+
+    it('reserves a dismissable gutter around the dialog', () => {
+      const modalClass = findModal().props('modalClass');
+      expect(modalClass).toContain('gl-px-2');
+      expect(modalClass).toContain('sm:gl-px-5');
     });
   });
 

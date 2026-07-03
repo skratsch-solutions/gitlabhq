@@ -1,5 +1,6 @@
 import { GlButton, GlIcon, GlLink } from '@gitlab/ui';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
 import { TIERS } from '~/super_sidebar/components/feature_library/constants';
 
@@ -18,6 +19,7 @@ describe('FeatureLibraryItem', () => {
   const createWrapper = ({ item = baseItem, pinned = false, solidBackground = false } = {}) => {
     wrapper = mountExtended(FeatureLibraryItem, {
       propsData: { item, pinned, solidBackground },
+      directives: { GlTooltip: createMockDirective('gl-tooltip') },
     });
   };
 
@@ -129,6 +131,16 @@ describe('FeatureLibraryItem', () => {
     it('uses "Unpin" aria-label when pinned', () => {
       createWrapper({ pinned: true });
       expect(findPinButton().attributes('aria-label')).toBe('Unpin Repository');
+    });
+
+    it('shows "Pin" tooltip when not pinned', () => {
+      createWrapper({ pinned: false });
+      expect(getBinding(findPinButton().element, 'gl-tooltip').value).toBe('Pin');
+    });
+
+    it('shows "Unpin" tooltip when pinned', () => {
+      createWrapper({ pinned: true });
+      expect(getBinding(findPinButton().element, 'gl-tooltip').value).toBe('Unpin');
     });
   });
 });

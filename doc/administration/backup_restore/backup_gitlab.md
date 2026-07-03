@@ -181,7 +181,7 @@ The backup command does not back up registry data when they are stored in Object
 
 #### Metadata database
 
-If you have enabled the [container registry metadata database](https://docs.gitlab.com/charts/charts/registry/metadata_database), you must configure access to the registry database during the backup. Follow the instructions for your GitLab installation to configure the required credentials:
+If you have enabled the [container registry metadata database](https://docs.gitlab.com/charts/charts/registry/metadata_database/), you must configure access to the registry database during the backup. Follow the instructions for your GitLab installation to configure the required credentials:
 
 - [Linux packaged instructions](https://docs.gitlab.com/omnibus/settings/backups/#container-registry-metadata-database-backup-credentials)
 - [GitLab Helm chart](https://docs.gitlab.com/charts/charts/gitlab/toolbox/#registry-metadata-database-credentials)

@@ -2485,6 +2485,12 @@ msgstr ""
 msgid "A user with write access to the source branch selected this option"
 msgstr ""
 
+msgid "A version set must contain at least one version"
+msgstr ""
+
+msgid "A version set with the same versions already exists in the application"
+msgstr ""
+
 msgid "ACTION REQUIRED: Something went wrong while obtaining the Let's Encrypt certificate for GitLab Pages domain '%{domain}'"
 msgstr ""
 
@@ -30024,6 +30030,9 @@ msgstr ""
 msgid "ERROR: %{error}"
 msgstr ""
 
+msgid "Each artifact source can appear only once in a version set"
+msgstr ""
+
 msgid "Each element in 'components' must be a Hash"
 msgstr ""
 
@@ -33095,6 +33104,9 @@ msgstr ""
 msgid "FeatureLibrary|No features match your search"
 msgstr ""
 
+msgid "FeatureLibrary|Pin"
+msgstr ""
+
 msgid "FeatureLibrary|Pin %{title}"
 msgstr ""
 
@@ -33105,6 +33117,9 @@ msgid "FeatureLibrary|Search GitLab features"
 msgstr ""
 
 msgid "FeatureLibrary|Try a different search term or category."
+msgstr ""
+
+msgid "FeatureLibrary|Unpin"
 msgstr ""
 
 msgid "FeatureLibrary|Unpin %{title}"
@@ -34537,6 +34552,12 @@ msgid "Geo|Project Repositories"
 msgstr ""
 
 msgid "Geo|Project Repository"
+msgstr ""
+
+msgid "Geo|Project Topic Upload"
+msgstr ""
+
+msgid "Geo|Project Topic Uploads"
 msgstr ""
 
 msgid "Geo|Project Upload"
@@ -52355,6 +52376,9 @@ msgid "One or more of your personal access tokens will expire in %{days_to_expir
 msgstr ""
 
 msgid "One or more referenced resources do not belong to the organization."
+msgstr ""
+
+msgid "One or more versions were not found or do not belong to the application"
 msgstr ""
 
 msgid "One-time password authenticator (OTP)"

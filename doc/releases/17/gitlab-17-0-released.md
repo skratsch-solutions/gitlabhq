@@ -226,7 +226,7 @@ We will be extending this functionality to enable self-serve updates for additio
 
 {{< /details >}}
 
-The [GitLab Operator](https://docs.gitlab.com/operator/) is now available for production use for cloud-native hybrid installations. See the [installation documentation](https://docs.gitlab.com/operator/installation.html) before adopting the GitLab Operator.
+The [GitLab Operator](https://docs.gitlab.com/operator/) is now available for production use for cloud-native hybrid installations. See the [installation documentation](https://docs.gitlab.com/operator/installation/) before adopting the GitLab Operator.
 
 Support for a fallback to BusyBox images when you specify custom BusyBox values (`global.busybox`) is removed. Support for BusyBox-based init containers was deprecated in GitLab 16.2 (Helm chart 7.2) in favor of a common GitLab-based init image.
 

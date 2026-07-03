@@ -640,7 +640,7 @@ Try it out today by using the `macos-26-xcode-26` image in your `.gitlab-ci.yml`
 
 - Tier: Free, Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated, GitLab Dedicated for Government
-- Links: [Documentation](https://docs.gitlab.com/runner)
+- Links: [Documentation](https://docs.gitlab.com/runner/)
 
 {{< /details >}}
 

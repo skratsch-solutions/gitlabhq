@@ -142,10 +142,9 @@ export default {
   <gl-modal
     :modal-id="$options.modalId"
     :aria-label="s__('FeatureLibrary|GitLab features')"
-    modal-class="gl-backdrop-blur-sm gl-p-5"
+    modal-class="feature-library-modal gl-backdrop-blur-sm gl-px-2 sm:gl-px-5"
     body-class="gl-flex gl-flex-col"
     size="lg"
-    centered
     scrollable
     hide-header
     hide-footer
@@ -167,10 +166,10 @@ export default {
         @click="onTabClick(cat.id)"
       />
     </gl-scrollable-tabs>
-    <div data-testid="feature-library-scroll-area" class="gl-min-h-0 gl-grow gl-overflow-y-auto">
-      <!-- TODO: render <feature-library-recommended> here once nav items expose a `recommended`
-           data point. The component exists but is unrendered: the server-driven catalog has no
-           recommended flag yet. -->
+    <div
+      data-testid="feature-library-scroll-area"
+      class="feature-library-scroll-area gl-min-h-0 gl-grow gl-overflow-y-auto"
+    >
       <ul
         v-if="filteredItems.length > 0"
         data-testid="feature-library-grid"

@@ -984,7 +984,7 @@ When using third-party CI/CD components, consider the following security best pr
   Avoid storing secrets and credentials in project settings if you can use an external secret management
   solution instead.
 - **Use ephemeral, isolated runner environments**: Run component jobs in temporary,
-  isolated environments when possible. Be aware of [security risks](https://docs.gitlab.com/runner/security)
+  isolated environments when possible. Be aware of [security risks](https://docs.gitlab.com/runner/security/)
   with self-managed runners.
 - **Securely handle cache and artifacts**: Do not pass cache or artifacts from other jobs
   in your pipeline to CI/CD component jobs unless absolutely necessary.

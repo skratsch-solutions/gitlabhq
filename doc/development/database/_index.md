@@ -32,6 +32,7 @@ title: Database development guidelines
 - [Adding required stops](required_stops.md)
 - [Avoiding downtime in migrations](avoiding_downtime_in_migrations.md)
 - [Batched background migrations guidelines](batched_background_migrations.md)
+- [Background operations](background_operations.md)
 - [Create a regular migration](../migration_style_guide.md#create-a-regular-schema-migration), including creating new models
 - [Deleting migrations](deleting_migrations.md)
 - [Different types of migrations](../migration_style_guide.md#choose-an-appropriate-migration-type)
