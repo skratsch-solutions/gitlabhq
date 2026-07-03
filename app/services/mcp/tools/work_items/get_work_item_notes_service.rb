@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module WorkItems
-      class GetWorkItemNotesService < GraphqlService
+      class GetWorkItemNotesService < Base::GraphqlService
         register_version '0.1.0', {
           description: 'Get all comments (notes) for a specific work item',
           input_schema: {

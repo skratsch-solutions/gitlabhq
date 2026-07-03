@@ -67605,7 +67605,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3dcc9961f5b4"
+              "$ref": "#/components/schemas/RequestBody_2b200d12bc21"
     get:
       operationId: getApiV4GroupsId
       summary: Retrieve a group
@@ -111403,7 +111403,7 @@ components:
       required:
       - name
       - path
-    RequestBody_3dcc9961f5b4:
+    RequestBody_2b200d12bc21:
       type: object
       properties:
         name:
@@ -111936,6 +111936,11 @@ components:
         lock_built_in_project_templates_enabled:
           type: boolean
           description: Enforce the built-in project templates setting for all subgroups
+          nullable: true
+        create_code_review_flow_consent:
+          type: boolean
+          description: When true, records explicit namespace consent for DAP-based
+            Code Review routing
           nullable: true
     RequestBody_885d0044fcba:
       type: object

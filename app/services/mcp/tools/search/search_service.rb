@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module Search
-      class SearchService < AggregatedService
+      class SearchService < Base::AggregatedService
         include Gitlab::Utils::StrongMemoize
         extend ::Gitlab::Utils::Override
 

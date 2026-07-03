@@ -31,7 +31,7 @@ module MergeRequests
       merge_request_activity_counter.track_mr_including_ci_config(user: current_user, merge_request: merge_request)
 
       notification_service.new_merge_request(merge_request, current_user)
-      merge_request.diffs(include_stats: false).write_cache
+      write_diffs_cache(merge_request)
       merge_request.create_cross_references!(current_user)
       todo_service.new_merge_request(merge_request, current_user)
       merge_request.cache_merge_request_closes_issues!(current_user)
@@ -43,6 +43,16 @@ module MergeRequests
       )
 
       link_lfs_objects(merge_request)
+    end
+
+    # The diffs highlight/stats cache is display-only and not required for the MR
+    # to be prepared, so it can be warmed off the critical path. See #417973.
+    def write_diffs_cache(merge_request)
+      if Feature.enabled?(:async_write_diffs_cache_on_mr_create, merge_request.target_project)
+        MergeRequests::WriteDiffsCacheWorker.perform_async(merge_request.id)
+      else
+        merge_request.diffs(include_stats: false).write_cache
+      end
     end
 
     def link_lfs_objects(merge_request)

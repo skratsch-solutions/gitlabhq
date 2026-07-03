@@ -40,8 +40,8 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
     end
 
     it 'registers and surfaces every MCP tool service defined in the codebase', :eager_load, :aggregate_failures do
-      defined_tools = Mcp::Tools::BaseService.descendants
-        .reject { |klass| klass.superclass == Mcp::Tools::BaseService }
+      defined_tools = Mcp::Tools::Base::BaseService.descendants
+        .reject { |klass| klass.superclass == Mcp::Tools::Base::BaseService }
 
       expect(defined_tools).not_to be_empty, 'No MCP tool services were discovered'
 

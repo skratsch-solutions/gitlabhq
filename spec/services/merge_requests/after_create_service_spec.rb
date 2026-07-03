@@ -47,11 +47,23 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
       execute_service
     end
 
-    it 'writes diffs to the cache' do
-      expect(merge_request)
-        .to receive_message_chain(:diffs, :write_cache)
+    it 'enqueues a worker to write diffs to the cache' do
+      expect(MergeRequests::WriteDiffsCacheWorker).to receive(:perform_async).with(merge_request.id)
 
       execute_service
+    end
+
+    context 'when async_write_diffs_cache_on_mr_create is disabled' do
+      before do
+        stub_feature_flags(async_write_diffs_cache_on_mr_create: false)
+      end
+
+      it 'writes diffs to the cache synchronously' do
+        expect(merge_request)
+          .to receive_message_chain(:diffs, :write_cache)
+
+        execute_service
+      end
     end
 
     it 'creates cross references' do
@@ -154,7 +166,7 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
           # This is only one of the possible cases that can fail. This is to
           # simulate a failure that happens during the service call.
           allow(merge_request)
-            .to receive_message_chain(:diffs, :write_cache)
+            .to receive(:create_cross_references!)
             .and_raise(StandardError)
         end
 

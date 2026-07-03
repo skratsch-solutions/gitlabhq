@@ -18,6 +18,16 @@ module Namespaces
     validates :feature_name, presence: true, uniqueness: { scope: :namespace_id }
     validates :user_id, presence: true, on: :create
 
+    def self.give!(namespace:, feature_name:, user:)
+      find_or_create_by!(namespace:, feature_name:) do |consent|
+        consent.user = user
+      end
+    end
+
+    def self.revoke!(namespace:, feature_name:)
+      find_by(namespace:, feature_name:)&.delete
+    end
+
     def readonly?
       persisted?
     end

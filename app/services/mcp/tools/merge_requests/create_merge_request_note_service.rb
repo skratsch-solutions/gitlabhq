@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module MergeRequests
-      class CreateMergeRequestNoteService < GraphqlService
+      class CreateMergeRequestNoteService < Base::GraphqlService
         register_version '0.1.0', {
           description: 'Add a new comment or reply to an existing discussion on a GitLab merge request ' \
             'as the authenticated user. To reply within a thread, pass the discussion_id ' \

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mcp::Tools::BaseService, feature_category: :mcp_server do
+RSpec.describe Mcp::Tools::Base::BaseService, feature_category: :mcp_server do
   let(:service_name) { 'test_tool' }
   let(:service) { described_class.new(name: service_name) }
 

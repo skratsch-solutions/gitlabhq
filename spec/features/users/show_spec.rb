@@ -165,13 +165,7 @@ RSpec.describe 'User page', feature_category: :user_profile do
         end
       end
 
-      context 'with profile_tabs_vue feature flag disabled' do
-        before do
-          stub_feature_flags(profile_tabs_vue: false)
-        end
-
-        it_behaves_like 'follower links with count badges'
-      end
+      it_behaves_like 'follower links with count badges'
 
       it 'does show button to follow' do
         sign_in(user)
@@ -364,10 +358,6 @@ RSpec.describe 'User page', feature_category: :user_profile do
   end
 
   context 'most recent activity' do
-    before do
-      stub_feature_flags(profile_tabs_vue: false)
-    end
-
     context 'when external authorization is enabled' do
       before do
         enable_external_authorization_service_check

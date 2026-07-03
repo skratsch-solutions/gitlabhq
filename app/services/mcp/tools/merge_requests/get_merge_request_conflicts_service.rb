@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module MergeRequests
-      class GetMergeRequestConflictsService < CustomService
+      class GetMergeRequestConflictsService < Base::CustomService
         include Gitlab::Utils::StrongMemoize
 
         # Register version with schema definition

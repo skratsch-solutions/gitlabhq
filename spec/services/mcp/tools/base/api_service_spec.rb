@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mcp::Tools::ApiService, feature_category: :mcp_server do
+RSpec.describe Mcp::Tools::Base::ApiService, feature_category: :mcp_server do
   let(:service_name) { 'test_api_tool' }
   let(:oauth_token) { 'test_token_123' }
 

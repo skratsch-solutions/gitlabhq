@@ -4754,6 +4754,16 @@
   :idempotent: true
   :tags: []
   :queue_namespace:
+- :name: merge_requests_write_diffs_cache
+  :worker_name: MergeRequests::WriteDiffsCacheWorker
+  :feature_category: :code_review_workflow
+  :has_external_dependencies: false
+  :urgency: :low
+  :resource_boundary: :cpu
+  :weight: 1
+  :idempotent: true
+  :tags: []
+  :queue_namespace:
 - :name: metrics_patched_files
   :worker_name: Metrics::PatchedFilesWorker
   :feature_category: :delivery

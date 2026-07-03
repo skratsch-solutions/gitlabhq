@@ -29368,10 +29368,22 @@ msgstr ""
 msgid "DuoCodeReview|Can't create the progress note. This can happen if the Duo Code Review bot does not have permission to create notes on the merge request."
 msgstr ""
 
+msgid "DuoCodeReview|Code Review Flow is enabled but reviews for users with a GitLab Duo Enterprise seat are handled by the non-agentic GitLab Duo Code Review instead. To use Code Review Flow for all reviews in this namespace, clear and then re-select Code Review Flow."
+msgstr ""
+
+msgid "DuoCodeReview|Code Review Flow is enabled for this namespace. All reviews are handled by the flow and consume GitLab Credits"
+msgstr ""
+
 msgid "DuoCodeReview|Control whether GitLab Duo automatically reviews merge requests across all groups and projects. This setting cascades to subgroups and projects but can be overridden."
 msgstr ""
 
 msgid "DuoCodeReview|Control whether GitLab Duo automatically reviews merge requests. This setting cascades to subgroups and projects but can be overridden."
+msgstr ""
+
+msgid "DuoCodeReview|Enable Code Review Flow"
+msgstr ""
+
+msgid "DuoCodeReview|Enable Code Review Flow for this namespace?"
 msgstr ""
 
 msgid "DuoCodeReview|Enable automatic reviews by GitLab Duo"
@@ -29420,6 +29432,9 @@ msgid "DuoCodeReview|When enabled, GitLab Duo will automatically review new merg
 msgstr ""
 
 msgid "DuoCodeReview|When enabled, GitLab Duo will automatically review new merge requests. Draft merge requests and merge requests without changes are skipped."
+msgstr ""
+
+msgid "DuoCodeReview|When you enable Code Review Flow for this namespace, all reviews will consume GitLab Credits, regardless of the user's seat. You can disable Code Review Flow at any time."
 msgstr ""
 
 msgid "DuoCodeReview|You don't have access to GitLab Duo Code Review. Contact your administrator to verify your account has access to this feature."

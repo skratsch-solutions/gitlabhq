@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mcp::Tools::GraphqlService, feature_category: :mcp_server do
+RSpec.describe Mcp::Tools::Base::GraphqlService, feature_category: :mcp_server do
   let_it_be(:user) { create(:user) }
 
   let(:test_graphql_tool_class) do

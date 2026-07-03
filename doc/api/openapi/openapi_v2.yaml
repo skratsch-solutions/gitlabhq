@@ -50816,6 +50816,10 @@ definitions:
       lock_built_in_project_templates_enabled:
         type: boolean
         description: Enforce the built-in project templates setting for all subgroups
+      create_code_review_flow_consent:
+        type: boolean
+        description: When true, records explicit namespace consent for DAP-based Code
+          Review routing
     description: Update group attributes
   API_Entities_GroupDetail:
     type: object

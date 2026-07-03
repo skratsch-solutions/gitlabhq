@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module WorkItems
-      class LinkWorkItemsService < GraphqlService
+      class LinkWorkItemsService < Base::GraphqlService
         register_version '0.1.0', {
           description:
             'Link a work item to other work items with a relationship type (relates_to)',

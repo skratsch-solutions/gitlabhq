@@ -26,7 +26,7 @@ RSpec.describe Mcp::Tools::WorkItems::LinkWorkItemsService, feature_category: :m
 
   describe 'class configuration' do
     it 'inherits from GraphqlService' do
-      expect(described_class.superclass).to eq(Mcp::Tools::GraphqlService)
+      expect(described_class.superclass).to eq(Mcp::Tools::Base::GraphqlService)
     end
 
     it 'registers version 0.1.0' do

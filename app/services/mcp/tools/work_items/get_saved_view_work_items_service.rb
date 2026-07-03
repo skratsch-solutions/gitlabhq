@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module WorkItems
-      class GetSavedViewWorkItemsService < GraphqlService
+      class GetSavedViewWorkItemsService < Base::GraphqlService
         register_version '0.1.0', {
           description: 'Fetch a saved view and its work items list from a namespace',
           input_schema: {

@@ -1304,7 +1304,7 @@ Cop/PutGroupRoutesUnderScope:
 Mcp/UseApiService:
   Enabled: true
   Include:
-    - 'app/services/mcp/tools/*'
+    - 'app/services/mcp/tools/**/*'
 
 Mcp/UseGraphqlQueryFile:
   Enabled: true

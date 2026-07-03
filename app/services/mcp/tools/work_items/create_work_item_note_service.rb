@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module WorkItems
-      class CreateWorkItemNoteService < GraphqlService
+      class CreateWorkItemNoteService < Base::GraphqlService
         register_version '0.1.0', {
           description: 'Create a new note (comment) on a GitLab work item',
           annotations: {

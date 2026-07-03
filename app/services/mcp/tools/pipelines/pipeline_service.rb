@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module Pipelines
-      class PipelineService < AggregatedService
+      class PipelineService < Base::AggregatedService
         include Gitlab::Utils::Override
 
         TOOL_MAPPING = {

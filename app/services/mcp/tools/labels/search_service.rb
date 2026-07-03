@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module Labels
-      class SearchService < GraphqlService
+      class SearchService < Base::GraphqlService
         register_version '0.1.0', {
           description: 'Search labels in a GitLab project or group',
           annotations: {

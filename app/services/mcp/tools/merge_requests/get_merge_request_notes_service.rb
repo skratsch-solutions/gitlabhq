@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module MergeRequests
-      class GetMergeRequestNotesService < GraphqlService
+      class GetMergeRequestNotesService < Base::GraphqlService
         register_version '0.1.0', {
           description: 'Get the notes (comments and system notes) for a specific merge request.',
           input_schema: {

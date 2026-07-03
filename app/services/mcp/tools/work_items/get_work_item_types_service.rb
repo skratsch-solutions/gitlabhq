@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module WorkItems
-      class GetWorkItemTypesService < GraphqlService
+      class GetWorkItemTypesService < Base::GraphqlService
         register_version '0.1.0', {
           description:
             'List the work item types available in a namespace (group or project), ' \

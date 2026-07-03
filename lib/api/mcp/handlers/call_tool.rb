@@ -34,8 +34,8 @@ module API
         end
 
         def configure_tool_credentials(tool, current_user)
-          tool.set_cred(current_user: current_user) if tool.is_a?(::Mcp::Tools::CustomService)
-          tool.set_cred(current_user: current_user) if tool.is_a?(::Mcp::Tools::GraphqlService)
+          tool.set_cred(current_user: current_user) if tool.is_a?(::Mcp::Tools::Base::CustomService)
+          tool.set_cred(current_user: current_user) if tool.is_a?(::Mcp::Tools::Base::GraphqlService)
         end
 
         def execute_tool_with_tracking(tool, request, params, tool_name, session_id, current_user)

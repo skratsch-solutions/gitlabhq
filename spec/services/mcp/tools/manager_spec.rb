@@ -84,8 +84,8 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
       let(:route2) { instance_double(Grape::Router::Route, app: app2) }
       let(:route3) { instance_double(Grape::Router::Route, app: app3) }
       let(:routes) { [route1, route2, route3] }
-      let(:aggregator_class) { class_double(Mcp::Tools::AggregatedService, tool_name: 'gitlab_search_test') }
-      let(:aggregated_service) { instance_double(Mcp::Tools::AggregatedService) }
+      let(:aggregator_class) { class_double(Mcp::Tools::Base::AggregatedService, tool_name: 'gitlab_search_test') }
+      let(:aggregated_service) { instance_double(Mcp::Tools::Base::AggregatedService) }
       let(:mcp_settings1) { { tool_name: :search_issues, aggregators: [aggregator_class] } }
       let(:mcp_settings2) { { tool_name: :search_mrs, aggregators: [aggregator_class] } }
       let(:mcp_settings3) { { tool_name: :regular_tool } }
@@ -97,9 +97,11 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         allow(app1).to receive(:route_setting).with(:mcp).and_return(mcp_settings1)
         allow(app2).to receive(:route_setting).with(:mcp).and_return(mcp_settings2)
         allow(app3).to receive(:route_setting).with(:mcp).and_return(mcp_settings3)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'search_issues', route: route1).and_return(api_tool1)
+        allow(Mcp::Tools::ApiTool).to receive(:new)
+          .with(name: 'search_issues', route: route1).and_return(api_tool1)
         allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'search_mrs', route: route2).and_return(api_tool2)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'regular_tool', route: route3).and_return(api_tool3)
+        allow(Mcp::Tools::ApiTool).to receive(:new)
+          .with(name: 'regular_tool', route: route3).and_return(api_tool3)
         allow(aggregator_class).to receive(:new).with(tools: [api_tool1, api_tool2]).and_return(aggregated_service)
       end
 
@@ -132,10 +134,10 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
       let(:route3) { instance_double(Grape::Router::Route, app: app3) }
       let(:route4) { instance_double(Grape::Router::Route, app: app4) }
       let(:routes) { [route1, route2, route3, route4] }
-      let(:search_aggregator) { class_double(Mcp::Tools::AggregatedService, tool_name: 'search') }
-      let(:user_aggregator) { class_double(Mcp::Tools::AggregatedService, tool_name: 'user_management') }
-      let(:search_service) { instance_double(Mcp::Tools::AggregatedService) }
-      let(:user_service) { instance_double(Mcp::Tools::AggregatedService) }
+      let(:search_aggregator) { class_double(Mcp::Tools::Base::AggregatedService, tool_name: 'search') }
+      let(:user_aggregator) { class_double(Mcp::Tools::Base::AggregatedService, tool_name: 'user_management') }
+      let(:search_service) { instance_double(Mcp::Tools::Base::AggregatedService) }
+      let(:user_service) { instance_double(Mcp::Tools::Base::AggregatedService) }
       let(:mcp_settings1) { { tool_name: :search_issues, aggregators: [search_aggregator] } }
       let(:mcp_settings2) { { tool_name: :search_mrs, aggregators: [search_aggregator] } }
       let(:mcp_settings3) { { tool_name: :create_user, aggregators: [user_aggregator] } }
@@ -150,10 +152,12 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
         allow(app2).to receive(:route_setting).with(:mcp).and_return(mcp_settings2)
         allow(app3).to receive(:route_setting).with(:mcp).and_return(mcp_settings3)
         allow(app4).to receive(:route_setting).with(:mcp).and_return(mcp_settings4)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'search_issues', route: route1).and_return(api_tool1)
+        allow(Mcp::Tools::ApiTool).to receive(:new)
+          .with(name: 'search_issues', route: route1).and_return(api_tool1)
         allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'search_mrs', route: route2).and_return(api_tool2)
         allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'create_user', route: route3).and_return(api_tool3)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'standalone_tool', route: route4).and_return(api_tool4)
+        allow(Mcp::Tools::ApiTool).to receive(:new)
+          .with(name: 'standalone_tool', route: route4).and_return(api_tool4)
         allow(search_aggregator).to receive(:new).with(tools: [api_tool1, api_tool2]).and_return(search_service)
         allow(user_aggregator).to receive(:new).with(tools: [api_tool3]).and_return(user_service)
       end

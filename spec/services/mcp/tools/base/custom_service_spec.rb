@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mcp::Tools::CustomService, :aggregate_failures, feature_category: :mcp_server do
+RSpec.describe Mcp::Tools::Base::CustomService, :aggregate_failures, feature_category: :mcp_server do
   let(:service_name) { 'test_custom_tool' }
   let(:current_user) { create(:user) }
   let(:project) { create :project, :repository }

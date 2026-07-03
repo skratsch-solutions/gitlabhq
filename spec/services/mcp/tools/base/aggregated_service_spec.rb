@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mcp::Tools::AggregatedService, feature_category: :mcp_server do
+RSpec.describe Mcp::Tools::Base::AggregatedService, feature_category: :mcp_server do
   let(:service_name) { 'test_aggregated_tool' }
   let(:mock_tool) { instance_double(Mcp::Tools::ApiTool, name: :gitlab_search_in_instance) }
   let(:mock_tool_2) { instance_double(Mcp::Tools::ApiTool, name: :gitlab_search_in_group) }

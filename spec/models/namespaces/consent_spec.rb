@@ -52,6 +52,48 @@ RSpec.describe Namespaces::Consent, feature_category: :groups_and_projects do
     it { is_expected.to define_enum_for(:feature_name).with_values(code_review_flow_dap_routing: 1) }
   end
 
+  describe '.give!' do
+    let(:feature_name) { :code_review_flow_dap_routing }
+
+    it 'sets the correct namespace, feature_name, and user', :aggregate_failures do
+      expect { described_class.give!(namespace:, feature_name:, user:) }
+        .to change { described_class.count }.by(1)
+
+      consent = described_class.last
+
+      expect(consent.namespace).to eq(namespace)
+      expect(consent.feature_name).to eq('code_review_flow_dap_routing')
+      expect(consent.user).to eq(user)
+    end
+
+    it 'is idempotent when consent already exists' do
+      described_class.give!(namespace:, feature_name:, user:)
+
+      expect { described_class.give!(namespace:, feature_name:, user:) }.not_to change { described_class.count }
+    end
+  end
+
+  describe '.revoke!' do
+    let(:feature_name) { :code_review_flow_dap_routing }
+
+    context 'when a consent record exists' do
+      before do
+        create(:namespaces_consent, namespace: namespace, user: user, feature_name: feature_name)
+      end
+
+      it 'deletes the record' do
+        expect { described_class.revoke!(namespace:, feature_name:) }
+          .to change { described_class.count }.by(-1)
+      end
+    end
+
+    context 'when no consent record exists' do
+      it 'does not raise an error' do
+        expect { described_class.revoke!(namespace:, feature_name:) }.not_to raise_error
+      end
+    end
+  end
+
   describe '#readonly?' do
     it 'returns false for a new record' do
       expect(consent).not_to be_readonly
