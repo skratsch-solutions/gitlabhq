@@ -2,6 +2,7 @@
 
 module Authn
   class OauthApplication < Doorkeeper::Application
+    include EachBatch
     include Doorkeeper::Concerns::TokenFallback
     include FeatureGate
 

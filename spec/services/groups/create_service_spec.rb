@@ -133,6 +133,22 @@ RSpec.describe Groups::CreateService, '#execute', feature_category: :groups_and_
     it_behaves_like 'creating a group'
   end
 
+  context 'with `require_sha_for_merge` attribute' do
+    let(:extra_params) { { require_sha_for_merge: false } }
+
+    it_behaves_like 'creating a group'
+
+    it 'ignores the user-supplied value and applies the default' do
+      expect(created_group.namespace_settings.require_sha_for_merge).to be(true)
+    end
+  end
+
+  context 'with `lock_require_sha_for_merge` attribute' do
+    let(:extra_params) { { lock_require_sha_for_merge: false } }
+
+    it_behaves_like 'creating a group'
+  end
+
   context 'for a top level group' do
     context 'when user can create a group' do
       before do
@@ -443,6 +459,60 @@ RSpec.describe Groups::CreateService, '#execute', feature_category: :groups_and_
 
       it 'does not enable JWT for CI/CD job tokens' do
         expect(created_group.namespace_settings.jwt_ci_cd_job_token_enabled).to be(false)
+      end
+    end
+  end
+
+  describe 'setting require_sha_for_merge for new groups' do
+    context 'when application level settings have require_sha_for_merge locked' do
+      before do
+        stub_application_setting(lock_require_sha_for_merge: true)
+        stub_application_setting(require_sha_for_merge: false)
+      end
+
+      it 'expects namespace setting to be defer to application level settings' do
+        expect(created_group.namespace_settings.require_sha_for_merge).to be(false)
+      end
+    end
+
+    context 'when application level settings have require_sha_for_merge unlocked' do
+      before do
+        stub_application_setting(lock_require_sha_for_merge: false)
+        stub_application_setting(require_sha_for_merge: false)
+      end
+
+      it 'expects namespace setting to be true by default' do
+        expect(created_group.namespace_settings.require_sha_for_merge).to be(true)
+      end
+    end
+
+    context 'when parent group has require_sha_for_merge locked' do
+      let_it_be_with_reload(:parent_group) do
+        create(:group, organization: organization).tap do |group|
+          group.add_owner(user)
+          group.namespace_settings.update!(require_sha_for_merge: false, lock_require_sha_for_merge: true)
+        end
+      end
+
+      let(:extra_params) { { parent_id: parent_group.id } }
+
+      it 'inherits the locked value from the parent group' do
+        expect(created_group.namespace_settings.require_sha_for_merge).to be(false)
+      end
+    end
+
+    context 'when parent group has require_sha_for_merge unlocked' do
+      let_it_be_with_reload(:parent_group) do
+        create(:group, organization: organization).tap do |group|
+          group.add_owner(user)
+          group.namespace_settings.update!(require_sha_for_merge: false, lock_require_sha_for_merge: false)
+        end
+      end
+
+      let(:extra_params) { { parent_id: parent_group.id } }
+
+      it 'expects namespace setting to be true by default' do
+        expect(created_group.namespace_settings.require_sha_for_merge).to be(true)
       end
     end
   end

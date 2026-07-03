@@ -6,9 +6,9 @@ RSpec.describe Gitlab::LanguageDetection::ProgrammingLanguageResolver, feature_c
   subject(:resolved_languages) { described_class.new(detected_languages).execute }
 
   describe '#execute' do
-    context 'when all detected languages already exist by name' do
-      let_it_be(:ruby) { create(:programming_language, name: 'Ruby') }
-      let_it_be(:javascript) { create(:programming_language, name: 'JavaScript') }
+    context 'when all detected languages are current' do
+      let_it_be(:ruby) { create(:programming_language, name: 'Ruby', color: '#701516', language_id: 326) }
+      let_it_be(:javascript) { create(:programming_language, name: 'JavaScript', color: '#f1e05a', language_id: 158) }
 
       let(:detected_languages) do
         [
@@ -17,12 +17,60 @@ RSpec.describe Gitlab::LanguageDetection::ProgrammingLanguageResolver, feature_c
         ]
       end
 
-      it 'returns the existing languages without creating records', :aggregate_failures do
+      it 'returns the existing languages without changing records', :aggregate_failures do
         languages = nil
+        ruby_attributes = ruby.reload.attributes
+        javascript_attributes = javascript.reload.attributes
 
         expect { languages = resolved_languages.to_a }.not_to change { ProgrammingLanguage.count }
 
         expect(languages).to contain_exactly(ruby, javascript)
+        expect(ruby.reload.attributes).to eq(ruby_attributes)
+        expect(javascript.reload.attributes).to eq(javascript_attributes)
+      end
+    end
+
+    context 'when an existing language matches by language_id with an old name' do
+      let_it_be(:language) do
+        create(:programming_language, name: 'Mathematica', color: '#dd1100', language_id: 224)
+      end
+
+      let(:detected_languages) do
+        [detected_language(name: 'Wolfram Language', color: '#123456', language_id: 224)]
+      end
+
+      it 'updates and returns the existing language', :aggregate_failures do
+        languages = nil
+
+        expect { languages = resolved_languages.to_a }.not_to change { ProgrammingLanguage.count }
+
+        expect(languages).to contain_exactly(language)
+        expect(language.reload).to have_attributes(
+          name: 'Wolfram Language',
+          color: '#123456',
+          language_id: 224
+        )
+      end
+    end
+
+    context 'when an existing language matches by name with a missing language_id' do
+      let_it_be(:ruby) { create(:programming_language, name: 'Ruby', color: '#701516', language_id: nil) }
+
+      let(:detected_languages) do
+        [detected_language(name: 'Ruby', color: '#701516', language_id: 326)]
+      end
+
+      it 'updates and returns the existing language', :aggregate_failures do
+        languages = nil
+
+        expect { languages = resolved_languages.to_a }.not_to change { ProgrammingLanguage.count }
+
+        expect(languages).to contain_exactly(ruby)
+        expect(ruby.reload).to have_attributes(
+          name: 'Ruby',
+          color: '#701516',
+          language_id: 326
+        )
       end
     end
 
@@ -46,34 +94,66 @@ RSpec.describe Gitlab::LanguageDetection::ProgrammingLanguageResolver, feature_c
       end
     end
 
-    context 'when a detected language has a nil language_id' do
-      let(:detected_languages) do
-        [detected_language(name: 'NewLang', color: '#abcdef', language_id: nil)]
+    context 'when the detected name and language_id match different existing languages' do
+      let_it_be(:language_by_id) do
+        create(:programming_language, name: 'Mathematica', color: '#dd1100', language_id: 224)
       end
 
-      it 'creates the language with a nil language_id', :aggregate_failures do
-        expect { resolved_languages }.to change { ProgrammingLanguage.count }.by(1)
-
-        new_language = ProgrammingLanguage.find_by!(name: 'NewLang')
-        expect(new_language.language_id).to be_nil
-        expect(resolved_languages).to contain_exactly(new_language)
+      let_it_be(:language_by_name) do
+        create(:programming_language, name: 'Wolfram Language', color: '#abcdef', language_id: 10_224)
       end
-    end
-
-    context 'when an existing language has a stale language_id' do
-      let_it_be(:ruby) { create(:programming_language, name: 'Ruby', language_id: nil) }
 
       let(:detected_languages) do
-        [detected_language(name: 'Ruby', color: '#701516', language_id: 326)]
+        [detected_language(name: 'Wolfram Language', color: '#123456', language_id: 224)]
       end
 
-      it 'does not update the existing language by language_id', :aggregate_failures do
+      it 'returns the language_id match without changing either language', :aggregate_failures do
         languages = nil
+
+        language_by_id_attributes = language_by_id.reload.attributes
+        language_by_name_attributes = language_by_name.reload.attributes
 
         expect { languages = resolved_languages.to_a }.not_to change { ProgrammingLanguage.count }
 
-        expect(ruby.reload.language_id).to be_nil
-        expect(languages).to contain_exactly(ruby)
+        expect(languages).to contain_exactly(language_by_id)
+        expect(language_by_id.reload.attributes).to eq(language_by_id_attributes)
+        expect(language_by_name.reload.attributes).to eq(language_by_name_attributes)
+      end
+    end
+
+    context 'when creating a detected language raises RecordNotUnique' do
+      let(:detected_languages) do
+        [detected_language(name: 'Wolfram Language', color: '#dd1100', language_id: 224)]
+      end
+
+      before do
+        stub_create_conflict_for('Wolfram Language')
+        allow(ProgrammingLanguage).to receive(:find_by).and_call_original
+      end
+
+      it 'returns a language_id match before falling back to name' do
+        language_by_id = instance_double(ProgrammingLanguage)
+
+        expect(ProgrammingLanguage).to receive(:find_by)
+          .with(language_id: 224)
+          .and_return(language_by_id)
+        expect(ProgrammingLanguage).not_to receive(:find_by)
+          .with(name: 'Wolfram Language')
+
+        expect(resolved_languages).to contain_exactly(language_by_id)
+      end
+
+      it 'falls back to a name match when a language_id match does not exist' do
+        language_by_name = instance_double(ProgrammingLanguage)
+
+        expect(ProgrammingLanguage).to receive(:find_by)
+          .with(language_id: 224)
+          .and_return(nil)
+        expect(ProgrammingLanguage).to receive(:find_by)
+          .with(name: 'Wolfram Language')
+          .and_return(language_by_name)
+
+        expect(resolved_languages).to contain_exactly(language_by_name)
       end
     end
 
@@ -97,5 +177,16 @@ RSpec.describe Gitlab::LanguageDetection::ProgrammingLanguageResolver, feature_c
       color: color,
       language_id: language_id
     )
+  end
+
+  def stub_create_conflict_for(name)
+    relation = instance_double(ActiveRecord::Relation)
+
+    allow(ProgrammingLanguage).to receive(:where).and_call_original
+    allow(ProgrammingLanguage).to receive(:where)
+      .with(name: name)
+      .and_return(relation)
+    allow(relation).to receive(:first_or_create)
+      .and_raise(ActiveRecord::RecordNotUnique)
   end
 end

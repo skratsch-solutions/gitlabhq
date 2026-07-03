@@ -2272,6 +2272,72 @@ RSpec.describe Ci::Runner, factory_default: :keep, feature_category: :runner_cor
     end
   end
 
+  describe '#ensure_uuid' do
+    context 'when runner has no uuid' do
+      let(:runner) { build(:ci_runner) }
+
+      it 'generates a uuid' do
+        expect { runner.ensure_uuid }.to change { runner.read_attribute(:uuid) }.from(nil)
+      end
+    end
+
+    context 'when runner already has a uuid' do
+      let(:existing_uuid) { '01966aa0-f383-7a6b-b694-cd4f2f96cca1' }
+      let(:runner) { build(:ci_runner, uuid: existing_uuid) }
+
+      it 'does not change the existing uuid' do
+        expect { runner.ensure_uuid }.not_to change { runner.read_attribute(:uuid) }.from(existing_uuid)
+      end
+    end
+
+    context 'when runner is saved' do
+      it 'persists a uuid automatically' do
+        expect(create(:ci_runner).read_attribute(:uuid)).to be_present
+      end
+    end
+  end
+
+  describe '#uuid' do
+    context 'when runner has no uuid' do
+      let(:runner) { create(:ci_runner).tap { |r| r.update_column(:uuid, nil) } }
+
+      it 'generates and persists a uuid on read' do
+        uuid = runner.uuid
+
+        expect(uuid).to be_present
+        expect(runner.reload.read_attribute(:uuid)).to eq(uuid)
+      end
+    end
+
+    context 'when runner already has a uuid' do
+      let(:existing_uuid) { '01966aa0-f383-7a6b-b694-cd4f2f96cca1' }
+      let(:runner) { create(:ci_runner, uuid: existing_uuid) }
+
+      it 'returns the existing uuid without changing it' do
+        expect(runner.uuid).to eq(existing_uuid)
+      end
+    end
+
+    context 'when uuid is populated concurrently' do
+      let(:bbm_uuid) { '01966aa0-f383-7a6b-b694-cd4f2f96cca1' }
+
+      it 'adopts the persisted uuid instead of overwriting it' do
+        runner = create(:ci_runner)
+        runner.update_column(:uuid, nil)
+
+        # Simulate BBM writing the uuid between the in-memory nil check
+        # and the conditional UPDATE issued by ensure_uuid!.
+        allow(Gitlab::Utils).to receive(:uuid_v7).and_wrap_original do |original|
+          described_class.where(id: runner.id).update_all(uuid: bbm_uuid)
+          original.call
+        end
+
+        expect(runner.uuid).to eq(bbm_uuid)
+        expect(runner.reload.uuid).to eq(bbm_uuid)
+      end
+    end
+  end
+
   describe '#registration_available?', :freeze_time, :clean_gitlab_redis_cache do
     subject { runner.registration_available? }
 

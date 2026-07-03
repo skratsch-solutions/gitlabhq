@@ -55,7 +55,6 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       member_roles
       merge_request_diff_commit_users
       non_sql_service_pings
-      oauth_applications
       oauth_device_grants
       oauth_openid_requests
       organization_user_details

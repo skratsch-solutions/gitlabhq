@@ -20,6 +20,7 @@ import { s__, __, sprintf } from '~/locale';
 import { createAlert } from '~/alert';
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { TYPENAME_USER, TYPENAME_PERSONAL_ACCESS_TOKEN } from '~/graphql_shared/constants';
+import { InternalEvents } from '~/tracking';
 import createGranularPersonalAccessTokenMutation from '~/personal_access_tokens/graphql/create_granular_personal_access_token.mutation.graphql';
 import getSourcePersonalAccessToken from '~/personal_access_tokens/graphql/get_source_personal_access_token.query.graphql';
 import {
@@ -29,6 +30,8 @@ import {
   ACCESS_USER_ENUM,
   ACCESS_INSTANCE_ENUM,
   NAMESPACE_ACCESS_TYPES,
+  COMPLETE_FINE_GRAINED_PERSONAL_ACCESS_TOKEN_FORM,
+  ABANDON_FINE_GRAINED_PERSONAL_ACCESS_TOKEN_FORM,
 } from '~/personal_access_tokens/constants';
 import ConfirmUnsavedChangesDialog from '~/vue_shared/components/confirm_unsaved_changes_dialog.vue';
 import { defaultDate } from '~/vue_shared/access_tokens/utils';
@@ -64,6 +67,7 @@ export default {
         'ee_component/personal_access_tokens/components/create_granular_token/ask_dap_permissions.vue'
       ),
   },
+  mixins: [InternalEvents.mixin()],
   inject: {
     accessTokenMaxDate: { default: '' },
     accessTokenTableUrl: { default: '' },
@@ -174,7 +178,18 @@ export default {
       },
     },
   },
+  created() {
+    window.addEventListener('beforeunload', this.trackFormAbandonment);
+  },
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.trackFormAbandonment);
+  },
   methods: {
+    trackFormAbandonment() {
+      if (this.createdToken) return;
+
+      this.trackEvent(ABANDON_FINE_GRAINED_PERSONAL_ACCESS_TOKEN_FORM);
+    },
     handlePermissionsSelected(permissionsByBoundary) {
       this.aiPermissions.suggested = { ...permissionsByBoundary };
     },
@@ -293,6 +308,7 @@ export default {
         } else {
           this.createdToken = token;
           this.isFormDirty = false;
+          this.trackEvent(COMPLETE_FINE_GRAINED_PERSONAL_ACCESS_TOKEN_FORM);
         }
       } catch (error) {
         this.showCreateError(error, this.$options.i18n.createError);

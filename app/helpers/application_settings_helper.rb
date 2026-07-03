@@ -399,6 +399,8 @@ module ApplicationSettingsHelper
       :jira_connect_proxy_url,
       :jira_connect_additional_audience_url,
       :math_rendering_limits_enabled,
+      :require_sha_for_merge,
+      :lock_require_sha_for_merge,
       :max_artifacts_content_include_size,
       :max_artifacts_size,
       :max_attachment_size,

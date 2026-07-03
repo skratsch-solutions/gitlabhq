@@ -1,6 +1,6 @@
 ---
-stage: AI-powered
-group: Editor Extensions
+stage: AI Clients
+group: Developer Clients
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 description: Use the GitLab for VS Code extension to perform and review security scans.
 title: Secure your application in GitLab for VS Code

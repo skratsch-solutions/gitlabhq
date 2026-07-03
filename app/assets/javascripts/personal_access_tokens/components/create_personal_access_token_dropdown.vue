@@ -1,6 +1,8 @@
 <script>
 import { GlDisclosureDropdown, GlBadge } from '@gitlab/ui';
 import { s__, __ } from '~/locale';
+import { InternalEvents } from '~/tracking';
+import { CLICK_GENERATE_FINE_GRAINED_PERSONAL_ACCESS_TOKEN } from '../constants';
 
 export default {
   name: 'CreatePersonalAccessTokenDropdown',
@@ -8,6 +10,7 @@ export default {
     GlDisclosureDropdown,
     GlBadge,
   },
+  mixins: [InternalEvents.mixin()],
   inject: {
     accessTokenGranularNewUrl: { default: '' },
     accessTokenLegacyNewUrl: { default: '' },
@@ -37,6 +40,15 @@ export default {
       return items;
     },
   },
+  methods: {
+    handleDropdownAction(item) {
+      if (item.href !== this.accessTokenGranularNewUrl) {
+        return;
+      }
+
+      this.trackEvent(CLICK_GENERATE_FINE_GRAINED_PERSONAL_ACCESS_TOKEN);
+    },
+  },
   i18n: {
     buttonTitle: s__('AccessTokens|Generate token'),
     fineGrainedToken: s__('AccessTokens|Fine-grained token'),
@@ -60,6 +72,7 @@ export default {
     placement="bottom-end"
     fluid-width
     data-testid="create-token-dropdown"
+    @action="handleDropdownAction"
   >
     <template #list-item="{ item }">
       <div class="gl-mx-3 gl-w-34">

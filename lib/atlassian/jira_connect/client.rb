@@ -116,7 +116,8 @@ module Atlassian
           update_sequence_id: update_sequence_id
         )
 
-        post('/rest/devinfo/0.10/bulk', { repositories: [repo] })
+        r = post('/rest/devinfo/0.10/bulk', { repositories: [repo] })
+        handle_response(r, 'dev_info') { |data| dev_info_errors(data, r) }
       end
 
       def remove_branch_info(project:, remove_branch_info:, update_sequence_id: nil)
@@ -189,6 +190,45 @@ module Atlassian
         else
           ['Unknown error']
         end
+      end
+
+      # The dev_info bulk endpoint reports rejected entities in
+      # `failedDevinfoEntities`, a hash keyed by repository ID. Each repository
+      # entry carries repository-level `errorMessages` plus per-entity errors
+      # under `commits`, `branches`, and `pullRequests`. See:
+      # https://developer.atlassian.com/cloud/jira/software/rest/api-group-development-information#api-rest-devinfo-0-10-bulk-post
+      #
+      # `unknownIssueKeys` is intentionally not treated as an error: it is a
+      # normal occurrence (for example a commit referencing another project's
+      # ticket) and surfacing it would log routine syncs at error level and
+      # attach the full repository payload to the logs.
+      def dev_info_errors(data, response)
+        data = {} unless data.is_a?(Hash)
+        messages = []
+
+        failed_entities = data['failedDevinfoEntities']
+        failed_entities = {} unless failed_entities.is_a?(Hash)
+
+        failed_entities.each_value do |repo_errors|
+          next unless repo_errors.is_a?(Hash)
+
+          Array(repo_errors['errorMessages']).each { |e| messages << e['message'] }
+
+          %w[commits branches pullRequests].each do |type|
+            Array(repo_errors[type]).each do |entity|
+              Array(entity['errorMessages']).each do |e|
+                messages << "#{type} #{entity['id']}: #{e['message']}"
+              end
+            end
+          end
+        end
+
+        result = { 'errorMessages' => messages, 'responseCode' => response.code }
+        # Only attach the request body when there is something to debug, to
+        # avoid logging the full repository payload (commit messages, author
+        # emails, file paths) on every successful sync.
+        result['requestBody'] = request_body_schema(response) if messages.present?
+        result
       end
 
       def errors(data, key, response)

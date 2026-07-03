@@ -220,6 +220,327 @@ instructions:
       - Reference: https://docs.gitlab.com/development/sidekiq/compatibility_across_updates/
       - Reference: https://docs.gitlab.com/development/feature_flags/
 
+  # >>> generated: authentication — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
+  # distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
+  # source_checksum: 29cbb8c6517cd27b
+  - name: Authentication & Authorization Security
+    fileFilters:
+      # Controllers / entry points
+      - "app/controllers/sessions_controller.rb"
+      - "app/controllers/passwords_controller.rb"
+      - "app/controllers/omniauth_callbacks_controller.rb"
+      - "app/controllers/oauth/**/*.rb"
+      - "app/controllers/concerns/authenticates_with_two_factor*.rb"
+      - "app/controllers/concerns/sessionless_authentication.rb"
+      - "app/controllers/concerns/enforces_*authentication*.rb"
+      - "app/controllers/concerns/access_tokens_actions.rb"
+      - "app/controllers/admin/sessions_controller.rb"
+      - "app/controllers/admin/impersonation_tokens_controller.rb"
+      - "app/controllers/user_settings/passwords_controller.rb"
+      - "app/controllers/user_settings/personal_access_tokens_controller.rb"
+      - "app/controllers/**/access_tokens_controller.rb"
+      - "app/controllers/profiles/two_factor_auths_controller.rb"
+
+      # Models / token primitives
+      - "app/models/authn/**/*.rb"
+      - "app/models/personal_access_token.rb"
+      - "app/models/oauth_access_token.rb"
+      - "app/models/oauth_access_grant.rb"
+      - "app/models/webauthn_registration.rb"
+      - "app/models/concerns/token_authenticatable.rb"
+      - "app/models/concerns/encrypted_user_password.rb"
+      - "app/models/ability.rb"
+
+      # Services
+      - "app/services/authn/**/*.rb"
+      - "app/services/users/email_verification/**/*.rb"
+      - "app/services/webauthn/**/*.rb"
+      - "app/services/access_token_validation_service.rb"
+      - "app/services/personal_access_tokens/**/*.rb"
+      - "app/services/group_access_tokens/**/*.rb"
+      - "app/services/project_access_tokens/**/*.rb"
+      - "app/services/resource_access_tokens/**/*.rb"
+
+      # Auth-relevant policies, initializers, libs
+      - "app/policies/personal_access_token_policy.rb"
+      - "app/policies/global_policy.rb"
+      - "app/policies/user_policy.rb"
+      - "app/policies/authz/**/*.rb"
+      - "config/initializers/8_devise.rb"
+      - "config/initializers/warden.rb"
+      - "config/initializers/doorkeeper*.rb"
+      - "config/initializers/omniauth.rb"
+      - "config/initializers/webauthn.rb"
+      - "lib/api/api_guard.rb"
+      - "lib/authn/**/*.rb"
+      - "lib/gitlab/auth/**/*.rb"
+
+      # EE equivalents
+      - "ee/app/controllers/concerns/ee/authenticates_with_two_factor.rb"
+      - "ee/app/controllers/ee/ldap/**/*.rb"
+      - "ee/app/controllers/ee/omniauth_callbacks_controller.rb"
+      - "ee/app/controllers/ee/passwords_controller.rb"
+      - "ee/app/controllers/ee/user_settings/personal_access_tokens_controller.rb"
+      - "ee/app/controllers/groups/ldaps_controller.rb"
+      - "ee/app/controllers/groups/omniauth_callbacks_controller.rb"
+      - "ee/app/controllers/groups/two_factor_auths_controller.rb"
+      - "ee/app/controllers/oauth/**/*.rb"
+      - "ee/app/controllers/omniauth_kerberos_controller.rb"
+      - "ee/app/controllers/smartcard_controller.rb"
+      - "ee/app/controllers/**/service_accounts_controller.rb"
+      - "ee/app/finders/auth/**/*.rb"
+      - "ee/app/finders/authn/**/*.rb"
+      - "ee/app/models/authn/**/*.rb"
+      - "ee/app/models/authz/**/*.rb"
+      - "ee/app/models/ee/personal_access_token.rb"
+      - "ee/app/services/ee/personal_access_tokens/**/*.rb"
+      - "ee/app/services/namespaces/service_accounts/**/*.rb"
+      - "ee/app/services/users/service_accounts/**/*.rb"
+      - "ee/app/services/security/token_revocation_service.rb"
+      - "ee/app/policies/authz/**/*.rb"
+      - "ee/lib/authn/**/*.rb"
+      - "ee/lib/gitlab/auth/**/*.rb"
+      - "ee/lib/api/scim/**/*.rb"
+    instructions: |
+      ### Request Flow and Token Resolution
+
+      - DO NOT change the token resolution order in `AuthFinders` (`lib/gitlab/auth/auth_finders.rb`); deploy tokens, bearer tokens, job tokens, and sessions are checked in a specific priority — reordering can cause one token type to shadow another.
+      - DO NOT implement custom API authentication; use `API::APIGuard` (`lib/api/api_guard.rb`).
+      - DO NOT hand-roll JWT or token parsing; use `Authn::IamService::JwtValidationService`.
+      - Use `check_rate_limit!` for rate limiting on token creation and verification endpoints.
+
+      ### Token Prefixes and Storage
+
+      - Use token prefixes to identify token types: `glpat-` (PAT), `gldt-` (deploy token), `glcbt-` (CI job token), `gloas-` (OAuth application secret).
+      - DO NOT create ad-hoc token columns or manual hashing; use the `TokenAuthenticatable` concern with `add_authentication_token_field`.
+      - DO NOT add new token types with `insecure: true` storage strategy; use `digest: true` for SHA-256 or `encrypted: :required` for AES-256-GCM encryption at rest.
+      - Default to expiration on new token types; DO NOT allow token creation without an expiration unless explicitly required.
+      - DO NOT accept tokens via URL query parameters in new endpoints; use the `PRIVATE-TOKEN` header for PATs or `Authorization: Bearer` for OAuth.
+      - Compare token equality using a constant-time function (`ActiveSupport::SecurityUtils.secure_compare`) to defend against timing attacks.
+
+      ### Sessions and Sign-In
+
+      - DO NOT create parallel session stores; use Devise combined with `ActiveSession`.
+      - Use `Rack::Attack` (`config/initializers/rack_attack.rb`) for login throttling.
+      - Use `Gitlab::ApplicationRateLimiter` for feature-level rate limits (for example, token creation, password resets).
+      - Ensure every endpoint that validates a credential (password, token, 2FA code, recovery code) is rate-limited; rate-limit keying must include the credential subject (login or user) when feasible, not only the source IP — per-IP-only throttles that reset on success are bypassable via credential stuffing.
+      - Regenerate the session ID on any privilege change: sign-in, 2FA pass, password change, admin-mode entry — defends against session fixation.
+
+      ### Access Tokens
+
+      - DO NOT change token expiration logic during rotation; token rotation must preserve the original expiration policy (past incidents: rotating a PAT altered service account expiration dates and group membership expiration).
+      - When blocking a user, verify all active tokens are invalidated across all subsystems (past incident: blocked user PATs continued to mint valid container registry JWTs).
+
+      ### CI Job Tokens
+
+      - DO NOT store CI job tokens in plaintext or compare them with string equality; they are JWTs signed with RSA.
+      - DO NOT extend CI job token lifetime beyond the job duration; they are scoped to a specific pipeline job and expire with the job.
+
+      ### OAuth and OIDC
+
+      - DO NOT add new OIDC claims without considering data exposure; each claim is included in ID tokens visible to the requesting application.
+      - DO NOT log, expose, or rotate the OIDC signing key (`openid_connect_signing_key`) without coordinating with the infrastructure team; it is stored in Rails credentials.
+      - Always create OAuth tokens with an expiration; keep the expiration as short as possible.
+      - DO NOT implement custom OAuth flows; use OmniAuth strategies for external providers and Doorkeeper for the provider side.
+      - Use PKCE when GitLab acts as an OAuth client.
+
+      ### SAML
+
+      - When modifying `extern_uid` through the API, set `trusted_extern_uid` to `false`; the base OAuth login class (`lib/gitlab/auth/o_auth/user.rb`) checks `trusted_extern_uid?` before resolving the user — when overriding user lookup in a subclass, verify the override also checks this flag.
+      - Validate SAML `RelayState` parameters before using them as redirect targets (past incident: open redirect via unvalidated RelayState in SAML Single Logout).
+      - Validate the XML signature on every SAML response and verify the signed element is the assertion being trusted — defends against XML signature wrapping (past incident: [#486565](https://gitlab.com/gitlab-org/gitlab/-/issues/486565) — unauthenticated SAML sign-in bypass).
+
+      ### Identity Linking and extern_uid
+
+      - DO NOT update `extern_uid` without setting `trusted_extern_uid` to `false`; unverified `extern_uid` changes can enable account takeover.
+      - When overriding user lookup in OAuth subclasses (for example, `GroupSaml::User`), verify the override checks `trusted_extern_uid?`; the base class checks this but overrides can bypass it.
+      - DO NOT resolve users solely by `extern_uid` without verifying the identity is trusted (`trusted_extern_uid?`).
+
+      ### Two-Factor Authentication
+
+      - Sanitize login parameters (username, email) before authentication (past incident: whitespace in login parameter bypassed WebAuthn 2FA — [#585333](https://gitlab.com/gitlab-org/gitlab/-/work_items/585333)).
+      - When a passkey or 2FA device is deleted, invalidate all sessions that were authenticated with that credential.
+      - DO NOT allow `read_api` or other limited-scope tokens to bypass sudo mode or elevated authentication requirements.
+
+      ### Password Management
+
+      - Use `InternalRedirect#sanitize_redirect` or `safe_redirect_path` to validate all user-supplied redirect targets in password reset flows; DO NOT pass raw parameters to `redirect_to` — always provide a fallback: `redirect_to sanitize_redirect(params[:redirect]) || root_path`.
+      - Ensure password reset tokens are single-use, short-lived, and invalidated on successful use; successful reset must invalidate all other active sessions for the user.
+      - Ensure the password reset endpoint validates that the email parameter is a single string value and rejects any request where it is provided as an array or other non-string type (past incident: [#436084](https://gitlab.com/gitlab-org/gitlab/-/issues/436084) — account takeover via password reset).
+      - Ensure sign-in failure and password-reset responses do not differ between "user exists, wrong credential" and "user does not exist" — use the same response body and the same timing to defend against account enumeration.
+
+      ### Shared Infrastructure and Logging
+
+      - DO NOT change the return type or nil-vs-value semantics of authentication methods without auditing all callers.
+      - Verify all authentication flows still work when modifying shared infrastructure (web, API, OAuth, SAML entry points all share authentication code).
+      - DO NOT log token values, password values, or session IDs — this includes error messages, audit events, structured logs, and backtraces.
+      - When modifying user blocking, banning, or deactivation, verify the blocked state is checked at the point of use, not only at login; tokens, sessions, and API access must all respect the blocked state.
+      - When adding a new authentication path or token type, verify it respects the `user.blocked?` check.
+      - DO NOT pass raw user-supplied parameters to `redirect_to`; use `InternalRedirect#sanitize_redirect` or `safe_redirect_path` — redirect helpers return `nil` for invalid targets, so always provide a fallback.
+
+      ### Composite Identity
+
+      - Use composite identity for any AI-generated activity on the GitLab platform that performs write actions.
+      - Ensure the service account used for composite identity has `composite_identity_enforced: true` (must be configured programmatically — not available in the UI).
+      - Ensure the OAuth application used for composite identity enables the dynamic scope `user:*` (must be configured programmatically — not available in the UI).
+      - DO NOT use the standard authorization code flow (browser consent) for composite identity service accounts; service accounts are bot users that cannot sign in interactively.
+      - Ensure composite identity OAuth token scopes include the concrete dynamic scope `user:$ID` for the human user who originated the AI request, plus any required base scopes (for example, `api`).
+      - Always use `Gitlab::Auth::Identity.resolve_composite_identity_actor(current_user)` to resolve the actor for any write operation; DO NOT determine the composite identity context manually.
+      - Use the actor returned by `resolve_composite_identity_actor` wherever authorship is set (notes, issues/MRs, commits, pipeline user context).
+      - Understand attribution context: OAuth/CI flows tag `:authentication` context (service account is attributed); web/assignment flows tag `:permission_check` context (human is attributed) — DO NOT override this context manually.
+
+      ### Feature Flags
+
+      - Use `group: group::authentication` for authentication feature flags.
+      - Reference: doc/development/authentication.md
+      - Reference: doc/development/ai_features/composite_identity.md
+  # <<< end generated: authentication
+
+  # Review-only heuristics that are deliberately NOT fenced: they encode
+  # reviewer experience and weakness-class cross-references that are not in the
+  # distilled SSOT, so they must live outside the generated region to survive
+  # regeneration.
+  - name: Authentication Review Heuristics
+    fileFilters:
+      - "app/policies/global_policy.rb"
+      - "app/policies/user_policy.rb"
+      - "app/policies/authz/**/*.rb"
+      - "ee/app/policies/authz/**/*.rb"
+      - "app/models/ability.rb"
+      - "app/controllers/concerns/enforces_*authentication*.rb"
+      - "app/controllers/concerns/authenticates_with_two_factor*.rb"
+      - "app/controllers/concerns/sessionless_authentication.rb"
+      - "app/controllers/oauth/**/*.rb"
+      - "lib/authn/**/*.rb"
+      - "lib/gitlab/auth/**/*.rb"
+      - "ee/lib/authn/**/*.rb"
+      - "ee/lib/gitlab/auth/**/*.rb"
+    instructions: |
+      Review-only heuristics for authentication and authorization changes. These
+      are not distilled from SSOT docs; they encode reviewer experience and map
+      changes to known weakness classes. Only comment on a clear violation.
+
+      1. **Flag policy weakening.** Treat these diff patterns as suspect and ask
+         for explicit justification:
+         - removing or relaxing an `Ability.allowed?` check;
+         - broadening a policy rule's permitted role or condition;
+         - removing a `before_action :authenticate_user!` or `:authenticate_admin!`;
+         - flipping a `feature_category` away from `authentication`/`authorization`
+           (this silently drops CODEOWNERS enforcement by the auth team);
+         - deleting or skipping specs that assert a rejected or forbidden path.
+
+      2. **Name the weakness class for existing rules.** When reviewing the related
+         auth code, cross-reference the CWE so the author can look it up:
+         - Logging a token, password, or session-ID value → CWE-532 (information
+           exposure through log files).
+         - Sign-in, password-reset, or 2FA responses that differ between "user
+           exists, wrong credential" and "no such user" in body, status, or timing
+           → CWE-203 (observable discrepancy enabling account enumeration; past
+           incident: #436084 — password-reset account takeover).
+
+  # >>> generated: authentication-testing — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
+  - name: Authentication Test Quality
+    fileFilters:
+      - "spec/controllers/sessions_controller_spec.rb"
+      - "spec/controllers/passwords_controller_spec.rb"
+      - "spec/controllers/omniauth_callbacks_controller_spec.rb"
+      - "spec/controllers/oauth/**/*_spec.rb"
+      - "spec/controllers/concerns/authenticates_with_two_factor*_spec.rb"
+      - "spec/controllers/admin/sessions_controller_spec.rb"
+      - "spec/controllers/admin/impersonation_tokens_controller_spec.rb"
+      - "spec/controllers/user_settings/**/*_spec.rb"
+      - "spec/controllers/profiles/two_factor_auths_controller_spec.rb"
+      - "spec/models/authn/**/*_spec.rb"
+      - "spec/models/personal_access_token_spec.rb"
+      - "spec/models/oauth_access_*_spec.rb"
+      - "spec/models/webauthn_registration_spec.rb"
+      - "spec/models/concerns/token_authenticatable_spec.rb"
+      - "spec/services/authn/**/*_spec.rb"
+      - "spec/services/users/email_verification/**/*_spec.rb"
+      - "spec/services/webauthn/**/*_spec.rb"
+      - "spec/services/personal_access_tokens/**/*_spec.rb"
+      - "spec/services/group_access_tokens/**/*_spec.rb"
+      - "spec/services/project_access_tokens/**/*_spec.rb"
+      - "spec/services/resource_access_tokens/**/*_spec.rb"
+      - "spec/policies/**/*_spec.rb"
+      - "spec/lib/authn/**/*_spec.rb"
+      - "spec/lib/gitlab/auth/**/*_spec.rb"
+      - "spec/requests/api/api_guard_spec.rb"
+      - "spec/requests/api/admin/token_spec.rb"
+      - "spec/requests/api/deploy_tokens_spec.rb"
+      - "spec/requests/api/doorkeeper_access_spec.rb"
+      - "spec/requests/api/oauth_tokens_spec.rb"
+      - "spec/requests/api/personal_access_tokens_spec.rb"
+      - "spec/requests/api/personal_access_tokens/**/*_spec.rb"
+      - "spec/requests/api/resource_access_tokens_spec.rb"
+      - "spec/requests/api/resource_access_tokens/**/*_spec.rb"
+      - "spec/requests/api/group_service_accounts_spec.rb"
+      - "spec/requests/api/project_service_accounts_spec.rb"
+      - "spec/requests/api/service_accounts_spec.rb"
+      - "spec/requests/api/graphql/authz/**/*_spec.rb"
+      - "spec/requests/api/graphql/mutations/users/personal_access_tokens/**/*_spec.rb"
+      - "ee/spec/controllers/**/passwords_controller_spec.rb"
+      - "ee/spec/controllers/**/omniauth_callbacks_controller_spec.rb"
+      - "ee/spec/controllers/**/two_factor_auths_controller_spec.rb"
+      - "ee/spec/controllers/**/service_accounts_controller_spec.rb"
+      - "ee/spec/controllers/smartcard_controller_spec.rb"
+      - "ee/spec/lib/authn/**/*_spec.rb"
+      - "ee/spec/lib/gitlab/auth/**/*_spec.rb"
+      - "ee/spec/policies/**/*_spec.rb"
+      - "ee/spec/services/ee/personal_access_tokens/**/*_spec.rb"
+      - "ee/spec/services/namespaces/service_accounts/**/*_spec.rb"
+      - "ee/spec/services/users/service_accounts/**/*_spec.rb"
+    instructions: |
+      For specs covering authentication or authorization code, verify the following.
+      Only comment if there is a clear violation; skip if the spec is unrelated to
+      the listed concerns.
+
+      1. **Token edge cases are exercised.** Specs for endpoints that accept tokens
+         should cover: expired tokens, malformed tokens, revoked tokens, wrong-scope
+         tokens, and (where applicable) replay. Reference patterns: see
+         `spec/lib/gitlab/auth/auth_finders_spec.rb` and `spec/requests/api/api_guard_spec.rb`.
+
+      2. **Authorization specs cover the full actor matrix.** Specs for controllers,
+         API endpoints, or policies with auth checks should exercise: authorized user
+         (allowed), unauthorized user (forbidden), anonymous user (redirect or 401),
+         and admin user where the role affects behavior. Don't only test the
+         "everything works" case.
+
+      3. **Auth-stubbing red flags.** Flag specs that stub the auth layer in ways that
+         hide regressions:
+         - `allow_any_instance_of(...).to receive(:current_user).and_return(...)` to
+           short-circuit auth.
+         - `allow(Ability).to receive(:allowed?).and_return(true)` (or `false`) to
+           bypass the policy framework.
+         - Stubbing `sign_in` without using the Devise/Warden test helpers.
+         Use real users and real policies in auth specs; stub only the external
+         dependencies (e.g., IAM service HTTP calls).
+
+         Safe to stub (do not flag):
+         - External HTTP calls (`IamService` client, OAuth provider callbacks)
+         - Sidekiq workers in unrelated specs (`allow(SomeWorker).to receive(:perform_async)`)
+         - Time helpers (`travel_to`, `freeze_time`)
+         - Feature flag state (`stub_feature_flags(...)`)
+         - Application settings (`stub_application_setting(...)`)
+         - File and storage clients (`Fog`, `CarrierWave`, GCS/S3 client doubles)
+
+      4. **Rate-limit specs exist where rate-limiting is applied.** When a change adds
+         or modifies a rate-limit (`check_rate_limit!`, `Gitlab::ApplicationRateLimiter`),
+         verify a spec covers (a) the limit fires after N attempts, (b) the limit key
+         includes the credential subject, not only the IP. See
+         `spec/support/shared_examples/controllers/rate_limited_endpoint_shared_examples.rb`
+         if a shared example applies.
+
+      5. **Token scopes in specs are narrow.** When a spec creates a PAT, OAuth token,
+         or job token, use the narrowest scope sufficient. A spec that uses `:api`
+         scope to test a `:read_user`-protected endpoint can mask a scope-enforcement
+         bug. Prefer `create(:personal_access_token, scopes: [:read_user])` when the
+         endpoint requires only read access.
+
+      - Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/best_practices.md
+      - Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/.ai/principles/distilled/authentication.md
+  # <<< end generated: authentication-testing
+
   # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
   # distilled_at_sha: 9eb89263152259e883603c908db1e1cea6a1a74e
   # source_checksum: fdddf765995a1dff

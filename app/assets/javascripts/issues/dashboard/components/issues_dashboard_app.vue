@@ -202,9 +202,6 @@ export default {
       }
       return params;
     },
-    defaultWorkItemTypes() {
-      return this.workItemTypes.filter((type) => type.isFilterableListView).map((type) => type.id);
-    },
     dropdownItems() {
       return [
         { href: this.rssPath, text: __('Subscribe to RSS feed') },
@@ -240,11 +237,8 @@ export default {
         })
       );
     },
-    showAllWorkItemTypes() {
-      return this.glFeatures.dashboardShowAllWorkItemTypes;
-    },
     queryVariables() {
-      const variables = {
+      return {
         hideUsers: this.isPublicVisibilityRestricted && !this.isSignedIn,
         isSignedIn: this.isSignedIn,
         sort: this.sortKey,
@@ -252,11 +246,6 @@ export default {
         ...this.pageParams,
         ...this.apiFilterParams,
       };
-      if (!this.showAllWorkItemTypes) {
-        variables.workItemTypeIds =
-          this.apiFilterParams.workItemTypeIds || this.defaultWorkItemTypes;
-      }
-      return variables;
     },
     renderedIssues() {
       return this.hasSearch ? this.issues : [];

@@ -1819,7 +1819,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_02b881617c9d"
+              "$ref": "#/components/schemas/RequestBody_d1cef409add2"
     delete:
       operationId: deleteApiV4GroupsIdEnterpriseUsersUserId
       summary: Delete an enterprise user
@@ -16923,7 +16923,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3e00128b7f8a"
+              "$ref": "#/components/schemas/RequestBody_549da98e2090"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -20985,7 +20985,7 @@ paths:
     post:
       operationId: postApiV4GroupsIdMilestones
       summary: Create a group milestone
-      description: Creates a milestone for a specified group.
+      description: Creates a milestone for the specified group.
       tags:
       - Milestones
       responses:
@@ -21046,7 +21046,7 @@ paths:
     put:
       operationId: putApiV4GroupsIdMilestonesMilestoneId
       summary: Update a group milestone
-      description: Updates an existing group milestone.
+      description: Updates the specified group milestone.
       tags:
       - Milestones
       responses:
@@ -21082,7 +21082,7 @@ paths:
     delete:
       operationId: deleteApiV4GroupsIdMilestonesMilestoneId
       summary: Delete a group milestone
-      description: Deletes a specified group milestone.
+      description: Deletes the specified group milestone.
       tags:
       - Milestones
       responses:
@@ -21769,7 +21769,7 @@ paths:
   "/api/v4/groups/{id}/labels/{name}":
     get:
       operationId: getApiV4GroupsIdLabelsName
-      summary: Retrieve a single group label
+      summary: Retrieve a group label
       description: Retrieves a specified group label.
       tags:
       - Labels
@@ -21823,8 +21823,9 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdLabelsName
-      summary: Update an existing label. At least one optional parameter is required.
-      description: This feature was added in GitLab 12.4.
+      summary: Update a group label
+      description: Updates a specified group label. At least one parameter is required
+        to update the group label.
       tags:
       - Labels
       responses:
@@ -21859,8 +21860,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_4c5d8e77f5f2"
     delete:
       operationId: deleteApiV4GroupsIdLabelsName
-      summary: Delete an existing label
-      description: This feature was added in GitLab 12.4.
+      summary: Delete a group label
+      description: Deletes a specified group label.
       tags:
       - Labels
       responses:
@@ -53429,7 +53430,7 @@ paths:
       operationId: getApiV4GroupsIdPlaceholderReassignments
       summary: Retrieve pending reassignments
       description: Retrieves a CSV file with a list of pending reassignments. This
-        feature was added in GitLab 17.10
+        feature was introduced in GitLab 17.10.
       tags:
       - Groups
       responses:
@@ -81720,6 +81721,10 @@ components:
           type: string
         math_rendering_limits_enabled:
           type: string
+        require_sha_for_merge:
+          type: string
+        lock_require_sha_for_merge:
+          type: string
         max_artifacts_content_include_size:
           type: string
         max_artifacts_size:
@@ -89146,6 +89151,8 @@ components:
     APIEntitiesCiJobRequestRunnerInfo:
       type: object
       properties:
+        uuid:
+          type: string
         timeout:
           type: string
         runner_session_url:
@@ -91161,7 +91168,7 @@ components:
           nullable: true
       required:
       - prompt
-    RequestBody_02b881617c9d:
+    RequestBody_d1cef409add2:
       type: object
       properties:
         name:
@@ -91172,6 +91179,15 @@ components:
           type: string
           description: Email address of the user account. Must be from a verified
             group domain.
+          nullable: true
+        projects_limit:
+          type: integer
+          minimum: 0
+          description: The number of projects a user can create
+          nullable: true
+        can_create_group:
+          type: boolean
+          description: Flag indicating the user can create groups
           nullable: true
     RequestBody_5a2db215793f:
       type: object
@@ -95251,7 +95267,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_3e00128b7f8a:
+    RequestBody_549da98e2090:
       type: object
       properties:
         admin_mode:
@@ -96718,6 +96734,12 @@ components:
           type: string
           nullable: true
         math_rendering_limits_enabled:
+          type: string
+          nullable: true
+        require_sha_for_merge:
+          type: string
+          nullable: true
+        lock_require_sha_for_merge:
           type: string
           nullable: true
         max_artifacts_content_include_size:

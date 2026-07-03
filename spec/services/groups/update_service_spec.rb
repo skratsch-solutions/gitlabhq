@@ -572,6 +572,38 @@ RSpec.describe Groups::UpdateService, feature_category: :groups_and_projects do
     end
   end
 
+  context 'when updating #require_sha_for_merge' do
+    let(:service) { described_class.new(internal_group, user, require_sha_for_merge: true) }
+
+    it 'updates attribute' do
+      internal_group.add_member(user, Gitlab::Access::OWNER)
+
+      expect { service.execute }.to change { internal_group.require_sha_for_merge }.to(true)
+    end
+
+    it 'does not update when not group owner' do
+      internal_group.add_member(user, Gitlab::Access::MAINTAINER)
+
+      expect { service.execute }.not_to change { internal_group.require_sha_for_merge }
+    end
+  end
+
+  context 'when updating #lock_require_sha_for_merge' do
+    let(:service) { described_class.new(internal_group, user, lock_require_sha_for_merge: true) }
+
+    it 'updates attribute' do
+      internal_group.add_member(user, Gitlab::Access::OWNER)
+
+      expect { service.execute }.to change { internal_group.lock_require_sha_for_merge }.to(true)
+    end
+
+    it 'does not update when not group owner' do
+      internal_group.add_member(user, Gitlab::Access::MAINTAINER)
+
+      expect { service.execute }.not_to change { internal_group.lock_require_sha_for_merge }
+    end
+  end
+
   describe 'when updating namespace setting #step_up_auth_required_oauth_provider' do
     let_it_be_with_reload(:group) { create(:group, :private) }
     let_it_be(:user) { create(:user, owner_of: group) }

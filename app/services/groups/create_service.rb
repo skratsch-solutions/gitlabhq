@@ -57,6 +57,7 @@ module Groups
 
       set_organization
       set_jwt_ci_cd_job_token_enabled
+      set_require_sha_for_merge_default
 
       @group.import_export_uploads << params[:import_export_upload] if params[:import_export_upload]
       @group.build_namespace_settings
@@ -94,6 +95,8 @@ module Groups
       params.delete(:allow_mfa_for_subgroups)
       params.delete(:math_rendering_limits_enabled)
       params.delete(:lock_math_rendering_limits_enabled)
+      params.delete(:require_sha_for_merge)
+      params.delete(:lock_require_sha_for_merge)
     end
 
     def valid_to_create_chat_team?
@@ -179,6 +182,18 @@ module Groups
       return unless @group.root?
 
       params[:jwt_ci_cd_job_token_enabled] = true
+    end
+
+    def set_require_sha_for_merge_default
+      return if require_sha_for_merge_locked_for_new_group?
+
+      params[:require_sha_for_merge] = true
+    end
+
+    def require_sha_for_merge_locked_for_new_group?
+      return true if Gitlab::CurrentSettings.lock_require_sha_for_merge
+
+      @group.parent&.namespace_settings&.require_sha_for_merge_locked?(include_self: true) || false
     end
 
     def inherit_group_shared_runners_settings

@@ -506,7 +506,6 @@ export default {
         <div class="gl-align-middle">
           <run-pipeline-button
             variant="confirm"
-            data-testid="run_pipeline_button"
             :is-loading="showRunPipelineButtonLoader"
             :merge-request-id="mergeRequestId"
             @run-pipeline="tryRunPipeline"
@@ -530,17 +529,21 @@ export default {
 
       <pipelines-table
         :is-creating-pipeline="isCreatingPipeline"
-        :show-run-pipeline-button="canRenderPipelineButton"
-        :run-pipeline-button-loading="showRunPipelineButtonLoader"
-        :merge-request-id="mergeRequestId"
         :pipeline-id-type="$options.pipelineIdKey"
         :pipelines="state.pipelines"
         class="@lg/panel:-gl-mt-px"
         @cancel-pipeline="cancelPipeline"
-        @run-pipeline="tryRunPipeline"
         @job-action-executed="onRefreshPipelinesTable"
         @retry-pipeline="retryPipeline"
-      />
+      >
+        <template v-if="canRenderPipelineButton" #table-header-actions>
+          <run-pipeline-button
+            :is-loading="showRunPipelineButtonLoader"
+            :merge-request-id="mergeRequestId"
+            @run-pipeline="tryRunPipeline"
+          />
+        </template>
+      </pipelines-table>
     </div>
 
     <gl-modal

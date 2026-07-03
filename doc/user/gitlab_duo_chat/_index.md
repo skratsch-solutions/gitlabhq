@@ -1,5 +1,5 @@
 ---
-stage: AI-powered
+stage: AI Clients
 group: Duo Chat
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 description: Use GitLab Duo Chat to ask questions about your code, get help with GitLab, and complete tasks in the GitLab UI or your IDE.

@@ -1166,6 +1166,12 @@ class ApplicationSetting < ApplicationRecord
   validates :math_rendering_limits_enabled,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
 
+  validates :require_sha_for_merge,
+    inclusion: { in: [true, false], message: N_('must be a boolean value') }
+
+  validates :lock_require_sha_for_merge,
+    inclusion: { in: [true, false], message: N_('must be a boolean value') }
+
   validates :iframe_rendering_enabled,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
 

@@ -77,7 +77,7 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
               click_link('Pipelines')
             end
 
-            expect(page).to have_testid('run_pipeline_button', text: 'Run pipeline')
+            expect(page).to have_testid('run-mr-pipeline-button', text: 'Run pipeline')
           end
         end
 
@@ -91,7 +91,7 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
               click_link('Pipelines')
             end
 
-            expect(page).to have_testid('run_pipeline_button', text: 'Run pipeline')
+            expect(page).to have_testid('run-mr-pipeline-button', text: 'Run pipeline')
           end
         end
 
@@ -140,7 +140,7 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
           end
 
           expect(page).to have_content('There are currently no pipelines.')
-          expect(find_by_testid('run_pipeline_button')).to have_text('Run pipeline')
+          expect(page).to have_testid('run-mr-pipeline-button', text: 'Run pipeline')
         end
       end
     end

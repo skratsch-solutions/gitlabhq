@@ -784,7 +784,6 @@ export default {
         <div class="gl-align-middle">
           <run-pipeline-button
             variant="confirm"
-            data-testid="run_pipeline_button"
             :is-loading="showRunPipelineButtonLoader"
             :merge-request-id="mergeRequestId"
             @run-pipeline="tryRunPipeline"
@@ -808,17 +807,21 @@ export default {
 
       <pipelines-table
         :is-creating-pipeline="isCreatingPipeline"
-        :show-run-pipeline-button="canRenderPipelineButton"
-        :run-pipeline-button-loading="showRunPipelineButtonLoader"
-        :merge-request-id="mergeRequestId"
         :pipelines="pipelinesWithDownstream"
         :source-project-full-path="sourceProjectFullPath"
         class="@lg/panel:-gl-mt-px"
         @cancel-pipeline="cancelPipeline"
-        @run-pipeline="tryRunPipeline"
         @retry-pipeline="retryPipeline"
         @job-action-executed="onJobActionExecuted"
-      />
+      >
+        <template v-if="canRenderPipelineButton" #table-header-actions>
+          <run-pipeline-button
+            :is-loading="showRunPipelineButtonLoader"
+            :merge-request-id="mergeRequestId"
+            @run-pipeline="tryRunPipeline"
+          />
+        </template>
+      </pipelines-table>
       <div class="gl-mt-5 gl-flex gl-justify-center">
         <gl-keyset-pagination
           v-if="showPagination"

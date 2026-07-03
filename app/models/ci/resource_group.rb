@@ -54,22 +54,15 @@ module Ci
     # assigned to the resources, and release if it's stale.
     # See https://gitlab.com/gitlab-org/gitlab/-/issues/335537#note_632925914 for more information.
     def stale_processables
-      scope =
-        if partition_aware_stale_processables?
-          # Resolve the retained `(build_id, partition_id)` pairs first so the
-          # `p_ci_builds` lookup gets literal `partition_id` values and can prune
-          # partitions at plan time. A correlated subquery cannot prune because
-          # the planner does not know the partition IDs ahead of time.
-          # rubocop:disable Database/AvoidUsingPluckWithoutLimit -- bounded by resource-group cardinality
-          retained_pairs = resources.retained.pluck(:build_id, :partition_id)
-          # rubocop:enable Database/AvoidUsingPluckWithoutLimit
+      # Resolve the retained `(build_id, partition_id)` pairs first so the
+      # `p_ci_builds` lookup gets literal `partition_id` values and can prune
+      # partitions at plan time. A correlated subquery cannot prune because
+      # the planner does not know the partition IDs ahead of time.
+      # rubocop:disable Database/AvoidUsingPluckWithoutLimit -- bounded by resource-group cardinality
+      retained_pairs = resources.retained.pluck(:build_id, :partition_id)
+      # rubocop:enable Database/AvoidUsingPluckWithoutLimit
 
-          Ci::Processable.id_and_partition_in(retained_pairs)
-        else
-          Ci::Processable.where(id: resources.retained.select(:build_id))
-        end
-
-      scope.complete.updated_at_before(5.minutes.ago)
+      Ci::Processable.id_and_partition_in(retained_pairs).complete.updated_at_before(5.minutes.ago)
     end
 
     def upcoming_processables
@@ -94,10 +87,6 @@ module Ci
     end
 
     private
-
-    def partition_aware_stale_processables?
-      Feature.enabled?(:ci_resource_group_partition_aware_stale_processables, project)
-    end
 
     # In order to avoid deadlock, we do NOT specify the job execution order in the same pipeline.
     # The system processes wherever ready to transition to `pending` status from `waiting_for_resource`.

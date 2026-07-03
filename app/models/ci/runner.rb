@@ -113,6 +113,7 @@ module Ci
     belongs_to :creator, class_name: 'User', optional: true
 
     before_save :ensure_token
+    before_save :ensure_uuid
     after_destroy :cleanup_runner_queue
 
     scope :active, ->(value = true) { where(active: value) }
@@ -641,7 +642,38 @@ module Ci
       self.class.runner_types[runner_type]
     end
 
+    def ensure_uuid
+      write_attribute(:uuid, Gitlab::Utils.uuid_v7) unless read_attribute(:uuid).present?
+    end
+
+    # Each existing runner needs to have a uuid.
+    # We do this on read to cover the window between adding the UUID column
+    # and the background migration completing the backfill.
+    # TODO: Remove this override once BackfillCiRunnersUuid is finalized in milestone 19.6.
+    def uuid
+      ensure_uuid!
+      read_attribute(:uuid)
+    end
+
     private
+
+    # Transitional helper supporting the lazy uuid getter above.
+    # Do not call from new code - this method exists only to backfill
+    # uuids for runners that pre-date the column being added.
+    # TODO: Remove this method once BackfillCiRunnersUuid is finalized in milestone 19.6.
+    def ensure_uuid!
+      return if read_attribute(:uuid).present?
+      return unless Gitlab::Database.read_write?
+
+      new_uuid = Gitlab::Utils.uuid_v7
+      updated = self.class.where(id: id, uuid: nil).update_all(uuid: new_uuid)
+
+      if updated == 1
+        write_attribute(:uuid, new_uuid)
+      else
+        write_attribute(:uuid, self.class.where(id: id).pick(:uuid))
+      end
+    end
 
     scope :with_upgrade_status, ->(upgrade_status) do
       joins(:runner_managers).merge(RunnerManager.with_upgrade_status(upgrade_status))

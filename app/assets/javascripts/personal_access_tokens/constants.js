@@ -210,6 +210,13 @@ export const MAX_DESCRIPTION_LENGTH = 255;
 
 export const SEARCH = 'search';
 
+export const CLICK_GENERATE_FINE_GRAINED_PERSONAL_ACCESS_TOKEN =
+  'click_generate_fine_grained_personal_access_token';
+export const COMPLETE_FINE_GRAINED_PERSONAL_ACCESS_TOKEN_FORM =
+  'complete_fine_grained_personal_access_token_form';
+export const ABANDON_FINE_GRAINED_PERSONAL_ACCESS_TOKEN_FORM =
+  'abandon_fine_grained_personal_access_token_form';
+
 export const ACTIONS = {
   REVOKE: 'revoke',
   ROTATE: 'rotate',

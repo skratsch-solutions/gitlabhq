@@ -669,6 +669,31 @@ RSpec.describe Organizations::Transfer::UsersService, :aggregate_failures, featu
         end
       end
 
+      context 'for oauth applications' do
+        it 'updates organization_id for user-owned oauth applications of transferred users' do
+          app1 = create(:oauth_application, owner: user1, organization: old_organization)
+          app2 = create(:oauth_application, owner: user2, organization: old_organization)
+
+          service.execute
+
+          expect(app1.reload.organization_id).to eq(new_organization.id)
+          expect(app2.reload.organization_id).to eq(new_organization.id)
+        end
+
+        it 'does not update oauth applications for users not in the group' do
+          non_group_app = create(:oauth_application, owner: non_group_user, organization: old_organization)
+
+          expect { service.execute }.not_to change { non_group_app.reload.organization_id }
+        end
+
+        it 'does not update group-owned oauth applications' do
+          group_app = create(:oauth_application, owner_id: group.id, owner_type: 'Namespace',
+            organization: old_organization)
+
+          expect { service.execute }.not_to change { group_app.reload.organization_id }
+        end
+      end
+
       context 'for granular scopes' do
         let_it_be_with_refind(:token1) do
           create(:personal_access_token, user: user1, organization: old_organization)

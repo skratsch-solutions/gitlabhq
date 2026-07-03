@@ -45,7 +45,7 @@ module API
       end
 
       desc 'Create a group milestone' do
-        detail 'Creates a milestone for a specified group.'
+        detail 'Creates a milestone for the specified group.'
         success Entities::Milestone
         tags ['milestones']
       end
@@ -61,7 +61,7 @@ module API
       end
 
       desc 'Update a group milestone' do
-        detail 'Updates an existing group milestone.'
+        detail 'Updates the specified group milestone.'
         success Entities::Milestone
         tags ['milestones']
       end
@@ -76,7 +76,7 @@ module API
       end
 
       desc 'Delete a group milestone' do
-        detail 'Deletes a specified group milestone.'
+        detail 'Deletes the specified group milestone.'
         success code: 204, message: '204 No Content'
         tags ['milestones']
       end

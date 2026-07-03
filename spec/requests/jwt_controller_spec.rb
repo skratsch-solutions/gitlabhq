@@ -566,9 +566,34 @@ RSpec.describe JwtController, feature_category: :system_access do
       end
 
       it 'allows read access' do
-        expect(service).to receive(:execute).with(authentication_abilities: Gitlab::Auth.read_only_authentication_abilities)
+        expect(service).to receive(:execute).with(
+          authentication_abilities: Gitlab::Auth.read_only_authentication_abilities,
+          personal_access_token: nil
+        )
 
         get '/jwt/auth', params: parameters
+      end
+    end
+
+    context 'when authenticating with a granular (fine-grained) personal access token' do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:granular_pat) do
+        create(:granular_pat,
+          user: user,
+          boundary: ::Authz::Boundary.for(project),
+          permissions: [:read_container_repository])
+      end
+
+      let(:headers) { { authorization: credentials('personal_access_token', granular_pat.token) } }
+
+      it 'passes the granular personal access token to the registry service' do
+        expect(service).to receive(:execute).with(
+          authentication_abilities: [],
+          personal_access_token: granular_pat
+        )
+
+        get '/jwt/auth', params: parameters, headers: headers
       end
     end
 

@@ -810,6 +810,27 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
 
           expect_results_with_abilities(personal_access_token, [:read_container_image])
         end
+
+        context 'with a granular (fine-grained) personal access token' do
+          # Granular PATs carry no legacy abilities; their access is authorized
+          # per-boundary downstream (for example, in the container registry auth
+          # service). They must still authenticate and carry the token so the
+          # downstream service can evaluate the granular permissions.
+          it 'authenticates and carries the token without granting legacy abilities', :aggregate_failures do
+            granular_pat = create(:granular_pat,
+              boundary: ::Authz::Boundary.for(project),
+              permissions: [:read_container_repository])
+
+            result = gl_auth.find_for_git_client('', granular_pat.token, project: nil, request: request)
+
+            expect(result).to have_attributes(
+              actor: granular_pat.user,
+              type: :personal_access_token,
+              authentication_abilities: []
+            )
+            expect(result.personal_access_token).to eq(granular_pat)
+          end
+        end
       end
 
       it 'succeeds if it is an impersonation token' do

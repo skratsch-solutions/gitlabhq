@@ -1,6 +1,9 @@
 import { GlDisclosureDropdown } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
+import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import CreatePersonalAccessTokenDropdown from '~/personal_access_tokens/components/create_personal_access_token_dropdown.vue';
+
+const { bindInternalEventDocument } = useMockInternalEventsTracking();
 
 describe('CreatePersonalAccessTokenDropdown', () => {
   let wrapper;
@@ -57,6 +60,24 @@ describe('CreatePersonalAccessTokenDropdown', () => {
 
     it('displays the correct link', () => {
       expect(findFineGrainedTokenOption().href).toBe('/granular/new');
+    });
+
+    describe('when the option is selected', () => {
+      let trackEventSpy;
+
+      beforeEach(async () => {
+        ({ trackEventSpy } = bindInternalEventDocument(wrapper.element));
+
+        await findDropdown().vm.$emit('action', findFineGrainedTokenOption());
+      });
+
+      it('tracks the event', () => {
+        expect(trackEventSpy).toHaveBeenCalledWith(
+          'click_generate_fine_grained_personal_access_token',
+          {},
+          undefined,
+        );
+      });
     });
   });
 

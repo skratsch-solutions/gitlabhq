@@ -726,15 +726,103 @@ RSpec.describe Atlassian::JiraConnect::Client, feature_category: :integrations d
   describe '#store_dev_info' do
     let_it_be(:merge_requests, freeze: false) { create_list(:merge_request, 2, :unique_branches, source_project: project) }
 
-    before do
-      path = '/rest/devinfo/0.10/bulk'
+    let(:path) { '/rest/devinfo/0.10/bulk' }
 
+    before do
       stub_full_request("https://gitlab-test.atlassian.net#{path}", method: :post)
         .with(headers: expected_headers(path, 'POST'))
+        .to_return(status: 202, body: {}.to_json, headers: { 'Content-Type' => 'application/json' })
     end
 
     it "calls the API with auth headers" do
       subject.send(:store_dev_info, project: project)
+    end
+
+    context 'when Jira accepts the dev info' do
+      before do
+        stub_full_request("https://gitlab-test.atlassian.net#{path}", method: :post)
+          .with(headers: expected_headers(path, 'POST'))
+          .to_return(status: 202, body: {}.to_json, headers: { 'Content-Type' => 'application/json' })
+      end
+
+      it 'returns a successful response with no error messages' do
+        response = subject.send(:store_dev_info, project: project)
+
+        expect(response['errorMessages']).to eq([])
+        expect(response['responseCode']).to eq(202)
+      end
+
+      it 'does not log the request body on success' do
+        response = subject.send(:store_dev_info, project: project)
+
+        expect(response).not_to have_key('requestBody')
+      end
+    end
+
+    context 'when Jira rejects some dev info entities' do
+      let(:response_body) do
+        {
+          failedDevinfoEntities: {
+            "#{project.id}": {
+              errorMessages: [{ message: 'Repository rejected', errorTraceId: 'trace-1' }],
+              commits: [{ id: 'abc123', errorMessages: [{ message: 'Invalid commit payload' }] }],
+              branches: [{ id: 'feature', errorMessages: [{ message: 'Invalid branch payload' }] }],
+              pullRequests: [{ id: '42', errorMessages: [{ message: 'Invalid PR payload' }] }]
+            }
+          }
+        }
+      end
+
+      before do
+        stub_full_request("https://gitlab-test.atlassian.net#{path}", method: :post)
+          .with(headers: expected_headers(path, 'POST'))
+          .to_return(status: 202, body: response_body.to_json, headers: { 'Content-Type' => 'application/json' })
+      end
+
+      it 'surfaces the rejection details in the response' do
+        response = subject.send(:store_dev_info, project: project)
+
+        expect(response['errorMessages']).to include('Repository rejected')
+        expect(response['errorMessages']).to include('commits abc123: Invalid commit payload')
+        expect(response['errorMessages']).to include('branches feature: Invalid branch payload')
+        expect(response['errorMessages']).to include('pullRequests 42: Invalid PR payload')
+        expect(response['responseCode']).to eq(202)
+        expect(response['requestBody']).to be_present
+      end
+    end
+
+    context 'when Jira reports only unknown issue keys' do
+      let(:response_body) do
+        { unknownIssueKeys: %w[ABC-123], acceptedDevinfoEntities: {} }
+      end
+
+      before do
+        stub_full_request("https://gitlab-test.atlassian.net#{path}", method: :post)
+          .with(headers: expected_headers(path, 'POST'))
+          .to_return(status: 202, body: response_body.to_json, headers: { 'Content-Type' => 'application/json' })
+      end
+
+      it 'does not treat unknown issue keys as an error and does not log the request body' do
+        response = subject.send(:store_dev_info, project: project)
+
+        expect(response['errorMessages']).to eq([])
+        expect(response).not_to have_key('requestBody')
+      end
+    end
+
+    context 'when Jira returns an error status' do
+      before do
+        stub_full_request("https://gitlab-test.atlassian.net#{path}", method: :post)
+          .with(headers: expected_headers(path, 'POST'))
+          .to_return(status: 401, body: {}.to_json, headers: { 'Content-Type' => 'application/json' })
+      end
+
+      it 'returns the mapped error message' do
+        response = subject.send(:store_dev_info, project: project)
+
+        expect(response['errorMessages']).to eq(['Invalid JWT'])
+        expect(response['responseCode']).to eq(401)
+      end
     end
 
     it 'avoids N+1 database queries' do

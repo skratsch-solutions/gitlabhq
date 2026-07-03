@@ -33856,7 +33856,7 @@ msgstr ""
 msgid "Free top-level namespaces with private visibility cannot have more than %{free_limit} users. From %{strong_start}%{enforcement_date}%{strong_end}, if your namespace has more than %{free_limit} users, it will be placed in %{link_start}a read-only state%{link_end}. Contact your top-level group Owner to reduce the number of users in the namespace, make the namespace public, upgrade to a paid tier, or start a free %{duration}-day Ultimate trial."
 msgstr ""
 
-msgid "Free top-level namespaces with private visibility cannot have more than %{free_limit} users. From %{strong_start}%{enforcement_date}%{strong_end}, if your namespace has more than %{free_limit} users, it will be placed in %{link_start}a read-only state%{link_end}. To prevent this, reduce the number of users in the namespace, make the namespace public, upgrade to a paid tier, or start a free %{duration}-day Ultimate trial."
+msgid "Free top-level namespaces with private visibility cannot have more than %{free_limit} users. From %{strong_start}%{enforcement_date}%{strong_end}, if your namespace has more than %{free_limit} users, it will be placed in %{link_start}a read-only state%{link_end}. To prevent this, reduce the number of users in the namespace, make the namespace public, upgrade to a paid tier, or start a free %{duration}-day Ultimate trial. %{seat_usage_link_start}View your seat usage%{seat_usage_link_end} to see who counts toward the limit across your namespace."
 msgstr ""
 
 msgid "Free trial will expire in %{days}"
@@ -90551,7 +90551,7 @@ msgstr ""
 msgid "Your private namespace is over %{link_start}the %{free_limit} user limit%{link_end}. Contact your group Owner to reduce the number of users in the namespace, make the namespace public, or upgrade to a paid tier."
 msgstr ""
 
-msgid "Your private namespace is over %{link_start}the %{free_limit} user limit%{link_end}. To remove the read-only state, an Owner can reduce the number of users in the namespace to %{free_limit} or fewer, make the namespace public, or upgrade to a paid tier. If you need more time, you can start a free %{duration}-day Ultimate trial to get unlimited users."
+msgid "Your private namespace is over %{link_start}the %{free_limit} user limit%{link_end}. To remove the read-only state, an Owner can reduce the number of users in the namespace to %{free_limit} or fewer, make the namespace public, or upgrade to a paid tier. If you need more time, you can start a free %{duration}-day Ultimate trial to get unlimited users. %{seat_usage_link_start}View your seat usage%{seat_usage_link_end} to see who counts toward the limit across your namespace."
 msgstr ""
 
 msgid "Your project %{project_name} has been marked for deletion and will be removed in %{days}."

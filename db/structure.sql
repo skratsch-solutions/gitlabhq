@@ -13953,8 +13953,7 @@ CREATE TABLE ai_settings (
     CONSTRAINT check_3cf9826589 CHECK ((char_length(ai_gateway_url) <= 2048)),
     CONSTRAINT check_900d7a89b3 CHECK ((char_length(duo_agent_platform_service_url) <= 2048)),
     CONSTRAINT check_a02bd8868c CHECK ((char_length(amazon_q_role_arn) <= 2048)),
-    CONSTRAINT check_ai_settings_feature_settings_is_hash CHECK ((jsonb_typeof(feature_settings) = 'object'::text)),
-    CONSTRAINT check_singleton CHECK ((singleton IS TRUE))
+    CONSTRAINT check_ai_settings_feature_settings_is_hash CHECK ((jsonb_typeof(feature_settings) = 'object'::text))
 );
 
 COMMENT ON COLUMN ai_settings.singleton IS 'Always true, used for singleton enforcement';
@@ -18630,6 +18629,7 @@ CREATE TABLE ci_runners (
     organization_id bigint,
     allowed_plan_name_uids smallint[] DEFAULT '{}'::smallint[] NOT NULL,
     token_rotation_deadline timestamp with time zone,
+    uuid uuid,
     CONSTRAINT check_030ad0773d CHECK ((char_length(token_encrypted) <= 512)),
     CONSTRAINT check_1f8618ab23 CHECK ((char_length(name) <= 256)),
     CONSTRAINT check_24b281f5bf CHECK ((char_length(maintainer_note) <= 1024)),
@@ -20085,6 +20085,27 @@ CREATE SEQUENCE dast_sites_id_seq
     CACHE 1;
 
 ALTER SEQUENCE dast_sites_id_seq OWNED BY dast_sites.id;
+
+CREATE TABLE dependency_firewall_activity_stats (
+    id bigint NOT NULL,
+    dependency_firewall_policy_rule_id bigint,
+    project_id bigint NOT NULL,
+    count bigint DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    stat_time timestamp with time zone NOT NULL,
+    outcome smallint NOT NULL,
+    CONSTRAINT check_allowed_outcome_has_null_rule CHECK (((outcome <> 2) OR (dependency_firewall_policy_rule_id IS NULL)))
+);
+
+CREATE SEQUENCE dependency_firewall_activity_stats_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE dependency_firewall_activity_stats_id_seq OWNED BY dependency_firewall_activity_stats.id;
 
 CREATE TABLE dependency_firewall_policy_rules (
     id bigint NOT NULL,
@@ -22458,6 +22479,7 @@ CREATE TABLE group_type_ci_runners (
     organization_id bigint,
     allowed_plan_name_uids smallint[] DEFAULT '{}'::smallint[] NOT NULL,
     token_rotation_deadline timestamp with time zone,
+    uuid uuid,
     CONSTRAINT check_030ad0773d CHECK ((char_length(token_encrypted) <= 512)),
     CONSTRAINT check_1f8618ab23 CHECK ((char_length(name) <= 256)),
     CONSTRAINT check_24b281f5bf CHECK ((char_length(maintainer_note) <= 1024)),
@@ -23235,6 +23257,7 @@ CREATE TABLE instance_type_ci_runners (
     organization_id bigint,
     allowed_plan_name_uids smallint[] DEFAULT '{}'::smallint[] NOT NULL,
     token_rotation_deadline timestamp with time zone,
+    uuid uuid,
     CONSTRAINT check_030ad0773d CHECK ((char_length(token_encrypted) <= 512)),
     CONSTRAINT check_1f8618ab23 CHECK ((char_length(name) <= 256)),
     CONSTRAINT check_24b281f5bf CHECK ((char_length(maintainer_note) <= 1024)),
@@ -29708,6 +29731,7 @@ CREATE TABLE project_type_ci_runners (
     organization_id bigint,
     allowed_plan_name_uids smallint[] DEFAULT '{}'::smallint[] NOT NULL,
     token_rotation_deadline timestamp with time zone,
+    uuid uuid,
     CONSTRAINT check_030ad0773d CHECK ((char_length(token_encrypted) <= 512)),
     CONSTRAINT check_1f8618ab23 CHECK ((char_length(name) <= 256)),
     CONSTRAINT check_24b281f5bf CHECK ((char_length(maintainer_note) <= 1024)),
@@ -37204,6 +37228,8 @@ ALTER TABLE ONLY dast_site_validations ALTER COLUMN id SET DEFAULT nextval('dast
 
 ALTER TABLE ONLY dast_sites ALTER COLUMN id SET DEFAULT nextval('dast_sites_id_seq'::regclass);
 
+ALTER TABLE ONLY dependency_firewall_activity_stats ALTER COLUMN id SET DEFAULT nextval('dependency_firewall_activity_stats_id_seq'::regclass);
+
 ALTER TABLE ONLY dependency_firewall_policy_rules ALTER COLUMN id SET DEFAULT nextval('dependency_firewall_policy_rules_id_seq'::regclass);
 
 ALTER TABLE ONLY dependency_list_export_part_upload_states ALTER COLUMN id SET DEFAULT nextval('dependency_list_export_part_upload_states_id_seq'::regclass);
@@ -40731,6 +40757,9 @@ ALTER TABLE application_settings
 
 ALTER TABLE namespace_settings
     ADD CONSTRAINT default_branch_protection_defaults_size_constraint CHECK ((octet_length((default_branch_protection_defaults)::text) <= 1024)) NOT VALID;
+
+ALTER TABLE ONLY dependency_firewall_activity_stats
+    ADD CONSTRAINT dependency_firewall_activity_stats_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY dependency_firewall_policy_rules
     ADD CONSTRAINT dependency_firewall_policy_rules_pkey PRIMARY KEY (id);
@@ -45683,6 +45712,10 @@ CREATE INDEX i_dast_pre_scan_verification_steps_on_pre_scan_verification_id ON d
 
 CREATE INDEX i_dast_profiles_tags_on_scanner_profiles_id ON dast_profiles_tags USING btree (dast_profile_id);
 
+CREATE INDEX i_dep_fw_activity_stats_project_time ON dependency_firewall_activity_stats USING btree (project_id, stat_time);
+
+CREATE UNIQUE INDEX i_dep_fw_activity_stats_unique ON dependency_firewall_activity_stats USING btree (dependency_firewall_policy_rule_id, project_id, stat_time, outcome) NULLS NOT DISTINCT;
+
 CREATE INDEX i_dep_fw_rules_pol_mgmt_proj_id ON dependency_firewall_policy_rules USING btree (security_policy_management_project_id);
 
 CREATE UNIQUE INDEX i_dep_fw_rules_uniq_rule_idx ON dependency_firewall_policy_rules USING btree (security_policy_id, rule_index);
@@ -47077,8 +47110,6 @@ CREATE INDEX index_ai_settings_on_duo_workflow_service_account_user_id ON ai_set
 
 CREATE UNIQUE INDEX index_ai_settings_on_organization_id ON ai_settings USING btree (organization_id);
 
-CREATE UNIQUE INDEX index_ai_settings_on_singleton ON ai_settings USING btree (singleton);
-
 CREATE INDEX index_ai_tool_rules_on_project_id ON ai_tool_rules USING btree (project_id);
 
 CREATE INDEX index_ai_troubleshoot_job_events_on_job_id ON ONLY ai_troubleshoot_job_events USING btree (job_id);
@@ -47909,6 +47940,8 @@ CREATE INDEX index_ci_runners_on_description_trigram ON ONLY ci_runners USING gi
 
 CREATE INDEX index_ci_runners_on_organization_id ON ONLY ci_runners USING btree (organization_id);
 
+CREATE UNIQUE INDEX index_ci_runners_on_uuid ON ONLY ci_runners USING btree (uuid, runner_type);
+
 CREATE UNIQUE INDEX index_ci_running_builds_on_build_id ON ci_running_builds USING btree (build_id);
 
 CREATE UNIQUE INDEX index_ci_running_builds_on_partition_id_build_id ON ci_running_builds USING btree (partition_id, build_id);
@@ -48142,6 +48175,8 @@ CREATE INDEX index_customer_relations_contacts_on_organization_id ON customer_re
 CREATE UNIQUE INDEX index_customer_relations_contacts_on_unique_email_per_group ON customer_relations_contacts USING btree (group_id, lower(email), id);
 
 CREATE UNIQUE INDEX index_cycle_analytics_stage_event_hashes_on_org_id_sha_256 ON analytics_cycle_analytics_stage_event_hashes USING btree (organization_id, hash_sha256);
+
+CREATE UNIQUE INDEX index_d555ba74c1 ON group_type_ci_runners USING btree (uuid, runner_type);
 
 CREATE UNIQUE INDEX index_daily_build_group_report_results_unique_columns ON ci_daily_build_group_report_results USING btree (project_id, ref_path, date, group_name);
 
@@ -48487,6 +48522,8 @@ CREATE INDEX index_duo_workflows_workloads_on_workflow_id ON duo_workflows_workl
 
 CREATE INDEX index_duo_workflows_workloads_on_workload_id ON duo_workflows_workloads USING btree (workload_id);
 
+CREATE UNIQUE INDEX index_e1f449cf0b ON project_type_ci_runners USING btree (uuid, runner_type);
+
 CREATE INDEX index_early_access_program_tracking_events_on_category ON early_access_program_tracking_events USING btree (category);
 
 CREATE INDEX index_early_access_program_tracking_events_on_event_label ON early_access_program_tracking_events USING btree (event_label);
@@ -48494,6 +48531,8 @@ CREATE INDEX index_early_access_program_tracking_events_on_event_label ON early_
 CREATE INDEX index_early_access_program_tracking_events_on_event_name ON early_access_program_tracking_events USING btree (event_name);
 
 CREATE INDEX index_early_access_program_tracking_events_on_user_id ON early_access_program_tracking_events USING btree (user_id);
+
+CREATE UNIQUE INDEX index_ef00fcab21 ON instance_type_ci_runners USING btree (uuid, runner_type);
 
 CREATE UNIQUE INDEX index_elastic_index_settings_on_alias_name ON elastic_index_settings USING btree (alias_name);
 
@@ -56455,6 +56494,12 @@ ALTER INDEX index_ci_runner_taggings_on_organization_id ATTACH PARTITION index_c
 
 ALTER INDEX index_ci_runner_taggings_on_runner_id_and_runner_type ATTACH PARTITION index_ci_runner_taggings_project_type_on_runner_id_runner_type;
 
+ALTER INDEX index_ci_runners_on_uuid ATTACH PARTITION index_d555ba74c1;
+
+ALTER INDEX index_ci_runners_on_uuid ATTACH PARTITION index_e1f449cf0b;
+
+ALTER INDEX index_ci_runners_on_uuid ATTACH PARTITION index_ef00fcab21;
+
 ALTER INDEX index_ci_runner_machines_on_created_at_and_id_desc ATTACH PARTITION index_group_type_ci_runner_machines_on_created_at_and_id_desc;
 
 ALTER INDEX index_ci_runner_machines_on_executor_type ATTACH PARTITION index_group_type_ci_runner_machines_on_executor_type;
@@ -59208,6 +59253,9 @@ ALTER TABLE ONLY import_offline_exports
 ALTER TABLE ONLY issue_customer_relations_contacts
     ADD CONSTRAINT fk_7b92f835bb FOREIGN KEY (contact_id) REFERENCES customer_relations_contacts(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY dependency_firewall_activity_stats
+    ADD CONSTRAINT fk_7c65cd34fb FOREIGN KEY (dependency_firewall_policy_rule_id) REFERENCES dependency_firewall_policy_rules(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY personal_access_tokens
     ADD CONSTRAINT fk_7cea2c7262 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE SET NULL;
 
@@ -60305,6 +60353,9 @@ ALTER TABLE ONLY ai_conversation_threads
 
 ALTER TABLE ONLY label_links
     ADD CONSTRAINT fk_d97dd08678 FOREIGN KEY (label_id) REFERENCES labels(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY dependency_firewall_activity_stats
+    ADD CONSTRAINT fk_d9b84e542c FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY personal_access_tokens
     ADD CONSTRAINT fk_da676c7ca5 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;

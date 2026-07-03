@@ -1,5 +1,5 @@
 ---
-stage: Create
+stage: AI Coding
 group: Code Review
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 description: Use the merge request homepage to find your work, and work you need to review.

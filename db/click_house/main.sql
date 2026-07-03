@@ -894,6 +894,7 @@ CREATE TABLE siphon_ci_runners
     `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
     `token_rotation_deadline` DateTime64(6, 'UTC') DEFAULT toDateTime64('9999-12-31 23:59:59.999999', 6, 'UTC'),
     `_siphon_watermark` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `uuid` Nullable(UUID),
     INDEX idx_siphon_watermark_minmax _siphon_watermark TYPE minmax GRANULARITY 1
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)

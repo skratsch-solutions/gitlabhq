@@ -105,6 +105,27 @@ RSpec.describe Gitlab::LanguageDetection, feature_category: :source_code_managem
         expect(go_insert[:language_id]).to eq(go_lang.language_id)
       end
     end
+
+    context 'when the detected language name differs from the resolved language name' do
+      let_it_be(:mathematica) do
+        create(:programming_language, name: 'Mathematica', color: '#dd1100', language_id: 224)
+      end
+
+      let(:programming_languages) { [mathematica] }
+      let(:repository_languages) { [] }
+
+      let(:detection) do
+        [{ value: 100.0, label: 'Wolfram Language', color: '#dd1100', language_id: 224 }]
+      end
+
+      it 'matches the resolved language by language_id first', :aggregate_failures do
+        insertions = subject.insertions(programming_languages)
+
+        expect(insertions.first[:programming_language_id]).to eq(mathematica.id)
+        expect(insertions.first[:language_id]).to eq(224)
+        expect(insertions.first[:share]).to eq(100.0)
+      end
+    end
   end
 
   describe '#updates' do

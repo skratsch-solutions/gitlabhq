@@ -598,6 +598,70 @@ principles:
       - path: doc/development/testing_guide/testing_rake_tasks.md
         url: https://docs.gitlab.com/development/testing_guide/testing_rake_tasks/
 
+  authentication-testing:
+    description: Test quality for authentication and authorization specs — positive and negative path coverage, token edge cases (expired, revoked, wrong-scope), the authorization actor matrix (authorized, unauthorized, anonymous, admin), auth-stubbing red flags, rate-limit specs, and narrow token scopes in specs
+    group: Testing
+    owner_team: '@gitlab-org/software-supply-chain-security/authentication/approvers'
+    team_slug: authentication
+    secondary_teams:
+      - '@gitlab-com/gl-security/appsec'
+    # Scoped to auth-team-owned spec paths (mirrors the Duo fence fileFilters),
+    # not the broad testing-rspec globs, so the checks fire only on auth specs.
+    file_filters:
+      - 'spec/controllers/sessions_controller_spec.rb'
+      - 'spec/controllers/passwords_controller_spec.rb'
+      - 'spec/controllers/omniauth_callbacks_controller_spec.rb'
+      - 'spec/controllers/oauth/**/*_spec.rb'
+      - 'spec/controllers/concerns/authenticates_with_two_factor*_spec.rb'
+      - 'spec/controllers/admin/sessions_controller_spec.rb'
+      - 'spec/controllers/admin/impersonation_tokens_controller_spec.rb'
+      - 'spec/controllers/user_settings/**/*_spec.rb'
+      - 'spec/controllers/profiles/two_factor_auths_controller_spec.rb'
+      - 'spec/models/authn/**/*_spec.rb'
+      - 'spec/models/personal_access_token_spec.rb'
+      - 'spec/models/oauth_access_*_spec.rb'
+      - 'spec/models/webauthn_registration_spec.rb'
+      - 'spec/models/concerns/token_authenticatable_spec.rb'
+      - 'spec/services/authn/**/*_spec.rb'
+      - 'spec/services/users/email_verification/**/*_spec.rb'
+      - 'spec/services/webauthn/**/*_spec.rb'
+      - 'spec/services/personal_access_tokens/**/*_spec.rb'
+      - 'spec/services/group_access_tokens/**/*_spec.rb'
+      - 'spec/services/project_access_tokens/**/*_spec.rb'
+      - 'spec/services/resource_access_tokens/**/*_spec.rb'
+      - 'spec/policies/**/*_spec.rb'
+      - 'spec/lib/authn/**/*_spec.rb'
+      - 'spec/lib/gitlab/auth/**/*_spec.rb'
+      - 'spec/requests/api/api_guard_spec.rb'
+      - 'spec/requests/api/admin/token_spec.rb'
+      - 'spec/requests/api/deploy_tokens_spec.rb'
+      - 'spec/requests/api/doorkeeper_access_spec.rb'
+      - 'spec/requests/api/oauth_tokens_spec.rb'
+      - 'spec/requests/api/personal_access_tokens_spec.rb'
+      - 'spec/requests/api/personal_access_tokens/**/*_spec.rb'
+      - 'spec/requests/api/resource_access_tokens_spec.rb'
+      - 'spec/requests/api/resource_access_tokens/**/*_spec.rb'
+      - 'spec/requests/api/group_service_accounts_spec.rb'
+      - 'spec/requests/api/project_service_accounts_spec.rb'
+      - 'spec/requests/api/service_accounts_spec.rb'
+      - 'spec/requests/api/graphql/authz/**/*_spec.rb'
+      - 'spec/requests/api/graphql/mutations/users/personal_access_tokens/**/*_spec.rb'
+      - 'ee/spec/controllers/**/passwords_controller_spec.rb'
+      - 'ee/spec/controllers/**/omniauth_callbacks_controller_spec.rb'
+      - 'ee/spec/controllers/**/two_factor_auths_controller_spec.rb'
+      - 'ee/spec/controllers/**/service_accounts_controller_spec.rb'
+      - 'ee/spec/controllers/smartcard_controller_spec.rb'
+      - 'ee/spec/lib/authn/**/*_spec.rb'
+      - 'ee/spec/lib/gitlab/auth/**/*_spec.rb'
+      - 'ee/spec/policies/**/*_spec.rb'
+      - 'ee/spec/services/ee/personal_access_tokens/**/*_spec.rb'
+      - 'ee/spec/services/namespaces/service_accounts/**/*_spec.rb'
+      - 'ee/spec/services/users/service_accounts/**/*_spec.rb'
+    baseline: .ai/principles/baselines/authentication-testing.md
+    sources:
+      - path: doc/development/testing_guide/best_practices.md
+        url: https://docs.gitlab.com/development/testing_guide/best_practices/
+
   testing-jest:
     description: Jest, jsdom, Vue Test Utils patterns
     group: Testing

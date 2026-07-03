@@ -25,17 +25,19 @@ module Gitlab
       end
     end
 
-    # Newly detected languages, returned in a structure accepted by
-    # ApplicationRecord.legacy_bulk_insert
     def insertions(programming_languages)
       languages_by_name = programming_languages.index_by(&:name)
+      languages_by_id = programming_languages
+        .select(&:language_id)
+        .index_by(&:language_id)
 
-      (languages - previous_language_names).map do |new_lang|
-        programming_language = languages_by_name[new_lang]
+      new_languages.map do |detected_language|
+        programming_language = languages_by_id[detected_language.language_id] ||
+          languages_by_name[detected_language.name]
 
         {
           project_id: @repository.project.id,
-          share: detection[new_lang][:value],
+          share: detected_language.share,
           programming_language_id: programming_language.id,
           language_id: programming_language.language_id
         }
@@ -74,6 +76,10 @@ module Gitlab
 
     def previous_language_names
       @previous_language_names ||= @repository_languages.map(&:name)
+    end
+
+    def new_languages
+      detected_languages.reject { |language| previous_language_names.include?(language.name) }
     end
 
     def detection

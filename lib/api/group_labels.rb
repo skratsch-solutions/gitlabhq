@@ -49,7 +49,7 @@ module API
         get_labels(user_group, Entities::GroupLabel, declared_params)
       end
 
-      desc 'Retrieve a single group label' do
+      desc 'Retrieve a group label' do
         detail 'Retrieves a specified group label.'
         success Entities::GroupLabel
         tags ['labels']
@@ -115,8 +115,8 @@ module API
         delete_label(user_group)
       end
 
-      desc 'Update an existing label. At least one optional parameter is required.' do
-        detail 'This feature was added in GitLab 12.4.'
+      desc 'Update a group label' do
+        detail 'Updates a specified group label. At least one parameter is required to update the group label.'
         success Entities::GroupLabel
         tags ['labels']
       end
@@ -129,8 +129,8 @@ module API
         update_label(user_group, Entities::GroupLabel)
       end
 
-      desc 'Delete an existing label' do
-        detail 'This feature was added in GitLab 12.4.'
+      desc 'Delete a group label' do
+        detail 'Deletes a specified group label.'
         success Entities::GroupLabel
         tags ['labels']
       end

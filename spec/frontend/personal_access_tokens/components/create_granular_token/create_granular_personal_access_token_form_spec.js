@@ -17,6 +17,7 @@ import createMockApollo from 'helpers/mock_apollo_helper';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import setWindowLocation from 'helpers/set_window_location_helper';
 import waitForPromises from 'helpers/wait_for_promises';
+import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import { createAlert } from '~/alert';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import { scrollTo, scrollToElement } from '~/lib/utils/scroll_utils';
@@ -43,6 +44,8 @@ import {
   mockProjects,
   mockGroups,
 } from '../../mock_data';
+
+const { bindInternalEventDocument } = useMockInternalEventsTracking();
 
 jest.mock('~/alert');
 jest.mock('~/lib/utils/scroll_utils');
@@ -487,6 +490,24 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       expect(findForm().exists()).toBe(false);
     });
 
+    describe('after successful submission', () => {
+      let trackEventSpy;
+
+      beforeEach(async () => {
+        ({ trackEventSpy } = bindInternalEventDocument(wrapper.element));
+
+        await fillAndSubmitForm();
+      });
+
+      it('tracks form completion', () => {
+        expect(trackEventSpy).toHaveBeenCalledWith(
+          'complete_fine_grained_personal_access_token_form',
+          {},
+          undefined,
+        );
+      });
+    });
+
     it('resets isFormDirty after successful submission', async () => {
       await fillFormWithValidData();
       await nextTick();
@@ -531,6 +552,46 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       });
 
       expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' }, wrapper.element);
+    });
+  });
+
+  describe('form abandonment tracking', () => {
+    const dispatchBeforeUnload = () => window.dispatchEvent(new Event('beforeunload'));
+
+    let trackEventSpy;
+
+    describe('when the user attempts to leave the page', () => {
+      beforeEach(() => {
+        ({ trackEventSpy } = bindInternalEventDocument(wrapper.element));
+
+        dispatchBeforeUnload();
+      });
+
+      it('tracks form abandonment', () => {
+        expect(trackEventSpy).toHaveBeenCalledWith(
+          'abandon_fine_grained_personal_access_token_form',
+          {},
+          undefined,
+        );
+      });
+    });
+
+    describe('when the user attempts to leave the page after a token is successfully created', () => {
+      beforeEach(async () => {
+        await fillAndSubmitForm();
+
+        ({ trackEventSpy } = bindInternalEventDocument(wrapper.element));
+
+        dispatchBeforeUnload();
+      });
+
+      it('does not track form abandonment', () => {
+        expect(trackEventSpy).not.toHaveBeenCalledWith(
+          'abandon_fine_grained_personal_access_token_form',
+          {},
+          undefined,
+        );
+      });
     });
   });
 

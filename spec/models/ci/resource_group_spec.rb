@@ -248,20 +248,6 @@ RSpec.describe Ci::ResourceGroup, feature_category: :continuous_delivery, factor
           expect(sql).to include('"p_ci_builds"."partition_id" = ')
           expect(sql).not_to include('ci_resources')
         end
-
-        context 'when ci_resource_group_partition_aware_stale_processables is disabled' do
-          before do
-            stub_feature_flags(ci_resource_group_partition_aware_stale_processables: false)
-          end
-
-          it 'uses an id-only subquery against ci_resources' do
-            sql = stale_processables.to_sql
-
-            expect(sql).to include('ci_resources')
-          end
-
-          it_behaves_like 'returns a stale processable after the grace period'
-        end
       end
     end
   end

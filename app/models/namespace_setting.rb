@@ -25,7 +25,8 @@ class NamespaceSetting < ApplicationRecord
   ignore_columns :early_access_program_participant, :early_access_program_joined_by_id,
     remove_with: '18.10', remove_after: '2026-03-13'
 
-  cascading_attr :math_rendering_limits_enabled, :resource_access_token_notify_inherited, :web_based_commit_signing_enabled
+  cascading_attr :math_rendering_limits_enabled, :resource_access_token_notify_inherited, :web_based_commit_signing_enabled,
+    :require_sha_for_merge
 
   scope :for_namespaces, ->(namespaces) { where(namespace: namespaces) }
 
@@ -121,6 +122,8 @@ class NamespaceSetting < ApplicationRecord
     resource_access_token_notify_inherited
     lock_resource_access_token_notify_inherited
     jwt_ci_cd_job_token_enabled
+    require_sha_for_merge
+    lock_require_sha_for_merge
     enforce_granular_tokens
     granular_tokens_enforced_after
   ].freeze

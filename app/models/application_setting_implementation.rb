@@ -143,6 +143,8 @@ module ApplicationSettingImplementation
         mailgun_signing_key: nil,
         mailgun_events_enabled: false,
         math_rendering_limits_enabled: true,
+        require_sha_for_merge: false,
+        lock_require_sha_for_merge: false,
         max_artifacts_content_include_size: 5.megabytes,
         max_artifacts_size: Settings.artifacts['max_size'],
         max_attachment_size: Settings.gitlab['max_attachment_size'],

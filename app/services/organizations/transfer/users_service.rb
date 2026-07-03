@@ -134,6 +134,7 @@ module Organizations
           update_associated_organization_ids(user_ids)
           update_personal_snippet_notes(user_ids)
           update_clusters(user_ids)
+          update_oauth_applications(user_ids)
         end
       end
 
@@ -312,6 +313,14 @@ module Organizations
           update_organization_id_for(model_class) do |relation|
             relation.where(cluster_id: cluster_ids)
           end
+        end
+      end
+      # rubocop:enable CodeReuse/ActiveRecord
+
+      # rubocop:disable CodeReuse/ActiveRecord -- Query specific to this service
+      def update_oauth_applications(user_ids)
+        update_organization_id_for(Authn::OauthApplication) do |relation|
+          relation.where(owner_type: 'User', owner_id: user_ids)
         end
       end
       # rubocop:enable CodeReuse/ActiveRecord

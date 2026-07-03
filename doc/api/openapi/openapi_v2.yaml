@@ -4307,7 +4307,7 @@ paths:
     get:
       summary: Retrieve pending reassignments
       description: Retrieves a CSV file with a list of pending reassignments. This
-        feature was added in GitLab 17.10
+        feature was introduced in GitLab 17.10.
       produces:
       - application/json
       parameters:
@@ -74198,11 +74198,14 @@ definitions:
   API_Entities_Ci_JobRequest_RunnerInfo:
     type: object
     properties:
+      uuid:
+        type: string
       timeout:
         type: string
       runner_session_url:
         type: string
     required:
+    - uuid
     - timeout
     - runner_session_url
   API_Entities_Ci_JobRequest_Step:

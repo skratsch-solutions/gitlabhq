@@ -20,7 +20,7 @@ module API
     resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Retrieve pending reassignments' do
         detail 'Retrieves a CSV file with a list of pending reassignments. ' \
-          'This feature was added in GitLab 17.10'
+          'This feature was introduced in GitLab 17.10.'
         success code: 200
         tags ['groups']
       end

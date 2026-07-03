@@ -99,8 +99,18 @@ module Organizations
             organization_id: new_organization.id,
             visibility_level: Arel.sql('LEAST(?, visibility_level)', new_organization.visibility_level)
           )
+
+          transfer_oauth_applications(batch_ids)
         end
       end
+
+      # rubocop:disable CodeReuse/ActiveRecord -- used only in this service
+      def transfer_oauth_applications(namespace_ids)
+        update_organization_id_for(Authn::OauthApplication) do |relation|
+          relation.where(owner_type: 'Namespace', owner_id: namespace_ids)
+        end
+      end
+      # rubocop:enable CodeReuse/ActiveRecord
 
       # rubocop:disable CodeReuse/ActiveRecord -- used only in this service
       def transfer_fork_networks(project_ids)

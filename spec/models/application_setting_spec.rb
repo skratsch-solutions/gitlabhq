@@ -170,6 +170,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         lock_maven_package_requests_forwarding: false,
         lock_npm_package_requests_forwarding: false,
         lock_pypi_package_requests_forwarding: false,
+        lock_require_sha_for_merge: false,
         lock_resource_access_token_notify_inherited: false,
         login_recaptcha_protection_enabled: false,
         logging_field_schema_version: 0,
@@ -240,6 +241,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         require_email_verification_on_account_locked: false,
         delay_user_account_self_deletion: false,
         require_personal_access_token_expiry: true,
+        require_sha_for_merge: false,
         require_two_factor_authentication: false,
         resource_access_token_notify_inherited: false,
         resource_usage_limits: {},
@@ -527,6 +529,11 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
     it { is_expected.not_to allow_value(nil).for(:pages_unique_domain_default_enabled) }
 
     it { is_expected.to allow_values([true, false]).for(:terraform_state_encryption_enabled) }
+
+    it { is_expected.to allow_values([true, false]).for(:require_sha_for_merge) }
+    it { is_expected.to allow_values([true, false]).for(:lock_require_sha_for_merge) }
+    it { is_expected.not_to allow_value(nil).for(:require_sha_for_merge) }
+    it { is_expected.not_to allow_value(nil).for(:lock_require_sha_for_merge) }
 
     describe 'logging field version validations' do
       let(:setting) { build(:application_setting, logging_field_schema_version: 0) }

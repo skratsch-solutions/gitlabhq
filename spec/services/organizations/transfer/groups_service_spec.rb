@@ -207,6 +207,32 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
           service.execute
         end
       end
+
+      context 'for oauth applications' do
+        it 'updates organization_id for group-owned oauth applications' do
+          app = create(:oauth_application, owner_id: group.id, owner_type: 'Namespace',
+            organization: old_organization)
+
+          service.execute
+
+          expect(app.reload.organization_id).to eq(new_organization.id)
+        end
+
+        it 'updates organization_id for subgroup-owned oauth applications' do
+          app = create(:oauth_application, owner_id: subgroup.id, owner_type: 'Namespace',
+            organization: old_organization)
+
+          service.execute
+
+          expect(app.reload.organization_id).to eq(new_organization.id)
+        end
+
+        it 'does not update user-owned oauth applications' do
+          user_app = create(:oauth_application, owner: user, organization: old_organization)
+
+          expect { service.execute }.not_to change { user_app.reload.organization_id }
+        end
+      end
     end
 
     context 'when group is not root' do

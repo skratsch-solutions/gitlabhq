@@ -76,6 +76,14 @@ RSpec.describe ApplicationSettingsHelper, feature_category: :shared do
       expect(helper.visible_attributes).to include(:ci_partitions_in_seconds_limit_human_readable)
     end
 
+    it 'contains :lock_require_sha_for_merge' do
+      expect(helper.visible_attributes).to include(:lock_require_sha_for_merge)
+    end
+
+    it 'contains :require_sha_for_merge' do
+      expect(helper.visible_attributes).to include(:require_sha_for_merge)
+    end
+
     describe ':mcp_server_enabled' do
       context 'when self-managed' do
         it 'is included' do

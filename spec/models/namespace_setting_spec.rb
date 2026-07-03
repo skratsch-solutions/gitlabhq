@@ -636,6 +636,11 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
       settings_attribute_name: :web_based_commit_signing_enabled
   end
 
+  describe '#require_sha_for_merge' do
+    it_behaves_like 'a cascading namespace setting boolean attribute',
+      settings_attribute_name: :require_sha_for_merge
+  end
+
   describe '#default_branch_protection_defaults' do
     subject(:setting) { described_class.new }
 
