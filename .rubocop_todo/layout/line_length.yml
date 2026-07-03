@@ -3705,7 +3705,7 @@ Layout/LineLength:
     - 'spec/workers/update_head_pipeline_for_merge_request_worker_spec.rb'
     - 'tooling/danger/analytics_instrumentation.rb'
     - 'tooling/danger/project_helper.rb'
-    - 'tooling/graphql/docs/helper.rb'
+    - 'tooling/graphql/deprecated_docs/helper.rb'
     - 'tooling/lib/tooling/helm3_client.rb'
     - 'tooling/lib/tooling/kubernetes_client.rb'
     - 'tooling/merge_request_rspec_failure_rake_task.rb'

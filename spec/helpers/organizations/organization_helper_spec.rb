@@ -134,22 +134,20 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :organizatio
 
   describe '#organization_show_app_data' do
     before do
-      allow(helper).to receive(:can?).with(user, :read_artifact_registry, organization).and_return(true)
       allow(helper).to receive(:can?).with(user, :update_organization, organization).and_return(true)
     end
 
-    it 'returns expected json' do
+    it 'returns expected json without artifact registry data', unless: Gitlab.ee? do
       expect(
         Gitlab::Json.parse(
           helper.organization_show_app_data(organization)
         )
-      ).to include(
+      ).to eq(
         {
           'organization' => {
             'name' => organization.name,
             'path' => organization.path
           },
-          'can_read_artifact_registry' => true,
           'can_admin_organization' => true
         }
       )

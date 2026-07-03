@@ -11,6 +11,9 @@ RSpec.describe ClickHouse::SchemaValidator, feature_category: :database do
     before do
       # Suppress puts output during tests
       allow($stdout).to receive(:puts)
+
+      # Default: schema version files are clean unless a context overrides it.
+      allow(described_class).to receive(:execute_git_add_dry_run).and_return('')
     end
 
     context 'when skip validation label is present' do
@@ -92,6 +95,14 @@ RSpec.describe ClickHouse::SchemaValidator, feature_category: :database do
         allow(described_class).to receive(:system)
           .with('bundle exec rake gitlab:clickhouse:migrate:main gitlab:clickhouse:schema:dump:main')
           .and_return(true)
+      end
+
+      it 'validates the schema version files after a successful migration' do
+        allow(described_class).to receive(:execute_git_diff).and_return('')
+
+        expect(described_class).to receive(:validate_schema_version_files).and_call_original
+
+        described_class.validate!
       end
 
       context 'when execute_git_diff returns nil (git command failed)' do
@@ -198,6 +209,130 @@ RSpec.describe ClickHouse::SchemaValidator, feature_category: :database do
             expect(described_class.validate!).to be false
           end
         end
+      end
+
+      context 'when schema version files are validated' do
+        let(:migrations_dir) { 'db/click_house/schema_migrations' }
+
+        before do
+          allow(described_class).to receive(:execute_git_diff).and_return('')
+        end
+
+        context 'when schema version files are up to date' do
+          before do
+            allow(described_class).to receive(:execute_git_add_dry_run).and_return('')
+          end
+
+          it 'returns true' do
+            expect(described_class.validate!).to be true
+          end
+
+          it 'prints success message' do
+            expect($stdout).to receive(:puts).with('Checking for schema version file changes...')
+            expect($stdout).to receive(:puts).with(
+              'Schema version files are up to date - no changes detected'
+            )
+
+            described_class.validate!
+          end
+        end
+
+        context 'when schema version files have uncommitted changes' do
+          let(:add_dry_run_output) { "add '#{migrations_dir}/main/20260618182736'" }
+
+          before do
+            allow(described_class).to receive(:execute_git_add_dry_run).and_return(add_dry_run_output)
+          end
+
+          it 'returns false' do
+            expect(described_class.validate!).to be false
+          end
+
+          it 'prints change detection messages with skip label hint' do
+            expect($stdout).to receive(:puts).with('Checking for schema version file changes...')
+            expect($stdout).to receive(:puts).with(
+              "The committed files in #{migrations_dir} do not match those expected by the added migrations"
+            )
+            expect($stdout).to receive(:puts).with('Uncommitted changes:')
+            expect($stdout).to receive(:puts).with(add_dry_run_output)
+            expect($stdout).to receive(:puts).with(
+              "Please investigate. Apply the 'pipeline:skip-check-clickhouse-schema' label to skip this check " \
+                "if needed. If you are unsure why this job is failing for your MR, then please refer to this page: " \
+                "https://docs.gitlab.com/development/database/clickhouse/reviewer_guidelines.html" \
+                "#ensuring-database-schema-consistency"
+            )
+
+            described_class.validate!
+          end
+        end
+
+        context 'when execute_git_add_dry_run returns nil (git command failed)' do
+          before do
+            allow(described_class).to receive(:execute_git_add_dry_run).and_return(nil)
+          end
+
+          it 'returns false' do
+            expect(described_class.validate!).to be false
+          end
+        end
+
+        context 'when the schema file is dirty but version files are clean' do
+          before do
+            allow(described_class).to receive(:`).with("git diff -- #{schema_filename}").and_return('changes')
+            allow(described_class).to receive_messages(
+              execute_git_diff: schema_filename,
+              execute_git_add_dry_run: ''
+            )
+          end
+
+          it 'returns false' do
+            expect(described_class.validate!).to be false
+          end
+        end
+      end
+    end
+  end
+
+  describe '.execute_git_add_dry_run' do
+    let(:migrations_dir) { 'db/click_house/schema_migrations' }
+    let(:git_command) { "git add -A -n #{migrations_dir}" }
+
+    before do
+      allow($stdout).to receive(:puts)
+    end
+
+    context 'when git command succeeds' do
+      let(:git_output) { "add '#{migrations_dir}/main/20260618182736'" }
+
+      before do
+        allow(described_class).to receive(:`).with(git_command).and_return(git_output)
+        allow(described_class).to receive(:git_command_successful?).and_return(true)
+      end
+
+      it 'returns the git output' do
+        expect(described_class.execute_git_add_dry_run).to eq(git_output)
+      end
+    end
+
+    context 'when git command fails' do
+      before do
+        allow(described_class).to receive(:`).with(git_command).and_return('')
+        allow(described_class).to receive(:git_command_successful?).and_return(false)
+      end
+
+      it 'returns nil' do
+        expect(described_class.execute_git_add_dry_run).to be_nil
+      end
+    end
+
+    context 'when git command returns empty output but succeeds' do
+      before do
+        allow(described_class).to receive(:`).with(git_command).and_return('')
+        allow(described_class).to receive(:git_command_successful?).and_return(true)
+      end
+
+      it 'returns empty string' do
+        expect(described_class.execute_git_add_dry_run).to eq('')
       end
     end
   end
@@ -336,6 +471,10 @@ RSpec.describe ClickHouse::SchemaValidator, feature_category: :database do
       expect(described_class::SCHEMA_FILENAME).to eq('db/click_house/main.sql')
     end
 
+    it 'defines the correct schema migrations directory' do
+      expect(described_class::SCHEMA_MIGRATIONS_DIR).to eq('db/click_house/schema_migrations')
+    end
+
     it 'defines the correct skip validation label' do
       expect(described_class::SKIP_VALIDATION_LABEL).to eq('pipeline:skip-check-clickhouse-schema')
     end
@@ -346,6 +485,7 @@ RSpec.describe ClickHouse::SchemaValidator, feature_category: :database do
 
     before do
       allow($stdout).to receive(:puts)
+      allow(described_class).to receive(:execute_git_add_dry_run).and_return('')
     end
 
     context 'when full success flow - no schema changes' do
@@ -469,7 +609,10 @@ RSpec.describe ClickHouse::SchemaValidator, feature_category: :database do
       allow(described_class).to receive(:system)
         .with('bundle exec rake gitlab:clickhouse:migrate:main gitlab:clickhouse:schema:dump:main')
         .and_return(true)
-      allow(described_class).to receive(:git_command_successful?).and_return(true)
+      allow(described_class).to receive_messages(
+        git_command_successful?: true,
+        execute_git_add_dry_run: ''
+      )
     end
 
     context 'when schema filename appears as exact match in a list' do

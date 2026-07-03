@@ -524,4 +524,4 @@ Gitlab/StrongMemoizeAttr:
     - 'lib/sidebars/projects/menus/analytics_menu.rb'
     - 'lib/sidebars/projects/menus/issues_menu.rb'
     - 'lib/unnested_in_filters/rewriter.rb'
-    - 'tooling/graphql/docs/helper.rb'
+    - 'tooling/graphql/deprecated_docs/helper.rb'

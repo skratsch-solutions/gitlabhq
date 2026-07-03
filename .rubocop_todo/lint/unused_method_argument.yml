@@ -471,6 +471,6 @@ Lint/UnusedMethodArgument:
     - 'spec/support/shared_examples/requests/rack_attack_shared_examples.rb'
     - 'spec/support/sidekiq_middleware.rb'
     - 'spec/support_specs/capybara_slow_finder_spec.rb'
-    - 'spec/tooling/graphql/docs/renderer_spec.rb'
+    - 'spec/tooling/graphql/deprecated_docs/renderer_spec.rb'
     - 'spec/workers/concerns/cronjob_queue_spec.rb'
     - 'spec/workers/container_expiration_policies/cleanup_container_repository_worker_spec.rb'
