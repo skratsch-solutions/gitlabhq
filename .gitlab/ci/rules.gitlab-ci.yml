@@ -235,6 +235,9 @@
 .if-default-branch-schedule-weekly: &if-default-branch-schedule-weekly
   if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "weekly"'
 
+.if-default-branch-schedule-ai-principles: &if-default-branch-schedule-ai-principles
+  if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "ai-principles-distillation"'
+
 .if-ruby-branch-schedule: &if-ruby-branch-schedule
   if: '$CI_COMMIT_BRANCH == "ruby-next" && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "maintenance"'
 
@@ -3783,21 +3786,21 @@
 ####################################
 # AI principles sync rules #
 ####################################
-.ai-principles-sync:rules:weekly:
+.ai-principles-sync:rules:scheduled:
   rules:
     - if: '$CI_PROJECT_PATH != "gitlab-org/gitlab"'
       when: never
     - if: '$AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == null || $AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == ""'
       when: never
-    - <<: *if-default-branch-schedule-weekly
+    - <<: *if-default-branch-schedule-ai-principles
 
-.ai-principles-sync:rules:weekly-on-failure:
+.ai-principles-sync:rules:scheduled-on-failure:
   rules:
     - if: '$CI_PROJECT_PATH != "gitlab-org/gitlab"'
       when: never
     - if: '$AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == null || $AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == ""'
       when: never
-    - <<: *if-default-branch-schedule-weekly
+    - <<: *if-default-branch-schedule-ai-principles
       when: on_failure
 
 ###################

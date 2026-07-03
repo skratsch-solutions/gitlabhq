@@ -401,6 +401,111 @@ describe('mergeRequestDiscussions store', () => {
     });
   });
 
+  describe('line range editing', () => {
+    const lineRange = {
+      start: { old_line: null, new_line: 5, type: 'new' },
+      end: { old_line: null, new_line: 8, type: 'new' },
+    };
+
+    const createForm = () => {
+      store.addNewLineDiscussionForm({
+        oldPath: 'a.rb',
+        newPath: 'a.rb',
+        lineRange,
+        lineChange: { change: 'added', position: 'new' },
+        lineCode: 'abc_0_8',
+        extraOptions: { lines: ['l5', 'l6', 'l7', 'l8'] },
+      });
+      const form = useDiffDiscussions().discussionForms[0];
+      form.noteBody = 'draft text';
+      return form;
+    };
+
+    it('keeps the form mounted, flags only that form, and stores the editing context', () => {
+      const form = createForm();
+      store.startLineRangeEditing(form);
+
+      expect(useDiffDiscussions().discussionForms).toHaveLength(1);
+      expect(form.editingLineRange).toBe(true);
+      expect(store.lineRangeEditing).toMatchObject({ discussion: form, lineRange });
+    });
+
+    it('commitLineRangeEditing re-creates the form at the new range end with the note body', () => {
+      const form = createForm();
+      store.startLineRangeEditing(form);
+
+      const newRange = {
+        start: { old_line: null, new_line: 3, type: 'new' },
+        end: { old_line: null, new_line: 6, type: 'new' },
+      };
+      store.lineRangeEditing.lineRange = newRange;
+      store.commitLineRangeEditing({
+        lineChange: { change: 'added', position: 'new' },
+        lineCode: 'abc_0_6',
+        lines: ['l3', 'l4', 'l5', 'l6'],
+      });
+
+      const updated = useDiffDiscussions().discussionForms[0];
+      expect(store.lineRangeEditing).toBeNull();
+      expect(useDiffDiscussions().discussionForms).toHaveLength(1);
+      expect(updated.position.line_range).toStrictEqual(newRange);
+      expect(updated.position.new_line).toBe(6);
+      expect(updated.lineCode).toBe('abc_0_6');
+      expect(updated.lines).toStrictEqual(['l3', 'l4', 'l5', 'l6']);
+      expect(updated.noteBody).toBe('draft text');
+      expect(updated.editingLineRange).toBe(false);
+    });
+
+    it('cancelLineRangeEditing clears the flag and requests focus without changing the form', () => {
+      const form = createForm();
+      form.shouldFocus = false;
+      store.startLineRangeEditing(form);
+
+      store.cancelLineRangeEditing();
+
+      expect(store.lineRangeEditing).toBeNull();
+      expect(useDiffDiscussions().discussionForms).toHaveLength(1);
+      expect(form.editingLineRange).toBe(false);
+      expect(form.shouldFocus).toBe(true);
+      expect(form.position.line_range).toStrictEqual(lineRange);
+      expect(form.noteBody).toBe('draft text');
+    });
+
+    it('does nothing when committing without an active editing session', () => {
+      createForm();
+      store.commitLineRangeEditing({});
+      expect(store.lineRangeEditing).toBeNull();
+      expect(useDiffDiscussions().discussionForms).toHaveLength(1);
+    });
+
+    it("re-creates the form with the file's own diff refs so it is not filtered out", () => {
+      const fileDiffRefs = {
+        base_sha: 'file_base',
+        start_sha: 'file_start',
+        head_sha: 'file_head',
+      };
+      store.addNewLineDiscussionForm({
+        oldPath: 'a.rb',
+        newPath: 'a.rb',
+        lineRange,
+        lineChange: { change: 'added', position: 'new' },
+        lineCode: 'abc_0_8',
+        diffRefs: fileDiffRefs,
+      });
+      const form = useDiffDiscussions().discussionForms[0];
+      expect(form.position).toMatchObject(fileDiffRefs);
+
+      store.startLineRangeEditing(form);
+      store.commitLineRangeEditing({
+        lineChange: { change: 'added', position: 'new' },
+        lineCode: 'abc_0_8',
+        lines: [],
+      });
+
+      expect(useDiffDiscussions().discussionForms[0].position).toMatchObject(fileDiffRefs);
+    });
+  });
+
   describe('commit view forms', () => {
     const commitDiffRefs = { base_sha: 'parent', start_sha: 'parent', head_sha: 'commit_sha' };
 

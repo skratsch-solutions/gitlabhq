@@ -83,8 +83,12 @@ For example, the Database group contains `database-fundamentals`,
    CODEOWNERS rule routes the review to the AI-tooling maintainers.
 1. After the merge request merges, the next scheduled sync run generates
    the first distilled file for each new principle at
-   `.ai/principles/distilled/<slug>.md`. To trigger an earlier run, ask
-   an AI-tooling maintainer to start the schedule manually.
+   `.ai/principles/distilled/<slug>.md`. To trigger an earlier run,
+   select **Run** on the "AI principles distillation" schedule at
+   [pipeline schedules](https://gitlab.com/gitlab-org/gitlab/-/pipeline_schedules).
+   The run fires only the sync job and opens a merge request with the
+   generated files. For details, see
+   [Run the distillation manually](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.ai/principles/README.md#run-the-distillation-manually).
 1. Review the generated files. Check that the distilled rules faithfully
    reflect your documentation and that the agent has not introduced rules
    that are not in the source.
@@ -183,7 +187,7 @@ agent consumes:
 A minimal baseline file for a hypothetical `database-migrations`
 principle:
 
-````markdown
+```markdown
 ### Schema migrations
 
 - Files in `db/schema_migrations/` are auto-generated and do not require
@@ -199,7 +203,7 @@ YAML must include:
 - `feature_category: <category symbol>`
 - `milestone: '<X.Y>'`
 - `gitlab_schema: <gitlab_main | gitlab_ci | gitlab_main_user | gitlab_main_org>`
-````
+```
 
 ## Review auto-generated merge requests
 

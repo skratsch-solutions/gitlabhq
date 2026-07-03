@@ -171,7 +171,7 @@ class MergeRequest::CommitsMetadata < ApplicationRecord # rubocop:disable Style/
       })
       .group(:sha)
 
-    if MergeRequestDiffCommit.read_new_commits_table?(project_id)
+    if MergeRequestDiffCommit.project_id_pruning_enabled?(project_id)
       relation = relation.where(merge_request_diff_commits: { project_id: project_id })
     end
 

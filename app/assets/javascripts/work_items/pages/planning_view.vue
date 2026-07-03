@@ -1,7 +1,6 @@
 <script>
 import { GlButton, GlAlert, GlFilteredSearchToken, GlIntersectionObserver } from '@gitlab/ui';
 import { isEmpty, isEqual } from 'lodash-es';
-import produce from 'immer';
 import fuzzaldrinPlus from 'fuzzaldrin-plus';
 import axios from '~/lib/utils/axios_utils';
 import { s__, __, n__, formatNumber, sprintf } from '~/locale';
@@ -76,7 +75,6 @@ import {
 import searchLabelsQuery from '~/work_items/list/graphql/search_labels.query.graphql';
 import getWorkItemsCountOnlyQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_count_only.query.graphql';
 import hasWorkItemsQuery from '~/work_items/list/graphql/has_work_items.query.graphql';
-import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_item_list_user_preferences.mutation.graphql';
 import getUserWorkItemsPreferences from '~/work_items/graphql/get_user_preferences.query.graphql';
 import namespaceSavedViewQuery from '~/work_items/list/graphql/namespace_saved_view.query.graphql';
 import getNamespaceSavedViewsQuery from '~/work_items/list/graphql/work_item_saved_views_namespace.query.graphql';
@@ -136,6 +134,7 @@ import {
   viewModeChanged,
   preferencesChanged,
 } from '~/work_items/list/view_change_detection';
+import { persistSortPreference } from '~/work_items/list/display_settings_preferences';
 import { buildInitialViewState } from '~/work_items/list/saved_view_config';
 
 import searchProjectsQuery from '../list/graphql/search_projects.query.graphql';
@@ -1686,38 +1685,11 @@ export default {
     },
     async saveSortPreference(sortKey) {
       try {
-        const { data } = await this.$apollo.mutate({
-          mutation: updateWorkItemListUserPreference,
-          variables: {
-            namespace: this.rootPageFullPath,
-            workItemTypeId: this.workItemTypeId,
-            sort: sortKey,
-          },
-          update: (
-            cache,
-            {
-              data: {
-                workItemUserPreferenceUpdate: { userPreferences },
-              },
-            },
-          ) => {
-            if (!userPreferences) {
-              return;
-            }
-            cache.updateQuery(
-              {
-                query: getUserWorkItemsPreferences,
-                variables: {
-                  namespace: this.rootPageFullPath,
-                  workItemTypeId: this.workItemTypeId,
-                },
-              },
-              (existingData) =>
-                produce(existingData, (draftData) => {
-                  draftData.currentUser.workItemPreferencesWithType.sort = userPreferences.sort;
-                }),
-            );
-          },
+        const { data } = await persistSortPreference({
+          apolloClient: this.$apollo,
+          namespace: this.rootPageFullPath,
+          workItemTypeId: this.workItemTypeId,
+          sort: sortKey,
         });
         if (data?.workItemUserPreferenceUpdate?.errors?.length) {
           throw new Error(data.workItemUserPreferenceUpdate.errors);

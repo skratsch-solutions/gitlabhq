@@ -44,6 +44,7 @@ export default {
       default: true,
     },
   },
+  emits: ['cron-value'],
   data() {
     return {
       randomMinute: getRandomCronValue(MINUTE),

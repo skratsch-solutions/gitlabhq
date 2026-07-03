@@ -165,6 +165,13 @@ module API
       # Overridden in EE to enforce the Dependency Firewall before a package is
       # persisted on upload. CE intentionally does nothing.
       def enforce_dependency_firewall_on_upload!(_project, _name, _version); end
+
+      # Overridden in EE to redirect a forwarded (non-local) package download to the
+      # upstream artifact after a Dependency Firewall check. CE returns false so the
+      # file route falls through to its 404.
+      def handle_pypi_upstream_file_redirect!(_project)
+        false
+      end
     end
 
     params do
@@ -282,14 +289,28 @@ module API
           authorize_job_token_policies!(project)
 
           filename = "#{params[:file_identifier]}.#{params[:format]}"
-          package = Packages::Pypi::PackageFinder.new(current_user, project, { filename: filename, sha256: params[:sha256] }).execute
-          package_file = ::Packages::PackageFileFinder.new(package, filename, with_file_name_like: false).execute
 
-          enforce_dependency_firewall_on_download!(package)
+          package =
+            begin
+              Packages::Pypi::PackageFinder.new(current_user, project, { filename: filename, sha256: params[:sha256] }).execute
+            rescue ActiveRecord::RecordNotFound
+              nil
+            end
 
-          track_package_event('pull_package', :pypi, project: project, namespace: project.namespace)
+          if package
+            package_file = ::Packages::PackageFileFinder.new(package, filename, with_file_name_like: false).execute
 
-          present_package_file!(package_file, supports_direct_download: true)
+            enforce_dependency_firewall_on_download!(package)
+
+            track_package_event('pull_package', :pypi, project: project, namespace: project.namespace)
+
+            present_package_file!(package_file, supports_direct_download: true)
+          elsif handle_pypi_upstream_file_redirect!(project)
+            # The EE forwarded path issued a 302 to the upstream artifact (after firewall
+            # enforcement). Nothing more to do - the redirect is the terminal response.
+          else
+            not_found!('Package')
+          end
         end
 
         desc 'List all packages for a project' do

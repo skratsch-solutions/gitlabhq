@@ -77,7 +77,7 @@ module Gitlab
           end
 
           begin
-            publish_tooling_branch(base_branch, project_id, api_token, date, auto_mr_cfg)
+            publish_tooling_branch(base_branch, project_id, api_token, date, auto_mr_cfg, distilled_contents)
           rescue StandardError => e
             warn Rainbow("ERROR: tooling MR failed: #{e.message}").red
             cleanup_branch(base_branch, tooling_branch_name(auto_mr_cfg, date))
@@ -143,14 +143,26 @@ module Gitlab
         # routing-table files (AGENTS.md, CLAUDE.md, both SKILL.md) and the Duo
         # review-instructions file. These are regenerated in-branch so they
         # never leak into the per-team branches.
-        def publish_tooling_branch(base_branch, project_id, api_token, date, auto_mr_cfg)
+        #
+        # `distilled_contents` (the run's freshly distilled files, keyed by
+        # principle) is passed through to the fence regeneration: this branch is
+        # cut from origin/master, so its on-disk distilled files are stale (the
+        # updates live on the per-team branches). Without the in-memory content
+        # the Duo fences would be regenerated against the OLD distilled text and
+        # produce no change, leaving the ai-duo-review-instructions guard failing
+        # on team MRs. This pairs the fence update with its distilled changes:
+        # the tooling MR must merge with or right after the team MR(s) for the
+        # guard to pass on master.
+        def publish_tooling_branch(base_branch, project_id, api_token, date, auto_mr_cfg, distilled_contents = {})
           branch = tooling_branch_name(auto_mr_cfg, date)
 
           checkout_fresh_branch(branch, base_branch)
 
           # Regenerate the global artifacts now that we're on the tooling
-          # branch, so the diff lands here rather than in any team branch.
-          regenerate_static_artifacts
+          # branch, so the diff lands here rather than in any team branch. Pass
+          # the in-memory distilled content so the Duo fences reflect this run's
+          # updates instead of the stale files on this master-based branch.
+          regenerate_static_artifacts(distilled_overrides: distilled_contents)
 
           existing = Manifest::TOOLING_PATHS.select { |p| stageable_tooling_path?(p) }
 

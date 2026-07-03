@@ -240,7 +240,7 @@ Passthrough configuration is handled as follows:
 
 The following example shows how passthroughs from different sources combine:
 
-File `.gitlab/sastconfig.toml`:
+File `.gitlab/sast-ruleset.toml`:
 
 ```toml
 [gitlab-advanced-sast-cpp]

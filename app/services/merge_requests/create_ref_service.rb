@@ -59,7 +59,6 @@ module MergeRequests
     # the auto-rebase and merge-train paths fail loudly instead of producing a
     # no-op merge. See https://gitlab.com/gitlab-org/gitlab/-/work_items/598820.
     def reject_rebase_collapse!(final_commit_sha)
-      return unless Feature.enabled?(:verify_create_ref_advancement, target_project)
       return if final_commit_sha.present? && final_commit_sha != first_parent_sha
 
       raise CreateRefError, 'The merge request has no changes to merge after rebasing onto the target branch'

@@ -56,6 +56,7 @@ export default {
       default: '',
     },
   },
+  emits: ['clear', 'input', 'invite-cap-reached', 'token-remove', 'tokenization-state-change'],
   data() {
     return {
       loading: false,

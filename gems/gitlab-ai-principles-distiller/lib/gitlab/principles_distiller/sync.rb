@@ -259,7 +259,14 @@ module Gitlab
         puts Rainbow(message).bold
       end
 
-      def regenerate_static_artifacts
+      # `distilled_overrides` maps principle name to freshly distilled file
+      # content held in memory. The AGENTS.md/CLAUDE.md/SKILL.md/CODEOWNERS
+      # generators are manifest-driven (they do not read distilled bodies), so
+      # only the Duo fence regeneration needs the overrides: in --push mode the
+      # tooling branch is cut from origin/master and its on-disk distilled files
+      # are stale, so the fences must be computed from the in-memory content
+      # (see Sync::AutoMr#publish_tooling_branch).
+      def regenerate_static_artifacts(distilled_overrides: {})
         banner("\nUpdating AGENTS.md context loading section...")
         manifest.generate_agents_md_context_loading
 
@@ -270,7 +277,7 @@ module Gitlab
         manifest.generate_codeowners
 
         banner("\nRegenerating Duo Code Review instruction fences...")
-        manifest.generate_duo_review_instructions
+        manifest.generate_duo_review_instructions(distilled_overrides: distilled_overrides)
 
         banner("\nInjecting prerequisite notes into distilled files...")
         manifest.inject_prerequisite_notes

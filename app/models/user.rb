@@ -87,6 +87,13 @@ class User < ApplicationRecord
 
   RESERVED_AI_USERNAME_PREFIXES = %w[duo- duo_ ai- ai_].freeze
 
+  # Top-level routes that intercept `/<route>.<anything>` before `/:username`,
+  # making those profiles unreachable. Case-sensitive, matching Rails routing.
+  # A spec enforces this set; see https://gitlab.com/gitlab-org/gitlab/-/issues/594444.
+  USERNAME_SHADOWING_TOP_LEVEL_ROUTES = %w[
+    admin dashboard explore groups health_check help projects public search
+  ].freeze
+
   # lib/tasks/tokens.rake needs to be updated when changing mail and feed tokens
   add_authentication_token_field :incoming_email_token, insecure: true, token_generator: -> { self.generate_incoming_mail_token } # rubocop:disable Gitlab/TokenWithoutPrefix -- wontfix: the prefix is in the generator
   add_authentication_token_field :feed_token, insecure: true, format_with_prefix: :prefix_for_feed_token
@@ -357,6 +364,7 @@ class User < ApplicationRecord
     exclusion: { in: Gitlab::PathRegex::TOP_LEVEL_ROUTES, message: N_('%{value} is a reserved name') }
   validates :username, uniqueness: true, unless: :namespace
   validate :username_not_reserved_ai_prefix, if: :username_changed?
+  validate :username_not_shadowed_by_top_level_route, if: :username_changed?
   validate :username_not_assigned_to_pages_unique_domain, if: :username_changed?
   validates :name, presence: true, length: { maximum: 255 }
   validates :first_name, length: { maximum: MAX_NAME_LENGTH }
@@ -3341,6 +3349,17 @@ class User < ApplicationRecord
     return unless RESERVED_AI_USERNAME_PREFIXES.any? { |prefix| username.downcase.start_with?(prefix) }
 
     errors.add(:username, _("starting with 'duo-', 'duo_', 'ai-' or 'ai_' is reserved for GitLab AI entities. Please choose a different name."))
+  end
+
+  def username_not_shadowed_by_top_level_route
+    return if username.blank? || username.exclude?('.')
+
+    prefix = username.split('.', 2).first
+    return unless USERNAME_SHADOWING_TOP_LEVEL_ROUTES.include?(prefix)
+
+    errors.add(:username, format(
+      _("cannot start with '%{prefix}.' because the profile URL would be intercepted by an existing route. " \
+        "Please choose a different name."), prefix: prefix))
   end
 
   def groups_allowing_project_creation

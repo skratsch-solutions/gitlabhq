@@ -74,6 +74,11 @@ export default {
     empty() {
       return this.discussionsByPosition.every((discussions) => discussions.length === 0);
     },
+    editingLineRange() {
+      return this.discussionsByPosition.some((discussions) =>
+        discussions.some((discussion) => discussion.isForm && discussion.editingLineRange),
+      );
+    },
   },
   watch: {
     empty(value) {
@@ -123,6 +128,7 @@ export default {
 
 <template>
   <tr
+    v-show="!editingLineRange"
     data-discussion-row="true"
     class="rd-discussion-row"
     :data-collapsed="allHidden && !hasDrafts ? '' : undefined"

@@ -466,7 +466,15 @@ module Gitlab
         # Idempotent: rewrites each region's body and directives from the
         # current distilled file, preserving the hand-authored group name and
         # fileFilters. Skips silently when the file is absent.
-        def generate_duo_review_instructions
+        #
+        # `distilled_overrides` maps principle name to freshly distilled file
+        # content (frontmatter + body) held in memory. In --push mode the
+        # tooling branch is cut from origin/master, so on-disk distilled files
+        # are stale relative to the run's updates (which live on the per-team
+        # branches). Passing the in-memory content here makes the fences
+        # reflect the new distilled text without needing the team branches
+        # merged first (see Sync::AutoMr#publish_tooling_branch).
+        def generate_duo_review_instructions(distilled_overrides: {})
           path = Workspace.safe_join(DUO_REVIEW_INSTRUCTIONS_PATH)
           unless File.exist?(path)
             puts Rainbow("  #{DUO_REVIEW_INSTRUCTIONS_PATH} not found; skipping Duo review instructions").faint
@@ -474,7 +482,7 @@ module Gitlab
           end
 
           content = File.read(path)
-          fences = build_duo_fences(DuoInstructions.fenced_principles(content))
+          fences = build_duo_fences(DuoInstructions.fenced_principles(content), overrides: distilled_overrides)
           updated = DuoInstructions.regenerate(content, fences: fences)
 
           if updated == content
@@ -514,15 +522,21 @@ module Gitlab
         # principles whose distilled file or frontmatter is missing so a fence
         # for a not-yet-distilled principle is left untouched rather than
         # blanked.
-        def build_duo_fences(names)
+        #
+        # `overrides` maps principle name to in-memory distilled content
+        # (frontmatter + body). When a name has an override, its content is
+        # parsed from memory instead of read from disk, so fences reflect the
+        # freshly distilled text even when the on-disk file is stale (the
+        # tooling branch is cut from origin/master; see
+        # generate_duo_review_instructions).
+        def build_duo_fences(names, overrides: {})
           names.each_with_object({}) do |name, fences|
             config = principle_config(name)
             next unless config
 
-            path = Workspace.safe_join(principles_path(name))
-            next unless File.exist?(path)
+            content = duo_fence_source_content(name, overrides)
+            next unless content
 
-            content = File.read(path)
             frontmatter = extract_frontmatter(content)
             next unless frontmatter&.key?('source_checksum')
 
@@ -602,6 +616,18 @@ module Gitlab
         end
 
         private
+
+        # The distilled content to build a fence from: the in-memory override
+        # when present (freshly distilled this run), otherwise the on-disk file.
+        # Returns nil when neither is available so a not-yet-distilled fence is
+        # left untouched.
+        def duo_fence_source_content(name, overrides)
+          override = overrides[name]
+          return override if override
+
+          path = Workspace.safe_join(principles_path(name))
+          File.read(path) if File.exist?(path)
+        end
 
         # `doc/foo.md` -> `doc/foo/_index.md`; `doc/foo/` -> `doc/foo/_index.md`.
         # Mirrors the directory-index convention used across docs.gitlab.com.

@@ -46,9 +46,7 @@ module MergeRequests
             merge_params: merge_params
           ).execute
 
-          if create_ref_result.error? && Feature.enabled?(:verify_create_ref_advancement, project)
-            raise_error(create_ref_result.message)
-          end
+          raise_error(create_ref_result.message) if create_ref_result.error?
 
           payload = create_ref_result.payload
 

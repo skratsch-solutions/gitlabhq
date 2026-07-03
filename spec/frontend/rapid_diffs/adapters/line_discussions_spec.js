@@ -13,6 +13,7 @@ jest.mock('~/alert');
 const useDiscussionsStore = defineStore('discussionsStore', {
   state: () => ({
     discussions: [],
+    lineRangeEditing: null,
   }),
   actions: {
     findLinePositionsForFile() {
@@ -501,6 +502,23 @@ describe('discussions adapters', () => {
         await nextTick();
         document.querySelector('#discussions-component').instance().emitClearHighlight();
         expect(clearHighlightSpy).toHaveBeenCalled();
+      });
+
+      it('does not trigger highlight or clear while a line range is being edited', async () => {
+        store.discussions = [
+          {
+            id: 'abc',
+            diff_discussion: true,
+            position: { old_path: oldPath, new_path: newPath, old_line: 1, new_line: null },
+          },
+        ];
+        await nextTick();
+        store.lineRangeEditing = { discussion: {} };
+        const component = document.querySelector('#discussions-component').instance();
+        component.emitHighlight({ start: { old_line: 1 }, end: { old_line: 1 } });
+        component.emitClearHighlight();
+        expect(highlightSpy).not.toHaveBeenCalled();
+        expect(clearHighlightSpy).not.toHaveBeenCalled();
       });
 
       it('triggers CLEAR_HIGHLIGHT when discussion row becomes empty', async () => {

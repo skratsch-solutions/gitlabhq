@@ -9,7 +9,8 @@
 # the GitLab REST API.
 # See gitlab-org/gitlab#597600 for the design.
 #
-# Trigger: pipeline schedule on master with SCHEDULE_TYPE=weekly.
+# Trigger: dedicated pipeline schedule on master with
+# SCHEDULE_TYPE=ai-principles-distillation.
 #
 # Tokens: GITLAB_TOKEN (Workflow API + GraphQL) and GITLAB_API_TOKEN
 # (auto-MR REST). Both are sourced from a single project CI/CD variable
@@ -79,7 +80,7 @@ ai-principles-sync:
     # Detect drift, trigger Duo Workflows, write back, and open an MR.
     - bundle exec bin/gitlab-ai-principles-distiller-sync --workspace "$CI_PROJECT_DIR" --push
   rules:
-    - !reference ['.ai-principles-sync:rules:weekly', rules]
+    - !reference ['.ai-principles-sync:rules:scheduled', rules]
   artifacts:
     when: always
     expire_in: 7d
@@ -101,4 +102,4 @@ ai-principles-sync:report-failure:
     - scripts/slack ai-harness-gitlab-monolith "☠️ Weekly AI principles distillation (\`ai-principles-sync\`) failed. Distilled principles may be stale. See ${CI_PIPELINE_URL}" ci_failing "GitLab Bot"
   allow_failure: true
   rules:
-    - !reference ['.ai-principles-sync:rules:weekly-on-failure', rules]
+    - !reference ['.ai-principles-sync:rules:scheduled-on-failure', rules]

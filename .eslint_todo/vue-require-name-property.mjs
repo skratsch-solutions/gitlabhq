@@ -74,7 +74,6 @@ export default {
     'app/assets/javascripts/contributors/components/contributors.vue',
     'app/assets/javascripts/contributors/components/individual_chart.vue',
     'app/assets/javascripts/credentials/components/credentials_filter_sort_app.vue',
-    'app/assets/javascripts/crm/components/crm_form.vue',
     'app/assets/javascripts/crm/contacts/components/contact_form_wrapper.vue',
     'app/assets/javascripts/crm/contacts/components/contacts_root.vue',
     'app/assets/javascripts/crm/organizations/components/organization_form_wrapper.vue',

@@ -57,6 +57,7 @@ export default {
       :should-animate="true"
       :use-delimiters="true"
       :variant="options.variant"
+      :description="options.description"
     />
   </div>
 </template>

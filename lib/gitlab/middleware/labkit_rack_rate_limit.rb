@@ -85,8 +85,14 @@ module Gitlab
       # throttle is indistinguishable from the legacy stack to clients.
       def enforced_response(results)
         blocked = results.find do |result|
+          # An unmatched or synthetic-allow result carries no rule, so its cohort can
+          # only be looked up once blocked? has confirmed a matched throttle blocked
+          # (a block always carries its rule). Testing blocked? first also preserves
+          # the short-circuit the &&-chain relied on before entry was hoisted out.
+          next false unless blocked?(result)
+
           entry = entry_for_rule(result.rule.name)
-          blocked?(result) && entry && enforce_enabled?(entry.cohort)
+          entry && enforce_enabled?(entry.cohort)
         end
         return unless blocked
 

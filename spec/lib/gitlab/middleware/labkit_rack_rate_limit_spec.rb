@@ -66,6 +66,35 @@ RSpec.describe Gitlab::Middleware::LabkitRackRateLimit, feature_category: :rate_
 
       expect(status).to eq(200)
     end
+
+    context 'when another limiter returns an unmatched result carrying no rule' do
+      # Production runs several limiters (rack_request, rack_request_protected_paths,
+      # rack_request_incident_management); for any path at least one does not match and
+      # returns an unmatched result whose rule is nil. enforced_response must not
+      # dereference the rule on those results, or the shadow decision crashes and no
+      # comparison is ever recorded (calls_total still fires, so the failure is silent).
+      let(:unmatched_result) do
+        instance_double(Labkit::RateLimit::Result, action: :allow, error?: false, rule: nil)
+      end
+
+      let(:unmatched_limiter) { instance_double(Labkit::RateLimit::Limiter, check: unmatched_result) }
+
+      before do
+        allow(limiters).to receive(:all).and_return(
+          registry::GENERAL => limiter,
+          registry::PROTECTED => unmatched_limiter
+        )
+      end
+
+      it 'records the comparison without crashing on the nil-rule result', :aggregate_failures do
+        expect(Gitlab::ErrorTracking).not_to receive(:track_exception)
+        expect(divergence).to receive(:record)
+
+        status, = middleware.call(env)
+
+        expect(status).to eq(200)
+      end
+    end
   end
 
   context 'when the cohort enforce flag is on' do
@@ -158,6 +187,36 @@ RSpec.describe Gitlab::Middleware::LabkitRackRateLimit, feature_category: :rate_
         status, = middleware.call(env)
 
         expect(status).to eq(200)
+      end
+    end
+
+    context 'when an unmatched (nil-rule) limiter is evaluated before the blocking one' do
+      # find walks the results in limiter order; a nil-rule result ahead of the block
+      # must be skipped, not dereferenced, or enforcement crashes and falls open to
+      # legacy - silently enforcing nothing for that cohort.
+      let(:result) do
+        instance_double(Labkit::RateLimit::Result, action: :block, error?: false, rule: rule, info: info)
+      end
+
+      let(:unmatched_result) do
+        instance_double(Labkit::RateLimit::Result, action: :allow, error?: false, rule: nil)
+      end
+
+      let(:unmatched_limiter) { instance_double(Labkit::RateLimit::Limiter, check: unmatched_result) }
+
+      before do
+        allow(limiters).to receive(:all).and_return(
+          registry::PROTECTED => unmatched_limiter,
+          registry::GENERAL => limiter
+        )
+      end
+
+      it 'skips the nil-rule result and still enforces the block', :aggregate_failures do
+        expect(Gitlab::ErrorTracking).not_to receive(:track_exception)
+
+        status, = middleware.call(env)
+
+        expect(status).to eq(429)
       end
     end
 

@@ -1,16 +1,13 @@
 <script>
 import { GlDisclosureDropdownItem, GlIcon, GlSearchBoxByType, GlToggle } from '@gitlab/ui';
-import produce from 'immer';
-import { __, s__ } from '~/locale';
-import { createAlert } from '~/alert';
+import { s__ } from '~/locale';
 import { InternalEvents } from '~/tracking';
-import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_item_list_user_preferences.mutation.graphql';
-import getUserWorkItemsPreferences from '~/work_items/graphql/get_user_preferences.query.graphql';
+import { ROUTES } from '~/work_items/constants';
 import {
-  WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED,
-  METADATA_KEYS,
-  ROUTES,
-} from '~/work_items/constants';
+  applicableMetadataFields,
+  persistMetadataPreference,
+  alertPreferenceError,
+} from '~/work_items/list/display_settings_preferences';
 
 export default {
   name: 'WorkItemDisplaySettingsMetadata',
@@ -71,11 +68,9 @@ export default {
       return this.namespacePreferences?.hiddenMetadataKeys || [];
     },
     applicableMetadataPreferences() {
-      return WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED.filter((item) => {
-        if (item.key === METADATA_KEYS.STATUS) {
-          return !this.isServiceDeskList;
-        }
-        return !this.isGroup || item.isPresentInGroup;
+      return applicableMetadataFields({
+        isGroup: this.isGroup,
+        isServiceDeskList: this.isServiceDeskList,
       });
     },
     filteredMetadataPreferences() {
@@ -122,51 +117,13 @@ export default {
       }
 
       try {
-        await this.$apollo.mutate({
-          mutation: updateWorkItemListUserPreference,
-          variables: {
-            namespace: this.fullPath,
-            displaySettings: input,
-          },
-          optimisticResponse: {
-            workItemUserPreferenceUpdate: {
-              errors: [],
-              userPreferences: {
-                displaySettings: input,
-                sort: this.sortKey,
-                __typename: 'WorkItemTypesUserPreference',
-              },
-              __typename: 'WorkItemUserPreferenceUpdatePayload',
-            },
-          },
-          update: (
-            cache,
-            {
-              data: {
-                workItemUserPreferenceUpdate: { userPreferences },
-              },
-            },
-          ) => {
-            cache.updateQuery(
-              {
-                query: getUserWorkItemsPreferences,
-                variables: {
-                  namespace: this.fullPath,
-                  workItemTypeId: this.workItemTypeId,
-                  userPreferencesOnly: this.isSavedView,
-                },
-              },
-              (existingData) =>
-                produce(existingData, (draftData) => {
-                  if (draftData?.currentUser) {
-                    draftData.currentUser.workItemPreferences = {
-                      ...(draftData?.currentUser?.workItemPreferences ?? {}),
-                      displaySettings: userPreferences.displaySettings,
-                    };
-                  }
-                }),
-            );
-          },
+        await persistMetadataPreference({
+          apolloClient: this.$apollo,
+          namespace: this.fullPath,
+          workItemTypeId: this.workItemTypeId,
+          userPreferencesOnly: this.isSavedView,
+          displaySettings: input,
+          sort: this.sortKey,
         });
 
         if (!wasHidden) {
@@ -175,11 +132,7 @@ export default {
           });
         }
       } catch (error) {
-        createAlert({
-          message: __('Something went wrong while saving the preference.'),
-          captureError: true,
-          error,
-        });
+        alertPreferenceError(error);
       }
     },
   },

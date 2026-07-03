@@ -1027,22 +1027,30 @@ expect(page).to have_pushed_frontend_feature_flags(valueStreamAnalyticsPathNavig
 
 ### `stub_feature_flags` vs `Feature.enable*`
 
-It is preferred to use `stub_feature_flags` to enable feature flags
-in the testing environment. This method provides a simple and well described
-interface for simple use cases.
-
-However, in some cases more complex behavior needs to be tested,
-like percentage rollouts of feature flags. This can be done using
-`.enable_percentage_of_time` or `.enable_percentage_of_actors`:
+Because all feature flags are enabled by default in the testing environment, you
+typically use `stub_feature_flags` to disable a flag, or to enable it only for
+specific actors.
+This method provides a simple and well-described interface for these use cases:
 
 ```ruby
-# Good: feature needs to be explicitly disabled, as it is enabled by default if not defined
+# Good: disable the flag to test the disabled code path
 stub_feature_flags(my_feature: false)
-stub_feature_flags(my_feature: true)
+
+# Good: enable the flag only for specific actors, leaving it disabled elsewhere
 stub_feature_flags(my_feature: project)
 stub_feature_flags(my_feature: [project, project2])
 
-# Bad
+# Redundant: the flag is already enabled by default in tests, so this has no
+# effect unless the flag was disabled by default in spec/spec_helper.rb
+stub_feature_flags(my_feature: true)
+```
+
+For more complex behavior, such as percentage rollouts, use
+`.enable_percentage_of_time` or `.enable_percentage_of_actors` instead of
+`stub_feature_flags`:
+
+```ruby
+# Bad: prefer stub_feature_flags for simple enable/disable
 Feature.enable(:my_feature_2)
 
 # Good: enable my_feature for 50% of time

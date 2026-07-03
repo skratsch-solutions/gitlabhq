@@ -32,7 +32,6 @@ can find relevant code snippets in your repository.
 ## Prerequisites
 
 - Access to the [GitLab AI Gateway](gitlab_duo/gateway.md) or [GitLab Duo Self-Hosted](gitlab_duo_self_hosted/_index.md).
-  For more information, see [embedding models](#embedding-models).
 - Beta and experimental features turned on [for the instance](../user/duo_agent_platform/turn_on_off.md#on-gitlab-self-managed-2).
 - [A vector store configured](#vector-storage):
   - Elasticsearch 8.0 and later.
@@ -159,12 +158,16 @@ To configure an embedding model:
 > The availability of this feature is controlled by a feature flag.
 > For more information, see the history.
 
+Prerequisites:
+
+- Access to both the [GitLab AI Gateway](gitlab_duo/gateway.md) and [GitLab Duo Self-Hosted](gitlab_duo_self_hosted/_index.md).
+
 GitLab-managed models are offered on the [GitLab AI Gateway](gitlab_duo/gateway.md).
 Select the `text-embedding-005` model provided by the Gemini Enterprise Agent Platform.
 
-You can also select a GitLab-managed model with a
-[GitLab Duo Self-Hosted](gitlab_duo_self_hosted/_index.md) setup.
-For more information, see [hybrid AI Gateway and model configuration](gitlab_duo_self_hosted/_index.md#hybrid-ai-gateway-and-model-configuration).
+For more information about GitLab-managed models with a
+[GitLab Duo Self-Hosted](gitlab_duo_self_hosted/_index.md) setup,
+see [hybrid AI Gateway and model configuration](gitlab_duo_self_hosted/_index.md#hybrid-ai-gateway-and-model-configuration).
 
 > [!warning]
 > If GitLab deprecates a model you selected, you must switch to a different model yourself.
@@ -180,6 +183,11 @@ For more information, see [hybrid AI Gateway and model configuration](gitlab_duo
 > [!flag]
 > The availability of this feature is controlled by a feature flag.
 > For more information, see the history.
+
+Prerequisites:
+
+- Access to [GitLab Duo Self-Hosted](gitlab_duo_self_hosted/_index.md).
+- [Self-hosted beta models and features turned on](gitlab_duo_self_hosted/configure_duo_features.md#turn-on-self-hosted-beta-models-and-features).
 
 Self-hosted models are AI models [hosted on your own infrastructure](gitlab_duo_self_hosted/_index.md).
 

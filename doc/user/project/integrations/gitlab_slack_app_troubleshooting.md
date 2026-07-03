@@ -15,8 +15,6 @@ description: "Troubleshooting guide for the GitLab for Slack app. Covers common 
 
 When working with the GitLab for Slack app, you might encounter the following issues.
 
-For administrator documentation, see [GitLab for Slack app administration](../../../administration/settings/slack_app.md#troubleshooting).
-
 ## App does not appear in the list of integrations
 
 The GitLab for Slack app might not appear in the list of integrations. To have the GitLab for Slack app on your GitLab Self-Managed instance, an administrator must [enable the integration](../../../administration/settings/slack_app.md). On GitLab.com, the GitLab for Slack app is available by default.

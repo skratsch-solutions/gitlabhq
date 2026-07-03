@@ -67,6 +67,7 @@ For an overview, see [GitLab Duo AI Impact Dashboard](https://youtu.be/FxSWX64aU
 - Code Suggestions acceptance rate metric [replaced](https://gitlab.com/gitlab-org/gitlab/-/work_items/587300) with GitLab Duo agent/flow users in GitLab 18.11.
 - Trend indicators [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/590535) in GitLab 19.0.
 - Code Suggestions users metric [replaced](https://gitlab.com/gitlab-org/gitlab/-/work_items/587299) with GitLab Duo power users in GitLab 19.0.
+- Pipelines using GitLab Duo features metric [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/587308) in GitLab 19.2.
 
 {{< /history >}}
 
@@ -74,6 +75,7 @@ For an overview, see [GitLab Duo AI Impact Dashboard](https://youtu.be/FxSWX64aU
 - **GitLab Duo power users**: Number of users who used at least three GitLab Duo features in the last 30 days.
 - **GitLab Duo agent/flow users**: Number of users who used at least one GitLab Duo agent or flow in the last 30 days.
 - **GitLab Duo Agent chat sessions**: Number of chat sessions initiated in GitLab Duo Agent Platform in the last 30 days.
+- **Pipelines using GitLab Duo features**: Percentage of CI/CD pipelines that used one or more GitLab Duo features during execution in the last 30 days.
 
 ## Metric trends
 

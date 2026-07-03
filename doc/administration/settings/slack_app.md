@@ -20,7 +20,7 @@ description: "Administer, configure, and troubleshoot the GitLab for Slack app o
 {{< /history >}}
 
 > [!note]
-> This page contains administrator documentation for the GitLab for Slack app. For user documentation, see [GitLab for Slack app](../../user/project/integrations/gitlab_slack_application.md).
+> For user documentation, see [GitLab for Slack app](../../user/project/integrations/gitlab_slack_application.md).
 
 The GitLab for Slack app distributed through the Slack App Directory only works with GitLab.com.
 On GitLab Self-Managed, you can create your own copy of the GitLab for Slack app from a [manifest file](https://api.slack.com/reference/manifests#creating_apps) and configure your instance.
@@ -154,8 +154,6 @@ To configure the GitLab for Slack app as an unlisted distributed app:
 ## Troubleshooting
 
 When administering the GitLab for Slack app, you might encounter the following issues.
-
-For user documentation, see [GitLab for Slack app](../../user/project/integrations/gitlab_slack_app_troubleshooting.md).
 
 ### Slash commands return `dispatch_failed` in Slack
 

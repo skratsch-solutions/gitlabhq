@@ -81,6 +81,7 @@ export default {
       default: __('Filter or search (3 character minimum)'),
     },
   },
+  emits: ['filter', 'sort-by-change', 'sort-direction-change'],
   computed: {
     filteredSearchValue() {
       const tokens = prepareTokens(

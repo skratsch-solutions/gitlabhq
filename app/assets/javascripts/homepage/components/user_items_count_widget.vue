@@ -43,6 +43,7 @@ export default {
       default: 'merge-request',
     },
   },
+  emits: ['click-link'],
   computed: {
     isLoading() {
       return !this.hasError && this.userItems === null;

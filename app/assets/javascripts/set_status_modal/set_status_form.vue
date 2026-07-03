@@ -69,6 +69,7 @@ export default {
       default: '',
     },
   },
+  emits: ['availability-input', 'clear-status-after-click', 'emoji-click', 'message-input'],
   data() {
     return {
       defaultEmojiTag: '',

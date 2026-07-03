@@ -172,6 +172,11 @@ class MergeRequestDiffCommit < ApplicationRecord
     Feature.enabled?(:mr_diff_commits_read_new_table, Project.actor_from_id(project_id))
   end
 
+  def self.project_id_pruning_enabled?(project_id)
+    read_new_commits_table?(project_id) &&
+      Feature.enabled?(:mr_diff_commits_project_id_pruning, Project.actor_from_id(project_id))
+  end
+
   def self.commit_shas_from_new_table(project_id:, limit:)
     # LATERAL with LIMIT 1 pins the planner to a per-row PK lookup on
     # merge_request_commits_metadata.id, rather than a hash join over every
@@ -188,7 +193,8 @@ class MergeRequestDiffCommit < ApplicationRecord
 
     # raw SQL in pluck() bypasses ActiveRecord's type casting, so encode() is needed to convert bytea to hex
     shas_sql = Arel.sql("encode(merge_request_commits_metadata.sha, 'hex')")
-    relation = joins(sanitize_sql_array([join_sql, project_id])).where(project_id: project_id).order(:relative_order)
+    relation = joins(sanitize_sql_array([join_sql, project_id])).order(:relative_order)
+    relation = relation.where(project_id: project_id) if project_id_pruning_enabled?(project_id)
     relation = relation.limit(limit) if limit
 
     # rubocop:disable Database/AvoidUsingPluckWithoutLimit -- limit may be applied in the caller

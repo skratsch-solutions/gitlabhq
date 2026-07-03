@@ -468,6 +468,10 @@ RSpec.describe MergeRequest::CommitsMetadata, feature_category: :code_review_wor
       expect(result.to_a.pluck(:sha, :merge_request_id)).to contain_exactly([sha_a, mr_1.id])
     end
 
+    it 'includes a project_id filter on merge_request_diff_commits for partition pruning' do
+      expect { result.load }.not_to query_diff_commits_without_project_id
+    end
+
     it 'excludes SHAs not in the provided list' do
       expect(described_class.oldest_merge_requests_commits_from_metadata(project.id, [sha_b])).to be_empty
     end
@@ -503,6 +507,20 @@ RSpec.describe MergeRequest::CommitsMetadata, feature_category: :code_review_wor
 
       it 'returns empty results for the other project' do
         expect(described_class.oldest_merge_requests_commits_from_metadata(other_project.id, shas)).to be_empty
+      end
+    end
+
+    context 'when mr_diff_commits_project_id_pruning is disabled' do
+      before do
+        stub_feature_flags(mr_diff_commits_project_id_pruning: false)
+      end
+
+      it 'returns correct results' do
+        expect(result.to_a.pluck(:sha, :merge_request_id)).to contain_exactly([sha_a, mr_1.id])
+      end
+
+      it 'omits the project_id filter on merge_request_diff_commits' do
+        expect { result.load }.to query_diff_commits_without_project_id
       end
     end
   end

@@ -156,6 +156,7 @@ export default {
       required: true,
     },
   },
+  emits: ['cancel', 'close', 'reset', 'shown', 'submit'],
   data() {
     // Be sure to check out reset!
     return {

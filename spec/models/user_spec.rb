@@ -757,6 +757,46 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
         end
       end
 
+      context 'when username is a shadowing top-level route followed by a dot' do
+        let(:username) { 'admin.foo' }
+
+        it 'rejects the username because the profile URL would be unreachable' do
+          expect(user).not_to be_valid
+          expect(user.errors.messages[:username]).to contain_exactly(
+            "cannot start with 'admin.' because the profile URL would be intercepted by an existing route. " \
+              "Please choose a different name."
+          )
+        end
+      end
+
+      context 'when username is a non-shadowing top-level route followed by a dot' do
+        # `api` is a reserved word, but `/api.foo` is not intercepted by the
+        # `/api` route, so the profile resolves and the username is allowed.
+        let(:username) { 'api.foo' }
+
+        it 'allows the username' do
+          expect(user).to be_valid
+        end
+      end
+
+      context 'when username only shares a prefix with a shadowing route' do
+        let(:username) { 'administrator' }
+
+        it 'allows the username' do
+          expect(user).to be_valid
+        end
+      end
+
+      context 'when username matches a shadowing route in a different case' do
+        # Rails route matching is case-sensitive, so `/Admin.foo` reaches the
+        # user and the username remains valid.
+        let(:username) { 'Admin.foo' }
+
+        it 'allows the username' do
+          expect(user).to be_valid
+        end
+      end
+
       context 'when username is a child' do
         let(:username) { 'avatar' }
 
@@ -1020,6 +1060,35 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
           expect(user).to be_invalid
           expect(user.errors.messages[:username].first).to eq(_('cannot be changed if a personal project has container registry tags.'))
+        end
+
+        it 'surfaces the shadowed-route error alongside another username error' do
+          user.username = 'admin.foo'
+
+          expect(user).to be_invalid
+          expect(user.errors.messages[:username]).to contain_exactly(
+            "cannot start with 'admin.' because the profile URL would be intercepted by an existing route. " \
+              "Please choose a different name.",
+            _('cannot be changed if a personal project has container registry tags.')
+          )
+        end
+      end
+
+      context 'when an existing record already has a shadowing username' do
+        # Simulates a record created before this validation existed. Writing the
+        # column directly bypasses the validation, like legacy data. The
+        # validation is gated on `username_changed?`, so an unrelated update must
+        # not retroactively invalidate the record.
+        before do
+          user.update_columns(username: 'admin.foo')
+          user.reload
+        end
+
+        it 'stays valid when saving an unrelated change' do
+          user.private_profile = !user.private_profile
+
+          expect(user).to be_valid
+          expect(user.errors[:username]).to be_empty
         end
       end
 

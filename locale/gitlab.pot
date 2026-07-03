@@ -8121,6 +8121,9 @@ msgstr ""
 msgid "AiGovernance|Write"
 msgstr ""
 
+msgid "AiImpactAnalytics|%{duoCount}/%{allCount} pipelines"
+msgstr ""
+
 msgid "AiImpactAnalytics|Agent Platform chats"
 msgstr ""
 
@@ -8206,6 +8209,12 @@ msgid "AiImpactAnalytics|Number of users who used at least one GitLab Duo or Git
 msgstr ""
 
 msgid "AiImpactAnalytics|Percentage change compared to the previous time period."
+msgstr ""
+
+msgid "AiImpactAnalytics|Percentage of CI/CD pipelines that used one or more GitLab Duo features during execution."
+msgstr ""
+
+msgid "AiImpactAnalytics|Pipelines using GitLab Duo features"
 msgstr ""
 
 msgid "AiImpactAnalytics|Root Cause Analysis usage"
@@ -18710,6 +18719,9 @@ msgid "Comment form position"
 msgstr ""
 
 msgid "Comment is being updated"
+msgstr ""
+
+msgid "Comment on line %{startLine}"
 msgstr ""
 
 msgid "Comment on lines %{startLine} to %{endLine}"
@@ -71404,6 +71416,9 @@ msgstr ""
 msgid "SecurityReports|All tracked refs"
 msgstr ""
 
+msgid "SecurityReports|Ask someone with the Maintainer or Owner role to turn it on."
+msgstr ""
+
 msgid "SecurityReports|Attach to existing issue"
 msgstr ""
 
@@ -71470,10 +71485,19 @@ msgstr ""
 msgid "SecurityReports|Could not start Vulnerability Resolution. Please try again."
 msgstr ""
 
+msgid "SecurityReports|Could not start remediation. Please try again."
+msgstr ""
+
 msgid "SecurityReports|Create Jira issue"
 msgstr ""
 
+msgid "SecurityReports|Create a merge request that updates the dependency to a fixed version."
+msgstr ""
+
 msgid "SecurityReports|Create issue"
+msgstr ""
+
+msgid "SecurityReports|Creating a merge request to resolve this vulnerability..."
 msgstr ""
 
 msgid "SecurityReports|Critical"
@@ -71548,12 +71572,6 @@ msgstr ""
 msgid "SecurityReports|Enable"
 msgstr ""
 
-msgid "SecurityReports|Enable False Positive Detection"
-msgstr ""
-
-msgid "SecurityReports|Enable Vulnerability Resolution"
-msgstr ""
-
 msgid "SecurityReports|Ensure that %{trackingStart}issue tracking%{trackingEnd} is enabled for this project and you have %{permissionsStart}permission to create new issues%{permissionsEnd}."
 msgstr ""
 
@@ -71596,7 +71614,7 @@ msgstr ""
 msgid "SecurityReports|False Positive Detection"
 msgstr ""
 
-msgid "SecurityReports|False Positive Detection not enabled. Ask a maintainer to enable."
+msgid "SecurityReports|False Positive Detection turned off"
 msgstr ""
 
 msgid "SecurityReports|False positive"
@@ -71724,6 +71742,9 @@ msgstr ""
 msgid "SecurityReports|No longer detected"
 msgstr ""
 
+msgid "SecurityReports|No patched version is available for this vulnerability yet."
+msgstr ""
+
 msgid "SecurityReports|No vulnerabilities to report"
 msgstr ""
 
@@ -71779,6 +71800,9 @@ msgid "SecurityReports|Parsing errors in pipeline"
 msgstr ""
 
 msgid "SecurityReports|Parsing warnings in pipeline"
+msgstr ""
+
+msgid "SecurityReports|Patched version available"
 msgstr ""
 
 msgid "SecurityReports|Policy actions"
@@ -71898,6 +71922,9 @@ msgid "SecurityReports|Starting 2025-05-15, we will gradually migrate vulnerabil
 msgstr ""
 
 msgid "SecurityReports|Starting Vulnerability Resolution agent session..."
+msgstr ""
+
+msgid "SecurityReports|Starting remediation"
 msgstr ""
 
 msgid "SecurityReports|Starting session"
@@ -72029,7 +72056,7 @@ msgstr ""
 msgid "SecurityReports|Vulnerability Resolution available"
 msgstr ""
 
-msgid "SecurityReports|Vulnerability Resolution not enabled. Ask a maintainer to enable."
+msgid "SecurityReports|Vulnerability Resolution turned off"
 msgstr ""
 
 msgid "SecurityReports|Vulnerability Resolution unavailable"
@@ -72513,6 +72540,9 @@ msgstr ""
 msgid "SemanticSearch|All existing indexed data will be removed. Semantic search results will be unavailable until re-indexing completes. This process can take several hours depending on your codebase size."
 msgstr ""
 
+msgid "SemanticSearch|An embedding model is not configured."
+msgstr ""
+
 msgid "SemanticSearch|Change model"
 msgstr ""
 
@@ -72532,6 +72562,9 @@ msgid "SemanticSearch|Chunking strategy can only be set before a model is config
 msgstr ""
 
 msgid "SemanticSearch|Chunking strategy examples:"
+msgstr ""
+
+msgid "SemanticSearch|Configuration not allowed."
 msgstr ""
 
 msgid "SemanticSearch|Configure"
@@ -72564,16 +72597,16 @@ msgstr ""
 msgid "SemanticSearch|Elasticsearch"
 msgstr ""
 
-msgid "SemanticSearch|Embedding model configuration is unavailable - Collection record not present"
+msgid "SemanticSearch|Embedding model configuration is not available. Ensure %{coll_name} collection exists."
 msgstr ""
 
-msgid "SemanticSearch|Embedding model configuration is unavailable - Connection not configured"
-msgstr ""
-
-msgid "SemanticSearch|Embedding model not yet configured"
+msgid "SemanticSearch|Embedding model configuration is not available. The connection is not configured."
 msgstr ""
 
 msgid "SemanticSearch|Enabled"
+msgstr ""
+
+msgid "SemanticSearch|Ensure self-hosted beta models and features are %{turn_on_beta_models_link_start}turned on%{turn_on_beta_models_link_end}."
 msgstr ""
 
 msgid "SemanticSearch|Enter the password for password-protected Elasticsearch servers."
@@ -91049,6 +91082,9 @@ msgid "cannot include leading slash or directory traversal."
 msgstr ""
 
 msgid "cannot merge"
+msgstr ""
+
+msgid "cannot start with '%{prefix}.' because the profile URL would be intercepted by an existing route. Please choose a different name."
 msgstr ""
 
 msgid "cannot start with /"

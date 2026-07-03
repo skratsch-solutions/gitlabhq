@@ -14,9 +14,8 @@
 
 ### Feature Flags in Tests
 
-- DO NOT use `stub_feature_flags(flag: true)` — feature flags are enabled by default in the test environment, so stubbing to `true` is redundant and misleading
-- Only use `stub_feature_flags(flag: false)` to test the disabled code path
-- For the enabled case, write tests without any feature flag stub — the default state is already enabled
+- All feature flags are enabled by default in the test environment (regardless of the `default_enabled:` value in the YAML definition), so DO NOT stub a flag to `true` to reach its enabled path — the only exception is a flag explicitly disabled in `spec/spec_helper.rb`, where stubbing to `true` is warranted
+- Use `stub_feature_flags(flag: false)` to test the disabled code path
 
 ### Spec File Paths
 

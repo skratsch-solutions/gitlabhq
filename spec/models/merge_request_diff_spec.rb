@@ -369,6 +369,11 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
         .not_to query_missing_diff_commit_columns
     end
 
+    it 'includes a project_id filter on merge_request_diff_commits for partition pruning' do
+      expect { described_class.by_commit_sha(project.id, 'abc123').load }
+        .not_to query_diff_commits_without_project_id
+    end
+
     context 'when mr_diff_commits_read_new_table is disabled' do
       before do
         stub_feature_flags(mr_diff_commits_read_new_table: false)
@@ -384,6 +389,23 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
 
       it 'unions metadata results with matches from merge_request_diff_commits.sha' do
         expect(described_class.by_commit_sha(project, 'def456')).to eq([merge_request_diff])
+      end
+    end
+
+    context 'when mr_diff_commits_project_id_pruning is disabled' do
+      let(:sha) { 'abc123' }
+
+      before do
+        stub_feature_flags(mr_diff_commits_project_id_pruning: false)
+      end
+
+      it 'returns correct results' do
+        expect(by_commit_sha).to eq([merge_request_diff])
+      end
+
+      it 'omits the project_id filter on merge_request_diff_commits' do
+        expect { described_class.by_commit_sha(project.id, sha).load }
+          .to query_diff_commits_without_project_id
       end
     end
   end
@@ -1793,6 +1815,18 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
         end
       end
     end
+
+    context 'when mr_diff_commits_project_id_pruning is disabled' do
+      before do
+        stub_feature_flags(mr_diff_commits_project_id_pruning: false)
+      end
+
+      it 'returns commit SHAs without project_id partition pruning', :aggregate_failures do
+        expect(diff_with_commits.commit_shas).not_to be_empty
+        expect(diff_with_commits.commit_shas).to all(match(/\h{40}/))
+        expect { diff_with_commits.commit_shas }.to query_diff_commits_without_project_id
+      end
+    end
   end
 
   describe '#commits_count' do
@@ -1910,6 +1944,11 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
       end.not_to query_missing_diff_commit_columns
     end
 
+    it 'includes a project_id filter on merge_request_diff_commits for partition pruning' do
+      expect { merge_request_diff.includes_any_commits?(['abc123']) }
+        .not_to query_diff_commits_without_project_id
+    end
+
     context 'when mr_diff_commits_read_new_table is disabled' do
       before do
         stub_feature_flags(mr_diff_commits_read_new_table: false)
@@ -1969,6 +2008,25 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
         let(:existing_shas) { %w[abc123 def456 ghi789] }
 
         it_behaves_like 'merge request diff with commit shas'
+      end
+    end
+
+    context 'when mr_diff_commits_project_id_pruning is disabled' do
+      before do
+        stub_feature_flags(mr_diff_commits_project_id_pruning: false)
+      end
+
+      it 'returns true for a commit present in merge_request_commits_metadata' do
+        expect(merge_request_diff.includes_any_commits?(['abc123'])).to eq(true)
+      end
+
+      it 'returns false for a commit only in merge_request_diff_commits' do
+        expect(merge_request_diff.includes_any_commits?(['def456'])).to eq(false)
+      end
+
+      it 'omits the project_id filter on merge_request_diff_commits' do
+        expect { merge_request_diff.includes_any_commits?(['abc123']) }
+          .to query_diff_commits_without_project_id
       end
     end
   end

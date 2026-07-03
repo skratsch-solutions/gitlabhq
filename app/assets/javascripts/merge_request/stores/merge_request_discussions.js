@@ -29,6 +29,7 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
   const draftNotes = useMergeRequestDraftNotes();
   const mrNotes = useMrNotes();
   const allCommentsReady = ref(false);
+  const lineRangeEditing = ref(null);
 
   const allVisibleDiscussionsExpanded = computed(() => {
     if (mrNotes.isDiffsPage) return diffDiscussions.allDiffDiscussionsExpanded;
@@ -198,7 +199,56 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
     return diffDiscussions.addNewLineDiscussionForm({
       ...params,
       positionExtras: diffRefs,
-      extraOptions: { ...extraOptions, canSuggest, previewParams, commitId },
+      extraOptions: {
+        ...extraOptions,
+        canSuggest,
+        previewParams,
+        commitId,
+        editingLineRange: false,
+      },
+    });
+  }
+
+  function startLineRangeEditing(discussion) {
+    const editing = { discussion, lineRange: discussion.position.line_range };
+    editing.discussion.editingLineRange = true;
+    lineRangeEditing.value = editing;
+  }
+
+  function cancelLineRangeEditing() {
+    const editing = lineRangeEditing.value;
+    if (editing) {
+      editing.discussion.editingLineRange = false;
+      diffDiscussions.setNewLineDiscussionFormAutofocus(editing.discussion, true);
+    }
+    lineRangeEditing.value = null;
+  }
+
+  function commitLineRangeEditing({ lineChange, lineCode, lines }) {
+    const editing = lineRangeEditing.value;
+    if (!editing) return;
+    const { discussion, lineRange } = editing;
+    const {
+      old_path: oldPath,
+      new_path: newPath,
+      base_sha: baseSha,
+      head_sha: headSha,
+      start_sha: startSha,
+    } = discussion.position;
+    cancelLineRangeEditing();
+    diffDiscussions.removeNewLineDiscussionForm(discussion);
+    addNewLineDiscussionForm({
+      oldPath,
+      newPath,
+      lineRange,
+      lineChange,
+      lineCode,
+      diffRefs:
+        baseSha || headSha || startSha
+          ? { base_sha: baseSha, head_sha: headSha, start_sha: startSha }
+          : undefined,
+      extraOptions: { lines },
+      noteBody: discussion.noteBody,
     });
   }
 
@@ -371,6 +421,10 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
     collapseDiscussion: diffDiscussions.collapseDiscussion,
     expandDiscussion: diffDiscussions.expandDiscussion,
     addNewLineDiscussionForm,
+    lineRangeEditing,
+    startLineRangeEditing,
+    commitLineRangeEditing,
+    cancelLineRangeEditing,
     replaceDiscussionForm: diffDiscussions.replaceDiscussionForm,
     removeNewLineDiscussionForm: diffDiscussions.removeNewLineDiscussionForm,
     setDiscussionFormText: diffDiscussions.setDiscussionFormText,

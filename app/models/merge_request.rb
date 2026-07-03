@@ -2393,7 +2393,7 @@ class MergeRequest < ApplicationRecord
       .where(merge_request_diff: merge_request_diffs.recent)
       .limit(10_000)
 
-    relation = relation.where(project_id: target_project_id) if read_new_commits_table?
+    relation = relation.where(project_id: target_project_id) if project_id_pruning_enabled?
 
     relation
   end
@@ -2873,7 +2873,7 @@ class MergeRequest < ApplicationRecord
         merge_request_diffs.where('merge_request_diffs.id = merge_request_diff_commits.merge_request_diff_id')
       )
 
-    diff_commits_subquery = diff_commits_subquery.where(project_id: target_project_id) if read_new_commits_table?
+    diff_commits_subquery = diff_commits_subquery.where(project_id: target_project_id) if project_id_pruning_enabled?
 
     # Data can be found in either table until backfill completes. First look for SHAs in table
     # `merge_request_commits_metadata`, if not found look in `merge_request_diff_commits`.
@@ -3048,7 +3048,7 @@ class MergeRequest < ApplicationRecord
       .where(dc[:merge_request_diff_id].eq(merge_request_diff.id))
       .where(u[:email].not_eq(nil))
 
-    query = query.where(dc[:project_id].eq(target_project_id)) if read_new_commits_table?
+    query = query.where(dc[:project_id].eq(target_project_id)) if project_id_pruning_enabled?
 
     query
   end
@@ -3294,6 +3294,11 @@ class MergeRequest < ApplicationRecord
     Feature.enabled?(:mr_diff_commits_read_new_table, project)
   end
   strong_memoize_attr :read_new_commits_table?
+
+  def project_id_pruning_enabled?
+    MergeRequestDiffCommit.project_id_pruning_enabled?(target_project_id)
+  end
+  strong_memoize_attr :project_id_pruning_enabled?
 end
 
 MergeRequest.prepend_mod_with('MergeRequest')

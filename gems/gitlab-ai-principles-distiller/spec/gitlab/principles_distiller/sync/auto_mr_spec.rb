@@ -720,6 +720,17 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       expect(staged).to include(described_class::Manifest::DUO_REVIEW_INSTRUCTIONS_PATH)
     end
 
+    it 'regenerates static artifacts with the run distilled contents as overrides' do
+      # The tooling branch is cut from master, so its on-disk distilled files
+      # are stale; the Duo fences must be regenerated from the in-memory
+      # distilled_contents. Assert the override is threaded through so the
+      # fence reflects this run's updates rather than the stale master files.
+      expect(sync).to receive(:regenerate_static_artifacts)
+        .with(distilled_overrides: distilled_contents)
+
+      create_branch_and_mr
+    end
+
     context 'when the assignee and milestone lookups succeed' do
       before do
         allow(sync).to receive_messages(mr_assignee_id: 4242, current_milestone_id: 6177882)
@@ -1299,6 +1310,162 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
             .and output(/cleanup deletion of branch.+failed/).to_stderr
         end
       end
+    end
+  end
+
+  # End-to-end coverage for the distilled-only path: a run whose only change is
+  # a distilled principle (with an existing Duo fence) must still open the
+  # tooling MR, because the fence in mr-review-instructions.yaml is regenerated
+  # from the run's in-memory content. This exercises the REAL
+  # regenerate_static_artifacts against a temp workspace (only git and the MR
+  # HTTP call are stubbed), so it guards the actual bug: before the in-memory
+  # override was threaded through, the fence never changed and the tooling MR
+  # was skipped, leaving the ai-duo-review-instructions guard failing.
+  describe '.publish_tooling_branch (distilled-only run)' do
+    subject(:publish) do
+      sync.publish_tooling_branch('master', 'gitlab-org/gitlab', 'token', '20260702', auto_mr_cfg,
+        distilled_contents)
+    end
+
+    let(:duo_dir) { File.join(tmpdir, '.gitlab', 'duo') }
+    let(:duo_path) { File.join(duo_dir, 'mr-review-instructions.yaml') }
+    let(:principles_dir) { File.join(tmpdir, '.ai', 'principles', 'distilled') }
+
+    let(:auto_mr_cfg) do
+      {
+        'branch_prefix' => 'docs-sync/principles',
+        'title_template' => 'Update AI development principles from SSOT (%{date})',
+        'labels' => %w[ai-agent documentation type::maintenance],
+        'remove_source_branch' => true
+      }
+    end
+
+    # The fresh content this run distilled, held in memory. Its checklist body
+    # and directives differ from the stale copy on disk below.
+    let(:distilled_contents) do
+      {
+        'documentation' => <<~MD
+          ---
+          source_checksum: freshsum
+          distilled_at_sha: freshsha
+          ---
+          # Documentation
+
+          ### Fresh Section
+
+          - Regenerated from memory.
+
+          ## Authoritative sources
+
+          - a.md
+        MD
+      }
+    end
+
+    let(:mock_response) do
+      instance_double(Net::HTTPResponse, is_a?: true, body: '{"web_url":"https://gitlab.com/foo"}', code: '201')
+    end
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      FileUtils.mkdir_p(duo_dir)
+      FileUtils.mkdir_p(principles_dir)
+
+      # A stale distilled file on disk (mimics the tooling branch cut from
+      # master, before the run's updates land). Directives differ from the
+      # in-memory override so a no-op regeneration would be detectable.
+      File.write(File.join(principles_dir, 'documentation.md'), <<~MD)
+        ---
+        source_checksum: stalesum
+        distilled_at_sha: stalesha
+        ---
+        # Documentation
+
+        ### Stale Section
+
+        - Old on-disk content.
+
+        ## Authoritative sources
+
+        - a.md
+      MD
+
+      # A Duo file whose fence records the stale directives.
+      File.write(duo_path, <<~YAML)
+        instructions:
+          # >>> generated: documentation — gitlab-ai-principles-distiller (from .ai/principles/manifest.yml; do not edit)
+          # distilled_at_sha: stalesha
+          # source_checksum: stalesum
+          - name: Documentation
+            fileFilters:
+              - "doc/**/*.md"
+            instructions: |
+              old body
+          # <<< end generated: documentation
+      YAML
+
+      sync.manifest.data = {
+        'principles' => {
+          'documentation' => {
+            'group' => 'Documentation',
+            'file_filters' => ['doc/**/*.md'],
+            'owner_team' => '@gitlab-org/technical-writing',
+            'sources' => [{ 'path' => 'a.md', 'url' => 'https://docs.gitlab.com/a/' }]
+          }
+        }
+      }
+
+      stub_const('ENV', { 'GITLAB_API_TOKEN' => 'token', 'CI_PROJECT_ID' => 'gitlab-org/gitlab',
+                          'CI_DEFAULT_BRANCH' => 'master', 'CI_PROJECT_PATH' => 'gitlab-org/gitlab',
+                          'CI_PROJECT_DIR' => tmpdir })
+
+      # Stub only git and the network; regenerate_static_artifacts runs for
+      # real against the temp workspace. The AGENTS.md/CLAUDE.md/SKILL.md
+      # generators are absent-file no-ops here (those files don't exist in the
+      # temp workspace), so the ONLY staged change is the regenerated Duo file.
+      allow(File).to receive(:realpath) { |arg| arg }
+      # The Duo file is the sole real change, so staged changes are present;
+      # find_open_mr_iid returns nil to keep the idempotency lookup hermetic
+      # (create path). git shell-outs are stubbed to succeed.
+      allow(sync).to receive_messages(system: true, git_has_staged_changes?: true, find_open_mr_iid: nil)
+      allow(sync.workflow).to receive_messages(
+        post_json: mock_response,
+        gitlab_host: 'https://gitlab.com',
+        catalog_project_path: 'gitlab-org/gitlab',
+        default_branch: 'master'
+      )
+    end
+
+    it 'regenerates the Duo fence on disk from the in-memory distilled content' do
+      publish
+
+      content = File.read(duo_path)
+      expect(content).to include('  # distilled_at_sha: freshsha')
+      expect(content).to include('  # source_checksum: freshsum')
+      expect(content).to include('      - Regenerated from memory.')
+      expect(content).not_to include('old body')
+    end
+
+    it 'opens the tooling MR for a distilled-only run once the fence changes' do
+      publish
+
+      expect(sync.workflow).to have_received(:post_json)
+        .with(a_string_including('/merge_requests'), hash_including(body: hash_including(
+          title: a_string_starting_with('tooling: ')
+        )))
+    end
+
+    it 'stages the regenerated Duo file on the tooling branch' do
+      staged = []
+      allow(sync).to receive(:system) do |*args, **_kwargs|
+        prefix = ['git', '-C', Gitlab::PrinciplesDistiller::Workspace.path, 'add', '-f']
+        staged.concat(args[5..]) if args[0, 5] == prefix
+        true
+      end
+
+      publish
+
+      expect(staged).to include(described_class::Manifest::DUO_REVIEW_INSTRUCTIONS_PATH)
     end
   end
 end

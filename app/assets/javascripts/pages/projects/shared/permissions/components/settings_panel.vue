@@ -332,6 +332,7 @@ export default {
       default: null,
     },
   },
+  emits: ['confirm'],
   data() {
     const defaults = {
       visibilityLevel: VISIBILITY_LEVEL_PUBLIC_INTEGER,

@@ -1,5 +1,6 @@
 <script>
 import { GlSprintf } from '@gitlab/ui';
+import { __ } from '~/locale';
 import {
   getStartLineNumber,
   getEndLineNumber,
@@ -25,10 +26,13 @@ export default {
     endLineNumber() {
       return getEndLineNumber(this.lineRange);
     },
-    showMultiLineComment() {
-      if (!this.startLineNumber || !this.endLineNumber) return false;
-
-      return this.startLineNumber !== this.endLineNumber;
+    hasLineRange() {
+      return Boolean(this.startLineNumber && this.endLineNumber);
+    },
+    message() {
+      return this.startLineNumber === this.endLineNumber
+        ? __('Comment on line %{startLine}')
+        : __('Comment on lines %{startLine} to %{endLine}');
     },
   },
   methods: {
@@ -38,8 +42,8 @@ export default {
 </script>
 
 <template>
-  <div v-if="showMultiLineComment" class="gl-flex gl-flex-wrap gl-items-center gl-gap-2">
-    <gl-sprintf :message="__('Comment on lines %{startLine} to %{endLine}')">
+  <div v-if="hasLineRange" class="gl-flex gl-flex-wrap gl-items-center gl-gap-2">
+    <gl-sprintf :message="message">
       <template #startLine>
         <span :class="getLineClasses(startLineNumber)">{{ startLineNumber }}</span>
       </template>

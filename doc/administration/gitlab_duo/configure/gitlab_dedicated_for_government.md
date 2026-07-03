@@ -1,6 +1,6 @@
 ---
-stage: AI-powered
-group: AI Framework
+stage: AI Platform
+group: AI Core Infra
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 description: Ensure GitLab Duo is configured and operating correctly on GitLab Dedicated for Government.
 title: Configure GitLab Duo on GitLab Dedicated for Government

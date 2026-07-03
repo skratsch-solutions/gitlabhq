@@ -115,8 +115,16 @@ module MergeRequests
         relevant_commit_ids: merge_requests.map(&:diff_head_sha)
       )
 
+      merge_commit_sha_by_diff_head_sha = merge_requests
+        .map(&:diff_head_sha)
+        .uniq
+        .index_with { |diff_head_sha| analyzer.get_merge_commit(diff_head_sha) }
+
+      merge_commit_shas = merge_commit_sha_by_diff_head_sha.values.compact.uniq
+      commits_by_sha = @project.repository.commits_by(oids: merge_commit_shas).index_by(&:id)
+
       merge_requests.each do |merge_request|
-        sha = analyzer.get_merge_commit(merge_request.diff_head_sha)
+        sha = merge_commit_sha_by_diff_head_sha[merge_request.diff_head_sha]
         merge_request.merge_commit_sha = sha
         merge_request.merged_commit_sha = sha
 
@@ -133,7 +141,7 @@ module MergeRequests
           commit_sha: sha
         ).execute.first
 
-        source = source_merge_request || @project.commit(sha)
+        source = source_merge_request || commits_by_sha[sha]
 
         MergeRequests::PostMergeService
           .new(project: merge_request.target_project, current_user: @current_user)

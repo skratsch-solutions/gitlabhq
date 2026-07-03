@@ -88,9 +88,11 @@ function mountDiscussionRow({
             instance.$el.remove();
           },
           highlight(lineRange) {
+            if (store.lineRangeEditing) return;
             trigger(HIGHLIGHT_LINES, lineRange);
           },
           'clear-highlight': () => {
+            if (store.lineRangeEditing) return;
             trigger(CLEAR_HIGHLIGHT);
           },
         },

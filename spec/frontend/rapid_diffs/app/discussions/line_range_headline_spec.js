@@ -25,9 +25,9 @@ describe('LineRangeHeadline', () => {
     expect(findSprintf().exists()).toBe(false);
   });
 
-  it('does not render for a single-line range', () => {
+  it('renders the single line for a single-line range', () => {
     createComponent({ lineRange: lineRange(5, 5) });
-    expect(findSprintf().exists()).toBe(false);
+    expect(wrapper.text()).toContain('Comment on line +5');
   });
 
   it('renders the line range for a multi-line range', () => {

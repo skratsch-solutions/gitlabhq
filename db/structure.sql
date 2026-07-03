@@ -62497,10 +62497,7 @@ ALTER TABLE ONLY elasticsearch_indexed_namespaces
     ADD CONSTRAINT fk_rails_bdcf044f37 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY vulnerability_occurrence_identifiers
-    ADD CONSTRAINT fk_rails_be2e49e1d0 FOREIGN KEY (identifier_id) REFERENCES vulnerability_identifiers(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY vulnerability_occurrence_identifiers
-    ADD CONSTRAINT fk_rails_be2e49e1d0_p FOREIGN KEY (partition_id, identifier_id) REFERENCES vulnerability_identifiers(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
+    ADD CONSTRAINT fk_rails_be2e49e1d0_p FOREIGN KEY (partition_id, identifier_id) REFERENCES vulnerability_identifiers(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE ONLY bulk_import_export_batches
     ADD CONSTRAINT fk_rails_be479792f6 FOREIGN KEY (export_id) REFERENCES bulk_import_exports(id) ON DELETE CASCADE;

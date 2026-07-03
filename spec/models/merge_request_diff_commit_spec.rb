@@ -289,6 +289,14 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       end.not_to query_missing_diff_commit_columns
     end
 
+    it 'includes a project_id filter on merge_request_diff_commits for partition pruning' do
+      expect do
+        described_class
+          .for_merge_request_diff(merge_request_diff.id, project.id)
+          .commit_shas_from_metadata(project_id: project.id, limit: nil)
+      end.not_to query_diff_commits_without_project_id
+    end
+
     it 'returns empty result when project_id does not match' do
       result = described_class
         .for_merge_request_diff(merge_request_diff.id, non_existing_record_id)
@@ -316,6 +324,58 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
           .commit_shas_from_metadata(project_id: project.id, limit: 1)
 
         expect(result.size).to eq(1)
+      end
+    end
+
+    context 'when mr_diff_commits_project_id_pruning is disabled' do
+      before do
+        stub_feature_flags(mr_diff_commits_project_id_pruning: false)
+      end
+
+      it 'returns correct results' do
+        result = described_class
+          .for_merge_request_diff(merge_request_diff.id, project.id)
+          .commit_shas_from_metadata(project_id: project.id, limit: nil)
+
+        expect(result).to include('abc123')
+      end
+
+      it 'omits the project_id filter on merge_request_diff_commits' do
+        # When pruning is disabled, the caller passes no project_id to for_merge_request_diff,
+        # mirroring MergeRequestDiff#commit_shas_from_metadata's disabled-pruning code path.
+        expect do
+          described_class
+            .for_merge_request_diff(merge_request_diff.id)
+            .commit_shas_from_metadata(project_id: project.id, limit: nil)
+        end.to query_diff_commits_without_project_id
+      end
+    end
+  end
+
+  describe '.project_id_pruning_enabled?' do
+    let_it_be(:project) { create(:project) }
+
+    it 'returns true when all feature flags are enabled' do
+      expect(described_class.project_id_pruning_enabled?(project.id)).to be true
+    end
+
+    context 'when mr_diff_commits_project_id_pruning is disabled' do
+      before do
+        stub_feature_flags(mr_diff_commits_project_id_pruning: false)
+      end
+
+      it 'returns false' do
+        expect(described_class.project_id_pruning_enabled?(project.id)).to be false
+      end
+    end
+
+    context 'when read_new_commits_table? returns false' do
+      before do
+        stub_feature_flags(mr_diff_commits_read_new_table: false)
+      end
+
+      it 'returns false' do
+        expect(described_class.project_id_pruning_enabled?(project.id)).to be false
       end
     end
   end

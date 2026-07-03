@@ -20,7 +20,7 @@ description: "Configure the GitLab for Slack app to use slash commands, receive 
 {{< /history >}}
 
 > [!note]
-> This page contains user documentation for the GitLab for Slack app. For administrator documentation, see [GitLab for Slack app administration](../../../administration/settings/slack_app.md).
+> For administrator documentation, see [GitLab for Slack app administration](../../../administration/settings/slack_app.md).
 
 The GitLab for Slack app is a native Slack app that provides [slash commands](#slash-commands), [notifications](#slack-notifications),
 and the [GitLab Duo integration](#gitlab-duo) in your Slack workspace. GitLab links your Slack user

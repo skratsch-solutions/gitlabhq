@@ -97,6 +97,12 @@
   }
 }
 
+diff-file:hover,
+diff-file[data-line-range-dragging] {
+  position: relative;
+  z-index: 2;
+}
+
 .rd-diff-file[data-collapsed] {
   // header top/bottom borders only
   contain-intrinsic-size:

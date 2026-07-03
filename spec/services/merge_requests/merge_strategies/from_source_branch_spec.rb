@@ -224,23 +224,6 @@ RSpec.describe MergeRequests::MergeStrategies::FromSourceBranch, feature_categor
             expect { strategy.execute_git_merge! }
               .to raise_error(MergeRequests::MergeStrategies::StrategyError, 'rebase collapsed')
           end
-
-          context 'and verify_create_ref_advancement is disabled' do
-            before do
-              stub_feature_flags(verify_create_ref_advancement: false)
-            end
-
-            it 'does not raise and falls back to the legacy fast-forward path' do
-              expect_next_instance_of(MergeRequests::CreateRefService) do |instance|
-                expect(instance).to receive(:execute).and_return(create_ref_service_response)
-              end
-
-              expect(merge_request.target_project.repository).to receive(:ff_merge).and_return('1234')
-              expect(merge_request).to receive(:schedule_cleanup_refs).with(only: [:rebase_on_merge_path])
-
-              expect(strategy.execute_git_merge!).to eq({ commit_sha: '1234' })
-            end
-          end
         end
 
         context 'when automatic_rebase_enabled is false' do

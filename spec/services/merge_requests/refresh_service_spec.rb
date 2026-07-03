@@ -1015,6 +1015,60 @@ RSpec.describe MergeRequests::RefreshService, feature_category: :code_review_wor
         expect(merge_request.read_attribute(:merged_commit_sha)).to eq('646ece5cfed840eca0a4feb21bcd6a81bb19bda3')
         expect(merge_request_side_branch.read_attribute(:merged_commit_sha)).to eq('29284d9bcc350bcae005872d0be6edd016e2efb5')
       end
+
+      # Asserts one batched commits_by call for all oids (not one commit RPC per MR),
+      # so merge commit resolution uses a single batched Gitaly lookup.
+      it 'resolves merge commit sources in a single batched lookup', :aggregate_failures do
+        merge_commit_shas = %w[646ece5cfed840eca0a4feb21bcd6a81bb19bda3 29284d9bcc350bcae005872d0be6edd016e2efb5]
+
+        expect(project.repository)
+          .to receive(:commits_by)
+          .once
+          .with(oids: match_array(merge_commit_shas))
+          .and_call_original
+        expect(project).not_to receive(:commit)
+
+        subject
+      end
+
+      context 'when Gitaly omits a merge commit SHA it cannot resolve' do
+        before do
+          # Gitaly silently omits oids it can't resolve, so commits_by returns fewer
+          # commits than requested - mirroring the old per-MR lookup yielding nil.
+          allow(project.repository).to receive(:commits_by).and_return([])
+        end
+
+        it 'passes a nil source to PostMergeService without raising', :aggregate_failures do
+          expect_next_instances_of(MergeRequests::PostMergeService, 2) do |post_merge_service|
+            expect(post_merge_service).to receive(:execute).with(anything, nil)
+          end
+
+          expect { subject }.not_to raise_error
+        end
+      end
+
+      context 'when two merge requests resolve to the same merge commit SHA' do
+        let(:shared_sha) { '646ece5cfed840eca0a4feb21bcd6a81bb19bda3' }
+
+        before do
+          allow_next_instance_of(Gitlab::BranchPushMergeCommitAnalyzer) do |analyzer|
+            allow(analyzer).to receive(:get_merge_commit).and_return(shared_sha)
+          end
+        end
+
+        it 'passes the same non-nil decorated commit as source to both merge requests', :aggregate_failures do
+          sources = []
+
+          allow_next_instances_of(MergeRequests::PostMergeService, 2) do |post_merge_service|
+            allow(post_merge_service).to receive(:execute) { |_mr, source| sources << source }
+          end
+
+          subject
+
+          expect(sources.size).to eq(2)
+          expect(sources).to all(be_a(Commit).and(have_attributes(id: shared_sha)))
+        end
+      end
     end
   end
 

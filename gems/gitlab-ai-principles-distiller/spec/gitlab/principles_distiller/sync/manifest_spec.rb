@@ -1098,6 +1098,54 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     it 'skips a principle whose distilled file is missing' do
       expect(manifest.build_duo_fences(['nonexistent'])).to eq({})
     end
+
+    it 'parses in-memory override content instead of the stale on-disk file' do
+      override = <<~MD
+        ---
+        source_checksum: sum999
+        distilled_at_sha: sha999
+        ---
+        # Documentation
+
+        ### Overridden
+
+        - Fresh content.
+
+        ## Authoritative sources
+
+        - a.md
+      MD
+
+      fences = manifest.build_duo_fences(['documentation'], overrides: { 'documentation' => override })
+
+      expect(fences['documentation']).to include(
+        distilled_body: "### Overridden\n\n- Fresh content.",
+        distilled_at_sha: 'sha999',
+        source_checksum: 'sum999'
+      )
+    end
+
+    it 'builds a fence from an override even when no on-disk file exists' do
+      FileUtils.rm_f(File.join(principles_dir, 'documentation.md'))
+
+      override = <<~MD
+        ---
+        source_checksum: sum999
+        distilled_at_sha: sha999
+        ---
+        ### Overridden
+
+        - Fresh content.
+
+        ## Authoritative sources
+
+        - a.md
+      MD
+
+      fences = manifest.build_duo_fences(['documentation'], overrides: { 'documentation' => override })
+
+      expect(fences['documentation']).to include(distilled_at_sha: 'sha999', source_checksum: 'sum999')
+    end
   end
 
   describe '.generate_duo_review_instructions' do
@@ -1173,6 +1221,37 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     it 'skips generation without raising when the file is absent' do
       FileUtils.rm_f(duo_path)
       expect { manifest.generate_duo_review_instructions }.not_to raise_error
+    end
+
+    it 'regenerates the fence from in-memory overrides when the on-disk file is stale' do
+      # Simulates the --push tooling branch cut from master: the on-disk
+      # distilled file still holds the previous content, while the run's fresh
+      # distillation lives only in memory. The fence must reflect the override.
+      stale_on_disk = File.read(File.join(principles_dir, 'documentation.md'))
+      override = <<~MD
+        ---
+        source_checksum: newrun
+        distilled_at_sha: newrun
+        ---
+        # Documentation
+
+        ### Fresh Section
+
+        - Regenerated from memory.
+
+        ## Authoritative sources
+
+        - a.md
+      MD
+
+      manifest.generate_duo_review_instructions(distilled_overrides: { 'documentation' => override })
+
+      content = File.read(duo_path)
+      expect(content).to include('  # distilled_at_sha: newrun')
+      expect(content).to include('      - Regenerated from memory.')
+      expect(content).not_to include('old body')
+      # The on-disk distilled file is left untouched; only the fence changed.
+      expect(File.read(File.join(principles_dir, 'documentation.md'))).to eq(stale_on_disk)
     end
   end
 

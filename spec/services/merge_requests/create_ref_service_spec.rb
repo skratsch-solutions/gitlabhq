@@ -359,17 +359,6 @@ RSpec.describe MergeRequests::CreateRefService, feature_category: :merge_trains 
           expect(result[:message])
             .to eq('The merge request has no changes to merge after rebasing onto the target branch')
         end
-
-        context 'and verify_create_ref_advancement is disabled' do
-          before do
-            stub_feature_flags(verify_create_ref_advancement: false)
-          end
-
-          it 'records the no-op as a success (legacy behaviour)', :aggregate_failures do
-            expect(result[:status]).to eq :success
-            expect(result[:commit_sha]).to eq(source_sha)
-          end
-        end
       end
 
       context 'when we are not on ee' do

@@ -80,6 +80,7 @@ RSpec.describe 'graphql queries', feature_category: :api do
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/duo_feature_usage.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/duo_power_users_count.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/duo_used_count.query.graphql
+    app/assets/javascripts/analytics/dashboards/ai_impact/graphql/duo_pipelines_rate.query.graphql
     app/assets/javascripts/analytics/dashboards/ai_impact/graphql/finished_pipelines_using_dap.query.graphql
   ]
   # rubocop:enable Layout/LineLength

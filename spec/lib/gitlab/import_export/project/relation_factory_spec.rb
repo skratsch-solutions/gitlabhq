@@ -743,6 +743,51 @@ RSpec.describe Gitlab::ImportExport::Project::RelationFactory, :use_clean_rails_
           expect(created_object.change_position.line_range).to eq(expected_line_range)
         end
       end
+
+      context 'when image diff note position coordinates are floats' do
+        let(:image_position) do
+          {
+            'base_sha' => 'ae73cb07c9eeaf35924a10f713b364d32b2dd34f',
+            'start_sha' => '9eea46b5c72ead701c22f516474b95049c9d9462',
+            'head_sha' => 'a97f74ddaa848b707bea65441c903ae4bf5d844d',
+            'old_path' => 'files/images/any_image.png',
+            'new_path' => 'files/images/any_image.png',
+            'position_type' => 'image',
+            'x' => 23.7,
+            'y' => 1.5,
+            'width' => 640.25,
+            'height' => 480.75
+          }
+        end
+
+        let(:relation_hash) do
+          {
+            'note' => 'note',
+            'noteable_type' => 'MergeRequest',
+            'type' => 'DiffNote',
+            'position' => image_position.deep_dup,
+            'original_position' => image_position.deep_dup,
+            'change_position' => image_position.deep_dup
+          }
+        end
+
+        it 'coerces the image coordinates to integers', :aggregate_failures do
+          expect_next_instance_of(described_class) do |relation_factory|
+            expect(relation_factory).to receive(:setup_models).and_call_original
+          end
+
+          expected_attributes = {
+            x: 24,
+            y: 2,
+            width: 640,
+            height: 481
+          }
+
+          expect(created_object.position).to have_attributes(expected_attributes)
+          expect(created_object.original_position).to have_attributes(expected_attributes)
+          expect(created_object.change_position).to have_attributes(expected_attributes)
+        end
+      end
     end
   end
 

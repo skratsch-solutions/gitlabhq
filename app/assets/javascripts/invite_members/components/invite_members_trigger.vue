@@ -48,6 +48,7 @@ export default {
       default: 'button',
     },
   },
+  emits: ['modal-opened'],
   computed: {
     componentAttributes() {
       return {

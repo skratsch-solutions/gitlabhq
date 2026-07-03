@@ -46,6 +46,10 @@ export const AI_IMPACT_OVER_TIME_METRICS = {
     label: s__('AiImpactAnalytics|GitLab Duo power users'),
     units: UNITS.COUNT,
   },
+  [AI_METRICS.DUO_PIPELINES_RATE]: {
+    label: s__('AiImpactAnalytics|Pipelines using GitLab Duo features'),
+    units: UNITS.PERCENT,
+  },
 };
 
 export const AI_IMPACT_USAGE_METRICS = {
@@ -116,6 +120,11 @@ export const AI_IMPACT_OVER_TIME_METRICS_TOOLTIPS = {
   [AI_METRICS.DUO_POWER_USERS_COUNT]: {
     description: s__(
       'AiImpactAnalytics|Number of users that used at least three GitLab Duo features.',
+    ),
+  },
+  [AI_METRICS.DUO_PIPELINES_RATE]: {
+    description: s__(
+      'AiImpactAnalytics|Percentage of CI/CD pipelines that used one or more GitLab Duo features during execution.',
     ),
   },
 };
