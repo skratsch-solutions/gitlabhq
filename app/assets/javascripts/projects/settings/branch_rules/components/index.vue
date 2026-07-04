@@ -78,25 +78,17 @@ export default {
   },
   mixins: [glFeatureFlagsMixin()],
   inject: {
-    allowEditSquashSetting: { default: false },
-    projectPath: {
-      default: '',
-    },
-    projectId: {
-      default: null,
-    },
-    protectedBranchesPath: {
-      default: '',
-    },
-    branchRulesPath: {
-      default: '',
-    },
-    branchesPath: {
-      default: '',
-    },
-    showStatusChecks: { default: false },
-    showApprovers: { default: false },
+    branchRulesPath: { default: '' },
+    branchesPath: { default: '' },
     canAdminProtectedBranches: { default: false },
+    canReadSquashOption: { default: false },
+    canUpdateSquashOption: { default: false },
+    projectId: { default: null },
+    projectPath: { default: '' },
+    protectedBranchesPath: { default: '' },
+    showApprovers: { default: false },
+    showStatusChecks: { default: false },
+    squashOptionsFeatureAvailable: { default: false },
   },
   apollo: {
     // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
@@ -211,6 +203,12 @@ export default {
     isAllProtectedBranchesRule() {
       return this.branch === this.$options.i18n.allProtectedBranches;
     },
+    isBranchRule() {
+      return !this.isAllBranchesRule && !this.isAllProtectedBranchesRule;
+    },
+    isWildcardBranchRule() {
+      return this.isBranchRule && this.branch?.includes('*');
+    },
     modificationBlockedByPolicy() {
       return this.branchProtection?.modificationBlockedByPolicy ?? false;
     },
@@ -235,13 +233,17 @@ export default {
     showMergeRequestsSection() {
       return this.showApprovers || this.showSquashSetting;
     },
+    squashOptionsFeatureAvailableForRule() {
+      return (
+        this.isAllBranchesRule ||
+        (this.isBranchRule && !this.isWildcardBranchRule && this.squashOptionsFeatureAvailable)
+      );
+    },
     showSquashSetting() {
-      return !this.branch?.includes('*') && !this.isAllProtectedBranchesRule; // Squash settings are not available for wildcards or All protected branches
+      return this.canReadSquashOption && this.squashOptionsFeatureAvailableForRule;
     },
     showEditSquashSetting() {
-      return (
-        this.canAdminProtectedBranches && (this.allowEditSquashSetting || this.isAllBranchesRule)
-      );
+      return this.canUpdateSquashOption && this.squashOptionsFeatureAvailableForRule;
     },
     showDeleteRuleBtn() {
       return (

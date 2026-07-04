@@ -68479,6 +68479,9 @@ msgstr ""
 msgid "SecurityOrchestration|Block violations and take configured actions"
 msgstr ""
 
+msgid "SecurityOrchestration|Blocks dependency and container packages flagged as malware."
+msgstr ""
+
 msgid "SecurityOrchestration|Blocks known malware"
 msgstr ""
 
@@ -69379,6 +69382,9 @@ msgid "SecurityOrchestration|New scan execution policy"
 msgstr ""
 
 msgid "SecurityOrchestration|New vulnerability management policy"
+msgstr ""
+
+msgid "SecurityOrchestration|New: Malware blocking"
 msgstr ""
 
 msgid "SecurityOrchestration|No Longer Detected"

@@ -16,12 +16,19 @@ OpenCode, and other `AGENTS.md`-aware tools) behave when working in this
 repository, so a mistake affects every contributor's agent sessions
 rather than a single runtime code path.
 
-The distilled principles have an additional consumer: the sync generates
-GitLab Duo Code Review instructions from them into
-[`.gitlab/duo/mr-review-instructions.yaml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/duo/mr-review-instructions.yaml),
-so a change to a distilled principle also changes the automated review
-feedback Duo posts on every merge request that matches the principle's
-file filters.
+The distilled principles have an additional consumer:
+[`.gitlab/duo/mr-review-instructions.yaml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/duo/mr-review-instructions.yaml)
+carries generated fences imported from the distilled principles, so a change
+to a distilled principle also changes the automated review feedback Duo posts
+on every merge request that matches the principle's file filters.
+
+Fence regeneration is decoupled from distillation. A distilled principle's
+merge request updates only the `.ai/principles/distilled/*.md` file. A separate
+daily scheduled job reconciles the fences from the merged `master` distilled
+files by pure projection (it copies each file's `distilled_at_sha` and
+`source_checksum` front matter and never re-runs distillation) and opens its
+own merge request. This keeps a team's distilled merge request and the fence
+update independently mergeable, so neither waits on the other to pass CI.
 
 Changes to `.ai/` files require approval from an AI harness directly
 responsible individual (DRI). This convention is encoded in
@@ -189,6 +196,26 @@ through generated per-file CODEOWNERS rules. When reviewing one:
 - Confirm no still-valid, SSOT-supported rule was dropped, and no
   unsupported rule was added.
 - Confirm the front matter checksums were updated by the tool, not by hand.
+
+The daily fence-reconcile job opens a separate merge request that changes only
+`.gitlab/duo/mr-review-instructions.yaml`. When reviewing one, confirm the
+fence directives match the front matter of the distilled files on `master`. The
+job runs no distillation, so the fence body should never diverge from the
+committed distilled content.
+
+The `ai-duo-review-instructions` guard that enforces this always fails on
+malformed or orphaned fences, because those are broken on their own ref
+regardless of the reconcile. Fence _staleness_ is treated by severity:
+
+- Blocking on the reconcile merge request and on merge requests that touch the
+  fences' owned files (the Duo instructions file, the distiller gem, or the
+  guard script), where a stale fence is real drift the author can fix.
+- A non-blocking warning on `master` and on other merge requests caught by the
+  broad manifest trigger (including a team's distilled merge request), where
+  staleness is expected transient state until the daily reconcile job catches
+  the fences up. So neither a team's distilled merge request nor an unrelated
+  `doc/**/*.md` edit inherits a fence-stale failure it cannot fix on its own
+  ref.
 
 For the full mechanics of the distillation pipeline (the provisioner, the
 sync binary, the schedule, and the manifest schema), see

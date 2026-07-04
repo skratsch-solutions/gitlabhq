@@ -37,9 +37,21 @@ module Gitlab
 
         # Migrated from Settings#load_dynamic_cron_schedules! in config/settings.rb.
         def load_dynamic_cron_schedules!
-          return unless Gitlab::SidekiqConfig.cron_jobs['gitlab_service_ping_worker']
+          cron_jobs = Gitlab::SidekiqConfig.cron_jobs
 
-          Gitlab::SidekiqConfig.cron_jobs['gitlab_service_ping_worker']['cron'] ||= cron_for_service_ping
+          if cron_jobs['gitlab_service_ping_worker']
+            cron_jobs['gitlab_service_ping_worker']['cron'] ||= cron_for_service_ping
+          end
+
+          Gitlab.ee do
+            if cron_jobs['sync_seat_link_worker']
+              cron_jobs['sync_seat_link_worker']['cron'] ||= "#{rand(60)} #{rand(3..4)} * * * UTC"
+            end
+
+            if cron_jobs['sync_service_token_worker']
+              cron_jobs['sync_service_token_worker']['cron'] ||= "#{rand(60)} * * * * UTC"
+            end
+          end
         end
 
         # Computes a per-instance random schedule from the instance UUID so that

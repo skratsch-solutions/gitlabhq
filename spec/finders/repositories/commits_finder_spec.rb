@@ -244,11 +244,24 @@ RSpec.describe Repositories::CommitsFinder, feature_category: :source_code_manag
         with_them do
           let(:params) { { param_name.to_sym => param_value } }
 
-          it "raises ArgumentError for unsupported param" do
-            expect { commits }.to raise_error(
-              ArgumentError,
-              "The '#{param_name}' parameter is not supported with keyset pagination"
-            )
+          it "raises UnsupportedKeysetParamError for unsupported param" do
+            expect { commits }.to raise_error(described_class::UnsupportedKeysetParamError) do |error|
+              expect(error).to be_a(ArgumentError)
+              expect(error.message).to include("'#{param_name}'")
+              expect(error.message).to include(described_class::KEYSET_PARAM_ERROR_SUFFIX)
+            end
+          end
+        end
+
+        context 'when multiple unsupported params are given' do
+          let(:params) { { path: 'README.md', follow: true } }
+
+          it 'raises UnsupportedKeysetParamError listing all unsupported params' do
+            expect { commits }.to raise_error(described_class::UnsupportedKeysetParamError) do |error|
+              expect(error.message).to include("'path'")
+              expect(error.message).to include("'follow'")
+              expect(error.message).to include(described_class::KEYSET_PARAM_ERROR_SUFFIX)
+            end
           end
         end
 

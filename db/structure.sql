@@ -4769,7 +4769,7 @@ CREATE FUNCTION trigger_b83b7e51e2f5() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-IF NEW."namespace_id" IS NULL THEN
+IF NEW."namespace_id" IS NULL AND NEW."project_id" IS NULL THEN
   SELECT "namespace_id"
   INTO NEW."namespace_id"
   FROM "security_orchestration_policy_configurations"
@@ -28162,6 +28162,32 @@ CREATE SEQUENCE pm_licenses_id_seq
 
 ALTER SEQUENCE pm_licenses_id_seq OWNED BY pm_licenses.id;
 
+CREATE TABLE pm_malware_advisories (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    published_date date NOT NULL,
+    withdrawn_date date,
+    source_xid smallint NOT NULL,
+    advisory_xid text NOT NULL,
+    title text,
+    description text,
+    identifiers jsonb DEFAULT '[]'::jsonb NOT NULL,
+    urls text[] DEFAULT '{}'::text[] NOT NULL,
+    CONSTRAINT check_a641e0d3f2 CHECK ((char_length(title) <= 2048)),
+    CONSTRAINT check_a798a7891f CHECK ((char_length(description) <= 10000)),
+    CONSTRAINT check_ba9f942bbd CHECK ((char_length(advisory_xid) <= 36))
+);
+
+CREATE SEQUENCE pm_malware_advisories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE pm_malware_advisories_id_seq OWNED BY pm_malware_advisories.id;
+
 CREATE TABLE pm_package_version_licenses (
     pm_package_version_id bigint NOT NULL,
     pm_license_id bigint NOT NULL,
@@ -37866,6 +37892,8 @@ ALTER TABLE ONLY pm_cve_enrichment ALTER COLUMN id SET DEFAULT nextval('pm_cve_e
 
 ALTER TABLE ONLY pm_licenses ALTER COLUMN id SET DEFAULT nextval('pm_licenses_id_seq'::regclass);
 
+ALTER TABLE ONLY pm_malware_advisories ALTER COLUMN id SET DEFAULT nextval('pm_malware_advisories_id_seq'::regclass);
+
 ALTER TABLE ONLY pm_package_version_licenses ALTER COLUMN id SET DEFAULT nextval('pm_package_version_licenses_id_seq'::regclass);
 
 ALTER TABLE ONLY pm_package_versions ALTER COLUMN id SET DEFAULT nextval('pm_package_versions_id_seq'::regclass);
@@ -41981,6 +42009,9 @@ ALTER TABLE ONLY pm_cve_enrichment
 ALTER TABLE ONLY pm_licenses
     ADD CONSTRAINT pm_licenses_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY pm_malware_advisories
+    ADD CONSTRAINT pm_malware_advisories_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY pm_package_version_licenses
     ADD CONSTRAINT pm_package_version_licenses_pkey PRIMARY KEY (id);
 
@@ -45766,6 +45797,8 @@ CREATE INDEX i_pkgs_deb_file_meta_on_updated_at_package_file_id_when_unknown ON 
 CREATE UNIQUE INDEX i_pkgs_rubygems_spec_files_on_obj_stor_key_and_project_id ON packages_rubygems_spec_files USING btree (object_storage_key, project_id);
 
 CREATE UNIQUE INDEX i_pm_licenses_on_spdx_identifier ON pm_licenses USING btree (spdx_identifier);
+
+CREATE UNIQUE INDEX i_pm_malware_advisories_xid_source ON pm_malware_advisories USING btree (advisory_xid, source_xid);
 
 CREATE UNIQUE INDEX i_pm_package_version_licenses_join_ids ON pm_package_version_licenses USING btree (pm_package_version_id, pm_license_id);
 

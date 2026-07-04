@@ -11,11 +11,11 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
   let(:manifest) { described_class.new }
 
   describe 'TOOLING_PATHS' do
-    it 'includes the Duo review-instructions file so its generated fences are staged' do
-      # generate_duo_review_instructions rewrites this file inside
-      # regenerate_static_artifacts; it must be in TOOLING_PATHS or the
-      # auto-MR tooling branch would never stage the change.
-      expect(described_class::TOOLING_PATHS).to include(described_class::DUO_REVIEW_INSTRUCTIONS_PATH)
+    it 'excludes the Duo review-instructions file (fences are reconciled separately)' do
+      # The Duo fences are reconciled from merged-master content by the
+      # scheduled reconcile job, not regenerated inside the distillation
+      # tooling branch, so this file must NOT ride along in the tooling MR.
+      expect(described_class::TOOLING_PATHS).not_to include(described_class::DUO_REVIEW_INSTRUCTIONS_PATH)
     end
   end
 
@@ -1099,52 +1099,16 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       expect(manifest.build_duo_fences(['nonexistent'])).to eq({})
     end
 
-    it 'parses in-memory override content instead of the stale on-disk file' do
-      override = <<~MD
-        ---
-        source_checksum: sum999
-        distilled_at_sha: sha999
-        ---
-        # Documentation
-
-        ### Overridden
-
-        - Fresh content.
-
-        ## Authoritative sources
-
-        - a.md
-      MD
-
-      fences = manifest.build_duo_fences(['documentation'], overrides: { 'documentation' => override })
+    it 'projects the fence purely from the committed on-disk distilled file' do
+      # Reconciliation is a pure projection of merged master: the fence data
+      # comes only from the committed distilled file's frontmatter and body,
+      # never from any in-memory content.
+      fences = manifest.build_duo_fences(['documentation'])
 
       expect(fences['documentation']).to include(
-        distilled_body: "### Overridden\n\n- Fresh content.",
-        distilled_at_sha: 'sha999',
-        source_checksum: 'sum999'
+        distilled_at_sha: 'sha456',
+        source_checksum: 'sum123'
       )
-    end
-
-    it 'builds a fence from an override even when no on-disk file exists' do
-      FileUtils.rm_f(File.join(principles_dir, 'documentation.md'))
-
-      override = <<~MD
-        ---
-        source_checksum: sum999
-        distilled_at_sha: sha999
-        ---
-        ### Overridden
-
-        - Fresh content.
-
-        ## Authoritative sources
-
-        - a.md
-      MD
-
-      fences = manifest.build_duo_fences(['documentation'], overrides: { 'documentation' => override })
-
-      expect(fences['documentation']).to include(distilled_at_sha: 'sha999', source_checksum: 'sum999')
     end
   end
 
@@ -1200,8 +1164,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       }
     end
 
-    it 'refreshes the fenced region from the distilled file' do
-      manifest.generate_duo_review_instructions
+    it 'refreshes the fenced region from the distilled file and reports the change' do
+      expect(manifest.generate_duo_review_instructions).to be(true)
 
       content = File.read(duo_path)
       expect(content).to include('  # distilled_at_sha: fresh')
@@ -1209,49 +1173,32 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
       expect(content).not_to include('old body')
     end
 
-    it 'is idempotent' do
+    it 'is idempotent and reports no change on the second run' do
       manifest.generate_duo_review_instructions
       first = File.read(duo_path)
 
-      manifest.generate_duo_review_instructions
+      expect(manifest.generate_duo_review_instructions).to be(false)
 
       expect(File.read(duo_path)).to eq(first)
     end
 
     it 'skips generation without raising when the file is absent' do
       FileUtils.rm_f(duo_path)
-      expect { manifest.generate_duo_review_instructions }.not_to raise_error
+      expect(manifest.generate_duo_review_instructions).to be(false)
     end
 
-    it 'regenerates the fence from in-memory overrides when the on-disk file is stale' do
-      # Simulates the --push tooling branch cut from master: the on-disk
-      # distilled file still holds the previous content, while the run's fresh
-      # distillation lives only in memory. The fence must reflect the override.
-      stale_on_disk = File.read(File.join(principles_dir, 'documentation.md'))
-      override = <<~MD
-        ---
-        source_checksum: newrun
-        distilled_at_sha: newrun
-        ---
-        # Documentation
-
-        ### Fresh Section
-
-        - Regenerated from memory.
-
-        ## Authoritative sources
-
-        - a.md
-      MD
-
-      manifest.generate_duo_review_instructions(distilled_overrides: { 'documentation' => override })
+    it 'projects the fence purely from the committed distilled file (no overrides accepted)' do
+      # The reconcile job derives fences only from merged-master content, so
+      # the method takes no in-memory overrides and the fence mirrors the
+      # committed distilled file's frontmatter.
+      manifest.generate_duo_review_instructions
 
       content = File.read(duo_path)
-      expect(content).to include('  # distilled_at_sha: newrun')
-      expect(content).to include('      - Regenerated from memory.')
+      expect(content).to include('  # distilled_at_sha: fresh')
+      expect(content).to include('      - Write in US English.')
       expect(content).not_to include('old body')
       # The on-disk distilled file is left untouched; only the fence changed.
-      expect(File.read(File.join(principles_dir, 'documentation.md'))).to eq(stale_on_disk)
+      expect(File.read(File.join(principles_dir, 'documentation.md'))).to include('source_checksum: fresh')
     end
   end
 

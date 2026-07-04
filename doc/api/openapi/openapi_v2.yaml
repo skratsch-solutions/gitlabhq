@@ -14692,6 +14692,20 @@ paths:
         default: 20
         required: false
         example: 20
+      - in: query
+        name: pagination
+        description: Specify the pagination method
+        type: string
+        default: legacy
+        enum:
+        - legacy
+        - keyset
+        required: false
+      - in: query
+        name: page_token
+        description: Record from which to start the keyset pagination
+        type: string
+        required: false
       responses:
         '200':
           description: List all repository commits

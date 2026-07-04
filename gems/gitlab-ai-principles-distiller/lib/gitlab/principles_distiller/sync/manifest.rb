@@ -35,20 +35,19 @@ module Gitlab
         # run that are committed to the separate "tooling" MR rather than any
         # per-team branch (see Sync::AutoMr). AGENTS.md, CLAUDE.md, and the
         # SKILL.md files embed the full routing table for ALL principles, so
-        # SSOT teams have no stake in their content. The Duo review-instructions
-        # file is included so its generated fences (rewritten by
-        # generate_duo_review_instructions in regenerate_static_artifacts) are
-        # actually staged; without it, regenerated fences would be silently
-        # dropped from the auto-MR. Its CODEOWNERS routing is intentionally left
-        # to the broad `/.gitlab/` rule (it is not assigned per-principle), so
-        # the tooling MR is the consistent home for it.
+        # SSOT teams have no stake in their content.
+        #
+        # The Duo review-instructions file is intentionally NOT here: its fences
+        # are reconciled from merged-master content by a separate scheduled job
+        # (see Sync#reconcile_duo_instructions), decoupled from distillation so
+        # a team's distilled MR and the fence update are independently
+        # mergeable.
         TOOLING_PATHS = [
           'AGENTS.md',
           'CLAUDE.md',
           AGENTS_SKILL_PATH,
           CLAUDE_SKILL_PATH,
-          CODEOWNERS_PATH,
-          DUO_REVIEW_INSTRUCTIONS_PATH
+          CODEOWNERS_PATH
         ].freeze
 
         AUTO_MR_REQUIRED_KEYS = %w[branch_prefix title_template labels remove_source_branch].freeze
@@ -459,39 +458,37 @@ module Gitlab
         end
 
         # Regenerates the gem-managed fenced regions in the Duo Code Review
-        # custom-instructions file from the distilled principles. Only
-        # principles that already have a fence are refreshed (marker-only
-        # discovery); seeding a new fence is a deliberate manual step.
+        # custom-instructions file from the committed distilled principles by
+        # pure projection: each region's directives and body come from the
+        # on-disk distilled file's frontmatter and checklist. Only principles
+        # that already have a fence are refreshed (marker-only discovery);
+        # seeding a new fence is a deliberate manual step.
         #
         # Idempotent: rewrites each region's body and directives from the
         # current distilled file, preserving the hand-authored group name and
         # fileFilters. Skips silently when the file is absent.
         #
-        # `distilled_overrides` maps principle name to freshly distilled file
-        # content (frontmatter + body) held in memory. In --push mode the
-        # tooling branch is cut from origin/master, so on-disk distilled files
-        # are stale relative to the run's updates (which live on the per-team
-        # branches). Passing the in-memory content here makes the fences
-        # reflect the new distilled text without needing the team branches
-        # merged first (see Sync::AutoMr#publish_tooling_branch).
-        def generate_duo_review_instructions(distilled_overrides: {})
+        # Returns true when the file changed on disk, false otherwise, so the
+        # scheduled reconcile job can decide whether to open an MR.
+        def generate_duo_review_instructions
           path = Workspace.safe_join(DUO_REVIEW_INSTRUCTIONS_PATH)
           unless File.exist?(path)
             puts Rainbow("  #{DUO_REVIEW_INSTRUCTIONS_PATH} not found; skipping Duo review instructions").faint
-            return
+            return false
           end
 
           content = File.read(path)
-          fences = build_duo_fences(DuoInstructions.fenced_principles(content), overrides: distilled_overrides)
+          fences = build_duo_fences(DuoInstructions.fenced_principles(content))
           updated = DuoInstructions.regenerate(content, fences: fences)
 
           if updated == content
             puts Rainbow('  Duo review instructions already up to date').faint
-            return
+            return false
           end
 
           File.write(path, updated)
           puts "  Updated #{DUO_REVIEW_INSTRUCTIONS_PATH} (#{fences.size} generated region(s))"
+          true
         end
 
         # Classifies the fenced principles whose region needs attention and
@@ -522,19 +519,12 @@ module Gitlab
         # principles whose distilled file or frontmatter is missing so a fence
         # for a not-yet-distilled principle is left untouched rather than
         # blanked.
-        #
-        # `overrides` maps principle name to in-memory distilled content
-        # (frontmatter + body). When a name has an override, its content is
-        # parsed from memory instead of read from disk, so fences reflect the
-        # freshly distilled text even when the on-disk file is stale (the
-        # tooling branch is cut from origin/master; see
-        # generate_duo_review_instructions).
-        def build_duo_fences(names, overrides: {})
+        def build_duo_fences(names)
           names.each_with_object({}) do |name, fences|
             config = principle_config(name)
             next unless config
 
-            content = duo_fence_source_content(name, overrides)
+            content = duo_fence_source_content(name)
             next unless content
 
             frontmatter = extract_frontmatter(content)
@@ -617,14 +607,12 @@ module Gitlab
 
         private
 
-        # The distilled content to build a fence from: the in-memory override
-        # when present (freshly distilled this run), otherwise the on-disk file.
-        # Returns nil when neither is available so a not-yet-distilled fence is
-        # left untouched.
-        def duo_fence_source_content(name, overrides)
-          override = overrides[name]
-          return override if override
-
+        # The committed distilled content to build a fence from. Returns nil
+        # when the file is absent so a not-yet-distilled fence is left
+        # untouched. Reading only from disk keeps fence reconciliation a pure
+        # projection of merged-master content (see
+        # generate_duo_review_instructions).
+        def duo_fence_source_content(name)
           path = Workspace.safe_join(principles_path(name))
           File.read(path) if File.exist?(path)
         end

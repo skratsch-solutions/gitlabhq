@@ -27,6 +27,7 @@
         $CI_PIPELINE_SOURCE != "merge_request_event"
         && $SCHEDULE_TYPE != "weekly"
         && $SCHEDULE_TYPE != "ai-principles-distillation"
+        && $SCHEDULE_TYPE != "ai-principles-fence-reconcile"
         && $TRIGGERED_BY_AI_GATEWAY_PROJECT != "true"
         &&
         (
@@ -47,9 +48,9 @@
       || $FORCE_GITLAB_CI
       '
 
-# weekly and ai-principles-distillation pipelines are opt-in and should not automatically run every job
+# weekly and ai-principles-* pipelines are opt-in and should not automatically run every job
 .if-default-branch-refs: &if-default-branch-refs
-  if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_MERGE_REQUEST_IID == null && $SCHEDULE_TYPE != "weekly" && $SCHEDULE_TYPE != "ai-principles-distillation"'
+  if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_MERGE_REQUEST_IID == null && $SCHEDULE_TYPE != "weekly" && $SCHEDULE_TYPE != "ai-principles-distillation" && $SCHEDULE_TYPE != "ai-principles-fence-reconcile"'
 
 .if-default-branch-push: &if-default-branch-push
   if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"'
@@ -239,6 +240,9 @@
 .if-default-branch-schedule-ai-principles: &if-default-branch-schedule-ai-principles
   if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "ai-principles-distillation"'
 
+.if-default-branch-schedule-ai-principles-fence-reconcile: &if-default-branch-schedule-ai-principles-fence-reconcile
+  if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "ai-principles-fence-reconcile"'
+
 .if-ruby-branch-schedule: &if-ruby-branch-schedule
   if: '$CI_COMMIT_BRANCH == "ruby-next" && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "maintenance"'
 
@@ -390,6 +394,18 @@
   - "doc/**/*.md"
   - "gems/gitlab-ai-principles-distiller/**/*"
   - "scripts/lint-ai-principles-manifest.sh"
+  - "scripts/lint-duo-review-instructions.sh"
+
+# The narrow set of files the Duo review-instructions fence guard actually
+# owns — a change to any of these can break the fences on its own ref, so the
+# STRICT `ai-duo-review-instructions` job (where staleness blocks) triggers on
+# these. Distilled files are deliberately NOT here: a team's distilled MR
+# cannot fix a fence on its own ref (the fence catches up via the daily
+# reconcile job), so those MRs fall through to the warn-stale job.
+# gitlab-org/gitlab#604890
+.ai-duo-review-instructions-owned-patterns: &ai-duo-review-instructions-owned-patterns
+  - ".gitlab/duo/mr-review-instructions.yaml"
+  - "gems/gitlab-ai-principles-distiller/**/*"
   - "scripts/lint-duo-review-instructions.sh"
 
 .docs-i18n-patterns: &docs-i18n-patterns
@@ -1200,15 +1216,17 @@
     - <<: *if-jh
       when: never
 
-# Single source of truth for excluding a job from the dedicated
-# ai-principles-distillation schedule. That schedule should run only the
-# ai-principles-sync jobs; because rules:changes is always-true on scheduled
-# pipelines, default-branch jobs would otherwise be pulled in. `!reference`
-# this from any job (including those in other CI files) whose rules would
-# otherwise match the schedule, so the guard has one canonical phrasing.
+# Single source of truth for excluding a job from the dedicated ai-principles-*
+# schedules (distillation and fence-reconcile). Those schedules should run only
+# their own ai-principles jobs; because rules:changes is always-true on
+# scheduled pipelines, default-branch jobs would otherwise be pulled in.
+# `!reference` this from any job (including those in other CI files) whose rules
+# would otherwise match a schedule, so the guard has one canonical phrasing.
 .ai-principles-schedule:rules:skip:
   rules:
     - <<: *if-default-branch-schedule-ai-principles
+      when: never
+    - <<: *if-default-branch-schedule-ai-principles-fence-reconcile
       when: never
 
 .rails:rules:run-search-tests:
@@ -1544,6 +1562,33 @@
 .docs:rules:ai-principles-manifest:
   rules:
     - <<: *if-default-refs
+      changes: *ai-principles-manifest-patterns
+
+# Strict Duo-fence guard: fires only on MRs that touch the fence's OWNED files
+# (the reconcile MR, the gem, or the guard script). On those refs a stale fence
+# is real, ref-fixable drift, so the guard runs WITHOUT WARN_STALE and staleness
+# blocks. Master and ordinary MRs are handled by the warn-stale job below.
+# gitlab-org/gitlab#604890
+.docs:rules:ai-duo-review-instructions-strict:
+  rules:
+    - <<: *if-merge-request
+      changes: *ai-duo-review-instructions-owned-patterns
+
+# Warn-stale Duo-fence guard: fires on the default branch and on ordinary MRs
+# caught by the broad manifest trigger (including team distilled MRs), but NOT
+# on the owned-path MRs already covered by the strict job. It runs with
+# WARN_STALE=1, so fence staleness — expected transient state until the daily
+# reconcile job catches master up — only warns, while malformed and orphaned
+# fences still fail (hence this job is not allow_failure). The owned-path
+# `when: never` prevents a duplicate run alongside the strict job.
+# gitlab-org/gitlab#604890
+.docs:rules:ai-duo-review-instructions-warn:
+  rules:
+    - <<: *if-default-branch-refs
+    - <<: *if-merge-request
+      changes: *ai-duo-review-instructions-owned-patterns
+      when: never
+    - <<: *if-merge-request
       changes: *ai-principles-manifest-patterns
 
 .docs:rules:docs-i18n-lint:
@@ -3816,6 +3861,14 @@
       when: never
     - <<: *if-default-branch-schedule-ai-principles
       when: on_failure
+
+.ai-principles-reconcile:rules:scheduled:
+  rules:
+    - if: '$CI_PROJECT_PATH != "gitlab-org/gitlab"'
+      when: never
+    - if: '$AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == null || $AGENT_PRINCIPLES_SERVICE_ACCOUNT_TOKEN == ""'
+      when: never
+    - <<: *if-default-branch-schedule-ai-principles-fence-reconcile
 
 ###################
 # Benchmark rules #

@@ -126,7 +126,7 @@ docs hugo_build:
     - .lint-base
   stage: lint
   variables:
-    DOCS_BRANCH: "main"
+    DOCS_BRANCH: 'main'
   before_script:
     # Check if this a release branch, which would be the case for a backport.
     # If this is a backport MR, we need to checkout the appropriate version
@@ -182,7 +182,7 @@ docs-lint links:
 
 docs-lint generated-content:
   variables:
-    SETUP_DB: "false"
+    SETUP_DB: 'false'
   extends:
     - .ruby-cache
     - .default-before_script
@@ -213,35 +213,64 @@ ai-principles-manifest:
     - .default-retry
     - .docs:rules:ai-principles-manifest
   variables:
-    GIT_DEPTH: "1"
-    RUBY_RUN: "ruby"
+    GIT_DEPTH: '1'
+    RUBY_RUN: 'ruby'
   before_script:
     - gem install rainbow --no-document
   script:
     - scripts/lint-ai-principles-manifest.sh
 
-ai-duo-review-instructions:
-  # Read-only drift guard: detects Duo Code Review instruction fences in
-  # .gitlab/duo/mr-review-instructions.yaml that are stale, malformed, or
-  # orphaned relative to .ai/principles/distilled/. Rails-free; only runtime
-  # dependency is the `rainbow` gem (same bare-Ruby execution model as the
-  # sibling ai-principles-manifest job). Fails the pipeline on drift so bad
-  # fences don't land silently. To fix: re-run the principles sync to
-  # regenerate stale fences, or correct/remove malformed or orphaned markers.
-  # See gitlab-org/gitlab#604738.
+# Read-only drift guard: detects Duo Code Review instruction fences in
+# .gitlab/duo/mr-review-instructions.yaml that are stale, malformed, or
+# orphaned relative to .ai/principles/distilled/. Rails-free; only runtime
+# dependency is the `rainbow` gem (same bare-Ruby execution model as the
+# sibling ai-principles-manifest job). To fix: re-run the principles sync to
+# regenerate stale fences, or correct/remove malformed or orphaned markers.
+#
+# Fence regeneration is decoupled from distillation (gitlab-org/gitlab#604890):
+# a team's distilled MR merges independently and the daily fence-reconcile job
+# catches the fences up from merged master afterwards. So fence STALENESS is
+# expected transient state on ordinary MRs and on master, not something those
+# refs can fix. The guard therefore runs as two jobs:
+#
+# - `ai-duo-review-instructions` (STRICT) fires on the reconcile MR and on MRs
+#   touching the fence's OWNED files (the Duo instructions file, the distiller
+#   gem, or the guard script). There, staleness is a real, ref-fixable drift
+#   and blocks.
+# - `ai-duo-review-instructions-warn` (WARN-STALE) fires on master and on
+#   ordinary MRs caught by the broad manifest trigger. It sets WARN_STALE=1, so
+#   staleness only warns — but malformed and orphaned fences still fail (they
+#   are ref-fixable breakage regardless of the reconcile). It is NOT
+#   allow_failure for that reason.
+#
+# See gitlab-org/gitlab#604738.
+.ai-duo-review-instructions-base:
   image: ${GITLAB_DEPENDENCY_PROXY_ADDRESS}ruby:${RUBY_VERSION}
   stage: lint
   needs: []
-  extends:
-    - .default-retry
-    - .docs:rules:ai-principles-manifest
   variables:
-    GIT_DEPTH: "1"
-    RUBY_RUN: "ruby"
+    GIT_DEPTH: '1'
+    RUBY_RUN: 'ruby'
   before_script:
     - gem install rainbow --no-document
   script:
     - scripts/lint-duo-review-instructions.sh
+
+ai-duo-review-instructions:
+  extends:
+    - .ai-duo-review-instructions-base
+    - .default-retry
+    - .docs:rules:ai-duo-review-instructions-strict
+
+ai-duo-review-instructions-warn:
+  extends:
+    - .ai-duo-review-instructions-base
+    - .default-retry
+    - .docs:rules:ai-duo-review-instructions-warn
+  variables:
+    GIT_DEPTH: '1'
+    RUBY_RUN: 'ruby'
+    WARN_STALE: '1'
 
 docs-lint redirects:
   image: ${GITLAB_DEPENDENCY_PROXY_ADDRESS}ruby:${RUBY_VERSION}-alpine
@@ -294,8 +323,8 @@ docs-i18n-lint japanese-vale:
     - .lint-base
   stage: lint
   variables:
-    LANGUAGE_CODE: "ja-jp"
-    LANGUAGE_NAME: "Japanese"
+    LANGUAGE_CODE: 'ja-jp'
+    LANGUAGE_NAME: 'Japanese'
   script:
     - source ./scripts/utils.sh
     - install_gitlab_gem
@@ -309,8 +338,8 @@ docs-i18n-lint korean-vale:
     - .lint-base
   stage: lint
   variables:
-    LANGUAGE_CODE: "ko-kr"
-    LANGUAGE_NAME: "Korean"
+    LANGUAGE_CODE: 'ko-kr'
+    LANGUAGE_NAME: 'Korean'
   script:
     - source ./scripts/utils.sh
     - install_gitlab_gem
@@ -324,8 +353,8 @@ docs-i18n-lint french-vale:
     - .lint-base
   stage: lint
   variables:
-    LANGUAGE_CODE: "fr-fr"
-    LANGUAGE_NAME: "French"
+    LANGUAGE_CODE: 'fr-fr'
+    LANGUAGE_NAME: 'French'
   script:
     - source ./scripts/utils.sh
     - install_gitlab_gem
