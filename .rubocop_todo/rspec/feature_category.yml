@@ -2371,7 +2371,6 @@ RSpec/FeatureCategory:
     - 'spec/models/email_spec.rb'
     - 'spec/models/error_tracking/client_key_spec.rb'
     - 'spec/models/error_tracking/error_event_spec.rb'
-    - 'spec/models/error_tracking/error_spec.rb'
     - 'spec/models/event_collection_spec.rb'
     - 'spec/models/external_issue_spec.rb'
     - 'spec/models/fork_network_member_spec.rb'
