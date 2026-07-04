@@ -93,7 +93,6 @@ app/models/ci/job_token/allowlist.rb:
   - group_link_traversal_ids
   - bulk_add_groups!
 app/models/ci/pipeline.rb:
-  - has_archive_artifacts?
   - has_erasable_artifacts?
 app/models/ci/runner.rb:
   - belongs_to_one_project?

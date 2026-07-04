@@ -1514,10 +1514,6 @@ module Ci
       end
     end
 
-    def has_archive_artifacts?
-      complete? && builds.latest.with_existing_job_artifacts(Ci::JobArtifact.archive.or(Ci::JobArtifact.metadata)).exists?
-    end
-
     def has_exposed_artifacts?
       complete? && builds.latest.any_with_exposed_artifacts?
     end
