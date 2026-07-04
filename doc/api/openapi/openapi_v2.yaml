@@ -29406,8 +29406,8 @@ paths:
       - packages_nuget
       operationId: getApiV4ProjectsIdPackagesNugetV2
     put:
-      summary: The NuGet V2 Feed Package Publish endpoint
-      description: This feature was introduced in GitLab 16.2
+      summary: Upload a NuGet v2 package file for a project
+      description: Uploads a NuGet v2 package file for a specified project.
       produces:
       - application/json
       consumes:
@@ -29425,7 +29425,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPackagesNugetV2"
       responses:
         '201':
-          description: The NuGet V2 Feed Package Publish endpoint
+          description: Upload a NuGet v2 package file for a project
         '400':
           description: Bad Request
         '401':
@@ -29655,8 +29655,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesNugetDownload*packageName*packageVersion*packageFilename
   "/api/v4/projects/{id}/packages/nuget":
     put:
-      summary: The NuGet V3 Feed Package Publish endpoint
-      description: This feature was introduced in GitLab 12.6
+      summary: Upload a NuGet v3 package file for a project
+      description: Uploads a NuGet v3 package file for a specified project.
       produces:
       - application/json
       consumes:
@@ -29674,7 +29674,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPackagesNuget"
       responses:
         '201':
-          description: The NuGet V3 Feed Package Publish endpoint
+          description: Upload a NuGet v3 package file for a project
         '400':
           description: Bad Request
         '401':
@@ -29714,8 +29714,9 @@ paths:
       operationId: putApiV4ProjectsIdPackagesNugetAuthorize
   "/api/v4/projects/{id}/packages/nuget/symbolpackage":
     put:
-      summary: The NuGet Symbol Package Publish endpoint
-      description: This feature was introduced in GitLab 14.1
+      summary: Upload a NuGet symbol package file
+      description: Uploads a specified NuGet symbol package file (`.snupkg`) for a
+        project.
       produces:
       - application/json
       consumes:
@@ -29733,7 +29734,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPackagesNugetSymbolpackage"
       responses:
         '201':
-          description: The NuGet Symbol Package Publish endpoint
+          description: Upload a NuGet symbol package file
         '400':
           description: Bad Request
         '401':
@@ -29925,8 +29926,8 @@ paths:
       operationId: getApiV4ProjectsProjectIdPackagesNugetV2Packages\(id='*packageName',version='*packageVersion'\)
   "/api/v4/projects/{id}/packages/{package_id}/package_files":
     get:
-      summary: List package files
-      description: Get a list of package files of a single package
+      summary: List all package files
+      description: Lists all package files for a specified package.
       produces:
       - application/json
       parameters:
@@ -29978,7 +29979,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List package files
+          description: List all package files
           schema:
             type: array
             items:
@@ -29989,7 +29990,7 @@ paths:
   "/api/v4/projects/{id}/packages/{package_id}/package_files/{package_file_id}":
     delete:
       summary: Delete a package file
-      description: This feature was introduced in GitLab 13.12
+      description: Deletes a specified package file.
       produces:
       - application/json
       parameters:
@@ -30314,7 +30315,9 @@ paths:
   "/api/v4/projects/{id}/avatar":
     get:
       summary: Download a project avatar
-      description: This feature was introduced in GitLab 16.9
+      description: Downloads a project avatar. You can access this endpoint without
+        authentication if the project is publicly accessible. This feature was introduced
+        in GitLab 16.9.
       produces:
       - application/json
       parameters:
@@ -34755,8 +34758,11 @@ paths:
       operationId: deleteApiV4ProjectsIdJobTokenScopeAllowlistTargetProjectId
   "/api/v4/projects/{id}/packages":
     get:
-      summary: Get a list of project packages
-      description: This feature was introduced in GitLab 11.8
+      summary: List all packages for a project
+      description: Lists all packages for a specified project. All package types are
+        included in results. Unauthenticated requests return only packages of public
+        projects. By default, packages with `default`, `deprecated`, and `error` status
+        are returned. Use the `status` parameter to view other packages.
       produces:
       - application/json
       parameters:
@@ -34852,7 +34858,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of project packages
+          description: List all packages for a project
           schema:
             type: array
             items:
@@ -34866,8 +34872,9 @@ paths:
       operationId: getApiV4ProjectsIdPackages
   "/api/v4/projects/{id}/packages/{package_id}":
     get:
-      summary: Get a single project package
-      description: This feature was introduced in GitLab 11.9
+      summary: Retrieve a project package
+      description: Retrieves a specified project package. Only packages with status
+        `default` or `deprecated` are returned.
       produces:
       - application/json
       parameters:
@@ -34884,7 +34891,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single project package
+          description: Retrieve a project package
           schema:
             "$ref": "#/definitions/API_Entities_Package"
         '403':
@@ -34896,7 +34903,7 @@ paths:
       operationId: getApiV4ProjectsIdPackagesPackageId
     delete:
       summary: Delete a project package
-      description: This feature was introduced in GitLab 11.9
+      description: Deletes a specified project package.
       produces:
       - application/json
       parameters:
@@ -34923,8 +34930,10 @@ paths:
       operationId: deleteApiV4ProjectsIdPackagesPackageId
   "/api/v4/projects/{id}/packages/{package_id}/pipelines":
     get:
-      summary: Get the pipelines for a single project package
-      description: This feature was introduced in GitLab 16.1
+      summary: List all package pipelines
+      description: Lists all pipelines for a specified package. The results are sorted
+        by `id` in descending order. The results are paginated and return up to 20
+        records per page. This feature was introduced in GitLab 16.1.
       produces:
       - application/json
       parameters:
@@ -34964,7 +34973,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get the pipelines for a single project package
+          description: List all package pipelines
           schema:
             "$ref": "#/definitions/API_Entities_Package_Pipeline"
         '401':
@@ -34978,7 +34987,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesPackageIdPipelines
   "/api/v4/projects/{id}/packages/protection/rules":
     get:
-      description: Get list of package protection rules for a project
+      summary: List all package protection rules
+      description: Lists all package protection rules for a specified project.
       produces:
       - application/json
       parameters:
@@ -34989,7 +34999,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get list of package protection rules for a project
+          description: List all package protection rules
           schema:
             type: array
             items:
@@ -35004,7 +35014,8 @@ paths:
       - projects
       operationId: getApiV4ProjectsIdPackagesProtectionRules
     post:
-      description: Create a package protection rule for a project
+      summary: Create a package protection rule
+      description: Creates a package protection rule for a specified project.
       produces:
       - application/json
       consumes:
@@ -35022,7 +35033,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdPackagesProtectionRules"
       responses:
         '201':
-          description: Create a package protection rule for a project
+          description: Create a package protection rule
           schema:
             "$ref": "#/definitions/API_Entities_Projects_Packages_Protection_Rule"
         '400':
@@ -35040,7 +35051,8 @@ paths:
       operationId: postApiV4ProjectsIdPackagesProtectionRules
   "/api/v4/projects/{id}/packages/protection/rules/{package_protection_rule_id}":
     patch:
-      description: Update a package protection rule for a project
+      summary: Update a package protection rule
+      description: Updates a package protection rule for a specified project.
       produces:
       - application/json
       consumes:
@@ -35064,7 +35076,7 @@ paths:
           "$ref": "#/definitions/patchApiV4ProjectsIdPackagesProtectionRulesPackageProtectionRuleId"
       responses:
         '200':
-          description: Update a package protection rule for a project
+          description: Update a package protection rule
           schema:
             "$ref": "#/definitions/API_Entities_Projects_Packages_Protection_Rule"
         '400':
@@ -35081,7 +35093,8 @@ paths:
       - projects
       operationId: patchApiV4ProjectsIdPackagesProtectionRulesPackageProtectionRuleId
     delete:
-      description: Delete package protection rule
+      summary: Delete a package protection rule
+      description: Deletes a package protection rule from a specified project.
       produces:
       - application/json
       parameters:
@@ -35112,8 +35125,8 @@ paths:
       operationId: deleteApiV4ProjectsIdPackagesProtectionRulesPackageProtectionRuleId
   "/api/v4/projects/{id}/snapshot":
     get:
-      summary: Download a (possibly inconsistent) snapshot of a repository
-      description: This feature was introduced in GitLab 10.7
+      summary: Download snapshot of a Git repository
+      description: Downloads snapshot of a Git repository.
       produces:
       - application/x-tar
       parameters:
@@ -35129,7 +35142,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download a (possibly inconsistent) snapshot of a repository
+          description: Download snapshot of a Git repository
           schema:
             type: file
         '401':
@@ -35909,7 +35922,11 @@ paths:
       - projects
       operationId: getApiV4Projects
     post:
-      description: Create new project
+      summary: Create a project
+      description: Creates a project owned by the authenticated user. If your HTTP
+        repository is not publicly accessible, add authentication information to the
+        URL `https://username:password@gitlab.company.com/group/project.git`, where
+        `password` is a public access key with the `api` scope.
       produces:
       - application/json
       consumes:
@@ -35922,7 +35939,7 @@ paths:
           "$ref": "#/definitions/postApiV4Projects"
       responses:
         '201':
-          description: Create new project
+          description: Create a project
           schema:
             "$ref": "#/definitions/API_Entities_Project"
         '403':
@@ -35936,8 +35953,8 @@ paths:
       operationId: postApiV4Projects
   "/api/v4/projects/user/{user_id}":
     post:
-      description: Create new project for a specified user. Only available to admin
-        users.
+      summary: Create a project for a user
+      description: Creates a project for a user. Administrators only.
       produces:
       - application/json
       consumes:
@@ -35957,8 +35974,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsUserUserId"
       responses:
         '201':
-          description: Create new project for a specified user. Only available to
-            admin users.
+          description: Create a project for a user
           schema:
             "$ref": "#/definitions/API_Entities_Project"
         '403':
@@ -35972,7 +35988,8 @@ paths:
       operationId: postApiV4ProjectsUserUserId
   "/api/v4/projects/{id}/share_locations":
     get:
-      description: Returns group that can be shared with the given project
+      summary: List all groups available to invite to a project
+      description: Lists all groups that can be invited to a project.
       produces:
       - application/json
       parameters:
@@ -35989,7 +36006,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Returns group that can be shared with the given project
+          description: List all groups available to invite to a project
           schema:
             "$ref": "#/definitions/API_Entities_Group"
       tags:
@@ -35998,7 +36015,9 @@ paths:
       operationId: getApiV4ProjectsIdShareLocations
   "/api/v4/projects/{id}":
     get:
-      description: Get a single project
+      summary: Retrieve a project
+      description: Retrieves details on a specified project. This endpoint can be
+        accessed without authentication if the project is publicly accessible.
       produces:
       - application/json
       parameters:
@@ -36027,7 +36046,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a single project
+          description: Retrieve a project
           schema:
             "$ref": "#/definitions/API_Entities_ProjectWithAccess"
       tags:
@@ -36066,7 +36085,8 @@ paths:
       - projects
       operationId: putApiV4ProjectsId
     delete:
-      description: Delete a project
+      summary: Delete a project
+      description: Deletes a specified project.
       produces:
       - application/json
       parameters:
@@ -36087,7 +36107,8 @@ paths:
       operationId: deleteApiV4ProjectsId
   "/api/v4/projects/{id}/fork":
     post:
-      description: Fork new project for the current user or provided namespace.
+      summary: Create a fork of a project
+      description: Creates a fork of a project.
       produces:
       - application/json
       consumes:
@@ -36105,7 +36126,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdFork"
       responses:
         '201':
-          description: Fork new project for the current user or provided namespace.
+          description: Create a fork of a project
           schema:
             "$ref": "#/definitions/API_Entities_Project"
         '403':
@@ -36416,7 +36437,9 @@ paths:
       operationId: getApiV4ProjectsIdPagesAccess
   "/api/v4/projects/{id}/archive":
     post:
-      description: Archive a project
+      summary: Archive a project
+      description: Archives a specified project. You must be an administrator or be
+        assigned the Owner role on the project.
       produces:
       - application/json
       consumes:
@@ -36564,7 +36587,9 @@ paths:
       operationId: getApiV4ProjectsIdStarrers
   "/api/v4/projects/{id}/languages":
     get:
-      description: Get languages in project repository
+      summary: Retrieve programming language usage information
+      description: Retrieves information about all programming languages used in a
+        specified project.
       produces:
       - application/json
       parameters:
@@ -36575,7 +36600,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get languages in project repository
+          description: Retrieve programming language usage information
         '404':
           description: Not found
       tags:
@@ -36770,7 +36795,8 @@ paths:
       operationId: getApiV4ProjectsIdUsers
   "/api/v4/projects/{id}/groups":
     get:
-      description: Get ancestor and shared groups for a project
+      summary: List all ancestor groups
+      description: Lists all ancestor groups for a specified project.
       produces:
       - application/json
       parameters:
@@ -36837,7 +36863,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get ancestor and shared groups for a project
+          description: List all ancestor groups
           schema:
             type: array
             items:
@@ -36851,7 +36877,12 @@ paths:
       operationId: getApiV4ProjectsIdGroups
   "/api/v4/projects/{id}/invited_groups":
     get:
-      description: Get a list of invited groups in this project
+      summary: List all invited groups in a project
+      description: Lists all invited groups in a project. Unauthenticated requests
+        return only public invited groups. Limited to 60 requests a minute per user
+        account for authenticated requires and per IP address for unauthenticated
+        requests. Supports offset-based pagination (up to 50,000 projects) and keyset-based
+        pagination (greater than 50,000 projects).
       produces:
       - application/json
       parameters:
@@ -36913,7 +36944,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of invited groups in this project
+          description: List all invited groups in a project
           schema:
             type: array
             items:
@@ -44420,7 +44451,10 @@ paths:
       operationId: getApiV4UsersIdEvents
   "/api/v4/users/{user_id}/projects":
     get:
-      description: Get a user projects
+      summary: List all personal projects for a user
+      description: Lists all personal projects for a specified user. Does not return
+        group or subgroup projects. If the user profile is private, returns only an
+        empty list.
       produces:
       - application/json
       parameters:
@@ -44670,7 +44704,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a user projects
+          description: List all personal projects for a user
           schema:
             type: array
             items:
@@ -67192,7 +67226,7 @@ definitions:
         description: The package file to be published (generated by Multipart middleware)
     required:
     - package
-    description: The NuGet V3 Feed Package Publish endpoint
+    description: Upload a NuGet v3 package file for a project
   putApiV4ProjectsIdPackagesNugetSymbolpackage:
     type: object
     properties:
@@ -67201,7 +67235,7 @@ definitions:
         description: The package file to be published (generated by Multipart middleware)
     required:
     - package
-    description: The NuGet Symbol Package Publish endpoint
+    description: Upload a NuGet symbol package file
   putApiV4ProjectsIdPackagesNugetV2:
     type: object
     properties:
@@ -67210,7 +67244,7 @@ definitions:
         description: The package file to be published (generated by Multipart middleware)
     required:
     - package
-    description: The NuGet V2 Feed Package Publish endpoint
+    description: Upload a NuGet v2 package file for a project
   API_Entities_PackageFile:
     type: object
     properties:
@@ -68805,7 +68839,7 @@ definitions:
     required:
     - package_name_pattern
     - package_type
-    description: Create a package protection rule for a project
+    description: Create a package protection rule
   patchApiV4ProjectsIdPackagesProtectionRulesPackageProtectionRuleId:
     type: object
     properties:
@@ -68847,7 +68881,7 @@ definitions:
         - maintainer
         - owner
         - admin
-    description: Update a package protection rule for a project
+    description: Update a package protection rule
   API_Entities_ProjectSnippet:
     type: object
     properties:
@@ -69589,7 +69623,7 @@ definitions:
         type: integer
         format: int32
         description: Project ID of template from which to create project
-    description: Create new project
+    description: Create a project
   postApiV4ProjectsUserUserId:
     type: object
     properties:
@@ -70053,8 +70087,7 @@ definitions:
         description: Project ID of template from which to create project
     required:
     - name
-    description: Create new project for a specified user. Only available to admin
-      users.
+    description: Create a project for a user
   API_Entities_ProjectWithAccess:
     type: object
     properties:
@@ -70668,7 +70701,7 @@ definitions:
       branches:
         type: string
         description: Branches to fork
-    description: Fork new project for the current user or provided namespace.
+    description: Create a fork of a project
   putApiV4ProjectsId:
     type: object
     properties:

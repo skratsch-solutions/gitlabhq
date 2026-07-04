@@ -34,8 +34,8 @@ module API
       requires :package_id, type: Integer, desc: 'ID of a package'
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-      desc 'List package files' do
-        detail 'Get a list of package files of a single package'
+      desc 'List all package files' do
+        detail 'Lists all package files for a specified package.'
         success ::API::Entities::PackageFile
         is_array true
         tags PACKAGE_FILES_TAGS
@@ -66,7 +66,7 @@ module API
       end
 
       desc 'Delete a package file' do
-        detail 'This feature was introduced in GitLab 13.12'
+        detail 'Deletes a specified package file.'
         success code: 204
         failure [
           { code: 403, message: 'Forbidden' },

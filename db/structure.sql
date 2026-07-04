@@ -28188,6 +28188,27 @@ CREATE SEQUENCE pm_malware_advisories_id_seq
 
 ALTER SEQUENCE pm_malware_advisories_id_seq OWNED BY pm_malware_advisories.id;
 
+CREATE TABLE pm_malware_affected_packages (
+    id bigint NOT NULL,
+    pm_malware_advisory_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    purl_type smallint NOT NULL,
+    package_name text NOT NULL,
+    affected_range text NOT NULL,
+    CONSTRAINT check_0e950e992b CHECK ((char_length(package_name) <= 512)),
+    CONSTRAINT check_8c6660adcc CHECK ((char_length(affected_range) <= 10000))
+);
+
+CREATE SEQUENCE pm_malware_affected_packages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE pm_malware_affected_packages_id_seq OWNED BY pm_malware_affected_packages.id;
+
 CREATE TABLE pm_package_version_licenses (
     pm_package_version_id bigint NOT NULL,
     pm_license_id bigint NOT NULL,
@@ -37894,6 +37915,8 @@ ALTER TABLE ONLY pm_licenses ALTER COLUMN id SET DEFAULT nextval('pm_licenses_id
 
 ALTER TABLE ONLY pm_malware_advisories ALTER COLUMN id SET DEFAULT nextval('pm_malware_advisories_id_seq'::regclass);
 
+ALTER TABLE ONLY pm_malware_affected_packages ALTER COLUMN id SET DEFAULT nextval('pm_malware_affected_packages_id_seq'::regclass);
+
 ALTER TABLE ONLY pm_package_version_licenses ALTER COLUMN id SET DEFAULT nextval('pm_package_version_licenses_id_seq'::regclass);
 
 ALTER TABLE ONLY pm_package_versions ALTER COLUMN id SET DEFAULT nextval('pm_package_versions_id_seq'::regclass);
@@ -42012,6 +42035,9 @@ ALTER TABLE ONLY pm_licenses
 ALTER TABLE ONLY pm_malware_advisories
     ADD CONSTRAINT pm_malware_advisories_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY pm_malware_affected_packages
+    ADD CONSTRAINT pm_malware_affected_packages_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY pm_package_version_licenses
     ADD CONSTRAINT pm_package_version_licenses_pkey PRIMARY KEY (id);
 
@@ -45799,6 +45825,8 @@ CREATE UNIQUE INDEX i_pkgs_rubygems_spec_files_on_obj_stor_key_and_project_id ON
 CREATE UNIQUE INDEX i_pm_licenses_on_spdx_identifier ON pm_licenses USING btree (spdx_identifier);
 
 CREATE UNIQUE INDEX i_pm_malware_advisories_xid_source ON pm_malware_advisories USING btree (advisory_xid, source_xid);
+
+CREATE UNIQUE INDEX i_pm_malware_affected_packages_unique_for_upsert ON pm_malware_affected_packages USING btree (pm_malware_advisory_id, purl_type, package_name);
 
 CREATE UNIQUE INDEX i_pm_package_version_licenses_join_ids ON pm_package_version_licenses USING btree (pm_package_version_id, pm_license_id);
 
@@ -62458,6 +62486,9 @@ ALTER TABLE ONLY dependency_proxy_manifests
 
 ALTER TABLE ONLY resource_milestone_events
     ADD CONSTRAINT fk_rails_a788026e85 FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY pm_malware_affected_packages
+    ADD CONSTRAINT fk_rails_a7e083ea66 FOREIGN KEY (pm_malware_advisory_id) REFERENCES pm_malware_advisories(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY term_agreements
     ADD CONSTRAINT fk_rails_a88721bcdf FOREIGN KEY (term_id) REFERENCES application_setting_terms(id);

@@ -140,8 +140,6 @@ CI/CD job tokens can access the following REST API endpoints:
 | Download the maven package file at a group level | `GET /groups/:id/-/packages/maven/*path/:file_name` | `READ_PACKAGES` | Read |
 | Download the maven package file at a project level | `GET /projects/:id/packages/maven/*path/:file_name` | `READ_PACKAGES` | Read |
 | Download the maven package file at instance level | `GET /packages/maven/*path/:file_name` | `READ_PACKAGES` | Read |
-| Get a list of project packages | `GET /projects/:id/packages` | `READ_PACKAGES` | Read |
-| Get a single project package | `GET /projects/:id/packages/:package_id` | `READ_PACKAGES` | Read |
 | Get all tags for a given an NPM package | `GET /groups/:id/-/packages/npm/-/package/*package_name/dist-tags` | `READ_PACKAGES` | Read |
 | Get all tags for a given an NPM package | `GET /packages/npm/-/package/*package_name/dist-tags` | `READ_PACKAGES` | Read |
 | Get all tags for a given an NPM package | `GET /projects/:id/packages/npm/-/package/*package_name/dist-tags` | `READ_PACKAGES` | Read |
@@ -153,8 +151,9 @@ CI/CD job tokens can access the following REST API endpoints:
 | Get the list of package revisions | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions` | `READ_PACKAGES` | Read |
 | Get the list of revisions | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions` | `READ_PACKAGES` | Read |
 | List | `GET /projects/:id/packages/go/*module_name/@v/list` | `READ_PACKAGES` | Read |
+| List all package files | `GET /projects/:id/packages/:package_id/package_files` | `READ_PACKAGES` | Read |
+| List all packages for a project | `GET /projects/:id/packages` | `READ_PACKAGES` | Read |
 | List all packages for a project | `GET /projects/:id/packages/pypi/simple` | `READ_PACKAGES` | Read |
-| List package files | `GET /projects/:id/packages/:package_id/package_files` | `READ_PACKAGES` | Read |
 | List package files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files` | `READ_PACKAGES` | Read |
 | List recipe files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files` | `READ_PACKAGES` | Read |
 | NPM registry bulk advisory endpoint | `POST /groups/:id/-/packages/npm/-/npm/v1/security/advisories/bulk` | `READ_PACKAGES` | Read |
@@ -181,6 +180,7 @@ CI/CD job tokens can access the following REST API endpoints:
 | Recipe Upload Urls | `POST /packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/upload_urls` | `READ_PACKAGES` | Read |
 | Recipe Upload Urls | `POST /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/upload_urls` | `READ_PACKAGES` | Read |
 | Retrieve a package file | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name` | `READ_PACKAGES` | Read |
+| Retrieve a project package | `GET /projects/:id/packages/:package_id` | `READ_PACKAGES` | Read |
 | Retrieve a recipe file | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name` | `READ_PACKAGES` | Read |
 | Retrieve package references metadata by recipe revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/search` | `READ_PACKAGES` | Read |
 | The PyPi Simple Project Package Endpoint | `GET /projects/:id/packages/pypi/simple/*package_name` | `READ_PACKAGES` | Read |
@@ -224,8 +224,8 @@ CI/CD job tokens can access the following REST API endpoints:
 
 | Permission | API endpoint | Permission name | Scope |
 | ---------- | ------------ | --------------- | ----- |
-| Get the pipelines for a single project package | `GET /projects/:id/packages/:package_id/pipelines` | `READ_PIPELINES` | Read |
 | List all bridge jobs by pipeline | `GET /projects/:id/pipelines/:pipeline_id/bridges` | `READ_PIPELINES` | Read |
+| List all package pipelines | `GET /projects/:id/packages/:package_id/pipelines` | `READ_PIPELINES` | Read |
 | List all project pipelines | `GET /projects/:id/pipelines` | `READ_PIPELINES` | Read |
 | List all trigger jobs by pipeline | `GET /projects/:id/pipelines/:pipeline_id/trigger_jobs` | `READ_PIPELINES` | Read |
 | Retrieve a pipeline | `GET /projects/:id/pipelines/:pipeline_id` | `READ_PIPELINES` | Read |

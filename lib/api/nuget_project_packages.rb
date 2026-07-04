@@ -304,8 +304,8 @@ module API
 
         namespace '/nuget' do
           # https://docs.microsoft.com/en-us/nuget/api/package-publish-resource
-          desc 'The NuGet V3 Feed Package Publish endpoint' do
-            detail 'This feature was introduced in GitLab 12.6'
+          desc 'Upload a NuGet v3 package file for a project' do
+            detail 'Uploads a NuGet v3 package file for a specified project.'
             success code: 201
             failure [
               { code: 400, message: 'Bad Request' },
@@ -340,8 +340,8 @@ module API
           end
 
           # https://docs.microsoft.com/en-us/nuget/api/symbol-package-publish-resource
-          desc 'The NuGet Symbol Package Publish endpoint' do
-            detail 'This feature was introduced in GitLab 14.1'
+          desc 'Upload a NuGet symbol package file' do
+            detail 'Uploads a specified NuGet symbol package file (`.snupkg`) for a project.'
             success code: 201
             failure [
               { code: 400, message: 'Bad Request' },
@@ -402,8 +402,8 @@ module API
           end
 
           namespace '/v2' do
-            desc 'The NuGet V2 Feed Package Publish endpoint' do
-              detail 'This feature was introduced in GitLab 16.2'
+            desc 'Upload a NuGet v2 package file for a project' do
+              detail 'Uploads a NuGet v2 package file for a specified project.'
               success code: 201
               failure [
                 { code: 400, message: 'Bad Request' },

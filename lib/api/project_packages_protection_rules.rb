@@ -15,7 +15,8 @@ module API
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       resource ':id/packages/protection/rules' do
-        desc 'Get list of package protection rules for a project' do
+        desc 'List all package protection rules' do
+          detail 'Lists all package protection rules for a specified project.'
           success Entities::Projects::Packages::Protection::Rule
           failure [
             { code: 401, message: 'Unauthorized' },
@@ -30,7 +31,8 @@ module API
           present user_project.package_protection_rules, with: Entities::Projects::Packages::Protection::Rule
         end
 
-        desc 'Create a package protection rule for a project' do
+        desc 'Create a package protection rule' do
+          detail 'Creates a package protection rule for a specified project.'
           success Entities::Projects::Packages::Protection::Rule
           failure [
             { code: 400, message: 'Bad Request' },
@@ -82,7 +84,8 @@ module API
           requires :package_protection_rule_id, type: Integer, desc: 'The ID of the package protection rule'
         end
         resource ':package_protection_rule_id' do
-          desc 'Update a package protection rule for a project' do
+          desc 'Update a package protection rule' do
+            detail 'Updates a package protection rule for a specified project.'
             success Entities::Projects::Packages::Protection::Rule
             failure [
               { code: 400, message: 'Bad Request' },
@@ -131,7 +134,8 @@ module API
             present response[:package_protection_rule], with: Entities::Projects::Packages::Protection::Rule
           end
 
-          desc 'Delete package protection rule' do
+          desc 'Delete a package protection rule' do
+            detail 'Deletes a package protection rule from a specified project.'
             success code: 204, message: '204 No Content'
             failure [
               { code: 400, message: 'Bad Request' },
