@@ -25533,6 +25533,7 @@ CREATE TABLE namespace_settings (
     admin_locked_duo_features_enabled boolean DEFAULT false NOT NULL,
     ai_audit_events_storage_enabled boolean,
     lock_ai_audit_events_storage_enabled boolean DEFAULT false NOT NULL,
+    dependency_firewall_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_0ba93c78c7 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_d9644d516f CHECK ((char_length(step_up_auth_required_oauth_provider) <= 255)),
     CONSTRAINT check_namespace_settings_pat_settings_is_hash CHECK ((jsonb_typeof(personal_access_token_settings) = 'object'::text)),
