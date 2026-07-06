@@ -1,5 +1,5 @@
-import { mount } from '@vue/test-utils';
 import { GlLoadingIcon } from '@gitlab/ui';
+import { mountExtended } from 'helpers/vue_test_utils_helper';
 import BaseLayout from '~/vue_shared/components/base_layout.vue';
 import PageHeading from '~/vue_shared/components/page_heading.vue';
 
@@ -7,7 +7,7 @@ describe('BaseLayout', () => {
   let wrapper;
 
   const createComponent = (props = {}, slots = {}) => {
-    wrapper = mount(BaseLayout, {
+    wrapper = mountExtended(BaseLayout, {
       propsData: props,
       slots,
     });
@@ -15,11 +15,12 @@ describe('BaseLayout', () => {
 
   const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
   const findPageHeading = () => wrapper.findComponent(PageHeading);
-  const findHeading = () => wrapper.find('[data-testid="page-heading"]');
-  const findDescription = () => wrapper.find('[data-testid="page-heading-description"]');
-  const findActions = () => wrapper.find('[data-testid="page-heading-actions"]');
-  const findAlerts = () => wrapper.find('[data-testid="base-layout-alerts"]');
-  const findContent = () => wrapper.find('[data-testid="base-layout-content"]');
+  const findHeading = () => wrapper.findByTestId('page-heading');
+  const findDescription = () => wrapper.findByTestId('page-heading-description');
+  const findActions = () => wrapper.findByTestId('page-heading-actions');
+  const findAlerts = () => wrapper.findByTestId('base-layout-alerts');
+  const findContent = () => wrapper.findByTestId('base-layout-content');
+  const findStickyHeader = () => wrapper.findByTestId('base-layout-sticky-header');
 
   describe('PageHeading', () => {
     describe('heading', () => {
@@ -136,6 +137,23 @@ describe('BaseLayout', () => {
       it('renders body when default slot is provided', () => {
         createComponent({}, { default: '<div>Content</div>' });
         expect(findContent().exists()).toBe(true);
+      });
+    });
+  });
+
+  describe('stickyHeader', () => {
+    it('does not render the sticky header by default', () => {
+      createComponent({ heading: 'Test Heading' });
+      expect(findStickyHeader().exists()).toBe(false);
+    });
+
+    describe('sticky header fallback', () => {
+      it('renders the sticky-header slot when provided', () => {
+        createComponent(
+          { heading: 'Test Heading' },
+          { 'sticky-header': '<span>Custom sticky header</span>' },
+        );
+        expect(findStickyHeader().text()).toBe('Custom sticky header');
       });
     });
   });

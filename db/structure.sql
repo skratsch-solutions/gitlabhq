@@ -34586,6 +34586,7 @@ CREATE TABLE vulnerability_occurrences (
     detected_at timestamp with time zone DEFAULT now(),
     new_uuid uuid,
     partition_id bigint DEFAULT 1,
+    CONSTRAINT check_3225d02bda CHECK ((partition_id IS NOT NULL)),
     CONSTRAINT check_4a3a60f2ba CHECK ((char_length(solution) <= 7000)),
     CONSTRAINT check_ade261da6b CHECK ((char_length(description) <= 15000)),
     CONSTRAINT check_f602da68dd CHECK ((char_length(cve) <= 48400))
@@ -40361,9 +40362,6 @@ ALTER TABLE epic_issues
 
 ALTER TABLE workspaces
     ADD CONSTRAINT check_2a89035b04 CHECK ((personal_access_token_id IS NOT NULL)) NOT VALID;
-
-ALTER TABLE vulnerability_occurrences
-    ADD CONSTRAINT check_3225d02bda CHECK ((partition_id IS NOT NULL)) NOT VALID;
 
 ALTER TABLE vulnerability_scanners
     ADD CONSTRAINT check_37608c9db5 CHECK ((char_length(vendor) <= 255)) NOT VALID;

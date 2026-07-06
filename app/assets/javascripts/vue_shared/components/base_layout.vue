@@ -1,12 +1,22 @@
 <script>
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlIntersectionObserver, GlLoadingIcon } from '@gitlab/ui';
 import PageHeading from './page_heading.vue';
 
 export default {
   name: 'BaseLayout',
   components: {
+    GlIntersectionObserver,
     GlLoadingIcon,
     PageHeading,
+  },
+  inject: {
+    // Provided by an ancestor DynamicPanel. Falls back to the gon default when
+    // the layout is rendered outside a panel (for example in work items).
+    // `fluidLayout` is static per panel/page, so a one-time injected value is enough.
+    isFluidLayout: {
+      from: 'fluidLayout',
+      default: () => window.gon?.fluid_layout ?? false,
+    },
   },
   props: {
     heading: {
@@ -36,12 +46,41 @@ export default {
       default: false,
     },
   },
+  data() {
+    return {
+      isStuck: false,
+    };
+  },
+  watch: {
+    isStuck: {
+      handler(isStuck) {
+        if (isStuck) {
+          this.$nextTick(() => {
+            this.syncStickyHeaderHeight();
+          });
+        } else {
+          document.documentElement.style.removeProperty('--layout-sticky-header-height');
+        }
+      },
+    },
+  },
+  methods: {
+    syncStickyHeaderHeight() {
+      const el = this.$refs.stickyHeader;
+      if (!el) return;
+      document.documentElement.style.setProperty(
+        '--layout-sticky-header-height',
+        `${el.offsetHeight}px`,
+      );
+    },
+  },
 };
 </script>
 
 <template>
-  <div class="gl-base-layout">
+  <div class="gl-base-layout" :class="{ 'gl-base-layout-header-is-stuck': isStuck }">
     <slot name="before"></slot>
+
     <page-heading
       :heading="heading"
       :heading-tag="headingTag"
@@ -61,6 +100,26 @@ export default {
         <template v-else>{{ description }}</template>
       </template>
     </page-heading>
+
+    <gl-intersection-observer
+      v-if="$scopedSlots['sticky-header']"
+      @appear="isStuck = false"
+      @disappear="isStuck = true"
+    >
+      <div
+        ref="stickyHeader"
+        class="gl-base-layout-sticky-header"
+        data-testid="base-layout-sticky-header"
+      >
+        <div
+          class="gl-base-layout-sticky-header-inner"
+          :class="{ 'container-fluid container-limited': !isFluidLayout }"
+        >
+          <slot name="sticky-header"></slot>
+        </div>
+      </div>
+    </gl-intersection-observer>
+
     <div
       v-if="$scopedSlots.alerts"
       class="gl-base-layout-alerts js-base-layout-alerts"
