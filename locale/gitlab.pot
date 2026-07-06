@@ -63475,6 +63475,9 @@ msgstr ""
 msgid "Rollout cannot be started because it is not pending."
 msgstr ""
 
+msgid "Rollout is not awaiting approval."
+msgstr ""
+
 msgid "Root Moved Permanently redirection response"
 msgstr ""
 
@@ -81326,6 +81329,9 @@ msgid "Unknown error"
 msgstr ""
 
 msgid "Unknown format"
+msgstr ""
+
+msgid "Unknown gate status."
 msgstr ""
 
 msgid "Unknown user"

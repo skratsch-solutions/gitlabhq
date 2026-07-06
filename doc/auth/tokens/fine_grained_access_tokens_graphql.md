@@ -141,6 +141,14 @@ Grants the ability to create CD rollouts.
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdRolloutCreate` |
 
+#### CD Rollout Gate
+
+Grants the ability to resolve CD rollout gates.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Resolve | Instance | Mutation | `CdRolloutGateResolve` |
+
 #### CD Service
 
 Grants the ability to create and update continuous deployment services.
