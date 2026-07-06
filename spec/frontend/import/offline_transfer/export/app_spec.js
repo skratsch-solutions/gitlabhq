@@ -83,7 +83,7 @@ describe('OfflineTransferExportApp', () => {
     });
 
     it('sets the previously completed step as invalid after FormStepper emits stepped-back', async () => {
-      wrapper.vm.isStepComplete.review = true;
+      wrapper.vm.isStepComplete.export = true;
       expect(findFormStepper().props('validateStep')(2)).toBe(true);
 
       await findFormStepper().vm.$emit('stepped-back', {

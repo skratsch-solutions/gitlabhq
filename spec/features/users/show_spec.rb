@@ -429,17 +429,13 @@ RSpec.describe 'User page', feature_category: :user_profile do
       expect(page).to have_selector('#js-user-achievements')
     end
 
-    context 'when the user has chosen not to display achievements' do
-      let(:user) { create(:user) }
+    context 'when the user has opted out of receiving achievements' do
+      let(:user) { create(:user, achievements_enabled: false) }
 
-      before do
-        user.update!(achievements_enabled: false)
-      end
-
-      it 'does not render the user achievements mount point' do
+      it 'still renders the user achievements mount point' do
         subject
 
-        expect(page).not_to have_selector('#js-user-achievements')
+        expect(page).to have_selector('#js-user-achievements')
       end
     end
 

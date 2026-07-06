@@ -1,10 +1,12 @@
 <script>
-import { GlButton, GlForm, GlFormFields, GlSprintf } from '@gitlab/ui';
+import { GlButton, GlForm, GlFormFields } from '@gitlab/ui';
 import { formValidators } from '@gitlab/ui/src/utils';
 import illustration from '@gitlab/svgs/dist/illustrations/empty-state/empty-service-desk-md.svg?url';
 import csrf from '~/lib/utils/csrf';
 import { s__ } from '~/locale';
 import VerificationLayout from './verification_layout.vue';
+import VerificationDivider from './verification_divider.vue';
+import VerificationRecoverAccount from './verification_recover_account.vue';
 
 export default {
   name: 'TotpCode',
@@ -12,8 +14,9 @@ export default {
     GlButton,
     GlForm,
     GlFormFields,
-    GlSprintf,
     VerificationLayout,
+    VerificationDivider,
+    VerificationRecoverAccount,
   },
   props: {
     path: {
@@ -27,6 +30,11 @@ export default {
     rememberMeEnabled: {
       type: Boolean,
       required: true,
+    },
+    webauthnEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   emits: ['switch-method'],
@@ -90,21 +98,16 @@ export default {
       >
     </gl-form>
 
-    <p class="gl-mt-5 gl-text-subtle">
-      <gl-sprintf
-        :message="
-          s__('TwoFactorAuth|Having trouble signing in? %{linkStart}Recover your account%{linkEnd}')
-        "
+    <template v-if="webauthnEnabled">
+      <verification-divider />
+      <gl-button
+        block
+        data-testid="security-device-button"
+        @click="$emit('switch-method', 'webauthn')"
+        >{{ s__('TwoFactorAuth|Security device') }}</gl-button
       >
-        <template #link="{ content }">
-          <gl-button
-            variant="link"
-            data-testid="recovery-button"
-            @click="$emit('switch-method', 'recovery')"
-            >{{ content }}</gl-button
-          >
-        </template>
-      </gl-sprintf>
-    </p>
+    </template>
+
+    <verification-recover-account @recover="$emit('switch-method', 'recovery')" />
   </verification-layout>
 </template>

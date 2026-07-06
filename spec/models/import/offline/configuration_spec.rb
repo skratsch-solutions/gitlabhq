@@ -351,4 +351,80 @@ RSpec.describe Import::Offline::Configuration, feature_category: :importers do
       end
     end
   end
+
+  describe '#subgroup_paths_for' do
+    let(:configuration) do
+      build(:offline_configuration, entity_prefix_mapping: {
+        'root-group' => 'group_1',
+        'root-group/source-group' => 'group_2',
+        'root-group/source-group/subgroup-1' => 'group_3',
+        'root-group/source-group/subgroup-2' => 'group_4',
+        'root-group/source-group/subgroup-1/descendant-group' => 'group_5',
+        'root-group/source-group/subgroup-1/project' => 'project_1',
+        'root-group/source-group/project' => 'project_2',
+        'root-group/other-group' => 'group_6',
+        'other-root-group/source-group' => 'group_7',
+        'other-root-group/source-group/other-subgroup' => 'group_8',
+        'source-group/other-subgroup' => 'group_9'
+      })
+    end
+
+    it 'returns the immediate descendant subgroups' do
+      expect(configuration.subgroup_paths_for('root-group/source-group')).to contain_exactly(
+        { 'full_path' => 'root-group/source-group/subgroup-1', 'path' => 'subgroup-1' },
+        { 'full_path' => 'root-group/source-group/subgroup-2', 'path' => 'subgroup-2' }
+      )
+    end
+
+    context 'when there are no direct descendant subgroups' do
+      let(:configuration) do
+        build(:offline_configuration, entity_prefix_mapping: {
+          'root-group/source-group' => 'group_2',
+          'root-group/source-group/subgroup-1/descendant-group' => 'group_5',
+          'root-group/source-group/subgroup-1/project' => 'project_1'
+        })
+      end
+
+      it 'returns an empty array' do
+        expect(configuration.subgroup_paths_for('root-group/source-group')).to eq([])
+      end
+    end
+  end
+
+  describe '#project_paths_for' do
+    let(:configuration) do
+      build(:offline_configuration, entity_prefix_mapping: {
+        'root-group' => 'group_1',
+        'root-group/source-group' => 'group_2',
+        'root-group/source-group/subgroup-1' => 'group_3',
+        'root-group/source-group/project-1' => 'project_1',
+        'root-group/source-group/project-2' => 'project_2',
+        'root-group/source-group/subgroup-1/descendant-project' => 'project_3',
+        'root-group/project' => 'project_4',
+        'other-root-group/source-group/other-project' => 'project_5',
+        'source-group/other-project' => 'project_6'
+      })
+    end
+
+    it 'returns the immediate descendant projects' do
+      expect(configuration.project_paths_for('root-group/source-group')).to contain_exactly(
+        { 'full_path' => 'root-group/source-group/project-1', 'path' => 'project-1' },
+        { 'full_path' => 'root-group/source-group/project-2', 'path' => 'project-2' }
+      )
+    end
+
+    context 'when there are no direct descendant projects' do
+      let(:configuration) do
+        build(:offline_configuration, entity_prefix_mapping: {
+          'root-group/source-group' => 'group_2',
+          'root-group/source-group/subgroup-1' => 'group_3',
+          'root-group/source-group/subgroup-1/descendant-project' => 'project_3'
+        })
+      end
+
+      it 'returns an empty array' do
+        expect(configuration.project_paths_for('root-group/source-group')).to eq([])
+      end
+    end
+  end
 end

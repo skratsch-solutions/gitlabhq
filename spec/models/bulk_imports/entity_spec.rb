@@ -367,8 +367,9 @@ RSpec.describe BulkImports::Entity, type: :model, feature_category: :importers d
             hash_including(pipeline: BulkImports::Common::Pipelines::BoardsPipeline, stage: 2),
             hash_including(pipeline: BulkImports::Common::Pipelines::UploadsPipeline, stage: 2),
             hash_including(pipeline: Import::Offline::Common::Pipelines::UserContributionsPipeline, stage: 3),
-            hash_including(pipeline: Import::Offline::Groups::Pipelines::SubgroupEntitiesPipeline, stage: 3),
-            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 4)
+            hash_including(pipeline: Import::Offline::Groups::Pipelines::ProjectEntitiesPipeline, stage: 3),
+            hash_including(pipeline: Import::Offline::Groups::Pipelines::SubgroupEntitiesPipeline, stage: 4),
+            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 5)
           )
         end
       end

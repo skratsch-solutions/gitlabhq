@@ -25277,8 +25277,8 @@ paths:
   "/api/v4/topics":
     get:
       operationId: getApiV4Topics
-      summary: Get topics
-      description: This feature was introduced in GitLab 14.5.
+      summary: List all topics
+      description: Lists all project topics sorted by the number of associated projects.
       tags:
       - Project topics
       responses:
@@ -25333,8 +25333,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4Topics
-      summary: Create a topic
-      description: This feature was introduced in GitLab 14.5.
+      summary: Create a project topic
+      description: Creates a project topic. Administrators only.
       tags:
       - Project topics
       responses:
@@ -25355,8 +25355,8 @@ paths:
   "/api/v4/topics/{id}":
     get:
       operationId: getApiV4TopicsId
-      summary: Get topic
-      description: This feature was introduced in GitLab 14.5.
+      summary: Retrieve a topic
+      description: Retrieves a specified project topic.
       tags:
       - Project topics
       responses:
@@ -25379,8 +25379,8 @@ paths:
         in: path
     put:
       operationId: putApiV4TopicsId
-      summary: Update a topic
-      description: This feature was introduced in GitLab 14.5.
+      summary: Update a project topic
+      description: Updates a specified project topic. Administrators only.
       tags:
       - Project topics
       responses:
@@ -25409,8 +25409,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_729e6cd32c25"
     delete:
       operationId: deleteApiV4TopicsId
-      summary: Delete a topic
-      description: This feature was introduced in GitLab 14.9.
+      summary: Delete a project topic
+      description: Deletes a specified project topic. Administrators only.
       tags:
       - Project topics
       responses:
@@ -25431,7 +25431,9 @@ paths:
     post:
       operationId: postApiV4TopicsMerge
       summary: Merge topics
-      description: This feature was introduced in GitLab 15.4.
+      description: Merges a source topic into a target topic. This action deletes
+        the source topic and moves all assigned projects to the target topic. Administrators
+        only.
       tags:
       - Project topics
       responses:
@@ -25888,7 +25890,8 @@ paths:
     get:
       operationId: getApiV4ProjectsIdPackagesTerraformModulesModuleNameModuleSystem
       summary: Download the latest version of a module
-      description: This feature was introduced in GitLab 16.7
+      description: Downloads the latest version of a specified module. This feature
+        was introduced in GitLab 16.7.
       tags:
       - Terraform
       responses:
@@ -25935,8 +25938,8 @@ paths:
   "/api/v4/packages/terraform/modules/v1/{module_namespace}/{module_name}/{module_system}/versions":
     get:
       operationId: getApiV4PackagesTerraformModulesV1ModuleNamespaceModuleNameModuleSystemVersions
-      summary: List versions for a module
-      description: List versions for a module
+      summary: List all available versions for a module
+      description: Lists all available versions for a specified module.
       tags:
       - Terraform
       responses:
@@ -25970,8 +25973,8 @@ paths:
   "/api/v4/packages/terraform/modules/v1/{module_namespace}/{module_name}/{module_system}/download":
     get:
       operationId: getApiV4PackagesTerraformModulesV1ModuleNamespaceModuleNameModuleSystemDownload
-      summary: Get download location for the latest version of a module
-      description: Download the latest version of a module
+      summary: Retrieve download URL for latest module version
+      description: Retrieves download URL for latest module version.
       tags:
       - Terraform
       responses:
@@ -26003,8 +26006,8 @@ paths:
   "/api/v4/packages/terraform/modules/v1/{module_namespace}/{module_name}/{module_system}":
     get:
       operationId: getApiV4PackagesTerraformModulesV1ModuleNamespaceModuleNameModuleSystem
-      summary: Get details about the latest version of a module
-      description: Get details about the latest version of a module
+      summary: Retrieve latest version for a module
+      description: Retrieves latest version for a specified module.
       tags:
       - Terraform
       responses:
@@ -35844,8 +35847,9 @@ paths:
   "/api/v4/projects/{id}/registry/repositories":
     get:
       operationId: getApiV4ProjectsIdRegistryRepositories
-      summary: List container repositories within a project
-      description: This feature was introduced in GitLab 11.8.
+      summary: List all registry repositories for a project
+      description: Lists all registry repositories for a specified project. Responses
+        are paginated and return 20 results by default.
       tags:
       - Container registry
       responses:
@@ -35903,8 +35907,9 @@ paths:
   "/api/v4/projects/{id}/registry/repositories/{repository_id}":
     delete:
       operationId: deleteApiV4ProjectsIdRegistryRepositoriesRepositoryId
-      summary: Delete repository
-      description: This feature was introduced in GitLab 11.8.
+      summary: Delete registry repository
+      description: Deletes a specified repository in the registry. This operation
+        is executed asynchronously and might take some time to execute.
       tags:
       - Container registry
       responses:
@@ -35932,8 +35937,9 @@ paths:
   "/api/v4/projects/{id}/registry/repositories/{repository_id}/tags":
     get:
       operationId: getApiV4ProjectsIdRegistryRepositoriesRepositoryIdTags
-      summary: List tags of a repository
-      description: This feature was introduced in GitLab 11.8.
+      summary: List all registry repository tags for a project
+      description: Lists all tags for a specified registry repository. Responses are
+        paginated and return 20 results by default.
       tags:
       - Container registry
       responses:
@@ -35984,8 +35990,9 @@ paths:
         example: 20
     delete:
       operationId: deleteApiV4ProjectsIdRegistryRepositoriesRepositoryIdTags
-      summary: Delete repository tags (in bulk)
-      description: This feature was introduced in GitLab 11.8.
+      summary: Delete multiple registry repository tags
+      description: Deletes multiple registry repository tags based on the specified
+        criteria.
       tags:
       - Container registry
       responses:
@@ -36050,8 +36057,8 @@ paths:
   "/api/v4/projects/{id}/registry/repositories/{repository_id}/tags/{tag_name}":
     get:
       operationId: getApiV4ProjectsIdRegistryRepositoriesRepositoryIdTagsTagName
-      summary: Get details about a repository tag
-      description: This feature was introduced in GitLab 11.8.
+      summary: Retrieve details of a registry repository tag
+      description: Retrieves details of a specified registry repository tag.
       tags:
       - Container registry
       responses:
@@ -36090,8 +36097,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdRegistryRepositoriesRepositoryIdTagsTagName
-      summary: Delete repository tag
-      description: This feature was introduced in GitLab 11.8.
+      summary: Delete a registry repository tag
+      description: Deletes a specified container registry repository tag.
       tags:
       - Container registry
       responses:
@@ -46103,8 +46110,9 @@ paths:
   "/api/v4/groups/{id}/invitations":
     post:
       operationId: postApiV4GroupsIdInvitations
-      summary: Invite non-members by email address to a group or project.
-      description: This feature was introduced in GitLab 13.6
+      summary: Add a member to a group
+      description: Adds a member to a group. You can specify a user ID or invite a
+        user by email.
       tags:
       - Invitations
       responses:
@@ -46133,9 +46141,11 @@ paths:
               "$ref": "#/components/schemas/RequestBody_273db4177dac"
     get:
       operationId: getApiV4GroupsIdInvitations
-      summary: Get a list of group or project invitations viewable by the authenticated
-        user
-      description: This feature was introduced in GitLab 13.6
+      summary: List all pending invitations for a group
+      description: Lists all pending invitations for a specified group viewable by
+        the authenticated user. Returns invitations to direct members only, and not
+        through inherited ancestor groups. This function takes pagination parameters
+        `page` and `per_page` to restrict the list of members.
       tags:
       - Invitations
       responses:
@@ -46184,7 +46194,8 @@ paths:
   "/api/v4/groups/{id}/invitations/{email}":
     put:
       operationId: putApiV4GroupsIdInvitationsEmail
-      summary: Updates a group or project invitation.
+      summary: Update an invitation to a group
+      description: Updates a pending invitation to a group.
       tags:
       - Invitations
       responses:
@@ -46219,7 +46230,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_769d8373d726"
     delete:
       operationId: deleteApiV4GroupsIdInvitationsEmail
-      summary: Removes an invitation from a group or project.
+      summary: Delete an invitation to a group
+      description: Deletes a pending invitation to a specified email address for a
+        group.
       tags:
       - Invitations
       responses:
@@ -46247,8 +46260,9 @@ paths:
   "/api/v4/projects/{id}/invitations":
     post:
       operationId: postApiV4ProjectsIdInvitations
-      summary: Invite non-members by email address to a group or project.
-      description: This feature was introduced in GitLab 13.6
+      summary: Add a member to a project
+      description: Adds a member to a project. You can specify a user ID or invite
+        a user by email.
       tags:
       - Invitations
       responses:
@@ -46277,9 +46291,11 @@ paths:
               "$ref": "#/components/schemas/RequestBody_273db4177dac"
     get:
       operationId: getApiV4ProjectsIdInvitations
-      summary: Get a list of group or project invitations viewable by the authenticated
-        user
-      description: This feature was introduced in GitLab 13.6
+      summary: List all pending invitations for a project
+      description: Lists all pending invitations for a specified project viewable
+        by the authenticated user. Returns invitations to direct members only, and
+        not through inherited ancestor groups. This function takes pagination parameters
+        `page` and `per_page` to restrict the list of members.
       tags:
       - Invitations
       responses:
@@ -46328,7 +46344,8 @@ paths:
   "/api/v4/projects/{id}/invitations/{email}":
     put:
       operationId: putApiV4ProjectsIdInvitationsEmail
-      summary: Updates a group or project invitation.
+      summary: Update an invitation to a project
+      description: Updates a pending invitation to a project.
       tags:
       - Invitations
       responses:
@@ -46363,7 +46380,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_769d8373d726"
     delete:
       operationId: deleteApiV4ProjectsIdInvitationsEmail
-      summary: Removes an invitation from a group or project.
+      summary: Delete an invitation to a project
+      description: Deletes a pending invitation to a specified email address for a
+        project.
       tags:
       - Invitations
       responses:
@@ -76548,6 +76567,28 @@ components:
           type: string
         alert_management_metric_image_uploads_oldest_unsynced_time:
           type: string
+        appearance_uploads_count:
+          type: string
+        appearance_uploads_checksum_total_count:
+          type: string
+        appearance_uploads_checksummed_count:
+          type: string
+        appearance_uploads_checksum_failed_count:
+          type: string
+        appearance_uploads_synced_count:
+          type: string
+        appearance_uploads_failed_count:
+          type: string
+        appearance_uploads_registry_count:
+          type: string
+        appearance_uploads_verification_total_count:
+          type: string
+        appearance_uploads_verified_count:
+          type: string
+        appearance_uploads_verification_failed_count:
+          type: string
+        appearance_uploads_oldest_unsynced_time:
+          type: string
         bulk_import_export_upload_uploads_count:
           type: string
         bulk_import_export_upload_uploads_checksum_total_count:
@@ -77433,6 +77474,10 @@ components:
         alert_management_metric_image_uploads_synced_in_percentage:
           type: string
         alert_management_metric_image_uploads_verified_in_percentage:
+          type: string
+        appearance_uploads_synced_in_percentage:
+          type: string
+        appearance_uploads_verified_in_percentage:
           type: string
         bulk_import_export_upload_uploads_synced_in_percentage:
           type: string
@@ -77781,6 +77826,28 @@ components:
           type: string
         alert_management_metric_image_uploads_oldest_unsynced_time:
           type: string
+        appearance_uploads_count:
+          type: string
+        appearance_uploads_checksum_total_count:
+          type: string
+        appearance_uploads_checksummed_count:
+          type: string
+        appearance_uploads_checksum_failed_count:
+          type: string
+        appearance_uploads_synced_count:
+          type: string
+        appearance_uploads_failed_count:
+          type: string
+        appearance_uploads_registry_count:
+          type: string
+        appearance_uploads_verification_total_count:
+          type: string
+        appearance_uploads_verified_count:
+          type: string
+        appearance_uploads_verification_failed_count:
+          type: string
+        appearance_uploads_oldest_unsynced_time:
+          type: string
         bulk_import_export_upload_uploads_count:
           type: string
         bulk_import_export_upload_uploads_checksum_total_count:
@@ -78666,6 +78733,10 @@ components:
         alert_management_metric_image_uploads_synced_in_percentage:
           type: string
         alert_management_metric_image_uploads_verified_in_percentage:
+          type: string
+        appearance_uploads_synced_in_percentage:
+          type: string
+        appearance_uploads_verified_in_percentage:
           type: string
         bulk_import_export_upload_uploads_synced_in_percentage:
           type: string

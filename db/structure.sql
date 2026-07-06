@@ -14524,6 +14524,28 @@ CREATE SEQUENCE analyzer_project_statuses_id_seq
 
 ALTER SEQUENCE analyzer_project_statuses_id_seq OWNED BY analyzer_project_statuses.id;
 
+CREATE TABLE appearance_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    appearance_upload_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_b25f75be00 CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE appearance_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE appearance_upload_states_id_seq OWNED BY appearance_upload_states.id;
+
 CREATE TABLE appearance_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
     size bigint NOT NULL,
@@ -36906,6 +36928,8 @@ ALTER TABLE ONLY analyzer_namespace_statuses ALTER COLUMN id SET DEFAULT nextval
 
 ALTER TABLE ONLY analyzer_project_statuses ALTER COLUMN id SET DEFAULT nextval('analyzer_project_statuses_id_seq'::regclass);
 
+ALTER TABLE ONLY appearance_upload_states ALTER COLUMN id SET DEFAULT nextval('appearance_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY appearances ALTER COLUMN id SET DEFAULT nextval('appearances_id_seq'::regclass);
 
 ALTER TABLE ONLY application_setting_terms ALTER COLUMN id SET DEFAULT nextval('application_setting_terms_id_seq'::regclass);
@@ -39977,6 +40001,9 @@ ALTER TABLE ONLY analyzer_namespace_statuses
 
 ALTER TABLE ONLY analyzer_project_statuses
     ADD CONSTRAINT analyzer_project_statuses_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY appearance_upload_states
+    ADD CONSTRAINT appearance_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY appearance_uploads
     ADD CONSTRAINT appearance_uploads_pkey PRIMARY KEY (id, model_type);
@@ -45932,6 +45959,8 @@ CREATE INDEX idx_analytics_devops_adoption_segments_on_namespace_id ON analytics
 
 CREATE INDEX idx_analytics_devops_adoption_snapshots_finalized ON analytics_devops_adoption_snapshots USING btree (namespace_id, end_time) WHERE (recorded_at >= end_time);
 
+CREATE UNIQUE INDEX idx_appearance_uploads_on_id ON appearance_uploads USING btree (id);
+
 CREATE INDEX idx_application_settings_on_duo_template_project_id ON application_settings USING btree (duo_template_project_id);
 
 CREATE INDEX idx_approval_merge_request_rules_approved_approvers_project_id ON approval_merge_request_rules_approved_approvers USING btree (project_id);
@@ -47269,6 +47298,18 @@ CREATE INDEX index_analyzer_project_statuses_build_id ON analyzer_project_status
 CREATE UNIQUE INDEX index_analyzer_project_statuses_status ON analyzer_project_statuses USING btree (project_id, analyzer_type);
 
 CREATE INDEX index_analyzer_project_statuses_traversal_ids ON analyzer_project_statuses USING btree (traversal_ids);
+
+CREATE INDEX index_appearance_upload_states_failed_verification ON appearance_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX index_appearance_upload_states_needs_verification_id ON appearance_upload_states USING btree (appearance_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE UNIQUE INDEX index_appearance_upload_states_on_appearance_upload_id ON appearance_upload_states USING btree (appearance_upload_id);
+
+CREATE INDEX index_appearance_upload_states_on_verification_started ON appearance_upload_states USING btree (appearance_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE INDEX index_appearance_upload_states_on_verification_state ON appearance_upload_states USING btree (verification_state);
+
+CREATE INDEX index_appearance_upload_states_pending_verification ON appearance_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
 CREATE INDEX index_application_settings_on_custom_project_templates_group_id ON application_settings USING btree (custom_project_templates_group_id);
 
@@ -59703,6 +59744,9 @@ ALTER TABLE ONLY namespace_template_settings
 
 ALTER TABLE ONLY cluster_agent_migrations
     ADD CONSTRAINT fk_9b274efd3a FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY appearance_upload_states
+    ADD CONSTRAINT fk_9b3003fcd3 FOREIGN KEY (appearance_upload_id) REFERENCES appearance_uploads(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY work_item_transitions
     ADD CONSTRAINT fk_9ba5313b4f FOREIGN KEY (duplicated_to_id) REFERENCES issues(id) ON DELETE SET NULL;

@@ -297,9 +297,9 @@ CI/CD job tokens cannot access the following endpoints:
 
 | Permission | API endpoint |
 | ---------- | ------------ |
-| Delete repository | `DELETE /projects/:id/registry/repositories/:repository_id` |
-| Delete repository tags (in bulk) | `DELETE /projects/:id/registry/repositories/:repository_id/tags` |
-| Delete repository tag | `DELETE /projects/:id/registry/repositories/:repository_id/tags/:tag_name` |
+| Delete registry repository | `DELETE /projects/:id/registry/repositories/:repository_id` |
+| Delete multiple registry repository tags | `DELETE /projects/:id/registry/repositories/:repository_id/tags` |
+| Delete a registry repository tag | `DELETE /projects/:id/registry/repositories/:repository_id/tags/:tag_name` |
 | Composer packages endpoint at group level for package versions metadata | `GET /group/:id/-/packages/composer/*package_name` |
 | List all packages for a group | `GET /group/:id/-/packages/composer/p/:sha` |
 | Composer v2 packages p2 endpoint at group level for package versions metadata | `GET /group/:id/-/packages/composer/p2/*package_name` |
@@ -322,8 +322,8 @@ CI/CD job tokens cannot access the following endpoints:
 | Search for packages | `GET /projects/:id/packages/conan/v2/conans/search` |
 | Authenticate user against conan CLI | `GET /projects/:id/packages/conan/v2/users/authenticate` |
 | Check for valid user credentials per conan CLI | `GET /projects/:id/packages/conan/v2/users/check_credentials` |
-| List container repositories within a project | `GET /projects/:id/registry/repositories` |
-| List tags of a repository | `GET /projects/:id/registry/repositories/:repository_id/tags` |
-| Get details about a repository tag | `GET /projects/:id/registry/repositories/:repository_id/tags/:tag_name` |
+| List all registry repositories for a project | `GET /projects/:id/registry/repositories` |
+| List all registry repository tags for a project | `GET /projects/:id/registry/repositories/:repository_id/tags` |
+| Retrieve details of a registry repository tag | `GET /projects/:id/registry/repositories/:repository_id/tags/:tag_name` |
 | Transitions a DAST site validation to a new state. | `POST /internal/dast/site_validations/:id/transition` |
 | Issue a short-lived JWT for a single modular-service audience | `POST /token_exchange` |

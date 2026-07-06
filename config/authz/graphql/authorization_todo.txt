@@ -516,6 +516,7 @@ type:AnalyzerProjectStatusType
 type:AncestorType
 type:ApiFuzzingCiConfiguration
 type:ApiFuzzingScanProfile
+type:AppearanceUploadRegistry
 type:ApprovalPolicy
 type:ApprovalPolicyAttributesType
 type:ApprovalScanResultPolicy

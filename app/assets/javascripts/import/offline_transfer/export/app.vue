@@ -182,8 +182,6 @@ export default {
         case 1:
           return isStorageConfigValid(this.storageConfig);
         case 2:
-          return this.isStepComplete.review;
-        case 3:
           return this.isStepComplete.export;
         default:
           return false;
@@ -279,12 +277,7 @@ export default {
       </template>
 
       <template #step-2>
-        <h2 class="gl-heading-3">{{ s__('OfflineTransferExport|Review export') }}</h2>
-        <gl-form-checkbox v-model="isStepComplete.review" />
-      </template>
-
-      <template #step-3>
-        <h2 class="gl-heading-3">{{ s__('OfflineTransferExport|Export') }}</h2>
+        <h2 class="gl-heading-3">{{ s__('OfflineTransferExport|Review and export') }}</h2>
         <gl-form-checkbox v-model="isStepComplete.export" />
       </template>
     </form-stepper>

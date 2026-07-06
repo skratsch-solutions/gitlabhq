@@ -44,15 +44,18 @@ module Import
                 pipeline: Import::Offline::Common::Pipelines::UserContributionsPipeline,
                 stage: 3
               },
+              project_entities: {
+                pipeline: Import::Offline::Groups::Pipelines::ProjectEntitiesPipeline,
+                stage: 3
+              },
               subgroups: {
                 pipeline: Import::Offline::Groups::Pipelines::SubgroupEntitiesPipeline,
-                stage: 3 # SubGroup Entities must be imported in later stage
+                stage: 4 # SubGroup Entities must be imported in later stage
                 # to Project Entities to avoid `full_path` naming conflicts.
-                # TODO: ProjectEntitiesPipeline to be added in https://gitlab.com/gitlab-org/gitlab/-/work_items/538351
               },
               finisher: {
                 pipeline: ::BulkImports::Common::Pipelines::EntityFinisher,
-                stage: 4
+                stage: 5
               }
             }
           end

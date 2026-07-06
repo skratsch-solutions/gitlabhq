@@ -1,6 +1,6 @@
 <script>
 import { GlBreakpointInstance, breakpoints } from '@gitlab/ui/src/utils'; // eslint-disable-line no-restricted-syntax -- GlBreakpointInstance is used intentionally here. In this case we must obtain viewport breakpoints
-import { GlNavItem, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
+import { GlNavItem, GlBadge, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
 import superSidebarDataQuery from '~/super_sidebar/graphql/queries/super_sidebar.query.graphql';
 import { __, s__, sprintf } from '~/locale';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
@@ -22,6 +22,7 @@ export default {
     NavItem,
     PinnedSection,
     GlNavItem,
+    GlBadge,
     FeatureLibraryModal,
   },
   directives: {
@@ -305,12 +306,14 @@ export default {
       v-gl-modal="$options.modalId"
       v-gl-tooltip.right.viewport="isIconOnly ? $options.i18n.browseMoreFeatures : ''"
       :aria-label="$options.i18n.browseMoreFeatures"
-      class="feature-library-shimmer"
       data-testid="feature-library-trigger"
       icon="applications"
       :is-icon-only="isIconOnly"
     >
       {{ $options.i18n.browseMoreFeatures }}
+      <template #end>
+        <gl-badge class="browser-more-features-badge gl-mr-4">{{ __('New') }}</gl-badge>
+      </template>
     </gl-nav-item>
     <feature-library-modal
       v-if="supportsPins && glFeatures.featureLibraryModal"

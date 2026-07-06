@@ -25,8 +25,8 @@ module API
         requires :id, type: String, desc: "The #{source_type} ID"
       end
       resource source_type.pluralize, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-        desc 'Invite non-members by email address to a group or project.' do
-          detail 'This feature was introduced in GitLab 13.6'
+        desc "Add a member to a #{source_type}" do
+          detail "Adds a member to a #{source_type}. You can specify a user ID or invite a user by email."
           success Entities::Invitation
           tags %w[invitations]
         end
@@ -54,8 +54,10 @@ module API
           ::Members::InviteService.new(current_user, create_service_params).execute
         end
 
-        desc 'Get a list of group or project invitations viewable by the authenticated user' do
-          detail 'This feature was introduced in GitLab 13.6'
+        desc "List all pending invitations for a #{source_type}" do
+          detail "Lists all pending invitations for a specified #{source_type} viewable by the authenticated " \
+            "user. Returns invitations to direct members only, and not through inherited ancestor groups. This " \
+            "function takes pagination parameters `page` and `per_page` to restrict the list of members."
           success Entities::Invitation
           is_array true
           tags %w[invitations]
@@ -78,7 +80,8 @@ module API
           present_member_invitations invitations
         end
 
-        desc 'Updates a group or project invitation.' do
+        desc "Update an invitation to a #{source_type}" do
+          detail "Updates a pending invitation to a #{source_type}."
           success Entities::Invitation
           tags %w[invitations]
         end
@@ -116,7 +119,8 @@ module API
           end
         end
 
-        desc 'Removes an invitation from a group or project.' do
+        desc "Delete an invitation to a #{source_type}" do
+          detail "Deletes a pending invitation to a specified email address for a #{source_type}."
           success code: 204
           failure [
             { code: 403, message: 'Forbidden' },

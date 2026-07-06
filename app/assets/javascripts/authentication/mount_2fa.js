@@ -10,9 +10,15 @@ export const mount2faAuthentication = () => {
     initWebauthnAuthenticate(); // remove when two_factor_vue flag is deleted.
     return false;
   }
-  // totpEnabled (and the webauthn data attrs) are reintroduced in step 2 when the
-  // alternate-method buttons land. The dataset still carries them from the HAML.
-  const { path, adminMode, activeMethod, rememberMe, rememberMeEnabled } = el.dataset;
+  const {
+    path,
+    adminMode,
+    activeMethod,
+    rememberMe,
+    rememberMeEnabled,
+    webauthnEnabled,
+    totpEnabled,
+  } = el.dataset;
 
   return new Vue({
     el,
@@ -25,6 +31,9 @@ export const mount2faAuthentication = () => {
           activeMethod,
           rememberMe,
           rememberMeEnabled: parseBoolean(rememberMeEnabled),
+          webauthnEnabled: parseBoolean(webauthnEnabled),
+          totpEnabled: parseBoolean(totpEnabled),
+          webauthnParams: gon.webauthn ? JSON.parse(gon.webauthn.options) : {},
         },
       });
     },

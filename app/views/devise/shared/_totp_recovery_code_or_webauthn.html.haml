@@ -2,13 +2,13 @@
 - render_remember_me = admin_mode ? false : remember_me_enabled?
 - user_params = params[:user].presence || params
 
--# Step 1 migrates only the TOTP and recovery-code screens to Vue. Users whose sign-in still
--# relies on a flow that is not migrated yet (a WebAuthn authenticator, or the email OTP
--# fallback) stay on the legacy HAML form until those land in later steps, so enabling the flag
--# never breaks them. See https://gitlab.com/gitlab-org/gitlab/-/work_items/579316
-- use_vue_2fa = Feature.enabled?(:two_factor_vue, @user) && !@user.can_use_existing_webauthn_authenticator_for_2fa? && !render_email_otp_fallback_for_totp?(@user)
+-# Steps 1-2 migrate the TOTP, recovery-code, and WebAuthn verification screens to Vue. Users
+-# who are eligible for the email OTP fallback still rely on a flow that is not migrated yet, so
+-# they stay on the legacy HAML form until it lands in a later step; enabling the flag never
+-# breaks them. See https://gitlab.com/gitlab-org/gitlab/-/work_items/579316
+- use_vue_2fa = Feature.enabled?(:two_factor_vue, @user) && !fallback_to_email_otp_permitted?(@user)
 - if use_vue_2fa
-  #js-2fa{ data: { path: target_path, admin_mode: admin_mode.to_s, active_method: params[:two_factor_method].presence, remember_me: user_params.fetch(:remember_me, 0), remember_me_enabled: render_remember_me.to_s, totp_enabled: @user.two_factor_otp_enabled?.to_s, webauthn_enabled: @user.two_factor_webauthn_enabled?.to_s } }
+  #js-2fa{ data: { path: target_path, admin_mode: admin_mode.to_s, active_method: params[:two_factor_method].presence, remember_me: user_params.fetch(:remember_me, 0), remember_me_enabled: render_remember_me.to_s, totp_enabled: @user.two_factor_otp_enabled?.to_s, webauthn_enabled: @user.can_use_existing_webauthn_authenticator_for_2fa?.to_s } }
 - else
   = gitlab_ui_form_for(:user, url: target_path, method: :post, html: { class: "gl-show-field-errors js-2fa-form #{'hidden' if @user.can_use_existing_webauthn_authenticator_for_2fa?}", aria: { live: 'assertive' }}) do |f|
     .form-group

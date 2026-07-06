@@ -643,6 +643,103 @@ RSpec.describe Projects::PipelinesController, feature_category: :continuous_inte
     end
   end
 
+  describe 'view_ai_pipeline_results tracking' do
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+
+    def get_show
+      get :show, params: { namespace_id: project.namespace, project_id: project, id: pipeline }
+    end
+
+    context 'when the project is eligible (AI config recorded, not yet viewed)' do
+      before do
+        create(:ci_project_metric, :ai_generated, project: project, ci_config_first_generated_at: Time.current)
+      end
+
+      %i[show builds].each do |action|
+        it "enqueues the tracking worker on GET #{action} (shared render_show path)" do
+          expect(Ci::TrackAiPipelineResultsViewedWorker).to receive(:perform_async).with(pipeline.id, user.id)
+
+          get action, params: { namespace_id: project.namespace, project_id: project, id: pipeline }
+        end
+      end
+
+      it 'enqueues the tracking worker on GET failures (shared render_show path)' do
+        create(:ci_build, :failed, pipeline: pipeline)
+
+        expect(Ci::TrackAiPipelineResultsViewedWorker).to receive(:perform_async).with(pipeline.id, user.id)
+
+        get :failures, params: { namespace_id: project.namespace, project_id: project, id: pipeline }
+      end
+
+      it 'does not enqueue for a JSON request' do
+        expect(Ci::TrackAiPipelineResultsViewedWorker).not_to receive(:perform_async)
+
+        get :show, params: { namespace_id: project.namespace, project_id: project, id: pipeline }, format: :json
+      end
+
+      context 'when the user is not signed in' do
+        before do
+          sign_out(user)
+        end
+
+        it 'does not enqueue' do
+          expect(Ci::TrackAiPipelineResultsViewedWorker).not_to receive(:perform_async)
+
+          get_show
+        end
+      end
+
+      context 'when the track_ai_pipeline_results_viewed feature flag is disabled' do
+        before do
+          stub_feature_flags(track_ai_pipeline_results_viewed: false)
+        end
+
+        it 'does not enqueue' do
+          expect(Ci::TrackAiPipelineResultsViewedWorker).not_to receive(:perform_async)
+
+          get_show
+        end
+      end
+    end
+
+    context 'when the project has no agent on record' do
+      before do
+        create(:ci_project_metric, project: project, ci_config_first_generated_at: Time.current)
+      end
+
+      it 'does not enqueue' do
+        expect(Ci::TrackAiPipelineResultsViewedWorker).not_to receive(:perform_async)
+
+        get_show
+      end
+    end
+
+    context 'when the AI config commit time is not recorded (pre-feature cohort)' do
+      before do
+        create(:ci_project_metric, :ai_generated, project: project, ci_config_first_generated_at: nil)
+      end
+
+      it 'does not enqueue' do
+        expect(Ci::TrackAiPipelineResultsViewedWorker).not_to receive(:perform_async)
+
+        get_show
+      end
+    end
+
+    context 'when the results were already viewed' do
+      before do
+        create(:ci_project_metric, :ai_generated, :with_ai_pipeline_results_viewed,
+          project: project, ci_config_first_generated_at: Time.current)
+      end
+
+      it 'does not enqueue' do
+        expect(Ci::TrackAiPipelineResultsViewedWorker).not_to receive(:perform_async)
+
+        get_show
+      end
+    end
+  end
+
   describe 'GET stages.json' do
     let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
     let_it_be(:build_stage) { create(:ci_stage, name: 'build', pipeline: pipeline) }

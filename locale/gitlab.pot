@@ -8010,7 +8010,7 @@ msgstr ""
 msgid "Agents|No triggers for this event"
 msgstr ""
 
-msgid "AggregationEngine|Unknown granularity \"%{granularity}\""
+msgid "AggregationEngine|Invalid value(s) for parameter `%{param}`: %{values}"
 msgstr ""
 
 msgid "AggregationEngine|at least one metric is required"
@@ -22106,7 +22106,16 @@ msgstr ""
 msgid "ContinuousDeployment|%{pods} pods"
 msgstr ""
 
+msgid "ContinuousDeployment|10m ago"
+msgstr ""
+
+msgid "ContinuousDeployment|5 apps"
+msgstr ""
+
 msgid "ContinuousDeployment|A short name and description."
+msgstr ""
+
+msgid "ContinuousDeployment|A short name and the tier it represents."
 msgstr ""
 
 msgid "ContinuousDeployment|Add Environment"
@@ -22145,6 +22154,9 @@ msgstr ""
 msgid "ContinuousDeployment|Artifact source"
 msgstr ""
 
+msgid "ContinuousDeployment|Available"
+msgstr ""
+
 msgid "ContinuousDeployment|Awaiting approval"
 msgstr ""
 
@@ -22152,6 +22164,15 @@ msgid "ContinuousDeployment|Back to services"
 msgstr ""
 
 msgid "ContinuousDeployment|Brief description"
+msgstr ""
+
+msgid "ContinuousDeployment|By"
+msgstr ""
+
+msgid "ContinuousDeployment|Cancelled"
+msgstr ""
+
+msgid "ContinuousDeployment|Cluster agent"
 msgstr ""
 
 msgid "ContinuousDeployment|Collapse deployments"
@@ -22208,6 +22229,12 @@ msgstr ""
 msgid "ContinuousDeployment|Digest"
 msgstr ""
 
+msgid "ContinuousDeployment|Environment %{id}"
+msgstr ""
+
+msgid "ContinuousDeployment|Environment identity"
+msgstr ""
+
 msgid "ContinuousDeployment|Environment name"
 msgstr ""
 
@@ -22229,6 +22256,9 @@ msgstr ""
 msgid "ContinuousDeployment|Expand services"
 msgstr ""
 
+msgid "ContinuousDeployment|Failed"
+msgstr ""
+
 msgid "ContinuousDeployment|Failed to load the application. Please try again later."
 msgstr ""
 
@@ -22244,7 +22274,13 @@ msgstr ""
 msgid "ContinuousDeployment|Healthy"
 msgstr ""
 
+msgid "ContinuousDeployment|In progress"
+msgstr ""
+
 msgid "ContinuousDeployment|It may have been removed or you may not have access to it."
+msgstr ""
+
+msgid "ContinuousDeployment|Last deploy"
 msgstr ""
 
 msgid "ContinuousDeployment|Last deployed"
@@ -22265,6 +22301,9 @@ msgstr ""
 msgid "ContinuousDeployment|Name cannot exceed %{maxLength} characters."
 msgstr ""
 
+msgid "ContinuousDeployment|Name is required."
+msgstr ""
+
 msgid "ContinuousDeployment|New application"
 msgstr ""
 
@@ -22277,6 +22316,12 @@ msgstr ""
 msgid "ContinuousDeployment|Out of sync"
 msgstr ""
 
+msgid "ContinuousDeployment|Paused"
+msgstr ""
+
+msgid "ContinuousDeployment|Pending"
+msgstr ""
+
 msgid "ContinuousDeployment|Pre-production"
 msgstr ""
 
@@ -22284,6 +22329,9 @@ msgid "ContinuousDeployment|Production"
 msgstr ""
 
 msgid "ContinuousDeployment|QA"
+msgstr ""
+
+msgid "ContinuousDeployment|Region"
 msgstr ""
 
 msgid "ContinuousDeployment|Register application"
@@ -22296,6 +22344,9 @@ msgid "ContinuousDeployment|Register the cluster or cloud account where services
 msgstr ""
 
 msgid "ContinuousDeployment|Register your first environment"
+msgstr ""
+
+msgid "ContinuousDeployment|Release"
 msgstr ""
 
 msgid "ContinuousDeployment|Releases"
@@ -22332,6 +22383,9 @@ msgid "ContinuousDeployment|Synced"
 msgstr ""
 
 msgid "ContinuousDeployment|The application may have been removed or you may not have access to it."
+msgstr ""
+
+msgid "ContinuousDeployment|Tier"
 msgstr ""
 
 msgid "ContinuousDeployment|Type"
@@ -34180,6 +34234,12 @@ msgid "Geo|Allowed Geo IP should be between 1 and 255 characters"
 msgstr ""
 
 msgid "Geo|Allowed Geo IP should contain valid IP addresses"
+msgstr ""
+
+msgid "Geo|Appearance Upload"
+msgstr ""
+
+msgid "Geo|Appearance Uploads"
 msgstr ""
 
 msgid "Geo|Bulk import/export archive upload"
@@ -51734,9 +51794,6 @@ msgstr ""
 msgid "OfflineTransferExport|Enter an access key ID."
 msgstr ""
 
-msgid "OfflineTransferExport|Export"
-msgstr ""
-
 msgid "OfflineTransferExport|Export complete"
 msgstr ""
 
@@ -51755,7 +51812,7 @@ msgstr ""
 msgid "OfflineTransferExport|Region"
 msgstr ""
 
-msgid "OfflineTransferExport|Review export"
+msgid "OfflineTransferExport|Review and export"
 msgstr ""
 
 msgid "OfflineTransferExport|Search by name"
@@ -51885,9 +51942,6 @@ msgid "OfflineTransfer|Offline transfer requires a configured %{boldStart}AWS S3
 msgstr ""
 
 msgid "OfflineTransfer|One or more destination paths is invalid."
-msgstr ""
-
-msgid "OfflineTransfer|Review"
 msgstr ""
 
 msgid "OfflineTransfer|Select entities"
@@ -58150,6 +58204,9 @@ msgstr ""
 msgid "Profiles|Achievements"
 msgstr ""
 
+msgid "Profiles|Achievements you are awarded stay hidden until you accept them. Uncheck to stop receiving award notification emails."
+msgstr ""
+
 msgid "Profiles|Add account manager"
 msgstr ""
 
@@ -58277,9 +58334,6 @@ msgid "Profiles|Discord ID is too long (maximum is %{max_length} characters)."
 msgstr ""
 
 msgid "Profiles|Discord ID is too short (minimum is %{min_length} characters)."
-msgstr ""
-
-msgid "Profiles|Display achievements on your profile"
 msgstr ""
 
 msgid "Profiles|Do not show on profile"
@@ -58427,6 +58481,9 @@ msgid "Profiles|No eligible namespaces available"
 msgstr ""
 
 msgid "Profiles|No file chosen."
+msgstr ""
+
+msgid "Profiles|Notify me when I am awarded an achievement"
 msgstr ""
 
 msgid "Profiles|ORCID"
@@ -80989,6 +81046,9 @@ msgstr ""
 msgid "TwoFactorAuth|6-digit code"
 msgstr ""
 
+msgid "TwoFactorAuth|Authenticator app"
+msgstr ""
+
 msgid "TwoFactorAuth|Back to sign-in"
 msgstr ""
 
@@ -81004,7 +81064,10 @@ msgstr ""
 msgid "TwoFactorAuth|Enter the 6-digit one-time passcode generated by your registered authenticator app to verify your identity."
 msgstr ""
 
-msgid "TwoFactorAuth|Having trouble signing in? %{linkStart}Recover your account%{linkEnd}"
+msgid "TwoFactorAuth|Follow the instructions in your browser or password manager to authenticate with a passkey, laptop, phone, or authenticator like a YubiKey. Insert a physical key, if you have any."
+msgstr ""
+
+msgid "TwoFactorAuth|Having trouble signing in? %{buttonStart}Recover your account%{buttonEnd}"
 msgstr ""
 
 msgid "TwoFactorAuth|Lost your codes? %{linkStart}Generate recovery codes with SSH key%{linkEnd}"
@@ -81019,7 +81082,19 @@ msgstr ""
 msgid "TwoFactorAuth|Recovery code is required."
 msgstr ""
 
+msgid "TwoFactorAuth|Security device"
+msgstr ""
+
+msgid "TwoFactorAuth|Trying to communicate with your device. Plug it in (if you haven't already) and follow the instructions."
+msgstr ""
+
 msgid "TwoFactorAuth|Verify code"
+msgstr ""
+
+msgid "TwoFactorAuth|Verify with security device"
+msgstr ""
+
+msgid "TwoFactorAuth|or verify with"
 msgstr ""
 
 msgid "TwoFactorEmailNotification|To manage your two-factor authentication, visit %{two_factor_link}"

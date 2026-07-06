@@ -22,7 +22,7 @@
                     %p.profile-user-bio.gl-mb-0
                       = @user.bio
 
-            - if @user.achievements_enabled && Ability.allowed?(current_user, :read_user_profile, @user)
+            - if Ability.allowed?(current_user, :read_user_profile, @user)
               #js-user-achievements{ data: { root_url: root_url, user_id: @user.id } }
 
             - user_local_time = local_time(@user.timezone)

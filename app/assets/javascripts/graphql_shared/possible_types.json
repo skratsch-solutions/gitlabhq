@@ -271,6 +271,7 @@
     "AchievementUploadRegistry",
     "AiVectorizableFileUploadRegistry",
     "AlertManagementMetricImageUploadRegistry",
+    "AppearanceUploadRegistry",
     "BulkImportExportUploadUploadRegistry",
     "CiSecureFileRegistry",
     "ContainerRepositoryRegistry",

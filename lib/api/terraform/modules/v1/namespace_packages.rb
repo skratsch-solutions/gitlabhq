@@ -100,8 +100,8 @@ module API
               authorize_read_package!(package || module_namespace)
             end
 
-            desc 'List versions for a module' do
-              detail 'List versions for a module'
+            desc 'List all available versions for a module' do
+              detail 'Lists all available versions for a specified module.'
               success code: 200, model: Entities::Terraform::ModuleVersions
               failure [
                 { code: 403, message: 'Forbidden' }
@@ -116,8 +116,8 @@ module API
               present presenter, with: ::API::Entities::Terraform::ModuleVersions
             end
 
-            desc 'Get download location for the latest version of a module' do
-              detail 'Download the latest version of a module'
+            desc 'Retrieve download URL for latest module version' do
+              detail 'Retrieves download URL for latest module version.'
               success code: 302
               failure [
                 { code: 403, message: 'Forbidden' },
@@ -147,8 +147,8 @@ module API
               redirect(download_path)
             end
 
-            desc 'Get details about the latest version of a module' do
-              detail 'Get details about the latest version of a module'
+            desc 'Retrieve latest version for a module' do
+              detail 'Retrieves latest version for a specified module.'
               success code: 200, model: Entities::Terraform::ModuleVersion
               failure [
                 { code: 403, message: 'Forbidden' },

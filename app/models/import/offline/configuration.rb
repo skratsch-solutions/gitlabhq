@@ -45,6 +45,22 @@ module Import
         entity_prefix_mapping[source_full_path]
       end
 
+      # Returns the immediate descendant subgroups of the given parent path.
+      #
+      # @param parent_source_full_path [String] the source full path of the parent group (e.g. "group/subgroup")
+      # @return [Array<HashWithIndifferentAccess>] hashes with :full_path and :path keys for each subgroup
+      def subgroup_paths_for(parent_source_full_path)
+        child_paths_for(parent_source_full_path, 'group_')
+      end
+
+      # Returns the immediate descendant projects of the given parent path.
+      #
+      # @param parent_source_full_path [String] the source full path of the parent group (e.g. "group/subgroup")
+      # @return [Array<HashWithIndifferentAccess>] hashes with :full_path and :path keys for each project
+      def project_paths_for(parent_source_full_path)
+        child_paths_for(parent_source_full_path, 'project_')
+      end
+
       def endpoint
         object_storage_credentials.with_indifferent_access[:endpoint] if object_storage_credentials.present?
       end
@@ -65,6 +81,22 @@ module Import
         end
 
         providers.keys.map(&:to_s)
+      end
+
+      def child_paths_for(parent_source_full_path, entity_type_prefix)
+        parent_path_prefix = "#{parent_source_full_path}/"
+
+        entity_prefix_mapping.filter_map do |full_path, entity_prefix|
+          next unless full_path.start_with?(parent_path_prefix)
+          next unless entity_prefix.start_with?(entity_type_prefix)
+
+          path = full_path.delete_prefix(parent_path_prefix)
+
+          next if path.include?('/')
+          next if path.empty?
+
+          { full_path: full_path, path: path }.with_indifferent_access
+        end
       end
     end
   end

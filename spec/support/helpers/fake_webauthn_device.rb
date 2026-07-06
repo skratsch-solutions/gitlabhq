@@ -32,7 +32,7 @@ class FakeWebauthnDevice
     JS
   end
 
-  def respond_to_webauthn_authentication(passkey: nil)
+  def respond_to_webauthn_authentication
     app_id = @page.evaluate_script('window.location.origin')
     wait_for_webauthn_options
     challenge = @page.evaluate_script('JSON.parse(gon.webauthn.options).challenge')
@@ -61,11 +61,10 @@ class FakeWebauthnDevice
       };
     JS
 
-    if passkey
-      @page.click_button(_('Try again'))
-    else
-      @page.click_button(_('Try again?'))
-    end
+    # Each retry affordance renders a "Try again" button (the legacy 2FA screen labels it
+    # "Try again?", which Capybara substring-matches). click_button auto-waits, so this drives
+    # whichever screen rendered (Vue 2FA, legacy 2FA, or passkey sign-in) without a racy probe.
+    @page.click_button(_('Try again'))
   end
 
   def fake_webauthn_authentication

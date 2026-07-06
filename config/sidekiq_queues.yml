@@ -301,6 +301,8 @@
   - 1
 - - ci_slsa_publish_provenance
   - 1
+- - ci_track_ai_pipeline_results_viewed
+  - 1
 - - ci_track_first_pipeline_succeeded
   - 1
 - - ci_track_pipeline_trigger_events

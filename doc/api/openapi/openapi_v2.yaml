@@ -6511,8 +6511,9 @@ paths:
       operationId: getApiV4GroupsIdIntegrationsSlug
   "/api/v4/groups/{id}/invitations":
     post:
-      summary: Invite non-members by email address to a group or project.
-      description: This feature was introduced in GitLab 13.6
+      summary: Add a member to a group
+      description: Adds a member to a group. You can specify a user ID or invite a
+        user by email.
       produces:
       - application/json
       consumes:
@@ -6530,16 +6531,18 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdInvitations"
       responses:
         '201':
-          description: Invite non-members by email address to a group or project.
+          description: Add a member to a group
           schema:
             "$ref": "#/definitions/API_Entities_Invitation"
       tags:
       - invitations
       operationId: postApiV4GroupsIdInvitations
     get:
-      summary: Get a list of group or project invitations viewable by the authenticated
-        user
-      description: This feature was introduced in GitLab 13.6
+      summary: List all pending invitations for a group
+      description: Lists all pending invitations for a specified group viewable by
+        the authenticated user. Returns invitations to direct members only, and not
+        through inherited ancestor groups. This function takes pagination parameters
+        `page` and `per_page` to restrict the list of members.
       produces:
       - application/json
       parameters:
@@ -6571,8 +6574,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of group or project invitations viewable by the
-            authenticated user
+          description: List all pending invitations for a group
           schema:
             type: array
             items:
@@ -6582,7 +6584,8 @@ paths:
       operationId: getApiV4GroupsIdInvitations
   "/api/v4/groups/{id}/invitations/{email}":
     put:
-      description: Updates a group or project invitation.
+      summary: Update an invitation to a group
+      description: Updates a pending invitation to a group.
       produces:
       - application/json
       consumes:
@@ -6605,14 +6608,16 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdInvitationsEmail"
       responses:
         '200':
-          description: Updates a group or project invitation.
+          description: Update an invitation to a group
           schema:
             "$ref": "#/definitions/API_Entities_Invitation"
       tags:
       - invitations
       operationId: putApiV4GroupsIdInvitationsEmail
     delete:
-      description: Removes an invitation from a group or project.
+      summary: Delete an invitation to a group
+      description: Deletes a pending invitation to a specified email address for a
+        group.
       produces:
       - application/json
       parameters:
@@ -6628,7 +6633,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Removes an invitation from a group or project.
+          description: Delete an invitation to a group
         '403':
           description: Forbidden
         '404':
@@ -25075,8 +25080,9 @@ paths:
       operationId: postApiV4ProjectsIdIntegrationsMattermostSlashCommandsTrigger
   "/api/v4/projects/{id}/invitations":
     post:
-      summary: Invite non-members by email address to a group or project.
-      description: This feature was introduced in GitLab 13.6
+      summary: Add a member to a project
+      description: Adds a member to a project. You can specify a user ID or invite
+        a user by email.
       produces:
       - application/json
       consumes:
@@ -25094,16 +25100,18 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdInvitations"
       responses:
         '201':
-          description: Invite non-members by email address to a group or project.
+          description: Add a member to a project
           schema:
             "$ref": "#/definitions/API_Entities_Invitation"
       tags:
       - invitations
       operationId: postApiV4ProjectsIdInvitations
     get:
-      summary: Get a list of group or project invitations viewable by the authenticated
-        user
-      description: This feature was introduced in GitLab 13.6
+      summary: List all pending invitations for a project
+      description: Lists all pending invitations for a specified project viewable
+        by the authenticated user. Returns invitations to direct members only, and
+        not through inherited ancestor groups. This function takes pagination parameters
+        `page` and `per_page` to restrict the list of members.
       produces:
       - application/json
       parameters:
@@ -25135,8 +25143,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of group or project invitations viewable by the
-            authenticated user
+          description: List all pending invitations for a project
           schema:
             type: array
             items:
@@ -25146,7 +25153,8 @@ paths:
       operationId: getApiV4ProjectsIdInvitations
   "/api/v4/projects/{id}/invitations/{email}":
     put:
-      description: Updates a group or project invitation.
+      summary: Update an invitation to a project
+      description: Updates a pending invitation to a project.
       produces:
       - application/json
       consumes:
@@ -25169,14 +25177,16 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdInvitationsEmail"
       responses:
         '200':
-          description: Updates a group or project invitation.
+          description: Update an invitation to a project
           schema:
             "$ref": "#/definitions/API_Entities_Invitation"
       tags:
       - invitations
       operationId: putApiV4ProjectsIdInvitationsEmail
     delete:
-      description: Removes an invitation from a group or project.
+      summary: Delete an invitation to a project
+      description: Deletes a pending invitation to a specified email address for a
+        project.
       produces:
       - application/json
       parameters:
@@ -25192,7 +25202,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Removes an invitation from a group or project.
+          description: Delete an invitation to a project
         '403':
           description: Forbidden
         '404':
@@ -30507,8 +30517,9 @@ paths:
       operationId: postApiV4ProjectsIdClustersUser
   "/api/v4/projects/{id}/registry/repositories":
     get:
-      summary: List container repositories within a project
-      description: This feature was introduced in GitLab 11.8.
+      summary: List all registry repositories for a project
+      description: Lists all registry repositories for a specified project. Responses
+        are paginated and return 20 results by default.
       produces:
       - application/json
       parameters:
@@ -30547,7 +30558,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List container repositories within a project
+          description: List all registry repositories for a project
           schema:
             type: array
             items:
@@ -30561,8 +30572,9 @@ paths:
       operationId: getApiV4ProjectsIdRegistryRepositories
   "/api/v4/projects/{id}/registry/repositories/{repository_id}":
     delete:
-      summary: Delete repository
-      description: This feature was introduced in GitLab 11.8.
+      summary: Delete registry repository
+      description: Deletes a specified repository in the registry. This operation
+        is executed asynchronously and might take some time to execute.
       produces:
       - application/json
       parameters:
@@ -30589,8 +30601,9 @@ paths:
       operationId: deleteApiV4ProjectsIdRegistryRepositoriesRepositoryId
   "/api/v4/projects/{id}/registry/repositories/{repository_id}/tags":
     get:
-      summary: List tags of a repository
-      description: This feature was introduced in GitLab 11.8.
+      summary: List all registry repository tags for a project
+      description: Lists all tags for a specified registry repository. Responses are
+        paginated and return 20 results by default.
       produces:
       - application/json
       parameters:
@@ -30623,7 +30636,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List tags of a repository
+          description: List all registry repository tags for a project
           schema:
             type: array
             items:
@@ -30638,8 +30651,9 @@ paths:
       - container_registry
       operationId: getApiV4ProjectsIdRegistryRepositoriesRepositoryIdTags
     delete:
-      summary: Delete repository tags (in bulk)
-      description: This feature was introduced in GitLab 11.8.
+      summary: Delete multiple registry repository tags
+      description: Deletes multiple registry repository tags based on the specified
+        criteria.
       produces:
       - application/json
       parameters:
@@ -30694,8 +30708,8 @@ paths:
       operationId: deleteApiV4ProjectsIdRegistryRepositoriesRepositoryIdTags
   "/api/v4/projects/{id}/registry/repositories/{repository_id}/tags/{tag_name}":
     get:
-      summary: Get details about a repository tag
-      description: This feature was introduced in GitLab 11.8.
+      summary: Retrieve details of a registry repository tag
+      description: Retrieves details of a specified registry repository tag.
       produces:
       - application/json
       parameters:
@@ -30717,7 +30731,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get details about a repository tag
+          description: Retrieve details of a registry repository tag
           schema:
             "$ref": "#/definitions/API_Entities_ContainerRegistry_TagDetails"
         '400':
@@ -30730,8 +30744,8 @@ paths:
       - container_registry
       operationId: getApiV4ProjectsIdRegistryRepositoriesRepositoryIdTagsTagName
     delete:
-      summary: Delete repository tag
-      description: This feature was introduced in GitLab 11.8.
+      summary: Delete a registry repository tag
+      description: Deletes a specified container registry repository tag.
       produces:
       - application/json
       parameters:
@@ -39709,7 +39723,8 @@ paths:
   "/api/v4/projects/{id}/packages/terraform/modules/{module_name}/{module_system}":
     get:
       summary: Download the latest version of a module
-      description: This feature was introduced in GitLab 16.7
+      description: Downloads the latest version of a specified module. This feature
+        was introduced in GitLab 16.7.
       produces:
       - application/json
       parameters:
@@ -43968,8 +43983,8 @@ paths:
       operationId: getApiV4PackagesNpm*packageName
   "/api/v4/packages/terraform/modules/v1/{module_namespace}/{module_name}/{module_system}/versions":
     get:
-      summary: List versions for a module
-      description: List versions for a module
+      summary: List all available versions for a module
+      description: Lists all available versions for a specified module.
       produces:
       - application/json
       parameters:
@@ -43990,7 +44005,7 @@ paths:
         required: true
       responses:
         '200':
-          description: List versions for a module
+          description: List all available versions for a module
           schema:
             type: array
             items:
@@ -44002,8 +44017,8 @@ paths:
       operationId: getApiV4PackagesTerraformModulesV1ModuleNamespaceModuleNameModuleSystemVersions
   "/api/v4/packages/terraform/modules/v1/{module_namespace}/{module_name}/{module_system}/download":
     get:
-      summary: Get download location for the latest version of a module
-      description: Download the latest version of a module
+      summary: Retrieve download URL for latest module version
+      description: Retrieves download URL for latest module version.
       produces:
       - application/json
       parameters:
@@ -44024,7 +44039,7 @@ paths:
         required: true
       responses:
         '302':
-          description: Get download location for the latest version of a module
+          description: Retrieve download URL for latest module version
         '403':
           description: Forbidden
         '404':
@@ -44034,8 +44049,8 @@ paths:
       operationId: getApiV4PackagesTerraformModulesV1ModuleNamespaceModuleNameModuleSystemDownload
   "/api/v4/packages/terraform/modules/v1/{module_namespace}/{module_name}/{module_system}":
     get:
-      summary: Get details about the latest version of a module
-      description: Get details about the latest version of a module
+      summary: Retrieve latest version for a module
+      description: Retrieves latest version for a specified module.
       produces:
       - application/json
       parameters:
@@ -44056,7 +44071,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get details about the latest version of a module
+          description: Retrieve latest version for a module
           schema:
             "$ref": "#/definitions/API_Entities_Terraform_ModuleVersion"
         '403':
@@ -49118,8 +49133,8 @@ paths:
       operationId: getApiV4Version
   "/api/v4/topics":
     get:
-      summary: Get topics
-      description: This feature was introduced in GitLab 14.5.
+      summary: List all topics
+      description: Lists all project topics sorted by the number of associated projects.
       produces:
       - application/json
       parameters:
@@ -49159,15 +49174,15 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get topics
+          description: List all topics
           schema:
             "$ref": "#/definitions/API_Entities_Projects_Topic"
       tags:
       - project_topics
       operationId: getApiV4Topics
     post:
-      summary: Create a topic
-      description: This feature was introduced in GitLab 14.5.
+      summary: Create a project topic
+      description: Creates a project topic. Administrators only.
       produces:
       - application/json
       consumes:
@@ -49180,7 +49195,7 @@ paths:
           "$ref": "#/definitions/postApiV4Topics"
       responses:
         '201':
-          description: Create a topic
+          description: Create a project topic
           schema:
             "$ref": "#/definitions/API_Entities_Projects_Topic"
       tags:
@@ -49188,8 +49203,8 @@ paths:
       operationId: postApiV4Topics
   "/api/v4/topics/{id}":
     get:
-      summary: Get topic
-      description: This feature was introduced in GitLab 14.5.
+      summary: Retrieve a topic
+      description: Retrieves a specified project topic.
       produces:
       - application/json
       parameters:
@@ -49201,15 +49216,15 @@ paths:
         required: true
       responses:
         '200':
-          description: Get topic
+          description: Retrieve a topic
           schema:
             "$ref": "#/definitions/API_Entities_Projects_Topic"
       tags:
       - project_topics
       operationId: getApiV4TopicsId
     put:
-      summary: Update a topic
-      description: This feature was introduced in GitLab 14.5.
+      summary: Update a project topic
+      description: Updates a specified project topic. Administrators only.
       produces:
       - application/json
       consumes:
@@ -49228,15 +49243,15 @@ paths:
           "$ref": "#/definitions/putApiV4TopicsId"
       responses:
         '200':
-          description: Update a topic
+          description: Update a project topic
           schema:
             "$ref": "#/definitions/API_Entities_Projects_Topic"
       tags:
       - project_topics
       operationId: putApiV4TopicsId
     delete:
-      summary: Delete a topic
-      description: This feature was introduced in GitLab 14.9.
+      summary: Delete a project topic
+      description: Deletes a specified project topic. Administrators only.
       produces:
       - application/json
       parameters:
@@ -49255,7 +49270,9 @@ paths:
   "/api/v4/topics/merge":
     post:
       summary: Merge topics
-      description: This feature was introduced in GitLab 15.4.
+      description: Merges a source topic into a target topic. This action deletes
+        the source topic and moves all assigned projects to the target topic. Administrators
+        only.
       produces:
       - application/json
       consumes:
@@ -55426,7 +55443,7 @@ definitions:
         description: The ID of a member role for the invited user
     required:
     - access_level
-    description: Invite non-members by email address to a group or project.
+    description: Add a member to a group
   API_Entities_Invitation:
     type: object
     properties:
@@ -55475,7 +55492,7 @@ definitions:
         type: integer
         format: int32
         description: The ID of a member role for the invited user
-    description: Updates a group or project invitation.
+    description: Update an invitation to a group
   API_Entities_Issue:
     type: object
     properties:
@@ -65041,7 +65058,7 @@ definitions:
         description: The ID of a member role for the invited user
     required:
     - access_level
-    description: Invite non-members by email address to a group or project.
+    description: Add a member to a project
   putApiV4ProjectsIdInvitationsEmail:
     type: object
     properties:
@@ -65065,7 +65082,7 @@ definitions:
         type: integer
         format: int32
         description: The ID of a member role for the invited user
-    description: Updates a group or project invitation.
+    description: Update an invitation to a project
   API_Entities_RelatedIssue:
     type: object
     properties:
@@ -75482,6 +75499,28 @@ definitions:
         type: string
       alert_management_metric_image_uploads_oldest_unsynced_time:
         type: string
+      appearance_uploads_count:
+        type: string
+      appearance_uploads_checksum_total_count:
+        type: string
+      appearance_uploads_checksummed_count:
+        type: string
+      appearance_uploads_checksum_failed_count:
+        type: string
+      appearance_uploads_synced_count:
+        type: string
+      appearance_uploads_failed_count:
+        type: string
+      appearance_uploads_registry_count:
+        type: string
+      appearance_uploads_verification_total_count:
+        type: string
+      appearance_uploads_verified_count:
+        type: string
+      appearance_uploads_verification_failed_count:
+        type: string
+      appearance_uploads_oldest_unsynced_time:
+        type: string
       bulk_import_export_upload_uploads_count:
         type: string
       bulk_import_export_upload_uploads_checksum_total_count:
@@ -76368,6 +76407,10 @@ definitions:
         type: string
       alert_management_metric_image_uploads_verified_in_percentage:
         type: string
+      appearance_uploads_synced_in_percentage:
+        type: string
+      appearance_uploads_verified_in_percentage:
+        type: string
       bulk_import_export_upload_uploads_synced_in_percentage:
         type: string
       bulk_import_export_upload_uploads_verified_in_percentage:
@@ -76628,6 +76671,17 @@ definitions:
     - alert_management_metric_image_uploads_verified_count
     - alert_management_metric_image_uploads_verification_failed_count
     - alert_management_metric_image_uploads_oldest_unsynced_time
+    - appearance_uploads_count
+    - appearance_uploads_checksum_total_count
+    - appearance_uploads_checksummed_count
+    - appearance_uploads_checksum_failed_count
+    - appearance_uploads_synced_count
+    - appearance_uploads_failed_count
+    - appearance_uploads_registry_count
+    - appearance_uploads_verification_total_count
+    - appearance_uploads_verified_count
+    - appearance_uploads_verification_failed_count
+    - appearance_uploads_oldest_unsynced_time
     - bulk_import_export_upload_uploads_count
     - bulk_import_export_upload_uploads_checksum_total_count
     - bulk_import_export_upload_uploads_checksummed_count
@@ -77071,6 +77125,8 @@ definitions:
     - ai_vectorizable_file_uploads_verified_in_percentage
     - alert_management_metric_image_uploads_synced_in_percentage
     - alert_management_metric_image_uploads_verified_in_percentage
+    - appearance_uploads_synced_in_percentage
+    - appearance_uploads_verified_in_percentage
     - bulk_import_export_upload_uploads_synced_in_percentage
     - bulk_import_export_upload_uploads_verified_in_percentage
     - ci_secure_files_synced_in_percentage
@@ -80055,7 +80111,7 @@ definitions:
     required:
     - name
     - title
-    description: Create a topic
+    description: Create a project topic
   putApiV4TopicsId:
     type: object
     properties:
@@ -80071,7 +80127,7 @@ definitions:
       avatar:
         type: file
         description: Avatar image for topic
-    description: Update a topic
+    description: Update a project topic
   postApiV4TopicsMerge:
     type: object
     properties:

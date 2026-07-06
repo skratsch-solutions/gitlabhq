@@ -14,19 +14,7 @@ module Import
           def extract(context)
             configuration = context.offline_configuration
 
-            prefix = "#{context.entity.source_full_path}/"
-
-            subgroups = configuration.entity_prefix_mapping.filter_map do |full_path, entity_prefix|
-              next unless full_path.start_with?(prefix)
-              next unless entity_prefix.start_with?('group_')
-
-              path = full_path.delete_prefix(prefix)
-
-              next if path.include?('/')
-              next if path.empty?
-
-              { full_path: full_path, path: path }.with_indifferent_access
-            end
+            subgroups = configuration.subgroup_paths_for(context.entity.source_full_path)
 
             ::BulkImports::Pipeline::ExtractedData.new(data: subgroups)
           end

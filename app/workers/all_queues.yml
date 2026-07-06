@@ -3800,6 +3800,16 @@
   :idempotent: true
   :tags: []
   :queue_namespace:
+- :name: ci_track_ai_pipeline_results_viewed
+  :worker_name: Ci::TrackAiPipelineResultsViewedWorker
+  :feature_category: :pipeline_composition
+  :has_external_dependencies: false
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: true
+  :tags: []
+  :queue_namespace:
 - :name: ci_track_first_pipeline_succeeded
   :worker_name: Ci::TrackFirstPipelineSucceededWorker
   :feature_category: :pipeline_composition

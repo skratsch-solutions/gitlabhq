@@ -284,4 +284,73 @@ RSpec.describe Ci::ProjectMetric, feature_category: :pipeline_composition do
       end
     end
   end
+
+  describe '.mark_ai_pipeline_results_viewed' do
+    let_it_be(:project) { create(:project) }
+    let(:pipeline_created_at) { Time.current }
+
+    subject(:mark) { described_class.mark_ai_pipeline_results_viewed(project.id, pipeline_created_at) }
+
+    context 'when the project is eligible' do
+      let!(:metric) do
+        create(:ci_project_metric, :ai_generated, project: project, ci_config_first_generated_at: 1.hour.ago)
+      end
+
+      it 'updates the row and returns 1' do
+        freeze_time do
+          expect(mark).to eq(1)
+          expect(metric.reload.first_ai_pipeline_results_viewed_at).to eq(Time.current)
+        end
+      end
+    end
+
+    context 'when the config commit time equals the pipeline creation time (boundary)' do
+      before do
+        create(:ci_project_metric, :ai_generated, project: project, ci_config_first_generated_at: pipeline_created_at)
+      end
+
+      it { is_expected.to eq(1) }
+    end
+
+    context 'when the view was already recorded' do
+      let(:viewed_at) { 2.days.ago }
+      let!(:metric) do
+        create(:ci_project_metric, :ai_generated, project: project,
+          ci_config_first_generated_at: 1.hour.ago, first_ai_pipeline_results_viewed_at: viewed_at)
+      end
+
+      it 'returns 0 and preserves the original timestamp (first-wins)' do
+        expect(mark).to eq(0)
+        expect(metric.reload.first_ai_pipeline_results_viewed_at).to be_within(1.second).of(viewed_at)
+      end
+    end
+
+    context 'when no agent is on record' do
+      before do
+        create(:ci_project_metric, project: project, ci_config_first_generated_at: 1.hour.ago)
+      end
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when the AI config commit time is not recorded' do
+      before do
+        create(:ci_project_metric, :ai_generated, project: project, ci_config_first_generated_at: nil)
+      end
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when the pipeline predates the AI config commit' do
+      before do
+        create(:ci_project_metric, :ai_generated, project: project, ci_config_first_generated_at: 1.hour.from_now)
+      end
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when no metric row exists' do
+      it { is_expected.to eq(0) }
+    end
+  end
 end

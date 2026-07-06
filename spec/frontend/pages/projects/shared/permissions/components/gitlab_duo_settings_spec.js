@@ -384,13 +384,14 @@ describe('GitlabDuoSettings', () => {
           expect(findDuoSecretDetectionFpToggle().props('disabled')).toBe(false);
         });
 
-        it('does not show Secret Detection FP Detection toggle when feature flag is disabled', () => {
-          wrapper = createWrapper(
-            { duoFeaturesEnabled: true, amazonQAvailable: false },
-            { duoSecretDetectionFalsePositive: false },
-          );
+        it('does not show SAST FP Detection toggle when ultimateFeaturesAvailable is false', () => {
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            ultimateFeaturesAvailable: false,
+          });
 
-          expect(findDuoSecretDetectionFpToggle().exists()).toBe(false);
+          expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
         });
 
         it('does not disable Secret Detection FP Detection toggle when Duo features are locked on', () => {
@@ -932,6 +933,33 @@ describe('GitlabDuoSettings', () => {
       });
     });
 
+    describe('when restricted to the Secret Detection FP setting', () => {
+      beforeEach(() => {
+        wrapper = createWrapper(
+          {
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            visibleSettings: ['duoSecretDetectionFpEnabled'],
+          },
+          { duoSecretDetectionFalsePositive: true },
+        );
+      });
+
+      it('renders only the Secret Detection FP toggle and the save button', () => {
+        expect(findDuoSecretDetectionFpToggle().exists()).toBe(true);
+        expect(findSaveButton().exists()).toBe(true);
+      });
+
+      it('hides the Duo enable toggle and every other Duo setting', () => {
+        expect(findDuoEnabledToggle().exists()).toBe(false);
+        expect(findDuoSastVrWorkflowToggle().exists()).toBe(false);
+        expect(findDuoSastFpDetectionToggle().exists()).toBe(false);
+        expect(findToolApprovalToggle().exists()).toBe(false);
+        expect(findDuoRemoteFlowsToggle().exists()).toBe(false);
+        expect(findExclusionSettings().exists()).toBe(false);
+      });
+    });
+
     describe('when restricted to both SAST VR and SAST FP detection settings', () => {
       beforeEach(() => {
         wrapper = createWrapper(
@@ -953,6 +981,33 @@ describe('GitlabDuoSettings', () => {
       it('hides the Duo enable toggle and non-allowed settings', () => {
         expect(findDuoEnabledToggle().exists()).toBe(false);
         expect(findDuoSecretDetectionFpToggle().exists()).toBe(false);
+        expect(findToolApprovalToggle().exists()).toBe(false);
+        expect(findDuoRemoteFlowsToggle().exists()).toBe(false);
+        expect(findExclusionSettings().exists()).toBe(false);
+      });
+    });
+
+    describe('when restricted to both SAST FP and Secret Detection FP settings', () => {
+      beforeEach(() => {
+        wrapper = createWrapper(
+          {
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            visibleSettings: ['duoSastFpDetectionEnabled', 'duoSecretDetectionFpEnabled'],
+          },
+          { duoSecretDetectionFalsePositive: true },
+        );
+      });
+
+      it('renders both the SAST FP and Secret Detection FP toggles', () => {
+        expect(findDuoSastFpDetectionToggle().exists()).toBe(true);
+        expect(findDuoSecretDetectionFpToggle().exists()).toBe(true);
+        expect(findSaveButton().exists()).toBe(true);
+      });
+
+      it('hides the Duo enable toggle and non-allowed settings', () => {
+        expect(findDuoEnabledToggle().exists()).toBe(false);
+        expect(findDuoSastVrWorkflowToggle().exists()).toBe(false);
         expect(findToolApprovalToggle().exists()).toBe(false);
         expect(findDuoRemoteFlowsToggle().exists()).toBe(false);
         expect(findExclusionSettings().exists()).toBe(false);

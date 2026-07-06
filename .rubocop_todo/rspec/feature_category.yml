@@ -605,7 +605,6 @@ RSpec/FeatureCategory:
     - 'spec/constraints/namespaces/group_url_constraint_spec.rb'
     - 'spec/constraints/projects/project_url_constraint_spec.rb'
     - 'spec/constraints/users/user_url_constraint_spec.rb'
-    - 'spec/contracts/provider_specs/helpers/provider/contract_source_helper_spec.rb'
     - 'spec/controllers/acme_challenges_controller_spec.rb'
     - 'spec/controllers/admin/application_settings/appearances_controller_spec.rb'
     - 'spec/controllers/admin/application_settings_controller_spec.rb'

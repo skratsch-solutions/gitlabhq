@@ -26,6 +26,7 @@ describe('TotpCode', () => {
   const findRememberMeInput = () => wrapper.find('input[name="user[remember_me]"]');
   const findMethodInput = () => wrapper.find('input[name="two_factor_method"]');
   const findRecoverButton = () => wrapper.findByTestId('recovery-button');
+  const findSecurityDeviceButton = () => wrapper.findByTestId('security-device-button');
 
   beforeEach(() => {
     createComponent();
@@ -84,5 +85,21 @@ describe('TotpCode', () => {
     findRecoverButton().trigger('click');
 
     expect(wrapper.emitted('switch-method')).toEqual([['recovery']]);
+  });
+
+  describe('security device button', () => {
+    it('is absent when webauthnEnabled is false', () => {
+      expect(findSecurityDeviceButton().exists()).toBe(false);
+    });
+
+    it('is present and emits switch-method "webauthn" when webauthnEnabled is true', () => {
+      createComponent({ webauthnEnabled: true });
+
+      expect(findSecurityDeviceButton().exists()).toBe(true);
+
+      findSecurityDeviceButton().vm.$emit('click');
+
+      expect(wrapper.emitted('switch-method')).toEqual([['webauthn']]);
+    });
   });
 });

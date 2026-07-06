@@ -1,9 +1,10 @@
 <script>
 import RecoveryCode from './recovery_code.vue';
 import TotpCode from './totp_code.vue';
+import WebauthnAuthentication from './webauthn_authentication.vue';
 
 /**
- * @typedef {'recovery'|'totp'} Method
+ * @typedef {'recovery'|'totp'|'webauthn'} Method
  */
 
 export default {
@@ -11,6 +12,7 @@ export default {
   components: {
     RecoveryCode,
     TotpCode,
+    WebauthnAuthentication,
   },
   props: {
     path: {
@@ -35,11 +37,24 @@ export default {
       type: Boolean,
       required: true,
     },
+    webauthnEnabled: {
+      type: Boolean,
+      required: true,
+    },
+    totpEnabled: {
+      type: Boolean,
+      required: true,
+    },
+    webauthnParams: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
   },
   data() {
     return {
       /** @type {Method} */
-      method: this.activeMethod || 'totp',
+      method: this.activeMethod || (this.webauthnEnabled ? 'webauthn' : 'totp'),
     };
   },
   methods: {
@@ -55,17 +70,31 @@ export default {
     setMethod(method) {
       this.method = method;
     },
+    onWebauthnNotSupported() {
+      this.setMethod(this.totpEnabled ? 'totp' : 'recovery');
+    },
   },
 };
 </script>
 
 <template>
   <div>
-    <totp-code
-      v-if="isMethod('totp')"
+    <webauthn-authentication
+      v-if="isMethod('webauthn')"
       :path="path"
       :remember-me="rememberMe"
       :remember-me-enabled="rememberMeEnabled"
+      :webauthn-params="webauthnParams"
+      :totp-enabled="totpEnabled"
+      @switch-method="setMethod"
+      @webauthn-not-supported="onWebauthnNotSupported"
+    />
+    <totp-code
+      v-else-if="isMethod('totp')"
+      :path="path"
+      :remember-me="rememberMe"
+      :remember-me-enabled="rememberMeEnabled"
+      :webauthn-enabled="webauthnEnabled"
       @switch-method="setMethod"
     />
     <recovery-code

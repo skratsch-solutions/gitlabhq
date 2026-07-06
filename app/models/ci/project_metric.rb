@@ -25,6 +25,23 @@ module Ci
       where(project_id: project_id).pick(:ci_config_generated_by)
     end
 
+    def self.ai_pipeline_results_trackable?(project_id)
+      where(project_id: project_id)
+        .where.not(ci_config_generated_by: nil)
+        .where.not(ci_config_first_generated_at: nil)
+        .where(first_ai_pipeline_results_viewed_at: nil)
+        .exists?
+    end
+
+    def self.mark_ai_pipeline_results_viewed(project_id, pipeline_created_at, viewed_at = Time.current)
+      where(project_id: project_id)
+        .where.not(ci_config_generated_by: nil)
+        .where.not(ci_config_first_generated_at: nil)
+        .where(first_ai_pipeline_results_viewed_at: nil)
+        .where(ci_config_first_generated_at: ..pipeline_created_at)
+        .update_all(first_ai_pipeline_results_viewed_at: viewed_at, updated_at: viewed_at)
+    end
+
     def self.track_ai_generated_config!(project_id, author_source:)
       return unless author_source.in?(KNOWN_AGENT_SOURCES)
 
