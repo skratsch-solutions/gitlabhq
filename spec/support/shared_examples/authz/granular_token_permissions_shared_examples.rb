@@ -70,9 +70,6 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
       before do
         skip 'namespace has no top-level group' unless root_ancestor&.group_namespace?
 
-        # TODO: https://gitlab.com/gitlab-org/gitlab/-/work_items/594556
-        skip 'not applicable for GraphQL' if is_graphql
-
         stub_feature_flags(granular_personal_access_tokens_enforcement_saas: root_ancestor)
 
         ::NamespaceSetting.find_by!(namespace_id: root_ancestor.id).update!(

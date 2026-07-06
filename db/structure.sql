@@ -6372,15 +6372,6 @@ CREATE TABLE p_ci_builds (
 )
 PARTITION BY LIST (partition_id);
 
-CREATE TABLE p_ci_builds_execution_configs (
-    id bigint NOT NULL,
-    partition_id bigint NOT NULL,
-    project_id bigint NOT NULL,
-    pipeline_id bigint NOT NULL,
-    run_steps jsonb DEFAULT '{}'::jsonb NOT NULL
-)
-PARTITION BY LIST (partition_id);
-
 CREATE TABLE p_ci_job_annotations (
     id bigint NOT NULL,
     partition_id bigint NOT NULL,
@@ -26484,6 +26475,15 @@ CREATE SEQUENCE p_ci_build_tags_id_seq
     CACHE 1;
 
 ALTER SEQUENCE p_ci_build_tags_id_seq OWNED BY p_ci_build_tags.id;
+
+CREATE TABLE p_ci_builds_execution_configs (
+    id bigint NOT NULL,
+    partition_id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    pipeline_id bigint NOT NULL,
+    run_steps jsonb DEFAULT '{}'::jsonb NOT NULL
+)
+PARTITION BY LIST (partition_id);
 
 CREATE SEQUENCE p_ci_builds_execution_configs_id_seq
     START WITH 1

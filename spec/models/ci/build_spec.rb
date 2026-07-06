@@ -34,7 +34,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   it { is_expected.to belong_to(:runner) }
   it { is_expected.to belong_to(:erased_by) }
   it { is_expected.to belong_to(:pipeline).inverse_of(:builds) }
-  it { is_expected.to belong_to(:execution_config).class_name('Ci::BuildExecutionConfig').inverse_of(:builds) }
 
   it { is_expected.to have_many(:needs).with_foreign_key(:build_id) }
 
@@ -2269,11 +2268,9 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   describe '#run_steps' do
     subject(:run_steps) { job.run_steps }
 
-    let(:job) { FactoryBot.build(:ci_build, job_definition: job_definition, execution_config: job_execution_config) }
+    let(:job) { FactoryBot.build(:ci_build, job_definition: job_definition) }
     let(:job_definition) { FactoryBot.build(:ci_job_definition, config: { run_steps: job_definition_run_steps }) }
     let(:job_definition_run_steps) { [{ name: 'hello_steps' }, { name: 'bye_steps' }] }
-    let(:job_execution_config) { FactoryBot.build(:ci_builds_execution_configs, run_steps: job_execution_config_run_steps) }
-    let(:job_execution_config_run_steps) { [{ 'name' => 'first execution' }, { 'name' => 'last execution' }] }
 
     it 'returns run_steps from job definition' do
       expect(subject).to eq(job_definition_run_steps)
@@ -2282,24 +2279,8 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     context 'with nil run_steps' do
       let(:job_definition) { FactoryBot.build(:ci_job_definition, config: {}) }
 
-      it 'returns run_steps from execution config' do
-        expect(subject).to eq(job_execution_config_run_steps)
-      end
-
-      context 'with nil execution config' do
-        let(:job_execution_config) { nil }
-
-        it 'returns an empty array' do
-          expect(subject).to eq([])
-        end
-
-        context 'with nil run_steps' do
-          let(:job_execution_config_run_steps) { nil }
-
-          it 'returns an empty array' do
-            expect(subject).to eq([])
-          end
-        end
+      it 'returns an empty array' do
+        expect(subject).to eq([])
       end
     end
   end

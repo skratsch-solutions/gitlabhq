@@ -4349,6 +4349,9 @@ msgstr ""
 msgid "Access tokens"
 msgstr ""
 
+msgid "AccessDropdown|Custom roles"
+msgstr ""
+
 msgid "AccessDropdown|Deploy keys"
 msgstr ""
 
@@ -78704,6 +78707,9 @@ msgid "This merge request was merged. To apply this suggestion, edit this file d
 msgstr ""
 
 msgid "This only applies to repository indexing operations."
+msgstr ""
+
+msgid "This organization is currently in read-only mode. New account creation via SSO is currently unavailable."
 msgstr ""
 
 msgid "This organization is currently in read-only mode. Write operations are disabled."

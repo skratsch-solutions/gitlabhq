@@ -15,11 +15,10 @@ RSpec.shared_examples 'a degenerable job' do
     end
 
     context 'when job metadata record is deleted' do
-      # This would only happen to old jobs that never had execution_config
-      # and whose metadata were not migrated to ci_job_prototypes. See
+      # This would only happen to old jobs whose metadata were not migrated to
+      # ci_job_prototypes. See
       # https://gitlab.com/gitlab-org/gitlab/-/merge_requests/194777#note_2578529419.
       before do
-        job.try(:execution_config)&.delete
         job.metadata.delete
         job.job_definition_instance.delete
         job.reload
@@ -54,7 +53,6 @@ RSpec.shared_examples 'a degenerable job' do
       expect(job.yaml_variables).to be_empty
       expect(job.needs).to be_empty
       expect(job.metadata).to be_nil
-      expect(job.try(:execution_config)).to be_nil
     end
   end
 end

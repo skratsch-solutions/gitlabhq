@@ -19,8 +19,6 @@ FactoryBot.define do
 
     runner_manager { nil }
 
-    execution_config { nil }
-
     transient do
       options do
         {
@@ -77,7 +75,6 @@ FactoryBot.define do
     trait :degenerated do
       options { nil }
       yaml_variables { nil }
-      execution_config { nil }
     end
 
     trait :unique_name do

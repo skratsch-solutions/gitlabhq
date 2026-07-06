@@ -93,7 +93,7 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
         pipeline_id report_results pending_state pages_deployments
         queuing_entry runtime_metadata trace_metadata
         dast_site_profile dast_scanner_profile stage_id dast_site_profiles_build
-        dast_scanner_profiles_build auto_canceled_by_partition_id execution_config_id execution_config
+        dast_scanner_profiles_build auto_canceled_by_partition_id
         job_source id_value inputs error_job_messages
         job_definition job_definition_instance job_messages temp_job_definition interruptible].freeze
     end
@@ -305,18 +305,6 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
           expect(new_job.job_variables.size).to eq(1)
           expect(new_job.job_variables.first.key).to eq(internal_job_variable.key)
           expect(new_job.job_variables.first.value).to eq(internal_job_variable.value)
-        end
-      end
-
-      context 'when build execution config is given' do
-        let(:build_execution_config) { create(:ci_builds_execution_configs, pipeline: pipeline) }
-
-        before do
-          job.update!(execution_config: build_execution_config)
-        end
-
-        it 'clones the config id' do
-          expect(new_job.execution_config_id).to eq(build_execution_config.id)
         end
       end
 

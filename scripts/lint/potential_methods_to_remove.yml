@@ -87,7 +87,6 @@ app/models/application_setting_implementation.rb:
 app/models/ci/build.rb:
   - has_live_trace?
   - has_archived_trace?
-  - degenerate!
 app/models/ci/job_token/allowlist.rb:
   - project_link_traversal_ids
   - group_link_traversal_ids

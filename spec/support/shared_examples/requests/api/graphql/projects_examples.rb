@@ -130,7 +130,7 @@ RSpec.shared_examples 'getting a collection of projects' do
       end
     end
 
-    it 'avoids N+1 queries', :use_sql_query_cache, :clean_gitlab_redis_cache do
+    it 'avoids N+1 queries', :use_sql_query_cache, :clean_gitlab_redis_cache, :request_store do
       post_graphql(single_project_query, current_user: current_user)
 
       control = ActiveRecord::QueryRecorder.new(skip_cached: false, query_recorder_debug: true) do

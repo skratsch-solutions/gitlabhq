@@ -6,7 +6,6 @@ Database/JsonbSizeLimit:
     - 'app/models/alert_management/http_integration.rb'
     - 'app/models/anti_abuse/event.rb'
     - 'app/models/application_setting.rb'
-    - 'app/models/ci/build_execution_config.rb'
     - 'app/models/ci/build_metadata.rb'
     - 'app/models/ci/build_report_result.rb'
     - 'app/models/ci/catalog/resources/component.rb'

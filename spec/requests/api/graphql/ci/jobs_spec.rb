@@ -292,7 +292,7 @@ RSpec.describe 'Query.project.pipeline', feature_category: :continuous_integrati
 
         expect do
           post_graphql(query, current_user: user)
-        end.not_to exceed_all_query_limit(control)
+        end.to issue_same_number_of_queries_as(control)
       end
     end
   end

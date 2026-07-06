@@ -32,7 +32,6 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   it { is_expected.to have_many(:statuses) }
   it { is_expected.to have_many(:variables) }
   it { is_expected.to have_many(:builds) }
-  it { is_expected.to have_many(:build_execution_configs).class_name('Ci::BuildExecutionConfig').inverse_of(:pipeline) }
 
   it do
     is_expected.to have_many(:statuses_order_id_desc)

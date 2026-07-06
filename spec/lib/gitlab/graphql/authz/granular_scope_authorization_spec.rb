@@ -25,6 +25,12 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
       let(:access_token) { create(:personal_access_token, user: user) }
 
       it { is_expected.to be(true) }
+
+      context 'when there are no granular directives' do
+        let(:directives) { [] }
+
+        it { is_expected.to be(true) }
+      end
     end
 
     context 'with a granular token' do
@@ -70,7 +76,7 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
         it 'caches the denied result so the boundary is not re-checked' do
           ok
 
-          expect(context[:granular_scope_authz_cache]).to eq(
+          expect(context[:granular_tokens_authz_cache]).to eq(
             { [['read_wiki'], [['Project', project.id]]] =>
               [false, 'Access denied: This operation requires a fine-grained personal access token ' \
                 'with the following project permissions: [Wiki: Read].'] }
@@ -179,7 +185,7 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
 
       context 'with caching' do
         it 'caches the authorized result and reuses it without re-running the service' do
-          expect { ok }.to change { context[:granular_scope_authz_cache] }
+          expect { ok }.to change { context[:granular_tokens_authz_cache] }
             .from(nil)
             .to({ [['read_wiki'], [['Project', project.id]]] => [true, nil] })
 
@@ -197,7 +203,7 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
           it 'caches the boundary as its type symbol' do
             ok
 
-            expect(context[:granular_scope_authz_cache]).to eq({ [['read_runner'], [:instance]] => [true, nil] })
+            expect(context[:granular_tokens_authz_cache]).to eq({ [['read_runner'], [:instance]] => [true, nil] })
           end
         end
 
@@ -217,7 +223,7 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
           it 'caches the sorted permissions against every resolved boundary under one key' do
             ok
 
-            expect(context[:granular_scope_authz_cache]).to eq(
+            expect(context[:granular_tokens_authz_cache]).to eq(
               { [%w[create_work_item read_wiki], [['Group', group.id], ['Project', project.id]]] => [true, nil] }
             )
           end

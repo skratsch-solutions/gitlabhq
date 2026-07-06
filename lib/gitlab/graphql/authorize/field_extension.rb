@@ -32,7 +32,12 @@ module Gitlab
           def remove_unauthorized(nodes)
             nodes
               .map! { |lazy| force(lazy) }
+              .tap { |forced| preload_granular_boundaries(forced) }
               .keep_if { |forced| @type.authorized?(forced, @context) }
+          end
+
+          def preload_granular_boundaries(nodes)
+            ::Gitlab::Graphql::Authz::BoundaryExtractors::Preloader.preload_boundaries(@type, nodes, @context)
           end
         end
 

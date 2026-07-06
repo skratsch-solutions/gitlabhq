@@ -1981,30 +1981,6 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
       end
     end
 
-    describe 'stop writing to p_ci_builds_execution_configs' do
-      let(:config) do
-        YAML.dump(
-          job: {
-            variables:
-              { CI_SAY_HI_TO: "Sally" },
-            run: [{
-              name: 'say_hi',
-              step: 'gitlab.com/gitlab-org/ci-cd/runner-tools/echo-step@v5',
-              inputs: { echo: "hello, ${{job.CI_SAY_HI_TO}}" }
-            }]
-          }
-        )
-      end
-
-      before do
-        stub_ci_pipeline_yaml_file(config)
-      end
-
-      it 'does not write to p_ci_builds_execution_configs' do
-        expect { execute_service }.to not_change { Ci::BuildExecutionConfig.count }
-      end
-    end
-
     describe 'service instantiated without base relations' do
       let(:service) { described_class.new(project, user) }
 

@@ -31,7 +31,7 @@ module Gitlab
 
           def locate(value)
             case value
-            when GlobalID then GlobalID::Locator.locate(value)
+            when GlobalID then ::Gitlab::Graphql::Lazy.force(GitlabSchema.find_by_gid(value))
             when String then ::Project.find_by_full_path(value) || ::Group.find_by_full_path(value)
             end
           rescue ActiveRecord::RecordNotFound

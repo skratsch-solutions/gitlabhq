@@ -29,13 +29,6 @@ module Ci
       inverse_of: :builds
     belongs_to :project_mirror, primary_key: :project_id, foreign_key: :project_id, inverse_of: :builds
 
-    belongs_to :execution_config,
-      ->(build) { in_partition(build) },
-      class_name: 'Ci::BuildExecutionConfig',
-      foreign_key: :execution_config_id,
-      partition_foreign_key: :partition_id,
-      inverse_of: :builds
-
     RUNNER_FEATURES = {
       upload_multiple_artifacts: ->(build) { build.publishes_artifacts_reports? },
       refspecs: ->(build) { build.merge_request_ref? || build.workload? },
@@ -287,7 +280,7 @@ module Ci
           environment coverage_regex description tag_list protected
           needs_attributes job_variables_attributes resource_group
           scheduling_type timeout timeout_source debug_trace_enabled
-          ci_stage partition_id execution_config_id inputs_attributes].freeze
+          ci_stage partition_id inputs_attributes].freeze
       end
 
       def supported_keyset_orderings
@@ -685,13 +678,7 @@ module Ci
     end
 
     def degenerated?
-      super && execution_config_id.nil? && run_steps.blank?
-    end
-
-    def degenerate!
-      super do
-        execution_config&.destroy
-      end
+      super && run_steps.blank?
     end
 
     def playable?
@@ -972,7 +959,7 @@ module Ci
 
     override :run_steps
     def run_steps
-      read_job_definition_attribute(:run_steps) || execution_config&.run_steps || []
+      read_job_definition_attribute(:run_steps) || []
     end
 
     def any_runners_online?

@@ -376,7 +376,6 @@ ci_pipelines: &pipeline_definition
 - dast_profiles_pipeline
 - build_trace_chunks
 - pipeline_metadata
-- build_execution_configs
 - project_mirror
 - workload
 - sbom_occurrence_refs
@@ -411,7 +410,6 @@ builds:
 - needs
 - resource
 - pipeline
-- execution_config
 - sourced_pipeline
 - resource_group
 - metadata

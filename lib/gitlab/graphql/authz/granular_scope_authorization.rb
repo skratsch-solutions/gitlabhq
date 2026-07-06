@@ -4,6 +4,8 @@ module Gitlab
   module Graphql
     module Authz
       class GranularScopeAuthorization
+        GRANULAR_TOKENS_AUTHZ_CACHE_KEY = :granular_tokens_authz_cache
+
         attr_reader :directives
 
         delegate :empty?, :any?, to: :directives
@@ -36,14 +38,20 @@ module Gitlab
 
         def authorized?(object, context, arguments)
           token = context[:access_token]
-          return success unless token && token.try(:granular?)
+          return success unless token && token.respond_to?(:granular?)
 
           # If both object and arguments are nil,
           # there is no source a boundary can be extracted from.
           return success if object.nil? && arguments.nil?
           return success if skip_authorization?
-          # if no gPAT directives are defined, granular token should deny access
-          return error(default_error_message) if directives.empty?
+
+          # if no gPAT directives are defined, granular tokens deny access while
+          # legacy tokens fall through to their existing authorization
+          if directives.empty?
+            return error(default_error_message) if token.granular?
+
+            return success
+          end
 
           boundary_objects = boundary_extractor(object, arguments).extract
           key = cache_key(boundary_objects)
@@ -68,7 +76,7 @@ module Gitlab
         end
 
         def fetch_cached(context, key)
-          cache = context[:granular_scope_authz_cache] ||= {}
+          cache = context[GRANULAR_TOKENS_AUTHZ_CACHE_KEY] ||= {}
           return cache[key] if cache.key?(key)
 
           cache[key] = yield

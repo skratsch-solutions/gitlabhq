@@ -18,7 +18,6 @@ Gitlab::Application.config.to_prepare do
       AuditEvents::ProjectAuditEvent,
       AuditEvents::InstanceAuditEvent,
       BatchedGitRefUpdates::Deletion,
-      Ci::BuildExecutionConfig,
       Ci::BuildName,
       Ci::BuildNeed,
       Ci::BuildTag,
