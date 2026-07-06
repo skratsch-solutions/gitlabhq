@@ -4,6 +4,14 @@ module API
   class Invitations < ::API::Base
     include PaginationParams
 
+    # Inviting members to a source organization that has data isolation
+    # enabled relies on resolving the invitee across organizations to
+    # detect cross-organization invitations. The global Current.organization
+    # hook would scope those lookups and hide cross-organization users from
+    # the resolver, bypassing the explicit isolation check. Opt out so the
+    # invitations endpoints can keep doing cross-organization lookups.
+    skip_global_organization_setup!
+
     feature_category :user_profile
 
     before { authenticate! }

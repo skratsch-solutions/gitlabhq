@@ -16,7 +16,7 @@ if (!REVEAL_ESLINT_TODO || REVEAL_ESLINT_TODO === 'false' || REVEAL_ESLINT_TODO 
 
 const NO_HARDCODED_URLS_OPTIONS = {
   allowedKeys: ['path', 'redirect'],
-  allowedFunctions: ['helpPagePath'],
+  allowedFunctions: ['helpPagePath', 'dispatch', 'commit'],
   allowedInterpolationVariables: ['FORUM_URL', 'DOCS_URL', 'PROMO_URL', 'CONTRIBUTE_URL'],
   allowedPatterns: ['\\/api\\/:version'],
   disallowedObjectProperties: ['relative_url_root'],
@@ -899,8 +899,7 @@ export default [
             'Do not use router.push. Simulate user behaviours and assert the resulting HTML.',
         },
         {
-          selector:
-            'MemberExpression[object.name=/[Rr]outer/][property.name="currentRoute"]',
+          selector: 'MemberExpression[object.name=/[Rr]outer/][property.name="currentRoute"]',
           message:
             'Do not access the router properties directly. Simulate user behaviours and assert the resulting HTML.',
         },

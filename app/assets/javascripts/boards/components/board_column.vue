@@ -69,7 +69,7 @@ export default {
   },
   emits: [
     'cannot-find-active-item',
-    'dragStart',
+    'drag-start',
     'dragStop',
     'focus-adjacent',
     'highlight-list',
@@ -154,7 +154,7 @@ export default {
           :dragged-item-id="draggedItemId"
           :focused="focused"
           @dragStop="$emit('dragStop')"
-          @dragStart="$emit('dragStart', $event)"
+          @drag-start="$emit('drag-start', $event)"
           @toggleNewForm="toggleNewForm"
           @setFilters="$emit('setFilters', $event)"
           @cannot-find-active-item="$emit('cannot-find-active-item')"

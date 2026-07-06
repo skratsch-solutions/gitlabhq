@@ -47,8 +47,6 @@ export default {
     'app/assets/javascripts/packages_and_registries/infrastructure_registry/details/components/details_title.vue',
     'app/assets/javascripts/packages_and_registries/package_registry/components/details/package_title.vue',
     'app/assets/javascripts/personal_access_tokens/components/personal_access_token_granular_scopes.vue',
-    'app/assets/javascripts/profile/components/follow.vue',
-    'app/assets/javascripts/profile/components/snippets/snippet_row.vue',
     'app/assets/javascripts/profile/components/user_achievements.vue',
     'app/assets/javascripts/projects/settings/branch_rules/components/protection_row.vue',
     'app/assets/javascripts/rapid_diffs/app/discussions/note_author.vue',

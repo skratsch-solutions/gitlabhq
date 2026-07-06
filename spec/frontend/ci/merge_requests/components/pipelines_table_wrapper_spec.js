@@ -20,7 +20,7 @@ import {
   MR_PIPELINE_TYPE_MERGED_RESULT,
 } from '~/ci/merge_requests/constants';
 import getMergeRequestsPipelines from '~/ci/merge_requests/graphql/queries/get_merge_request_pipelines.query.graphql';
-import getSinglePipeline from '~/ci/pipelines_page/graphql/queries/get_single_pipeline.query.graphql';
+import getMergeRequestSinglePipeline from '~/ci/merge_requests/graphql/queries/get_merge_request_single_pipeline.query.graphql';
 import cancelPipelineMutation from '~/ci/pipeline_details/graphql/mutations/cancel_pipeline.mutation.graphql';
 import retryPipelineMutation from '~/ci/pipeline_details/graphql/mutations/retry_pipeline.mutation.graphql';
 import mrPipelineStatusesUpdatedSubscription from '~/ci/merge_requests/graphql/subscriptions/mr_pipeline_statuses_updated.subscription.graphql';
@@ -109,7 +109,7 @@ const createComponent = ({ mountFn = shallowMountExtended, props = {} } = {}) =>
 
   const handlers = [
     [getMergeRequestsPipelines, mergeRequestPipelinesRequest],
-    [getSinglePipeline, getSinglePipelineRequest],
+    [getMergeRequestSinglePipeline, getSinglePipelineRequest],
     [getPipelinesDownstream, getPipelinesDownstreamRequest],
     [cancelPipelineMutation, cancelPipelineMutationRequest],
     [retryPipelineMutation, retryPipelineMutationRequest],

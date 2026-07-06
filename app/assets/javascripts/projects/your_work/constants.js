@@ -89,7 +89,7 @@ export const PERSONAL_TAB = {
 
 export const MEMBER_TAB = {
   ...baseTab,
-  text: __('Member'),
+  text: s__('YourWork|Member'),
   value: 'member',
   query: projectsQuery,
   variables: { membership: true },

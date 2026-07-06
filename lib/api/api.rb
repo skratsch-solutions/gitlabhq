@@ -102,6 +102,33 @@ module API
       increment_http_router_metrics
     end
 
+    before_validation do
+      next unless Feature.enabled?(:set_current_organization_for_grape_api, Feature.current_request)
+      next if ::Current.organization_assigned
+
+      endpoint_class = request.env[Grape::Env::API_ENDPOINT]&.options&.dig(:for)
+      next if endpoint_class.respond_to?(:skip_global_organization_setup?) &&
+        endpoint_class.skip_global_organization_setup?
+
+      begin
+        ::Current.organization = Gitlab::Current::Organization.new(
+          params: {},
+          user: -> { safe_find_user_from_sources },
+          rack_env: request.env
+        ).organization
+      rescue ::Current::OrganizationAlreadyAssignedError
+        # The earlier check is the canonical guard, but some tests stub
+        # Current.organization_assigned to return false while the underlying
+        # attribute is in fact set. Treat the resulting double-assignment as
+        # a no-op rather than letting it abort the request.
+      end
+
+      # Mirror what set_current_organization in lib/api/helpers.rb does after
+      # assigning, so write requests to a read-only organization are rejected
+      # even when this hook short-circuits the per-endpoint helper.
+      check_organization_read_only!
+    end
+
     before do
       set_peek_enabled_for_current_request
     end
@@ -203,6 +230,7 @@ module API
     # Ensure the namespace is right, otherwise we might load Grape::API::Helpers
     helpers ::API::Helpers
     helpers ::API::Helpers::CommonHelpers
+    helpers ::API::Helpers::CurrentOrganizationHelpers
     helpers ::API::Helpers::PerformanceBarHelpers
     helpers ::API::Helpers::RateLimiter
     helpers Gitlab::HttpRouter::RuleContext

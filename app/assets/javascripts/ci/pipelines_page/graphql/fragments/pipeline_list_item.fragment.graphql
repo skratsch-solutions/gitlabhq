@@ -1,59 +1,7 @@
-#import "~/graphql_shared/fragments/ci_icon.fragment.graphql"
+#import "~/ci/common/graphql/fragments/pipeline_list_item_base.fragment.graphql"
 
 fragment PipelineListItem on Pipeline {
-  id
-  iid
-  detailedStatus {
-    ...CiIcon
-    name
-  }
-  finishedAt
-  duration
-  name
-  ref
-  refPath
-  refText
-  commit {
-    id
-    sha
-    shortId
-    title
-    webPath
-    author {
-      id
-      avatarUrl
-      webPath
-      name
-    }
-  }
-  user {
-    id
-    name
-    webPath
-    avatarUrl
-  }
-  source
-  latest
-  yamlErrors
-  yamlErrorMessages
-  failureReason
-  configSource
-  stuck
-  type
-  path
-  retryable
-  cancelable
-  stages {
-    nodes {
-      id
-      name
-      detailedStatus {
-        ...CiIcon
-        name
-        tooltip
-      }
-    }
-  }
+  ...PipelineListItemBase
   mergeRequest {
     id
     iid
@@ -61,14 +9,6 @@ fragment PipelineListItem on Pipeline {
     title
     sourceBranch
   }
-  mergeRequestEventType
-  project {
-    id
-    fullPath
-  }
-  hasManualActions
-  hasScheduledActions
-  failedJobsCount
   pipelineSchedule {
     id
     description

@@ -6390,9 +6390,6 @@ msgstr ""
 msgid "AdminSelfHostedModels|View AI-native features"
 msgstr ""
 
-msgid "AdminSelfHostedModels|View self-hosted models and configure AI-native features. A GitLab Duo Enterprise add-on is required to manage self-hosted models."
-msgstr ""
-
 msgid "AdminSelfHostedModels|You are about to delete the %{boldStart}%{modelName}%{boldEnd} self-hosted model. This action cannot be undone."
 msgstr ""
 
@@ -12769,6 +12766,9 @@ msgid "BillingPlans|Bring your own production environment"
 msgstr ""
 
 msgid "BillingPlans|Built to grow with your team"
+msgstr ""
+
+msgid "BillingPlans|Buy monthly credits for AI capabilities, additional compute, and GitLab add-ons. Credits from $1, with volume discounts."
 msgstr ""
 
 msgid "BillingPlans|Cannot exceed 999,999 credits"
@@ -83550,12 +83550,6 @@ msgstr ""
 msgid "UserMapping|You've been reassigned contributions and memberships in %{destination_group} on %{source_hostname}."
 msgstr ""
 
-msgid "UserProfile|%{count} %{file}"
-msgstr ""
-
-msgid "UserProfile|%{id} · created %{created} by %{author}"
-msgstr ""
-
 msgid "UserProfile|AI"
 msgstr ""
 
@@ -83563,18 +83557,6 @@ msgid "UserProfile|About"
 msgstr ""
 
 msgid "UserProfile|Activity"
-msgstr ""
-
-msgid "UserProfile|An error occurred loading the activity. Please refresh the page to try again."
-msgstr ""
-
-msgid "UserProfile|An error occurred loading the followers. Please refresh the page to try again."
-msgstr ""
-
-msgid "UserProfile|An error occurred loading the following. Please refresh the page to try again."
-msgstr ""
-
-msgid "UserProfile|An error occurred loading the personal projects. Please refresh the page to try again."
 msgstr ""
 
 msgid "UserProfile|Blocked user"
@@ -83610,9 +83592,6 @@ msgstr ""
 msgid "UserProfile|Following"
 msgstr ""
 
-msgid "UserProfile|Get started with snippets"
-msgstr ""
-
 msgid "UserProfile|Groups"
 msgstr ""
 
@@ -83632,9 +83611,6 @@ msgid "UserProfile|No activities found"
 msgstr ""
 
 msgid "UserProfile|No snippets found"
-msgstr ""
-
-msgid "UserProfile|Overview"
 msgstr ""
 
 msgid "UserProfile|Personal projects"
@@ -83664,9 +83640,6 @@ msgstr ""
 msgid "UserProfile|Starred projects"
 msgstr ""
 
-msgid "UserProfile|Store, share, and embed bits of code and text."
-msgstr ""
-
 msgid "UserProfile|Subscribe"
 msgstr ""
 
@@ -83674,9 +83647,6 @@ msgid "UserProfile|There are no projects available to be displayed here"
 msgstr ""
 
 msgid "UserProfile|This user doesn't have any followers"
-msgstr ""
-
-msgid "UserProfile|This user doesn't have any snippets"
 msgstr ""
 
 msgid "UserProfile|This user has a private profile"
@@ -83734,9 +83704,6 @@ msgid "UserProfile|You haven't created any snippets"
 msgstr ""
 
 msgid "UserProfile|Your projects can be available publicly, internally, or privately, at your choice."
-msgstr ""
-
-msgid "UserProfile|updated %{updated}"
 msgstr ""
 
 msgid "Username"
@@ -90839,6 +90806,9 @@ msgstr ""
 msgid "Your work items are being imported. Once finished, you'll receive a confirmation email."
 msgstr ""
 
+msgid "YourWork|Member"
+msgstr ""
+
 msgid "You’re about to permanently delete the %{issuableType} ‘%{strongOpen}%{issuableTitle}%{strongClose}’. To avoid data loss, consider %{strongOpen}closing this %{issuableType}%{strongClose} instead. Once deleted, it cannot be undone or recovered."
 msgstr ""
 
@@ -91992,11 +91962,6 @@ msgstr ""
 
 msgid "features adopted"
 msgstr ""
-
-msgid "file"
-msgid_plural "files"
-msgstr[0] ""
-msgstr[1] ""
 
 msgid "finding is not found or is already attached to a vulnerability"
 msgstr ""

@@ -63,6 +63,16 @@ module Gitlab
       CACHE_COMMONMARK_VERSION_SHIFTED | local_version
     end
 
+    # The full version a row at the previous version carries, i.e. what a write
+    # would have produced during that version's lifetime.
+    # Returns nil outside a rollout, when there is no previous version.
+    # Used to classify upgrades in `upgrade_kind`.
+    def self.previous_cached_markdown_version(local_version:)
+      return if CACHE_COMMONMARK_VERSION_PREVIOUS_SHIFTED.nil?
+
+      CACHE_COMMONMARK_VERSION_PREVIOUS_SHIFTED | resolved_local_version(local_version)
+    end
+
     def self.resolved_local_version(local_version)
       local_version || Gitlab::CurrentSettings.current_application_settings.local_markdown_version
     end
@@ -115,11 +125,31 @@ module Gitlab
     # write guard passes and only when the new version is higher than the
     # load-time persisted version. This excludes attempted-but-suppressed writes
     # and same-version content-resync writes.
+    #
+    # Labeled by `class` and by `kind` (see `upgrade_kind`).
     def self.version_upgrade_counter
       @version_upgrade_counter ||= Gitlab::Metrics.counter(
         :gitlab_markdown_cache_version_upgrades_total,
         'Number of rows whose cached_markdown_version was advanced to a higher value'
       )
+    end
+
+    # Classifies an upgrade by the row's load-time persisted version, for the
+    # `kind` label on `version_upgrade_counter`. A row sitting at the previous
+    # version is the rollout's target population (`rollout`); anything older, or
+    # versionless, is a straggler we catch up regardless of rollout state
+    # (`backfill`).
+    #
+    # Outside a rollout `previous_cached_markdown_version` is nil and every
+    # upgrade is a `backfill`.
+    def self.upgrade_kind(persisted_version, local_version: nil)
+      return :backfill if persisted_version.nil?
+
+      if persisted_version == previous_cached_markdown_version(local_version: local_version)
+        :rollout
+      else
+        :backfill
+      end
     end
   end
 end

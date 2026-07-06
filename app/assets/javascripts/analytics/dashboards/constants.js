@@ -190,6 +190,7 @@ export const CHART_TOOLTIP_UNITS = {
   [UNITS.COUNT]: undefined,
   [UNITS.BIGINT_COUNT]: undefined,
   [UNITS.DAYS]: __('days'),
+  // eslint-disable-next-line @gitlab/no-hardcoded-urls -- False positive, not a URL
   [UNITS.PER_DAY]: __('/day'),
   [UNITS.PERCENT]: '%',
   [UNITS.MINUTES]: __('minutes'),

@@ -330,7 +330,7 @@ export default {
           :can-admin-list="canAdminList"
           :dragged-item-id="draggedItemId"
           :focused="list.id === effectiveFocusedListId"
-          @dragStart="handleDragStart"
+          @drag-start="handleDragStart"
           @dragStop="handleDragStop"
           @highlight-list="highlightList"
           @setActiveList="$emit('setActiveList', $event)"

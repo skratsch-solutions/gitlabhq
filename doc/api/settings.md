@@ -211,6 +211,7 @@ these parameters:
 - `group_secrets_limit`
 - `security_mr_report_cache_lifetime_minutes`
 - `security_scan_stale_after_days`
+- `service_access_tokens_expiration_enforced`
 
 ```json
 {
@@ -437,6 +438,7 @@ these parameters:
 - `lock_memberships_to_saml`
 - `security_mr_report_cache_lifetime_minutes`
 - `security_scan_stale_after_days`
+- `service_access_tokens_expiration_enforced`
 
 Example responses:
 
@@ -794,7 +796,7 @@ to configure other related settings. These requirements are in the `Required` co
 | `security_txt_content`                    | string          | no                                   | [Public security contact information](../administration/settings/security_contact_information.md). [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/433210) in GitLab 16.7. |
 | `security_mr_report_cache_lifetime_minutes` | integer       | no                                   | Number of minutes to cache security reports on merge requests (10-60). Default: 10. Premium and Ultimate only. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/223399) in GitLab 18.10. |
 | `security_scan_stale_after_days`          | integer          | no                                   | Number of days to retain security scan data before purging. Must be between 7 and 90 days. Default: 30 days for GitLab.com, 90 days for self-managed. Premium and Ultimate only. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/222998) in GitLab 18.9. |
-| `service_access_tokens_expiration_enforced` | boolean       | no                                   | Flag to indicate if token expiry date can be optional for service account users |
+| `service_access_tokens_expiration_enforced` | boolean       | no                                   | Flag to indicate if token expiry date can be optional for service account users. Premium and Ultimate only. |
 | `shared_runners_enabled`                 | boolean          | no                                   | (**If enabled, requires**: `shared_runners_text` and `shared_runners_minutes`) Enable instance runners for new projects. |
 | `shared_runners_minutes`                 | integer          | required by: `shared_runners_enabled` | Set the maximum number of compute minutes that a group can use on instance runners per month. Premium and Ultimate only. |
 | `shared_runners_text`                    | string           | required by: `shared_runners_enabled` | Instance runners text. |

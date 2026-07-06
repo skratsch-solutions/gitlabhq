@@ -479,7 +479,6 @@ export default {
     'app/assets/javascripts/pipeline_wizard/queries/create_commit.graphql',
     'app/assets/javascripts/pipeline_wizard/queries/get_file_meta.graphql',
     'app/assets/javascripts/profile/components/graphql/get_user_achievements.query.graphql',
-    'app/assets/javascripts/profile/components/graphql/get_user_snippets.query.graphql',
     'app/assets/javascripts/projects/commit_box/info/graphql/queries/commit_containing_branches.query.graphql',
     'app/assets/javascripts/projects/commit_box/info/graphql/queries/commit_containing_tags.query.graphql',
     'app/assets/javascripts/projects/commit_box/info/graphql/queries/commit_references.query.graphql',

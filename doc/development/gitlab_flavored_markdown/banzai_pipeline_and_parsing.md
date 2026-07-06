@@ -137,6 +137,8 @@ Bumping `Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION` historically put heavy
   - Writes always land at the new shifted version, regardless of the roll. This uses `cached_markdown_version_for_write`, which never consults the flag. The flag controls only which reads trigger a rewrite, not what version any given write produces. So new rows and content edits upgrade rows organically during a rollout, on top of the read-driven upgrades the flag controls.
 - The `gitlab_markdown_cache_version_upgrades_total` counter, labeled by class, increments inside `save_markdown` only when the write actually advances the row's `cached_markdown_version`. It excludes attempted-but-suppressed writes and same-version content-resync writes.
 
+You can view the `gitlab_markdown_cache_version_upgrades_total` counter using the [Markdown Cache Version Upgrades dashboard](https://dashboards.gitlab.net/d/general-markdown-cache-version-upgrades/general3a-markdown-cache-version-upgrades?orgId=1&from=now-3h&to=now&timezone=utc&var-PROMETHEUS_DS=mimir-gitlab-gprd&var-environment=gprd&refresh=5m) in Grafana.
+
 #### Why percentage-of-time randomness
 
 The flag uses `percentage_of_time` (a "random" gate), not an actor-based gate, by design. The load-shedding goal is that at `n%`, approximately `n%` of read traffic triggers an upgrade write, so the migration progresses as a smooth, throttled stream proportional to read load. We considered two alternatives:

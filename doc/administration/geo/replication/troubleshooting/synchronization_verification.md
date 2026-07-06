@@ -624,10 +624,20 @@ Repeat the steps for all affected resources and Geo data types.
 
 The error `"Error during verification","error":"File is not checksummable"` is caused by inconsistencies on the primary site. Since GitLab 18.9, the error message includes additional details about the cause:
 
-- `File is not checksummable - file does not exist at: <path>`: The file is missing from storage. The path shown helps identify the missing file.
-- `File is not checksummable - <ModelClass> <ID> is excluded from verification`: The record is excluded from the verification scope.
+- `File is not checksummable - file does not exist at: <path>`: The file is missing from storage.
+  The path shown helps identify the missing file.
+  To fix this error, follow the instructions in [The file is missing on the Geo primary site](#message-the-file-is-missing-on-the-geo-primary-site).
+- `File is not checksummable - <ModelClass> <ID> is excluded from verification`: The record no longer belongs to the replication scope, so Geo cannot verify it.
+  This behavior is expected when the primary site removes a record from the replication scope without deleting it.
+  For example, GitLab moves old `MergeRequestDiff` records to the `without_files` state during storage optimization.
+  The registry consistency worker removes these registry entries automatically over time.
 
-Follow the instructions provided in [The file is missing on the Geo primary site](#message-the-file-is-missing-on-the-geo-primary-site).
+To remove the affected `MergeRequestDiff` registry entries immediately, run the following command
+on the secondary site from the [Rails console](../../../operations/rails_console.md):
+
+```ruby
+Geo::MergeRequestDiffRegistry.where("verification_failure LIKE '%excluded from verification%'").find_each(&:destroy)
+```
 
 ### Failed verification of Uploads on the primary Geo site
 

@@ -61,7 +61,6 @@ export default {
     'app/assets/javascripts/diffs/components/settings_dropdown.vue',
     'app/assets/javascripts/diffs/components/tree_list.vue',
     'app/assets/javascripts/environments/components/canary_ingress.vue',
-    'app/assets/javascripts/environments/components/deploy_board.vue',
     'app/assets/javascripts/filtered_search/components/recent_searches_dropdown_content.vue',
     'app/assets/javascripts/glql/components/common/actions.vue',
     'app/assets/javascripts/glql/components/common/pagination.vue',

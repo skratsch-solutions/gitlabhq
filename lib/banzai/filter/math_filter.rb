@@ -18,10 +18,7 @@ module Banzai
       LANG_ATTR = 'data-canonical-lang'
       MATH_STYLE_ATTR = 'data-math-style'
 
-      # Limit to how many nodes can be marked as math elements.
-      # Prevents timeouts for large notes.
-      # For more information check: https://gitlab.com/gitlab-org/gitlab/-/issues/341832
-      RENDER_NODES_LIMIT = 50
+      RENDER_NODES_LIMIT = 1000
 
       def call
         @nodes_count = 0

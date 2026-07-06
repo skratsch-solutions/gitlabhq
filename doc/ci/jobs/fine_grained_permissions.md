@@ -120,8 +120,8 @@ CI/CD job tokens can access the following REST API endpoints:
 | ---------- | ------------ | --------------- | ----- |
 | Get a list of merge request notes | `GET /projects/:id/merge_requests/:noteable_id/notes` | `READ_MERGE_REQUESTS` | Read |
 | Get a single merge request note | `GET /projects/:id/merge_requests/:noteable_id/notes/:note_id` | `READ_MERGE_REQUESTS` | Read |
-| Get single merge request | `GET /projects/:id/merge_requests/:merge_request_iid` | `READ_MERGE_REQUESTS` | Read |
-| List project merge requests | `GET /projects/:id/merge_requests` | `READ_MERGE_REQUESTS` | Read |
+| List all project merge requests | `GET /projects/:id/merge_requests` | `READ_MERGE_REQUESTS` | Read |
+| Retrieve a merge request | `GET /projects/:id/merge_requests/:merge_request_iid` | `READ_MERGE_REQUESTS` | Read |
 
 ### Packages endpoints
 
@@ -143,19 +143,14 @@ CI/CD job tokens can access the following REST API endpoints:
 | Get all tags for a given an NPM package | `GET /groups/:id/-/packages/npm/-/package/*package_name/dist-tags` | `READ_PACKAGES` | Read |
 | Get all tags for a given an NPM package | `GET /packages/npm/-/package/*package_name/dist-tags` | `READ_PACKAGES` | Read |
 | Get all tags for a given an NPM package | `GET /projects/:id/packages/npm/-/package/*package_name/dist-tags` | `READ_PACKAGES` | Read |
-| Get package references metadata | `GET /packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
-| Get package references metadata | `GET /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
-| Get package references metadata | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
-| Get the latest package revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/latest` | `READ_PACKAGES` | Read |
-| Get the latest recipe revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/latest` | `READ_PACKAGES` | Read |
-| Get the list of package revisions | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions` | `READ_PACKAGES` | Read |
-| Get the list of revisions | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions` | `READ_PACKAGES` | Read |
 | List | `GET /projects/:id/packages/go/*module_name/@v/list` | `READ_PACKAGES` | Read |
 | List all package files | `GET /projects/:id/packages/:package_id/package_files` | `READ_PACKAGES` | Read |
+| List all package files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files` | `READ_PACKAGES` | Read |
+| List all package revisions | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions` | `READ_PACKAGES` | Read |
 | List all packages for a project | `GET /projects/:id/packages` | `READ_PACKAGES` | Read |
 | List all packages for a project | `GET /projects/:id/packages/pypi/simple` | `READ_PACKAGES` | Read |
-| List package files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files` | `READ_PACKAGES` | Read |
-| List recipe files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files` | `READ_PACKAGES` | Read |
+| List all recipe files | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files` | `READ_PACKAGES` | Read |
+| List all recipe revisions | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions` | `READ_PACKAGES` | Read |
 | NPM registry bulk advisory endpoint | `POST /groups/:id/-/packages/npm/-/npm/v1/security/advisories/bulk` | `READ_PACKAGES` | Read |
 | NPM registry bulk advisory endpoint | `POST /packages/npm/-/npm/v1/security/advisories/bulk` | `READ_PACKAGES` | Read |
 | NPM registry bulk advisory endpoint | `POST /projects/:id/packages/npm/-/npm/v1/security/advisories/bulk` | `READ_PACKAGES` | Read |
@@ -182,6 +177,11 @@ CI/CD job tokens can access the following REST API endpoints:
 | Retrieve a package file | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name` | `READ_PACKAGES` | Read |
 | Retrieve a project package | `GET /projects/:id/packages/:package_id` | `READ_PACKAGES` | Read |
 | Retrieve a recipe file | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name` | `READ_PACKAGES` | Read |
+| Retrieve latest package revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/latest` | `READ_PACKAGES` | Read |
+| Retrieve latest recipe revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/latest` | `READ_PACKAGES` | Read |
+| Retrieve package references metadata | `GET /packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
+| Retrieve package references metadata | `GET /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
+| Retrieve package references metadata | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/search` | `READ_PACKAGES` | Read |
 | Retrieve package references metadata by recipe revision | `GET /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/search` | `READ_PACKAGES` | Read |
 | The PyPi Simple Project Package Endpoint | `GET /projects/:id/packages/pypi/simple/*package_name` | `READ_PACKAGES` | Read |
 | The PyPi package download endpoint | `GET /projects/:id/packages/pypi/files/:sha256/*file_identifier` | `READ_PACKAGES` | Read |
@@ -203,21 +203,21 @@ CI/CD job tokens can access the following REST API endpoints:
 | Deletes the given tag | `DELETE /packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
 | Deletes the given tag | `DELETE /projects/:id/packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
 | Upload a package | `POST /projects/:id/packages/pypi` | `ADMIN_PACKAGES` | Read and write |
+| Upload a package file | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name` | `ADMIN_PACKAGES` | Read and write |
+| Upload a recipe file | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name` | `ADMIN_PACKAGES` | Read and write |
 | Upload package file | `PUT /projects/:id/packages/generic/:package_name/*package_version/(*path/):file_name` | `ADMIN_PACKAGES` | Read and write |
 | Upload package files | `PUT /packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name` | `ADMIN_PACKAGES` | Read and write |
 | Upload package files | `PUT /projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name` | `ADMIN_PACKAGES` | Read and write |
-| Upload package files | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name` | `ADMIN_PACKAGES` | Read and write |
 | Upload recipe package files | `PUT /packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name` | `ADMIN_PACKAGES` | Read and write |
 | Upload recipe package files | `PUT /projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name` | `ADMIN_PACKAGES` | Read and write |
-| Upload recipe package files | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name` | `ADMIN_PACKAGES` | Read and write |
 | Upload the maven package file | `PUT /projects/:id/packages/maven/*path/:file_name` | `ADMIN_PACKAGES` | Read and write |
 | Workhorse authorize generic package file | `PUT /projects/:id/packages/generic/:package_name/*package_version/(*path/):file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
+| Workhorse authorize the Conan package file | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
+| Workhorse authorize the Conan recipe file | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
 | Workhorse authorize the conan package file | `PUT /packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
 | Workhorse authorize the conan package file | `PUT /projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/package/:conan_package_reference/:package_revision/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
-| Workhorse authorize the conan package file | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/packages/:conan_package_reference/revisions/:package_revision/files/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
 | Workhorse authorize the conan recipe file | `PUT /packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
 | Workhorse authorize the conan recipe file | `PUT /projects/:id/packages/conan/v1/files/:package_name/:package_version/:package_username/:package_channel/:recipe_revision/export/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
-| Workhorse authorize the conan recipe file | `PUT /projects/:id/packages/conan/v2/conans/:package_name/:package_version/:package_username/:package_channel/revisions/:recipe_revision/files/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
 | Workhorse authorize the maven package file upload | `PUT /projects/:id/packages/maven/*path/:file_name/authorize` | `ADMIN_PACKAGES` | Read and write |
 
 ### Pipelines endpoints
@@ -310,18 +310,18 @@ CI/CD job tokens cannot access the following endpoints:
 | The PyPi Simple Group Package Endpoint | `GET /groups/:id/-/packages/pypi/simple/*package_name` |
 | Retrieve a job by job token | `GET /job` |
 | List all GitLab agents for Kubernetes by job token | `GET /job/allowed_agents` |
-| Search for packages | `GET /packages/conan/v1/conans/search` |
+| Search for a Conan package | `GET /packages/conan/v1/conans/search` |
 | Ping the Conan API | `GET /packages/conan/v1/ping` |
-| Authenticate user against conan CLI | `GET /packages/conan/v1/users/authenticate` |
-| Check for valid user credentials per conan CLI | `GET /packages/conan/v1/users/check_credentials` |
+| Retrieve an authentication token | `GET /packages/conan/v1/users/authenticate` |
+| Verify authentication credentials | `GET /packages/conan/v1/users/check_credentials` |
 | NPM registry metadata endpoint | `GET /packages/npm/*package_name` |
-| Search for packages | `GET /projects/:id/packages/conan/v1/conans/search` |
+| Search for a Conan package | `GET /projects/:id/packages/conan/v1/conans/search` |
 | Ping the Conan API | `GET /projects/:id/packages/conan/v1/ping` |
-| Authenticate user against conan CLI | `GET /projects/:id/packages/conan/v1/users/authenticate` |
-| Check for valid user credentials per conan CLI | `GET /projects/:id/packages/conan/v1/users/check_credentials` |
-| Search for packages | `GET /projects/:id/packages/conan/v2/conans/search` |
-| Authenticate user against conan CLI | `GET /projects/:id/packages/conan/v2/users/authenticate` |
-| Check for valid user credentials per conan CLI | `GET /projects/:id/packages/conan/v2/users/check_credentials` |
+| Retrieve an authentication token | `GET /projects/:id/packages/conan/v1/users/authenticate` |
+| Verify authentication credentials | `GET /projects/:id/packages/conan/v1/users/check_credentials` |
+| Search for a Conan package | `GET /projects/:id/packages/conan/v2/conans/search` |
+| Retrieve an authentication token | `GET /projects/:id/packages/conan/v2/users/authenticate` |
+| Verify authentication credentials | `GET /projects/:id/packages/conan/v2/users/check_credentials` |
 | List all registry repositories for a project | `GET /projects/:id/registry/repositories` |
 | List all registry repository tags for a project | `GET /projects/:id/registry/repositories/:repository_id/tags` |
 | Retrieve details of a registry repository tag | `GET /projects/:id/registry/repositories/:repository_id/tags/:tag_name` |

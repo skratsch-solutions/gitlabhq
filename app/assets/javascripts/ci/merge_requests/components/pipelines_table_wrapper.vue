@@ -10,22 +10,27 @@ import { helpPagePath } from '~/helpers/help_page_helper';
 import PipelinesTable from '~/ci/common/pipelines_table.vue';
 import RunPipelineButton from '~/ci/common/run_pipeline_button.vue';
 import { s__, __ } from '~/locale';
-import getMergeRequestPipelines from '~/ci/merge_requests/graphql/queries/get_merge_request_pipelines.query.graphql';
-import getSinglePipeline from '~/ci/pipelines_page/graphql/queries/get_single_pipeline.query.graphql';
-import getPipelinesDownstream from '~/ci/merge_requests/graphql/queries/get_pipelines_downstream.query.graphql';
-import cancelPipelineMutation from '~/ci/pipeline_details/graphql/mutations/cancel_pipeline.mutation.graphql';
-import retryPipelineMutation from '~/ci/pipeline_details/graphql/mutations/retry_pipeline.mutation.graphql';
+
 import { TYPENAME_CI_PIPELINE } from '~/graphql_shared/constants';
 import { convertToGraphQLId, getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { HTTP_STATUS_UNAUTHORIZED } from '~/lib/utils/http_status';
 import { PIPELINES_PER_PAGE } from '~/ci/pipelines_page/constants';
-import mrPipelineStatusesUpdatedSubscription from '~/ci/merge_requests/graphql/subscriptions/mr_pipeline_statuses_updated.subscription.graphql';
-import downstreamPipelineStatusUpdatedSubscription from '~/ci/merge_requests/graphql/subscriptions/downstream_pipeline_status_updated.subscription.graphql';
 import { PIPELINE_ALIVE_STATUSES } from '~/ci/constants';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
-import getPipelineCreationRequests from '~/ci/merge_requests/graphql/queries/get_pipeline_creation_requests.query.graphql';
-import pipelineCreationRequestsUpdatedSubscription from '~/ci/merge_requests/graphql/subscriptions/pipeline_creation_requests_updated.subscription.graphql';
+
+import cancelPipelineMutation from '~/ci/pipeline_details/graphql/mutations/cancel_pipeline.mutation.graphql';
+import retryPipelineMutation from '~/ci/pipeline_details/graphql/mutations/retry_pipeline.mutation.graphql';
+
+import getMergeRequestSinglePipeline from '../graphql/queries/get_merge_request_single_pipeline.query.graphql';
+import getMergeRequestPipelines from '../graphql/queries/get_merge_request_pipelines.query.graphql';
+import getPipelinesDownstream from '../graphql/queries/get_pipelines_downstream.query.graphql';
+import getPipelineCreationRequests from '../graphql/queries/get_pipeline_creation_requests.query.graphql';
+
+import mrPipelineStatusesUpdatedSubscription from '../graphql/subscriptions/mr_pipeline_statuses_updated.subscription.graphql';
+import downstreamPipelineStatusUpdatedSubscription from '../graphql/subscriptions/downstream_pipeline_status_updated.subscription.graphql';
+import pipelineCreationRequestsUpdatedSubscription from '../graphql/subscriptions/pipeline_creation_requests_updated.subscription.graphql';
+
 import { createSubscriptionsCollection, updateDownstreamPipelineInList } from '../utils';
 import { MR_PIPELINE_TYPE_DETACHED, MR_PIPELINE_TYPE_MERGED_RESULT } from '../constants';
 
@@ -528,7 +533,7 @@ export default {
     async refetchSinglePipeline(pipelineGid) {
       try {
         const { data } = await this.$apollo.query({
-          query: getSinglePipeline,
+          query: getMergeRequestSinglePipeline,
           variables: {
             fullPath: this.targetProjectFullPath,
             id: pipelineGid,

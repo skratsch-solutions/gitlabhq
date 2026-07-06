@@ -52,6 +52,25 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
     stub_commonmark_sourcepos_disabled
   end
 
+  # Asserts what the version_upgrade_counter records for a given action. Call
+  # sites provide `perform_upgrade` (the action under test) and, when an
+  # increment is expected, `upgrade_row` (the row whose class labels the metric).
+  # Pass `expected_kind: nil` to assert no increment at all.
+  shared_examples 'a version upgrade count' do |expected_kind:|
+    it "records #{expected_kind ? "a #{expected_kind} upgrade" : 'no upgrade'}" do
+      counter = instance_double(Prometheus::Client::Counter, increment: nil)
+      allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+
+      perform_upgrade
+
+      if expected_kind
+        expect(counter).to have_received(:increment).with(class: upgrade_row.class.name, kind: expected_kind)
+      else
+        expect(counter).not_to have_received(:increment)
+      end
+    end
+  end
+
   context 'an unchanged markdown field' do
     let(:thing) { klass.new(project_id: project.id, namespace_id: project.project_namespace_id, title: markdown) }
 
@@ -290,6 +309,16 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
 
       thing.refresh_markdown_cache!
     end
+
+    # A persisted row with a nil version is a rare anomaly (legacy/imported/
+    # backfilled) rather than the rollout's target population, so its catch-up
+    # is counted as a backfill upgrade.
+    context 'for the version upgrade counter' do
+      let(:upgrade_row) { thing }
+      let(:perform_upgrade) { thing.refresh_markdown_cache! }
+
+      it_behaves_like 'a version upgrade count', expected_kind: :backfill
+    end
   end
 
   describe 'stochastic version rollout' do
@@ -375,52 +404,51 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
         expect(row.cached_markdown_version).to eq(cache_version)
       end
 
-      it 'increments the version_upgrade_counter when rewriting a stale row' do
-        row = persisted_row_at_version(previous_cache_version)
-        counter = instance_double(Prometheus::Client::Counter, increment: nil)
-        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+      context 'when rewriting a row at the previous version' do
+        let(:upgrade_row) { persisted_row_at_version(previous_cache_version) }
+        let(:perform_upgrade) { Banzai::Renderer.render_field(upgrade_row, :title) }
 
-        Banzai::Renderer.render_field(row, :title)
+        it_behaves_like 'a version upgrade count', expected_kind: :rollout
+      end
 
-        expect(counter).to have_received(:increment).with(class: row.class.name)
+      context 'when rewriting a row older than the previous version' do
+        let(:older_version) { (Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION - 2) << 16 }
+        let(:upgrade_row) { persisted_row_at_version(older_version) }
+        let(:perform_upgrade) { Banzai::Renderer.render_field(upgrade_row, :title) }
+
+        it_behaves_like 'a version upgrade count', expected_kind: :backfill
       end
     end
 
     context 'counter is not incremented when the version is not advancing' do
-      it 'does not increment for a row already at the current version under a "previous" roll' do
-        row = persisted_row_at_version(cache_version)
-        counter = instance_double(Prometheus::Client::Counter, increment: nil)
-        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+      context 'for a row already at the current version under a "previous" roll' do
+        let(:perform_upgrade) { Banzai::Renderer.render_field(persisted_row_at_version(cache_version), :title) }
 
-        Banzai::Renderer.render_field(row, :title)
-
-        expect(counter).not_to have_received(:increment)
+        it_behaves_like 'a version upgrade count', expected_kind: nil
       end
 
-      it 'does not increment for a same-version resync write' do
-        row = persisted_row_at_version(cache_version)
-        counter = instance_double(Prometheus::Client::Counter, increment: nil)
-        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+      context 'for a same-version resync write' do
+        let(:perform_upgrade) { persisted_row_at_version(cache_version).refresh_markdown_cache! }
 
-        row.refresh_markdown_cache!
-
-        expect(counter).not_to have_received(:increment)
+        it_behaves_like 'a version upgrade count', expected_kind: nil
       end
 
-      it 'does not increment for a first-time cache fill' do
-        row = persisted_row_at_version(nil)
-        counter = instance_double(Prometheus::Client::Counter, increment: nil)
-        allow(Gitlab::MarkdownCache).to receive(:version_upgrade_counter).and_return(counter)
+      context 'when creating a new record' do
+        let(:perform_upgrade) do
+          klass.create!(project_id: project.id, namespace_id: project.project_namespace_id, title: markdown)
+        end
 
-        Banzai::Renderer.render_field(row, :title)
-
-        expect(counter).not_to have_received(:increment)
+        it_behaves_like 'a version upgrade count', expected_kind: nil
       end
     end
   end
 
   describe 'steady state (no rollout in progress)' do
     let(:older_version) { (Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION - 1) << 16 }
+
+    before do
+      stub_const('Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION_PREVIOUS_SHIFTED', nil)
+    end
 
     it 'treats older versions as stale' do
       row = persisted_row_at_version(older_version)
@@ -435,6 +463,15 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category:
       row.reload
 
       expect(row.cached_markdown_version).to eq(cache_version)
+    end
+
+    # With no rollout active there is no "previous" version, so every upgrade is
+    # a backfill of a straggler row (the background we observe between rollouts).
+    context 'for the version upgrade counter' do
+      let(:upgrade_row) { persisted_row_at_version(older_version) }
+      let(:perform_upgrade) { Banzai::Renderer.render_field(upgrade_row, :title) }
+
+      it_behaves_like 'a version upgrade count', expected_kind: :backfill
     end
   end
 end

@@ -215,6 +215,7 @@ export const AI_METRICS = {
 export const VALUE_STREAM_METRIC_DISPLAY_UNITS = {
   [UNITS.COUNT]: '',
   [UNITS.DAYS]: __('days'),
+  // eslint-disable-next-line @gitlab/no-hardcoded-urls -- False positive, not a URL
   [UNITS.PER_DAY]: __('/day'),
   [UNITS.PERCENT]: '%',
 };

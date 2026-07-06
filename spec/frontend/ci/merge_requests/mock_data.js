@@ -550,13 +550,9 @@ export const generatePipelineCreationRequestsResponse = ({
     project: {
       __typename: 'Project',
       id: 'gid://gitlab/Project/1',
-      fullPath: 'root/project-1',
       mergeRequest: {
         __typename: 'MergeRequest',
         id: mergeRequestId,
-        iid: '1',
-        title: 'Fix everything',
-        webPath: '/merge_requests/1',
         pipelineCreationRequests: requests,
       },
     },
@@ -571,9 +567,6 @@ export const generatePipelineCreationSubscriptionResponse = ({
     ciPipelineCreationRequestsUpdated: {
       __typename: 'MergeRequest',
       id: mergeRequestId,
-      iid: '1',
-      title: 'Fix everything',
-      webPath: '/merge_requests/1',
       pipelineCreationRequests: requests,
     },
   },
@@ -586,7 +579,6 @@ export const generatePipelineCreationRequest = ({
   pipeline = null,
 } = {}) => ({
   status,
-  pipelineId,
   error,
   pipeline:
     pipeline ||

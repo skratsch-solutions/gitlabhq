@@ -47,10 +47,9 @@ const generateMockPipelineCreationMergeRequest = (requests) => ({
 
 const generatePipelineCreationRequestsResponse = ({
   requests = [
-    { status: 'IN_PROGRESS', pipelineId: null, error: null, pipeline: null },
+    { status: 'IN_PROGRESS', error: null, pipeline: null },
     {
       status: 'SUCCEEDED',
-      pipelineId: '123',
       error: null,
       pipeline: generateMockPipeline({ id: '123' }),
     },
@@ -67,10 +66,9 @@ const generatePipelineCreationRequestsResponse = ({
 
 const generatePipelineCreationSubscriptionUpdateResponse = ({
   requests = [
-    { status: 'IN_PROGRESS', pipelineId: null, error: null, pipeline: null },
+    { status: 'IN_PROGRESS', error: null, pipeline: null },
     {
       status: 'SUCCEEDED',
-      pipelineId: '123',
       error: null,
       pipeline: generateMockPipeline({ id: '123' }),
     },
@@ -355,9 +353,7 @@ describe('Pipelines table in Commits and Merge requests', () => {
 
             getPipelineCreationRequestsHandler.mockResolvedValue(
               generatePipelineCreationRequestsResponse({
-                requests: [
-                  { status: 'IN_PROGRESS', pipelineId: null, error: null, pipeline: null },
-                ],
+                requests: [{ status: 'IN_PROGRESS', error: null, pipeline: null }],
               }),
             );
 
@@ -750,9 +746,7 @@ describe('Pipelines table in Commits and Merge requests', () => {
 
     describe('Pipeline creation failed alert', () => {
       it('shows alert when pipeline creation fails', async () => {
-        const failedRequests = [
-          { status: 'FAILED', pipelineId: null, pipeline: null, error: 'Creation failed' },
-        ];
+        const failedRequests = [{ status: 'FAILED', pipeline: null, error: 'Creation failed' }];
 
         getPipelineCreationRequestsHandler.mockResolvedValue(
           generatePipelineCreationRequestsResponse({ requests: failedRequests }),
@@ -777,9 +771,7 @@ describe('Pipelines table in Commits and Merge requests', () => {
       });
 
       it('hides alert when dismissed', async () => {
-        const failedRequests = [
-          { status: 'FAILED', pipelineId: null, pipeline: null, error: 'Creation failed' },
-        ];
+        const failedRequests = [{ status: 'FAILED', pipeline: null, error: 'Creation failed' }];
 
         getPipelineCreationRequestsHandler.mockResolvedValue(
           generatePipelineCreationRequestsResponse({ requests: failedRequests }),
@@ -815,9 +807,7 @@ describe('Pipelines table in Commits and Merge requests', () => {
 
         expect(findCreationFailedAlert().exists()).toBe(false);
 
-        const failedRequests = [
-          { status: 'FAILED', pipelineId: null, pipeline: null, error: 'Creation failed' },
-        ];
+        const failedRequests = [{ status: 'FAILED', pipeline: null, error: 'Creation failed' }];
 
         getPipelineCreationRequestsHandler.mockResolvedValue(
           generatePipelineCreationRequestsResponse({ requests: failedRequests }),
@@ -844,9 +834,7 @@ describe('Pipelines table in Commits and Merge requests', () => {
             findRunButton: () => findRunPipelineBtn(),
           },
         ])('disables the $buttonType button & enables loading', async ({ findRunButton }) => {
-          const inProgressRequests = [
-            { status: 'IN_PROGRESS', pipelineId: null, pipeline: null, error: null },
-          ];
+          const inProgressRequests = [{ status: 'IN_PROGRESS', pipeline: null, error: null }];
 
           getPipelineCreationRequestsHandler.mockResolvedValue(
             generatePipelineCreationRequestsResponse({ requests: inProgressRequests }),
@@ -898,7 +886,7 @@ describe('Pipelines table in Commits and Merge requests', () => {
         it('when hasInProgressCreationRequests becomes true', async () => {
           getPipelineCreationRequestsHandler.mockResolvedValue(
             generatePipelineCreationRequestsResponse({
-              requests: [{ status: 'IN_PROGRESS', pipelineId: null, pipeline: null, error: null }],
+              requests: [{ status: 'IN_PROGRESS', pipeline: null, error: null }],
             }),
           );
 
@@ -951,13 +939,10 @@ describe('Pipelines table in Commits and Merge requests', () => {
       });
 
       it('stops showing skeleton loader when pipeline creation completes', async () => {
-        const inProgressRequests = [
-          { status: 'IN_PROGRESS', pipelineId: null, pipeline: null, error: null },
-        ];
+        const inProgressRequests = [{ status: 'IN_PROGRESS', pipeline: null, error: null }];
         const completedRequests = [
           {
             status: 'SUCCEEDED',
-            pipelineId: '123',
             pipeline: generateMockPipeline({ id: '123' }),
             error: null,
           },
@@ -996,8 +981,8 @@ describe('Pipelines table in Commits and Merge requests', () => {
 
       it('continues showing skeleton loader when there are still in-progress requests', async () => {
         const inProgressRequests = [
-          { status: 'IN_PROGRESS', pipelineId: null, pipeline: null, error: null },
-          { status: 'IN_PROGRESS', pipelineId: null, pipeline: null, error: null },
+          { status: 'IN_PROGRESS', pipeline: null, error: null },
+          { status: 'IN_PROGRESS', pipeline: null, error: null },
         ];
 
         getPipelineCreationRequestsHandler.mockResolvedValue(
@@ -1020,10 +1005,9 @@ describe('Pipelines table in Commits and Merge requests', () => {
         expect(findSkeletonLoader().exists()).toBe(true);
 
         const mixedRequests = [
-          { status: 'IN_PROGRESS', pipelineId: null, pipeline: null, error: null },
+          { status: 'IN_PROGRESS', pipeline: null, error: null },
           {
             status: 'SUCCEEDED',
-            pipelineId: '123',
             pipeline: generateMockPipeline({ id: '123' }),
             error: null,
           },

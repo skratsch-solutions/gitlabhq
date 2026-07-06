@@ -38650,10 +38650,10 @@ paths:
   "/api/v4/merge_requests":
     get:
       operationId: getApiV4MergeRequests
-      summary: List merge requests
-      description: Get all merge requests the authenticated user has access to. By
-        default it returns only merge requests created by the current user. To get
-        all merge requests, use parameter `scope=all`.
+      summary: List all merge requests
+      description: Lists all merge requests accessible to the authenticated user.
+        By default, returns only merge requests created by the current user. Use `scope=all`
+        to get all merge requests.
       tags:
       - Merge requests
       responses:
@@ -39143,8 +39143,8 @@ paths:
   "/api/v4/groups/{id}/merge_requests":
     get:
       operationId: getApiV4GroupsIdMergeRequests
-      summary: List group merge requests
-      description: Get all merge requests for this group and its subgroups.
+      summary: List all group merge requests
+      description: Lists all merge requests for a specified group and any subgroups.
       tags:
       - Merge requests
       responses:
@@ -39822,8 +39822,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests":
     get:
       operationId: getApiV4ProjectsIdMergeRequests
-      summary: List project merge requests
-      description: Get all merge requests for this project.
+      summary: List all project merge requests
+      description: Lists all project merge requests.
       tags:
       - Merge requests
       responses:
@@ -40325,8 +40325,8 @@ paths:
         explode: false
     post:
       operationId: postApiV4ProjectsIdMergeRequests
-      summary: Create merge request
-      description: Create a new merge request.
+      summary: Create a merge request
+      description: Creates a merge request for a project.
       tags:
       - Merge requests
       responses:
@@ -40365,8 +40365,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIid
       summary: Delete a merge request
-      description: 'Only for administrators and project owners. Deletes the merge
-        request in question. '
+      description: Deletes a specified merge request for a project. Administrators
+        and project Owners only.
       tags:
       - Merge requests
       responses:
@@ -40395,11 +40395,8 @@ paths:
         in: path
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIid
-      summary: Get single merge request
-      description: 'Shows information about a single merge request. Note: the `changes_count`
-        value in the response is a string, not an integer. This is because when an
-        merge request has too many changes to display and store, it is capped at 1,000.
-        In that case, the API returns the string `"1000+"` for the changes count.'
+      summary: Retrieve a merge request
+      description: Retrieves a merge request for a specified project.
       tags:
       - Merge requests
       responses:
@@ -40450,9 +40447,8 @@ paths:
         in: query
     put:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIid
-      summary: Update merge request
-      description: Updates an existing merge request. You can change the target branch,
-        title, or even close the merge request.
+      summary: Update a merge request
+      description: Updates a merge request for a specified project.
       tags:
       - Merge requests
       responses:
@@ -40494,8 +40490,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/participants":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidParticipants
-      summary: Get single merge request participants
-      description: Get a list of merge request participants.
+      summary: Retrieve merge request participants
+      description: Retrieves participants for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40525,8 +40521,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/reviewers":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidReviewers
-      summary: Get single merge request reviewers
-      description: Get a list of merge request reviewers.
+      summary: Retrieve merge request reviewers
+      description: Retrieves reviewers for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40556,8 +40552,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/commits":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidCommits
-      summary: Get single merge request commits
-      description: Get a list of merge request commits.
+      summary: Retrieve merge request commits
+      description: Retrieves commits for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40605,8 +40601,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/context_commits":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidContextCommits
-      summary: List merge request context commits
-      description: Get a list of merge request context commits.
+      summary: List all context commits for a merge request
+      description: Lists all context commits for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40635,8 +40631,8 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidContextCommits
-      summary: Create merge request context commits
-      description: Create a list of merge request context commits.
+      summary: Create context commits for a merge request
+      description: Creates context commits for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40675,8 +40671,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_f15919c15539"
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIidContextCommits
-      summary: Delete merge request context commits
-      description: Delete a list of merge request context commits.
+      summary: Delete context commits from a merge request
+      description: Deletes specified context commits from a merge request.
       tags:
       - Merge requests
       responses:
@@ -40717,9 +40713,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/changes":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidChanges
-      summary: Get single merge request changes
-      description: Shows information about the merge request including its files and
-        changes.
+      summary: Retrieve merge request changes
+      description: Retrieves changes for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40756,8 +40751,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/diffs":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidDiffs
-      summary: Get the merge request diffs
-      description: Get a list of merge request diffs.
+      summary: List all merge request diffs
+      description: Lists all merge request diffs.
       tags:
       - Merge requests
       responses:
@@ -40814,8 +40809,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/raw_diffs":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidRawDiffs
-      summary: Get the merge request raw diffs
-      description: Get the raw diffs of a merge request that can used programmatically.
+      summary: Retrieve merge request raw diffs
+      description: Retrieves the raw diffs of the files changed in a merge request.
       tags:
       - Merge requests
       responses:
@@ -40843,8 +40838,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/pipelines":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidPipelines
-      summary: Get single merge request pipelines
-      description: Get a list of merge request pipelines.
+      summary: List all merge request pipelines
+      description: Lists all merge request pipelines.
       tags:
       - Merge requests
       responses:
@@ -40873,10 +40868,10 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidPipelines
-      summary: Create merge request pipeline
-      description: 'Create a new pipeline for a merge request. A pipeline created
-        via this endpoint doesn’t run a regular branch/tag pipeline. It requires `.gitlab-ci.yml`
-        to be configured with `only: [merge_requests]` to create jobs.'
+      summary: Create a merge request pipeline
+      description: 'Creates a merge request pipeline. Pipelines created with this
+        operation must configure `.gitlab-ci.yml` with `only: [merge_requests]` to
+        create jobs.'
       tags:
       - Merge requests
       responses:
@@ -40917,8 +40912,8 @@ paths:
     put:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidMerge
       summary: Merge a merge request
-      description: Accept and merge changes submitted with the merge request using
-        this API.
+      description: Merges a merge request. Accepts and merges changes submitted with
+        the merge request.
       tags:
       - Merge requests
       responses:
@@ -40964,8 +40959,11 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/merge_ref":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidMergeRef
-      summary: Returns the up to date merge-ref HEAD commit
-      description: Returns the up to date merge-ref HEAD commit
+      summary: Merge to default merge ref path
+      description: Merges the changes between the merge request source and target
+        branches into the `refs/merge-requests/:iid/merge` ref, of the target project
+        repository, if possible. This ref has the state the target branch would have
+        if a regular merge action was taken.
       tags:
       - Merge requests
       responses:
@@ -41030,8 +41028,8 @@ paths:
     put:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidRebase
       summary: Rebase a merge request
-      description: Automatically rebase the `source_branch` of the merge request against
-        its `target_branch`. This feature was added in GitLab 11.6
+      description: Rebases a merge request. Automatically rebases the `source_branch`
+        of the merge request against its `target_branch`.
       tags:
       - Merge requests
       responses:
@@ -41067,9 +41065,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/closes_issues":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidClosesIssues
-      summary: List issues that close on merge
-      description: Get all the issues that would be closed by merging the provided
-        merge request.
+      summary: List all issues that close on merge
+      description: Lists all issues that close on merge.
       tags:
       - Merge requests
       responses:
@@ -41119,9 +41116,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/related_issues":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidRelatedIssues
-      summary: List issues related to merge request
-      description: Get all the related issues from title, description, commits, comments
-        and discussions of the merge request.
+      summary: List all issues related to the merge request
+      description: Lists all issues related to the merge request.
       tags:
       - Merge requests
       responses:
@@ -58568,8 +58564,9 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v2/users/authenticate":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV2UsersAuthenticate
-      summary: Authenticate user against conan CLI
-      description: This feature was introduced in GitLab 12.2
+      summary: Retrieve an authentication token
+      description: Retrieves an authentication token. Creates a JSON Web Token (JWT)
+        for use as a Bearer header in other requests to the package registry.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58591,8 +58588,8 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v2/users/check_credentials":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV2UsersCheckCredentials
-      summary: Check for valid user credentials per conan CLI
-      description: This feature was introduced in GitLab 12.4
+      summary: Verify authentication credentials
+      description: Verifies authentication credentials for a Conan package registry.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58614,8 +58611,8 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v2/conans/search":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansSearch
-      summary: Search for packages
-      description: This feature was introduced in GitLab 12.4
+      summary: Search for a Conan package
+      description: Searches the instance for a specified Conan package.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58653,8 +58650,9 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
-      summary: Get package references metadata
-      description: This feature was introduced in GitLab 18.0
+      summary: Retrieve package references metadata
+      description: Retrieves the metadata for all package references of a specified
+        package. This feature was introduced in GitLab 18.0.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58708,8 +58706,9 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/latest":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelLatest
-      summary: Get the latest recipe revision
-      description: This feature was introduced in GitLab 17.11
+      summary: Retrieve latest recipe revision
+      description: Retrieves the revision hash and creation date of the latest package
+        recipe. This feature was introduced in GitLab 17.11.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58767,8 +58766,9 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisions
-      summary: Get the list of revisions
-      description: This feature was introduced in GitLab 17.11
+      summary: List all recipe revisions
+      description: Lists all revisions for a package recipe. This feature was introduced
+        in GitLab 17.11.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58827,7 +58827,9 @@ paths:
   : delete:
       operationId: deleteApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevision
       summary: Delete recipe revision
-      description: This feature was introduced in GitLab 18.1
+      description: Deletes a specified recipe revision from the registry. If the recipe
+        revision is the only one, the package is deleted as well. This feature was
+        introduced in GitLab 18.1.
       tags:
       - 'Packages: Conan'
       responses:
@@ -58888,8 +58890,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/files"
   : get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFiles
-      summary: List recipe files
-      description: This feature was introduced in GitLab 17.11
+      summary: List all recipe files
+      description: Lists all recipe files from the package registry. This feature
+        was introduced in GitLab 17.11.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59031,8 +59034,9 @@ paths:
         example: conanfile.py
     put:
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFilesFileName
-      summary: Upload recipe package files
-      description: This feature was introduced in GitLab 17.10
+      summary: Upload a recipe file
+      description: Uploads a specified recipe file to the package registry. This feature
+        was introduced in GitLab 17.10.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59114,8 +59118,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/files/{file_name}/authorize"
   : put:
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionFilesFileNameAuthorize
-      summary: Workhorse authorize the conan recipe file
-      description: This feature was introduced in GitLab 17.10
+      summary: Workhorse authorize the Conan recipe file
+      description: Authorizes the Conan recipe file. This feature was introduced in
+        GitLab 17.10.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59254,8 +59259,10 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/latest"
   : get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceLatest
-      summary: Get the latest package revision
-      description: This feature was introduced in GitLab 17.11
+      summary: Retrieve latest package revision
+      description: Retrieves the revision hash and creation date of the latest package
+        revision for a specified recipe revision and package reference. This feature
+        was introduced in GitLab 17.11.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59327,8 +59334,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions"
   : get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisions
-      summary: Get the list of package revisions
-      description: This feature was introduced in GitLab 18.0
+      summary: List all package revisions
+      description: Lists all package revisions for a specified recipe revision and
+        package reference. This feature was introduced in GitLab 18.0.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59478,8 +59486,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}/files"
   : get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFiles
-      summary: List package files
-      description: This feature was introduced in GitLab 18.0
+      summary: List all package files
+      description: Lists all package files. This feature was introduced in GitLab
+        18.0.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59649,8 +59658,9 @@ paths:
         example: conaninfo.txt
     put:
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFilesFileName
-      summary: Upload package files
-      description: This feature was introduced in GitLab 17.11
+      summary: Upload a package file
+      description: Uploads a specified package file to the package registry. This
+        feature was introduced in GitLab 17.11.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59746,8 +59756,9 @@ paths:
   ? "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/revisions/{recipe_revision}/packages/{conan_package_reference}/revisions/{package_revision}/files/{file_name}/authorize"
   : put:
       operationId: putApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelRevisionsRecipeRevisionPackagesConanPackageReferenceRevisionsPackageRevisionFilesFileNameAuthorize
-      summary: Workhorse authorize the conan package file
-      description: This feature was introduced in GitLab 17.11
+      summary: Workhorse authorize the Conan package file
+      description: Authorizes the Conan package file. This feature was introduced
+        in GitLab 17.11.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59837,8 +59848,9 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v1/users/authenticate":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV1UsersAuthenticate
-      summary: Authenticate user against conan CLI
-      description: This feature was introduced in GitLab 12.2
+      summary: Retrieve an authentication token
+      description: Retrieves an authentication token. Creates a JSON Web Token (JWT)
+        for use as a Bearer header in other requests to the package registry.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59860,8 +59872,8 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v1/users/check_credentials":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV1UsersCheckCredentials
-      summary: Check for valid user credentials per conan CLI
-      description: This feature was introduced in GitLab 12.4
+      summary: Verify authentication credentials
+      description: Verifies authentication credentials for a Conan package registry.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59883,8 +59895,8 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v1/conans/search":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV1ConansSearch
-      summary: Search for packages
-      description: This feature was introduced in GitLab 12.4
+      summary: Search for a Conan package
+      description: Searches the instance for a specified Conan package.
       tags:
       - 'Packages: Conan'
       responses:
@@ -59922,8 +59934,9 @@ paths:
   "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
-      summary: Get package references metadata
-      description: This feature was introduced in GitLab 18.0
+      summary: Retrieve package references metadata
+      description: Retrieves the metadata for all package references of a specified
+        package. This feature was introduced in GitLab 18.0.
       tags:
       - 'Packages: Conan'
       responses:
@@ -61042,8 +61055,9 @@ paths:
   "/api/v4/packages/conan/v1/users/authenticate":
     get:
       operationId: getApiV4PackagesConanV1UsersAuthenticate
-      summary: Authenticate user against conan CLI
-      description: This feature was introduced in GitLab 12.2
+      summary: Retrieve an authentication token
+      description: Retrieves an authentication token. Creates a JSON Web Token (JWT)
+        for use as a Bearer header in other requests to the package registry.
       tags:
       - 'Packages: Conan'
       responses:
@@ -61056,8 +61070,8 @@ paths:
   "/api/v4/packages/conan/v1/users/check_credentials":
     get:
       operationId: getApiV4PackagesConanV1UsersCheckCredentials
-      summary: Check for valid user credentials per conan CLI
-      description: This feature was introduced in GitLab 12.4
+      summary: Verify authentication credentials
+      description: Verifies authentication credentials for a Conan package registry.
       tags:
       - 'Packages: Conan'
       responses:
@@ -61070,8 +61084,8 @@ paths:
   "/api/v4/packages/conan/v1/conans/search":
     get:
       operationId: getApiV4PackagesConanV1ConansSearch
-      summary: Search for packages
-      description: This feature was introduced in GitLab 12.4
+      summary: Search for a Conan package
+      description: Searches the instance for a specified Conan package.
       tags:
       - 'Packages: Conan'
       responses:
@@ -61101,8 +61115,9 @@ paths:
   "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
-      summary: Get package references metadata
-      description: This feature was introduced in GitLab 18.0
+      summary: Retrieve package references metadata
+      description: Retrieves the metadata for all package references of a specified
+        package. This feature was introduced in GitLab 18.0.
       tags:
       - 'Packages: Conan'
       responses:

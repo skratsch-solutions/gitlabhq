@@ -98,7 +98,7 @@ export default {
   },
   emits: [
     'cannot-find-active-item',
-    'dragStart',
+    'drag-start',
     'dragStop',
     'focus-adjacent',
     'setFilters',
@@ -425,7 +425,7 @@ export default {
         return;
       }
       const draggedItem = this.boardListItems.find((item) => item.id === itemId);
-      this.$emit('dragStart', { itemId: draggedItem?.workItemType?.id || null });
+      this.$emit('drag-start', { itemId: draggedItem?.workItemType?.id || null });
 
       // Reset dragCancelled flag
       this.dragCancelled = false;

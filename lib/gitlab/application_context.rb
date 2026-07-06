@@ -243,11 +243,14 @@ module Gitlab
     end
 
     def include_client?
-      # Don't overwrite an existing more specific client id with an `ip/` one.
-      original_client_id = self.class.current_context_attribute(:client_id).to_s
-      return false if original_client_id.starts_with?('user/') || original_client_id.starts_with?('runner/')
+      return false unless include_user? || set_values.include?(:runner) || set_values.include?(:remote_ip)
 
-      include_user? || set_values.include?(:runner) || set_values.include?(:remote_ip)
+      # Don't overwrite an existing more specific client id with an `ip/` one.
+      # The check is intentionally last because evaluating the existing client_id
+      # lambda transitively memoizes the user lazy-attribute reader; skipping it
+      # when we already know the result is false avoids that side effect.
+      original_client_id = self.class.current_context_attribute(:client_id).to_s
+      !original_client_id.starts_with?('user/') && !original_client_id.starts_with?('runner/')
     end
 
     def include_user?

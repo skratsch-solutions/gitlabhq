@@ -136,8 +136,9 @@ module API
               end
 
               namespace 'latest' do
-                desc 'Get the latest recipe revision' do
-                  detail 'This feature was introduced in GitLab 17.11'
+                desc 'Retrieve latest recipe revision' do
+                  detail 'Retrieves the revision hash and creation date of the latest package recipe. This feature ' \
+                    'was introduced in GitLab 17.11.'
                   success code: 200, model: ::API::Entities::Packages::Conan::Revision
                   failure [
                     { code: 400, message: 'Bad Request' },
@@ -161,8 +162,8 @@ module API
                 end
               end
               namespace 'revisions' do
-                desc 'Get the list of revisions' do
-                  detail 'This feature was introduced in GitLab 17.11'
+                desc 'List all recipe revisions' do
+                  detail 'Lists all revisions for a package recipe. This feature was introduced in GitLab 17.11.'
                   success code: 200, model: ::API::Entities::Packages::Conan::RecipeRevisions
                   failure [
                     { code: 400, message: 'Bad Request' },
@@ -187,7 +188,8 @@ module API
                 end
                 namespace ':recipe_revision' do
                   desc 'Delete recipe revision' do
-                    detail 'This feature was introduced in GitLab 18.1'
+                    detail 'Deletes a specified recipe revision from the registry. If the recipe revision is the ' \
+                      'only one, the package is deleted as well. This feature was introduced in GitLab 18.1.'
                     success code: 200
                     failure [
                       { code: 400, message: 'Bad Request' },
@@ -228,8 +230,9 @@ module API
                   end
 
                   namespace 'files' do
-                    desc 'List recipe files' do
-                      detail 'This feature was introduced in GitLab 17.11'
+                    desc 'List all recipe files' do
+                      detail 'Lists all recipe files from the package registry. This feature was introduced in ' \
+                        'GitLab 17.11.'
                       success code: 200, model: ::API::Entities::Packages::Conan::FilesList
                       failure [
                         { code: 400, message: 'Bad Request' },
@@ -277,8 +280,9 @@ module API
                         download_package_file(:recipe_file)
                       end
 
-                      desc 'Upload recipe package files' do
-                        detail 'This feature was introduced in GitLab 17.10'
+                      desc 'Upload a recipe file' do
+                        detail 'Uploads a specified recipe file to the package registry. This feature was introduced ' \
+                          'in GitLab 17.10.'
                         success code: 200
                         failure [
                           { code: 400, message: 'Bad Request' },
@@ -303,8 +307,8 @@ module API
                         upload_package_file(:recipe_file)
                       end
 
-                      desc 'Workhorse authorize the conan recipe file' do
-                        detail 'This feature was introduced in GitLab 17.10'
+                      desc 'Workhorse authorize the Conan recipe file' do
+                        detail 'Authorizes the Conan recipe file. This feature was introduced in GitLab 17.10.'
                         success code: 200
                         failure [
                           { code: 400, message: 'Bad Request' },
@@ -364,8 +368,10 @@ module API
                   end
                   namespace 'packages/:conan_package_reference' do
                     namespace 'latest' do
-                      desc 'Get the latest package revision' do
-                        detail 'This feature was introduced in GitLab 17.11'
+                      desc 'Retrieve latest package revision' do
+                        detail 'Retrieves the revision hash and creation date of the latest package revision for a ' \
+                          'specified recipe revision and package reference. This feature was introduced in GitLab ' \
+                          '17.11.'
                         success code: 200, model: ::API::Entities::Packages::Conan::Revision
                         failure [
                           { code: 400, message: 'Bad Request' },
@@ -389,8 +395,9 @@ module API
                       end
                     end
                     namespace 'revisions' do
-                      desc 'Get the list of package revisions' do
-                        detail 'This feature was introduced in GitLab 18.0'
+                      desc 'List all package revisions' do
+                        detail 'Lists all package revisions for a specified recipe revision and package reference. ' \
+                          'This feature was introduced in GitLab 18.0.'
                         success code: 200, model: ::API::Entities::Packages::Conan::PackageRevisions
                         failure [
                           { code: 400, message: 'Bad Request' },
@@ -458,8 +465,8 @@ module API
                           end
                         end
                         namespace 'files' do
-                          desc 'List package files' do
-                            detail 'This feature was introduced in GitLab 18.0'
+                          desc 'List all package files' do
+                            detail 'Lists all package files. This feature was introduced in GitLab 18.0.'
                             success code: 200, model: ::API::Entities::Packages::Conan::FilesList
                             failure [
                               { code: 400, message: 'Bad Request' },
@@ -512,8 +519,9 @@ module API
                               download_package_file(:package_file)
                             end
 
-                            desc 'Upload package files' do
-                              detail 'This feature was introduced in GitLab 17.11'
+                            desc 'Upload a package file' do
+                              detail 'Uploads a specified package file to the package registry. This feature was ' \
+                                'introduced in GitLab 17.11.'
                               success code: 200
                               failure [
                                 { code: 400, message: 'Bad Request' },
@@ -539,8 +547,8 @@ module API
                               upload_package_file(:package_file)
                             end
 
-                            desc 'Workhorse authorize the conan package file' do
-                              detail 'This feature was introduced in GitLab 17.11'
+                            desc 'Workhorse authorize the Conan package file' do
+                              detail 'Authorizes the Conan package file. This feature was introduced in GitLab 17.11.'
                               success code: 200
                               failure [
                                 { code: 400, message: 'Bad Request' },
