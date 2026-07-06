@@ -65,7 +65,7 @@ RSpec.describe Ci::JobTokenScope::AddProjectService, feature_category: :continuo
       context 'when user has permissions on source and target projects' do
         let(:resulting_direction) { result.payload.fetch(:project_link)&.direction }
 
-        before do
+        before_all do
           project.add_maintainer(current_user)
           target_project.add_developer(current_user)
         end
@@ -125,7 +125,7 @@ RSpec.describe Ci::JobTokenScope::AddProjectService, feature_category: :continuo
       end
 
       context 'when target project is same as the source project' do
-        before do
+        before_all do
           project.add_maintainer(current_user)
         end
 

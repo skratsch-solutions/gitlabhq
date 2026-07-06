@@ -69,9 +69,9 @@ RSpec.describe ContainerRepositoriesFinder do
 
       context 'when subject_type is group' do
         let(:subject_object) { group }
-        let(:other_project) { create(:project, group: group) }
+        let_it_be(:other_project) { create(:project, group: group) }
 
-        let(:other_repository) do
+        let_it_be(:other_repository) do
           create(:container_repository, name: 'test_repository2', project: other_project)
         end
 

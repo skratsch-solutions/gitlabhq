@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_category: :importers do
   let_it_be(:user, freeze: false) { create(:user) }
-  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:group, freeze: false) { create(:group, owners: user) }
   let_it_be(:project, freeze: false) { create(:project, group: group) }
   let_it_be(:bulk_import, freeze: false) { create(:bulk_import, :with_configuration, user: user) }
   let_it_be(:entity, freeze: false) do
@@ -39,10 +39,6 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
   subject(:pipeline) { described_class.new(context) }
 
   describe '#run', :clean_gitlab_redis_shared_state do
-    before_all do
-      group.add_owner(user)
-    end
-
     before do
       issue_with_index = [issue, 0]
 

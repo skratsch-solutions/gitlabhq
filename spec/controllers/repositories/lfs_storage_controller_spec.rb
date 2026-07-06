@@ -139,8 +139,11 @@ RSpec.describe Repositories::LfsStorageController, feature_category: :source_cod
     let_it_be(:token) { create(:personal_access_token, user: user, scopes: ['read_repository']) }
     let_it_be(:extra_headers) { { 'HTTP_AUTHORIZATION' => ActionController::HttpAuthentication::Basic.encode_credentials(user.username, token.token) } }
 
-    before do
+    before_all do
       create(:lfs_objects_project, project: private_project, lfs_object: lfs_object)
+    end
+
+    before do
       request.headers.merge!(extra_headers)
     end
 

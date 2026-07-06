@@ -75,6 +75,16 @@ PATH
       thor (~> 1.3)
 
 PATH
+  remote: gems/gitlab-bitbucket
+  specs:
+    gitlab-bitbucket (0.1.0)
+      activesupport (>= 7, < 9)
+      httparty (~> 0.24)
+      oauth2 (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
+      rack (>= 2.2)
+
+PATH
   remote: gems/gitlab-bitbucket-server
   specs:
     gitlab-bitbucket-server (0.1.0)
@@ -917,7 +927,7 @@ GEM
       omniauth (>= 1.3, < 3)
       pyu-ruby-sasl (>= 0.0.3.3, < 0.1)
       rubyntlm (~> 0.5)
-    gitlab_quality-test_tooling (3.19.0)
+    gitlab_quality-test_tooling (3.19.1)
       activesupport (>= 7.0)
       amatch (~> 0.4.1)
       fog-google (~> 1.24, >= 1.24.1)
@@ -2452,6 +2462,7 @@ DEPENDENCIES
   gitaly (~> 19.0)
   gitlab-active-context!
   gitlab-backup-cli!
+  gitlab-bitbucket!
   gitlab-bitbucket-server!
   gitlab-chronic (~> 0.10.5)
   gitlab-cloud-connector (~> 1.52)
@@ -2490,7 +2501,7 @@ DEPENDENCIES
   gitlab-utils!
   gitlab_chronic_duration (~> 0.12)
   gitlab_omniauth-ldap (~> 2.3.0)
-  gitlab_quality-test_tooling (~> 3.19.0)
+  gitlab_quality-test_tooling (~> 3.19.1)
   gitlab_query_language (~> 0.29.0)
   gon (~> 6.5.0)
   google-apis-androidpublisher_v3 (~> 0.92.0)
@@ -2954,6 +2965,7 @@ CHECKSUMS
   gitlab (4.19.0) sha256=3f645e3e195dbc24f0834fbf83e8ccfb2056d8e9712b01a640aad418a6949679
   gitlab-active-context (0.0.1)
   gitlab-backup-cli (0.0.1)
+  gitlab-bitbucket (0.1.0)
   gitlab-bitbucket-server (0.1.0)
   gitlab-chronic (0.10.6) sha256=a244d11a1396d2aac6ae9b2f326adf1605ec1ad20c29f06e8b672047d415a9ac
   gitlab-cloud-connector (1.52.0) sha256=c8dccea7cb86759182698c56b8474076af3842216d5478ed9e037f22727673c4
@@ -3000,7 +3012,7 @@ CHECKSUMS
   gitlab-utils (0.2.0)
   gitlab_chronic_duration (0.12.0) sha256=0d766944d415b5c831f176871ee8625783fc0c5bfbef2d79a3a616f207ffc16d
   gitlab_omniauth-ldap (2.3.0) sha256=167036fe37c2711f2e1d2047260766e4c9b31ac37dfc873b101bcd4ea2a3a3b4
-  gitlab_quality-test_tooling (3.19.0) sha256=36ef55e869e8d7b789c8bc501b5edca299570842732bf13adc7f6e53155897c4
+  gitlab_quality-test_tooling (3.19.1) sha256=1c8e70034da9f3d5f80262ab6ad648560ca37e84845f07f0cf837daff47ace35
   gitlab_query_language (0.29.0) sha256=ef2d06bc8d77b8018c8586f1d78da5b41c8f5e256ab4171d08eb78853e2abaad
   gitlab_query_language (0.29.0-aarch64-linux-gnu) sha256=4a4857677aa39da7480e2eae7fc6d5fd4a98280ab20c85f21a04028b260ee3ce
   gitlab_query_language (0.29.0-arm64-darwin) sha256=b427271632ce3546a8661a26eb81e27aded1cce2bd94e94c6c46a358c9ec772c

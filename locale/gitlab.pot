@@ -3650,13 +3650,16 @@ msgstr ""
 msgid "AICatalog|can't be changed because it is released"
 msgstr ""
 
+msgid "AICatalog|can't be made internal because this item is enabled outside the top-level group hierarchy"
+msgstr ""
+
 msgid "AICatalog|can't be made private because it is enabled in a project or group"
 msgstr ""
 
 msgid "AICatalog|can't be made private because it is used by at least one flow"
 msgstr ""
 
-msgid "AICatalog|can't be reduced because this item is enabled in a project or group"
+msgid "AICatalog|can't be made private because this item is enabled outside its owning project"
 msgstr ""
 
 msgid "AICatalog|cannot be enabled because your top-level group settings block enabling items outside of its hierarchy"
@@ -8397,6 +8400,12 @@ msgstr ""
 msgid "AiPowered|Configure GitLab Duo Self-Hosted"
 msgstr ""
 
+msgid "AiPowered|Configure self-hosted models"
+msgstr ""
+
+msgid "AiPowered|Configure the URLs your GitLab instance uses to connect to AI services."
+msgstr ""
+
 msgid "AiPowered|Connection method"
 msgstr ""
 
@@ -8631,6 +8640,9 @@ msgstr ""
 msgid "AiPowered|No groups found"
 msgstr ""
 
+msgid "AiPowered|No self-hosted model is configured. AI requests route to GitLab-managed models until a self-hosted model is available."
+msgstr ""
+
 msgid "AiPowered|Not enabled"
 msgstr ""
 
@@ -8683,6 +8695,9 @@ msgid "AiPowered|Select group"
 msgstr ""
 
 msgid "AiPowered|Self-hosted beta models and features"
+msgstr ""
+
+msgid "AiPowered|Service endpoints"
 msgstr ""
 
 msgid "AiPowered|Setting unavailable"
@@ -15304,6 +15319,9 @@ msgstr ""
 msgid "CICD|Select the groups and projects authorized to use a CI/CD job token to authenticate requests to this project. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 
+msgid "CICD|Skip branch pipelines for merge requests"
+msgstr ""
+
 msgid "CICD|Status: %{status}"
 msgstr ""
 
@@ -15344,6 +15362,9 @@ msgid "CICD|When disabled (recommended), the %{default_role_link_start}default r
 msgstr ""
 
 msgid "CICD|When enabled, all projects must use their allowlist to control CI/CD job token access between projects. The option to allow access from all groups and projects is hidden. %{link_start}Learn More.%{link_end}"
+msgstr ""
+
+msgid "CICD|When enabled, pushing to a branch with an open merge request creates only a merge request pipeline. The branch pipeline is skipped."
 msgstr ""
 
 msgid "CICD|When turned on, archived job logs are incrementally uploaded to object storage. %{link_start}Learn more.%{link_end}"
@@ -51674,19 +51695,43 @@ msgstr ""
 msgid "Offline nodes automatically deleted after"
 msgstr ""
 
+msgid "OfflineTransferExport|Access key ID"
+msgstr ""
+
+msgid "OfflineTransferExport|Bucket name"
+msgstr ""
+
+msgid "OfflineTransferExport|Connect using path-style bucket URLs instead of the default virtual-hosted style. Most AWS S3 buckets use the default, so leave this unchecked unless your setup requires it."
+msgstr ""
+
 msgid "OfflineTransferExport|Could not load groups. Please try again."
 msgstr ""
 
 msgid "OfflineTransferExport|Deselect all"
 msgstr ""
 
+msgid "OfflineTransferExport|Enter %{max} characters or fewer."
+msgstr ""
+
+msgid "OfflineTransferExport|Enter AWS credentials"
+msgstr ""
+
+msgid "OfflineTransferExport|Enter a bucket name."
+msgstr ""
+
+msgid "OfflineTransferExport|Enter a region."
+msgstr ""
+
+msgid "OfflineTransferExport|Enter a secret access key."
+msgstr ""
+
+msgid "OfflineTransferExport|Enter an access key ID."
+msgstr ""
+
 msgid "OfflineTransferExport|Export"
 msgstr ""
 
 msgid "OfflineTransferExport|Export complete"
-msgstr ""
-
-msgid "OfflineTransferExport|Export configuration"
 msgstr ""
 
 msgid "OfflineTransferExport|Export failed"
@@ -51701,10 +51746,16 @@ msgstr ""
 msgid "OfflineTransferExport|No groups match your search"
 msgstr ""
 
+msgid "OfflineTransferExport|Region"
+msgstr ""
+
 msgid "OfflineTransferExport|Review export"
 msgstr ""
 
 msgid "OfflineTransferExport|Search by name"
+msgstr ""
+
+msgid "OfflineTransferExport|Secret access key"
 msgstr ""
 
 msgid "OfflineTransferExport|Select at least one group to continue"
@@ -51719,13 +51770,28 @@ msgstr ""
 msgid "OfflineTransferExport|Start export"
 msgstr ""
 
+msgid "OfflineTransferExport|The AWS region where your bucket is located."
+msgstr ""
+
+msgid "OfflineTransferExport|The bucket where export files will be written. It must already exist and allow write access."
+msgstr ""
+
 msgid "OfflineTransferExport|The offline export you started on %{start_date} from %{strong_open}%{source_hostname}%{strong_close} has failed."
 msgstr ""
 
 msgid "OfflineTransferExport|The offline export you started on %{start_date} from %{strong_open}%{source_hostname}%{strong_close} is complete. Find the export at %{strong_open}%{export_prefix}%{strong_close} in the configured object storage bucket."
 msgstr ""
 
+msgid "OfflineTransferExport|Use path-style URLs (optional)"
+msgstr ""
+
 msgid "OfflineTransferExport|You have no groups available to export"
+msgstr ""
+
+msgid "OfflineTransferExport|Your object storage access key. For AWS S3, find this in your IAM security credentials."
+msgstr ""
+
+msgid "OfflineTransferExport|Your object storage secret key."
 msgstr ""
 
 msgid "OfflineTransferImport|Import an offline transfer"

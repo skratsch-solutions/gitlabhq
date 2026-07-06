@@ -30,12 +30,12 @@ RSpec.describe Ci::JobTokenScope::RemoveProjectService, feature_category: :conti
     end
 
     context 'when user has permissions to edit the job token scope' do
-      before do
+      before_all do
         project.add_maintainer(current_user)
       end
 
       context 'when user has permissions on source and target project' do
-        before do
+        before_all do
           target_project.add_developer(current_user)
         end
 

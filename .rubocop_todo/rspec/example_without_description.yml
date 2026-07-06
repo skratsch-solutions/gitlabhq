@@ -241,8 +241,6 @@ RSpec/ExampleWithoutDescription:
     - 'spec/lib/banzai/filter/commit_trailers_filter_spec.rb'
     - 'spec/lib/banzai/pipeline/incident_management/timeline_event_pipeline_spec.rb'
     - 'spec/lib/banzai/pipeline_spec.rb'
-    - 'spec/lib/bitbucket/representation/issue_spec.rb'
-    - 'spec/lib/bitbucket/representation/pull_request_spec.rb'
     - 'spec/lib/bulk_imports/groups/pipelines/group_attributes_pipeline_spec.rb'
     - 'spec/lib/bulk_imports/groups/pipelines/namespace_settings_pipeline_spec.rb'
     - 'spec/lib/error_tracking/sentry_client/issue_spec.rb'

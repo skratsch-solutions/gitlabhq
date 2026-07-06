@@ -415,7 +415,6 @@ read_custom_field
 read_customizable_dashboards
 read_cycle_analytics
 read_dedicated_hosted_runner_usage
-read_dependency_proxy
 read_deploy_board
 read_design
 read_design_activity

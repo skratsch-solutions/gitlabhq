@@ -27,7 +27,7 @@ RSpec.describe BulkImports::RelationBatchExportService, feature_category: :impor
       service.execute
       batch.reload
 
-      expect(batch.finished?).to eq(true)
+      expect(batch.finished?).to be(true)
       expect(batch.objects_count).to eq(1)
       expect(batch.error).to be_nil
       expect(export.upload.export_file).to be_present
@@ -57,7 +57,7 @@ RSpec.describe BulkImports::RelationBatchExportService, feature_category: :impor
         expect { service.execute }.not_to raise_error
         batch.reload
 
-        expect(batch.failed?).to eq(true)
+        expect(batch.failed?).to be(true)
         expect(batch.error).to eq("Batched relation export cache key missing or expired.")
       end
     end

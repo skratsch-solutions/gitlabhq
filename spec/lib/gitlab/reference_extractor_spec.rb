@@ -49,7 +49,7 @@ RSpec.describe Gitlab::ReferenceExtractor, feature_category: :shared do
   end
 
   describe 'directly addressed users' do
-    before do
+    before_all do
       @u_foo  = create(:user, username: 'foo')
       @u_foo2 = create(:user, username: 'foo2')
       @u_foo3 = create(:user, username: 'foo3')

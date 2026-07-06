@@ -3044,6 +3044,7 @@ Grants the ability to read experiments.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Read | Instance | `GET` | `/experiments` |
+| Read | Instance | `GET` | `/experiments/:experiment_name/assignments` |
 
 #### Experiment Cache
 

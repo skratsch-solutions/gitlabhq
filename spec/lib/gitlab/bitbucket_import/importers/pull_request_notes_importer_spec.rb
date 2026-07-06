@@ -19,7 +19,7 @@ RSpec.describe Gitlab::BitbucketImport::Importers::PullRequestNotesImporter, :cl
   end
 
   let(:hash) { { iid: merge_request.iid } }
-  let(:client) { Bitbucket::Client.new({}) }
+  let(:client) { Bitbucket::Client.new({}, http_client: Import::Clients::HTTP) }
   let(:ref_converter) { Gitlab::BitbucketImport::RefConverter.new(project) }
   let(:user_finder) { Gitlab::BitbucketImport::UserFinder.new(project) }
   let(:mentions_converter) { Gitlab::Import::MentionsConverter.new('bitbucket', project) }

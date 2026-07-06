@@ -36,7 +36,7 @@ import {
   setIdTypePreferenceMutationResponseWithErrors,
 } from 'jest/work_items/list/mock_data';
 import {
-  mockPipelinesData,
+  mockGetPipelinesResponse,
   mockPipelinesCount,
   mockRetryPipelineMutationResponse,
   mockCancelPipelineMutationResponse,
@@ -47,9 +47,14 @@ import {
   mockPipelinesFilteredSearch,
   mockPipelineWithDownstream,
   mockPipelineWithUpstream,
-  mockBatchResponse,
-  mockSinglePipelineResponse,
+  mockGetSinglePipelineResponse,
+  mockOlderPipelineId,
+  mockNewPipelineId,
 } from './mock_data';
+
+const mockProjectId = mockGetPipelinesResponse.data.project.id;
+const [firstMockPipeline] = mockGetPipelinesResponse.data.project.pipelines.nodes;
+const { pageInfo: mockPageInfo } = mockGetPipelinesResponse.data.project.pipelines;
 
 jest.mock('~/alert');
 jest.mock('~/sentry/sentry_browser_wrapper');
@@ -73,12 +78,12 @@ describe('Pipelines App', () => {
   let subscriptionHandler;
 
   const countHandler = jest.fn().mockResolvedValue(mockPipelinesCount);
-  const successHandler = jest.fn().mockResolvedValue(mockPipelinesData);
+  const successHandler = jest.fn().mockResolvedValue(mockGetPipelinesResponse);
   const downstreamHandler = jest.fn().mockResolvedValue(mockPipelineWithDownstream);
   const upstreamHandler = jest.fn().mockResolvedValue(mockPipelineWithUpstream);
   const failedHandler = jest.fn().mockRejectedValue(new Error('GraphQL error'));
   const emptyHandler = jest.fn().mockResolvedValue(mockPipelinesDataEmpty);
-  const singlePipelineHandler = jest.fn().mockResolvedValue(mockSinglePipelineResponse);
+  const singlePipelineHandler = jest.fn().mockResolvedValue(mockGetSinglePipelineResponse);
 
   const clearCacheMutationSuccessHandler = jest.fn().mockResolvedValue(mockRunnerCacheClearPayload);
   const clearCacheMutationFailedHandler = jest
@@ -214,7 +219,7 @@ describe('Pipelines App', () => {
         if (variables.scope === 'TAGS' || variables.scope === 'FINISHED') {
           return Promise.resolve(mockPipelinesDataEmpty);
         }
-        return Promise.resolve(mockPipelinesData);
+        return Promise.resolve(mockGetPipelinesResponse);
       });
 
       createComponent({
@@ -313,7 +318,7 @@ describe('Pipelines App', () => {
       await waitForPromises();
 
       expect(findTable().props('pipelines')).toEqual(
-        mockPipelinesData.data.project.pipelines.nodes,
+        mockGetPipelinesResponse.data.project.pipelines.nodes,
       );
     });
 
@@ -443,7 +448,7 @@ describe('Pipelines App', () => {
 
       expect(clearCacheMutationSuccessHandler).toHaveBeenCalledWith({
         input: {
-          projectId: 'gid://gitlab/Project/19',
+          projectId: mockProjectId,
         },
       });
 
@@ -663,8 +668,8 @@ describe('Pipelines App', () => {
       await waitForPromises();
 
       expect(findPagination().props()).toMatchObject({
-        startCursor: 'eyJpZCI6IjcwMSJ9',
-        endCursor: 'eyJpZCI6IjY3NSJ9',
+        startCursor: mockPageInfo.startCursor,
+        endCursor: mockPageInfo.endCursor,
         hasNextPage: true,
         hasPreviousPage: false,
       });
@@ -680,7 +685,7 @@ describe('Pipelines App', () => {
         first: 15,
         last: null,
         before: null,
-        after: 'eyJpZCI6IjY3NSJ9',
+        after: mockPageInfo.endCursor,
         scope: null,
       });
       expect(findPagination().props()).toMatchObject({});
@@ -702,7 +707,7 @@ describe('Pipelines App', () => {
       });
 
       it('retries the pipeline', async () => {
-        const retriedPipeline = mockPipelinesData.data.project.pipelines.nodes[0];
+        const retriedPipeline = mockGetPipelinesResponse.data.project.pipelines.nodes[0];
         findTable().vm.$emit('retry-pipeline', retriedPipeline);
 
         await waitForPromises();
@@ -711,7 +716,7 @@ describe('Pipelines App', () => {
       });
 
       it('cancels the pipeline', async () => {
-        const canceledPipeline = mockPipelinesData.data.project.pipelines.nodes[0];
+        const canceledPipeline = mockGetPipelinesResponse.data.project.pipelines.nodes[0];
         findTable().vm.$emit('cancel-pipeline', canceledPipeline);
 
         await waitForPromises();
@@ -734,7 +739,7 @@ describe('Pipelines App', () => {
       });
 
       it('displays an alert message when the mutation fails', async () => {
-        const retriedPipeline = mockPipelinesData.data.project.pipelines.nodes[0];
+        const retriedPipeline = mockGetPipelinesResponse.data.project.pipelines.nodes[0];
         findTable().vm.$emit('retry-pipeline', retriedPipeline);
 
         await waitForPromises();
@@ -751,12 +756,12 @@ describe('Pipelines App', () => {
 
   describe('subscription', () => {
     const successDynamicHandler = jest.fn((variables) => {
-      // Batch query (has ids parameter)
+      // Batch query (has ids parameter). The batched (ids) refetch returns the same list shape.
       if (variables.ids) {
-        return Promise.resolve(mockBatchResponse);
+        return Promise.resolve(mockGetPipelinesResponse);
       }
       // Regular query (pagination parameters)
-      return Promise.resolve(mockPipelinesData);
+      return Promise.resolve(mockGetPipelinesResponse);
     });
 
     const failedDynamicHandler = jest.fn((variables) => {
@@ -764,7 +769,7 @@ describe('Pipelines App', () => {
       if (variables.ids) {
         return Promise.reject(new Error('Batch query failed'));
       }
-      return Promise.resolve(mockPipelinesData);
+      return Promise.resolve(mockGetPipelinesResponse);
     });
 
     it('calls subscription with correct variables', async () => {
@@ -772,7 +777,7 @@ describe('Pipelines App', () => {
 
       await waitForPromises();
 
-      expect(subscriptionHandler).toHaveBeenCalledWith({ projectId: 'gid://gitlab/Project/19' });
+      expect(subscriptionHandler).toHaveBeenCalledWith({ projectId: mockProjectId });
     });
 
     it('skips subscription where there are no pipelines', async () => {
@@ -803,7 +808,7 @@ describe('Pipelines App', () => {
       mockSubscription.next({
         data: {
           ciPipelineStatusesUpdated: {
-            id: 'gid://gitlab/Ci::Pipeline/701',
+            id: firstMockPipeline.id,
           },
         },
       });
@@ -813,7 +818,7 @@ describe('Pipelines App', () => {
       expect(successDynamicHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           fullPath: 'gitlab-org/gitlab',
-          ids: ['gid://gitlab/Ci::Pipeline/701'],
+          ids: [firstMockPipeline.id],
           first: 1,
         }),
       );
@@ -834,7 +839,7 @@ describe('Pipelines App', () => {
       mockSubscription.next({
         data: {
           ciPipelineStatusesUpdated: {
-            id: 'gid://gitlab/Ci::Pipeline/1',
+            id: mockOlderPipelineId,
           },
         },
       });
@@ -861,7 +866,7 @@ describe('Pipelines App', () => {
       mockSubscription.next({
         data: {
           ciPipelineStatusesUpdated: {
-            id: 'gid://gitlab/Ci::Pipeline/20000',
+            id: mockNewPipelineId,
           },
         },
       });
@@ -870,7 +875,7 @@ describe('Pipelines App', () => {
 
       expect(singlePipelineHandler).toHaveBeenCalledWith({
         fullPath: 'gitlab-org/gitlab',
-        id: 'gid://gitlab/Ci::Pipeline/20000',
+        id: mockNewPipelineId,
       });
     });
 
@@ -892,7 +897,7 @@ describe('Pipelines App', () => {
         mockSubscription.next({
           data: {
             ciPipelineStatusesUpdated: {
-              id: 'gid://gitlab/Ci::Pipeline/20000',
+              id: mockNewPipelineId,
             },
           },
         });
@@ -916,7 +921,7 @@ describe('Pipelines App', () => {
       mockSubscription.next({
         data: {
           ciPipelineStatusesUpdated: {
-            id: 'gid://gitlab/Ci::Pipeline/701',
+            id: firstMockPipeline.id,
           },
         },
       });
@@ -948,7 +953,7 @@ describe('Pipelines App', () => {
 
       mockSubscription.next({
         data: {
-          ciPipelineStatusesUpdated: { id: 'gid://gitlab/Ci::Pipeline/67' },
+          ciPipelineStatusesUpdated: { id: mockOlderPipelineId },
         },
       });
 
@@ -1009,7 +1014,7 @@ describe('Pipelines App', () => {
 
       mockSubscription.next({
         data: {
-          ciPipelineStatusesUpdated: { id: 'gid://gitlab/Ci::Pipeline/2026' },
+          ciPipelineStatusesUpdated: { id: mockNewPipelineId },
         },
       });
 

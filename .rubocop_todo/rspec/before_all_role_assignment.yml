@@ -483,7 +483,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'spec/frontend/fixtures/autocomplete.rb'
     - 'spec/frontend/fixtures/autocomplete_sources.rb'
     - 'spec/frontend/fixtures/groups.rb'
-    - 'spec/frontend/fixtures/pipelines.rb'
     - 'spec/frontend/fixtures/project.rb'
     - 'spec/frontend/fixtures/releases.rb'
     - 'spec/frontend/fixtures/runner.rb'

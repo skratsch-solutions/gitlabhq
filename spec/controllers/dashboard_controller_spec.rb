@@ -287,7 +287,7 @@ RSpec.describe DashboardController, feature_category: :code_review_workflow do
   end
 
   describe "#check_filters_presence!" do
-    let(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     before do
       sign_in(user)

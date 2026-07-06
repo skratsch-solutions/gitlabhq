@@ -17,7 +17,7 @@ RSpec.describe Groups::ImportsController, feature_category: :importers do
       end
 
       context 'when the import is in progress' do
-        before do
+        before_all do
           create(:group_import_state, group: group)
         end
 
@@ -35,7 +35,7 @@ RSpec.describe Groups::ImportsController, feature_category: :importers do
       end
 
       context 'when the import has failed' do
-        before do
+        before_all do
           create(:group_import_state, :failed, group: group)
         end
 
@@ -53,7 +53,7 @@ RSpec.describe Groups::ImportsController, feature_category: :importers do
       end
 
       context 'when the import has finished' do
-        before do
+        before_all do
           create(:group_import_state, :finished, group: group)
         end
 

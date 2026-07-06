@@ -392,7 +392,7 @@ RSpec.describe Trigger, feature_category: :tooling do
           end
 
           it 'sets GITLAB_TAG to nil' do
-            expect(subject.variables['GITLAB_TAG']).to eq(nil)
+            expect(subject.variables['GITLAB_TAG']).to be_nil
           end
         end
       end
@@ -404,7 +404,7 @@ RSpec.describe Trigger, feature_category: :tooling do
           end
 
           it 'sets CE_PIPELINE to nil' do
-            expect(subject.variables['CE_PIPELINE']).to eq(nil)
+            expect(subject.variables['CE_PIPELINE']).to be_nil
           end
         end
 
@@ -436,7 +436,7 @@ RSpec.describe Trigger, feature_category: :tooling do
           end
 
           it 'sets EE_PIPELINE to nil' do
-            expect(subject.variables['EE_PIPELINE']).to eq(nil)
+            expect(subject.variables['EE_PIPELINE']).to be_nil
           end
         end
       end

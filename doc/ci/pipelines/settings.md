@@ -84,6 +84,50 @@ Use the [`interruptible`](../yaml/_index.md#interruptible) keyword to indicate i
 running job can be canceled before it completes. After a job with
 `interruptible: false` starts, the entire pipeline is no longer considered interruptible.
 
+## Skip branch pipelines for merge requests
+
+{{< details >}}
+
+- Status: Beta
+
+{{< /details >}}
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/groups/gitlab-org/-/work_items/6044) as a [beta](../../policy/development_stages_support.md#beta) in GitLab 19.2.
+
+{{< /history >}}
+
+This feature is in [beta](../../policy/development_stages_support.md#beta).
+
+When you push to a branch with an open merge request, GitLab tries to create
+both a branch pipeline and a merge request pipeline by default.
+This can waste CI/CD resources and cause confusion about which pipeline
+determines merge readiness.
+For more information about this problem, see
+[avoid duplicate pipelines](../jobs/job_rules.md#avoid-duplicate-pipelines).
+
+To create only a merge request pipeline when pushing to a branch with an open merge request:
+
+1. In the top bar, select **Search or go to** and find your project.
+1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **General pipelines**.
+1. Select the **Skip branch pipelines for merge requests** checkbox.
+1. Select **Save changes**.
+
+When this setting is enabled:
+
+- GitLab does not try to create a branch pipeline when you `git push` to a branch
+  that is the source branch of a merge request. GitLab only tries to create a merge request pipeline.
+- If the branch is not the source branch of an open or previously closed merge request,
+  then GitLab does try to create a branch pipeline.
+- Jobs without explicit `rules`, `only`, or `except` sections are automatically
+  included in merge request pipelines. The implicit `only: [branches, tags]` default is removed for these jobs.
+- Only push-triggered pipelines are affected. All other pipeline types, including
+  manual, API, scheduled, and triggered pipelines are not affected.
+- If you configure your pipeline or jobs to run only branch pipelines,
+  enabling this setting can cause no pipelines to run for your merge requests.
+
 ## Prevent outdated deployment jobs
 
 Your project may have multiple concurrent deployment jobs that are

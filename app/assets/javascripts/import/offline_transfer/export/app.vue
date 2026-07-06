@@ -5,12 +5,15 @@ import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
 import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
 import offlineTransferSourceOwnedGroupsQuery from '~/import/offline_transfer/graphql/queries/offline_transfer_source_owned_groups.query.graphql';
 import { OFFLINE_EXPORT_TAB_HEADINGS, OFFLINE_EXPORT_TAB_FIELDS } from '../constants';
+import ExportConfigTab from './export_config_tab.vue';
+import { isStorageConfigValid } from './storage_config_validation';
 
 export default {
   name: 'OfflineTransferExportApp',
   components: {
     FormStepper,
     SelectGroupsTab,
+    ExportConfigTab,
     GlAlert,
     GlFormCheckbox,
   },
@@ -19,23 +22,34 @@ export default {
 
     return {
       offlineTransferSourceOwnedGroups: null,
-      showValidationError: false,
-      isFormComplete: false,
-
-      isStepComplete: Object.fromEntries(tabFields),
-      showFetchError: false,
-      showSelectError: false,
+      selectedGroups: [],
       search: '',
       startCursor: null,
       endCursor: null,
-      selectedGroups: [],
+
+      showFetchError: false,
+      showSelectError: false,
+      showStorageConfigError: false,
+      // TODO: on form submit (final step) trim strings
+      // POST { bucketName, aws_s3_configuration, entities}
+      storageConfig: {
+        accessKeyId: '',
+        secretAccessKey: '',
+        region: '',
+        bucketName: '',
+        pathStyle: false,
+      },
+
+      isStepComplete: Object.fromEntries(tabFields),
+      showValidationErrorTemp: false,
+      isFormComplete: false,
     };
   },
 
   apollo: {
     offlineTransferSourceOwnedGroups: {
       query: offlineTransferSourceOwnedGroupsQuery,
-      // Lets us leverage `loading` on both search + pagination, not just initial query
+      // leverages `loading` on both search + pagination, not just initial query
       notifyOnNetworkStatusChange: true,
       update(data) {
         return data.groups;
@@ -115,9 +129,14 @@ export default {
         this.addGroup(group);
       }
     },
-    onSteppedForward() {
-      this.showValidationError = false;
-      this.showSelectError = false;
+    onSteppedForward({ previousTabIndex }) {
+      // Clear just completed step's validation error
+      this.resetStepError(previousTabIndex);
+    },
+    onSteppedBack({ previousTabIndex }) {
+      // Stepping back resets previous step's 'completed' status
+      this.isStepComplete[OFFLINE_EXPORT_TAB_FIELDS[previousTabIndex]] = false;
+      this.resetStepError(previousTabIndex);
     },
 
     onSelectAllCurrentPage() {
@@ -138,8 +157,20 @@ export default {
     onValidationFailed(stepIndex) {
       if (stepIndex === 0) {
         this.showSelectError = true;
+      } else if (stepIndex === 1) {
+        this.showStorageConfigError = true;
       } else {
-        this.showValidationError = true;
+        this.showValidationErrorTemp = true;
+      }
+    },
+
+    resetStepError(stepIndex) {
+      if (stepIndex === 0) {
+        this.showSelectError = false;
+      } else if (stepIndex === 1) {
+        this.showStorageConfigError = false;
+      } else {
+        this.showValidationErrorTemp = false;
       }
     },
     validateStep(stepIndex) {
@@ -149,7 +180,7 @@ export default {
         case 0:
           return this.selectedGroupsCount > 0;
         case 1:
-          return this.isStepComplete.configure;
+          return isStorageConfigValid(this.storageConfig);
         case 2:
           return this.isStepComplete.review;
         case 3:
@@ -157,10 +188,6 @@ export default {
         default:
           return false;
       }
-    },
-    onSteppedBack({ previousTabIndex }) {
-      // stepping back resets the `valid` state of previously completed tab
-      this.isStepComplete[OFFLINE_EXPORT_TAB_FIELDS[previousTabIndex]] = false;
     },
   },
   STEPS: OFFLINE_EXPORT_TAB_HEADINGS,
@@ -202,17 +229,17 @@ export default {
         data-testid="completion-alert"
         @dismiss="isFormComplete = false"
       />
-      <!-- TODO: When the configure/review/export steps get real
-        validation, move their errors inline at the top of each step's content (as
-        step 0 does) and remove this alert. -->
+      <!-- TODO: When the review/export step gets real
+        validation, move form error inline at the top of each step's content (as
+        step 0 does) and remove this alert -->
       <gl-alert
-        v-if="showValidationError"
+        v-if="showValidationErrorTemp"
         :title="__('Error')"
         :dismiss-label="__('Dismiss')"
         dismissible
         variant="danger"
         data-testid="validation-alert"
-        @dismiss="showValidationError = false"
+        @dismiss="showValidationErrorTemp = false"
       />
     </header>
 
@@ -247,8 +274,8 @@ export default {
       </template>
 
       <template #step-1>
-        <h2 class="gl-heading-3">{{ s__('OfflineTransferExport|Export configuration') }}</h2>
-        <gl-form-checkbox v-model="isStepComplete.configure" />
+        <h2 class="gl-heading-3">{{ s__('OfflineTransferExport|Enter AWS credentials') }}</h2>
+        <export-config-tab v-model="storageConfig" :validation-attempted="showStorageConfigError" />
       </template>
 
       <template #step-2>

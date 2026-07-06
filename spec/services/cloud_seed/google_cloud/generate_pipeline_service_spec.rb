@@ -5,8 +5,8 @@ require 'spec_helper'
 RSpec.describe CloudSeed::GoogleCloud::GeneratePipelineService, feature_category: :deployment_management do
   describe 'for cloud-run' do
     describe 'when there is no existing pipeline' do
-      let_it_be(:project) { create(:project, :repository) }
       let_it_be(:maintainer) { create(:user) }
+      let_it_be(:project) { create(:project, :repository, maintainers: maintainer) }
       let_it_be(:service_params) { { action: described_class::ACTION_DEPLOY_TO_CLOUD_RUN } }
       # `freeze: false` is required in this spec: one or more `let_it_be` subjects
       # cannot be frozen by default (deep_freeze traversal failure, a non-AR
@@ -14,10 +14,6 @@ RSpec.describe CloudSeed::GoogleCloud::GeneratePipelineService, feature_category
       # drop these opt-outs or convert them to `let_it_be_with_reload`/`refind`
       # (see gitlab-org/gitlab#602925).
       let_it_be(:service, freeze: false) { described_class.new(project, maintainer, service_params) }
-
-      before do
-        project.add_maintainer(maintainer)
-      end
 
       it 'creates a new branch with commit for cloud-run deployment' do
         response = service.execute
@@ -222,17 +218,13 @@ EOF
 
   describe 'for cloud-storage' do
     describe 'when there is no existing pipeline' do
-      let_it_be(:project) { create(:project, :repository) }
       let_it_be(:maintainer) { create(:user) }
+      let_it_be(:project) { create(:project, :repository, maintainers: maintainer) }
       let_it_be(:service_params) do
         { action: CloudSeed::GoogleCloud::GeneratePipelineService::ACTION_DEPLOY_TO_CLOUD_STORAGE }
       end
 
       let_it_be(:service, freeze: false) { described_class.new(project, maintainer, service_params) }
-
-      before do
-        project.add_maintainer(maintainer)
-      end
 
       it 'creates a new branch with commit for cloud-storage deployment' do
         response = service.execute
@@ -261,16 +253,12 @@ EOF
   end
 
   describe 'for vision ai' do
-    let_it_be(:project) { create(:project, :repository) }
     let_it_be(:maintainer) { create(:user) }
+    let_it_be(:project) { create(:project, :repository, maintainers: maintainer) }
     let_it_be(:service_params) { { action: described_class::ACTION_VISION_AI_PIPELINE } }
     let_it_be(:service, freeze: false) { described_class.new(project, maintainer, service_params) }
 
     describe 'when there is no existing pipeline' do
-      before do
-        project.add_maintainer(maintainer)
-      end
-
       it 'creates a new branch with commit for cloud-run deployment' do
         response = service.execute
 
@@ -320,8 +308,6 @@ EOF
 
     describe 'when there is an existing pipeline with `includes`' do
       before do
-        project.add_maintainer(maintainer)
-
         file_name = '.gitlab-ci.yml'
         file_content = <<EOF
 stages:

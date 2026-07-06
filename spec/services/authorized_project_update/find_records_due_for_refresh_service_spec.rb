@@ -93,7 +93,7 @@ RSpec.describe AuthorizedProjectUpdate::FindRecordsDueForRefreshService, feature
           create(:project_authorization, user: user)
         end
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
 
       context 'when there are no removals, but there are additions to be made' do
@@ -101,7 +101,7 @@ RSpec.describe AuthorizedProjectUpdate::FindRecordsDueForRefreshService, feature
           user.project_authorizations.delete_all
         end
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
 
       context 'when there are no additions, but there are removals to be made' do
@@ -109,12 +109,12 @@ RSpec.describe AuthorizedProjectUpdate::FindRecordsDueForRefreshService, feature
           create(:project_authorization, user: user)
         end
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
     end
 
     context 'when there are no additions or removals to be made' do
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -234,7 +234,7 @@ RSpec.describe AuthorizedProjectUpdate::FindRecordsDueForRefreshService, feature
       it 'returns an empty list' do
         user.project_authorizations.delete_all
 
-        expect(service.current_authorizations.empty?).to eq(true)
+        expect(service.current_authorizations.empty?).to be(true)
       end
     end
 

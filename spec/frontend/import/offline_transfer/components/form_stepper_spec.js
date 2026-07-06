@@ -113,10 +113,13 @@ describe('FormStepper', () => {
       expect(findAllStepContents().at(0).text()).toContain('Select tab content');
     });
 
-    it('forward movement emits "stepped-forward" event', async () => {
+    it('forward movement emits "stepped-forward" event with the passed step index', async () => {
       await clickContinue();
 
       expect(wrapper.emitted('stepped-forward')).toHaveLength(1);
+      expect(wrapper.emitted('stepped-forward')[0][0]).toEqual({
+        previousTabIndex: 0,
+      });
     });
 
     it('updates tab heading styles after advancing: step 0 becomes completed, step 1 becomes active', async () => {

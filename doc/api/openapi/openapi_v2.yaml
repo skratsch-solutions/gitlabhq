@@ -26743,8 +26743,8 @@ paths:
   "/api/v4/projects/{id}/uploads/{upload_id}":
     get:
       summary: Download an uploaded file by ID
-      description: Downloads an uploaded file by ID. You must have the Maintainer
-        or Owner role for the project.
+      description: Downloads an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -26773,8 +26773,8 @@ paths:
       operationId: getApiV4ProjectsIdUploadsUploadId
     delete:
       summary: Delete an uploaded file by ID
-      description: Deletes an uploaded file by ID. You must have the Maintainer or
-        Owner role for the project.
+      description: Deletes an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -26804,7 +26804,9 @@ paths:
   "/api/v4/projects/{id}/uploads/{secret}/{filename}":
     get:
       summary: Download an uploaded file by secret and filename
-      description: Downloads an uploaded file by secret and filename.
+      description: Downloads an uploaded file with a specified secret and filename.
+        You must have the Guest, Planner, Reporter, Developer, Maintainer, or Owner
+        role for the project.
       produces:
       - application/json
       parameters:
@@ -26837,8 +26839,8 @@ paths:
       operationId: getApiV4ProjectsIdUploadsSecretFilename
     delete:
       summary: Delete an uploaded file by secret and filename
-      description: Deletes an uploaded file by secret and filename. You must have
-        the Maintainer or Owner role for the project.
+      description: Deletes an uploaded file with a specified secret and filename.
+        You must have the Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:

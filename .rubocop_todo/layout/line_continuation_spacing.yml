@@ -25,7 +25,6 @@ Layout/LineContinuationSpacing:
     - 'ee/app/services/phone_verification/telesign_client/base_service.rb'
     - 'ee/app/services/phone_verification/telesign_client/risk_score_service.rb'
     - 'ee/app/services/phone_verification/users/verify_code_service.rb'
-    - 'ee/lib/api/experiments.rb'
     - 'ee/lib/api/ldap_group_links.rb'
     - 'ee/lib/api/vulnerability_findings.rb'
     - 'ee/lib/ee/gitlab/auth/ldap/access.rb'

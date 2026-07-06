@@ -214,7 +214,7 @@ RSpec.describe Groups::ClustersController, feature_category: :deployment_managem
   end
 
   describe 'PUT update_migration' do
-    let(:cluster) { create(:cluster, :group, groups: [group]) }
+    let_it_be(:cluster) { create(:cluster, :group, groups: [group]) }
     let(:redirect_path) { group_cluster_path(group, cluster, tab: 'migrate') }
 
     def go
@@ -339,7 +339,7 @@ RSpec.describe Groups::ClustersController, feature_category: :deployment_managem
   end
 
   describe 'GET cluster_status' do
-    let(:cluster) { create(:cluster, :group, groups: [group]) }
+    let_it_be(:cluster) { create(:cluster, :group, groups: [group]) }
 
     def go
       get :cluster_status,
@@ -377,7 +377,7 @@ RSpec.describe Groups::ClustersController, feature_category: :deployment_managem
   end
 
   describe 'GET show' do
-    let(:cluster) { create(:cluster, :group, groups: [group]) }
+    let_it_be(:cluster) { create(:cluster, :group, groups: [group]) }
 
     def go(tab: nil)
       get :show,

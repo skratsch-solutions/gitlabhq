@@ -230,7 +230,7 @@ RSpec.describe Boards::Issues::ListService, feature_category: :portfolio_managem
         it 'does not initialize the relative positions of issues' do
           described_class.initialize_relative_positions(board, user, [issue])
 
-          expect(issue.relative_position).to eq nil
+          expect(issue.relative_position).to be_nil
         end
       end
 
@@ -242,7 +242,7 @@ RSpec.describe Boards::Issues::ListService, feature_category: :portfolio_managem
         it 'initializes the relative positions of issues' do
           described_class.initialize_relative_positions(board, user, [issue])
 
-          expect(issue.relative_position).not_to eq nil
+          expect(issue.relative_position).not_to be_nil
         end
       end
     end
@@ -255,7 +255,7 @@ RSpec.describe Boards::Issues::ListService, feature_category: :portfolio_managem
       it 'does not initialize the relative positions of issues' do
         described_class.initialize_relative_positions(board, user, [issue])
 
-        expect(issue.relative_position).to eq nil
+        expect(issue.relative_position).to be_nil
       end
     end
   end

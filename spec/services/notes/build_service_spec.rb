@@ -134,18 +134,13 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
     end
 
     context 'confidential comments' do
-      let_it_be(:project, freeze: false) { create(:project, :public) }
       let_it_be(:guest) { create(:user) }
       let_it_be(:reporter) { create(:user) }
+      let_it_be(:project, freeze: false) { create(:project, :public, guests: guest, reporters: reporter) }
       let_it_be(:admin) { create(:admin) }
       let_it_be(:issuable_assignee, freeze: false) { other_user }
       let_it_be(:issue, freeze: false) do
         create(:issue, project: project, author: noteable_author, assignees: [issuable_assignee])
-      end
-
-      before do
-        project.add_guest(guest)
-        project.add_reporter(reporter)
       end
 
       context 'when creating a new confidential comment' do

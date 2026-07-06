@@ -562,8 +562,8 @@ module API
 
       desc 'List all participants in an issue' do
         detail 'Lists all users that are participants in a specified issue. If the project is private or the issue ' \
-          'is confidential, you need to provide credentials to authorize. In most cases, you should authenticate with a ' \
-          'personal access token.'
+          'is confidential, you need to provide credentials to authorize. In most cases, you should authenticate ' \
+          'with a personal access token.'
         success Entities::UserBasic
         tags ['issues']
       end

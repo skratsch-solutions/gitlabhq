@@ -75,22 +75,19 @@ module Ci
     end
 
     def options
-      read_metadata_attribute(:config_options, :options, {})
+      read_job_definition_attribute(:options, {})
     end
 
     def yaml_variables
-      read_metadata_attribute(:config_variables, :yaml_variables, [])
+      read_job_definition_attribute(:yaml_variables, [])
     end
 
     def interruptible
-      return job_definition.interruptible if job_definition
-      return temp_job_definition.interruptible if temp_job_definition
-
-      metadata&.read_attribute(:interruptible)
+      read_job_definition_attribute(:interruptible, false)
     end
 
     def id_tokens
-      read_metadata_attribute(:id_tokens, :id_tokens, {}).deep_stringify_keys
+      read_job_definition_attribute(:id_tokens, {}).deep_stringify_keys
     end
 
     def id_tokens?
@@ -176,15 +173,16 @@ module Ci
 
     private
 
-    def read_metadata_attribute(metadata_key, job_definition_key, default_value = nil)
-      result = job_definition&.config&.dig(job_definition_key) || temp_job_definition&.config&.dig(job_definition_key)
-      return result if result
+    def read_job_definition_attribute(key, default_value = nil)
+      result =
+        if key.in?(::Ci::JobDefinition::NORMALIZED_DATA_COLUMNS)
+          [job_definition&.read_attribute(key), temp_job_definition&.read_attribute(key)].find { |value| !value.nil? }
+        else
+          [job_definition&.config&.dig(key), temp_job_definition&.config&.dig(key)].find { |value| !value.nil? }
+        end
 
-      # New builds are created with a `temp_job_definition`, so we know it's not stored in metadata.
-      # We return from this point because the `metadata` lookup raises N+1 queries in `after_commit` callbacks.
-      return default_value if temp_job_definition
-
-      metadata&.read_attribute(metadata_key) || default_value
+      # Only nil falls back; false is a valid value for normalized columns.
+      result.nil? ? default_value : result
     end
   end
 end

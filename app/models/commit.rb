@@ -538,10 +538,6 @@ class Commit
     model_name.singular
   end
 
-  def touch
-    # no-op but needs to be defined since #persisted? is defined
-  end
-
   def touch_later
     # No-op.
     # This method is called by ActiveRecord.

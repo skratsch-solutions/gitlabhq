@@ -3265,7 +3265,6 @@
 - './spec/frontend/fixtures/merge_requests.rb'
 - './spec/frontend/fixtures/namespaces.rb'
 - './spec/frontend/fixtures/pipeline_schedules.rb'
-- './spec/frontend/fixtures/pipelines.rb'
 - './spec/frontend/fixtures/projects_json.rb'
 - './spec/frontend/fixtures/raw.rb'
 - './spec/frontend/fixtures/releases.rb'

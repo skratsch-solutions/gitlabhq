@@ -69,7 +69,7 @@ RSpec.describe Ci::PipelineTriggerService, feature_category: :continuous_integra
     end
 
     context 'with a trigger token' do
-      let(:trigger) { create(:ci_trigger, project: project, owner: user) }
+      let_it_be(:trigger) { create(:ci_trigger, project: project, owner: user) }
 
       context 'when trigger belongs to a different project' do
         let(:params) { { token: trigger.token, ref: 'master', variables: nil } }
@@ -176,7 +176,7 @@ RSpec.describe Ci::PipelineTriggerService, feature_category: :continuous_integra
     end
 
     context 'with a pipeline job token' do
-      let!(:pipeline) { create(:ci_empty_pipeline, project: project) }
+      let_it_be(:pipeline) { create(:ci_empty_pipeline, project: project) }
       let(:job) { create(:ci_build, :running, pipeline: pipeline, user: user) }
 
       context 'when job user does not have a permission to read a project' do

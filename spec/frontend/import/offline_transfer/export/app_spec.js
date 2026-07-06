@@ -65,31 +65,32 @@ describe('OfflineTransferExportApp', () => {
       expect(findCompletionAlert().exists()).toBe(true);
     });
 
-    it('triggers a validation error alert when FormStepper emits validation-failed', async () => {
+    // TODO delete or replace test when all steps are added
+    it('triggers a validation error alert when a step without inline errors fails', async () => {
       expect(findValidationErrorAlert().exists()).toBe(false);
 
-      await findFormStepper().vm.$emit('validation-failed', 1);
+      await findFormStepper().vm.$emit('validation-failed', 2);
 
       expect(findValidationErrorAlert().exists()).toBe(true);
     });
 
-    it('clears existing validation error alert when FormStepper emits stepped-forward', async () => {
-      await findFormStepper().vm.$emit('validation-failed');
+    it('clears the shared validation error alert when that step is passed (stepped-forward)', async () => {
+      await findFormStepper().vm.$emit('validation-failed', 2);
       expect(findValidationErrorAlert().exists()).toBe(true);
 
-      await findFormStepper().vm.$emit('stepped-forward');
+      await findFormStepper().vm.$emit('stepped-forward', { previousTabIndex: 2 });
       expect(findValidationErrorAlert().exists()).toBe(false);
     });
 
     it('sets the previously completed step as invalid after FormStepper emits stepped-back', async () => {
-      wrapper.vm.isStepComplete.configure = true;
-      expect(findFormStepper().props('validateStep')(1)).toBe(true);
+      wrapper.vm.isStepComplete.review = true;
+      expect(findFormStepper().props('validateStep')(2)).toBe(true);
 
       await findFormStepper().vm.$emit('stepped-back', {
-        previousTabIndex: 1,
+        previousTabIndex: 2,
       });
 
-      expect(findFormStepper().props('validateStep')(1)).toBe(false);
+      expect(findFormStepper().props('validateStep')(2)).toBe(false);
     });
   });
 
@@ -349,11 +350,11 @@ describe('OfflineTransferExportApp', () => {
         expect(findFormStepper().props('validateStep')(0)).toBe(true);
       });
 
-      it('clears existing showSelectError when FormStepper emits stepped-forward', async () => {
+      it('clears existing showSelectError when the groups step is passed (stepped-forward)', async () => {
         await findFormStepper().vm.$emit('validation-failed', 0);
         expect(findSelectGroupsTab().props('showSelectError')).toBe(true);
 
-        await findFormStepper().vm.$emit('stepped-forward');
+        await findFormStepper().vm.$emit('stepped-forward', { previousTabIndex: 0 });
         expect(findSelectGroupsTab().props('showSelectError')).toBe(false);
       });
 

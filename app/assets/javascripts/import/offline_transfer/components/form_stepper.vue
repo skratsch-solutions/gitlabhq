@@ -91,8 +91,9 @@ export default {
         this.isValidating = false;
       }
 
+      const previousTabIndex = this.currentStepIndex;
       this.currentStepIndex += 1;
-      this.$emit('stepped-forward');
+      this.$emit('stepped-forward', { previousTabIndex });
     },
 
     // Each step renders its own validation error at the top of its content,

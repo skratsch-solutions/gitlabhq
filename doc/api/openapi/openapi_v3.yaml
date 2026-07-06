@@ -8206,6 +8206,43 @@ paths:
         schema:
           type: string
         in: path
+  "/api/v4/experiments/{experiment_name}/assignments":
+    get:
+      operationId: getApiV4ExperimentsExperimentNameAssignments
+      summary: Get current variant assignment for an experiment context
+      description: Returns the currently cached variant assignment for the given experiment
+        and context. Defaults to current user if no context is provided.
+      tags:
+      - Experiments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesExperimentsAssignment"
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      parameters:
+      - name: experiment_name
+        required: true
+        schema:
+          type: string
+        in: path
+      - name: context
+        required: false
+        description: Context parameters (user, namespace, project). Pass every key
+          the experiment declares in `context_keys`; experiments can declare multiple
+          keys. An actor context is resolved from the user. The user defaults to the
+          current user.
+        schema:
+          type: object
+          nullable: true
+        in: query
   "/api/v4/elasticsearch_indexed_namespaces/rollout":
     put:
       operationId: putApiV4ElasticsearchIndexedNamespacesRollout
@@ -42261,8 +42298,8 @@ paths:
     get:
       operationId: getApiV4ProjectsIdUploadsUploadId
       summary: Download an uploaded file by ID
-      description: Downloads an uploaded file by ID. You must have the Maintainer
-        or Owner role for the project.
+      description: Downloads an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -42291,8 +42328,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdUploadsUploadId
       summary: Delete an uploaded file by ID
-      description: Deletes an uploaded file by ID. You must have the Maintainer or
-        Owner role for the project.
+      description: Deletes an uploaded file with a specified ID. You must have the
+        Maintainer or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -42324,7 +42361,9 @@ paths:
     get:
       operationId: getApiV4ProjectsIdUploadsSecretFilename
       summary: Download an uploaded file by secret and filename
-      description: Downloads an uploaded file by secret and filename.
+      description: Downloads an uploaded file with a specified secret and filename.
+        You must have the Guest, Planner, Reporter, Developer, Maintainer, or Owner
+        role for the project.
       tags:
       - Projects
       responses:
@@ -42359,8 +42398,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdUploadsSecretFilename
       summary: Delete an uploaded file by secret and filename
-      description: Deletes an uploaded file by secret and filename. You must have
-        the Maintainer or Owner role for the project.
+      description: Deletes an uploaded file with a specified secret and filename.
+        You must have the Maintainer or Owner role for the project.
       tags:
       - Projects
       responses:
@@ -78882,6 +78921,21 @@ components:
           "$ref": "#/components/schemas/APIEntitiesFeatureDefinition"
         current_status:
           "$ref": "#/components/schemas/APIEntitiesExperimentCurrentStatus"
+    APIEntitiesExperimentsAssignment:
+      type: object
+      properties:
+        experiment:
+          type: string
+          example: lightweight_trial_registration_redesign
+        variant:
+          type: string
+          example: candidate
+        context_key:
+          type: string
+          example: abc123def456
+        cached:
+          type: boolean
+          example: true
     APIEntitiesRelatedEpic:
       type: object
       properties:

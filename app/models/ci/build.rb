@@ -1590,17 +1590,6 @@ module Ci
         .index_by(&:type_new)
     end
     strong_memoize_attr :project_integrations
-
-    def read_job_definition_attribute(key, default_value = nil)
-      result =
-        if key.in?(::Ci::JobDefinition::NORMALIZED_DATA_COLUMNS)
-          [job_definition&.read_attribute(key), temp_job_definition&.read_attribute(key)].find { |v| !v.nil? }
-        else
-          [job_definition&.config&.dig(key), temp_job_definition&.config&.dig(key)].find { |v| !v.nil? }
-        end
-
-      [result, default_value].find { |v| !v.nil? }
-    end
   end
 end
 

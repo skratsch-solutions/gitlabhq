@@ -443,7 +443,7 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
       # When authenticating with a job token, the encoded token is the same as
       # that built when authenticating with a user
       context 'a valid user or a job token' do
-        before do
+        before_all do
           group.add_guest(user)
         end
 
@@ -552,7 +552,7 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
         let_it_be_with_reload(:token) { create(:personal_access_token, :dependency_proxy_scopes, user: user) }
         let_it_be(:jwt) { build_jwt(token) }
 
-        before do
+        before_all do
           group.add_guest(user)
         end
 
@@ -581,7 +581,7 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
       it_behaves_like 'rejects virtual_registry service_type'
 
       context 'a valid user' do
-        before do
+        before_all do
           group.add_guest(user)
         end
 
@@ -721,7 +721,7 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
     it_behaves_like 'without permission'
 
     context 'with a valid user' do
-      before do
+      before_all do
         group.add_guest(user)
       end
 
@@ -779,7 +779,7 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
     it_behaves_like 'without permission'
 
     context 'with a valid user' do
-      before do
+      before_all do
         group.add_guest(user)
       end
 

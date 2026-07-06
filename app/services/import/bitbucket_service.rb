@@ -60,13 +60,19 @@ module Import
     private
 
     def client
-      @client ||= Bitbucket::Client.new(credentials)
+      @client ||= Bitbucket::Client.new(credentials.merge(client_options), http_client: Import::Clients::HTTP)
     end
 
     def credentials
       {
         email: params[:bitbucket_email],
         api_token: params[:bitbucket_api_token]
+      }
+    end
+
+    def client_options
+      {
+        logger: ::Import::Framework::Logger
       }
     end
 

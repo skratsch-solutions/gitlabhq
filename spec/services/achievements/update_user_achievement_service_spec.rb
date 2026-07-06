@@ -28,7 +28,7 @@ RSpec.describe Achievements::UpdateUserAchievementService, feature_category: :us
 
       it 'updates the achievement' do
         expect(response).to be_success
-        expect(user_achievement.reload.show_on_profile).to eq(false)
+        expect(user_achievement.reload.show_on_profile).to be(false)
       end
     end
 

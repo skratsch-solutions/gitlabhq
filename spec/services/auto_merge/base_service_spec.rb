@@ -63,8 +63,8 @@ RSpec.describe AutoMerge::BaseService, feature_category: :code_review_workflow d
         merge_request.reload
         expect(merge_request.merge_params['commit_message']).to eq("Merge branch 'patch-12' into 'master'")
         expect(merge_request.merge_params['sha']).to eq('200fcc9c260f7219eaf0daba87d818f0922c5b18')
-        expect(merge_request.merge_params['should_remove_source_branch']).to eq(false)
-        expect(merge_request.squash_on_merge?).to eq(false)
+        expect(merge_request.merge_params['should_remove_source_branch']).to be(false)
+        expect(merge_request.squash_on_merge?).to be(false)
         expect(merge_request.merge_params['squash_commit_message']).to eq('Update README.md')
       end
     end

@@ -8,7 +8,7 @@ RSpec.describe Releases::Links::UpdateService, feature_category: :release_orches
   let_it_be_with_reload(:user) { create(:user, developer_of: project) }
   let_it_be_with_reload(:release) { create(:release, project: project, author: user, tag: 'v1.1.0') }
 
-  let(:release_link) do
+  let_it_be_with_reload(:release_link) do
     create(
       :release_link,
       release: release,

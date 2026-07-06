@@ -323,7 +323,6 @@ Gitlab/JsonSafeParse:
     - 'spec/lib/atlassian/jira_connect/serializers/feature_flag_entity_spec.rb'
     - 'spec/lib/atlassian/jira_connect/serializers/repository_entity_spec.rb'
     - 'spec/lib/banzai/filter/mermaid_filter_spec.rb'
-    - 'spec/lib/bitbucket/exponential_backoff_spec.rb'
     - 'spec/lib/bulk_imports/logger_spec.rb'
     - 'spec/lib/bulk_imports/projects/pipelines/snippets_pipeline_spec.rb'
     - 'spec/lib/ci/job_token/policies_spec.rb'
