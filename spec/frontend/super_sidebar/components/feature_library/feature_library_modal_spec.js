@@ -1,6 +1,7 @@
-import { GlModal, GlSearchBoxByType, GlTab, GlEmptyState } from '@gitlab/ui';
+import { GlModal, GlSearchBoxByType, GlTab, GlEmptyState, GlLink } from '@gitlab/ui';
 import { nextTick } from 'vue';
-import { mountExtended, shallowMountExtended } from 'helpers/vue_test_utils_helper';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
+import { stubComponent, RENDER_ALL_SLOTS_TEMPLATE } from 'helpers/stub_component';
 import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import FeatureLibraryModal from '~/super_sidebar/components/feature_library/feature_library_modal.vue';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
@@ -60,21 +61,24 @@ const sections = [
 describe('FeatureLibraryModal', () => {
   let wrapper;
 
-  const createWrapper = ({ currentPinnedIds = [] } = {}) => {
-    wrapper = mountExtended(FeatureLibraryModal, {
-      propsData: { sections, currentPinnedIds },
-      stubs: { GlModal: { template: '<div><slot /></div>' } },
+  const createWrapper = ({ currentPinnedIds = [], showFeedbackLink = false } = {}) => {
+    wrapper = shallowMountExtended(FeatureLibraryModal, {
+      propsData: { sections, currentPinnedIds, showFeedbackLink },
+      // Stub GlModal (declared props stay props, everything else surfaces as
+      // attrs) and render all its slots so footer/body content is inspectable.
+      stubs: { GlModal: stubComponent(GlModal, { template: RENDER_ALL_SLOTS_TEMPLATE }) },
     });
   };
 
   const findModal = () => wrapper.findComponent(GlModal);
   const findSearch = () => wrapper.findComponent(GlSearchBoxByType);
   const findAllTabs = () => wrapper.findAllComponents(GlTab);
-  const findTabLabels = () => wrapper.findAllByRole('tab').wrappers.map((w) => w.text());
+  const findTabLabels = () => findAllTabs().wrappers.map((w) => w.attributes('title'));
   const findItems = () => wrapper.findAllComponents(FeatureLibraryItem);
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
   const findScrollArea = () => wrapper.findByTestId('feature-library-scroll-area');
   const findGrid = () => wrapper.findByTestId('feature-library-grid');
+  const findFeedbackLink = () => wrapper.findComponent(GlLink);
 
   describe('rendering', () => {
     beforeEach(() => createWrapper());
@@ -113,32 +117,48 @@ describe('FeatureLibraryModal', () => {
   });
 
   describe('modal layout', () => {
-    beforeEach(() => {
-      wrapper = shallowMountExtended(FeatureLibraryModal, {
-        propsData: { sections, currentPinnedIds: [] },
+    describe('with default props', () => {
+      beforeEach(() => createWrapper());
+
+      it('blurs the page behind the modal', () => {
+        expect(findModal().props('modalClass')).toContain('gl-backdrop-blur-sm');
       });
-    });
 
-    it('blurs the page behind the modal', () => {
-      expect(findModal().props('modalClass')).toContain('gl-backdrop-blur-sm');
-    });
+      it('does not use centered so the top edge stays anchored during search', () => {
+        expect(findModal().attributes('centered')).toBeUndefined();
+      });
 
-    it('does not use centered so the top edge stays anchored during search', () => {
-      expect(findModal().attributes('centered')).toBeUndefined();
-    });
+      it('caps its height so tall content scrolls internally', () => {
+        expect(findModal().attributes('scrollable')).toBeDefined();
+      });
 
-    it('caps its height so tall content scrolls internally', () => {
-      expect(findModal().attributes('scrollable')).toBeDefined();
-    });
+      it('applies the feature-library-modal class for top-anchored positioning', () => {
+        expect(findModal().props('modalClass')).toContain('feature-library-modal');
+      });
 
-    it('applies the feature-library-modal class for top-anchored positioning', () => {
-      expect(findModal().props('modalClass')).toContain('feature-library-modal');
-    });
+      it('reserves a dismissable gutter around the dialog', () => {
+        const modalClass = findModal().props('modalClass');
+        expect(modalClass).toContain('gl-px-2');
+        expect(modalClass).toContain('sm:gl-px-5');
+      });
 
-    it('reserves a dismissable gutter around the dialog', () => {
-      const modalClass = findModal().props('modalClass');
-      expect(modalClass).toContain('gl-px-2');
-      expect(modalClass).toContain('sm:gl-px-5');
+      describe('footer visibility', () => {
+        describe('when the feedback link is enabled', () => {
+          beforeEach(() => createWrapper({ showFeedbackLink: true }));
+
+          it('shows the footer', () => {
+            expect(findModal().attributes('hide-footer')).toBeUndefined();
+          });
+        });
+
+        describe('when there is no feedback link to show', () => {
+          beforeEach(() => createWrapper({ showFeedbackLink: false }));
+
+          it('hides the footer', () => {
+            expect(findModal().attributes('hide-footer')).toBe('true');
+          });
+        });
+      });
     });
   });
 
@@ -192,16 +212,18 @@ describe('FeatureLibraryModal', () => {
   });
 
   describe('pin toggle', () => {
+    beforeEach(() => createWrapper());
+
     it('re-emits pin-toggle (with title) from grid items', () => {
-      createWrapper();
       findItems().at(0).vm.$emit('pin-toggle', 'some_id', true, 'Some title');
       expect(wrapper.emitted('pin-toggle')).toEqual([['some_id', true, 'Some title']]);
     });
   });
 
   describe('currentPinnedIds', () => {
+    beforeEach(() => createWrapper({ currentPinnedIds: ['repository'] }));
+
     it('passes pinned=true to items whose id is in currentPinnedIds', () => {
-      createWrapper({ currentPinnedIds: ['repository'] });
       const matchingItem = findItems().wrappers.find((w) => w.props('item').id === 'repository');
       expect(matchingItem.props('pinned')).toBe(true);
     });
@@ -287,6 +309,38 @@ describe('FeatureLibraryModal', () => {
       const cancelSpy = wrapper.vm.debouncedTrackSearch.cancel;
       findModal().vm.$emit('hidden');
       expect(cancelSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('feedback link', () => {
+    describe('when showFeedbackLink is true', () => {
+      beforeEach(() => createWrapper({ showFeedbackLink: true }));
+
+      it('renders the feedback link', () => {
+        expect(findFeedbackLink().exists()).toBe(true);
+      });
+
+      it('points the feedback link at the feedback issue', () => {
+        expect(findFeedbackLink().attributes('href')).toBe(
+          'https://gitlab.com/gitlab-org/gitlab/-/work_items/604008',
+        );
+      });
+    });
+
+    describe('when showFeedbackLink is false', () => {
+      beforeEach(() => createWrapper({ showFeedbackLink: false }));
+
+      it('does not render the feedback link', () => {
+        expect(findFeedbackLink().exists()).toBe(false);
+      });
+    });
+
+    describe('by default', () => {
+      beforeEach(() => createWrapper());
+
+      it('does not render the feedback link', () => {
+        expect(findFeedbackLink().exists()).toBe(false);
+      });
     });
   });
 });

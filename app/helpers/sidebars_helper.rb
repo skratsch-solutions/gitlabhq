@@ -101,7 +101,8 @@ module SidebarsHelper
       shortcut_links: shortcut_links(user: user, project: project),
       track_visits_path: track_namespace_visits_path,
       work_items: work_items_modal_data(group, project),
-      has_multiple_organizations: user.has_multiple_organizations?
+      has_multiple_organizations: user.has_multiple_organizations?,
+      show_feature_library_feedback: show_feature_library_feedback?
     })
   end
 
@@ -210,6 +211,10 @@ module SidebarsHelper
   end
 
   private
+
+  def show_feature_library_feedback?
+    true
+  end
 
   def fallback_sidebar_panel(nav, context_adds, user = nil)
     # Fallback when panels fail to render:

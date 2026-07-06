@@ -7,7 +7,7 @@ RSpec.describe JiraImport::UsersImporter, feature_category: :integrations do
 
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
-  let_it_be_with_reload(:project) { create(:project, group: group) }
+  let_it_be_with_reload(:project) { create(:project, group: group, maintainers: user) }
   let_it_be(:start_at) { 7 }
 
   let(:importer) { described_class.new(user, project, start_at) }
@@ -34,7 +34,6 @@ RSpec.describe JiraImport::UsersImporter, feature_category: :integrations do
 
     before do
       stub_jira_integration_test
-      project.add_maintainer(user)
     end
 
     context 'when Jira import is not configured properly' do

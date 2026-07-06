@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe BulkImports::Projects::Pipelines::MergeRequestsPipeline, feature_category: :importers do
   let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:another_user, freeze: false) { create(:user) }
-  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:group, freeze: false) { create(:group, owners: user, maintainers: another_user) }
   let_it_be(:project, freeze: false) { create(:project, :repository, group: group) }
   let_it_be(:bulk_import, freeze: false) { create(:bulk_import, :with_configuration, user: user) }
   let_it_be(:entity, freeze: false) do
@@ -88,9 +88,6 @@ RSpec.describe BulkImports::Projects::Pipelines::MergeRequestsPipeline, feature_
 
   describe '#run', :clean_gitlab_redis_shared_state do
     before do
-      group.add_owner(user)
-      group.add_maintainer(another_user)
-
       ::BulkImports::UsersMapper.new(context: context).cache_source_user_id(42, another_user.id)
 
       allow_next_instance_of(BulkImports::Common::Extractors::NdjsonExtractor) do |extractor|

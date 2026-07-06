@@ -23,6 +23,7 @@ title: Fix CI/CD Pipeline Flow
   to apply as code suggestions in GitLab 19.1
   [with a flag](../../../../administration/feature_flags/_index.md) named `fix_pipeline_next`.
   Enabled on GitLab.com for a subset of users.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241608) in GitLab 19.2. Feature flag `fix_pipeline_next` removed.
 
 {{< /history >}}
 

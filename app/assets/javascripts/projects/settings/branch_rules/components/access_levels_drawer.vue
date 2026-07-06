@@ -9,6 +9,7 @@ import {
   DEPLOY_KEYS_TYPE,
 } from '~/vue_shared/components/list_selector/constants';
 import { convertToGraphQLId, getIdFromGraphQLId } from '~/graphql_shared/utils';
+import { TYPENAME_MEMBER_ROLE } from '~/graphql_shared/constants';
 import {
   ACCESS_LEVEL_DEVELOPER_INTEGER,
   ACCESS_LEVEL_MAINTAINER_INTEGER,
@@ -73,6 +74,11 @@ export default {
       required: false,
       default: () => [],
     },
+    memberRoles: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
     title: {
       type: String,
       required: true,
@@ -120,7 +126,9 @@ export default {
       this.isMaintainersSelected = this.roles.includes(ACCESS_LEVEL_MAINTAINER_INTEGER);
       this.isDevelopersAndMaintainersSelected = this.roles.includes(ACCESS_LEVEL_DEVELOPER_INTEGER);
       this.isNoOneSelected = this.roles.includes(ACCESS_LEVEL_NO_ACCESS_INTEGER);
-      this.selectedCustomRoleIds = [];
+      // Preselect saved custom roles using their integer ids (getIdFromGraphQLId converts
+      // the GlobalID returned by the query to an integer for the checkbox component).
+      this.selectedCustomRoleIds = this.memberRoles.map((role) => getIdFromGraphQLId(role.id));
 
       this.updatedGroups = this.groups;
       this.updatedUsers = this.users;
@@ -155,6 +163,9 @@ export default {
         ...this.formatItemsData(this.updatedUsers, 'userId', 'User'), // eslint-disable-line @gitlab/require-i18n-strings
         ...this.formatItemsData(this.updatedGroups, 'groupId', 'Group'), // eslint-disable-line @gitlab/require-i18n-strings
         ...this.formatItemsData(this.updatedDeployKeys, 'deployKeyId', 'DeployKey'),
+        ...this.selectedCustomRoleIds.map((id) => ({
+          memberRoleId: convertToGraphQLId(TYPENAME_MEMBER_ROLE, id),
+        })),
       ];
       let ruleEditAccessLevels = [];
       if (this.isAdminSelected) {

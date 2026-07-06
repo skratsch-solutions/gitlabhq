@@ -70,6 +70,11 @@ export default {
       required: false,
       default: '',
     },
+    showFeedbackLink: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -311,6 +316,7 @@ export default {
       v-if="supportsPins && glFeatures.featureLibraryModal"
       :sections="nonStaticItems"
       :current-pinned-ids="changedPinnedItemIds.ids"
+      :show-feedback-link="showFeedbackLink"
       @pin-toggle="onModalPinToggle"
     />
     <hr

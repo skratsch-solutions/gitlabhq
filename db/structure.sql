@@ -28012,8 +28012,7 @@ CREATE TABLE plan_limits (
     ci_max_artifact_size_scip integer DEFAULT 200 NOT NULL,
     plan_name_uid smallint,
     ci_max_artifact_size_sarif integer DEFAULT 10 NOT NULL,
-    max_pipelines_per_merge_train smallint DEFAULT 20 NOT NULL,
-    ci_max_artifact_size_environment_key integer DEFAULT 1 NOT NULL
+    max_pipelines_per_merge_train smallint DEFAULT 20 NOT NULL
 );
 
 CREATE SEQUENCE plan_limits_id_seq

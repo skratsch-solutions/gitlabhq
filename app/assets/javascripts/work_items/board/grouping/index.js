@@ -1,3 +1,4 @@
+import { getAdaptiveStatusColor } from '~/lib/utils/color_utils';
 import { strategies } from 'ee_else_ce/work_items/board/grouping/strategies';
 
 /**
@@ -27,6 +28,7 @@ import { strategies } from 'ee_else_ce/work_items/board/grouping/strategies';
  *
  * @typedef {Object} GroupingStrategy
  * @property {string} property - The `groupBy` property it handles, e.g. 'status'.
+ * @property {string} label - Human-readable name for this dimension, e.g. 'Status'.
  * @property {Object} valuesQuery - GraphQL query listing the values that become columns.
  * @property {(data: Object) => GroupingValue[]} extractValues - Pulls the column values from the query result.
  * @property {(value: GroupingValue) => Object} columnFilter - work-items query variables that filter a column, e.g. `{ status: { name } }`.
@@ -45,3 +47,17 @@ const STRATEGIES = Object.fromEntries(strategies.map((strategy) => [strategy.pro
  * @returns {GroupingStrategy|null} The strategy for the groupBy property, or null when unsupported.
  */
 export const groupingStrategyFor = (property) => STRATEGIES[property] ?? null;
+
+/**
+ * @param {HeaderDecoration} decoration
+ * @returns {boolean} Whether the decoration should render an icon.
+ */
+export const hasDecorationIcon = (decoration) =>
+  decoration.type === 'icon' && Boolean(decoration.name);
+
+/**
+ * @param {HeaderDecoration} decoration
+ * @returns {Object} Inline style for the decoration icon, adapted for dark mode.
+ */
+export const decorationIconStyle = (decoration) =>
+  decoration.color ? { color: getAdaptiveStatusColor(decoration.color) } : {};

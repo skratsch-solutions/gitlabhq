@@ -7998,7 +7998,7 @@ msgstr ""
 msgid "AgentPlan|Workplan:"
 msgstr ""
 
-msgid "AgentPlan|You are here to help refine a plan for the user from the Work Item context to a Markdown output with key information required for Agent to pick off the work. The template should have a Why, How, What format with key insights and list of steps. If the issue is lacking details, start by reading the comments. Then, ask clarifying questions to the users in Chat until you are confident. If there are pending questions, please preserve them inside the plan. Then, please proceed with updating the work item 'Workplan' widget with your output. You can erase everything was there before and add your new plan entirely. Don't preserve existing notes if they dont align with what you wrote. If there is enough information but the title or description is lacking, please propose to update it minimally with key insights. Try to preserve anything that is already present, just add on top and dont repeat the full plan. What is important is syncing up enough to preserve the intent and adding data where we had none before."
+msgid "AgentPlan|You are here to help refine a plan for the user from the Work Item context to a Markdown output with key information required for Agent to pick off the work. This plan is for the work item with ID %{workItemId}. Use this exact work item as your context, regardless of any other panels or items visible in the UI. The template should have a Why, How, What format with key insights and list of steps. If the issue is lacking details, start by reading the comments. Then, ask clarifying questions to the users in Chat until you are confident. If there are pending questions, please preserve them inside the plan. Then, please proceed with updating the work item 'Workplan' widget with your output. You can erase everything was there before and add your new plan entirely. Don't preserve existing notes if they dont align with what you wrote. If there is enough information but the title or description is lacking, please propose to update it minimally with key insights. Try to preserve anything that is already present, just add on top and dont repeat the full plan. What is important is syncing up enough to preserve the intent and adding data where we had none before."
 msgstr ""
 
 msgid "Agents|Cannot be assigned"
@@ -11533,6 +11533,9 @@ msgid "AsanaService|Comma-separated list of branches to be automatically inspect
 msgstr ""
 
 msgid "AsanaService|User personal access token. User must have access to the task. All comments are attributed to this user."
+msgstr ""
+
+msgid "Ascending"
 msgstr ""
 
 msgid "Ask GitLab Duo to help you write descriptions, rewrite existing text and more..."
@@ -33159,6 +33162,9 @@ msgid "FeatureLibrary|Recommended"
 msgstr ""
 
 msgid "FeatureLibrary|Search GitLab features"
+msgstr ""
+
+msgid "FeatureLibrary|Share feedback about this feature"
 msgstr ""
 
 msgid "FeatureLibrary|Try a different search term or category."
@@ -63987,7 +63993,7 @@ msgstr ""
 msgid "Runners|Ensure you have the %{linkStart}Owner%{linkEnd} IAM role on your Google Cloud project."
 msgstr ""
 
-msgid "Runners|Enter the job timeout in seconds. Must be a minimum of 600 seconds."
+msgid "Runners|Enter number of seconds. Must be 600 seconds or more. If not defined, the runner uses the project %{linkStart}job timeout value%{linkEnd}."
 msgstr ""
 
 msgid "Runners|Environment in Google Cloud where runners execute CI/CD jobs. Runners are created in temporary virtual machines based on demand. To improve security, use a Google Cloud project for CI/CD only."
@@ -64167,7 +64173,7 @@ msgstr ""
 msgid "Runners|Manually verify that the runner is available to pick up jobs."
 msgstr ""
 
-msgid "Runners|Maximum amount of time the runner can run before it terminates. If a project has a shorter job timeout period, the job timeout period of the instance runner is used instead."
+msgid "Runners|Maximum amount of time the runner can run before it terminates. The job timeout of the runner is used if it is shorter than the project job timeout. For example, if the maximum job timeout for a runner is 30 minutes, but the CI/CD timeout for a project is 2 hours, the job running in that project times out after 30 minutes."
 msgstr ""
 
 msgid "Runners|Maximum job timeout"
@@ -87327,7 +87333,16 @@ msgstr ""
 msgid "WorkItems|Fields"
 msgstr ""
 
+msgid "WorkItems|Group by"
+msgstr ""
+
+msgid "WorkItems|Groups"
+msgstr ""
+
 msgid "WorkItems|Hidden"
+msgstr ""
+
+msgid "WorkItems|Hide all"
 msgstr ""
 
 msgid "WorkItems|How do I use statuses?"
@@ -87345,10 +87360,22 @@ msgstr ""
 msgid "WorkItems|Search fields"
 msgstr ""
 
+msgid "WorkItems|Search groups"
+msgstr ""
+
 msgid "WorkItems|Shown"
 msgstr ""
 
+msgid "WorkItems|Something went wrong while fetching the groups."
+msgstr ""
+
+msgid "WorkItems|Sort"
+msgstr ""
+
 msgid "WorkItems|Sort order rebalancing in progress. Reordering is temporarily disabled."
+msgstr ""
+
+msgid "WorkItems|Status"
 msgstr ""
 
 msgid "WorkItems|The Type filter URL has been changed. Please update any bookmarks or links that reference the old URL."

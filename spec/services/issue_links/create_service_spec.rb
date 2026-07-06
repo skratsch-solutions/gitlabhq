@@ -6,13 +6,13 @@ RSpec.describe IssueLinks::CreateService, feature_category: :team_planning do
   describe '#execute' do
     let_it_be(:user) { create :user }
     let_it_be(:namespace) { create :namespace }
-    let_it_be_with_reload(:project) { create :project, namespace: namespace }
+    let_it_be_with_reload(:project) { create :project, namespace: namespace, guests: user }
     let_it_be_with_reload(:issuable) { create :issue, project: project }
     let_it_be(:issuable2) { create :issue, project: project }
     let_it_be(:restricted_issuable) { create :issue }
     let_it_be(:public_project) { create :project, :public }
     let_it_be(:readonly_issuable) { create :issue, project: public_project }
-    let_it_be(:another_project) { create :project, namespace: project.namespace }
+    let_it_be(:another_project) { create :project, namespace: project.namespace, guests: user }
     let_it_be(:issuable3) { create :issue, project: another_project }
     let_it_be(:issuable_a) { create :issue, project: project }
     let_it_be(:issuable_b) { create :issue, project: project }
@@ -22,11 +22,6 @@ RSpec.describe IssueLinks::CreateService, feature_category: :team_planning do
     let(:issuable_type) { :issue }
     let(:issuable_link_class) { IssueLink }
     let(:params) { {} }
-
-    before do
-      project.add_guest(user)
-      another_project.add_guest(user)
-    end
 
     it_behaves_like 'issuable link creation'
 

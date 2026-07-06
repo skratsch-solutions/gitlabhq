@@ -1,7 +1,5 @@
 <script>
 import { GlIcon, GlSprintf, GlTooltipDirective } from '@gitlab/ui';
-// eslint-disable-next-line no-restricted-imports
-import { mapState, mapGetters } from 'vuex';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import { __ } from '~/locale';
 import MetadataItem from '~/vue_shared/components/registry/metadata_item.vue';
@@ -23,9 +21,22 @@ export default {
   i18n: {
     packageInfo: __('v%{version} published %{timeAgo}'),
   },
+  props: {
+    packageEntity: {
+      type: Object,
+      required: true,
+    },
+    packageFiles: {
+      type: Array,
+      required: true,
+    },
+    packagePipeline: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+  },
   computed: {
-    ...mapState(['packageEntity', 'packageFiles']),
-    ...mapGetters(['packagePipeline']),
     totalSize() {
       return numberToHumanSize(this.packageFiles.reduce((acc, p) => acc + p.size, 0));
     },

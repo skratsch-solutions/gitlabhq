@@ -5,6 +5,7 @@ import WorkItemDisplaySettingsDrawer from '~/work_items/list/components/work_ite
 import WorkItemDisplaySettingsSort from '~/work_items/list/components/work_item_display_settings_sort.vue';
 import WorkItemDisplaySettingsMetadata from '~/work_items/list/components/work_item_display_settings_metadata.vue';
 import WorkItemDisplaySettingsUserPreferences from '~/work_items/list/components/work_item_display_settings_user_preferences.vue';
+import WorkItemDisplaySettingsGroupBy from '~/work_items/list/components/work_item_display_settings_group_by.vue';
 
 const SORT_OPTIONS = [
   {
@@ -29,6 +30,10 @@ describe('WorkItemDisplaySettingsDrawer', () => {
   const findMetadata = () => wrapper.findComponent(WorkItemDisplaySettingsMetadata);
   const findUserPreferences = () => wrapper.findComponent(WorkItemDisplaySettingsUserPreferences);
   const findViewModeToggle = () => wrapper.findComponent(GlSegmentedControl);
+  const findGroupByRow = () => wrapper.findByTestId('group-by-row');
+  const findGroupByBackButton = () => wrapper.findByTestId('group-by-back-button');
+  const findGroupBy = () => wrapper.findComponent(WorkItemDisplaySettingsGroupBy);
+  const findTitle = () => wrapper.find('h2');
 
   const createComponent = ({ props = {}, provide = {} } = {}) => {
     wrapper = shallowMountExtended(WorkItemDisplaySettingsDrawer, {
@@ -168,6 +173,59 @@ describe('WorkItemDisplaySettingsDrawer', () => {
         fullPath: 'gitlab-org/gitlab',
         workItemTypeId: 'gid://gitlab/WorkItems::Type/8',
       });
+    });
+  });
+
+  describe('group by section', () => {
+    it('does not render the group by row outside board view mode', () => {
+      createComponent({ props: { viewMode: VIEW_MODE_LIST } });
+
+      expect(findGroupByRow().exists()).toBe(false);
+    });
+
+    it('does not render the group by row when planningViewBoards is disabled', () => {
+      createComponent({
+        props: { viewMode: VIEW_MODE_BOARD },
+        provide: { glFeatures: { planningViewBoards: false } },
+      });
+
+      expect(findGroupByRow().exists()).toBe(false);
+    });
+
+    it('renders the group by row with the current strategy label in board view mode', () => {
+      createComponent({ props: { viewMode: VIEW_MODE_BOARD } });
+
+      expect(findGroupByRow().text()).toContain('Status');
+    });
+
+    it('navigates to the group by sub-page when the row is clicked', async () => {
+      createComponent({ props: { viewMode: VIEW_MODE_BOARD, fullPath: 'gitlab-org/gitlab' } });
+
+      await findGroupByRow().trigger('click');
+
+      expect(findTitle().text()).toBe('Group by');
+      expect(findGroupBy().props('fullPath')).toBe('gitlab-org/gitlab');
+      expect(findMetadata().exists()).toBe(false);
+      expect(findSort().exists()).toBe(false);
+    });
+
+    it('navigates back to the root page when the back button is clicked', async () => {
+      createComponent({ props: { viewMode: VIEW_MODE_BOARD } });
+      await findGroupByRow().trigger('click');
+
+      await findGroupByBackButton().vm.$emit('click');
+
+      expect(findTitle().text()).toBe('Display');
+      expect(findGroupBy().exists()).toBe(false);
+    });
+
+    it('resets to the root page when the drawer closes', async () => {
+      createComponent({ props: { open: true, viewMode: VIEW_MODE_BOARD } });
+      await findGroupByRow().trigger('click');
+
+      await wrapper.setProps({ open: false });
+
+      expect(findTitle().text()).toBe('Display');
     });
   });
 });

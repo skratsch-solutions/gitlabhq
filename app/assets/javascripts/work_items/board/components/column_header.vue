@@ -1,7 +1,7 @@
 <script>
 import { GlButton, GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { getAdaptiveStatusColor } from '~/lib/utils/color_utils';
+import { hasDecorationIcon, decorationIconStyle } from '~/work_items/board/grouping';
 
 export default {
   name: 'ColumnHeader',
@@ -46,10 +46,10 @@ export default {
   emits: ['toggle-collapse'],
   computed: {
     showIcon() {
-      return this.decoration.type === 'icon' && Boolean(this.decoration.name);
+      return hasDecorationIcon(this.decoration);
     },
     iconColorStyle() {
-      return this.decoration.color ? { color: getAdaptiveStatusColor(this.decoration.color) } : {};
+      return decorationIconStyle(this.decoration);
     },
     toggleLabel() {
       return this.collapsed ? this.$options.i18n.expand : this.$options.i18n.collapse;

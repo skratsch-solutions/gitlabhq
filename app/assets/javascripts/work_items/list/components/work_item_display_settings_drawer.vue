@@ -1,26 +1,38 @@
 <script>
-import { GlDrawer, GlSegmentedControl } from '@gitlab/ui';
-import { s__ } from '~/locale';
+import { GlButton, GlDrawer, GlIcon, GlSegmentedControl } from '@gitlab/ui';
+import { __, s__ } from '~/locale';
 import { DRAWER_Z_INDEX } from '~/lib/utils/constants';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { groupingStrategyFor } from '~/work_items/board/grouping';
 import { VIEW_MODE_LIST, VIEW_MODE_BOARD } from '../../constants';
 import WorkItemDisplaySettingsSort from './work_item_display_settings_sort.vue';
 import WorkItemDisplaySettingsMetadata from './work_item_display_settings_metadata.vue';
 import WorkItemDisplaySettingsUserPreferences from './work_item_display_settings_user_preferences.vue';
+import WorkItemDisplaySettingsGroupBy from './work_item_display_settings_group_by.vue';
+
+const PAGE_ROOT = 'root';
+const PAGE_GROUP_BY = 'groupBy';
 
 export default {
   name: 'WorkItemDisplaySettingsDrawer',
   components: {
+    GlButton,
     GlDrawer,
+    GlIcon,
     GlSegmentedControl,
     WorkItemDisplaySettingsSort,
     WorkItemDisplaySettingsMetadata,
     WorkItemDisplaySettingsUserPreferences,
+    WorkItemDisplaySettingsGroupBy,
   },
   mixins: [glFeatureFlagMixin()],
   i18n: {
     title: s__('WorkItems|Display'),
+    groupBy: s__('WorkItems|Group by'),
+    goBack: __('Go back'),
   },
+  PAGE_ROOT,
+  PAGE_GROUP_BY,
   viewModeOptions: [
     {
       value: VIEW_MODE_LIST,
@@ -83,12 +95,33 @@ export default {
     },
   },
   emits: ['close', 'sort', 'update-settings', 'toggle-view-mode'],
+  data() {
+    return {
+      currentPage: PAGE_ROOT,
+    };
+  },
   computed: {
     hasSortOptions() {
       return this.sortOptions.length > 0;
     },
     isPlanningViewBoardEnabled() {
       return Boolean(this.glFeatures.planningViewBoards);
+    },
+    isGroupByPage() {
+      return this.currentPage === PAGE_GROUP_BY;
+    },
+    showGroupByRow() {
+      return this.isPlanningViewBoardEnabled && this.viewMode === VIEW_MODE_BOARD;
+    },
+    groupByLabel() {
+      return groupingStrategyFor('status')?.label ?? '';
+    },
+  },
+  watch: {
+    open(isOpen) {
+      if (!isOpen) {
+        this.currentPage = PAGE_ROOT;
+      }
     },
   },
   methods: {
@@ -104,6 +137,12 @@ export default {
     onToggleViewMode(newViewMode) {
       this.$emit('toggle-view-mode', newViewMode);
     },
+    openGroupByPage() {
+      this.currentPage = PAGE_GROUP_BY;
+    },
+    backToRoot() {
+      this.currentPage = PAGE_ROOT;
+    },
   },
   DRAWER_Z_INDEX,
 };
@@ -118,10 +157,22 @@ export default {
     @close="onClose"
   >
     <template #title>
-      <h2 class="gl-my-0 gl-text-size-h2 gl-leading-24">{{ $options.i18n.title }}</h2>
+      <div v-if="isGroupByPage" class="gl-flex gl-items-center gl-gap-3">
+        <gl-button
+          category="tertiary"
+          icon="chevron-lg-left"
+          size="small"
+          :aria-label="$options.i18n.goBack"
+          data-testid="group-by-back-button"
+          @click="backToRoot"
+        />
+        <h2 class="gl-my-0 gl-text-size-h2 gl-leading-24">{{ $options.i18n.groupBy }}</h2>
+      </div>
+      <h2 v-else class="gl-my-0 gl-text-size-h2 gl-leading-24">{{ $options.i18n.title }}</h2>
     </template>
     <template #default>
-      <div class="gl-flex gl-h-full gl-flex-col !gl-p-0">
+      <work-item-display-settings-group-by v-if="isGroupByPage" :full-path="fullPath" />
+      <div v-else class="gl-flex gl-h-full gl-flex-col !gl-p-0">
         <gl-segmented-control
           v-if="isPlanningViewBoardEnabled"
           :options="$options.viewModeOptions"
@@ -137,6 +188,19 @@ export default {
           class="gl-px-5 gl-pb-4 gl-pt-5"
           @sort="onSort"
         />
+        <button
+          v-if="showGroupByRow"
+          type="button"
+          data-testid="group-by-row"
+          class="gl-flex gl-w-full gl-items-center gl-justify-between gl-border-none gl-bg-transparent gl-px-5 gl-py-4"
+          @click="openGroupByPage"
+        >
+          <span>{{ $options.i18n.groupBy }}</span>
+          <span class="gl-flex gl-items-center gl-gap-2 gl-text-subtle">
+            {{ groupByLabel }}
+            <gl-icon name="chevron-right" />
+          </span>
+        </button>
         <div :class="{ 'gl-border-t gl-pt-5': hasSortOptions }" class="gl-p-2">
           <work-item-display-settings-metadata
             :namespace-preferences="namespacePreferences"

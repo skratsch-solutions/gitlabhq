@@ -2181,7 +2181,6 @@ frontend/**/geo_* @zcuddy
 /lib/gitlab/security/dast_variables.rb @gitlab-org/secure/dynamic-analysis @gitlab-org/security-risk-management/security-platform-management-group @phillipwells
 
 [Delivery]
-/.gitlab/duo/flows/resolve-canonical-security-conflict.yaml @gitlab-org/delivery
 /doc/policy/maintenance.md @gitlab-org/delivery
 /.gitlab/merge_request_templates/Security\ Fix.md @gitlab-org/delivery
 /.gitlab/merge_request_templates/Stable\ Branch.md @gitlab-org/delivery

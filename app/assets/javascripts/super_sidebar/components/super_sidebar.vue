@@ -207,6 +207,7 @@ export default {
             :panel-type="sidebarData.panel_type"
             :pinned-item-ids="sidebarData.pinned_items"
             :update-pins-url="sidebarData.update_pins_url"
+            :show-feedback-link="sidebarData.show_feature_library_feedback"
           />
           <sidebar-portal-target />
         </scroll-scrim>

@@ -6,19 +6,14 @@ RSpec.describe Labels::TransferService, feature_category: :team_planning do
   describe '#execute' do
     let_it_be(:user) { create(:user) }
 
-    let_it_be(:old_group_ancestor) { create(:group) }
+    let_it_be(:old_group_ancestor) { create(:group, developers: user) }
     let_it_be(:old_group) { create(:group, parent: old_group_ancestor) }
 
-    let_it_be(:new_group) { create(:group) }
+    let_it_be(:new_group) { create(:group, developers: user) }
 
     let_it_be(:project) { create(:project, :repository, group: new_group) }
 
     subject(:service) { described_class.new(user, old_group, project) }
-
-    before do
-      old_group_ancestor.add_developer(user)
-      new_group.add_developer(user)
-    end
 
     shared_examples 'recreates missing labels at project level and assigns them to issuables' do |label_group_method|
       it "recreates missing #{label_group_method.to_s.tr('_', ' ')} labels at project level and assigns them to the issuables" do

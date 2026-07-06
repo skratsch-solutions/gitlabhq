@@ -1,5 +1,12 @@
 <script>
-import { GlModal, GlSearchBoxByType, GlScrollableTabs, GlTab, GlEmptyState } from '@gitlab/ui';
+import {
+  GlModal,
+  GlSearchBoxByType,
+  GlScrollableTabs,
+  GlTab,
+  GlEmptyState,
+  GlLink,
+} from '@gitlab/ui';
 import { debounce } from 'lodash-es';
 import { InternalEvents } from '~/tracking';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
@@ -11,7 +18,7 @@ import {
   EVENT_UNPIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
   EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
 } from '../../tracking_constants';
-import { ALL_CATEGORY, ALL_CATEGORY_ID, MODAL_ID } from './constants';
+import { ALL_CATEGORY, ALL_CATEGORY_ID, FEEDBACK_ISSUE_URL, MODAL_ID } from './constants';
 import FeatureLibraryItem from './feature_library_item.vue';
 
 const trackingMixin = InternalEvents.mixin();
@@ -24,10 +31,12 @@ export default {
     GlScrollableTabs,
     GlTab,
     GlEmptyState,
+    GlLink,
     FeatureLibraryItem,
   },
   mixins: [trackingMixin],
   modalId: MODAL_ID,
+  FEEDBACK_ISSUE_URL,
   props: {
     sections: {
       type: Array,
@@ -38,6 +47,11 @@ export default {
       type: Array,
       required: false,
       default: () => [],
+    },
+    showFeedbackLink: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   emits: ['pin-toggle'],
@@ -142,12 +156,12 @@ export default {
   <gl-modal
     :modal-id="$options.modalId"
     :aria-label="s__('FeatureLibrary|GitLab features')"
+    :hide-footer="!showFeedbackLink"
     modal-class="feature-library-modal gl-backdrop-blur-sm gl-px-2 sm:gl-px-5"
     body-class="gl-flex gl-flex-col"
     size="lg"
     scrollable
     hide-header
-    hide-footer
     @shown="onShown"
     @hidden="onHidden"
   >
@@ -190,5 +204,12 @@ export default {
         :description="s__('FeatureLibrary|Try a different search term or category.')"
       />
     </div>
+    <template v-if="showFeedbackLink" #modal-footer>
+      <div class="gl-w-full gl-text-center gl-text-sm">
+        <gl-link :href="$options.FEEDBACK_ISSUE_URL" target="_blank" rel="noopener noreferrer">{{
+          s__('FeatureLibrary|Share feedback about this feature')
+        }}</gl-link>
+      </div>
+    </template>
   </gl-modal>
 </template>

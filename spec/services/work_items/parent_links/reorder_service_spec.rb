@@ -67,7 +67,7 @@ RSpec.describe WorkItems::ParentLinks::ReorderService, feature_category: :portfo
     end
 
     context 'when user has insufficient permissions' do
-      let(:user) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       it_behaves_like 'returns not found error'
 
@@ -81,7 +81,7 @@ RSpec.describe WorkItems::ParentLinks::ReorderService, feature_category: :portfo
     end
 
     context 'when child and parent are already linked' do
-      before do
+      before_all do
         create(:parent_link, work_item: work_item, work_item_parent: parent)
       end
 

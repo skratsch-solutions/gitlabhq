@@ -529,6 +529,7 @@ export default {
         :users="accessLevelsDrawerData.users"
         :groups="accessLevelsDrawerData.groups"
         :deploy-keys="accessLevelsDrawerData.deployKeys"
+        :member-roles="accessLevelsDrawerData.memberRoles"
         :is-loading="isRuleUpdating"
         :group-id="groupId"
         :project-path="projectPath"
