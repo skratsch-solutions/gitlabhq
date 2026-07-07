@@ -41,7 +41,7 @@ export default {
     roundedClass() {
       if (this.isFullWidth) return '!gl-rounded-base';
 
-      return `rounded-${this.position}`;
+      return this.isLeftSide ? '!gl-rounded-l-base' : '!gl-rounded-r-base';
     },
     textAlignmentClass() {
       if (this.isFullWidth) return 'gl-text-center';

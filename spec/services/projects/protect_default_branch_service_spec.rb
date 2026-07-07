@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Projects::ProtectDefaultBranchService, feature_category: :source_code_management do
   let(:service) { described_class.new(project) }
-  let(:project) { create(:project) }
+  let_it_be_with_reload(:project) { create(:project) }
 
   let(:allowed_to_push) { Gitlab::Access::MAINTAINER }
   let(:allowed_to_merge) { Gitlab::Access::MAINTAINER }

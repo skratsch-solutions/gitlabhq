@@ -372,7 +372,7 @@ export default {
             <span class="gl-flex">
               <gl-icon
                 class="gl-dropdown-item-check-icon"
-                :class="{ invisible: !isCurrentStatusFilter(status) }"
+                :class="{ 'gl-invisible': !isCurrentStatusFilter(status) }"
                 name="check"
               />
               {{ label }}
@@ -389,7 +389,7 @@ export default {
             <span class="gl-flex">
               <gl-icon
                 class="gl-dropdown-item-check-icon"
-                :class="{ invisible: !isCurrentSortField(field) }"
+                :class="{ 'gl-invisible': !isCurrentSortField(field) }"
                 name="check"
               />
               {{ label }}

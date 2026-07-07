@@ -46155,7 +46155,7 @@ CREATE INDEX idx_dlep_upl_states_on_verification_state ON dependency_list_export
 
 CREATE INDEX idx_dlep_upl_states_pending_verification ON dependency_list_export_part_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
-CREATE UNIQUE INDEX idx_duo_wf_checkpoint_blobs_unique ON ONLY p_duo_workflows_checkpoint_blobs USING btree (project_id, workflow_id, thread_ts, channel, version, created_at) NULLS NOT DISTINCT;
+CREATE UNIQUE INDEX idx_duo_wf_checkpoint_blobs_dedup ON ONLY p_duo_workflows_checkpoint_blobs USING btree (project_id, workflow_id, thread_ts, channel, version, step_action, created_at) NULLS NOT DISTINCT;
 
 CREATE INDEX idx_elastic_reindexing_slices_on_elastic_reindexing_subtask_id ON elastic_reindexing_slices USING btree (elastic_reindexing_subtask_id);
 

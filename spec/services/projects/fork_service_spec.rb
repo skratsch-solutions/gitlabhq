@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Projects::ForkService, feature_category: :source_code_management do
   subject(:service) { described_class.new(project, user, params) }
 
-  let_it_be_with_reload(:project) { create(:project, :repository, star_count: 100, description: 'project') }
+  let_it_be_with_reload(:project) { create(:project, :small_repo, star_count: 100, description: 'project') }
   let_it_be_with_reload(:user) { create(:user) }
 
   let(:params) { { namespace: namespace } }
@@ -284,7 +284,7 @@ RSpec.describe Projects::ForkService, feature_category: :source_code_management 
 
           context 'when project already exists in group' do
             it 'fails due to validation, not transaction failure' do
-              existing_project = create(:project, :repository, path: project.path, namespace: namespace)
+              existing_project = create(:project, :small_repo, path: project.path, namespace: namespace)
               expect(existing_project).to be_persisted
 
               is_expected.to be_error

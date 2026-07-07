@@ -8,7 +8,7 @@ RSpec.describe JiraConnect::SyncProjectWorker, factory_default: :keep, feature_c
   it_behaves_like 'worker with data consistency', described_class, data_consistency: :delayed
 
   describe '#perform' do
-    let_it_be(:project) { create_default(:project, :repository).freeze }
+    let_it_be(:project) { create_default(:project, :small_repo).freeze }
 
     let!(:mr_with_jira_title) { create(:merge_request, :unique_branches, title: 'TEST-123') }
     let!(:mr_with_jira_description) { create(:merge_request, :unique_branches, description: 'TEST-323') }

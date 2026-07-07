@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Projects::MilestonesController, feature_category: :team_planning do
-  let(:project) { create(:project, :repository) }
-  let(:user)    { create(:user) }
+  let_it_be(:user) { create(:user) }
+  let_it_be_with_reload(:project) { create(:project, :small_repo, maintainers: user) }
   let(:milestone) { create(:milestone, project: project) }
   let(:issue) { create(:issue, project: project, milestone: milestone) }
   let!(:label) { create(:label, project: project, title: 'Issue Label', issues: [issue]) }
@@ -13,7 +13,6 @@ RSpec.describe Projects::MilestonesController, feature_category: :team_planning 
 
   before do
     sign_in(user)
-    project.add_maintainer(user)
     controller.instance_variable_set(:@project, project)
   end
 
@@ -301,11 +300,12 @@ RSpec.describe Projects::MilestonesController, feature_category: :team_planning 
       render_views
 
       context 'as json' do
-        let!(:guest) { create(:user, username: 'guest1') }
-        let!(:group) { create(:group, :public) }
-        let!(:project) { create(:project, :public, group: group) }
-        let!(:label) { create(:label, title: 'test_label_on_private_issue', project: project) }
-        let!(:confidential_issue) { create(:labeled_issue, confidential: true, project: project, milestone: milestone, labels: [label]) }
+        let_it_be(:guest) { create(:user, username: 'guest1') }
+        let_it_be(:group) { create(:group, :public) }
+        let_it_be_with_reload(:project) { create(:project, :public, group: group, reporters: user) }
+        let_it_be(:milestone) { create(:milestone, project: project) }
+        let_it_be(:label) { create(:label, title: 'test_label_on_private_issue', project: project) }
+        let_it_be(:confidential_issue) { create(:labeled_issue, confidential: true, project: project, milestone: milestone, labels: [label]) }
 
         it 'does not render labels of private issues if user has no access' do
           sign_in(guest)
@@ -354,9 +354,7 @@ RSpec.describe Projects::MilestonesController, feature_category: :team_planning 
     end
 
     context 'when user cannot admin group milestones' do
-      before do
-        project.add_developer(user)
-      end
+      before_all { project.add_developer(user) }
 
       it 'renders 404' do
         project.update!(namespace: user.namespace)
@@ -375,8 +373,9 @@ RSpec.describe Projects::MilestonesController, feature_category: :team_planning 
       let_it_be(:issue_assignee) { create(:user) }
       let_it_be(:guest_user) { create(:user) }
 
+      before_all { project.add_guest(guest_user) }
+
       before do
-        project.add_guest(guest_user)
         sign_in(guest_user)
         issue.update!(assignee_ids: issue_assignee.id)
       end

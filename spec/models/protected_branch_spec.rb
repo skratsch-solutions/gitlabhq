@@ -524,7 +524,7 @@ RSpec.describe ProtectedBranch, feature_category: :source_code_management do
 
   describe '#protected?' do
     context 'existing project' do
-      let(:project) { create(:project, :repository) }
+      let(:project) { create(:project, :small_repo) }
 
       it 'returns true when the branch matches a protected branch via direct match' do
         create(:protected_branch, project: project, name: "foo")
@@ -553,7 +553,7 @@ RSpec.describe ProtectedBranch, feature_category: :source_code_management do
       end
 
       context 'with caching', :use_clean_rails_redis_caching do
-        let_it_be(:project, freeze: false) { create(:project, :repository) }
+        let_it_be(:project, freeze: false) { create(:project, :small_repo) }
         let_it_be(:protected_branch, freeze: false) { create(:protected_branch, project: project, name: "“jawn”") }
 
         before do
@@ -682,7 +682,7 @@ RSpec.describe ProtectedBranch, feature_category: :source_code_management do
 
   describe '#any_protected?' do
     context 'existing project' do
-      let(:project) { create(:project, :repository) }
+      let(:project) { create(:project, :small_repo) }
 
       it 'returns true when any of the branch names match a protected branch via direct match' do
         create(:protected_branch, project: project, name: 'foo')

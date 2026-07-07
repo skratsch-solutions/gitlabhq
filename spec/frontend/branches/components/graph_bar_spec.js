@@ -46,8 +46,8 @@ describe('Branch divergence graph bar component', () => {
 
   it.each`
     position   | roundedClass
-    ${'left'}  | ${'rounded-left'}
-    ${'right'} | ${'rounded-right'}
+    ${'left'}  | ${'!gl-rounded-l-base'}
+    ${'right'} | ${'!gl-rounded-r-base'}
     ${'full'}  | ${'!gl-rounded-base'}
   `('sets rounded class as $roundedClass for position $position', ({ position, roundedClass }) => {
     factory({

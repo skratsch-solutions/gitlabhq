@@ -65,10 +65,28 @@ module Gitlab
         )
 
         Gitlab::AppLogger.info(
-          message: 'BillingEvents: event tracked',
+          message: 'BillingEvents: billing event tracked',
           event_type: event_type,
           event_id: event_id,
           quantity: quantity
+        )
+
+        Gitlab::InternalEvents.track_event(
+          'usage_billing_event',
+          category: category,
+          user: user,
+          namespace: namespace,
+          project: project,
+          additional_properties: {
+            label: event_id,
+            property: event_type
+          }
+        )
+
+        Gitlab::AppLogger.info(
+          message: 'BillingEvents: internal event tracked',
+          event_type: event_type,
+          event_id: event_id
         )
       rescue StandardError => e
         Gitlab::ErrorTracking.track_exception(e, event_type: event_type, event_id: event_id)

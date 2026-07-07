@@ -15,13 +15,13 @@ To trigger a billing event, call the `Gitlab::BillingEvents::Client.track_billin
 
 ```ruby
 Gitlab::BillingEvents::Client.track_billing_event(
-  event_type: 'secret_read',
+  event_type: 'secrets_read',
   category: self.class.name,
   unit_of_measure: 'request',
   quantity: 1,
   namespace: namespace,
   user: current_user,
-  idempotency_key: "secret_read:#{unique_request_id}",
+  idempotency_key: "secrets_read:#{unique_request_id}",
   metadata: {
     mount_path: '/secrets/group-123',
     audit_request_id: 'abc123'
@@ -33,7 +33,7 @@ Gitlab::BillingEvents::Client.track_billing_event(
 
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
-| `event_type` | Yes | | Billable event name, for example `secret_read`. |
+| `event_type` | Yes | | Billable event name, for example `secrets_read`. |
 | `category` | Yes | | Originating class or module. Use `self.class.name`. |
 | `unit_of_measure` | Yes | | Billing unit: `request`, `secret`, `tokens`, `bytes`, or similar. |
 | `quantity` | Yes | | Usage amount. Must be a positive number. |
@@ -51,7 +51,7 @@ The following is an example of the `billable_usage` context the client produces.
 ```json
 {
   "event_id": "a1b2c3d4-5678-5aaa-bbbb-ccccddddeeee",
-  "event_type": "secret_read",
+  "event_type": "secrets_read",
   "unit_of_measure": "request",
   "quantity": 1,
   "timestamp": "2026-06-22T14:30:00Z",
@@ -75,6 +75,41 @@ The following is an example of the `billable_usage` context the client produces.
 }
 ```
 
+## Internal event for correlation
+
+Every call to `track_billing_event` also fires a `usage_billing_event`
+[internal event](quick_start.md) with:
+
+- `label`: the billing `event_id` (UUID), used to join billing and analytics data.
+- `property`: the billing `event_type` (for example, `secrets_read`).
+
+The client passes the same `user`, `namespace`, and `project` arguments
+to the internal event, so Service Ping metrics can aggregate billing
+activity by namespace, user, or project.
+
+## Add Service Ping metrics for a billing event type
+
+Adding a metric is not required for an implementation, but can help provide more data for analysis.
+
+To create the new metric, use the [internal events CLI](https://gitlab.com/gitlab-org/analytics-section/product-analytics/analytics-cli)
+to generate a metric definition. When prompted:
+
+- Select `usage_billing_event` as the event name.
+- Add a `filter` on `property` with your billing `event_type`
+  value (for example, `secrets_read`). This selects only the
+  billing events for your feature.
+- Add `unique` if you need distinct-count metrics
+  (for example, unique namespaces or users).
+
+For details on filters and unique properties, see the
+[internal event metric definition guide](quick_start.md).
+
+Alternatively, copy an existing metric definition manually.
+For example, copy
+`ee/config/metrics/counts_all/count_total_usage_billing_event_secrets_read.yml`
+and update the fields for your feature (such as `key_path`,
+`product_group`, and the `filter` property value).
+
 ## Test locally
 
 1. Start Snowplow Micro:
@@ -88,7 +123,7 @@ The following is an example of the `billable_usage` context the client produces.
    ```ruby
    ns = Namespace.first
    Gitlab::BillingEvents::Client.track_billing_event(
-     event_type: 'secret_read',
+     event_type: 'secrets_read',
      category: 'TestConsole',
      unit_of_measure: 'request',
      quantity: 1,

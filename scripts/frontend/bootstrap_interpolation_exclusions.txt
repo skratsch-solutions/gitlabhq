@@ -1,0 +1,15 @@
+# Known false positives for check_bootstrap_interpolation.mjs.
+# One JS regex per line, matched against both the offense location
+# ("path:line") and the offending line's text. Lines starting with # are
+# comments; inline # comments are stripped.
+
+# Non-CSS strings that share a Bootstrap utility prefix:
+mr-#\{                  # `mr-#{...}` Ruby interpolation = merge-request id/slug, not the `mr-*` margin util
+/p-                     # path segment, not the `p-*` padding util
+text-#\{SecureRandom    # generated filename in QA specs
+:key="`text-           # Vue list key, not a class
+title: `m-             # test fixture title, not a margin util
+
+# GitLab-custom classes (defined in framework/common.scss), not Bootstrap utils,
+# so not removed by the bootstrap_no_utils stylesheet:
+position-\$\{.*-0       # `position-${side}-0` -> custom .position-left-0 / .position-right-0

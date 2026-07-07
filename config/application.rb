@@ -308,6 +308,8 @@ module Gitlab
     config.assets.paths << "#{config.root}/vendor/assets/fonts"
 
     config.assets.precompile << "application_dark.css"
+    config.assets.precompile << "application_no_bootstrap_utils.css"
+    config.assets.precompile << "application_dark_no_bootstrap_utils.css"
     config.assets.precompile << "tailwind.css"
     config.assets.precompile << "tailwind_cqs.css"
 

@@ -2010,7 +2010,7 @@ GEM
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
       rubocop-rspec (~> 3, >= 3.0.1)
-    ruby-lsp (0.26.4)
+    ruby-lsp (0.26.9)
       language_server-protocol (~> 3.17.0)
       prism (>= 1.2, < 2.0)
       rbs (>= 3, < 5)
@@ -3401,7 +3401,7 @@ CHECKSUMS
   rubocop-rails (2.29.1) sha256=41c2fcf48d5d62f4a5f574d5f1c97bbaf4cba88ee367936c98b3422d047b17aa
   rubocop-rspec (3.4.0) sha256=8721c13b6a8c9530a7ac481cea9423022f946fcf72428bda8289f8b57e4d4885
   rubocop-rspec_rails (2.30.0) sha256=888112e83f9d7ef7ad2397e9d69a0b9614a4bae24f072c399804a180f80c4c46
-  ruby-lsp (0.26.4) sha256=1cb3046a066c8f1983dfe5f0cd3baa76034d6ba156e8ab460b15ab129d37a9f7
+  ruby-lsp (0.26.9) sha256=33a01c001c00a76b4e821efc04ed7572983430f31ca5d6f3e343d0b6ccab4129
   ruby-lsp-rails (0.4.8) sha256=f09d1f926d4063deeb2f3049311925c20dfe6c912371e3bcd04a265a865c44ae
   ruby-lsp-rspec (0.1.28) sha256=0db3b3ffba08c6d70eb7831e79090a1863f572fe131ed0ecfce8a2f7d01bf491
   ruby-magic (0.6.0) sha256=7b2138877b7d23aff812c95564eba6473b74b815ef85beb0eb792e729a2b6101

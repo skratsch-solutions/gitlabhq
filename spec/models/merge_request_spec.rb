@@ -2819,42 +2819,153 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   end
 
   describe '#changed_paths' do
-    let(:shas) { ['ade1c0b4b116209ed2a9958436b26f89085ec383'] }
-    let(:changed_paths) { [double(:changed_path, path: 'path.rb')] }
-    let(:merge_request) { build(:merge_request, id: 1, project: project) }
+    context 'when fetching paths from gitaly' do
+      let(:changed_paths) { [double(:changed_path, path: 'path.rb')] }
+      let(:merge_request) { build(:merge_request, id: 1, project: project) }
+      let(:diff_base_sha) { 'base_sha' }
+      let(:diff_head_sha) { 'head_sha' }
 
-    before do
-      allow(merge_request).to receive(:commit_shas).with(bypass_preloaded: true).and_return(shas)
+      before do
+        allow(merge_request).to receive_messages(diff_base_sha: diff_base_sha, diff_head_sha: diff_head_sha)
+      end
+
+      it 'fetches the net changed paths from gitaly using a tree diff between base and head' do
+        expect(project.repository).to receive(:find_changed_paths) do |objects|
+          expect(objects).to contain_exactly(
+            have_attributes(left_tree_id: diff_base_sha, right_tree_id: diff_head_sha)
+          )
+          changed_paths
+        end
+
+        expect(merge_request.changed_paths).to eq(changed_paths)
+      end
+
+      context 'when the base or head sha is unavailable' do
+        let(:shas) { ['ade1c0b4b116209ed2a9958436b26f89085ec383'] }
+
+        before do
+          allow(merge_request).to receive(:commit_shas).with(bypass_preloaded: true).and_return(shas)
+        end
+
+        it 'falls back to the per-commit union when the base sha is missing' do
+          allow(merge_request).to receive(:diff_base_sha).and_return(nil)
+
+          expect(project.repository)
+            .to receive(:find_changed_paths).with(shas, merge_commit_diff_mode: :all_parents)
+            .and_return(changed_paths)
+
+          expect(merge_request.changed_paths).to eq(changed_paths)
+        end
+
+        it 'falls back to the per-commit union when the head sha is missing' do
+          allow(merge_request).to receive(:diff_head_sha).and_return(nil)
+
+          expect(project.repository)
+            .to receive(:find_changed_paths).with(shas, merge_commit_diff_mode: :all_parents)
+            .and_return(changed_paths)
+
+          expect(merge_request.changed_paths).to eq(changed_paths)
+        end
+      end
+
+      it 'uses a cache', :request_store do
+        expect(project.repository).to receive(:find_changed_paths).once
+
+        2.times { merge_request.changed_paths }
+      end
+
+      it 'uses a different cache for different MRs', :request_store do
+        merge_request_2 = build(:merge_request, id: 2, project: project)
+        allow(merge_request_2).to receive_messages(diff_base_sha: diff_base_sha, diff_head_sha: diff_head_sha)
+
+        expect(project.repository).to receive(:find_changed_paths).twice
+        merge_request.changed_paths
+        merge_request_2.changed_paths
+      end
+
+      it 'invalidates the cache when the diff_head_sha changes', :request_store do
+        expect(project.repository).to receive(:find_changed_paths).twice
+
+        2.times { merge_request.changed_paths }
+
+        allow(merge_request).to receive(:diff_head_sha).and_return('new_sha')
+
+        2.times { merge_request.changed_paths }
+      end
     end
 
-    it 'fetches the changed paths from gitaly using commit SHAs' do
-      expect(project.repository)
-        .to receive(:find_changed_paths).with(shas, merge_commit_diff_mode: :all_parents)
-        .once.and_return(changed_paths)
-      expect(merge_request.changed_paths).to eq(changed_paths)
+    context 'when a file is added and then removed across commits within the MR', :request_store do
+      let_it_be(:net_diff_project) { create(:project, :repository) }
+      let_it_be(:merge_request) do
+        user = net_diff_project.first_owner
+        repo = net_diff_project.repository
+
+        repo.create_file(user, 'kept.txt', 'keep',
+          message: 'Add kept file', branch_name: 'net-diff-source', start_branch_name: 'master')
+        repo.create_file(user, 'reverted.txt', 'temporary',
+          message: 'Add file that will be reverted', branch_name: 'net-diff-source')
+        repo.delete_file(user, 'reverted.txt',
+          message: 'Revert the temporary file', branch_name: 'net-diff-source')
+
+        create(:merge_request, source_project: net_diff_project, target_project: net_diff_project,
+          source_branch: 'net-diff-source', target_branch: 'master')
+      end
+
+      it 'returns the net diff vs the target branch, excluding the reverted file' do
+        paths = merge_request.changed_paths.map(&:path)
+
+        expect(paths).to include('kept.txt')
+        expect(paths).not_to include('reverted.txt')
+      end
     end
 
-    it 'uses a cache', :request_store do
-      expect(project.repository).to receive(:find_changed_paths).once
+    context 'when the :mr_changed_paths_net_diff feature flag is disabled' do
+      before do
+        stub_feature_flags(mr_changed_paths_net_diff: false)
+      end
 
-      2.times { merge_request.changed_paths }
-    end
+      context 'when fetching paths from gitaly' do
+        let(:shas) { ['ade1c0b4b116209ed2a9958436b26f89085ec383'] }
+        let(:changed_paths) { [double(:changed_path, path: 'path.rb')] }
+        let(:merge_request) { build(:merge_request, id: 1, project: project) }
 
-    it 'uses a different cache for different MRs', :request_store do
-      merge_request_2 = build(:merge_request, id: 2, project: project)
-      expect(project.repository).to receive(:find_changed_paths).twice
-      merge_request.changed_paths
-      merge_request_2.changed_paths
-    end
+        before do
+          allow(merge_request).to receive(:commit_shas).with(bypass_preloaded: true).and_return(shas)
+        end
 
-    it 'invalidates the cache when the diff_head_sha changes', :request_store do
-      expect(project.repository).to receive(:find_changed_paths).twice
+        it 'fetches the changed paths from gitaly using commit SHAs' do
+          expect(project.repository)
+            .to receive(:find_changed_paths).with(shas, merge_commit_diff_mode: :all_parents)
+            .once.and_return(changed_paths)
 
-      2.times { merge_request.changed_paths }
+          expect(merge_request.changed_paths).to eq(changed_paths)
+        end
+      end
 
-      allow(merge_request).to receive(:diff_head_sha).and_return('new_sha')
+      context 'when a file is added and then removed across commits within the MR', :request_store do
+        let_it_be(:net_diff_project) { create(:project, :repository) }
+        let_it_be(:merge_request) do
+          user = net_diff_project.first_owner
+          repo = net_diff_project.repository
 
-      2.times { merge_request.changed_paths }
+          repo.create_file(user, 'kept.txt', 'keep',
+            message: 'Add kept file', branch_name: 'net-diff-source', start_branch_name: 'master')
+          repo.create_file(user, 'reverted.txt', 'temporary',
+            message: 'Add file that will be reverted', branch_name: 'net-diff-source')
+          repo.delete_file(user, 'reverted.txt',
+            message: 'Revert the temporary file', branch_name: 'net-diff-source')
+
+          create(:merge_request, source_project: net_diff_project, target_project: net_diff_project,
+            source_branch: 'net-diff-source', target_branch: 'master')
+        end
+
+        it 'returns the union of per-commit changes, including the reverted file' do
+          paths = merge_request.changed_paths.map(&:path)
+
+          expect(paths).to include('kept.txt')
+          expect(paths).to include('reverted.txt')
+        end
+      end
     end
   end
 

@@ -11,7 +11,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
         params: { content_ref: content_ref, dry_run: dry_run, include_jobs: include_jobs }
     end
 
-    let(:project) { create(:project, :repository) }
+    let(:project) { create(:project, :small_repo) }
     let(:content_ref) { nil }
     let(:dry_run) { nil }
     let(:include_jobs) { nil }
@@ -676,7 +676,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
     end
 
     context 'when the project is public' do
-      let_it_be(:project) { create(:project, :repository, :public) }
+      let_it_be(:project) { create(:project, :small_repo, :public) }
 
       context 'with valid .gitlab-ci.yml content' do
         let_it_be(:yaml_content) do
@@ -735,7 +735,7 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
   describe 'POST /projects/:id/ci/lint' do
     subject(:ci_lint) { post api("/projects/#{project.id}/ci/lint", api_user), params: { dry_run: dry_run, content: yaml_content, include_jobs: include_jobs } }
 
-    let(:project) { create(:project, :repository) }
+    let(:project) { create(:project, :small_repo) }
     let(:dry_run) { nil }
     let(:include_jobs) { nil }
 

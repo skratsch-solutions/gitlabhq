@@ -6,7 +6,7 @@ RSpec.describe 'Query.jobs', feature_category: :continuous_integration do
   include GraphqlHelpers
 
   let_it_be(:admin) { create(:admin) }
-  let_it_be(:project) { create(:project, :repository, :public) }
+  let_it_be(:project) { create(:project, :public) }
   let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
   let_it_be(:runner) { create(:ci_runner) }
   let_it_be(:build) do
@@ -129,7 +129,7 @@ end
 RSpec.describe 'Query.project.pipeline', feature_category: :continuous_integration do
   include GraphqlHelpers
 
-  let_it_be(:project) { create(:project, :repository, :public) }
+  let_it_be(:project) { create(:project, :public) }
   let_it_be(:user) { create(:user) }
 
   def all(*fields)

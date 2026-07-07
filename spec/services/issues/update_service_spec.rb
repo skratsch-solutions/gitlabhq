@@ -8,7 +8,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
   let_it_be(:user3, freeze: false) { create(:user) }
   let_it_be(:guest, freeze: false) { create(:user) }
   let_it_be(:group, freeze: false) { create(:group, :public, maintainers: user, developers: [user2, user3], guests: guest) }
-  let_it_be_with_reload(:project) { create(:project, :repository, group: group) }
+  let_it_be_with_reload(:project) { create(:project, group: group) }
   let_it_be(:label, freeze: false) { create(:label, title: 'a', project: project) }
   let_it_be(:label2, freeze: false) { create(:label, title: 'b', project: project) }
   let_it_be(:label3, freeze: false) { create(:label, title: 'c', project: project) }

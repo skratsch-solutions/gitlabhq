@@ -7,7 +7,7 @@ RSpec.describe Gitlab::BillingEvents::Client, :freeze_time, feature_category: :a
   let_it_be(:project) { create(:project, namespace: namespace) }
   let_it_be(:user) { create(:user) }
 
-  let(:event_type) { 'secret_read' }
+  let(:event_type) { 'secrets_read' }
   let(:category) { 'Gitlab::SecretManager::AuditCallback' }
   let(:unit_of_measure) { 'request' }
   let(:quantity) { 1 }
@@ -50,6 +50,42 @@ RSpec.describe Gitlab::BillingEvents::Client, :freeze_time, feature_category: :a
         event_type,
         context: [an_instance_of(SnowplowTracker::SelfDescribingJson)]
       )
+    end
+
+    it 'fires a usage_billing_event internal event for correlation' do
+      allow(SecureRandom).to receive(:uuid).and_return('correlated-uuid')
+
+      expect { track }
+        .to trigger_internal_events('usage_billing_event')
+        .with(
+          category: category,
+          user: nil,
+          namespace: namespace,
+          project: nil,
+          additional_properties: {
+            label: 'correlated-uuid',
+            property: event_type
+          }
+        )
+    end
+
+    context 'with user and project' do
+      let(:args) { required_args.merge(user: user, project: project) }
+
+      it 'passes user and project to the internal event' do
+        expect { track }
+          .to trigger_internal_events('usage_billing_event')
+          .with(
+            category: category,
+            user: user,
+            namespace: namespace,
+            project: project,
+            additional_properties: {
+              label: an_instance_of(String),
+              property: event_type
+            }
+          )
+      end
     end
 
     it 'builds a billing context with the correct schema and fields' do
@@ -217,8 +253,8 @@ RSpec.describe Gitlab::BillingEvents::Client, :freeze_time, feature_category: :a
         stub_feature_flags(billing_event_tracking: false)
       end
 
-      it 'does not track' do
-        track
+      it 'does not track', :aggregate_failures do
+        expect { track }.not_to trigger_internal_events('usage_billing_event')
 
         expect(Gitlab::Tracking).not_to have_received(:billing_event)
       end
@@ -245,6 +281,21 @@ RSpec.describe Gitlab::BillingEvents::Client, :freeze_time, feature_category: :a
     context 'when Gitlab::Tracking raises an error' do
       before do
         allow(Gitlab::Tracking).to receive(:billing_event).and_raise(StandardError, 'boom')
+      end
+
+      it 'tracks the exception and does not raise', :aggregate_failures do
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+          an_instance_of(StandardError),
+          hash_including(event_type: event_type)
+        )
+
+        expect { track }.not_to raise_error
+      end
+    end
+
+    context 'when Gitlab::InternalEvents.track_event raises an error' do
+      before do
+        allow(Gitlab::InternalEvents).to receive(:track_event).and_raise(StandardError, 'internal event boom')
       end
 
       it 'tracks the exception and does not raise', :aggregate_failures do

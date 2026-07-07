@@ -741,6 +741,72 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
         end
       end
 
+      context 'without compare_to in a merge request pipeline', :request_store do
+        let_it_be(:project, freeze: false) { create(:project, :repository) }
+        let_it_be(:user) { project.first_owner }
+
+        let_it_be(:merge_request) do
+          project.repository.create_file(
+            user, 'revert_me.txt', 'original', message: 'Add revert_me.txt', branch_name: 'master'
+          )
+          project.repository.create_file(
+            user, 'genuinely_changed.txt', 'new', message: 'Add genuinely_changed.txt',
+            branch_name: 'net-diff-source', start_branch_name: 'master'
+          )
+          project.repository.update_file(
+            user, 'revert_me.txt', 'changed', message: 'Change revert_me.txt', branch_name: 'net-diff-source'
+          )
+          project.repository.update_file(
+            user, 'revert_me.txt', 'original', message: 'Revert revert_me.txt', branch_name: 'net-diff-source'
+          )
+
+          create(:merge_request,
+            source_project: project, source_branch: 'net-diff-source',
+            target_project: project, target_branch: 'master')
+        end
+
+        let(:source) { :merge_request_event }
+        let(:initialization_params) do
+          {
+            ref: merge_request.ref_path,
+            source_sha: merge_request.diff_head_sha,
+            target_sha: nil
+          }
+        end
+
+        let(:response) { service.execute(source, merge_request: merge_request) }
+
+        let(:config) do
+          <<-YAML
+            revert-job:
+              script: 'echo reverted'
+              rules:
+                - changes: [revert_me.txt]
+
+            changed-job:
+              script: 'echo changed'
+              rules:
+                - changes: [genuinely_changed.txt]
+          YAML
+        end
+
+        it 'evaluates changes against the net diff vs the target branch, excluding reverted files' do
+          expect(pipeline).to be_persisted
+          expect(build_names).to contain_exactly('changed-job')
+        end
+
+        context 'when the :mr_changed_paths_net_diff feature flag is disabled' do
+          before do
+            stub_feature_flags(mr_changed_paths_net_diff: false)
+          end
+
+          it 'evaluates changes against the per-commit union, including reverted files' do
+            expect(pipeline).to be_persisted
+            expect(build_names).to contain_exactly('changed-job', 'revert-job')
+          end
+        end
+      end
+
       context 'with paths and compare_to' do
         let_it_be_with_reload(:project) { create(:project, :empty_repo) }
         let_it_be(:user) { project.first_owner }

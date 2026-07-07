@@ -1208,7 +1208,13 @@ class MergeRequest < ApplicationRecord
   end
 
   def changed_paths
-    project.repository.find_changed_paths(commit_shas(bypass_preloaded: true), merge_commit_diff_mode: :all_parents)
+    if Feature.enabled?(:mr_changed_paths_net_diff, project) && diff_base_sha && diff_head_sha
+      return project.repository.find_changed_paths([Gitlab::Git::DiffTree.new(diff_base_sha, diff_head_sha)])
+    end
+
+    project.repository.find_changed_paths(
+      commit_shas(bypass_preloaded: true), merge_commit_diff_mode: :all_parents
+    )
   end
   request_cache(:changed_paths) { [id, diff_head_sha] }
 

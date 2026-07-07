@@ -216,7 +216,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
       end
 
       context 'when project include times out' do
-        let_it_be(:another_project) { create(:project, :repository, :public) }
+        let_it_be(:another_project) { create(:project, :small_repo, :public) }
 
         let(:included_file_content) { File.read(Rails.root.join(file_location)) }
 
@@ -251,8 +251,8 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
       end
 
       context 'when multiple includes exceed the cumulative fetch timeout' do
-        let_it_be(:other_project1) { create(:project, :repository, :public) }
-        let_it_be(:other_project2) { create(:project, :repository, :public) }
+        let_it_be(:other_project1) { create(:project, :small_repo, :public) }
+        let_it_be(:other_project2) { create(:project, :small_repo, :public) }
 
         let(:config) do
           <<~YAML
