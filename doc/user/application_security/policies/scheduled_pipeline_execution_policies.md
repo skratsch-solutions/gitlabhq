@@ -283,11 +283,10 @@ This setting applies to any user who triggers a pipeline with pipeline execution
 1. Turn on **Grant security policy project access to CI/CD configuration**.
 1. Select **Save changes**.
 
-### Option 2: Allow Security Policy Bot access to private or internal projects
+### Option 2: Allow access to private or internal projects
 
 If your policy `include:` value references a CI/CD configuration file stored in a private or internal
 project other than the security policy project, use this option.
-This setting applies only to Security Policy Bot users and can be enabled on any project.
 
 1. Enable the `pipeline_execution_policy_bot_access` experiment in your security policy project.
    In the `.gitlab/security-policies/policy.yml` file, add the following lines:
@@ -306,13 +305,13 @@ This setting applies only to Security Policy Bot users and can be enabled on any
 1. In the private or internal project that stores CI/CD files, in the left sidebar, select
    **Settings** > **General**.
 1. Expand **Visibility, project features, permissions**.
-1. In **Security policy bot access**, select
-   **Allow security policy bots to access CI/CD configuration files in this project**.
-1. In **Allowed file patterns**, add one or more glob patterns to specify the files that bots can access, separated by commas.
-1. Optional. In **Allowed group**, select a group to allow only security policy bots from projects
+1. In **Pipeline execution policies**, select
+   **Allow access to CI/CD configuration files in this project**.
+1. In **Allowed file patterns**, add one or more glob patterns to specify the files that can be accessed, separated by commas.
+1. Optional. In **Allowed group**, select a group to allow only users from projects
    in that group to access CI/CD configuration files.
 
-   If not specified, bots from any project in the root ancestor group can access the files.
+   If not specified, users from any project in the root ancestor group can access the files.
 1. Select **Save changes**.
 
 The glob patterns for the allowed files must match the paths specified in the `include:file:` value. For example:
@@ -330,18 +329,18 @@ To ensure that policy execution remains isolated and secure, the bot user has th
 - The bot user is treated as an external user and cannot access internal projects by default.
 - The bot user can access files in the security policy project and public projects.
 - The bot user can access files in private or internal projects only if those projects explicitly
-  enable **Security policy bot access** and the file path matches the pattern specified in the project.
+  enable the **Pipeline execution policies** setting and the file path matches the pattern specified in the project.
 
 Because the bot user is not a member of other projects, it cannot complete any of the following actions:
 
-- Access CI/CD configuration files from private or internal projects that do not allow bot access
+- Access CI/CD configuration files from private or internal projects that do not allow access
   or do not match allowed file patterns.
 - Start multi-project child pipelines that target private or internal projects.
 - Access artifacts or resources from private or internal projects.
 
 > [!important]
-> When you include files from a private or internal project, enable **Security policy bot access**
-> in that project and set matching file patterns. Without these settings, pipeline execution fails
+> When you include files from a private or internal project, enable the **Pipeline execution policies**
+> setting in that project and set matching file patterns. Without these settings, pipeline execution fails
 > with an access error.
 
 ## Scheduling limits

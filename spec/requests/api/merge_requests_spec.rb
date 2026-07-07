@@ -1565,7 +1565,97 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
     end
 
     context 'caching', :use_clean_rails_memory_store_caching do
-      it_behaves_like 'merge requests list caching'
+      let_it_be(:bot_user) { create(:user, :project_bot) }
+      let(:bot_token) { create(:personal_access_token, user: bot_user) }
+
+      before do
+        group.add_reporter(bot_user)
+      end
+
+      context 'when user is a bot' do
+        before do
+          stub_last_activity_update # prevent bot user updates that would invalidate cache
+          get api(endpoint_path, personal_access_token: bot_token)
+        end
+
+        context 'when it is cached' do
+          it 'uses the cached response' do
+            expect(API::Entities::MergeRequestBasic).not_to receive(:represent)
+
+            get api(endpoint_path, personal_access_token: bot_token)
+          end
+        end
+
+        context 'when it is not cached' do
+          context 'when the status changes' do
+            before do
+              merge_request.mark_as_unchecked!
+            end
+
+            it 'serializes the changed merge request' do
+              expect(API::Entities::MergeRequestBasic).to receive(:represent).once.and_call_original
+
+              get api(endpoint_path, personal_access_token: bot_token)
+            end
+          end
+
+          context 'when the label changes' do
+            before do
+              merge_request.labels << create(:label, project: merge_request.project)
+            end
+
+            it 'serializes the changed merge request' do
+              expect(API::Entities::MergeRequestBasic).to receive(:represent).once.and_call_original
+
+              get api(endpoint_path, personal_access_token: bot_token)
+            end
+          end
+
+          context 'when "with_labels_details" parameter is provided' do
+            it 'skips the cache' do
+              expect(API::Entities::MergeRequestBasic).to receive(:represent).once.and_call_original
+
+              get api(endpoint_path, personal_access_token: bot_token), params: { with_labels_details: true }
+            end
+          end
+
+          context 'when the assignees change' do
+            before do
+              merge_request.assignees << create(:user)
+            end
+
+            it 'serializes the changed merge request' do
+              expect(API::Entities::MergeRequestBasic).to receive(:represent).once.and_call_original
+
+              get api(endpoint_path, personal_access_token: bot_token)
+            end
+          end
+
+          context 'when the reviewers change' do
+            before do
+              merge_request.reviewers << create(:user)
+            end
+
+            it 'serializes the changed merge request' do
+              expect(API::Entities::MergeRequestBasic).to receive(:represent).once.and_call_original
+
+              get api(endpoint_path, personal_access_token: bot_token)
+            end
+          end
+        end
+      end
+
+      context 'when user is not a bot' do
+        before do
+          get api(endpoint_path, user)
+        end
+
+        it 'does not use cached response' do
+          expect(API::Entities::MergeRequestBasic).to receive(:represent).once.and_call_original
+
+          get api(endpoint_path, user)
+        end
+      end
 
       context 'when cache_list_mr_on_group_api_responses is disabled' do
         before do

@@ -34568,7 +34568,8 @@ CREATE TABLE vulnerability_occurrence_identifiers (
     identifier_id bigint NOT NULL,
     project_id bigint,
     partition_id bigint DEFAULT 1,
-    CONSTRAINT check_67fe772bae CHECK ((project_id IS NOT NULL))
+    CONSTRAINT check_67fe772bae CHECK ((project_id IS NOT NULL)),
+    CONSTRAINT check_aacd1ff57e CHECK ((partition_id IS NOT NULL))
 );
 
 CREATE SEQUENCE vulnerability_occurrence_identifiers_id_seq
@@ -40412,9 +40413,6 @@ ALTER TABLE abuse_reports
 
 ALTER TABLE related_epic_links
     ADD CONSTRAINT check_a6d9d7c276 CHECK ((issue_link_id IS NOT NULL)) NOT VALID;
-
-ALTER TABLE vulnerability_occurrence_identifiers
-    ADD CONSTRAINT check_aacd1ff57e CHECK ((partition_id IS NOT NULL)) NOT VALID;
 
 ALTER TABLE sprints
     ADD CONSTRAINT check_ccd8a1eae0 CHECK ((start_date IS NOT NULL)) NOT VALID;

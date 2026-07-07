@@ -292,7 +292,7 @@ module API
           next
         end
 
-        skip_cache = declared_params[:with_labels_details] == true
+        skip_cache = declared_params[:with_labels_details] == true || !current_user&.bot?
 
         render_merge_requests(merge_requests, options, skip_cache: skip_cache, ttl: 30.minutes)
       end
