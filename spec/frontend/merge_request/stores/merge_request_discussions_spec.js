@@ -111,6 +111,7 @@ describe('mergeRequestDiscussions store', () => {
     'createNewDiscussion',
     'createLineDiscussion',
     'createFileDiscussion',
+    'createImageDiscussion',
     'replyToDiscussion',
     'saveNote',
     'destroyNote',
@@ -273,6 +274,51 @@ describe('mergeRequestDiscussions store', () => {
 
       const sentPosition = JSON.parse(mockNotesStore.saveNote.mock.calls[0][0].data.note.position);
       expect(sentPosition.ignore_whitespace_change).toBe(false);
+    });
+  });
+
+  describe('createImageDiscussion', () => {
+    it('delegates to notes store saveNote with the image position', async () => {
+      const position = {
+        base_sha: 'base000',
+        start_sha: 'start111',
+        head_sha: 'head222',
+        old_path: 'files/images/logo.png',
+        new_path: 'files/images/logo.png',
+        position_type: 'image',
+        width: 100,
+        height: 200,
+        x: 10,
+        y: 20,
+      };
+
+      await store.createImageDiscussion({ position, noteBody: 'image note' });
+
+      expect(mockNotesStore.saveNote).toHaveBeenCalledWith({
+        endpoint: '/api/notes',
+        data: {
+          view: useDiffsView().viewType,
+          line_type: undefined,
+          merge_request_diff_head_sha: 'head222',
+          note_project_id: '',
+          target_type: 'merge_request',
+          target_id: 42,
+          return_discussion: true,
+          note: {
+            note: 'image note',
+            position: JSON.stringify({
+              ...position,
+              position_type: 'image',
+              ignore_whitespace_change: !useDiffsView().showWhitespace,
+            }),
+            noteable_type: 'MergeRequest',
+            noteable_id: 42,
+            commit_id: null,
+            type: 'DiffNote',
+            line_code: null,
+          },
+        },
+      });
     });
   });
 

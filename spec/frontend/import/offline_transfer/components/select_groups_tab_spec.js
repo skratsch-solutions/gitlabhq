@@ -1,7 +1,7 @@
 import { GlLoadingIcon, GlEmptyState, GlKeysetPagination, GlSearchBoxByType } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
-import SelectGroupRow from '~/import/offline_transfer/components/select_group_row.vue';
+import GroupRow from '~/import/offline_transfer/components/group_row.vue';
 import { mockGroups } from '../mock_data';
 
 describe('SelectGroupsTab', () => {
@@ -20,7 +20,7 @@ describe('SelectGroupsTab', () => {
 
   const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
   const findList = () => wrapper.find('ul');
-  const findAllRows = () => wrapper.findAllComponents(SelectGroupRow);
+  const findAllRows = () => wrapper.findAllComponents(GroupRow);
   const findCount = () => wrapper.findByTestId('selected-count');
   const findSelectCurrentPage = () => wrapper.findByTestId('select-current-page');
   const findDeselectAll = () => wrapper.findByTestId('deselect-all');
@@ -37,14 +37,14 @@ describe('SelectGroupsTab', () => {
       expect(findEmptyState().exists()).toBe(true);
     });
 
-    it('renders one SelectGroupRow per group', () => {
+    it('renders one GroupRow per group', () => {
       createComponent();
 
       expect(findAllRows()).toHaveLength(mockGroups.length);
       expect(findEmptyState().exists()).toBe(false);
     });
 
-    it('passes name, description and avatarUrl through to each row', () => {
+    it('passes correct props to each row', () => {
       createComponent();
       const firstRow = findAllRows().at(0);
 
@@ -52,6 +52,7 @@ describe('SelectGroupsTab', () => {
         name: 'Flight',
         description: 'Flight',
         avatarUrl: null,
+        selectable: true,
       });
     });
 

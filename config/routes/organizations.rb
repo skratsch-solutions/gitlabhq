@@ -34,8 +34,6 @@ unless @organization_scoped_routes
 
         resource :groups, only: [:new, :create, :destroy], as: :groups_organization
 
-        resources :artifact_registry, only: [:index], as: :artifact_registry_organization
-
         scope(
           path: 'groups/*id',
           constraints: { id: Gitlab::PathRegex.full_namespace_route_regex }

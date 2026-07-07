@@ -132,20 +132,6 @@ export const groupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_path"
 /**
  * Generates the Rails route:
  *
- * - href: `/o/:organization_path/-/artifact_registry(.:format)`
- * - Path helper: `artifact_registry_organization_index_path`
- * - URL helper: `artifact_registry_organization_index_url`
- * - controller#action: `organizations/artifact_registry#index`
- *
- * @param {any} organizationPath
- * @param {object | undefined} options
- * @returns {string} route path
- */
-export const artifactRegistryOrganizationIndexPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"artifact_registry"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
-
-/**
- * Generates the Rails route:
- *
  * - href: `/o/:organization_path/-/groups/*id/edit(.:format)`
  * - Path helper: `edit_groups_organization_path`
  * - URL helper: `edit_groups_organization_url`

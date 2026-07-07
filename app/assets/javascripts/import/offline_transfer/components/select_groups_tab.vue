@@ -9,14 +9,14 @@ import {
 import EMPTY_SVG_URL from '@gitlab/svgs/dist/illustrations/empty-state/empty-catalog-md.svg';
 import { s__, n__ } from '~/locale';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
-import SelectGroupRow from '~/import/offline_transfer/components/select_group_row.vue';
+import GroupRow from '~/import/offline_transfer/components/group_row.vue';
 
 export default {
   name: 'SelectGroupsTab',
   components: {
     GlLoadingIcon,
     GlButton,
-    SelectGroupRow,
+    GroupRow,
     GlEmptyState,
     GlKeysetPagination,
     GlSearchBoxByType,
@@ -153,12 +153,13 @@ export default {
         </div>
       </div>
       <ul class="gl-m-0 gl-list-none gl-p-0">
-        <select-group-row
+        <group-row
           v-for="group in pageGroups"
           :key="group.id"
           :name="group.fullName"
           :description="group.description"
           :avatar-url="group.avatarUrl"
+          selectable
           :checked="isChecked(group.id)"
           @toggle="$emit('toggle', group)"
         />

@@ -8466,6 +8466,9 @@ msgstr ""
 msgid "AiPowered|Domains in the denylist are always blocked, even if they appear in the allowlist."
 msgstr ""
 
+msgid "AiPowered|Enable AI audit event storage"
+msgstr ""
+
 msgid "AiPowered|Enable AI audit event streaming"
 msgstr ""
 
@@ -8842,6 +8845,9 @@ msgid "AiPowered|When GitLab Duo is not available, experiment and beta features 
 msgstr ""
 
 msgid "AiPowered|When GitLab Duo is not available, prompt caching cannot be turned on."
+msgstr ""
+
+msgid "AiPowered|When disabled, GitLab does not write new AI audit events to the database or ClickHouse. Real-time streaming of AI audit events is not affected."
 msgstr ""
 
 msgid "AiPowered|When this setting is turned on, users can access features included in the GitLab Duo Core add-on. %{linkStart}Which features are included%{linkEnd}?"

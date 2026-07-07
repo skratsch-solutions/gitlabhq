@@ -30,6 +30,7 @@ describe('ImageDiffViewerWithDiscussions', () => {
     },
     oldPath: 'old.png',
     newPath: 'new.png',
+    diffRefs: { base_sha: 'base', head_sha: 'head', start_sha: 'start' },
   };
 
   const defaultProvide = {
@@ -98,7 +99,7 @@ describe('ImageDiffViewerWithDiscussions', () => {
     pinia = createTestingPinia({ stubActions: false });
     useDiffDiscussions();
     store = {
-      createNewDiscussion: jest.fn().mockResolvedValue(),
+      createImageDiscussion: jest.fn().mockResolvedValue(),
       findAllImageDiscussionsForFile: jest.fn().mockReturnValue([]),
     };
   });
@@ -151,6 +152,16 @@ describe('ImageDiffViewerWithDiscussions', () => {
 
       expect(findDiffDiscussions().props('discussions')).toHaveLength(1);
       expect(findDiffDiscussions().props('discussions')[0].id).toBe('2');
+    });
+
+    it('looks up discussions with file paths and diff refs', () => {
+      createComponent();
+
+      expect(store.findAllImageDiscussionsForFile).toHaveBeenCalledWith({
+        oldPath: defaultProps.oldPath,
+        newPath: defaultProps.newPath,
+        diffRefs: defaultProps.diffRefs,
+      });
     });
   });
 
@@ -219,7 +230,29 @@ describe('ImageDiffViewerWithDiscussions', () => {
 
           await findNoteForm().props('saveNote')('My comment');
 
-          expect(store.createNewDiscussion).toHaveBeenCalledWith({
+          expect(store.createImageDiscussion).toHaveBeenCalledWith({
+            position: {
+              ...defaultProps.diffRefs,
+              old_path: 'old.png',
+              new_path: 'new.png',
+              position_type: 'image',
+              width: 100,
+              height: 200,
+              x: 10,
+              y: 20,
+            },
+            noteBody: 'My comment',
+          });
+        });
+
+        it('omits diff refs from the position when diffRefs is null (commit path)', async () => {
+          createComponent({ diffRefs: null });
+          findOverlay().vm.$emit('image-click', formData);
+          await nextTick();
+
+          await findNoteForm().props('saveNote')('My comment');
+
+          expect(store.createImageDiscussion).toHaveBeenCalledWith({
             position: {
               old_path: 'old.png',
               new_path: 'new.png',
@@ -229,7 +262,7 @@ describe('ImageDiffViewerWithDiscussions', () => {
               x: 10,
               y: 20,
             },
-            note: 'My comment',
+            noteBody: 'My comment',
           });
         });
 
@@ -256,7 +289,7 @@ describe('ImageDiffViewerWithDiscussions', () => {
 
       describe('on error', () => {
         beforeEach(() => {
-          store.createNewDiscussion.mockRejectedValue(new Error('fail'));
+          store.createImageDiscussion.mockRejectedValue(new Error('fail'));
         });
 
         it('shows alert on save failure', async () => {

@@ -93,6 +93,7 @@ Grants the ability to create, read, and update continuous deployment application
 | Create | Instance | Mutation | `CdApplicationCreate` |
 | Read | Instance | Type | `CdApplication` |
 | Read | Instance | Type | `CdApplicationFlowDefinition` |
+| Read | Instance | Type | `CdApplicationLink` |
 | Read | Instance | Type | `CdArtifactSource` |
 | Read | Instance | Type | `CdDeployment` |
 | Read | Instance | Type | `CdDeploymentTransition` |
@@ -113,6 +114,14 @@ Grants the ability to create continuous deployment application flow definitions.
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdApplicationFlowDefinitionCreate` |
+
+#### CD Application Link
+
+Grants the ability to create continuous deployment application links.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Instance | Mutation | `CdApplicationLinkCreate` |
 
 #### CD Artifact Source
 

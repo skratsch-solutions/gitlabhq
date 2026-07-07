@@ -50,6 +50,16 @@ export default {
       required: false,
       default: () => ({}),
     },
+    aiAuditEventsStorageEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    aiAuditEventsStorageCascadingSettings: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
 
     duoFeaturesEnabled: {
       type: Boolean,
@@ -160,6 +170,7 @@ export default {
       duoSastVrWorkflowEnabled: this.initialDuoSastVrWorkflowEnabled,
       toolApprovalForSessionEnabled: this.initialToolApprovalForSessionEnabled,
       dapSessionTrackingEnabled: this.initialDapSessionTrackingEnabled,
+      auditEventsStorageEnabled: this.aiAuditEventsStorageEnabled,
     };
   },
   computed: {
@@ -205,6 +216,12 @@ export default {
         this.toolApprovalForSessionLocked &&
         (this.toolApprovalForSessionCascadingSettings?.lockedByAncestor ||
           this.toolApprovalForSessionCascadingSettings?.lockedByApplicationSetting)
+      );
+    },
+    showAuditEventsStorageCascadingLock() {
+      return (
+        this.aiAuditEventsStorageCascadingSettings?.lockedByAncestor ||
+        this.aiAuditEventsStorageCascadingSettings?.lockedByApplicationSetting
       );
     },
     showSastVrWorkflow() {
@@ -426,6 +443,39 @@ export default {
             label-position="hidden"
             name="project[project_setting_attributes][dap_session_tracking_enabled]"
             data-testid="dap-session-tracking-enabled"
+          />
+        </project-setting-row>
+        <project-setting-row
+          v-if="glFeatures.agentArtifactsPage && showAllSettings"
+          :label="s__('AiPowered|Enable AI audit event storage')"
+          class="gl-mt-5"
+          :help-text="
+            s__(
+              'AiPowered|When disabled, GitLab does not write new AI audit events to the database or ClickHouse. Real-time streaming of AI audit events is not affected.',
+            )
+          "
+          :locked="showAuditEventsStorageCascadingLock"
+        >
+          <template #label-icon>
+            <cascading-lock-icon
+              v-if="showAuditEventsStorageCascadingLock"
+              data-testid="ai-audit-events-storage-cascading-lock-icon"
+              :is-locked-by-group-ancestor="aiAuditEventsStorageCascadingSettings.lockedByAncestor"
+              :is-locked-by-application-settings="
+                aiAuditEventsStorageCascadingSettings.lockedByApplicationSetting
+              "
+              :ancestor-namespace="aiAuditEventsStorageCascadingSettings.ancestorNamespace"
+              class="gl-ml-1"
+            />
+          </template>
+          <gl-toggle
+            v-model="auditEventsStorageEnabled"
+            class="gl-mt-2"
+            :disabled="showAuditEventsStorageCascadingLock"
+            :label="s__('AiPowered|Enable AI audit event storage')"
+            label-position="hidden"
+            name="project[project_setting_attributes][ai_audit_events_storage_enabled]"
+            data-testid="ai-audit-events-storage-enabled"
           />
         </project-setting-row>
         <project-setting-row

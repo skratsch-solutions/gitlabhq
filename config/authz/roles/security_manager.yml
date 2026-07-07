@@ -51,6 +51,7 @@ project:
   - update_on_demand_dast_scan
   - update_sec_ai_workflow_settings
   - update_security_setting
+  - update_storage_ai_audit_events
 group:
   permissions: []
   raw_permissions:
@@ -80,3 +81,4 @@ group:
   - read_security_scan_profiles
   - read_vulnerability
   - read_vulnerability_statistics
+  - update_storage_ai_audit_events

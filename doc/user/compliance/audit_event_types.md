@@ -124,6 +124,7 @@ Audit event types belong to the following product categories.
 | [`update_instance_event_streaming_destination`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/125846) | An instance level external audit event destination is updated | {{< yes >}} | GitLab [16.2](https://gitlab.com/gitlab-org/gitlab/-/issues/404730) | Instance |
 | [`updated_group_audit_event_streaming_destination`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148388) | An external audit event destination for a top-level group is updated | {{< yes >}} | GitLab [16.11](https://gitlab.com/gitlab-org/gitlab/-/issues/436610) | Group |
 | [`updated_instance_audit_event_streaming_destination`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/149104) | An external audit event destination for a GitLab instance is updated | {{< yes >}} | GitLab [16.11](https://gitlab.com/gitlab-org/gitlab/-/issues/436615) | Instance |
+| [`ai_audit_events_storage_enabled_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/242767) | Added when ai_audit_events_storage_enabled is changed on a group or project. | {{< yes >}} | GitLab [19.2](https://gitlab.com/gitlab-org/gitlab/-/work_items/604014) | Group, Project |
 
 ### Authorization
 

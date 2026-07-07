@@ -107,6 +107,19 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
     diffDiscussions.removeNewFileDiscussionForm(discussion);
   }
 
+  async function createImageDiscussion({ position, noteBody }) {
+    const { sourceHeadSha } = useMergeRequestVersions();
+    await notes.saveNote(
+      buildLineDiscussionData({
+        discussion: { position },
+        noteBody,
+        noteableData: notes.noteableData,
+        viewConfig: useDiffsView(),
+        sourceHeadSha,
+      }),
+    );
+  }
+
   async function replyToDiscussion(discussion, noteText) {
     const { sourceHeadSha } = useMergeRequestVersions();
     await notes.saveNote(
@@ -382,6 +395,7 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
     createNewDiscussion,
     createLineDiscussion,
     createFileDiscussion,
+    createImageDiscussion,
     replyToDiscussion,
     saveNote,
     destroyNote,

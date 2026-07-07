@@ -126,6 +126,7 @@ db:migrate:multi-version-upgrade:
       apt-get update -qq && apt-get install -y -qq postgresql-client
       psql --output /dev/null -v "ON_ERROR_STOP=1" -h postgres -U postgres -d gitlabhq_test < gitlabhq_production
       bundle exec rake gitlab:db:configure
+      bundle exec rake gitlab:db:execute_batched_migrations
 
 # Validate PG version supported by GitLab
 db:migrate:multi-version-upgrade-pg18:
