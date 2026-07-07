@@ -2401,6 +2401,9 @@ msgstr ""
 msgid "A one-time password (OTP) authenticator was registered to your account."
 msgstr ""
 
+msgid "A parent group already has an admin-locked GitLab Duo availability override."
+msgstr ""
+
 msgid "A parent must be provided when bulk updating issuables"
 msgstr ""
 
@@ -2471,6 +2474,9 @@ msgid "A sign-in to your account has been made from the following IP address: %{
 msgstr ""
 
 msgid "A sign-in to your account has been made from the following IP address: %{ip} (%{city}, %{country})"
+msgstr ""
+
+msgid "A subgroup already has an admin-locked GitLab Duo availability override."
 msgstr ""
 
 msgid "A template for starting a new TYPO3 project"
@@ -10548,6 +10554,9 @@ msgid "Anonymous"
 msgstr ""
 
 msgid "Anonymous user"
+msgstr ""
+
+msgid "Another GitLab Duo availability override is in progress for this group. Please retry."
 msgstr ""
 
 msgid "Another issue tracker is already in use. Only one issue tracker service can be active at a time"
@@ -28695,6 +28704,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Available"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Before you can use GitLab Duo Agent Platform, we need to verify your account."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Cancel session"
 msgstr ""
 
@@ -28849,6 +28861,9 @@ msgid "DuoAgentsPlatform|GitLab Duo can autonomously change code. Responses and 
 msgstr ""
 
 msgid "DuoAgentsPlatform|Identify code improvements"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Identity Verification required"
 msgstr ""
 
 msgid "DuoAgentsPlatform|List comments"
@@ -29034,7 +29049,16 @@ msgstr ""
 msgid "DuoAgentsPlatform|Update merge request"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Verify my account"
+msgstr ""
+
 msgid "DuoAgentsPlatform|View session"
+msgstr ""
+
+msgid "DuoAgentsPlatform|We need to verify your account"
+msgstr ""
+
+msgid "DuoAgentsPlatform|We won't ask you for this information again. It will never be used for marketing purposes."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Who can grant you access"
@@ -41089,6 +41113,9 @@ msgid "Introducing the work items list"
 msgstr ""
 
 msgid "Invalid 'schemaVersion' '%{schema_version}'"
+msgstr ""
+
+msgid "Invalid GitLab Duo availability value."
 msgstr ""
 
 msgid "Invalid Insights config file detected"
@@ -89592,6 +89619,9 @@ msgstr ""
 msgid "You are not allowed to unlink your primary login account"
 msgstr ""
 
+msgid "You are not authorized to clear the GitLab Duo availability override."
+msgstr ""
+
 msgid "You are not authorized to create dashboards in this organization"
 msgstr ""
 
@@ -89602,6 +89632,9 @@ msgid "You are not authorized to perform this action"
 msgstr ""
 
 msgid "You are not authorized to run this manual job"
+msgstr ""
+
+msgid "You are not authorized to set the GitLab Duo availability override."
 msgstr ""
 
 msgid "You are not authorized to update this profile"
