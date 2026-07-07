@@ -2,7 +2,6 @@
 import { GlDisclosureDropdownItem, GlIcon, GlSearchBoxByType, GlToggle } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { InternalEvents } from '~/tracking';
-import { ROUTES } from '~/work_items/constants';
 import {
   applicableMetadataFields,
   persistMetadataPreference,
@@ -53,6 +52,11 @@ export default {
       required: false,
       default: false,
     },
+    isSavedView: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   emits: ['update-settings'],
   data() {
@@ -61,9 +65,6 @@ export default {
     };
   },
   computed: {
-    isSavedView() {
-      return this.$route?.name === ROUTES.savedView;
-    },
     hiddenMetadataKeys() {
       return this.namespacePreferences?.hiddenMetadataKeys || [];
     },

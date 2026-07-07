@@ -2154,6 +2154,7 @@ export default {
       :full-path="rootPageFullPath"
       :is-group="isGroup"
       :is-service-desk-list="isServiceDeskList"
+      :is-saved-view="isSavedView"
       :work-item-type-id="workItemTypeId"
       @close="isDisplayDrawerOpen = false"
       @sort="handleSort"

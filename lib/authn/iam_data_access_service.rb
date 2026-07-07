@@ -2,6 +2,9 @@
 
 module Authn
   module IamDataAccessService
+    # Must match the `serviceTokenHeader` constant in iam's dataaccess/server.go.
+    SERVICE_TOKEN_HEADER = 'gitlab-iam-data-access-token'
+
     ConfigurationError = Class.new(StandardError)
 
     class << self
@@ -22,7 +25,10 @@ module Authn
         path = iam_config.secret_file
         raise ConfigurationError, 'IAM data access service secret_file is not configured' if path.blank?
 
-        File.read(path).chomp
+        value = File.read(path).chomp
+        raise ConfigurationError, 'IAM data access service secret_file is empty' if value.blank?
+
+        value
       end
       strong_memoize_attr :secret
 

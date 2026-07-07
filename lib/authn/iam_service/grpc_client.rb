@@ -79,9 +79,13 @@ module Authn
       end
 
       def metadata
+        { ROUTING_HEADER => ROUTING_HEADER_VALUE }
+      end
+
+      def service_token_credentials
         {
-          Authn::IamAuthService::IAM_AUTH_TOKEN_HEADER => Authn::IamAuthService.secret,
-          ROUTING_HEADER => ROUTING_HEADER_VALUE
+          header: Authn::IamAuthService::IAM_AUTH_TOKEN_HEADER,
+          token: Authn::IamAuthService.secret
         }
       end
     end

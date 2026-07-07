@@ -71,7 +71,7 @@ export default {
   inject: {
     accessTokenMaxDate: { default: '' },
     accessTokenTableUrl: { default: '' },
-    sudoAvailable: { default: false },
+    canEnableSudo: { default: false },
   },
   data() {
     return {
@@ -222,7 +222,7 @@ export default {
         name: sprintf(this.$options.i18n.duplicateTokenName, { name: token.name }),
         description: token.description || '',
         expirationDate: defaultDate(this.accessTokenMaxDate),
-        sudo: this.sudoAvailable && Boolean(token.sudo),
+        sudo: this.canEnableSudo && Boolean(token.sudo),
         access,
         namespaces: namespaces.filter(Boolean),
         permissions: {
@@ -333,7 +333,7 @@ export default {
     descriptionError: s__('AccessTokens|Add token description.'),
     sudoLabel: s__('AccessTokens|Use token to act on behalf of other users (sudo)'),
     sudoHelp: s__(
-      "AccessTokens|Enables use of the %{linkStart}sudo API parameter%{linkEnd}. Effective access is limited to actions permitted by both the impersonated user and this token's permissions.",
+      'AccessTokens|Allows the token to %{linkStart}make API requests as another user%{linkEnd}. The token cannot perform actions that are restricted for either the impersonated user or the token itself.',
     ),
     expirationDateError: s__('AccessTokens|Add token expiration date.'),
     scopeError: s__('AccessTokens|Set group and project access.'),
@@ -428,7 +428,7 @@ export default {
           />
 
           <gl-form-checkbox
-            v-if="sudoAvailable"
+            v-if="canEnableSudo"
             v-model="form.sudo"
             class="gl-mt-5"
             data-testid="sudo-checkbox"

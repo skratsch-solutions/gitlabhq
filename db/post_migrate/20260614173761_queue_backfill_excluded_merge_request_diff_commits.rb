@@ -6,24 +6,12 @@ class QueueBackfillExcludedMergeRequestDiffCommits < Gitlab::Database::Migration
   restrict_gitlab_migration gitlab_schema: :gitlab_main
 
   MIGRATION = 'BackfillExcludedMergeRequestDiffCommits'
-  BATCH_SIZE = 1
-  SUB_BATCH_SIZE = 1
 
   def up
-    return unless Gitlab.com_except_jh?
-
-    queue_batched_background_migration(
-      MIGRATION,
-      :excluded_merge_requests,
-      :id,
-      batch_size: BATCH_SIZE,
-      sub_batch_size: SUB_BATCH_SIZE
-    )
+    # no-op: This migration has been requeued by RequeueBackfillExcludedMergeRequestDiffCommits
   end
 
   def down
-    return unless Gitlab.com_except_jh?
-
-    delete_batched_background_migration(MIGRATION, :excluded_merge_requests, :id, [])
+    # no-op: This migration has been requeued by RequeueBackfillExcludedMergeRequestDiffCommits
   end
 end

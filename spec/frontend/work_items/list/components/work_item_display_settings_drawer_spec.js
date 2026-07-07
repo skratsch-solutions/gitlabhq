@@ -139,6 +139,7 @@ describe('WorkItemDisplaySettingsDrawer', () => {
           namespacePreferences,
           isGroup: true,
           isServiceDeskList: false,
+          isSavedView: true,
           sortKey: 'CREATED_DESC',
         },
       });
@@ -148,6 +149,7 @@ describe('WorkItemDisplaySettingsDrawer', () => {
         fullPath: 'gitlab-org/gitlab',
         isGroup: true,
         isServiceDeskList: false,
+        isSavedView: true,
         workItemTypeId: 'gid://gitlab/WorkItems::Type/8',
         sortKey: 'CREATED_DESC',
       });
@@ -166,11 +168,12 @@ describe('WorkItemDisplaySettingsDrawer', () => {
   describe('user preferences section', () => {
     it('renders the user preferences component with respective props', () => {
       const commonPreferences = { shouldOpenItemsInSidePanel: false };
-      createComponent({ props: { commonPreferences } });
+      createComponent({ props: { commonPreferences, isSavedView: true } });
 
       expect(findUserPreferences().props()).toMatchObject({
         commonPreferences,
         fullPath: 'gitlab-org/gitlab',
+        isSavedView: true,
         workItemTypeId: 'gid://gitlab/WorkItems::Type/8',
       });
     });

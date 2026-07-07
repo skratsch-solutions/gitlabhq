@@ -1258,7 +1258,7 @@ spec:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/206931) in GitLab 18.6 [with a flag](../../administration/feature_flags/_index.md) named `ci_file_inputs`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/206931) in GitLab 18.6 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_file_inputs`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/579240) in GitLab 18.9. Feature flag `ci_file_inputs` removed.
 
 {{< /history >}}
@@ -1325,7 +1325,7 @@ deploy:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/438275) in GitLab 18.6 as a [beta](../../policy/development_stages_support.md#beta) [with a flag](../../administration/feature_flags/_index.md) named `ci_component_context_interpolation`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/438275) in GitLab 18.6 as a [beta](../../policy/development_stages_support.md#beta) [with a feature flag](../../administration/feature_flags/_index.md) named `ci_component_context_interpolation`. Enabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/571986) in GitLab 18.7. Feature flag `ci_component_context_interpolation` removed.
 
 {{< /history >}}
@@ -3174,7 +3174,7 @@ job1:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/142054) in GitLab 16.9 [with a flag](../../administration/feature_flags/_index.md) named `google_cloud_support_feature_flag`. This feature is in [beta](../../policy/development_stages_support.md).
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/142054) in GitLab 16.9 [with a feature flag](../../administration/feature_flags/_index.md) named `google_cloud_support_feature_flag`. This feature is in [beta](../../policy/development_stages_support.md).
 - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/150472) in GitLab 17.1. Feature flag `google_cloud_support_feature_flag` removed.
 
 {{< /history >}}
@@ -4434,7 +4434,7 @@ The publish path specified must be relative to the build root.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/129534) in GitLab 16.7 as an [experiment](../../policy/development_stages_support.md) [with a flag](../../administration/feature_flags/_index.md) named `pages_multiple_versions_setting`, disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/129534) in GitLab 16.7 as an [experiment](../../policy/development_stages_support.md) [with a feature flag](../../administration/feature_flags/_index.md) named `pages_multiple_versions_setting`, disabled by default.
 - [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/422145) in GitLab 17.4.
 - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/507423) to allow periods in GitLab 17.8.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/487161) in GitLab 17.9. Feature flag `pages_multiple_versions_setting` removed.
@@ -5051,7 +5051,7 @@ test:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/430037) in GitLab 16.10 [with a flag](../../administration/feature_flags/_index.md) named `ci_retry_on_exit_codes`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/430037) in GitLab 16.10 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_retry_on_exit_codes`. Disabled by default.
 - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/430037) in GitLab 16.11.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/452412) in GitLab 17.5. Feature flag `ci_retry_on_exit_codes` removed.
 
@@ -5373,7 +5373,7 @@ relative to `refs/heads/branch1` and the pipeline source is a merge request even
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236982) in GitLab 19.2 [with a flag](../../administration/feature_flags/_index.md) named `ci_rules_regexp`. Disabled by default. When disabled, a job with `regexp:` always runs.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236982) in GitLab 19.2 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_rules_regexp`. Disabled by default. When disabled, a job with `regexp:` always runs.
 
 {{< /history >}}
 
@@ -5500,7 +5500,7 @@ In this example:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/386040) in GitLab 16.11 [with a flag](../../administration/feature_flags/_index.md) named `ci_support_rules_exists_paths_and_project`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/386040) in GitLab 16.11 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_support_rules_exists_paths_and_project`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/386040) in GitLab 17.0. Feature flag `ci_support_rules_exists_paths_and_project` removed.
 
 {{< /history >}}
@@ -5541,7 +5541,7 @@ In this example, both jobs have the same behavior.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/386040) in GitLab 16.11 [with a flag](../../administration/feature_flags/_index.md) named `ci_support_rules_exists_paths_and_project`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/386040) in GitLab 16.11 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_support_rules_exists_paths_and_project`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/386040) in GitLab 17.0. Feature flag `ci_support_rules_exists_paths_and_project` removed.
 
 {{< /history >}}
@@ -5578,7 +5578,7 @@ the project `my-group/my-project` on the commit tagged with `v1.0.0`.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236982) in GitLab 19.2 [with a flag](../../administration/feature_flags/_index.md) named `ci_rules_regexp`. Disabled by default. When disabled, a job with `regexp:` always runs.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236982) in GitLab 19.2 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_rules_regexp`. Disabled by default. When disabled, a job with `regexp:` always runs.
 
 {{< /history >}}
 
@@ -5839,7 +5839,7 @@ job:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/440487) in GitLab 17.3 [with a flag](../../administration/feature_flags/_index.md) named `pipeline_run_keyword`. Disabled by default. Requires GitLab Runner 17.1.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/440487) in GitLab 17.3 [with a feature flag](../../administration/feature_flags/_index.md) named `pipeline_run_keyword`. Disabled by default. Requires GitLab Runner 17.1.
 - Feature flag `pipeline_run_keyword` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/471925) in GitLab 17.5.
 
 {{< /history >}}

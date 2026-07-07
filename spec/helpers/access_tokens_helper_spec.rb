@@ -110,7 +110,7 @@ RSpec.describe AccessTokensHelper, feature_category: :system_access do
           rotate: '/api/v4/personal_access_tokens',
           show: '/api/v4/personal_access_tokens?user_id=:id',
           granular_tokens_enforced: 'false',
-          sudo_available: 'false'
+          can_enable_sudo: 'false'
         })
       }))
     end
@@ -151,9 +151,9 @@ RSpec.describe AccessTokensHelper, feature_category: :system_access do
       end
     end
 
-    describe 'sudo_available' do
-      subject(:sudo_available) do
-        helper.personal_access_token_data(token, user).dig(:access_token, :sudo_available)
+    describe 'can_enable_sudo' do
+      subject(:can_enable_sudo) do
+        helper.personal_access_token_data(token, user).dig(:access_token, :can_enable_sudo)
       end
 
       context 'when the user can administer all resources' do

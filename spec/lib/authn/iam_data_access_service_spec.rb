@@ -104,6 +104,17 @@ RSpec.describe Authn::IamDataAccessService, feature_category: :system_access do
         end
       end
 
+      context 'when the file exists but is empty' do
+        before do
+          stub_file_read('/etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret', content: "\n")
+        end
+
+        it 'raises ConfigurationError' do
+          expect { described_class.secret }
+            .to raise_error(described_class::ConfigurationError, 'IAM data access service secret_file is empty')
+        end
+      end
+
       context 'when the file does not exist' do
         before do
           stub_file_read('/etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret', error: Errno::ENOENT)

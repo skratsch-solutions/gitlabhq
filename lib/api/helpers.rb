@@ -1061,6 +1061,9 @@ module API
         forbidden!('Must be authenticated using an OAuth or personal access token to use sudo')
       end
 
+      # Granular tokens bypass the :sudo scope check in AccessTokenValidationService
+      # (scopes are only validated for non-granular tokens), so the `sudo` capability
+      # is the sole gate for them. Do not remove this in favour of the scope check below.
       if access_token.try(:granular?) && !access_token.sudo?
         forbidden!('Fine-grained token must have sudo enabled to use sudo')
       end

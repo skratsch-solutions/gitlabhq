@@ -81,6 +81,13 @@ module Authn
       def bearer_metadata(token)
         { 'authorization' => "Bearer #{token}" }
       end
+
+      def service_token_credentials
+        {
+          header: ::Authn::IamDataAccessService::SERVICE_TOKEN_HEADER,
+          token: ::Authn::IamDataAccessService.secret
+        }
+      end
     end
   end
 end

@@ -174,7 +174,7 @@ For more information, see [issue 441504](https://gitlab.com/gitlab-org/gitlab/-/
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/442718) in GitLab 17.5.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/523468) in GitLab 18.0.
 - Group sharing settings [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/488451) in GitLab 18.7.
-- Automatic restricted access for GitLab Self-Managed [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240092) in GitLab 19.1 [with a flag](../administration/feature_flags/_index.md) named `auto_enable_restricted_access_on_self_managed`. Enabled by default.
+- Automatic restricted access for GitLab Self-Managed [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240092) in GitLab 19.1 [with a feature flag](../administration/feature_flags/_index.md) named `auto_enable_restricted_access_on_self_managed`. Enabled by default.
 
 {{< /history >}}
 
@@ -201,7 +201,7 @@ You cannot turn off restricted access when your subscription does not allow over
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/206932) in GitLab 18.6 [with a flag](../administration/feature_flags/_index.md) named `bso_minimal_access_fallback`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/206932) in GitLab 18.6 [with a feature flag](../administration/feature_flags/_index.md) named `bso_minimal_access_fallback`. Disabled by default.
 - [Enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/225777) in GitLab 18.10.
 
 {{< /history >}}
@@ -383,7 +383,7 @@ which will be included in your next invoice.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/348481) in GitLab 15.2 [with a flag](../administration/feature_flags/_index.md) named `seat_flag_alerts`.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/348481) in GitLab 15.2 [with a feature flag](../administration/feature_flags/_index.md) named `seat_flag_alerts`.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/362041) in GitLab 15.4. Feature flag `seat_flag_alerts` removed.
 
 {{< /history >}}

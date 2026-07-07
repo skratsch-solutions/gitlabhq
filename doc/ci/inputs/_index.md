@@ -283,7 +283,7 @@ The pipeline fails to start if any value in the array input does not match a lis
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/587657) in GitLab 18.10 [with a flag](../../administration/feature_flags/_index.md) named `ci_inputs_array_index_operator`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/587657) in GitLab 18.10 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_inputs_array_index_operator`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/587657) in GitLab 18.11. Feature flag `ci_inputs_array_index_operator` removed.
 
 {{< /history >}}
@@ -667,7 +667,7 @@ trigger-job:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/206931) in GitLab 18.6 [with a flag](../../administration/feature_flags/_index.md) named `ci_file_inputs`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/206931) in GitLab 18.6 [with a feature flag](../../administration/feature_flags/_index.md) named `ci_file_inputs`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/579240) in GitLab 18.9. Feature flag `ci_file_inputs` removed.
 
 {{< /history >}}
@@ -891,7 +891,7 @@ test-job:
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/19368) in GitLab 19.2
-  [with a flag](../../administration/feature_flags/_index.md) named `ci_interpolation_split_function`.
+  [with a feature flag](../../administration/feature_flags/_index.md) named `ci_interpolation_split_function`.
   Disabled by default.
 
 {{< /history >}}

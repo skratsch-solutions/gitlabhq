@@ -17,9 +17,20 @@ module Authn
         stub_class.new(
           strip_scheme(address),
           channel_credentials(address),
-          interceptors: [Labkit::Correlation::GRPC::ClientInterceptor.instance],
+          interceptors: [
+            Labkit::Correlation::GRPC::ClientInterceptor.instance,
+            ServiceTokenInterceptor.build_from(service_token_credentials)
+          ].compact,
           timeout: timeout
         )
+      end
+
+      # Subclasses must override this to return `{ header:, token: }`; every
+      # RPC built via `build_stub` then carries it automatically. There is no
+      # opt-out - every IAM gRPC client authenticates with a shared service
+      # token, so a missing override is a bug, not a valid configuration.
+      def service_token_credentials
+        raise NotImplementedError, "#{self.class} must implement #service_token_credentials"
       end
 
       def channel_credentials(address)

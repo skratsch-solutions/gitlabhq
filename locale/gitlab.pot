@@ -4439,6 +4439,9 @@ msgstr ""
 msgid "AccessTokens|All groups and projects that I'm a member of, including future ones"
 msgstr ""
 
+msgid "AccessTokens|Allows the token to %{linkStart}make API requests as another user%{linkEnd}. The token cannot perform actions that are restricted for either the impersonated user or the token itself."
+msgstr ""
+
 msgid "AccessTokens|An administrator has set the %{linkStart}maximum expiration date%{linkEnd} to %{days} days (%{maxDate})."
 msgstr ""
 
@@ -4536,9 +4539,6 @@ msgid "AccessTokens|Duplicate '%{tokenName}'?"
 msgstr ""
 
 msgid "AccessTokens|Enable DPoP"
-msgstr ""
-
-msgid "AccessTokens|Enables use of the %{linkStart}sudo API parameter%{linkEnd}. Effective access is limited to actions permitted by both the impersonated user and this token's permissions."
 msgstr ""
 
 msgid "AccessTokens|Error loading groups and projects. Please refresh page."

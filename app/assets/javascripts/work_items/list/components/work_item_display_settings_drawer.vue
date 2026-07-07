@@ -93,6 +93,11 @@ export default {
       required: false,
       default: false,
     },
+    isSavedView: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   emits: ['close', 'sort', 'update-settings', 'toggle-view-mode'],
   data() {
@@ -207,6 +212,7 @@ export default {
             :full-path="fullPath"
             :is-group="isGroup"
             :is-service-desk-list="isServiceDeskList"
+            :is-saved-view="isSavedView"
             :work-item-type-id="workItemTypeId"
             :sort-key="sortKey"
             @update-settings="onSettingsUpdate"
@@ -215,6 +221,7 @@ export default {
             class="!gl-border-t gl-mt-auto gl-pb-5 gl-pt-5"
             :common-preferences="commonPreferences"
             :full-path="fullPath"
+            :is-saved-view="isSavedView"
             :work-item-type-id="workItemTypeId"
           />
         </div>

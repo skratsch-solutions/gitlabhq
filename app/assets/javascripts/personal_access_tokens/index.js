@@ -50,7 +50,7 @@ export const initCreateGranularTokenApp = () => {
     accessTokenMinDate,
     accessTokenTableUrl,
     accessTokenAgenticAvailable,
-    accessTokenSudoAvailable,
+    accessTokenCanEnableSudo,
   } = el.dataset;
 
   return new Vue({
@@ -62,7 +62,7 @@ export const initCreateGranularTokenApp = () => {
       accessTokenMinDate,
       accessTokenTableUrl,
       agenticAvailable: parseBoolean(accessTokenAgenticAvailable),
-      sudoAvailable: parseBoolean(accessTokenSudoAvailable),
+      canEnableSudo: parseBoolean(accessTokenCanEnableSudo),
     },
     render(createElement) {
       return createElement(CreateGranularPersonalAccessTokenForm);

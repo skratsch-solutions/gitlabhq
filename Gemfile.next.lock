@@ -75,6 +75,15 @@ PATH
       thor (~> 1.3)
 
 PATH
+  remote: gems/gitlab-bitbucket-server
+  specs:
+    gitlab-bitbucket-server (0.1.0)
+      activesupport (>= 7, < 9)
+      addressable (~> 2.8)
+      gitlab-http (~> 0.1)
+      gitlab-utils (~> 0.1)
+
+PATH
   remote: gems/gitlab-bitbucket
   specs:
     gitlab-bitbucket (0.1.0)
@@ -83,15 +92,6 @@ PATH
       oauth2 (~> 2.0)
       omniauth-oauth2 (~> 1.8)
       rack (>= 2.2)
-
-PATH
-  remote: gems/gitlab-bitbucket-server
-  specs:
-    gitlab-bitbucket-server (0.1.0)
-      activesupport (>= 7, < 9)
-      addressable (~> 2.8)
-      gitlab-http (~> 0.1)
-      gitlab-utils (~> 0.1)
 
 PATH
   remote: gems/gitlab-configs
@@ -1748,31 +1748,31 @@ GEM
       coderay
       parser
       unparser
-    prometheus-client-mmap (1.5.0)
+    prometheus-client-mmap (1.6.0)
       base64
       bigdecimal
       logger
-      rb_sys (~> 0.9.124)
-    prometheus-client-mmap (1.5.0-aarch64-linux-gnu)
+      rb_sys (~> 0.9.128)
+    prometheus-client-mmap (1.6.0-aarch64-linux-gnu)
       base64
       bigdecimal
       logger
-      rb_sys (~> 0.9.124)
-    prometheus-client-mmap (1.5.0-arm64-darwin)
+      rb_sys (~> 0.9.128)
+    prometheus-client-mmap (1.6.0-arm64-darwin)
       base64
       bigdecimal
       logger
-      rb_sys (~> 0.9.124)
-    prometheus-client-mmap (1.5.0-x86_64-darwin)
+      rb_sys (~> 0.9.128)
+    prometheus-client-mmap (1.6.0-x86_64-darwin)
       base64
       bigdecimal
       logger
-      rb_sys (~> 0.9.124)
-    prometheus-client-mmap (1.5.0-x86_64-linux-gnu)
+      rb_sys (~> 0.9.128)
+    prometheus-client-mmap (1.6.0-x86_64-linux-gnu)
       base64
       bigdecimal
       logger
-      rb_sys (~> 0.9.124)
+      rb_sys (~> 0.9.128)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -2637,7 +2637,7 @@ DEPENDENCIES
   prawn
   prawn-svg
   premailer-rails (~> 1.12.0)
-  prometheus-client-mmap (~> 1.5.0)
+  prometheus-client-mmap (~> 1.6.0)
   pry-byebug
   pry-rails (~> 0.3.9)
   pry-shell (~> 0.7.0)
@@ -3307,11 +3307,11 @@ CHECKSUMS
   prime (0.1.3) sha256=baf031c50d6ce923594913befc8ac86a3251bffb9d6a5e8b03687962054e53e3
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
   proc_to_ast (0.1.0) sha256=92a73fa66e2250a83f8589f818b0751bcf227c68f85916202df7af85082f8691
-  prometheus-client-mmap (1.5.0) sha256=361eb98d6c19ae0f44ae5e02f9e6750436fd92d1c501d1c69843609c1daf0117
-  prometheus-client-mmap (1.5.0-aarch64-linux-gnu) sha256=e7fe1a630dda83a237efb0eb4a29ee3da37922722fc89ecac6057a1187372c5d
-  prometheus-client-mmap (1.5.0-arm64-darwin) sha256=78703435f76d246e31a04344071630133608a4e624275a910cfb2c19346b5aa3
-  prometheus-client-mmap (1.5.0-x86_64-darwin) sha256=96d360bbffc5603f8322a0b8c3353cf531c06410cf80dbdeda46efbd27a6a5a2
-  prometheus-client-mmap (1.5.0-x86_64-linux-gnu) sha256=2f5e7be72ea0b8bddd0e6a123e8f2468d7e2bdfa664a4d355fec4ed4f659d457
+  prometheus-client-mmap (1.6.0) sha256=239e5d26462afa4f1f07102c7d2ce7f921ed40168a56294df38f88b7b9636570
+  prometheus-client-mmap (1.6.0-aarch64-linux-gnu) sha256=a5f1b4f9204042ffbbfab269ef3e18e60297788da32a8b12a2fed243939dc44d
+  prometheus-client-mmap (1.6.0-arm64-darwin) sha256=852ade15c7459fea03ef17c0eb4d6c8e78a6364ca094dcdf5d98590e18f3bfe5
+  prometheus-client-mmap (1.6.0-x86_64-darwin) sha256=3187045bb3fa6c6a44f048c152fde8f485e77e60391a295a4967c76cc7f44c26
+  prometheus-client-mmap (1.6.0-x86_64-linux-gnu) sha256=5ff65d847388ece19b9b1fec6ca23ff62699d488b9d5e94b4a4be5be102482b3
   pry (0.14.2) sha256=c4fe54efedaca1d351280b45b8849af363184696fcac1c72e0415f9bdac4334d
   pry-byebug (3.11.0) sha256=0b0abb7d309bc7f00044d512a3c8567274f7012b944b38becc8440439a1cea72
   pry-rails (0.3.11) sha256=a69e28e24a34d75d1f60bcf241192a54253f8f7ef8a62cba1e75750a9653593d

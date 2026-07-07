@@ -153,7 +153,7 @@ You can also remove ({{< icon name="close" >}}) a merge request from the merge t
 
 {{< history >}}
 
-- Auto-merge for merge trains [introduced](https://gitlab.com/groups/gitlab-org/-/epics/10874) in GitLab 17.2 [with a flag](../../administration/feature_flags/_index.md) named `merge_when_checks_pass_merge_train`. Disabled by default.
+- Auto-merge for merge trains [introduced](https://gitlab.com/groups/gitlab-org/-/epics/10874) in GitLab 17.2 [with a feature flag](../../administration/feature_flags/_index.md) named `merge_when_checks_pass_merge_train`. Disabled by default.
 - Auto-merge for merge trains [enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/470667) on GitLab.com in GitLab 17.2.
 - Auto-merge for merge trains [enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/470667) by default in GitLab 17.4.
 - Auto-merge for merge trains [generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/174357) in GitLab 17.7. Feature flag `merge_when_checks_pass_merge_train` removed.
@@ -224,7 +224,7 @@ When you merge a merge request immediately:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414505) in GitLab 16.5 [with a flag](../../administration/feature_flags/_index.md) named `merge_trains_skip_train`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414505) in GitLab 16.5 [with a feature flag](../../administration/feature_flags/_index.md) named `merge_trains_skip_train`. Disabled by default.
 - [Enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/422111) as an [experiment feature](../../policy/development_stages_support.md) in GitLab 16.10.
 
 {{< /history >}}
@@ -298,7 +298,7 @@ You can also use the [projects API](../../api/projects.md), or the
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/597962) in GitLab 19.2 [with a flag](../../administration/feature_flags/_index.md) named `merge_train_enforcement`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/597962) in GitLab 19.2 [with a feature flag](../../administration/feature_flags/_index.md) named `merge_train_enforcement`. Disabled by default.
 
 {{< /history >}}
 

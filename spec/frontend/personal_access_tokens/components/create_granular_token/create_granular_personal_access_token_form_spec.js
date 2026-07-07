@@ -167,13 +167,13 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
     });
 
     it('is shown when sudo is available', () => {
-      createComponent({ provide: { sudoAvailable: true } });
+      createComponent({ provide: { canEnableSudo: true } });
 
       expect(findSudoCheckbox().exists()).toBe(true);
     });
 
     it('submits the form with sudo enabled when the checkbox is checked', async () => {
-      createComponent({ provide: { sudoAvailable: true } });
+      createComponent({ provide: { canEnableSudo: true } });
 
       findSudoCheckbox().vm.$emit('input', true);
       await fillAndSubmitForm();
@@ -763,7 +763,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
 
       it('retains sudo when an admin duplicates a sudo-enabled token', async () => {
         createComponent({
-          provide: { sudoAvailable: true },
+          provide: { canEnableSudo: true },
           sourceTokenHandler: sudoSourceTokenHandler(),
         });
         await waitForPromises();

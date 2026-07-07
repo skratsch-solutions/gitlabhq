@@ -11,7 +11,6 @@ import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_
 import {
   WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS,
   WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED,
-  ROUTES,
 } from '~/work_items/constants';
 
 Vue.use(VueApollo);
@@ -43,15 +42,11 @@ describe('WorkItemDisplaySettingsMetadata', () => {
     mountFn = shallowMountExtended,
     props = {},
     namespaceHandler = namespacePreferencesHandler,
-    routeName = ROUTES.index,
   } = {}) => {
     mockApolloProvider = createMockApollo([[updateWorkItemListUserPreference, namespaceHandler]]);
 
     wrapper = mountFn(WorkItemDisplaySettingsMetadata, {
       apolloProvider: mockApolloProvider,
-      mocks: {
-        $route: { name: routeName },
-      },
       propsData: {
         namespacePreferences: { hiddenMetadataKeys: [] },
         fullPath: 'gitlab-org/gitlab',
@@ -178,7 +173,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
   describe('when not on a saved view', () => {
     beforeEach(() => {
-      createComponent({ routeName: ROUTES.index });
+      createComponent({ props: { isSavedView: false } });
     });
 
     it('toggles metadata field visibility via the mutation', async () => {
@@ -224,7 +219,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
   describe('when on a saved view', () => {
     beforeEach(() => {
-      createComponent({ routeName: ROUTES.savedView });
+      createComponent({ props: { isSavedView: true } });
     });
 
     it('updates settings without calling the mutation', async () => {

@@ -3,7 +3,6 @@ import { GlDisclosureDropdownItem, GlToggle } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { InternalEvents } from '~/tracking';
 import HelpPopover from '~/vue_shared/components/help_popover.vue';
-import { ROUTES } from '~/work_items/constants';
 import {
   persistSidePanelPreference,
   alertPreferenceError,
@@ -36,6 +35,11 @@ export default {
       type: String,
       required: true,
     },
+    isSavedView: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -43,9 +47,6 @@ export default {
     };
   },
   computed: {
-    isSavedView() {
-      return this.$route?.name === ROUTES.savedView;
-    },
     shouldOpenItemsInSidePanel() {
       return this.commonPreferences?.shouldOpenItemsInSidePanel ?? true;
     },

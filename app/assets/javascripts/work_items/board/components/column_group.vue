@@ -120,6 +120,9 @@ export default {
       const query = boardColumnQuery(this.glFeatures);
       return {
         query,
+        skip() {
+          return this.collapsed;
+        },
         update(data) {
           return data?.namespace?.workItems ?? { nodes: [], pageInfo: {} };
         },

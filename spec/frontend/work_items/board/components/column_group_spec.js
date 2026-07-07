@@ -175,6 +175,34 @@ describe('ColumnGroup', () => {
 
       expect(wrapper.emitted('toggle-collapse')).toHaveLength(1);
     });
+
+    it('does not fetch the list query when collapsed', async () => {
+      createComponent({ props: { collapsed: true } });
+      await waitForPromises();
+
+      expect(boardQueryHandler).not.toHaveBeenCalled();
+    });
+
+    it('still fetches the count query when collapsed', async () => {
+      createComponent({ props: { collapsed: true } });
+      await waitForPromises();
+
+      expect(countQueryHandler).toHaveBeenCalled();
+      expect(findColumnHeader().props('count')).toBe(1);
+    });
+
+    it('fetches the list query once expanded after being collapsed', async () => {
+      createComponent({ props: { collapsed: true } });
+      await waitForPromises();
+
+      expect(boardQueryHandler).not.toHaveBeenCalled();
+
+      await wrapper.setProps({ collapsed: false });
+      await waitForPromises();
+
+      expect(boardQueryHandler).toHaveBeenCalled();
+      expect(findWorkItemCards()).toHaveLength(1);
+    });
   });
 
   describe('while loading the initial page', () => {
