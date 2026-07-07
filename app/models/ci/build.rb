@@ -446,25 +446,11 @@ module Ci
         end
       end
 
-      before_transition running: [:failed] do |build|
-        if build.server_timeout_running? && !build.anchor_finished_at_to_pending_state?
-          # If job was stuck or timed-out, only bill the set timeout.
-          build.finished_at = build.started_at + build.timeout.seconds
-        end
-      end
-
       before_transition canceling: [:canceled] do |build, transition|
         reason_enum = ::Gitlab::Ci::Build::Status::Reason
                            .fabricate(build, transition.args.first)
 
-        if reason_enum.failure_reason == :server_timeout_canceling
-          build.failure_reason = reason_enum.failure_reason
-
-          unless build.anchor_finished_at_to_pending_state?
-            # If job was stuck or timed-out, only bill the set timeout.
-            build.finished_at = build.started_at + build.timeout.seconds
-          end
-        end
+        build.failure_reason = reason_enum.failure_reason if reason_enum.failure_reason == :server_timeout_canceling
       end
 
       after_transition any => any do |build|
@@ -599,8 +585,6 @@ module Ci
     # reports completion.
     override :set_finished_at
     def set_finished_at(transition = nil)
-      return super unless anchor_finished_at_to_pending_state?
-
       time = server_timeout_finished_at_for_transition(transition) || Time.current
 
       self.finished_at = [pending_state&.created_at, time].compact.min
@@ -615,10 +599,6 @@ module Ci
           project: project
         })
       end
-    end
-
-    def anchor_finished_at_to_pending_state?
-      Feature.enabled?(:ci_anchor_finished_at_to_pending_state, ::Project.actor_from_id(project_id))
     end
 
     def server_timeout_finished_at_for_transition(transition)

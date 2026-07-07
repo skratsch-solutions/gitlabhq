@@ -250,6 +250,11 @@ When you [transfer a project](../../../user/project/working_with_projects.md#tra
 
 Users with the Owner role in the project receive an email notification to rotate a secret on the day specified in a secret's configuration.
 
+## Access secrets from non-CI/CD workloads
+
+Workloads that do not run as GitLab CI/CD jobs can read secrets through the Secrets Manager API.
+For more information, see [Access secrets from non-CI/CD workloads](non_cicd_access.md).
+
 ## Related topics
 
 - [Secret Audit Tool for Variables](https://gitlab.com/guided-explorations/secrets-management/secret-audit-tool-for-variables):

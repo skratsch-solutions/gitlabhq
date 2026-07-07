@@ -298,6 +298,8 @@ export default {
     },
     onSelect(selectedIds) {
       this.selectedLabelsIds = selectedIds;
+      this.searchTerm = '';
+      this.$refs.listbox?.$refs.searchBox?.clearInput?.();
     },
     onHidden() {
       const next = this.selectedLabelsIds;

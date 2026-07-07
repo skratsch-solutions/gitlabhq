@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -69,8 +70,19 @@ func (m *mockWebSocketConn) Close() error {
 	return m.closeError
 }
 
-func (m *mockWebSocketConn) WriteControl(_ int, _ []byte, _ time.Time) error {
-	return m.writeControlError
+func (m *mockWebSocketConn) WriteControl(_ int, data []byte, _ time.Time) error {
+	if m.writeControlError != nil {
+		return m.writeControlError
+	}
+	// Mirror gorilla's real WriteControl, which rejects any control frame whose
+	// payload exceeds the WebSocket 125-byte limit. The previous mock ignored
+	// the payload and silently accepted oversized close reasons, hiding the
+	// dropped-4400 regression this test now guards against.
+	const maxControlFramePayloadSize = 125
+	if len(data) > maxControlFramePayloadSize {
+		return errors.New("websocket: invalid control frame")
+	}
+	return nil
 }
 
 func (m *mockWebSocketConn) SetReadDeadline(t time.Time) error {
@@ -2048,6 +2060,136 @@ func TestStreamManager_Recv_nonUnavailableError(t *testing.T) {
 	_, err := sm.Recv()
 	require.Error(t, err)
 	require.NotErrorIs(t, err, errStreamUnavailable, "Recv should not return errStreamUnavailable for non-Unavailable gRPC errors")
+}
+
+func TestStreamManager_Recv_returnsErrInvalidRequest(t *testing.T) {
+	sm := newTestStreamManager(t, &mockWorkflowStream{
+		recvError: status.Error(codes.InvalidArgument, "workflow is paused"),
+	})
+
+	_, err := sm.Recv()
+	require.Error(t, err)
+	require.ErrorIs(t, err, errInvalidRequest, "Recv should wrap errInvalidRequest for InvalidArgument gRPC errors")
+	require.Contains(t, err.Error(), "workflow is paused", "Recv should preserve the DWS status message")
+}
+
+func TestRunner_handleAgentMessages_invalidRequest(t *testing.T) {
+	// realistic full-length DWS message for the empty-goal rejection (121 bytes);
+	// this is what actually broke production, where the old code forwarded the
+	// whole wrapped error chain (>125 bytes) and the close frame was dropped.
+	const dwsInvalidGoalMsg = "RESPONSE event must include a non-empty message. " +
+		"The workflow remains paused; please provide real user input to continue."
+
+	t.Run("sends 4400 with the clean DWS message and returns nil on INVALID_ARGUMENT", func(t *testing.T) {
+		controlMessages := []struct {
+			msgType int
+			data    []byte
+		}{}
+		mockConn := &mockWebSocketConn{}
+		wrappedConn := &shutdownTrackingConn{
+			mockWebSocketConn: mockConn,
+			controlMessages:   &controlMessages,
+		}
+		mockWf := &mockWorkflowStream{
+			recvError: status.Error(codes.InvalidArgument, dwsInvalidGoalMsg),
+		}
+
+		req := httptest.NewRequest("GET", "/duo", nil)
+		r := &runner{
+			originalReq: req,
+			ws:          newWsManager(wrappedConn),
+			streamManager: &streamManager{
+				wf:          mockWf,
+				originalReq: req,
+			},
+			stop: stopCoordinator{
+				acked: make(chan struct{}),
+			},
+		}
+
+		errCh := make(chan error, 1)
+		r.handleAgentMessages(context.Background(), errCh)
+
+		err := <-errCh
+		require.NoError(t, err, "handleAgentMessages should return nil for INVALID_ARGUMENT")
+
+		// A close frame with code 4400 (private-use Bad Request) must actually be
+		// sent, carrying the clean DWS status message (not the wrapped chain).
+		require.Len(t, controlMessages, 1)
+		require.Equal(t, websocket.CloseMessage, controlMessages[0].msgType)
+		// FormatCloseMessage encodes as 2-byte big-endian code + UTF-8 reason.
+		require.LessOrEqual(t, len(controlMessages[0].data), 125, "close frame must fit the 125-byte control-frame limit")
+		closeCode := int(controlMessages[0].data[0])<<8 | int(controlMessages[0].data[1])
+		require.Equal(t, closeInvalidRequest, closeCode, "close code should be 4400 (private-use Bad Request)")
+		closeReason := string(controlMessages[0].data[2:])
+		require.Equal(t, dwsInvalidGoalMsg, closeReason, "close reason should be the clean DWS status message")
+		require.NotContains(t, closeReason, "failed to read a gRPC message", "close reason must not include the wrapped error chain")
+
+		// Verify the connection is marked closed
+		require.True(t, r.ws.closed.Load(), "websocket should be marked closed after SendInvalidRequest")
+	})
+
+	t.Run("truncates an over-long DWS message so the 4400 frame is still sent", func(t *testing.T) {
+		controlMessages := []struct {
+			msgType int
+			data    []byte
+		}{}
+		wrappedConn := &shutdownTrackingConn{
+			mockWebSocketConn: &mockWebSocketConn{},
+			controlMessages:   &controlMessages,
+		}
+		mockWf := &mockWorkflowStream{
+			recvError: status.Error(codes.InvalidArgument, strings.Repeat("x", 300)),
+		}
+
+		req := httptest.NewRequest("GET", "/duo", nil)
+		r := &runner{
+			originalReq: req,
+			ws:          newWsManager(wrappedConn),
+			streamManager: &streamManager{
+				wf:          mockWf,
+				originalReq: req,
+			},
+			stop: stopCoordinator{acked: make(chan struct{})},
+		}
+
+		errCh := make(chan error, 1)
+		r.handleAgentMessages(context.Background(), errCh)
+		require.NoError(t, <-errCh)
+
+		// Even a 300-byte message must not drop the close frame: it is truncated
+		// to fit, so the client still receives 4400 rather than falling back to 1000.
+		require.Len(t, controlMessages, 1)
+		require.LessOrEqual(t, len(controlMessages[0].data), 125, "close frame must fit the 125-byte control-frame limit")
+		closeCode := int(controlMessages[0].data[0])<<8 | int(controlMessages[0].data[1])
+		require.Equal(t, closeInvalidRequest, closeCode, "close code should be 4400")
+		require.True(t, r.ws.closed.Load(), "websocket should be marked closed after SendInvalidRequest")
+	})
+
+	t.Run("returns nil even when SendInvalidRequest write fails", func(t *testing.T) {
+		mockWf := &mockWorkflowStream{
+			recvError: status.Error(codes.InvalidArgument, "workflow is paused"),
+		}
+
+		req := httptest.NewRequest("GET", "/duo", nil)
+		r := &runner{
+			originalReq: req,
+			ws:          newWsManager(&mockWebSocketConn{writeControlError: errors.New("write failed")}),
+			streamManager: &streamManager{
+				wf:          mockWf,
+				originalReq: req,
+			},
+			stop: stopCoordinator{
+				acked: make(chan struct{}),
+			},
+		}
+
+		errCh := make(chan error, 1)
+		r.handleAgentMessages(context.Background(), errCh)
+
+		err := <-errCh
+		require.NoError(t, err, "handleAgentMessages should return nil even when the WS write fails")
+	})
 }
 
 func TestRunner_AcquireWorkflowLock_MisconfiguredRedis(t *testing.T) {

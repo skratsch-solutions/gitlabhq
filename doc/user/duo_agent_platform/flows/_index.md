@@ -21,7 +21,7 @@ title: Flows
 
 {{< history >}}
 
-- Introduced as an [experiment](../../../policy/development_stages_support.md) in GitLab 18.4 [with a flag](../../../administration/feature_flags/_index.md) named `ai_catalog_flows`. Disabled by default.
+- Introduced as an [experiment](../../../policy/development_stages_support.md) in GitLab 18.4 [with a feature flag](../../../administration/feature_flags/_index.md) named `ai_catalog_flows`. Disabled by default.
 - Changed to [beta](../../../policy/development_stages_support.md) in GitLab 18.7.
 - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/569060) in GitLab 18.7.
 - [Enabled on GitLab Self-Managed and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/569060) in GitLab 18.8.

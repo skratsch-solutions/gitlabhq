@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net"
+	"strings"
 	"testing"
 
 	"github.com/gorilla/websocket"
@@ -254,6 +255,82 @@ func TestWsManager_SendGoingAway(t *testing.T) {
 			ws := newWsManager(&mockWebSocketConn{writeControlError: tt.writeCtrlErr})
 
 			err := ws.SendGoingAway()
+
+			assert.Equal(t, tt.expectErr, err != nil)
+			assert.Equal(t, tt.expectClosed, ws.closed.Load())
+		})
+	}
+}
+
+func TestTruncateCloseReason(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "short string is unchanged",
+			input: "short reason",
+			want:  "short reason",
+		},
+		{
+			name:  "exactly 123 bytes is unchanged",
+			input: strings.Repeat("a", 123),
+			want:  strings.Repeat("a", 123),
+		},
+		{
+			name:  "longer than 123 bytes is truncated",
+			input: strings.Repeat("a", 200),
+			want:  strings.Repeat("a", 123),
+		},
+		{
+			name:  "truncation respects UTF-8 boundaries",
+			input: strings.Repeat("a", 122) + "é", // é is 2 bytes; total = 124 bytes
+			want:  strings.Repeat("a", 122),       // drop the incomplete rune
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := truncateCloseReason(tt.input)
+			assert.Equal(t, tt.want, got)
+			assert.LessOrEqual(t, len(got), wsCloseMaxReasonBytes)
+		})
+	}
+}
+
+func TestWsManager_SendInvalidRequest(t *testing.T) {
+	tests := []struct {
+		name         string
+		reason       string
+		writeCtrlErr error
+		expectClosed bool
+		expectErr    bool
+	}{
+		{
+			name:         "success marks connection closed",
+			reason:       "workflow rejected the reconnect due to invalid input",
+			expectClosed: true,
+		},
+		{
+			name:         "long reason is truncated and succeeds",
+			reason:       strings.Repeat("x", 200),
+			expectClosed: true,
+		},
+		{
+			name:         "failure does not mark connection closed",
+			reason:       "workflow rejected the reconnect due to invalid input",
+			writeCtrlErr: errors.New("write failed"),
+			expectClosed: false,
+			expectErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ws := newWsManager(&mockWebSocketConn{writeControlError: tt.writeCtrlErr})
+
+			err := ws.SendInvalidRequest(tt.reason)
 
 			assert.Equal(t, tt.expectErr, err != nil)
 			assert.Equal(t, tt.expectClosed, ws.closed.Load())

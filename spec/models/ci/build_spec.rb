@@ -4786,18 +4786,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
           expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
         end
-
-        context 'when ci_anchor_finished_at_to_pending_state is disabled' do
-          before do
-            stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
-          end
-
-          it 'preserves existing server timeout behavior' do
-            build.drop!(:server_timeout_running)
-
-            expect(build.reload.finished_at).to eq(build.started_at + timeout.seconds)
-          end
-        end
       end
     end
 
@@ -4836,18 +4824,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
           expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
           expect(build.failure_reason).to eq('server_timeout_canceling')
-        end
-
-        context 'when ci_anchor_finished_at_to_pending_state is disabled' do
-          before do
-            stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
-          end
-
-          it 'preserves existing server timeout behavior' do
-            build.drop!(:server_timeout_canceling)
-
-            expect(build.reload.finished_at).to eq(build.started_at + timeout.seconds)
-          end
         end
       end
     end
@@ -4903,54 +4879,40 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       )
     end
 
-    context 'when ci_anchor_finished_at_to_pending_state is enabled' do
-      it 'anchors finished_at to pending_state.created_at on running => success' do
-        build.success!
+    it 'anchors finished_at to pending_state.created_at on running => success' do
+      build.success!
 
-        expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
-      end
-
-      it 'anchors finished_at to pending_state.created_at on running => failed' do
-        build.drop!(:script_failure)
-
-        expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
-      end
-
-      context 'when no pending_state exists' do
-        before do
-          build.pending_state.delete
-          build.reload
-        end
-
-        it 'falls back to Time.current via the CommitStatus before_transition' do
-          build.success!
-
-          expect(build.reload.finished_at).to be_like_time(Time.current)
-        end
-      end
-
-      context 'when transitioning running => failed via server_timeout_running' do
-        let(:timeout) { 1000 }
-        let(:build) { create(:ci_build, :running, pipeline: pipeline, timeout: timeout) }
-        let(:pending_state_created_at) { build.started_at + 1.second }
-
-        it 'preserves the pending_state anchor as the runner-reported completion time' do
-          build.drop!(:server_timeout_running)
-
-          expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
-        end
-      end
+      expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
     end
 
-    context 'when ci_anchor_finished_at_to_pending_state is disabled' do
+    it 'anchors finished_at to pending_state.created_at on running => failed' do
+      build.drop!(:script_failure)
+
+      expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
+    end
+
+    context 'when no pending_state exists' do
       before do
-        stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
+        build.pending_state.delete
+        build.reload
       end
 
-      it 'preserves the existing Time.current behavior' do
+      it 'falls back to Time.current via the CommitStatus before_transition' do
         build.success!
 
         expect(build.reload.finished_at).to be_like_time(Time.current)
+      end
+    end
+
+    context 'when transitioning running => failed via server_timeout_running' do
+      let(:timeout) { 1000 }
+      let(:build) { create(:ci_build, :running, pipeline: pipeline, timeout: timeout) }
+      let(:pending_state_created_at) { build.started_at + 1.second }
+
+      it 'preserves the pending_state anchor as the runner-reported completion time' do
+        build.drop!(:server_timeout_running)
+
+        expect(build.reload.finished_at).to be_like_time(pending_state_created_at)
       end
     end
   end
@@ -4976,18 +4938,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
         build.set_finished_at(transition)
 
         expect(build.finished_at).to be_like_time(pending_state_created_at)
-      end
-
-      context 'when ci_anchor_finished_at_to_pending_state is disabled' do
-        before do
-          stub_feature_flags(ci_anchor_finished_at_to_pending_state: false)
-        end
-
-        it 'sets the given timestamp' do
-          build.set_finished_at(transition)
-
-          expect(build.finished_at).to be_like_time(timeout_finished_at)
-        end
       end
     end
 

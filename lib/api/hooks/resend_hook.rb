@@ -24,6 +24,17 @@ module API
         end
 
         web_hook_log = hook.web_hook_logs.find(params[:hook_log_id])
+
+        if web_hook_log.outside_recent_window?
+          Gitlab::WebHooks::Logger.log_stale_access(
+            hook: hook,
+            web_hook_log: web_hook_log,
+            action: 'retry',
+            interface: 'api',
+            user: current_user
+          )
+        end
+
         result = WebHooks::Events::ResendService.new(web_hook_log, current_user: current_user).execute
 
         if result.success?

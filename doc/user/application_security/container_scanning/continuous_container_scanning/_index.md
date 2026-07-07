@@ -15,7 +15,7 @@ description: How GitLab detects new vulnerabilities for image dependencies outsi
 
 {{< history >}}
 
-- Continuous container scanning [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/435435) in GitLab 16.8 [with a flag](../../../../administration/feature_flags/_index.md) named `container_scanning_continuous_vulnerability_scans`. Disabled by default.
+- Continuous container scanning [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/435435) in GitLab 16.8 [with a feature flag](../../../../administration/feature_flags/_index.md) named `container_scanning_continuous_vulnerability_scans`. Disabled by default.
 - Continuous container scanning [enabled on GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/437162) in GitLab 16.10.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/443712) in GitLab 17.0. Feature flag `container_scanning_continuous_vulnerability_scans` removed.
 

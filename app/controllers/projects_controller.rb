@@ -12,7 +12,7 @@ class ProjectsController < Projects::ApplicationController
 
   REFS_LIMIT = 100
 
-  prepend_before_action(only: [:show]) { authenticate_sessionless_user!(:rss) }
+  prepend_before_action(only: [:show]) { authenticate_sessionless_user!(:rss, permission: :read_event) }
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show]
 

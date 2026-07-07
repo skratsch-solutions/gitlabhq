@@ -71,7 +71,7 @@ Each security scanner shows one of the following coverage statuses for every pro
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/552224) in GitLab 18.5 [with a flag](../../../administration/feature_flags/_index.md) named `security_inventory_filtering`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/552224) in GitLab 18.5 [with a feature flag](../../../administration/feature_flags/_index.md) named `security_inventory_filtering`. Enabled by default.
 
 {{< /history >}}
 

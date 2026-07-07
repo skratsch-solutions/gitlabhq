@@ -5,6 +5,7 @@ import superSidebarDataQuery from '~/super_sidebar/graphql/queries/super_sidebar
 import { __, s__, sprintf } from '~/locale';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import axios from '~/lib/utils/axios_utils';
+import { pinsPath } from '~/lib/utils/path_helpers/user';
 import { userCounts } from '~/super_sidebar/user_counts_manager';
 import { formatAsyncCount } from '~/super_sidebar/utils';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -62,11 +63,6 @@ export default {
       default: () => [],
     },
     panelType: {
-      type: String,
-      required: false,
-      default: '',
-    },
-    updatePinsUrl: {
       type: String,
       required: false,
       default: '',
@@ -247,7 +243,7 @@ export default {
     },
     updatePins() {
       axios
-        .put(this.updatePinsUrl, {
+        .put(pinsPath(), {
           panel: this.panelType,
           menu_item_ids: this.changedPinnedItemIds.ids,
         })

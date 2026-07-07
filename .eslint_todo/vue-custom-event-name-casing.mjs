@@ -297,8 +297,6 @@ export default {
     'ee/app/assets/javascripts/vue_shared/components/code_flow/code_flow_steps_section.vue',
     'ee/app/assets/javascripts/vue_shared/license_compliance/mr_widget_license_report.vue',
     'ee/app/assets/javascripts/vue_shared/security_reports/components/dismissal_note.vue',
-    'ee/app/assets/javascripts/vulnerabilities/components/history_comment.vue',
-    'ee/app/assets/javascripts/vulnerabilities/components/history_comment_editor.vue',
     'ee/app/assets/javascripts/work_items/components/shared/work_item_link_child_contents.vue',
     'ee/app/assets/javascripts/work_items/components/work_item_change_type_modal.vue',
     'ee/app/assets/javascripts/work_items/components/work_item_color.vue',

@@ -41,18 +41,12 @@ RSpec.describe ClickHouse::Finders::Ci::SiphonFinishedBuildsFinder, :click_house
     context 'with #with_stages + #select(:name, :stage_name) — the stages LEFT JOIN' do
       let(:query) { instance.for_container(project).with_stages(project).select(:name, :stage_name) }
 
-      it 'joins siphon_p_ci_stages scoped by traversal_path AND build stage_id', :aggregate_failures do
+      it 'joins siphon_p_ci_stages scoped by traversal_path', :aggregate_failures do
         is_expected.to include('LEFT OUTER JOIN')
         is_expected.to include('`finished_builds`.`stage_id` = `stages`.`id`')
         is_expected.to include('`stages`.`name` AS stage_name')
-        # Stages subquery is scoped both ways: traversal_path narrows to one
-        # project's PK range, and id IN (SELECT stage_id FROM finished_builds)
-        # references the builds CTE so the same query block is reused instead
-        # of being textually duplicated.
         is_expected.to include("`siphon_p_ci_stages`.`traversal_path` = '#{project_path}'")
-        is_expected.to include(
-          '`siphon_p_ci_stages`.`id` IN (SELECT `finished_builds`.`stage_id` FROM `finished_builds`)'
-        )
+        is_expected.not_to include('IN (SELECT `finished_builds`.`stage_id`')
       end
     end
 

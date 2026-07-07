@@ -15,7 +15,7 @@ title: Maven virtual registry API
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/161615) in GitLab 17.4 [with a flag](../administration/feature_flags/_index.md) named `virtual_registry_maven`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/161615) in GitLab 17.4 [with a feature flag](../administration/feature_flags/_index.md) named `virtual_registry_maven`. Disabled by default.
 - Feature flag [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/540276) to `maven_virtual_registry` in GitLab 18.1. Disabled by default. Feature flag `virtual_registry_maven` removed.
 - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/540276) from experiment to beta in GitLab 18.1.
 - [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/197432) in GitLab 18.2.
@@ -208,7 +208,7 @@ If successful, returns a [`204 No Content`](rest/troubleshooting.md#status-codes
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/538327) in GitLab 18.2 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/538327) in GitLab 18.2 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
 
 {{< /history >}}
 
@@ -240,7 +240,7 @@ Use the following endpoints to configure and manage upstream Maven registries.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/550728) in GitLab 18.3 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/550728) in GitLab 18.3 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
 - `upstream_name` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/561675) in GitLab 18.4.
 
 {{< /history >}}
@@ -305,7 +305,7 @@ Example response:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/535637) in GitLab 18.3 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/535637) in GitLab 18.3 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
 
 {{< /history >}}
 
@@ -775,7 +775,7 @@ If successful, returns a [`204 No Content`](rest/troubleshooting.md#status-codes
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/540276) in GitLab 18.1 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/540276) in GitLab 18.1 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Disabled by default.
 - [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/197432) in GitLab 18.2.
 
 {{< /history >}}
@@ -820,7 +820,7 @@ Example response:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/540276) in GitLab 18.1 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/540276) in GitLab 18.1 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Disabled by default.
 - [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/197432) in GitLab 18.2.
 
 {{< /history >}}
@@ -851,7 +851,7 @@ If successful, returns a [`204 No Content`](rest/troubleshooting.md#status-codes
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/538327) in GitLab 18.2 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/538327) in GitLab 18.2 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
 
 {{< /history >}}
 
@@ -879,7 +879,7 @@ If successful, returns a [`204 No Content`](rest/troubleshooting.md#status-codes
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/535637) in GitLab 18.3 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/535637) in GitLab 18.3 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
 
 {{< /history >}}
 
@@ -925,7 +925,7 @@ Example response:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/565897) in GitLab 18.7 [with a flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/565897) in GitLab 18.7 [with a feature flag](../administration/feature_flags/_index.md) named `maven_virtual_registry`. Enabled by default.
 
 {{< /history >}}
 

@@ -960,6 +960,9 @@ export default {
     collapsedGroups() {
       return this.namespacePreferences.collapsedGroups ?? [];
     },
+    hiddenMetadataKeys() {
+      return this.namespacePreferences.hiddenMetadataKeys ?? [];
+    },
     savedViewId() {
       return convertToGraphQLId('WorkItems::SavedViews::SavedView', this.$route.params.view_id);
     },
@@ -2223,6 +2226,7 @@ export default {
       :root-page-full-path="rootPageFullPath"
       :query-variables="queryVariables"
       :collapsed-groups="collapsedGroups"
+      :hidden-metadata-keys="hiddenMetadataKeys"
       @set-error="($evt) => (error = $evt)"
       @toggle-collapse="handleToggleGroupCollapse"
     />

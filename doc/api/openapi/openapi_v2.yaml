@@ -56829,7 +56829,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -59257,7 +59257,7 @@ definitions:
         example: success
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       last_pipeline:
         "$ref": "#/definitions/API_Entities_Ci_PipelineBasic"
@@ -68955,7 +68955,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       title:
         type: string
@@ -68978,7 +68978,7 @@ definitions:
         example: '2012-06-28T10:52:04Z'
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       web_url:
         type: string
@@ -71476,7 +71476,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       name:
         type: string
@@ -71514,7 +71514,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       access_level:
         type: integer
@@ -71525,15 +71525,15 @@ definitions:
         example: Maintainers
       deploy_key_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       user_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       group_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       member_role_id:
         type: integer
@@ -72140,7 +72140,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 101486
       enabled:
         type: boolean
@@ -78630,7 +78630,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       title:
         type: string
@@ -78653,7 +78653,7 @@ definitions:
         example: '2012-06-28T10:52:04Z'
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       web_url:
         type: string
@@ -78707,7 +78707,7 @@ definitions:
     properties:
       id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       title:
         type: string
@@ -78730,7 +78730,7 @@ definitions:
         example: '2012-06-28T10:52:04Z'
       project_id:
         type: integer
-        format: int32
+        format: int64
         example: 1
       web_url:
         type: string

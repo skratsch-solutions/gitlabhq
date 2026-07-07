@@ -199,7 +199,6 @@ export const sidebarData = {
   },
   pinned_items: [],
   panel_type: 'your_work',
-  update_pins_url: 'path/to/pins',
   shortcut_links: [
     {
       title: 'Shortcut link',
@@ -207,14 +206,10 @@ export const sidebarData = {
       css_class: 'shortcut-link-class',
     },
   ],
-  track_visits_path: '/-/track_visits',
   sign_in_visible: true,
-  sign_in_path: '/sign_in',
   allow_signup: true,
-  new_user_registration_path: '/sign_up',
   trial_registration_path: '/trial_registrations/new',
   has_multiple_organizations: false,
-  explore_analytics_dashboards_path: '/explore/analytics/dashboards',
 };
 
 export const loggedOutSidebarData = {

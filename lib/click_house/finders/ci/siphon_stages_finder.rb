@@ -57,18 +57,6 @@ module ClickHouse # rubocop:disable Gitlab/BoundedContexts -- existing module
           end
         end
 
-        # Accepts an Array of IDs (id IN (1, 2, 3)) or a QueryLike subquery
-        # (id IN (SELECT ...)), letting a caller scope stages by a build
-        # subquery's stage_id list without round-tripping.
-        def for_ids(ids)
-          unless ids.is_a?(::ClickHouse::Client::QueryLike)
-            ids = Array(ids).compact
-            return self if ids.empty?
-          end
-
-          with_inner(inner_query.where(id: ids))
-        end
-
         def select(*fields)
           with_outer(outer_query.select(*fields))
         end

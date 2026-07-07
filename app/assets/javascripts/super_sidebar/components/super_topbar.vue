@@ -7,6 +7,8 @@ import { parseBoolean } from '~/lib/utils/common_utils';
 import { EVENT_OPEN_GLOBAL_SEARCH } from '~/vue_shared/global_search/constants';
 import { staticBreadcrumbs } from '~/lib/utils/breadcrumbs_state';
 import { adminRootPath } from '~/lib/utils/path_helpers/admin';
+import { exploreAnalyticsDashboardsPath } from '~/lib/utils/path_helpers/explore';
+import { newUserRegistrationPath, newUserSessionPath } from '~/lib/utils/path_helpers/routes';
 import SuperSidebarToggle from './super_sidebar_toggle.vue';
 import CreateMenu from './create_menu.vue';
 import UserMenu from './user_menu.vue';
@@ -86,6 +88,11 @@ export default {
   },
   methods: {
     adminRootPath,
+    exploreAnalyticsDashboardsPath,
+    newUserRegistrationPath,
+    signInPath() {
+      return newUserSessionPath({ redirect_to_referer: 'yes' });
+    },
     onSearchButtonDrop(event) {
       const text = event.dataTransfer.getData('text/plain');
       if (text) {
@@ -185,7 +192,7 @@ export default {
         <gl-button
           v-if="glFeatures.exploreAnalyticsDashboards"
           v-gl-tooltip.bottom="$options.i18n.analyticsDashboardsBtnText"
-          :href="sidebarData.explore_analytics_dashboards_path"
+          :href="exploreAnalyticsDashboardsPath()"
           :aria-label="$options.i18n.analyticsDashboardsBtnText"
           category="tertiary"
           icon="chart"
@@ -221,7 +228,7 @@ export default {
           :href="
             isSaas && sidebarData.trial_registration_path
               ? sidebarData.trial_registration_path
-              : sidebarData.new_user_registration_path
+              : newUserRegistrationPath()
           "
           variant="confirm"
           class="topbar-signup-button gl-hidden lg:gl-flex"
@@ -231,7 +238,7 @@ export default {
         </gl-button>
         <gl-button
           v-if="signInVisible"
-          :href="sidebarData.sign_in_path"
+          :href="signInPath()"
           class="gl-hidden lg:gl-flex"
           data-testid="topbar-signin-button"
         >

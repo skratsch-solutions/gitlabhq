@@ -235,6 +235,12 @@ func (r *runner) handleAgentMessages(ctx context.Context, errCh chan<- error) {
 				log.WithRequest(r.originalReq).Info("handleAgentMessages: DWS acknowledged stop request")
 				close(r.stop.acked)
 				errCh <- nil
+			case errors.Is(err, errInvalidRequest):
+				log.WithRequest(r.originalReq).WithError(err).Info("handleAgentMessages: DWS rejected reconnect with INVALID_ARGUMENT")
+				if wsErr := r.ws.SendInvalidRequest(err.Error()); wsErr != nil {
+					log.WithRequest(r.originalReq).WithError(wsErr).Error("handleAgentMessages: failed to send invalid-request close frame")
+				}
+				errCh <- nil
 			default:
 				errCh <- fmt.Errorf("handleAgentMessages: %w", err)
 			}

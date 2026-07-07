@@ -107,9 +107,7 @@ module Ci
     end
 
     def build_preloads
-      preloads = [:project, :pipeline, :deployment, :taggings]
-      preloads << :pending_state if Feature.enabled?(:ci_anchor_finished_at_to_pending_state, pipeline.project)
-      preloads
+      [:project, :pipeline, :deployment, :taggings, :pending_state]
     end
 
     def cancel_job(job)

@@ -21,13 +21,13 @@ title: Custom flows
 
 {{< history >}}
 
-- Introduced as an [experiment](../../../policy/development_stages_support.md) in GitLab 18.4 [with a flag](../../../administration/feature_flags/_index.md) named `ai_catalog_flows`. Disabled by default.
+- Introduced as an [experiment](../../../policy/development_stages_support.md) in GitLab 18.4 [with a feature flag](../../../administration/feature_flags/_index.md) named `ai_catalog_flows`. Disabled by default.
 - Changed to [beta](../../../policy/development_stages_support.md) in GitLab 18.7.
 - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/569060) in GitLab 18.7.
 - [Enabled on GitLab Self-Managed and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/work_items/569060) in GitLab 18.8.
 - Feature flag `ai_catalog_flows` [enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/216969) in GitLab 18.8.
 - Pipeline events trigger [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/212797) in GitLab 18.9 as an [experiment](../../../policy/development_stages_support.md) with a [flag](../../../administration/feature_flags/_index.md) named `ai_flow_trigger_pipeline_hooks`. Disabled by default.
-- Enabling directly in projects as a maintainer [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/20743) in GitLab 18.10 [with a flag](../../../administration/feature_flags/_index.md) named `ai_catalog_project_level_enablement`. Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated by default.
+- Enabling directly in projects as a maintainer [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/20743) in GitLab 18.10 [with a feature flag](../../../administration/feature_flags/_index.md) named `ai_catalog_project_level_enablement`. Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated by default.
 - Available on the Free tier on GitLab.com with GitLab Credits in GitLab 18.10.
 - Feature flag `ai_catalog_project_level_enablement` removed in GitLab 18.11.
 - **Merge request ready** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592454) in GitLab 19.0 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_ready_flow_trigger`. Disabled by default.

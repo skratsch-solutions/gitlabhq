@@ -34,6 +34,7 @@ project:
   - create_requirement
   - create_requirement_test_report
   - create_saved_view
+  - create_secrets_manager_api_jwt
   - create_snippet
   - create_test_case
   - create_ticket
@@ -121,6 +122,7 @@ group:
   - create_iteration_cadence
   - create_saved_view
   - create_secret
+  - create_secrets_manager_api_jwt
   - create_timelog
   - delete_secret
   - download_wiki_code

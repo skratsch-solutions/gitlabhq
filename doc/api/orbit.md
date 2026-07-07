@@ -16,7 +16,7 @@ title: Orbit API
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/19744) in GitLab 18.10 [with a flag](../administration/feature_flags/_index.md) named `knowledge_graph`. This feature is an [experiment](../policy/development_stages_support.md) and subject to the [GitLab Testing Agreement](https://handbook.gitlab.com/handbook/legal/testing-agreement/).
+- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/19744) in GitLab 18.10 [with a feature flag](../administration/feature_flags/_index.md) named `knowledge_graph`. This feature is an [experiment](../policy/development_stages_support.md) and subject to the [GitLab Testing Agreement](https://handbook.gitlab.com/handbook/legal/testing-agreement/).
 
 {{< /history >}}
 

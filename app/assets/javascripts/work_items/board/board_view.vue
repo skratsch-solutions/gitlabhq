@@ -46,6 +46,11 @@ export default {
       required: false,
       default: () => [],
     },
+    hiddenMetadataKeys: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   emits: ['set-error', 'toggle-collapse'],
   data() {
@@ -257,6 +262,7 @@ export default {
       :base-query-variables="queryVariables"
       :drag-disabled="moveInProgress"
       :collapsed="isColumnCollapsed(value)"
+      :hidden-metadata-keys="hiddenMetadataKeys"
       @card-move="onCardMove"
       @toggle-collapse="$emit('toggle-collapse', groupId(value))"
     />

@@ -12,6 +12,8 @@ import getUserWorkItemsPreferences from '~/work_items/graphql/get_user_preferenc
 import {
   WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED,
   METADATA_KEYS,
+  VIEW_MODE_BOARD,
+  VIEW_MODE_LIST,
 } from '~/work_items/constants';
 
 jest.mock('~/alert');
@@ -70,6 +72,28 @@ describe('display_settings_preferences', () => {
       const fields = applicableMetadataFields({ isGroup: true, isServiceDeskList: false });
 
       expect(fields.every((f) => f.isPresentInGroup)).toBe(true);
+    });
+
+    it('returns all fields for the list view', () => {
+      expect(
+        applicableMetadataFields({
+          isGroup: false,
+          isServiceDeskList: false,
+          viewMode: VIEW_MODE_LIST,
+        }),
+      ).toEqual(WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED);
+    });
+
+    it('excludes fields that are not available on boards for the board view', () => {
+      const fields = applicableMetadataFields({
+        isGroup: false,
+        isServiceDeskList: false,
+        viewMode: VIEW_MODE_BOARD,
+      });
+
+      expect(fields.every((f) => f.isAvailableInBoard)).toBe(true);
+      expect(fields.map((f) => f.key)).not.toContain(METADATA_KEYS.COMMENTS);
+      expect(fields.map((f) => f.key)).not.toContain(METADATA_KEYS.POPULARITY);
     });
   });
 

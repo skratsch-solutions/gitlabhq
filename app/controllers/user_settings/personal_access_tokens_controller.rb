@@ -15,7 +15,9 @@ module UserSettings
       push_frontend_feature_flag(:granular_personal_access_tokens, current_user)
     end
 
-    prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:ics) }
+    prepend_before_action(only: [:index]) do
+      authenticate_sessionless_user!(:ics, permission: :read_personal_access_token)
+    end
 
     def index
       if redirect_for_legacy_new?

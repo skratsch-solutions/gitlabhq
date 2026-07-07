@@ -223,6 +223,7 @@ export default {
             :is-saved-view="isSavedView"
             :work-item-type-id="workItemTypeId"
             :sort-key="sortKey"
+            :view-mode="viewMode"
             @update-settings="onSettingsUpdate"
           />
           <work-item-display-settings-user-preferences

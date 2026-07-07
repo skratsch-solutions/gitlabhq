@@ -11,9 +11,10 @@ module Tasks
           BOUNDARIES = ::Authz::Validation::BOUNDARIES
 
           # Raw permissions consumed by gPATs through paths the validator cannot statically detect.
-          # Today this is `Gitlab::GitAccess#check_granular_pat_permissions!`, which calls
-          # `Authz::Tokens::AuthorizeGranularScopesService` directly for git protocol commands.
-          GRANULAR_TOKEN_NON_API_CONSUMERS = Set[:download_code].freeze
+          # These call `Authz::Tokens::AuthorizeGranularScopesService` directly rather than through a
+          # REST route or GraphQL directive: `download_code` via `Gitlab::GitAccess`
+          # (git protocol commands) and `create_editor_telemetry` via `EventForwardController`.
+          GRANULAR_TOKEN_NON_API_CONSUMERS = Set[:download_code, :create_editor_telemetry].freeze
 
           def initialize
             @violations = {

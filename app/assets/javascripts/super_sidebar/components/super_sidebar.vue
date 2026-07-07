@@ -91,10 +91,9 @@ export default {
       is_logged_in: isLoggedIn,
       current_context: currentContext,
       username,
-      track_visits_path: trackVisitsPath,
     } = this.sidebarData;
     if (isLoggedIn && currentContext.namespace) {
-      trackContextAccess(username, currentContext, trackVisitsPath);
+      trackContextAccess(username, currentContext);
     }
   },
   mounted() {
@@ -206,7 +205,6 @@ export default {
             :is-logged-in="sidebarData.is_logged_in"
             :panel-type="sidebarData.panel_type"
             :pinned-item-ids="sidebarData.pinned_items"
-            :update-pins-url="sidebarData.update_pins_url"
             :show-feedback-link="sidebarData.show_feature_library_feedback"
           />
           <sidebar-portal-target />

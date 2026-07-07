@@ -198,6 +198,24 @@ describe('LabelsSelectRoot', () => {
         await waitForPromises();
         expect(successfulMutationHandler).toHaveBeenCalled();
       });
+
+      it('clears the search when a selection is made', async () => {
+        createComponent();
+        findListbox().vm.$emit('shown');
+        await waitForPromises();
+
+        findListbox().vm.$emit('search', 'Label');
+        await nextTick();
+        // While searching, the listbox shows the flat search results (not the grouped list)
+        expect(findListbox().props('items')).not.toContainEqual(
+          expect.objectContaining({ text: 'Selected' }),
+        );
+
+        findListbox().vm.$emit('select', ['gid://gitlab/ProjectLabel/1']);
+        await nextTick();
+        // After selecting, the search is cleared and the grouped Selected/All list returns
+        expect(findListbox().props('items')[0]).toMatchObject({ text: 'Selected' });
+      });
     });
 
     describe('create label form', () => {

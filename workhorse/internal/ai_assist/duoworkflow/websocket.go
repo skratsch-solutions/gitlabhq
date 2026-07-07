@@ -8,6 +8,7 @@ import (
 	"slices"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	pb "gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/clients/gopb/contract"
 
@@ -246,6 +247,56 @@ func (w *wsManager) ReadError(err error) (reason string, ok bool) {
 func (w *wsManager) SendGoingAway() error {
 	deadline := time.Now().Add(wsCloseTimeout)
 	closeMsg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutdown")
+	if err := w.conn.WriteControl(websocket.CloseMessage, closeMsg, deadline); err != nil {
+		return err
+	}
+	w.closed.Store(true)
+	return nil
+}
+
+// closeInvalidRequest is a private-use WebSocket close code (RFC 6455 §7.4.2
+// reserves 4000–4999 for private use). It maps to HTTP 400 Bad Request
+// semantics: the client sent invalid input (e.g. an empty goal on resume) and
+// must not retry with the same request.
+const closeInvalidRequest = 4400
+
+// wsCloseMaxReasonBytes is the maximum byte length of a WebSocket close frame
+// reason string. RFC 6455 limits control frame payloads to 125 bytes; the
+// first 2 bytes are the status code, leaving 123 bytes for the reason text.
+const wsCloseMaxReasonBytes = 123
+
+// truncateCloseReason truncates s to at most wsCloseMaxReasonBytes bytes,
+// cutting on a valid UTF-8 rune boundary so the resulting string is valid.
+// It uses utf8.ValidString to confirm the result rather than hand-rolling
+// byte-pattern logic.
+func truncateCloseReason(s string) string {
+	if len(s) <= wsCloseMaxReasonBytes {
+		return s
+	}
+	t := s[:wsCloseMaxReasonBytes]
+	// Walk back one byte at a time until the truncated string is valid UTF-8.
+	// In the worst case (all 4-byte runes) we walk back at most 3 bytes.
+	for len(t) > 0 && !utf8.ValidString(t) {
+		t = t[:len(t)-1]
+	}
+	return t
+}
+
+// SendInvalidRequest sends a close frame with code 4400 (private-use, Bad
+// Request) to signal that the server rejected the reconnect because the
+// request was invalid (e.g. an empty goal sent to a workflow paused waiting
+// for user input). The reason string is forwarded from the DWS gRPC status
+// message so the client sees the exact cause rather than a hardcoded string.
+// The connection is marked as closed on success. WebSocket control frames cap
+// the payload at 125 bytes, so the close reason must be at most 123 bytes after
+// the 2-byte status code. FormatCloseMessage does NOT truncate, and WriteControl
+// rejects an oversized frame ("websocket: invalid control frame"), which would
+// silently drop the 4400 close and make the client fall back to 1000. Truncate
+// defensively on a UTF-8 boundary to guarantee the frame is sent.
+func (w *wsManager) SendInvalidRequest(reason string) error {
+	deadline := time.Now().Add(wsCloseTimeout)
+	reason = truncateCloseReason(reason)
+	closeMsg := websocket.FormatCloseMessage(closeInvalidRequest, reason)
 	if err := w.conn.WriteControl(websocket.CloseMessage, closeMsg, deadline); err != nil {
 		return err
 	}

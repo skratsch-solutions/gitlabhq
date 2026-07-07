@@ -2,6 +2,7 @@
 name: read_event
 description: Grants the ability to read events
 boundaries:
+  - group
   - project
   - user
 available_for:

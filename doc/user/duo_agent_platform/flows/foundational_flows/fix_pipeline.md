@@ -21,7 +21,7 @@ title: Fix CI/CD Pipeline Flow
 - Available on the Free tier on GitLab.com with GitLab Credits in GitLab 18.10.
 - Fixes to pipelines associated with a merge request [changed](https://gitlab.com/groups/gitlab-org/-/work_items/21837)
   to apply as code suggestions in GitLab 19.1
-  [with a flag](../../../../administration/feature_flags/_index.md) named `fix_pipeline_next`.
+  [with a feature flag](../../../../administration/feature_flags/_index.md) named `fix_pipeline_next`.
   Enabled on GitLab.com for a subset of users.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241608) in GitLab 19.2. Feature flag `fix_pipeline_next` removed.
 

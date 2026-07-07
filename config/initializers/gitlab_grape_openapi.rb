@@ -159,6 +159,8 @@ Gitlab::GrapeOpenapi.configure do |config|
     'GitlabSubscriptions::API::Internal::AddOnPurchases',
     'GitlabSubscriptions::API::Internal::API',
     'API::Internal::SecretsManager',
+    # Beta endpoint, excluded from OpenAPI until it reaches general availability.
+    'API::SecretsManagement::AccessTokens',
     'API::Internal::Observability',
     'API::Internal::Search::Zoekt',
     'API::Internal::Ci::JobRouter',

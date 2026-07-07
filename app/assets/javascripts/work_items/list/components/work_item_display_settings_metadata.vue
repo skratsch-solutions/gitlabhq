@@ -57,6 +57,11 @@ export default {
       required: false,
       default: false,
     },
+    viewMode: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   emits: ['update-settings'],
   data() {
@@ -72,6 +77,7 @@ export default {
       return applicableMetadataFields({
         isGroup: this.isGroup,
         isServiceDeskList: this.isServiceDeskList,
+        viewMode: this.viewMode,
       });
     },
     filteredMetadataPreferences() {

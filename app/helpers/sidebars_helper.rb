@@ -53,9 +53,7 @@ module SidebarsHelper
   def super_sidebar_logged_out_context(panel:, panel_type:)
     super_sidebar_shared_context(panel: panel, panel_type: panel_type).merge({
       sign_in_visible: header_link?(:sign_in).to_s,
-      allow_signup: allow_signup?.to_s,
-      new_user_registration_path: new_user_registration_path,
-      sign_in_path: new_session_path(:user, redirect_to_referer: 'yes')
+      allow_signup: allow_signup?.to_s
     })
   end
 
@@ -88,7 +86,6 @@ module SidebarsHelper
       },
       can_sign_out: current_user_menu?(:sign_out),
 
-      explore_analytics_dashboards_path: explore_analytics_dashboards_path,
       compare_plans_url: compare_plans_url(user: user, project: project, group: group),
       create_new_menu_groups: create_new_menu_groups(group: group, project: project),
       projects_path: dashboard_projects_path,
@@ -96,10 +93,8 @@ module SidebarsHelper
       gitlab_com_and_canary: Gitlab.com_and_canary?,
       current_context: super_sidebar_current_context(project: project, group: group),
       pinned_items: pinned_items(user, panel_type, group: group),
-      update_pins_url: pins_path,
       is_impersonating: impersonating?,
       shortcut_links: shortcut_links(user: user, project: project),
-      track_visits_path: track_namespace_visits_path,
       work_items: work_items_modal_data(group, project),
       has_multiple_organizations: user.has_multiple_organizations?,
       show_feature_library_feedback: show_feature_library_feedback?

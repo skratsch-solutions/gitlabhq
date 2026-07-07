@@ -16,7 +16,7 @@ title: MCP servers in the AI Catalog
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/590708) in GitLab 18.10 [with a flag](../../../administration/feature_flags/_index.md) named `ai_catalog_mcp_servers`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/590708) in GitLab 18.10 [with a feature flag](../../../administration/feature_flags/_index.md) named `ai_catalog_mcp_servers`. Disabled by default.
 
 {{< /history >}}
 

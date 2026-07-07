@@ -16,7 +16,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   include RapidDiffs::Resource
   include ProductAnalyticsTracking
 
-  prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:rss) }
+  prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:rss, permission: :read_merge_request) }
   skip_before_action :merge_request, only: [:index, :bulk_update, :export_csv]
   before_action :apply_diff_view_cookie!, only: [:show, :diffs, :rapid_diffs]
   before_action :disable_query_limiting, only: [:assign_related_issues, :update, :show]

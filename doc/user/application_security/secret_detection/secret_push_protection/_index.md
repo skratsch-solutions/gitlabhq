@@ -138,9 +138,9 @@ Secret push protection does not check a file in a commit when:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/469161) in GitLab 17.5 [with a flag](../../../../administration/feature_flags/_index.md) named `spp_scan_diffs`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/469161) in GitLab 17.5 [with a feature flag](../../../../administration/feature_flags/_index.md) named `spp_scan_diffs`. Disabled by default.
 - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/480092) in GitLab 17.6.
-- [Added](https://gitlab.com/gitlab-org/gitlab/-/issues/491282) support for Web IDE pushes in GitLab 17.10 [with a flag](../../../../administration/feature_flags/_index.md) named `secret_checks_for_web_requests`. Disabled by default.
+- [Added](https://gitlab.com/gitlab-org/gitlab/-/issues/491282) support for Web IDE pushes in GitLab 17.10 [with a feature flag](../../../../administration/feature_flags/_index.md) named `secret_checks_for_web_requests`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/525627) in GitLab 17.11. Feature flag `spp_scan_diffs` removed.
 - [Removed](https://gitlab.com/gitlab-org/gitlab/-/issues/525629) `secret_checks_for_web_requests` feature flag in GitLab 17.11.
 

@@ -59,40 +59,6 @@ RSpec.describe ClickHouse::Finders::Ci::SiphonStagesFinder, :click_house, :freez
       end
     end
 
-    describe '#for_ids' do
-      let(:query) { instance.for_ids(ids) }
-
-      context 'with a populated array' do
-        let(:ids) { [10, 20] }
-
-        it { is_expected.to include('`siphon_p_ci_stages`.`id` IN (10, 20)') }
-      end
-
-      context 'with an empty array' do
-        let(:ids) { [] }
-
-        it { is_expected.to eq(instance.to_sql) }
-      end
-
-      context 'with nils filtered out' do
-        let(:ids) { [nil, 5] }
-
-        it { is_expected.to include('`siphon_p_ci_stages`.`id` IN (5)') }
-      end
-
-      context 'with a QueryBuilder subquery (lets callers compose without round-tripping)' do
-        let(:ids) do
-          ClickHouse::Client::QueryBuilder.new('siphon_p_ci_builds').select(:stage_id)
-        end
-
-        it 'renders as id IN (SELECT ...)' do
-          is_expected.to include(
-            '`siphon_p_ci_stages`.`id` IN (SELECT `siphon_p_ci_builds`.`stage_id` FROM `siphon_p_ci_builds`)'
-          )
-        end
-      end
-    end
-
     describe '#select narrows the outer projection' do
       let(:query) { instance.select(:id, :name) }
 
@@ -165,16 +131,6 @@ RSpec.describe ClickHouse::Finders::Ci::SiphonStagesFinder, :click_house, :freez
       end
 
       it 'excludes the soft-deleted stage' do
-        expect(names).to contain_exactly('build')
-      end
-    end
-
-    context 'when for_ids is applied' do
-      let(:rows) do
-        ::ClickHouse::Client.select(described_class.for_container(project).for_ids([stage_build.id]), :main)
-      end
-
-      it 'narrows to the specific id' do
         expect(names).to contain_exactly('build')
       end
     end

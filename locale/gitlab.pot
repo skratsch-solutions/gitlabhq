@@ -22142,6 +22142,12 @@ msgstr ""
 msgid "ContinuousDeployment|%{pods} pods"
 msgstr ""
 
+msgid "ContinuousDeployment|%{timeAgo}"
+msgstr ""
+
+msgid "ContinuousDeployment|%{timeAgo} by %{user}"
+msgstr ""
+
 msgid "ContinuousDeployment|10m ago"
 msgstr ""
 
@@ -22323,12 +22329,6 @@ msgid "ContinuousDeployment|Last deploy"
 msgstr ""
 
 msgid "ContinuousDeployment|Last deployed"
-msgstr ""
-
-msgid "ContinuousDeployment|Last deployed %{timeAgo}"
-msgstr ""
-
-msgid "ContinuousDeployment|Last deployed %{timeAgo} by %{user}"
 msgstr ""
 
 msgid "ContinuousDeployment|Last deployed %{time}"
@@ -65568,6 +65568,9 @@ msgstr ""
 msgid "ScanResultPolicy|Access tokens"
 msgstr ""
 
+msgid "ScanResultPolicy|Add \"%{name}\""
+msgstr ""
+
 msgid "ScanResultPolicy|Add another account"
 msgstr ""
 
@@ -65643,6 +65646,9 @@ msgstr ""
 msgid "ScanResultPolicy|Choose criteria type"
 msgstr ""
 
+msgid "ScanResultPolicy|Choose or enter a license"
+msgstr ""
+
 msgid "ScanResultPolicy|Choose which groups can bypass this policy"
 msgstr ""
 
@@ -65662,6 +65668,9 @@ msgid "ScanResultPolicy|Critical Risk (100%%)"
 msgstr ""
 
 msgid "ScanResultPolicy|Custom Value"
+msgstr ""
+
+msgid "ScanResultPolicy|Custom license"
 msgstr ""
 
 msgid "ScanResultPolicy|Customized CI Variables"
@@ -68653,6 +68662,9 @@ msgstr ""
 msgid "SecurityOrchestration|Begin test run"
 msgstr ""
 
+msgid "SecurityOrchestration|Block merge requests when malware is detected"
+msgstr ""
+
 msgid "SecurityOrchestration|Block violations and take configured actions"
 msgstr ""
 
@@ -69493,6 +69505,9 @@ msgid "SecurityOrchestration|Merge request approval policies allow a maximum 1 b
 msgstr ""
 
 msgid "SecurityOrchestration|Merge request approval policies allow a maximum of 5 approver actions."
+msgstr ""
+
+msgid "SecurityOrchestration|Merge request approval policies can now block merge requests when dependency or container scanning detects malware. Edit an approval policy to enable malware blocking."
 msgstr ""
 
 msgid "SecurityOrchestration|Merge request approval policies can only be created by project owners."

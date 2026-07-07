@@ -281,14 +281,13 @@ module ClickHouse # rubocop:disable Gitlab/BoundedContexts -- existing module
           outer.with(inner.as_cte(SUBQUERY_ALIAS))
         end
 
-        # Scope the stages subquery by container AND by the stage_ids actually
-        # referenced by the builds CTE, cutting it from the container's entire
-        # stage history down to the few rows the builds reference. The join
-        # targets the finished_builds CTE by name, so it can be attached before
-        # the CTE itself is materialized in #final_query.
+        # Scope the stages subquery by container only. Scoping it further by the
+        # stage_ids from the builds CTE looks cheaper but references the CTE a
+        # second time, and ClickHouse inlines CTEs at every reference site - the
+        # whole builds dedup aggregation would run twice and block the main scan
+        # behind a CreatingSets step (measured 6x slower on a 90-day window).
         def stage_join(base_outer, container)
-          build_stage_ids = ClickHouse::Client::QueryBuilder.new(SUBQUERY_ALIAS).select(:stage_id)
-          stages = SiphonStagesFinder.for_container(container).for_ids(build_stage_ids)
+          stages = SiphonStagesFinder.for_container(container)
           stages_alias = stages.final_query.to_arel.as(STAGES_SUBQUERY_ALIAS)
           stages_id = Arel::Table.new(STAGES_SUBQUERY_ALIAS)[:id]
 

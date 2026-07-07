@@ -1353,7 +1353,7 @@ Supported attributes:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/428051) in GitLab 16.7 [with a flag](../administration/feature_flags/_index.md) named `approval_group_rules`. Disabled by default. This feature is an [experiment](../policy/development_stages_support.md).
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/428051) in GitLab 16.7 [with a feature flag](../administration/feature_flags/_index.md) named `approval_group_rules`. Disabled by default. This feature is an [experiment](../policy/development_stages_support.md).
 
 {{< /history >}}
 

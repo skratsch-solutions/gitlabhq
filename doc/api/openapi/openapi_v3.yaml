@@ -74170,6 +74170,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         access_level:
           type: integer
@@ -74179,12 +74180,15 @@ components:
           example: Maintainers
         deploy_key_id:
           type: integer
+          format: int64
           example: 1
         user_id:
           type: integer
+          format: int64
           example: 1
         group_id:
           type: integer
+          format: int64
           example: 1
         member_role_id:
           type: integer
@@ -74198,6 +74202,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -74400,6 +74405,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         access_level:
           type: integer
@@ -74409,12 +74415,15 @@ components:
           example: Maintainers
         deploy_key_id:
           type: integer
+          format: int64
           example: 1
         user_id:
           type: integer
+          format: int64
           example: 1
         group_id:
           type: integer
+          format: int64
           example: 1
         member_role_id:
           type: integer
@@ -76294,6 +76303,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 101486
         update_status:
           type: string
@@ -79597,6 +79607,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -81651,6 +81662,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -81673,6 +81685,7 @@ components:
           example: '2012-06-28T10:52:04Z'
         project_id:
           type: integer
+          format: int64
           example: 1
         web_url:
           type: string
@@ -83712,6 +83725,7 @@ components:
           example: success
         project_id:
           type: integer
+          format: int64
           example: 1
         last_pipeline:
           type: object
@@ -83767,6 +83781,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -83789,6 +83804,7 @@ components:
           example: '2012-06-28T10:52:04Z'
         project_id:
           type: integer
+          format: int64
           example: 1
         web_url:
           type: string
@@ -83826,6 +83842,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -83848,6 +83865,7 @@ components:
           example: '2012-06-28T10:52:04Z'
         project_id:
           type: integer
+          format: int64
           example: 1
         web_url:
           type: string
@@ -84236,6 +84254,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 101486
         enabled:
           type: boolean
@@ -84280,6 +84299,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -85348,6 +85368,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         title:
           type: string
@@ -85370,6 +85391,7 @@ components:
           example: '2012-06-28T10:52:04Z'
         project_id:
           type: integer
+          format: int64
           example: 1
         web_url:
           type: string

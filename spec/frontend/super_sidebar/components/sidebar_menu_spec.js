@@ -39,7 +39,6 @@ describe('Sidebar Menu', () => {
         isLoggedIn: sidebarData.is_logged_in,
         pinnedItemIds: sidebarData.pinned_items,
         panelType: sidebarData.panel_type,
-        updatePinsUrl: sidebarData.update_pins_url,
         ...extraProps,
       },
       provide: {

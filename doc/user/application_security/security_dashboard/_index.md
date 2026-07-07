@@ -147,7 +147,7 @@ To view details:
 {{< history >}}
 
 - Risk score panel for group dashboards:
-  - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/570504) in GitLab 18.6 [with a flag](../../../administration/feature_flags/_index.md) named `security_dashboard_risk_score`. Disabled by default.
+  - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/570504) in GitLab 18.6 [with a feature flag](../../../administration/feature_flags/_index.md) named `security_dashboard_risk_score`. Disabled by default.
   - [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/215574) in GitLab 18.7.
   - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/107661) in GitLab 18.8. Feature flag `security_dashboard_risk_score` removed.
 - Risk score chart for project dashboards:
@@ -251,7 +251,7 @@ To apply a filter to the whole dashboard:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224664) in GitLab 18.10 [with a flag](../../../administration/feature_flags/_index.md) named `new_security_dashboard_pdf_export`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224664) in GitLab 18.10 [with a feature flag](../../../administration/feature_flags/_index.md) named `new_security_dashboard_pdf_export`. Disabled by default.
 - [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/589201) in GitLab 18.11.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/589201) in GitLab 19.0. Feature flag `new_security_dashboard_pdf_export` removed.
 

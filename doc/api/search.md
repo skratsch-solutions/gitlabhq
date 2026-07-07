@@ -1556,7 +1556,7 @@ Example response:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/227817) in GitLab 18.11 [with a flag](../administration/feature_flags/_index.md) named `semantic_code_search_rest_api`. Enabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/227817) in GitLab 18.11 [with a feature flag](../administration/feature_flags/_index.md) named `semantic_code_search_rest_api`. Enabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240677) in GitLab 19.2. Feature flag `semantic_code_search_rest_api` removed.
 
 {{< /history >}}

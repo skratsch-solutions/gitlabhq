@@ -312,7 +312,7 @@ Example response:
 
 - `deploy_key_id` configuration [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/166598) in GitLab 17.5.
 - `deploy_key_id` configuration [moved](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224542) from GitLab Premium to GitLab Free in GitLab 18.10.
-- `member_role_id` parameter [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241819) in GitLab 19.2 [with a flag](../administration/feature_flags/_index.md) named `custom_roles_for_protected_branches`. Disabled by default.
+- `member_role_id` parameter [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241819) in GitLab 19.2 [with a feature flag](../administration/feature_flags/_index.md) named `custom_roles_for_protected_branches`. Disabled by default.
 
 {{< /history >}}
 
@@ -767,7 +767,7 @@ curl --request DELETE \
 {{< history >}}
 
 - `deploy_key_id` configuration [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/166598) in GitLab 17.5.
-- `member_role_id` parameter [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241819) in GitLab 19.2 [with a flag](../administration/feature_flags/_index.md) named `custom_roles_for_protected_branches`. Disabled by default.
+- `member_role_id` parameter [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241819) in GitLab 19.2 [with a feature flag](../administration/feature_flags/_index.md) named `custom_roles_for_protected_branches`. Disabled by default.
 
 {{< /history >}}
 

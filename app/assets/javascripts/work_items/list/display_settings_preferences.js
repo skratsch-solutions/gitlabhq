@@ -7,6 +7,7 @@ import getUserWorkItemsPreferences from '~/work_items/graphql/get_user_preferenc
 import {
   WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED,
   METADATA_KEYS,
+  VIEW_MODE_BOARD,
 } from '~/work_items/constants';
 
 // Shared helpers for persisting work item list display settings. These wrap the Apollo mutations
@@ -20,10 +21,17 @@ export const alertPreferenceError = (error) =>
     error,
   });
 
-export const applicableMetadataFields = ({ isGroup, isServiceDeskList }) =>
-  WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED.filter((item) =>
-    item.key === METADATA_KEYS.STATUS ? !isServiceDeskList : !isGroup || item.isPresentInGroup,
-  );
+export const applicableMetadataFields = ({ isGroup, isServiceDeskList, viewMode }) =>
+  WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED.filter((item) => {
+    // Some fields are tailored to the list view only, so they are not offered
+    // as toggles while the board view is active.
+    if (viewMode === VIEW_MODE_BOARD && !item.isAvailableInBoard) {
+      return false;
+    }
+    return item.key === METADATA_KEYS.STATUS
+      ? !isServiceDeskList
+      : !isGroup || item.isPresentInGroup;
+  });
 
 const updateUserPreferencesCache = (
   cache,

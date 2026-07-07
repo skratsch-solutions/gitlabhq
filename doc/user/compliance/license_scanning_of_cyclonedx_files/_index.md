@@ -241,7 +241,7 @@ CycloneDX reports for licenses. For more information, see the offline [quick sta
 
 {{< history >}}
 
-- Introduced in GitLab 17.5 [with a flag](../../../administration/feature_flags/_index.md) named `license_scanning_with_sbom_licenses`. Disabled by default.
+- Introduced in GitLab 17.5 [with a feature flag](../../../administration/feature_flags/_index.md) named `license_scanning_with_sbom_licenses`. Disabled by default.
 - Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated in GitLab 17.6.
 - Generally available in GitLab 17.8. Feature flag `license_scanning_with_sbom_licenses` removed.
 
@@ -279,7 +279,7 @@ To configure the preferred source of license information for a project:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/500716) in GitLab 19.0 [with a flag](../../../administration/feature_flags/_index.md) named `license_scanning_for_cyclonedx_setting`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/500716) in GitLab 19.0 [with a feature flag](../../../administration/feature_flags/_index.md) named `license_scanning_for_cyclonedx_setting`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/241413) in GitLab 19.2. Feature flag `license_scanning_for_cyclonedx_setting` removed.
 
 {{< /history >}}

@@ -67,6 +67,11 @@ export default {
       required: false,
       default: false,
     },
+    hiddenMetadataKeys: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   emits: ['card-move', 'toggle-collapse'],
   data() {
@@ -245,7 +250,13 @@ export default {
         class="gl-m-0 gl-flex gl-flex-1 gl-list-none gl-flex-col gl-gap-3 gl-p-0"
         @end="$emit('card-move', $event)"
       >
-        <work-item-card v-for="workItem in workItems" :key="workItem.id" :item="workItem" />
+        <work-item-card
+          v-for="workItem in workItems"
+          :key="workItem.id"
+          :item="workItem"
+          :hidden-metadata-keys="hiddenMetadataKeys"
+          :root-page-full-path="rootPageFullPath"
+        />
         <work-item-card-skeleton
           v-for="n in isLoading || fetchNextPageInProgress ? $options.skeletonCount : 0"
           :key="`skeleton-${n}`"

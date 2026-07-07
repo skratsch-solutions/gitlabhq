@@ -133,14 +133,11 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
           last_update: 1609459200000
         },
         can_sign_out: helper.current_user_menu?(:sign_out),
-        explore_analytics_dashboards_path: explore_analytics_dashboards_path,
         projects_path: dashboard_projects_path,
         groups_path: dashboard_groups_path,
         gitlab_com_and_canary: Gitlab.com_and_canary?,
         pinned_items: %w[foo bar],
-        update_pins_url: pins_path,
         shortcut_links: global_shortcut_links,
-        track_visits_path: track_namespace_visits_path,
         work_items: nil,
         has_multiple_organizations: false,
         show_feature_library_feedback: true

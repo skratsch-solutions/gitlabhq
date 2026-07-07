@@ -22,7 +22,7 @@ title: Code Review Flow
 
 {{< history >}}
 
-- Introduced as [a beta](../../../../policy/development_stages_support.md) in GitLab [18.7](https://gitlab.com/groups/gitlab-org/-/epics/18645) [with a flag](../../../../administration/feature_flags/_index.md) named `duo_code_review_on_agent_platform`. Disabled by default.
+- Introduced as [a beta](../../../../policy/development_stages_support.md) in GitLab [18.7](https://gitlab.com/groups/gitlab-org/-/epics/18645) [with a feature flag](../../../../administration/feature_flags/_index.md) named `duo_code_review_on_agent_platform`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/585273) in GitLab 18.8. Feature flag `duo_code_review_on_agent_platform` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/217209).
 - Available on the Free tier on GitLab.com with GitLab Credits in GitLab 18.10.
 - LLM [updated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) to Claude Sonnet 4.6 Vertex in GitLab 19.1.
@@ -175,7 +175,7 @@ For information on how credit usage is attributed for automatic reviews, see
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/554070) in GitLab 18.4 as a [beta](../../../../policy/development_stages_support.md#beta) [with a flag](../../../../administration/feature_flags/_index.md) named `cascading_auto_duo_code_review_settings`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/554070) in GitLab 18.4 as a [beta](../../../../policy/development_stages_support.md#beta) [with a feature flag](../../../../administration/feature_flags/_index.md) named `cascading_auto_duo_code_review_settings`. Disabled by default.
 - Feature flag `cascading_auto_duo_code_review_settings` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/213240) in GitLab 18.7.
 - [Turned on by default](https://gitlab.com/gitlab-org/gitlab/-/work_items/592822) for new GitLab Duo trials on GitLab.com in GitLab 19.1.
 

@@ -2864,6 +2864,17 @@ Grants the ability to read Zoekt nodes.
 | Read | Instance | `GET` | `/admin/zoekt/shards` |
 | Read | Instance | `GET` | `/admin/zoekt/shards/:node_id/indexed_namespaces` |
 
+### Secrets Management resources
+
+#### Secrets Manager API JWT
+
+Grants the ability to create a Secrets Manager API JWT for direct API access to secrets.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/secrets_manager/access_token` |
+| Create | Group | `POST` | `/groups/:id/secrets_manager/access_token` |
+
 ### Subscription and Licensing resources
 
 #### Add On Purchase

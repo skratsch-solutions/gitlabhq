@@ -262,8 +262,6 @@ export default {
     'ee/app/assets/javascripts/usage_quotas/wallet_agnostic_credits_dashboard/index/components/users_list.vue',
     'ee/app/assets/javascripts/users/identity_verification/components/wizard.vue',
     'ee/app/assets/javascripts/vue_shared/components/code_flow/vulnerability_code_flow.vue',
-    'ee/app/assets/javascripts/vulnerabilities/components/footer.vue',
-    'ee/app/assets/javascripts/vulnerabilities/components/history_comment.vue',
     'ee/app/assets/javascripts/vulnerabilities/components/related_issues.vue',
     'ee/app/assets/javascripts/work_items/components/agent_plan/agent_plan_panel.vue',
     'ee/app/assets/javascripts/work_items/components/shared/work_item_link_child_contents.vue',

@@ -29585,6 +29585,7 @@ CREATE TABLE project_settings (
     dap_session_tracking_enabled boolean DEFAULT false NOT NULL,
     duo_dependency_bump_breaking_changes_enabled boolean DEFAULT false NOT NULL,
     ai_audit_events_storage_enabled boolean DEFAULT false NOT NULL,
+    duo_dependency_bump_breaking_changes_enabled_by_id bigint,
     CONSTRAINT check_1a30456322 CHECK ((char_length(pages_unique_domain) <= 63)),
     CONSTRAINT check_237486989c CHECK ((char_length(merge_request_title_regex_description) <= 255)),
     CONSTRAINT check_3a03e7557a CHECK ((char_length(previous_default_branch) <= 4096)),
@@ -46595,6 +46596,8 @@ CREATE INDEX idx_project_repository_check_partial ON projects USING btree (repos
 
 CREATE INDEX idx_project_requirement_statuses_on_framework_id ON project_requirement_compliance_statuses USING btree (compliance_framework_id);
 
+CREATE INDEX idx_project_settings_on_duo_dep_bump_bc_enabled_by_id ON project_settings USING btree (duo_dependency_bump_breaking_changes_enabled_by_id);
+
 CREATE INDEX idx_project_settings_on_pep_bot_access_group_id ON project_settings USING btree (pipeline_execution_policy_bot_access_group_id);
 
 CREATE UNIQUE INDEX idx_project_topic_uploads_on_id ON project_topic_uploads USING btree (id);
@@ -60162,6 +60165,9 @@ ALTER TABLE ONLY resource_link_events
 
 ALTER TABLE ONLY workspaces
     ADD CONSTRAINT fk_bdb0b31131 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY project_settings
+    ADD CONSTRAINT fk_bdc8715f08 FOREIGN KEY (duo_dependency_bump_breaking_changes_enabled_by_id) REFERENCES users(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY bulk_import_exports
     ADD CONSTRAINT fk_bde1337d10 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE NOT VALID;
