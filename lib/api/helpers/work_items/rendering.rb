@@ -5,7 +5,6 @@ module API
     module WorkItems
       module Rendering
         def render_work_items_collection_for(resource_parent)
-          check_work_item_rest_api_index_feature_flag!
           check_pagination_param!(params)
 
           authorize! :read_work_item, resource_parent
@@ -193,13 +192,6 @@ module API
           return if Feature.enabled?(:work_item_rest_api, current_user)
 
           forbidden!('work_item_rest_api feature flag is disabled for this user')
-        end
-
-        def check_work_item_rest_api_index_feature_flag!
-          return if Feature.enabled?(:work_item_rest_api_index, current_user) ||
-            Feature.enabled?(:work_item_rest_api, current_user)
-
-          forbidden!('work_item_rest_api_index and work_item_rest_api feature flags are both disabled for this user')
         end
 
         def filter_requested_keys(requested_param, available_keys)

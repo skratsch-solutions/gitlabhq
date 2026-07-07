@@ -209,7 +209,7 @@ export default {
 
         if (NAMESPACE_ACCESS_TYPES.includes(scope.access)) {
           access = scope.access;
-          namespaces.push(scope.project || scope.namespace);
+          namespaces.push(scope.project || scope.group || scope.namespace);
           namespacePermissions = union(namespacePermissions, scopePermissions);
         } else if (scope.access === ACCESS_USER_ENUM) {
           userPermissions = union(userPermissions, scopePermissions);

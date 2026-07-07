@@ -3,7 +3,13 @@
 module ClickHouse
   class SchemaValidator
     SCHEMA_FILENAME = "db/click_house/main.sql" # Only supporting main schema, for now
-    SCHEMA_MIGRATIONS_DIR = "db/click_house/schema_migrations"
+    SCHEMA_MIGRATIONS_DIR = "db/click_house/schema_migrations/main"
+    SCHEMA_CACHE_DIR = "db/click_house/schema_cache/"
+    MIGRATIONS_DIRS = %w[
+      db/click_house/migrate/main
+      db/click_house/post_migrate/main
+    ].freeze
+    MIGRATION_VERSION_REGEX = /\A(\d+)_/
     SKIP_VALIDATION_LABEL = 'pipeline:skip-check-clickhouse-schema'
     DOC_URL = "https://docs.gitlab.com/development/database/clickhouse/reviewer_guidelines.html#ensuring-database-schema-consistency"
 
@@ -36,13 +42,23 @@ module ClickHouse
         return false
       end
 
+      cache_diff = schema_cache_diff_output
+
+      unless cache_diff
+        puts "ERROR: Git diff command failed for schema cache"
+        return false
+      end
+
       # rubocop:disable Rails/NegateInclude -- called without Rails context, no ActiveSupport methods available.
       schema_is_clean = !diff_output.include?(SCHEMA_FILENAME)
       # rubocop:enable Rails/NegateInclude
 
-      if schema_is_clean
-        puts "Schema is up to date - no changes detected"
-      else
+      cache_is_clean = cache_diff.strip.empty?
+      checksums_valid = validate_migration_checksums
+
+      puts "Schema is up to date - no changes detected" if schema_is_clean && cache_is_clean && checksums_valid
+
+      unless schema_is_clean
         puts "Schema has uncommitted changes after migration"
         puts "Changes detected in: #{SCHEMA_FILENAME}"
         puts "Diff output:"
@@ -50,7 +66,45 @@ module ClickHouse
         puts skip_message
       end
 
-      schema_is_clean
+      unless cache_is_clean
+        puts "Schema cache has uncommitted changes after migration"
+        puts "Changes detected in: #{SCHEMA_CACHE_DIR}"
+        puts "Diff output:"
+        puts cache_diff
+        puts skip_message
+      end
+
+      schema_is_clean && cache_is_clean && checksums_valid
+    end
+
+    def self.validate_migration_checksums
+      puts "Checking migration checksum files..."
+
+      missing = migration_versions_missing_checksums
+
+      if missing.empty?
+        puts "All migration checksum files exist"
+        return true
+      end
+
+      puts "Missing migration checksum files:"
+      missing.each { |v| puts "  #{SCHEMA_MIGRATIONS_DIR}/#{v}" }
+      puts "Run 'bundle exec rake gitlab:clickhouse:migrate:main' and commit the generated checksum files. " \
+        "Apply the '#{SKIP_VALIDATION_LABEL}' label to skip this check if needed."
+
+      false
+    end
+
+    def self.migration_versions_missing_checksums
+      migration_versions.reject { |v| File.exist?(File.join(SCHEMA_MIGRATIONS_DIR, v)) }
+    end
+
+    def self.migration_versions
+      MIGRATIONS_DIRS.flat_map do |dir|
+        Dir.glob(File.join(dir, '*.rb')).filter_map do |path|
+          File.basename(path).match(MIGRATION_VERSION_REGEX)&.captures&.first
+        end
+      end
     end
 
     def self.validate_schema_version_files
@@ -84,6 +138,19 @@ module ClickHouse
     def self.execute_git_add_dry_run
       output = `git add -A -n #{SCHEMA_MIGRATIONS_DIR}`
       output if git_command_successful?
+    end
+
+    def self.schema_cache_diff_output
+      tracked_diff = `git diff -- #{SCHEMA_CACHE_DIR}`
+      return unless git_command_successful?
+
+      untracked_diff = `git ls-files --others --exclude-standard -- #{SCHEMA_CACHE_DIR}`
+      return unless git_command_successful?
+
+      untracked_content = untracked_diff.split("\n").reject(&:empty?)
+        .map { |f| `git diff --no-index /dev/null #{f}` }
+        .join
+      tracked_diff + untracked_content
     end
 
     def self.git_command_successful?

@@ -5,10 +5,7 @@ import { DEFAULT_PAGE_SIZE_BOARD_COLUMN } from '~/work_items/constants';
 // Board columns and the drag-and-drop cache updates must use the exact same
 // query so they share a single Apollo cache entry.
 export const boardColumnQuery = (glFeatures) =>
-  glFeatures.workItemRestApiFrontendUsers &&
-  (glFeatures.workItemRestApiIndex || glFeatures.workItemRestApi)
-    ? getWorkItemsRestQuery
-    : getBoardWorkItemsQuery;
+  glFeatures.workItemRestApiFrontendUsers ? getWorkItemsRestQuery : getBoardWorkItemsQuery;
 
 // Group identity helpers are shared across grouped views (board columns now,
 // list grouping later), so they speak in terms of "groups" rather than columns.

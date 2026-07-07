@@ -3359,30 +3359,48 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#ensure_persistent_ref', :use_clean_rails_memory_store_caching do
     let(:pipeline) { create(:ci_pipeline, project: project) }
 
-    it 'creates persistent ref' do
-      expect { pipeline.ensure_persistent_ref }
-        .to change { pipeline.persistent_ref.exist? }.from(false).to(true)
-        .and not_change { pipeline.status }
-    end
-
-    context 'when persistent ref is already created' do
+    context 'when stop_ci_persistent_ref_creation is enabled for the project' do
       before do
-        pipeline.persistent_ref.create # rubocop:disable Rails/SaveBang -- not ActiveRecord
+        stub_feature_flags(stop_ci_persistent_ref_creation_override: false)
       end
 
       it 'does not create persistent ref' do
         expect { pipeline.ensure_persistent_ref }
-          .to not_change { pipeline.persistent_ref.exist? }.from(true)
+          .to not_change { pipeline.persistent_ref.exist? }.from(false)
           .and not_change { pipeline.status }
       end
     end
 
-    context 'when persistent ref creation raises error' do
-      it 'drops the pipeline' do
-        expect(pipeline.persistent_ref).to receive(:create_ref).and_raise('Error')
+    context 'when stop_ci_persistent_ref_creation is disabled' do
+      before do
+        stub_feature_flags(stop_ci_persistent_ref_creation: false)
+      end
+
+      it 'creates persistent ref' do
         expect { pipeline.ensure_persistent_ref }
-          .to not_change { pipeline.persistent_ref.exist? }.from(false)
-          .and change { pipeline.status }.to('failed')
+          .to change { pipeline.persistent_ref.exist? }.from(false).to(true)
+          .and not_change { pipeline.status }
+      end
+
+      context 'when persistent ref is already created' do
+        before do
+          pipeline.persistent_ref.create # rubocop:disable Rails/SaveBang -- not ActiveRecord
+        end
+
+        it 'does not create persistent ref' do
+          expect { pipeline.ensure_persistent_ref }
+            .to not_change { pipeline.persistent_ref.exist? }.from(true)
+            .and not_change { pipeline.status }
+        end
+      end
+
+      context 'when persistent ref creation raises error' do
+        it 'drops the pipeline' do
+          expect(pipeline.persistent_ref).to receive(:create_ref).and_raise('Error')
+          expect { pipeline.ensure_persistent_ref }
+            .to not_change { pipeline.persistent_ref.exist? }.from(false)
+            .and change { pipeline.status }.to('failed')
+        end
       end
     end
   end

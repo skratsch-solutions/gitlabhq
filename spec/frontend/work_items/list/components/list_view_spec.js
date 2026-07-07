@@ -119,7 +119,6 @@ const mountComponent = ({
   workItemFeaturesField = false,
   useRestApi = false,
   workItemRestApiFrontendUsers = useRestApi,
-  workItemRestApiIndex = useRestApi,
   workItemRestApi = false,
   props = {},
   additionalHandlers = [],
@@ -136,7 +135,6 @@ const mountComponent = ({
     features: {
       workItemsClientSideBoards: false,
       workItemRestApiFrontendUsers,
-      workItemRestApiIndex,
       workItemRestApi,
     },
   };
@@ -168,7 +166,6 @@ const mountComponent = ({
         okrsMvc: true,
         workItemFeaturesField,
         workItemRestApiFrontendUsers,
-        workItemRestApiIndex,
         workItemRestApi,
       },
       canReadCrmOrganization,
@@ -540,12 +537,11 @@ describe('when service desk list', () => {
 
 describe('query handler selection', () => {
   describe('REST API flag combinations', () => {
-    it.each([
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: false },
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: true },
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: true },
-    ])('uses REST query when flags are %o', async (flags) => {
-      mountComponent({ ...flags, props: { queryVariables: exampleQueryParams } });
+    it('uses REST query when workItemRestApiFrontendUsers is enabled', async () => {
+      mountComponent({
+        workItemRestApiFrontendUsers: true,
+        props: { queryVariables: exampleQueryParams },
+      });
       await waitForPromises();
 
       expect(workItemsRestQueryHandler).toHaveBeenCalled();
@@ -553,14 +549,11 @@ describe('query handler selection', () => {
       expect(workItemsFullQueryHandler).not.toHaveBeenCalled();
     });
 
-    it.each([
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: false },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: true },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: false },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: true },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: false },
-    ])('uses GraphQL queries when flags are %o', async (flags) => {
-      mountComponent({ ...flags, props: { queryVariables: exampleQueryParams } });
+    it('uses GraphQL queries when workItemRestApiFrontendUsers is disabled', async () => {
+      mountComponent({
+        workItemRestApiFrontendUsers: false,
+        props: { queryVariables: exampleQueryParams },
+      });
       await waitForPromises();
 
       expect(workItemsSlimQueryHandler).toHaveBeenCalled();

@@ -56,7 +56,6 @@ export default {
     'app/assets/javascripts/diffs/components/tree_list.vue',
     'app/assets/javascripts/environments/components/deploy_board_wrapper.vue',
     'app/assets/javascripts/environments/environment_details/components/deployment_history.vue',
-    'app/assets/javascripts/glql/components/common/facade.vue',
     'app/assets/javascripts/glql/components/common/resolver.vue',
     'app/assets/javascripts/groups_projects/components/filtered_search_and_sort.vue',
     'app/assets/javascripts/ide/components/oauth_application_callout.vue',

@@ -4652,6 +4652,40 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         expect(subject).to be_nil
       end
     end
+
+    describe 'latest pipeline ref first lookup' do
+      context 'when the newest pipeline on the ref already matches the sha' do
+        it 'returns it via the ref-first lookup without a sha-filtered query', :aggregate_failures do
+          expect(project).not_to receive(:latest_pipelines)
+
+          expect(project.latest_pipeline(project.default_branch, project.commit.parent.id))
+            .to eq(other_pipeline_for_default_branch)
+        end
+      end
+
+      context 'when the newest pipeline on the ref is a different sha' do
+        it 'falls back to the sha-filtered lookup' do
+          # The newest pipeline on the default branch is other_pipeline_for_default_branch
+          # (parent sha), but HEAD is project.commit.id, so it must fall back to find the
+          # pipeline matching HEAD.
+          expect(project.latest_pipeline(project.default_branch, project.commit.id))
+            .to eq(pipeline_for_default_branch)
+        end
+      end
+
+      context 'when the feature flag is disabled' do
+        before do
+          stub_feature_flags(latest_pipeline_ref_first_lookup: false)
+        end
+
+        it 'uses the sha-filtered lookup even when the newest pipeline matches the sha', :aggregate_failures do
+          expect(project).to receive(:latest_pipelines).and_call_original
+
+          expect(project.latest_pipeline(project.default_branch, project.commit.parent.id))
+            .to eq(other_pipeline_for_default_branch)
+        end
+      end
+    end
   end
 
   describe '#latest_unscheduled_pipelines' do

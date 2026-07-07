@@ -219,6 +219,7 @@ export default {
 <template>
   <div data-testid="glql-facade" class="gl-min-w-0 gl-grow">
     <template v-if="hasError">
+      <!-- eslint-disable vue/v-on-event-hyphenation -- GlAlert emits the camelCase `primaryAction` event. -->
       <gl-alert
         :variant="error.variant"
         class="!gl-my-3"
@@ -231,6 +232,7 @@ export default {
           <li v-safe-html:[$options.safeHtmlConfig]="renderMarkdown(error.message)"></li>
         </ul>
       </gl-alert>
+      <!-- eslint-enable vue/v-on-event-hyphenation -->
     </template>
 
     <div v-if="hasError || showLoadBtn" class="markdown-code-block gl-relative">
@@ -268,9 +270,9 @@ export default {
           <glql-actions
             :show-copy-contents="showCopyContentsAction"
             :modal-title="title"
-            @viewSource="viewSource"
-            @copySource="copySource"
-            @copyAsGFM="copyAsGFM"
+            @view-source="viewSource"
+            @copy-source="copySource"
+            @copy-as-gfm="copyAsGFM"
             @reload="reload"
           />
         </template>

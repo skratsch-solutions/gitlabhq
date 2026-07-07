@@ -1,8 +1,18 @@
+import MockAdapter from 'axios-mock-adapter';
 import { GlModal, GlSearchBoxByType, GlTab, GlEmptyState, GlLink } from '@gitlab/ui';
 import { nextTick } from 'vue';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import { stubComponent, RENDER_ALL_SLOTS_TEMPLATE } from 'helpers/stub_component';
 import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
+import waitForPromises from 'helpers/wait_for_promises';
+import * as Sentry from '~/sentry/sentry_browser_wrapper';
+import axios from '~/lib/utils/axios_utils';
+import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
+import {
+  HTTP_STATUS_OK,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+  HTTP_STATUS_TOO_MANY_REQUESTS,
+} from '~/lib/utils/http_status';
 import FeatureLibraryModal from '~/super_sidebar/components/feature_library/feature_library_modal.vue';
 import FeatureLibraryItem from '~/super_sidebar/components/feature_library/feature_library_item.vue';
 import {
@@ -13,6 +23,13 @@ import {
   EVENT_UNPIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
   EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
 } from '~/super_sidebar/tracking_constants';
+
+jest.mock('~/sentry/sentry_browser_wrapper');
+jest.mock('~/lib/utils/path_helpers/feature_library', () => ({
+  onboardingFeatureLibrarySearchPath: () => '/-/onboarding/feature_library/search',
+}));
+
+const SEARCH_URL = '/-/onboarding/feature_library/search';
 
 // Mirrors the nav tree shape passed down from sidebar_menu.vue: sections (menu
 // groups) holding leaf nav items enriched with feature-library metadata.
@@ -60,10 +77,24 @@ const sections = [
 
 describe('FeatureLibraryModal', () => {
   let wrapper;
+  let mockAxios;
 
-  const createWrapper = ({ currentPinnedIds = [], showFeedbackLink = false } = {}) => {
+  beforeEach(() => {
+    mockAxios = new MockAdapter(axios);
+  });
+
+  afterEach(() => {
+    mockAxios.restore();
+  });
+
+  const createWrapper = ({
+    currentPinnedIds = [],
+    panelType = 'project',
+    showFeedbackLink = false,
+  } = {}) => {
     wrapper = shallowMountExtended(FeatureLibraryModal, {
       propsData: { sections, currentPinnedIds, showFeedbackLink },
+      provide: { panelType },
       // Stub GlModal (declared props stay props, everything else surfaces as
       // attrs) and render all its slots so footer/body content is inspectable.
       stubs: { GlModal: stubComponent(GlModal, { template: RENDER_ALL_SLOTS_TEMPLATE }) },
@@ -75,16 +106,21 @@ describe('FeatureLibraryModal', () => {
   const findAllTabs = () => wrapper.findAllComponents(GlTab);
   const findTabLabels = () => findAllTabs().wrappers.map((w) => w.attributes('title'));
   const findItems = () => wrapper.findAllComponents(FeatureLibraryItem);
+  const findItemIds = () => findItems().wrappers.map((w) => w.props('item').id);
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
+  const findLoadingIcon = () => wrapper.findByTestId('search-loading');
   const findScrollArea = () => wrapper.findByTestId('feature-library-scroll-area');
   const findGrid = () => wrapper.findByTestId('feature-library-grid');
   const findFeedbackLink = () => wrapper.findComponent(GlLink);
+
+  const emitSearch = async (query) => {
+    await findSearch().vm.$emit('input', query);
+  };
 
   describe('rendering', () => {
     beforeEach(() => createWrapper());
 
     it('renders an "All" tab plus one tab per section that has enriched items', () => {
-      // manage_menu has no enriched items, so it gets no tab.
       expect(findTabLabels()).toEqual(['All', 'Plan', 'Code']);
     });
 
@@ -105,6 +141,10 @@ describe('FeatureLibraryModal', () => {
       expect(findSearch().exists()).toBe(true);
     });
 
+    it('debounces search input using the shared default interval', () => {
+      expect(Number(findSearch().attributes('debounce'))).toBe(DEFAULT_DEBOUNCE_AND_THROTTLE_MS);
+    });
+
     it('lays the feature grid out responsively (one column on small viewports, scaling up)', () => {
       expect(findGrid().classes()).toEqual(
         expect.arrayContaining(['gl-grid-cols-1', 'sm:gl-grid-cols-2', 'md:gl-grid-cols-3']),
@@ -113,6 +153,10 @@ describe('FeatureLibraryModal', () => {
 
     it('adds a top margin above the search input', () => {
       expect(findSearch().classes()).toContain('gl-mt-3');
+    });
+
+    it('does not show a loading indicator by default', () => {
+      expect(findLoadingIcon().exists()).toBe(false);
     });
   });
 
@@ -166,8 +210,7 @@ describe('FeatureLibraryModal', () => {
     beforeEach(() => createWrapper());
 
     it('only lists items that carry feature-library metadata (a description)', () => {
-      const ids = findItems().wrappers.map((w) => w.props('item').id);
-      expect(ids.sort()).toEqual(['boards', 'project_issue_list', 'repository']);
+      expect(findItemIds().sort()).toEqual(['boards', 'project_issue_list', 'repository']);
     });
 
     it('maps library_icon onto the item icon', () => {
@@ -190,24 +233,280 @@ describe('FeatureLibraryModal', () => {
   describe('filtering', () => {
     beforeEach(() => createWrapper());
 
-    it('filters by search query (substring on title or description)', async () => {
-      await findSearch().vm.$emit('input', 'Repository');
-      const titles = findItems().wrappers.map((w) => w.props('item').title);
-      expect(titles).toEqual(['Repository']);
-    });
-
     it('filters by active category (section)', async () => {
-      // Tabs order: All (0), Plan (1), Code (2).
       await findAllTabs().at(1).vm.$emit('click');
       await nextTick();
       const categories = findItems().wrappers.map((w) => w.props('item').category);
       expect(categories.every((c) => c === 'plan_menu')).toBe(true);
     });
+  });
 
-    it('renders empty state when no items match', async () => {
-      await findSearch().vm.$emit('input', '__no_such_feature__');
-      expect(findItems()).toHaveLength(0);
-      expect(findEmptyState().exists()).toBe(true);
+  describe('feature discovery search', () => {
+    describe('title/description matching (client-side, instant)', () => {
+      beforeEach(() => createWrapper());
+
+      it('hides results and shows a loading indicator while the endpoint is in flight', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(() => new Promise(() => {}));
+        await emitSearch('repo');
+
+        expect(findGrid().exists()).toBe(false);
+        expect(findLoadingIcon().exists()).toBe(true);
+      });
+
+      it('shows all results together once the endpoint resolves', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['boards'] });
+        await emitSearch('repo');
+        await waitForPromises();
+
+        expect(findGrid().exists()).toBe(true);
+        expect(findItemIds()).toContain('repository');
+        expect(findItemIds()).toContain('boards');
+      });
+
+      it('hides the loading indicator once the endpoint resolves', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        await emitSearch('repo');
+        expect(findLoadingIcon().exists()).toBe(true);
+
+        await waitForPromises();
+        expect(findLoadingIcon().exists()).toBe(false);
+      });
+
+      it('synonym matches appear first (backend-ranked), direct matches follow', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['boards', 'repository'] });
+        await emitSearch('repo');
+        await waitForPromises();
+
+        expect(findItemIds()[0]).toBe('boards');
+        expect(findItemIds()[1]).toBe('repository');
+      });
+
+      it('does not duplicate items that match both title and endpoint', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['repository'] });
+        await emitSearch('repo');
+        await waitForPromises();
+
+        expect(findItemIds().filter((id) => id === 'repository')).toHaveLength(1);
+      });
+
+      it('applies the active category filter to title matches', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        await emitSearch('items');
+        await waitForPromises();
+
+        await findAllTabs().at(2).vm.$emit('click');
+        await nextTick();
+
+        expect(findItems()).toHaveLength(0);
+      });
+
+      it('works on non-endpoint panels (e.g. organization) via title/description only', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        createWrapper({ panelType: 'organization' });
+        await emitSearch('repo');
+        await waitForPromises();
+
+        expect(findItemIds()).toEqual(['repository']);
+      });
+    });
+
+    describe('endpoint synonym matching', () => {
+      beforeEach(() => createWrapper());
+
+      it('does not call the endpoint for queries shorter than 2 characters', async () => {
+        await emitSearch('r');
+        await waitForPromises();
+
+        expect(mockAxios.history.get).toHaveLength(0);
+      });
+
+      it('sends the trimmed query and panel type as request params', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        await emitSearch('  repo  ');
+        await waitForPromises();
+
+        expect(mockAxios.history.get).toHaveLength(1);
+        expect(mockAxios.history.get[0].params).toEqual({ query: 'repo', panel: 'project' });
+      });
+
+      it('appends synonym-only results after title matches resolve', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['boards'] });
+        await emitSearch('sprint');
+        await waitForPromises();
+
+        expect(findItemIds()).toContain('boards');
+      });
+
+      it('preserves endpoint ranking order among synonym-only results', async () => {
+        mockAxios
+          .onGet(SEARCH_URL)
+          .reply(HTTP_STATUS_OK, { ids: ['boards', 'project_issue_list'] });
+        await emitSearch('sprint');
+        await waitForPromises();
+
+        expect(findItemIds()).toEqual(['boards', 'project_issue_list']);
+      });
+
+      it('excludes endpoint synonym results outside the active category', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['repository'] });
+        await emitSearch('sprint');
+        await waitForPromises();
+
+        await findAllTabs().at(1).vm.$emit('click');
+        await nextTick();
+
+        expect(findItemIds()).not.toContain('repository');
+      });
+
+      it('silently drops endpoint ids that have no catalog entry', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['nonexistent_id', 'boards'] });
+        await emitSearch('sprint');
+        await waitForPromises();
+
+        expect(findItemIds()).not.toContain('nonexistent_id');
+        expect(findItemIds()).toContain('boards');
+      });
+
+      it('treats a response with no ids field as no synonym matches', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, {});
+        await emitSearch('repo');
+        await waitForPromises();
+
+        expect(findItemIds()).toEqual(['repository']);
+      });
+
+      it('on rate limit (429), falls back to title-only without reporting to Sentry', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_TOO_MANY_REQUESTS);
+        await emitSearch('repo');
+        await waitForPromises();
+
+        expect(Sentry.captureException).not.toHaveBeenCalled();
+        expect(findItemIds()).toEqual(['repository']);
+      });
+
+      it('on error, reports to Sentry and falls back to title-only results', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        await emitSearch('repo');
+        await waitForPromises();
+
+        expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+          tags: { feature_category: 'onboarding' },
+        });
+        expect(findItemIds()).toEqual(['repository']);
+      });
+
+      describe('stale state guard', () => {
+        it('clears previous endpoint results immediately when a new query starts', async () => {
+          mockAxios
+            .onGet(SEARCH_URL)
+            .replyOnce(HTTP_STATUS_OK, { ids: ['boards'] })
+            .onGet(SEARCH_URL)
+            .replyOnce(() => new Promise(() => {}));
+
+          await emitSearch('sprint');
+          await waitForPromises();
+
+          expect(findItemIds()).toContain('boards');
+
+          await emitSearch('repo');
+
+          expect(findGrid().exists()).toBe(false);
+          expect(findLoadingIcon().exists()).toBe(true);
+        });
+      });
+
+      describe('stale response guard', () => {
+        it('ignores endpoint results from a superseded query', async () => {
+          let resolveFirst;
+          mockAxios
+            .onGet(SEARCH_URL)
+            .replyOnce(
+              () =>
+                new Promise((resolve) => {
+                  resolveFirst = resolve;
+                }),
+            )
+            .onGet(SEARCH_URL)
+            .replyOnce(HTTP_STATUS_OK, { ids: ['boards'] });
+
+          await emitSearch('wo');
+          await emitSearch('repository');
+          await waitForPromises();
+
+          resolveFirst([HTTP_STATUS_OK, { ids: ['project_issue_list'] }]);
+          await waitForPromises();
+
+          expect(findItemIds()).not.toContain('project_issue_list');
+        });
+      });
+    });
+
+    describe('empty state', () => {
+      beforeEach(() => createWrapper());
+
+      it('shows empty state when neither title nor endpoint matches anything', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        await emitSearch('zzznomatch');
+        await waitForPromises();
+
+        expect(findItems()).toHaveLength(0);
+        expect(findEmptyState().exists()).toBe(true);
+      });
+
+      it('does not show empty state while the endpoint is still in flight (title results visible)', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(() => new Promise(() => {}));
+        await emitSearch('repo');
+
+        expect(findEmptyState().exists()).toBe(false);
+      });
+
+      it('does not show empty state when query is less than 2 characters', async () => {
+        await emitSearch('r');
+        expect(findEmptyState().exists()).toBe(false);
+      });
+    });
+
+    describe('clearing search', () => {
+      beforeEach(() => createWrapper());
+
+      it('hides the loading indicator when the box is cleared mid-flight', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(() => new Promise(() => {}));
+        await emitSearch('repo');
+        expect(findLoadingIcon().exists()).toBe(true);
+
+        await emitSearch('');
+        expect(findLoadingIcon().exists()).toBe(false);
+      });
+
+      it('restores the full catalog when the query is cleared', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['repository'] });
+        await emitSearch('repo');
+        await waitForPromises();
+
+        await emitSearch('');
+        await waitForPromises();
+
+        expect(findItemIds().sort()).toEqual(['boards', 'project_issue_list', 'repository']);
+      });
+    });
+
+    describe('on modal hide', () => {
+      beforeEach(() => createWrapper());
+
+      it('resets search, category, and endpoint state so reopening shows the full catalog', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['boards'] });
+        await emitSearch('sprint');
+        await waitForPromises();
+        await findAllTabs().at(1).vm.$emit('click');
+        await nextTick();
+
+        findModal().vm.$emit('hidden');
+        await nextTick();
+
+        expect(findSearch().props('value')).toBe('');
+        expect(findLoadingIcon().exists()).toBe(false);
+        expect(findItemIds().sort()).toEqual(['boards', 'project_issue_list', 'repository']);
+      });
     });
   });
 
@@ -286,7 +585,6 @@ describe('FeatureLibraryModal', () => {
       );
     });
 
-    // debounce is synchronous under the test mock (spec/frontend/__mocks__/lodash-es/debounce.js).
     it('tracks a search event when the user types a query', () => {
       const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
       findSearch().vm.$emit('input', 'repo');
@@ -303,12 +601,10 @@ describe('FeatureLibraryModal', () => {
       expect(trackEventSpy).not.toHaveBeenCalled();
     });
 
-    // Guards against a pending debounced search event firing after the modal
-    // closes. (The matching beforeUnmount cancel is exercised under Vue 3.)
-    it('cancels the pending debounced search tracker when the modal is hidden', () => {
-      const cancelSpy = wrapper.vm.debouncedTrackSearch.cancel;
-      findModal().vm.$emit('hidden');
-      expect(cancelSpy).toHaveBeenCalled();
+    it('tracks a search event exactly once per input', () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findSearch().vm.$emit('input', 'repo');
+      expect(trackEventSpy).toHaveBeenCalledTimes(1);
     });
   });
 

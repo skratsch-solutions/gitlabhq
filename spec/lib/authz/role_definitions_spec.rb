@@ -95,6 +95,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
       update_vulnerability_feedback
       read_vulnerability_statistics
       update_vulnerability_flag
+      download_wiki_code
     ]
   end
 
@@ -119,11 +120,6 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       # project.override_pipeline_variables_allowed? (unrestricted by default)
       :set_pipeline_variables,
-
-      # EE, licensed features
-      # can?(:create_issue) & okrs_enabled
-      :create_key_result,
-      :create_objective,
 
       # issue_analytics_enabled
       :read_issue_analytics,
@@ -169,17 +165,6 @@ RSpec.describe Authz::Role, feature_category: :permissions do
       # EE: can?(:read_group) & duo_features_enabled
       :access_duo_features,
 
-      # dependency_proxy_access_allowed & dependency_proxy_available
-      :read_dependency_proxy,
-
-      # EE, licensed features
-      # has_access & contribution_analytics_available
-      :read_contribution_analytics,
-      :read_group_contribution_analytics,
-
-      # has_access & group_activity_analytics_available
-      :read_group_activity_analytics,
-
       # can?(:read_group) & custom_fields_available
       :read_custom_field,
 
@@ -198,6 +183,25 @@ RSpec.describe Authz::Role, feature_category: :permissions do
     ]
   end
 
+  # Held by any authenticated role
+  # can?(:create_issue) & okrs_enabled
+  let(:issue_creator_grants) { [:create_key_result, :create_objective] }
+
+  # Held by any role with actual group membership access
+  let(:member_group_grants) do
+    [
+      # dependency_proxy_access_allowed & dependency_proxy_available
+      :read_dependency_proxy,
+
+      # has_access & contribution_analytics_available
+      :read_contribution_analytics,
+      :read_group_contribution_analytics,
+
+      # has_access & group_activity_analytics_available
+      :read_group_activity_analytics
+    ]
+  end
+
   # Package pull granted to guest and planner via a rollout flag. Reporter and above already own
   # :read_package directly (config/authz/roles/reporter.yml).
   # guest & allow_guest_plus_roles_to_pull_packages_enabled
@@ -211,8 +215,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
   # EE: can?(:read_cluster) & cluster_deployments_available
   let(:cluster_read_grants) { [:read_cluster_environments] }
 
-  # Additional project grants a role receives once it can read code and merge requests. Held by
-  # planner and above.
+  # Additional project grants a role receives once it can read code and merge requests.
   let(:repository_read_grants) do
     [
       # EE: can?(:read_code)
@@ -227,7 +230,6 @@ RSpec.describe Authz::Role, feature_category: :permissions do
   end
 
   # Additional project grants a role receives once it can read builds, pipelines and merge requests.
-  # Held by reporter and above.
   let(:pipeline_read_grants) do
     [
       # can?(:read_build) & can?(:read_pipeline)
@@ -302,12 +304,12 @@ RSpec.describe Authz::Role, feature_category: :permissions do
   # Gitlab.config.lfs.enabled half is stubbed in the shared example's before hook above.
   let_it_be(:private_project) { create(:project, :private, public_builds: false, lfs_enabled: true) }
   let_it_be(:private_group) { create(:group, :private) }
+  let_it_be(:public_project) { create(:project, :public, lfs_enabled: true) }
+  let_it_be(:public_group) { create(:group, :public) }
 
-  describe 'public_anonymous role' do
-    let_it_be(:public_project) { create(:project, :public) }
-    let_it_be(:public_group) { create(:group, :public) }
-
-    let(:role) { described_class.get(:public_anonymous) }
+  describe 'public_anonymous' do
+    let(:role) { :public_anonymous }
+    let(:actor) { ::Users::Anonymous }
 
     before do
       next unless Gitlab.ee?
@@ -315,26 +317,79 @@ RSpec.describe Authz::Role, feature_category: :permissions do
       stub_licensed_features(GitlabSubscriptions::Features::ALL_FEATURES.index_with(true))
     end
 
-    it 'lists only project permissions an anonymous caller can exercise on a public project' do
-      drift = role.permissions(:project).reject do |permission|
-        ::Users::Anonymous.can?(permission, public_project)
+    context 'in projects' do
+      let(:scope) { :project }
+      let(:resource) { public_project }
+
+      it 'lists only project permissions an anonymous caller can exercise on a public project' do
+        unexercisable_permissions = described_class.get(role).permissions(:project).reject do |permission|
+          actor.can?(permission, resource)
+        end
+
+        expect(unexercisable_permissions).to be_empty,
+          "config/authz/roles/public_anonymous.yml lists project permissions that an " \
+            "anonymous caller cannot exercise on a public project: " \
+            "#{unexercisable_permissions.to_a.sort.join(', ')}. Either remove them from the YAML or " \
+            "update ProjectPolicy so anonymous can exercise them."
       end
 
-      expect(drift).to be_empty,
-        "config/authz/roles/public_anonymous.yml lists project permissions that an " \
-          "anonymous caller cannot exercise on a public project: #{drift.to_a.sort.join(', ')}. " \
-          "Either remove them from the YAML or update ProjectPolicy so anonymous can exercise them."
+      it_behaves_like 'a role that does not enable unexpected permissions' do
+        let(:permissions_granted_outside_role_definition) do
+          common_project_grants + repository_read_grants + pipeline_read_grants + [
+            # can?(:_read_public_build)
+            :read_build,
+
+            # can?(:_read_public_ci_cd_analytics)
+            :read_ci_cd_analytics,
+
+            # can?(:_read_public_pipeline_schedule)
+            :read_pipeline_schedule,
+
+            # public_project & model_registry_enabled (licensed feature)
+            :read_model_registry,
+
+            # public_project & model_experiments_enabled (licensed feature)
+            :read_model_experiments,
+
+            # public_pages
+            :read_pages_content,
+
+            # can?(:read_issue)
+            :read_work_item
+          ]
+        end
+      end
     end
 
-    it 'lists only group permissions an anonymous caller can exercise on a public group' do
-      drift = role.permissions(:group).reject do |permission|
-        ::Users::Anonymous.can?(permission, public_group)
+    context 'in groups' do
+      let(:scope) { :group }
+      let(:resource) { public_group }
+
+      it 'lists only group permissions an anonymous caller can exercise on a public group' do
+        unexercisable_permissions = described_class.get(role).permissions(:group).reject do |permission|
+          actor.can?(permission, resource)
+        end
+
+        expect(unexercisable_permissions).to be_empty,
+          "config/authz/roles/public_anonymous.yml lists group permissions that an " \
+            "anonymous caller cannot exercise on a public group: " \
+            "#{unexercisable_permissions.to_a.sort.join(', ')}. Either remove them from the YAML or " \
+            "update GroupPolicy so anonymous can exercise them."
       end
 
-      expect(drift).to be_empty,
-        "config/authz/roles/public_anonymous.yml lists group permissions that an " \
-          "anonymous caller cannot exercise on a public group: #{drift.to_a.sort.join(', ')}. " \
-          "Either remove them from the YAML or update GroupPolicy so anonymous can exercise them."
+      it_behaves_like 'a role that does not enable unexpected permissions' do
+        let(:permissions_granted_outside_role_definition) do
+          common_group_grants + [
+            # EE: public_group (group wikis)
+            :download_wiki_code,
+
+            # can?(:read_group)
+            :read_issue,
+            :read_namespace,
+            :read_work_item
+          ]
+        end
+      end
     end
   end
 
@@ -349,7 +404,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_project_grants + package_pull_grants
+          common_project_grants + issue_creator_grants + package_pull_grants
         end
       end
     end
@@ -362,7 +417,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_group_grants + package_pull_grants
+          common_group_grants + member_group_grants + package_pull_grants
         end
       end
     end
@@ -379,7 +434,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_project_grants + repository_read_grants + package_pull_grants
+          common_project_grants + issue_creator_grants + repository_read_grants + package_pull_grants
         end
       end
     end
@@ -392,7 +447,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_group_grants + package_pull_grants + epic_admin_grants
+          common_group_grants + member_group_grants + package_pull_grants + epic_admin_grants
         end
       end
     end
@@ -409,7 +464,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_project_grants + repository_read_grants + pipeline_read_grants
+          common_project_grants + issue_creator_grants + repository_read_grants + pipeline_read_grants
         end
       end
     end
@@ -422,7 +477,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_group_grants + epic_admin_grants
+          common_group_grants + member_group_grants + epic_admin_grants
         end
       end
     end
@@ -439,7 +494,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_project_grants + repository_read_grants + pipeline_read_grants +
+          common_project_grants + issue_creator_grants + repository_read_grants + pipeline_read_grants +
             vulnerability_read_grants + vulnerability_admin_grants + [
               # can?(:update_sec_ai_workflow_settings)
               :view_edit_page,
@@ -461,7 +516,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_group_grants + epic_admin_grants
+          common_group_grants + member_group_grants + epic_admin_grants
         end
       end
     end
@@ -478,8 +533,8 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_project_grants + repository_read_grants + pipeline_read_grants + code_write_grants +
-            vulnerability_read_grants
+          common_project_grants + issue_creator_grants + repository_read_grants + pipeline_read_grants +
+            code_write_grants + vulnerability_read_grants
         end
       end
     end
@@ -492,7 +547,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_group_grants + epic_admin_grants + cluster_read_grants
+          common_group_grants + member_group_grants + epic_admin_grants + cluster_read_grants
         end
       end
     end
@@ -518,8 +573,9 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_project_grants + repository_read_grants + pipeline_read_grants + code_write_grants +
-            maintainer_admin_grants + vulnerability_read_grants + vulnerability_admin_grants
+          common_project_grants + issue_creator_grants + repository_read_grants + pipeline_read_grants +
+            code_write_grants + maintainer_admin_grants + vulnerability_read_grants +
+            vulnerability_admin_grants
         end
       end
     end
@@ -532,7 +588,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_group_grants + epic_admin_grants + cluster_read_grants
+          common_group_grants + member_group_grants + epic_admin_grants + cluster_read_grants
         end
       end
     end
@@ -549,8 +605,9 @@ RSpec.describe Authz::Role, feature_category: :permissions do
 
       it_behaves_like 'a role that does not enable unexpected permissions' do
         let(:permissions_granted_outside_role_definition) do
-          common_project_grants + repository_read_grants + pipeline_read_grants + code_write_grants +
-            maintainer_admin_grants + vulnerability_read_grants + vulnerability_admin_grants
+          common_project_grants + issue_creator_grants + repository_read_grants + pipeline_read_grants +
+            code_write_grants + maintainer_admin_grants + vulnerability_read_grants +
+            vulnerability_admin_grants
         end
       end
     end
@@ -564,7 +621,7 @@ RSpec.describe Authz::Role, feature_category: :permissions do
       it_behaves_like 'a role that does not enable unexpected permissions' do
         # On top of the common group grants, an owner's admin capabilities cascade into these.
         let(:permissions_granted_outside_role_definition) do
-          common_group_grants + epic_admin_grants + cluster_read_grants + [
+          common_group_grants + member_group_grants + epic_admin_grants + cluster_read_grants + [
             # can?(:admin_runners)
             :admin_group_or_admin_runners,
 

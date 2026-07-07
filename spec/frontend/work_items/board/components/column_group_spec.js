@@ -346,29 +346,16 @@ describe('ColumnGroup', () => {
   });
 
   describe('query selection by feature flags', () => {
-    it.each([
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: false },
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: true },
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: true, workItemRestApi: true },
-    ])(
-      'uses getWorkItemsRestQuery when workItemRestApiFrontendUsers is enabled and either workItemRestApiIndex or workItemRestApi is enabled (flags: %o)',
-      async (glFeatures) => {
-        createComponent({ glFeatures });
-        await waitForPromises();
+    it('uses getWorkItemsRestQuery when workItemRestApiFrontendUsers is enabled', async () => {
+      createComponent({ glFeatures: { workItemRestApiFrontendUsers: true } });
+      await waitForPromises();
 
-        expect(restQueryHandler).toHaveBeenCalled();
-        expect(boardQueryHandler).not.toHaveBeenCalled();
-      },
-    );
+      expect(restQueryHandler).toHaveBeenCalled();
+      expect(boardQueryHandler).not.toHaveBeenCalled();
+    });
 
-    it.each([
-      { workItemRestApiFrontendUsers: true, workItemRestApiIndex: false, workItemRestApi: false },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: true },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: true, workItemRestApi: false },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: true },
-      { workItemRestApiFrontendUsers: false, workItemRestApiIndex: false, workItemRestApi: false },
-    ])('uses getBoardWorkItemsQuery when flags are %o', async (glFeatures) => {
-      createComponent({ glFeatures });
+    it('uses getBoardWorkItemsQuery when workItemRestApiFrontendUsers is disabled', async () => {
+      createComponent({ glFeatures: { workItemRestApiFrontendUsers: false } });
       await waitForPromises();
 
       expect(boardQueryHandler).toHaveBeenCalled();

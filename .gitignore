@@ -147,3 +147,6 @@ yalc.lock
 AGENTS.local.md
 CLAUDE.local.md
 .ai/*
+
+# Optional local RuboCop override (see .rubocop.yml inherit_from)
+/.rubocop.local.yml

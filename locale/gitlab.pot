@@ -16404,13 +16404,13 @@ msgstr ""
 msgid "CiCatalog|Publish the CI/CD components in this project to the CI/CD Catalog"
 msgstr ""
 
+msgid "CiCatalog|Published %{timeAgo} by %{author}"
+msgstr ""
+
 msgid "CiCatalog|Readme"
 msgstr ""
 
 msgid "CiCatalog|Released %{date}"
-msgstr ""
-
-msgid "CiCatalog|Released %{timeAgo} by %{author}"
 msgstr ""
 
 msgid "CiCatalog|Remove component project from the CI/CD Catalog?"
@@ -28509,6 +28509,9 @@ msgstr ""
 msgid "DuoAgenticChat|Let's work through this together..."
 msgstr ""
 
+msgid "DuoAgenticChat|More actions"
+msgstr ""
+
 msgid "DuoAgenticChat|More active sessions"
 msgstr ""
 
@@ -28615,6 +28618,9 @@ msgid "DuoAgenticChat|Upgrade subscription"
 msgstr ""
 
 msgid "DuoAgenticChat|Upgrade to Premium"
+msgstr ""
+
+msgid "DuoAgenticChat|Web search"
 msgstr ""
 
 msgid "DuoAgenticChat|Your GitLab Duo Agent Platform subscription has been cancelled"
@@ -63847,9 +63853,6 @@ msgstr ""
 msgid "Runners|Active"
 msgstr ""
 
-msgid "Runners|Active runners"
-msgstr ""
-
 msgid "Runners|Add Node Pool"
 msgstr ""
 
@@ -64291,6 +64294,9 @@ msgid "Runners|Members of the %{type} can create runners"
 msgstr ""
 
 msgid "Runners|Minor version upgrades are available."
+msgstr ""
+
+msgid "Runners|Most active runners"
 msgstr ""
 
 msgid "Runners|Most recent failures"

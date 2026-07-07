@@ -54,6 +54,7 @@ describe('CiResourcesListItem', () => {
   const findBadge = () => wrapper.findComponent(GlBadge);
   const findMarkdown = () => wrapper.findComponent(Markdown);
   const findTimeAgoMessage = () => wrapper.findComponent(GlSprintf);
+  const findPublishedInfo = () => wrapper.findByTestId('published-info');
   const findTopicBadgesComponent = () => wrapper.findComponent(TopicBadges);
   const findVerificationBadge = () => wrapper.findComponent(CiVerificationBadge);
   const findVisibilityIcon = () => wrapper.findComponent(ProjectVisibilityIcon);
@@ -163,7 +164,7 @@ describe('CiResourcesListItem', () => {
         createComponent({ props: { resource: { ...resource, versions } } });
       });
 
-      it('renders the correct component names with a delimeter', () => {
+      it('renders the correct component names with a delimiter', () => {
         expect(findComponentNames().text()).toMatchInterpolatedText(
           '• Components: test-component, component_two, test-component, component_two, test-component',
         );
@@ -285,6 +286,12 @@ describe('CiResourcesListItem', () => {
           href: release.author.webPath,
           class: 'js-user-link',
         });
+      });
+
+      it('renders the correct published message', () => {
+        expect(findPublishedInfo().text()).toMatchInterpolatedText(
+          `Published Jan 27, 2024 by ${release.author.name}`,
+        );
       });
 
       it('the user link renders the author name', () => {

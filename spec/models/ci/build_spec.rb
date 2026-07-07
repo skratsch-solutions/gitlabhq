@@ -4641,19 +4641,37 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     end
 
     context 'for pipeline ref existence' do
-      it 'ensures pipeline ref creation' do
-        expect(job.pipeline).to receive(:ensure_persistent_ref).once.and_call_original
-        expect(job.pipeline.persistent_ref).to receive(:create).once
-
-        run_job_without_exception
-      end
-
-      it 'ensures that it is not run in database transaction' do
-        expect(job.pipeline.persistent_ref).to receive(:create) do
-          expect(ApplicationRecord).not_to be_inside_transaction
+      context 'when stop_ci_persistent_ref_creation feature flag is enabled for the project' do
+        before do
+          stub_feature_flags(stop_ci_persistent_ref_creation_override: false)
         end
 
-        run_job_without_exception
+        it 'does not create pipeline ref' do
+          expect(job.pipeline.persistent_ref).not_to receive(:create)
+
+          run_job_without_exception
+        end
+      end
+
+      context 'when stop_ci_persistent_ref_creation feature flag is disabled' do
+        before do
+          stub_feature_flags(stop_ci_persistent_ref_creation: false)
+        end
+
+        it 'ensures pipeline ref creation' do
+          expect(job.pipeline).to receive(:ensure_persistent_ref).once.and_call_original
+          expect(job.pipeline.persistent_ref).to receive(:create).once
+
+          run_job_without_exception
+        end
+
+        it 'ensures that it is not run in database transaction' do
+          expect(job.pipeline.persistent_ref).to receive(:create) do
+            expect(ApplicationRecord).not_to be_inside_transaction
+          end
+
+          run_job_without_exception
+        end
       end
     end
 

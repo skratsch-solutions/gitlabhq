@@ -50,6 +50,11 @@ export default {
       type: Boolean,
       required: true,
     },
+    headerHeight: {
+      type: String,
+      required: false,
+      default: '',
+    },
     fullPath: {
       type: String,
       required: true,
@@ -156,6 +161,9 @@ export default {
 <template>
   <gl-drawer
     :open="open"
+    :header-height="headerHeight"
+    :style="{ '--drawer-top-offset': headerHeight || '0px' }"
+    header-sticky
     :z-index="$options.DRAWER_Z_INDEX"
     class="work-item-display-settings-drawer"
     data-testid="display-settings-drawer"

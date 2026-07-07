@@ -2573,15 +2573,27 @@ describe('planning-view', () => {
       expect(findDisplaySettingsButton().exists()).toBe(true);
     });
 
-    it('renders the drawer closed by default', () => {
+    it('renders the drawer closed by default with the Display button unselected', () => {
       expect(findDisplaySettingsDrawer().props('open')).toBe(false);
+      expect(findDisplaySettingsButton().props('selected')).toBe(false);
     });
 
-    it('opens the drawer when the Display button is clicked', async () => {
+    it('opens the drawer and selects the Display button when the button is clicked', async () => {
       findDisplaySettingsButton().vm.$emit('click');
       await nextTick();
 
       expect(findDisplaySettingsDrawer().props('open')).toBe(true);
+      expect(findDisplaySettingsButton().props('selected')).toBe(true);
+    });
+
+    it('toggles the drawer closed when the Display button is clicked again', async () => {
+      findDisplaySettingsButton().vm.$emit('click');
+      await nextTick();
+      findDisplaySettingsButton().vm.$emit('click');
+      await nextTick();
+
+      expect(findDisplaySettingsDrawer().props('open')).toBe(false);
+      expect(findDisplaySettingsButton().props('selected')).toBe(false);
     });
 
     it('closes the drawer when the drawer emits close', async () => {
@@ -3091,19 +3103,8 @@ describe('planning-view', () => {
       removeParams.mockReturnValue('/work_items');
     });
 
-    describe.each([
-      {
-        workItemRestApiFrontendUsers: true,
-        workItemRestApiIndex: true,
-        workItemRestApi: false,
-      },
-      {
-        workItemRestApiFrontendUsers: true,
-        workItemRestApiIndex: false,
-        workItemRestApi: true,
-      },
-    ])('when REST API feature flags are enabled (%o)', (glFeatures) => {
-      const restProvide = { glFeatures };
+    describe('when REST API feature flag is enabled', () => {
+      const restProvide = { glFeatures: { workItemRestApiFrontendUsers: true } };
 
       it('passes the cursor through unchanged when it is a REST-style cursor', async () => {
         setWindowLocation(`?page_after=${encodeURIComponent(restCursor)}`);
@@ -3145,28 +3146,9 @@ describe('planning-view', () => {
       });
     });
 
-    describe.each([
-      {
-        workItemRestApiFrontendUsers: true,
-        workItemRestApiIndex: false,
-        workItemRestApi: false,
-      },
-      {
-        workItemRestApiFrontendUsers: false,
-        workItemRestApiIndex: true,
-        workItemRestApi: true,
-      },
-      {
-        workItemRestApiFrontendUsers: false,
-        workItemRestApiIndex: true,
-        workItemRestApi: false,
-      },
-      {
-        workItemRestApiFrontendUsers: false,
-        workItemRestApiIndex: false,
-        workItemRestApi: true,
-      },
-    ])('when the REST API flag combination is not satisfied (%o)', (glFeatures) => {
+    describe('when the REST API flag is not enabled', () => {
+      const glFeatures = { workItemRestApiFrontendUsers: false };
+
       it('treats the cursor as a GraphQL-style cursor', async () => {
         setWindowLocation(`?page_after=${graphqlCursor}`);
         await mountComponent({ provide: { glFeatures } });

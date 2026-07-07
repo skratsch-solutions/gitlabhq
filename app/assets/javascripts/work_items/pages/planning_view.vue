@@ -23,6 +23,7 @@ import { fetchPolicies } from '~/lib/graphql';
 import { isPositiveInteger } from '~/lib/utils/number_utils';
 import { AutocompleteCache } from '~/issues/dashboard/utils';
 import { setPageFullWidth, setPageDefaultWidth, isLoggedIn } from '~/lib/utils/common_utils';
+import { PanelBreakpointInstance } from '~/panel_breakpoint_instance';
 import { confirmAction } from '~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal';
 
 import {
@@ -316,6 +317,7 @@ export default {
       currentWorkItemsCount: 0,
       currentWorkItemIds: [],
       isDisplayDrawerOpen: false,
+      drawerTopOffset: '0px',
     };
   },
 
@@ -496,10 +498,7 @@ export default {
       return this.isBoardView ? this.boardSortOptions : this.sortOptions;
     },
     useRestApi() {
-      return Boolean(
-        this.glFeatures.workItemRestApiFrontendUsers &&
-          (this.glFeatures.workItemRestApiIndex || this.glFeatures.workItemRestApi),
-      );
+      return Boolean(this.glFeatures.workItemRestApiFrontendUsers);
     },
     workItemDetailPanelEnabled() {
       return this.displaySettings?.commonPreferences?.shouldOpenItemsInSidePanel ?? true;
@@ -1120,6 +1119,21 @@ export default {
         }
       },
     },
+    isDisplayDrawerOpen(isOpen) {
+      // The drawer is fixed, we need to keep its top edge aligned with the bottom of the
+      // search bar (which scrolls in-flow, then becomes the sticky filter bar) while it is open.
+      if (isOpen) {
+        this.updateDrawerTopOffset();
+        this.bindDrawerOffsetListeners();
+      } else {
+        this.unbindDrawerOffsetListeners();
+      }
+    },
+    isStickyHeaderVisible() {
+      if (this.isDisplayDrawerOpen) {
+        this.$nextTick(() => this.updateDrawerTopOffset());
+      }
+    },
     workItemTypesConfiguration(workItemTypesConfiguration) {
       // When workItemTypesConfiguration becomes available and isSortKeyInitialized is still false,
       // set it to true to prevent the loading indicator from showing indefinitely
@@ -1144,6 +1158,7 @@ export default {
   },
   beforeDestroy() {
     setPageDefaultWidth();
+    this.unbindDrawerOffsetListeners();
   },
 
   created() {
@@ -1161,6 +1176,7 @@ export default {
     this.autocompleteCache = new AutocompleteCache();
     this.releasesCache = [];
     this.areReleasesFetched = false;
+    this.drawerOffsetFrameId = null;
   },
 
   methods: {
@@ -1211,6 +1227,68 @@ export default {
     },
     toggleStickyHeader(isVisible) {
       this.isStickyHeaderVisible = isVisible;
+    },
+    toggleDisplayDrawer() {
+      this.isDisplayDrawerOpen = !this.isDisplayDrawerOpen;
+    },
+    updateDrawerTopOffset() {
+      // Keep the drawer in its original position on mobile
+      if (PanelBreakpointInstance.getBreakpointSize() === 'xs') {
+        this.drawerTopOffset = '';
+        return;
+      }
+      // Anchor the fixed drawer to the bottom of the search bar that is on screen (either sticky or not)
+      const el = this.isStickyHeaderVisible
+        ? this.$refs.stickyFilteredSearchBar?.$el
+        : this.$refs.filteredSearchBar?.$el;
+      if (!el) {
+        return;
+      }
+      // While the sticky search bar slides in it has a transform applied, which skews
+      // getBoundingClientRect and makes the drawer overlap it. `top` and offsetHeight are layout
+      // values unaffected by the transform, so measure the resting bottom from those instead. The
+      // sticky bar is fixed relative to `.panel-content` (same containing block as the drawer), so
+      // its `top` is already panel-relative and needs no further adjustment.
+      if (this.isStickyHeaderVisible) {
+        const stickyEl = el.closest('.sticky-filter') || el;
+        const stickyBottom =
+          (parseFloat(getComputedStyle(stickyEl).top) || 0) + stickyEl.offsetHeight;
+        this.drawerTopOffset = `${Math.max(Math.round(stickyBottom) + 8, 0)}px`;
+        return;
+      }
+      // Need to measure drawer's position based on the `.panel-content`, not the whole viewport.
+      // Here we subtract the difference so the drawer's top edge lines up with the
+      // search bar's bottom regardless of the containing block.
+      const containingBlock = el.closest('.panel-content');
+      const offsetTop = containingBlock ? containingBlock.getBoundingClientRect().top : 0;
+      const scroller = el.closest('.panel-content-inner');
+      const bottom = el.getBoundingClientRect().bottom + (scroller ? scroller.scrollTop : 0);
+
+      this.drawerTopOffset = `${Math.max(Math.round(bottom - offsetTop) + 8, 0)}px`;
+    },
+    scheduleDrawerOffsetUpdate() {
+      if (this.drawerOffsetFrameId) {
+        return;
+      }
+      this.drawerOffsetFrameId = window.requestAnimationFrame(() => {
+        this.drawerOffsetFrameId = null;
+        this.updateDrawerTopOffset();
+      });
+    },
+    bindDrawerOffsetListeners() {
+      // The offset is anchored to the bar's resting position, so scrolling never changes it.
+      // Only resize and the mobile/desktop breakpoint move the bar, so we listen for those.
+      // (The sticky handoff is handled separately by the `isStickyHeaderVisible` watcher.)
+      window.addEventListener('resize', this.scheduleDrawerOffsetUpdate, { passive: true });
+      PanelBreakpointInstance.addBreakpointListener(this.scheduleDrawerOffsetUpdate);
+    },
+    unbindDrawerOffsetListeners() {
+      window.removeEventListener('resize', this.scheduleDrawerOffsetUpdate);
+      PanelBreakpointInstance.removeBreakpointListener(this.scheduleDrawerOffsetUpdate);
+      if (this.drawerOffsetFrameId) {
+        window.cancelAnimationFrame(this.drawerOffsetFrameId);
+        this.drawerOffsetFrameId = null;
+      }
     },
     getFilterTokensFromSavedView(savedViewFilters) {
       const tokens = getSavedViewFilterTokens(savedViewFilters, {
@@ -1892,6 +1970,7 @@ export default {
       </template>
       <!-- eslint-disable vue/v-on-event-hyphenation -->
       <filtered-search-bar
+        ref="filteredSearchBar"
         :namespace="rootPageFullPath"
         recent-searches-storage-key="issues"
         :search-input-placeholder="__('Search or filter results…')"
@@ -1913,8 +1992,9 @@ export default {
         <template #user-preference>
           <gl-button
             icon="preferences"
+            :selected="isDisplayDrawerOpen"
             data-testid="display-settings-button"
-            @click="isDisplayDrawerOpen = true"
+            @click="toggleDisplayDrawer"
           >
             {{ __('Display') }}
           </gl-button>
@@ -1931,6 +2011,7 @@ export default {
           >
             <!-- eslint-disable vue/v-on-event-hyphenation -->
             <filtered-search-bar
+              ref="stickyFilteredSearchBar"
               :namespace="rootPageFullPath"
               recent-searches-storage-key="issues"
               :search-input-placeholder="__('Search or filter results…')"
@@ -1952,8 +2033,9 @@ export default {
               <template #user-preference>
                 <gl-button
                   icon="preferences"
+                  :selected="isDisplayDrawerOpen"
                   data-testid="display-settings-button"
-                  @click="isDisplayDrawerOpen = true"
+                  @click="toggleDisplayDrawer"
                 >
                   {{ __('Display') }}
                 </gl-button>
@@ -2146,6 +2228,7 @@ export default {
     />
     <work-item-display-settings-drawer
       :open="isDisplayDrawerOpen"
+      :header-height="drawerTopOffset"
       :view-mode="viewMode"
       :sort-options="drawerSortOptions"
       :sort-key="effectiveSortKey"

@@ -31,8 +31,8 @@ The number of service accounts you can create depends on your subscription and o
 - On GitLab Free, limits vary by offering:
   - For GitLab.com, you can create up to 100 service accounts for each top-level group.
     This includes service accounts created in subgroups or projects.
-  - For GitLab Self-Managed, you can create up to 100 service accounts per instance.
-    This includes all service accounts regardless of how they are provisioned (instance, group, or project level).
+  - For GitLab Self-Managed, you can create up to 100 service accounts for the entire instance.
+    This includes service accounts created at the instance, group, or project level.
 
 You can also interact with service accounts through the [users API](users.md).
 To manage SSH keys for service accounts, use the [user SSH and GPG keys API](user_keys.md).

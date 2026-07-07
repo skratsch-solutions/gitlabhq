@@ -6,10 +6,14 @@ import {
   GlTab,
   GlEmptyState,
   GlLink,
+  GlLoadingIcon,
 } from '@gitlab/ui';
-import { debounce } from 'lodash-es';
-import { InternalEvents } from '~/tracking';
+import * as Sentry from '~/sentry/sentry_browser_wrapper';
+import axios from '~/lib/utils/axios_utils';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
+import { HTTP_STATUS_TOO_MANY_REQUESTS } from '~/lib/utils/http_status';
+import { onboardingFeatureLibrarySearchPath } from '~/lib/utils/path_helpers/feature_library';
+import { InternalEvents } from '~/tracking';
 import {
   EVENT_OPEN_FEATURE_LIBRARY_MODAL,
   EVENT_SEARCH_FEATURES_IN_FEATURE_LIBRARY_MODAL,
@@ -22,6 +26,7 @@ import { ALL_CATEGORY, ALL_CATEGORY_ID, FEEDBACK_ISSUE_URL, MODAL_ID } from './c
 import FeatureLibraryItem from './feature_library_item.vue';
 
 const trackingMixin = InternalEvents.mixin();
+const MIN_SEARCH_QUERY_LENGTH = 2;
 
 export default {
   name: 'FeatureLibraryModal',
@@ -32,11 +37,16 @@ export default {
     GlTab,
     GlEmptyState,
     GlLink,
+    GlLoadingIcon,
     FeatureLibraryItem,
   },
   mixins: [trackingMixin],
   modalId: MODAL_ID,
+  DEFAULT_DEBOUNCE_AND_THROTTLE_MS,
   FEEDBACK_ISSUE_URL,
+  inject: {
+    panelType: { default: '' },
+  },
   props: {
     sections: {
       type: Array,
@@ -59,10 +69,15 @@ export default {
     return {
       searchQuery: '',
       activeCategoryId: ALL_CATEGORY_ID,
+      searchResultIds: [],
+      isSearching: false,
+      latestQuery: null,
     };
   },
   computed: {
-    // Sections that hold at least one feature-library-enriched item, mapped to category tabs.
+    trimmedQuery() {
+      return this.searchQuery.trim();
+    },
     libraryCategories() {
       return [ALL_CATEGORY, ...this.catalogSections.map(({ id, title }) => ({ id, label: title }))];
     },
@@ -87,30 +102,41 @@ export default {
         })),
       );
     },
+    catalogById() {
+      return Object.fromEntries(this.catalog.map((item) => [item.id, item]));
+    },
     filteredItems() {
-      const q = this.searchQuery.trim().toLowerCase();
-      return this.catalog.filter((item) => {
-        if (this.activeCategoryId !== ALL_CATEGORY_ID && item.category !== this.activeCategoryId) {
-          return false;
-        }
-        if (!q) return true;
-        return (
-          item.title.toLowerCase().includes(q) || (item.description || '').toLowerCase().includes(q)
-        );
-      });
+      const q = this.trimmedQuery.toLowerCase();
+      const inCategory = (item) =>
+        this.activeCategoryId === ALL_CATEGORY_ID || item.category === this.activeCategoryId;
+
+      if (!q) return this.catalog.filter(inCategory);
+
+      const textMatches = (text = '') => text.toLowerCase().includes(q);
+
+      // Synonym matches from endpoint come first: backend-ranked (exact -> prefix -> contains).
+      const synonymMatches = this.searchResultIds
+        .map((id) => this.catalogById[id])
+        .filter((item) => item && inCategory(item));
+
+      // Direct title/description matches follow, excluding any already surfaced as synonyms.
+      const synonymIds = new Set(synonymMatches.map((item) => item.id));
+      const directMatches = this.catalog.filter(
+        (item) =>
+          inCategory(item) &&
+          !synonymIds.has(item.id) &&
+          (textMatches(item.title) || textMatches(item.description)),
+      );
+
+      return [...synonymMatches, ...directMatches];
     },
     showEmptyState() {
-      return this.filteredItems.length === 0;
+      return (
+        !this.isSearching &&
+        this.trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH &&
+        this.filteredItems.length === 0
+      );
     },
-  },
-  created() {
-    this.debouncedTrackSearch = debounce(
-      () => this.trackEvent(EVENT_SEARCH_FEATURES_IN_FEATURE_LIBRARY_MODAL),
-      DEFAULT_DEBOUNCE_AND_THROTTLE_MS,
-    );
-  },
-  beforeUnmount() {
-    this.debouncedTrackSearch.cancel();
   },
   methods: {
     isPinned(itemId) {
@@ -125,10 +151,20 @@ export default {
         label: categoryId,
       });
     },
+    resetSearchState() {
+      this.isSearching = false;
+      this.latestQuery = null;
+      this.searchResultIds = [];
+    },
     onSearchInput(value) {
       this.searchQuery = value;
-      if (value.trim()) {
-        this.debouncedTrackSearch();
+      const query = value.trim();
+
+      if (query) {
+        this.fetchResults(query);
+        this.trackEvent(EVENT_SEARCH_FEATURES_IN_FEATURE_LIBRARY_MODAL);
+      } else {
+        this.resetSearchState();
       }
     },
     onPinToggle(itemId, nextState, title) {
@@ -144,9 +180,39 @@ export default {
       });
     },
     onHidden() {
-      this.debouncedTrackSearch.cancel();
+      this.resetSearchState();
       this.searchQuery = '';
       this.activeCategoryId = ALL_CATEGORY_ID;
+    },
+    fetchResults(query) {
+      this.searchResultIds = [];
+
+      if (query.length < MIN_SEARCH_QUERY_LENGTH) {
+        this.isSearching = false;
+        this.latestQuery = null;
+        return;
+      }
+
+      this.latestQuery = query;
+      this.isSearching = true;
+
+      axios
+        .get(onboardingFeatureLibrarySearchPath(), { params: { query, panel: this.panelType } })
+        .then(({ data }) => {
+          if (query !== this.latestQuery) return;
+          this.searchResultIds = data.ids || [];
+        })
+        .catch((e) => {
+          if (query !== this.latestQuery) return;
+          if (e.response?.status !== HTTP_STATUS_TOO_MANY_REQUESTS) {
+            Sentry.captureException(e, { tags: { feature_category: 'onboarding' } });
+          }
+          this.searchResultIds = [];
+        })
+        .finally(() => {
+          if (query !== this.latestQuery) return;
+          this.isSearching = false;
+        });
     },
   },
 };
@@ -168,6 +234,7 @@ export default {
     <gl-search-box-by-type
       :value="searchQuery"
       :placeholder="s__('FeatureLibrary|Search GitLab features')"
+      :debounce="$options.DEFAULT_DEBOUNCE_AND_THROTTLE_MS"
       class="gl-mb-4 gl-mt-3"
       @input="onSearchInput"
     />
@@ -185,7 +252,7 @@ export default {
       class="feature-library-scroll-area gl-min-h-0 gl-grow gl-overflow-y-auto"
     >
       <ul
-        v-if="filteredItems.length > 0"
+        v-if="!isSearching && filteredItems.length > 0"
         data-testid="feature-library-grid"
         class="gl-grid gl-list-none gl-grid-cols-1 gl-gap-3 gl-p-0 sm:gl-grid-cols-2 md:gl-grid-cols-3"
       >
@@ -198,6 +265,7 @@ export default {
           @navigate="onNavigate"
         />
       </ul>
+      <gl-loading-icon v-if="isSearching" size="sm" class="gl-mt-3" data-testid="search-loading" />
       <gl-empty-state
         v-if="showEmptyState"
         :title="s__('FeatureLibrary|No features match your search')"

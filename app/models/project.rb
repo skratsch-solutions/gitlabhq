@@ -1720,6 +1720,19 @@ class Project < ApplicationRecord
   end
 
   def latest_pipeline(ref = default_branch, sha = nil, source = nil)
+    return latest_pipelines(ref: ref, sha: sha, source: source).take unless
+      Feature.enabled?(:latest_pipeline_ref_first_lookup, self)
+
+    ref = ref.presence || default_branch
+    sha ||= commit(ref)&.sha
+    return unless sha
+
+    # A single commit can have a huge number of pipelines, so filtering on the sha
+    # can time out. Use the (project_id, ref, id DESC) index and only fall back to the sha
+    # filter when the newest pipeline is a different sha.
+    newest = ci_pipelines.newest_first(ref: ref, source: source).take
+    return newest if newest.nil? || newest.sha == sha
+
     latest_pipelines(ref: ref, sha: sha, source: source).take
   end
 

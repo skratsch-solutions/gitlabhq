@@ -26,7 +26,7 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   condition(:can_read_group_member) { can_read_group_member? }
 
   desc "User is a project bot"
-  condition(:project_bot) { user.project_bot? && access_level >= GroupMember::GUEST }
+  condition(:project_bot) { user&.project_bot? && access_level >= GroupMember::GUEST }
 
   condition(:has_projects) do
     # GUEST routes Users through the fast auth-only path

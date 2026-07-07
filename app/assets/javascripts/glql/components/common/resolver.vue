@@ -211,7 +211,7 @@ export default {
         :total-count="data.count"
         :page-size="variables.limit.value"
         :loading="loading"
-        @loadMore="loadMore"
+        @load-more="loadMore"
       />
     </div>
   </div>

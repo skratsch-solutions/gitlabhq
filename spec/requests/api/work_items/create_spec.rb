@@ -189,18 +189,6 @@ RSpec.describe API::WorkItems::Create, feature_category: :portfolio_management d
       end
     end
 
-    context 'when only the index feature flag is enabled' do
-      before do
-        stub_feature_flags(work_item_rest_api: false, work_item_rest_api_index: true)
-      end
-
-      it 'returns 403' do
-        post api(api_request_path, user), params: { title: 'New task', work_item_type_name: 'task' }
-
-        expect(response).to have_gitlab_http_status(:forbidden)
-      end
-    end
-
     context 'when unauthenticated' do
       it 'returns 401' do
         post api(api_request_path), params: { title: 'New task', work_item_type_name: 'task' }

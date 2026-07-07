@@ -195,10 +195,7 @@ export default {
   },
   computed: {
     useRestApi() {
-      return (
-        this.glFeatures.workItemRestApiFrontendUsers &&
-        (this.glFeatures.workItemRestApiIndex || this.glFeatures.workItemRestApi)
-      );
+      return this.glFeatures.workItemRestApiFrontendUsers;
     },
     issuablesWrapper() {
       return this.isManualOrdering ? VueDraggable : 'ul';

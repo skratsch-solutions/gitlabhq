@@ -69,7 +69,7 @@ module API
 
               if settings.blank?
                 status :no_content
-                header :etag, NO_CONTENT_ETAG
+                header 'Etag', NO_CONTENT_ETAG
                 body false
               else
                 # This endpoint does not use the :id parameter
@@ -78,7 +78,7 @@ module API
                 # We can rely on obtaining the first record of the setting
                 # result.
                 setting = settings.first
-                header :etag, setting[:uuid]
+                header 'Etag', setting[:uuid]
                 presenter = VsCodeSettingPresenter.new setting
                 present presenter, with: Entities::VsCodeSetting
               end

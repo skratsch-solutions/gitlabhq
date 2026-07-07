@@ -33,7 +33,7 @@ RSpec.describe 'User Settings > Granular personal access tokens > token creation
 
       within_testid('selected-namespaces') do
         expect(page).to have_text(group.full_path)
-        expect(page).to have_text('0 subgroups, 1 projects')
+        expect(page).to have_text('0 subgroups, 1 project')
         expect(page).to have_text(project.full_path)
       end
 

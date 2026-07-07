@@ -31,6 +31,11 @@ export default {
       required: false,
       default: '',
     },
+    loading: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   emits: ['click'],
   computed: {
@@ -52,11 +57,12 @@ export default {
     :aria-label="toggleLabel"
     :aria-expanded="ariaExpandedAttr"
     :aria-controls="anchorId"
+    :loading="loading"
     category="tertiary"
     :size="size"
     class="-gl-mr-2 !gl-p-0"
     @click="$emit('click')"
   >
-    <gl-animated-chevron-lg-down-up-icon :is-on="!isCollapsed" variant="default" />
+    <gl-animated-chevron-lg-down-up-icon v-if="!loading" :is-on="!isCollapsed" variant="default" />
   </gl-button>
 </template>

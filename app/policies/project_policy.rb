@@ -32,7 +32,7 @@ class ProjectPolicy < BasePolicy
   condition(:guest) { team_member? }
 
   desc "User is a project bot"
-  condition(:project_bot) { user.project_bot? && team_member? }
+  condition(:project_bot) { user&.project_bot? && team_member? }
 
   desc "Project is public"
   condition(:public_project, scope: :subject, score: 0) { project.public? }

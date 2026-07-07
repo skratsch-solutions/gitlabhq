@@ -656,7 +656,12 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       expect(findNamespaceSelector().exists()).toBe(true);
 
       expect(findNamespaceSelector().props('value')).toEqual([
-        expect.objectContaining({ id: 'gid://gitlab/Group/1', fullPath: 'my-group' }),
+        expect.objectContaining({
+          id: 'gid://gitlab/Group/1',
+          fullPath: 'my-group',
+          projectsCount: 5,
+          descendantGroupsCount: 2,
+        }),
       ]);
     });
 

@@ -134,9 +134,15 @@ export default {
     <gl-alert v-if="showAlert" variant="danger" class="gl-mb-4" @dismiss="hideAlert">
       {{ alertMessage }}
     </gl-alert>
-    <gl-table :items="tableItems" :fields="$options.fields" stacked="md" show-empty>
+    <gl-table
+      :items="tableItems"
+      :fields="$options.fields"
+      :tbody-tr-attr="{ 'data-testid': 'mirrored-repository-row-container' }"
+      stacked="md"
+      show-empty
+    >
       <template #cell(url)="{ item }">
-        {{ item.url }}
+        <span data-testid="mirror-repository-url-content">{{ item.url }}</span>
         <div v-if="repositoryMirrorsAvailable && item.mirrorBranchesSetting" class="gl-mt-3">
           <gl-badge
             v-gl-tooltip
@@ -155,8 +161,10 @@ export default {
         <span v-else>{{ $options.i18n.never }}</span>
       </template>
       <template #cell(lastUpdateAt)="{ item }">
-        <time-ago-tooltip v-if="item.lastUpdateAt" :time="item.lastUpdateAt" />
-        <span v-else>{{ $options.i18n.never }}</span>
+        <span data-testid="mirror-last-update-at-content">
+          <time-ago-tooltip v-if="item.lastUpdateAt" :time="item.lastUpdateAt" />
+          <span v-else>{{ $options.i18n.never }}</span>
+        </span>
       </template>
       <template #cell(errorStatus)="{ item }">
         <gl-badge
@@ -167,7 +175,13 @@ export default {
         >
           {{ $options.i18n.disabled }}
         </gl-badge>
-        <gl-badge v-if="item.lastError" v-gl-tooltip variant="danger" :title="item.lastError">
+        <gl-badge
+          v-if="item.lastError"
+          v-gl-tooltip
+          variant="danger"
+          :title="item.lastError"
+          data-testid="mirror-error-badge-content"
+        >
           {{ $options.i18n.error }}
         </gl-badge>
       </template>

@@ -557,3 +557,10 @@ ul.content-list {
     color: var(--gl-text-color-disabled);
   }
 }
+
+// GlDrawer's default max-height uses the viewport (100vh), which is too tall here and cuts
+// off the bottom of the drawer. Size it to the panel instead so it scrolls fully.
+// stylelint-disable-next-line gitlab/no-gl-class -- overriding GlDrawer's inline max-height
+.work-item-display-settings-drawer.gl-drawer {
+  max-height: calc(100% - var(--drawer-top-offset, 0px)) !important;
+}

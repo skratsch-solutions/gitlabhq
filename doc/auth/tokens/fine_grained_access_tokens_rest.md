@@ -1774,6 +1774,7 @@ Grants the ability to create, delete, read, and update virtual registries.
 | Delete | Group | `DELETE` | `/virtual_registries/container/upstreams/:id` |
 | Delete | Group | `DELETE` | `/virtual_registries/container/upstreams/:id/cache` |
 | Delete | Group | `DELETE` | `/virtual_registries/packages/maven/cache_entries/*id` |
+| Delete | Group | `DELETE` | `/virtual_registries/packages/maven/local/upstreams/:id` |
 | Delete | Group | `DELETE` | `/virtual_registries/packages/maven/registries/:id` |
 | Delete | Group | `DELETE` | `/virtual_registries/packages/maven/registries/:id/cache` |
 | Delete | Group | `DELETE` | `/virtual_registries/packages/maven/registry_upstreams/:id` |
@@ -1792,6 +1793,7 @@ Grants the ability to create, delete, read, and update virtual registries.
 | Read | Group | `GET` | `/virtual_registries/container/registries/:id/upstreams` |
 | Read | Group | `GET` | `/virtual_registries/container/upstreams/:id` |
 | Read | Group | `GET` | `/virtual_registries/container/upstreams/:id/cache_entries` |
+| Read | Group | `GET` | `/virtual_registries/packages/maven/local/upstreams/:id` |
 | Read | Group | `GET` | `/virtual_registries/packages/maven/registries/:id` |
 | Read | Group | `GET` | `/virtual_registries/packages/maven/registries/:id/upstreams` |
 | Read | Group | `GET` | `/virtual_registries/packages/maven/upstreams/:id` |
@@ -1806,6 +1808,7 @@ Grants the ability to create, delete, read, and update virtual registries.
 | Update | Group | `PATCH` | `/virtual_registries/container/registries/:id` |
 | Update | Group | `PATCH` | `/virtual_registries/container/registry_upstreams/:id` |
 | Update | Group | `PATCH` | `/virtual_registries/container/upstreams/:id` |
+| Update | Group | `PATCH` | `/virtual_registries/packages/maven/local/upstreams/:id` |
 | Update | Group | `PATCH` | `/virtual_registries/packages/maven/registries/:id` |
 | Update | Group | `PATCH` | `/virtual_registries/packages/maven/registry_upstreams/:id` |
 | Update | Group | `PATCH` | `/virtual_registries/packages/maven/upstreams/:id` |

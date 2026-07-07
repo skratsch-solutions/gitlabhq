@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import MirrorTable from 'ee_else_ce/mirrors/components/mirror_table.vue';
 
 export default function mountMirrorTable() {
@@ -19,8 +20,10 @@ export default function mountMirrorTable() {
     render(h) {
       return h(MirrorTable, {
         props: {
-          initialMirrors: JSON.parse(mirrors),
-          initialPullMirror: pullMirror ? JSON.parse(pullMirror) : null,
+          initialMirrors: convertObjectPropsToCamelCase(JSON.parse(mirrors), { deep: true }),
+          initialPullMirror: pullMirror
+            ? convertObjectPropsToCamelCase(JSON.parse(pullMirror), { deep: true })
+            : null,
         },
       });
     },

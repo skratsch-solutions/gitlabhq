@@ -567,6 +567,7 @@ export const catalogSinglePageResponse = {
                   webPath: '/user/1',
                 },
                 createdAt: '2024-01-26T19:40:03Z',
+                releasedAt: '2024-01-27T19:40:03Z',
                 name: '1.0.0',
                 path: '/root/catalog-component-test/-/tags/1.0.2',
                 components: {
@@ -644,6 +645,7 @@ export const catalogSharedDataMock = {
             name: '1.1.0',
             path: 'path/to/release',
             createdAt: '2026-02-15T00:00:00Z',
+            releasedAt: '2026-02-15T00:00:00Z',
             author: {
               __typename: 'UserCore',
               id: 'gid://gitlab/User/1',
@@ -684,6 +686,7 @@ const generateResourcesNodes = (count = 20, startId = 0) => {
             name: '1.0.0',
             path: 'path/to/release',
             createdAt: Date.now(),
+            releasedAt: Date.now(),
             author: {
               __typename: 'UserCore',
               id: 1,
@@ -759,11 +762,13 @@ export const mockVersionsResponse = {
             id: 'gid://gitlab/Ci::Catalog::Resources::Version/2',
             name: '1.1.0',
             createdAt: '2026-02-15T00:00:00Z',
+            releasedAt: '2026-02-15T00:00:00Z',
           },
           {
             id: 'gid://gitlab/Ci::Catalog::Resources::Version/1',
             name: '1.0.0',
             createdAt: '2024-02-15T00:00:00Z',
+            releasedAt: '2024-02-15T00:00:00Z',
           },
         ],
       },
