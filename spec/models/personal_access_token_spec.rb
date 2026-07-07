@@ -694,6 +694,14 @@ RSpec.describe PersonalAccessToken, feature_category: :system_access do
         end
       end
     end
+
+    describe 'description' do
+      it "can't exceed MAX_DESCRIPTION_LENGTH characters", :aggregate_failures do
+        personal_access_token.description = 'a' * (described_class::MAX_DESCRIPTION_LENGTH + 1)
+        expect(personal_access_token).not_to be_valid
+        expect(personal_access_token.errors[:description]).to include("is too long (maximum is #{described_class::MAX_DESCRIPTION_LENGTH} characters)")
+      end
+    end
   end
 
   describe 'delegations' do

@@ -44,7 +44,7 @@ export default {
       },
     },
   },
-  emits: ['tokenReset'],
+  emits: ['token-reset'],
   data() {
     return {
       loading: false,
@@ -119,7 +119,7 @@ export default {
     },
     onSuccess(token) {
       this.$toast?.show(s__('Runners|New registration token generated!'));
-      this.$emit('tokenReset', token);
+      this.$emit('token-reset', token);
     },
   },
 };

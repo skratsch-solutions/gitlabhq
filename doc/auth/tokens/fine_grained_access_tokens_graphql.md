@@ -359,6 +359,7 @@ Grants the ability to create, read, resume, and update duo workflows.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
+| Read | User | Type | `DuoWorkflowWorkItemLink` |
 | Update | User | Mutation | `UpdateDuoWorkflowAgentPrivileges` |
 
 #### Model Selection Allowlist

@@ -884,6 +884,14 @@ RSpec.describe Issuable, feature_category: :team_planning do
       expect(relation.labels_hash[issue_id]).to include('Feature', 'Second Label')
     end
 
+    it 'maps issue ids to labels titles across batches' do
+      stub_const('Issuable::LABELS_HASH_BATCH_SIZE', 2)
+
+      labels_hash = Issue.labels_hash
+
+      expect(issues.map { |issue| labels_hash[issue.id] }).to all(match_array(['Feature', 'Second Label']))
+    end
+
     # This tests the workaround for the lack of a NOT NULL constraint in
     # label_links.label_id:
     # https://gitlab.com/gitlab-org/gitlab/issues/197307

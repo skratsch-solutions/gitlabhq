@@ -42,6 +42,8 @@ class PersonalAccessToken < ApplicationRecord
   MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS_BUFFERED = 400
   MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS = 365
 
+  MAX_DESCRIPTION_LENGTH = 255
+
   serialize :scopes, type: Array # rubocop:disable Cop/ActiveRecordSerialize
 
   enum :user_type, HasUserType::USER_TYPES
@@ -104,6 +106,7 @@ class PersonalAccessToken < ApplicationRecord
   scope :with_token_digests, ->(digests) { where(token_digest: digests) }
 
   validates :name, :scopes, presence: true
+  validates :description, length: { maximum: MAX_DESCRIPTION_LENGTH }, allow_blank: true
   validates :expires_at, presence: true, on: :create, unless: :allow_expires_at_to_be_empty?
 
   validate :validate_scopes

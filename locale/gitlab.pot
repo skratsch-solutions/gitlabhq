@@ -22136,6 +22136,9 @@ msgstr ""
 msgid "ContinuousDeployment|All types"
 msgstr ""
 
+msgid "ContinuousDeployment|Application"
+msgstr ""
+
 msgid "ContinuousDeployment|Application identity"
 msgstr ""
 
@@ -22310,6 +22313,9 @@ msgstr ""
 msgid "ContinuousDeployment|No artifact sources configured."
 msgstr ""
 
+msgid "ContinuousDeployment|No services in this release."
+msgstr ""
+
 msgid "ContinuousDeployment|No versions recorded."
 msgstr ""
 
@@ -22349,6 +22355,9 @@ msgstr ""
 msgid "ContinuousDeployment|Release"
 msgstr ""
 
+msgid "ContinuousDeployment|Release not found"
+msgstr ""
+
 msgid "ContinuousDeployment|Releases"
 msgstr ""
 
@@ -22365,6 +22374,9 @@ msgid "ContinuousDeployment|Service not found"
 msgstr ""
 
 msgid "ContinuousDeployment|Services"
+msgstr ""
+
+msgid "ContinuousDeployment|Services in this release"
 msgstr ""
 
 msgid "ContinuousDeployment|Source"
@@ -62094,12 +62106,6 @@ msgid "ReleaseAssetLinkType|Runbook"
 msgstr ""
 
 msgid "ReleaseAssetLinkType|Runbooks"
-msgstr ""
-
-msgid "ReleaseCreation|Build new release"
-msgstr ""
-
-msgid "ReleaseCreation|Bundle new release"
 msgstr ""
 
 msgid "ReleaseCreation|Create release"

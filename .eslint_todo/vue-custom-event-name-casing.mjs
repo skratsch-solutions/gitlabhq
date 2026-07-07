@@ -42,7 +42,6 @@ export default {
     'app/assets/javascripts/ci/reports/components/report_section.vue',
     'app/assets/javascripts/ci/runner/components/cells/runner_actions_cell.vue',
     'app/assets/javascripts/ci/runner/components/registration/registration_instructions.vue',
-    'app/assets/javascripts/ci/runner/components/registration/registration_token_reset_dropdown_item.vue',
     'app/assets/javascripts/ci/runner/components/runner_bulk_actions.vue',
     'app/assets/javascripts/ci/runner/components/runner_create_wizard_optional_fields.vue',
     'app/assets/javascripts/ci/runner/components/runner_create_wizard_required_fields.vue',
