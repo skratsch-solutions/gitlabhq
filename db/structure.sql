@@ -6761,7 +6761,8 @@ CREATE TABLE merge_request_diff_files_99208b8fac (
     encoded_file_path boolean DEFAULT false NOT NULL,
     project_id bigint,
     merge_request_diff_id bigint NOT NULL,
-    relative_order integer NOT NULL
+    relative_order integer NOT NULL,
+    CONSTRAINT check_87c184d62f CHECK ((project_id IS NOT NULL))
 )
 PARTITION BY RANGE (merge_request_diff_id);
 
@@ -40405,9 +40406,6 @@ ALTER TABLE ONLY project_type_ci_runners
 
 ALTER TABLE ONLY group_type_ci_runners
     ADD CONSTRAINT check_81b90172a6 UNIQUE (id);
-
-ALTER TABLE merge_request_diff_files_99208b8fac
-    ADD CONSTRAINT check_87c184d62f CHECK ((project_id IS NOT NULL)) NOT VALID;
 
 ALTER TABLE abuse_reports
     ADD CONSTRAINT check_95e5f0c300 CHECK ((char_length(message) <= 2048)) NOT VALID;

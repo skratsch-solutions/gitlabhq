@@ -34,6 +34,19 @@ RSpec.describe Projects::RunnerProjectsController, feature_category: :fleet_visi
         expect(response).to redirect_to project_runners_path(project)
       end
     end
+
+    context 'when the runner belongs to another organization' do
+      let_it_be(:other_organization) { create(:organization) }
+      let_it_be(:other_org_project) { create(:project, organization: other_organization, maintainers: user) }
+      let_it_be(:project_runner) { create(:ci_runner, :project, projects: [other_org_project]) }
+
+      it 'does not assign the runner and redirects with a flash error', :aggregate_failures do
+        expect { send_create }.not_to change { project.runner_projects.count }
+
+        expect(flash[:alert]).to eq(_('runner can only be assigned to projects in the same organization'))
+        expect(response).to redirect_to project_runners_path(project)
+      end
+    end
   end
 
   describe '#destroy' do

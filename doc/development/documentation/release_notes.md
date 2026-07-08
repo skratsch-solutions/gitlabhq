@@ -249,7 +249,7 @@ maps to one of the following sections:
 | Section                     | Stages |
 | --------------------------- | ------ |
 | Primary features            | -      |
-| Agentic Core                | `ai-powered`, `modelops` |
+| Agentic Core                | `ai_platform`, `ai_coding`, `agent_foundations`, `ai_clients`, `modelops` |
 | Unified DevOps and Security | `analytics`, `application_security_testing`, `create`, `deploy`, `knowledge_graph`, `package`, `plan`, `security_risk_management`, `software_supply_chain_security`, `verify` |
 | Scale and Deployments       | `data_access`, `database_excellence`, `developer_experience`, `foundations`, `fulfillment`, `gitlab_dedicated`, `gitlab_delivery`, `growth`, `production_engineering`, `tenant_scale`, `unlisted/unknown` |
 
