@@ -312,7 +312,6 @@ module Gitlab
     config.assets.precompile << "application_no_bootstrap_utils.css"
     config.assets.precompile << "application_dark_no_bootstrap_utils.css"
     config.assets.precompile << "tailwind.css"
-    config.assets.precompile << "tailwind_cqs.css"
 
     config.assets.precompile << "print.css"
     config.assets.precompile << "mailers/highlighted_diff_email.css"

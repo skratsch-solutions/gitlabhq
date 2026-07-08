@@ -215,17 +215,20 @@ RSpec.describe 'Labkit::RateLimit rack middleware', :clean_gitlab_redis_rate_lim
       expect(labkit_count_for('runner_jobs')).to eq(0)
     end
 
-    # An authenticated request on this path is skipped out of authenticated_api. This
-    # also documents the accepted divergence: a PAT (neither runner nor job token) to
-    # /api/v4/jobs/* is throttled by Rack::Attack but skipped here, since no identity
-    # fact distinguishes a PAT user from a job-token user on a jobs path.
-    it 'skips an authenticated request out of authenticated_api', :aggregate_failures do
+    # An authenticated request on this path is claimed by the runner_jobs :skip rule,
+    # which terminates without counting - so no counter moves at all, for a request
+    # the sibling example shows would otherwise count. This also documents the
+    # accepted divergence: a PAT (neither runner nor job token) to /api/v4/jobs/* is
+    # throttled by Rack::Attack but skipped here, since no identity fact distinguishes
+    # a PAT user from a job-token user on a jobs path.
+    it 'skips an authenticated request out of authenticated_api without counting', :aggregate_failures do
       token = create(:personal_access_token)
 
       get '/api/v4/jobs/1/trace', params: { private_token: token.token }
 
       expect(labkit_count_for('authenticated_api')).to eq(0)
-      expect(labkit_count_for('runner_jobs')).to be > 0
+      expect(labkit_count_for('unauthenticated_api')).to eq(0)
+      expect(labkit_count_for('runner_jobs')).to eq(0)
     end
   end
 
@@ -261,17 +264,18 @@ RSpec.describe 'Labkit::RateLimit rack middleware', :clean_gitlab_redis_rate_lim
     end
 
     # Even with labkit's counter pre-seeded over the limit and enforce on, a bypassed
-    # request is allowed: labkit's bypass rule matches first, counts the hit, and
-    # terminates the limiter before the throttle rule, mirroring the Rack::Attack
-    # safelist short-circuit.
-    it 'skips the throttle, is not blocked, and counts the bypass instead', :aggregate_failures do
+    # request is allowed: labkit's bypass :skip rule matches first and terminates the
+    # limiter before the throttle rule, mirroring the Rack::Attack safelist
+    # short-circuit. The allowed response is the proof the bypass claimed the request;
+    # :skip writes no counter of its own.
+    it 'skips the throttle, is not blocked, and writes no bypass counter', :aggregate_failures do
       Gitlab::Redis::RateLimiting.with { |redis| redis.set(labkit_key, 100) }
 
       get "/-/collector/i?aid=#{aid}", headers: { 'Gitlab-Bypass' => '1' }
 
       expect(response).not_to have_gitlab_http_status(:too_many_requests)
       expect(labkit_count).to eq(100) # the product-analytics counter is untouched
-      expect(labkit_count_for('bypass_header')).to be > 0
+      expect(labkit_count_for('bypass_header')).to eq(0)
     end
   end
 end

@@ -198,6 +198,36 @@ RSpec.describe Ci::BuildPolicy, feature_category: :continuous_integration do
     end
   end
 
+  describe ':read_job_inputs' do
+    subject { policy }
+
+    let_it_be(:project, freeze: true) { create(:project) }
+
+    context 'when user is at least a reporter' do
+      let_it_be(:user) { create(:user, reporter_of: project) }
+
+      it { expect_allowed(:read_job_inputs) }
+    end
+
+    context 'when user is a planner' do
+      let_it_be(:user) { create(:user, planner_of: project) }
+
+      it { expect_disallowed(:read_job_inputs) }
+    end
+
+    context 'when user is a guest' do
+      let_it_be(:user) { create(:user, guest_of: project) }
+
+      it { expect_disallowed(:read_job_inputs) }
+    end
+
+    context 'when user is not a member of the project' do
+      let(:user) { create(:user) }
+
+      it { expect_disallowed(:read_job_inputs) }
+    end
+  end
+
   describe '#rules' do
     context 'when user does not have access to the project' do
       let_it_be_with_reload(:project) { create(:project, :private) }

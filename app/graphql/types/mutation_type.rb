@@ -131,6 +131,7 @@ module Types
     mount_mutation Mutations::Notes::ConvertToThread
     mount_mutation Mutations::Notes::RepositionImageDiffNote
     mount_mutation Mutations::Notes::Destroy
+    mount_mutation Mutations::Organizations::Confirm, experiment: { milestone: '19.2' }
     mount_mutation Mutations::Organizations::Create, experiment: { milestone: '16.6' }
     mount_mutation Mutations::Organizations::Delete, experiment: { milestone: '19.1' }
     mount_mutation Mutations::Organizations::Update, experiment: { milestone: '16.7' }

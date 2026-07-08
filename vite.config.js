@@ -137,7 +137,6 @@ export default defineConfig({
     ImagesPlugin(),
     StylePlugin({ shouldWatch: viteGDKConfig.hmr !== null }),
     viteTailwindCompilerPlugin({ shouldWatch: viteGDKConfig.hmr !== null }),
-    viteTailwindCompilerPlugin({ shouldWatch: viteGDKConfig.hmr !== null, buildCQs: true }),
     CopyPlugin({
       patterns: copyFilesPatterns,
     }),

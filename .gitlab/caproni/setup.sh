@@ -695,6 +695,18 @@ if [[ -f "$VITE_GDK_JSON" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
+# 6a. Set duo_workflow.service_url before Puma caches config/gitlab.yml at boot.
+# ---------------------------------------------------------------------------
+
+if [[ -f "$GITLAB_YML" ]] && ! grep -q '^  duo_workflow:' "$GITLAB_YML"; then
+  echo ""
+  echo "==> Setting duo_workflow.service_url in config/gitlab.yml..."
+  awk '/^development:/ && !d {print; print "  duo_workflow:"; print "    service_url: ai-gateway.ai-gateway.svc.cluster.local:50052"; print "    secure: false"; d=1; next} 1' \
+    "$GITLAB_YML" > "$GITLAB_YML.tmp" && mv "$GITLAB_YML.tmp" "$GITLAB_YML"
+  echo "  ✓ config/gitlab.yml duo_workflow.service_url set."
+fi
+
+# ---------------------------------------------------------------------------
 # 7. Summary
 # ---------------------------------------------------------------------------
 

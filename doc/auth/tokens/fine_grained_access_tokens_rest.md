@@ -19,9 +19,14 @@ title: Fine-grained permissions for personal access tokens in the REST API
 
 - Tier: Free, Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-- Status: Beta
 
 {{< /details >}}
+
+{{< history >}}
+
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/596613) in GitLab 19.2.
+
+{{< /history >}}
 
 To create a fine-grained personal access token, see
 [Fine-grained permissions for personal access tokens](fine_grained_access_tokens.md#create-a-fine-grained-personal-access-token).

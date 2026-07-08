@@ -53,12 +53,12 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
     end
 
     describe 'synthetic terminating rules' do
-      it 'gives every limiter a first-position bypass rule that counts, allows and terminates' do
+      it 'gives every limiter a first-position bypass rule that permits and terminates without counting' do
         described_class.all
 
         expect(Labkit::RateLimit::Rule).to have_received(:new)
           .with(hash_including(name: 'bypass_header', match: { bypass: true },
-            characteristics: [:ip], action: :allow)).at_least(:once)
+            characteristics: [:ip], action: :skip)).at_least(:once)
       end
 
       it 'builds one unauthenticated skip rule per registry skip_match' do
@@ -66,7 +66,7 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
 
         registry.skip_matches.each do |name, match|
           expect(Labkit::RateLimit::Rule).to have_received(:new)
-            .with(hash_including(name: name, match: match, action: :allow)).at_least(:once)
+            .with(hash_including(name: name, match: match, action: :skip)).at_least(:once)
         end
       end
 
@@ -75,7 +75,7 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
 
         expect(Labkit::RateLimit::Rule).to have_received(:new)
           .with(hash_including(name: 'runner_jobs',
-            match: { path: Gitlab::RackAttack::Request::RUNNER_JOBS_PATH_REGEX, requester_id: /./ }, action: :allow))
+            match: { path: Gitlab::RackAttack::Request::RUNNER_JOBS_PATH_REGEX, requester_id: /./ }, action: :skip))
       end
     end
 
@@ -91,17 +91,17 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
           .with(hash_including(name: 'unauthenticated_web', action: :log))
       end
 
-      it 'follows the dry-run rule with a terminating allow bypass of the same match' do
+      it 'follows the dry-run rule with a terminating skip bypass of the same match' do
         entry = registry.all.fetch('throttle_unauthenticated_web')
         described_class.all
 
         expect(Labkit::RateLimit::Rule).to have_received(:new)
-          .with(hash_including(name: 'unauthenticated_web_dry_run_bypass', match: entry.match, action: :allow))
+          .with(hash_including(name: 'unauthenticated_web_dry_run_bypass', match: entry.match, action: :skip))
       end
 
       it 'shapes the frontend companion as its own dry-run log rule and bypass' do
         # The companion is the same Rack::Attack throttle, so it follows the same
-        # dry-run state: a :log rule and its own terminating :allow, keyed by the
+        # dry-run state: a :log rule and its own terminating :skip, keyed by the
         # companion name so it does not collide with the web-path rule's counter.
         frontend_match = registry.all.fetch('throttle_unauthenticated_web_frontend').match
         described_class.all
@@ -110,7 +110,7 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
           .with(hash_including(name: 'unauthenticated_web_frontend', match: frontend_match, action: :log))
         expect(Labkit::RateLimit::Rule).to have_received(:new)
           .with(hash_including(name: 'unauthenticated_web_frontend_dry_run_bypass', match: frontend_match,
-            action: :allow))
+            action: :skip))
       end
     end
   end

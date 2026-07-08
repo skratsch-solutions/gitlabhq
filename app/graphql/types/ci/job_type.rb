@@ -147,7 +147,8 @@ module Types
         end
 
       field :inputs, [Types::Ci::Inputs::FieldType], null: true,
-        description: 'Input values that were used when the job was created or retried. A value is only present in the field if it differs from the default value in the input configuration. This field can only be resolved for one job in any single request.' do
+        description: 'Input values that were used when the job was created or retried. A value is only present in the field if it differs from the default value in the input configuration. This field can only be resolved for one job in any single request.',
+        authorize: :read_job_inputs do
           extension ::Gitlab::Graphql::Limit::FieldCallCount, limit: 1
         end
 

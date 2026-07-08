@@ -53,11 +53,11 @@ module Gitlab
       #             no authenticated rule matches) and runner_id present (so no
       #             unauthenticated rule matches), so they escape on every path.
       #
-      # All three are :allow: they count the hit (so the otherwise invisible
-      # short-circuit is observable via calls_total) and terminate evaluation while
-      # permitting, so the throttle rules below never run. They would be :skip once
-      # Labkit ships that action (gitlab-com/gl-infra/production-engineering#29052);
-      # :allow is the terminating-and-counting stand-in until then.
+      # All three are :skip: they terminate evaluation while permitting, so the
+      # throttle rules below never run, and they perform no Redis write (the
+      # bypass volume made these counters the majority of the shadow's Redis
+      # load; see gitlab-com/gl-infra/production-engineering#29052). The
+      # short-circuit stays observable via calls_total{action="skip"}.
       #
       # The limiters are memoized: the rule set is fixed, and the only per-request
       # variation (the limit/period values, the matched facts) is read live inside
@@ -96,52 +96,52 @@ module Gitlab
             )
           end
 
-          # The terminating :allow rules ahead of the throttle rules. bypass is on
+          # The terminating :skip rules ahead of the throttle rules. bypass is on
           # every limiter (the safelist skips all throttles); skip is on the limiters
           # whose unauthenticated throttles exclude should_be_skipped? paths; the
           # runner-jobs rule is on the general limiter, whose authenticated API throttle
           # excludes authenticated requests on the runner-jobs path.
           def synthetic_rules(limiter_name)
-            rules = [allow_rule(BYPASS_RULE_NAME, { bypass: true })]
+            rules = [skip_rule(BYPASS_RULE_NAME, { bypass: true })]
 
             if [ThrottleRegistry::GENERAL, ThrottleRegistry::PROTECTED].include?(limiter_name)
               ThrottleRegistry.skip_matches.each do |name, match|
-                rules << allow_rule(name, match)
+                rules << skip_rule(name, match)
               end
             end
 
             if limiter_name == ThrottleRegistry::GENERAL
-              rules << allow_rule(RUNNER_RULE_NAME,
+              rules << skip_rule(RUNNER_RULE_NAME,
                 { path: ::Gitlab::RackAttack::Request::RUNNER_JOBS_PATH_REGEX, requester_id: /./ })
             end
 
             rules
           end
 
-          # A synthetic terminating rule: counts by IP so the short-circuit is
-          # observable, and :allow permits regardless of count (limit/period are
-          # immaterial).
-          def allow_rule(name, match)
+          # A synthetic terminating rule: :skip permits and terminates without a
+          # Redis operation. The SDK still requires the limit/period/characteristics
+          # kwargs, but they are inert on :skip rules.
+          def skip_rule(name, match)
             ::Labkit::RateLimit::Rule.new(
               name: name,
               match: match,
               characteristics: [:ip],
               limit: 0,
               period: 60,
-              action: :allow
+              action: :skip
             )
           end
 
           # An enforced throttle is a single :block rule. A dry-run throttle (named
           # in GITLAB_THROTTLE_DRY_RUN, so Gitlab::RackAttack.track? is true) is two
           # rules in order: a :log rule that counts the hit and records whether it
-          # would have exceeded, then a terminating :allow with the same match. The
+          # would have exceeded, then a terminating :skip with the same match. The
           # SDK does not terminate on :log (evaluation continues to later rules), so
           # the :log rule alone would let a dry-run specialized request fall through
           # and be reclaimed by the general rule below it. Rack::Attack's
           # !throttle_*? exclusion holds regardless of whether the throttle is
-          # tracked, so the :allow restores that: the request short-circuits, counted
-          # but never blocked.
+          # tracked, so the :skip restores that: the request short-circuits
+          # unblocked, with only the :log rule counting.
           def build_rules(entry)
             return [throttle_rule(entry, :block)] unless ::Gitlab::RackAttack.track?(entry.name)
 
@@ -161,12 +161,11 @@ module Gitlab
             )
           end
 
-          # The terminating :allow paired with a dry-run throttle's :log rule. Same
+          # The terminating :skip paired with a dry-run throttle's :log rule. Same
           # match as the :log rule so it claims exactly the requests that throttle
-          # would have, and the same counts-by-IP shape as the other synthetic allows
-          # so the short-circuit is observable.
+          # would have; the preceding :log rule does the counting.
           def dry_run_bypass_rule(entry)
-            allow_rule("#{entry.rule_name}_dry_run_bypass", entry.match)
+            skip_rule("#{entry.rule_name}_dry_run_bypass", entry.match)
           end
 
           # Rack::Attack options carry either a plain value (e.g. the hardcoded

@@ -506,7 +506,6 @@ export default {
     'ee/app/assets/javascripts/security_dashboard/components/shared/charts/total_risk_score.vue',
     'ee/app/assets/javascripts/security_dashboard/components/shared/empty_states/dashboard_has_no_vulnerabilities.vue',
     'ee/app/assets/javascripts/security_dashboard/components/shared/empty_states/filters_produced_no_results.vue',
-    'ee/app/assets/javascripts/security_dashboard/components/shared/empty_states/unavailable_state.vue',
     'ee/app/assets/javascripts/security_dashboard/components/shared/filtered_search/components/search_suggestion.vue',
     'ee/app/assets/javascripts/security_dashboard/components/shared/filtered_search/tokens/activity_token.vue',
     'ee/app/assets/javascripts/security_dashboard/components/shared/filtered_search/tokens/cluster_token.vue',

@@ -5,6 +5,7 @@ export default {
   files: [
     'app/assets/javascripts/add_context_commits_modal/store/actions.js',
     'app/assets/javascripts/analytics/cycle_analytics/constants.js',
+    'app/assets/javascripts/analytics/dashboards/utils.js',
     'app/assets/javascripts/analytics/shared/utils.js',
     'app/assets/javascripts/blob/openapi/index.js',
     'app/assets/javascripts/error_tracking/components/error_details_info.vue',
@@ -48,7 +49,6 @@ export default {
     'app/assets/javascripts/vue_shared/components/list_selector/api.js',
     'app/assets/javascripts/vue_shared/components/source_viewer/plugins/utils/godeps_json_linker.js',
     'app/assets/javascripts/work_items/utils.js',
-    'app/assets/javascripts/analytics/analytics_dashboards/components/visualizations/data_table/metric_label.vue',
     'ee/app/assets/javascripts/analytics/analytics_dashboards/data_sources/cube_analytics.js',
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/constants.js',
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/utils/helpers.js',

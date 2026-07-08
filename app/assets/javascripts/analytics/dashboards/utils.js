@@ -11,8 +11,9 @@ import {
   localeDateFormat,
 } from '~/lib/utils/datetime_utility';
 import { days, percentHundred, minutes } from '~/lib/utils/unit_format';
+import { joinPaths, mergeUrlParams } from '~/lib/utils/url_utility';
 import dateFormat from '~/lib/dateformat';
-import { UNITS, dateFormats } from '../shared/constants';
+import { UNITS, dateFormats, VALUE_STREAM_METRIC_METADATA } from '../shared/constants';
 import { formatBigInt } from '../shared/utils';
 import {
   TABLE_METRICS,
@@ -448,4 +449,34 @@ export const getMonthsInDateRange = (startDate, endDate) => {
   }
 
   return dateRangeData;
+};
+
+/**
+ * Builds the drill-down URL for a value-stream-metadata-backed metric. Returns
+ * an empty string when the identifier has no metadata or when no namespace is
+ * provided, signaling "no link" to the rendering component.
+ *
+ * @param {Object} params
+ * @param {String} params.identifier - the metric identifier
+ * @param {Boolean} params.isProject - whether the namespace is a project
+ * @param {String} params.namespace - the namespace full path
+ * @param {String[]} [params.filterLabels] - labels to forward as URL params
+ * @returns {String} The drill-down URL, or `''` if none is available
+ */
+export const buildMetricLink = ({ identifier, isProject, namespace, filterLabels = [] }) => {
+  const metadata = VALUE_STREAM_METRIC_METADATA[identifier];
+  if (!metadata || !namespace) return '';
+
+  const { groupLink, projectLink } = metadata;
+  const url = joinPaths(
+    '/',
+    gon.relative_url_root,
+    !isProject ? 'groups' : '',
+    namespace,
+    isProject ? projectLink : groupLink,
+  );
+
+  if (!filterLabels.length) return url;
+
+  return mergeUrlParams({ label_name: filterLabels }, url, { spreadArrays: true });
 };

@@ -418,7 +418,7 @@ gem 'gitlab-bitbucket-server', path: 'gems/gitlab-bitbucket-server',
   require: 'bitbucket_server', feature_category: :importers
 
 gem 'premailer-rails', '~> 1.12.0', feature_category: :notifications
-gem 'gitlab-labkit', '~> 2.6.1', feature_category: :error_budgets
+gem 'gitlab-labkit', '~> 2.7.0', feature_category: :error_budgets
 gem 'thrift', '~> 0.22.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
 # I18n

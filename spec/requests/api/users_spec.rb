@@ -5885,6 +5885,60 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       expect(json_response.size).to eq(2)
     end
 
+    context 'when expose_last_used_ips_for_access_tokens feature flag is enabled' do
+      before do
+        stub_feature_flags(expose_last_used_ips_for_access_tokens: true)
+      end
+
+      it 'includes last_used_ips in response' do
+        get api(path, admin, admin_mode: true)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.first).to have_key('last_used_ips')
+      end
+
+      context 'when a token has recorded last_used_ips' do
+        let(:ip_address) { '192.0.2.10' }
+
+        before do
+          impersonation_token.last_used_ips.create!(organization: organization, ip_address: ip_address)
+        end
+
+        it 'exposes last_used_ips in the response' do
+          get api(path, admin, admin_mode: true)
+
+          token_response = json_response.find { |t| t['id'] == impersonation_token.id }
+          expect(token_response['last_used_ips']).to include(ip_address)
+        end
+      end
+
+      it 'does not have N+1 queries for last_used_ips' do
+        get api(path, admin, admin_mode: true)
+
+        control = ActiveRecord::QueryRecorder.new do
+          get api(path, admin, admin_mode: true)
+        end
+
+        extra_token = create(:personal_access_token, :impersonation, user: user)
+        extra_token.last_used_ips.create!(organization: organization, ip_address: '192.0.2.20')
+
+        expect { get api(path, admin, admin_mode: true) }.not_to exceed_query_limit(control)
+      end
+    end
+
+    context 'when expose_last_used_ips_for_access_tokens feature flag is disabled' do
+      before do
+        stub_feature_flags(expose_last_used_ips_for_access_tokens: false)
+      end
+
+      it 'does not include last_used_ips in response' do
+        get api(path, admin, admin_mode: true)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.first).not_to have_key('last_used_ips')
+      end
+    end
+
     it 'returns an array of active impersonation tokens if state active' do
       get api("#{path}?state=active", admin, admin_mode: true)
 

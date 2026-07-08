@@ -1,6 +1,6 @@
 <script>
-import { GlDisclosureDropdown, GlBadge } from '@gitlab/ui';
-import { s__, __ } from '~/locale';
+import { GlDisclosureDropdown } from '@gitlab/ui';
+import { s__ } from '~/locale';
 import { InternalEvents } from '~/tracking';
 import { CLICK_GENERATE_FINE_GRAINED_PERSONAL_ACCESS_TOKEN } from '../constants';
 
@@ -8,7 +8,6 @@ export default {
   name: 'CreatePersonalAccessTokenDropdown',
   components: {
     GlDisclosureDropdown,
-    GlBadge,
   },
   mixins: [InternalEvents.mixin()],
   inject: {
@@ -24,7 +23,6 @@ export default {
           text: this.$options.i18n.fineGrainedToken,
           href: this.accessTokenGranularNewUrl,
           description: this.$options.i18n.fineGrainedTokenDescription,
-          badge: this.$options.i18n.beta,
         },
       ];
 
@@ -59,7 +57,6 @@ export default {
     legacyTokenDescription: s__(
       'AccessTokens|Scoped to all groups and projects with broad permissions to resources.',
     ),
-    beta: __('Beta'),
   },
 };
 </script>
@@ -78,9 +75,6 @@ export default {
       <div class="gl-mx-3 gl-w-34">
         <div class="gl-font-bold">
           {{ item.text }}
-          <gl-badge v-if="item.badge" class="gl-ml-2">
-            {{ item.badge }}
-          </gl-badge>
         </div>
         <div class="gl-mt-2 gl-text-subtle">{{ item.description }}</div>
       </div>

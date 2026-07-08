@@ -55539,7 +55539,7 @@ msgstr ""
 msgid "Permissions"
 msgstr ""
 
-msgid "Permissions Assistant (beta)"
+msgid "Permissions Assistant"
 msgstr ""
 
 msgid "Permissions Help"
@@ -62237,6 +62237,12 @@ msgstr ""
 msgid "ReleaseAssetLinkType|Runbooks"
 msgstr ""
 
+msgid "ReleaseCreation|%{count} changed"
+msgstr ""
+
+msgid "ReleaseCreation|Changed"
+msgstr ""
+
 msgid "ReleaseCreation|Create release"
 msgstr ""
 
@@ -67130,9 +67136,6 @@ msgstr ""
 msgid "Security Analyst"
 msgstr ""
 
-msgid "Security Dashboard"
-msgstr ""
-
 msgid "Security Finding not found"
 msgstr ""
 
@@ -67784,6 +67787,9 @@ msgid "SecurityConfiguration|Select projects"
 msgstr ""
 
 msgid "SecurityConfiguration|Select scanners"
+msgstr ""
+
+msgid "SecurityConfiguration|Show scanner coverage across all configuration methods, including security policies, CI configuration, and configuration profiles."
 msgstr ""
 
 msgid "SecurityConfiguration|Showing projects that match this statistic. Dismiss to view all."
@@ -71869,9 +71875,6 @@ msgstr ""
 msgid "SecurityReports|Edit vulnerability"
 msgstr ""
 
-msgid "SecurityReports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
-msgstr ""
-
 msgid "SecurityReports|Enable"
 msgstr ""
 
@@ -71983,9 +71986,6 @@ msgstr ""
 msgid "SecurityReports|Learn more about security configuration"
 msgstr ""
 
-msgid "SecurityReports|Learn more about setting up your dashboard"
-msgstr ""
-
 msgid "SecurityReports|Limited experience available"
 msgstr ""
 
@@ -72076,9 +72076,6 @@ msgid "SecurityReports|OWASP Top 10 2025"
 msgstr ""
 
 msgid "SecurityReports|Only the top %{count} projects with the highest risk scores are shown. Use the filter at the top of the dashboard to narrow down your results."
-msgstr ""
-
-msgid "SecurityReports|Oops, something doesn't seem right."
 msgstr ""
 
 msgid "SecurityReports|Open vulnerabilities by the amount of time since they were opened."
@@ -89977,6 +89974,9 @@ msgid "You cannot invite a new member to %{strong_start}%{group_name}%{strong_en
 msgstr ""
 
 msgid "You cannot invite a new member to %{strong_start}%{project_name}%{strong_end}. User invitations are disabled by the %{actor}."
+msgstr ""
+
+msgid "You cannot mirror a repository to itself."
 msgstr ""
 
 msgid "You cannot modify security policy project for group designated as CSP."

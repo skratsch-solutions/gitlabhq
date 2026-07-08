@@ -5,7 +5,6 @@ import {
   GlFormInput,
   GlFormTextarea,
   GlButton,
-  GlExperimentBadge,
   GlLink,
   GlSprintf,
   GlLoadingIcon,
@@ -57,7 +56,6 @@ export default {
     GlButton,
     ConfirmUnsavedChangesDialog,
     CreatedPersonalAccessToken,
-    GlExperimentBadge,
     GlLink,
     GlSprintf,
     GlLoadingIcon,
@@ -381,7 +379,6 @@ export default {
         <template #heading>
           <span class="gl-flex">
             {{ $options.i18n.heading }}
-            <gl-experiment-badge type="beta" class="gl-self-center" />
           </span>
         </template>
         <template #description>

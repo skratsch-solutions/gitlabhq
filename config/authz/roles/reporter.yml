@@ -75,6 +75,7 @@ project:
   - read_incident_management_oncall_schedule
   - read_internal_note
   - read_issuable_resource_link
+  - read_job_inputs
   - read_licenses
   - read_manual_variables
   - read_merge_request

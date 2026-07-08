@@ -48,10 +48,6 @@ describe('CreatePersonalAccessTokenDropdown', () => {
       expect(findFineGrainedTokenOption().text).toBe('Fine-grained token');
     });
 
-    it('displays the beta badge', () => {
-      expect(findFineGrainedTokenOption().badge).toBe('Beta');
-    });
-
     it('displays the correct description', () => {
       expect(findFineGrainedTokenOption().description).toBe(
         'Limit scope to specific groups and projects and fine-grained permissions to resources.',

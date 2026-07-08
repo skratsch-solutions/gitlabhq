@@ -45,6 +45,7 @@ type sendQueryParams struct {
 	Format         string    `json:"Format"`
 	TimeoutSeconds int       `json:"TimeoutSeconds,omitempty"`
 	McpID          any       `json:"McpId,omitempty"`
+	ClientIP       string    `json:"ClientIp,omitempty"`
 }
 
 type queryResponse struct {
@@ -152,7 +153,7 @@ func (sq *SendQuery) recvLoop(
 
 		switch c := msg.GetContent().(type) {
 		case *gkgpb.ExecuteQueryMessage_Redaction:
-			if err := sq.handleRedaction(ctx, r, stream, c.Redaction); err != nil {
+			if err := sq.handleRedaction(ctx, r, stream, c.Redaction, params.ClientIP); err != nil {
 				fail.Request(w, r, err, fail.WithStatus(http.StatusBadGateway))
 				return
 			}
@@ -202,13 +203,14 @@ func (sq *SendQuery) handleRedaction(
 	originalReq *http.Request,
 	stream gkgpb.KnowledgeGraphService_ExecuteQueryClient,
 	exchange *gkgpb.RedactionExchange,
+	clientIP string,
 ) error {
 	required := exchange.GetRequired()
 	if required == nil {
 		return nil
 	}
 
-	redactionResp, err := sq.callRedaction(ctx, originalReq, required)
+	redactionResp, err := sq.callRedaction(ctx, originalReq, required, clientIP)
 	if err != nil {
 		return fmt.Errorf("orbit.SendQuery: redaction callback: %v", err)
 	}
