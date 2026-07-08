@@ -129,6 +129,73 @@ RSpec.describe Lint::UnusedMethods, feature_category: :tooling do
     end
   end
 
+  describe 'scoping to changed files' do
+    let(:source_files) do
+      {
+        'app/models/user.rb' => ["def alpha_method\n", "def beta_method\n"],
+        'app/helpers/foo_helper.rb' => ["def gamma_method\n"],
+        'app/views/show.html.haml' => ["beta_method\n"]
+      }
+    end
+
+    before do
+      allow(linter).to receive(:ee_directory_exists?).and_return(true)
+      allow(linter).to receive(:load_source_files) do
+        linter.source_files.merge!(source_files)
+      end
+    end
+
+    context 'when changed_files is given' do
+      let(:linter) do
+        described_class.new(
+          excluded_methods_path: excluded_methods_path,
+          potential_methods_path: potential_methods_path,
+          changed_files: ['app/models/user.rb']
+        )
+      end
+
+      it 'only checks methods defined in the changed files', :aggregate_failures do
+        linter.run
+
+        expect(linter.unused_method_collection.keys).to contain_exactly('app/models/user.rb')
+        expect(linter.unused_method_collection['app/models/user.rb']).to contain_exactly('alpha_method')
+      end
+
+      it 'limits removed-method detection to the changed files' do
+        File.write(potential_methods_path, {
+          'app/models/user.rb' => ['beta_method'],
+          'app/helpers/foo_helper.rb' => ['gamma_method']
+        }.to_yaml)
+
+        linter.run
+
+        expect(linter.removed_methods).to contain_exactly(['app/models/user.rb', 'beta_method'])
+      end
+    end
+
+    context 'when changed_files is nil' do
+      it 'checks methods across all files' do
+        linter.run
+
+        expect(linter.unused_method_collection.keys)
+          .to contain_exactly('app/models/user.rb', 'app/helpers/foo_helper.rb')
+      end
+    end
+
+    context 'when the potential methods file is empty' do
+      before do
+        File.write(potential_methods_path, '')
+      end
+
+      it 'does not raise and flags all current unused methods as new', :aggregate_failures do
+        expect { linter.run }.not_to raise_error
+
+        expect(linter.new_unused_methods)
+          .to contain_exactly(['app/models/user.rb', 'alpha_method'], ['app/helpers/foo_helper.rb', 'gamma_method'])
+      end
+    end
+  end
+
   describe 'method detection in builder files' do
     # This test verifies the fix for the issue where methods called from
     # .builder files (like Atom feeds) were incorrectly flagged as unused

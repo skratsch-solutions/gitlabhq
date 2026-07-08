@@ -1585,7 +1585,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_ce398b1ce62b"
+              "$ref": "#/components/schemas/RequestBody_39c987677cfb"
       x-gitlab-lifecycle: experiment
   "/api/v4/ai/duo_workflows/workflows/agent_privileges":
     get:
@@ -91300,14 +91300,9 @@ components:
           description: The ID or path of the project
           example: '1'
           nullable: true
-    RequestBody_ce398b1ce62b:
+    RequestBody_39c987677cfb:
       type: object
       properties:
-        requires_duo_cli_enabled:
-          type: boolean
-          description: Whether this workflow requires Duo CLI to be enabled
-          example: true
-          nullable: true
         project_id:
           type: string
           description: The ID or path of the workflow project

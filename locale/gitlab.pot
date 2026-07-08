@@ -29698,10 +29698,25 @@ msgstr ""
 msgid "DuoCoreTrialDiscover|Write secure code faster with AI-powered suggestions in more than 20 languages, available in your favorite IDE. Automate routine tasks and accelerate development cycles."
 msgstr ""
 
-msgid "DuoDependencyBump|Turn on AI-powered resolution of dependency bump breaking changes"
+msgid "DuoDependencyBump|Dependency version bumping is not turned on for this project. This feature works together with AI-native breaking change resolution to automatically open merge requests that fix vulnerable dependencies."
+msgstr ""
+
+msgid "DuoDependencyBump|Enable dependency version bumps"
+msgstr ""
+
+msgid "DuoDependencyBump|Turn on AI-native breaking change resolution"
+msgstr ""
+
+msgid "DuoDependencyBump|Turn on dependency version bumps"
+msgstr ""
+
+msgid "DuoDependencyBump|Turn on without enabling dependency version bumps"
 msgstr ""
 
 msgid "DuoDependencyBump|Use AI to analyze and fix breaking changes in failed pipelines for dependency bump merge requests"
+msgstr ""
+
+msgid "DuoDependencyBump|Would you like to turn on dependency version bumping now? You can also turn on AI-native breaking change resolution without enabling the profile."
 msgstr ""
 
 msgid "DuoEnterpriseDiscover|AI Impact Dashboard measures the ROI of AI"

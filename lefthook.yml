@@ -186,7 +186,7 @@ pre-push:
       tags: backend
       files: git diff --name-only $(git merge-base origin/master HEAD)..HEAD
       glob: '*.{haml,rb,erb}'
-      run: scripts/lint/unused_methods.rb
+      run: scripts/lint/unused_methods.rb {files}
     validate-fast-spec-helper:
       tags: backend test
       files: git diff --name-only --diff-filter=A $(git merge-base origin/master HEAD)..HEAD

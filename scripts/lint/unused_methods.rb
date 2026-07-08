@@ -30,11 +30,13 @@ module Lint
     def initialize(
       excluded_methods_path: EXCLUDED_METHODS_PATH,
       potential_methods_path: POTENTIAL_METHODS_PATH,
-      extensions: EXTENSIONS
+      extensions: EXTENSIONS,
+      changed_files: nil
     )
       @excluded_methods_path = excluded_methods_path
       @potential_methods_path = potential_methods_path
       @extensions = extensions
+      @changed_files = changed_files
       @source_files = {}
       @unused_method_collection = Hash.new { |hash, key| hash[key] = [] }
       @new_unused_methods = []
@@ -91,7 +93,10 @@ module Lint
     end
 
     def find_defined_methods
-      source_files.keys.grep(METHOD_DEFINITION_PATTERNS).flat_map do |filename|
+      filenames = source_files.keys.grep(METHOD_DEFINITION_PATTERNS)
+      filenames &= @changed_files if @changed_files
+
+      filenames.flat_map do |filename|
         source_files[filename].flat_map do |line|
           line =~ /def ([^(;\s]+)/ ? [{ method: Regexp.last_match(1).chomp, file: filename }] : []
         end
@@ -133,7 +138,8 @@ module Lint
     def compare_with_known_methods
       return unless File.exist?(@potential_methods_path)
 
-      potential_unused = YAML.load_file(@potential_methods_path)
+      potential_unused = YAML.load_file(@potential_methods_path) || {}
+      potential_unused = potential_unused.select { |f, _| @changed_files.include?(f) } if @changed_files
       potential_methods = potential_unused.flat_map { |f, ml| [f].product(ml) }
 
       current_unused = unused_method_collection.flat_map { |f, ml| [f].product(ml) }
@@ -205,7 +211,11 @@ end
 # Run the script if executed directly
 if $PROGRAM_NAME == __FILE__
   print_report = %w[true 1].include?(ENV["REPORT_ALL_UNUSED_METHODS"])
-  linter = Lint::UnusedMethods.new
+  # When invoked by a git hook, the changed files are passed as arguments so we
+  # only check methods defined in those files. A full scan still runs when no
+  # files are given or when generating the full report.
+  changed_files = (ARGV unless ARGV.empty? || print_report)
+  linter = Lint::UnusedMethods.new(changed_files: changed_files)
   success = linter.run(print_report: print_report)
   exit(success ? 0 : 1)
 end

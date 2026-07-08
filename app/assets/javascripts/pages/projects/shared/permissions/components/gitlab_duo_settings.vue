@@ -1,5 +1,8 @@
 <script>
 import { GlToggle, GlLink, GlButton, GlCard, GlSprintf } from '@gitlab/ui';
+import DuoDependencyBumpProfileModal from 'ee_component/pages/projects/shared/permissions/components/duo_dependency_bump_profile_modal.vue';
+import projectAutoRemediationProfileQuery from 'ee_else_ce/pages/projects/shared/permissions/graphql/project_auto_remediation_profile.query.graphql';
+import attachProfileMutation from 'ee_else_ce/pages/projects/shared/permissions/graphql/auto_remediation_profile_attach.mutation.graphql';
 import CascadingLockIcon from '~/namespaces/cascading_settings/components/cascading_lock_icon.vue';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { __, s__ } from '~/locale';
@@ -16,6 +19,10 @@ import {
 import ProjectSettingRow from './project_setting_row.vue';
 import ExclusionSettings from './exclusion_settings.vue';
 
+const AUTO_REMEDIATION_PROFILE_SCAN_TYPE = 'DEPENDENCY_SCANNING_POST_PROCESSING';
+const AUTO_REMEDIATION_PROFILE_VIRTUAL_ID =
+  'gid://gitlab/Security::ScanProfile/dependency_scanning_post_processing';
+
 export default {
   name: 'GitlabDuoSettings',
   components: {
@@ -27,6 +34,7 @@ export default {
     ProjectSettingRow,
     CascadingLockIcon,
     ExclusionSettings,
+    DuoDependencyBumpProfileModal,
   },
   mixins: [glFeatureFlagMixin()],
   props: {
@@ -116,6 +124,16 @@ export default {
       required: false,
       default: false,
     },
+    projectFullPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    projectGlobalId: {
+      type: String,
+      required: false,
+      default: '',
+    },
     initialDuoSastVrWorkflowEnabled: {
       type: Boolean,
       required: false,
@@ -171,6 +189,8 @@ export default {
       toolApprovalForSessionEnabled: this.initialToolApprovalForSessionEnabled,
       dapSessionTrackingEnabled: this.initialDapSessionTrackingEnabled,
       auditEventsStorageEnabled: this.aiAuditEventsStorageEnabled,
+      showAutoRemediationModal: false,
+      autoRemediationModalLoading: false,
     };
   },
   computed: {
@@ -249,6 +269,67 @@ export default {
     },
     isSettingVisible(name) {
       return this.showAllSettings || this.visibleSettings.includes(name);
+    },
+    async handleDependencyBumpToggleChange(newValue) {
+      if (!newValue) {
+        this.duoDependencyBumpBreakingChangesEnabled = false;
+        return;
+      }
+
+      if (!this.projectFullPath) {
+        this.duoDependencyBumpBreakingChangesEnabled = true;
+        return;
+      }
+
+      try {
+        const { data } = await this.$apollo.query({
+          query: projectAutoRemediationProfileQuery,
+          variables: { fullPath: this.projectFullPath },
+          fetchPolicy: 'network-only',
+        });
+
+        const profiles = data?.project?.securityScanProfiles ?? [];
+        const profileEnabled = profiles.some(
+          (p) => p.scanType === AUTO_REMEDIATION_PROFILE_SCAN_TYPE,
+        );
+
+        if (profileEnabled) {
+          this.duoDependencyBumpBreakingChangesEnabled = true;
+        } else {
+          this.showAutoRemediationModal = true;
+        }
+      } catch {
+        // If the query fails, enable the toggle without prompting
+        this.duoDependencyBumpBreakingChangesEnabled = true;
+      }
+    },
+    async onAutoRemediationModalConfirm() {
+      this.autoRemediationModalLoading = true;
+      try {
+        await this.$apollo.mutate({
+          mutation: attachProfileMutation,
+          variables: {
+            input: {
+              securityScanProfileId: AUTO_REMEDIATION_PROFILE_VIRTUAL_ID,
+              projectIds: [this.projectGlobalId],
+            },
+          },
+        });
+      } catch {
+        // Non-blocking: profile attach failure should not prevent enabling the toggle
+      } finally {
+        this.autoRemediationModalLoading = false;
+        this.showAutoRemediationModal = false;
+        this.duoDependencyBumpBreakingChangesEnabled = true;
+      }
+    },
+    onAutoRemediationModalCancel() {
+      this.showAutoRemediationModal = false;
+      this.duoDependencyBumpBreakingChangesEnabled = true;
+    },
+    onAutoRemediationModalHide() {
+      this.showAutoRemediationModal = false;
+      this.duoDependencyBumpBreakingChangesEnabled = false;
     },
   },
   duoFlowHelpPath,
@@ -526,11 +607,7 @@ export default {
             ultimateFeaturesAvailable &&
             showAllSettings
           "
-          :label="
-            s__(
-              'DuoDependencyBump|Turn on AI-powered resolution of dependency bump breaking changes',
-            )
-          "
+          :label="s__('DuoDependencyBump|Turn on AI-native breaking change resolution')"
           class="gl-mt-5"
           :help-text="
             s__(
@@ -539,19 +616,23 @@ export default {
           "
         >
           <gl-toggle
-            v-model="duoDependencyBumpBreakingChangesEnabled"
+            :value="duoDependencyBumpBreakingChangesEnabled"
             class="gl-mt-2"
             :disabled="!duoEnabled"
-            :label="
-              s__(
-                'DuoDependencyBump|Turn on AI-powered resolution of dependency bump breaking changes',
-              )
-            "
+            :label="s__('DuoDependencyBump|Turn on AI-native breaking change resolution')"
             label-position="hidden"
             name="project[project_setting_attributes][duo_dependency_bump_breaking_changes_enabled]"
             data-testid="duo-dependency-bump-breaking-changes-enabled"
+            @change="handleDependencyBumpToggleChange"
           />
         </project-setting-row>
+        <duo-dependency-bump-profile-modal
+          :visible="showAutoRemediationModal"
+          :is-loading="autoRemediationModalLoading"
+          @confirm="onAutoRemediationModalConfirm"
+          @cancel="onAutoRemediationModalCancel"
+          @hide="onAutoRemediationModalHide"
+        />
         <project-setting-row
           v-if="showSastVrWorkflow && isSettingVisible($options.DUO_SAST_VR_WORKFLOW_ENABLED)"
           :label="s__('DuoSAST|Turn on SAST vulnerability resolution workflow')"

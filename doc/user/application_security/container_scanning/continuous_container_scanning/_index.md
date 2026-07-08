@@ -64,6 +64,29 @@ GitLab offers security analyzers that can generate a report compatible with GitL
 - [Container scanning](../_index.md#getting-started)
 - [Container scanning for registry](../_index.md#container-scanning-for-registry)
 
+## Turn on or off continuous vulnerability scanning
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/500716) in GitLab 19.0 [with a flag](../../../../administration/feature_flags/_index.md) named `cvs_per_scanner_type_settings`. Disabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/243130) in GitLab 19.2. Feature flag `cvs_per_scanner_type_settings` removed.
+
+{{< /history >}}
+
+Continuous vulnerability scanning runs by default on all ingested CycloneDX SBOM files.
+You can turn it off for each project. While it's off, vulnerability records aren't created
+for your image dependencies when new security advisories are ingested.
+
+Prerequisites:
+
+- You must have the Maintainer, Owner, or Security Manager role for the project.
+
+To turn on or off continuous vulnerability scanning:
+
+1. In the top bar, select **Search or go to** and find your project.
+1. In the left sidebar, select **Secure** > **Security configuration**.
+1. Under **Continuous Vulnerability Scanning for Container Scanning**, turn on or turn off the toggle.
+
 ## Checking new vulnerabilities
 
 New vulnerabilities detected by continuous vulnerability scanning are visible on the [vulnerability report](../../vulnerability_report/_index.md).
