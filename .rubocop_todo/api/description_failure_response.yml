@@ -143,7 +143,6 @@ API/DescriptionFailureResponse:
     - 'lib/api/resource_milestone_events.rb'
     - 'lib/api/resource_state_events.rb'
     - 'lib/api/search.rb'
-    - 'lib/api/sidekiq_metrics.rb'
     - 'lib/api/snippet_repository_storage_moves.rb'
     - 'lib/api/subscriptions.rb'
     - 'lib/api/suggestions.rb'

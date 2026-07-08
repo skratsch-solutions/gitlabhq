@@ -95,7 +95,6 @@ SidekiqLoadBalancing/WorkerDataConsistency:
     - 'app/workers/integrations/propagate_integration_descendant_worker.rb'
     - 'app/workers/invalid_gpg_signature_update_worker.rb'
     - 'app/workers/issuable/label_links_destroy_worker.rb'
-    - 'app/workers/issuable_export_csv_worker.rb'
     - 'app/workers/issuables/clear_groups_issue_counter_worker.rb'
     - 'app/workers/issue_due_scheduler_worker.rb'
     - 'app/workers/issues/close_worker.rb'

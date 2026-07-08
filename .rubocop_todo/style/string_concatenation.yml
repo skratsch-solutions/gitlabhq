@@ -160,8 +160,6 @@ Style/StringConcatenation:
     - 'spec/lib/gitlab/visibility_level_spec.rb'
     - 'spec/lib/gitlab/workhorse_spec.rb'
     - 'spec/lib/kramdown/kramdown_spec.rb'
-    - 'spec/lib/safe_zip/entry_spec.rb'
-    - 'spec/lib/safe_zip/extract_params_spec.rb'
     - 'spec/models/ci/build_spec.rb'
     - 'spec/models/clusters/platforms/kubernetes_spec.rb'
     - 'spec/models/commit_range_spec.rb'

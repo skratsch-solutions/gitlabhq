@@ -66,7 +66,6 @@ Lint/AssignmentInCondition:
     - 'app/workers/clusters/agents/delete_expired_events_worker.rb'
     - 'app/workers/clusters/agents/notify_git_push_worker.rb'
     - 'app/workers/concerns/gitlab/bitbucket_server_import/object_importer.rb'
-    - 'app/workers/concerns/gitlab/bitbucket_server_import/stage_methods.rb'
     - 'app/workers/concerns/gitlab/github_import/object_importer.rb'
     - 'app/workers/deployments/hooks_worker.rb'
     - 'app/workers/deployments/link_merge_request_worker.rb'

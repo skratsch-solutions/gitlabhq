@@ -1426,7 +1426,7 @@ This feature is an [experiment](../../policy/development_stages_support.md) and 
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/474650) in GitLab 17.11 [with a flag](../feature_flags/_index.md) named `omniauth_step_up_auth_for_admin_mode`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/474650) in GitLab 17.11 [with a feature flag](../feature_flags/_index.md) named `omniauth_step_up_auth_for_admin_mode`. Disabled by default.
 
 {{< /history >}}
 To enable step-up authentication for Admin Mode:
@@ -1615,7 +1615,7 @@ To require step-up authentication for Admin Mode with Microsoft Entra ID:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/556943) in GitLab 18.4 [with a flag](../feature_flags/_index.md) named `omniauth_step_up_auth_for_namespace`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/556943) in GitLab 18.4 [with a feature flag](../feature_flags/_index.md) named `omniauth_step_up_auth_for_namespace`. Disabled by default.
 
 {{< /history >}}
 

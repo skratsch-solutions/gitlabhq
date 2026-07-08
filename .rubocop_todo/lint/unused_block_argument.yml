@@ -265,7 +265,6 @@ Lint/UnusedBlockArgument:
     - 'spec/requests/projects/google_cloud/gcp_regions_controller_spec.rb'
     - 'spec/requests/projects/ml/experiments_controller_spec.rb'
     - 'spec/services/ci/job_token_scope/add_project_service_spec.rb'
-    - 'spec/services/ci/job_token_scope/remove_project_service_spec.rb'
     - 'spec/services/ci/pipelines/add_job_service_spec.rb'
     - 'spec/services/issues/relative_position_rebalancing_service_spec.rb'
     - 'spec/services/projects/lfs_pointers/lfs_object_download_list_service_spec.rb'

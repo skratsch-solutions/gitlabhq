@@ -29,6 +29,7 @@ import {
   findLinkedItemsWidget,
   findStatusWidget,
   getDisplayReference,
+  getMetadataWidgetsFromWorkItem,
 } from '../../utils';
 import WorkItemRelationshipIcons from './work_item_relationship_icons.vue';
 
@@ -106,20 +107,10 @@ export default {
       return this.metadataWidgets[WIDGET_TYPE_LABELS]?.labels?.nodes || [];
     },
     metadataWidgets() {
-      return this.childItem.widgets?.reduce((metadataWidgets, widget) => {
-        if (widget.type) {
-          // eslint-disable-next-line no-param-reassign
-          metadataWidgets[widget.type] = widget;
-        }
-        return metadataWidgets;
-      }, {});
+      return getMetadataWidgetsFromWorkItem(this.childItem);
     },
     assignees() {
-      return (
-        this.childItem?.features?.assignees?.assignees?.nodes ||
-        this.metadataWidgets[WIDGET_TYPE_ASSIGNEES]?.assignees?.nodes ||
-        []
-      );
+      return this.metadataWidgets[WIDGET_TYPE_ASSIGNEES]?.assignees?.nodes || [];
     },
     assigneesCollapsedTooltip() {
       if (this.assignees.length > 2) {

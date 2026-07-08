@@ -588,7 +588,6 @@ RSpec/VerifiedDoubles:
     - 'spec/lib/peek/views/active_record_spec.rb'
     - 'spec/lib/peek/views/bullet_detailed_spec.rb'
     - 'spec/lib/peek/views/external_http_spec.rb'
-    - 'spec/lib/safe_zip/entry_spec.rb'
     - 'spec/lib/serializers/unsafe_json_spec.rb'
     - 'spec/lib/sidebars/projects/menus/analytics_menu_spec.rb'
     - 'spec/mailers/emails/service_desk_spec.rb'

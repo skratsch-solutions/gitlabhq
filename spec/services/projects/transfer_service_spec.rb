@@ -193,6 +193,38 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
         end
       end
     end
+
+    context 'when the current user cannot transfer to their personal namespace' do
+      let(:expected_error) { s_("TransferProject|You don't have permission to transfer projects into that namespace.") }
+
+      let(:executor) { user }
+
+      before do
+        group.add_owner(user)
+      end
+
+      context 'when projects_limit is 0' do
+        let(:user) { create(:user, projects_limit: 0) }
+
+        it 'does not allow the transfer' do
+          expect(execute_transfer).to be false
+          expect(project.errors[:new_namespace]).to include(expected_error)
+        end
+      end
+
+      context 'when the user has already reached their projects limit' do
+        let(:user) { create(:user, projects_limit: 5) }
+
+        before do
+          create_list(:project, 5, namespace: user.namespace)
+        end
+
+        it 'does not allow the transfer', :aggregate_failures do
+          expect(execute_transfer).to be false
+          expect(project.errors[:new_namespace]).to include(expected_error)
+        end
+      end
+    end
   end
 
   context 'personal namespace -> group', :enable_admin_mode do

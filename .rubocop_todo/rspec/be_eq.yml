@@ -600,8 +600,6 @@ RSpec/BeEq:
     - 'spec/lib/object_storage/direct_upload_spec.rb'
     - 'spec/lib/object_storage/fog_helpers_spec.rb'
     - 'spec/lib/object_storage/pending_direct_upload_spec.rb'
-    - 'spec/lib/safe_zip/entry_spec.rb'
-    - 'spec/lib/safe_zip/extract_spec.rb'
     - 'spec/lib/security/ci_configuration/sast_build_action_spec.rb'
     - 'spec/lib/service_ping/service_ping_settings_spec.rb'
     - 'spec/lib/sidebars/groups/menus/kubernetes_menu_spec.rb'

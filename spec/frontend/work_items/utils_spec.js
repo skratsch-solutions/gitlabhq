@@ -75,6 +75,7 @@ import {
   findStartAndDueDateWidget,
   findTimeTrackingWidget,
   findVulnerabilitiesWidget,
+  getMetadataWidgetsFromWorkItem,
   formatLabelForListbox,
   formatUserForListbox,
   newWorkItemPath,
@@ -1048,6 +1049,60 @@ describe('findAssigneesWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findAssigneesWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('getMetadataWidgetsFromWorkItem', () => {
+  const labelsWidget = { type: WIDGET_TYPE_LABELS, labels: { nodes: [{ id: 'widgets-label' }] } };
+  const weightWidget = { type: WIDGET_TYPE_WEIGHT, weight: 1 };
+  const milestoneWidget = { type: WIDGET_TYPE_MILESTONE, milestone: { id: 'milestone-1' } };
+
+  describe('when a widget is only available on `widgets`', () => {
+    it('builds the map from `widgets`', () => {
+      const workItem = { widgets: [labelsWidget, milestoneWidget] };
+
+      expect(getMetadataWidgetsFromWorkItem(workItem)).toEqual({
+        [WIDGET_TYPE_LABELS]: labelsWidget,
+        [WIDGET_TYPE_MILESTONE]: milestoneWidget,
+      });
+    });
+  });
+
+  describe('when a widget is available on `features`', () => {
+    it('reads the widget from `features` instead of `widgets`', () => {
+      const featuresLabels = { labels: { nodes: [{ id: 'features-label' }] } };
+      const featuresWeight = { weight: 5 };
+      const workItem = {
+        widgets: [labelsWidget, weightWidget, milestoneWidget],
+        features: { labels: featuresLabels, weight: featuresWeight },
+      };
+
+      expect(getMetadataWidgetsFromWorkItem(workItem)).toEqual({
+        [WIDGET_TYPE_LABELS]: { type: WIDGET_TYPE_LABELS, ...featuresLabels },
+        [WIDGET_TYPE_WEIGHT]: { type: WIDGET_TYPE_WEIGHT, ...featuresWeight },
+        [WIDGET_TYPE_MILESTONE]: milestoneWidget,
+      });
+    });
+
+    it('ignores feature values that are absent or empty', () => {
+      const workItem = {
+        widgets: [weightWidget, labelsWidget],
+        features: { weight: null, healthStatus: undefined, labels: {} },
+      };
+
+      expect(getMetadataWidgetsFromWorkItem(workItem)).toEqual({
+        [WIDGET_TYPE_WEIGHT]: weightWidget,
+        // an empty `features.labels` must not clobber the widgets value
+        [WIDGET_TYPE_LABELS]: labelsWidget,
+      });
+    });
+  });
+
+  describe('when the work item has no widgets or features', () => {
+    it('returns an empty map', () => {
+      expect(getMetadataWidgetsFromWorkItem(undefined)).toEqual({});
+      expect(getMetadataWidgetsFromWorkItem({})).toEqual({});
+    });
   });
 });
 

@@ -29,6 +29,7 @@ class NamespaceSetting < ApplicationRecord
     :require_sha_for_merge
 
   scope :for_namespaces, ->(namespaces) { where(namespace: namespaces) }
+  scope :with_namespace, -> { includes(:namespace) }
 
   scope :with_ancestors_inherited_settings, -> {
     # Get all columns except 'archived' since we're overriding it

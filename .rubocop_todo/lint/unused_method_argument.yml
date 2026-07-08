@@ -441,7 +441,6 @@ Lint/UnusedMethodArgument:
     - 'spec/requests/api/graphql/gitlab_schema_spec.rb'
     - 'spec/requests/api/graphql/project/milestones_spec.rb'
     - 'spec/requests/api/helpers_spec.rb'
-    - 'spec/requests/api/personal_access_tokens_spec.rb'
     - 'spec/requests/import/gitlab_projects_controller_spec.rb'
     - 'spec/services/concerns/rate_limited_service_spec.rb'
     - 'spec/services/import/gitlab_projects/file_acquisition_strategies/remote_file_spec.rb'

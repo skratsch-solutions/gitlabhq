@@ -83,7 +83,7 @@ that contains all the files you want to include.
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/230641) in GitLab 19.0 [with a flag](feature_flags/_index.md) named `use_built_in_project_templates_enabled`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/230641) in GitLab 19.0 [with a feature flag](feature_flags/_index.md) named `use_built_in_project_templates_enabled`. Disabled by default.
 
 {{< /history >}}
 

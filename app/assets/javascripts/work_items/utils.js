@@ -39,6 +39,7 @@ import {
   WIDGET_TYPE_TIME_TRACKING,
   WIDGET_TYPE_VULNERABILITIES,
   WIDGET_TYPE_WEIGHT,
+  WIDGET_TYPE_BY_FEATURE_KEY,
 } from './constants';
 import {
   CLOSED_AT_ASC,
@@ -176,6 +177,30 @@ export const findVulnerabilitiesWidget = (workItem) =>
 export const findWeightWidget = (workItem) =>
   workItem?.features?.weight ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_WEIGHT);
+
+// Builds a widget-type-keyed metadata map from a work item, overlaying migrated `features`
+// over the `widgets[]`-derived map (falls back to `widgets[]` when `features` is absent).
+export const getMetadataWidgetsFromWorkItem = (workItem) => {
+  const metadataWidgets =
+    workItem?.widgets?.reduce((acc, widget) => {
+      if (widget.type) {
+        acc[widget.type] = widget;
+      }
+      return acc;
+    }, {}) || {};
+
+  const { features } = workItem || {};
+  if (!features) {
+    return metadataWidgets;
+  }
+
+  return Object.entries(WIDGET_TYPE_BY_FEATURE_KEY).reduce((acc, [featureKey, widgetType]) => {
+    if (!isEmpty(features[featureKey])) {
+      acc[widgetType] = { type: widgetType, ...features[featureKey] };
+    }
+    return acc;
+  }, metadataWidgets);
+};
 
 export const findHierarchyWidgetChildren = (workItem) =>
   findHierarchyWidget(workItem)?.children?.nodes || [];

@@ -9,6 +9,8 @@ mutation:AchievementsDelete
 mutation:AchievementsRevoke
 mutation:AchievementsUpdate
 mutation:AddProjectToSecurityDashboard
+mutation:AdminClearDuoAvailability
+mutation:AdminSetDuoAvailability
 mutation:AdminSidekiqQueuesDeleteJobs
 mutation:AiAction
 mutation:AiCatalogAgentCreate
@@ -456,6 +458,8 @@ type:Achievement
 type:AchievementUploadRegistry
 type:ActiveTrial
 type:AddOnPurchase
+type:AdminDuoAvailabilityLockedAncestor
+type:AdminDuoAvailabilityNamespace
 type:AgentConfiguration
 type:AgentMetadata
 type:AgentPlatformFlowMetric

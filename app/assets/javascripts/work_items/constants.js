@@ -54,6 +54,20 @@ export const WIDGET_TYPE_EMAIL_PARTICIPANTS = 'EMAIL_PARTICIPANTS';
 export const WIDGET_TYPE_CUSTOM_FIELDS = 'CUSTOM_FIELDS';
 export const WIDGET_TYPE_VULNERABILITIES = 'VULNERABILITIES';
 
+// Maps a `workItem.features` key to its widget `type`
+// for widgets shown as child/linked item metadata.
+export const WIDGET_TYPE_BY_FEATURE_KEY = {
+  assignees: WIDGET_TYPE_ASSIGNEES,
+  labels: WIDGET_TYPE_LABELS,
+  startAndDueDate: WIDGET_TYPE_START_AND_DUE_DATE,
+  milestone: WIDGET_TYPE_MILESTONE,
+  weight: WIDGET_TYPE_WEIGHT,
+  healthStatus: WIDGET_TYPE_HEALTH_STATUS,
+  progress: WIDGET_TYPE_PROGRESS,
+  iteration: WIDGET_TYPE_ITERATION,
+  status: WIDGET_TYPE_STATUS,
+};
+
 export const WORK_ITEM_TYPE_ENUM_EPIC = 'EPIC';
 export const WORK_ITEM_TYPE_ENUM_INCIDENT = 'INCIDENT';
 export const WORK_ITEM_TYPE_ENUM_ISSUE = 'ISSUE';

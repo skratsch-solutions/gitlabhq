@@ -1188,6 +1188,55 @@ export const mockNoLinkedItems = {
   },
 };
 
+// Migrated widgets that child/linked items read from `features` when the
+// `work_item_features_field` flag is on (mirrors WorkItemChildMetadataFeatures).
+export const mockLinkedItemChildFeatures = {
+  __typename: 'WorkItemFeatures',
+  assignees: {
+    allowsMultipleAssignees: true,
+    canInviteMembers: false,
+    assignees: { nodes: [], __typename: 'UserCoreConnection' },
+    __typename: 'WorkItemWidgetAssignees',
+  },
+  labels: {
+    allowsScopedLabels: false,
+    labels: { nodes: [], __typename: 'LabelConnection' },
+    __typename: 'WorkItemWidgetLabels',
+  },
+  startAndDueDate: {
+    startDate: null,
+    dueDate: null,
+    __typename: 'WorkItemWidgetStartAndDueDate',
+  },
+  weight: {
+    weight: null,
+    rolledUpWeight: null,
+    __typename: 'WorkItemWidgetWeight',
+  },
+  healthStatus: {
+    healthStatus: null,
+    rolledUpHealthStatus: null,
+    __typename: 'WorkItemWidgetHealthStatus',
+  },
+  milestone: {
+    milestone: null,
+    __typename: 'WorkItemWidgetMilestone',
+  },
+  progress: {
+    progress: null,
+    updatedAt: null,
+    __typename: 'WorkItemWidgetProgress',
+  },
+  iteration: {
+    iteration: null,
+    __typename: 'WorkItemWidgetIteration',
+  },
+  status: {
+    status: null,
+    __typename: 'WorkItemWidgetStatus',
+  },
+};
+
 export const mockLinkedItems = {
   type: WIDGET_TYPE_LINKED_ITEMS,
   blockingCount: 1,
@@ -1224,6 +1273,7 @@ export const mockLinkedItems = {
           closedAt: null,
           webUrl: '/gitlab-org/gitlab-test/-/work_items/83',
           widgets: [],
+          features: mockLinkedItemChildFeatures,
           __typename: 'WorkItem',
         },
         __typename: 'LinkedWorkItemType',
@@ -1258,6 +1308,7 @@ export const mockLinkedItems = {
           closedAt: null,
           webUrl: '/gitlab-org/gitlab-test/-/work_items/55',
           widgets: [],
+          features: mockLinkedItemChildFeatures,
           __typename: 'WorkItem',
         },
         __typename: 'LinkedWorkItemType',
@@ -1292,6 +1343,7 @@ export const mockLinkedItems = {
           closedAt: null,
           webUrl: '/gitlab-org/gitlab-test/-/work_items/56',
           widgets: [],
+          features: mockLinkedItemChildFeatures,
           __typename: 'WorkItem',
         },
         __typename: 'LinkedWorkItemType',
@@ -1470,7 +1522,15 @@ export const workItemBlockedByLinkedItemsResponseWithFeatures = {
         features: {
           linkedItems: {
             type: WIDGET_TYPE_LINKED_ITEMS,
-            linkedItems: mockBlockedByLinkedItem.linkedItems,
+            linkedItems: {
+              ...mockBlockedByLinkedItem.linkedItems,
+              // The linked items query selects `features` on each nested work item,
+              // so blocker work items must carry it too (mirrors the query shape).
+              nodes: mockBlockedByLinkedItem.linkedItems.nodes.map((node) => ({
+                ...node,
+                workItem: { ...node.workItem, features: mockLinkedItemChildFeatures },
+              })),
+            },
             __typename: 'WorkItemWidgetLinkedItems',
           },
           __typename: 'WorkItemFeatures',
