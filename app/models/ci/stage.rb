@@ -203,7 +203,7 @@ module Ci
       manual_jobs = processables.manual
       return false unless manual_jobs.exists?
 
-      manual_jobs.includes(:pipeline, :metadata, [deployment: [environment: :project]]).any? do |job|
+      manual_jobs.includes(:pipeline, :job_definition, [deployment: [environment: :project]]).any? do |job|
         job.playable? && job.manual_confirmation_message
       end
     end
@@ -230,7 +230,7 @@ module Ci
     private
 
     def preload_metadata(statuses)
-      relations = [:metadata, :job_definition, :error_job_messages, :pipeline, :supply_chain_attestation,
+      relations = [:job_definition, :error_job_messages, :pipeline, :supply_chain_attestation,
         { downstream_pipeline: [:user, { project: [:route, { namespace: :route }] }] }]
 
       ::Ci::Preloaders::CommitStatusPreloader.new(statuses).execute(relations)

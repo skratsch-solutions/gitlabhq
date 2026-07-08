@@ -17086,8 +17086,7 @@ CREATE TABLE burned_project_routes (
     burned_at timestamp with time zone NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    path text NOT NULL,
-    CONSTRAINT check_7e5d3f66e0 CHECK ((char_length(path) <= 255))
+    path text NOT NULL
 );
 
 CREATE SEQUENCE burned_project_routes_id_seq

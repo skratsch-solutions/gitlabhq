@@ -55,7 +55,7 @@ To rename your wiki's default branch, [update the default branch name in your re
 
 {{< history >}}
 
-- Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
+- Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with feature flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
 - Feature flags `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 - Immersive editor:
   - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/231662) in GitLab 19.1 [with a feature flag](../../../administration/feature_flags/_index.md) named `wiki_immersive_editor`. Enabled by default.
@@ -88,7 +88,7 @@ to be used as your wiki's home page. To create it:
 
 {{< history >}}
 
-- Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
+- Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with feature flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
 - Feature flags `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 - Create a wiki page from the top bar [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/591976) in GitLab 18.10.
 - Immersive editor:
@@ -209,7 +209,7 @@ Files with unsupported extensions don't display when pushed to GitLab:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/133521) front matter based titles in GitLab 16.7 [with flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Disabled by default.
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/133521) front matter based titles in GitLab 16.7 [with feature flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Disabled by default.
 - Feature flags [`wiki_front_matter`](https://gitlab.com/gitlab-org/gitlab/-/issues/435056) and [`wiki_front_matter_title`](https://gitlab.com/gitlab-org/gitlab/-/issues/428259) enabled by default in GitLab 17.2.
 - Feature flags `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 
@@ -343,7 +343,7 @@ Prerequisites:
 {{< history >}}
 
 - Redirects for moved or renamed wiki pages [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/257892) in GitLab 17.1 [with a feature flag](../../../administration/feature_flags/_index.md) named `wiki_redirection`. Enabled by default.
-- Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
+- Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with feature flags](../../../administration/feature_flags/_index.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
 - Feature flags `wiki_redirection`, `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 
 {{< /history >}}

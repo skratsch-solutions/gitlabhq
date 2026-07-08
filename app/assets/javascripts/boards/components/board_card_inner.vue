@@ -49,7 +49,6 @@ export default {
     'rootPath',
     'scopedLabelsAvailable',
     'isEpicBoard',
-    'issuableType',
     'isGroupBoard',
     'disabled',
   ],

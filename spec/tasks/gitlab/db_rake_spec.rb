@@ -777,32 +777,124 @@ RSpec.describe 'gitlab:db namespace rake task', :silence_stdout, feature_categor
 
     let(:inconsistencies) do
       [
-        instance_double(inconsistency_class, inspect: 'index_statement_1', type: 'wrong_indexes'),
-        instance_double(inconsistency_class, inspect: 'index_statement_2', type: 'missing_indexes'),
-        instance_double(inconsistency_class, inspect: 'table_statement_1', type: 'extra_tables',
+        instance_double(inconsistency_class, display: 'index_statement_1', type: 'wrong_indexes'),
+        instance_double(inconsistency_class, display: 'index_statement_2', type: 'missing_indexes'),
+        instance_double(inconsistency_class, display: 'table_statement_1', type: 'extra_tables',
           table_name: 'test_replication'),
-        instance_double(inconsistency_class, inspect: 'trigger_statement', type: 'missing_triggers',
+        instance_double(inconsistency_class, display: 'trigger_statement', type: 'missing_triggers',
           object_name: 'gitlab_schema_write_trigger_for_users')
       ]
+    end
+
+    let(:diagnostic_message) do
+      'This task is a diagnostic tool to be used under the guidance of GitLab Support. ' \
+        'You should not use the task for routine checks as database inconsistencies might be expected.'
     end
 
     before do
       allow(Gitlab::Schema::Validation::Runner).to receive(:new).and_return(runner)
     end
 
-    it 'prints the inconsistency message along with the log info' do
-      expected_messages = [
-        'index_statement_1',
-        'index_statement_2',
-        'This task is a diagnostic tool to be used under the guidance of GitLab Support. You should not use the task for routine checks as database inconsistencies might be expected.'
-      ]
+    def run_schema_checker(*args)
+      task = Rake::Task['gitlab:db:schema_checker:run']
+      task.reenable
+      task.invoke(*args)
+    end
 
-      expect { run_rake_task('gitlab:db:schema_checker:run') }
-        .to output { |output|
-          expected_messages.each do |message|
-            expect(output).to include(message)
-          end
-        }.to_stdout
+    context 'without a mode argument' do
+      it 'runs all validators, prints the inconsistencies and the diagnostic message, and does not exit' do
+        expect(Gitlab::Schema::Validation::Runner).to receive(:new)
+          .with(anything, anything, validators: Gitlab::Schema::Validation::Validators::Base.all_validators)
+          .and_return(runner)
+
+        expect { run_schema_checker }
+          .to output(a_string_including('index_statement_1', 'index_statement_2', diagnostic_message)).to_stdout
+      end
+    end
+
+    context 'with the stable mode' do
+      it 'runs only the stable validators and exits with a non-zero code' do
+        expect(Gitlab::Schema::Validation::Runner).to receive(:new)
+          .with(anything, anything, validators: STABLE_VALIDATORS)
+          .and_return(runner)
+
+        expect { run_schema_checker(:stable) }
+          .to raise_error(SystemExit) { |error| expect(error.status).to eq(1) }
+      end
+
+      it 'prints the inconsistencies without the diagnostic message' do
+        expect { run_schema_checker(:stable) }
+          .to output(
+            satisfy do |output|
+              output.include?('index_statement_1') &&
+                output.include?('index_statement_2') &&
+                output.exclude?(diagnostic_message)
+            end
+          ).to_stdout
+          .and raise_error(SystemExit)
+      end
+    end
+
+    context 'when there are no inconsistencies' do
+      let(:inconsistencies) { [] }
+
+      it 'does not exit with an error in stable mode' do
+        expect { run_schema_checker(:stable) }
+          .not_to raise_error
+      end
+
+      it 'does not exit with an error in all mode' do
+        expect { run_schema_checker }
+          .not_to raise_error
+      end
+    end
+
+    context 'with an invalid mode' do
+      it 'raises an error' do
+        expect { run_schema_checker(:unknown) }
+          .to raise_error(RuntimeError, /Invalid mode: 'unknown'/)
+      end
+    end
+  end
+
+  describe 'validate_schema' do
+    let(:schema_checker_task) { Rake::Task['gitlab:db:schema_checker:run'] }
+
+    before do
+      allow(schema_checker_task).to receive(:invoke)
+    end
+
+    it 'runs the schema checker in stable mode' do
+      expect(schema_checker_task).to receive(:invoke).with(:stable)
+
+      run_rake_task('gitlab:db:validate_schema')
+    end
+
+    context 'when the schema checker exits due to inconsistencies' do
+      before do
+        allow(schema_checker_task).to receive(:invoke).and_raise(SystemExit.new(1))
+      end
+
+      it 'propagates the exit without tracking it as an error' do
+        expect(Gitlab::ErrorTracking).not_to receive(:track_exception)
+
+        expect { run_rake_task('gitlab:db:validate_schema') }
+          .to raise_error(SystemExit) { |error| expect(error.status).to eq(1) }
+      end
+    end
+
+    context 'when the schema checker raises an error' do
+      before do
+        allow(schema_checker_task).to receive(:invoke).and_raise(StandardError, 'boom')
+      end
+
+      it 'tracks the exception and exits with code 2 (operational error)' do
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(instance_of(StandardError))
+
+        expect { run_rake_task('gitlab:db:validate_schema') }
+          .to output(/Schema validation failed: boom/).to_stderr
+          .and raise_error(SystemExit) { |error| expect(error.status).to eq(2) }
+      end
     end
   end
 

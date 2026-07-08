@@ -101,7 +101,7 @@ module Ci
     has_many :statuses_order_id_desc, ->(pipeline) { in_partition(pipeline).order_id_desc }, class_name: 'CommitStatus', foreign_key: :commit_id,
       inverse_of: :pipeline, partition_foreign_key: :partition_id
     has_many :bridges, ->(pipeline) { in_partition(pipeline) }, class_name: 'Ci::Bridge', foreign_key: :commit_id, inverse_of: :pipeline, partition_foreign_key: :partition_id
-    has_many :latest_bridges, ->(pipeline) { in_partition(pipeline).latest.with_project_and_metadata }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Bridge', partition_foreign_key: :partition_id
+    has_many :latest_bridges, ->(pipeline) { in_partition(pipeline).latest.with_project_and_job_definition }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Bridge', partition_foreign_key: :partition_id
     has_many :builds, ->(pipeline) { in_partition(pipeline) }, foreign_key: :commit_id, inverse_of: :pipeline, partition_foreign_key: :partition_id
     has_many :generic_commit_statuses, ->(pipeline) { in_partition(pipeline) }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'GenericCommitStatus', partition_foreign_key: :partition_id
     #
@@ -114,9 +114,9 @@ module Ci
     has_many :job_artifacts, through: :builds
     has_many :build_trace_chunks, class_name: 'Ci::BuildTraceChunk', through: :builds, source: :trace_chunks
     has_many :variables, ->(pipeline) { in_partition(pipeline) }, class_name: 'Ci::PipelineVariable', inverse_of: :pipeline, partition_foreign_key: :partition_id
-    has_many :latest_builds, ->(pipeline) { in_partition(pipeline).latest.with_project_and_metadata }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Build'
-    has_many :latest_successful_jobs, ->(pipeline) { in_partition(pipeline).latest.success.with_project_and_metadata }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Processable'
-    has_many :latest_finished_jobs, ->(pipeline) { in_partition(pipeline).latest.finished.with_project_and_metadata }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Processable'
+    has_many :latest_builds, ->(pipeline) { in_partition(pipeline).latest.with_project_and_job_definition }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Build'
+    has_many :latest_successful_jobs, ->(pipeline) { in_partition(pipeline).latest.success.with_project_and_job_definition }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Processable'
+    has_many :latest_finished_jobs, ->(pipeline) { in_partition(pipeline).latest.finished.with_project_and_job_definition }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Processable'
     has_many :downloadable_artifacts, -> do
       not_expired.or(where_exists(Ci::Pipeline.artifacts_locked.where("#{Ci::Pipeline.quoted_table_name}.id = #{Ci::Build.quoted_table_name}.commit_id"))).downloadable.with_job
     end, through: :latest_builds, source: :job_artifacts
@@ -1409,11 +1409,11 @@ module Ci
     end
 
     def latest_test_report_builds_in_self_and_project_descendants
-      latest_report_builds_in_self_and_project_descendants(Ci::JobArtifact.of_report_type(:test)).preload(:project, :metadata, :job_definition, job_artifacts: :artifact_report)
+      latest_report_builds_in_self_and_project_descendants(Ci::JobArtifact.of_report_type(:test)).preload(:project, :job_definition, job_artifacts: :artifact_report)
     end
 
     def latest_test_report_builds
-      latest_report_builds(Ci::JobArtifact.of_report_type(:test)).preload(:project, :metadata, :job_definition, job_artifacts: :artifact_report)
+      latest_report_builds(Ci::JobArtifact.of_report_type(:test)).preload(:project, :job_definition, job_artifacts: :artifact_report)
     end
 
     def latest_report_builds_in_self_and_project_descendants(reports_scope = ::Ci::JobArtifact.all_reports)

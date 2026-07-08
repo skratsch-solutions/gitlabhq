@@ -201,36 +201,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       end
     end
 
-    describe 'with_secure_reports_from_metadata_config_options' do
-      before_all do
-        Ci::ApplicationRecord.connection.execute(<<~SQL)
-          CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_100"
-            PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (100);
-          CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_101"
-            PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (101);
-          CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_102"
-            PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (102);
-        SQL
-      end
-
-      let_it_be(:pipeline) { create(:ci_empty_pipeline) }
-      let_it_be(:build) { create(:ci_build, pipeline: pipeline) }
-      let_it_be_with_refind(:build_metadata) { create(:ci_build_metadata, build: build) }
-      let(:job_types) { %w[sast secret_detection] }
-
-      subject(:query) { described_class.with_secure_reports_from_metadata_config_options(job_types) }
-
-      it { expect(query).to be_empty }
-
-      context 'when build metadata has secure report options' do
-        before do
-          build_metadata.update_columns(config_options: { artifacts: { reports: ['sast'] } })
-        end
-
-        it { expect(query).to contain_exactly(build) }
-      end
-    end
-
     describe 'with_runner_assigned' do
       let_it_be(:build_with_runner) { create(:ci_build, runner: create(:ci_runner)) }
       let_it_be(:build_without_runner) { create(:ci_build) }
@@ -539,7 +509,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
         it { expect(eager_load_for_api.last.association(:user)).to be_loaded }
         it { expect(eager_load_for_api.last.user.association(:user_detail)).to be_loaded }
-        it { expect(eager_load_for_api.last.association(:metadata)).to be_loaded }
         it { expect(eager_load_for_api.last.association(:job_artifacts_archive)).to be_loaded }
         it { expect(eager_load_for_api.last.association(:job_artifacts)).to be_loaded }
         it { expect(eager_load_for_api.last.association(:runner)).to be_loaded }
@@ -6424,10 +6393,10 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     end
   end
 
-  describe '.with_project_and_metadata' do
+  describe '.with_project_and_job_definition' do
     it 'does not join across databases' do
       with_cross_joins_prevented do
-        ::Ci::Build.with_project_and_metadata.to_a
+        ::Ci::Build.with_project_and_job_definition.to_a
       end
     end
   end

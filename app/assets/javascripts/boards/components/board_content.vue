@@ -39,16 +39,7 @@ export default {
     GlAlert,
     WorkItemDetailPanel,
   },
-  inject: [
-    'boardType',
-    'canAdminList',
-    'isIssueBoard',
-    'isEpicBoard',
-    'disabled',
-    'issuableType',
-    'isGroupBoard',
-    'fullPath',
-  ],
+  inject: ['boardType', 'canAdminList', 'disabled', 'issuableType', 'isGroupBoard', 'fullPath'],
   props: {
     boardId: {
       type: String,

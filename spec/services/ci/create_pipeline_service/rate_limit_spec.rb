@@ -34,11 +34,7 @@ RSpec.describe Ci::CreatePipelineService, :freeze_time,
       end
 
       context 'with different users' do
-        let(:other_user) { create(:user) }
-
-        before do
-          project.add_maintainer(other_user)
-        end
+        let(:other_user) { create(:user, maintainer_of: [project]) }
 
         it 'allows other members to create pipelines' do
           blocked_pipeline = create_pipelines(user: user)
@@ -70,11 +66,7 @@ RSpec.describe Ci::CreatePipelineService, :freeze_time,
       end
 
       context 'with different projects' do
-        let_it_be(:other_project) { create(:project, :repository) }
-
-        before do
-          other_project.add_maintainer(user)
-        end
+        let_it_be(:other_project) { create(:project, :small_repo, maintainers: user) }
 
         it 'allows user to create pipeline' do
           blocked_pipeline = create_pipelines(project: project)

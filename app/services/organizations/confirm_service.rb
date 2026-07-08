@@ -7,7 +7,14 @@ module Organizations
     def initialize(current_user, params = {})
       @current_user = current_user
       @params = params
-      @organization = Organizations::Organization.find_by_id(@params[:organization_id])
+      @organization = find_organization
+    end
+
+    def find_organization
+      org = params[:organization]
+      return org if org.is_a?(Organizations::Organization)
+
+      Organizations::Organization.find_by_id(params[:organization_id])
     end
 
     def execute

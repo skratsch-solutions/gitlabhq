@@ -76,7 +76,7 @@ module Gitlab
             association => {
               **::Ci::Pipeline::PROJECT_ROUTE_AND_NAMESPACE_ROUTE,
               user: [],
-              metadata: [],
+              job_definition: [],
               ci_stage: []
             }
           }
@@ -93,7 +93,6 @@ module Gitlab
               job_environment: [],
               job_artifacts_archive: [],
               user: [],
-              metadata: [],
               job_definition: [],
               ci_stage: []
             }

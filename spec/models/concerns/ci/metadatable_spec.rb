@@ -108,7 +108,9 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
         create(:ci_build_metadata, build: job, timeout: 60)
       end
 
-      it { is_expected.to eq('1m') }
+      it 'does not read timeout from metadata' do
+        is_expected.to be_nil
+      end
 
       context 'when job timeout is present' do
         before do
@@ -130,7 +132,9 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
         create(:ci_build_metadata, build: processable, timeout: 60)
       end
 
-      it { is_expected.to eq(60) }
+      it 'does not read timeout from metadata' do
+        is_expected.to be_nil
+      end
 
       context 'when job timeout is present' do
         before do
@@ -195,12 +199,14 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
 
     subject(:timeout_source_value) { job.timeout_source_value }
 
-    context 'when metadata exists' do
+    context 'when metadata timeout_source is present' do
       before do
-        create(:ci_build_metadata, build: job)
+        create(:ci_build_metadata, build: job, timeout_source: :project_timeout_source)
       end
 
-      it { is_expected.to eq('unknown_timeout_source') }
+      it 'does not read timeout source from metadata' do
+        is_expected.to eq('unknown_timeout_source')
+      end
     end
 
     context 'when metadata does not exist' do
@@ -265,15 +271,9 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
           create(:ci_build_metadata, build: processable, debug_trace_enabled: true)
         end
 
-        it { is_expected.to be(true) }
-      end
-
-      context 'when metadata.debug_trace_enabled is false' do
-        before do
-          create(:ci_build_metadata, build: processable, debug_trace_enabled: false)
+        it 'does not read debug trace state from metadata' do
+          is_expected.to be(false)
         end
-
-        it { is_expected.to be(false) }
       end
 
       context 'when job is degenerated' do
@@ -360,7 +360,9 @@ RSpec.describe Ci::Metadatable, feature_category: :continuous_integration do
         create(:ci_build_metadata, build: processable, exit_code: 1)
       end
 
-      it { is_expected.to eq(1) }
+      it 'does not read exit code from metadata' do
+        is_expected.to be_nil
+      end
 
       context 'when job exit_code is present' do
         before do

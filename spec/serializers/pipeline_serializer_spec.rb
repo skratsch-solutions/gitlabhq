@@ -269,9 +269,10 @@ RSpec.describe PipelineSerializer, feature_category: :continuous_integration do
             create(:ci_build, :manual, pipeline: resource.second)
           end
 
-          it 'sends at most one metadata query for each type of build', :request_store do
-            # 1 for the existing failed builds and 2 for the added scheduled and manual builds
-            expect { subject }.not_to exceed_query_limit(1 + 2).for_query(/SELECT "ci_builds_metadata".*/)
+          it 'does not query CI build metadata', :request_store do
+            recorded = ActiveRecord::QueryRecorder.new { subject }
+
+            expect(recorded.log).not_to include(a_string_matching(/ci_builds_metadata/))
           end
         end
 
@@ -285,7 +286,7 @@ RSpec.describe PipelineSerializer, feature_category: :continuous_integration do
           ).tap do |pipeline|
             Ci::Build::AVAILABLE_STATUSES.each do |build_status|
               create_build(pipeline, status, build_status)
-              # create multiple failed builds to verify no N+1 for failed builds or metadata
+              # create multiple failed builds to verify no N+1 for failed builds or job definitions
               create_list(:ci_build, 3,
                 :tags, :triggered, :artifacts,
                 pipeline: pipeline, stage: 'test',

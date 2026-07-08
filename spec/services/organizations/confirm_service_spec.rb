@@ -55,6 +55,29 @@ RSpec.describe Organizations::ConfirmService, feature_category: :organization do
         end
       end
 
+      context 'when organization object is passed instead of organization_id' do
+        let(:params) { { organization: organization, group_ids: group_ids } }
+
+        it 'does not perform a database lookup' do
+          expect(Organizations::Organization).not_to receive(:find_by_id)
+
+          response
+        end
+
+        it 'transitions the organization state to confirmed' do
+          expect { response }.to change { organization.reload.state }.from('unconfirmed').to('confirmed')
+        end
+      end
+
+      context 'when organization param is not an Organization object' do
+        let(:params) { { organization: organization.id, group_ids: group_ids } }
+
+        it 'returns an error' do
+          expect(response).to be_error
+          expect(response.message).to eq('Organization not found')
+        end
+      end
+
       it 'calls Organizations::Transfer::TopLevelGroupService with the groups and organization' do
         allow(Organizations::Transfer::TopLevelGroupService).to receive(:new).and_call_original
         expect(Organizations::Transfer::TopLevelGroupService).to receive(:new).with(

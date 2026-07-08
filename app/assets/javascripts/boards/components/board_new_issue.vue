@@ -16,7 +16,7 @@ export default {
     BoardNewItem,
     ProjectSelect,
   },
-  inject: ['boardType', 'groupId', 'fullPath', 'isGroupBoard', 'isEpicBoard'],
+  inject: ['boardType', 'fullPath', 'isGroupBoard', 'isEpicBoard'],
   props: {
     list: {
       type: Object,

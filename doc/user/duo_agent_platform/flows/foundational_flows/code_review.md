@@ -55,7 +55,9 @@ This flow is available in the GitLab UI only.
 - Turn on **Allow foundational flows** and **Code Review** [for the top-level group](_index.md#turn-foundational-flows-on-or-off).
 - Have the Developer, Maintainer, or Owner role for the project.
 - If you belong to multiple GitLab Duo namespaces, [set a default GitLab Duo namespace](../../../profile/preferences.md#set-a-default-gitlab-duo-namespace).
-- [Configure your own runners](../execution.md#configure-runners) or turn on [GitLab hosted runners](../../../../ci/runners/hosted_runners/_index.md) for your project.
+- [Configure your own runners](../execution.md#configure-runners) with the `gitlab--duo` tag and
+  an executor that supports Docker images, or turn on [GitLab hosted runners](../../../../ci/runners/hosted_runners/_index.md)
+  for your project. Code Review Flow runs as a CI/CD job and requires a runner to execute.
 
 ## Use the flow
 
@@ -211,6 +213,105 @@ Settings cascade from application to group to project. More specific settings ov
 For information on how credit usage is attributed for automatic reviews, see
 [determine which code review feature runs](../../../project/merge_requests/duo_in_merge_requests.md#determine-which-review-feature-runs).
 
+## Exclude merge requests from automatic reviews
+
+{{< details >}}
+
+- Status: Beta
+
+{{< /details >}}
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240236) in GitLab 19.2 as a [beta](../../../../policy/development_stages_support.md#beta) [with a flag](../../../../administration/feature_flags/_index.md) named `duo_code_review_automated_rules`. Enabled by default.
+
+{{< /history >}}
+
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
+
+When automatic reviews are turned on for a project,
+GitLab Duo reviews every eligible merge request.
+To exclude specific merge requests, define exclusion rules in a
+`.gitlab/duo/mr-review-automated-rules.yaml` file.
+
+Exclusion rules only prevent automatic reviews.
+You can still request a review manually for any excluded merge request.
+
+To define exclusion rules:
+
+1. In the root of your repository, create a `.gitlab/duo` directory if one doesn't already exist.
+1. In the `.gitlab/duo` directory, create a file named `mr-review-automated-rules.yaml`.
+1. Add exclusion rules using the following format:
+
+   ```yaml
+   exclude:
+     target_branches:
+       - <pattern>
+     source_branches:
+       - <pattern>
+     authors:
+       - <pattern>
+   ```
+
+   Each key is optional.
+   GitLab Duo skips the automatic review when a merge request matches any pattern in any category:
+
+   - `target_branches`: Matches the target branch name of the merge request.
+   - `source_branches`: Matches the source branch name of the merge request.
+   - `authors`: Matches the username of the merge request author.
+
+   Patterns support wildcard (glob) matching.
+   For example, `dependabot/*` matches any source branch that starts with `dependabot/`.
+
+   For example, to skip automatic reviews for merge requests that target a release branch or
+   that a bot account creates:
+
+   ```yaml
+   exclude:
+     target_branches:
+       - "release/*"
+     authors:
+       - "*-bot"
+   ```
+
+1. Commit the file to the default branch of your repository.
+
+GitLab Duo reads the exclusion rules from the default branch of your repository.
+GitLab Duo does not apply rules on other branches.
+
+### Exclude merge requests for a group
+
+To define exclusion rules for all projects in a group and its subgroups, specify a project to use
+as a template.
+The template project must contain a `.gitlab/duo/mr-review-automated-rules.yaml` file.
+
+> [!note]
+> If you use
+> [custom review instructions for a group](../../customize/review_instructions.md#configure-custom-review-instructions-for-a-group),
+> add your exclusion rules to the same template project.
+> You do not need to specify the template project in the UI again.
+> GitLab Duo automatically reads the `mr-review-automated-rules.yaml` file.
+
+GitLab Duo combines the exclusion rules from the group template project with the rules defined
+in the individual project.
+When a group and its subgroups each set a template project, GitLab Duo combines the rules from
+every level.
+
+Prerequisites:
+
+- The Owner role for the group.
+- A project in the group contains the exclusion rules that you want to set.
+
+To configure exclusion rules for a group:
+
+1. In the top bar, select **Search or go to** and find your group.
+1. In the left sidebar, select **Settings** > **General** > **GitLab Duo features**.
+1. Under **Customize code review**, select the project that contains the
+   `.gitlab/duo/mr-review-automated-rules.yaml` file.
+1. Select **Save changes**.
+
 ## Troubleshooting
 
 ### `Error DCR4000`
@@ -227,12 +328,11 @@ Contact your administrator and ask them to turn on Code Review Flow for your top
 You might get an error that states
 `Code Review Flow is enabled but the service account needs to be verified. Contact your administrator. Error code: DCR4001`.
 
-This error occurs when Code Review Flow is turned on, but the service account for the top-level group
-is not ready or is still being created.
+This error occurs when Code Review Flow is turned on, but the service account for the top-level
+group does not exist or is not ready.
 
-Wait a few minutes for the service account to activate, then try again. If the error persists,
-contact your administrator and ask them to verify that a service account has been created
-in the top-level group with the Developer role.
+Ask your administrator to [verify that the service account exists](../../troubleshooting.md#foundational-flow-service-account-not-created) and to follow the steps to resolve
+any issues.
 
 ### `Error DCR4002`
 

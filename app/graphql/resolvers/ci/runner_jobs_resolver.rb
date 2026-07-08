@@ -34,7 +34,6 @@ module Resolvers
           pipeline: [:user],
           project: [{ project: [:route, { namespace: [:route] }, :project_feature] }],
           detailed_status: [
-            :metadata,
             :job_definition,
             :error_job_messages,
             { pipeline: [:merge_request] },

@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe BranchRules::SquashOptions::BaseService, feature_category: :source_code_management do
-  let_it_be(:project, freeze: false) { create(:project, :repository) }
+  let_it_be_with_reload(:project) { create(:project) }
   let_it_be(:user) { create(:user) }
-  let_it_be(:protected_branch, freeze: false) { create(:protected_branch, project: project) }
+  let_it_be_with_reload(:protected_branch) { create(:protected_branch, project: project) }
 
   let(:branch_rule) { ::Projects::BranchRule.new(project, protected_branch) }
   let(:squash_option) { ::Projects::BranchRules::SquashOption.squash_options['always'] }

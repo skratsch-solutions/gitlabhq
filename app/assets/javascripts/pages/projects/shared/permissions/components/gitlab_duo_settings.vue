@@ -528,11 +528,11 @@ export default {
         </project-setting-row>
         <project-setting-row
           v-if="glFeatures.agentArtifactsPage && showAllSettings"
-          :label="s__('AiPowered|Enable AI audit event storage')"
+          :label="s__('AiPowered|Store AI audit events')"
           class="gl-mt-5"
           :help-text="
             s__(
-              'AiPowered|When disabled, GitLab does not write new AI audit events to the database or ClickHouse. Real-time streaming of AI audit events is not affected.',
+              'AiPowered|When you turn on this setting, GitLab stores new AI audit events to the database or ClickHouse. Real-time streaming of AI audit events is not affected.',
             )
           "
           :locked="showAuditEventsStorageCascadingLock"
@@ -553,7 +553,7 @@ export default {
             v-model="auditEventsStorageEnabled"
             class="gl-mt-2"
             :disabled="showAuditEventsStorageCascadingLock"
-            :label="s__('AiPowered|Enable AI audit event storage')"
+            :label="s__('AiPowered|Store AI audit events')"
             label-position="hidden"
             name="project[project_setting_attributes][ai_audit_events_storage_enabled]"
             data-testid="ai-audit-events-storage-enabled"

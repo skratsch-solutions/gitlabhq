@@ -30,7 +30,7 @@ export default {
   directives: {
     GlTooltip,
   },
-  inject: ['scopedLabelsAvailable', 'issuableType', 'fullPath', 'boardType'],
+  inject: ['issuableType', 'fullPath', 'boardType'],
   props: {
     listQueryVariables: {
       type: Object,

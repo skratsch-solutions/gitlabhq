@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project) { create(:project) }
 
   let_it_be(:pipeline) do
     create(:ci_pipeline, project: project)
@@ -17,7 +17,7 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
   let(:new_job_variables) { [] }
 
   shared_context 'when job is a bridge' do
-    let_it_be(:downstream_project) { create(:project, :repository) }
+    let_it_be(:downstream_project) { create(:project) }
 
     let_it_be_with_refind(:job) do
       create(:ci_bridge, :success, :resource_group,

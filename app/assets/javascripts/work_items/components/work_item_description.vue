@@ -140,7 +140,7 @@ export default {
       default: true,
     },
   },
-  emits: ['cancelCreate', 'cancelEditing', 'error', 'updateDraft', 'updateWorkItem'],
+  emits: ['cancel-create', 'cancelEditing', 'error', 'updateDraft', 'updateWorkItem'],
   markdownDocsPath: helpPagePath('user/markdown'),
   data() {
     return {
@@ -664,7 +664,7 @@ export default {
           ?.classList.contains('at-who-active')
       ) {
         if (this.isCreateFlow) {
-          this.$emit('cancelCreate');
+          this.$emit('cancel-create');
         } else {
           this.cancelEditing();
         }

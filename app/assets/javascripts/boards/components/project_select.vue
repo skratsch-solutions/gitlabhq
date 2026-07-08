@@ -24,7 +24,7 @@ export default {
   components: {
     GlCollapsibleListbox,
   },
-  inject: ['groupId', 'fullPath'],
+  inject: ['fullPath'],
   model: {
     prop: 'selectedProject',
     event: 'selectProject',

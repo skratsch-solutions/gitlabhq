@@ -173,7 +173,7 @@ module Ci
     scope :eager_load_for_archiving_trace, -> { preload(:project, :pending_state) }
     scope :eager_load_for_api, -> do
       preload(
-        :job_artifacts_archive, :ci_stage, :job_artifacts, :runner, :tags, :runner_manager, :metadata,
+        :job_artifacts_archive, :ci_stage, :job_artifacts, :runner, :tags, :runner_manager,
         :job_definition,
         pipeline: :project,
         user: [:user_preference, :user_detail, :followees, :followers]
@@ -209,11 +209,6 @@ module Ci
         .where("#{Ci::RunningBuild.table_name}.created_at + INTERVAL \'1 second\' * #{table_name}.timeout > ?",
           Time.current)
         .where(arel_table[:partition_id].eq(Ci::RunningBuild.arel_table[:partition_id]))
-    end
-
-    # TODO: remove this scope with `ci_builds_metadata`
-    scope :with_secure_reports_from_metadata_config_options, ->(job_types) do
-      joins(:metadata).where("#{Ci::BuildMetadata.quoted_table_name}.config_options -> 'artifacts' -> 'reports' ?| array[:job_types]", job_types: job_types)
     end
 
     scope :with_coverage, -> { where.not(coverage: nil) }
@@ -519,11 +514,6 @@ module Ci
     def self.keep_artifacts!
       update_all(artifacts_expire_at: nil)
       Ci::JobArtifact.where(job: self.select(:id)).update_all(expire_at: nil)
-    end
-
-    # TODO: remove this method with `ci_builds_metadata`
-    def self.has_any_job_definition?
-      left_joins(:job_definition_instance).limit(1).pick(:job_id).present?
     end
 
     def self.any_stuck?(pending_builds)

@@ -62,7 +62,7 @@ class Deployment < ApplicationRecord
   end
   scope :with_environment_page_associations, -> do
     preload(project: [], environment: [],
-      deployable: [:user, :metadata, :job_definition, :project, { pipeline: [:manual_actions] }])
+      deployable: [:user, :job_definition, :project, { pipeline: [:manual_actions] }])
   end
 
   scope :finished_after, ->(date) { where('finished_at >= ?', date) }

@@ -46,6 +46,7 @@ project:
   - read_security_settings
   - read_vulnerability
   - toggle_license_scanning_for_cyclonedx
+  - update_compliance_violations_report
   - update_cvs_for_container_scanning
   - update_cvs_for_dependency_scanning
   - update_on_demand_dast_scan
@@ -81,4 +82,5 @@ group:
   - read_security_scan_profiles
   - read_vulnerability
   - read_vulnerability_statistics
+  - update_compliance_violations_report
   - update_storage_ai_audit_events

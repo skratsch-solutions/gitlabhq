@@ -20,8 +20,8 @@ module Ci
 
       accepts_nested_attributes_for :metadata
 
-      scope :with_project_and_metadata, -> do
-        preload(:project, :metadata, :job_definition)
+      scope :with_project_and_job_definition, -> do
+        preload(:project, :job_definition)
       end
 
       def self.any_with_exposed_artifacts?
@@ -37,12 +37,6 @@ module Ci
             scope: Ci::JobArtifact.select(:job_id, :partition_id, :exposed_as)
           ).call
 
-          ActiveRecord::Associations::Preloader.new(
-            records: records,
-            associations: :metadata,
-            scope: Ci::BuildMetadata.select(:build_id, :partition_id, :config_options)
-          ).call
-
           next unless records.any?(&:has_exposed_artifacts?)
 
           found_exposed_artifacts = true
@@ -53,7 +47,7 @@ module Ci
       end
 
       def self.select_with_exposed_artifacts
-        includes(:metadata, :job_definition, :job_artifacts_metadata, :project).select(&:has_exposed_artifacts?)
+        includes(:job_definition, :job_artifacts_metadata, :project).select(&:has_exposed_artifacts?)
       end
     end
 
@@ -96,9 +90,8 @@ module Ci
 
     def debug_trace_enabled?
       return debug_trace_enabled unless debug_trace_enabled.nil?
-      return true if degenerated?
 
-      !!metadata&.debug_trace_enabled?
+      degenerated?
     end
 
     def enable_debug_trace!
@@ -106,11 +99,11 @@ module Ci
     end
 
     def timeout_human_readable_value
-      timeout_human_readable || metadata&.timeout_human_readable
+      timeout_human_readable
     end
 
     def timeout_value
-      timeout || metadata&.timeout
+      timeout
     end
 
     # This method is called from within a Ci::Build state transition;
@@ -125,9 +118,8 @@ module Ci
       valid?
     end
 
-    # metadata has `unknown_timeout_source` as default
     def timeout_source_value
-      timeout_source || metadata&.timeout_source || 'unknown_timeout_source'
+      timeout_source || 'unknown_timeout_source'
     end
 
     def artifacts_exposed_as
@@ -145,10 +137,6 @@ module Ci
 
     def scoped_user_id
       read_attribute(:scoped_user_id) || options[:scoped_user_id]
-    end
-
-    def exit_code
-      read_attribute(:exit_code) || metadata&.exit_code
     end
 
     def exit_code=(value)

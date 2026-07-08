@@ -85,7 +85,6 @@ module Ci
 
     def self.with_preloads
       preload(
-        :metadata,
         :job_definition,
         :error_job_messages,
         user: [:followers, :followees],

@@ -61,11 +61,11 @@ module Resolvers
           previous_stage_jobs_or_needs: [:needs, :pipeline],
           artifacts: [:job_artifacts],
           pipeline: [:user],
-          kind: [:metadata, :job_definition, :error_job_messages],
+          kind: [:job_definition, :error_job_messages],
 
           # TODO: remove the `pipeline: [:project]` when rolling out ci_pipeline_archival_setting
           # @see https://gitlab.com/gitlab-org/gitlab/-/issues/600946
-          retryable: [:metadata, :job_definition, :error_job_messages, { pipeline: [:project] }],
+          retryable: [:job_definition, :error_job_messages, { pipeline: [:project] }],
           playable: [{ pipeline: [:project] }],
 
           project: [{ project: [:route, { namespace: [:route] }] }],

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Ci::UpdateBuildQueueService, feature_category: :continuous_integration do
-  let_it_be_with_refind(:project) { create(:project, :repository) }
+  let_it_be_with_refind(:project) { create(:project) }
 
   let(:pipeline) { create(:ci_pipeline, project: project) }
   let(:build) { create(:ci_build, pipeline: pipeline) }

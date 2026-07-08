@@ -8301,6 +8301,9 @@ msgstr ""
 msgid "AiPowered|AI Gateway request timeout"
 msgstr ""
 
+msgid "AiPowered|AI audit event storage"
+msgstr ""
+
 msgid "AiPowered|AI logs"
 msgstr ""
 
@@ -8515,9 +8518,6 @@ msgid "AiPowered|Domain removed."
 msgstr ""
 
 msgid "AiPowered|Domains in the denylist are always blocked, even if they appear in the allowlist."
-msgstr ""
-
-msgid "AiPowered|Enable AI audit event storage"
 msgstr ""
 
 msgid "AiPowered|Enable AI audit event streaming"
@@ -8760,6 +8760,9 @@ msgstr ""
 msgid "AiPowered|Start date: %{startDate}"
 msgstr ""
 
+msgid "AiPowered|Store AI audit events"
+msgstr ""
+
 msgid "AiPowered|Stream AI audit events to configured external audit event streaming destinations. AI audit events are still saved to the database when this setting is off."
 msgstr ""
 
@@ -8898,13 +8901,13 @@ msgstr ""
 msgid "AiPowered|When GitLab Duo is not available, prompt caching cannot be turned on."
 msgstr ""
 
-msgid "AiPowered|When disabled, GitLab does not write new AI audit events to the database or ClickHouse. Real-time streaming of AI audit events is not affected."
-msgstr ""
-
 msgid "AiPowered|When this setting is turned on, users can access features included in the GitLab Duo Core add-on. %{linkStart}Which features are included%{linkEnd}?"
 msgstr ""
 
 msgid "AiPowered|When you save, GitLab Duo will be turned off for all groups, subgroups, and projects."
+msgstr ""
+
+msgid "AiPowered|When you turn on this setting, GitLab stores new AI audit events to the database or ClickHouse. Real-time streaming of AI audit events is not affected."
 msgstr ""
 
 msgid "AiPowered|registry.gitlab.com"
@@ -30145,13 +30148,13 @@ msgstr ""
 msgid "DuoWorkflow|Your Duo session needs your input"
 msgstr ""
 
-msgid "Duo|Custom review instructions for all groups in this instance"
+msgid "Duo|Customize code review"
 msgstr ""
 
-msgid "Duo|Custom review instructions for groups"
+msgid "Duo|Customize code review for all groups in this instance"
 msgstr ""
 
-msgid "Duo|Select a project with custom review instructions for GitLab Duo."
+msgid "Duo|Select a project to use for customizing code review."
 msgstr ""
 
 msgid "Duplicate entries found for compliance controls for the requirement."

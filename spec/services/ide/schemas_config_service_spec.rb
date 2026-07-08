@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Ide::SchemasConfigService, feature_category: :web_ide do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :repository, developers: user) }
+  let_it_be(:project) { create(:project, developers: user) }
 
   let(:filename) { 'sample.yml' }
   let(:schema_content) { double(body: '{"title":"Sample schema"}') }

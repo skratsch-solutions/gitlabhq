@@ -887,6 +887,7 @@ class ProjectPolicy < BasePolicy
     prevent :read_agent_artifacts
     prevent :read_compliance_adherence_report
     prevent :read_compliance_violations_report
+    prevent :update_compliance_violations_report
     prevent :read_project_security_exclusions
     prevent :manage_project_security_exclusions
     prevent :read_security_scan_profiles

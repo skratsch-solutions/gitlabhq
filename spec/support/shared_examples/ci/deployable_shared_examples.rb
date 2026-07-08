@@ -629,10 +629,8 @@ RSpec.shared_examples 'a deployable job' do
             job.reload_metadata
           end
 
-          it 'returns a persisted expanded environment name without a list of variables' do
-            expect(job).not_to receive(:simple_variables)
-
-            is_expected.to eq('review/foo')
+          it 'does not read the expanded environment name from metadata' do
+            is_expected.to eq('review/host')
           end
         end
       end

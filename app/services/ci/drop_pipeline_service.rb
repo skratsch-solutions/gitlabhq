@@ -32,7 +32,7 @@ module Ci
     end
 
     def preloaded_relations
-      [:project, :pipeline, :metadata, :job_definition, :deployment, :taggings, :pending_state]
+      [:project, :pipeline, :job_definition, :deployment, :taggings, :pending_state]
     end
   end
 end

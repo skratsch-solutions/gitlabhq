@@ -4,7 +4,7 @@
 require 'spec_helper'
 
 RSpec.describe Ci::PipelineSchedules::CalculateNextRunService, feature_category: :continuous_integration do
-  let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:project) { create(:project, :public) }
 
   describe '#execute' do
     using RSpec::Parameterized::TableSyntax

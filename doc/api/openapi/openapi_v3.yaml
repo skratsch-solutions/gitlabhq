@@ -4075,7 +4075,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3c400bb4e6e3"
+              "$ref": "#/components/schemas/RequestBody_1bb359633f1e"
   "/api/v4/security/groups/{id}/vulnerability_exports":
     post:
       operationId: postApiV4SecurityGroupsIdVulnerabilityExports
@@ -4107,7 +4107,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3c400bb4e6e3"
+              "$ref": "#/components/schemas/RequestBody_1bb359633f1e"
   "/api/v4/security/vulnerability_exports":
     post:
       operationId: postApiV4SecurityVulnerabilityExports
@@ -4131,7 +4131,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_6c51c6a72a61"
+              "$ref": "#/components/schemas/RequestBody_a847a040849c"
   "/api/v4/security/vulnerability_exports/{id}":
     get:
       operationId: getApiV4SecurityVulnerabilityExportsId
@@ -28634,6 +28634,16 @@ paths:
           nullable: true
         in: query
         example: 7d70e02340bac451f281cecf0a980907974bd8be
+      - name: ref_type
+        required: false
+        description: Type of ref in sha, heads (branch) or tags (tag)
+        schema:
+          type: string
+          enum:
+          - heads
+          - tags
+          nullable: true
+        in: query
       - name: format
         required: false
         description: The archive format
@@ -92178,7 +92188,7 @@ components:
           type: boolean
           description: Whether hidden groups should be removed
           nullable: true
-    RequestBody_3c400bb4e6e3:
+    RequestBody_1bb359633f1e:
       type: object
       properties:
         export_format:
@@ -92191,6 +92201,8 @@ components:
           nullable: true
         send_email:
           type: boolean
+          description: If `true`, sends an email notification to the requesting user
+            when the export completes.
           nullable: true
         report_data:
           type: object
@@ -92349,7 +92361,7 @@ components:
               description: The full path of the vulnerable
               nullable: true
           nullable: true
-    RequestBody_6c51c6a72a61:
+    RequestBody_a847a040849c:
       type: object
       properties:
         export_format:
@@ -92362,6 +92374,8 @@ components:
           nullable: true
         send_email:
           type: boolean
+          description: If `true`, sends an email notification to the requesting user
+            when the export completes.
           nullable: true
     RequestBody_bf3947cbe8c2:
       type: object

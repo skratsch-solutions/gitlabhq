@@ -1284,7 +1284,7 @@ export default {
                 :work-item-iid="workItemIid"
                 :work-item-widgets-auto-save-key="workItemWidgetsAutoSaveKey"
                 @error="updateError = $event"
-                @cancelCreate="handleCancelClick"
+                @cancel-create="handleCancelClick"
                 @updateDraft="updateDraftData('description', $event)"
               />
               <div
