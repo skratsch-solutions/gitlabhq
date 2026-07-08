@@ -9,6 +9,13 @@ module API
       request.post?
     end
 
+    rescue_from ::Gitlab::Ci::Lint::RateLimitError do
+      too_many_requests!(
+        { error: _('This endpoint has been requested too many times. Try again later.') },
+        retry_after: ::Gitlab::ApplicationRateLimiter.interval(:ci_lint)
+      )
+    end
+
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Validate existing CI/CD configuration' do
         detail 'Validates the `.gitlab-ci.yml` configuration for a specified project.'

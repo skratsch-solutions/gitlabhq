@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class OrderedIntegrationsExperiment < ApplicationExperiment
+  def self.context_keys = %i[actor]
+
   control
   variant(:candidate)
 

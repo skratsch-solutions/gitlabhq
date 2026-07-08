@@ -3,7 +3,6 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/access_tokens/components/access_token_table_app.vue',
     'app/assets/javascripts/analytics/shared/components/analytics_dashboard_panel.vue',
     'app/assets/javascripts/clusters_list/components/install_agent_modal.vue',
     'app/assets/javascripts/content_editor/components/bubble_menus/alert_bubble_menu.vue',

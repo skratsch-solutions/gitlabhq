@@ -191,6 +191,34 @@ authenticated users - `{ user: current_user }` would be just as effective.
 > experiment is run. Not only that, your experiment would not be "sticky" and events
 > wouldn't be resolvable.
 
+### Declaring context keys for the experiments API
+
+To read cached variant assignments through the
+[experiments API](../../api/experiments.md), the experiment class must declare
+its context keys by overriding `self.context_keys`. The declared keys must match
+the context used at the experiment's call sites:
+
+```ruby
+class MyExperiment < ApplicationExperiment
+  def self.context_keys = %i[user]
+end
+```
+
+Multiple keys are supported. Declare them in the same order as the keyword
+arguments in the `experiment()` call, because GLEX derives cache keys from
+the ordered context. For example, if the experiment is called with
+`experiment(:my_experiment, user: user, namespace: namespace)`:
+
+```ruby
+class MyExperiment < ApplicationExperiment
+  def self.context_keys = %i[user namespace]
+end
+```
+
+The supported keys are `user`, `actor`, `namespace`, and `project`. When you
+query the API, pass every declared key as a `context` parameter. Only the
+`user` and `actor` keys fall back to the authenticated user.
+
 ### Advanced experimentation
 
 The block form shown previously can override a single variant while leaving the

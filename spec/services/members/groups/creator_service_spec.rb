@@ -42,6 +42,14 @@ RSpec.describe Members::Groups::CreatorService, feature_category: :groups_and_pr
           described_class.add_member(source, user, :maintainer)
         end
       end
+
+      context 'with skip_authorized_projects_refresh: true' do
+        it 'does not schedule a project authorization update job' do
+          expect(AuthorizedProjectsWorker).not_to receive(:new)
+
+          described_class.add_member(source, user, :maintainer, skip_authorized_projects_refresh: true)
+        end
+      end
     end
 
     context 'with immediately_sync_authorizations: true' do

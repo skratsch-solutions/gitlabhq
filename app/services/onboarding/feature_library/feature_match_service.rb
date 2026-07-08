@@ -6,24 +6,37 @@ module Onboarding
       VALID_PANELS = %w[project group].freeze
       MIN_QUERY_LENGTH = 2
 
-      def initialize(query:, panel:)
+      def initialize(query:, panel:, user: nil, resource: nil)
         @query = query
         @panel = panel.to_s
+        @user = user
+        @resource = resource
       end
 
       def execute
-        return [] unless VALID_PANELS.include?(@panel)
+        return [] unless VALID_PANELS.include?(panel)
 
-        normalized = normalize(@query)
+        normalized = normalize(query)
 
         entries = ranked_entries(normalized) # Tier 1: whole-query match
         entries = keyword_entries(normalized) unless entries.any? # Tier 2: tokenized match, only on Tier 1 miss
 
-        entries.map { |e| e['feature_key'] } # rubocop:disable Rails/Pluck -- entries is a plain Array, not an ActiveRecord relation
-               .uniq
+        ids = entries.map { |e| e['feature_key'] } # rubocop:disable Rails/Pluck -- entries is a plain Array, not an ActiveRecord relation
+                     .uniq
+
+        return ids if ids.any?
+
+        ai_gateway_ids(normalized) # Tier 3: LLM fall-through, only on Tier 2 miss
       end
 
       private
+
+      attr_reader :query, :panel, :user, :resource
+
+      # Overridden in EE
+      def ai_gateway_ids(_normalized_query)
+        []
+      end
 
       def normalize(query)
         query.to_s.downcase.strip
@@ -39,7 +52,7 @@ module Onboarding
         contains = []
 
         Onboarding::FeatureLibrary::TerminologyMap.all.each do |entry| # rubocop:disable Rails/FindEach -- iterating a frozen Array, not an ActiveRecord relation
-          next unless Array(entry['panels']).include?(@panel)
+          next unless Array(entry['panels']).include?(panel)
 
           term = entry['term']
           next unless term.include?(normalized_query)
@@ -67,3 +80,5 @@ module Onboarding
     end
   end
 end
+
+Onboarding::FeatureLibrary::FeatureMatchService.prepend_mod

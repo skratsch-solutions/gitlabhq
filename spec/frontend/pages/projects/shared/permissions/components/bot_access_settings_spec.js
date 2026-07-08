@@ -10,6 +10,25 @@ describe('BotAccessSettings', () => {
   };
 
   const findGroupSelect = () => wrapper.findComponent(GroupSelect);
+  const findBetaBadge = () => wrapper.findByTestId('bot-access-beta-badge');
+
+  describe('beta badge', () => {
+    beforeEach(() => {
+      createComponent();
+    });
+
+    it('displays a beta badge', () => {
+      expect(findBetaBadge().exists()).toBe(true);
+    });
+
+    it('shows Beta text', () => {
+      expect(findBetaBadge().text()).toBe('Beta');
+    });
+
+    it('uses neutral variant', () => {
+      expect(findBetaBadge().attributes('variant')).toBe('neutral');
+    });
+  });
 
   describe('group selector', () => {
     it('does not show group selector when bot access is disabled', () => {

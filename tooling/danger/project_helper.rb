@@ -109,6 +109,9 @@ module Tooling
         %r{\A((ee|jh)/)?db/[^/]+\z} => [:database], # db/ root files
         %r{\Adb/docs/.+\.yml\z} => [:database],
         %r{\A((ee|jh)/)?lib/(ee/)?gitlab/(database|background_migration|sql)(/|\.rb)} => [:database, :backend],
+        # Database infrastructure specs require mandatory database review (see CODEOWNERS [Database] section)
+        %r{\A((ee|jh)/)?spec/db/} => [:database, :backend],
+        %r{\A((ee|jh)/)?spec/lib/(ee/)?gitlab/(database|sql)(/|_spec\.rb)} => [:database, :backend],
         %r{\A(app/services/authorized_project_update/find_records_due_for_refresh_service)(/|\.rb)} => [:database, :backend],
         %r{\A(app/models/project_authorization|app/services/users/refresh_authorized_projects_service)(/|\.rb)} => [:database, :backend],
         %r{\A((ee|jh)/)?app/finders/} => [:database, :backend],

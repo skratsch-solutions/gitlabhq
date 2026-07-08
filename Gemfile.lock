@@ -829,7 +829,7 @@ GEM
       mime-types
       net-http-persistent (~> 4.0)
       nokogiri (~> 1, >= 1.10.8)
-    gitlab-gkg-proto (0.82.0)
+    gitlab-gkg-proto (0.86.0)
       grpc (~> 1.0)
     gitlab-glaz (0.0.3)
       google-protobuf (~> 4.35)
@@ -2484,7 +2484,7 @@ DEPENDENCIES
   gitlab-email_handler!
   gitlab-experiment (~> 1.6.0)
   gitlab-fog-azure-rm (~> 2.5.0)
-  gitlab-gkg-proto (~> 0.82.0)
+  gitlab-gkg-proto (~> 0.86.0)
   gitlab-glaz (~> 0.0.3)
   gitlab-glfm-markdown (~> 0.0.41)
   gitlab-grape-openapi (~> 0.1)
@@ -2987,7 +2987,7 @@ CHECKSUMS
   gitlab-email_handler (0.1.0)
   gitlab-experiment (1.6.0) sha256=2f2f4c96d681de8f6af03fdf8aa7ab423027406cf4e6a1cd4d9767ffcebe721c
   gitlab-fog-azure-rm (2.5.0) sha256=f10fd3f6667925e4ce97cea2fa707b926320c7b7fa06978788e2f452ee7f4db0
-  gitlab-gkg-proto (0.82.0) sha256=ca9501272c7c9830a53bff1999d7c5f1090f9515b284577ea1c3c297585c72c2
+  gitlab-gkg-proto (0.86.0) sha256=7b478b977825d5d11de5a8eeebecec438efb009881aeef79908082654fd553e2
   gitlab-glaz (0.0.3) sha256=f484a1eaf28849d7c19cccf2dabc2ee045c7c9fd870af0d4974a638593634829
   gitlab-glaz (0.0.3-aarch64-linux-gnu) sha256=68f1e940294d2bfef97aad376ab151c8eaf7f821a9b467a3cf04646c577e8de9
   gitlab-glaz (0.0.3-arm64-darwin) sha256=f04aac78729dc7a98675a63ab871d574c9122ec3d31bc062be9a4d973e54a306

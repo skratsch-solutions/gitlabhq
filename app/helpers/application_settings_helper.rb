@@ -54,7 +54,7 @@ module ApplicationSettingsHelper
   # The instance-level MCP toggle only applies to self-managed. On GitLab.com,
   # MCP availability is controlled by the top-level group setting instead.
   def mcp_server_setting_available?
-    !Gitlab.com? && Feature.enabled?(:mcp_server_availability_setting, :instance)
+    !Gitlab.com?
   end
 
   def ssh_enabled?

@@ -336,3 +336,5 @@ module Organizations
     end
   end
 end
+
+Organizations::Transfer::UsersService.prepend_mod

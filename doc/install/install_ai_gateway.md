@@ -12,6 +12,30 @@ is a combination of two services that give access to AI-native GitLab Duo featur
 - AI Gateway service
 - [GitLab Duo Agent Platform service](../user/duo_agent_platform/_index.md)
 
+## Authentication and JSON Web Tokens (JWT)
+
+To access GitLab Duo features, the AI Gateway uses JWT to confirm that requests come from authenticated users on your GitLab instance.
+When your GitLab instance requests a token, the service issues a short-lived signed token that authorizes the request.
+
+When you host your own AI Gateway, you must generate a signing key pair and pass the keys to the
+service as environment variables.
+
+Each service uses its own key pair:
+
+- The AI Gateway uses `AIGW_SELF_SIGNED_JWT__SIGNING_KEY` and
+  `AIGW_SELF_SIGNED_JWT__VALIDATION_KEY` for features like GitLab Duo Code Suggestions and GitLab Duo Chat.
+- The GitLab Duo Agent Platform service uses `DUO_WORKFLOW_SELF_SIGNED_JWT__SIGNING_KEY` and
+  `DUO_WORKFLOW_SELF_SIGNED_JWT__VALIDATION_KEY`.
+
+Each pair provides the following roles:
+
+- The signing key signs the tokens that the service issues.
+- The validation key validates tokens during key rotation so that tokens signed with a
+  previous key remain valid until they expire.
+
+Both keys in a pair must be RSA 2048-bit private keys in PEM format.
+If these keys are missing, the service cannot sign tokens and requests fail with a token creation error.
+
 ## Install by using Docker
 
 The GitLab AI Gateway Docker image contains all necessary code and dependencies
@@ -983,14 +1007,6 @@ To resolve this issue:
    ```
 
 1. Restart the AI Gateway container.
-
-> [!note]
-> `AIGW_SELF_SIGNED_JWT__SIGNING_KEY` is used by the AI Gateway to sign user JWTs.
-> `AIGW_SELF_SIGNED_JWT__VALIDATION_KEY` is a secondary key used for token validation
-> during key rotation to ensure previously issued tokens remain valid.
-> Both keys must use RSA 2048-bit private keys in PEM format.
-> These keys are separate from `DUO_WORKFLOW_SELF_SIGNED_JWT__SIGNING_KEY`,
-> which is used by the GitLab Duo Agent Platform.
 
 ### SSL certificate errors when loading PEM files
 

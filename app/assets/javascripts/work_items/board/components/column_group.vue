@@ -22,7 +22,6 @@ export default {
   // `draggable` is scoped to the card class so the load-more row stays fixed.
   sortableOptions: {
     ...defaultSortableOptions,
-    group: BOARD_DND_GROUP,
     draggable: `.${BOARD_CARD_CLASS}`,
     delay: DRAG_DELAY,
     delayOnTouchOnly: true,
@@ -62,6 +61,11 @@ export default {
       required: false,
       default: false,
     },
+    dropDisabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     collapsed: {
       type: Boolean,
       required: false,
@@ -73,7 +77,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ['card-move', 'toggle-collapse'],
+  emits: ['card-move', 'toggle-collapse', 'drag-start'],
   data() {
     return {
       workItemsConnection: { nodes: [], pageInfo: {} },
@@ -111,6 +115,11 @@ export default {
     },
     decoration() {
       return this.strategy.headerDecoration(this.value);
+    },
+    groupConfig() {
+      // Shared group so cards drag between columns; `put: false` makes THIS column
+      // reject incoming drops (a status the dragged type can't take) while others accept.
+      return { name: BOARD_DND_GROUP, put: !this.dropDisabled };
     },
     countQueryVariables() {
       return boardColumnCountVariables({
@@ -166,6 +175,13 @@ export default {
     },
   },
   methods: {
+    onDragStart(evt) {
+      const workItemId = evt.item?.dataset?.workItemId;
+      this.$emit(
+        'drag-start',
+        this.workItems.find((workItem) => workItem.id === workItemId),
+      );
+    },
     fetchNextPage() {
       if (!this.hasNextPage || this.fetchNextPageInProgress) {
         return;
@@ -216,7 +232,10 @@ export default {
 <template>
   <div
     class="gl-flex gl-shrink-0 gl-flex-col gl-rounded-xl gl-bg-strong dark:gl-bg-subtle"
-    :class="collapsed ? 'gl-w-8 gl-self-start' : 'gl-h-full gl-w-48'"
+    :class="[
+      collapsed ? 'gl-w-8 gl-self-start' : 'gl-h-full gl-w-48',
+      { 'gl-cursor-not-allowed gl-opacity-5': dropDisabled },
+    ]"
   >
     <column-header
       :value="value"
@@ -246,8 +265,10 @@ export default {
         tag="ul"
         :data-group-value-id="value.id"
         v-bind="$options.sortableOptions"
+        :group="groupConfig"
         :disabled="dragDisabled"
         class="gl-m-0 gl-flex gl-flex-1 gl-list-none gl-flex-col gl-gap-3 gl-p-0"
+        @start="onDragStart"
         @end="$emit('card-move', $event)"
       >
         <work-item-card

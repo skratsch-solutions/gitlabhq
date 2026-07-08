@@ -35,6 +35,9 @@ import { strategies } from 'ee_else_ce/work_items/board/grouping/strategies';
  * @property {(value: GroupingValue) => Object} moveInput - workItemUpdate input fragment that moves an item into the column, e.g. `{ statusWidget: { status } }`.
  * @property {(node: Object, value: GroupingValue) => void} patchCard - Mutates the cloned card in place so its attribute matches the target column optimistically.
  * @property {(value: GroupingValue) => HeaderDecoration} headerDecoration - How the column header renders the value.
+ * @property {Object} [gateQuery] - Optional GraphQL query for drag-eligibility data. Omit to allow all drops.
+ * @property {(data: Object) => *} [extractGateData] - Pulls gate data (e.g. a lookup map) from the `gateQuery` result.
+ * @property {(args: { item: Object, value: GroupingValue, gateData: * }) => boolean} [isDropAllowed] - Whether the dragged work item `item` may be dropped into `value`'s column. Omit to allow all drops.
  */
 
 // The available strategies differ by edition (status is EE-only), so the list

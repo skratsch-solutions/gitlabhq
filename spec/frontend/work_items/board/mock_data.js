@@ -229,6 +229,24 @@ export const buildBoardWorkItemsCountResponse = (count = 0) => ({
   },
 });
 
+export const buildWorkItemTypesResponse = (types = []) => ({
+  data: {
+    namespace: {
+      __typename: 'Namespace',
+      id: mockGroupId,
+      webUrl: '/group',
+      userPermissions: {
+        __typename: 'NamespacePermissions',
+        setNewWorkItemMetadata: true,
+      },
+      workItemTypes: {
+        __typename: 'WorkItemTypeConnection',
+        nodes: types,
+      },
+    },
+  },
+});
+
 export const buildNamespaceStatusesResponse = (statuses = []) => ({
   data: {
     namespace: {

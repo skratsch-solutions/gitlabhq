@@ -658,7 +658,7 @@ gem 'gitaly', '~> 19.0', feature_category: :gitaly
 gem 'gitlab-kas-grpc', '~> 19.2.0-rc1', feature_category: :deployment_management
 
 # Knowledge Graph GRPC protocol definitions
-gem 'gitlab-gkg-proto', '~> 0.82.0', feature_category: :knowledge_graph
+gem 'gitlab-gkg-proto', '~> 0.86.0', feature_category: :knowledge_graph
 
 gem 'grpc', '~> 1.81.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 

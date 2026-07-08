@@ -31,6 +31,7 @@ module Gitlab
           code_suggestions_api_endpoint: { threshold: -> { application_settings.code_suggestions_api_rate_limit }, interval: 1.minute },
           create_organization_api: { threshold: -> { application_settings.create_organization_api_limit }, interval: 1.minute },
           delete_all_todos: { threshold: 1, interval: 5.minutes },
+          deployment_delete: { threshold: 500, interval: 1.minute },
           downstream_pipeline_trigger: {
             threshold: -> { application_settings.downstream_pipeline_trigger_limit_per_project_user_sha }, interval: 1.minute
           },

@@ -153,6 +153,14 @@ module Gitlab
               period: 5.minutes,
               action: :block
             },
+            deployment_delete: {
+              limiter_name: 'applimiter_deployment_delete',
+              rule_name: 'limit_deployment_deletes_by_user',
+              characteristics: %i[user],
+              limit: 500,
+              period: 1.minute,
+              action: :block
+            },
             downstream_pipeline_trigger: {
               limiter_name: 'applimiter_downstream_pipeline_trigger',
               rule_name: 'limit_downstream_pipeline_triggers_by_project_user_sha',

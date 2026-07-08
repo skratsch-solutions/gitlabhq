@@ -1983,6 +1983,24 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
   end
 
+  describe '#add_owner' do
+    let(:user) { create(:user) }
+
+    it 'adds the user as an owner' do
+      group.add_owner(user)
+
+      expect(group.owners).to include(user)
+    end
+
+    it 'forwards extra keyword arguments to add_member' do
+      expect(group).to receive(:add_member).with(
+        user, :owner, current_user: nil, skip_authorized_projects_refresh: true
+      )
+
+      group.add_owner(user, skip_authorized_projects_refresh: true)
+    end
+  end
+
   describe '#has_owner?' do
     before do
       @members = setup_group_members(group)

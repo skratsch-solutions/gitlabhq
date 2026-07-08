@@ -126,6 +126,7 @@ RSpec.describe 'Every Sidekiq worker', feature_category: :sidekiq do
       {
         'AdjournedProjectDeletionWorker' => 3,
         'AdminEmailsWorker' => 3,
+        'Ai::DuoWorkflows::CodeReview::PublishCommentsWorker' => 3,
         'Analytics::CodeReviewMetricsWorker' => 3,
         'Analytics::DevopsAdoption::CreateSnapshotWorker' => 3,
         'Analytics::UsageTrends::CounterJobWorker' => 3,

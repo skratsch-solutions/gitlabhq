@@ -6,6 +6,7 @@ function getHeaderNumber(el) {
 }
 
 export default {
+  name: 'TableContents',
   components: {
     GlDisclosureDropdown,
   },

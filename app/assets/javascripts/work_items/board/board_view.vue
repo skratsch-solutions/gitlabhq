@@ -57,6 +57,9 @@ export default {
     return {
       groupBy: { property: 'status' },
       groupByValues: [],
+      gateData: null,
+      // Column value ids the in-flight dragged item may not be dropped into.
+      invalidValueIds: [],
       // Locks dragging while a move mutation is in flight so a second drop can't
       // compute before/after ids against a stale, not-yet-persisted order.
       moveInProgress: false,
@@ -100,6 +103,25 @@ export default {
         },
       };
     },
+    gateData() {
+      return {
+        // A function so a falsy value here doesn't make vue-apollo treat this whole
+        // options object as the query document; `skip` below is what gates the fetch.
+        query() {
+          return this.strategy?.gateQuery;
+        },
+        skip() {
+          return !this.strategy?.gateQuery;
+        },
+        variables() {
+          return { fullPath: this.rootPageFullPath };
+        },
+        update: (data) => this.strategy?.extractGateData?.(data) ?? null,
+        error: (error) => {
+          Sentry.captureException(error);
+        },
+      };
+    },
   },
   methods: {
     groupId(value) {
@@ -126,7 +148,16 @@ export default {
         value,
       });
     },
+    onDragStart(workItem) {
+      this.invalidValueIds = this.groupByValues
+        .filter((value) => !this.isDropAllowed({ item: workItem, value }))
+        .map((value) => value.id);
+    },
+    isDropAllowed({ item, value }) {
+      return this.strategy?.isDropAllowed?.({ item, value, gateData: this.gateData }) ?? true;
+    },
     async onCardMove({ from, to, item, oldIndex, newIndex }) {
+      this.invalidValueIds = [];
       const fromValueId = from?.dataset?.groupValueId;
       const toValueId = to?.dataset?.groupValueId;
       const workItemId = item?.dataset?.workItemId;
@@ -261,8 +292,10 @@ export default {
       :root-page-full-path="rootPageFullPath"
       :base-query-variables="queryVariables"
       :drag-disabled="moveInProgress"
+      :drop-disabled="invalidValueIds.includes(value.id)"
       :collapsed="isColumnCollapsed(value)"
       :hidden-metadata-keys="hiddenMetadataKeys"
+      @drag-start="onDragStart"
       @card-move="onCardMove"
       @toggle-collapse="$emit('toggle-collapse', groupId(value))"
     />

@@ -732,4 +732,21 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
       end
     end
   end
+
+  describe '.rate_limits' do
+    before do
+      allow(described_class).to receive(:rate_limits).and_call_original
+    end
+
+    describe 'ci_lint' do
+      it 'derives its threshold from the ci_lint_limit_per_user application setting', :aggregate_failures do
+        stub_application_setting(ci_lint_limit_per_user: 30)
+
+        values = described_class.rate_limits[:ci_lint]
+
+        expect(values[:threshold].call).to eq(30)
+        expect(values[:interval]).to eq(1.minute)
+      end
+    end
+  end
 end

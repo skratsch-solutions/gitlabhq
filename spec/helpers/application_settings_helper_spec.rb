@@ -205,27 +205,11 @@ RSpec.describe ApplicationSettingsHelper, feature_category: :shared do
   describe '.mcp_server_setting_available?', feature_category: :mcp_server do
     subject { helper.mcp_server_setting_available? }
 
-    context 'on self-managed with the feature flag enabled' do
-      before do
-        stub_feature_flags(mcp_server_availability_setting: true)
-      end
-
+    context 'on self-managed' do
       it { is_expected.to be(true) }
     end
 
     context 'on SaaS', :saas do
-      before do
-        stub_feature_flags(mcp_server_availability_setting: true)
-      end
-
-      it { is_expected.to be(false) }
-    end
-
-    context 'when the feature flag is disabled' do
-      before do
-        stub_feature_flags(mcp_server_availability_setting: false)
-      end
-
       it { is_expected.to be(false) }
     end
   end

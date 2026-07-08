@@ -17,7 +17,9 @@ module Onboarding
 
       ids = Onboarding::FeatureLibrary::FeatureMatchService.new(
         query: truncated_query,
-        panel: search_params[:panel]
+        panel: search_params[:panel],
+        user: current_user,
+        resource: resource
       ).execute
 
       render json: { ids: ids }
@@ -26,7 +28,22 @@ module Onboarding
     private
 
     def search_params
-      params.permit(:query, :panel)
+      params.permit(:query, :panel, :resource_id)
+    end
+
+    def resource
+      resource_id = search_params[:resource_id]
+      return unless resource_id
+
+      if search_params[:panel] == 'group'
+        resource = Group.find_by_id(resource_id)
+        ability = :read_group
+      else
+        resource = Project.find_by_id(resource_id)
+        ability = :read_project
+      end
+
+      resource if resource && can?(current_user, ability, resource)
     end
 
     def valid_panel?

@@ -72,7 +72,6 @@ export default {
   },
   inject: [
     'accessTokenType',
-    'accessTokenTypePlural',
     'backendPagination',
     'initialActiveAccessTokens',
     'noActiveTokensMessage',

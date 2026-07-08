@@ -7,6 +7,8 @@
 # enabled, every experiment name must resolve to a registered class, so this
 # class exists to register the `null_hypothesis` name and its variants.
 class NullHypothesisExperiment < ApplicationExperiment
+  def self.context_keys = %i[user]
+
   control { nil }
   candidate { nil }
 end

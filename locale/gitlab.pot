@@ -28407,6 +28407,9 @@ msgid_plural "DuoAgenticChat|%{count} characters remaining."
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "DuoAgenticChat|A workplan has already been started for this item."
+msgstr ""
+
 msgid "DuoAgenticChat|AGENTS.md"
 msgstr ""
 
@@ -28450,6 +28453,9 @@ msgid "DuoAgenticChat|Collaborate with AI agents to accomplish tasks and answer 
 msgstr ""
 
 msgid "DuoAgenticChat|Current page"
+msgstr ""
+
+msgid "DuoAgenticChat|Generate workplan"
 msgstr ""
 
 msgid "DuoAgenticChat|Get GitLab Duo turned on"
@@ -28566,6 +28572,9 @@ msgstr ""
 msgid "DuoAgenticChat|Purchase more credits or turn off the Agentic toggle to start a new conversation."
 msgstr ""
 
+msgid "DuoAgenticChat|Ready when you are"
+msgstr ""
+
 msgid "DuoAgenticChat|Repurchase Agent Platform"
 msgstr ""
 
@@ -28573,6 +28582,9 @@ msgid "DuoAgenticChat|Responses may be inaccurate. Verify before use."
 msgstr ""
 
 msgid "DuoAgenticChat|Return to non-agentic Chat"
+msgstr ""
+
+msgid "DuoAgenticChat|Review and confirm"
 msgstr ""
 
 msgid "DuoAgenticChat|Select default namespace"
@@ -28645,6 +28657,12 @@ msgid "DuoAgenticChat|Upgrade to Premium"
 msgstr ""
 
 msgid "DuoAgenticChat|Web search"
+msgstr ""
+
+msgid "DuoAgenticChat|Work with GitLab Duo to break your item into an efficient implementation plan."
+msgstr ""
+
+msgid "DuoAgenticChat|Workplan found"
 msgstr ""
 
 msgid "DuoAgenticChat|Your GitLab Duo Agent Platform subscription has been cancelled"
@@ -29519,6 +29537,9 @@ msgid "DuoCodeReview|:warning: %{user_reference}, you don't have permission to c
 msgstr ""
 
 msgid "DuoCodeReview|:warning: %{user_reference}, you need to set a default GitLab Duo namespace to use Code Review Flow in this project. Please set a default GitLab Duo namespace in your [preferences](%{docs_url})."
+msgstr ""
+
+msgid "DuoCodeReview|:warning: Code Review Flow completed the review but could not post the review comments. Please request a new review to try again."
 msgstr ""
 
 msgid "DuoCodeReview|:warning: Code Review Flow could not create the required CI/CD pipeline. Please request a new review. If the problem persists, contact your administrator."
@@ -53006,6 +53027,9 @@ msgstr ""
 msgid "Orbit|Click to select. Double-click to expand. Drag to move."
 msgstr ""
 
+msgid "Orbit|ClickHouse"
+msgstr ""
+
 msgid "Orbit|Close"
 msgstr ""
 
@@ -53177,6 +53201,9 @@ msgstr ""
 msgid "Orbit|GitLab status"
 msgstr ""
 
+msgid "Orbit|Gitaly"
+msgstr ""
+
 msgid "Orbit|Group"
 msgstr ""
 
@@ -53193,6 +53220,9 @@ msgid "Orbit|Hide services"
 msgstr ""
 
 msgid "Orbit|ImportedSymbol"
+msgstr ""
+
+msgid "Orbit|In progress"
 msgstr ""
 
 msgid "Orbit|Index"
@@ -53400,6 +53430,9 @@ msgid "Orbit|Run this command in your terminal to configure %{host} automaticall
 msgstr ""
 
 msgid "Orbit|Schema"
+msgstr ""
+
+msgid "Orbit|Schema migration"
 msgstr ""
 
 msgid "Orbit|Search"
@@ -80869,9 +80902,6 @@ msgstr ""
 msgid "TrialWidget|Ultimate with GitLab Duo Agent Platform"
 msgstr ""
 
-msgid "TrialWidget|Ultimate with GitLab Duo Enterprise"
-msgstr ""
-
 msgid "TrialWidget|Upgrade"
 msgstr ""
 
@@ -85967,6 +85997,9 @@ msgid "Vulnerability|Reachability"
 msgstr ""
 
 msgid "Vulnerability|References"
+msgstr ""
+
+msgid "Vulnerability|Related MRs"
 msgstr ""
 
 msgid "Vulnerability|Remediation"

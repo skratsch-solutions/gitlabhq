@@ -288,20 +288,6 @@ This setting applies to any user who triggers a pipeline with pipeline execution
 If your policy `include:` value references a CI/CD configuration file stored in a private or internal
 project other than the security policy project, use this option.
 
-1. Enable the `pipeline_execution_policy_bot_access` experiment in your security policy project.
-   In the `.gitlab/security-policies/policy.yml` file, add the following lines:
-
-   ```yaml
-   experiments:
-     pipeline_execution_policy_bot_access:
-       enabled: true
-   ```
-
-   > [!note]
-   > Your private or internal project, or one of its parent groups, must be linked to this security
-   > policy project. If it is not already linked, you must
-   > [link the security policy project](enforcement/security_policy_projects.md#link-to-a-security-policy-project).
-
 1. In the private or internal project that stores CI/CD files, in the left sidebar, select
    **Settings** > **General**.
 1. Expand **Visibility, project features, permissions**.

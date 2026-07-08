@@ -275,7 +275,7 @@ describe('ColumnGroup', () => {
     it('binds the work items to a shared draggable group keyed by id', () => {
       expect(findDraggable().props('value')).toEqual(nodes);
       expect(findDraggable().props('itemKey')).toBe('id');
-      expect(findDraggable().attributes('group')).toBe('work-item-board');
+      expect(findDraggable().vm.$attrs.group).toEqual({ name: 'work-item-board', put: true });
       expect(findDraggable().attributes('tag')).toBe('ul');
       expect(findDraggable().attributes('data-group-value-id')).toBe(mockStatus.id);
     });
@@ -296,6 +296,38 @@ describe('ColumnGroup', () => {
       await waitForPromises();
 
       expect(findDraggable().attributes('disabled')).toBeDefined();
+    });
+  });
+
+  describe('drop-disabled column', () => {
+    it('keeps put enabled and the column un-dimmed by default', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(findDraggable().vm.$attrs.group).toEqual({ name: 'work-item-board', put: true });
+      expect(wrapper.classes()).not.toContain('gl-opacity-5');
+    });
+
+    it('disables put and dims the column when dropDisabled is true', async () => {
+      createComponent({ props: { dropDisabled: true } });
+      await waitForPromises();
+
+      expect(findDraggable().vm.$attrs.group).toEqual({ name: 'work-item-board', put: false });
+      expect(wrapper.classes()).toEqual(
+        expect.arrayContaining(['gl-opacity-5', 'gl-cursor-not-allowed']),
+      );
+    });
+
+    it('emits drag-start with the dragged work item node', async () => {
+      createComponent();
+      await waitForPromises();
+
+      findDraggable().vm.$emit('start', {
+        item: { dataset: { workItemId: 'gid://gitlab/WorkItem/1' } },
+      });
+
+      expect(wrapper.emitted('drag-start')).toHaveLength(1);
+      expect(wrapper.emitted('drag-start')[0][0].id).toBe('gid://gitlab/WorkItem/1');
     });
   });
 

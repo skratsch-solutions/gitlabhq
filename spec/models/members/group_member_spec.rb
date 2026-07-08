@@ -317,6 +317,88 @@ RSpec.describe GroupMember, feature_category: :groups_and_projects do
         member.save!
       end
     end
+
+    context 'when skip_authorized_projects_refresh is set' do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:group) { create(:group) }
+
+      let(:member) { build(:group_member, group: group, user: user) }
+
+      before do
+        member.skip_authorized_projects_refresh = true
+      end
+
+      it 'does not recalculate authorizations' do
+        expect(AuthorizedProjectsWorker).not_to receive(:new)
+
+        member.save!
+      end
+
+      it 'recalculates authorizations when the group has a project' do
+        create(:project, group: group)
+
+        expect_next_instance_of(AuthorizedProjectsWorker) do |worker|
+          expect(worker).to receive(:perform).with(user.id)
+        end
+
+        member.save!
+      end
+
+      it 'recalculates authorizations when a subgroup has a project' do
+        subgroup = create(:group, parent: group)
+        create(:project, group: subgroup)
+
+        expect_next_instance_of(AuthorizedProjectsWorker) do |worker|
+          expect(worker).to receive(:perform).with(user.id)
+        end
+
+        member.save!
+      end
+
+      it 'recalculates authorizations when the group has an inbound group share' do
+        create(:group_group_link, shared_with_group: group)
+
+        expect_next_instance_of(AuthorizedProjectsWorker) do |worker|
+          expect(worker).to receive(:perform).with(user.id)
+        end
+
+        member.save!
+      end
+
+      it 'recalculates authorizations when the group has an inbound project share' do
+        create(:project_group_link, group: group)
+
+        expect_next_instance_of(AuthorizedProjectsWorker) do |worker|
+          expect(worker).to receive(:perform).with(user.id)
+        end
+
+        member.save!
+      end
+
+      it 'recalculates authorizations on a subsequent update of the same member object' do
+        member.save!
+
+        expect_next_instance_of(AuthorizedProjectsWorker) do |worker|
+          expect(worker).to receive(:perform).with(user.id)
+        end
+
+        member.update!(access_level: Gitlab::Access::MAINTAINER)
+      end
+    end
+
+    context 'when skip_authorized_projects_refresh is not set' do
+      it 'recalculates authorizations' do
+        group = create(:group)
+        user = create(:user)
+        member = build(:group_member, group: group, user: user)
+
+        expect_next_instance_of(AuthorizedProjectsWorker) do |worker|
+          expect(worker).to receive(:perform).with(user.id)
+        end
+
+        member.save!
+      end
+    end
   end
 
   context 'authorization refresh on addition/updation/deletion' do

@@ -3,6 +3,10 @@
 module Gitlab
   module Ci
     class Lint
+      # Raised when a linting request is throttled and enforcement is enabled.
+      # Entry points rescue this to respond with a 429 instead of a lint result.
+      RateLimitError = Class.new(StandardError)
+
       class Result
         attr_reader :jobs, :merged_yaml, :errors, :warnings, :includes
 
@@ -41,6 +45,8 @@ module Gitlab
       # Our goal is to remove the `sha` dependency and the custom `YamlProcessor` usage from the CI linting logic.
       # This legacy method is aimed to be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/543727.
       def legacy_validate(content, dry_run: false, ref: project&.default_branch)
+        raise RateLimitError if ci_lint_rate_limited?
+
         if dry_run
           simulate_pipeline_creation(content, ref)
         else
@@ -49,6 +55,8 @@ module Gitlab
       end
 
       def validate(content, dry_run:, ref:)
+        raise RateLimitError if ci_lint_rate_limited?
+
         if dry_run
           simulate_pipeline_creation(content, ref)
         else
@@ -59,6 +67,25 @@ module Gitlab
       private
 
       attr_accessor :project, :current_user, :legacy_sha, :legacy_verify_project_sha
+
+      # Increments the :ci_lint counter and logs when over the limit, but only reports the request
+      # as rate limited (so callers can reject it) when the ci_enforce_ci_lint_rate_limit flag
+      # is enabled. This keeps lint rate limiting in log-only mode until the flag is turned on.
+      def ci_lint_rate_limited?
+        return false unless ::Gitlab::ApplicationRateLimiter.throttled?(:ci_lint, scope: [current_user])
+
+        enforce = ::Feature.enabled?(:ci_enforce_ci_lint_rate_limit, project, type: :gitlab_com_derisk)
+
+        ::Gitlab::AppJsonLogger.info(
+          Labkit::Fields::CLASS_NAME => self.class.name,
+          Labkit::Fields::GL_PROJECT_ID => project&.id,
+          Labkit::Fields::GL_USER_ID => current_user&.id,
+          message: 'CI Lint rate limit exceeded',
+          throttled: enforce
+        )
+
+        enforce
+      end
 
       def simulate_pipeline_creation(content, ref)
         pipeline = ::Ci::CreatePipelineService

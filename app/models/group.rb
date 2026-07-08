@@ -740,8 +740,8 @@ class Group < Namespace
     add_member(user, :maintainer, current_user: current_user)
   end
 
-  def add_owner(user, current_user = nil)
-    add_member(user, :owner, current_user: current_user)
+  def add_owner(user, current_user = nil, **args)
+    add_member(user, :owner, current_user: current_user, **args)
   end
 
   def member?(user, min_access_level = Gitlab::Access::GUEST)

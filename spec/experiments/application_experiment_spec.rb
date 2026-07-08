@@ -21,6 +21,24 @@ RSpec.describe ApplicationExperiment, :experiment, feature_category: :acquisitio
     end
   end
 
+  describe ".context_keys" do
+    it 'raises an abstract method error when not overridden' do
+      experiment_class = Class.new(described_class)
+
+      expect do
+        experiment_class.context_keys
+      end.to raise_error(Gitlab::AbstractMethodError, /must define `self.context_keys`/)
+    end
+
+    it 'returns the keys declared by an overriding subclass' do
+      experiment_class = Class.new(described_class) do
+        def self.context_keys = %i[user namespace]
+      end
+
+      expect(experiment_class.context_keys).to eq(%i[user namespace])
+    end
+  end
+
   describe "#publish" do
     it "tracks the assignment", :snowplow do
       expect(application_experiment).to receive(:track).with(:assignment)

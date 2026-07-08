@@ -77,7 +77,6 @@ module API
 
         def mcp_denial_reason
           # SaaS is short-circuited by the EE override; :instance_setting_disabled is self-managed-only.
-          return unless ::Feature.enabled?(:mcp_server_availability_setting, :instance)
           return :instance_setting_disabled unless ::Gitlab::CurrentSettings.mcp_server_enabled?
 
           nil

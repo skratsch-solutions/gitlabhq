@@ -251,6 +251,20 @@ The rate limit is shared between GET and POST actions.
 
 The rate limit is 5 calls per minute per user per project.
 
+### Delete a deployment
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/243738) in GitLab 19.2.
+
+{{< /history >}}
+
+A rate limit applies to [deleting a deployment](../api/deployments.md#delete-a-deployment)
+through the `DELETE /projects/:id/deployments/:deployment_id` endpoint.
+This limit reduces the infrastructure impact of mass deployment deletions.
+
+The rate limit is 500 requests per minute per authenticated user.
+
 ## Troubleshooting
 
 ### Rack Attack is denylisting the load balancer

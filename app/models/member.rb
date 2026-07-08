@@ -27,6 +27,16 @@ class Member < ApplicationRecord
 
   attr_accessor :raw_invite_token
 
+  # Transient flag set by callers that create a member for which an
+  # authorized projects refresh is provably unnecessary (e.g. the owner
+  # of a brand-new group, which has no projects yet). Currently only
+  # read in `GroupMember#refresh_member_authorized_projects` and set by
+  # Groups::CreateService when adding an owner to the newly created
+  # group (behind the skip_authorized_projects_refresh_for_new_group
+  # feature flag).
+  attr_accessor :skip_authorized_projects_refresh
+  alias_method :skip_authorized_projects_refresh?, :skip_authorized_projects_refresh
+
   belongs_to :created_by, class_name: "User"
   belongs_to :user
   belongs_to :source, polymorphic: true # rubocop:disable Cop/PolymorphicAssociations
