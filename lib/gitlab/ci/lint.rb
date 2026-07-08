@@ -68,7 +68,7 @@ module Gitlab
 
         Result.new(
           jobs: dry_run_convert_to_jobs(pipeline.stages),
-          merged_yaml: pipeline.config_metadata.try(:[], :merged_yaml),
+          merged_yaml: pipeline.config_metadata.try(:[], :merged_yaml)&.call,
           errors: pipeline.error_messages.map(&:content),
           warnings: pipeline.warning_messages(limit: ::Gitlab::Ci::Warnings::MAX_LIMIT).map(&:content),
           includes: pipeline.config_metadata.try(:[], :includes)
@@ -81,7 +81,7 @@ module Gitlab
 
         Result.new(
           jobs: yaml_processor_result_to_jobs(service.yaml_processor_result),
-          merged_yaml: pipeline.config_metadata.try(:[], :merged_yaml),
+          merged_yaml: pipeline.config_metadata.try(:[], :merged_yaml)&.call,
           errors: pipeline.error_messages.map(&:content),
           warnings: pipeline.warning_messages(limit: ::Gitlab::Ci::Warnings::MAX_LIMIT).map(&:content),
           includes: pipeline.config_metadata.try(:[], :includes)
@@ -95,7 +95,7 @@ module Gitlab
 
         Result.new(
           jobs: yaml_processor_result_to_jobs(result),
-          merged_yaml: result.config_metadata[:merged_yaml],
+          merged_yaml: result.config_metadata[:merged_yaml]&.call,
           errors: result.errors,
           warnings: result.warnings.take(::Gitlab::Ci::Warnings::MAX_LIMIT), # rubocop: disable CodeReuse/ActiveRecord
           includes: result.config_metadata[:includes]

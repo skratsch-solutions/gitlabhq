@@ -14,6 +14,7 @@ import RoleSelector from '~/members/components/role_selector.vue';
 import MemberAvatar from '../member_avatar.vue';
 
 export default {
+  name: 'RoleDetailsDrawer',
   components: {
     MemberAvatar,
     MembersTableCell,

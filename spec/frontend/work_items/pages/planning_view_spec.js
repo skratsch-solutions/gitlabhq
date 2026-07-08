@@ -79,7 +79,7 @@ import subscribeToSavedViewMutation from '~/work_items/graphql/subscribe_to_save
 import getSubscribedSavedViewsQuery from '~/work_items/list/graphql/work_item_saved_views_namespace.query.graphql';
 import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_item_list_user_preferences.mutation.graphql';
 
-import { saveSavedView } from 'ee_else_ce/work_items/list/utils';
+import { saveSavedView, getFilterTokens } from 'ee_else_ce/work_items/list/utils';
 
 import PlanningView from '~/work_items/pages/planning_view.vue';
 import ListView from 'ee_else_ce/work_items/list/list_view.vue';
@@ -145,10 +145,16 @@ jest.mock('~/lib/utils/url_utility');
 jest.mock('~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal', () => ({
   confirmAction: jest.fn().mockResolvedValue(true),
 }));
-jest.mock('ee_else_ce/work_items/list/utils', () => ({
-  ...jest.requireActual('ee_else_ce/work_items/list/utils'),
-  saveSavedView: jest.fn(),
-}));
+jest.mock('ee_else_ce/work_items/list/utils', () => {
+  const actual = jest.requireActual('ee_else_ce/work_items/list/utils');
+  return {
+    ...actual,
+    saveSavedView: jest.fn(),
+    // Wrap so individual tests can override the URL-to-token parsing; defaults to
+    // the real implementation so unrelated tests are unaffected.
+    getFilterTokens: jest.fn(actual.getFilterTokens),
+  };
+});
 
 useLocalStorageSpy();
 
@@ -676,6 +682,28 @@ describe('planning-view', () => {
           TOKEN_TYPE_CONTACT,
           customToken.type,
         ]);
+      });
+
+      it('re-parses the URL for custom field tokens once hasCustomFieldsFeature resolves', async () => {
+        setWindowLocation('?custom-field[1]=123');
+
+        const hasCustomFieldsFeature = ref(false);
+        await mountComponent({
+          provide: { hasCustomFieldsFeature: computed(() => hasCustomFieldsFeature.value) },
+        });
+
+        expect(getFilterTokens).not.toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({ hasCustomFieldsFeature: true }),
+        );
+
+        hasCustomFieldsFeature.value = true;
+        await nextTick();
+
+        expect(getFilterTokens).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({ hasCustomFieldsFeature: true }),
+        );
       });
     });
 

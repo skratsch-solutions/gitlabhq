@@ -1,9 +1,9 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlFormGroup, GlFormInput } from '@gitlab/ui';
 import updateMixin from '../../mixins/update';
 
 export default {
+  name: 'FieldsTitle',
   components: {
     GlFormGroup,
     GlFormInput,

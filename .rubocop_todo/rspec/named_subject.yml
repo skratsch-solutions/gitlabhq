@@ -459,7 +459,6 @@ RSpec/NamedSubject:
     - 'ee/spec/requests/api/epic_links_spec.rb'
     - 'ee/spec/requests/api/geo_spec.rb'
     - 'ee/spec/requests/api/graphql/ai_messages_spec.rb'
-    - 'ee/spec/requests/api/graphql/audit_events/streaming/headers/create_spec.rb'
     - 'ee/spec/requests/api/graphql/audit_events/streaming/headers/destroy_spec.rb'
     - 'ee/spec/requests/api/graphql/audit_events/streaming/headers/update_spec.rb'
     - 'ee/spec/requests/api/graphql/audit_events/streaming/instance_headers/create_spec.rb'

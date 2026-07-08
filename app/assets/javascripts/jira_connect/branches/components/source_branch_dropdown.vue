@@ -8,6 +8,7 @@ import { BRANCHES_PER_PAGE } from '../constants';
 import getProjectQuery from '../graphql/queries/get_project.query.graphql';
 
 export default {
+  name: 'SourceBranchDropdown',
   BRANCHES_PER_PAGE,
   components: {
     GlCollapsibleListbox,

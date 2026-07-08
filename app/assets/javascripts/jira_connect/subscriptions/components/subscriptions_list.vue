@@ -10,6 +10,7 @@ import { useJiraConnectSubscriptions } from '../store';
 import GroupItemName from './group_item_name.vue';
 
 export default {
+  name: 'SubscriptionsList',
   components: {
     GlButton,
     GlTableLite,

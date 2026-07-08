@@ -9,6 +9,7 @@ import {
 } from '../constants';
 
 export default {
+  name: 'WorkloadTable',
   components: {
     GlTable,
     GlBadge,

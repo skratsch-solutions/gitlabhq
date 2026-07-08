@@ -5,6 +5,11 @@ module Atlassian
     class Client
       ASSOCIATION_VALUES_LIMIT = 500
 
+      # Cap the request body attached to error logs so a project that
+      # persistently fails does not flood integrations_json.log with
+      # multi-megabyte payloads on every scheduled sync.
+      REQUEST_BODY_LOG_LIMIT = 10_000
+
       AssociationsTruncatedError = Class.new(StandardError)
 
       def self.generate_update_sequence_id
@@ -169,7 +174,7 @@ module Atlassian
           yield data
         else
           case response.code
-          when 400 then { 'errorMessages' => parse_jira_error_messages(data) }
+          when 400 then { 'errorMessages' => parse_jira_error_messages(data), 'response' => data, 'requestBody' => truncated_request_body(response) }
           when 401 then { 'errorMessages' => ['Invalid JWT'] }
           when 403 then { 'errorMessages' => ["App does not support #{name}"] }
           when 413 then { 'errorMessages' => ['Data too large'] + parse_jira_error_messages(data) }
@@ -184,12 +189,22 @@ module Atlassian
       def parse_jira_error_messages(data)
         case data
         when Array
-          data.map { |e| e['message'] }
+          data.map { |e| e.is_a?(Hash) ? (e['message'] || e.to_s) : e.to_s }
         when Hash
-          [data['message'] || data['error'] || 'Unknown error']
+          messages = Array(data['errorMessages']).map { |e| e.is_a?(Hash) ? (e['message'] || e.to_s) : e.to_s }
+          messages << data['message'] if data['message'].present?
+          messages << data['error'] if data['error'].present?
+          messages.reject(&:blank?).presence || ["Unrecognized error body: #{data.to_json.truncate(500)}"]
         else
           ['Unknown error']
         end
+      end
+
+      def truncated_request_body(response)
+        raw = response.request.raw_body.to_s
+        return request_body_schema(response) if raw.bytesize <= REQUEST_BODY_LOG_LIMIT
+
+        "Request body truncated (#{raw.bytesize} bytes): #{raw.truncate_bytes(REQUEST_BODY_LOG_LIMIT)}"
       end
 
       # The dev_info bulk endpoint reports rejected entities in

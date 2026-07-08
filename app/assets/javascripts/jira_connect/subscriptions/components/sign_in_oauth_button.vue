@@ -25,6 +25,7 @@ import { createCodeVerifier, createCodeChallenge } from '../pkce';
 import { useJiraConnectSubscriptions } from '../store';
 
 export default {
+  name: 'SignInOauthButton',
   components: {
     GlButton,
   },

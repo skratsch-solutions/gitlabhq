@@ -2,6 +2,7 @@
 import { GlSingleStat } from '@gitlab/ui/src/charts';
 
 export default {
+  name: 'WorkloadStats',
   components: {
     GlSingleStat,
   },

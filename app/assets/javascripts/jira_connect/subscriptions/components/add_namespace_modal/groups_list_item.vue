@@ -7,6 +7,7 @@ import { I18N_ADD_SUBSCRIPTIONS_ERROR_MESSAGE } from '../../constants';
 import { useJiraConnectSubscriptions } from '../../store';
 
 export default {
+  name: 'GroupsListItem',
   components: {
     GlButton,
     GroupItemName,

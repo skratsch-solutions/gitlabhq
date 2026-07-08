@@ -8,6 +8,7 @@ import { confidentialityQueries } from '~/sidebar/queries/constants';
 import { issuableTypeText } from '~/issues/constants';
 
 export default {
+  name: 'HeaderActionsConfidentialityToggle',
   i18n: {
     enableConfidentiality: s__('WorkItem|Turn on confidentiality'),
     confidentialityEnabled: s__('WorkItem|Confidentiality turned on.'),

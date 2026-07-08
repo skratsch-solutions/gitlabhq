@@ -20,6 +20,7 @@ import { s__ } from '~/locale';
 import GroupsListItem from './groups_list_item.vue';
 
 export default {
+  name: 'GroupsList',
   components: {
     GlLoadingIcon,
     GlPagination,

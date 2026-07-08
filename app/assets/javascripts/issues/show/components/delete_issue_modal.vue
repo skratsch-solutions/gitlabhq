@@ -6,6 +6,7 @@ import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
 import { __, sprintf } from '~/locale';
 
 export default {
+  name: 'DeleteIssueModal',
   actionCancel: { text: __('Cancel') },
   csrf,
   components: {

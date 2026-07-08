@@ -76,7 +76,6 @@ describe('Issuable output', () => {
       },
       stubs: {
         HighlightBar: true,
-        IncidentTabs,
         PinnedLinks,
       },
       ...options,

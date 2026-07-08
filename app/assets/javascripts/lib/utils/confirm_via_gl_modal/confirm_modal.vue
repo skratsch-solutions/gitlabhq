@@ -4,6 +4,7 @@ import SafeHtml from '~/vue_shared/directives/safe_html';
 import { __ } from '~/locale';
 
 export default {
+  name: 'ConfirmModal',
   directives: {
     SafeHtml,
   },

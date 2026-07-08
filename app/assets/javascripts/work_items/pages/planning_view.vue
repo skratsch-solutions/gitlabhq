@@ -1150,6 +1150,24 @@ export default {
         this.handleFilter(tokens);
       }
     },
+    hasCustomFieldsFeature(hasCustomFieldsFeature) {
+      // The flag loads async, so it's undefined when created() first parses the URL.
+      // Re-parse once it resolves so custom-field filters aren't dropped, but only
+      // when the URL actually carries a custom-field param. Re-parsing unconditionally
+      // reassigns filterTokens and re-renders the filtered-search bar as the flag
+      // resolves, which drops the other tokens' suggestions.
+      if (!hasCustomFieldsFeature || this.isSavedView) {
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const hasCustomFieldParam = Array.from(params.keys()).some((key) =>
+        key.startsWith('custom-field['),
+      );
+      if (hasCustomFieldParam) {
+        this.updateData(getParameterByName(PARAM_SORT));
+      }
+    },
   },
 
   mounted() {

@@ -9,6 +9,7 @@ import WorkloadDetails from '~/kubernetes_dashboard/components/workload_details.
 const trackingMixin = InternalEvents.mixin();
 
 export default {
+  name: 'WorkloadDetailsDrawer',
   components: {
     WorkloadDetails,
     GlDrawer,

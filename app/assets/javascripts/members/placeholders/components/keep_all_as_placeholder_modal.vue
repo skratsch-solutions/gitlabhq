@@ -9,6 +9,7 @@ import importSourceUsersQuery from '../graphql/queries/import_source_users.query
 import importSourceUserKeepAllAsPlaceholderMutation from '../graphql/mutations/keep_all_as_placeholder.mutation.graphql';
 
 export default {
+  name: 'KeepAllAsPlaceholderModal',
   components: {
     GlModal,
   },

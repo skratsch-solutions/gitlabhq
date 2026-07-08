@@ -8,6 +8,7 @@ import ImportedBadge from '~/vue_shared/components/imported_badge.vue';
 import { __, s__ } from '~/locale';
 
 export default {
+  name: 'StickyHeader',
   NAMESPACE_PROJECT,
   components: {
     ConfidentialityBadge,

@@ -2,11 +2,6 @@
   color-scheme: dark;
 
   /**
-   * Sets fill color for status SVGs in gitlab-svgs
-   */
-  --svg-status-bg: #{$white};
-
-  /**
    * Redefine some colors and values to prevent sourcegraph conflicts
    */
   --gray-10: #{$gray-10};

@@ -19,7 +19,8 @@ RSpec.describe Gitlab::Cleanup::OrphanJobArtifactFinalObjects::BatchFromList, :o
     let!(:non_existent_object) { create_fog_file.tap(&:destroy) }
     let!(:object_with_job_artifact_record) do
       create_fog_file.tap do |file|
-        create(:ci_job_artifact, file_final_path: path_without_bucket_prefix(file.key))
+        create(:ci_job_artifact, file_final_path: path_without_bucket_prefix(file.key),
+          job: create(:ci_build, pipeline: create(:ci_pipeline, project: create(:project, skip_disk_validation: true))))
       end
     end
 
@@ -44,6 +45,10 @@ RSpec.describe Gitlab::Cleanup::OrphanJobArtifactFinalObjects::BatchFromList, :o
 
     before do
       allow(Gitlab::AppLogger).to receive(:info)
+    end
+
+    prepend_before do
+      Fog::Mock.reset
     end
 
     subject(:orphan_objects) { batch.orphan_objects }
