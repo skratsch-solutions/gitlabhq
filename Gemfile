@@ -352,7 +352,7 @@ gem 'connection_pool', '~> 2.5.3', feature_category: :shared # rubocop:todo Gemf
 gem 'redis-actionpack', '~> 5.5.0', feature_category: :redis
 
 # Jira integration
-gem 'jira-ruby', '~> 2.3.0', feature_category: :integrations
+gem 'jira-ruby', '~> 3.2.0', feature_category: :integrations
 gem 'atlassian-jwt', '~> 0.2.1', feature_category: :integrations
 
 # Slack integration

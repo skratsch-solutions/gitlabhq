@@ -2,6 +2,7 @@
 import { GlFormCheckbox } from '@gitlab/ui';
 
 export default {
+  name: 'SignupCheckbox',
   components: {
     GlFormCheckbox,
   },

@@ -20,6 +20,7 @@ import ItemsSelector from './items_selector.vue';
 import { projectUsersOptions, accessLevelsConfig } from './constants';
 
 export default {
+  name: 'AccessLevelsDrawer',
   DRAWER_Z_INDEX,
   projectUsersOptions,
   accessLevelsConfig,

@@ -7,6 +7,9 @@ RSpec.describe SpammableActions::CaptchaCheck::RestApiActionsSupport, feature_ca
 
   subject do
     Class.new(Grape::API) do
+      format :json
+      formatter :json, Gitlab::Json::GrapeFormatter
+
       helpers API::Helpers
       helpers SpammableActions::CaptchaCheck::RestApiActionsSupport
 

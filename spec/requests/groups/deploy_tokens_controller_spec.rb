@@ -20,12 +20,12 @@ RSpec.describe Groups::DeployTokensController, feature_category: :continuous_del
     end
 
     it 'invokes the Groups::DeployTokens::RevokeService' do
-      expect(deploy_token.revoked).to eq(false)
+      expect(deploy_token.revoked).to be(false)
       expect(Groups::DeployTokens::RevokeService).to receive(:new).and_call_original
 
       put_revoke
 
-      expect(deploy_token.reload.revoked).to eq(true)
+      expect(deploy_token.reload.revoked).to be(true)
     end
 
     it 'redirects to group repository settings with correct anchor' do

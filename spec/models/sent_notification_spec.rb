@@ -370,7 +370,7 @@ RSpec.describe SentNotification, :request_store, feature_category: :notification
 
     subject { sent_notification.partitioned_reply_key }
 
-    it { is_expected.to match(described_class::PARTITIONED_REPLY_KEY_REGEX) }
+    it { is_expected.to match(Gitlab::EmailHandler::ReplyKey::PARTITIONED_REPLY_KEY_REGEX) }
 
     # This might seem a bit redundant, but here `namespace_id` is not optional
     it { is_expected.to match(/\A[0-9a-z]{1,4}-[0-9a-z]{25}-[0-9a-z]{1,13}\z/) }

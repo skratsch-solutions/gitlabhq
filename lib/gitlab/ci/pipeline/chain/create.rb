@@ -54,7 +54,6 @@ module Gitlab
           # important for build serialization for the runner.
           def stick_merge_request_to_primary!
             return unless pipeline.merge_request_id
-            return unless ::Feature.enabled?(:ci_pipeline_mr_main_db_wal_pinning, project)
 
             ::MergeRequest.sticking.stick(:merge_request, pipeline.merge_request_id)
           end

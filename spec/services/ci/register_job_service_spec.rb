@@ -206,21 +206,6 @@ module Ci
             expect(execute).not_to be_valid
           end
         end
-
-        context 'when the feature flag is disabled' do
-          before do
-            stub_feature_flags(ci_pipeline_mr_main_db_wal_pinning: false)
-          end
-
-          it 'serves the build without checking the merge request replica', :aggregate_failures do
-            expect(::MergeRequest.sticking).not_to receive(:find_caught_up_replica)
-              .with(:merge_request, anything, use_primary_on_failure: false)
-
-            result = execute
-            expect(result).to be_valid
-            expect(result.build).to eq(pending_job)
-          end
-        end
       end
 
       shared_examples 'handles runner assignment' do

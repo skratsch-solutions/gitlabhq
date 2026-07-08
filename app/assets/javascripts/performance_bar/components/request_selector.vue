@@ -2,6 +2,7 @@
 import { GlFormSelect } from '@gitlab/ui';
 
 export default {
+  name: 'RequestSelector',
   components: {
     GlFormSelect,
   },

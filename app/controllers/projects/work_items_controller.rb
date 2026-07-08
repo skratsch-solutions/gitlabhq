@@ -18,8 +18,6 @@ class Projects::WorkItemsController < Projects::ApplicationController
     push_frontend_feature_flag(:vue3_migrate_work_items, current_user)
     push_frontend_feature_flag(:work_item_rest_api_frontend_users, current_user)
     push_frontend_feature_flag(:planning_view_boards, current_user)
-    push_force_frontend_feature_flag(:work_item_rest_api_index, true)
-    push_frontend_feature_flag(:work_item_rest_api, current_user)
   end
 
   before_action :check_search_rate_limit!, if: ->(c) do

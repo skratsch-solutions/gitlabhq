@@ -6,6 +6,7 @@ import { sanitize } from '~/lib/dompurify';
 import UserEmailSetting from './user_email_setting.vue';
 
 export default {
+  name: 'UserMainSettings',
   components: {
     GlLink,
     GlFormGroup,

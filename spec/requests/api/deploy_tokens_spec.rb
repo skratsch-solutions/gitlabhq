@@ -465,7 +465,7 @@ RSpec.describe API::DeployTokens, :aggregate_failures, feature_category: :contin
 
             expect(response).to have_gitlab_http_status(:created)
             expect(json_response['username']).to match(/gitlab\+deploy-token-\d+/)
-            expect(json_response['expires_at']).to eq(nil)
+            expect(json_response['expires_at']).to be_nil
           end
         end
 

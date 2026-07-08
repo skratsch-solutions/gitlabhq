@@ -5,6 +5,7 @@ import UploadBlobModal from '~/repository/components/upload_blob_modal.vue';
 const UPLOAD_BLOB_MODAL_ID = 'details-modal-upload-blob';
 
 export default {
+  name: 'UploadButton',
   components: {
     GlButton,
     UploadBlobModal,

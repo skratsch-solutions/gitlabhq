@@ -53,6 +53,7 @@ const initFormField = ({ value, required = true, skipValidation = false }) => ({
 });
 
 export default {
+  name: 'ForkForm',
   components: {
     GlForm,
     GlIcon,

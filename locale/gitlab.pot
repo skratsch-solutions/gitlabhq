@@ -8274,6 +8274,18 @@ msgstr ""
 msgid "AiImpactAnalytics|Value can't be calculated due to insufficient data. No data is available for the previous time period."
 msgstr ""
 
+msgid "AiImpactDashboard|Code Suggestions"
+msgstr ""
+
+msgid "AiImpactDashboard|Duo Chat"
+msgstr ""
+
+msgid "AiImpactDashboard|Duo Code Review"
+msgstr ""
+
+msgid "AiImpactDashboard|Root cause analysis"
+msgstr ""
+
 msgid "AiModelDeprecation|Change model"
 msgstr ""
 
@@ -63558,6 +63570,9 @@ msgid "Retry verification"
 msgstr ""
 
 msgid "Returned to you"
+msgstr ""
+
+msgid "ReturningGitlabDuoUsersByFeature|Percentage of users from the previous period who use the feature again in the selected period. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 
 msgid "Reveal values"

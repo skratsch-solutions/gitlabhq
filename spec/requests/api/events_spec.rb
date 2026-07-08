@@ -164,9 +164,9 @@ RSpec.describe API::Events, feature_category: :user_profile do
       it 'returns the correct import state' do
         get api('/events?action=closed&target_type=issue&after=2016-12-1&before=2016-12-31&scope=all', user)
 
-        expect(json_response[0]['imported']).to eq(true)
+        expect(json_response[0]['imported']).to be(true)
         expect(json_response[0]['imported_from']).to eq('github')
-        expect(json_response[1]['imported']).to eq(false)
+        expect(json_response[1]['imported']).to be(false)
         expect(json_response[1]['imported_from']).to eq('none')
       end
 

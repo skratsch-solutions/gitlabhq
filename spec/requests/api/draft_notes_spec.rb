@@ -109,7 +109,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
       end
 
       it "deletes the specified draft note" do
-        expect(DraftNote.exists?(deleted_draft_note_id)).to eq(false)
+        expect(DraftNote.exists?(deleted_draft_note_id)).to be(false)
       end
     end
 
@@ -402,7 +402,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
 
       it "publishes the specified draft note" do
         expect { publish_draft_note }.to change { Note.count }.by(1)
-        expect(DraftNote.exists?(draft_note_by_current_user.id)).to eq(false)
+        expect(DraftNote.exists?(draft_note_by_current_user.id)).to be(false)
       end
 
       it "creates a resolvable discussion when draft note has no position" do
@@ -416,7 +416,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         # The published note should be a DiscussionNote, making it resolvable
         published_note = merge_request.notes.order(:id).last
         expect(published_note.type).to eq('DiscussionNote')
-        expect(published_note.discussion.resolvable?).to eq(true)
+        expect(published_note.discussion.resolvable?).to be(true)
       end
 
       it_behaves_like 'authorizing granular token permissions', :publish_merge_request_draft_note do
@@ -481,14 +481,14 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
 
       it "publishes the specified draft notes" do
         expect { bulk_publish_draft_notes }.to change { Note.count }.by(2)
-        expect(DraftNote.exists?(draft_note_by_current_user.id)).to eq(false)
-        expect(DraftNote.exists?(draft_note_by_current_user_2.id)).to eq(false)
+        expect(DraftNote.exists?(draft_note_by_current_user.id)).to be(false)
+        expect(DraftNote.exists?(draft_note_by_current_user_2.id)).to be(false)
       end
 
       it "only publishes the user's draft notes" do
         bulk_publish_draft_notes
 
-        expect(DraftNote.exists?(draft_note_by_random_user.id)).to eq(true)
+        expect(DraftNote.exists?(draft_note_by_random_user.id)).to be(true)
       end
 
       it_behaves_like 'authorizing granular token permissions', :publish_merge_request_draft_note do
@@ -563,7 +563,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         expect(response).to have_gitlab_http_status(:no_content)
         note = merge_request.notes.order(:id).last
         expect(note.note).to eq('Internal summary')
-        expect(note.internal).to eq(true)
+        expect(note.internal).to be(true)
       end
 
       it "creates a public note when internal is false", :aggregate_failures do
@@ -572,7 +572,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
         expect(response).to have_gitlab_http_status(:no_content)
         note = merge_request.notes.order(:id).last
         expect(note.note).to eq('Public summary')
-        expect(note.internal).to eq(false)
+        expect(note.internal).to be(false)
       end
     end
 
@@ -594,7 +594,7 @@ RSpec.describe API::DraftNotes, feature_category: :code_review_workflow do
 
         summary_note = merge_request.notes.where(note: 'Review summary').order(:id).last
         expect(summary_note).to be_present
-        expect(summary_note.internal).to eq(true)
+        expect(summary_note.internal).to be(true)
       end
     end
 

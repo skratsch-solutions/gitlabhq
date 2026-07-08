@@ -672,7 +672,7 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
       it 'returns that the current user cannot push' do
         get api(route, current_user)
 
-        expect(json_response['can_push']).to eq(false)
+        expect(json_response['can_push']).to be(false)
       end
     end
 
@@ -691,7 +691,7 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
       it 'returns that the current user can push' do
         get api(route, current_user)
 
-        expect(json_response['can_push']).to eq(true)
+        expect(json_response['can_push']).to be(true)
       end
 
       context 'when branch contains a dot' do
@@ -746,7 +746,7 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
       it 'returns that the current user cannot push' do
         get api(route, current_user)
 
-        expect(json_response['can_push']).to eq(false)
+        expect(json_response['can_push']).to be(false)
       end
     end
 
@@ -774,7 +774,7 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('public_api/v4/branch')
         expect(json_response['name']).to eq(CGI.unescape(branch_name))
-        expect(json_response['protected']).to eq(true)
+        expect(json_response['protected']).to be(true)
       end
 
       it 'protects a single branch and developers can push' do
@@ -783,9 +783,9 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('public_api/v4/branch')
         expect(json_response['name']).to eq(CGI.unescape(branch_name))
-        expect(json_response['protected']).to eq(true)
-        expect(json_response['developers_can_push']).to eq(true)
-        expect(json_response['developers_can_merge']).to eq(false)
+        expect(json_response['protected']).to be(true)
+        expect(json_response['developers_can_push']).to be(true)
+        expect(json_response['developers_can_merge']).to be(false)
       end
 
       it 'protects a single branch and developers can merge' do
@@ -794,9 +794,9 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('public_api/v4/branch')
         expect(json_response['name']).to eq(CGI.unescape(branch_name))
-        expect(json_response['protected']).to eq(true)
-        expect(json_response['developers_can_push']).to eq(false)
-        expect(json_response['developers_can_merge']).to eq(true)
+        expect(json_response['protected']).to be(true)
+        expect(json_response['developers_can_push']).to be(false)
+        expect(json_response['developers_can_merge']).to be(true)
       end
 
       it 'protects a single branch and developers can push and merge' do
@@ -805,9 +805,9 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('public_api/v4/branch')
         expect(json_response['name']).to eq(CGI.unescape(branch_name))
-        expect(json_response['protected']).to eq(true)
-        expect(json_response['developers_can_push']).to eq(true)
-        expect(json_response['developers_can_merge']).to eq(true)
+        expect(json_response['protected']).to be(true)
+        expect(json_response['developers_can_push']).to be(true)
+        expect(json_response['developers_can_merge']).to be(true)
       end
 
       context 'when branch does not exist' do
@@ -904,9 +904,9 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
             expect(response).to have_gitlab_http_status(:ok)
             expect(response).to match_response_schema('public_api/v4/branch')
             expect(json_response['name']).to eq(protected_branch.name)
-            expect(json_response['protected']).to eq(true)
-            expect(json_response['developers_can_push']).to eq(false)
-            expect(json_response['developers_can_merge']).to eq(false)
+            expect(json_response['protected']).to be(true)
+            expect(json_response['developers_can_push']).to be(false)
+            expect(json_response['developers_can_merge']).to be(false)
             expect(protected_branch.reload.push_access_levels.first.access_level).to eq(Gitlab::Access::MAINTAINER)
             expect(protected_branch.reload.merge_access_levels.first.access_level).to eq(Gitlab::Access::MAINTAINER)
           end
@@ -922,9 +922,9 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
             expect(response).to have_gitlab_http_status(:ok)
             expect(response).to match_response_schema('public_api/v4/branch')
             expect(json_response['name']).to eq(protected_branch.name)
-            expect(json_response['protected']).to eq(true)
-            expect(json_response['developers_can_push']).to eq(true)
-            expect(json_response['developers_can_merge']).to eq(true)
+            expect(json_response['protected']).to be(true)
+            expect(json_response['developers_can_push']).to be(true)
+            expect(json_response['developers_can_merge']).to be(true)
           end
         end
       end
@@ -955,7 +955,7 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to match_response_schema('public_api/v4/branch')
           expect(json_response['name']).to eq(CGI.unescape(branch_name))
-          expect(json_response['protected']).to eq(false)
+          expect(json_response['protected']).to be(false)
 
           expect { protected_branch.reload }.to raise_error(ActiveRecord::RecordNotFound)
         end
@@ -970,7 +970,7 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to match_response_schema('public_api/v4/branch')
           expect(json_response['name']).to eq(CGI.unescape(branch_name))
-          expect(json_response['protected']).to eq(false)
+          expect(json_response['protected']).to be(false)
         end
       end
 

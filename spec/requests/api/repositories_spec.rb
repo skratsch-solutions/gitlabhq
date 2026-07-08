@@ -287,6 +287,8 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
         expect(Gitlab::Workhorse).to receive(:send_git_blob) do |_, blob|
           expect(blob.id).to eq(sample_blob.oid)
           expect(blob.loaded_size).to eq(0)
+
+          [Gitlab::Workhorse::SEND_DATA_HEADER, "git-blob:#{blob.id}"]
         end
 
         get api(route, current_user)

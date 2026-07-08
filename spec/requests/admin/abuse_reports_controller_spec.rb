@@ -20,14 +20,14 @@ RSpec.describe Admin::AbuseReportsController, feature_category: :insider_threat 
       get admin_abuse_reports_path
 
       expect(assigns(:abuse_reports).count).to eq 1
-      expect(assigns(:abuse_reports).first.open?).to eq true
+      expect(assigns(:abuse_reports).first.open?).to be true
     end
 
     it 'returns reports by specified status' do
       get admin_abuse_reports_path, params: { status: 'closed' }
 
       expect(assigns(:abuse_reports).count).to eq 1
-      expect(assigns(:abuse_reports).first.closed?).to eq true
+      expect(assigns(:abuse_reports).first.closed?).to be true
     end
 
     it 'labels does not introduce N+1 queries' do

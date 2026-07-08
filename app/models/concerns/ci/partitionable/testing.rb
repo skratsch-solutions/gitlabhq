@@ -30,6 +30,7 @@ module Ci
         Ci::PendingBuild
         Ci::RunningBuild
         Ci::RunnerManagerBuild
+        Ci::BuildRuntimeEnvironment
         Ci::PipelineArtifact
         Ci::PipelineChatData
         Ci::PipelineMessage

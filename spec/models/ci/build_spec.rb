@@ -713,6 +713,38 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
       job.update!(status: :running)
     end
+
+    context 'when ci_stick_build_after_commit is enabled' do
+      it 'sticks the build after the status change commits' do
+        job = create(:ci_build, :pending, pipeline: pipeline)
+
+        allow(described_class.sticking).to receive(:stick)
+
+        described_class.transaction do
+          job.update!(status: :running)
+
+          expect(described_class.sticking).not_to have_received(:stick)
+        end
+
+        expect(described_class.sticking).to have_received(:stick)
+          .with(:build, job.id)
+      end
+    end
+
+    context 'when ci_stick_build_after_commit is disabled' do
+      it 'sticks the build immediately if the status changed' do
+        job = build_stubbed(:ci_build, :running)
+
+        allow(job).to receive(:saved_change_to_status?).and_return(true)
+        job.send(:stick_build_after_commit=, false)
+
+        expect(job).not_to receive(:run_after_commit)
+        expect(described_class.sticking).to receive(:stick)
+          .with(:build, job.id)
+
+        job.send(:stick_build_if_status_changed)
+      end
+    end
   end
 
   describe '#enqueue' do

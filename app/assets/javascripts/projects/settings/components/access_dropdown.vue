@@ -32,6 +32,7 @@ export const i18n = {
 };
 
 export default {
+  name: 'AccessDropdown',
   i18n,
   components: {
     GlDropdown,

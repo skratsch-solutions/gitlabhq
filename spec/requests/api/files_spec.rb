@@ -393,7 +393,7 @@ RSpec.describe API::Files, feature_category: :source_code_management do
         expect(json_response['file_name']).to eq(file_name)
         expect(json_response['last_commit_id']).to eq(last_commit_id)
         expect(json_response['content_sha256']).to eq(content_sha256)
-        expect(json_response['execute_filemode']).to eq(false)
+        expect(json_response['execute_filemode']).to be(false)
         expect(Base64.decode64(json_response['content']).lines.first).to eq("require 'fileutils'\n")
       end
     end
@@ -415,7 +415,7 @@ RSpec.describe API::Files, feature_category: :source_code_management do
             expect(json_response['file_name']).to eq('ls')
             expect(json_response['last_commit_id']).to eq('6b8dc4a827797aa025ff6b8f425e583858a10d4f')
             expect(json_response['content_sha256']).to eq('2c74b1181ef780dfb692c030d3a0df6e0b624135c38a9344e56b9f80007b6191')
-            expect(json_response['execute_filemode']).to eq(true)
+            expect(json_response['execute_filemode']).to be(true)
             expect(Base64.decode64(json_response['content']).lines.first).to eq("#!/bin/sh\n")
           end
         end
@@ -1259,7 +1259,7 @@ RSpec.describe API::Files, feature_category: :source_code_management do
         last_commit = project.repository.commit.raw
         expect(last_commit.author_email).to eq(current_user.email)
         expect(last_commit.author_name).to eq(current_user.name)
-        expect(project.repository.blob_at_branch(params[:branch], CGI.unescape(file_path)).executable?).to eq(false)
+        expect(project.repository.blob_at_branch(params[:branch], CGI.unescape(file_path)).executable?).to be(false)
       end
     end
 
@@ -1280,7 +1280,7 @@ RSpec.describe API::Files, feature_category: :source_code_management do
             last_commit = project.repository.commit.raw
             expect(last_commit.author_email).to eq(user.email)
             expect(last_commit.author_name).to eq(user.name)
-            expect(project.repository.blob_at_branch(params[:branch], CGI.unescape(file_path)).executable?).to eq(true)
+            expect(project.repository.blob_at_branch(params[:branch], CGI.unescape(file_path)).executable?).to be(true)
           end
 
           context 'when no mandatory params given' do
@@ -1588,7 +1588,7 @@ RSpec.describe API::Files, feature_category: :source_code_management do
 
             aggregate_failures 'testing response' do
               expect(response).to have_gitlab_http_status(:ok)
-              expect(project.repository.blob_at_branch(branch, CGI.unescape(file_path)).executable?).to eq(true)
+              expect(project.repository.blob_at_branch(branch, CGI.unescape(file_path)).executable?).to be(true)
             end
           end
         end
@@ -1603,7 +1603,7 @@ RSpec.describe API::Files, feature_category: :source_code_management do
 
             aggregate_failures 'testing response' do
               expect(response).to have_gitlab_http_status(:ok)
-              expect(project.repository.blob_at_branch(branch, CGI.unescape(executable_file_path)).executable?).to eq(false)
+              expect(project.repository.blob_at_branch(branch, CGI.unescape(executable_file_path)).executable?).to be(false)
             end
           end
         end

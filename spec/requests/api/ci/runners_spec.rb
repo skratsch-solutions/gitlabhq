@@ -732,8 +732,8 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
           expect(json_response['description']).to eq(shared_runner.description)
           expect(json_response['maximum_timeout']).to be_nil
           expect(json_response['status']).to eq('never_contacted')
-          expect(json_response['active']).to eq(true)
-          expect(json_response['paused']).to eq(false)
+          expect(json_response['active']).to be(true)
+          expect(json_response['paused']).to be(false)
           expect(json_response['maintenance_note']).to be_nil
         end
 

@@ -125,6 +125,10 @@ module Ci
       partition_foreign_key: :partition_id,
       autosave: true
     has_one :runner_manager, foreign_key: :runner_machine_id, through: :runner_manager_build, class_name: 'Ci::RunnerManager'
+    has_one :build_runtime_environment,
+      class_name: 'Ci::BuildRuntimeEnvironment',
+      foreign_key: [:build_id, :partition_id],
+      inverse_of: :build
 
     has_one :runner_session, class_name: 'Ci::BuildRunnerSession', validate: true, foreign_key: :build_id, inverse_of: :build
     has_one :trace_metadata, class_name: 'Ci::BuildTraceMetadata', foreign_key: :build_id, inverse_of: :build
@@ -1267,7 +1271,7 @@ module Ci
 
     attr_reader :pending_build_args
 
-    # Override save to pre-compute pending build args outside the database
+    # Override save to pre-compute callback inputs outside the database
     # transaction. The state_machines-activerecord gem wraps ALL callbacks
     # (before_transition, after_transition) inside a transaction, so there
     # is no callback that runs outside it. However, the gem sets
@@ -1277,12 +1281,18 @@ module Ci
     # checks, plan lookups) before `super` enters the transaction. The
     # args are then read by UpdateBuildQueueService#push inside the
     # transaction via `build.pending_build_args`.
+    # The stick-build flag is also checked before `super` so the after_save
+    # callback does not perform feature flag IO inside the transaction.
     def save(...)
-      with_pending_build_args { super }
+      with_stick_build_flag_preloaded do
+        with_pending_build_args { super }
+      end
     end
 
     def save!(...)
-      with_pending_build_args { super }
+      with_stick_build_flag_preloaded do
+        with_pending_build_args { super }
+      end
     end
 
     def create_queuing_entry!
@@ -1400,6 +1410,16 @@ module Ci
 
     private
 
+    attr_accessor :stick_build_after_commit
+
+    def with_stick_build_flag_preloaded
+      prepare_stick_build_after_commit
+
+      yield
+    ensure
+      self.stick_build_after_commit = nil
+    end
+
     def with_pending_build_args
       prepare_pending_build_args
       yield
@@ -1412,6 +1432,15 @@ module Ci
       return unless status_event_transition&.to == 'pending'
 
       @pending_build_args = ::Ci::PendingBuild.args_from_build(self)
+    end
+
+    def prepare_stick_build_after_commit
+      self.stick_build_after_commit = false
+
+      return unless will_save_change_to_status?
+      return unless running?
+
+      self.stick_build_after_commit = Feature.enabled?(:ci_stick_build_after_commit, Project.actor_from_id(project_id))
     end
 
     def apply_jobs_cache_index(cache)
@@ -1467,7 +1496,11 @@ module Ci
       return unless saved_change_to_status?
       return unless running?
 
-      self.class.sticking.stick(:build, id)
+      if stick_build_after_commit
+        run_after_commit { self.class.sticking.stick(:build, id) }
+      else
+        self.class.sticking.stick(:build, id)
+      end
     end
 
     def status_commit_hooks

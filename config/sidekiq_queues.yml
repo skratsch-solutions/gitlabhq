@@ -1077,6 +1077,8 @@
   - 1
 - - secrets_management_deprovision_project_secrets_manager
   - 1
+- - secrets_management_emit_secrets_stored_billable_event
+  - 1
 - - secrets_management_provision_group_secrets_manager
   - 1
 - - secrets_management_provision_group_secrets_manager_task

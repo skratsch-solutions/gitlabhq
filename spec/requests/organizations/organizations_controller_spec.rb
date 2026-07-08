@@ -116,7 +116,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
 
           expect(json_response['events']).to be_an(Array)
           expect(json_response['events'].size).to eq(0)
-          expect(json_response['has_next_page']).to eq(false)
+          expect(json_response['has_next_page']).to be(false)
         end
       end
 
@@ -135,7 +135,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
 
           expect(json_response['events']).to be_an(Array)
           expect(json_response['events'].size).to eq(1)
-          expect(json_response['has_next_page']).to eq(false)
+          expect(json_response['has_next_page']).to be(false)
         end
       end
 
@@ -155,7 +155,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
 
           expect(json_response['events']).to be_an(Array)
           expect(json_response['events'].size).to eq(2)
-          expect(json_response['has_next_page']).to eq(true)
+          expect(json_response['has_next_page']).to be(true)
         end
       end
 
@@ -180,7 +180,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
 
           expect(json_response['events']).to be_an(Array)
           expect(json_response['events'].size).to eq(mock_max_event_limit)
-          expect(json_response['has_next_page']).to eq(true)
+          expect(json_response['has_next_page']).to be(true)
         end
       end
 

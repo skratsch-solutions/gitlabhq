@@ -228,6 +228,24 @@ When interpreting your analytics, keep in mind that:
 - Low reaction rates are common. Focus on whether code improves and reviews complete faster.
 - Rising disapproval (👎) rates signal issues. Stable or declining disapproval rates indicate healthy adoption of GitLab Duo Code Review.
 
+## Returning GitLab Duo users by feature
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/576752) in GitLab 19.2.
+
+{{< /history >}}
+
+The **Returning GitLab Duo users by feature** chart displays the retention rate over the last 180 days for each GitLab Duo feature: Code Suggestions, GitLab Duo Chat, Root cause analysis, and GitLab Duo Code Review.
+
+Hover over a point to view for the selected feature and period:
+
+- **Retention rate**: Percentage of users from the previous period who use the feature again in the selected period.
+  Calculated as the number of returning users in the selected period divided by the number of users in the previous period.
+
+The chart starts from the second period in the selected date range.
+The first period doesn't show a retention rate because there is no earlier period to compare against.
+
 ## GitLab Duo metrics by user
 
 {{< history >}}

@@ -9,6 +9,7 @@ import InfoApp from './info_modal/info_app.vue';
 import RequestSelector from './request_selector.vue';
 
 export default {
+  name: 'PerformanceBarApp',
   components: {
     AddRequest,
     DetailedMetric,

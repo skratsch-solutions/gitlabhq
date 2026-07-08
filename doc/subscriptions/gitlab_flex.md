@@ -34,6 +34,9 @@ GitLab Flex is also available for offline environments.
 > If any Flex terms conflict with the GitLab Subscription Agreement, Flex terms take precedence for your purchase.
 > Standard billing terms continue to apply to non-Flex subscriptions.
 
+For a click-through demo, see [GitLab Flex](https://click-through-demo-generator-v-2-d63870.gitlab.io/demos/flex/).
+<!-- Demo published on 2026-07-08 -->
+
 ## Offerings
 
 | | GitLab.com | GitLab Self-Managed | GitLab Dedicated | Offline environments |

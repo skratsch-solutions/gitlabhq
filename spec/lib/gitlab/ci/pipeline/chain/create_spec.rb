@@ -371,18 +371,6 @@ RSpec.describe Gitlab::Ci::Pipeline::Chain::Create, feature_category: :pipeline_
 
         step.perform!
       end
-
-      context 'when the feature flag is disabled' do
-        before do
-          stub_feature_flags(ci_pipeline_mr_main_db_wal_pinning: false)
-        end
-
-        it 'does not stick the merge request' do
-          expect(::MergeRequest.sticking).not_to receive(:stick)
-
-          step.perform!
-        end
-      end
     end
 
     context 'when the pipeline has no merge request' do
@@ -671,7 +659,8 @@ RSpec.describe Gitlab::Ci::Pipeline::Chain::Create, feature_category: :pipeline_
       end
 
       it 'retries and succeeds after flushing internal id' do
-        expect(InternalId).to receive(:flush_records!).with(project: project, usage: :ci_pipelines).and_call_original
+        expect(InternalId).to receive(:flush_records!).with(project: project,
+          usage: :ci_pipelines).and_call_original
 
         step.perform!
 

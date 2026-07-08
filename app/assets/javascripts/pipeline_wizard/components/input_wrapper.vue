@@ -16,6 +16,7 @@ function isNullOrUndefined(v) {
 }
 
 export default {
+  name: 'InputWrapper',
   components: {
     ...widgets,
   },

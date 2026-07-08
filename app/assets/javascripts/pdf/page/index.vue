@@ -1,6 +1,6 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 export default {
+  name: 'PageIndex',
   props: {
     page: {
       type: Object,

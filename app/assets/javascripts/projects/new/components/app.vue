@@ -52,6 +52,7 @@ const PANELS = [
 ];
 
 export default {
+  name: 'NewApp',
   components: {
     NewNamespacePage,
     NewProjectPushTipPopover,

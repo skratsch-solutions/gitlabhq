@@ -294,8 +294,6 @@ module Ci
       merge_request_id = build.pipeline.merge_request_id
       return true unless merge_request_id
 
-      return true unless ::Feature.enabled?(:ci_pipeline_mr_main_db_wal_pinning, build.project)
-
       # The lag is per-merge-request, so memoize the result for the duration of this `execute` to
       # avoid repeating the Redis lookup when a runner iterates multiple builds of the same pipeline.
       strong_memoize_with(:merge_request_replica_caught_up, merge_request_id) do

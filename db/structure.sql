@@ -6853,6 +6853,17 @@ CREATE TABLE p_ci_finished_pipeline_ch_sync_events (
 )
 PARTITION BY LIST (partition);
 
+CREATE TABLE p_ci_runtime_environments (
+    id bigint NOT NULL,
+    partition bigint DEFAULT 1 NOT NULL,
+    project_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    environment_key text NOT NULL,
+    CONSTRAINT check_daf7869985 CHECK ((char_length(environment_key) <= 512))
+)
+PARTITION BY LIST (partition);
+
 CREATE TABLE p_duo_workflows_checkpoint_blobs (
     id bigint NOT NULL,
     workflow_id bigint NOT NULL,
@@ -17665,6 +17676,16 @@ CREATE TABLE ci_build_report_results (
     partition_id bigint NOT NULL
 );
 
+CREATE TABLE ci_build_runtime_environments (
+    build_id bigint NOT NULL,
+    partition_id bigint NOT NULL,
+    runtime_environment_id bigint,
+    runner_machine_id bigint,
+    project_id bigint NOT NULL,
+    suspend_on_success boolean DEFAULT false NOT NULL,
+    suspend_on_failure boolean DEFAULT false NOT NULL
+);
+
 CREATE TABLE ci_build_trace_chunks (
     id bigint NOT NULL,
     chunk_index integer NOT NULL,
@@ -26552,6 +26573,15 @@ CREATE SEQUENCE p_ci_job_messages_id_seq
     CACHE 1;
 
 ALTER SEQUENCE p_ci_job_messages_id_seq OWNED BY p_ci_job_messages.id;
+
+CREATE SEQUENCE p_ci_runtime_environments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE p_ci_runtime_environments_id_seq OWNED BY p_ci_runtime_environments.id;
 
 CREATE SEQUENCE p_ci_workload_variable_inclusions_id_seq
     START WITH 1
@@ -37835,6 +37865,8 @@ ALTER TABLE ONLY p_ci_job_inputs ALTER COLUMN id SET DEFAULT nextval('p_ci_job_i
 
 ALTER TABLE ONLY p_ci_job_messages ALTER COLUMN id SET DEFAULT nextval('p_ci_job_messages_id_seq'::regclass);
 
+ALTER TABLE ONLY p_ci_runtime_environments ALTER COLUMN id SET DEFAULT nextval('p_ci_runtime_environments_id_seq'::regclass);
+
 ALTER TABLE ONLY p_ci_workload_variable_inclusions ALTER COLUMN id SET DEFAULT nextval('p_ci_workload_variable_inclusions_id_seq'::regclass);
 
 ALTER TABLE ONLY p_ci_workloads ALTER COLUMN id SET DEFAULT nextval('p_ci_workloads_id_seq'::regclass);
@@ -40500,6 +40532,9 @@ ALTER TABLE ONLY ci_build_pending_states
 ALTER TABLE ONLY ci_build_report_results
     ADD CONSTRAINT ci_build_report_results_pkey PRIMARY KEY (build_id, partition_id);
 
+ALTER TABLE ONLY ci_build_runtime_environments
+    ADD CONSTRAINT ci_build_runtime_environments_pkey PRIMARY KEY (build_id, partition_id);
+
 ALTER TABLE ONLY ci_build_trace_chunks
     ADD CONSTRAINT ci_build_trace_chunks_pkey PRIMARY KEY (id);
 
@@ -41834,6 +41869,9 @@ ALTER TABLE ONLY p_ci_pipelines
 
 ALTER TABLE ONLY p_ci_runner_machine_builds
     ADD CONSTRAINT p_ci_runner_machine_builds_pkey PRIMARY KEY (build_id, partition_id);
+
+ALTER TABLE ONLY p_ci_runtime_environments
+    ADD CONSTRAINT p_ci_runtime_environments_pkey PRIMARY KEY (id, partition);
 
 ALTER TABLE ONLY p_ci_stages
     ADD CONSTRAINT p_ci_stages_pkey PRIMARY KEY (id, partition_id);
@@ -47866,6 +47904,12 @@ CREATE INDEX index_ci_build_pending_states_on_project_id ON ci_build_pending_sta
 
 CREATE INDEX index_ci_build_report_results_on_project_id ON ci_build_report_results USING btree (project_id);
 
+CREATE INDEX index_ci_build_runtime_envs_on_project_id ON ci_build_runtime_environments USING btree (project_id);
+
+CREATE INDEX index_ci_build_runtime_envs_on_runner_machine_id ON ci_build_runtime_environments USING btree (runner_machine_id);
+
+CREATE INDEX index_ci_build_runtime_envs_on_runtime_environment_id ON ci_build_runtime_environments USING btree (runtime_environment_id);
+
 CREATE UNIQUE INDEX index_ci_build_trace_chunks_on_build_id_and_chunk_index ON ci_build_trace_chunks USING btree (build_id, chunk_index);
 
 CREATE INDEX index_ci_build_trace_chunks_on_project_id ON ci_build_trace_chunks USING btree (project_id);
@@ -50281,6 +50325,8 @@ CREATE INDEX index_p_ci_pipeline_variables_on_project_id ON ONLY p_ci_pipeline_v
 CREATE INDEX index_p_ci_runner_machine_builds_on_project_id ON ONLY p_ci_runner_machine_builds USING btree (project_id);
 
 CREATE INDEX index_p_ci_runner_machine_builds_on_runner_machine_id ON ONLY p_ci_runner_machine_builds USING btree (runner_machine_id);
+
+CREATE INDEX index_p_ci_runtime_environments_on_project_id ON ONLY p_ci_runtime_environments USING btree (project_id);
 
 CREATE INDEX index_p_ci_workload_variable_inclusions_on_project_id ON ONLY p_ci_workload_variable_inclusions USING btree (project_id);
 

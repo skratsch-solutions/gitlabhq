@@ -17,6 +17,7 @@ const DAY = 28; // day between 1-28 (every month has at least 28 days)
 const getRandomCronValue = (max) => Math.floor(Math.random() * max);
 
 export default {
+  name: 'IntervalPatternInput',
   components: {
     GlFormRadio,
     GlFormRadioGroup,

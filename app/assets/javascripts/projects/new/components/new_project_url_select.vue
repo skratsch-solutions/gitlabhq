@@ -10,6 +10,7 @@ import searchNamespacesWhereUserCanCreateProjectsQuery from '../queries/search_n
 import eventHub from '../event_hub';
 
 export default {
+  name: 'NewProjectUrlSelect',
   components: {
     GlButton,
     GlButtonGroup,

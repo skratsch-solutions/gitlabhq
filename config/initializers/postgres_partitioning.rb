@@ -35,6 +35,7 @@ Gitlab::Application.config.to_prepare do
       Ci::Pipeline,
       Ci::PipelineVariable,
       Ci::RunnerManagerBuild,
+      Ci::RuntimeEnvironment,
       Ci::Stage,
       Ci::Workloads::Workload,
       Ci::Workloads::VariableInclusions,

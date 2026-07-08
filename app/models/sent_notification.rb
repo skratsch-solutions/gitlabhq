@@ -7,14 +7,10 @@ class SentNotification < ApplicationRecord
   self.table_name = :p_sent_notifications
 
   INVALID_NOTEABLE = Class.new(StandardError)
-  REPLY_KEY_BYTE_SIZE = 16
-  INTEGER_CONVERT_BASE = 36
-  BASE36_REGEX = /[0-9a-z]/
-  NAMESPACE_REGEX = /(?:-(?<namespace_id>#{BASE36_REGEX}{1,13}))?/
-  # Email reply key is in the form: <base36-partition-id>-<base36-reply-key>-<base36-namespace-id>
-  PARTITIONED_REPLY_KEY_REGEX = /(?<partition>#{BASE36_REGEX}{1,4})-(?<reply_key>#{BASE36_REGEX}{25})#{NAMESPACE_REGEX}/
-  LEGACY_REPLY_KEY_REGEX = /(?<legacy_key>[a-f\d]{32})/
-  FULL_REPLY_KEY_REGEX = /(?:(#{LEGACY_REPLY_KEY_REGEX})|(#{PARTITIONED_REPLY_KEY_REGEX}))/
+  # Reply key parsing rules live in the gitlab-email_handler gem so the GitLab
+  # application and the standalone mail_room identification service share a
+  # single source of truth.
+  ReplyKey = Gitlab::EmailHandler::ReplyKey
   PARTITION_DURATION = 2.months
   RETENTION_PERIOD = 2.years
 
@@ -68,11 +64,12 @@ class SentNotification < ApplicationRecord
   class << self
     def reply_key
       # Adding leading 0 to make the key size stable. 25 is the max we can get with 16 bytes
-      SecureRandom.random_number(2**(REPLY_KEY_BYTE_SIZE * 8)).to_s(INTEGER_CONVERT_BASE).rjust(25, '0')
+      SecureRandom.random_number(2**(ReplyKey::REPLY_KEY_BYTE_SIZE * 8)).to_s(ReplyKey::INTEGER_CONVERT_BASE)
+        .rjust(25, '0')
     end
 
     def for(reply_key, namespace_id = nil)
-      matches = FULL_REPLY_KEY_REGEX.match(reply_key)
+      matches = ReplyKey::FULL_REPLY_KEY_REGEX.match(reply_key)
       return unless matches
 
       scope = namespace_id.present? ? where(namespace_id: namespace_id) : all
@@ -84,7 +81,7 @@ class SentNotification < ApplicationRecord
     end
 
     def for_partitioned_key(matches)
-      decoded_partition = matches[:partition].to_i(INTEGER_CONVERT_BASE)
+      decoded_partition = matches[:partition].to_i(ReplyKey::INTEGER_CONVERT_BASE)
       partition_result = where(partition: decoded_partition, reply_key: matches[:reply_key]).to_a
 
       return partition_result if partition_result.any?
@@ -174,8 +171,8 @@ class SentNotification < ApplicationRecord
   def partitioned_reply_key
     return reply_key unless persisted?
 
-    encoded_partition = partition.to_s(INTEGER_CONVERT_BASE)
-    encoded_namespace_id = namespace_id.to_s(INTEGER_CONVERT_BASE)
+    encoded_partition = partition.to_s(ReplyKey::INTEGER_CONVERT_BASE)
+    encoded_namespace_id = namespace_id.to_s(ReplyKey::INTEGER_CONVERT_BASE)
 
     "#{encoded_partition}-#{reply_key}-#{encoded_namespace_id}"
   end

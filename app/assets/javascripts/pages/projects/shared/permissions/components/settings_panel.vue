@@ -43,6 +43,7 @@ const PACKAGE_REGISTRY_ACCESS_LEVEL_DEFAULT_BY_PROJECT_VISIBILITY = {
 };
 
 export default {
+  name: 'SettingsPanel',
   i18n: {
     ...CVE_ID_REQUEST_BUTTON_I18N,
     analyticsLabel: s__('ProjectSettings|Analytics'),

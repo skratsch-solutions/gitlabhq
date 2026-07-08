@@ -11,7 +11,7 @@ module Redactable
   extend ActiveSupport::Concern
 
   UNSUBSCRIBE_PATTERN =
-    %r{(?:/namespace/\d+)?/sent_notifications/#{::SentNotification::FULL_REPLY_KEY_REGEX}/unsubscribe}
+    %r{(?:/namespace/\d+)?/sent_notifications/#{Gitlab::EmailHandler::ReplyKey::FULL_REPLY_KEY_REGEX}/unsubscribe}
 
   class_methods do
     def redact_field(field)

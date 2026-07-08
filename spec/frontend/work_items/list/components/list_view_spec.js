@@ -119,7 +119,6 @@ const mountComponent = ({
   workItemFeaturesField = false,
   useRestApi = false,
   workItemRestApiFrontendUsers = useRestApi,
-  workItemRestApi = false,
   props = {},
   additionalHandlers = [],
   canReadCrmOrganization = true,
@@ -135,7 +134,6 @@ const mountComponent = ({
     features: {
       workItemsClientSideBoards: false,
       workItemRestApiFrontendUsers,
-      workItemRestApi,
     },
   };
 
@@ -166,7 +164,6 @@ const mountComponent = ({
         okrsMvc: true,
         workItemFeaturesField,
         workItemRestApiFrontendUsers,
-        workItemRestApi,
       },
       canReadCrmOrganization,
       canReadCrmContact,

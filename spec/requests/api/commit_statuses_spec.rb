@@ -576,7 +576,7 @@ RSpec.describe API::CommitStatuses, :clean_gitlab_redis_cache, feature_category:
 
         it 'does not create commit status' do
           expect(response).to have_gitlab_http_status(:bad_request)
-          expect(json_response['message']).to eq(nil)
+          expect(json_response['message']).to be_nil
         end
       end
 
@@ -587,7 +587,7 @@ RSpec.describe API::CommitStatuses, :clean_gitlab_redis_cache, feature_category:
 
         it 'does not create commit status' do
           expect(response).to have_gitlab_http_status(:bad_request)
-          expect(json_response['message']).to eq(nil)
+          expect(json_response['message']).to be_nil
         end
       end
 

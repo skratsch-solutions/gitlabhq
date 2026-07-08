@@ -8,6 +8,7 @@ import BranchesDropdown from './branches_dropdown.vue';
 import ProjectsDropdown from './projects_dropdown.vue';
 
 export default {
+  name: 'FormModal',
   components: {
     BranchesDropdown,
     ProjectsDropdown,
