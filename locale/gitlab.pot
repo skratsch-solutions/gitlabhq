@@ -8313,6 +8313,24 @@ msgstr ""
 msgid "AiModelDeprecation|The following models have been deprecated and will stop working after GitLab removes them. Please change to an alternative model before the removal version to avoid disruption."
 msgstr ""
 
+msgid "AiPowered|%{word} by %{source} — subgroups cannot opt in."
+msgstr ""
+
+msgid "AiPowered|%{word} by %{source} — subgroups cannot opt out."
+msgstr ""
+
+msgid "AiPowered|%{word} — subgroups cannot opt in."
+msgstr ""
+
+msgid "AiPowered|%{word} — subgroups cannot opt out."
+msgstr ""
+
+msgid "AiPowered|%{word} — subgroups default to off but can opt in individually."
+msgstr ""
+
+msgid "AiPowered|%{word} — subgroups default to on but can opt out individually."
+msgstr ""
+
 msgid "AiPowered|A curated list of recommended domains is automatically included in the allowlist."
 msgstr ""
 
@@ -8334,6 +8352,9 @@ msgstr ""
 msgid "AiPowered|Accomplish specific tasks and get answers to complex questions."
 msgstr ""
 
+msgid "AiPowered|Actions"
+msgstr ""
+
 msgid "AiPowered|Add"
 msgstr ""
 
@@ -8341,6 +8362,9 @@ msgid "AiPowered|Add domain"
 msgstr ""
 
 msgid "AiPowered|Add group"
+msgstr ""
+
+msgid "AiPowered|Admin locked"
 msgstr ""
 
 msgid "AiPowered|After the conversation was created"
@@ -8415,6 +8439,15 @@ msgstr ""
 msgid "AiPowered|An error occurred while loading GitLab Duo settings. Please try again."
 msgstr ""
 
+msgid "AiPowered|An error occurred while loading the group list."
+msgstr ""
+
+msgid "AiPowered|An error occurred while resetting the availability."
+msgstr ""
+
+msgid "AiPowered|An error occurred while updating the availability."
+msgstr ""
+
 msgid "AiPowered|An error occurred. Please try again."
 msgstr ""
 
@@ -8433,6 +8466,9 @@ msgstr ""
 msgid "AiPowered|Automatic Code Reviews"
 msgstr ""
 
+msgid "AiPowered|Availability"
+msgstr ""
+
 msgid "AiPowered|Blocked domains"
 msgstr ""
 
@@ -8442,7 +8478,13 @@ msgstr ""
 msgid "AiPowered|By turning on these features, you accept the %{linkStart}GitLab Testing Agreement%{linkEnd}."
 msgstr ""
 
+msgid "AiPowered|Cannot update: %{path} is admin-locked. Clear the lock on the ancestor first."
+msgstr ""
+
 msgid "AiPowered|Capture detailed information about AI-related activities and requests."
+msgstr ""
+
+msgid "AiPowered|Cascading"
 msgstr ""
 
 msgid "AiPowered|Change configuration"
@@ -8515,6 +8557,12 @@ msgid "AiPowered|Data collection"
 msgstr ""
 
 msgid "AiPowered|Default access regardless of group membership."
+msgstr ""
+
+msgid "AiPowered|Default off"
+msgstr ""
+
+msgid "AiPowered|Default on"
 msgstr ""
 
 msgid "AiPowered|Define how your GitLab instance communicates with AI infrastructure."
@@ -8610,6 +8658,9 @@ msgstr ""
 msgid "AiPowered|GitLab Duo availability"
 msgstr ""
 
+msgid "AiPowered|GitLab Duo availability for %{groupName}"
+msgstr ""
+
 msgid "AiPowered|GitLab Duo is always available. Groups, subgroups, and projects cannot opt out."
 msgstr ""
 
@@ -8640,7 +8691,16 @@ msgstr ""
 msgid "AiPowered|Governance"
 msgstr ""
 
+msgid "AiPowered|Group"
+msgstr ""
+
+msgid "AiPowered|Group Duo availability"
+msgstr ""
+
 msgid "AiPowered|Have access to"
+msgstr ""
+
+msgid "AiPowered|Hide groups"
 msgstr ""
 
 msgid "AiPowered|Hosting"
@@ -8656,6 +8716,9 @@ msgid "AiPowered|Increase credits (opens in new window)"
 msgstr ""
 
 msgid "AiPowered|Indirect connections through GitLab Self-Managed"
+msgstr ""
+
+msgid "AiPowered|Inheriting"
 msgstr ""
 
 msgid "AiPowered|Interact directly with GitLab and perform common GitLab operations."
@@ -8674,6 +8737,15 @@ msgid "AiPowered|Local AI gateway URL"
 msgstr ""
 
 msgid "AiPowered|Local URL for the GitLab Duo Agent Platform service"
+msgstr ""
+
+msgid "AiPowered|Locked"
+msgstr ""
+
+msgid "AiPowered|Locked by %{path}. Clear the admin lock on the ancestor to modify this group."
+msgstr ""
+
+msgid "AiPowered|Locking"
 msgstr ""
 
 msgid "AiPowered|Manage models"
@@ -8700,6 +8772,9 @@ msgstr ""
 msgid "AiPowered|Network access controls"
 msgstr ""
 
+msgid "AiPowered|No"
+msgstr ""
+
 msgid "AiPowered|No allowlist entries."
 msgstr ""
 
@@ -8724,6 +8799,12 @@ msgstr ""
 msgid "AiPowered|Orchestrate AI agents across your entire software lifecycle to automate complex workflows, accelerate delivery, and keep your team in flow."
 msgstr ""
 
+msgid "AiPowered|Override the instance-wide GitLab Duo availability for individual groups. Changes cascade to subgroups unless overridden."
+msgstr ""
+
+msgid "AiPowered|Overrides \"%{value}\""
+msgstr ""
+
 msgid "AiPowered|Purchase credits"
 msgstr ""
 
@@ -8731,6 +8812,21 @@ msgid "AiPowered|Purchase credits (opens in new window)"
 msgstr ""
 
 msgid "AiPowered|Remove"
+msgstr ""
+
+msgid "AiPowered|Reset"
+msgstr ""
+
+msgid "AiPowered|Reset %{groupName} to inherited value"
+msgstr ""
+
+msgid "AiPowered|Reset %{groupName} to inherited value?"
+msgstr ""
+
+msgid "AiPowered|Reset to inherited value"
+msgstr ""
+
+msgid "AiPowered|Resets the group to its inherited value — the nearest ancestor with an override, or the instance default if none exists."
 msgstr ""
 
 msgid "AiPowered|Restrict access based on group membership"
@@ -8751,6 +8847,9 @@ msgstr ""
 msgid "AiPowered|Search domains"
 msgstr ""
 
+msgid "AiPowered|Search or filter groups"
+msgstr ""
+
 msgid "AiPowered|Secure connection (TLS) for GitLab Duo Agent Platform service"
 msgstr ""
 
@@ -8769,13 +8868,25 @@ msgstr ""
 msgid "AiPowered|Service endpoints"
 msgstr ""
 
+msgid "AiPowered|Set %{groupName} to %{value} and clear %{count} admin %{lockNoun}?"
+msgstr ""
+
+msgid "AiPowered|Set and clear locks"
+msgstr ""
+
 msgid "AiPowered|Setting unavailable"
+msgstr ""
+
+msgid "AiPowered|Show groups"
 msgstr ""
 
 msgid "AiPowered|Specify how code completion requests are sent to the AI gateway."
 msgstr ""
 
 msgid "AiPowered|Start date: %{startDate}"
+msgstr ""
+
+msgid "AiPowered|Status"
 msgstr ""
 
 msgid "AiPowered|Store AI audit events"
@@ -8823,6 +8934,9 @@ msgstr ""
 msgid "AiPowered|This setting only applies when flow execution is on."
 msgstr ""
 
+msgid "AiPowered|This will clear admin locks on the following groups. Each cleared lock is recorded in the audit log."
+msgstr ""
+
 msgid "AiPowered|To add members to the group that contains the project, see the %{linkStart}prerequisites%{linkEnd}."
 msgstr ""
 
@@ -8851,6 +8965,9 @@ msgid "AiPowered|Tools"
 msgstr ""
 
 msgid "AiPowered|Track credit consumption across your users and monitor usage trends. View breakdowns by user to understand how your team utilizes GitLab Duo."
+msgstr ""
+
+msgid "AiPowered|Try adjusting your filters or adding groups."
 msgstr ""
 
 msgid "AiPowered|Turn off only if your local service endpoint does not support TLS."
@@ -8928,7 +9045,13 @@ msgstr ""
 msgid "AiPowered|When you turn on this setting, GitLab stores new AI audit events to the database or ClickHouse. Real-time streaming of AI audit events is not affected."
 msgstr ""
 
+msgid "AiPowered|Yes"
+msgstr ""
+
 msgid "AiPowered|registry.gitlab.com"
+msgstr ""
+
+msgid "AiPowered|…and %{count} more"
 msgstr ""
 
 msgid "Ai|[View session](%{url})"
@@ -92517,6 +92640,11 @@ msgstr ""
 
 msgid "load it anyway"
 msgstr ""
+
+msgid "lock"
+msgid_plural "locks"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "locked by %{path_lock_user_name} %{created_at}"
 msgstr ""

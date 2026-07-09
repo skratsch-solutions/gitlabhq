@@ -8,10 +8,6 @@ export default {
   components: { GlButton, GlBadge, GlIcon, GlLink },
   directives: { GlTooltip: GlTooltipDirective },
   i18n: {
-    free: __('Free'),
-    premium: __('Premium'),
-    ultimate: __('Ultimate'),
-    addOn: __('Add-on'),
     pinLabel: s__('FeatureLibrary|Pin %{title}'),
     unpinLabel: s__('FeatureLibrary|Unpin %{title}'),
     pinTooltip: s__('FeatureLibrary|Pin'),
@@ -38,14 +34,13 @@ export default {
     tierLabel() {
       switch (this.item.tier) {
         case TIERS.PREMIUM:
-          return this.$options.i18n.premium;
+          return __('Premium');
         case TIERS.ULTIMATE:
-          return this.$options.i18n.ultimate;
+          return __('Ultimate');
         case TIERS.ADD_ON:
-          return this.$options.i18n.addOn;
-        case TIERS.FREE:
+          return __('Add-on');
         default:
-          return this.$options.i18n.free;
+          return null;
       }
     },
     pinAriaLabel() {
@@ -72,40 +67,39 @@ export default {
 
 <template>
   <li
-    class="gl-flex gl-items-start gl-gap-3 gl-rounded-xl gl-p-3"
+    class="gl-flex gl-items-start gl-gap-3 gl-rounded-xl gl-p-4"
     :class="
       solidBackground ? 'gl-bg-default hover:gl-shadow-md' : 'gl-bg-transparent hover:gl-bg-strong'
     "
   >
-    <span
-      class="gl-flex gl-h-7 gl-w-7 gl-shrink-0 gl-items-center gl-justify-center gl-rounded-lg gl-bg-strong"
-    >
-      <gl-icon :name="item.icon" :size="16" />
-    </span>
+    <gl-icon :name="item.icon" class="gl-mt-1 gl-shrink-0" />
     <div class="gl-min-w-0 gl-flex-grow">
-      <gl-link
-        v-if="item.link"
-        variant="meta"
-        :href="item.link"
-        data-testid="feature-library-item-title"
-        class="gl-font-bold"
-        @click="onNavigate"
-      >
-        {{ item.title }}
-      </gl-link>
-      <span v-else data-testid="feature-library-item-title" class="gl-font-bold">
-        {{ item.title }}
+      <span class="gl-inline-flex gl-items-center gl-gap-2 gl-text-lg gl-font-semibold">
+        <gl-link
+          v-if="item.link"
+          variant="meta"
+          :href="item.link"
+          data-testid="feature-library-item-title"
+          @click="onNavigate"
+        >
+          {{ item.title }}
+        </gl-link>
+        <span v-else data-testid="feature-library-item-title">
+          {{ item.title }}
+        </span>
+        <gl-badge v-if="tierLabel" data-testid="feature-library-item-tier">
+          {{ tierLabel }}
+        </gl-badge>
       </span>
-      <p data-testid="feature-library-item-description" class="gl-mb-1 gl-text-sm">
+
+      <p data-testid="feature-library-item-description" class="gl-mb-0 gl-mt-1 gl-text-subtle">
         {{ item.description }}
       </p>
-      <gl-badge data-testid="feature-library-item-tier" size="sm" variant="neutral">
-        {{ tierLabel }}
-      </gl-badge>
     </div>
     <gl-button
       v-gl-tooltip.hover="pinTooltipText"
       category="tertiary"
+      class="-gl-m-2"
       :icon="pinIconName"
       :aria-label="pinAriaLabel"
       :aria-pressed="pinned"

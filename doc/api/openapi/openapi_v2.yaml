@@ -6646,7 +6646,10 @@ paths:
       operationId: deleteApiV4GroupsIdInvitationsEmail
   "/api/v4/groups/{id}/issues":
     get:
-      description: Get a list of group issues
+      summary: List all issues for a group
+      description: Lists all issues for a specified group. If the group is private,
+        you must provide credentials to authorize. In most cases, you should authenticate
+        with a personal access token.
       produces:
       - application/json
       parameters:
@@ -6988,7 +6991,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of group issues
+          description: List all issues for a group
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
@@ -6996,7 +6999,8 @@ paths:
       operationId: getApiV4GroupsIdIssues
   "/api/v4/groups/{id}/issues_statistics":
     get:
-      description: Get statistics for the list of group issues
+      summary: Retrieve issues statistics for a group
+      description: Retrieves statistics for issues in a specified group.
       produces:
       - application/json
       parameters:
@@ -7235,7 +7239,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get statistics for the list of group issues
+          description: Retrieve issues statistics for a group
       tags:
       - groups
       operationId: getApiV4GroupsIdIssuesStatistics
@@ -25277,9 +25281,9 @@ paths:
       operationId: deleteApiV4ProjectsIdInvitationsEmail
   "/api/v4/projects/{id}/issues/{issue_iid}/links":
     get:
-      summary: List issue relations
-      description: Get a list of a given issue’s linked issues, sorted by the relationship
-        creation datetime (ascending).Issues are filtered according to the user authorizations.
+      summary: List all issue links
+      description: Lists all linked issues for a specified issue, sorted by the relationship
+        creation datetime (ascending). Issues are filtered according to the user authorizations.
       produces:
       - application/json
       parameters:
@@ -25297,7 +25301,7 @@ paths:
         required: true
       responses:
         '200':
-          description: List issue relations
+          description: List all issue links
           schema:
             type: array
             items:
@@ -25349,9 +25353,8 @@ paths:
       operationId: postApiV4ProjectsIdIssuesIssueIidLinks
   "/api/v4/projects/{id}/issues/{issue_iid}/links/{issue_link_id}":
     get:
-      summary: Get an issue link
-      description: Gets details about an issue link. This feature was introduced in
-        GitLab 15.1.
+      summary: Retrieve an issue link
+      description: Retrieves a specified issue link.
       produces:
       - application/json
       parameters:
@@ -25374,7 +25377,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get an issue link
+          description: Retrieve an issue link
           schema:
             "$ref": "#/definitions/API_Entities_IssueLink"
         '401':
@@ -25386,7 +25389,7 @@ paths:
       operationId: getApiV4ProjectsIdIssuesIssueIidLinksIssueLinkId
     delete:
       summary: Delete an issue link
-      description: Deletes an issue link, thus removes the two-way relationship.
+      description: Deletes a specified issue link, removing the two-way relationship.
       produces:
       - application/json
       parameters:
@@ -25591,7 +25594,10 @@ paths:
       operationId: getApiV4ProjectsIdIssuesIssueIidTimeStats
   "/api/v4/projects/{id}/issues":
     get:
-      description: Get a list of project issues
+      summary: List all project issues
+      description: Lists all issues for a specified project. If the project is private,
+        you need to provide credentials to authorize. In most cases, you should authenticate
+        with a personal access token.
       produces:
       - application/json
       parameters:
@@ -25932,14 +25938,15 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of project issues
+          description: List all project issues
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
       - projects
       operationId: getApiV4ProjectsIdIssues
     post:
-      description: Create a new project issue
+      summary: Create an issue
+      description: Creates an issue for a specified project.
       produces:
       - application/json
       consumes:
@@ -25957,7 +25964,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdIssues"
       responses:
         '201':
-          description: Create a new project issue
+          description: Create an issue
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
@@ -25965,7 +25972,8 @@ paths:
       operationId: postApiV4ProjectsIdIssues
   "/api/v4/projects/{id}/issues_statistics":
     get:
-      description: Get statistics for the list of project issues
+      summary: Retrieve issues statistics for a project
+      description: Retrieves statistics for issues in a specified project.
       produces:
       - application/json
       parameters:
@@ -26204,13 +26212,16 @@ paths:
         required: false
       responses:
         '200':
-          description: Get statistics for the list of project issues
+          description: Retrieve issues statistics for a project
       tags:
       - projects
       operationId: getApiV4ProjectsIdIssuesStatistics
   "/api/v4/projects/{id}/issues/{issue_iid}":
     get:
-      description: Get a single project issue
+      summary: Retrieve a project issue
+      description: Retrieves a specified issue for a project. If the project is private
+        or the issue is confidential, you need to provide credentials to authorize.
+        In most cases, you should authenticate with a personal access token.
       produces:
       - application/json
       parameters:
@@ -26227,14 +26238,20 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single project issue
+          description: Retrieve a project issue
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
       - projects
       operationId: getApiV4ProjectsIdIssuesIssueIid
     put:
-      description: Update an existing issue
+      summary: Update an issue
+      description: 'Updates a specified issue for a project. This request is also
+        used to close or reopen an issue using the `state_event` parameter. At least
+        one of the following parameters is required for the request to be successful:
+        `assignee_id`, `assignee_ids`, `confidential`, `created_at`, `description`,
+        `discussion_locked`, `due_date`, `issue_type`, `labels`, `milestone_id`, `state_event`,
+        `title`.'
       produces:
       - application/json
       consumes:
@@ -26258,14 +26275,15 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdIssuesIssueIid"
       responses:
         '200':
-          description: Update an existing issue
+          description: Update an issue
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
       - projects
       operationId: putApiV4ProjectsIdIssuesIssueIid
     delete:
-      description: Delete a project issue
+      summary: Delete an issue
+      description: Deletes a specified issue.
       produces:
       - application/json
       parameters:
@@ -26282,13 +26300,15 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a project issue
+          description: Delete an issue
       tags:
       - projects
       operationId: deleteApiV4ProjectsIdIssuesIssueIid
   "/api/v4/projects/{id}/issues/{issue_iid}/reorder":
     put:
-      description: Reorder an existing issue
+      summary: Update the order of an issue
+      description: Updates the order of a specified issue in a project. You can see
+        the results when sorting issues manually.
       produces:
       - application/json
       consumes:
@@ -26312,7 +26332,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdIssuesIssueIidReorder"
       responses:
         '200':
-          description: Reorder an existing issue
+          description: Update the order of an issue
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
@@ -26320,7 +26340,12 @@ paths:
       operationId: putApiV4ProjectsIdIssuesIssueIidReorder
   "/api/v4/projects/{id}/issues/{issue_iid}/move":
     post:
-      description: Move an existing issue
+      summary: Move an issue
+      description: Moves a specified issue to a different project. If the target project
+        is the source project or the user has insufficient permissions, an error message
+        with status code `400` is returned. If a label or milestone with the same
+        name also exists in the target project, it is then assigned to the issue being
+        moved.
       produces:
       - application/json
       consumes:
@@ -26344,7 +26369,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdIssuesIssueIidMove"
       responses:
         '201':
-          description: Move an existing issue
+          description: Move an issue
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
@@ -26352,7 +26377,11 @@ paths:
       operationId: postApiV4ProjectsIdIssuesIssueIidMove
   "/api/v4/projects/{id}/issues/{issue_iid}/clone":
     post:
-      description: Clone an existing issue
+      summary: Clone an issue
+      description: Clones a specified issue to a project. Copies as much data as possible
+        as long as the target project contains equivalent criteria, such as labels
+        or milestones. If you have insufficient permissions, an error message with
+        status code `400` is returned.
       produces:
       - application/json
       consumes:
@@ -26376,7 +26405,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdIssuesIssueIidClone"
       responses:
         '201':
-          description: Clone an existing issue
+          description: Clone an issue
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
@@ -26384,7 +26413,11 @@ paths:
       operationId: postApiV4ProjectsIdIssuesIssueIidClone
   "/api/v4/projects/{id}/issues/{issue_iid}/related_merge_requests":
     get:
-      description: List merge requests that are related to the issue
+      summary: List all merge requests related to an issue
+      description: Lists all merge requests that are related to a specified issue.
+        If the project is private or the issue is confidential, you need to provide
+        credentials to authorize. In most cases, you should authenticate with a personal
+        access token.
       produces:
       - application/json
       parameters:
@@ -26401,7 +26434,7 @@ paths:
         required: true
       responses:
         '200':
-          description: List merge requests that are related to the issue
+          description: List all merge requests related to an issue
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestBasic"
       tags:
@@ -26409,7 +26442,11 @@ paths:
       operationId: getApiV4ProjectsIdIssuesIssueIidRelatedMergeRequests
   "/api/v4/projects/{id}/issues/{issue_iid}/closed_by":
     get:
-      description: List merge requests closing issue
+      summary: List all merge requests that close an issue on merge
+      description: Lists all merge requests that close a specified issue when merged.
+        If the project is private or the issue is confidential, you need to provide
+        credentials to authorize. In most cases, you should authenticate with a personal
+        access token.
       produces:
       - application/json
       parameters:
@@ -26426,7 +26463,7 @@ paths:
         required: true
       responses:
         '200':
-          description: List merge requests closing issue
+          description: List all merge requests that close an issue on merge
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestBasic"
       tags:
@@ -26463,7 +26500,8 @@ paths:
       operationId: getApiV4ProjectsIdIssuesIssueIidParticipants
   "/api/v4/projects/{id}/issues/{issue_iid}/user_agent_detail":
     get:
-      description: Get the user agent details for an issue
+      summary: Retrieve user agent details for an issue
+      description: Retrieves user agent details for an issue.
       produces:
       - application/json
       parameters:
@@ -26480,7 +26518,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the user agent details for an issue
+          description: Retrieve user agent details for an issue
           schema:
             "$ref": "#/definitions/API_Entities_UserAgentDetail"
       tags:
@@ -45723,7 +45761,10 @@ paths:
       operationId: deleteApiV4IntegrationsJiraForgeSubscriptionsId
   "/api/v4/issues":
     get:
-      description: Get currently authenticated user's issues
+      summary: List all issues for the currently authenticated user
+      description: Lists all issues accessible by the currently authenticated user.
+        By default, returns only issues created by the current user. To list all issues,
+        use parameter `scope=all`.
       produces:
       - application/json
       parameters:
@@ -46061,7 +46102,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get currently authenticated user's issues
+          description: List all issues for the currently authenticated user
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
@@ -46069,7 +46110,8 @@ paths:
       operationId: getApiV4Issues
   "/api/v4/issues/{id}":
     get:
-      description: Get specified issue (admin only)
+      summary: Retrieve an issue
+      description: Retrieves a specified issue. Administrators only.
       produces:
       - application/json
       parameters:
@@ -46080,7 +46122,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get specified issue (admin only)
+          description: Retrieve an issue
           schema:
             "$ref": "#/definitions/API_Entities_Issue"
       tags:
@@ -48954,7 +48996,10 @@ paths:
       operationId: postApiV4SlackTrigger
   "/api/v4/issues_statistics":
     get:
-      description: Get currently authenticated user's issues statistics
+      summary: Retrieve issues statistics for the currently authenticated user
+      description: Retrieves statistics for issues accessible by the currently authenticated
+        user. By default, returns only issues created by the current user. To get
+        all issues, set the `scope` attribute to `all`.
       produces:
       - application/json
       parameters:
@@ -49187,7 +49232,8 @@ paths:
         required: false
       responses:
         '200':
-          description: Get currently authenticated user's issues statistics
+          description: Retrieve issues statistics for the currently authenticated
+            user
       tags:
       - issues
       operationId: getApiV4IssuesStatistics
@@ -65687,7 +65733,7 @@ definitions:
         description: The IID of an epic to associate the issue with (deprecated)
     required:
     - title
-    description: Create a new project issue
+    description: Create an issue
   putApiV4ProjectsIdIssuesIssueIid:
     type: object
     properties:
@@ -65788,7 +65834,7 @@ definitions:
         description: The IID of an epic to associate the issue with (deprecated)
       created_at:
         type: string
-    description: Update an existing issue
+    description: Update an issue
   putApiV4ProjectsIdIssuesIssueIidReorder:
     type: object
     properties:
@@ -65800,7 +65846,7 @@ definitions:
         type: integer
         format: int32
         description: The ID of the issue we want to be before
-    description: Reorder an existing issue
+    description: Update the order of an issue
   postApiV4ProjectsIdIssuesIssueIidMove:
     type: object
     properties:
@@ -65810,7 +65856,7 @@ definitions:
         description: The ID of the new project
     required:
     - to_project_id
-    description: Move an existing issue
+    description: Move an issue
   postApiV4ProjectsIdIssuesIssueIidClone:
     type: object
     properties:
@@ -65824,7 +65870,7 @@ definitions:
         default: false
     required:
     - to_project_id
-    description: Clone an existing issue
+    description: Clone an issue
   API_Entities_UserAgentDetail:
     type: object
     properties:

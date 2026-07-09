@@ -58,19 +58,8 @@ module Ci
           subject.success! unless subject.has_strategy?
           ServiceResponse.success(payload: pipeline)
         end
-      elsif Feature.enabled?(:ci_drop_downstream_bridge_without_transaction, bridge.project, type: :gitlab_com_derisk)
-        drop_bridge_without_transaction!(bridge, pipeline)
       else
-        Gitlab::OptimisticLocking.retry_lock(bridge,
-          name: 'create_downstream_pipeline_update_bridge_status_failure') do |subject|
-          subject.transaction do
-            messages = pipeline.errors.full_messages
-
-            subject.drop!(:downstream_pipeline_creation_failed)
-            create_downstream_error_messages(subject, messages)
-            ServiceResponse.error(payload: pipeline, message: messages)
-          end
-        end
+        drop_bridge!(bridge, pipeline)
       end
     rescue StateMachines::InvalidTransition => e
       error = Ci::Bridge::InvalidTransitionError.new(e.message)
@@ -82,10 +71,7 @@ module Ci
       ServiceResponse.error(payload: pipeline, message: e.message)
     end
 
-    # Drops the bridge and inserts the (diagnostic) error messages as separate writes rather
-    # than one transaction. The writes don't need to be atomic, and the long open transaction
-    # is what surfaced this block in the idle_in_transaction > 0.25s list.
-    def drop_bridge_without_transaction!(bridge, pipeline)
+    def drop_bridge!(bridge, pipeline)
       messages = pipeline.errors.full_messages
 
       Gitlab::OptimisticLocking.retry_lock(bridge,

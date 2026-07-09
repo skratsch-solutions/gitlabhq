@@ -48,8 +48,6 @@ describe('FeatureLibraryItem', () => {
 
   describe('tier label', () => {
     it.each([
-      [{ tier: TIERS.FREE }, 'Free'],
-      [{ tier: undefined }, 'Free'],
       [{ tier: TIERS.PREMIUM }, 'Premium'],
       [{ tier: TIERS.ULTIMATE }, 'Ultimate'],
       [{ tier: TIERS.ADD_ON }, 'Add-on'],
@@ -57,6 +55,14 @@ describe('FeatureLibraryItem', () => {
       createWrapper({ item: { ...baseItem, ...tierProps } });
       expect(findTierLabel().text()).toBe(expected);
     });
+
+    it.each([[{ tier: TIERS.FREE }], [{ tier: undefined }]])(
+      'does not render a tier badge for %j',
+      (tierProps) => {
+        createWrapper({ item: { ...baseItem, ...tierProps } });
+        expect(findTierLabel().exists()).toBe(false);
+      },
+    );
   });
 
   describe('layout', () => {

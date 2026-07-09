@@ -98,44 +98,35 @@ Grants the ability to create, read, and update continuous deployment application
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdApplicationCreate` |
 | Read | Instance | Type | `CdApplication` |
-| Read | Instance | Type | `CdApplicationFlowDefinition` |
-| Read | Instance | Type | `CdApplicationLink` |
-| Read | Instance | Type | `CdArtifactSource` |
-| Read | Instance | Type | `CdDeployment` |
-| Read | Instance | Type | `CdDeploymentTransition` |
-| Read | Instance | Type | `CdRollout` |
-| Read | Instance | Type | `CdRolloutEnvironment` |
-| Read | Instance | Type | `CdRolloutTransition` |
-| Read | Instance | Type | `CdService` |
-| Read | Instance | Type | `CdServiceEnvironmentHealth` |
-| Read | Instance | Type | `CdVersion` |
-| Read | Instance | Type | `CdVersionSet` |
-| Read | Instance | Type | `CdVersionSetEntry` |
 | Update | Instance | Mutation | `CdApplicationUpdate` |
 
 #### CD Application Flow Definition
 
-Grants the ability to create continuous deployment application flow definitions.
+Grants the ability to create and read continuous deployment application flow definitions.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdApplicationFlowDefinitionCreate` |
+| Read | Instance | Type | `CdApplicationFlowDefinition` |
 
 #### CD Application Link
 
-Grants the ability to create continuous deployment application links.
+Grants the ability to create and read continuous deployment application links.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdApplicationLinkCreate` |
+| Read | Instance | Type | `CdApplicationLink` |
 
 #### CD Artifact Source
 
-Grants the ability to create continuous deployment artifact sources.
+Grants the ability to create and read continuous deployment artifact sources.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdArtifactSourceCreate` |
+| Read | Instance | Type | `CdArtifactSource` |
+| Read | Instance | Type | `CdVersion` |
 
 #### CD Environment
 
@@ -150,11 +141,16 @@ Grants the ability to create, read, and update continuous deployment environment
 
 #### CD Rollout
 
-Grants the ability to create CD rollouts.
+Grants the ability to create and read CD rollouts.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdRolloutCreate` |
+| Read | Instance | Type | `CdDeployment` |
+| Read | Instance | Type | `CdDeploymentTransition` |
+| Read | Instance | Type | `CdRollout` |
+| Read | Instance | Type | `CdRolloutEnvironment` |
+| Read | Instance | Type | `CdRolloutTransition` |
 
 #### CD Rollout Gate
 
@@ -166,20 +162,24 @@ Grants the ability to resolve CD rollout gates.
 
 #### CD Service
 
-Grants the ability to create and update continuous deployment services.
+Grants the ability to create, read, and update continuous deployment services.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdServiceCreate` |
+| Read | Instance | Type | `CdService` |
+| Read | Instance | Type | `CdServiceEnvironmentHealth` |
 | Update | Instance | Mutation | `CdServiceUpdate` |
 
 #### CD Version Set
 
-Grants the ability to create continuous deployment version sets.
+Grants the ability to create and read continuous deployment version sets.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Create | Instance | Mutation | `CdVersionSetCreate` |
+| Read | Instance | Type | `CdVersionSet` |
+| Read | Instance | Type | `CdVersionSetEntry` |
 
 #### CI Config
 

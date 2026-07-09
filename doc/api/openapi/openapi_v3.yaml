@@ -21290,7 +21290,9 @@ paths:
   "/api/v4/projects/{id}/labels":
     get:
       operationId: getApiV4ProjectsIdLabels
-      summary: Get all labels of the project
+      summary: List all project labels
+      description: Lists all labels for a specified project. By default, this request
+        returns 20 results at a time because the API results are paginated.
       tags:
       - Labels
       responses:
@@ -21363,7 +21365,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdLabels
-      summary: Create a new label
+      summary: Create a project label
+      description: Creates a label for a specified project.
       tags:
       - Labels
       responses:
@@ -21395,7 +21398,7 @@ paths:
     put:
       operationId: putApiV4ProjectsIdLabels
       summary: Update an existing label. At least one optional parameter is required.
-      description: This feature was deprecated in GitLab 12.4.
+      description: Deprecated in GitLab 12.4. Use PUT /projects/:id/labels/:name instead.
       tags:
       - Labels
       responses:
@@ -21409,6 +21412,7 @@ paths:
           description: Not Found
         '400':
           description: Bad Request
+      deprecated: true
       parameters:
       - name: id
         required: true
@@ -21427,7 +21431,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdLabels
       summary: Delete an existing label
-      description: This feature was deprecated in GitLab 12.4.
+      description: Deprecated in GitLab 12.4. Use DELETE /projects/:id/labels/:name
+        instead.
       tags:
       - Labels
       responses:
@@ -21441,6 +21446,7 @@ paths:
           description: Not Found
         '400':
           description: Bad Request
+      deprecated: true
       parameters:
       - name: id
         required: true
@@ -21467,8 +21473,8 @@ paths:
   "/api/v4/projects/{id}/labels/{name}":
     get:
       operationId: getApiV4ProjectsIdLabelsName
-      summary: Get a single label
-      description: This feature was added in GitLab 12.4.
+      summary: Retrieve a project label
+      description: Retrieves a specified label for a project.
       tags:
       - Labels
       responses:
@@ -21507,8 +21513,9 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdLabelsName
-      summary: Update an existing label. At least one optional parameter is required.
-      description: This feature was added in GitLab 12.4.
+      summary: Update a project label
+      description: Updates a specified label for a project with a different name or
+        color. At least one parameter is required to update the label.
       tags:
       - Labels
       responses:
@@ -21545,8 +21552,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_57a19d02f2c7"
     delete:
       operationId: deleteApiV4ProjectsIdLabelsName
-      summary: Delete an existing label
-      description: This feature was added in GitLab 12.4.
+      summary: Delete a project label
+      description: Deletes a specified label from a project.
       tags:
       - Labels
       responses:
@@ -21579,8 +21586,8 @@ paths:
     put:
       operationId: putApiV4ProjectsIdLabelsPromote
       summary: Promote a label to a group label
-      description: This feature was added in GitLab 12.3 and deprecated in GitLab
-        12.4.
+      description: Added in GitLab 12.3 and deprecated in GitLab 12.4. Use PUT /projects/:id/labels/:name/promote
+        instead.
       tags:
       - Labels
       responses:
@@ -21594,6 +21601,7 @@ paths:
           description: Not Found
         '400':
           description: Bad Request
+      deprecated: true
       parameters:
       - name: id
         required: true
@@ -21612,8 +21620,9 @@ paths:
   "/api/v4/projects/{id}/labels/{name}/promote":
     put:
       operationId: putApiV4ProjectsIdLabelsNamePromote
-      summary: Promote a label to a group label
-      description: This feature was added in GitLab 12.4.
+      summary: Promote a project label to a group label
+      description: Promotes a specified project label to a group label. The label
+        keeps its ID.
       tags:
       - Labels
       responses:
@@ -42908,7 +42917,10 @@ paths:
   "/api/v4/issues_statistics":
     get:
       operationId: getApiV4IssuesStatistics
-      summary: Get currently authenticated user's issues statistics
+      summary: Retrieve issues statistics for the currently authenticated user
+      description: Retrieves statistics for issues accessible by the currently authenticated
+        user. By default, returns only issues created by the current user. To get
+        all issues, set the `scope` attribute to `all`.
       tags:
       - Issues
       responses:
@@ -43228,7 +43240,10 @@ paths:
   "/api/v4/issues":
     get:
       operationId: getApiV4Issues
-      summary: Get currently authenticated user's issues
+      summary: List all issues for the currently authenticated user
+      description: Lists all issues accessible by the currently authenticated user.
+        By default, returns only issues created by the current user. To list all issues,
+        use parameter `scope=all`.
       tags:
       - Issues
       responses:
@@ -43673,7 +43688,8 @@ paths:
   "/api/v4/issues/{id}":
     get:
       operationId: getApiV4IssuesId
-      summary: Get specified issue (admin only)
+      summary: Retrieve an issue
+      description: Retrieves a specified issue. Administrators only.
       tags:
       - Issues
       responses:
@@ -43697,7 +43713,10 @@ paths:
   "/api/v4/groups/{id}/issues":
     get:
       operationId: getApiV4GroupsIdIssues
-      summary: Get a list of group issues
+      summary: List all issues for a group
+      description: Lists all issues for a specified group. If the group is private,
+        you must provide credentials to authorize. In most cases, you should authenticate
+        with a personal access token.
       tags:
       - Groups
       responses:
@@ -44149,7 +44168,8 @@ paths:
   "/api/v4/groups/{id}/issues_statistics":
     get:
       operationId: getApiV4GroupsIdIssuesStatistics
-      summary: Get statistics for the list of group issues
+      summary: Retrieve issues statistics for a group
+      description: Retrieves statistics for issues in a specified group.
       tags:
       - Groups
       responses:
@@ -44657,7 +44677,10 @@ paths:
   "/api/v4/projects/{id}/issues":
     get:
       operationId: getApiV4ProjectsIdIssues
-      summary: Get a list of project issues
+      summary: List all project issues
+      description: Lists all issues for a specified project. If the project is private,
+        you need to provide credentials to authorize. In most cases, you should authenticate
+        with a personal access token.
       tags:
       - Projects
       responses:
@@ -45109,7 +45132,8 @@ paths:
         in: query
     post:
       operationId: postApiV4ProjectsIdIssues
-      summary: Create a new project issue
+      summary: Create an issue
+      description: Creates an issue for a specified project.
       tags:
       - Projects
       responses:
@@ -45141,7 +45165,8 @@ paths:
   "/api/v4/projects/{id}/issues_statistics":
     get:
       operationId: getApiV4ProjectsIdIssuesStatistics
-      summary: Get statistics for the list of project issues
+      summary: Retrieve issues statistics for a project
+      description: Retrieves statistics for issues in a specified project.
       tags:
       - Projects
       responses:
@@ -45472,7 +45497,10 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIid
-      summary: Get a single project issue
+      summary: Retrieve a project issue
+      description: Retrieves a specified issue for a project. If the project is private
+        or the issue is confidential, you need to provide credentials to authorize.
+        In most cases, you should authenticate with a personal access token.
       tags:
       - Projects
       responses:
@@ -45503,7 +45531,13 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdIssuesIssueIid
-      summary: Update an existing issue
+      summary: Update an issue
+      description: 'Updates a specified issue for a project. This request is also
+        used to close or reopen an issue using the `state_event` parameter. At least
+        one of the following parameters is required for the request to be successful:
+        `assignee_id`, `assignee_ids`, `confidential`, `created_at`, `description`,
+        `discussion_locked`, `due_date`, `issue_type`, `labels`, `milestone_id`, `state_event`,
+        `title`.'
       tags:
       - Projects
       responses:
@@ -45540,7 +45574,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_87ffe09df217"
     delete:
       operationId: deleteApiV4ProjectsIdIssuesIssueIid
-      summary: Delete a project issue
+      summary: Delete an issue
+      description: Deletes a specified issue.
       tags:
       - Projects
       responses:
@@ -45568,7 +45603,9 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/reorder":
     put:
       operationId: putApiV4ProjectsIdIssuesIssueIidReorder
-      summary: Reorder an existing issue
+      summary: Update the order of an issue
+      description: Updates the order of a specified issue in a project. You can see
+        the results when sorting issues manually.
       tags:
       - Projects
       responses:
@@ -45606,7 +45643,12 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/move":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidMove
-      summary: Move an existing issue
+      summary: Move an issue
+      description: Moves a specified issue to a different project. If the target project
+        is the source project or the user has insufficient permissions, an error message
+        with status code `400` is returned. If a label or milestone with the same
+        name also exists in the target project, it is then assigned to the issue being
+        moved.
       tags:
       - Projects
       responses:
@@ -45644,7 +45686,11 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/clone":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidClone
-      summary: Clone an existing issue
+      summary: Clone an issue
+      description: Clones a specified issue to a project. Copies as much data as possible
+        as long as the target project contains equivalent criteria, such as labels
+        or milestones. If you have insufficient permissions, an error message with
+        status code `400` is returned.
       tags:
       - Projects
       responses:
@@ -45682,7 +45728,11 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/related_merge_requests":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidRelatedMergeRequests
-      summary: List merge requests that are related to the issue
+      summary: List all merge requests related to an issue
+      description: Lists all merge requests that are related to a specified issue.
+        If the project is private or the issue is confidential, you need to provide
+        credentials to authorize. In most cases, you should authenticate with a personal
+        access token.
       tags:
       - Issues
       responses:
@@ -45714,7 +45764,11 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/closed_by":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidClosedBy
-      summary: List merge requests closing issue
+      summary: List all merge requests that close an issue on merge
+      description: Lists all merge requests that close a specified issue when merged.
+        If the project is private or the issue is confidential, you need to provide
+        credentials to authorize. In most cases, you should authenticate with a personal
+        access token.
       tags:
       - Projects
       responses:
@@ -45782,7 +45836,8 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/user_agent_detail":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidUserAgentDetail
-      summary: Get the user agent details for an issue
+      summary: Retrieve user agent details for an issue
+      description: Retrieves user agent details for an issue.
       tags:
       - Issues
       responses:
@@ -45997,9 +46052,9 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/links":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidLinks
-      summary: List issue relations
-      description: Get a list of a given issue’s linked issues, sorted by the relationship
-        creation datetime (ascending).Issues are filtered according to the user authorizations.
+      summary: List all issue links
+      description: Lists all linked issues for a specified issue, sorted by the relationship
+        creation datetime (ascending). Issues are filtered according to the user authorizations.
       tags:
       - Issues
       responses:
@@ -46072,9 +46127,8 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/links/{issue_link_id}":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidLinksIssueLinkId
-      summary: Get an issue link
-      description: Gets details about an issue link. This feature was introduced in
-        GitLab 15.1.
+      summary: Retrieve an issue link
+      description: Retrieves a specified issue link.
       tags:
       - Issues
       responses:
@@ -46115,7 +46169,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdIssuesIssueIidLinksIssueLinkId
       summary: Delete an issue link
-      description: Deletes an issue link, thus removes the two-way relationship.
+      description: Deletes a specified issue link, removing the two-way relationship.
       tags:
       - Issues
       responses:

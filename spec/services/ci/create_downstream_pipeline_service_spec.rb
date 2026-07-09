@@ -726,17 +726,7 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
         end
       end
 
-      context 'when the ci_drop_downstream_bridge_without_transaction flag is enabled' do
-        it_behaves_like 'drops the bridge with error messages'
-      end
-
-      context 'when the ci_drop_downstream_bridge_without_transaction flag is disabled' do
-        before do
-          stub_feature_flags(ci_drop_downstream_bridge_without_transaction: false)
-        end
-
-        it_behaves_like 'drops the bridge with error messages'
-      end
+      it_behaves_like 'drops the bridge with error messages'
     end
 
     context 'when bridge job status update raises state machine errors' do
