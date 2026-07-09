@@ -21,6 +21,7 @@ import {
   WIDGET_TYPE_WEIGHT,
   WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_COLOR,
+  WIDGET_TYPE_PARTICIPANTS,
   WIDGET_TYPE_PROGRESS,
   WIDGET_TYPE_STATUS,
   WORK_ITEM_TYPE_ENUM_EPIC,
@@ -67,6 +68,7 @@ import {
   findHealthStatusWidget,
   findIterationWidget,
   findLabelsWidget,
+  findParticipantsWidget,
   findProgressWidget,
   findWeightWidget,
   findStatusWidget,
@@ -1311,6 +1313,49 @@ describe('findNotesWidget', () => {
   describe('when neither exists', () => {
     it('returns undefined', () => {
       expect(findNotesWidget({ widgets: [] })).toBeUndefined();
+    });
+  });
+});
+
+describe('findParticipantsWidget', () => {
+  const participantsWidget = {
+    type: WIDGET_TYPE_PARTICIPANTS,
+    participants: { count: 1, nodes: [{ id: 'gid://gitlab/User/1' }] },
+  };
+  const featuresParticipants = {
+    participants: { count: 2, nodes: [{ id: 'gid://gitlab/User/2' }] },
+  };
+
+  describe('when features.participants is present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = {
+        features: { participants: featuresParticipants },
+        widgets: [participantsWidget],
+      };
+    });
+
+    it('returns features.participants', () => {
+      expect(findParticipantsWidget(workItem)).toBe(featuresParticipants);
+    });
+  });
+
+  describe('when features is not present', () => {
+    let workItem;
+
+    beforeEach(() => {
+      workItem = { widgets: [participantsWidget] };
+    });
+
+    it('falls back to the widgets array', () => {
+      expect(findParticipantsWidget(workItem)).toBe(participantsWidget);
+    });
+  });
+
+  describe('when neither features nor widget is present', () => {
+    it('returns undefined', () => {
+      expect(findParticipantsWidget({ widgets: [] })).toBeUndefined();
     });
   });
 });

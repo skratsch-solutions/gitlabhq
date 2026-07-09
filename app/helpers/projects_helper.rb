@@ -615,6 +615,10 @@ module ProjectsHelper
     false
   end
 
+  def show_built_in_project_templates_tab?
+    true
+  end
+
   def http_clone_url_to_repo(project)
     project.http_url_to_repo
   end

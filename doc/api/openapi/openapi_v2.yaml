@@ -57015,6 +57015,10 @@ definitions:
         description: The five most recent unique IP addresses that have authenticated
           with this token. When the limit is reached, the oldest IP address is removed.
           The list updates once per minute per token.
+      granular_scopes:
+        type: array
+        items:
+          "$ref": "#/definitions/API_Entities_PersonalAccessTokenGranularScope"
       access_level:
         type: integer
         format: int32
@@ -57054,6 +57058,29 @@ definitions:
     - resource_id
     - token
     description: API_Entities_ResourceAccessTokenWithToken model
+  API_Entities_PersonalAccessTokenGranularScope:
+    type: object
+    properties:
+      access:
+        type: string
+        example: personal_projects
+      permissions:
+        type: array
+        example:
+        - read_job
+      project_id:
+        type: integer
+        format: int64
+        example: 3
+      group_id:
+        type: integer
+        format: int64
+        example: 5
+    required:
+    - access
+    - permissions
+    - project_id
+    - group_id
   API_Entities_WikiPageBasic:
     type: object
     properties:
@@ -78579,6 +78606,10 @@ definitions:
         description: The five most recent unique IP addresses that have authenticated
           with this token. When the limit is reached, the oldest IP address is removed.
           The list updates once per minute per token.
+      granular_scopes:
+        type: array
+        items:
+          "$ref": "#/definitions/API_Entities_PersonalAccessTokenGranularScope"
     required:
     - id
     - name
@@ -78692,6 +78723,10 @@ definitions:
         example: '2020-08-31T15:53:00.073Z'
       token:
         type: string
+      granular_scopes:
+        type: array
+        items:
+          "$ref": "#/definitions/API_Entities_PersonalAccessTokenGranularScope"
     required:
     - id
     - name

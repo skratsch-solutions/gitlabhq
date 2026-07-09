@@ -24,6 +24,7 @@ import getWorkItemTreeQuery from '../../graphql/work_item_tree.query.graphql';
 import WorkItemLinkChild from './work_item_link_child.vue';
 
 export default {
+  name: 'WorkItemChildrenWrapper',
   components: {
     WorkItemLinkChild,
   },

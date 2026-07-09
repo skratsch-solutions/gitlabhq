@@ -19,6 +19,7 @@ import getWorkItemTreeQuery from '~/work_items/graphql/work_item_tree.query.grap
 import { DEFAULT_PAGE_SIZE_CHILD_ITEMS } from '~/work_items/constants';
 
 export default {
+  name: 'MoveWorkItemModal',
   components: { GlModal, GlCollapsibleListbox, GlFormGroup, GlFormSelect, GlAlert },
   directives: {
     GlTooltip,

@@ -2,6 +2,7 @@
 import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 
 export default {
+  name: 'WorkItemChildrenLoadMore',
   components: {
     GlButton,
     GlLoadingIcon,

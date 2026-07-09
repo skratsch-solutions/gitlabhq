@@ -516,6 +516,15 @@ export const getNewWorkItemSharedCache = ({
       discussionLocked: false,
       __typename: 'WorkItemWidgetNotes',
     },
+    participants: {
+      ...widgetDefinitionsHash[WIDGET_TYPE_PARTICIPANTS],
+      participants: {
+        count: 0,
+        nodes: [],
+        __typename: 'UserCoreConnection',
+      },
+      __typename: 'WorkItemWidgetParticipants',
+    },
     linkedResources: {
       ...widgetDefinitionsHash[WIDGET_TYPE_LINKED_RESOURCES],
       linkedResources: {

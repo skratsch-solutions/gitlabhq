@@ -11,11 +11,9 @@ fragment PipelineListItemBase on Pipeline {
   duration
   name
   ref
-  refPath
   refText
   commit {
     id
-    sha
     shortId
     title
     webPath

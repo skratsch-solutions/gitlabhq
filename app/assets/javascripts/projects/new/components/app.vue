@@ -99,6 +99,11 @@ export default {
       required: false,
       default: true,
     },
+    showBuiltInProjectTemplates: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
 
   computed: {
@@ -147,6 +152,7 @@ export default {
     :initial-breadcrumbs="initialBreadcrumbs"
     :panels="availablePanels"
     :jump-to-last-persisted-panel="hasErrors"
+    :show-built-in-project-templates="showBuiltInProjectTemplates"
     :title="s__('ProjectsNew|Create new project')"
     persistence-key="new_project_last_active_tab"
     @panel-change="resetProjectErrors"

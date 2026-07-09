@@ -9,6 +9,7 @@ import { Mousetrap } from '~/lib/mousetrap';
 import { keysFor, SIDEBAR_CLOSE_WIDGET } from '~/behaviors/shortcuts/keybindings';
 
 export default {
+  name: 'WorkItemSidebarWidget',
   components: {
     GlButton,
     GlLoadingIcon,

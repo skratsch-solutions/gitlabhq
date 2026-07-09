@@ -12,6 +12,7 @@ import Timeago from '~/vue_shared/components/time_ago_tooltip.vue';
 import { ROUTES } from '../../constants';
 
 export default {
+  name: 'DesignItem',
   components: {
     GlCard,
     GlLoadingIcon,

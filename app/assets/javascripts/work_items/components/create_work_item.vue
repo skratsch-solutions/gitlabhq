@@ -31,6 +31,7 @@ import {
   findAssigneesWidget,
   findCrmContactsWidget,
   findHierarchyWidget,
+  findParticipantsWidget,
   getDisplayReference,
   getNewWorkItemAutoSaveKey,
   getNewWorkItemWidgetsAutoSaveKey,
@@ -51,7 +52,6 @@ import {
   WIDGET_TYPE_COLOR,
   NEW_WORK_ITEM_IID,
   WIDGET_TYPE_HEALTH_STATUS,
-  WIDGET_TYPE_PARTICIPANTS,
   WIDGET_TYPE_DESCRIPTION,
   NEW_WORK_ITEM_GID,
   WIDGET_TYPE_LABELS,
@@ -93,6 +93,7 @@ import WorkItemLoading from './work_item_loading.vue';
 import WorkItemCrmContacts from './work_item_crm_contacts.vue';
 
 export default {
+  name: 'CreateWorkItem',
   components: {
     GlButton,
     GlAlert,
@@ -528,7 +529,7 @@ export default {
       return this.workItemParticipants?.participants?.nodes ?? [];
     },
     workItemParticipants() {
-      return findWidget(WIDGET_TYPE_PARTICIPANTS, this.workItem);
+      return findParticipantsWidget(this.workItem);
     },
     workItemAssigneeIds() {
       return (

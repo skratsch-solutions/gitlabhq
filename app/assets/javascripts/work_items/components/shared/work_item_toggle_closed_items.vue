@@ -3,6 +3,7 @@ import { GlButton } from '@gitlab/ui';
 import { __, n__, sprintf } from '~/locale';
 
 export default {
+  name: 'WorkItemToggleClosedItems',
   components: {
     GlButton,
   },

@@ -57,7 +57,7 @@ export default {
       return this.pipeline?.commit?.short_id || this.pipeline?.commit?.shortId;
     },
     popoverTargetId() {
-      return `pipeline-commit-popover-${this.pipeline.commit?.sha}`;
+      return `pipeline-commit-popover-${this.commitShortSha}`;
     },
     refUrl() {
       return this.commitRef?.ref_url || this.commitRef?.path || `commits/${this.pipeline?.ref}`;

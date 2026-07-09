@@ -18,6 +18,7 @@ import { UPDATE_DESCRIPTION_ERROR } from '../constants';
 const isCheckbox = (target) => target?.classList.contains('task-list-item-checkbox');
 
 export default {
+  name: 'DesignDescription',
   components: {
     MarkdownEditor,
     GlAlert,

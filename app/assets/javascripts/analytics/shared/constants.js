@@ -479,21 +479,21 @@ export const USAGE_OVERVIEW_IDENTIFIER_PIPELINES = 'pipelines';
 
 // Defines the constants used for querying the API as well as the order they appear
 export const USAGE_OVERVIEW_METADATA = {
-  [USAGE_OVERVIEW_IDENTIFIER_GROUPS]: { options: { title: __('Groups'), titleIcon: 'group' } },
+  [USAGE_OVERVIEW_IDENTIFIER_GROUPS]: { options: { title: __('Groups'), metricIcon: 'group' } },
   [USAGE_OVERVIEW_IDENTIFIER_PROJECTS]: {
-    options: { title: __('Projects'), titleIcon: 'project' },
+    options: { title: __('Projects'), metricIcon: 'project' },
   },
   [USAGE_OVERVIEW_IDENTIFIER_USERS]: {
-    options: { title: __('Users'), titleIcon: 'user' },
+    options: { title: __('Users'), metricIcon: 'user' },
   },
   [USAGE_OVERVIEW_IDENTIFIER_ISSUES]: {
-    options: { title: __('Issues'), titleIcon: 'work-item-issue' },
+    options: { title: __('Issues'), metricIcon: 'work-item-issue' },
   },
   [USAGE_OVERVIEW_IDENTIFIER_MERGE_REQUESTS]: {
-    options: { title: __('Merge requests'), titleIcon: 'merge-request' },
+    options: { title: __('Merge requests'), metricIcon: 'merge-request' },
   },
   [USAGE_OVERVIEW_IDENTIFIER_PIPELINES]: {
-    options: { title: __('Pipelines'), titleIcon: 'pipeline' },
+    options: { title: __('Pipelines'), metricIcon: 'pipeline' },
   },
 };
 

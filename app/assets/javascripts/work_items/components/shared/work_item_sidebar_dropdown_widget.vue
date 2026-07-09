@@ -9,6 +9,7 @@ import { __, sprintf } from '~/locale';
 import WorkItemSidebarWidget from './work_item_sidebar_widget.vue';
 
 export default {
+  name: 'WorkItemSidebarDropdownWidget',
   components: {
     GlCollapsibleListbox,
     WorkItemSidebarWidget,

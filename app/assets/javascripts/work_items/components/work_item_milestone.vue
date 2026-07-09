@@ -15,6 +15,7 @@ import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { I18N_WORK_ITEM_ERROR_UPDATING, TRACKING_CATEGORY_SHOW, VIEW_CONTEXT } from '../constants';
 
 export default {
+  name: 'WorkItemMilestone',
   i18n: {
     milestone: s__('WorkItem|Milestone'),
     none: s__('WorkItem|None'),

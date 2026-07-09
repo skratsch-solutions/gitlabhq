@@ -11,6 +11,7 @@ import namespaceProjectsForLinksWidgetQuery from '../../graphql/namespace_projec
 import { SEARCH_DEBOUNCE, MAX_FREQUENT_PROJECTS } from '../../constants';
 
 export default {
+  name: 'WorkItemProjectsListbox',
   components: {
     GlCollapsibleListbox,
     ProjectAvatar,

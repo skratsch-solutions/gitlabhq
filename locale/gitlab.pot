@@ -8004,9 +8004,6 @@ msgstr ""
 msgid "AgentPlan|Create manually"
 msgstr ""
 
-msgid "AgentPlan|Create workplan"
-msgstr ""
-
 msgid "AgentPlan|Delete workplan"
 msgstr ""
 
@@ -78494,6 +78491,15 @@ msgid "This block is self-referential"
 msgstr ""
 
 msgid "This branch has diverged from upstream."
+msgstr ""
+
+msgid "This change is blocked by a security policy that prevents branch modification. Modifying the protected branch is not allowed while the policy applies."
+msgstr ""
+
+msgid "This change is blocked by a security policy that prevents pushing and force pushing. Only changes to push access levels or the force push setting are blocked; other branch rule settings can still be updated."
+msgstr ""
+
+msgid "This change is blocked by a security policy."
 msgstr ""
 
 msgid "This change will remove %{strongOpen}ALL%{strongClose} Premium and Ultimate features for %{strongOpen}ALL%{strongClose} SaaS customers and make tests start failing."

@@ -19,6 +19,7 @@ import WorkItemProjectsListbox from './work_item_projects_listbox.vue';
 import WorkItemGroupsListbox from './work_item_groups_listbox.vue';
 
 export default {
+  name: 'WorkItemLinksForm',
   components: {
     GlForm,
     GlButton,

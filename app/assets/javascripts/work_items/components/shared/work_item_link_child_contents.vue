@@ -34,6 +34,7 @@ import {
 import WorkItemRelationshipIcons from './work_item_relationship_icons.vue';
 
 export default {
+  name: 'WorkItemLinkChildContents',
   i18n: {
     confidential: __('Confidential'),
     created: __('Created'),

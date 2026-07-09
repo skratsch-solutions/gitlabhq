@@ -45,13 +45,16 @@ in the Agent Platform.
 | GPT-5                       | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | GPT-5.1                     | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | GPT-5.2                     | {{< yes >}}             | {{< yes >}}                                | {{< yes >}}      |
-| GPT-5.5 <sup>1</sup>        | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | GPT-5 Codex                 | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | GPT-5.2 Codex               | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | GPT-5.3 Codex               | {{< yes >}}             | {{< yes >}}                                | {{< yes >}}      |
 | GPT-5 Mini                  | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | GPT-5.4 Mini                | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 | GPT-5.4 Nano                | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
+| GPT-5.5 <sup>1</sup>        | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
+| GPT-5.6 Sol <sup>1</sup>    | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
+| GPT-5.6 Terra <sup>1</sup>  | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
+| GPT-5.6 Luna <sup>1</sup>   | {{< yes >}}             | {{< no >}}                                 | {{< yes >}}      |
 
 **Footnotes**:
 

@@ -1620,6 +1620,12 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
     end
   end
 
+  describe '#show_built_in_project_templates_tab?' do
+    it 'returns true' do
+      expect(helper.show_built_in_project_templates_tab?).to be(true)
+    end
+  end
+
   describe '#http_clone_url_to_repo' do
     before do
       allow(project).to receive(:http_url_to_repo).and_return('http_url_to_repo')

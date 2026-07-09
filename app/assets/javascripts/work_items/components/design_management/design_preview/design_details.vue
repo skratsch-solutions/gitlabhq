@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlAlert } from '@gitlab/ui';
 import { MountingPortal } from 'portal-vue';
@@ -48,6 +47,7 @@ const DEFAULT_SCALE = 1;
 const DEFAULT_MAX_SCALE = 2;
 
 export default {
+  name: 'DesignDetails',
   components: {
     DesignPresentation,
     DesignSidebar,

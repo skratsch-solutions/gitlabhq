@@ -21,6 +21,7 @@ import confidentialMergeRequestState from '~/confidential_merge_request/state';
 import ProjectFormGroup from '~/confidential_merge_request/components/project_form_group.vue';
 
 export default {
+  name: 'WorkItemCreateBranchMergeRequestModal',
   components: {
     GlForm,
     GlFormInputGroup,

@@ -32,10 +32,15 @@ module API
       end
       route_setting :authorization, permissions: :read_personal_access_token, boundary_type: :user
       get do
-        tokens = PersonalAccessTokensFinder.new(finder_params(current_user), current_user).execute.preload_users
+        tokens = PersonalAccessTokensFinder.new(finder_params(current_user), current_user)
+          .execute.preload_users.preload_granular_scopes
         tokens = tokens.preload_last_used_ips if Feature.enabled?(:expose_last_used_ips_for_access_tokens, current_user)
 
-        present paginate(tokens), with: Entities::PersonalAccessTokenWithLastUsedIps
+        paginated_tokens = paginate(tokens)
+
+        present paginated_tokens, with: Entities::PersonalAccessTokenWithLastUsedIps,
+          with_granular_scopes: true,
+          project_ids_by_namespace_id: project_ids_by_namespace_id_for(paginated_tokens)
       end
 
       desc 'Retrieve a personal access token' do
@@ -50,12 +55,14 @@ module API
       end
       route_setting :authorization, permissions: :read_personal_access_token, boundary_type: :user
       get ':id' do
-        token = PersonalAccessToken.find_by_id(params[:id])
+        token = PersonalAccessToken.preload_granular_scopes.find_by_id(params[:id])
 
         allowed = Ability.allowed?(current_user, :read_personal_access_token, token&.user)
 
         if allowed
-          present token, with: Entities::PersonalAccessTokenWithLastUsedIps
+          present token, with: Entities::PersonalAccessTokenWithLastUsedIps,
+            with_granular_scopes: true,
+            project_ids_by_namespace_id: project_ids_by_namespace_id_for([token])
         else
           # Only admins should be informed if the token doesn't exist
           current_user.can_admin_all_resources? ? not_found! : unauthorized!
@@ -82,7 +89,13 @@ module API
         if Ability.allowed?(current_user, :rotate_personal_access_token, token&.user)
           new_token = rotate_token(token, declared_params)
 
-          present new_token, with: Entities::PersonalAccessTokenWithToken
+          ActiveRecord::Associations::Preloader.new(
+            records: [new_token], associations: { granular_scopes: :namespace }
+          ).call
+
+          present new_token, with: Entities::PersonalAccessTokenWithToken,
+            with_granular_scopes: true,
+            project_ids_by_namespace_id: project_ids_by_namespace_id_for([new_token])
         else
           # Only admins should be informed if the token doesn't exist
           current_user.can_admin_all_resources? ? not_found! : unauthorized!

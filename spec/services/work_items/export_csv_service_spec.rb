@@ -110,20 +110,34 @@ RSpec.describe WorkItems::ExportCsvService, :with_license, feature_category: :te
     expect(csv[1]['Time Spent']).to be_nil
   end
 
+  context 'with time spent logged' do
+    before do
+      create(:timelog, issue: task, time_spent: 3600)
+      create(:timelog, issue: task, time_spent: 1800)
+    end
+
+    def task_row
+      csv.find { |row| row['ID'] == task.id.to_s }
+    end
+
+    it 'sums the logged time' do
+      expect(task_row['Time Spent']).to eq('1h 30m')
+    end
+  end
+
   it 'preloads fields to avoid N+1 queries', :request_store do
     control = ActiveRecord::QueryRecorder.new { subject.csv_data }
 
-    create(:work_item, :task, project: project)
+    tasks = create_list(:work_item, 3, :task, project: project)
+    tasks.each { |task| create(:timelog, issue: task, time_spent: 3600) }
 
-    expect { subject.csv_data }.not_to exceed_query_limit(control).with_threshold(1)
+    expect { subject.csv_data }.not_to exceed_query_limit(control)
   end
 
-  describe 'association preloading strategy' do
+  describe 'collection iteration strategy' do
     context 'when export_csv_preload_in_batches is enabled' do
-      it 'lets CsvBuilder preload associations in batches' do
-        expect_next_instance_of(
-          CsvBuilder, kind_of(ActiveRecord::Relation), anything, subject.send(:associations_to_preload)
-        ) do |csv_builder|
+      it 'iterates the collection with keyset pagination' do
+        expect_next_instance_of(CsvBuilder, kind_of(ExportCsv::KeysetCollection), anything) do |csv_builder|
           expect(csv_builder).to receive(:render).and_call_original
         end
 
@@ -142,6 +156,17 @@ RSpec.describe WorkItems::ExportCsvService, :with_license, feature_category: :te
         end
 
         subject.csv_data
+      end
+
+      it 'preloads timelogs to avoid a Time Spent N+1', :request_store do
+        create(:timelog, issue: create(:work_item, :task, project: project), time_spent: 3600)
+        control = ActiveRecord::QueryRecorder.new { described_class.new(WorkItem.all, project).csv_data }
+
+        create_list(:work_item, 3, :task, project: project).each do |task|
+          create(:timelog, issue: task, time_spent: 3600)
+        end
+
+        expect { described_class.new(WorkItem.all, project).csv_data }.not_to exceed_query_limit(control)
       end
     end
   end

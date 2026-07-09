@@ -16,6 +16,7 @@ title: AI audit event report
 {{< history >}}
 
 - [Introduced](https://gitlab.com/groups/gitlab-org/-/work_items/20237) in GitLab 19.1 as a [beta](../../policy/development_stages_support.md) with a [feature flag](../../administration/feature_flags/_index.md) named `agent_artifacts_page`. Disabled by default.
+- Enabled by default in GitLab 19.2.
 
 {{< /history >}}
 

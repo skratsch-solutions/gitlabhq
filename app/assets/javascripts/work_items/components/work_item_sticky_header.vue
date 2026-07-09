@@ -16,6 +16,7 @@ import WorkItemStateBadge from './work_item_state_badge.vue';
 import WorkItemNotificationsWidget from './work_item_notifications_widget.vue';
 
 export default {
+  name: 'WorkItemStickyHeader',
   components: {
     HiddenBadge,
     ImportedBadge,

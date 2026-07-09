@@ -49,7 +49,7 @@ describe('Single Stat Visualization', () => {
         decimalPlaces: 2,
         metaText: 'meta text',
         metaIcon: 'project',
-        titleIcon: 'users',
+        metricIcon: 'users',
         unit: 'days',
         variant: 'success',
       };

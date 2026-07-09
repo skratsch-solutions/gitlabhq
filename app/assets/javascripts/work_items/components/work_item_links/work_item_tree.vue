@@ -40,6 +40,7 @@ import WorkItemRolledUpData from './work_item_rolled_up_data.vue';
 import WorkItemRolledUpCount from './work_item_rolled_up_count.vue';
 
 export default {
+  name: 'WorkItemTree',
   components: {
     GlAlert,
     WorkItemActionsSplitButton,

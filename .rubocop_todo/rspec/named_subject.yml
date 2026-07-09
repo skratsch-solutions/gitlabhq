@@ -65,7 +65,6 @@ RSpec/NamedSubject:
     - 'ee/spec/graphql/ee/resolvers/user_discussions_count_resolver_spec.rb'
     - 'ee/spec/graphql/ee/resolvers/user_notes_count_resolver_spec.rb'
     - 'ee/spec/graphql/ee/types/ci/pipeline_type_spec.rb'
-    - 'ee/spec/graphql/ee/types/group_type_spec.rb'
     - 'ee/spec/graphql/mutations/ai/action_spec.rb'
     - 'ee/spec/graphql/mutations/audit_events/streaming/event_type_filters/create_spec.rb'
     - 'ee/spec/graphql/mutations/audit_events/streaming/event_type_filters/destroy_spec.rb'

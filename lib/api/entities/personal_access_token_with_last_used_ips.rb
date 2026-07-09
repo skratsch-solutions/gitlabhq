@@ -15,6 +15,10 @@ module API
         } do |personal_access_token|
         personal_access_token.last_used_ips.map(&:ip_address)
       end
+
+      expose :granular_scopes, using: ::API::Entities::PersonalAccessTokenGranularScope,
+        if: ->(token, options) { token.granular? && options[:with_granular_scopes] },
+        documentation: { is_array: true }
     end
   end
 end

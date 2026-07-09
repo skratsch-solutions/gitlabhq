@@ -21,6 +21,7 @@ const ROLLUP_TYPE_FIXED = 'fixed';
 const ROLLUP_TYPE_INHERITED = 'inherited';
 
 export default {
+  name: 'WorkItemDates',
   dueDateInputId: 'due-date-input',
   startDateInputId: 'start-date-input',
   components: {

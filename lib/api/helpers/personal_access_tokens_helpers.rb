@@ -74,6 +74,16 @@ module API
         PersonalAccessToken.find(id) || not_found!
       end
 
+      def project_ids_by_namespace_id_for(tokens)
+        namespaces = Array(tokens).flat_map(&:granular_scopes).filter_map(&:namespace)
+        project_namespace_ids = namespaces.select { |namespace| namespace.is_a?(::Namespaces::ProjectNamespace) }
+          .map(&:id)
+
+        return {} if project_namespace_ids.empty?
+
+        ::Project.ids_by_project_namespace_id(project_namespace_ids)
+      end
+
       def revoke_token(token, group: nil, project: nil)
         service = ::PersonalAccessTokens::RevokeService.new(current_user, token: token, group: group,
           project: project).execute

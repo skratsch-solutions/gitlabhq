@@ -134,13 +134,20 @@ module BranchRules
       return access_denied unless skip_authorization || authorized?
 
       execute_on_branch_rule_type
-    rescue Gitlab::Access::AccessDeniedError
-      access_denied
+    rescue Gitlab::Access::AccessDeniedError => error
+      handle_access_denied_error(error)
     rescue ActiveRecord::RecordNotFound
       not_found_error
     end
 
     private
+
+    # Hook for EE to translate specific access-denied errors (e.g. security
+    # policy violations) into a more descriptive response. EE extensions can
+    # override this method to surface user-facing messages for policy violations.
+    def handle_access_denied_error(_error)
+      access_denied
+    end
 
     delegate :project, to: :branch_rule, allow_nil: true, private: true
 

@@ -12,6 +12,7 @@ import namespaceGroupsForLinksWidgetQuery from '../../graphql/namespace_groups_f
 import { SEARCH_DEBOUNCE, MAX_FREQUENT_ITEMS } from '../../constants';
 
 export default {
+  name: 'WorkItemNamespaceListbox',
   components: {
     GlCollapsibleListbox,
     ProjectAvatar,

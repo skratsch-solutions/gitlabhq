@@ -48,6 +48,7 @@ const paramName = 'description_template';
 const oldParamNameFromPreWorkItems = 'issuable_template';
 
 export default {
+  name: 'WorkItemDescription',
   components: {
     EditedAt,
     GlAlert,

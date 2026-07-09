@@ -1263,6 +1263,10 @@ class Project < ApplicationRecord
       non_archived.fuzzy_search(query, [:name])
     end
 
+    def ids_by_project_namespace_id(project_namespace_ids)
+      by_project_namespace(project_namespace_ids).pluck(:project_namespace_id, :id).to_h
+    end
+
     def visibility_levels
       Gitlab::VisibilityLevel.options
     end

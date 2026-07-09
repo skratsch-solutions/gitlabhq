@@ -6,7 +6,7 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 
 import WorkItemDates from 'ee_else_ce/work_items/components/work_item_dates.vue';
 
-import { WIDGET_TYPE_PARTICIPANTS, WORK_ITEM_TYPE_NAME_EPIC, STATE_CLOSED } from '../constants';
+import { WORK_ITEM_TYPE_NAME_EPIC, STATE_CLOSED } from '../constants';
 import {
   findAssigneesWidget,
   findColorWidget,
@@ -18,6 +18,7 @@ import {
   findIterationWidget,
   findLabelsWidget,
   findMilestoneWidget,
+  findParticipantsWidget,
   findProgressWidget,
   findStartAndDueDateWidget,
   findStatusWidget,
@@ -34,6 +35,7 @@ import WorkItemTimeTracking from './work_item_time_tracking.vue';
 import WorkItemCrmContacts from './work_item_crm_contacts.vue';
 
 export default {
+  name: 'WorkItemAttributesWrapper',
   ListType,
   components: {
     Participants,
@@ -93,6 +95,7 @@ export default {
         return {
           fullPath: this.fullPath,
           iid: this.workItem.iid,
+          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
         };
       },
       skip() {
@@ -101,12 +104,7 @@ export default {
       update({ namespace }) {
         if (!namespace?.workItem) return {};
 
-        const workItemParticipantData = this.isWidgetPresent(
-          WIDGET_TYPE_PARTICIPANTS,
-          namespace.workItem,
-        );
-
-        return workItemParticipantData?.participants || {};
+        return findParticipantsWidget(namespace.workItem)?.participants || {};
       },
       error(e) {
         Sentry.captureException(e);
@@ -206,11 +204,6 @@ export default {
     },
     customFields() {
       return findCustomFieldsWidget(this.workItem)?.customFieldValues;
-    },
-  },
-  methods: {
-    isWidgetPresent(type, workItem = this.workItem) {
-      return workItem?.widgets?.find((widget) => widget.type === type);
     },
   },
 };

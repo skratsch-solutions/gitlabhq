@@ -366,7 +366,12 @@ module Ci
       after_transition any => ::Ci::Pipeline.completed_with_manual_statuses do |pipeline|
         pipeline.run_after_commit do
           Gitlab::EventStore.publish(
-            ::Ci::PipelineFinishedEvent.new(data: { pipeline_id: pipeline.id, status: pipeline.status })
+            ::Ci::PipelineFinishedEvent.new(data: {
+              pipeline_id: pipeline.id,
+              status: pipeline.status,
+              source: pipeline.source,
+              partition_id: pipeline.partition_id
+            })
           )
         end
       end
@@ -574,6 +579,12 @@ module Ci
 
     def self.find_by_id(id)
       Gitlab::Ci::Pipeline::ByIdLookup.new(self, id).execute
+    end
+
+    def self.find_by_id_and_partition(id, partition_id)
+      return find_by_id(id) unless partition_id
+
+      in_partition(partition_id).find_by_id(id)
     end
 
     # Returns the pipelines in descending order (= newest first), optionally

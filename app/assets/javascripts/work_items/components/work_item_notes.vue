@@ -50,6 +50,7 @@ import workItemNotesByIidQuery from '../graphql/notes/work_item_notes_by_iid.que
 import WorkItemAddNote from './notes/work_item_add_note.vue';
 
 export default {
+  name: 'WorkItemNotes',
   components: {
     GlModal,
     SystemNote,

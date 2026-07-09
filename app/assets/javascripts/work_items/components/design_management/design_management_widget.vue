@@ -33,6 +33,7 @@ import DesignVersionDropdown from './design_version_dropdown.vue';
 import ArchiveDesignButton from './archive_design_button.vue';
 
 export default {
+  name: 'DesignManagementWidget',
   isLoggedIn: isLoggedIn(),
   components: {
     GlAlert,

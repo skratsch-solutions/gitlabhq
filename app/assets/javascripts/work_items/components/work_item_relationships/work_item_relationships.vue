@@ -32,6 +32,7 @@ import WorkItemRelationshipList from './work_item_relationship_list.vue';
 import WorkItemAddRelationshipForm from './work_item_add_relationship_form.vue';
 
 export default {
+  name: 'WorkItemRelationships',
   linkedCategories: LINKED_CATEGORIES_MAP,
   WORKITEM_RELATIONSHIPS_METADATA_LOCALSTORAGEKEY,
   components: {

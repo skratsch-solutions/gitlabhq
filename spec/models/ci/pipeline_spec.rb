@@ -795,6 +795,26 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
   end
 
+  describe '.find_by_id_and_partition' do
+    let_it_be(:pipeline) { create(:ci_pipeline, partition_id: 100) }
+
+    context 'when partition_id is present' do
+      it 'scopes the lookup to the given partition' do
+        expect(described_class.find_by_id_and_partition(pipeline.id, 100)).to eq(pipeline)
+      end
+
+      it 'returns nil when the pipeline exists in a different partition' do
+        expect(described_class.find_by_id_and_partition(pipeline.id, 101)).to be_nil
+      end
+    end
+
+    context 'when partition_id is nil' do
+      it 'falls back to find_by_id' do
+        expect(described_class.find_by_id_and_partition(pipeline.id, nil)).to eq(pipeline)
+      end
+    end
+  end
+
   describe '.for_iid' do
     subject { described_class.for_iid(iid) }
 
@@ -8420,7 +8440,12 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       it 'publishes a PipelineFinishedEvent' do
         expect(::Gitlab::EventStore).to receive(:publish) do |event|
           expect(event).to be_an_instance_of(::Ci::PipelineFinishedEvent)
-          expect(event.data).to eq({ 'pipeline_id' => pipeline.id, 'status' => pipeline.status })
+          expect(event.data).to eq({
+            'pipeline_id' => pipeline.id,
+            'status' => pipeline.status,
+            'source' => pipeline.source,
+            'partition_id' => pipeline.partition_id
+          })
         end
 
         pipeline.public_send(transition)

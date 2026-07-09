@@ -12,6 +12,7 @@ import { i18n, TRACKING_CATEGORY_SHOW, VIEW_CONTEXT } from '../constants';
 import { findCrmContactsWidget, newWorkItemFullPath, newWorkItemId } from '../utils';
 
 export default {
+  name: 'WorkItemCrmContacts',
   directives: {
     GlTooltip: GlTooltipDirective,
   },

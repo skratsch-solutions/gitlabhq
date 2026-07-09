@@ -23,6 +23,7 @@ import {
 } from '../utils';
 
 export default {
+  name: 'WorkItemLabels',
   ISSUABLE_CHANGE_LABEL,
   components: {
     DropdownContentsCreateView,

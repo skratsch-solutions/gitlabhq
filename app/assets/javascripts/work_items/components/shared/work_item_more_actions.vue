@@ -16,6 +16,7 @@ import {
 } from '~/work_items/utils';
 
 export default {
+  name: 'WorkItemMoreActions',
   i18n: {
     displayOptions: s__('WorkItem|Display options'),
     fields: s__('WorkItems|Fields'),

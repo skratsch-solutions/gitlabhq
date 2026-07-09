@@ -43,6 +43,7 @@ import CreateWorkItemModal from './create_work_item_modal.vue';
 import MoveWorkItemModal from './move_work_item_modal.vue';
 
 export default {
+  name: 'WorkItemActions',
   CREATION_CONTEXT_RELATED_ITEM,
   i18n: {
     enableConfidentiality: s__('WorkItem|Turn on confidentiality'),

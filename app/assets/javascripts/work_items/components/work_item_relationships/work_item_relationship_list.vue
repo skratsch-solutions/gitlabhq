@@ -14,6 +14,7 @@ import addLinkedItemsMutation from '../../graphql/add_linked_items.mutation.grap
 import { RELATIONSHIP_TYPE_ENUM } from '../../constants';
 
 export default {
+  name: 'WorkItemRelationshipList',
   RELATIONSHIP_TYPE_ENUM,
   components: {
     WorkItemLinkChildContents,

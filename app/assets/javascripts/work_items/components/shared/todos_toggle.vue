@@ -10,6 +10,7 @@ import updateWorkItemCurrentUserTodosMutation from '../../graphql/update_work_it
 import { TODO_ADD_ICON, TODO_DONE_ICON, TODO_PENDING_STATE } from '../../constants';
 
 export default {
+  name: 'TodosToggle',
   i18n: {
     addATodo: s__('WorkItem|Add a to-do item'),
     markAsDone: s__('WorkItem|Mark to-do items done'),

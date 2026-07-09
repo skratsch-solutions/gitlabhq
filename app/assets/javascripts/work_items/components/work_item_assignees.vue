@@ -19,6 +19,7 @@ import updateWorkItemMutation from '../graphql/update_work_item.mutation.graphql
 import { i18n, TRACKING_CATEGORY_SHOW, VIEW_CONTEXT } from '../constants';
 
 export default {
+  name: 'WorkItemAssignees',
   components: {
     WorkItemSidebarDropdownWidget,
     InviteMembersTrigger,

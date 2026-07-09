@@ -438,14 +438,27 @@ export default {
               id: this.branchRule.id,
               name,
               branchProtection: {
-                allowForcePush: this.allowForcePush,
+                // Under a push security policy the model forces allow_force_push
+                // to a synthetic false; echoing it back would persist that value
+                // over the branch's real stored setting. It is not editable while
+                // the policy applies, so omit it (mirrors pushAccessLevels below).
+                ...(!this.protectedFromPushBySecurityPolicy && {
+                  allowForcePush: this.allowForcePush,
+                }),
                 ...(this.branchProtection.codeOwnerApprovalRequired !== undefined && {
                   codeOwnerApprovalRequired: this.branchProtection.codeOwnerApprovalRequired,
                 }),
                 ...(includeAccessLevels && {
-                  pushAccessLevels: this.getAccessLevelInputFromEdges(
-                    this.branchProtection.pushAccessLevels?.edges || [],
-                  ),
+                  // When pushing is controlled by a security policy, the query
+                  // returns a synthetic "no one" push access level. Echoing it
+                  // back would be read as a real push-access change and blocked
+                  // by the policy, so omit push access levels here (they are not
+                  // editable while the policy applies).
+                  ...(!this.protectedFromPushBySecurityPolicy && {
+                    pushAccessLevels: this.getAccessLevelInputFromEdges(
+                      this.branchProtection.pushAccessLevels?.edges || [],
+                    ),
+                  }),
                   mergeAccessLevels: this.getAccessLevelInputFromEdges(
                     this.branchProtection.mergeAccessLevels?.edges || [],
                   ),

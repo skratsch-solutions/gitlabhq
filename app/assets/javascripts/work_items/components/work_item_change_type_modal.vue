@@ -19,6 +19,7 @@ import convertWorkItemMutation from '../graphql/work_item_convert.mutation.graph
 import getWorkItemDesignListQuery from './design_management/graphql/design_collection.query.graphql';
 
 export default {
+  name: 'WorkItemChangeTypeModal',
   components: {
     GlModal,
     GlFormGroup,

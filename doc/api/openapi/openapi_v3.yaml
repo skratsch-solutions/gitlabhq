@@ -75671,6 +75671,24 @@ components:
           type: string
         approval_status:
           type: string
+    APIEntitiesPersonalAccessTokenGranularScope:
+      type: object
+      properties:
+        access:
+          type: string
+          example: personal_projects
+        permissions:
+          type: array
+          example:
+          - read_job
+        project_id:
+          type: integer
+          format: int64
+          example: 3
+        group_id:
+          type: integer
+          format: int64
+          example: 5
     APIEntitiesPersonalAccessTokenWithToken:
       type: object
       properties:
@@ -75711,6 +75729,10 @@ components:
           example: '2020-08-31T15:53:00.073Z'
         token:
           type: string
+        granular_scopes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesPersonalAccessTokenGranularScope"
     APIEntitiesSshKeyWithUserId:
       type: object
       properties:
@@ -81336,6 +81358,10 @@ components:
           - 127.0.0.3
           items:
             type: string
+        granular_scopes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesPersonalAccessTokenGranularScope"
         impersonation:
           type: string
     APIEntitiesImpersonationTokenWithToken:
@@ -81387,6 +81413,10 @@ components:
           - 127.0.0.3
           items:
             type: string
+        granular_scopes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesPersonalAccessTokenGranularScope"
         impersonation:
           type: string
         token:
@@ -84114,6 +84144,10 @@ components:
           - 127.0.0.3
           items:
             type: string
+        granular_scopes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesPersonalAccessTokenGranularScope"
         access_level:
           type: integer
           example: 40
@@ -84174,6 +84208,10 @@ components:
           - 127.0.0.3
           items:
             type: string
+        granular_scopes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesPersonalAccessTokenGranularScope"
         access_level:
           type: integer
           example: 40
@@ -86342,6 +86380,10 @@ components:
           - 127.0.0.3
           items:
             type: string
+        granular_scopes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesPersonalAccessTokenGranularScope"
     APIEntitiesPagesDomainCertificateExpiration:
       type: object
       properties:

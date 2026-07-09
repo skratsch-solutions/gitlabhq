@@ -10,6 +10,7 @@ import { findLinkedItemsWidget } from '../../utils';
 import { LINKED_ITEM_TYPE_VALUE, MAX_WORK_ITEMS } from '../../constants';
 
 export default {
+  name: 'WorkItemAddRelationshipForm',
   components: {
     GlForm,
     GlButton,
