@@ -105,8 +105,6 @@ app/models/clusters/concerns/application_status.rb:
   - updateable?
 app/models/clusters/concerns/application_version.rb:
   - update_available?
-app/models/commit.rb:
-  - touch_later
 app/models/concerns/ci/metadatable.rb:
   - degenerate!
 app/models/concerns/counter_attribute.rb:

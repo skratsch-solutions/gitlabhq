@@ -9,6 +9,7 @@ import {
   GlLoadingIcon,
 } from '@gitlab/ui';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
+import { s__, sprintf } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
 import { HTTP_STATUS_TOO_MANY_REQUESTS } from '~/lib/utils/http_status';
@@ -25,6 +26,7 @@ import {
 import { ALL_CATEGORY, ALL_CATEGORY_ID, FEEDBACK_ISSUE_URL, MODAL_ID } from './constants';
 import FeatureLibraryItem from './feature_library_item.vue';
 
+const SETTINGS_MENU_ID = 'settings_menu';
 const trackingMixin = InternalEvents.mixin();
 const MIN_SEARCH_QUERY_LENGTH = 2;
 
@@ -85,9 +87,16 @@ export default {
       return this.sections
         .map((section) => ({
           ...section,
-          items: (section.items || []).filter((item) => item.description),
+          items: section.items || [],
         }))
-        .filter((section) => section.items.length > 0);
+        .filter((section) => {
+          // The settings menu currently remains in the super sidebar and should not appear within
+          // the modal, nor have its items pinnable.
+          if (section.id === SETTINGS_MENU_ID) {
+            return false;
+          }
+          return section.items.length > 0;
+        });
     },
     catalog() {
       return this.catalogSections.flatMap((section) =>
@@ -107,6 +116,7 @@ export default {
     },
     filteredItems() {
       const q = this.trimmedQuery.toLowerCase();
+
       const inCategory = (item) =>
         this.activeCategoryId === ALL_CATEGORY_ID || item.category === this.activeCategoryId;
 
@@ -137,6 +147,21 @@ export default {
         this.filteredItems.length === 0
       );
     },
+    emptyStateTitle() {
+      if (this.activeCategoryId !== ALL_CATEGORY_ID) {
+        const activeCategory = this.libraryCategories.find(
+          (category) => category.id === this.activeCategoryId,
+        );
+
+        if (activeCategory) {
+          return sprintf(s__('FeatureLibrary|No matches in %{category}'), {
+            category: activeCategory.label,
+          });
+        }
+      }
+
+      return s__('FeatureLibrary|No features match your search');
+    },
   },
   methods: {
     isPinned(itemId) {
@@ -159,6 +184,7 @@ export default {
     onSearchInput(value) {
       this.searchQuery = value;
       const query = value.trim();
+      this.activeCategoryId = ALL_CATEGORY_ID;
 
       if (query) {
         this.fetchResults(query);
@@ -268,7 +294,7 @@ export default {
       <gl-loading-icon v-if="isSearching" size="sm" class="gl-mt-3" data-testid="search-loading" />
       <gl-empty-state
         v-if="showEmptyState"
-        :title="s__('FeatureLibrary|No features match your search')"
+        :title="emptyStateTitle"
         :description="s__('FeatureLibrary|Try a different search term or category.')"
       />
     </div>

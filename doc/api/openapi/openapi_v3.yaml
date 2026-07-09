@@ -3694,8 +3694,8 @@ paths:
       - name: package_manager
         required: false
         description: 'Returns dependencies belonging to specified package managers:
-          bundler, yarn, npm, pnpm, maven, composer, pip, conan, go, nuget, sbt, gradle,
-          pipenv, poetry, setuptools, apk, conda, pub, cargo.'
+          bundler, yarn, npm, pnpm, bun, maven, composer, pip, conan, go, nuget, sbt,
+          gradle, pipenv, poetry, setuptools, apk, conda, pub, cargo.'
         schema:
           type: array
           items:

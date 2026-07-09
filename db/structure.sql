@@ -31725,6 +31725,8 @@ CREATE TABLE service_desk_settings (
     tickets_confidential_by_default boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
+    project_key_address_slug text,
+    CONSTRAINT check_1adbb34c72 CHECK ((char_length(project_key_address_slug) <= 500)),
     CONSTRAINT check_57a79552e1 CHECK ((char_length(custom_email) <= 255))
 );
 

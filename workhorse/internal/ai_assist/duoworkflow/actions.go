@@ -46,10 +46,30 @@ type runHTTPActionHandler struct {
 	token                     string
 	originalReq               *http.Request
 	shouldTimeoutHTTPRequests bool
+	// relativeURLRoot is GitLab's URL prefix (e.g. "/gitlab/"), empty at the
+	// domain root. DWS sends unprefixed action paths, so it must be prepended
+	// before re-entering the upstream router.
+	relativeURLRoot string
 	// workflowID is set by the runner after StartWorkflowRequest is received
 	// and is forwarded as the X-Gitlab-Duo-Workflow-Id header so the GitLab
 	// API can correlate tool-originated traffic with the originating workflow.
 	workflowID string
+}
+
+// applyRelativeURLRoot prepends the relative URL root to a DWS action path so
+// it matches the upstream router's URL prefix. It is a no-op when the root is
+// empty or the path already carries it.
+func (a *runHTTPActionHandler) applyRelativeURLRoot(path string) string {
+	root := strings.TrimSuffix(a.relativeURLRoot, "/")
+	if root == "" {
+		return path
+	}
+
+	if path == root || strings.HasPrefix(path, root+"/") {
+		return path
+	}
+
+	return root + path
 }
 
 type nullResponseWriter struct {
@@ -228,7 +248,7 @@ func (a *runHTTPActionHandler) buildRequest(ctx context.Context, action *pb.Acti
 		bodyBuffer.WriteString(*actionRequest.Body)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, actionRequest.Method, actionRequest.Path, &bodyBuffer)
+	req, err := http.NewRequestWithContext(ctx, actionRequest.Method, a.applyRelativeURLRoot(actionRequest.Path), &bodyBuffer)
 	if err != nil {
 		return nil, err
 	}

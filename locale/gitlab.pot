@@ -2663,6 +2663,9 @@ msgstr ""
 msgid "AICatalog|Are you sure you want to hide %{itemType} %{name}?"
 msgstr ""
 
+msgid "AICatalog|At least one project is required."
+msgstr ""
+
 msgid "AICatalog|Atlassian, Google Cloud"
 msgstr ""
 
@@ -2903,6 +2906,9 @@ msgstr ""
 msgid "AICatalog|Enable experiment and beta features in admin settings to use this tool."
 msgstr ""
 
+msgid "AICatalog|Enabled in selected project(s)."
+msgstr ""
+
 msgid "AICatalog|Enabling custom agents is turned off. Contact an administrator to change this."
 msgstr ""
 
@@ -3107,6 +3113,9 @@ msgstr ""
 msgid "AICatalog|Leave blank to use dynamic client registration"
 msgstr ""
 
+msgid "AICatalog|Limit of 100 projects reached."
+msgstr ""
+
 msgid "AICatalog|Link to the homepage or documentation for this MCP server"
 msgstr ""
 
@@ -3198,6 +3207,9 @@ msgid "AICatalog|No MCP servers yet"
 msgstr ""
 
 msgid "AICatalog|No authentication"
+msgstr ""
+
+msgid "AICatalog|No projects match your search."
 msgstr ""
 
 msgid "AICatalog|No triggers configured."
@@ -3312,6 +3324,12 @@ msgid "AICatalog|Select an agent or flow from the AI Catalog"
 msgstr ""
 
 msgid "AICatalog|Select at least one trigger."
+msgstr ""
+
+msgid "AICatalog|Select one or more projects where the agent should be enabled."
+msgstr ""
+
+msgid "AICatalog|Select one or more projects where the flow should be enabled."
 msgstr ""
 
 msgid "AICatalog|Selected %{itemType}"
@@ -33335,6 +33353,9 @@ msgstr ""
 msgid "FeatureLibrary|No features match your search"
 msgstr ""
 
+msgid "FeatureLibrary|No matches in %{category}"
+msgstr ""
+
 msgid "FeatureLibrary|Pin"
 msgstr ""
 
@@ -45119,7 +45140,19 @@ msgstr ""
 msgid "Manage %{workspace} labels"
 msgstr ""
 
+msgid "Manage AI agents and flows"
+msgstr ""
+
+msgid "Manage AI flow triggers"
+msgstr ""
+
+msgid "Manage AI flows"
+msgstr ""
+
 msgid "Manage Harbor container registry"
+msgstr ""
+
+msgid "Manage Jira issues"
 msgstr ""
 
 msgid "Manage Kubernetes clusters and agents"
@@ -48517,6 +48550,9 @@ msgid "Monitor and observe AI agent behavior and activities across your group."
 msgstr ""
 
 msgid "Monitor and observe AI agent behavior and activities across your project."
+msgstr ""
+
+msgid "Monitor automation session history"
 msgstr ""
 
 msgid "Monitor individual build tasks and their results"
@@ -66498,6 +66534,9 @@ msgstr ""
 msgid "Search project"
 msgstr ""
 
+msgid "Search projects"
+msgstr ""
+
 msgid "Search protected branches"
 msgstr ""
 
@@ -69388,9 +69427,6 @@ msgstr ""
 msgid "SecurityOrchestration|GDPR"
 msgstr ""
 
-msgid "SecurityOrchestration|Give feedback"
-msgstr ""
-
 msgid "SecurityOrchestration|Global Settings"
 msgstr ""
 
@@ -69407,9 +69443,6 @@ msgid "SecurityOrchestration|HIPAA"
 msgstr ""
 
 msgid "SecurityOrchestration|Hard enforcement. Violations are blocked as defined."
-msgstr ""
-
-msgid "SecurityOrchestration|Help us improve scheduled pipeline execution policies by sharing your thoughts and suggestions."
 msgstr ""
 
 msgid "SecurityOrchestration|Hide extra items"
@@ -70436,9 +70469,6 @@ msgid "SecurityOrchestration|Severity is %{severity}"
 msgstr ""
 
 msgid "SecurityOrchestration|Severity is %{severity}."
-msgstr ""
-
-msgid "SecurityOrchestration|Share your feedback"
 msgstr ""
 
 msgid "SecurityOrchestration|Show all included projects"
@@ -73600,6 +73630,9 @@ msgid "Set a password on your account to pull or push via %{protocol}."
 msgstr ""
 
 msgid "Set as default"
+msgstr ""
+
+msgid "Set criteria to check your products against"
 msgstr ""
 
 msgid "Set due date"

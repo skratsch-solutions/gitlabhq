@@ -331,7 +331,7 @@ func configureRoutes(u *upstream) {
 	proxy := buildProxy(u.Backend, u.Version, u.RoundTripper, u.Config, dependencyProxyInjector, api, proxyOpts...)
 	cableProxy := proxypkg.NewProxy(u.CableBackend, u.Version, u.CableRoundTripper)
 
-	dwHandler := duoworkflow.NewHandler(api, u.rdb, u)
+	dwHandler := duoworkflow.NewHandler(api, u.rdb, u, string(u.URLPrefix))
 	if u.upgradedConnsManager != nil {
 		u.upgradedConnsManager.Register(dwHandler)
 	}

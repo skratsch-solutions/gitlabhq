@@ -21,7 +21,7 @@ the permission this narrowly, reconsider the design before introducing it.
 
 Permissions are referenced by [role definition YAML files](role_definitions.md) (for default roles),
 [custom ability YAML files](custom_roles.md) (for custom roles), and
-[assignable permission groups](granular_access/rest_api_implementation_guide.md#step-4-create-assignable-permissions)
+[assignable permission groups](granular_access/rest_api_implementation_guide.md#step-4-create-or-update-assignable-permissions)
 (for granular PAT scoping).
 
 ## Naming Permissions

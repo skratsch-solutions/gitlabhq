@@ -50,8 +50,12 @@ const sections = [
         description: 'Visualize work with boards',
         library_icon: 'list-numbered',
       },
-      // No description: should be excluded from the catalog.
-      { id: 'milestones', title: 'Milestones', library_icon: 'milestone' },
+      {
+        id: 'milestones',
+        title: 'Milestones',
+        description: 'Manage project milestones',
+        library_icon: 'milestone',
+      },
     ],
   },
   {
@@ -67,11 +71,27 @@ const sections = [
       },
     ],
   },
-  // Section with no enriched items: should not produce a tab.
   {
     id: 'manage_menu',
     title: 'Manage',
-    items: [{ id: 'members', title: 'Members', library_icon: 'users' }],
+    items: [
+      {
+        id: 'members',
+        title: 'Members',
+        description: 'Manage project members',
+        library_icon: 'users',
+      },
+    ],
+  },
+  {
+    id: 'settings_menu',
+    title: 'Settings',
+    items: [
+      {
+        id: 'general_settings',
+        title: 'General',
+      },
+    ],
   },
 ];
 
@@ -121,7 +141,11 @@ describe('FeatureLibraryModal', () => {
     beforeEach(() => createWrapper());
 
     it('renders an "All" tab plus one tab per section that has enriched items', () => {
-      expect(findTabLabels()).toEqual(['All', 'Plan', 'Code']);
+      expect(findTabLabels()).toEqual(['All', 'Plan', 'Code', 'Manage']);
+    });
+
+    it('excludes settings menus', () => {
+      expect(findTabLabels()).not.toContain('Settings');
     });
 
     it('wraps content in a flexible scroll area that fills available height and scrolls overflow', () => {
@@ -209,8 +233,15 @@ describe('FeatureLibraryModal', () => {
   describe('catalog', () => {
     beforeEach(() => createWrapper());
 
-    it('only lists items that carry feature-library metadata (a description)', () => {
-      expect(findItemIds().sort()).toEqual(['boards', 'project_issue_list', 'repository']);
+    it('lists nav items', () => {
+      const ids = findItems().wrappers.map((w) => w.props('item').id);
+      expect(ids.sort()).toEqual([
+        'boards',
+        'members',
+        'milestones',
+        'project_issue_list',
+        'repository',
+      ]);
     });
 
     it('maps library_icon onto the item icon', () => {
@@ -223,6 +254,7 @@ describe('FeatureLibraryModal', () => {
       expect(items.filter((i) => i.category === 'plan_menu').map((i) => i.id)).toEqual([
         'project_issue_list',
         'boards',
+        'milestones',
       ]);
       expect(items.filter((i) => i.category === 'code_menu').map((i) => i.id)).toEqual([
         'repository',
@@ -441,6 +473,24 @@ describe('FeatureLibraryModal', () => {
       });
     });
 
+    describe('active tab', () => {
+      beforeEach(() => createWrapper());
+
+      it('sets the active tab to "All" when a search is entered', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+
+        await findAllTabs().at(1).vm.$emit('click');
+        await nextTick();
+        expect(findAllTabs().at(1).attributes('active')).toBe('true');
+
+        await emitSearch('repo');
+        await nextTick();
+
+        expect(findAllTabs().at(0).attributes('active')).toBe('true');
+        expect(findAllTabs().at(1).attributes('active')).toBeUndefined();
+      });
+    });
+
     describe('empty state', () => {
       beforeEach(() => createWrapper());
 
@@ -464,6 +514,26 @@ describe('FeatureLibraryModal', () => {
         await emitSearch('r');
         expect(findEmptyState().exists()).toBe(false);
       });
+
+      it('uses the generic title when the "All" tab is active', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        await emitSearch('zzznomatch');
+        await waitForPromises();
+
+        expect(findEmptyState().props('title')).toBe('No features match your search');
+      });
+
+      it('uses a category-specific title when a category tab is active', async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        await emitSearch('items');
+        await waitForPromises();
+
+        // "items" matches "Work items" (Plan); the Code tab has no matches.
+        await findAllTabs().at(2).vm.$emit('click');
+        await nextTick();
+
+        expect(findEmptyState().props('title')).toBe('No matches in Code');
+      });
     });
 
     describe('clearing search', () => {
@@ -486,7 +556,13 @@ describe('FeatureLibraryModal', () => {
         await emitSearch('');
         await waitForPromises();
 
-        expect(findItemIds().sort()).toEqual(['boards', 'project_issue_list', 'repository']);
+        expect(findItemIds().sort()).toEqual([
+          'boards',
+          'members',
+          'milestones',
+          'project_issue_list',
+          'repository',
+        ]);
       });
     });
 
@@ -505,7 +581,13 @@ describe('FeatureLibraryModal', () => {
 
         expect(findSearch().props('value')).toBe('');
         expect(findLoadingIcon().exists()).toBe(false);
-        expect(findItemIds().sort()).toEqual(['boards', 'project_issue_list', 'repository']);
+        expect(findItemIds().sort()).toEqual([
+          'boards',
+          'members',
+          'milestones',
+          'project_issue_list',
+          'repository',
+        ]);
       });
     });
   });
@@ -546,7 +628,6 @@ describe('FeatureLibraryModal', () => {
 
     it('tracks clicking a category tab, labelled with the category id', async () => {
       const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
-      // Tabs order: All (0), Plan (1), Code (2).
       await findAllTabs().at(1).vm.$emit('click');
       expect(trackEventSpy).toHaveBeenCalledWith(
         EVENT_CLICK_CATEGORY_TAB_IN_FEATURE_LIBRARY_MODAL,

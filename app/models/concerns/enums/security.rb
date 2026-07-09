@@ -92,6 +92,12 @@ module Enums # rubocop:disable Gitlab/BoundedContexts -- Existing module
       })
     end
 
+    def self.analyzer_types_for_status
+      extended_analyzer_types.merge({
+        dependency_scanning_post_processing: 14
+      })
+    end
+
     def self.analyzer_statuses
       ANALYZER_STATUSES
     end

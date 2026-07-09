@@ -20,7 +20,9 @@ RSpec.describe Sidebars::Projects::Menus::WorkItemsMenu, feature_category: :navi
         pill_count: menu.pill_count,
         pill_count_field: menu.pill_count_field,
         has_pill: true,
-        super_sidebar_parent: Sidebars::Projects::SuperSidebarMenus::PlanMenu
+        super_sidebar_parent: Sidebars::Projects::SuperSidebarMenus::PlanMenu,
+        description: 'Plan, track, and manage work in one place',
+        library_icon: 'work-items'
       }
     end
   end

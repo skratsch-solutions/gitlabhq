@@ -329,6 +329,158 @@ func TestRunHttpActionHandler_Execute(t *testing.T) {
 	})
 }
 
+func TestRunHttpActionHandler_applyRelativeURLRoot(t *testing.T) {
+	tests := []struct {
+		name            string
+		relativeURLRoot string
+		path            string
+		want            string
+	}{
+		{
+			name:            "empty root leaves path unchanged",
+			relativeURLRoot: "",
+			path:            "/api/graphql",
+			want:            "/api/graphql",
+		},
+		{
+			name:            "root slash only leaves path unchanged",
+			relativeURLRoot: "/",
+			path:            "/api/graphql",
+			want:            "/api/graphql",
+		},
+		{
+			name:            "root with trailing slash is joined without double slash",
+			relativeURLRoot: "/gitlab/",
+			path:            "/api/graphql",
+			want:            "/gitlab/api/graphql",
+		},
+		{
+			name:            "root without trailing slash is prepended",
+			relativeURLRoot: "/gitlab",
+			path:            "/api/v4/projects/1",
+			want:            "/gitlab/api/v4/projects/1",
+		},
+		{
+			name:            "path already carrying the prefix is left unchanged",
+			relativeURLRoot: "/gitlab/",
+			path:            "/gitlab/api/graphql",
+			want:            "/gitlab/api/graphql",
+		},
+		{
+			name:            "path equal to the prefix is left unchanged",
+			relativeURLRoot: "/gitlab/",
+			path:            "/gitlab",
+			want:            "/gitlab",
+		},
+		{
+			name:            "prefix is not applied to a lookalike path",
+			relativeURLRoot: "/gitlab/",
+			path:            "/gitlabextra/api/graphql",
+			want:            "/gitlab/gitlabextra/api/graphql",
+		},
+		{
+			name:            "query string is preserved",
+			relativeURLRoot: "/gitlab/",
+			path:            "/api/v4/projects?visibility=public",
+			want:            "/gitlab/api/v4/projects?visibility=public",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handler := &runHTTPActionHandler{relativeURLRoot: tt.relativeURLRoot}
+			require.Equal(t, tt.want, handler.applyRelativeURLRoot(tt.path))
+		})
+	}
+}
+
+// TestRunHttpActionHandler_Execute_RelativeURLRoot proves that a DWS action
+// path is resolved against the relative URL root so it matches an upstream
+// router that only serves requests under that prefix.
+func TestRunHttpActionHandler_Execute_RelativeURLRoot(t *testing.T) {
+	testhelper.ConfigureSecret()
+
+	const relativeURLRoot = "/gitlab/"
+
+	// prefixRouter emulates upstream.ServeHTTP: it only serves requests whose
+	// path is under relativeURLRoot, otherwise it 404s exactly like the real
+	// router. Requests missing the prefix therefore fail, proving the handler
+	// must prepend it.
+	prefixRouter := func(backend http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !strings.HasPrefix(r.URL.Path, relativeURLRoot) {
+				http.Error(w, fmt.Sprintf("Not found %q", r.URL.Path), http.StatusNotFound)
+				return
+			}
+			backend.ServeHTTP(w, r)
+		})
+	}
+
+	t.Run("prefixes the action path so it matches the router", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, "/gitlab/api/graphql", r.URL.Path)
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, `{"data": {}}`)
+		}))
+		defer server.Close()
+
+		action := &pb.Action{
+			RequestID: "req-graphql",
+			Action: &pb.Action_RunHTTPRequest{
+				RunHTTPRequest: &pb.RunHTTPRequest{
+					Method: "POST",
+					Path:   "/api/graphql",
+				},
+			},
+		}
+
+		handler := &runHTTPActionHandler{
+			backend:         prefixRouter(createBackendHandler(server.Client(), server.Listener.Addr().String())),
+			relativeURLRoot: relativeURLRoot,
+			token:           "test-token",
+			originalReq:     &http.Request{},
+		}
+
+		result, err := handler.Execute(context.Background(), action)
+
+		require.NoError(t, err)
+		require.NotNil(t, result)
+		require.Equal(t, int32(http.StatusOK), result.GetActionResponse().GetHttpResponse().StatusCode)
+		require.JSONEq(t, `{"data": {}}`, result.GetActionResponse().GetHttpResponse().Body)
+	})
+
+	t.Run("without the fix the router 404s the bare path", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, `{"data": {}}`)
+		}))
+		defer server.Close()
+
+		action := &pb.Action{
+			RequestID: "req-graphql-bare",
+			Action: &pb.Action_RunHTTPRequest{
+				RunHTTPRequest: &pb.RunHTTPRequest{
+					Method: "POST",
+					Path:   "/api/graphql",
+				},
+			},
+		}
+
+		// relativeURLRoot left empty simulates the pre-fix behavior.
+		handler := &runHTTPActionHandler{
+			backend:     prefixRouter(createBackendHandler(server.Client(), server.Listener.Addr().String())),
+			token:       "test-token",
+			originalReq: &http.Request{},
+		}
+
+		result, err := handler.Execute(context.Background(), action)
+
+		require.NoError(t, err)
+		require.NotNil(t, result)
+		require.Equal(t, int32(http.StatusNotFound), result.GetActionResponse().GetHttpResponse().StatusCode)
+	})
+}
+
 func TestServeHTTPSafe(t *testing.T) {
 	t.Run("recovers ErrAbortHandler with canceled context and returns error", func(t *testing.T) {
 		handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {

@@ -85,7 +85,7 @@ type runner struct {
 	stopWorkflowTimeout time.Duration
 }
 
-func newRunner(conn websocketConn, rails *api.API, backend http.Handler, r *http.Request, cfg *api.DuoWorkflow, rdb *redis.Client) (*runner, error) {
+func newRunner(conn websocketConn, rails *api.API, backend http.Handler, relativeURLRoot string, r *http.Request, cfg *api.DuoWorkflow, rdb *redis.Client) (*runner, error) {
 	if cfg.Service == nil {
 		return nil, fmt.Errorf("failed to initialize client: Service configuration is nil")
 	}
@@ -109,6 +109,7 @@ func newRunner(conn websocketConn, rails *api.API, backend http.Handler, r *http
 
 	httpActionHandler := &runHTTPActionHandler{
 		backend:                   backend,
+		relativeURLRoot:           relativeURLRoot,
 		token:                     cfg.Service.Headers["x-gitlab-oauth-token"],
 		shouldTimeoutHTTPRequests: cfg.TimeoutHTTPRequests,
 		originalReq:               r,

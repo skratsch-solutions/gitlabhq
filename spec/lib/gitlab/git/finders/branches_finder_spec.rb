@@ -268,6 +268,60 @@ RSpec.describe Gitlab::Git::Finders::BranchesFinder, feature_category: :source_c
       end
     end
 
+    context 'with page parameter requiring over-fetch above the default per-page maximum' do
+      let(:params) { { per_page: 100, page: 2 } }
+
+      it 'passes the over-fetch size as the RefsFinder limit and maximum' do
+        expect(Gitlab::Git::Finders::RefsFinder)
+          .to receive(:new)
+          .with(repository, hash_including(per_page: 200, max_per_page: 200))
+          .and_call_original
+
+        branches
+      end
+    end
+
+    context 'with per_page above the default maximum and page parameter requiring over-fetch' do
+      let(:params) { { per_page: 200, page: 2 } }
+
+      it 'passes the clamped over-fetch size as the RefsFinder limit and maximum' do
+        expect(Gitlab::Git::Finders::RefsFinder)
+          .to receive(:new)
+          .with(repository, hash_including(per_page: 200, max_per_page: 200))
+          .and_call_original
+
+        branches
+      end
+    end
+
+    context 'without offset over-fetching' do
+      it 'does not pass a custom maximum to RefsFinder for page 1' do
+        expect(Gitlab::Git::Finders::RefsFinder)
+          .to receive(:new)
+          .with(repository, satisfy do |options|
+            hash_including(per_page: 100) === options && hash_excluding(:max_per_page) === options
+          end)
+          .and_call_original
+
+        described_class.new(repository, { per_page: 200, page: 1 }).execute
+      end
+
+      it 'does not pass a custom maximum to RefsFinder when page_token is present' do
+        first_finder = described_class.new(repository, { per_page: 2 })
+        first_finder.execute
+
+        expect(Gitlab::Git::Finders::RefsFinder)
+          .to receive(:new)
+          .with(repository, satisfy do |options|
+            hash_including(per_page: 100, page_token: first_finder.next_cursor) === options &&
+              hash_excluding(:max_per_page) === options
+          end)
+          .and_call_original
+
+        described_class.new(repository, { per_page: 200, page: 3, page_token: first_finder.next_cursor }).execute
+      end
+    end
+
     context 'with page parameter and include_commits' do
       let(:include_commits) { true }
       let(:params) { { per_page: 5, page: 2 } }

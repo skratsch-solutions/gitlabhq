@@ -64,7 +64,9 @@ module Sidebars
             pill_count_field: pill_count_field,
             has_pill: true,
             super_sidebar_parent: ::Sidebars::Projects::SuperSidebarMenus::PlanMenu,
-            item_id: :project_issue_list
+            item_id: :project_issue_list,
+            description: _('Plan, track, and manage work in one place'),
+            library_icon: 'work-items'
           })
         end
 

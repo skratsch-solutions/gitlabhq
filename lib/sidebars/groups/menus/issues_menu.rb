@@ -52,7 +52,9 @@ module Sidebars
             pill_count_field: pill_count_field,
             has_pill: has_pill?,
             super_sidebar_parent: ::Sidebars::Groups::SuperSidebarMenus::PlanMenu,
-            item_id: :group_issue_list
+            item_id: :group_issue_list,
+            description: _('Plan, track, and manage work in one place'),
+            library_icon: 'work-items'
           })
         end
 

@@ -638,8 +638,6 @@ type:CommentTemplatePathType
 type:CommitData
 type:CommitParentNames
 type:CommitReferences
-type:ComparedSecurityReport
-type:ComparedSecurityReportFinding
 type:ComparedSecurityReportScanner
 type:ComplianceFramework
 type:ComplianceFrameworkCoverageDetail
@@ -803,7 +801,6 @@ type:ExternalStatusCheck
 type:FeatureFlag
 type:FileUpload
 type:FindingDueDatesSetError
-type:FindingReportsComparer
 type:FinishedPipelinesAggregationResponse
 type:FinishedPipelinesAggregationResponseDimensions
 type:FinishedPipelinesAggregationScope

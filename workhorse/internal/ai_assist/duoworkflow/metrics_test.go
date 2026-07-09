@@ -123,7 +123,7 @@ func setupHandlerWithGRPC(t *testing.T, grpcServer *testServer) http.Handler {
 	require.NoError(t, err)
 	apiClient := api.NewAPI(apiURL, "test-version", http.DefaultTransport)
 
-	return NewHandler(apiClient, initRdb(t), http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})).Build()
+	return NewHandler(apiClient, initRdb(t), http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), "").Build()
 }
 
 // TestConnectionsTotal verifies that connectionsTotal increments once per

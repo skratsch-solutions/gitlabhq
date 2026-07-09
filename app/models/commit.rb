@@ -538,12 +538,6 @@ class Commit
     model_name.singular
   end
 
-  def touch_later
-    # No-op.
-    # This method is called by ActiveRecord.
-    # We don't want to do anything for `Commit` model, so this is empty.
-  end
-
   # We are continuing to support `(fixup!|squash!)` here as it is the prefix
   #   added by `git commit --fixup` which is used by some community members.
   #   https://gitlab.com/gitlab-org/gitlab/-/issues/342937#note_892065311

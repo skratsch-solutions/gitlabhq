@@ -467,7 +467,7 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
     end
 
     context 'when requesting page 2 with the new branches finder' do
-      it 'returns correct branches and pagination headers for the second page' do
+      it 'returns correct branches and pagination headers for the second page', :aggregate_failures do
         total_branches = project.repository.branch_count
         per_page = 5
         expected_total_pages = (total_branches / per_page.to_f).ceil
@@ -485,6 +485,55 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
         expect(response.headers['X-Prev-Page']).to eq('1')
         expect(response.headers['X-Total']).to eq(total_branches.to_s)
         expect(response.headers['X-Total-Pages']).to eq(expected_total_pages.to_s)
+      end
+    end
+
+    context 'when offset pagination over-fetches above the configured per-page maximum' do
+      let(:max_per_page) { 10 }
+
+      before do
+        stub_const('Gitlab::PaginationDelegate::MAX_PER_PAGE', max_per_page)
+      end
+
+      it 'returns the second page of branches with pagination headers', :aggregate_failures do
+        expected_names = project.repository.branch_names.sort.slice(max_per_page, max_per_page)
+        requested_per_page = 20
+        expected_total_pages = (project.repository.branch_count / requested_per_page.to_f).ceil
+
+        get api(route, user), params: { per_page: requested_per_page, page: 2 }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.map { |branch| branch['name'] }).to eq(expected_names)
+        expect(response.headers['X-Page']).to eq('2')
+        expect(response.headers['X-Total']).to eq(project.repository.branch_count.to_s)
+        expect(response.headers['X-Total-Pages']).to eq(expected_total_pages.to_s)
+      end
+
+      it 'returns an empty array for pages beyond the last page', :aggregate_failures do
+        last_page = (project.repository.branch_count / max_per_page.to_f).ceil
+
+        get api(route, user), params: { per_page: max_per_page, page: last_page + 1 }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to eq([])
+      end
+
+      it 'does not over-fetch when page_token is supplied', :aggregate_failures do
+        first_page_finder = Gitlab::Git::Finders::BranchesFinder.new(
+          project.repository.raw_repository,
+          { per_page: 1 }
+        )
+        first_page_names = first_page_finder.execute.map(&:name)
+        page_token = first_page_finder.next_cursor
+
+        get api(route, user), params: { per_page: max_per_page, page: 2, page_token: page_token }
+
+        branch_names = json_response.map { |branch| branch['name'] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(branch_names).not_to be_empty
+        expect(branch_names).not_to include(*first_page_names)
+        expect(branch_names).to eq(project.repository.branch_names.sort.drop(1).first(max_per_page))
       end
     end
 

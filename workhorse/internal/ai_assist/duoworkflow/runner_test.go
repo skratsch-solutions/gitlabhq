@@ -314,7 +314,7 @@ func Test_newRunner(t *testing.T) {
 		LockConcurrentFlow: true,
 	}
 
-	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), req, cfg, initRdb(t))
+	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), "", req, cfg, initRdb(t))
 
 	require.NoError(t, err)
 	require.NotNil(t, runner)
@@ -368,7 +368,7 @@ func Test_newRunner_WithServerCapabilities(t *testing.T) {
 				LockConcurrentFlow: false,
 			}
 
-			runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), req, cfg, nil)
+			runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), "", req, cfg, nil)
 
 			require.NoError(t, err)
 			require.Equal(t, tt.serverCapabilities, runner.serverCapabilities)
@@ -403,7 +403,7 @@ func Test_newRunner_WithoutRedis(t *testing.T) {
 		LockConcurrentFlow: true,
 	}
 
-	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), req, cfg, nil)
+	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), "", req, cfg, nil)
 
 	require.NoError(t, err)
 	require.False(t, runner.lockFlow)
@@ -442,7 +442,7 @@ func Test_newRunner_WithCloudConnector(t *testing.T) {
 		LockConcurrentFlow: false,
 	}
 
-	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), req, cfg, nil)
+	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), "", req, cfg, nil)
 
 	require.NoError(t, err)
 	require.NotNil(t, runner.streamManager.cloudServiceClient)
@@ -477,7 +477,7 @@ func Test_newRunner_WithoutCloudConnector(t *testing.T) {
 		LockConcurrentFlow:        false,
 	}
 
-	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), req, cfg, nil)
+	runner, err := newRunner(mockConn, apiClient, http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}), "", req, cfg, nil)
 
 	require.NoError(t, err)
 	require.Nil(t, runner.streamManager.cloudServiceClient)

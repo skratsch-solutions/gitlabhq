@@ -44,6 +44,13 @@ RSpec.describe Gitlab::Cleanup::OrphanJobArtifactFinalObjects::BatchFromList, :o
     end
 
     before do
+      # BatchFromList reads remote_directory/bucket_prefix from the global
+      # Gitlab.config.artifacts.object_store (via StorageHelpers#configuration),
+      # so we must stub it to return the same config used to build the Fog files.
+      # Otherwise bucket_prefix is not applied and orphan detection fails to match
+      # job artifact records by their stripped file_final_path.
+      allow(Gitlab.config.artifacts).to receive(:object_store).and_return(config)
+
       allow(Gitlab::AppLogger).to receive(:info)
     end
 
