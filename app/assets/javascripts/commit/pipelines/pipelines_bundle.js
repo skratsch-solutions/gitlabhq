@@ -23,13 +23,19 @@ export default () => {
     const table = new Vue({
       name: 'CommitPipelinesTableRoot',
       components: {
-        CommitPipelinesTable: () => import('~/commit/pipelines/legacy_pipelines_table_wrapper.vue'),
+        CommitPipelinesTable: () => {
+          return gon.features.commitPipelinesTabGraphql
+            ? import('~/ci/commit/components/commit_pipelines_list.vue')
+            : import('~/commit/pipelines/legacy_pipelines_table_wrapper.vue');
+        },
       },
       apolloProvider,
       render(createElement) {
         return createElement('commit-pipelines-table', {
           props: {
             endpoint: pipelineTableViewEl.dataset.endpoint,
+            projectFullPath: pipelineTableViewEl.dataset.projectFullPath,
+            commitSha: pipelineTableViewEl.dataset.commitSha,
           },
         });
       },

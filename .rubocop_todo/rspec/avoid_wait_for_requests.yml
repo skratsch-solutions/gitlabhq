@@ -392,7 +392,6 @@ RSpec/AvoidWaitForRequests:
     - 'spec/features/projects/commit/comments/user_edits_comments_spec.rb'
     - 'spec/features/projects/commit/mini_pipeline_graph_spec.rb'
     - 'spec/features/projects/commit/signed_commits_spec.rb'
-    - 'spec/features/projects/commit/user_sees_pipelines_tab_spec.rb'
     - 'spec/features/projects/commits/user_browses_commits_spec.rb'
     - 'spec/features/projects/commits/user_views_commits_spec.rb'
     - 'spec/features/projects/compare_spec.rb'

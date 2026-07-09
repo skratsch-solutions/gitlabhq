@@ -175,4 +175,101 @@ RSpec.describe GranularTokenAuthorization, feature_category: :permissions do
       end
     end
   end
+
+  describe 'authentication_result-based authorization' do
+    let(:authentication_result) do
+      Gitlab::Auth::Result.new(user, project, :personal_access_token, [], { personal_access_token: token })
+    end
+
+    let(:helper) do
+      fake_class = Class.new(ApplicationController) do
+        include GranularTokenAuthorization
+
+        attr_accessor :authentication_result
+      end
+
+      instance = fake_class.new
+      instance.authentication_result = authentication_result
+      instance
+    end
+
+    describe '#granular_personal_access_token' do
+      subject { helper.send(:granular_personal_access_token) }
+
+      context 'with a granular personal access token' do
+        let(:token) { create(:granular_pat, user: user) }
+
+        it { is_expected.to eq(token) }
+      end
+
+      context 'with a non-granular personal access token' do
+        let(:token) { create(:personal_access_token, user: user) }
+
+        it { is_expected.to be_nil }
+      end
+
+      context 'without a personal access token' do
+        let(:token) { nil }
+
+        it { is_expected.to be_nil }
+      end
+
+      context 'without an authentication result' do
+        let(:authentication_result) { nil }
+        let(:token) { nil }
+
+        it { is_expected.to be_nil }
+      end
+    end
+
+    describe '#pat_authorized?' do
+      subject { helper.send(:pat_authorized?, project, :download_code) }
+
+      context 'with a granular personal access token' do
+        let(:boundary) { ::Authz::Boundary.for(project) }
+        let(:token) { create(:granular_pat, user: user, boundary: boundary, permissions: permissions) }
+
+        context 'when the token has the required permission' do
+          let(:permissions) { :download_code }
+
+          it { is_expected.to be(true) }
+        end
+
+        context 'when the token is missing the required permission' do
+          let(:permissions) { :push_code }
+
+          it { is_expected.to be(false) }
+        end
+
+        context 'when the granular_personal_access_tokens feature flag is disabled' do
+          let(:permissions) { :download_code }
+
+          before do
+            stub_feature_flags(granular_personal_access_tokens: false)
+          end
+
+          it { is_expected.to be(false) }
+        end
+      end
+
+      context 'with a legacy personal access token' do
+        let(:token) { create(:personal_access_token, user: user) }
+
+        it 'permits the request when the namespace does not enforce granular tokens' do
+          is_expected.to be(true)
+        end
+
+        context 'when the namespace enforces granular tokens' do
+          before do
+            group.namespace_settings.update!(
+              enforce_granular_tokens: true,
+              granular_tokens_enforced_after: Date.current
+            )
+          end
+
+          it { is_expected.to be(false) }
+        end
+      end
+    end
+  end
 end

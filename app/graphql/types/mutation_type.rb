@@ -108,7 +108,7 @@ module Types
     mount_mutation Mutations::MergeRequests::SetSubscription
     mount_mutation Mutations::MergeRequests::SetDraft, calls_gitaly: true
     mount_mutation Mutations::MergeRequests::SetAssignees
-    mount_mutation Mutations::MergeRequests::SetReviewers
+    mount_mutation Mutations::MergeRequests::SetReviewers, scopes: [:api, :ai_workflows]
     mount_mutation Mutations::MergeRequests::ReviewerRereview
     mount_mutation Mutations::MergeRequests::RequestChanges
     mount_mutation Mutations::MergeRequests::WorkItemRelations::Create

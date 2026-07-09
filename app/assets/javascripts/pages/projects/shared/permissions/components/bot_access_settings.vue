@@ -1,13 +1,12 @@
 <script>
-import { GlBadge, GlFormCheckbox, GlFormInput } from '@gitlab/ui';
+import { GlFormCheckbox, GlFormInput } from '@gitlab/ui';
 import GroupSelect from '~/vue_shared/components/entity_select/group_select.vue';
-import { s__, __ } from '~/locale';
+import { s__ } from '~/locale';
 import ProjectSettingRow from './project_setting_row.vue';
 
 export default {
   name: 'BotAccessSettings',
   components: {
-    GlBadge,
     GlFormCheckbox,
     GlFormInput,
     GroupSelect,
@@ -15,7 +14,6 @@ export default {
   },
   i18n: {
     botAccessLabel: s__('ProjectSettings|Pipeline execution policies'),
-    beta: __('Beta'),
     botAccessEnabledLabel: s__(
       'ProjectSettings|Allow access to CI/CD configuration files in this project.',
     ),
@@ -85,12 +83,7 @@ export default {
 <template>
   <project-setting-row data-testid="bot-access-settings">
     <label>
-      <h5>
-        {{ $options.i18n.botAccessLabel }}
-        <gl-badge variant="neutral" data-testid="bot-access-beta-badge">{{
-          $options.i18n.beta
-        }}</gl-badge>
-      </h5>
+      <h5>{{ $options.i18n.botAccessLabel }}</h5>
       <input :value="botAccessEnabled" type="hidden" :name="botAccessEnabledInputName" />
       <gl-form-checkbox v-model="botAccessEnabled">
         {{ $options.i18n.botAccessEnabledLabel }}

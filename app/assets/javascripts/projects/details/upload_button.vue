@@ -29,9 +29,6 @@ export default {
     path: {
       default: '',
     },
-    projectPath: {
-      default: '',
-    },
     emptyRepo: {
       default: false,
     },

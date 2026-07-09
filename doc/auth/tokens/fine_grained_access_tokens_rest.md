@@ -1492,6 +1492,7 @@ Grants the ability to read knowledge graph data.
 | Read | User | `GET` | `/orbit/tools` |
 | Read | User | `POST` | `/orbit/agent/commands/:name` |
 | Read | User | `POST` | `/orbit/query` |
+| Read | User | `POST` | `/orbit/query/:name` |
 
 #### Knowledge Graph Enabled Namespace
 

@@ -102,9 +102,5 @@ export default {
       <gl-icon name="work-items" :size="16" :class="{ 'gl-rotate-90': collapsed }" />
       {{ count }}
     </span>
-    <div v-if="!collapsed" class="gl-ml-auto gl-flex gl-items-center">
-      <gl-icon name="ellipsis_v" :size="16" class="gl-mr-3 gl-shrink-0" />
-      <gl-icon name="plus" :size="16" class="gl-shrink-0" />
-    </div>
   </div>
 </template>

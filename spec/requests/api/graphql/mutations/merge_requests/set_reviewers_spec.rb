@@ -72,6 +72,12 @@ RSpec.describe 'Setting reviewers of a merge request', :assume_throttled, featur
     let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
   end
 
+  describe '.authorization' do
+    it 'allows ai_workflows scope token' do
+      expect(Mutations::MergeRequests::SetReviewers.authorization.permitted_scopes).to include(:ai_workflows)
+    end
+  end
+
   it 'returns an error if the user is not allowed to update the merge request' do
     post_graphql_mutation(mutation, current_user: create(:user))
 

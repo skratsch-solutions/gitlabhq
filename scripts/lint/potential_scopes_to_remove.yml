@@ -1,11 +1,113 @@
 # The scopes listed here have been identified as "unused" by the linter
-#   scripts/lint/unused_scopes.rb, and are potential targets for future
+#   scripts/lint/unused_code.rb --type scopes, and are potential targets for future
 #   removal.
 #
 # If it turns out that a scope you are attempting to remove is in fact in use,
 #   remove it from this file and add it to `excluded_scopes.yml`.
 #
 ---
+app/models/authn/iam_outbox.rb:
+  - l0_undelivered
+  - l2_undelivered
+app/models/ci/build.rb:
+  - with_no_runner_assigned
+  - with_runner_assigned
+app/models/ci/job_artifact.rb:
+  - for_job_name
+app/models/ci/pipeline.rb:
+  - where_not_sha
+  - not_ref_protected
+app/models/ci/processable.rb:
+  - without_needs
+  - with_metadata_interruptible_false
+app/models/ci/runner.rb:
+  - deprecated_shared
+  - deprecated_specific
+  - created_by_admins
+  - with_creator
+app/models/clusters/cluster.rb:
+  - distinct_with_deployed_environments
+  - with_project_http_integrations
+app/models/concerns/analytics/cycle_analytics/stage_event_model.rb:
+  - order_by_end_event
+app/models/concerns/ci/has_status.rb:
+  - created_or_pending
+app/models/concerns/has_user_type.rb:
+  - resource_access_token_bot
+  - service_accounts_without_composite_identity
+app/models/concerns/issuable.rb:
+  - without_label
+app/models/concerns/organizations/stateful.rb:
+  - in_read_only_states
+app/models/concerns/packages/debian/architecture.rb:
+  - with_distribution
+app/models/concerns/packages/debian/component.rb:
+  - with_distribution
+app/models/concerns/semantic_versionable.rb:
+  - order_by_semantic_version_asc
+app/models/concerns/shardable.rb:
+  - excluding_repository_storage
+app/models/container_repository.rb:
+  - waiting_for_cleanup
+app/models/deploy_token.rb:
+  - group_token
+  - order_expires_at_asc
+app/models/design_management/design.rb:
+  - for_reference
+app/models/gpg_key.rb:
+  - externally_invalid
+app/models/group_group_link.rb:
+  - groups_having_access_to
+app/models/member.rb:
+  - excluding_users
+  - security_managers
+app/models/merge_request.rb:
+  - reorder_by_metric
+app/models/ml/experiment.rb:
+  - exclude_experiments_for_models
+app/models/ml/model_version.rb:
+  - order_by_model_id_id_desc
+app/models/note.rb:
+  - new_diff_notes
+  - with_note
+app/models/packages/build_info.rb:
+  - pluck_pipeline_ids
+app/models/packages/composer/metadatum.rb:
+  - locked_for_update
+app/models/packages/dependency_link.rb:
+  - with_dependency_type
+  - includes_dependency
+app/models/packages/npm/metadatum.rb:
+  - package_id_in
+app/models/packages/nuget/package.rb:
+  - without_nuget_temporary_name
+app/models/packages/package.rb:
+  - including_dependency_links
+app/models/packages/package_file.rb:
+  - with_format
+app/models/pages_domain.rb:
+  - instance_serverless
+app/models/pool_repository.rb:
+  - by_source_project
+app/models/project.rb:
+  - with_storage_feature
+  - without_storage_feature
+  - without_integration_excluding_ancestor_archived_check
+  - include_integration
+  - with_builds_enabled
+  - pages_metadata_not_migrated
+app/models/projects/import_export/relation_export.rb:
+  - by_relation
+app/models/snippet.rb:
+  - are_secret
+app/models/user.rb:
+  - for_todos
+  - ordered_by_id_desc
+  - with_provisioning_project
+app/models/user_detail.rb:
+  - project_provisioned
+app/models/zoom_meeting.rb:
+  - removed_from_issue
 ee/app/models/ai/duo_workflows/event.rb:
   - with_correlation_id
 ee/app/models/ai/tool_rule.rb:
@@ -109,7 +211,7 @@ ee/app/models/security/scan_result_policy_read.rb:
   - for_rule_index
   - without_warn_mode_policy
 ee/app/models/security/scan_result_policy_violation.rb:
-  - including_scan_result_policy_reads
+  - without_violation_data
 ee/app/models/vulnerabilities/finding.rb:
   - ids_by_vulnerability
   - by_primary_identifiers
@@ -121,105 +223,3 @@ ee/app/models/vulnerabilities/read.rb:
   - with_findings_scanner_identifiers_and_notes
 ee/app/models/vulnerabilities/statistic.rb:
   - by_group_excluding_subgroups
-app/models/authn/iam_outbox.rb:
-  - l0_undelivered
-  - l2_undelivered
-app/models/ci/build.rb:
-  - with_no_runner_assigned
-  - with_runner_assigned
-app/models/ci/job_artifact.rb:
-  - for_job_name
-app/models/ci/pipeline.rb:
-  - where_not_sha
-  - not_ref_protected
-app/models/ci/processable.rb:
-  - without_needs
-  - with_metadata_interruptible_false
-app/models/ci/runner.rb:
-  - deprecated_shared
-  - deprecated_specific
-  - created_by_admins
-  - with_creator
-app/models/clusters/cluster.rb:
-  - distinct_with_deployed_environments
-  - with_project_http_integrations
-app/models/concerns/analytics/cycle_analytics/stage_event_model.rb:
-  - order_by_end_event
-app/models/concerns/ci/has_status.rb:
-  - created_or_pending
-app/models/concerns/has_user_type.rb:
-  - resource_access_token_bot
-  - service_accounts_without_composite_identity
-app/models/concerns/issuable.rb:
-  - without_label
-app/models/concerns/organizations/stateful.rb:
-  - in_read_only_states
-app/models/concerns/packages/debian/architecture.rb:
-  - with_distribution
-app/models/concerns/packages/debian/component.rb:
-  - with_distribution
-app/models/concerns/semantic_versionable.rb:
-  - order_by_semantic_version_asc
-app/models/concerns/shardable.rb:
-  - excluding_repository_storage
-app/models/container_repository.rb:
-  - waiting_for_cleanup
-app/models/deploy_token.rb:
-  - group_token
-  - order_expires_at_asc
-app/models/design_management/design.rb:
-  - for_reference
-app/models/gpg_key.rb:
-  - externally_invalid
-app/models/group_group_link.rb:
-  - groups_having_access_to
-app/models/member.rb:
-  - excluding_users
-  - security_managers
-app/models/merge_request.rb:
-  - reorder_by_metric
-app/models/ml/experiment.rb:
-  - exclude_experiments_for_models
-app/models/ml/model_version.rb:
-  - order_by_model_id_id_desc
-app/models/note.rb:
-  - new_diff_notes
-  - with_note
-app/models/packages/build_info.rb:
-  - pluck_pipeline_ids
-app/models/packages/composer/metadatum.rb:
-  - locked_for_update
-app/models/packages/dependency_link.rb:
-  - with_dependency_type
-  - includes_dependency
-app/models/packages/npm/metadatum.rb:
-  - package_id_in
-app/models/packages/nuget/package.rb:
-  - without_nuget_temporary_name
-app/models/packages/package.rb:
-  - including_dependency_links
-app/models/packages/package_file.rb:
-  - with_format
-app/models/pages_domain.rb:
-  - instance_serverless
-app/models/pool_repository.rb:
-  - by_source_project
-app/models/project.rb:
-  - with_storage_feature
-  - without_storage_feature
-  - without_integration_excluding_ancestor_archived_check
-  - include_integration
-  - with_builds_enabled
-  - pages_metadata_not_migrated
-app/models/projects/import_export/relation_export.rb:
-  - by_relation
-app/models/snippet.rb:
-  - are_secret
-app/models/user.rb:
-  - for_todos
-  - ordered_by_id_desc
-  - with_provisioning_project
-app/models/user_detail.rb:
-  - project_provisioned
-app/models/zoom_meeting.rb:
-  - removed_from_issue

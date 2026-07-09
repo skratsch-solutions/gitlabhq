@@ -495,7 +495,6 @@ RSpec/NamedSubject:
     - 'ee/spec/requests/api/graphql/mutations/dast_site_validations/revoke_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/dependency_proxy/packages/settings/update_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/security_policy/assign_security_policy_project_spec.rb'
-    - 'ee/spec/requests/api/graphql/pipeline_security_report_finding_spec.rb'
     - 'ee/spec/requests/api/graphql/project/dast_profile_schedule_spec.rb'
     - 'ee/spec/requests/api/graphql/project/dast_profile_spec.rb'
     - 'ee/spec/requests/api/graphql/project/dast_profiles_spec.rb'

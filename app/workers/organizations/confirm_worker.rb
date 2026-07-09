@@ -33,10 +33,10 @@ module Organizations
     def find_organization_from_actor(actor)
       return unless actor
 
-      parts = actor.split(':')
-      return unless parts.length == 2 && parts[0] == 'Organization'
+      class_name, id = actor.rpartition(':').values_at(0, 2)
+      return unless class_name == 'Organizations::Organization' && id.present?
 
-      Organizations::Organization.find_by_id(parts[1].to_i)
+      Organizations::Organization.find_by_id(id.to_i)
     end
 
     def find_confirming_user(organization)

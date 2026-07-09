@@ -45,14 +45,6 @@ describe('ColumnHeader', () => {
     });
   });
 
-  describe('chrome icons', () => {
-    it.each(['work-items', 'ellipsis_v', 'plus'])('renders the "%s" icon', (iconName) => {
-      createComponent();
-
-      expect(findIconByName(iconName)).not.toBeUndefined();
-    });
-  });
-
   describe('collapse toggle', () => {
     it('renders a chevron-down toggle when expanded', () => {
       createComponent();

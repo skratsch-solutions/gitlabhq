@@ -363,7 +363,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'spec/features/projects/blobs/user_views_pipeline_editor_button_spec.rb'
     - 'spec/features/projects/branches/user_creates_branch_spec.rb'
     - 'spec/features/projects/branches_spec.rb'
-    - 'spec/features/projects/commit/user_sees_pipelines_tab_spec.rb'
     - 'spec/features/projects/commit/user_views_user_status_on_commit_spec.rb'
     - 'spec/features/projects/deploy_keys_spec.rb'
     - 'spec/features/projects/environments/environment_spec.rb'

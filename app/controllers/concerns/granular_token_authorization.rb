@@ -2,6 +2,7 @@
 
 module GranularTokenAuthorization
   extend ActiveSupport::Concern
+  include Gitlab::Utils::StrongMemoize
 
   # Default granular permission per sessionless format; formats absent here are not enforced.
   GRANULAR_FORMAT_PERMISSIONS = {
@@ -19,7 +20,7 @@ module GranularTokenAuthorization
     permission ||= GRANULAR_FORMAT_PERMISSIONS[request_format]
     return unless permission
 
-    deny_granular_token! unless granular_scopes_authorized?(token, permission)
+    deny_granular_token! unless granular_scopes_authorized?(token, permission, granular_token_boundary)
   end
 
   private
@@ -33,9 +34,9 @@ module GranularTokenAuthorization
     ::PersonalAccessToken.find_by_id(info[:token_id])
   end
 
-  def granular_scopes_authorized?(token, permission)
+  def granular_scopes_authorized?(token, permission, subject)
     ::Authz::Tokens::AuthorizeGranularScopesService.new(
-      boundaries: ::Authz::Boundary.for(granular_token_boundary),
+      boundaries: ::Authz::Boundary.for(subject),
       permissions: permission,
       token: token
     ).execute.success?
@@ -55,5 +56,20 @@ module GranularTokenAuthorization
   # Overridable for controllers without render_404 (e.g. EventForwardController).
   def deny_granular_token!
     render_404
+  end
+
+  def granular_personal_access_token
+    token = authentication_result&.personal_access_token
+    return unless token&.granular?
+
+    token
+  end
+  strong_memoize_attr :granular_personal_access_token
+
+  def pat_authorized?(subject, permission)
+    token = authentication_result&.personal_access_token
+    return true unless token
+
+    granular_scopes_authorized?(token, permission, subject)
   end
 end

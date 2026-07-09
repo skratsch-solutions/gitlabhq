@@ -15,9 +15,6 @@ export default {
     forksCount: {
       default: 0,
     },
-    projectFullPath: {
-      default: '',
-    },
     projectForksUrl: {
       default: '',
     },

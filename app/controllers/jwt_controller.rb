@@ -13,6 +13,32 @@ class JwtController < ApplicationController
   # https://gitlab.com/gitlab-org/gitlab/-/issues/357037
   urgency :low
 
+  # Override ApplicationController's plain-text/empty responses with a Docker Registry
+  # HTTP API v2 JSON envelope.
+  rescue_from Gitlab::Auth::IpBlocked do |_e|
+    log_ip_blocked
+
+    render_error(
+      code: 'DENIED',
+      message: format(_('Access denied: too many failed authentication attempts from this network. ' \
+        'Try again later or from a different network. See %{help_page_url}'),
+        help_page_url: container_registry_help_page_url),
+      status: :forbidden
+    )
+  end
+
+  rescue_from Gitlab::Auth::TooManyIps do |_e|
+    response.headers['Retry-After'] = too_many_ips_retry_after.to_s
+
+    render_error(
+      code: 'DENIED',
+      message: format(_('Access denied: too many distinct sources for this account. Try again later. ' \
+        'See %{help_page_url}'),
+        help_page_url: container_registry_help_page_url),
+      status: :forbidden
+    )
+  end
+
   SERVICES = {
     ::Auth::ContainerRegistryAuthenticationService::AUDIENCE => ::Auth::ContainerRegistryAuthenticationService,
     ::Auth::ContainerProxyAuthenticationService::AUDIENCE => ::Auth::ContainerProxyAuthenticationService
@@ -23,7 +49,15 @@ class JwtController < ApplicationController
   # If the action here changes to allow POST requests then a check for maintenance mode should be added
   def auth
     service = SERVICES[params[:service]]
-    return head :not_found unless service
+
+    unless service
+      return render_error(
+        code: 'UNSUPPORTED',
+        message: _('The requested authentication service is not supported. Verify the registry token service is ' \
+          'configured correctly.'),
+        status: :not_found
+      )
+    end
 
     result = service.new(@authentication_result.project, auth_user, auth_params)
       .execute(**execute_params)
@@ -81,17 +115,24 @@ class JwtController < ApplicationController
       anchor: 'error-http-basic-access-denied-if-a-password-was-provided-for-git-authentication-'
     )
 
-    render(
-      json: {
-        errors: [{
-          code: 'UNAUTHORIZED',
-          message: format(_("HTTP Basic: Access denied. If a password was provided for Git authentication, the " \
-            "password was incorrect or you're required to use a token instead of a password. If a " \
-            "token was provided, it was either incorrect, expired, or improperly scoped. See " \
-            "%{help_page_url}"), help_page_url: help_page)
-        }]
-      },
+    render_error(
+      code: 'UNAUTHORIZED',
+      message: format(_("HTTP Basic: Access denied. If a password was provided for Git authentication, the " \
+        "password was incorrect or you're required to use a token instead of a password. If a " \
+        "token was provided, it was either incorrect, expired, or improperly scoped. See " \
+        "%{help_page_url}"), help_page_url: help_page),
       status: :unauthorized
+    )
+  end
+
+  def render_error(code:, message:, status:)
+    render json: { errors: [{ code: code, message: message }] }, status: status
+  end
+
+  def container_registry_help_page_url
+    help_page_url(
+      'user/packages/container_registry/authenticate_with_container_registry.md',
+      anchor: 'error-docker-login-fails-with-an-authentication-error'
     )
   end
 

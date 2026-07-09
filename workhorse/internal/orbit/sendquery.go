@@ -23,6 +23,8 @@ import (
 const defaultStreamingTimeout = 30 * time.Second
 const maxStreamingTimeout = 120 * time.Second
 
+const queryTypeNamed = "named"
+
 // SendQuery is a senddata.Injecter that handles GKG graph queries via gRPC.
 type SendQuery struct {
 	senddata.Prefix
@@ -42,6 +44,7 @@ func NewSendQuery(myAPI *api.API, version string) *SendQuery {
 type sendQueryParams struct {
 	GkgServer      GkgServer `json:"GkgServer"`
 	Query          string    `json:"Query"`
+	QueryType      string    `json:"QueryType,omitempty"`
 	Format         string    `json:"Format"`
 	TimeoutSeconds int       `json:"TimeoutSeconds,omitempty"`
 	McpID          any       `json:"McpId,omitempty"`
@@ -117,12 +120,17 @@ func (sq *SendQuery) Inject(w http.ResponseWriter, r *http.Request, sendData str
 		format = gkgpb.ResponseFormat_RESPONSE_FORMAT_LLM
 	}
 
+	queryType := gkgpb.QueryType_QUERY_TYPE_JSON
+	if params.QueryType == queryTypeNamed {
+		queryType = gkgpb.QueryType_QUERY_TYPE_NAMED
+	}
+
 	initialMsg := &gkgpb.ExecuteQueryMessage{
 		Content: &gkgpb.ExecuteQueryMessage_Request{
 			Request: &gkgpb.ExecuteQueryRequest{
 				Query:     params.Query,
 				Format:    format,
-				QueryType: gkgpb.QueryType_QUERY_TYPE_JSON,
+				QueryType: queryType,
 			},
 		},
 	}

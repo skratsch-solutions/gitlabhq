@@ -112,7 +112,7 @@ export default {
   },
   computed: {
     hasSortOptions() {
-      return this.sortOptions.length > 0;
+      return this.viewMode !== VIEW_MODE_BOARD && this.sortOptions.length > 0;
     },
     isPlanningViewBoardEnabled() {
       return Boolean(this.glFeatures.planningViewBoards);
@@ -214,7 +214,7 @@ export default {
             <gl-icon name="chevron-right" />
           </span>
         </button>
-        <div :class="{ 'gl-border-t gl-pt-5': hasSortOptions }" class="gl-p-2">
+        <div class="gl-border-t gl-p-2 gl-pt-5">
           <work-item-display-settings-metadata
             :namespace-preferences="namespacePreferences"
             :full-path="fullPath"

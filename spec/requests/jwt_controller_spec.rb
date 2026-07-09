@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe JwtController, feature_category: :system_access do
+RSpec.describe JwtController, :aggregate_failures, feature_category: :system_access do
   include_context 'parsed logs'
 
   let(:service) { double(execute: {}) }
@@ -600,7 +600,113 @@ RSpec.describe JwtController, feature_category: :system_access do
     context 'unknown service' do
       subject! { get '/jwt/auth', params: { service: 'unknown' } }
 
-      it { expect(response).to have_gitlab_http_status(:not_found) }
+      it 'responds with a Docker v2 JSON error envelope instead of an empty body' do
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(response.media_type).to eq('application/json')
+        expect(json_response).to eq(
+          'errors' => [{
+            'code' => 'UNSUPPORTED',
+            'message' => 'The requested authentication service is not supported. Verify the registry token ' \
+              'service is configured correctly.'
+          }]
+        )
+      end
+    end
+
+    context 'when the request is rejected by abuse protections' do
+      let(:login) { 'user' }
+      let(:password) { 'pass' }
+      let(:headers) { { authorization: credentials(login, password) } }
+
+      subject(:request_jwt_auth) { get '/jwt/auth', params: parameters, headers: headers }
+
+      shared_examples 'a Docker v2 JSON error envelope' do |status:, code:, message:|
+        it 'responds with a Docker v2 JSON error envelope' do
+          request_jwt_auth
+
+          expect(response).to have_gitlab_http_status(status)
+          expect(response.media_type).to eq('application/json')
+          expect(json_response).to eq('errors' => [{ 'code' => code, 'message' => message }])
+        end
+      end
+
+      context 'when the IP is blocklisted' do
+        before do
+          allow(Gitlab::Auth).to receive(:find_for_git_client).and_raise(Gitlab::Auth::IpBlocked)
+        end
+
+        it_behaves_like 'a Docker v2 JSON error envelope',
+          status: :forbidden,
+          code: 'DENIED',
+          message: 'Access denied: too many failed authentication attempts from this network. ' \
+            'Try again later or from a different network. ' \
+            'See http://www.example.com/help/user/packages/container_registry/authenticate_with_container_registry.md#error-docker-login-fails-with-an-authentication-error'
+
+        it 'logs the Rack_Attack event with the documented fields and no PII' do
+          expect(Gitlab::AuthLogger).to receive(:error) do |payload|
+            expect(payload.keys).to contain_exactly(:message, :env, :remote_ip, :request_method, :path)
+            expect(payload).to include(message: 'Rack_Attack', env: :blocklist)
+          end
+
+          request_jwt_auth
+        end
+      end
+
+      context 'when IpRateLimiter#banned? raises IpBlocked' do
+        let(:ip_rate_limiter) { instance_double(Gitlab::Auth::IpRateLimiter, banned?: true) }
+
+        before do
+          allow(Gitlab::Auth::IpRateLimiter).to receive(:new).and_return(ip_rate_limiter)
+        end
+
+        it 'responds with a Docker v2 JSON error envelope' do
+          request_jwt_auth
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+          expect(response.media_type).to eq('application/json')
+          expect(json_response.dig('errors', 0, 'code')).to eq('DENIED')
+        end
+
+        it 'logs the Rack_Attack event' do
+          expect(Gitlab::AuthLogger).to receive(:error).with(
+            hash_including(message: 'Rack_Attack', env: :blocklist)
+          )
+
+          request_jwt_auth
+        end
+      end
+
+      context 'when too many distinct IPs are used for the account' do
+        let(:user_id) { 1 }
+        let(:source_ip) { '1.2.3.4' }
+        let(:unique_ips_count) { 100 }
+        let(:too_many_ips_error) { Gitlab::Auth::TooManyIps.new(user_id, source_ip, unique_ips_count) }
+
+        before do
+          allow(Gitlab::Auth).to receive(:find_for_git_client).and_raise(too_many_ips_error)
+        end
+
+        it_behaves_like 'a Docker v2 JSON error envelope',
+          status: :forbidden,
+          code: 'DENIED',
+          message: 'Access denied: too many distinct sources for this account. Try again later. ' \
+            'See http://www.example.com/help/user/packages/container_registry/authenticate_with_container_registry.md#error-docker-login-fails-with-an-authentication-error'
+
+        it 'sets the Retry-After header' do
+          request_jwt_auth
+
+          expect(response.headers['Retry-After']).to eq(
+            Gitlab::Auth::UniqueIpsLimiter.config.unique_ips_limit_time_window.to_s
+          )
+        end
+
+        it 'does not emit an additional AuthLogger entry (UniqueIpsLimiter already logs the raise event)' do
+          expect(Gitlab::AuthLogger).not_to receive(:warn)
+          expect(Gitlab::AuthLogger).not_to receive(:error)
+
+          request_jwt_auth
+        end
+      end
     end
 
     def credentials(login, password)

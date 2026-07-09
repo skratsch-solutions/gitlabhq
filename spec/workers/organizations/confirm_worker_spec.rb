@@ -17,7 +17,7 @@ RSpec.describe Organizations::ConfirmWorker, feature_category: :organization do
     end
 
     let(:operation) { Feature::OPERATION_ENABLED_ACTOR }
-    let(:actor) { "Organization:#{organization.id}" }
+    let(:actor) { organization.flipper_id }
 
     before do
       stub_feature_flags(root_group_organization_confirm: organization)
@@ -85,7 +85,7 @@ RSpec.describe Organizations::ConfirmWorker, feature_category: :organization do
     end
 
     context 'when organization does not exist' do
-      let(:actor) { "Organization:#{non_existing_record_id}" }
+      let(:actor) { Organizations::Organization.actor_from_id(non_existing_record_id).flipper_id }
 
       it 'does not call Organizations::ConfirmService' do
         expect(Organizations::ConfirmService).not_to receive(:new)

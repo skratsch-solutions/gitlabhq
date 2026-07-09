@@ -82,6 +82,9 @@ RSpec.describe Projects::PipelinesController, '(JavaScript fixtures)', type: :co
         ),
         single_pipeline: get_graphql_query_as_string(
           "ci/pipelines_page/graphql/queries/get_single_pipeline.query.graphql"
+        ),
+        commit_pipelines: get_graphql_query_as_string(
+          "ci/commit/graphql/queries/get_commit_pipelines.query.graphql"
         )
       }
     end
@@ -178,6 +181,29 @@ RSpec.describe Projects::PipelinesController, '(JavaScript fixtures)', type: :co
         queries[:single_pipeline],
         current_user: user,
         variables: { fullPath: project.full_path, id: pipeline.to_global_id.to_s }
+      )
+
+      expect_graphql_errors_to_be_empty
+    end
+
+    it "#{fixtures_path}get_commit_pipelines.query.graphql.json" do
+      # The latest pipeline for the commit: full commit + author, stages with builds, and a
+      # downstream pipeline created in the same project so its nested nodes are readable.
+      pipeline = create(:ci_pipeline, :with_test_reports, project: project, sha: commit.id, user: user)
+      build_stage = create(:ci_stage, name: 'build', pipeline: pipeline, project: project)
+      create(:ci_build, pipeline: pipeline, ci_stage: build_stage)
+      create(:ci_build, pipeline: pipeline, ci_stage: pipeline.stage('test'))
+      create(:ci_sources_pipeline,
+        pipeline: create(:ci_pipeline, :with_job, project: project),
+        source_job: create(:ci_bridge, pipeline: pipeline))
+
+      # An older pipeline for the same commit so the connection returns two rows.
+      create(:ci_pipeline, :with_job, project: project, sha: commit.id, user: user)
+
+      post_graphql(
+        queries[:commit_pipelines],
+        current_user: user,
+        variables: { fullPath: project.full_path, sha: commit.sha, first: 20 }
       )
 
       expect_graphql_errors_to_be_empty

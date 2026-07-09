@@ -81,9 +81,6 @@ export default {
     cancelPath: {
       default: '',
     },
-    projectFullPath: {
-      default: '',
-    },
     projectId: {
       default: '',
     },
@@ -104,9 +101,6 @@ export default {
     },
     restrictedVisibilityLevels: {
       default: [],
-    },
-    namespaceId: {
-      default: '',
     },
   },
   data() {

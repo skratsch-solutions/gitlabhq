@@ -8,6 +8,7 @@ import (
 	"hash"
 	"io"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"gitlab.com/gitlab-org/labkit/log"
@@ -75,7 +76,7 @@ func (u *uploader) consume(outerCtx context.Context, reader io.Reader, deadLine 
 
 			// Gated by u.metrics so each top-level upload emits one summary;
 			// per-part uploads have metrics=false (see the metrics field doc).
-			u.logUploadSummary(outerCtx, elapsed, cr.n, err)
+			u.logUploadSummary(outerCtx, elapsed, cr.n.Load(), err)
 		}(time.Now())
 	}
 
@@ -123,9 +124,9 @@ func (u *uploader) consume(outerCtx context.Context, reader io.Reader, deadLine 
 		}
 	}
 
-	objectStorageUploadBytes.Add(float64(cr.n))
+	objectStorageUploadBytes.Add(float64(cr.n.Load()))
 
-	return cr.n, nil
+	return cr.n.Load(), nil
 }
 
 func (u *uploader) logUploadSummary(ctx context.Context, elapsed time.Duration, bytes int64, err error) {
@@ -152,11 +153,11 @@ func compareMD5(local, remote string) error {
 
 type countReader struct {
 	r io.Reader
-	n int64
+	n atomic.Int64
 }
 
 func (cr *countReader) Read(p []byte) (int, error) {
 	nRead, err := cr.r.Read(p)
-	cr.n += int64(nRead)
+	cr.n.Add(int64(nRead))
 	return nRead, err
 }
