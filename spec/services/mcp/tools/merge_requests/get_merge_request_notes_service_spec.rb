@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Mcp::Tools::MergeRequests::GetMergeRequestNotesService, feature_category: :mcp_server do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:project) { create(:project, :public) }
   let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
   let_it_be(:note) { create(:note_on_merge_request, noteable: merge_request, project: project, author: user) }
 

@@ -948,6 +948,18 @@ msgid_plural "%{digit} total tests"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%{displayType} requires at least one dimension"
+msgstr ""
+
+msgid "%{displayType} requires at least one metric"
+msgstr ""
+
+msgid "%{displayType} supports a maximum of %{maxDimensions} dimensions"
+msgstr ""
+
+msgid "%{displayType} with %{maxDimensions} dimensions supports only a single metric"
+msgstr ""
+
 msgid "%{docs_link_start}How to add certificates to your project?%{docs_link_end}"
 msgstr ""
 
@@ -1347,6 +1359,9 @@ msgid "%{placeholder} is not a valid theme"
 msgstr ""
 
 msgid "%{policy_link} (notifying after %{elapsed_time} minutes unless %{status})"
+msgstr ""
+
+msgid "%{primary} by %{secondary}"
 msgstr ""
 
 msgid "%{projectLength} %{projects}:"
@@ -10607,16 +10622,10 @@ msgstr ""
 msgid "Analytics|Exclude anonymous users"
 msgstr ""
 
-msgid "Analytics|Failed to clear project-level settings. Please try again or %{linkStart}clear them manually%{linkEnd}."
-msgstr ""
-
 msgid "Analytics|Failed to fetch data"
 msgstr ""
 
 msgid "Analytics|Failed to load dashboard"
-msgstr ""
-
-msgid "Analytics|Failed to update project-level settings. Please try again."
 msgstr ""
 
 msgid "Analytics|Invalid dashboard configuration"
@@ -22283,6 +22292,9 @@ msgstr ""
 msgid "Continue to the next step"
 msgstr ""
 
+msgid "Continue with %{provider}"
+msgstr ""
+
 msgid "Continue with overages"
 msgstr ""
 
@@ -31143,9 +31155,6 @@ msgstr ""
 msgid "Enter a search query to find more branches, or use * to create a wildcard."
 msgstr ""
 
-msgid "Enter a valid URL"
-msgstr ""
-
 msgid "Enter admin mode"
 msgstr ""
 
@@ -38365,6 +38374,9 @@ msgid "Groups|Save changes"
 msgstr ""
 
 msgid "Groups|Show children of %{avatarLabel}"
+msgstr ""
+
+msgid "Groups|Start with a letter, digit, basic emoji, or underscore."
 msgstr ""
 
 msgid "Groups|Start with a letter, digit, emoji, or underscore."
@@ -58075,208 +58087,13 @@ msgstr ""
 msgid "Proceed with caution."
 msgstr ""
 
-msgid "Product Analytics"
-msgstr ""
-
 msgid "Product Designer"
 msgstr ""
 
 msgid "Product Manager"
 msgstr ""
 
-msgid "ProductAnalytics|1. Add the NPM package to your package.json using your preferred package manager"
-msgstr ""
-
-msgid "ProductAnalytics|2. Import the new package into your JS code"
-msgstr ""
-
-msgid "ProductAnalytics|3. Initiate the tracking"
-msgstr ""
-
-msgid "ProductAnalytics|A deployed instance of the %{linkStart}helm-charts%{linkEnd} project."
-msgstr ""
-
-msgid "ProductAnalytics|Add the script to the page and assign the client SDK to window"
-msgstr ""
-
-msgid "ProductAnalytics|Add the script to the page and assign the client SDK to window:"
-msgstr ""
-
-msgid "ProductAnalytics|Additional permissions required"
-msgstr ""
-
-msgid "ProductAnalytics|After your application has been instrumented and data is being collected, you can visualize and monitor behaviors in your %{linkStart}analytics dashboards%{linkEnd}."
-msgstr ""
-
-msgid "ProductAnalytics|An analytics provider has been successfully created, but it has not received any events yet. To continue with the setup, instrument your application and start sending events."
-msgstr ""
-
-msgid "ProductAnalytics|An error occurred while fetching data. Refresh the page to try again."
-msgstr ""
-
-msgid "ProductAnalytics|An error occurred while fetching project settings. Refresh the page to try again."
-msgstr ""
-
-msgid "ProductAnalytics|Analyze your product with Product Analytics"
-msgstr ""
-
 msgid "ProductAnalytics|Audience"
-msgstr ""
-
-msgid "ProductAnalytics|Back to dashboards"
-msgstr ""
-
-msgid "ProductAnalytics|Collector host"
-msgstr ""
-
-msgid "ProductAnalytics|Configurator connection string"
-msgstr ""
-
-msgid "ProductAnalytics|Connect your own provider"
-msgstr ""
-
-msgid "ProductAnalytics|Contact our sales team"
-msgstr ""
-
-msgid "ProductAnalytics|Contact the GitLab administrator or project maintainer to onboard this project with product analytics. %{linkStart}Learn more%{linkEnd}."
-msgstr ""
-
-msgid "ProductAnalytics|Continue set up"
-msgstr ""
-
-msgid "ProductAnalytics|Creating your product analytics instance…"
-msgstr ""
-
-msgid "ProductAnalytics|Cube API URL"
-msgstr ""
-
-msgid "ProductAnalytics|Cube API key"
-msgstr ""
-
-msgid "ProductAnalytics|Details on how to configure product analytics to collect data."
-msgstr ""
-
-msgid "ProductAnalytics|Edit project provider settings"
-msgstr ""
-
-msgid "ProductAnalytics|For more information, see the %{linkStart}docs%{linkEnd}."
-msgstr ""
-
-msgid "ProductAnalytics|For the product analytics dashboard to start showing you some data, you need to add the analytics tracking code to your project."
-msgstr ""
-
-msgid "ProductAnalytics|For this option, you need:"
-msgstr ""
-
-msgid "ProductAnalytics|For this option:"
-msgstr ""
-
-msgid "ProductAnalytics|GitLab-managed provider"
-msgstr ""
-
-msgid "ProductAnalytics|I agree to event collection and processing in this region."
-msgstr ""
-
-msgid "ProductAnalytics|Instrument your application"
-msgstr ""
-
-msgid "ProductAnalytics|Loading instance"
-msgstr ""
-
-msgid "ProductAnalytics|Manage your own analytics provider to process, store, and query analytics data."
-msgstr ""
-
-msgid "ProductAnalytics|Override the instance analytics configuration for this project."
-msgstr ""
-
-msgid "ProductAnalytics|Product analytics onboarding"
-msgstr ""
-
-msgid "ProductAnalytics|Reset existing project provider settings"
-msgstr ""
-
-msgid "ProductAnalytics|SDK application ID"
-msgstr ""
-
-msgid "ProductAnalytics|SDK clients"
-msgstr ""
-
-msgid "ProductAnalytics|SDK host"
-msgstr ""
-
-msgid "ProductAnalytics|Self-managed provider"
-msgstr ""
-
-msgid "ProductAnalytics|Set up Product Analytics to track how your product is performing. Combine analytics with your GitLab data to better understand where you can improve your product and development processes. %{linkStart}Learn more%{linkEnd}."
-msgstr ""
-
-msgid "ProductAnalytics|Snowplow configurator connection string"
-msgstr ""
-
-msgid "ProductAnalytics|The Product Analytics Beta on GitLab.com is offered only in the Google Cloud Platform zone %{zone}."
-msgstr ""
-
-msgid "ProductAnalytics|The connection string for your configurator instance."
-msgstr ""
-
-msgid "ProductAnalytics|The receiver of tracking events"
-msgstr ""
-
-msgid "ProductAnalytics|The sender of tracking events"
-msgstr ""
-
-msgid "ProductAnalytics|The system is creating your analytics provider. In the meantime, you can instrument your application."
-msgstr ""
-
-msgid "ProductAnalytics|This might take a while, feel free to navigate away from this page and come back later."
-msgstr ""
-
-msgid "ProductAnalytics|This project has analytics provider settings configured. If you continue, the settings for projects will be reset so that GitLab-managed provider settings can be used."
-msgstr ""
-
-msgid "ProductAnalytics|This project has analytics provider settings configured. If you continue, the settings for projects will be reset so that provider settings for the instance can be used."
-msgstr ""
-
-msgid "ProductAnalytics|To continue, you must agree to event storage and processing in this region."
-msgstr ""
-
-msgid "ProductAnalytics|To instrument your application, select one of the options below. After an option has been instrumented and data is being collected, this page will progress to the next step."
-msgstr ""
-
-msgid "ProductAnalytics|Track the performance of your product, and optimize your product and development processes."
-msgstr ""
-
-msgid "ProductAnalytics|Uncheck if you would like to configure a different provider for this project."
-msgstr ""
-
-msgid "ProductAnalytics|Use GitLab-managed provider"
-msgstr ""
-
-msgid "ProductAnalytics|Use a GitLab-managed infrastructure to process, store, and query analytics events data."
-msgstr ""
-
-msgid "ProductAnalytics|Use instance provider settings"
-msgstr ""
-
-msgid "ProductAnalytics|Used to retrieve dashboard data from the Cube instance."
-msgstr ""
-
-msgid "ProductAnalytics|Using JS module"
-msgstr ""
-
-msgid "ProductAnalytics|Valid project settings."
-msgstr ""
-
-msgid "ProductAnalytics|Waiting for events"
-msgstr ""
-
-msgid "ProductAnalytics|You can instrument your application using a JS module or an HTML script. Follow the instructions below for the option you prefer."
-msgstr ""
-
-msgid "ProductAnalytics|Your instance will be created on the provider configured in your instance settings."
-msgstr ""
-
-msgid "ProductAnalytics|Your instance will be created on this provider:"
 msgstr ""
 
 msgid "Productivity"
@@ -59272,13 +59089,13 @@ msgstr ""
 msgid "Project name"
 msgstr ""
 
-msgid "Project name can contain only lowercase or uppercase letters, digits, emoji, spaces, dots, underscores, dashes, or pluses."
+msgid "Project name can contain only lowercase or uppercase letters, digits, basic emoji, spaces, dots, underscores, dashes, or pluses."
 msgstr ""
 
 msgid "Project name is required."
 msgstr ""
 
-msgid "Project name must start with a letter, digit, emoji, or underscore."
+msgid "Project name must start with a letter, digit, basic emoji, or underscore."
 msgstr ""
 
 msgid "Project navigation"
@@ -60013,9 +59830,6 @@ msgstr ""
 msgid "ProjectSettings|Instance limit: %{limit}. Set a value between 1 and %{limit}, or leave empty to use the instance limit."
 msgstr ""
 
-msgid "ProjectSettings|Instrumentation details"
-msgstr ""
-
 msgid "ProjectSettings|Internal"
 msgstr ""
 
@@ -60359,9 +60173,6 @@ msgid "ProjectSettings|Work items"
 msgstr ""
 
 msgid "ProjectSettings|You cannot set a default branch for an empty project. Contact an Owner or administrator for help."
-msgstr ""
-
-msgid "ProjectSettings|Your project is set up. %{instructionsLinkStart}View instrumentation instructions%{instructionsLinkEnd} and %{dashboardsLinkStart}Analytics Dashboards%{dashboardsLinkEnd}."
 msgstr ""
 
 msgid "ProjectSettings|[Feature] Add login"
@@ -72771,9 +72582,6 @@ msgstr ""
 msgid "Select an iteration"
 msgstr ""
 
-msgid "Select an option"
-msgstr ""
-
 msgid "Select artifacts"
 msgstr ""
 
@@ -84120,9 +83928,6 @@ msgstr ""
 msgid "Using %{code_start}::%{code_end} denotes a %{link_start}scoped label set%{link_end}"
 msgstr ""
 
-msgid "Using HTML script"
-msgstr ""
-
 msgid "Using cached GraphQL schema"
 msgstr ""
 
@@ -91966,18 +91771,6 @@ msgid "closed"
 msgstr ""
 
 msgid "closed %{timeago}"
-msgstr ""
-
-msgid "columnChart requires at least one dimension"
-msgstr ""
-
-msgid "columnChart requires at least one metric"
-msgstr ""
-
-msgid "columnChart supports a maximum of 2 dimensions"
-msgstr ""
-
-msgid "columnChart with 2 dimensions supports only a single metric"
 msgstr ""
 
 msgid "comment"

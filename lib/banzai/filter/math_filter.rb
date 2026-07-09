@@ -9,6 +9,7 @@ module Banzai
       # HTML filter that adds any necessary classes to math html for rendering
       # on the frontend
       prepend Concerns::PipelineTimingCheck
+      include Concerns::ContextAccessors
       include ::Gitlab::Utils::StrongMemoize
 
       CSS_MATH_STYLE = 'pre[data-math-style], pre[data-canonical-lang="math"], ' \
@@ -57,7 +58,7 @@ module Banzai
       strong_memoize_attr :math_rendering_limits_enabled?
 
       def group
-        context[:project]&.parent || context[:group]
+        project&.parent || super
       end
     end
   end

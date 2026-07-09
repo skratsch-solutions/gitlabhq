@@ -4232,6 +4232,39 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
       expect(response).to have_gitlab_http_status(:ok)
     end
 
+    shared_examples 'enforces presence of SHA parameter' do
+      it 'returns 400 when sha param is not provided' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']).to eq('SHA must be provided when merging')
+      end
+
+      it 'proceeds with merge when sha param is provided' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user),
+          params: { sha: merge_request.diff_head_sha }
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+
+    context 'when a namespace requires SHA for merge' do
+      before do
+        project.namespace.namespace_settings.update!(require_sha_for_merge: true)
+      end
+
+      it_behaves_like 'enforces presence of SHA parameter'
+    end
+
+    context 'when the application requires SHA for merge' do
+      before do
+        project.namespace.namespace_settings.update!(require_sha_for_merge: nil)
+        stub_application_setting(require_sha_for_merge: true)
+      end
+
+      it_behaves_like 'enforces presence of SHA parameter'
+    end
+
     it "updates the MR's squash attribute" do
       expect do
         put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user), params: { squash: true }

@@ -296,10 +296,6 @@ RSpec.configure do |config|
       # we need the `cleanup_data_source_work_item_data` disabled by default to prevent deletion of some data
       stub_feature_flags(cleanup_data_source_work_item_data: false)
 
-      # Since we are very early in development of this feature, it might cause unexpected behaviors when the flag is enabled
-      # Please see https://gitlab.com/groups/gitlab-org/-/epics/17781 for tracking the progress.
-      stub_feature_flags(repository_file_tree_browser: false)
-
       # New approval rules cause tests to fail
       # Default false while we make them compatible
       stub_feature_flags(v2_approval_rules: false)

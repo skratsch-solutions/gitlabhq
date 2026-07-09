@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe MergeRequests::WorkItemRelations::DestroyService, feature_category: :code_review_workflow do
-  let_it_be(:project) { create(:project, :repository, :public) }
+  let_it_be(:project) { create(:project, :public) }
   let(:ids) { [user_created_relation.id] }
   let_it_be(:user) { create(:user, developer_of: project) }
   let_it_be(:merge_request) { create(:merge_request, source_project: project) }

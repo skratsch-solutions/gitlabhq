@@ -6,7 +6,7 @@ RSpec.describe Discussions::ResolveService, feature_category: :code_review_workf
   include DesignManagementTestHelpers
 
   describe '#execute' do
-    let_it_be(:project, freeze: false) { create(:project, :repository) }
+    let_it_be_with_reload(:project) { create(:project, :repository) }
     let_it_be(:user) { create(:user, developer_of: project) }
     let_it_be(:merge_request) { create(:merge_request, :merge_when_checks_pass, source_project: project) }
 

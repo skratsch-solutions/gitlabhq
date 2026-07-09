@@ -400,6 +400,105 @@ RSpec.describe PersonalAccessToken, feature_category: :system_access do
     end
   end
 
+  describe '#permitted_for_boundary?' do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:root_group) { create(:group) }
+    let_it_be(:subgroup) { create(:group, parent: root_group) }
+    let_it_be(:project) { create(:project, group: subgroup) }
+    let_it_be(:other_project) { create(:project) }
+
+    let_it_be(:project_boundary) { Authz::Boundary.for(project) }
+    let_it_be(:other_project_boundary) { Authz::Boundary.for(other_project) }
+    let_it_be(:root_group_boundary) { Authz::Boundary.for(root_group) }
+    let_it_be(:instance_boundary) { Authz::Boundary.for(:instance) }
+    let_it_be(:all_memberships_boundary) { Authz::Boundary.for(:all_memberships) }
+
+    let_it_be(:token) do
+      create(:granular_pat, user: user, boundary: project_boundary, permissions: :create_work_item)
+    end
+
+    subject(:permitted_for_boundary) { token.permitted_for_boundary?(boundary, permissions) }
+
+    context 'when the token is a legacy token' do
+      let_it_be(:token) { create(:personal_access_token, user: user) }
+
+      let(:boundary) { project_boundary }
+      let(:permissions) { :create_issue }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when a scope grants the required permission for the boundary' do
+      let(:boundary) { project_boundary }
+      let(:permissions) { :create_issue }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when the required permission is not granted by any scope' do
+      let(:boundary) { project_boundary }
+      let(:permissions) { :create_member_role }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when no scope is applicable to the boundary' do
+      let(:boundary) { other_project_boundary }
+      let(:permissions) { :create_issue }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when a scope on an ancestor group applies to a descendant boundary' do
+      let_it_be(:token) do
+        create(:granular_pat, user: user, boundary: root_group_boundary, permissions: :create_work_item)
+      end
+
+      let(:boundary) { project_boundary }
+      let(:permissions) { :create_issue }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when a scope grants all memberships' do
+      let_it_be(:token) do
+        create(:granular_pat, user: user, boundary: all_memberships_boundary, permissions: :create_work_item)
+      end
+
+      let(:boundary) { project_boundary }
+      let(:permissions) { :create_issue }
+
+      it { is_expected.to be true }
+    end
+
+    context 'with an instance-level scope and boundary' do
+      let_it_be(:token) do
+        create(:granular_pat, user: user, boundary: instance_boundary, permissions: :create_member_role)
+      end
+
+      let(:boundary) { instance_boundary }
+      let(:permissions) { :create_member_role }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when several permissions are required' do
+      let(:boundary) { project_boundary }
+
+      context 'and all are granted' do
+        let(:permissions) { [:create_issue, :create_work_item] }
+
+        it { is_expected.to be true }
+      end
+
+      context 'and at least one is not granted' do
+        let(:permissions) { [:create_issue, :create_member_role] }
+
+        it { is_expected.to be false }
+      end
+    end
+  end
+
   describe '#active?' do
     let(:personal_access_token) { build(:personal_access_token) }
 
@@ -702,10 +801,6 @@ RSpec.describe PersonalAccessToken, feature_category: :system_access do
         expect(personal_access_token.errors[:description]).to include("is too long (maximum is #{described_class::MAX_DESCRIPTION_LENGTH} characters)")
       end
     end
-  end
-
-  describe 'delegations' do
-    it { is_expected.to delegate_method(:permitted_for_boundary?).to(:granular_scopes) }
   end
 
   describe 'scopes' do

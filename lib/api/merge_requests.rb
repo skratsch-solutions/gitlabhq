@@ -871,6 +871,10 @@ module API
 
         merge_request = find_project_merge_request(params[:merge_request_iid])
 
+        if user_project.namespace.require_sha_for_merge? && !params[:sha].present?
+          render_api_error!("SHA must be provided when merging", 400)
+        end
+
         # Merge request can not be merged because the user doesn't have
         #   permissions to push into target branch.
         unauthorized! unless merge_request.can_be_merged_by?(current_user)

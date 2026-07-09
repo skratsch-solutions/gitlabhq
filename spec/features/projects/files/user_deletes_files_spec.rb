@@ -48,7 +48,7 @@ RSpec.describe 'Projects > Files > User deletes files', :js, feature_category: :
     end
 
     it 'deletes the file', :js do
-      click_link('.gitignore')
+      within_testid('file-tree-table') { click_link('.gitignore') }
 
       expect(page).to have_content('.gitignore')
 
@@ -71,7 +71,7 @@ RSpec.describe 'Projects > Files > User deletes files', :js, feature_category: :
     it 'deletes the file in a forked project', :js, :sidekiq_might_not_need_inline do
       visit(project2_tree_path_root_ref)
       wait_for_requests
-      click_link('.gitignore')
+      within_testid('file-tree-table') { click_link('.gitignore') }
 
       expect(page).to have_content('.gitignore')
 
@@ -108,7 +108,7 @@ RSpec.describe 'Projects > Files > User deletes files', :js, feature_category: :
       visit(project3_protected_branch_tree_path_root_ref)
       wait_for_requests
 
-      click_link('.gitignore')
+      within_testid('file-tree-table') { click_link('.gitignore') }
 
       expect(page).to have_content('.gitignore')
 

@@ -11,7 +11,7 @@ RSpec.describe Labels::TransferService, feature_category: :team_planning do
 
     let_it_be(:new_group) { create(:group, developers: user) }
 
-    let_it_be(:project) { create(:project, :repository, group: new_group) }
+    let_it_be(:project) { create(:project, group: new_group) }
 
     subject(:service) { described_class.new(user, old_group, project) }
 
@@ -85,7 +85,7 @@ RSpec.describe Labels::TransferService, feature_category: :team_planning do
     it_behaves_like 'recreates missing labels at project level and assigns them to issuables', :old_group_ancestor
 
     context 'when project is archived' do
-      let_it_be(:project) { create(:project, :repository, :archived, group: new_group) }
+      let_it_be(:project) { create(:project, :archived, group: new_group) }
 
       it_behaves_like 'recreates missing labels at project level and assigns them to issuables', :old_group
       it_behaves_like 'recreates missing labels at project level and assigns them to issuables', :old_group_ancestor
@@ -93,14 +93,15 @@ RSpec.describe Labels::TransferService, feature_category: :team_planning do
 
     context 'when moving within the same ancestor group' do
       let_it_be(:other_subgroup) { create(:group, parent: old_group_ancestor) }
-      let_it_be(:project) { create(:project, :repository, group: other_subgroup) }
+      let_it_be(:project) { create(:project, group: other_subgroup) }
 
       it 'does not recreate ancestor group labels' do
         old_group_ancestor_label_1 = create(:group_label, group: old_group_ancestor)
         old_group_ancestor_label_2 = create(:group_label, group: old_group_ancestor)
 
         labeled_issue = create(:labeled_issue, project: project, labels: [old_group_ancestor_label_1])
-        labeled_merge_request = create(:labeled_merge_request, source_project: project, labels: [old_group_ancestor_label_2])
+        labeled_merge_request = create(:labeled_merge_request, source_project: project,
+          labels: [old_group_ancestor_label_2])
 
         expect { service.execute }.not_to change { project.labels.count }
         expect(labeled_issue.reload.labels).to contain_exactly(old_group_ancestor_label_1)

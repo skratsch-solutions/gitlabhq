@@ -395,7 +395,7 @@ module Tasks
                 "of their raw permissions are referenced by any REST authorization or GraphQL granular scope " \
                 "directive.\nEither remove `granular_access_token` from `available_for`, or reference one of " \
                 "the raw permissions in a route/directive." \
-                "\n#{assignable_permissions_link(anchor: 'available-for-consumers')}"
+                "\n#{assignable_permissions_link(anchor: 'assignable-permission-file-fields')}"
             }
           end
 

@@ -559,7 +559,7 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::ValidateTask, :silence_stdout
           #  The following permissions have fewer tests than routes using them.
           #  Each route should have its own `it_behaves_like 'authorizing granular token permissions'` test.
           #  Add test coverage.
-          #  Learn more: https://docs.gitlab.com/development/permissions/granular_access/rest_api_implementation_guide/#step-6-add-request-specs-for-the-endpoint
+          #  Learn more: https://docs.gitlab.com/development/permissions/granular_access/rest_api_implementation_guide/#step-6-add-authorization-tests
           #
           #    - read_project: 1 routes, 0 tests
           #        GET /projects/:id/test (lib/api/test.rb:42)

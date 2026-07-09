@@ -7,6 +7,7 @@ export const DISPLAY_TYPES = {
   STAT: 'stat',
   COLUMN_CHART: 'columnChart',
   LINE_CHART: 'lineChart',
+  BAR_CHART: 'barChart',
 };
 
 // Display types that opt into the page-size default and the load-more UI.

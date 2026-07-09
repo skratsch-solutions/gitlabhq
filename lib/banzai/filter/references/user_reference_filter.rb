@@ -161,13 +161,13 @@ module Banzai
 
         def organization
           parent&.organization ||
-            context[:author]&.organizations&.first ||
+            author&.organizations&.first ||
             Organizations::Organization.first
         end
         strong_memoize_attr :organization
 
         def parent
-          context[:project] || context[:group]
+          project || group
         end
 
         def parent_group?

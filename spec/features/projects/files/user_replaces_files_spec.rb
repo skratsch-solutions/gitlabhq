@@ -45,7 +45,7 @@ RSpec.describe 'Projects > Files > User replaces files', :js, feature_category: 
     end
 
     it 'replaces an existed file with a new one' do
-      click_link('.gitignore')
+      within_testid('file-tree-table') { click_link('.gitignore') }
 
       expect(page).to have_content('.gitignore')
 
@@ -73,7 +73,7 @@ RSpec.describe 'Projects > Files > User replaces files', :js, feature_category: 
       :sidekiq_might_not_need_inline do
       visit(project2_tree_path_root_ref)
       wait_for_requests
-      click_link('.gitignore')
+      within_testid('file-tree-table') { click_link('.gitignore') }
 
       expect(page).to have_content('.gitignore')
 
@@ -120,7 +120,7 @@ RSpec.describe 'Projects > Files > User replaces files', :js, feature_category: 
       visit(project3_protected_branch_tree_path_root_ref)
       wait_for_requests
 
-      click_link('.gitignore')
+      within_testid('file-tree-table') { click_link('.gitignore') }
 
       expect(page).to have_content('.gitignore')
 

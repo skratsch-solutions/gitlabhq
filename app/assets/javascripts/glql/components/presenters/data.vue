@@ -1,6 +1,7 @@
 <script>
 import { __, sprintf } from '~/locale';
 import { DISPLAY_TYPES } from '../../constants';
+import BarChartPresenter from './bar_chart.vue';
 import ColumnChartPresenter from './column_chart.vue';
 import LineChartPresenter from './line_chart.vue';
 import ListPresenter from './list.vue';
@@ -17,6 +18,7 @@ export default {
     StatPresenter,
     ColumnChartPresenter,
     LineChartPresenter,
+    BarChartPresenter,
   },
   props: {
     displayType: {
@@ -113,6 +115,14 @@ export default {
     :data="data"
     :fields="fields"
     :loading="loading"
+    @error="$emit('error', $event)"
+  />
+  <bar-chart-presenter
+    v-else-if="displayType === $options.DISPLAY_TYPES.BAR_CHART"
+    :data="data"
+    :fields="fields"
+    :loading="loading"
+    :display-config="displayConfig"
     @error="$emit('error', $event)"
   />
 </template>

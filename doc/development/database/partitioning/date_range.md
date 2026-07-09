@@ -101,9 +101,10 @@ suffers.
 
 ## Time-range Partitioning Strategies
 
-GitLab supports two strategies for time-range partitioning:
+GitLab supports three strategies for time-range partitioning:
 
 - Daily partitioning
+- Weekly partitioning
 - Monthly partitioning
 
 ### Using Time-range Partitioning
@@ -128,6 +129,14 @@ The daily strategy creates one partition per day:
 partitioned_by :created_at, strategy: :daily, retain_for: 7.days
 ```
 
+#### Weekly Strategy (`:weekly`)
+
+The weekly strategy creates one partition per week. Weeks start on Monday:
+
+```ruby
+partitioned_by :created_at, strategy: :weekly, retain_for: 4.weeks
+```
+
 #### Monthly Strategy (`:monthly`)
 
 The monthly strategy creates one partition per month:
@@ -139,11 +148,11 @@ partitioned_by :created_at, strategy: :monthly, retain_for: 3.months, analyze_in
 ### Configuration Options
 
 - `column`: The column to partition on (required, must be a timestamp or date column)
-- `strategy`: Either `:daily` or `:monthly` (required)
+- `strategy`: One of `:daily`, `:weekly`, or `:monthly` (required)
 - `retain_for`: How long to retain partitions: a duration, or `:ever` (required, see [Retention](#retention))
 - `analyze_interval`: How often to run ANALYZE on new partitions (optional)
 
-Choose `:daily` for high-volume tables that need fine-grained partitioning, or `:monthly` for tables with moderate data volume where daily partitioning would be excessive.
+Choose `:daily` for high-volume tables that need fine-grained partitioning, `:weekly` for an intermediate granularity, or `:monthly` for tables with moderate data volume where daily partitioning would be excessive.
 
 ### Retention
 
@@ -216,7 +225,7 @@ The example includes the following:
 - `table_name`: The name of your temporary partitioned table
   (for example, `audit_events_b8088ecbd2`).
 - `partitioned_column`: The column used for partitioning.
-- `strategy`: Either `:daily` or `:monthly`.
+- `strategy`: One of `:daily`, `:weekly`, or `:monthly`.
 - `retain_for`: Set to `:ever` for this registration (see the following warning).
 
 > [!warning]

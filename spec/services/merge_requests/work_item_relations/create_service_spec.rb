@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe MergeRequests::WorkItemRelations::CreateService, feature_category: :code_review_workflow do
-  let_it_be(:project) { create(:project, :repository, :public) }
+  let_it_be(:project) { create(:project, :public) }
   let(:target_work_items) { [work_item] }
   let(:link_type) { :mentioned }
   let_it_be(:user) { create(:user, developer_of: project) }

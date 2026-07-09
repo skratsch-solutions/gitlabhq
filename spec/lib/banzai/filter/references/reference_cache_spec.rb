@@ -25,7 +25,7 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
   let_it_be(:filter_class, freeze: false) { Banzai::Filter::References::IssueReferenceFilter }
 
   let(:filter) { filter_class.new(doc, project: project) }
-  let(:cache)  { described_class.new(filter, { project: project }, result) }
+  let(:cache)  { described_class.new(filter, result) }
 
   describe '#load_reference_cache' do
     subject { cache.load_reference_cache(filter.nodes) }
@@ -62,7 +62,7 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
       # (see gitlab-org/gitlab#602925).
       let_it_be(:cache, freeze: false) do
         filter = filter_class.new(doc, project: project)
-        cache = described_class.new(filter, { project: project }, result)
+        cache = described_class.new(filter, result)
         cache.load_reference_cache(filter.nodes)
         cache
       end
@@ -100,7 +100,7 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
 
         doc_milestone = Nokogiri::HTML.fragment("/#{milestone1.to_reference(full: true)} /#{milestone2.to_reference(full: true)} #{milestone3.to_reference(full: true)}")
         filter_milestone = Banzai::Filter::References::MilestoneReferenceFilter.new(doc_milestone, project: project)
-        cache_milestone = described_class.new(filter_milestone, { project: project }, {})
+        cache_milestone = described_class.new(filter_milestone, {})
 
         cache_milestone.load_reference_cache(filter_milestone.nodes)
 
@@ -129,7 +129,7 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
     it 'does not have an N+1 query problem with cross projects' do
       doc_single = Nokogiri::HTML.fragment("#1")
       filter_single = filter_class.new(doc_single, project: project)
-      cache_single = described_class.new(filter_single, { project: project }, {})
+      cache_single = described_class.new(filter_single, {})
 
       control = ActiveRecord::QueryRecorder.new do
         cache_single.load_reference_cache(filter_single.nodes)
@@ -216,7 +216,7 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
     context 'when project is nil but group is present' do
       let(:group) { create(:group) }
       let(:filter) { filter_class.new(doc, group: group, project: nil) }
-      let(:cache) { described_class.new(filter, { group: group }, result) }
+      let(:cache) { described_class.new(filter, result) }
 
       it 'returns the path of the group' do
         expect(cache.current_project_namespace_path).to eq group.full_path

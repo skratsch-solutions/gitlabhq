@@ -268,7 +268,7 @@ module Tasks
                 The following permissions have fewer tests than routes using them.
                 Each route should have its own `it_behaves_like 'authorizing granular token permissions'` test.
                 Add test coverage.
-                #{implementation_guide_link(anchor: 'step-6-add-request-specs-for-the-endpoint')}
+                #{implementation_guide_link(anchor: 'step-6-add-authorization-tests')}
               MSG
             }
           end

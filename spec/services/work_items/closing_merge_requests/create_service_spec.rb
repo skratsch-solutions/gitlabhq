@@ -5,12 +5,12 @@ require 'spec_helper'
 RSpec.describe WorkItems::ClosingMergeRequests::CreateService, feature_category: :team_planning do
   describe '#execute' do
     let_it_be(:group) { create(:group, :private) }
-    let_it_be(:project) { create(:project, :repository, :private, group: group) }
+    let_it_be(:project) { create(:project, :private, group: group) }
     let_it_be(:developer) { create(:user, developer_of: group) }
     let_it_be(:unauthorized_user) { create(:user) }
     let_it_be(:merge_request) { create(:merge_request, source_project: project) }
     let_it_be(:private_merge_request) do
-      create(:merge_request, source_project: create(:project, :repository, :private))
+      create(:merge_request, source_project: create(:project, :private))
     end
 
     let(:current_user) { developer }

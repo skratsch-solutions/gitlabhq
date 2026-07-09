@@ -89,7 +89,6 @@ export default {
     'ee/app/assets/javascripts/usage_quotas/pipelines/namespace/components/project_list.vue',
     'ee/app/assets/javascripts/users/identity_verification/components/verify_phone_verification_code.vue',
     'ee/app/assets/javascripts/vue_shared/components/web_based_commit_signing/settings.vue',
-    'ee/app/assets/javascripts/vulnerabilities/components/related_issues.vue',
     'ee/app/assets/javascripts/work_items/pages/planning_view.vue',
   ],
   rules: {

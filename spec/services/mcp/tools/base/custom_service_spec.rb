@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Mcp::Tools::Base::CustomService, :aggregate_failures, feature_category: :mcp_server do
   let(:service_name) { 'test_custom_tool' }
   let(:current_user) { create(:user) }
-  let(:project) { create :project, :repository }
+  let(:project) { create :project }
 
   # Create a test service class that inherits from CustomService
   let(:test_service_class) do

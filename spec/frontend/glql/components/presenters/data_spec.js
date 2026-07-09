@@ -1,4 +1,5 @@
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
+import BarChartPresenter from '~/glql/components/presenters/bar_chart.vue';
 import ColumnChartPresenter from '~/glql/components/presenters/column_chart.vue';
 import LineChartPresenter from '~/glql/components/presenters/line_chart.vue';
 import ListPresenter from '~/glql/components/presenters/list.vue';
@@ -25,6 +26,7 @@ describe('DataPresenter', () => {
     ${'stat'}        | ${MOCK_STAT_FIELDS}                          | ${{ fields: MOCK_STAT_FIELDS }}                          | ${StatPresenter}
     ${'columnChart'} | ${MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC} | ${{ fields: MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC }} | ${ColumnChartPresenter}
     ${'lineChart'}   | ${MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC} | ${{ fields: MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC }} | ${LineChartPresenter}
+    ${'barChart'}    | ${MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC} | ${{ fields: MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC }} | ${BarChartPresenter}
   `(
     'inits appropriate presenter for displayType: $displayType',
     ({ displayType, fields, presenterProps, PresenterComponent }) => {
@@ -79,6 +81,38 @@ describe('DataPresenter', () => {
     });
   });
 
+  describe('barChart', () => {
+    it('forwards displayConfig to the bar chart presenter', () => {
+      const displayConfig = { stacked: true };
+
+      const wrapper = shallowMountExtended(DataPresenter, {
+        propsData: {
+          data: MOCK_AGGREGATED_DATA_ONE_DIM,
+          displayType: 'barChart',
+          fields: MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC,
+          displayConfig,
+        },
+      });
+
+      expect(wrapper.findComponent(BarChartPresenter).props('displayConfig')).toBe(displayConfig);
+    });
+
+    it('re-emits errors from the bar chart presenter', () => {
+      const wrapper = shallowMountExtended(DataPresenter, {
+        propsData: {
+          data: MOCK_AGGREGATED_DATA_ONE_DIM,
+          displayType: 'barChart',
+          fields: MOCK_AGGREGATED_FIELDS_ONE_DIM_ONE_METRIC,
+        },
+      });
+
+      const error = new Error('boom');
+      wrapper.findComponent(BarChartPresenter).vm.$emit('error', error);
+
+      expect(wrapper.emitted('error')).toEqual([[error]]);
+    });
+  });
+
   describe('stat', () => {
     it('re-emits errors from the stat presenter', () => {
       const wrapper = shallowMountExtended(DataPresenter, {
@@ -128,7 +162,7 @@ describe('DataPresenter', () => {
       expect(error).toEqual(expect.any(Error));
       expect(error.message).toBe(
         'Unknown display type: `pieChart`. Supported display types are: ' +
-          '`list`, `orderedList`, `table`, `stat`, `columnChart`, `lineChart`.',
+          '`list`, `orderedList`, `table`, `stat`, `columnChart`, `lineChart`, `barChart`.',
       );
     });
 
@@ -138,6 +172,7 @@ describe('DataPresenter', () => {
       expect(wrapper.findComponent(StatPresenter).exists()).toBe(false);
       expect(wrapper.findComponent(ColumnChartPresenter).exists()).toBe(false);
       expect(wrapper.findComponent(LineChartPresenter).exists()).toBe(false);
+      expect(wrapper.findComponent(BarChartPresenter).exists()).toBe(false);
     });
   });
 });
