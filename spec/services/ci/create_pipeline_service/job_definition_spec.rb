@@ -71,9 +71,7 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
     end
 
     it 'does not save metadata for jobs' do
-      pipeline.processables.each do |job|
-        expect(job.metadata).to be_nil
-      end
+      expect(Ci::BuildMetadata.where(build_id: pipeline.processables.select(:id))).to be_empty
     end
   end
 

@@ -4,7 +4,6 @@ fragment CatalogResourceVersionFields on CiCatalogResourceVersion {
   id
   name
   path
-  createdAt
   releasedAt
   author {
     id

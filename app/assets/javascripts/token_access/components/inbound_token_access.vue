@@ -69,7 +69,7 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  inject: ['enforceAllowlist', 'fullPath', 'projectAllowlistLimit'],
+  inject: ['enforceAllowlist', 'fullPath'],
   apollo: {
     inboundJobTokenScopeEnabled: {
       query: inboundGetCIJobTokenScopeQuery,

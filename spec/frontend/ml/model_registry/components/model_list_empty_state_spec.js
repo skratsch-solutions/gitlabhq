@@ -8,7 +8,6 @@ import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 let wrapper;
 const createWrapper = (props = {}) => {
   wrapper = shallowMount(EmptyState, {
-    provide: { mlflowTrackingUrl: 'path/to/mlflow' },
     propsData: {
       primaryText: 'primary-text',
       primaryLink: 'primary/link',

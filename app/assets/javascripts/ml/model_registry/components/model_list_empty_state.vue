@@ -14,7 +14,6 @@ export default {
   directives: {
     GlModal: GlModalDirective,
   },
-  inject: ['mlflowTrackingUrl'],
   props: {
     primaryLink: {
       type: String,

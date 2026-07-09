@@ -26,12 +26,19 @@ class JwtController < ApplicationController
     return head :not_found unless service
 
     result = service.new(@authentication_result.project, auth_user, auth_params)
-      .execute(**execute_params(service))
+      .execute(**execute_params)
 
     render json: result, status: result[:http_status]
   end
 
   private
+
+  def execute_params
+    {
+      authentication_abilities: @authentication_result.authentication_abilities,
+      personal_access_token: @authentication_result.personal_access_token
+    }
+  end
 
   def authenticate_project_or_user
     @authentication_result = Gitlab::Auth::Result.new(
@@ -91,18 +98,6 @@ class JwtController < ApplicationController
   def auth_params
     params.permit(:service, :account, :client_id)
           .merge(additional_params)
-  end
-
-  # The container registry service authorizes granular (fine-grained) PATs per
-  # boundary, so it needs the token; other services only need the abilities.
-  def execute_params(service)
-    kwargs = { authentication_abilities: @authentication_result.authentication_abilities }
-
-    if service == ::Auth::ContainerRegistryAuthenticationService
-      kwargs[:personal_access_token] = @authentication_result.personal_access_token
-    end
-
-    kwargs
   end
 
   def additional_params

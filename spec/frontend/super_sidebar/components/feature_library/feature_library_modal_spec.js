@@ -33,7 +33,7 @@ const SEARCH_URL = '/-/onboarding/feature_library/search';
 
 // Mirrors the nav tree shape passed down from sidebar_menu.vue: sections (menu
 // groups) holding leaf nav items enriched with feature-library metadata.
-const sections = [
+const defaultSections = [
   {
     id: 'plan_menu',
     title: 'Plan',
@@ -111,6 +111,7 @@ describe('FeatureLibraryModal', () => {
     currentPinnedIds = [],
     panelType = 'project',
     showFeedbackLink = false,
+    sections = defaultSections,
   } = {}) => {
     wrapper = shallowMountExtended(FeatureLibraryModal, {
       propsData: { sections, currentPinnedIds, showFeedbackLink },
@@ -589,6 +590,64 @@ describe('FeatureLibraryModal', () => {
           'repository',
         ]);
       });
+    });
+  });
+
+  describe('progressive reveal', () => {
+    const largeSections = [
+      {
+        id: 'plan_menu',
+        title: 'Plan',
+        items: Array.from({ length: 25 }, (_, i) => ({
+          id: `plan_item_${i}`,
+          title: `Plan item ${i}`,
+          description: `Description ${i}`,
+          library_icon: 'issues',
+        })),
+      },
+      {
+        id: 'code_menu',
+        title: 'Code',
+        items: Array.from({ length: 15 }, (_, i) => ({
+          id: `code_item_${i}`,
+          title: `Code item ${i}`,
+          description: `Description ${i}`,
+          library_icon: 'code',
+        })),
+      },
+    ];
+
+    beforeEach(() => {
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        cb();
+        return 1;
+      });
+      createWrapper({ sections: largeSections });
+    });
+
+    it('only mounts the first chunk of the catalog synchronously', () => {
+      expect(findItems()).toHaveLength(18);
+    });
+
+    it('reveals the full catalog after the modal is shown', async () => {
+      findModal().vm.$emit('shown');
+      await nextTick();
+      expect(findItems()).toHaveLength(40);
+    });
+
+    it('resets to the first chunk when the modal is hidden, so reopening stays fast', async () => {
+      findModal().vm.$emit('shown');
+      await nextTick();
+      findModal().vm.$emit('hidden');
+      await nextTick();
+      expect(findItems()).toHaveLength(18);
+    });
+
+    it('shows all search matches even before the reveal has run', async () => {
+      mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+      await emitSearch('Plan item');
+      await waitForPromises();
+      expect(findItems()).toHaveLength(25);
     });
   });
 

@@ -107,8 +107,8 @@ export default {
       return this.resource?.verificationLevel !== VERIFICATION_LEVEL_UNVERIFIED;
     },
     lastReleaseText() {
-      if (this.latestVersion?.createdAt) {
-        const date = formatDate(this.latestVersion.createdAt);
+      if (this.latestVersion?.releasedAt) {
+        const date = formatDate(this.latestVersion.releasedAt);
         return sprintf(this.$options.i18n.lastRelease, { date });
       }
 

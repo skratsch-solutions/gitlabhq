@@ -2,24 +2,13 @@
 
 module Ci
   ##
-  # This module implements methods that need to read and write
-  # metadata for CI/CD entities.
+  # This module implements methods that expose CI/CD processable configuration.
   #
   module Metadatable
     extend ActiveSupport::Concern
     include Gitlab::Utils::StrongMemoize
 
     included do
-      has_one :metadata,
-        ->(build) { where(partition_id: build.partition_id) },
-        class_name: 'Ci::BuildMetadata',
-        foreign_key: :build_id,
-        partition_foreign_key: :partition_id,
-        inverse_of: :build,
-        autosave: true
-
-      accepts_nested_attributes_for :metadata
-
       scope :with_project_and_job_definition, -> do
         preload(:project, :job_definition)
       end
@@ -62,7 +51,6 @@ module Ci
     def degenerate!
       self.class.transaction do
         self.needs.all.delete_all
-        self.metadata&.destroy
         self.job_definition_instance&.destroy
         yield if block_given?
       end

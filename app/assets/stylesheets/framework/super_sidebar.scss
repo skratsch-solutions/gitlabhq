@@ -362,6 +362,7 @@ $command-palette-spacing: px-to-rem(14px);
   &.gl-modal .modal-dialog {
     align-items: flex-start;
     margin-top: 5vh;
+    min-height: 0;
 
     .modal-content {
       min-height: auto;

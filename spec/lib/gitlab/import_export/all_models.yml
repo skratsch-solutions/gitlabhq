@@ -412,7 +412,6 @@ builds:
 - pipeline
 - sourced_pipeline
 - resource_group
-- metadata
 - runner
 - trigger
 - erased_by
@@ -498,7 +497,6 @@ bridges:
 - job_messages
 - error_job_messages
 - resource_group
-- metadata
 - trigger
 - downstream_pipeline
 - upstream_pipeline

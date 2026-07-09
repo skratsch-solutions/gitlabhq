@@ -1548,8 +1548,8 @@ Example response:
 {{< details >}}
 
 - Tier: Premium, Ultimate
-- Offering: GitLab.com, GitLab Self-Managed
 - Add-on: GitLab Duo Core, Pro, or Enterprise
+- Offering: GitLab.com, GitLab Self-Managed
 - Status: Beta
 
 {{< /details >}}
@@ -1557,7 +1557,7 @@ Example response:
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/227817) in GitLab 18.11 [with a feature flag](../administration/feature_flags/_index.md) named `semantic_code_search_rest_api`. Enabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240677) in GitLab 19.2. Feature flag `semantic_code_search_rest_api` removed.
+- Feature flag `semantic_code_search_rest_api` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240677) in GitLab 19.2.
 
 {{< /history >}}
 

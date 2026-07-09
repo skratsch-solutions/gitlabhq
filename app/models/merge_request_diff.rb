@@ -301,10 +301,6 @@ class MergeRequestDiff < ApplicationRecord
     # of `after_save` hooks that come after this `after_create` hook. Otherwise, the
     # hooks that run when an attribute was changed are run twice.
     reset
-
-    return if async_keep_around_refs?
-
-    keep_around_commits unless importing?
   end
 
   def set_patch_id_sha
@@ -1052,7 +1048,9 @@ class MergeRequestDiff < ApplicationRecord
   end
 
   def enqueue_keep_around_commits
-    return unless async_keep_around_refs?
+    # The merge head keeps track of what an actual merge might look like. The
+    # referenced merge is temporary and so is kept alive with
+    # MergeRequest#merge_ref_path which is updated as required.
     return if merge_head?
 
     project_ids = [project.id, merge_request.source_project_id].compact.uniq
@@ -1061,23 +1059,6 @@ class MergeRequestDiff < ApplicationRecord
       [start_commit_sha, head_commit_sha],
       self.class.name
     )
-  end
-
-  def async_keep_around_refs?
-    strong_memoize(:async_keep_around_refs) do
-      Feature.enabled?(:async_keep_around_refs_for_merge_request_diffs, project, type: :gitlab_com_derisk)
-    end
-  end
-
-  def keep_around_commits
-    # The merge head keeps track of what an actual merge might look like. The
-    # referenced merge is temporary and so is kept alive with
-    # MergeRequest#merge_ref_path which is updated as required.
-    return if merge_head?
-
-    [repository, merge_request.source_project.repository].uniq.each do |repo|
-      repo.keep_around(start_commit_sha, head_commit_sha, source: self.class.name)
-    end
   end
 
   def reorder_diff_files!

@@ -35,7 +35,6 @@ export default {
     SidebarInheritDate,
     HelpIcon,
   },
-  inject: ['canUpdate'],
   props: {
     iid: {
       type: String,

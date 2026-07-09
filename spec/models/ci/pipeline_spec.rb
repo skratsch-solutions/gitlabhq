@@ -5207,17 +5207,6 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
   describe '#environments_in_self_and_project_descendants' do
     subject { pipeline.environments_in_self_and_project_descendants }
 
-    before_all do
-      Ci::ApplicationRecord.connection.execute(<<~SQL)
-        CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_100"
-          PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (100);
-        CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_101"
-          PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (101);
-        CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_102"
-          PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (102);
-      SQL
-    end
-
     shared_examples_for 'fetches environments in self and project descendant pipelines' do |factory_type|
       context 'when pipeline is not child nor parent' do
         let_it_be(:pipeline) { create(:ci_pipeline, :created) }
@@ -5237,26 +5226,13 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
           end
         end
 
-        context 'when the environment is linked via Environments::Job instead of CI metadata' do
-          before do
-            job.metadata&.destroy!
-          end
-
-          it 'returns the environment' do
-            expect(subject).to contain_exactly(job.deployment.environment)
-          end
-        end
-
-        context 'when there are environments linked via both Environments::Job and CI metadata' do
-          let_it_be_with_refind(:staging_job) { create(factory_type, :with_deployment, :start_staging, pipeline: pipeline) }
-
+        context 'when the environment is not linked via Environments::Job' do
           before do
             job.job_environment.destroy!
-            create(:ci_build_metadata, build: job, expanded_environment_name: job.expanded_environment_name)
           end
 
-          it 'includes environments from both sources' do
-            expect(subject).to contain_exactly(job.deployment.environment, staging_job.deployment.environment)
+          it 'does not return environments' do
+            expect(subject).to be_empty
           end
         end
       end
@@ -5807,70 +5783,6 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
 
       it 'returns the job in the parent pipeline' do
         expect(pipeline.build_with_artifacts_in_self_and_project_descendants('test')).to eq(build)
-      end
-    end
-  end
-
-  describe '#jobs_in_self_and_project_descendants' do
-    subject(:jobs) { pipeline.jobs_in_self_and_project_descendants }
-
-    let_it_be_with_refind(:pipeline) { create(:ci_pipeline) }
-
-    shared_examples_for 'fetches jobs in self and project descendant pipelines' do |factory_type|
-      let!(:job) { create(factory_type, pipeline: pipeline) }
-
-      context 'when pipeline is standalone' do
-        it 'returns the list of jobs' do
-          expect(jobs).to contain_exactly(job)
-        end
-      end
-
-      context 'when pipeline is parent of another pipeline' do
-        let(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
-        let(:child_source_bridge) { child_pipeline.source_pipeline.source_job }
-        let!(:child_job) { create(factory_type, pipeline: child_pipeline) }
-
-        it 'returns the list of jobs' do
-          expect(jobs).to contain_exactly(job, child_job, child_source_bridge)
-        end
-      end
-
-      context 'when pipeline is parent of another parent pipeline' do
-        let(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
-        let(:child_source_bridge) { child_pipeline.source_pipeline.source_job }
-        let!(:child_job) { create(factory_type, pipeline: child_pipeline) }
-        let(:child_of_child_pipeline) { create(:ci_pipeline, child_of: child_pipeline) }
-        let(:child_of_child_source_bridge) { child_of_child_pipeline.source_pipeline.source_job }
-        let!(:child_of_child_job) { create(factory_type, pipeline: child_of_child_pipeline) }
-
-        it 'returns the list of jobs' do
-          expect(jobs).to contain_exactly(job, child_job, child_of_child_job, child_source_bridge, child_of_child_source_bridge)
-        end
-      end
-
-      it 'includes partition_id filter' do
-        expect(jobs.where_values_hash).to match(a_hash_including('partition_id' => pipeline.partition_id))
-      end
-    end
-
-    context 'when job is build' do
-      it_behaves_like 'fetches jobs in self and project descendant pipelines', :ci_build
-    end
-
-    context 'when job is bridge' do
-      it_behaves_like 'fetches jobs in self and project descendant pipelines', :ci_bridge
-    end
-
-    context 'when pipelines span multiple partitions' do
-      let_it_be(:child_pipeline) { create(:ci_pipeline, child_of: pipeline) }
-      let_it_be(:cross_partition_pipeline) { create(:ci_pipeline, partition_id: 101, child_of: child_pipeline) }
-
-      it 'returns jobs from all partitions' do
-        job = create(:ci_build, pipeline: pipeline)
-        child_job = create(:ci_build, pipeline: child_pipeline)
-        cross_partition_job = create(:ci_build, pipeline: cross_partition_pipeline)
-
-        expect(jobs).to include(job, child_job, cross_partition_job)
       end
     end
   end

@@ -531,7 +531,7 @@ Grants the ability to create, delete, read, and update container repository prot
 
 #### Dependency Proxy
 
-Grants the ability to update dependency proxies.
+Grants the ability to read and update dependency proxies.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |

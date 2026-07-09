@@ -47308,6 +47308,9 @@ msgstr ""
 msgid "MergeRequest|Failed to load the page"
 msgstr ""
 
+msgid "MergeRequest|Marked ready"
+msgstr ""
+
 msgid "MergeRequest|Merge conflict"
 msgstr ""
 
@@ -47315,9 +47318,6 @@ msgid "MergeRequest|Merge request %{currentIndex} of %{stackSize} in stack"
 msgstr ""
 
 msgid "MergeRequest|No files found"
-msgstr ""
-
-msgid "MergeRequest|Ready"
 msgstr ""
 
 msgid "MergeRequest|Remove reviewer"
@@ -67420,6 +67420,9 @@ msgid "SecurityConfiguration|%{enabledCount} of %{totalCount}"
 msgstr ""
 
 msgid "SecurityConfiguration|%{featureName} merge request creation mutation failed"
+msgstr ""
+
+msgid "SecurityConfiguration|%{profileLabel}, last scan failed"
 msgstr ""
 
 msgid "SecurityConfiguration|%{protectedCount} of %{totalCount} projects have scanners enabled"

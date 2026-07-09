@@ -16,7 +16,6 @@ export default {
     TodoItemTimestamp,
     TodoItemActions,
   },
-  inject: ['currentTab'],
   props: {
     todo: {
       type: Object,

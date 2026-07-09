@@ -1273,24 +1273,11 @@ module Ci
       in_pipelines_and_partitions(Ci::Bridge.latest, self_and_project_descendants)
     end
 
-    def jobs_in_self_and_project_descendants
-      in_pipelines_and_partitions(Ci::Processable.latest, self_and_project_descendants)
-    end
-
     def environments_in_self_and_project_descendants(deployment_status: nil)
       # We limit to 100 unique environments for application safety.
       # See: https://gitlab.com/gitlab-org/gitlab/-/issues/340781#note_699114700
       #
-      # TODO: This metadata query can be removed when historical job environment
-      # records have been backfilled.
-      expanded_environment_names =
-        jobs_in_self_and_project_descendants.joins(:metadata)
-                                      .where.not(Ci::BuildMetadata.table_name => { expanded_environment_name: nil })
-                                      .distinct("#{Ci::BuildMetadata.quoted_table_name}.expanded_environment_name")
-                                      .limit(100)
-                                      .pluck(:expanded_environment_name)
-
-      expanded_environment_names += Environments::Job
+      expanded_environment_names = Environments::Job
         .where(ci_pipeline_id: self_and_project_descendants.pluck(:id))
         .limit(100)
         .distinct

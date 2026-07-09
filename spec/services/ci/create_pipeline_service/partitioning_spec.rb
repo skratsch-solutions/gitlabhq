@@ -136,13 +136,6 @@ RSpec.describe Ci::CreatePipelineService, :aggregate_failures,
     end
   end
 
-  def find_metadata(name)
-    pipeline
-      .processables
-      .find { |job| job.name == name }
-      .metadata
-  end
-
   def find_need(name)
     pipeline
       .processables

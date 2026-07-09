@@ -217,7 +217,6 @@ class Note < ApplicationRecord
   # Syncs `confidential` with `internal` as we rename the column.
   # https://gitlab.com/gitlab-org/gitlab/-/issues/367923
   before_create :set_internal_flag
-  after_save :keep_around_commit, if: :for_project_noteable?, unless: -> { importing? || skip_keep_around_commits }
   after_save :touch_noteable, if: :touch_noteable?
   after_commit :enqueue_keep_around_commit, on: [:create, :update], if: :for_project_noteable?, unless: -> {
     importing? || skip_keep_around_commits
@@ -829,15 +828,8 @@ class Note < ApplicationRecord
     !group_restriction || Ability.allowed?(user, group_restriction, project&.group)
   end
 
-  def keep_around_commit
-    return if async_keep_around_refs?
-
-    project.repository.keep_around(self.commit_id, source: "#{noteable_type}/#{self.class.name}")
-  end
-
   def enqueue_keep_around_commit
     return unless commit_id.present?
-    return unless async_keep_around_refs?
 
     MergeRequests::KeepAroundRefsWorker.perform_async(
       [project.id],
@@ -845,11 +837,6 @@ class Note < ApplicationRecord
       "#{noteable_type}/#{self.class.name}"
     )
   end
-
-  def async_keep_around_refs?
-    Feature.enabled?(:async_keep_around_refs_for_merge_request_diffs, project, type: :gitlab_com_derisk)
-  end
-  strong_memoize_attr :async_keep_around_refs?
 
   def ensure_organization_id
     return if organization_id.present? && !noteable_changed? && !project_changed?

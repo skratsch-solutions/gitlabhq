@@ -12,9 +12,15 @@ module Tasks
 
           # Raw permissions consumed by gPATs through paths the validator cannot statically detect.
           # These call `Authz::Tokens::AuthorizeGranularScopesService` directly rather than through a
-          # REST route or GraphQL directive: `download_code` via `Gitlab::GitAccess`
-          # (git protocol commands) and `create_editor_telemetry` via `EventForwardController`.
-          GRANULAR_TOKEN_NON_API_CONSUMERS = Set[:download_code, :create_editor_telemetry].freeze
+          # REST route or GraphQL directive:
+          #   - `download_code` via `Gitlab::GitAccess` (git protocol commands)
+          #   - `create_editor_telemetry` via `EventForwardController`
+          #   - `read_dependency_proxy` via `Auth::ContainerProxyAuthenticationService` (dependency proxy JWT flow)
+          GRANULAR_TOKEN_NON_API_CONSUMERS = Set[
+            :download_code,
+            :create_editor_telemetry,
+            :read_dependency_proxy
+          ].freeze
 
           def initialize
             @violations = {

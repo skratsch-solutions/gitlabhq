@@ -559,6 +559,82 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
         it_behaves_like 'a successful manifest pull'
         it_behaves_like 'a package tracking event', described_class.name, 'pull_manifest', false
       end
+
+      context 'with a granular (fine-grained) personal access token' do
+        let_it_be(:user) { create(:user) }
+        let_it_be(:other_group) { create(:group, :private) }
+
+        let(:permissions) { [:read_dependency_proxy] }
+        let(:granular_pat) do
+          create(:granular_pat,
+            user: user,
+            boundary: ::Authz::Boundary.for(boundary_group),
+            permissions: permissions)
+        end
+
+        let(:jwt) { build_jwt(granular_pat) }
+
+        shared_examples 'a denied pull' do
+          it 'is denied' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+        end
+
+        before do
+          group.add_guest(user)
+        end
+
+        context 'scoped to the group being accessed' do
+          let(:boundary_group) { group }
+
+          it_behaves_like 'a successful manifest pull'
+        end
+
+        context 'scoped to a different group' do
+          let(:boundary_group) { other_group }
+
+          it_behaves_like 'a denied pull'
+        end
+
+        context 'scoped to the group but holding an unrelated permission' do
+          let(:boundary_group) { group }
+          let(:permissions) { [:update_dependency_proxy] }
+
+          it_behaves_like 'a denied pull'
+        end
+      end
+
+      context 'with a legacy personal access token' do
+        let_it_be(:user) { create(:user) }
+        let_it_be_with_reload(:token) { create(:personal_access_token, :dependency_proxy_scopes, user: user) }
+
+        let(:jwt) { build_jwt(token) }
+
+        before do
+          group.add_guest(user)
+        end
+
+        context 'in an enforced namespace' do
+          before do
+            ::NamespaceSetting.find_by!(namespace_id: group.id).update!(
+              enforce_granular_tokens: true,
+              granular_tokens_enforced_after: Date.current
+            )
+          end
+
+          it 'is denied' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+        end
+
+        context 'in a non-enforced namespace' do
+          it_behaves_like 'a successful manifest pull'
+        end
+      end
     end
 
     it_behaves_like 'not found when disabled'

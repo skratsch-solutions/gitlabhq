@@ -272,7 +272,7 @@ RSpec.describe PipelineSerializer, feature_category: :continuous_integration do
           it 'does not query CI build metadata', :request_store do
             recorded = ActiveRecord::QueryRecorder.new { subject }
 
-            expect(recorded.log).not_to include(a_string_matching(/ci_builds_metadata/))
+            expect(recorded.log).not_to include(/ci_builds_metadata/)
           end
         end
 

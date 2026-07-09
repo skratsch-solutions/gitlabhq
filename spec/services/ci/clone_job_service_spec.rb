@@ -86,7 +86,7 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
         runner_id taggings tags trigger trigger_id
         user_id auto_canceled_by_id retried failure_reason
         sourced_pipelines sourced_pipeline artifacts_file_store artifacts_metadata_store
-        metadata runner_manager_build runner_manager build_runtime_environment runner_session trace_chunks
+        runner_manager_build runner_manager build_runtime_environment runner_session trace_chunks
         upstream_pipeline_id upstream_pipeline_partition_id
         artifacts_file artifacts_metadata artifacts_size commands
         resource resource_group_id processed security_scans security_report_artifacts author
@@ -121,17 +121,6 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
     end
 
     describe 'clone accessors' do
-      before_all do
-        Ci::ApplicationRecord.connection.execute(<<~SQL)
-          CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_100"
-            PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (100);
-          CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_101"
-            PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (101);
-          CREATE TABLE IF NOT EXISTS "gitlab_partitions_dynamic"."ci_builds_metadata_102"
-            PARTITION OF "p_ci_builds_metadata" FOR VALUES IN (102);
-        SQL
-      end
-
       let(:forbidden_associations) do
         Ci::Build.reflect_on_all_associations.each_with_object(Set.new) do |assoc, memo|
           memo << assoc.name unless assoc.macro == :belongs_to
@@ -176,62 +165,6 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
         it 'clones the protected job attribute' do
           expect(new_job.protected).to be_nil
           expect(new_job.protected).to eq job.protected
-        end
-      end
-
-      context 'when the job definitions do not exist' do
-        before do
-          create(:ci_build_metadata, build: job)
-          Ci::JobDefinitionInstance.delete_all
-          Ci::JobDefinition.delete_all
-        end
-
-        it 'creates a new job definition from metadata' do
-          expect(job.job_definition).not_to be_present
-          expect(new_job.job_definition).to be_present
-        end
-      end
-
-      context 'when a job definition for the metadata attributes already exists' do
-        let(:metadata) do
-          create(:ci_build_metadata, build: job,
-            config_options: job.options,
-            config_variables: job.yaml_variables,
-            id_tokens: job.id_tokens,
-            interruptible: job.interruptible
-          )
-        end
-
-        let(:config) do
-          {
-            options: metadata.config_options,
-            yaml_variables: metadata.config_variables,
-            id_tokens: metadata.id_tokens,
-            secrets: metadata.secrets,
-            tag_list: job.tag_list.to_a,
-            run_steps: job.try(:execution_config)&.run_steps || [],
-            interruptible: metadata.interruptible
-          }
-        end
-
-        let(:attributes) do
-          {
-            config: config.compact,
-            project_id: project.id,
-            partition_id: pipeline.partition_id
-          }
-        end
-
-        before do
-          Ci::JobDefinitionInstance.delete_all
-          Ci::JobDefinition.fabricate(**attributes).save!
-          job.reload # clear the associated records
-        end
-
-        it 'attaches an existing job definition' do
-          expect(job.job_definition).not_to be_present
-          expect { new_job }.not_to change { Ci::JobDefinition.count }
-          expect(new_job.job_definition).to be_present
         end
       end
     end

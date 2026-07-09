@@ -1,6 +1,6 @@
 ---
-title: "GitLab 19.2 - not yet released"
-description: "Summary of features included in 19.2"
+title: "GitLab 19.2 (not yet released)"
+description: "Release notes for the upcoming version of GitLab."
 group: Monthly Release
 stage: Release Notes
 ---

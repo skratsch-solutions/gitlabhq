@@ -296,6 +296,8 @@ The template project must contain a `.gitlab/duo/mr-review-automated-rules.yaml`
 
 GitLab Duo combines the exclusion rules from the group template project with the rules defined
 in the individual project.
+If the same category is defined at both levels, the project's rules take
+precedence.
 When a group and its subgroups each set a template project, GitLab Duo combines the rules from
 every level.
 

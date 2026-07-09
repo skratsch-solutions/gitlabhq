@@ -23,7 +23,13 @@ import {
   EVENT_UNPIN_ITEM_IN_FEATURE_LIBRARY_MODAL,
   EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
 } from '../../tracking_constants';
-import { ALL_CATEGORY, ALL_CATEGORY_ID, FEEDBACK_ISSUE_URL, MODAL_ID } from './constants';
+import {
+  ALL_CATEGORY,
+  ALL_CATEGORY_ID,
+  FEEDBACK_ISSUE_URL,
+  MODAL_ID,
+  ITEMS_PER_RENDER_FRAME,
+} from './constants';
 import FeatureLibraryItem from './feature_library_item.vue';
 
 const SETTINGS_MENU_ID = 'settings_menu';
@@ -74,6 +80,8 @@ export default {
       searchResultIds: [],
       isSearching: false,
       latestQuery: null,
+      renderLimit: ITEMS_PER_RENDER_FRAME,
+      revealFrameId: null,
     };
   },
   computed: {
@@ -162,13 +170,34 @@ export default {
 
       return s__('FeatureLibrary|No features match your search');
     },
+    visibleItems() {
+      if (this.trimmedQuery) return this.filteredItems;
+      return this.filteredItems.slice(0, this.renderLimit);
+    },
+  },
+  beforeUnmount() {
+    this.cancelReveal();
   },
   methods: {
     isPinned(itemId) {
       return this.currentPinnedIds.includes(itemId);
     },
     onShown() {
+      this.revealRemainingItems();
       this.trackEvent(EVENT_OPEN_FEATURE_LIBRARY_MODAL);
+    },
+    revealRemainingItems() {
+      if (this.renderLimit >= this.catalog.length) return;
+      this.revealFrameId = window.requestAnimationFrame(() => {
+        this.renderLimit += ITEMS_PER_RENDER_FRAME;
+        this.revealRemainingItems();
+      });
+    },
+    cancelReveal() {
+      if (this.revealFrameId) {
+        window.cancelAnimationFrame(this.revealFrameId);
+        this.revealFrameId = null;
+      }
     },
     onTabClick(categoryId) {
       this.activeCategoryId = categoryId;
@@ -207,8 +236,10 @@ export default {
     },
     onHidden() {
       this.resetSearchState();
+      this.cancelReveal();
       this.searchQuery = '';
       this.activeCategoryId = ALL_CATEGORY_ID;
+      this.renderLimit = ITEMS_PER_RENDER_FRAME;
     },
     fetchResults(query) {
       this.searchResultIds = [];
@@ -283,7 +314,7 @@ export default {
         class="gl-grid gl-list-none gl-grid-cols-1 gl-gap-3 gl-p-0 sm:gl-grid-cols-2 md:gl-grid-cols-3"
       >
         <feature-library-item
-          v-for="item in filteredItems"
+          v-for="item in visibleItems"
           :key="item.id"
           :item="item"
           :pinned="isPinned(item.id)"

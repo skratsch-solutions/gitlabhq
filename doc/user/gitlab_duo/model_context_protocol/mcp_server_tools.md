@@ -475,6 +475,13 @@ Show me all labels in project gitlab-org/gitlab
 
 ## `semantic_code_search`
 
+{{< details >}}
+
+- Add-on: GitLab Duo Core, Pro, or Enterprise
+- Offering: GitLab.com, GitLab Self-Managed
+
+{{< /details >}}
+
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/569624) as an [experiment](../../../policy/development_stages_support.md#experiment) in GitLab 18.5 [with a feature flag](../../../administration/feature_flags/_index.md) named `code_snippet_search_graphqlapi`. Disabled by default.
@@ -482,9 +489,13 @@ Show me all labels in project gitlab-org/gitlab
 - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/568359) from experiment to [beta](../../../policy/development_stages_support.md#beta) in GitLab 18.7. Feature flag `code_snippet_search_graphqlapi` removed.
 - [Added](https://gitlab.com/gitlab-org/gitlab/-/issues/581105) to the GitLab UI in GitLab 18.7 [with a feature flag](../../../administration/feature_flags/_index.md) named `mcp_client`. Disabled by default.
 - [Updated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/228569) to use the [REST API](../../../api/search.md#semantic-search) in GitLab 18.11 [with a feature flag](../../../administration/feature_flags/_index.md) named `mcp_semantic_code_search_use_rest_api`. Disabled by default.
-- Semantic code search with the REST API generally available in GitLab 19.1. Feature flag `mcp_semantic_code_search_use_rest_api` removed.
+- Using the REST API [generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/239364) in GitLab 19.1. Feature flag `mcp_semantic_code_search_use_rest_api` removed.
 
 {{< /history >}}
+
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
 
 Searches for relevant code snippets in a GitLab project.
 For more information, including setup and enablement,

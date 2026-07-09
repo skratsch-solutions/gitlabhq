@@ -26,7 +26,6 @@ describe('CiResourcesListItem', () => {
   const resource = catalogSinglePageResponse.data.ciCatalogResources.nodes[0];
   const release = {
     author: { id: 'author-id', name: 'author', username: 'author-username', webPath: '/user/1' },
-    createdAt: Date.now(),
     name: '1.0.0',
   };
   const defaultProps = {
@@ -310,7 +309,7 @@ describe('CiResourcesListItem', () => {
       it('has tooltip with release information on the badge', () => {
         const badge = findVersionBadge();
         const tooltip = getBinding(badge.element, 'gl-tooltip');
-        const title = 'Released Jan 26, 2024 7:40pm UTC';
+        const title = 'Released Jan 27, 2024 7:40pm UTC';
 
         expect(badge.attributes()).toMatchObject({
           title,
