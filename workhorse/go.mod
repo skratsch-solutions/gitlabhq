@@ -42,6 +42,8 @@ require (
 	google.golang.org/protobuf v1.36.11
 )
 
+require github.com/go-json-experiment/json v0.0.0-20260213210345-44df1a37e875
+
 require (
 	cel.dev/expr v0.25.1 // indirect
 	cloud.google.com/go v0.123.0 // indirect

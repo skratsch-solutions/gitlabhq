@@ -66,6 +66,10 @@ RSpec.describe Gitlab::Tracking::Destinations::DestinationConfiguration, feature
         expect(configuration.uri.to_s).to eq(described_class::BILLING_COLLECT_ENDPOINT)
         expect(configuration.app_id_suffix).to eq('_billing')
       end
+
+      it 'is marked as a billing configuration' do
+        expect(configuration.billing?).to be(true)
+      end
     end
 
     context 'on staging instance' do

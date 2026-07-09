@@ -699,6 +699,29 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
             transfer_service.execute(new_parent_group)
           end
 
+          it 'logs the parent change and the authorization refresh being enqueued' do
+            allow(Gitlab::AppJsonLogger).to receive(:info).and_call_original
+
+            expect(Gitlab::AppJsonLogger).to receive(:info).with(
+              hash_including(
+                event: 'group_transfer_parent_changed',
+                group_id: group.id,
+                new_parent_group_id: new_parent_group.id,
+                project_count: 2
+              )
+            )
+
+            expect(Gitlab::AppJsonLogger).to receive(:info).with(
+              hash_including(
+                event: 'group_transfer_authz_refresh_enqueued',
+                group_id: group.id,
+                project_count: 2
+              )
+            )
+
+            transfer_service.execute(new_parent_group)
+          end
+
           context 'for nested projects' do
             it 'removes old project authorizations' do
               expect { transfer_service.execute(new_parent_group) }.to change {

@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Mcp::Tools::MergeRequests::GetMergeRequestNotesTool, feature_category: :mcp_server do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:project) { create(:project, :public) }
   let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
   let_it_be(:note1) { create(:note_on_merge_request, noteable: merge_request, project: project, author: user) }
   let_it_be(:note2) { create(:note_on_merge_request, noteable: merge_request, project: project, author: user) }
@@ -177,7 +177,7 @@ RSpec.describe Mcp::Tools::MergeRequests::GetMergeRequestNotesTool, feature_cate
 
     context 'with a merge request URL in a nested subgroup' do
       let_it_be(:nested_group) { create(:group, :nested) }
-      let_it_be(:nested_project) { create(:project, :public, :repository, group: nested_group) }
+      let_it_be(:nested_project) { create(:project, :public, group: nested_group) }
       let_it_be(:nested_merge_request) do
         create(:merge_request, source_project: nested_project, target_project: nested_project)
       end

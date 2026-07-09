@@ -369,10 +369,15 @@ RSpec.describe Repository, feature_category: :source_code_management do
     context 'with a commit with invalid UTF-8 path' do
       let(:project) { create(:project, :empty_repo) }
 
-      it 'does not raise an error' do
+      it 'returns hash keys with valid UTF-8 encoding', :aggregate_failures do
         response = create_file_in_repo(project, 'master', 'master', "hello\x80world", 'some contents')
 
-        expect { repository.list_last_commits_for_tree(response[:result], '.', offset: 0) }.not_to raise_error
+        result = repository.list_last_commits_for_tree(response[:result], '.', offset: 0)
+
+        result.each_key do |key|
+          expect(key.encoding).to eq(Encoding::UTF_8)
+          expect(key).to be_valid_encoding
+        end
       end
     end
   end

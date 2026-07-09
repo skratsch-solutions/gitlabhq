@@ -247,6 +247,7 @@ export default {
     'canCreateWorkItem',
     'autocompleteAwardEmojisPath',
     'metadataLoading',
+    'waitForMetadata',
     'canAdminIssue',
     'canBulkAdminEpic',
     'isGroup',
@@ -1610,7 +1611,11 @@ export default {
         search,
       });
     },
-    fetchLabelsWithFetchPolicy(search, fetchPolicy = fetchPolicies.CACHE_FIRST) {
+    async fetchLabelsWithFetchPolicy(search, fetchPolicy = fetchPolicies.CACHE_FIRST) {
+      // Wait for metadata to load so isGroup has the correct value.
+      // Without this, the query may fire with the wrong namespace type.
+      await this.waitForMetadata();
+
       return this.$apollo
         .query({
           query: searchLabelsQuery,

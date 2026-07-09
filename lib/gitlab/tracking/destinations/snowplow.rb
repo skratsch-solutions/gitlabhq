@@ -11,6 +11,7 @@ module Gitlab
         SNOWPLOW_NAMESPACE = 'gl'
         DEDICATED_APP_ID = 'gitlab_dedicated'
         SELF_MANAGED_APP_ID = 'gitlab_sm'
+        BILLING_AUTH_POST_PATH = '/com.snowplowanalytics.snowplow.auth/tp2'
 
         delegate :hostname, :uri, :protocol, to: :@destination_configuration
 
@@ -123,6 +124,8 @@ module Gitlab
           # Use test emitter in test environment to prevent HTTP requests
           return SnowplowTestEmitter if Rails.env.test?
 
+          return ::Gitlab::Tracking::BillingAuthEmitter if billing_auth?
+
           return SnowplowTracker::Emitter if Feature.enabled?(:snowplow_sync_emitter, Feature.current_request)
 
           if Feature.enabled?(:snowplow_job_emitter, Feature.current_request)
@@ -142,6 +145,10 @@ module Gitlab
           ::Gitlab::Tracking::SnowplowLoggingEmitter
         end
 
+        def billing_auth?
+          destination_configuration.billing? && Feature.enabled?(:billing_events_oidc_auth, :instance)
+        end
+
         def emitter_options
           options = {
             protocol: protocol,
@@ -150,6 +157,8 @@ module Gitlab
             method: 'post',
             buffer_size: 1
           }
+
+          options[:path] = BILLING_AUTH_POST_PATH if billing_auth?
 
           options[:thread_count] = 15 if Feature.enabled?(:snowplow_emitter_thread_count, Feature.current_request)
 

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Projects::AutoDevops::DisableService, '#execute', feature_category: :auto_devops do
-  let(:project) { create(:project, :repository, :auto_devops) }
+  let_it_be_with_reload(:project) { create(:project, :auto_devops) }
   let(:auto_devops) { project.auto_devops }
 
   subject { described_class.new(project).execute }
@@ -80,7 +80,7 @@ RSpec.describe Projects::AutoDevops::DisableService, '#execute', feature_categor
     end
 
     context 'when project does not have an Auto DevOps record related' do
-      let(:project) { create(:project, :repository) }
+      let(:project) { create(:project) }
 
       before do
         create(:ci_pipeline, :failed, :auto_devops_source, project: project)
@@ -94,7 +94,7 @@ RSpec.describe Projects::AutoDevops::DisableService, '#execute', feature_categor
       end
 
       it 'creates a ProjectAutoDevops record' do
-        expect { subject }.to change { ProjectAutoDevops.count }.from(0).to(1)
+        expect { subject }.to change { ProjectAutoDevops.where(project: project).count }.from(0).to(1)
       end
     end
   end

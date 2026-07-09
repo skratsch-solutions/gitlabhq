@@ -60,3 +60,11 @@ To establish baseline:
 Documentation: https://gitlab\.com/gitlab-org/ruby/gems/labkit-ruby/-/blob/master/doc/FIELD_STANDARDIZATION\.md
 --- Offenses Summary ---
 Total offenses: [0-9]+ across [0-9]+ file\(s\)
+
+# fiddle is loaded by lib/gitlab/memory/jemalloc.rb and warns under Ruby 3.4 that
+# it will no longer be part of the default gems starting from Ruby 4.0. We cannot
+# add it to the Gemfile because its native extension needs libffi headers that are
+# absent from the CI image, so ignore the warning until the fiddle usage is removed.
+# See https://gitlab.com/groups/gitlab-org/-/work_items/16601
+fiddle\.rb was loaded from the standard library, but will no longer be part of the default gems starting from Ruby 4\.0\.0\.
+You can add fiddle to your Gemfile or gemspec to silence this warning\.

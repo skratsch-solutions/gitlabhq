@@ -20,7 +20,7 @@ module Gitlab
           end
 
           def billing_configuration
-            new(billing_uri, app_id_suffix: '_billing')
+            new(billing_uri, app_id_suffix: '_billing', billing: true)
           end
 
           def non_production_environment?
@@ -68,9 +68,14 @@ module Gitlab
 
         attr_reader :uri, :app_id_suffix
 
-        def initialize(collector_uri, app_id_suffix: nil)
+        def initialize(collector_uri, app_id_suffix: nil, billing: false)
           @uri = collector_uri
+          @billing = billing
           @app_id_suffix = app_id_suffix
+        end
+
+        def billing?
+          @billing
         end
 
         def hostname

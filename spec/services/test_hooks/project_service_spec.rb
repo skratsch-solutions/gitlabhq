@@ -8,7 +8,7 @@ RSpec.describe TestHooks::ProjectService, feature_category: :code_testing do
   let(:current_user) { create(:user) }
 
   describe '#execute' do
-    let_it_be_with_reload(:project) { create(:project, :repository) }
+    let_it_be_with_reload(:project) { create(:project) }
 
     let(:hook) { create(:project_hook, project: project) }
     let(:trigger) { 'not_implemented_events' }

@@ -9,7 +9,6 @@ title: Scheduled pipeline execution policies
 
 - Tier: Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-- Status: Beta
 
 {{< /details >}}
 
@@ -17,6 +16,7 @@ title: Scheduled pipeline execution policies
 
 - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/14147) as an experiment in GitLab 18.0 with a flag named `scheduled_pipeline_execution_policy_type` defined in the `policy.yml` file.
 - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/238197) to beta in GitLab 18.2.
+- [Generally available](https://gitlab.com/groups/gitlab-org/-/work_items/17875) in GitLab 19.2.
 
 {{< /history >}}
 
@@ -331,8 +331,7 @@ Because the bot user is not a member of other projects, it cannot complete any o
 
 ## Scheduling limits
 
-This feature is in beta and may change in future releases. Be aware of the following limits when
-creating scheduled pipeline execution policies:
+Be aware of the following limits when creating scheduled pipeline execution policies:
 
 - The maximum number of scheduled pipeline execution policies per security policy project is limited to one policy with one schedule.
 - The maximum frequency for schedules is once per day (daily).

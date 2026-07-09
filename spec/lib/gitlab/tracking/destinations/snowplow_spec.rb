@@ -534,5 +534,41 @@ RSpec.describe Gitlab::Tracking::Destinations::Snowplow, :do_not_stub_snowplow_b
         subject.send(:emitter)
       end
     end
+
+    context 'with a billing destination configuration' do
+      subject(:billing_destination) { described_class.new(billing_configuration) }
+
+      let(:billing_configuration) do
+        Gitlab::Tracking::Destinations::DestinationConfiguration.billing_configuration
+      end
+
+      before do
+        allow(Rails.env).to receive(:test?).and_return(false)
+      end
+
+      context 'when billing_events_oidc_auth flag is enabled' do
+        it 'uses the BillingAuthEmitter with the authenticated collector path' do
+          expect(Gitlab::Tracking::BillingAuthEmitter)
+            .to receive(:new)
+                  .with(endpoint: anything, options: hash_including(path: described_class::BILLING_AUTH_POST_PATH))
+
+          billing_destination.send(:emitter)
+        end
+      end
+
+      context 'when billing_events_oidc_auth flag is disabled' do
+        before do
+          stub_feature_flags(billing_events_oidc_auth: false)
+        end
+
+        it 'does not use the BillingAuthEmitter or the authenticated path' do
+          expect(Gitlab::Tracking::BillingAuthEmitter).not_to receive(:new)
+          expect(SnowplowTracker::AsyncEmitter)
+            .to receive(:new).with(endpoint: anything, options: hash_not_including(:path))
+
+          billing_destination.send(:emitter)
+        end
+      end
+    end
   end
 end

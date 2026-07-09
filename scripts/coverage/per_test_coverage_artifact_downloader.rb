@@ -228,7 +228,11 @@ class PerTestCoverageArtifactDownloader
       tempfile.flush
 
       unless system('unzip', '-o', '-q', tempfile.path, '-d', output_dir)
-        warn "Per-test coverage: unzip exited #{$?.exitstatus} on artifacts from " \
+        # $? is the status of the last child process, so it is nil until a
+        # subprocess has actually run. Safe-navigate it: when unzip is stubbed
+        # in specs (or has not run yet) the status interpolates to blank instead
+        # of raising NoMethodError on nil.
+        warn "Per-test coverage: unzip exited #{$?&.exitstatus} on artifacts from " \
           "#{job_name} (#{job_id})"
         next
       end

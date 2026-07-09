@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Projects::UpdateRemoteMirrorService, feature_category: :source_code_management do
-  let_it_be(:project) { create(:project, :repository, lfs_enabled: true) }
+  let_it_be(:project) { create(:project, :small_repo, lfs_enabled: true) }
   let_it_be(:remote_project) { create(:forked_project_with_submodules) }
   let_it_be_with_reload(:remote_mirror) { create(:remote_mirror, project: project, enabled: true) }
 

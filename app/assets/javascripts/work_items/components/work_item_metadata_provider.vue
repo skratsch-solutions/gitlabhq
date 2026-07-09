@@ -77,6 +77,7 @@ export default normalizeRender({
       subscribedSavedViewLimit: computed(() => this.metadata.subscribedSavedViewLimit),
       canCreateSavedView: computed(() => Boolean(this.metadata?.createSavedView)),
       namespaceName: computed(() => this.metadata?.namespaceName),
+      waitForMetadata: () => this.waitForMetadata(),
     };
   },
   props: {
@@ -126,6 +127,23 @@ export default normalizeRender({
           return { ...acc, [type.name]: type };
         }, {});
       },
+    },
+  },
+  methods: {
+    waitForMetadata() {
+      if (!this.$apollo.queries.metadata.loading) return Promise.resolve();
+
+      return new Promise((resolve) => {
+        const unwatch = this.$watch(
+          () => this.$apollo.queries.metadata.loading,
+          (loading) => {
+            if (!loading) {
+              unwatch();
+              resolve();
+            }
+          },
+        );
+      });
     },
   },
   render() {

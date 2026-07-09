@@ -490,6 +490,8 @@ principles:
         url: https://docs.gitlab.com/development/cicd/configuration/
       - path: doc/development/cicd/cicd_tables.md
         url: https://docs.gitlab.com/development/cicd/cicd_tables/
+      - path: doc/development/cicd/keyword_reviews.md
+        url: https://docs.gitlab.com/development/cicd/keyword_reviews/
 
   # ── Frontend (4 sub-domains) ──────────────────────────────────────────────
 

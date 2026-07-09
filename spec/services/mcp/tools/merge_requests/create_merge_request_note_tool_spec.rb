@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Mcp::Tools::MergeRequests::CreateMergeRequestNoteTool, feature_category: :mcp_server do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:project) { create(:project, :public) }
   let_it_be(:merge_request) { create(:merge_request, source_project: project) }
   let_it_be(:discussion, freeze: false) do
     create(:discussion_note_on_merge_request, project: project, noteable: merge_request).discussion
@@ -103,7 +103,7 @@ RSpec.describe Mcp::Tools::MergeRequests::CreateMergeRequestNoteTool, feature_ca
 
     context 'with a merge request URL in a nested subgroup' do
       let_it_be(:subgroup) { create(:group, :nested) }
-      let_it_be(:nested_project) { create(:project, :public, :repository, group: subgroup) }
+      let_it_be(:nested_project) { create(:project, :public, group: subgroup) }
       let_it_be(:nested_merge_request) { create(:merge_request, source_project: nested_project) }
 
       let(:params) { { url: Gitlab::UrlBuilder.build(nested_merge_request), body: 'Test comment' } }
@@ -158,7 +158,7 @@ RSpec.describe Mcp::Tools::MergeRequests::CreateMergeRequestNoteTool, feature_ca
     end
 
     context 'when user lacks access to the merge request' do
-      let_it_be(:private_project) { create(:project, :private, :repository) }
+      let_it_be(:private_project) { create(:project, :private) }
       let_it_be(:private_merge_request) { create(:merge_request, source_project: private_project) }
 
       let(:params) do

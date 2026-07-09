@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Projects::RefsByPaginationService, feature_category: :source_code_management do
   let(:default_per_page) { 20 }
 
-  let_it_be_with_reload(:project) { create(:project, :repository) }
+  let_it_be_with_reload(:project) { create(:project, :small_repo) }
   let_it_be_with_reload(:protected_branch) { create(:protected_branch, project: project, name: 'feature*') }
   let_it_be(:protected_tag) { create(:protected_tag, project: project, name: 'v*') }
 
