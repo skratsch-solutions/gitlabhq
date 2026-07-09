@@ -449,7 +449,6 @@ RSpec/NamedSubject:
     - 'ee/spec/presenters/ci/build_runner_presenter_spec.rb'
     - 'ee/spec/presenters/merge_request_approver_presenter_spec.rb'
     - 'ee/spec/presenters/merge_request_presenter_spec.rb'
-    - 'ee/spec/presenters/subscription_presenter_spec.rb'
     - 'ee/spec/presenters/vulnerabilities/scanner_presenter_spec.rb'
     - 'ee/spec/presenters/vulnerability_presenter_spec.rb'
     - 'ee/spec/requests/admin/user_permission_exports_controller_spec.rb'

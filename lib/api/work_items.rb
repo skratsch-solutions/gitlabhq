@@ -22,10 +22,7 @@ module API
       { code: 404, message: 'Not found' }
     ].freeze
 
-    # Sourced from the detail entity, which is a superset of the basic entity: some features
-    # (e.g. custom_fields) are exposed only on the show endpoint. A feature requested on a list
-    # endpoint that the basic entity does not expose is silently dropped from the response.
-    FEATURE_NAME_LOOKUP = ::API::Entities::WorkItems::Features::DetailEntity
+    FEATURE_NAME_LOOKUP = ::API::Entities::WorkItems::Features::Entity
       .root_exposures
       .each_with_object({}) do |exposure, hash|
         key = exposure.key.to_sym

@@ -8,13 +8,10 @@ UNIMPLEMENTED_FEATURES = %w[
   email_participants linked_resources notes participants test_reports vulnerabilities
 ].freeze
 
-# custom_fields is intentionally exposed only on the detail (show) entity, not on the
-# basic (list) entity, to avoid the per-work-item cost on collection endpoints.
-LIST_ENDPOINT_EXCLUDED_FEATURES = %w[custom_fields].freeze
-
-# linked_items is only exposed via the EE prepend on Features::Entity. In FOSS-only test
-# runs the prepend doesn't apply, so add it to the exception list for that context only.
-FOSS_ONLY_UNIMPLEMENTED_FEATURES = Gitlab.ee? ? [] : %w[linked_items].freeze
+# linked_items and custom_fields are only exposed via the EE prepend on Features::Entity. In
+# FOSS-only test runs the prepend doesn't apply, so add them to the exception list for that
+# context only.
+FOSS_ONLY_UNIMPLEMENTED_FEATURES = Gitlab.ee? ? [] : %w[linked_items custom_fields].freeze
 
 RSpec.describe API::Entities::WorkItems::Features::Entity, feature_category: :team_planning do
   let(:requested_features) { [] }
@@ -23,7 +20,7 @@ RSpec.describe API::Entities::WorkItems::Features::Entity, feature_category: :te
   it_behaves_like 'work item widget entity parity',
     described_class,
     Types::WorkItems::FeaturesType,
-    exceptions: UNIMPLEMENTED_FEATURES + LIST_ENDPOINT_EXCLUDED_FEATURES + FOSS_ONLY_UNIMPLEMENTED_FEATURES
+    exceptions: UNIMPLEMENTED_FEATURES + FOSS_ONLY_UNIMPLEMENTED_FEATURES
 
   subject(:representation) do
     described_class
