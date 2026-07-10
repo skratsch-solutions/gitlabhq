@@ -25,7 +25,8 @@ Each flow is designed to solve a specific problem or help you with a development
 The following foundational flows are available:
 
 - [Software Development](software_development.md): Create AI-generated solutions for work across the software development lifecycle.
-- [Developer](developer.md): Create actionable merge requests from issues.
+- [Developer](developer.md): Create actionable merge requests from issues, or
+  complete different tasks in GitLab Duo Agentic Chat.
 - [Fix CI/CD Pipeline](fix_pipeline.md): Diagnose and repair failed jobs.
 - [Convert to GitLab CI/CD](convert_to_gitlab_ci.md): Migrate Jenkins pipelines to CI/CD.
 - [Code Review](code_review.md): Automate code review with AI-native analysis and feedback.

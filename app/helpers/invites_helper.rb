@@ -39,7 +39,6 @@ module InvitesHelper
     return unless organization
     # Only non-default (Cells) organizations use `/o/<path>/` paths.
     return unless organization.scoped_paths?
-    return unless Feature.enabled?(:organization_scoped_invite_links, organization)
 
     organization
   end

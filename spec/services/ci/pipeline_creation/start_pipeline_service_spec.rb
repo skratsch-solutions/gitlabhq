@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Ci::PipelineCreation::StartPipelineService, feature_category: :continuous_integration do
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project) { create(:project, :small_repo) }
   let(:sha) { project.repository.commit.sha }
   let(:pipeline) { create(:ci_pipeline, sha: sha, project: project) }
 

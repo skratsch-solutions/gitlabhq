@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Ide::TerminalConfigService, feature_category: :web_ide do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :repository, developers: user) }
+  let_it_be(:project) { create(:project, :small_repo, developers: user) }
 
   let(:sha) { 'sha' }
 

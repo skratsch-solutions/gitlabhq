@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Ide::BaseConfigService, feature_category: :web_ide do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project) { create(:project, :small_repo) }
 
   let(:sha) { 'sha' }
 

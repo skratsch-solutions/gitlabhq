@@ -204,7 +204,7 @@ RSpec.describe BulkImports::BatchedRelationExportService, feature_category: :imp
   end
 
   describe '#execute with commit_notes' do
-    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :small_repo) }
     let_it_be(:commit_sha) { project.repository.commit.id }
     let_it_be(:commit_note) { create(:note_on_commit, project: project, commit_id: commit_sha) }
 
@@ -306,7 +306,7 @@ RSpec.describe BulkImports::BatchedRelationExportService, feature_category: :imp
     end
 
     context 'when the project has commits but no commit notes' do
-      let_it_be(:empty_notes_project) { create(:project, :repository) }
+      let_it_be(:empty_notes_project) { create(:project, :small_repo) }
 
       subject(:service) { described_class.new(user, empty_notes_project, relation, jid) }
 

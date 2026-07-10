@@ -5721,7 +5721,9 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       post api(path, user)
 
       expect(response).to have_gitlab_http_status(:bad_request)
-      expect(json_response['error']).to eq('name is missing, scopes is missing')
+      expect(json_response['error']).to eq(
+        'name is missing, scopes, granular_scopes are missing, exactly one parameter must be provided'
+      )
     end
 
     it 'passes creation_source api to the service' do
@@ -5736,6 +5738,199 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       let(:boundary_object) { :user }
       let(:request) do
         post api(path, personal_access_token: pat), params: { name: 'test', scopes: ['k8s_proxy'] }
+      end
+    end
+
+    context 'when creating a personal access token with granular scopes' do
+      using RSpec::Parameterized::TableSyntax
+
+      let(:granular_scopes) { [{ access: access, permissions: ['read_job'] }] }
+      let(:granular_params) { { name: name, expires_at: expires_at, description: description, granular_scopes: granular_scopes } }
+
+      where(:access) do
+        %w[user instance all_memberships personal_projects]
+      end
+
+      with_them do
+        it 'creates a granular personal access token' do
+          post api(path, user), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['name']).to eq(name)
+          expect(json_response['granular']).to be(true)
+          expect(json_response['token']).to be_present
+
+          created_token = user.personal_access_tokens.find(json_response['id'])
+          expect(created_token.granular_scopes.count).to eq(1)
+          expect(created_token.granular_scopes.first.access).to eq(access)
+          expect(created_token.granular_scopes.first.permissions).to eq(['read_job'])
+        end
+      end
+
+      context 'when granular_scopes is an empty array' do
+        let(:granular_scopes) { [] }
+
+        it 'does not create a personal access token' do
+          post api(path, user), params: granular_params, as: :json
+
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
+          expect(json_response['message']).to eq('At least one granular scope must be provided')
+        end
+      end
+
+      context 'when access is selected_memberships' do
+        let(:access) { 'selected_memberships' }
+        let_it_be(:project) { create(:project, developers: [user]) }
+        let_it_be(:second_project) { create(:project, developers: [user]) }
+        let_it_be(:group) { create(:group, developers: [user]) }
+        let_it_be(:second_group) { create(:group, developers: [user]) }
+
+        let(:granular_scopes) do
+          [{ access: access, permissions: ['read_job'], project_ids: [project.id, second_project.id],
+             group_ids: [group.id, second_group.id] }]
+        end
+
+        it 'creates a granular personal access token scoped to the given projects and groups' do
+          post api(path, user), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:created)
+
+          created_token = user.personal_access_tokens.find(json_response['id'])
+          expect(created_token.granular_scopes.count).to eq(4)
+          expect(created_token.granular_scopes.map(&:namespace_id)).to contain_exactly(
+            group.id, second_group.id, project.project_namespace.id, second_project.project_namespace.id
+          )
+        end
+
+        it 'batch loads project_namespace when scoping to multiple projects', :request_store do
+          multiple_projects_params = granular_params.merge(
+            granular_scopes: [
+              { access: access, permissions: ['read_job'], project_ids: [project.id, second_project.id] }
+            ]
+          )
+
+          query_recorder = ActiveRecord::QueryRecorder.new(skip_cached: false) do
+            post api(path, user), params: multiple_projects_params
+          end
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(query_recorder).not_to exceed_query_limit(1).for_query(
+            /FROM "namespaces" WHERE "namespaces"\."type" = 'Project' AND "namespaces"\."id" IN/
+          )
+        end
+
+        context 'when a project or group ID does not exist' do
+          let(:granular_scopes) do
+            [{ access: access, permissions: ['read_job'], project_ids: [non_existing_record_id] }]
+          end
+
+          it 'does not create a personal access token' do
+            post api(path, user), params: granular_params
+
+            expect(response).to have_gitlab_http_status(:unprocessable_entity)
+            expect(json_response['message']).to eq('At least one granular scope must be provided')
+          end
+        end
+
+        context 'when the user is not a member of the given project' do
+          let_it_be(:other_project) { create(:project) }
+
+          let(:granular_scopes) do
+            [{ access: access, permissions: ['read_job'], project_ids: [other_project.id] }]
+          end
+
+          it 'returns a 404' do
+            post api(path, user), params: granular_params
+
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+        end
+
+        context 'when the user is not a member of the given group' do
+          let_it_be(:other_group) { create(:group) }
+
+          let(:granular_scopes) do
+            [{ access: access, permissions: ['read_job'], group_ids: [other_group.id] }]
+          end
+
+          it 'returns a 404' do
+            post api(path, user), params: granular_params
+
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+        end
+
+        context 'when the user is a member of one given group but not another' do
+          let_it_be(:other_group) { create(:group) }
+
+          let(:granular_scopes) do
+            [{ access: access, permissions: ['read_job'], group_ids: [group.id, other_group.id] }]
+          end
+
+          it 'returns a 404' do
+            post api(path, user), params: granular_params
+
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+        end
+      end
+
+      context 'when both scopes and granular_scopes are given' do
+        let(:access) { 'user' }
+
+        it 'returns a validation error' do
+          post api(path, user), params: granular_params.merge(scopes: ['k8s_proxy'])
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response['error']).to eq('scopes, granular_scopes are mutually exclusive')
+        end
+      end
+
+      context 'when the granular_personal_access_tokens feature flag is disabled' do
+        let(:access) { 'user' }
+
+        before do
+          stub_feature_flags(granular_personal_access_tokens: false)
+        end
+
+        it 'returns a 404' do
+          post api(path, user), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      context 'when authenticated with a granular token' do
+        let(:access) { 'user' }
+        let(:user_boundary) { ::Authz::Boundary.for(:user) }
+
+        context 'when the new token requests permissions the calling token does not have' do
+          let(:calling_token) do
+            create(:granular_pat, user: user, boundary: user_boundary, permissions: [:create_personal_access_token])
+          end
+
+          it 'returns an error' do
+            post api(path, personal_access_token: calling_token), params: granular_params
+
+            expect(response).to have_gitlab_http_status(:forbidden)
+            expect(json_response['message']).to eq(
+              'A granular token can only create tokens with equal or lesser permissions.'
+            )
+          end
+        end
+
+        context 'when the new token requests permissions the calling token already has' do
+          let(:granular_scopes) { [{ access: access, permissions: ['create_personal_access_token'] }] }
+          let(:calling_token) do
+            create(:granular_pat, user: user, boundary: user_boundary, permissions: [:create_personal_access_token])
+          end
+
+          it 'creates the token successfully' do
+            post api(path, personal_access_token: calling_token), params: granular_params
+
+            expect(response).to have_gitlab_http_status(:created)
+          end
+        end
       end
     end
 

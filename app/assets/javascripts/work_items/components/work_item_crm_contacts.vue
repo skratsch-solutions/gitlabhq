@@ -44,7 +44,7 @@ export default {
       required: true,
     },
   },
-  emits: ['error', 'updateWidgetDraft'],
+  emits: ['error', 'update-widget-draft'],
   data() {
     return {
       searchTerm: '',
@@ -218,7 +218,7 @@ export default {
       }
 
       if (this.createFlow) {
-        this.$emit('updateWidgetDraft', { crmContacts: newSelectedItems });
+        this.$emit('update-widget-draft', { crmContacts: newSelectedItems });
         this.updateInProgress = false;
         return;
       }

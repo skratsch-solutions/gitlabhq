@@ -116,11 +116,9 @@ module ClickHouse # rubocop:disable Gitlab/BoundedContexts -- existing module
         end
 
         def for_source(source)
-          source_int = ::Ci::Pipeline.sources[source.to_s]
-          # Without this guard `where(source: nil)` would silently emit `WHERE source IS NULL` and match the wrong rows
-          raise ArgumentError, "Unknown pipeline source: #{source.inspect}" if source_int.nil?
+          raise ArgumentError, "Unknown pipeline source: #{source.inspect}" unless ::Ci::Pipeline.sources.key?(source)
 
-          with_outer(outer_query.where(source: source_int))
+          with_outer(outer_query.where(source: ::Ci::Pipeline.sources[source]))
         end
 
         def for_ref(ref)

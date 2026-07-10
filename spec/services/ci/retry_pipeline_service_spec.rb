@@ -524,7 +524,7 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
 
   context 'when maintainer is allowed to push to forked project' do
     let(:user) { create(:user) }
-    let(:project) { create(:project, :public, :repository) }
+    let(:project) { create(:project, :public, :small_repo) }
     let(:forked_project) { fork_project(project, nil, repository: true) }
     let(:sha) { forked_project.repository.commit.sha }
     let(:pipeline) { create(:ci_pipeline, sha: sha, project: forked_project, ref: 'fixes') }

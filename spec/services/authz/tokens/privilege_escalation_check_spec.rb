@@ -54,6 +54,7 @@ RSpec.describe Authz::Tokens::PrivilegeEscalationCheck, feature_category: :permi
 
           expect(result).to be_error
           expect(result.message).to eq('A granular token can only create tokens with equal or lesser permissions.')
+          expect(result.reason).to eq(:forbidden)
         end
       end
 
@@ -86,6 +87,7 @@ RSpec.describe Authz::Tokens::PrivilegeEscalationCheck, feature_category: :permi
 
           expect(result).to be_error
           expect(result.message).to eq('A granular token can only create tokens with equal or lesser permissions.')
+          expect(result.reason).to eq(:forbidden)
         end
       end
     end

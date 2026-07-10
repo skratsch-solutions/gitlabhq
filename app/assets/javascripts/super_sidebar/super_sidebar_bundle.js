@@ -53,8 +53,7 @@ export const getSuperSidebarData = () => {
   const { rootPath, sidebar, commandPalette, isSaas } = el.dataset;
   const sidebarData = JSON.parse(sidebar);
   const searchData = convertObjectPropsToCamelCase(sidebarData.search);
-  const { searchPath, issuesPath, mrPath, autocompletePath, settingsPath, searchContext } =
-    searchData;
+  const { searchContext } = searchData;
   const currentPath = sidebarData?.current_context?.item?.fullPath;
   const projectsPath = sidebarData.projects_path;
   const groupsPath = sidebarData.groups_path;
@@ -73,11 +72,6 @@ export const getSuperSidebarData = () => {
     currentPath,
     isSaas,
     sidebarData,
-    searchPath,
-    issuesPath,
-    mrPath,
-    autocompletePath,
-    settingsPath,
     searchContext,
     projectsPath,
     groupsPath,
@@ -97,11 +91,6 @@ export const initSuperSidebar = ({
   currentPath,
   isSaas,
   sidebarData,
-  searchPath,
-  issuesPath,
-  mrPath,
-  autocompletePath,
-  settingsPath,
   searchContext,
   projectsPath,
   groupsPath,
@@ -130,8 +119,6 @@ export const initSuperSidebar = ({
       commandPaletteCommands,
       commandPaletteLinks,
       contextSwitcherLinks,
-      autocompletePath,
-      settingsPath,
       searchContext,
       projectFilesPath,
       projectBlobPath,
@@ -149,10 +136,6 @@ export const initSuperSidebar = ({
       isSaas: parseBoolean(isSaas),
     },
     store: createStore({
-      searchPath,
-      issuesPath,
-      mrPath,
-      autocompletePath,
       searchContext,
       search: '',
     }),
@@ -174,11 +157,6 @@ export const initSuperSidebar = ({
 export const initSuperTopbar = ({
   rootPath,
   sidebarData,
-  searchPath,
-  issuesPath,
-  mrPath,
-  autocompletePath,
-  settingsPath,
   searchContext,
   projectsPath,
   groupsPath,
@@ -204,8 +182,6 @@ export const initSuperTopbar = ({
       commandPaletteCommands,
       commandPaletteLinks,
       contextSwitcherLinks,
-      autocompletePath,
-      settingsPath,
       searchContext,
       projectFilesPath,
       projectBlobPath,
@@ -218,10 +194,6 @@ export const initSuperTopbar = ({
       isSaas: parseBoolean(isSaas),
     },
     store: createStore({
-      searchPath,
-      issuesPath,
-      mrPath,
-      autocompletePath,
       searchContext,
       search: '',
     }),

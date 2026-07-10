@@ -99,7 +99,11 @@ gem 'ruby-saml', '~> 1.18', feature_category: :system_access
 gem 'omniauth-saml', '~> 2.2.1', feature_category: :system_access
 gem 'omniauth', '~> 2.1.0', feature_category: :system_access
 gem 'omniauth-auth0', '~> 3.1', feature_category: :system_access
-gem 'omniauth-azure-activedirectory-v2', '~> 2.0', feature_category: :system_access
+# Require the strategy directly to skip the gem's top-level entry file, which emits a
+# load-time deprecation warning about the upcoming rename to omniauth-entra-id.
+# See https://gitlab.com/gitlab-org/gitlab/-/work_items/604391.
+gem 'omniauth-azure-activedirectory-v2', '~> 2.0',
+  require: 'omniauth/strategies/azure_activedirectory_v2', feature_category: :system_access
 gem 'omniauth-alicloud', '~> 3.0.0', feature_category: :system_access
 gem 'omniauth-github', '2.0.1', feature_category: :system_access
 # See vendor/gems/omniauth-gitlab/README.md

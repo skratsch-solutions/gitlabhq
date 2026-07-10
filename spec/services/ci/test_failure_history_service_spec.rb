@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Ci::TestFailureHistoryService, :aggregate_failures, feature_category: :continuous_integration do
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project) { create(:project, :small_repo) }
 
   let_it_be_with_reload(:pipeline) do
     create(:ci_pipeline, status: :created, project: project, ref: project.default_branch)

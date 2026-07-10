@@ -1346,7 +1346,7 @@ export default {
                   :work-item-id="workItemId"
                   :work-item-iid="workItemIid"
                   :work-item-type="selectedWorkItemTypeName"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-assignees
@@ -1361,7 +1361,7 @@ export default {
                   :allows-multiple-assignees="workItemAssignees.allowsMultipleAssignees"
                   :work-item-type="selectedWorkItemTypeName"
                   :can-invite-members="workItemAssignees.canInviteMembers"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-labels
@@ -1373,7 +1373,7 @@ export default {
                   :work-item-id="workItemId"
                   :work-item-iid="workItemIid"
                   :work-item-type="selectedWorkItemTypeName"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-parent
@@ -1386,7 +1386,7 @@ export default {
                   :full-path="inputNamespacePath"
                   :parent="workItemParent"
                   :allowed-parent-types-for-new-work-item="allowedParentTypesForSelectedType"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                   @parentMilestone="onParentMilestone"
                 />
@@ -1398,7 +1398,7 @@ export default {
                   :work-item-id="workItemId"
                   :work-item-iid="workItemIid"
                   :work-item-type="selectedWorkItemTypeName"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-milestone
@@ -1411,7 +1411,7 @@ export default {
                   :work-item-milestone="workItemMilestone.milestone || selectedParentMilestone"
                   :work-item-type="selectedWorkItemTypeName"
                   :can-update="canUpdate"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                   @parentMilestone="onParentMilestone"
                 />
@@ -1425,7 +1425,7 @@ export default {
                   :work-item-id="workItemId"
                   :work-item-iid="workItemIid"
                   :work-item-type="selectedWorkItemTypeName"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-dates
@@ -1438,7 +1438,7 @@ export default {
                   :should-roll-up="shouldDatesRollup"
                   :work-item-type="selectedWorkItemTypeName"
                   :work-item="workItem"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-health-status
@@ -1449,7 +1449,7 @@ export default {
                   :work-item-type="selectedWorkItemTypeName"
                   :full-path="inputNamespacePath"
                   :is-work-item-closed="false"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-color
@@ -1457,7 +1457,7 @@ export default {
                   class="work-item-attributes-item"
                   :work-item="workItem"
                   :can-update="canUpdate"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-custom-fields
@@ -1466,7 +1466,7 @@ export default {
                   :work-item-type="selectedWorkItemTypeName"
                   :custom-fields="workItemCustomFields"
                   :can-update="canUpdate"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
                 <work-item-crm-contacts
@@ -1476,7 +1476,7 @@ export default {
                   :work-item-id="workItemId"
                   :work-item-iid="workItemIid"
                   :work-item-type="selectedWorkItemTypeName"
-                  @updateWidgetDraft="handleUpdateWidgetDraft"
+                  @update-widget-draft="handleUpdateWidgetDraft"
                   @error="$emit('error', $event)"
                 />
               </template>

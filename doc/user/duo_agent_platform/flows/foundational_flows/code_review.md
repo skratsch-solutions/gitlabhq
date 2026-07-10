@@ -61,6 +61,16 @@ This flow is available in the GitLab UI only.
 
 ## Use the flow
 
+{{< history >}}
+
+- Using a flow in a GitLab Duo Agentic Chat conversation [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/20484) in GitLab 19.2 [with a feature flag](../../../../administration/feature_flags/_index.md) named `agentic_foundational_flow_tool`. Enabled by default.
+
+{{< /history >}}
+
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
+
 To use the Code Review Flow on a merge request:
 
 1. In the left sidebar, select **Code** > **Merge requests** and find your merge request.
@@ -68,9 +78,13 @@ To use the Code Review Flow on a merge request:
    - Assign `@GitLabDuo` as a reviewer.
    - In a comment box, enter the quick action `/assign_reviewer @GitLabDuo`.
    - In a comment box, mention `@GitLabDuo` and ask for a review.
+   - In the GitLab Duo sidebar, open a new or existing Agentic Chat conversation.
+     Ask Agentic Chat to review the merge request.
+1. To monitor progress, in the left sidebar, select **AI** > **Sessions**.
 
-After you request a review, Code Review Flow starts a [session](../../sessions/_index.md) that you
-can monitor until the review is complete.
+   If you are in Agentic Chat, you can also do the following:
+   - See the progress in the Chat conversation.
+   - Select **View Agent Session** in the conversation.
 
 ## Interact with GitLab Duo in reviews
 

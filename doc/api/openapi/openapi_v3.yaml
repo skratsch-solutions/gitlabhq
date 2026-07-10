@@ -15791,7 +15791,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_ee836c0c3c1a"
+              "$ref": "#/components/schemas/RequestBody_33eef8f37f0e"
   "/api/v4/user/applications":
     post:
       operationId: postApiV4UserApplications
@@ -95677,6 +95677,74 @@ components:
           nullable: true
       required:
       - avatar
+    RequestBody_33eef8f37f0e:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the access token
+          example: My token
+          nullable: true
+        description:
+          type: string
+          description: The description of the access token
+          example: A token used for k8s
+          nullable: true
+        expires_at:
+          type: string
+          format: date
+          description: Expiration date of the access token in ISO format (YYYY-MM-DD).
+            If undefined, the date is set to the maximum allowable lifetime limit.
+          example: '2021-01-31'
+          nullable: true
+        granular_scopes:
+          type: array
+          description: List of granular scopes to assign to the token
+          items:
+            type: object
+            properties:
+              access:
+                type: string
+                enum:
+                - personal_projects
+                - all_memberships
+                - selected_memberships
+                - user
+                - instance
+                description: Access to configure for the granular scope.
+                minLength: 1
+              permissions:
+                type: array
+                items:
+                  type: string
+                description: List of permissions for the granular scope
+                nullable: true
+              project_ids:
+                type: array
+                items:
+                  type: integer
+                description: IDs of projects to associate with the granular scope,
+                  when access is `selected_memberships`
+                nullable: true
+              group_ids:
+                type: array
+                items:
+                  type: integer
+                description: IDs of groups to associate with the granular scope, when
+                  access is `selected_memberships`
+                nullable: true
+            required:
+            - access
+            - permissions
+          nullable: true
+        scopes:
+          type: array
+          items:
+            type: string
+          description: The array of scopes of the personal access token
+          nullable: true
+      required:
+      - name
     RequestBody_39542344a153:
       type: object
       properties:

@@ -73,7 +73,8 @@ module Authz
 
       def error
         ::ServiceResponse.error(
-          message: 'A granular token can only create tokens with equal or lesser permissions.'
+          message: 'A granular token can only create tokens with equal or lesser permissions.',
+          reason: :forbidden
         )
       end
     end

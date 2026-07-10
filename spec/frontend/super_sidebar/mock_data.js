@@ -194,9 +194,7 @@ export const sidebarData = {
   gitlab_version_check: { severity: 'success' },
   gitlab_com_and_canary: false,
   context_switcher_links: contextSwitcherLinks,
-  search: {
-    search_path: '/search',
-  },
+  search: {},
   pinned_items: [],
   panel_type: 'your_work',
   shortcut_links: [
@@ -224,9 +222,7 @@ export const loggedOutSidebarData = {
   show_version_check: false,
   gitlab_version: { major: 16, minor: 0 },
   gitlab_version_check: { severity: 'success' },
-  search: {
-    search_path: '/search',
-  },
+  search: {},
   panel_type: 'your_work',
 };
 

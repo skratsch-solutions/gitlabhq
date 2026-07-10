@@ -14,31 +14,16 @@ RSpec.describe InvitesHelper, feature_category: :system_access do
   end
 
   describe '#invite_url_for' do
-    context 'when the organization uses scoped paths and the feature is enabled' do
-      before do
-        stub_feature_flags(organization_scoped_invite_links: true)
-      end
-
+    context 'when the organization uses scoped paths' do
       it 'returns an organization-scoped invite URL' do
         expect(path_of(helper.invite_url_for(member, token)))
           .to eq("/o/#{organization.path}/-/invites/#{token}")
       end
     end
 
-    context 'when the feature flag is disabled' do
-      before do
-        stub_feature_flags(organization_scoped_invite_links: false)
-      end
-
-      it 'returns the unscoped invite URL' do
-        expect(path_of(helper.invite_url_for(member, token))).to eq("/-/invites/#{token}")
-      end
-    end
-
     context 'when the organization serves unscoped (default) paths' do
       before do
         allow(organization).to receive(:scoped_paths?).and_return(false)
-        stub_feature_flags(organization_scoped_invite_links: true)
       end
 
       it 'returns the unscoped invite URL' do
@@ -49,7 +34,6 @@ RSpec.describe InvitesHelper, feature_category: :system_access do
     context 'when the member has no source' do
       before do
         allow(member).to receive(:source).and_return(nil)
-        stub_feature_flags(organization_scoped_invite_links: true)
       end
 
       it 'returns the unscoped invite URL' do
@@ -60,7 +44,6 @@ RSpec.describe InvitesHelper, feature_category: :system_access do
     context 'when the source has no organization' do
       before do
         allow(group).to receive(:organization).and_return(nil)
-        stub_feature_flags(organization_scoped_invite_links: true)
       end
 
       it 'returns the unscoped invite URL' do
@@ -70,10 +53,6 @@ RSpec.describe InvitesHelper, feature_category: :system_access do
   end
 
   describe '#accept_invite_url_for' do
-    before do
-      stub_feature_flags(organization_scoped_invite_links: true)
-    end
-
     it 'returns an organization-scoped accept URL' do
       expect(path_of(helper.accept_invite_url_for(member, token)))
         .to eq("/o/#{organization.path}/-/invites/#{token}/accept")
@@ -81,10 +60,6 @@ RSpec.describe InvitesHelper, feature_category: :system_access do
   end
 
   describe '#decline_invite_url_for' do
-    before do
-      stub_feature_flags(organization_scoped_invite_links: true)
-    end
-
     it 'returns an organization-scoped decline URL' do
       expect(path_of(helper.decline_invite_url_for(member, token)))
         .to eq("/o/#{organization.path}/-/invites/#{token}/decline")

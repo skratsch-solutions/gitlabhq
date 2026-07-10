@@ -1833,23 +1833,37 @@ module API
         end
         params do
           use :create_personal_access_token_params
+          use :granular_scope_params
           # NOTE: for security reasons only the k8s_proxy and self_rotate scope is allowed at the moment.
           # See details in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/131923#note_1571272897
           # and in https://gitlab.com/gitlab-org/gitlab/-/issues/425171
           # and in https://gitlab.com/gitlab-org/gitlab/-/issues/555546
-          requires :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: [::Gitlab::Auth::K8S_PROXY_SCOPE, ::Gitlab::Auth::SELF_ROTATE_SCOPE].map(&:to_s),
+          optional :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: [::Gitlab::Auth::K8S_PROXY_SCOPE, ::Gitlab::Auth::SELF_ROTATE_SCOPE].map(&:to_s),
             desc: 'The array of scopes of the personal access token'
+          exactly_one_of :scopes, :granular_scopes
         end
         route_setting :authorization, permissions: :create_personal_access_token, boundary_type: :user
         post feature_category: :system_access do
-          response = ::PersonalAccessTokens::CreateService.new(
-            current_user: current_user, target_user: current_user, params: declared_params(include_missing: false).merge(creation_source: PersonalAccessToken::CREATION_SOURCE_API), organization_id: Current.organization.id
-          ).execute
+          response =
+            if params[:granular_scopes]
+              not_found! if Feature.disabled?(:granular_personal_access_tokens, current_user)
+
+              all_params = declared_params(include_missing: false)
+              granular_scopes = build_granular_scopes(current_user, all_params[:granular_scopes])
+              token_params = all_params.except(:granular_scopes)
+                .merge(creation_source: PersonalAccessToken::CREATION_SOURCE_API)
+
+              create_granular_token(current_user, granular_scopes, token_params)
+            else
+              ::PersonalAccessTokens::CreateService.new(
+                current_user: current_user, target_user: current_user, params: declared_params(include_missing: false).merge(creation_source: PersonalAccessToken::CREATION_SOURCE_API), organization_id: Current.organization.id
+              ).execute
+            end
 
           if response.success?
             present response.payload[:personal_access_token], with: Entities::PersonalAccessTokenWithToken
           else
-            render_api_error!(response.message, response.http_status || :unprocessable_entity)
+            render_api_error!(response.message, response.reason || :unprocessable_entity)
           end
         end
       end

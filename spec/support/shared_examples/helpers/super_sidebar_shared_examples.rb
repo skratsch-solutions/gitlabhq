@@ -10,11 +10,6 @@ RSpec.shared_examples 'shared super sidebar context' do
       display_whats_new: helper.display_whats_new?,
       show_version_check: helper.show_version_check?,
       search: {
-        search_path: search_path,
-        issues_path: issues_dashboard_path,
-        mr_path: merge_requests_dashboard_path,
-        autocomplete_path: search_autocomplete_path,
-        settings_path: search_settings_path,
         search_context: helper.header_search_context
       },
       panel_type: panel_type

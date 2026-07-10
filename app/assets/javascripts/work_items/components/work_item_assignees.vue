@@ -72,7 +72,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ['assigneesUpdated', 'error', 'updateWidgetDraft'],
+  emits: ['assigneesUpdated', 'error', 'update-widget-draft'],
   data() {
     return {
       localAssigneeIds: [],
@@ -293,7 +293,7 @@ export default {
       const { localAssigneeIds } = this;
 
       if (this.workItemId === newWorkItemId(this.workItemType)) {
-        this.$emit('updateWidgetDraft', { assignees: this.localAssignees });
+        this.$emit('update-widget-draft', { assignees: this.localAssignees });
         this.updateInProgress = false;
         return;
       }

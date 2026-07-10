@@ -67,7 +67,7 @@ export default {
       default: false,
     },
   },
-  emits: ['error', 'labelsUpdated', 'updateWidgetDraft'],
+  emits: ['error', 'labelsUpdated', 'update-widget-draft'],
   data() {
     return {
       searchLabels: [],
@@ -268,7 +268,7 @@ export default {
         labels = labels.filter(({ id }) => !removeLabelIds.includes(id));
       }
 
-      this.$emit('updateWidgetDraft', { labels });
+      this.$emit('update-widget-draft', { labels });
     },
     async updateLabels({ addLabelIds = [], removeLabelIds = [] }) {
       try {

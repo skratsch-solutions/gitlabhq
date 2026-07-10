@@ -9,7 +9,6 @@ RSpec.describe FeatureFlags::HookService, feature_category: :feature_flags do
     let_it_be(:feature_flag) { create(:operations_feature_flag, project: project) }
     let_it_be(:user) { namespace.first_owner }
 
-    let!(:hook) { create(:project_hook, project: project) }
     let(:hook_data) { double }
 
     subject(:service) { described_class.new(feature_flag, user) }

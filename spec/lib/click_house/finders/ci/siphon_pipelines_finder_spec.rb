@@ -255,11 +255,19 @@ RSpec.describe ClickHouse::Finders::Ci::SiphonPipelinesFinder, :click_house, :fr
       it { is_expected.to include("`pipelines`.`source` = #{::Ci::Pipeline.sources['web']}") }
     end
 
-    context 'with an unknown source' do
+    context 'with an invalid source' do
       let(:source) { :bogus_source }
 
       it 'raises ArgumentError instead of silently emitting WHERE source IS NULL' do
         expect { sql }.to raise_error(ArgumentError, /Unknown pipeline source: :bogus_source/)
+      end
+    end
+
+    context 'with the unknown source' do
+      let(:source) { :unknown }
+
+      it 'matches pipelines without a recorded source' do
+        is_expected.to include('`pipelines`.`source` IS NULL')
       end
     end
   end

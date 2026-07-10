@@ -6,7 +6,7 @@ RSpec.describe CloudSeed::GoogleCloud::GeneratePipelineService, feature_category
   describe 'for cloud-run' do
     describe 'when there is no existing pipeline' do
       let_it_be(:maintainer) { create(:user) }
-      let_it_be(:project) { create(:project, :repository, maintainers: maintainer) }
+      let_it_be(:project) { create(:project, :small_repo, maintainers: maintainer) }
       let_it_be(:service_params) { { action: described_class::ACTION_DEPLOY_TO_CLOUD_RUN } }
       # `freeze: false` is required in this spec: one or more `let_it_be` subjects
       # cannot be frozen by default (deep_freeze traversal failure, a non-AR
@@ -63,7 +63,7 @@ RSpec.describe CloudSeed::GoogleCloud::GeneratePipelineService, feature_category
     end
 
     describe 'when there is an existing pipeline without `deploy` stage' do
-      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:project) { create(:project, :small_repo) }
       let_it_be(:maintainer) { create(:user) }
       let_it_be(:service_params) do
         { action: CloudSeed::GoogleCloud::GeneratePipelineService::ACTION_DEPLOY_TO_CLOUD_RUN }
@@ -121,7 +121,7 @@ EOF
     end
 
     describe 'when there is an existing pipeline with `deploy` stage' do
-      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:project) { create(:project, :small_repo) }
       let_it_be(:maintainer) { create(:user) }
       let_it_be(:service_params) do
         { action: CloudSeed::GoogleCloud::GeneratePipelineService::ACTION_DEPLOY_TO_CLOUD_RUN }
@@ -171,7 +171,7 @@ EOF
     end
 
     describe 'when there is an existing pipeline with `includes`' do
-      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:project) { create(:project, :small_repo) }
       let_it_be(:maintainer) { create(:user) }
       let_it_be(:service_params) do
         { action: CloudSeed::GoogleCloud::GeneratePipelineService::ACTION_DEPLOY_TO_CLOUD_RUN }
@@ -219,7 +219,7 @@ EOF
   describe 'for cloud-storage' do
     describe 'when there is no existing pipeline' do
       let_it_be(:maintainer) { create(:user) }
-      let_it_be(:project) { create(:project, :repository, maintainers: maintainer) }
+      let_it_be(:project) { create(:project, :small_repo, maintainers: maintainer) }
       let_it_be(:service_params) do
         { action: CloudSeed::GoogleCloud::GeneratePipelineService::ACTION_DEPLOY_TO_CLOUD_STORAGE }
       end
@@ -254,7 +254,7 @@ EOF
 
   describe 'for vision ai' do
     let_it_be(:maintainer) { create(:user) }
-    let_it_be(:project) { create(:project, :repository, maintainers: maintainer) }
+    let_it_be(:project) { create(:project, :small_repo, maintainers: maintainer) }
     let_it_be(:service_params) { { action: described_class::ACTION_VISION_AI_PIPELINE } }
     let_it_be(:service, freeze: false) { described_class.new(project, maintainer, service_params) }
 

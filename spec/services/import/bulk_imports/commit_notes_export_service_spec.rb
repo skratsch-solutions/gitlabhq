@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Import::BulkImports::CommitNotesExportService, feature_category: :importers do
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project) { create(:project, :small_repo) }
   let_it_be(:commit_sha) { project.repository.commit.id }
   let_it_be(:commit_note) { create(:note_on_commit, project: project, commit_id: commit_sha, note: 'review feedback') }
   let_it_be(:export) { create(:bulk_import_export, project: project, relation: 'commit_notes') }
@@ -50,7 +50,7 @@ RSpec.describe Import::BulkImports::CommitNotesExportService, feature_category: 
     end
 
     context 'when there are no commit notes' do
-      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:project) { create(:project, :small_repo) }
       let_it_be(:commit_note) { nil }
       let_it_be(:export) { create(:bulk_import_export, project: project, relation: 'commit_notes') }
 

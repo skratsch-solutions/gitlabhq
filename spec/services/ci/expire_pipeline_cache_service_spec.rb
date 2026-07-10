@@ -77,7 +77,7 @@ RSpec.describe Ci::ExpirePipelineCacheService, feature_category: :continuous_int
     end
 
     context 'destroyed pipeline' do
-      let(:project_with_repo) { create(:project, :repository) }
+      let(:project_with_repo) { create(:project, :small_repo) }
       let!(:pipeline_with_commit) { create(:ci_pipeline, :success, project: project_with_repo, sha: project_with_repo.commit.id) }
 
       it 'clears the cache', :use_clean_rails_redis_caching do

@@ -334,7 +334,6 @@ RSpec/FeatureCategory:
     - 'ee/spec/models/gitlab_subscriptions/upcoming_reconciliation_spec.rb'
     - 'ee/spec/models/historical_data_spec.rb'
     - 'ee/spec/models/incident_management/escalation_rule_spec.rb'
-    - 'ee/spec/models/incident_management/issuable_escalation_status_spec.rb'
     - 'ee/spec/models/incident_management/issuable_resource_link_spec.rb'
     - 'ee/spec/models/incident_management/oncall_participant_spec.rb'
     - 'ee/spec/models/incident_management/oncall_rotation_spec.rb'
