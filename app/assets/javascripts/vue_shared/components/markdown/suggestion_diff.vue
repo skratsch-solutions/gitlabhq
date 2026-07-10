@@ -4,6 +4,7 @@ import SuggestionDiffHeader from './suggestion_diff_header.vue';
 import SuggestionDiffRow from './suggestion_diff_row.vue';
 
 export default {
+  name: 'SuggestionDiff',
   components: {
     SuggestionDiffHeader,
     SuggestionDiffRow,

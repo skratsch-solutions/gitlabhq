@@ -18,6 +18,7 @@ import { sprintf, s__ } from '~/locale';
  */
 
 export default {
+  name: 'CiIcon',
   components: {
     GlIcon,
   },

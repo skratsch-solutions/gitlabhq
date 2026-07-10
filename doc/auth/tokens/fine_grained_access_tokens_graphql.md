@@ -379,6 +379,16 @@ Grants the ability to create, read, resume, and update duo workflows.
 | Read | User | Type | `DuoWorkflowWorkItemLink` |
 | Update | User | Mutation | `UpdateDuoWorkflowAgentPrivileges` |
 
+#### Flows Metadata
+
+Grants the ability to read flows metadata.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Project | Type | `AiFlowsMetadata` |
+| Read | Group | Type | `AiFlowsMetadata` |
+| Read | Instance | Type | `AiFlowsMetadata` |
+
 #### Model Selection Allowlist
 
 Grants the ability to read and update model selection allowlists.

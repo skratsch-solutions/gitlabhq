@@ -9,6 +9,7 @@ import { initialSelectionPropValidator } from './utils';
 const MINIMUM_QUERY_LENGTH = 3;
 
 export default {
+  name: 'EntitySelect',
   components: {
     GlFormGroup,
     GlCollapsibleListbox,

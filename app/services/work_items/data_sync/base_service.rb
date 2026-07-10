@@ -23,6 +23,9 @@ module WorkItems
         verification_response = verify_work_item_action_permission
         return verification_response if verification_response.error?
 
+        organization_response = verify_same_organization
+        return organization_response if organization_response.error?
+
         type_response = verify_target_work_item_type
         return type_response if type_response.error?
 
@@ -34,6 +37,24 @@ module WorkItems
       def verify_work_item_action_permission!; end
 
       def data_sync_action; end
+
+      # An organization is isolated to a single cell, so a work item can never be
+      # moved, cloned, or promoted into a different organization. Let nil targets
+      # fall through to the subclass-specific validations.
+      def verify_same_organization
+        return success({}) unless prevent_cross_organization_actions?
+        return success({}) if target_namespace.nil?
+        return success({}) if work_item.resource_parent&.organization_id == target_namespace.organization_id
+
+        error(
+          s_('DataSync|Unable to perform this action across organizations.'),
+          :unprocessable_entity
+        )
+      end
+
+      def prevent_cross_organization_actions?
+        Feature.enabled?(:prevent_cross_organization_work_item_actions, work_item.root_ancestor)
+      end
 
       def ensure_work_item(work_item)
         return work_item if work_item.is_a?(WorkItem)

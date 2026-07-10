@@ -1228,16 +1228,36 @@ module API
             optional :description, type: String, desc: 'The description of the personal access token'
             optional :expires_at, type: Date, desc: 'The expiration date in the format YEAR-MONTH-DAY of the impersonation token'
             optional :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, desc: 'The array of scopes of the impersonation token'
+            use :granular_scope_params
+            mutually_exclusive :scopes, :granular_scopes
           end
           route_setting :authorization, permissions: :create_impersonation_token, boundary_type: :instance
           post feature_category: :system_access do
-            impersonation_token = finder.build(declared_params(include_missing: false))
-            impersonation_token.organization = Current.organization
+            if params[:granular_scopes]
+              target_user = find_user_by_id(params)
+              not_found! if Feature.disabled?(:granular_personal_access_tokens, target_user)
 
-            if impersonation_token.save
-              present impersonation_token, with: Entities::ImpersonationTokenWithToken
+              all_params = declared_params(include_missing: false)
+              granular_scopes = build_granular_scopes(target_user, all_params[:granular_scopes])
+              token_params = all_params.except(:granular_scopes)
+                .merge(impersonation: true, creation_source: PersonalAccessToken::CREATION_SOURCE_API)
+
+              response = create_granular_token(current_user, granular_scopes, token_params, target_user: target_user)
+
+              if response.success?
+                present response.payload[:personal_access_token], with: Entities::ImpersonationTokenWithToken
+              else
+                render_api_error!(response.message, response.reason || :unprocessable_entity)
+              end
             else
-              render_validation_error!(impersonation_token)
+              impersonation_token = finder.build(declared_params(include_missing: false))
+              impersonation_token.organization = Current.organization
+
+              if impersonation_token.save
+                present impersonation_token, with: Entities::ImpersonationTokenWithToken
+              else
+                render_validation_error!(impersonation_token)
+              end
             end
           end
 

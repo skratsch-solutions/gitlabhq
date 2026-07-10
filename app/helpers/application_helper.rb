@@ -354,13 +354,15 @@ module ApplicationHelper
     "https://www.linkedin.com/in/#{name}"
   end
 
+  def twitter_name(user)
+    user.twitter.to_s.strip.chomp('/')[UserDetail::TWITTER_HANDLE_REGEX, 1].to_s
+  end
+
   def twitter_url(user)
-    name = user.twitter
-    if %r{\Ahttps?://(www\.)?twitter\.com/}.match?(name)
-      name
-    else
-      "https://twitter.com/#{name}"
-    end
+    return '' if user.twitter.blank?
+
+    name = twitter_name(user)
+    "https://x.com/#{name}"
   end
 
   def discord_url(user)
@@ -391,10 +393,15 @@ module ApplicationHelper
     external_redirect_path(url: "https://#{url[2]}/@#{url[1]}", rel: 'me')
   end
 
+  def github_name(user)
+    user.github.to_s.strip.chomp('/')[UserDetail::GITHUB_HANDLE_REGEX, 1].to_s
+  end
+
   def github_url(user)
     return '' if user.github.blank?
 
-    "https://github.com/#{user.github}"
+    name = github_name(user)
+    "https://github.com/#{name}"
   end
 
   def collapsed_super_sidebar?

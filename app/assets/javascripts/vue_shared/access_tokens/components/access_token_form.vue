@@ -23,6 +23,7 @@ import { useAccessTokens } from '../stores/access_tokens';
 import { defaultDate } from '../utils';
 
 export default {
+  name: 'AccessTokenForm',
   components: {
     GlButton,
     GlDatepicker,

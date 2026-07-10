@@ -724,18 +724,122 @@ RSpec.describe API::Commits, feature_category: :source_code_management do
       end
 
       context 'with an unsupported parameter' do
-        it_behaves_like 'rejects unsupported keyset parameter', { path: 'README.md' }
+        it_behaves_like 'rejects unsupported keyset parameter', { first_parent: true }
       end
 
       context 'with multiple unsupported parameters' do
         it 'returns a single 400 mentioning all of them', :aggregate_failures do
-          get api(route, current_user), params: { pagination: 'keyset', path: 'README.md', follow: true }
+          get api(route, current_user), params: { pagination: 'keyset', first_parent: true, follow: true }
 
           expect(response).to have_gitlab_http_status(:bad_request)
-          expect(json_response['message']).to include("'path'")
+          expect(json_response['message']).to include("'first_parent'")
           expect(json_response['message']).to include("'follow'")
           expect(json_response['message']).to include(::Repositories::CommitsFinder::KEYSET_PARAM_ERROR_SUFFIX)
           expect(json_response['message']).not_to eq('ref_name is invalid')
+        end
+      end
+
+      context 'with a path filter' do
+        let(:path) { 'files/ruby/popen.rb' }
+
+        it 'returns only commits that touch the path', :aggregate_failures do
+          get api(route, current_user), params: { pagination: 'keyset', path: path, per_page: 100 }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to be_an(Array)
+          expect(json_response).to be_present
+
+          returned_ids = json_response.map { |c| c['id'] }
+          expected_ids = project.repository.commits(project.default_branch, path: path, limit: 100).map(&:id)
+          expect(returned_ids).to match_array(expected_ids)
+        end
+
+        it 'strips a leading slash from the path', :aggregate_failures do
+          get api(route, current_user), params: { pagination: 'keyset', path: "/#{path}", per_page: 100 }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response.map { |c| c['id'] })
+            .to match_array(project.repository.commits(project.default_branch, path: path, limit: 100).map(&:id))
+        end
+
+        context 'with all=true' do
+          it 'succeeds and filters by path', :aggregate_failures do
+            get api(route, current_user), params: { pagination: 'keyset', path: path, all: true, per_page: 100 }
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response).to be_present
+
+            returned_ids = json_response.map { |c| c['id'] }
+            expected_ids = project.repository.commits(nil, all: true, path: path, limit: 100).map(&:id)
+            expect(returned_ids).to match_array(expected_ids)
+          end
+        end
+
+        it 'paginates across pages without dropping or duplicating commits', :aggregate_failures do
+          get api(route, current_user), params: { pagination: 'keyset', path: path, per_page: 2 }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          first_page = json_response.map { |c| c['id'] }
+
+          cursor = pagination_params_from_next_url(response)['page_token']
+          expect(cursor).to be_present
+
+          get api(route, current_user), params: { pagination: 'keyset', path: path, per_page: 2, page_token: cursor }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          second_page = json_response.map { |c| c['id'] }
+
+          expect(second_page).not_to eq(first_page)
+          expect(first_page & second_page).to be_empty
+        end
+
+        context 'with a glob metacharacter in the path' do
+          let_it_be(:literal_path) { 'files/ruby/star*.rb' }
+          let_it_be(:glob_branch) do
+            project.repository.create_file(
+              user, literal_path, 'puts "star"',
+              message: 'Add file with a literal glob metacharacter',
+              branch_name: 'glob-metacharacter-test',
+              start_branch_name: project.default_branch
+            )
+
+            'glob-metacharacter-test'
+          end
+
+          it 'matches offset pagination for the literal path', :aggregate_failures do
+            get api(route, current_user),
+              params: { pagination: 'keyset', ref_name: glob_branch, path: literal_path, per_page: 100 }
+
+            expect(response).to have_gitlab_http_status(:ok)
+            keyset_ids = json_response.map { |c| c['id'] }
+            offset_ids = project.repository.commits(glob_branch, path: literal_path, limit: 100).map(&:id)
+
+            expect(keyset_ids).to be_present
+            expect(offset_ids).to be_present
+            expect(keyset_ids).to match_array(offset_ids)
+          end
+
+          it 'treats the path literally rather than expanding the glob', :aggregate_failures do
+            get api(route, current_user),
+              params: { pagination: 'keyset', ref_name: glob_branch, path: 'files/ruby/*.rb', per_page: 100 }
+
+            expect(response).to have_gitlab_http_status(:ok)
+            keyset_ids = json_response.map { |c| c['id'] }
+            offset_ids = project.repository.commits(glob_branch, path: 'files/ruby/*.rb', limit: 100).map(&:id)
+
+            expect(keyset_ids).to be_empty
+            expect(offset_ids).to be_empty
+            expect(keyset_ids).to match_array(offset_ids)
+          end
+        end
+
+        context 'with a path that never existed' do
+          it 'returns an empty array with a 200', :aggregate_failures do
+            get api(route, current_user), params: { pagination: 'keyset', path: 'does/not/exist', per_page: 100 }
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response).to eq([])
+          end
         end
       end
 

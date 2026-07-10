@@ -75,7 +75,16 @@ module IssuableLinks
     end
 
     def link_issuables(target_issuables)
-      target_issuables.map do |referenced_object|
+      target_issuables.filter_map do |referenced_object|
+        if different_organization?(referenced_object)
+          @errors << (_("%{ref} cannot be added: %{error}") % {
+            ref: referenced_object.to_reference,
+            error: _('it belongs to a different organization')
+          })
+
+          next
+        end
+
         link = relate_issuables(referenced_object)
 
         if link.errors.any?
@@ -89,6 +98,17 @@ module IssuableLinks
 
         link
       end
+    end
+
+    # An organization is isolated to a single cell, so items in different
+    # organizations cannot be linked. Only issuables expose the organization
+    # comparison; other linkables (e.g. feature flags) are scoped to a single
+    # project and never cross cells, so they are left untouched.
+    def different_organization?(referenced_object)
+      return false unless issuable.respond_to?(:same_organization_as?)
+      return false unless Feature.enabled?(:prevent_cross_organization_work_item_actions, issuable.root_ancestor)
+
+      !issuable.same_organization_as?(referenced_object)
     end
 
     def referenced_issuables

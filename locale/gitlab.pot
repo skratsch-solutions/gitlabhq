@@ -25593,6 +25593,9 @@ msgstr ""
 msgid "DataSync|Unable to perform action. The selected work item type is not available in the target namespace."
 msgstr ""
 
+msgid "DataSync|Unable to perform this action across organizations."
+msgstr ""
+
 msgid "Database '%{database_name}' is using PostgreSQL %{pg_version_current}, but this version of GitLab requires PostgreSQL %{pg_version_minimum}. Please upgrade your environment to a supported PostgreSQL version. See %{pg_requirements_url} for details."
 msgstr ""
 
@@ -34453,6 +34456,9 @@ msgid "Geo"
 msgstr ""
 
 msgid "Geo Sites"
+msgstr ""
+
+msgid "Geo node status has not been updated in over %{minutes} minutes. Site status may be stale."
 msgstr ""
 
 msgid "Geo settings"
@@ -92437,6 +92443,9 @@ msgid "issue"
 msgid_plural "issues"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "it belongs to a different organization"
+msgstr ""
 
 msgid "it is larger than %{limit}"
 msgstr ""

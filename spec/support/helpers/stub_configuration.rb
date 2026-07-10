@@ -99,6 +99,10 @@ module StubConfiguration
     stub_config(messages, Gitlab.config.microsoft_graph_mailer)
   end
 
+  def stub_amazon_ses_mailer_setting(messages)
+    stub_config(messages, Gitlab.config.amazon_ses_mailer)
+  end
+
   def stub_kerberos_setting(messages)
     stub_config(messages, Gitlab.config.kerberos)
   end

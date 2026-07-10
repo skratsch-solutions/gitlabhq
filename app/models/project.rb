@@ -2905,8 +2905,15 @@ class Project < ApplicationRecord
   end
 
   def has_ci?
-    has_ci_config_file? || auto_devops_enabled?
+    has_ci_config_file? || auto_devops_enabled? || uses_external_ci_config?
   end
+
+  # ci_config_path can point at another project or a remote URL, so a project
+  # can have CI even with nothing committed in this repository.
+  def uses_external_ci_config?
+    Gitlab::Ci::ProjectConfig.new(project: self, sha: nil).external?
+  end
+  strong_memoize_attr :uses_external_ci_config?
 
   def has_ci_config_file?
     strong_memoize(:has_ci_config_file) do

@@ -7,6 +7,7 @@ import LegacyContainer from './components/legacy_container.vue';
 import WelcomePage from './components/welcome.vue';
 
 export default {
+  name: 'NewNamespacePage',
   components: {
     PageHeading,
     GlBreadcrumb,

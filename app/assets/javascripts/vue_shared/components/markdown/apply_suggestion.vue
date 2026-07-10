@@ -3,6 +3,7 @@ import { GlDisclosureDropdown, GlForm, GlFormTextarea, GlButton, GlAlert } from 
 import { __, n__ } from '~/locale';
 
 export default {
+  name: 'ApplySuggestion',
   components: { GlDisclosureDropdown, GlForm, GlFormTextarea, GlButton, GlAlert },
   props: {
     disabled: {

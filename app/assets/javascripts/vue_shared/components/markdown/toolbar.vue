@@ -1,9 +1,9 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlButton, GlLoadingIcon, GlSprintf, GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import EditorModeSwitcher from './editor_mode_switcher.vue';
 
 export default {
+  name: 'MarkdownToolbar',
   components: {
     GlButton,
     GlLoadingIcon,

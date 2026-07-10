@@ -58,6 +58,21 @@ class UserDetail < ApplicationRecord
     \z            # end of string
   /x
 
+  TWITTER_HANDLE_REGEX = %r{
+    \A                                  # beginning of string
+    (?:https?://)?                      # optional scheme
+    (?:(?:www\.)?(?:twitter|x)\.com/)?  # optional twitter/x host
+    @?                                  # optional leading @
+    ([^/?\#]+)                          # capture handle (first path segment)
+  }xi
+
+  GITHUB_HANDLE_REGEX = %r{
+    \A                           # beginning of string
+    (?:https?://)?               # optional scheme
+    (?:(?:www\.)?github\.com/)?  # optional github host
+    ([^/?\#]+)                   # capture handle (first path segment)
+  }xi
+
   validates :discord, length: { maximum: DEFAULT_FIELD_LENGTH }, allow_blank: true
   validate :discord_format
   validates :linkedin, length: { maximum: DEFAULT_FIELD_LENGTH }, allow_blank: true

@@ -20,7 +20,6 @@ export const generateMockPipeline = ({
   cancelable: false,
   ref: 'refs/merge-requests/1/head',
   refPath: 'refs/heads/root-main-patch-56329',
-  refText: '',
   source: 'merge_request_event',
   type: 'merge_request',
   hasManualActions: true,
@@ -200,8 +199,6 @@ export const mockPipelineUpdateResponse = {
       name: 'Ruby 3.0 master branch pipeline',
       ref: 'main',
       refPath: 'refs/heads/main',
-      refText:
-        'In <a class="ref-container gl-link" href="/root/ci-project/-/commits/main">main</a>',
       commit: {
         id: 'gid://gitlab/Commit/577d7917b5d80ef8cd8e543186aae41ccd870022',
         sha: '577d7917b5d80ef8cd8e543186aae41ccd870022',

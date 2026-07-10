@@ -504,6 +504,19 @@ module Issuable
     project
   end
 
+  def root_ancestor
+    resource_parent.root_ancestor
+  end
+
+  # An organization is isolated to a single cell, so two issuables in different
+  # organizations cannot reference each other (links, hierarchy, promotion...).
+  # `other` is another resource-parent-scoped record (issue, work item, epic).
+  def same_organization_as?(other)
+    return true if other.nil?
+
+    resource_parent&.organization_id == other.resource_parent&.organization_id
+  end
+
   def assignee_or_author?(user)
     author_id == user.id || assignee?(user)
   end

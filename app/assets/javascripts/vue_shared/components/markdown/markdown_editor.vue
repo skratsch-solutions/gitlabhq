@@ -33,6 +33,7 @@ async function waitFor(getEl, interval = 10, timeout = 2000) {
 }
 
 export default {
+  name: 'MarkdownEditor',
   components: {
     GlAlert,
     MarkdownField,

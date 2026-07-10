@@ -75,7 +75,9 @@ any action as the impersonated user.
 
 ## Available fine-grained permissions
 
-The permissions a fine-grained personal access token can use depend on the API the token calls:
+The permissions a fine-grained personal access token can use depend on the endpoint the token
+calls:
 
 - [REST API endpoints with fine-grained personal access token support](fine_grained_access_tokens_rest.md)
 - [GraphQL fields with fine-grained personal access token support](fine_grained_access_tokens_graphql.md)
+- [Git and other operations with fine-grained personal access token support](fine_grained_access_tokens_other.md)

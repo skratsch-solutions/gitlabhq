@@ -1189,7 +1189,6 @@ RSpec/FeatureCategory:
     - 'spec/initializers/mail_encoding_patch_spec.rb'
     - 'spec/initializers/mail_starttls_patch_spec.rb'
     - 'spec/initializers/mailer_options_spec.rb'
-    - 'spec/initializers/microsoft_graph_mailer_spec.rb'
     - 'spec/initializers/net_http_response_patch_spec.rb'
     - 'spec/initializers/omniauth_spec.rb'
     - 'spec/initializers/pages_storage_check_spec.rb'

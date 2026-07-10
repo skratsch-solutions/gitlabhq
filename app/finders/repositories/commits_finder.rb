@@ -10,7 +10,7 @@ module Repositories
 
     attr_reader :next_cursor
 
-    UNSUPPORTED_KEYSET_PARAMS = %w[path first_parent order trailers follow].freeze
+    UNSUPPORTED_KEYSET_PARAMS = %w[first_parent order trailers follow].freeze
     # Message fragment used to build the user-facing error. It omits the verb
     # ("is"/"are") so it reads correctly in both the singular and plural forms.
     KEYSET_PARAM_ERROR_SUFFIX = 'not supported with keyset pagination'
@@ -41,6 +41,8 @@ module Repositories
       response = project.repository.list_commits(
         ref: effective_ref,
         author: params[:author],
+        path: sanitized_path.presence,
+        literal_pathspec: sanitized_path.present?,
         committed_before: params[:until],
         committed_after: params[:since],
         pagination_params: pagination_params

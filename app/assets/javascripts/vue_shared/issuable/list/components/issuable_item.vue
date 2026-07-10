@@ -36,6 +36,7 @@ import {
 } from '~/work_items/utils';
 
 export default {
+  name: 'IssuableItem',
   components: {
     GlBadge,
     GlLink,

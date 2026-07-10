@@ -24,6 +24,7 @@ import {
 } from 'ee_else_ce/vue_shared/components/markdown/constants';
 
 export default {
+  name: 'CommentTemplatesModal',
   apollo: {
     savedReplies: {
       query: savedRepliesQuery,

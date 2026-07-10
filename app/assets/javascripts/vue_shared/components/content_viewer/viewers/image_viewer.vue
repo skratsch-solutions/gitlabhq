@@ -6,6 +6,7 @@ import { encodeSaferUrl } from '~/lib/utils/url_utility';
 const BLOB_PREFIX = 'blob:';
 
 export default {
+  name: 'ImageViewer',
   props: {
     path: {
       type: String,

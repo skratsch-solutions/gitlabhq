@@ -726,6 +726,16 @@ Settings.microsoft_graph_mailer['azure_ad_endpoint'] ||= 'https://login.microsof
 Settings.microsoft_graph_mailer['graph_endpoint'] ||= 'https://graph.microsoft.com'
 
 #
+# Amazon SES Mailer
+#
+Settings['amazon_ses_mailer'] ||= {}
+Settings.amazon_ses_mailer['enabled'] = false if Settings.amazon_ses_mailer['enabled'].nil?
+Settings.amazon_ses_mailer['region'] ||= nil
+Settings.amazon_ses_mailer['access_key_id'] ||= nil
+Settings.amazon_ses_mailer['secret_access_key'] ||= nil
+Settings.amazon_ses_mailer['role_arn'] ||= nil
+
+#
 # Kerberos
 #
 Gitlab.ee do

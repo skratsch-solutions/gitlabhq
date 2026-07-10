@@ -3,6 +3,7 @@ import { GlButton } from '@gitlab/ui';
 import { s__ } from '~/locale';
 
 export default {
+  name: 'LogsTopBar',
   components: {
     GlButton,
   },

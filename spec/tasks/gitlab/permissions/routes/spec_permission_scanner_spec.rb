@@ -5,8 +5,8 @@ require 'fast_spec_helper'
 RSpec.describe Tasks::Gitlab::Permissions::Routes::SpecPermissionScanner, feature_category: :permissions do
   let(:scanner) { described_class.new }
 
-  describe '#add_route and #insufficient_test_coverage' do
-    let(:route_info) do
+  describe '#add_endpoint and #insufficient_test_coverage' do
+    let(:endpoint_details) do
       { method: 'GET', path: '/projects/:id/test', source: 'lib/api/test.rb:42',
         spec_file: 'spec/requests/api/test_spec.rb' }
     end
@@ -16,7 +16,8 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::SpecPermissionScanner, featur
     end
 
     it 'returns violations for permissions with insufficient tests' do
-      scanner.add_route(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project, route_info: route_info)
+      scanner.add_endpoint(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project,
+        details: endpoint_details)
 
       result = scanner.insufficient_test_coverage
       expect(result).to contain_exactly(
@@ -26,7 +27,8 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::SpecPermissionScanner, featur
 
     it 'deduplicates routes with the same endpoint_id and permission' do
       2.times do
-        scanner.add_route(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project, route_info: route_info)
+        scanner.add_endpoint(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project,
+          details: endpoint_details)
       end
 
       result = scanner.insufficient_test_coverage
@@ -34,18 +36,21 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::SpecPermissionScanner, featur
     end
 
     it 'counts routes with different endpoint_ids separately' do
-      scanner.add_route(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project, route_info: route_info)
-      scanner.add_route(endpoint_id: 'lib/api/test.rb:42 group', permission: :read_project, route_info: route_info)
+      scanner.add_endpoint(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project,
+        details: endpoint_details)
+      scanner.add_endpoint(endpoint_id: 'lib/api/test.rb:42 group', permission: :read_project,
+        details: endpoint_details)
 
       result = scanner.insufficient_test_coverage
       expect(result.first[:endpoint_count]).to eq(2)
     end
 
     it 'includes route details in violations' do
-      scanner.add_route(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project, route_info: route_info)
+      scanner.add_endpoint(endpoint_id: 'lib/api/test.rb:42 project', permission: :read_project,
+        details: endpoint_details)
 
       result = scanner.insufficient_test_coverage
-      expect(result.first[:endpoints]).to contain_exactly(route_info)
+      expect(result.first[:endpoints]).to contain_exactly(endpoint_details)
     end
   end
 

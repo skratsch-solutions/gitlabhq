@@ -546,7 +546,7 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::ValidateTask, :silence_stdout
       before do
         allow(task).to receive(:register_test_coverage).and_call_original
         allow(task).to receive(:spec_permission_scanner).and_return(mock_scanner)
-        allow(mock_scanner).to receive(:add_route)
+        allow(mock_scanner).to receive(:add_endpoint)
         allow(Authz::Permission).to receive(:defined?).with(:read_project).and_return(true)
         allow(Authz::PermissionGroups::Assignable).to receive(:available_for_permission)
           .with(:read_project).and_return([mock_assignable])
@@ -585,7 +585,7 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::ValidateTask, :silence_stdout
       before do
         allow(task).to receive(:register_test_coverage).and_call_original
         allow(task).to receive(:spec_permission_scanner).and_return(mock_scanner)
-        allow(mock_scanner).to receive(:add_route)
+        allow(mock_scanner).to receive(:add_endpoint)
         allow(Authz::Permission).to receive(:defined?).with(:read_project).and_return(true)
         allow(Authz::PermissionGroups::Assignable).to receive(:available_for_permission)
           .with(:read_project).and_return([mock_assignable])

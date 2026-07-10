@@ -450,6 +450,10 @@ IO.popen('pbcopy', 'w') { |f| f.puts "curl \"http://#{Gitlab.host_with_port}/api
    - The directive's `boundary_type` does not match the assignable permission's `boundaries`.
    - A `skip_reason:` is not defined in `lib/tasks/gitlab/permissions/graphql/skip_reasons.rb`.
    - A directive declares both `skip_reason:` and `permissions:`.
+   - A permission in a directive has no authorization test. Each type, mutation, or field declaring
+     the permission needs its own test per boundary type. Declarations that predate this check are
+     listed in `config/authz/graphql/test_coverage_todo.txt`. Do not add new entries to that file:
+     a new declaration needs a test even when its permission appears there.
    - The generated reference documentation is out of date.
 
 ## See Also

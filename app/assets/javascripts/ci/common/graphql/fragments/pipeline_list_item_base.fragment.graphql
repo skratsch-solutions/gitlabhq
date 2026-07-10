@@ -11,7 +11,6 @@ fragment PipelineListItemBase on Pipeline {
   duration
   name
   ref
-  refText
   commit {
     id
     shortId

@@ -205,7 +205,6 @@ export const mockBranchPipeline = {
   name: 'Ruby 3.0 master branch pipeline',
   ref: 'main',
   refPath: 'refs/heads/main',
-  refText: 'In <a class="ref-container gl-link" href="/root/ci-project/-/commits/main">main</a>',
   commit: {
     __typename: 'Commit',
     id: 'gid://gitlab/Commit/de80f1042526e0374ba1cfdca7c1d6595406e949',

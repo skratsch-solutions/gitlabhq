@@ -25,6 +25,38 @@ RSpec.describe IssueLinks::CreateService, feature_category: :team_planning do
 
     it_behaves_like 'issuable link creation'
 
+    context 'when the target is in a different organization' do
+      let_it_be(:other_organization) { create(:organization) }
+      let_it_be(:other_group) { create(:group, organization: other_organization) }
+      let_it_be(:other_project) { create(:project, :public, group: other_group) }
+      let_it_be(:cross_org_issuable) { create(:issue, project: other_project) }
+
+      let(:params) { { issuable_references: [cross_org_issuable.to_reference(full: true)] } }
+
+      subject(:result) { described_class.new(issuable, user, params).execute }
+
+      before do
+        other_project.add_guest(user)
+      end
+
+      it 'does not create the link and returns an error' do
+        expect { result }.not_to change { IssueLink.count }
+        expect(result[:status]).to eq(:error)
+        expect(result[:message]).to include('belongs to a different organization')
+      end
+
+      context 'when the prevent_cross_organization_work_item_actions flag is disabled' do
+        before do
+          stub_feature_flags(prevent_cross_organization_work_item_actions: false)
+        end
+
+        it 'creates the link' do
+          expect { result }.to change { IssueLink.count }.by(1)
+          expect(result[:status]).to eq(:success)
+        end
+      end
+    end
+
     context 'when target is an incident' do
       let_it_be_with_reload(:issue) { create(:incident, project: project) }
 

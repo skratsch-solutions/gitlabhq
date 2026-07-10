@@ -94,7 +94,7 @@ module Ci
     end
 
     def uses_external_config?(project)
-      Gitlab::Ci::ProjectConfig.new(project: project, sha: nil).external?
+      project.uses_external_ci_config?
     end
 
     private

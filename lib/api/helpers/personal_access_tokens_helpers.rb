@@ -133,12 +133,13 @@ module API
         end
       end
 
-      def create_granular_token(current_user, granular_scopes, token_params)
+      def create_granular_token(current_user, granular_scopes, token_params, target_user: current_user)
         escalation_check = ::Authz::Tokens::PrivilegeEscalationCheck.new(granular_scopes, access_token).execute
         return escalation_check if escalation_check.error?
 
         ::Authn::PersonalAccessTokens::CreateGranularService.new(
           current_user: current_user,
+          target_user: target_user,
           organization: Current.organization,
           params: token_params,
           granular_scopes: granular_scopes

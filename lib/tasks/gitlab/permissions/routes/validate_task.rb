@@ -160,10 +160,10 @@ module Tasks
             source_file = relative_path(location.first)
             scanner = spec_permission_scanner
 
-            scanner.add_route(
+            scanner.add_endpoint(
               endpoint_id: "#{source_file}:#{location.last} #{boundary_types.sort.join(',')}",
               permission: permission,
-              route_info: base_error(route).merge(
+              details: base_error(route).merge(
                 permission: permission,
                 spec_file: scanner.derive_spec_path(source_file)
               )

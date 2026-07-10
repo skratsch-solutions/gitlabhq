@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import { debounce, isEqual } from 'lodash-es';
@@ -15,6 +14,7 @@ import MarkdownHeader from './header.vue';
 import MarkdownToolbar from './toolbar.vue';
 
 export default {
+  name: 'MarkdownField',
   components: {
     MarkdownHeader,
     MarkdownToolbar,

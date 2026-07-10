@@ -3,6 +3,7 @@ import { GlTooltipDirective, GlButton } from '@gitlab/ui';
 import { TOOLBAR_CONTROL_TRACKING_ACTION, MARKDOWN_EDITOR_TRACKING_LABEL } from './tracking';
 
 export default {
+  name: 'ToolbarButton',
   components: {
     GlButton,
   },

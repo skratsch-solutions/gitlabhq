@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'spec_permission_scanner'
+
 module Tasks
   module Gitlab
     module Permissions
@@ -16,7 +18,8 @@ module Tasks
               invalid_permission: [],
               missing_authorization: [],
               invalid_skip_reason: [],
-              conflicting_authorization: []
+              conflicting_authorization: [],
+              insufficient_tests: []
             }
           end
 
@@ -42,6 +45,8 @@ module Tasks
               }
             end
 
+            violations[:insufficient_tests] = spec_permission_scanner.insufficient_test_coverage
+
             super
           end
 
@@ -54,7 +59,22 @@ module Tasks
             permissions.each do |permission|
               validate_permission_exists(item, permission)
               validate_boundary_type(item, permission, boundary_type)
+              register_test_coverage(item, permission, boundary_type)
             end
+          end
+
+          # A type, mutation, or field may declare multiple directives (one per
+          # boundary); each declaration needs its own test per boundary type.
+          def register_test_coverage(item, permission, boundary_type)
+            spec_permission_scanner.add_endpoint(
+              endpoint_id: "#{item[:kind]}:#{item[:name]} #{boundary_type}",
+              permission: permission,
+              details: item.merge(permission: permission)
+            )
+          end
+
+          def spec_permission_scanner
+            @spec_permission_scanner ||= SpecPermissionScanner.new
           end
 
           def validate_skip(item, directives)
@@ -142,7 +162,8 @@ module Tasks
               format_boundary_mismatch_errors +
               format_missing_authorization_errors +
               format_invalid_skip_reason_errors +
-              format_conflicting_authorization_errors
+              format_conflicting_authorization_errors +
+              format_insufficient_test_errors
           end
 
           def format_graphql_errors(kind)
@@ -207,6 +228,23 @@ module Tasks
             "#{out}\n"
           end
 
+          def format_insufficient_test_errors
+            return '' if violations[:insufficient_tests].empty?
+
+            out = "#{error_messages[:insufficient_tests]}\n\n"
+
+            violations[:insufficient_tests].each do |v|
+              out += "  - #{v[:permission]}: #{v[:endpoint_count]} #{'declaration'.pluralize(v[:endpoint_count])}"
+              out += " (#{v[:grandfathered_count]} grandfathered)" if v[:grandfathered_count] > 0
+              out += ", #{v[:test_count]} #{'test'.pluralize(v[:test_count])}\n"
+              v[:endpoints].each do |endpoint|
+                out += "      [#{endpoint[:kind]}] #{endpoint[:name]} (#{endpoint[:source]})\n"
+              end
+            end
+
+            "#{out}\n"
+          end
+
           def error_messages
             {
               invalid_permission: <<~MSG.chomp,
@@ -228,9 +266,15 @@ module Tasks
                 The following GraphQL types use a missing or invalid `authorize_granular_token` skip_reason.
                 Use one of: #{VALID_SKIP_REASONS.map { |r| ":#{r}" }.join(', ')}
               MSG
-              conflicting_authorization: <<~MSG.chomp
+              conflicting_authorization: <<~MSG.chomp,
                 The following GraphQL types declare `authorize_granular_token` with both permissions and a skip_reason.
                 Remove one: a type is either authorized directly or intentionally skipped.
+              MSG
+              insufficient_tests: <<~MSG.chomp
+                The following permissions have fewer tests than GraphQL types/mutations/fields using them.
+                Each declaration should have its own `it_behaves_like 'authorizing granular token permissions for GraphQL'`
+                test per boundary type. Add test coverage.
+                #{graphql_implementation_guide_link(anchor: 'step-6-add-authorization-tests')}
               MSG
             }
           end

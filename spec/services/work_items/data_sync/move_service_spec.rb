@@ -62,6 +62,30 @@ RSpec.describe WorkItems::DataSync::MoveService, feature_category: :team_plannin
     end
   end
 
+  context 'when the target namespace is in a different organization' do
+    let_it_be(:other_organization) { create(:organization) }
+    let_it_be(:other_group) { create(:group, organization: other_organization) }
+    let_it_be(:other_project) { create(:project, group: other_group) }
+    let_it_be(:current_user) do
+      create(:user, reporter_of: project).tap { |user| other_project.add_reporter(user) }
+    end
+
+    let(:target_namespace) { other_project.project_namespace }
+
+    it_behaves_like 'fails to transfer work item',
+      'Unable to perform this action across organizations.'
+
+    context 'when the prevent_cross_organization_work_item_actions flag is disabled' do
+      before do
+        stub_feature_flags(prevent_cross_organization_work_item_actions: false)
+      end
+
+      it 'does not block the move because of organizations' do
+        expect(service.execute).to be_success
+      end
+    end
+  end
+
   context 'when user has permission to move work item' do
     let_it_be(:current_user) { projects_member }
 

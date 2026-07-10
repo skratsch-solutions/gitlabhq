@@ -171,7 +171,7 @@ gem 'grape-entity', '~> 1.0.1', feature_category: :api
 gem 'grape-swagger', '~> 2.1.2', group: [:development, :test], feature_category: :api
 gem 'grape-swagger-entity', '~> 0.7.0', group: [:development, :test], feature_category: :api
 gem 'grape-path-helpers', '~> 2.0.1', feature_category: :api
-gem 'gitlab-grape-openapi', '~> 0.1', feature_category: :api
+gem 'gitlab-grape-openapi', '~> 0.2', feature_category: :api
 gem 'rack-cors', '~> 2.0.1', require: 'rack/cors', feature_category: :api
 
 # GraphQL API
@@ -192,7 +192,7 @@ gem 'gitlab-topology-service-client', '~> 0.1',
   feature_category: :cell
 
 # Duo Workflow
-gem 'gitlab-duo-workflow-service-client', '~> 0.8',
+gem 'gitlab-duo-workflow-service-client', '~> 0.10',
   path: 'vendor/gems/gitlab-duo-workflow-service-client',
   feature_category: :duo_agent_platform
 
@@ -704,10 +704,12 @@ gem 'lru_redux', feature_category: :importers
 # `config/initializers/mail_starttls_patch.rb` has also been patched to
 # fix STARTTLS handling until https://github.com/mikel/mail/pull/1536 is
 # released.
-gem 'mail', '= 2.9.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
-gem 'mail-smtp_pool', '~> 0.1.0', path: 'gems/mail-smtp_pool', require: false, feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
+gem 'mail', '= 2.9.0', feature_category: :notifications
+gem 'mail-smtp_pool', '~> 0.1.0', path: 'gems/mail-smtp_pool', require: false, feature_category: :notifications
 
-gem 'microsoft_graph_mailer', '~> 0.1.0', path: 'vendor/gems/microsoft_graph_mailer', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
+gem 'microsoft_graph_mailer', '~> 0.1.0', path: 'vendor/gems/microsoft_graph_mailer',
+  require: false, feature_category: :notifications
+gem 'aws-actionmailer-ses', '~> 1', require: false, feature_category: :notifications
 
 # File encryption
 gem 'lockbox', '~> 1.4.0', feature_category: :continuous_integration
@@ -762,6 +764,11 @@ gem "base64", "~> 0.2.0", feature_category: :shared # rubocop:todo Gemfile/Missi
 # BufferedIO patch
 gem 'net-protocol', '~> 0.2.2', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 gem "nkf", "~> 0.2.0", feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
+
+# NOTE: In Ruby 3.4 resolv-replace was moved out of the stdlib into a bundled gem.
+# It is required explicitly by the gitlab:artifacts:* rake tasks (lib/tasks/gitlab/artifacts/),
+# so `require: false` keeps it from globally replacing the DNS resolver at boot.
+gem "resolv-replace", "~> 0.2.0", require: false, feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
 # This is locked to 0.6.0 because we patch Net::HTTP#connect in
 # gems/gitlab-http/lib/net_http/connect_patch.rb.

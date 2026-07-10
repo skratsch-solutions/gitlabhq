@@ -6215,6 +6215,207 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       expect(json_response['token']).to be_present
       expect(json_response['impersonation']).to eq(impersonation)
     end
+
+    context 'when creating an impersonation token with granular scopes' do
+      using RSpec::Parameterized::TableSyntax
+
+      let(:granular_scopes) { [{ access: access, permissions: ['read_job'] }] }
+      let(:granular_params) { { name: name, expires_at: expires_at, description: description, granular_scopes: granular_scopes } }
+
+      where(:access) do
+        %w[user instance all_memberships personal_projects]
+      end
+
+      with_them do
+        it 'creates a granular impersonation token for the impersonated user', :aggregate_failures do
+          post api(path, admin, admin_mode: true), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['name']).to eq(name)
+          expect(json_response['granular']).to be(true)
+          expect(json_response['impersonation']).to be(true)
+          expect(json_response['token']).to be_present
+
+          created_token = user.personal_access_tokens.find(json_response['id'])
+          expect(created_token.impersonation).to be(true)
+          expect(created_token.granular_scopes.count).to eq(1)
+          expect(created_token.granular_scopes.first.access).to eq(access)
+          expect(created_token.granular_scopes.first.permissions).to eq(['read_job'])
+        end
+      end
+
+      context 'granular impersonation token requirements' do
+        let(:access) { 'user' }
+
+        def create_granular_impersonation_token
+          post api(path, admin, admin_mode: true), params: granular_params
+          expect(response).to have_gitlab_http_status(:created)
+          json_response['id']
+        end
+
+        it 'is a granular token owned by the impersonated user, not the admin' do
+          token = PersonalAccessToken.find(create_granular_impersonation_token)
+
+          expect(token.user).to eq(user)
+          expect(token.user).not_to eq(admin)
+          expect(token.impersonation).to be(true)
+          expect(token.granular?).to be(true)
+        end
+
+        it 'is not listed in the impersonated user regular token table' do
+          token_id = create_granular_impersonation_token
+
+          get api("/personal_access_tokens", user)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response.map { |token| token['id'] }).not_to include(token_id)
+        end
+
+        it 'is not listed in the administrator regular token table' do
+          token_id = create_granular_impersonation_token
+
+          get api("/personal_access_tokens", admin, admin_mode: true), params: { user_id: admin.id }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response.map { |token| token['id'] }).not_to include(token_id)
+        end
+
+        it 'is listed only through the dedicated impersonation token endpoint as granular' do
+          token_id = create_granular_impersonation_token
+
+          get api(path, admin, admin_mode: true)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          entry = json_response.find { |token| token['id'] == token_id }
+          expect(entry).to be_present
+          expect(entry['impersonation']).to be(true)
+          expect(entry['granular']).to be(true)
+        end
+      end
+
+      context 'when access is personal_projects' do
+        let(:access) { 'personal_projects' }
+
+        it 'binds the scope to the impersonated user namespace' do
+          post api(path, admin, admin_mode: true), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:created)
+
+          created_token = user.personal_access_tokens.find(json_response['id'])
+          expect(created_token.granular_scopes.first.namespace_id).to eq(user.namespace_id)
+        end
+      end
+
+      context 'when access is selected_memberships' do
+        let(:access) { 'selected_memberships' }
+        let_it_be(:project) { create(:project, developers: [user]) }
+        let_it_be(:group) { create(:group, developers: [user]) }
+
+        let(:granular_scopes) do
+          [{ access: access, permissions: ['read_job'], project_ids: [project.id], group_ids: [group.id] }]
+        end
+
+        it 'scopes to the impersonated user memberships' do
+          post api(path, admin, admin_mode: true), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:created)
+
+          created_token = user.personal_access_tokens.find(json_response['id'])
+          expect(created_token.granular_scopes.map(&:namespace_id)).to contain_exactly(
+            group.id, project.project_namespace.id
+          )
+        end
+
+        context 'when the impersonated user is not a member of the given group' do
+          let_it_be(:other_group) { create(:group) }
+
+          let(:granular_scopes) do
+            [{ access: access, permissions: ['read_job'], group_ids: [other_group.id] }]
+          end
+
+          it 'returns a 404' do
+            post api(path, admin, admin_mode: true), params: granular_params
+
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+        end
+      end
+
+      context 'when both scopes and granular_scopes are given' do
+        let(:access) { 'user' }
+
+        it 'returns a validation error' do
+          post api(path, admin, admin_mode: true), params: granular_params.merge(scopes: %w[api])
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response['error']).to eq('scopes, granular_scopes are mutually exclusive')
+        end
+      end
+
+      context 'when the granular_personal_access_tokens feature flag is disabled' do
+        let(:access) { 'user' }
+
+        before do
+          stub_feature_flags(granular_personal_access_tokens: false)
+        end
+
+        it 'returns a 404' do
+          post api(path, admin, admin_mode: true), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      context 'when authenticated as a normal user' do
+        let(:access) { 'user' }
+
+        it 'returns a 403 error' do
+          post api(path, user), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+        end
+      end
+
+      context 'when the user does not exist' do
+        let(:access) { 'user' }
+
+        it 'returns a 404 error' do
+          post api("/users/#{non_existing_record_id}/impersonation_tokens", admin, admin_mode: true), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:not_found)
+          expect(json_response['message']).to eq('404 User Not Found')
+        end
+      end
+
+      context 'when granular_scopes is an empty array' do
+        let(:access) { 'user' }
+        let(:granular_scopes) { [] }
+
+        it 'does not create an impersonation token' do
+          post api(path, admin, admin_mode: true), params: granular_params, as: :json
+
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
+          expect(json_response['message']).to eq('At least one granular scope must be provided')
+        end
+      end
+
+      context 'when the calling token is granular and cannot grant the requested scopes' do
+        let(:access) { 'user' }
+        let(:calling_token) do
+          create(:granular_pat, user: admin, boundary: ::Authz::Boundary.for(:instance),
+            permissions: [:create_impersonation_token])
+        end
+
+        it 'returns a 403 forbidden error' do
+          post api(path, personal_access_token: calling_token), params: granular_params
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+          expect(json_response['message']).to eq(
+            'A granular token can only create tokens with equal or lesser permissions.'
+          )
+        end
+      end
+    end
   end
 
   describe 'GET /users/:user_id/impersonation_tokens/:impersonation_token_id' do

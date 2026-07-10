@@ -661,48 +661,6 @@ export const catalogSharedDataMock = {
   },
 };
 
-const generateResourcesNodes = (count = 20, startId = 0) => {
-  const nodes = [];
-  for (let i = startId; i < startId + count; i += 1) {
-    nodes.push({
-      __typename: 'CiCatalogResource',
-      id: `gid://gitlab/CiCatalogResource/${i}`,
-      description: `This is a component that does a bunch of stuff and is really just a number: ${i}`,
-      icon: 'my-icon',
-      name: `My component #${i}`,
-      starCount: 10,
-      last30DayUsageCount: 4,
-      versions: {
-        __typename: 'CiCatalogResourceVersionConnection',
-        nodes: [
-          {
-            __typename: 'CiCatalogResourceVersion',
-            id: '3',
-            components: {
-              ...componentsListMockData,
-            },
-            name: '1.0.0',
-            path: 'path/to/release',
-            releasedAt: Date.now(),
-            author: {
-              __typename: 'UserCore',
-              id: 1,
-              webPath: 'profile/1',
-              name: 'username',
-            },
-          },
-        ],
-      },
-      webPath: 'path/to/project',
-      fullPath: 'namespace/path/to/project',
-    });
-  }
-
-  return nodes;
-};
-
-export const mockCatalogResourceItem = generateResourcesNodes(1)[0];
-
 export const mockComponents = {
   data: {
     ciCatalogResource: {

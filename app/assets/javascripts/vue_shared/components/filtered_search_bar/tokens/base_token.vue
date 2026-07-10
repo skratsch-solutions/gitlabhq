@@ -20,6 +20,7 @@ import {
 import { getRecentlyUsedSuggestions, setTokenValueToRecentlyUsed } from '../filtered_search_utils';
 
 export default {
+  name: 'BaseToken',
   components: {
     GlFilteredSearchToken,
     GlFilteredSearchSuggestion,

@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlPopover, GlButton, GlTooltipDirective, GlFormInput } from '@gitlab/ui';
 import $ from 'jquery';
@@ -34,6 +33,7 @@ import ToolbarMoreDropdown from './toolbar_more_dropdown.vue';
 import { FIND_AND_REPLACE_FOCUSABLE_SELECTOR } from './constants';
 
 export default {
+  name: 'MarkdownHeader',
   findAndReplace: {
     highlightClass: 'js-highlight',
     highlightClassActive: 'js-highlight-active',

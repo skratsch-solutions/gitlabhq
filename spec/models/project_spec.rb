@@ -6892,6 +6892,43 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         end
       end
     end
+
+    context 'when the CI configuration is in an external location' do
+      where(:ci_config_path) do
+        [
+          '.gitlab-ci.yml@another-group/another-project',
+          'https://example.com/.gitlab-ci.yml'
+        ]
+      end
+
+      with_them do
+        let(:project) { create(:project, ci_config_path: ci_config_path) }
+
+        before do
+          allow(project).to receive(:has_ci_config_file?).and_return(false)
+          stub_application_setting(auto_devops_enabled: false)
+        end
+
+        it 'CI is available' do
+          expect(project).to have_ci
+        end
+      end
+    end
+  end
+
+  describe '#uses_external_ci_config?' do
+    where(:ci_config_path, :result) do
+      '.gitlab-ci.yml@another-group/another-project' | true
+      'https://example.com/.gitlab-ci.yml'           | true
+      'custom/path/.gitlab-ci.yml'                   | false
+      nil                                            | false
+    end
+
+    with_them do
+      let(:project) { create(:project, ci_config_path: ci_config_path) }
+
+      it { expect(project.uses_external_ci_config?).to be(result) }
+    end
   end
 
   describe '#has_ci_config_file?' do
