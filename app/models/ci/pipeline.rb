@@ -461,6 +461,34 @@ module Ci
         end
       end
 
+      # Skipped pipelines are completed but never receive a finished_at, so
+      # they have no wall clock to observe.
+      after_transition any => ::Ci::Pipeline.completed_statuses - [:skipped] do |pipeline|
+        pipeline.run_after_commit do
+          # Defensive: both timestamps are always set for these transitions.
+          # Metrics emission must never raise into the caller's worker.
+          next unless pipeline.finished_at && pipeline.created_at
+
+          if ::Feature.enabled?(:ci_observe_pipelines_finished, ::Project.actor_from_id(pipeline.project_id))
+            labels = { source: pipeline.source, status: pipeline.status }
+
+            ::Gitlab::Ci::Pipeline::Metrics.pipelines_finished_counter
+              .increment(labels.merge(partition_id: pipeline.partition_id))
+            ::Gitlab::Ci::Pipeline::Metrics.pipeline_time_to_finished_histogram
+              .observe(labels, (pipeline.finished_at - pipeline.created_at).to_f)
+
+            Labkit::UserExperienceSli.observed(
+              :run_pipeline,
+              start_time: pipeline.created_at,
+              Labkit::Fields::GL_PIPELINE_ID.to_sym => pipeline.id,
+              Labkit::Fields::GL_PROJECT_ID.to_sym => pipeline.project_id,
+              pipeline_source: pipeline.source,
+              pipeline_status: pipeline.status
+            )
+          end
+        end
+      end
+
       after_transition any => [:running, *::Ci::Pipeline.completed_statuses] do |pipeline|
         project = pipeline&.project
 
@@ -673,8 +701,31 @@ module Ci
     # ref - The ref to scope the data to (e.g. "master"). If the ref is not
     #       given we simply get the latest pipelines for the commits, regardless
     #       of what refs the pipelines belong to.
-    def self.latest_pipeline_per_commit(commits, ref = nil)
-      sql = select('DISTINCT ON (sha) *')
+    # in_current_partition - When true, look up the pipelines in the current
+    #       partition first and only fall back to a cross-partition scan for the
+    #       SHAs whose latest pipeline predates it. `p_ci_pipelines` is
+    #       partitioned by `partition_id`, so an unscoped query opens every
+    #       partition and locks each one, causing LWLock contention that grows
+    #       with the partition count. A newer pipeline for a SHA always has both
+    #       a higher `id` and a partition id >= any older pipeline's, so the
+    #       latest pipeline found in the current partition is the global latest.
+    #       Defaults to false to preserve the behavior of existing callers.
+    def self.latest_pipeline_per_commit(commits, ref = nil, in_current_partition: false)
+      return latest_pipeline_per_commit_in_partition(commits, ref, nil) unless in_current_partition
+
+      found = latest_pipeline_per_commit_in_partition(commits, ref, current_partition_value)
+
+      missing = Array.wrap(commits) - found.keys
+      return found if missing.empty?
+
+      found.merge(latest_pipeline_per_commit_in_partition(missing, ref, nil))
+    end
+
+    def self.latest_pipeline_per_commit_in_partition(commits, ref, partition_id)
+      scope = partition_id ? in_partition(partition_id) : all
+
+      sql = scope
+              .select('DISTINCT ON (sha) *')
               .where(sha: commits)
               .order(:sha, id: :desc)
 
@@ -682,6 +733,7 @@ module Ci
 
       sql.index_by(&:sha)
     end
+    private_class_method :latest_pipeline_per_commit_in_partition
 
     # Returns a hash containing latest pipeline for each ref which aligns with
     # the sha value. This allows us to look up all of the latest pipelines for

@@ -5,7 +5,7 @@ import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import OfflineTransferExportApp from '~/import/offline_transfer/export/app.vue';
 import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
-import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
+import SelectGroupsTab from '~/import/offline_transfer/export/select_groups_tab.vue';
 import offlineTransferSourceOwnedGroupsQuery from '~/import/offline_transfer/graphql/queries/offline_transfer_source_owned_groups.query.graphql';
 import { OFFLINE_EXPORT_TAB_HEADINGS } from '~/import/offline_transfer/constants';
 import {

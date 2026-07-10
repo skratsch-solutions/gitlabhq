@@ -50,8 +50,10 @@ export const config = {
           isExpandedHierarchyTreeChild: (_, { variables, toReference }) =>
             toReference({ __typename: 'LocalWorkItemChildIsExpanded', id: variables.id }),
           namespace: {
-            merge: true,
             keyArgs: ['fullPath'],
+            merge(existing, incoming) {
+              return incoming ?? existing;
+            },
           },
         },
       },

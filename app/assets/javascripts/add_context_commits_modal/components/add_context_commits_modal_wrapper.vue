@@ -62,7 +62,7 @@ export default {
           token: UserToken,
           defaultAuthors: [],
           unique: true,
-          fetchAuthors: this.fetchAuthors,
+          fetchUsers: this.fetchAuthors,
           initialAuthors: [],
         },
         {

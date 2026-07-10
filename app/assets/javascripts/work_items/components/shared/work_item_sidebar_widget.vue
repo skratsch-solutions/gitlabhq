@@ -40,7 +40,7 @@ export default {
       default: undefined,
     },
   },
-  emits: ['startEditing', 'stopEditing'],
+  emits: ['start-editing', 'stopEditing'],
   data() {
     return {
       editing: false,
@@ -60,7 +60,7 @@ export default {
   methods: {
     startEditing() {
       this.editing = true;
-      this.$emit('startEditing');
+      this.$emit('start-editing');
     },
     stopEditing({ target } = {}) {
       // This prevents the v-outside directive from treating a

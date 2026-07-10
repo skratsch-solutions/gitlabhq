@@ -93,7 +93,7 @@ export default {
       default: false,
     },
   },
-  emits: ['cancelEditing', 'noteEdited', 'resolve', 'startEditing', 'startReplying'],
+  emits: ['cancel-editing', 'noteEdited', 'resolve', 'start-editing', 'startReplying'],
   data() {
     return {
       isDeleting: false,
@@ -177,7 +177,7 @@ export default {
 
       try {
         await this.store.saveNote(this.note, noteText);
-        this.$emit('cancelEditing');
+        this.$emit('cancel-editing');
       } catch (error) {
         createAlert({
           message: updateNoteErrorMessage(error),
@@ -201,7 +201,7 @@ export default {
         });
         if (!confirmed) return;
       }
-      this.$emit('cancelEditing');
+      this.$emit('cancel-editing');
     }),
     async toggleAward(name) {
       try {
@@ -298,7 +298,7 @@ export default {
             :is-resolving="isResolving"
             @resolve="$emit('resolve')"
             @delete="onDelete"
-            @startEditing="$emit('startEditing')"
+            @start-editing="$emit('start-editing')"
             @startReplying="$emit('startReplying')"
             @award="toggleAward"
           />
@@ -329,7 +329,7 @@ export default {
             :save-note="saveNote"
             :save-note-error-messages="$options.UPDATE_COMMENT_FORM"
             :is-first-note="isFirstNote"
-            @cancelEditing="onCancelEditing"
+            @cancel-editing="onCancelEditing"
             @input="$emit('noteEdited', $event)"
             @award="toggleAward"
           />

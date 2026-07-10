@@ -1,6 +1,7 @@
 ---
 table_name: duo_workflows_workflow_notes
-classes: []
+classes:
+- Ai::DuoWorkflows::WorkflowNote
 feature_categories:
 - duo_agent_platform
 description: Join table linking Duo Workflow runs to notes (comments).

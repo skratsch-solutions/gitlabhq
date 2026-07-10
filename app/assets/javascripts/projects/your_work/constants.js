@@ -124,8 +124,6 @@ export const PROJECT_DASHBOARD_TABS = [
   INACTIVE_TAB,
 ];
 
-export const BASE_ROUTE = '/dashboard/projects';
-
 export const ROOT_ROUTE_NAME = 'root';
 
 export const DASHBOARD_ROUTE_NAME = 'dashboard';

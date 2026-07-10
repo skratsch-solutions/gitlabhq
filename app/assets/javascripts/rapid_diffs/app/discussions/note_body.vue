@@ -60,7 +60,7 @@ export default {
       default: false,
     },
   },
-  emits: ['award', 'cancelEditing', 'input'],
+  emits: ['award', 'cancel-editing', 'input'],
   computed: {
     noteBody: {
       get() {
@@ -129,7 +129,7 @@ export default {
       :save-note="saveNote"
       :save-note-error-messages="saveNoteErrorMessages"
       @input="$emit('input', $event)"
-      @cancel="$emit('cancelEditing', $event)"
+      @cancel="$emit('cancel-editing', $event)"
     />
     <textarea
       v-if="canEdit"

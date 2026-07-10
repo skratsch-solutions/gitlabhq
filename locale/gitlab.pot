@@ -65401,6 +65401,12 @@ msgstr ""
 msgid "ScanExecutionPolicy|File reference (Optional) %{refSelector}"
 msgstr ""
 
+msgid "ScanExecutionPolicy|For this schedule to run, %{project} needs to allow this project access to its configuration files, with an allowed file pattern that matches the file path. Check with whoever owns that project's settings, or modify the %{linkStart}settings%{linkEnd} directly."
+msgstr ""
+
+msgid "ScanExecutionPolicy|For this schedule to run, the selected project needs to allow this project access to its configuration files, with an allowed file pattern that matches the file path. Check with whoever owns that project's settings, or modify the settings directly."
+msgstr ""
+
 msgid "ScanExecutionPolicy|Ignore default CI configuration for before/after script"
 msgstr ""
 
@@ -65510,6 +65516,9 @@ msgid "ScanExecutionPolicy|Use a custom key"
 msgstr ""
 
 msgid "ScanExecutionPolicy|Value"
+msgstr ""
+
+msgid "ScanExecutionPolicy|Verify the file in the selected project is accessible"
 msgstr ""
 
 msgid "ScanExecutionPolicy|agent"

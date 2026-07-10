@@ -62,10 +62,10 @@ export default {
     },
   },
   emits: [
-    'cancelEditing',
+    'cancel-editing',
     'noteEdited',
     'resolve',
-    'startEditing',
+    'start-editing',
     'startReplying',
     'toggleDiscussionReplies',
   ],
@@ -111,8 +111,8 @@ export default {
       @resolve="$emit('resolve')"
       @noteEdited="$emit('noteEdited', { note: firstNote, value: $event })"
       @startReplying="$emit('startReplying')"
-      @startEditing="$emit('startEditing', firstNote)"
-      @cancelEditing="$emit('cancelEditing', firstNote)"
+      @start-editing="$emit('start-editing', firstNote)"
+      @cancel-editing="$emit('cancel-editing', firstNote)"
     >
       <template v-if="showMultiLineComment" #headline>
         <line-range-headline :line-range="lineRange" />
@@ -149,8 +149,8 @@ export default {
                   :note="note"
                   :is-last-discussion="isLastDiscussion"
                   @noteEdited="$emit('noteEdited', { note, value: $event })"
-                  @startEditing="$emit('startEditing', note)"
-                  @cancelEditing="$emit('cancelEditing', note)"
+                  @start-editing="$emit('start-editing', note)"
+                  @cancel-editing="$emit('cancel-editing', note)"
                 />
               </template>
               <slot name="footer" :has-replies="hasReplies"></slot>

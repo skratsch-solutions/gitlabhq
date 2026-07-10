@@ -1,11 +1,11 @@
 <script>
 import { GlAlert, GlFormCheckbox } from '@gitlab/ui';
 import { DEFAULT_PER_PAGE } from '~/api';
-import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
-import SelectGroupsTab from '~/import/offline_transfer/components/select_groups_tab.vue';
 import offlineTransferSourceOwnedGroupsQuery from '~/import/offline_transfer/graphql/queries/offline_transfer_source_owned_groups.query.graphql';
+import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
+import SelectGroupsTab from '~/import/offline_transfer/export/select_groups_tab.vue';
+import ExportConfigTab from '~/import/offline_transfer/export/export_config_tab.vue';
 import { OFFLINE_EXPORT_TAB_HEADINGS, OFFLINE_EXPORT_TAB_FIELDS } from '../constants';
-import ExportConfigTab from './export_config_tab.vue';
 import { isStorageConfigValid } from './storage_config_validation';
 
 export default {

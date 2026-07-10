@@ -361,6 +361,12 @@ module Feature
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
+    # Geo needs this to expire the same L2 store that Flipper reads from,
+    # which is not necessarily the same Redis instance as Rails.cache.
+    def l2_cache_backend
+      ::Gitlab::Redis::FeatureFlag.cache_store
+    end
+
     private
 
     def database_exists?
@@ -536,10 +542,6 @@ module Feature
 
     def l1_cache_backend
       Gitlab::ProcessMemoryCache.cache_backend
-    end
-
-    def l2_cache_backend
-      ::Gitlab::Redis::FeatureFlag.cache_store
     end
 
     def log(key:, action:, **extra)

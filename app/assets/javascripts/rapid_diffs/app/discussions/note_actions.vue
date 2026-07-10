@@ -123,7 +123,7 @@ export default {
       default: false,
     },
   },
-  emits: ['award', 'delete', 'resolve', 'startEditing', 'startReplying'],
+  emits: ['award', 'delete', 'resolve', 'start-editing', 'startReplying'],
   data() {
     return {
       abuseDrawerOpen: false,
@@ -250,7 +250,7 @@ export default {
       :aria-label="$options.i18n.editCommentLabel"
       icon="pencil"
       category="tertiary"
-      @click="$emit('startEditing')"
+      @click="$emit('start-editing')"
     />
     <gl-button
       v-if="showDeleteAction"

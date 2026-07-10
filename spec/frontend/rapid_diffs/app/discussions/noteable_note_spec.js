@@ -208,14 +208,14 @@ describe('NoteableNote', () => {
       expect(spy).toHaveBeenCalledWith({ block: 'nearest' });
     });
 
-    it('calls store.saveNote and emits cancelEditing on success', async () => {
+    it('calls store.saveNote and emits cancel-editing on success', async () => {
       const note = createNote({ isEditing: true });
       createComponent({ note });
       await findNoteBody().props('saveNote')(noteText);
 
       expect(detectAndConfirmSensitiveTokens).toHaveBeenCalledWith({ content: noteText });
       expect(store.saveNote).toHaveBeenCalledWith(note, noteText);
-      expect(wrapper.emitted('cancelEditing')).toStrictEqual([[]]);
+      expect(wrapper.emitted('cancel-editing')).toStrictEqual([[]]);
     });
 
     it('shows alert on API failure', async () => {
@@ -233,20 +233,20 @@ describe('NoteableNote', () => {
   });
 
   describe('cancel editing via NoteBody', () => {
-    it('emits cancelEditing when confirmation is not needed', async () => {
+    it('emits cancel-editing when confirmation is not needed', async () => {
       createComponent({ note: createNote({ isEditing: true }) });
-      findNoteBody().vm.$emit('cancelEditing', false);
+      findNoteBody().vm.$emit('cancel-editing', false);
 
       await nextTick();
 
-      expect(wrapper.emitted('cancelEditing')).toStrictEqual([[]]);
+      expect(wrapper.emitted('cancel-editing')).toStrictEqual([[]]);
     });
 
-    it('shows confirmation modal when needed and confirms, then emits cancelEditing', async () => {
+    it('shows confirmation modal when needed and confirms, then emits cancel-editing', async () => {
       confirmAction.mockResolvedValueOnce(true);
 
       createComponent({ note: createNote({ isEditing: true }) });
-      findNoteBody().vm.$emit('cancelEditing', true);
+      findNoteBody().vm.$emit('cancel-editing', true);
 
       expect(confirmAction).toHaveBeenCalledWith(
         'Are you sure you want to cancel editing this comment?',
@@ -255,18 +255,18 @@ describe('NoteableNote', () => {
 
       await waitForPromises();
 
-      expect(wrapper.emitted('cancelEditing')).toStrictEqual([[]]);
+      expect(wrapper.emitted('cancel-editing')).toStrictEqual([[]]);
     });
 
-    it('does not emit cancelEditing if confirmation is denied', async () => {
+    it('does not emit cancel-editing if confirmation is denied', async () => {
       confirmAction.mockResolvedValueOnce(false);
 
       createComponent({ note: createNote({ isEditing: true }) });
-      findNoteBody().vm.$emit('cancelEditing', true);
+      findNoteBody().vm.$emit('cancel-editing', true);
 
       await waitForPromises();
 
-      expect(wrapper.emitted('cancelEditing')).toBeUndefined();
+      expect(wrapper.emitted('cancel-editing')).toBeUndefined();
     });
   });
 

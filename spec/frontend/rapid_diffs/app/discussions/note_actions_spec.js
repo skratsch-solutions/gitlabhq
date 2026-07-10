@@ -195,10 +195,10 @@ describe('NoteActions', () => {
       expect(editButton.attributes('title')).toBe('Edit comment');
     });
 
-    it('emits startEditing when the Edit button is clicked', () => {
+    it('emits start-editing when the Edit button is clicked', () => {
       createComponent({ canEdit: true });
       findEditButton().vm.$emit('click');
-      expect(wrapper.emitted('startEditing')).toEqual([[]]);
+      expect(wrapper.emitted('start-editing')).toEqual([[]]);
     });
 
     describe('Delete Button', () => {

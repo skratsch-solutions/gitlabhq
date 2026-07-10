@@ -637,6 +637,82 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
   end
 
+  describe 'pipelines finished metrics', :prometheus do
+    let(:pipeline) { create(:ci_pipeline, :running, created_at: 2.minutes.ago) }
+
+    let(:finished_counter) { ::Gitlab::Ci::Pipeline::Metrics.pipelines_finished_counter }
+    let(:time_to_finished_histogram) { ::Gitlab::Ci::Pipeline::Metrics.pipeline_time_to_finished_histogram }
+
+    around do |example|
+      freeze_time { example.run }
+    end
+
+    where(:event, :status) do
+      [
+        [:succeed, 'success'],
+        [:drop, 'failed'],
+        [:cancel, 'canceled']
+      ]
+    end
+
+    with_them do
+      it 'increments the finished counter' do
+        expect { pipeline.public_send(event) }
+          .to change {
+            finished_counter.get(source: pipeline.source, status: status, partition_id: pipeline.partition_id)
+          }.by(1)
+      end
+
+      it 'observes the wall-clock time from creation to finished' do
+        expect(time_to_finished_histogram)
+          .to receive(:observe).with({ source: pipeline.source, status: status }, 120.0)
+
+        pipeline.public_send(event)
+      end
+
+      it 'records the run_pipeline user experience' do
+        expect(Labkit::UserExperienceSli).to receive(:observed).with(
+          :run_pipeline,
+          start_time: pipeline.created_at,
+          Labkit::Fields::GL_PIPELINE_ID.to_sym => pipeline.id,
+          Labkit::Fields::GL_PROJECT_ID.to_sym => pipeline.project_id,
+          pipeline_source: pipeline.source,
+          pipeline_status: status
+        )
+
+        pipeline.public_send(event)
+      end
+    end
+
+    context 'when transitioning to skipped' do
+      it 'does not emit the metrics' do
+        expect(time_to_finished_histogram).not_to receive(:observe)
+        expect(Labkit::UserExperienceSli).not_to receive(:observed)
+
+        expect { pipeline.skip }
+          .not_to change {
+            finished_counter.get(source: pipeline.source, status: 'skipped', partition_id: pipeline.partition_id)
+          }
+      end
+    end
+
+    context 'when ci_observe_pipelines_finished is disabled' do
+      before do
+        stub_feature_flags(ci_observe_pipelines_finished: false)
+      end
+
+      it 'does not emit the metrics' do
+        expect(time_to_finished_histogram).not_to receive(:observe)
+        expect(Labkit::UserExperienceSli).not_to receive(:observed)
+
+        expect { pipeline.succeed }
+          .not_to change {
+            finished_counter.get(source: pipeline.source, status: 'success', partition_id: pipeline.partition_id)
+          }
+      end
+    end
+  end
+
   describe '#set_status' do
     let(:pipeline) { build(:ci_empty_pipeline, :created) }
 
@@ -4412,6 +4488,97 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
         expect(result).to match(
           '123' => commit_123_ref_master_parent_pipeline
         )
+      end
+    end
+
+    context 'with in_current_partition: true' do
+      let(:current_partition) { 101 }
+
+      # Only in the previous partition, so it can only be found via the fallback.
+      let_it_be(:old_only) do
+        create(:ci_empty_pipeline, sha: 'aaa', ref: 'master', project: project, partition_id: 100)
+      end
+
+      # Only in the current partition.
+      let_it_be(:current_only) do
+        create(:ci_empty_pipeline, sha: 'bbb', ref: 'master', project: project, partition_id: 101)
+      end
+
+      # Present in both partitions; the one in the current partition is newer and must win.
+      let_it_be(:both_previous) do
+        create(:ci_empty_pipeline, sha: 'ccc', ref: 'master', project: project, partition_id: 100)
+      end
+
+      let_it_be(:both_current) do
+        create(:ci_empty_pipeline, sha: 'ccc', ref: 'master', project: project, partition_id: 101)
+      end
+
+      before do
+        allow(described_class).to receive(:current_partition_value).and_return(current_partition)
+      end
+
+      it 'resolves the latest pipeline across partitions' do
+        result = described_class.latest_pipeline_per_commit(%w[aaa bbb ccc], in_current_partition: true)
+
+        expect(result).to match(
+          'aaa' => old_only,
+          'bbb' => current_only,
+          'ccc' => both_current
+        )
+      end
+
+      it 'does not run the cross-partition fallback when every SHA is found in the current partition' do
+        expect(described_class)
+          .to receive(:latest_pipeline_per_commit_in_partition)
+          .with(%w[bbb ccc], nil, current_partition)
+          .and_call_original
+
+        expect(described_class)
+          .not_to receive(:latest_pipeline_per_commit_in_partition)
+          .with(anything, anything, nil)
+
+        result = described_class.latest_pipeline_per_commit(%w[bbb ccc], in_current_partition: true)
+
+        expect(result).to match(
+          'bbb' => current_only,
+          'ccc' => both_current
+        )
+      end
+
+      it 'queries the current partition first and falls back only for the missing SHAs' do
+        expect(described_class)
+          .to receive(:latest_pipeline_per_commit_in_partition)
+          .with(%w[aaa bbb], nil, current_partition)
+          .and_call_original
+          .ordered
+
+        expect(described_class)
+          .to receive(:latest_pipeline_per_commit_in_partition)
+          .with(%w[aaa], nil, nil)
+          .and_call_original
+          .ordered
+
+        result = described_class.latest_pipeline_per_commit(%w[aaa bbb], in_current_partition: true)
+
+        expect(result).to match(
+          'aaa' => old_only,
+          'bbb' => current_only
+        )
+      end
+    end
+
+    context 'with in_current_partition: false (default)' do
+      it 'does a single cross-partition query and skips the current-partition lookup' do
+        expect(described_class).not_to receive(:current_partition_value)
+
+        expect(described_class)
+          .to receive(:latest_pipeline_per_commit_in_partition)
+          .with(%w[123], nil, nil)
+          .and_call_original
+
+        result = described_class.latest_pipeline_per_commit(%w[123])
+
+        expect(result).to match('123' => commit_123_ref_develop)
       end
     end
   end

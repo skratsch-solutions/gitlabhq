@@ -33,6 +33,7 @@ The following foundational flows are available:
 - [Agentic SAST Vulnerability Resolution](agentic_sast_vulnerability_resolution.md): Automatically generate merge requests to resolve SAST vulnerabilities.
 - [SAST false positive detection](sast_false_positive_detection.md): Automatically identify and filter false positives in SAST findings.
 - [Secret false positive detection](secret_false_positive_detection.md): Automatically identify and filter false positives in secret detection findings.
+- [Agentic breaking change resolution](agentic-breaking-change-resolution.md): Automatically resolve breaking changes in dependency bump merge requests.
 
 ## For developers
 

@@ -141,7 +141,7 @@ export default {
       default: true,
     },
   },
-  emits: ['cancel-create', 'cancelEditing', 'error', 'updateDraft', 'updateWorkItem'],
+  emits: ['cancel-create', 'cancel-editing', 'error', 'updateDraft', 'updateWorkItem'],
   markdownDocsPath: helpPagePath('user/markdown'),
   data() {
     return {
@@ -555,7 +555,7 @@ export default {
       }
 
       this.isEditing = false;
-      this.$emit('cancelEditing');
+      this.$emit('cancel-editing');
       this.clearDraftWorkItem();
       this.conflictedDescription = '';
       this.initialDescriptionText = this.descriptionText;

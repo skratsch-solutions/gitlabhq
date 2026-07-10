@@ -71,9 +71,9 @@ export default {
     },
   },
   emits: [
-    'cancelEditing',
+    'cancel-editing',
     'noteEdited',
-    'startEditing',
+    'start-editing',
     'startReplying',
     'stopReplying',
     'toggleDiscussionReplies',
@@ -256,8 +256,8 @@ export default {
       @toggleDiscussionReplies="$emit('toggleDiscussionReplies')"
       @startReplying="showReplyForm"
       @noteEdited="$emit('noteEdited', $event)"
-      @startEditing="$emit('startEditing', $event)"
-      @cancelEditing="$emit('cancelEditing', $event)"
+      @start-editing="$emit('start-editing', $event)"
+      @cancel-editing="$emit('cancel-editing', $event)"
     >
       <template #avatar-badge>
         <slot name="avatar-badge"></slot>

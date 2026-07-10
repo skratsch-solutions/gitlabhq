@@ -123,7 +123,7 @@ describe('DiscussionNotes', () => {
           expect(findNoteableNote().exists()).toBe(true);
         });
 
-        it.each(['startEditing', 'cancelEditing'])('propagates %s event', (event) => {
+        it.each(['start-editing', 'cancel-editing'])('propagates %s event', (event) => {
           createComponent({ notes });
           findNoteableNote().vm.$emit(event, note);
           expect(wrapper.emitted(event)).toStrictEqual([[note]]);

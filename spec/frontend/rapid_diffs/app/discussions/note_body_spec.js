@@ -115,10 +115,10 @@ describe('NoteBody', () => {
       expect(wrapper.emitted('input')).toStrictEqual([['updated content']]);
     });
 
-    it('emits cancelEditing event when form is cancelled', () => {
+    it('emits cancel-editing event when form is cancelled', () => {
       createComponent({ isEditing: true });
       findNoteForm().vm.$emit('cancel', true);
-      expect(wrapper.emitted('cancelEditing')).toStrictEqual([[true]]);
+      expect(wrapper.emitted('cancel-editing')).toStrictEqual([[true]]);
     });
   });
 

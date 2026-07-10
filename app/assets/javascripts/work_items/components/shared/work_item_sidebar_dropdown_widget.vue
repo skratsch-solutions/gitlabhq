@@ -234,7 +234,7 @@ export default {
     :is-editing="isEditing"
     :is-updating="updateInProgress"
     :tooltip-text="tooltipText"
-    @startEditing="isEditing = true"
+    @start-editing="isEditing = true"
     @stopEditing="isEditing = false"
   >
     <template #title>

@@ -1392,7 +1392,7 @@ export default {
                   :truncation-enabled="truncationEnabled"
                   @updateWorkItem="updateWorkItem"
                   @updateDraft="updateDraft('description', $event)"
-                  @cancelEditing="cancelEditing"
+                  @cancel-editing="cancelEditing"
                   @error="updateError = $event"
                 />
                 <div class="gl-mt-3 gl-flex gl-flex-wrap gl-justify-between gl-gap-y-3">
