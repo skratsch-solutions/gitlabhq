@@ -607,7 +607,7 @@ export default {
             ultimateFeaturesAvailable &&
             showAllSettings
           "
-          :label="s__('DuoDependencyBump|Turn on AI-native breaking change resolution')"
+          :label="s__('DuoDependencyBump|Turn on Agentic Breaking Change Resolution')"
           class="gl-mt-5"
           :help-text="
             s__(
@@ -619,7 +619,7 @@ export default {
             :value="duoDependencyBumpBreakingChangesEnabled"
             class="gl-mt-2"
             :disabled="!duoEnabled"
-            :label="s__('DuoDependencyBump|Turn on AI-native breaking change resolution')"
+            :label="s__('DuoDependencyBump|Turn on Agentic Breaking Change Resolution')"
             label-position="hidden"
             name="project[project_setting_attributes][duo_dependency_bump_breaking_changes_enabled]"
             data-testid="duo-dependency-bump-breaking-changes-enabled"

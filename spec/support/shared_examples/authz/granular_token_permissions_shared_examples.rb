@@ -22,9 +22,11 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
       expect(response).to have_gitlab_http_status(expected_success_status)
 
       if is_graphql
-        expect(graphql_errors).to be_nil
+        expect_graphql_errors_to_be_empty
         expect(graphql_data).to be_present
         expect(graphql_data.values).to all(be_present)
+
+        expect_graphql_mutation_errors_to_be_empty if respond_to?(:mutation)
       end
     end
   end

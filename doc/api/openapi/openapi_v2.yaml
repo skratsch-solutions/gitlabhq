@@ -32927,8 +32927,7 @@ paths:
         required: false
       - in: formData
         name: override_params[duo_dependency_bump_breaking_changes_enabled]
-        description: Enable GitLab Duo AI-powered resolution of breaking changes from
-          dependency bumps for this project
+        description: Turn on Agentic Breaking Change Resolution for this project
         type: boolean
         required: false
       - in: formData
@@ -33708,8 +33707,7 @@ paths:
         required: false
       - in: formData
         name: override_params[duo_dependency_bump_breaking_changes_enabled]
-        description: Enable GitLab Duo AI-powered resolution of breaking changes from
-          dependency bumps for this project
+        description: Turn on Agentic Breaking Change Resolution for this project
         type: boolean
         required: false
       - in: formData
@@ -34534,8 +34532,7 @@ paths:
         required: false
       - in: formData
         name: override_params[duo_dependency_bump_breaking_changes_enabled]
-        description: Enable GitLab Duo AI-powered resolution of breaking changes from
-          dependency bumps for this project
+        description: Turn on Agentic Breaking Change Resolution for this project
         type: boolean
         required: false
       - in: formData
@@ -69762,8 +69759,7 @@ definitions:
           this project
       duo_dependency_bump_breaking_changes_enabled:
         type: boolean
-        description: Enable GitLab Duo AI-powered resolution of breaking changes from
-          dependency bumps for this project
+        description: Turn on Agentic Breaking Change Resolution for this project
       duo_sast_vr_workflow_enabled:
         type: boolean
         description: Enable GitLab Duo SAST vulnerability resolution workflow for
@@ -70224,8 +70220,7 @@ definitions:
           this project
       duo_dependency_bump_breaking_changes_enabled:
         type: boolean
-        description: Enable GitLab Duo AI-powered resolution of breaking changes from
-          dependency bumps for this project
+        description: Turn on Agentic Breaking Change Resolution for this project
       duo_sast_vr_workflow_enabled:
         type: boolean
         description: Enable GitLab Duo SAST vulnerability resolution workflow for
@@ -71302,8 +71297,7 @@ definitions:
           this project
       duo_dependency_bump_breaking_changes_enabled:
         type: boolean
-        description: Enable GitLab Duo AI-powered resolution of breaking changes from
-          dependency bumps for this project
+        description: Enable Agentic Breaking Change Resolution for this project
       duo_sast_vr_workflow_enabled:
         type: boolean
         description: Enable GitLab Duo SAST vulnerability resolution workflow for

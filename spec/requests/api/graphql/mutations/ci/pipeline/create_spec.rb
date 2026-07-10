@@ -48,19 +48,6 @@ RSpec.describe 'PipelineCreate', feature_category: :pipeline_composition do
       project.add_developer(user)
     end
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL', :create_pipeline do
-      let(:boundary_object) { project }
-      let(:mutation) do
-        graphql_mutation(
-          :pipeline_create,
-          { project_path: project.full_path, **params },
-          'errors'
-        )
-      end
-
-      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
-    end
-
     context 'when inputs contain sensitive values' do
       let(:operation_name) { 'internalPipelineCreate' }
       let(:params) do
@@ -97,9 +84,11 @@ RSpec.describe 'PipelineCreate', feature_category: :pipeline_composition do
     end
 
     context 'when the pipeline creation is successful' do
-      it 'creates a pipeline' do
+      before do
         stub_ci_pipeline_to_return_yaml_file
+      end
 
+      it 'creates a pipeline' do
         expect do
           post_graphql_mutation(mutation, current_user: user)
         end.to change { ::Ci::Pipeline.count }.by(1)
@@ -108,6 +97,19 @@ RSpec.describe 'PipelineCreate', feature_category: :pipeline_composition do
 
         expect(created_pipeline.source).to eq('api')
         expect(mutation_response['pipeline']['id']).to eq(created_pipeline.to_global_id.to_s)
+      end
+
+      it_behaves_like 'authorizing granular token permissions for GraphQL', :create_pipeline do
+        let(:boundary_object) { project }
+        let(:mutation) do
+          graphql_mutation(
+            :pipeline_create,
+            { project_path: project.full_path, **params },
+            'errors'
+          )
+        end
+
+        let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
       end
 
       context 'when passing inputs' do

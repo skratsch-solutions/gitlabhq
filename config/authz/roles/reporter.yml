@@ -143,6 +143,7 @@ group:
   - read_group_analytics_dashboards
   - read_group_coverage_reports
   - read_group_repository_analytics
+  - read_group_secrets_manager_status
   - read_group_stage
   - read_harbor_registry
   - read_internal_note

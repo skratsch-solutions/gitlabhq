@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.13.1
-	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.4
+	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.7.0
 	github.com/BurntSushi/toml v1.5.0
 	github.com/alecthomas/chroma/v2 v2.19.0
 	github.com/aws/aws-sdk-go-v2 v1.41.4
@@ -56,11 +56,11 @@ require (
 	cloud.google.com/go/storage v1.59.2 // indirect
 	cloud.google.com/go/trace v1.11.7 // indirect
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.14 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.20.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.2 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.1 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.12.0 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest/to v0.4.1 // indirect
-	github.com/AzureAD/microsoft-authentication-library-for-go v1.6.0 // indirect
+	github.com/AzureAD/microsoft-authentication-library-for-go v1.7.2 // indirect
 	github.com/DataDog/datadog-agent/comp/core/tagger/origindetection v0.67.0 // indirect
 	github.com/DataDog/datadog-agent/pkg/obfuscate v0.67.0 // indirect
 	github.com/DataDog/datadog-agent/pkg/proto v0.67.0 // indirect

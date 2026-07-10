@@ -120,11 +120,11 @@ module Tooling
 
         %r{\Alib/gitlab/ci/templates} => :ci_template,
 
-        %r{\A((ee|jh)/)?spec/features/} => [:test, :backend],
-        %r{\A((ee|jh)/)?spec/contracts/} => [:test, :backend],
-        %r{\A((ee|jh)/)?spec/support/shared_examples/features/} => [:test, :backend],
-        %r{\A((ee|jh)/)?spec/support/shared_contexts/features/} => [:test, :backend],
-        %r{\A((ee|jh)/)?spec/support/helpers/features/} => [:test, :backend],
+        %r{\A((ee|jh)/)?spec/features/} => [:backend],
+        %r{\A((ee|jh)/)?spec/contracts/} => [:backend],
+        %r{\A((ee|jh)/)?spec/support/shared_examples/features/} => [:backend],
+        %r{\A((ee|jh)/)?spec/support/shared_contexts/features/} => [:backend],
+        %r{\A((ee|jh)/)?spec/support/helpers/features/} => [:backend],
 
         %r{\A((spec/)?lib/generators/gitlab/usage_metric_)} => [:analytics_instrumentation],
         %r{\A((ee|jh)/)?lib/gitlab/usage_data_counters/.*\.yml\z} => [:analytics_instrumentation],
@@ -155,6 +155,7 @@ module Tooling
         %r{\A((ee|jh)/)?(bin|config|generator_templates|lib|rubocop)/} => :backend,
         %r{\A((ee|jh)/)?spec/migrations} => :database,
         %r{\A((ee|jh)/)?spec/} => :backend,
+        %r{\A((ee|jh)/)?qa/} => :backend,
         %r{\A((ee|jh)/)?vendor/} => :backend,
         %r{\A(Gemfile.*|Rakefile)\z} => :backend,
         %r{\A[A-Z_]+_VERSION\z} => :backend,
@@ -162,8 +163,6 @@ module Tooling
         %r{\Agems/.*/\.rubocop\.yml\z} => :backend,
         %r{\A\.rubocop_todo/.*\.yml\z} => :backend,
         %r{\Afile_hooks/} => :backend,
-
-        %r{\A((ee|jh)/)?qa/} => :qa,
 
         %r{\Aworkhorse/.*} => :workhorse,
 

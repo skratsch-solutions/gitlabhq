@@ -452,6 +452,7 @@ read_group_release_stats
 read_group_repository_analytics
 read_group_saml_identity
 read_group_scim_identity
+read_group_secrets_manager_status
 read_group_security_dashboard
 read_group_stage
 read_harbor_registry

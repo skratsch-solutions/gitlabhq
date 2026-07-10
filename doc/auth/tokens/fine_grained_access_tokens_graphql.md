@@ -60,6 +60,8 @@ Grants the ability to read secrets managers.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
+| Read | Project | Type | `ProjectSecretsManager` |
+| Read | Group | Type | `GroupSecretsManager` |
 | Read | Group | Type | `SecretsManagerEntitlement` |
 | Read | Group | Mutation | `SecretsManagerStartTrial` |
 
@@ -693,7 +695,6 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Update | Group | Mutation | `UpdateNote` |
 | Update | Group | Mutation | `WorkItemAddClosingMergeRequest` |
 | Update | Group | Mutation | `WorkItemConvert` |
-| Update | Group | Mutation | `WorkItemCreateFromTask` |
 | Update | Group | Mutation | `WorkItemUpdate` |
 | Update | Group | Mutation | `workItemsReorder` |
 

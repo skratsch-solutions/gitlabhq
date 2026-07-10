@@ -31499,7 +31499,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_cddb6354bbc1"
+              "$ref": "#/components/schemas/RequestBody_3b7de9f4db35"
   "/api/v4/projects/user/{user_id}":
     post:
       operationId: postApiV4ProjectsUserUserId
@@ -31533,7 +31533,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_55f54cba61d3"
+              "$ref": "#/components/schemas/RequestBody_2861e6bcd64d"
   "/api/v4/projects/{id}/share_locations":
     get:
       operationId: getApiV4ProjectsIdShareLocations
@@ -31656,7 +31656,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_5338037b0cb1"
+              "$ref": "#/components/schemas/RequestBody_c759bc073ec5"
     delete:
       operationId: deleteApiV4ProjectsId
       summary: Delete a project
@@ -34123,7 +34123,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_1b0c9208f451"
+              "$ref": "#/components/schemas/RequestBody_62cfdeef4f25"
   "/api/v4/projects/{id}/import":
     get:
       operationId: getApiV4ProjectsIdImport
@@ -34230,7 +34230,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_aa630e7f1cf9"
+              "$ref": "#/components/schemas/RequestBody_4e27310e47b5"
   "/api/v4/projects/import-relation/authorize":
     post:
       operationId: postApiV4ProjectsImportRelationAuthorize
@@ -34343,7 +34343,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_b34259a2c6c7"
+              "$ref": "#/components/schemas/RequestBody_22adef8ecfea"
   "/api/v4/projects/{id}/hooks/{hook_id}/url_variables/{key}":
     put:
       operationId: putApiV4ProjectsIdHooksHookIdUrlVariablesKey
@@ -100262,7 +100262,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_cddb6354bbc1:
+    RequestBody_3b7de9f4db35:
       type: object
       properties:
         name:
@@ -100768,8 +100768,7 @@ components:
           nullable: true
         duo_dependency_bump_breaking_changes_enabled:
           type: boolean
-          description: Enable GitLab Duo AI-powered resolution of breaking changes
-            from dependency bumps for this project
+          description: Turn on Agentic Breaking Change Resolution for this project
           nullable: true
         duo_sast_vr_workflow_enabled:
           type: boolean
@@ -100825,7 +100824,7 @@ components:
           type: integer
           description: Project ID of template from which to create project
           nullable: true
-    RequestBody_55f54cba61d3:
+    RequestBody_2861e6bcd64d:
       type: object
       properties:
         name:
@@ -101331,8 +101330,7 @@ components:
           nullable: true
         duo_dependency_bump_breaking_changes_enabled:
           type: boolean
-          description: Enable GitLab Duo AI-powered resolution of breaking changes
-            from dependency bumps for this project
+          description: Turn on Agentic Breaking Change Resolution for this project
           nullable: true
         duo_sast_vr_workflow_enabled:
           type: boolean
@@ -101390,7 +101388,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_5338037b0cb1:
+    RequestBody_c759bc073ec5:
       type: object
       properties:
         name:
@@ -101896,8 +101894,7 @@ components:
           nullable: true
         duo_dependency_bump_breaking_changes_enabled:
           type: boolean
-          description: Enable GitLab Duo AI-powered resolution of breaking changes
-            from dependency bumps for this project
+          description: Enable Agentic Breaking Change Resolution for this project
           nullable: true
         duo_sast_vr_workflow_enabled:
           type: boolean
@@ -102406,7 +102403,7 @@ components:
           nullable: true
       required:
       - target_group_id
-    RequestBody_1b0c9208f451:
+    RequestBody_62cfdeef4f25:
       type: object
       properties:
         path:
@@ -102945,8 +102942,7 @@ components:
               nullable: true
             duo_dependency_bump_breaking_changes_enabled:
               type: boolean
-              description: Enable GitLab Duo AI-powered resolution of breaking changes
-                from dependency bumps for this project
+              description: Turn on Agentic Breaking Change Resolution for this project
               nullable: true
             duo_sast_vr_workflow_enabled:
               type: boolean
@@ -103029,7 +103025,7 @@ components:
           nullable: true
       required:
       - import_url
-    RequestBody_aa630e7f1cf9:
+    RequestBody_4e27310e47b5:
       type: object
       properties:
         url:
@@ -103567,8 +103563,7 @@ components:
               nullable: true
             duo_dependency_bump_breaking_changes_enabled:
               type: boolean
-              description: Enable GitLab Duo AI-powered resolution of breaking changes
-                from dependency bumps for this project
+              description: Turn on Agentic Breaking Change Resolution for this project
               nullable: true
             duo_sast_vr_workflow_enabled:
               type: boolean
@@ -103655,7 +103650,7 @@ components:
       - path
       - file
       - relation
-    RequestBody_b34259a2c6c7:
+    RequestBody_22adef8ecfea:
       type: object
       properties:
         region:
@@ -104209,8 +104204,7 @@ components:
               nullable: true
             duo_dependency_bump_breaking_changes_enabled:
               type: boolean
-              description: Enable GitLab Duo AI-powered resolution of breaking changes
-                from dependency bumps for this project
+              description: Turn on Agentic Breaking Change Resolution for this project
               nullable: true
             duo_sast_vr_workflow_enabled:
               type: boolean

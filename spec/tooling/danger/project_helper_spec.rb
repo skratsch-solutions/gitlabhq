@@ -105,14 +105,14 @@ RSpec.describe Tooling::Danger::ProjectHelper, feature_category: :tooling do
       'spec/migrations/foo'    | [:database]
       'ee/spec/migrations/foo' | [:database]
 
-      'spec/features/foo'                            | [:test, :backend]
-      'ee/spec/features/foo'                         | [:test, :backend]
-      'spec/support/shared_examples/features/foo'    | [:test, :backend]
-      'ee/spec/support/shared_examples/features/foo' | [:test, :backend]
-      'spec/support/shared_contexts/features/foo'    | [:test, :backend]
-      'ee/spec/support/shared_contexts/features/foo' | [:test, :backend]
-      'spec/support/helpers/features/foo'            | [:test, :backend]
-      'ee/spec/support/helpers/features/foo'         | [:test, :backend]
+      'spec/features/foo'                            | [:backend]
+      'ee/spec/features/foo'                         | [:backend]
+      'spec/support/shared_examples/features/foo'    | [:backend]
+      'ee/spec/support/shared_examples/features/foo' | [:backend]
+      'spec/support/shared_contexts/features/foo'    | [:backend]
+      'ee/spec/support/shared_contexts/features/foo' | [:backend]
+      'spec/support/helpers/features/foo'            | [:backend]
+      'ee/spec/support/helpers/features/foo'         | [:backend]
 
       'generator_templates/foo' | [:backend]
       'vendor/languages.yml'    | [:backend]
@@ -170,8 +170,8 @@ RSpec.describe Tooling::Danger::ProjectHelper, feature_category: :tooling do
       'db/fixtures/foo.rb'                                 | [:backend]
       'ee/db/fixtures/foo.rb'                              | [:backend]
 
-      'qa/foo' | [:qa]
-      'ee/qa/foo' | [:qa]
+      'qa/foo' | [:backend]
+      'ee/qa/foo' | [:backend]
 
       'workhorse/main.go' | [:workhorse]
       'workhorse/internal/upload/upload.go' | [:workhorse]

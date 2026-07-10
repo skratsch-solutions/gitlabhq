@@ -846,7 +846,7 @@ type:GroupPermissions
 type:GroupReleaseStats
 type:GroupSavedReply
 type:GroupSecret
-type:GroupSecretsManager
+type:GroupSecretsManagerPermissions
 type:GroupSecretsPermission
 type:GroupSecurityPolicySource
 type:GroupStats
@@ -1035,7 +1035,7 @@ type:ProjectPlanLimits
 type:ProjectRepositoryRegistry
 type:ProjectSavedReply
 type:ProjectSecret
-type:ProjectSecretsManager
+type:ProjectSecretsManagerPermissions
 type:ProjectSecretsPermission
 type:ProjectSecurityExclusion
 type:ProjectSecurityPolicySource
