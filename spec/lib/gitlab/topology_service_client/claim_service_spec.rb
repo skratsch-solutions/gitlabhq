@@ -205,6 +205,29 @@ RSpec.describe Gitlab::TopologyServiceClient::ClaimService, feature_category: :c
         expect(result).to eq(mock_response)
       end
     end
+
+    context 'with created_after' do
+      # Sub-second precision to exercise both the seconds and nanos fields of the Timestamp.
+      let(:created_after) { Time.utc(2026, 1, 1, 12, 0, 5, 250_000) }
+
+      it 'maps created_after to a protobuf Timestamp on the request' do
+        expected_request = Gitlab::Cells::TopologyService::Claims::V1::ListLeasesRequest.new(
+          cell_id: cell_id,
+          created_after: Google::Protobuf::Timestamp.new(
+            seconds: created_after.to_i, nanos: created_after.nsec
+          )
+        )
+
+        expect(client_double)
+          .to receive(:list_leases)
+          .with(expected_request, deadline: nil)
+          .and_return(mock_response)
+
+        result = service.list_leases(created_after: created_after)
+
+        expect(result).to eq(mock_response)
+      end
+    end
   end
 
   describe '#list_records' do

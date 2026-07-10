@@ -1,6 +1,6 @@
 ---
-source_checksum: 37b4ca0cfb92a02a
-distilled_at_sha: 9b4148fa5ff3c392ae6d7bcd6b4f60365f604f49
+source_checksum: a1b021dbce0f673e
+distilled_at_sha: 0bc240cb0e70d2bba500cca6317a5c7e9e06605e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -89,7 +89,7 @@ distilled_at_sha: 9b4148fa5ff3c392ae6d7bcd6b4f60365f604f49
 - When a new feature replaces a component behind a feature flag, add the new selector to the page object with the same name as the old one and keep the old selector in place; add a comment to delete the old selector when the flag is removed.
 - When a resource class must behave differently based on a feature flag, use an `activated` boolean variable (defaulting to `false` in `initialize`) toggled at fabrication time; clean up the variable and conditions after the flag is removed.
 - Add a wait for elements that are only visible with an active feature flag on static environments, where caching is not disabled, to avoid flakiness.
-- Confirm that E2E tests pass with a feature flag enabled before enabling it on staging or GitLab.com; when a feature flag definition file is added or edited in an MR, the `gdk-instance` and `gdk-instance-ff-inverse` `e2e:test-on-gdk` jobs run automatically to verify both states.
+- Confirm that E2E tests pass with a feature flag enabled before enabling it on staging or GitLab.com; when a feature flag definition file is added or edited in an MR, the `cng-instance` and `cng-instance-ff-inverse` `e2e:test-on-cng` jobs run automatically to verify both states.
 
 ### Administrator Access
 

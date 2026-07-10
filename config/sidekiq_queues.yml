@@ -255,7 +255,11 @@
   - 1
 - - bulk_imports_user_contributions_export
   - 1
+- - cd_artifact_sources_publish_from_registry
+  - 1
 - - cd_rollouts_start
+  - 1
+- - cd_versions_create_from_artifact
   - 1
 - - cells_bulk_claims
   - 1

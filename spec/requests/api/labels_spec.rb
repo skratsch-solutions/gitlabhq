@@ -888,5 +888,16 @@ RSpec.describe API::Labels, feature_category: :team_planning do
         end
       end
     end
+
+    context 'when promoting a label with PUT /projects/:id/labels/promote (deprecated)' do
+      it_behaves_like 'authorizing granular token permissions', :promote_label do
+        let(:boundary_object) { granular_test_project }
+        let(:user) { granular_test_user }
+        let(:request) do
+          put api("/projects/#{granular_test_project.id}/labels/promote", personal_access_token: pat),
+            params: { name: promote_label.title }
+        end
+      end
+    end
   end
 end

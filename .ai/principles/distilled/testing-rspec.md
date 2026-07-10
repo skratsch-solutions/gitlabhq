@@ -1,6 +1,6 @@
 ---
-source_checksum: c1fe7e050cd10330
-distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
+source_checksum: fab567b0daaf77a4
+distilled_at_sha: 0bc240cb0e70d2bba500cca6317a5c7e9e06605e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -199,9 +199,8 @@ distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 
 ### Feature Flags in Tests
 
-- DO NOT use `stub_feature_flags(flag: true)` — feature flags are enabled by default in the test environment, so stubbing to `true` is redundant and misleading.
+- All feature flags are enabled by default in the test environment (regardless of the `default_enabled:` value in the YAML definition), so DO NOT stub a flag to `true` to reach its enabled path — the only exception is a flag explicitly disabled in `spec/spec_helper.rb`, where stubbing to `true` is warranted
 - Only use `stub_feature_flags(flag: false)` to test the disabled code path.
-- For the enabled case, write tests without any feature flag stub — the default state is already enabled.
 
 ### Spec File Paths
 

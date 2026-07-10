@@ -661,7 +661,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'spec/services/git/branch_push_service_spec.rb'
     - 'spec/services/groups/group_links/create_service_spec.rb'
     - 'spec/services/groups/group_links/destroy_service_spec.rb'
-    - 'spec/services/groups/transfer_service_spec.rb'
     - 'spec/services/incident_management/timeline_events/update_service_spec.rb'
     - 'spec/services/issuable/bulk_update_service_spec.rb'
     - 'spec/services/issue_links/create_service_spec.rb'

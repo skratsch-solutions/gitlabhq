@@ -40,6 +40,8 @@ import {
   OPERATOR_IS,
   FILTERED_SEARCH_TERM,
   OPERATORS_IS_NOT_OR,
+  OPTIONS_NONE_ANY,
+  OPTIONS_NONE_ANY_ME,
   TOKEN_TYPE_ASSIGNEE,
   TOKEN_TYPE_AUTHOR,
   TOKEN_TYPE_CLOSED,
@@ -974,6 +976,25 @@ describe('planning-view', () => {
           .find((token) => token.type === TOKEN_TYPE_LABEL);
 
         expect(labelToken.multiSelect).toBe(true);
+      });
+    });
+
+    describe('assignee token defaultUsers', () => {
+      const findAssigneeToken = () =>
+        findFilteredSearchBar()
+          .props('tokens')
+          .find((token) => token.type === TOKEN_TYPE_ASSIGNEE);
+
+      it('includes the "Me" option when logged in', async () => {
+        await mountComponent({ isLoggedInValue: true });
+
+        expect(findAssigneeToken().defaultUsers).toBe(OPTIONS_NONE_ANY_ME);
+      });
+
+      it('excludes the "Me" option when logged out', async () => {
+        await mountComponent({ isLoggedInValue: false });
+
+        expect(findAssigneeToken().defaultUsers).toBe(OPTIONS_NONE_ANY);
       });
     });
   });

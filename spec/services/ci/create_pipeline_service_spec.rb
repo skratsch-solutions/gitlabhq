@@ -1958,29 +1958,6 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
       end
     end
 
-    describe 'stop writing to ci_builds_metadata' do
-      # This config includes all non-EE metadata attributes that are written on pipeline creation
-      let(:config) do
-        YAML.dump(
-          job: {
-            interruptible: true,
-            script: 'echo',
-            variables: { VAR: 'test' },
-            environment: { name: 'env' },
-            id_tokens: { ID_TOKEN: { aud: 'https://test' } }
-          }
-        )
-      end
-
-      before do
-        stub_ci_pipeline_yaml_file(config)
-      end
-
-      it 'does not write to ci_builds_metadata' do
-        expect { execute_service }.to not_change { Ci::BuildMetadata.count }
-      end
-    end
-
     describe 'service instantiated without base relations' do
       let(:service) { described_class.new(project, user) }
 

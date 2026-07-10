@@ -203,6 +203,12 @@ describe('convertGraphQLVarsToRestParams', () => {
           expected: 'None',
         },
         {
+          jsKey: 'assigneeWildcardId',
+          restKey: 'assignee_wildcard_id',
+          input: 'ME',
+          expected: 'Me',
+        },
+        {
           jsKey: 'milestoneWildcardId',
           restKey: 'milestone_wildcard_id',
           input: 'ANY',

@@ -1,6 +1,6 @@
 ---
-source_checksum: 0f6cd1f65890add0
-distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
+source_checksum: 66f1a2d3ded1b367
+distilled_at_sha: 0bc240cb0e70d2bba500cca6317a5c7e9e06605e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -26,6 +26,7 @@ distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 - Ensure adding a new service to GitLab is approved by a Product Manager.
 - Ensure changes related to authentication are approved by Manage:Authentication.
 - Ensure custom roles or policies changes are approved by Manage:Authorization Engineer.
+- Ensure changes to AI instruction files under `.ai/` are approved by the AI harness DRI (see the AI instruction files review guidelines).
 - Ensure security-sensitive changes (credentials, tokens, authorization, authentication) have the `~security` label and `@gitlab-com/gl-security/appsec` mentioned.
 - Ensure the correct MR type label is applied.
 - Ensure the milestone is set before merging.
@@ -41,7 +42,7 @@ distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 - Guide authors to split MRs that are too large, fix more than one issue, implement more than one feature, or have high complexity.
 - Target approximately 200 lines per MR to reduce cognitive load and review time.
 - Ensure UI with mocked data is behind a feature flag.
-- Use stacked diffs for sequential MRs; have dependent MR branches target each other instead of `master`.
+- Use stacked diffs for sequential MRs.
 - Split MRs by CODEOWNERS section when an MR touches multiple sections, to minimize required approvals and parallelize reviews.
 
 ### Pre-Merge Checks
@@ -57,12 +58,11 @@ distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ### GitLab-Specific Compatibility
 
 - Ensure database migrations are reversible and performant at GitLab.com scale.
-- Ensure regular migrations run before new code is deployed; use post-deployment migrations for code that runs after deploy; use batched background migrations for long-running data migrations.
-- Ensure Sidekiq workers do not change in a backwards-incompatible way; accept both old and new arguments across two releases when changing method signatures.
-- Ensure removed Sidekiq workers are first stopped from being scheduled in one release, then removed in the next.
+- Ensure Sidekiq workers do not change in a backwards-incompatible way.
 - Change the cache key when changing the type of a cached value.
 - DO NOT use file system access in ways incompatible with cloud-native architecture; ensure object storage is supported for any file storage.
 - Add new settings only as a last resort (convention over configuration).
+- Ensure changes are compatible with the Cells architecture.
 
 ### Query and Database Performance
 
@@ -104,7 +104,7 @@ distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 - DO NOT pick reviewers or maintainers who have OOO/PTO status or have reached their review limit.
 - Prefer domain-specific approvals before generic approvals for efficiency.
 - Ensure the MR author (or DRI) remains as the Assignee throughout the review lifecycle.
-- Address all GitLab Duo automated review comments before requesting human review; leave Duo discussion threads unresolved so reviewers can verify responses.
+- Address all GitLab Duo automated review comments before requesting human review.
 - Re-request review once all feedback has been addressed and the MR is ready for another round.
 - Post a summary note after each round of line comments (for example, "Looks good to me" or "Just a couple things to address").
 - Ensure open dependencies are resolved; set an MR dependency if blocked by open MRs.

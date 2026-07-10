@@ -41,8 +41,15 @@ const STATE_MAP = {
   ALL: 'all',
 };
 
-// eslint-disable-next-line @gitlab/require-i18n-strings
-const WILDCARD_MAP = { ANY: 'Any', NONE: 'None', UPCOMING: 'Upcoming', STARTED: 'Started' };
+/* eslint-disable @gitlab/require-i18n-strings -- REST API param values, not user-facing text */
+const WILDCARD_MAP = {
+  ANY: 'Any',
+  NONE: 'None',
+  ME: 'Me',
+  UPCOMING: 'Upcoming',
+  STARTED: 'Started',
+};
+/* eslint-enable @gitlab/require-i18n-strings */
 
 const SEARCH_IN_MAP = {
   TITLE: 'title',

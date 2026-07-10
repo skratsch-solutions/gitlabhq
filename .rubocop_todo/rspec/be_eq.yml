@@ -609,7 +609,6 @@ RSpec/BeEq:
     - 'spec/models/bulk_imports/tracker_spec.rb'
     - 'spec/models/ci/bridge_spec.rb'
     - 'spec/models/ci/build_dependencies_spec.rb'
-    - 'spec/models/ci/build_metadata_spec.rb'
     - 'spec/models/ci/build_spec.rb'
     - 'spec/models/ci/catalog/resources/sync_event_spec.rb'
     - 'spec/models/ci/commit_with_pipeline_spec.rb'

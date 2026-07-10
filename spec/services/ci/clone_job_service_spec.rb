@@ -227,10 +227,6 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
         it 'persists the expanded environment name' do
           expect(new_job.expanded_environment_name).to eq('production')
         end
-
-        it 'does not write to ci_builds_metadata' do
-          expect { new_job }.to not_change { Ci::BuildMetadata.count }
-        end
       end
 
       context 'when the job has job variables' do

@@ -1750,6 +1750,9 @@ Database/AvoidScopeTo:
   Include:
     - 'lib/gitlab/background_migration/**/*.rb'
 
+Database/NoOnDemandCellLocalBackgroundOperation:
+  Enabled: true
+
 RSpec/RedundantMetatagType:
   Include:
     - '{,ee/,jh/}spec/**/*_spec.rb'

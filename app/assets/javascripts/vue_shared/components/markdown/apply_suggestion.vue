@@ -61,6 +61,7 @@ export default {
 
 <template>
   <gl-disclosure-dropdown
+    data-apply-suggestion-toggle
     data-testid="apply-suggestion-dropdown"
     fluid-width
     placement="bottom-end"

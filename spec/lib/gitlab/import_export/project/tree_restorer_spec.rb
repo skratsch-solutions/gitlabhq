@@ -651,9 +651,8 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer, :clean_gitlab_redis_
             end
           end
 
-          it 'does not restore jobs metadata' do
+          it 'restores jobs' do
             expect(Ci::Build.for_project(@project).count).to eq(7)
-            expect(Ci::BuildMetadata.count).to eq(0)
           end
         end
 

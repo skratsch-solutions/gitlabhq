@@ -1,6 +1,6 @@
 ---
-source_checksum: 2ae6dee0ddd180fc
-distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
+source_checksum: 89caa66e4bc5ccee
+distilled_at_sha: 0bc240cb0e70d2bba500cca6317a5c7e9e06605e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -37,7 +37,7 @@ distilled_at_sha: f22602e37afb92eb7028b601a922ebde417df6e4
 ### Logging
 
 - DO NOT use `Rails.logger`; use a structured JSON logger instead.
-- DO NOT use `$stdout.puts`, `$stderr.puts`, `$stdout.print`, `$stderr.print`, or equivalent `STDOUT`/`STDERR` calls in application code; use a structured JSON logger or existing wrapper methods (e.g., `SystemCheck::Helpers`) for Rake/CLI output.
+- DO NOT use `$stdout.puts`, `$stderr.puts`, `$stdout.print`, `$stderr.print`, or equivalent `STDOUT`/`STDERR` calls in application code (enforced by the `Gitlab/DirectStdio` RuboCop cop); use a structured JSON logger or existing wrapper methods (e.g., `SystemCheck::Helpers`) for Rake/CLI output.
 - Use a subclass of `Gitlab::JsonLogger` for new log files; call `exclude_context!` if the logger is used outside of a request context.
 - Pass log messages as key-value hashes, not interpolated strings (e.g., `logger.info(message: "...", project_id: id)`).
 - Ensure field value types are consistent across all log calls for the same field key; DO NOT mix types (e.g., integer vs. string for the same field).

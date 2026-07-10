@@ -865,6 +865,13 @@ RSpec.describe API::Files, feature_category: :source_code_management do
             head api(route(file_path) + '/blame', personal_access_token: pat), params: params
           end
         end
+
+        it_behaves_like 'authorizing granular token permissions', :read_repository_file_blame do
+          let(:boundary_object) { project }
+          let(:request) do
+            get api(route(file_path) + '/blame', personal_access_token: pat), params: params
+          end
+        end
       end
 
       context 'and user is a guest' do

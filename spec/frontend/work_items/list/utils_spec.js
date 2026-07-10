@@ -58,8 +58,17 @@ import {
   updateNamespaceDisplaySettings,
 } from 'ee_else_ce/work_items/list/utils';
 import {
+  OPERATOR_IS,
+  TOKEN_TYPE_ASSIGNEE,
   TOKEN_TYPE_AUTHOR,
+  TOKEN_TYPE_EPIC,
+  TOKEN_TYPE_HEALTH,
+  TOKEN_TYPE_ITERATION,
+  TOKEN_TYPE_MILESTONE,
+  TOKEN_TYPE_PARENT,
+  TOKEN_TYPE_RELEASE,
   TOKEN_TYPE_TYPE,
+  TOKEN_TYPE_WEIGHT,
 } from '~/vue_shared/components/filtered_search_bar/constants';
 import { DEFAULT_PAGE_SIZE } from '~/vue_shared/issuable/list/constants';
 import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_item_list_user_preferences.mutation.graphql';
@@ -310,6 +319,37 @@ describe('convertToApiParams', () => {
     expect(convertToApiParams(filteredTokensWithWildcardValues)).toEqual(
       apiParamsWithWildcardValues,
     );
+  });
+
+  describe('"Me" wildcard value', () => {
+    it('maps a "Me" assignee to the assignee wildcard param', () => {
+      const tokens = [{ type: TOKEN_TYPE_ASSIGNEE, value: { data: 'Me', operator: OPERATOR_IS } }];
+
+      expect(convertToApiParams(tokens)).toEqual({ assigneeWildcardId: 'ME' });
+    });
+
+    // "Me" is a wildcard only for user-valued tokens (currently just assignee).
+    // A milestone literally named "Me" must still filter by title.
+    it('treats a "Me" milestone as a title, not a wildcard', () => {
+      const tokens = [{ type: TOKEN_TYPE_MILESTONE, value: { data: 'Me', operator: OPERATOR_IS } }];
+
+      expect(convertToApiParams(tokens)).toEqual({ milestoneTitle: 'Me' });
+    });
+
+    // Every other wildcard token must keep "Me" as a literal value rather than
+    // routing it to an uppercased `<x>WildcardId` enum param.
+    it.each([
+      TOKEN_TYPE_RELEASE,
+      TOKEN_TYPE_ITERATION,
+      TOKEN_TYPE_EPIC,
+      TOKEN_TYPE_WEIGHT,
+      TOKEN_TYPE_HEALTH,
+      TOKEN_TYPE_PARENT,
+    ])('does not route a "Me" %s value to a wildcard param', (type) => {
+      const params = convertToApiParams([{ type, value: { data: 'Me', operator: OPERATOR_IS } }]);
+
+      expect(JSON.stringify(params)).not.toContain('"ME"');
+    });
   });
 });
 

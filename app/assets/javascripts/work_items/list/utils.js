@@ -12,6 +12,7 @@ import { capitalizeFirstCharacter, convertEachWordToTitleCase } from '~/lib/util
 import { getParameterByName } from '~/lib/utils/url_utility';
 import { __, s__ } from '~/locale';
 import {
+  FILTER_ME,
   FILTERED_SEARCH_TERM,
   OPERATOR_NOT,
   OPERATOR_IS,
@@ -479,8 +480,16 @@ const wildcardTokens = [
   TOKEN_TYPE_PARENT,
 ];
 
+// Tokens whose backend supports a "Me" (current user) wildcard. Not applicable to
+// all token types, so tested separately from other wildcard tokens.
+const meSupportingTokens = [TOKEN_TYPE_ASSIGNEE];
+
+const isMeWildcardValue = (tokenType, value) =>
+  meSupportingTokens.includes(tokenType) && value === FILTER_ME;
+
 const isWildcardValue = (tokenType, value) =>
-  wildcardTokens.includes(tokenType) && wildcardFilterValues.includes(value);
+  (wildcardTokens.includes(tokenType) && wildcardFilterValues.includes(value)) ||
+  isMeWildcardValue(tokenType, value);
 
 const convertToTokenValue = (token, baseValue) => {
   switch (token) {
@@ -754,7 +763,7 @@ const getFilterType = ({ type, value: { data, operator } }) => {
   ) {
     return ALTERNATIVE_FILTER;
   }
-  if (wildcardFilterValues.includes(data)) {
+  if (wildcardFilterValues.includes(data) || isMeWildcardValue(type, data)) {
     return WILDCARD_FILTER;
   }
 

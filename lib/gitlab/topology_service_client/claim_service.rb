@@ -56,12 +56,18 @@ module Gitlab
         client.rollback_update(request, deadline: deadline)
       end
 
-      def list_leases(cursor: nil, limit: nil, deadline: nil)
+      def list_leases(cursor: nil, limit: nil, created_after: nil, deadline: nil)
         request = Gitlab::Cells::TopologyService::Claims::V1::ListLeasesRequest.new(
           next: cursor,
           limit: limit,
           cell_id: cell_id
         )
+        # When set, the Topology Service only returns leases with created_at >= created_after,
+        # letting it seek past the tombstone backlog instead of scanning the whole range.
+        if created_after
+          time = created_after.to_time
+          request.created_after = Google::Protobuf::Timestamp.new(seconds: time.to_i, nanos: time.nsec)
+        end
 
         client.list_leases(request, deadline: deadline)
       end

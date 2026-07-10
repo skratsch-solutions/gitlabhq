@@ -1,7 +1,6 @@
 ---
 table_name: p_ci_builds_metadata
-classes:
-- Ci::BuildMetadata
+classes: []
 feature_categories:
 - continuous_integration
 description: Routing table that holds information for job execution

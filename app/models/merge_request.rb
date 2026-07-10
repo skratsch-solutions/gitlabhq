@@ -3014,6 +3014,36 @@ class MergeRequest < ApplicationRecord
   def committer_emails_from_diff
     return [] unless merge_request_diff&.persisted?
 
+    unless Feature.enabled?(:cache_committer_emails_from_diff, target_project)
+      return uncached_committer_emails_from_diff
+    end
+
+    # The committer set of a diff is immutable once the diff is created, so the
+    # result is cached keyed by the merge_request_diff id. A new push creates a
+    # new diff (and id), which naturally invalidates the entry; the TTL is only
+    # a backstop. This reduces the call rate of the approval-committer filter
+    # query, which runs very frequently across the fleet.
+    cache_key = ['merge_request_diffs', merge_request_diff.id, 'committer_emails']
+
+    cached = Rails.cache.read(cache_key)
+    return cached if cached
+
+    emails = uncached_committer_emails_from_diff
+
+    # Don't cache an empty result. A persisted diff should always resolve to at
+    # least one committer, so an empty set is almost always a transient state
+    # (e.g. the mr_diff_commits_read_new_table read path before its backfill
+    # completes) rather than the real answer. Caching it would freeze that stale
+    # value for the whole TTL and silently disable the approval-committer filter;
+    # leaving it uncached lets the next call recompute cheaply. Since empty is
+    # never written, a cache miss (nil) is unambiguous.
+    Rails.cache.write(cache_key, emails, expires_in: 6.hours) if emails.present?
+
+    emails
+  end
+  strong_memoize_attr :committer_emails_from_diff
+
+  def uncached_committer_emails_from_diff
     committer_emails_query =
       if read_new_commits_table?
         committer_emails_via_metadata_query
@@ -3031,7 +3061,6 @@ class MergeRequest < ApplicationRecord
       ApplicationRecord.connection.select_all(committer_emails_query.to_sql).rows.flatten
     end
   end
-  strong_memoize_attr :committer_emails_from_diff
 
   def committer_emails_via_metadata_query
     dc = MergeRequestDiffCommit.arel_table

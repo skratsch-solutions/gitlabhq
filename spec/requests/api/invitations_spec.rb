@@ -835,4 +835,18 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
       end
     end
   end
+
+  describe 'PUT /projects/:id/invitations' do
+    let(:source) { project }
+    let!(:invite) { invite_member_by_email(source, 'project', developer.email, maintainer) }
+
+    it_behaves_like 'authorizing granular token permissions', :update_invitation do
+      let(:user) { maintainer }
+      let(:boundary_object) { source }
+      let(:request) do
+        put api("/projects/#{source.id}/invitations/#{invite.invite_email}", personal_access_token: pat),
+          params: { access_level: Member::MAINTAINER }
+      end
+    end
+  end
 end

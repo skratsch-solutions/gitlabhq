@@ -25,12 +25,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
       create(:protected_branch, :developers_can_merge, name: pipeline.ref, project: project)
     end
 
-    shared_examples 'does not write to ci_builds_metadata' do
-      it 'does not write to ci_builds_metadata' do
-        expect { service.execute(pipeline) }.to not_change { Ci::BuildMetadata.count }
-      end
-    end
-
     it 'clears the finished_at timestamp' do
       pipeline.update!(finished_at: 1.hour.ago)
 
@@ -49,8 +43,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         expect { service.execute(pipeline) }
           .to change { CommitStatus.count }.by(1)
       end
-
-      it_behaves_like 'does not write to ci_builds_metadata'
     end
 
     context 'when there are failed builds in the last stage' do
@@ -74,8 +66,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         expect { service.execute(pipeline) }
           .to match_query_count(expected_count).for_model(Ci::JobDefinitionInstance)
       end
-
-      it_behaves_like 'does not write to ci_builds_metadata'
     end
 
     context 'when there are failed or canceled builds in the first stage' do
@@ -102,8 +92,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         expect(build('rspec 3').user).to eq(user)
         expect(build('spinach 1').user).to eq(user)
       end
-
-      it_behaves_like 'does not write to ci_builds_metadata'
     end
 
     context 'when there is failed build present which was run on failure' do
@@ -124,8 +112,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         expect(pipeline.reload).to be_running
         expect(statuses.find_by(name: 'report 1', status: 'failed')).to be_retried
       end
-
-      it_behaves_like 'does not write to ci_builds_metadata'
     end
 
     context 'when there is a failed test in a DAG' do
@@ -159,11 +145,7 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
           expect(build('test')).to be_pending
           expect(build('deploy')).to be_pending
         end
-
-        it_behaves_like 'does not write to ci_builds_metadata'
       end
-
-      it_behaves_like 'does not write to ci_builds_metadata'
     end
 
     context 'when the last stage was skipped' do
@@ -183,8 +165,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
         expect(build('report 4')).to be_created
         expect(pipeline.reload).to be_running
       end
-
-      it_behaves_like 'does not write to ci_builds_metadata'
     end
 
     context 'when pipeline contains manual actions' do
@@ -209,8 +189,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
             expect(build('staging').user).to eq(user)
             expect(build('rspec 2').user).to eq(user)
           end
-
-          it_behaves_like 'does not write to ci_builds_metadata'
         end
       end
 
@@ -230,8 +208,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
             expect(build('verify')).to be_created
             expect(pipeline.reload).to be_running
           end
-
-          it_behaves_like 'does not write to ci_builds_metadata'
         end
 
         context 'when pipeline retry should block pipeline immediately' do
@@ -250,8 +226,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
             expect(build('verify')).to be_created
             expect(pipeline.reload).to be_blocked
           end
-
-          it_behaves_like 'does not write to ci_builds_metadata'
         end
       end
 
@@ -270,8 +244,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
           expect(build('staging')).to be_created
           expect(pipeline.reload).to be_running
         end
-
-        it_behaves_like 'does not write to ci_builds_metadata'
       end
 
       context 'when there is a created manual action in the last stage' do
@@ -287,8 +259,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
           expect(build('staging')).to be_created
           expect(pipeline.reload).to be_running
         end
-
-        it_behaves_like 'does not write to ci_builds_metadata'
       end
 
       context 'when there is a created manual action in the first stage' do
@@ -304,8 +274,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
           expect(build('staging')).to be_manual
           expect(pipeline.reload).to be_running
         end
-
-        it_behaves_like 'does not write to ci_builds_metadata'
       end
 
       context 'when there is a failed manual action' do
@@ -432,8 +400,6 @@ RSpec.describe Ci::RetryPipelineService, '#execute', feature_category: :continuo
 
         expect(pipeline.reload).to be_running
       end
-
-      it_behaves_like 'does not write to ci_builds_metadata'
     end
 
     context 'when user is not allowed to retry build' do

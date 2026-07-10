@@ -866,6 +866,11 @@ msgstr[1] ""
 msgid "%{count} related %{pluralized_subject}: %{links}"
 msgstr ""
 
+msgid "%{count} related issue"
+msgid_plural "%{count} related issues"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%{count} related merge request"
 msgid_plural "%{count} related merge requests"
 msgstr[0] ""
@@ -3741,6 +3746,9 @@ msgid "AISummary|View summary"
 msgstr ""
 
 msgid "AI|AI Item"
+msgstr ""
+
+msgid "AI|AI actions"
 msgstr ""
 
 msgid "AI|AI vulnerability management"
@@ -15224,6 +15232,9 @@ msgstr ""
 msgid "Buy now"
 msgstr ""
 
+msgid "Buy now at %{price} per user/month"
+msgstr ""
+
 msgid "Buy subscription"
 msgstr ""
 
@@ -22328,6 +22339,12 @@ msgstr ""
 msgid "ContinuousDeployment|%{timeAgo} by %{user}"
 msgstr ""
 
+msgid "ContinuousDeployment|+ Add another service"
+msgstr ""
+
+msgid "ContinuousDeployment|+ Add service"
+msgstr ""
+
 msgid "ContinuousDeployment|10m ago"
 msgstr ""
 
@@ -22344,6 +22361,9 @@ msgid "ContinuousDeployment|Add Environment"
 msgstr ""
 
 msgid "ContinuousDeployment|Add application"
+msgstr ""
+
+msgid "ContinuousDeployment|Add service"
 msgstr ""
 
 msgid "ContinuousDeployment|Alert"
@@ -22392,6 +22412,9 @@ msgid "ContinuousDeployment|Brief description"
 msgstr ""
 
 msgid "ContinuousDeployment|By"
+msgstr ""
+
+msgid "ContinuousDeployment|Cancel"
 msgstr ""
 
 msgid "ContinuousDeployment|Cancelled"
@@ -22452,6 +22475,12 @@ msgid "ContinuousDeployment|Development"
 msgstr ""
 
 msgid "ContinuousDeployment|Digest"
+msgstr ""
+
+msgid "ContinuousDeployment|Edit"
+msgstr ""
+
+msgid "ContinuousDeployment|Edit service"
 msgstr ""
 
 msgid "ContinuousDeployment|Environment %{id}"
@@ -22532,6 +22561,9 @@ msgstr ""
 msgid "ContinuousDeployment|No services in this release."
 msgstr ""
 
+msgid "ContinuousDeployment|No services yet. Add at least one — a service is the deployable unit (Git repo with K8s manifests, or a container image)."
+msgstr ""
+
 msgid "ContinuousDeployment|No versions recorded."
 msgstr ""
 
@@ -22577,13 +22609,22 @@ msgstr ""
 msgid "ContinuousDeployment|Releases"
 msgstr ""
 
+msgid "ContinuousDeployment|Remove"
+msgstr ""
+
 msgid "ContinuousDeployment|Running"
+msgstr ""
+
+msgid "ContinuousDeployment|Save service"
 msgstr ""
 
 msgid "ContinuousDeployment|Search by name, team, or description"
 msgstr ""
 
 msgid "ContinuousDeployment|Service"
+msgstr ""
+
+msgid "ContinuousDeployment|Service name"
 msgstr ""
 
 msgid "ContinuousDeployment|Service not found"
@@ -22613,6 +22654,9 @@ msgstr ""
 msgid "ContinuousDeployment|The application may have been removed or you may not have access to it."
 msgstr ""
 
+msgid "ContinuousDeployment|The deployable units. Each service has its own deployment strategy."
+msgstr ""
+
 msgid "ContinuousDeployment|Tier"
 msgstr ""
 
@@ -22626,6 +22670,9 @@ msgid "ContinuousDeployment|Waiting for your approval"
 msgstr ""
 
 msgid "ContinuousDeployment|e.g. acme-platform"
+msgstr ""
+
+msgid "ContinuousDeployment|e.g. api-gateway"
 msgstr ""
 
 msgid "Contribute to GitLab"
@@ -46106,6 +46153,9 @@ msgstr ""
 msgid "May"
 msgstr ""
 
+msgid "Me"
+msgstr ""
+
 msgid "Mean time to merge"
 msgstr ""
 
@@ -67437,10 +67487,18 @@ msgid_plural "SecurityConfiguration|%d scanners not enabled"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "SecurityConfiguration|%{count} source"
+msgid_plural "SecurityConfiguration|%{count} sources"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "SecurityConfiguration|%{enabledCount} of %{totalCount}"
 msgstr ""
 
 msgid "SecurityConfiguration|%{featureName} merge request creation mutation failed"
+msgstr ""
+
+msgid "SecurityConfiguration|%{name} configuration profile"
 msgstr ""
 
 msgid "SecurityConfiguration|%{profileLabel}, last scan failed"
@@ -67655,6 +67713,9 @@ msgstr ""
 msgid "SecurityConfiguration|Not enabled"
 msgstr ""
 
+msgid "SecurityConfiguration|On-demand"
+msgstr ""
+
 msgid "SecurityConfiguration|On-demand DAST scan"
 msgstr ""
 
@@ -67676,7 +67737,13 @@ msgstr ""
 msgid "SecurityConfiguration|Pipeline execution policy"
 msgstr ""
 
+msgid "SecurityConfiguration|Policy"
+msgstr ""
+
 msgid "SecurityConfiguration|Preview profile"
+msgstr ""
+
+msgid "SecurityConfiguration|Profile"
 msgstr ""
 
 msgid "SecurityConfiguration|Profile-based scanner configuration"
@@ -67760,9 +67827,6 @@ msgid "SecurityConfiguration|Security configuration uses merge requests to chang
 msgstr ""
 
 msgid "SecurityConfiguration|Security orchestration policy"
-msgstr ""
-
-msgid "SecurityConfiguration|Security scan profile"
 msgstr ""
 
 msgid "SecurityConfiguration|Security scanning is rolling out"
@@ -67859,6 +67923,9 @@ msgid "SecurityConfiguration|Vulnerability archives"
 msgstr ""
 
 msgid "SecurityConfiguration|Warning"
+msgstr ""
+
+msgid "SecurityConfiguration|YAML"
 msgstr ""
 
 msgid "SecurityConfiguration|YAML configuration"

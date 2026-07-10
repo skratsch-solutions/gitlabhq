@@ -154,6 +154,7 @@ export const FilterFields = {
 export const AssigneeFilterType = {
   any: 'Any',
   none: 'None',
+  me: 'Me',
 };
 
 export const MilestoneFilterType = {

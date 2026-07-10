@@ -10,6 +10,8 @@ import { TYPENAME_USER } from '~/graphql_shared/constants';
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { __ } from '~/locale';
 import {
+  OPTIONS_NONE_ANY,
+  OPTIONS_NONE_ANY_ME,
   OPERATORS_IS_NOT,
   OPERATORS_IS,
   TOKEN_TITLE_ASSIGNEE,
@@ -75,6 +77,7 @@ export default {
           isProject: !this.isGroupBoard,
           fullPath: this.fullPath,
           preloadedUsers: this.preloadedUsers(),
+          defaultUsers: this.isSignedIn ? OPTIONS_NONE_ANY_ME : OPTIONS_NONE_ANY,
         },
         {
           icon: 'pencil',

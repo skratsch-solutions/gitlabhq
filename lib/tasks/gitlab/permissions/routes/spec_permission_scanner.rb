@@ -11,12 +11,11 @@ module Tasks
           # Also matches wrapper shared examples like 'granular token permissions authorizable'
           # Handles: :symbol, [:sym1, :sym2], %i[sym1 sym2], and dynamic variables (ignored)
           PERMISSION_TEST_LINE_PATTERN = %r{
-            it_behaves_like\s+['"]
+            (?:it_behaves_like|include_examples)\s+['"]
             (?:authorizing\sgranular\stoken\spermissions|granular\stoken\spermissions\sauthorizable)
             ['"]\s*,\s*(.*)
           }x
 
-          TODO_FILE = ::Rails.root.join('config/authz/routes/test_coverage_todo.txt')
           EACH_LOOP_LOOKBACK_LINES = 15
 
           SPEC_DIRS = %w[
@@ -31,44 +30,44 @@ module Tasks
 
           def initialize(root_path = Rails.root)
             @root_path = root_path
-            @route_counts = Hash.new(0)
-            @route_details = Hash.new { |h, k| h[k] = [] }
-            @seen_route_permissions = Set.new
+            @endpoint_counts = Hash.new(0)
+            @endpoint_details = Hash.new { |h, k| h[k] = [] }
+            @seen_endpoint_permissions = Set.new
           end
 
-          # Registers a route for test coverage tracking.
-          # Call once per route+permission combination.
-          # route_id: "GET /projects/:id/notes"
+          # Registers an endpoint for test coverage tracking.
+          # Call once per endpoint+permission combination; calls with a previously
+          # seen endpoint_id+permission are ignored, so routes generated from the
+          # same endpoint declaration count once.
+          # endpoint_id: "lib/api/notes.rb:72 project"
           # permission: :read_note
-          # route_info: { method:, path:, source:, spec_file: }
-          def add_route(route_id:, permission:, route_info:)
-            key = "#{route_id} #{permission}"
-            return if @seen_route_permissions.include?(key)
+          # route_info: { method:, path:, source:, spec_file: } of a representative route
+          def add_route(endpoint_id:, permission:, route_info:)
+            key = "#{endpoint_id} #{permission}"
+            return if @seen_endpoint_permissions.include?(key)
 
-            @seen_route_permissions << key
+            @seen_endpoint_permissions << key
             perm = permission.to_s
-            @route_counts[perm] += 1
-            @route_details[perm] << route_info
+            @endpoint_counts[perm] += 1
+            @endpoint_details[perm] << route_info
           end
 
-          # Returns permissions with fewer tests than routes.
-          # Each entry: { permission:, route_count:, test_count:, routes: [...] }
+          # Returns permissions with fewer tests than endpoints.
+          # Each entry: { permission:, endpoint_count:, test_count:, endpoints: [...] }
           def insufficient_test_coverage
             ensure_scanned!
 
             violations = []
 
-            @route_counts.each do |permission, route_count|
-              next if in_todo?(permission)
-
+            @endpoint_counts.each do |permission, endpoint_count|
               tc = test_count(permission)
-              next if tc >= route_count
+              next if tc >= endpoint_count
 
               violations << {
                 permission: permission,
-                route_count: route_count,
+                endpoint_count: endpoint_count,
                 test_count: tc,
-                routes: @route_details[permission]
+                endpoints: @endpoint_details[permission]
               }
             end
 
@@ -84,11 +83,6 @@ module Tasks
             count = @test_counts[perm]
             @dynamic_patterns.each { |entry| count += entry[:count] if entry[:pattern].match?(perm) }
             count
-          end
-
-          # Returns true if this permission is listed in the TODO file.
-          def in_todo?(permission)
-            todo_entries.include?(permission.to_s)
           end
 
           # Derives the suggested spec file path from an API source file path.
@@ -227,7 +221,8 @@ module Tasks
               bracket_content = args[/[\[(](.+?)[\])]/, 1]
               bracket_content&.scan(/(\w+)/) { |sym,| results << sym }
             elsif args.start_with?('[')
-              args.scan(/:(\w+)/) { |sym,| results << sym }
+              bracket_content = args[/\[(.*?)\]/, 1] || args
+              bracket_content.scan(/:(\w+)/) { |sym,| results << sym }
             elsif args.match?(/^:".*\#\{/)
               results << build_dynamic_pattern(args)
             elsif args.start_with?(':')
@@ -283,19 +278,6 @@ module Tasks
             end
 
             map
-          end
-
-          def todo_entries
-            @todo_entries ||= load_todo_entries
-          end
-
-          def load_todo_entries
-            return Set.new unless TODO_FILE.exist?
-
-            TODO_FILE.readlines.each_with_object(Set.new) do |line, set|
-              stripped = line.strip
-              set << stripped unless stripped.empty? || stripped.start_with?('#')
-            end
           end
         end
       end

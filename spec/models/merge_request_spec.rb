@@ -3767,6 +3767,79 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
+  describe '#committer_emails_from_diff caching', :use_clean_rails_memory_store_caching, feature_category: :code_review_workflow do
+    let_it_be(:cache_project) { create(:project) }
+    let_it_be(:cache_diff_commit_user) { create(:merge_request_diff_commit_user) }
+    let_it_be(:cache_merge_request) do
+      create(:merge_request, :skip_diff_creation, source_project: cache_project, target_project: cache_project)
+    end
+
+    let_it_be(:cache_diff) { create(:merge_request_diff, merge_request: cache_merge_request) }
+    let_it_be(:cache_diff_commit) do
+      create(:merge_request_diff_commit, merge_request_diff: cache_diff, committer: cache_diff_commit_user)
+    end
+
+    let(:cache_key) { ['merge_request_diffs', mr.merge_request_diff.id, 'committer_emails'] }
+
+    # Fetch a fresh instance per example so no strong_memoize state on the
+    # shared let_it_be record leaks across examples (reload would keep the same
+    # object and its memoized committer_emails_from_diff, making these order-dependent).
+    subject(:mr) { described_class.find(cache_merge_request.id) }
+
+    context 'when cache_committer_emails_from_diff is enabled' do
+      it 'writes the committer emails to the cache keyed by the diff id' do
+        emails = mr.send(:committer_emails_from_diff)
+
+        expect(Rails.cache.read(cache_key)).to eq(emails)
+      end
+
+      it 'serves subsequent calls from the cache without re-querying' do
+        mr.send(:committer_emails_from_diff)
+        mr.clear_memoization(:committer_emails_from_diff)
+
+        expect { mr.send(:committer_emails_from_diff) }.not_to exceed_query_limit(0)
+      end
+
+      context 'and the diff resolves to no committer emails' do
+        it 'does not cache the empty result' do
+          allow(mr).to receive(:uncached_committer_emails_from_diff).and_return([])
+
+          mr.send(:committer_emails_from_diff)
+
+          expect(Rails.cache.read(cache_key)).to be_nil
+        end
+
+        it 'recomputes on subsequent calls rather than serving a stale empty value' do
+          expect(mr).to receive(:uncached_committer_emails_from_diff).twice.and_return([])
+
+          mr.send(:committer_emails_from_diff)
+          mr.clear_memoization(:committer_emails_from_diff)
+          mr.send(:committer_emails_from_diff)
+        end
+      end
+    end
+
+    context 'when cache_committer_emails_from_diff is disabled' do
+      before do
+        stub_feature_flags(cache_committer_emails_from_diff: false)
+      end
+
+      it 'does not write to the cache' do
+        mr.send(:committer_emails_from_diff)
+
+        expect(Rails.cache.read(cache_key)).to be_nil
+      end
+
+      it 'queries on every call' do
+        expect(mr).to receive(:uncached_committer_emails_from_diff).twice.and_call_original
+
+        mr.send(:committer_emails_from_diff)
+        mr.clear_memoization(:committer_emails_from_diff)
+        mr.send(:committer_emails_from_diff)
+      end
+    end
+  end
+
   describe 'committer filtering equivalence with committers()' do
     let_it_be(:project) { create(:project) }
     let_it_be(:committer_user) { create(:user) }

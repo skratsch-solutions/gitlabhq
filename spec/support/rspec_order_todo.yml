@@ -5391,7 +5391,6 @@
 - './spec/models/chat_name_spec.rb'
 - './spec/models/chat_team_spec.rb'
 - './spec/models/ci/artifact_blob_spec.rb'
-- './spec/models/ci/build_metadata_spec.rb'
 - './spec/models/ci/build_need_spec.rb'
 - './spec/models/ci/build_pending_state_spec.rb'
 - './spec/models/ci/build_report_result_spec.rb'

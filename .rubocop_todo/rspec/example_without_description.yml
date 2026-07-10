@@ -443,7 +443,6 @@ RSpec/ExampleWithoutDescription:
     - 'spec/services/container_registry/protection/delete_rule_service_spec.rb'
     - 'spec/services/container_registry/protection/update_rule_service_spec.rb'
     - 'spec/services/git/base_hooks_service_spec.rb'
-    - 'spec/services/groups/transfer_service_spec.rb'
     - 'spec/services/keys/expiry_notification_service_spec.rb'
     - 'spec/services/lfs/file_transformer_spec.rb'
     - 'spec/services/members/update_service_spec.rb'

@@ -33,6 +33,8 @@ import {
   OPERATORS_IS,
   OPERATORS_IS_NOT,
   OPERATORS_IS_NOT_OR,
+  OPTIONS_NONE_ANY,
+  OPTIONS_NONE_ANY_ME,
   TOKEN_TITLE_ASSIGNEE,
   TOKEN_TITLE_AUTHOR,
   TOKEN_TITLE_CLOSED,
@@ -682,6 +684,7 @@ export default {
           isProject: !this.isGroup,
           recentSuggestionsStorageKey: `${this.rootPageFullPath}-issues-recent-tokens-assignee`,
           preloadedUsers,
+          defaultUsers: this.isLoggedIn ? OPTIONS_NONE_ANY_ME : OPTIONS_NONE_ANY,
           multiSelect: true,
         },
         {

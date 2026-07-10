@@ -29,6 +29,7 @@ module Gitlab
 
         AGENT_PLAN_CREATE = 'work_item_agent_plan_create'
         AGENT_PLAN_DESTROY = 'work_item_agent_plan_destroy'
+        AGENT_PLAN_READ = 'work_item_agent_plan_read'
         AGENT_PLAN_UPDATE = 'work_item_agent_plan_update'
         ASSIGNEES_UPDATE = 'work_item_assignees_update'
         BLOCKED_BY_ITEM_ADD = 'work_item_blocked_by_item_add'
@@ -78,6 +79,7 @@ module Gitlab
         WORK_ITEM_EVENTS = [
           AGENT_PLAN_CREATE,
           AGENT_PLAN_DESTROY,
+          AGENT_PLAN_READ,
           AGENT_PLAN_UPDATE,
           ASSIGNEES_UPDATE,
           BLOCKED_BY_ITEM_ADD,

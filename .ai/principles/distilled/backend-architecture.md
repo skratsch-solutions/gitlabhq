@@ -1,6 +1,6 @@
 ---
-source_checksum: 64ef2a741c9f57ab
-distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
+source_checksum: 0f3cc16be36719f5
+distilled_at_sha: 0bc240cb0e70d2bba500cca6317a5c7e9e06605e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -66,7 +66,7 @@ distilled_at_sha: 867191c6c639fdc3de0084c84f0c3f8b054dae81
 
 ### EventStore
 
-- Use Cloud Events (inheriting from `Gitlab::EventStore::CloudEvent`) for all new events; DO NOT create new legacy `Gitlab::EventStore::Event` subclasses
+- Use Cloud Events (inheriting from `Gitlab::EventStore::CloudEvent`) for all new events; DO NOT create new legacy `Gitlab::EventStore::Event` subclasses (enforced by the `Gitlab/EventStoreCloudEventInheritance` RuboCop cop)
 - Define Cloud Event classes under `app/events/<namespace>/`; set `event_category` and `event_type` via class-level methods and implement `data_schema` returning a valid JSON Schema for the `data` field
 - Name events in past tense: `<DomainObject><Action>Event` (e.g., `Ci::PipelineCreatedEvent`, not `Ci::CreatePipelineEvent`); elide the domain object when obvious from the bounded context (e.g., `MergeRequest::ApprovedEvent` not `MergeRequest::MergeRequestApprovedEvent`)
 - Design events to be semantic (describe what occurred, not the intended subscriber action), specific (narrowly defined, use properties for additional info), and scoped (only publish events about domain objects within your bounded context)

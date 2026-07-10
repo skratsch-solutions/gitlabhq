@@ -1,6 +1,8 @@
 import { GlFilteredSearchToken } from '@gitlab/ui';
 import { keyBy } from 'lodash-es';
 import {
+  OPTIONS_NONE_ANY,
+  OPTIONS_NONE_ANY_ME,
   OPERATORS_IS,
   OPERATORS_IS_NOT,
   TOKEN_TITLE_ASSIGNEE,
@@ -890,6 +892,7 @@ export const mockTokens = (fetchLabels, isSignedIn) => [
     fullPath: 'gitlab-org',
     isProject: false,
     preloadedUsers: [],
+    defaultUsers: isSignedIn ? OPTIONS_NONE_ANY_ME : OPTIONS_NONE_ANY,
   },
   {
     icon: 'pencil',

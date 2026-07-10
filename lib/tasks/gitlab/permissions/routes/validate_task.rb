@@ -68,7 +68,10 @@ module Tasks
               validate_permission_defined(route, permission)
               validate_boundary_defined(route, permission, boundary_types)
               validate_assignable_permission(route, permission, boundary_types)
-              register_test_coverage(route, permission) unless authorization[:skip_granular_token_authorization]
+
+              unless authorization[:skip_granular_token_authorization]
+                register_test_coverage(route, permission, boundary_types)
+              end
             end
 
             validate_skip_reason(route, authorization)
@@ -146,7 +149,11 @@ module Tasks
             )
           end
 
-          def register_test_coverage(route, permission)
+          # Routes generated from the same endpoint declaration (for example a shared
+          # concern mounted at both instance and project level, or an endpoint defined
+          # in a loop) share one decorator and one code path, so they are counted as a
+          # single endpoint per boundary type.
+          def register_test_coverage(route, permission, boundary_types)
             location = @source_locations[route]
             return unless location
 
@@ -154,7 +161,7 @@ module Tasks
             scanner = spec_permission_scanner
 
             scanner.add_route(
-              route_id: route_id(route),
+              endpoint_id: "#{source_file}:#{location.last} #{boundary_types.sort.join(',')}",
               permission: permission,
               route_info: base_error(route).merge(
                 permission: permission,
@@ -223,8 +230,8 @@ module Tasks
             out = "#{error_messages[:insufficient_tests]}\n\n"
 
             violations[:insufficient_tests].each do |v|
-              out += "  - #{v[:permission]}: #{v[:route_count]} routes, #{v[:test_count]} tests\n"
-              v[:routes].each do |route|
+              out += "  - #{v[:permission]}: #{v[:endpoint_count]} endpoints, #{v[:test_count]} tests\n"
+              v[:endpoints].each do |route|
                 out += "      #{route[:method]} #{route[:path]} (#{route[:source]})\n"
                 out += "        Suggested spec: #{route[:spec_file]}\n"
               end
@@ -265,9 +272,9 @@ module Tasks
                 Use one of: #{VALID_SKIP_REASONS.map { |r| ":#{r}" }.join(', ')}
               MSG
               insufficient_tests: <<~MSG.chomp
-                The following permissions have fewer tests than routes using them.
-                Each route should have its own `it_behaves_like 'authorizing granular token permissions'` test.
-                Add test coverage.
+                The following permissions have fewer tests than endpoints using them.
+                Each endpoint declaration should have its own `it_behaves_like 'authorizing granular token permissions'`
+                test per boundary type. Add test coverage.
                 #{implementation_guide_link(anchor: 'step-6-add-authorization-tests')}
               MSG
             }

@@ -531,9 +531,9 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::ValidateTask, :silence_stdout
           Tasks::Gitlab::Permissions::Routes::SpecPermissionScanner,
           insufficient_test_coverage: [{
             permission: 'read_project',
-            route_count: 1,
+            endpoint_count: 1,
             test_count: 0,
-            routes: [{
+            endpoints: [{
               method: 'GET', path: '/projects/:id/test',
               source: 'lib/api/test.rb:42', permission: :read_project,
               spec_file: 'spec/requests/api/test_spec.rb'
@@ -556,12 +556,12 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::ValidateTask, :silence_stdout
         expect { run }.to raise_error(SystemExit).and output(<<~OUTPUT).to_stdout
           #######################################################################
           #
-          #  The following permissions have fewer tests than routes using them.
-          #  Each route should have its own `it_behaves_like 'authorizing granular token permissions'` test.
-          #  Add test coverage.
+          #  The following permissions have fewer tests than endpoints using them.
+          #  Each endpoint declaration should have its own `it_behaves_like 'authorizing granular token permissions'`
+          #  test per boundary type. Add test coverage.
           #  Learn more: https://docs.gitlab.com/development/permissions/granular_access/rest_api_implementation_guide/#step-6-add-authorization-tests
           #
-          #    - read_project: 1 routes, 0 tests
+          #    - read_project: 1 endpoints, 0 tests
           #        GET /projects/:id/test (lib/api/test.rb:42)
           #          Suggested spec: spec/requests/api/test_spec.rb
           #

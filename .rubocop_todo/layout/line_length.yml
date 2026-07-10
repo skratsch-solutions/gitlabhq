@@ -3289,7 +3289,6 @@ Layout/LineLength:
     - 'spec/services/files/multi_service_spec.rb'
     - 'spec/services/git/branch_push_service_spec.rb'
     - 'spec/services/groups/autocomplete_service_spec.rb'
-    - 'spec/services/groups/transfer_service_spec.rb'
     - 'spec/services/groups/update_service_spec.rb'
     - 'spec/services/import/bitbucket_server_service_spec.rb'
     - 'spec/services/import/gitlab_projects/create_project_service_spec.rb'

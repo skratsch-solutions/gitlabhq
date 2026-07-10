@@ -12,7 +12,7 @@ import { debounce, last } from 'lodash-es';
 import { stripQuotes } from '~/lib/utils/text_utility';
 import {
   DEBOUNCE_DELAY,
-  FILTERS_NONE_ANY,
+  FILTERS_NONE_ANY_ME,
   OPERATOR_NOT,
   OPERATOR_OR,
   OPERATORS_TO_GROUP,
@@ -120,7 +120,7 @@ export default {
     availableDefaultSuggestions() {
       if ([OPERATOR_NOT, OPERATOR_OR].includes(this.value.operator)) {
         return this.defaultSuggestions.filter(
-          (suggestion) => !FILTERS_NONE_ANY.includes(suggestion.value),
+          (suggestion) => !FILTERS_NONE_ANY_ME.includes(suggestion.value),
         );
       }
       return this.defaultSuggestions;
