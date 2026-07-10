@@ -10,7 +10,7 @@ module Keeps
   # For each PostgreSQL index with no activity on GitLab.com, generates a
   # post-deploy migration that removes it synchronously with
   # `remove_concurrent_index_by_name` and yields a Change so the runner opens a
-  # draft MR. For large tables the reviewer should switch to asynchronous
+  # merge request. For large tables the reviewer should switch to asynchronous
   # removal instead, per `doc/development/database/adding_database_indexes.md`.
   #
   # Requires `GITLAB_GRAFANA_API_URL`, `GITLAB_GRAFANA_API_KEY`,
@@ -169,7 +169,7 @@ module Keeps
     end
 
     def build_change_details(change, ctx)
-      change.title = "Draft: Remove unused index #{ctx[:name]}".truncate(72)
+      change.title = "Remove unused index #{ctx[:name]}".truncate(72)
       change.changelog_type = 'other'
       change.labels = labels(ctx[:tablename])
       change.reviewers = Array(pick_reviewer(ctx[:tablename], change.identifiers))
@@ -227,7 +227,7 @@ module Keeps
 
         - [ ] No GitLab Self-Managed or GitLab Dedicated feature relies on this index.
         - [ ] No low-frequency (quarterly, yearly) cron uses the column(s) this index covers.
-        - [ ] Kibana logs (last 7 days) show no query plan using this index.
+        - [ ] Kibana (`pubsub-postgres-inf-gprd*`, last 7 days): review `json.sql: #{ctx[:tablename]} AND json.sql: *#{ctx[:columns].first}*` and confirm no query filters/orders on `#{ctx[:columns].map(&:to_s).join(', ')}` in a way this index would serve. A text match alone is not index usage; PostgreSQL favours the index when a query filters on its leading column(s).
 
         ## If this index must be kept
 
@@ -301,6 +301,8 @@ module Keeps
       end.uniq
 
       group_labels + [
+        # Dedicated label so every MR from this keep is collectible in one query.
+        'automation:cleanup-unused-indexes',
         'maintenance::removal',
         'type::maintenance',
         'Category:Database',

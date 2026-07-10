@@ -80,7 +80,6 @@ Audit events have a predictable schema in the body of the response.
 {{< history >}}
 
 - `X-Gitlab-Audit-Event-Type` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/86881) in GitLab 15.0.
-- `gl_key_type` and `gl_key_id` fields in `custom_message` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/244603) in GitLab 19.3.
 
 {{< /history >}}
 
@@ -124,9 +123,7 @@ Fetch:
       "protocol": "ssh",
       "action": "git-upload-pack",
       "written_bytes": 1048576,
-      "received_bytes": 2048,
-      "gl_key_type": "deploy_key",
-      "gl_key_id": 24
+      "received_bytes": 2048
     },
     "ip_address": "127.0.0.1",
     "entity_path": "example-group/example-project"
@@ -148,10 +145,3 @@ The `custom_message` object includes data transfer size fields for Git operation
 - `received_bytes`: Number of bytes received from the client during the Git operation (for example, during a push).
 
 These fields are omitted when no bytes are transferred, such as when a request fails before any data is exchanged.
-
-The `custom_message` object includes key information for Git operations authenticated with an SSH key or deploy key:
-
-- `gl_key_type`: Type of the key used for authentication. Either `key` for user SSH keys, or `deploy_key` for deploy keys.
-- `gl_key_id`: ID of the key used for authentication.
-
-These fields are omitted when the operation is not authenticated with a key, for example HTTP(S) with a username and password, or a deploy token.

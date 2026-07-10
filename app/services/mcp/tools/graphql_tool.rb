@@ -96,3 +96,5 @@ module Mcp
     end
   end
 end
+
+Mcp::Tools::GraphqlTool.prepend_mod

@@ -91056,17 +91056,17 @@ components:
           type: boolean
           example: true
         minimum_access_level_execute:
-          type: integer
-          example: 30
+          type: string
+          example: developer
         minimum_access_level_execute_async:
-          type: integer
-          example: 30
+          type: string
+          example: developer
         minimum_access_level_manage:
-          type: integer
-          example: 40
+          type: string
+          example: maintainer
         minimum_access_level_enable_on_projects:
-          type: integer
-          example: 40
+          type: string
+          example: maintainer
     APIEntitiesGroupDetail:
       type: object
       properties:

@@ -355,6 +355,7 @@ export default {
           mutation: createWorkItemMutation,
           variables: {
             input: this.workItemInput,
+            useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
           },
           update: (cache, { data }) =>
             addHierarchyChild({

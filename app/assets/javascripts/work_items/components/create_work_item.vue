@@ -29,9 +29,17 @@ import WorkItemMetadataProvider from '~/work_items/components/work_item_metadata
 import PageHeading from '~/vue_shared/components/page_heading.vue';
 import {
   findAssigneesWidget,
+  findColorWidget,
   findCrmContactsWidget,
+  findCustomFieldsWidget,
+  findHealthStatusWidget,
   findHierarchyWidget,
   findParticipantsWidget,
+  findIterationWidget,
+  findLabelsWidget,
+  findMilestoneWidget,
+  findStatusWidget,
+  findWeightWidget,
   getDisplayReference,
   getNewWorkItemAutoSaveKey,
   getNewWorkItemWidgetsAutoSaveKey,
@@ -405,7 +413,7 @@ export default {
     hasWidgets() {
       return (
         this.workItem?.widgets?.length > 0 ||
-        (this.useWorkItemFeatures && Object.keys(this.workItem?.feautures || {}))
+        (this.useWorkItemFeatures && Object.keys(this.workItem?.features || {}).length > 0)
       );
     },
     relatedItemId() {
@@ -421,24 +429,22 @@ export default {
       return findAssigneesWidget(this.workItem);
     },
     workItemMilestone() {
-      return this.useWorkItemFeatures
-        ? this.workItem?.features?.milestone || {}
-        : findWidget(WIDGET_TYPE_MILESTONE, this.workItem);
+      return findMilestoneWidget(this.workItem);
     },
     workItemLabels() {
-      return findWidget(WIDGET_TYPE_LABELS, this.workItem);
+      return findLabelsWidget(this.workItem);
     },
     workItemIteration() {
-      return findWidget(WIDGET_TYPE_ITERATION, this.workItem);
+      return findIterationWidget(this.workItem);
     },
     workItemWeight() {
-      return findWidget(WIDGET_TYPE_WEIGHT, this.workItem);
+      return findWeightWidget(this.workItem);
     },
     workItemHealthStatus() {
-      return findWidget(WIDGET_TYPE_HEALTH_STATUS, this.workItem);
+      return findHealthStatusWidget(this.workItem);
     },
     workItemColor() {
-      return findWidget(WIDGET_TYPE_COLOR, this.workItem);
+      return findColorWidget(this.workItem);
     },
     workItemHierarchy() {
       return findHierarchyWidget(this.workItem);
@@ -537,11 +543,11 @@ export default {
       );
     },
     workItemLabelIds() {
-      const labelsWidget = findWidget(WIDGET_TYPE_LABELS, this.workItem);
+      const labelsWidget = findLabelsWidget(this.workItem);
       return labelsWidget?.labels?.nodes?.map((label) => label.id) || [];
     },
     workItemWeightValue() {
-      const weightWidget = findWidget(WIDGET_TYPE_WEIGHT, this.workItem);
+      const weightWidget = findWeightWidget(this.workItem);
       return weightWidget?.weight ?? null;
     },
     workItemMilestoneId() {
@@ -554,11 +560,11 @@ export default {
       return this.workItemHierarchy?.parent || null;
     },
     workItemColorValue() {
-      const colorWidget = findWidget(WIDGET_TYPE_COLOR, this.workItem);
+      const colorWidget = findColorWidget(this.workItem);
       return colorWidget?.color || '';
     },
     workItemHealthStatusValue() {
-      const healthStatusWidget = findWidget(WIDGET_TYPE_HEALTH_STATUS, this.workItem);
+      const healthStatusWidget = findHealthStatusWidget(this.workItem);
       return healthStatusWidget?.healthStatus || null;
     },
     workItemTitle() {
@@ -582,7 +588,7 @@ export default {
       return this.workItem?.id;
     },
     workItemStatus() {
-      return findWidget(WIDGET_TYPE_STATUS, this.workItem);
+      return findStatusWidget(this.workItem);
     },
     workItemIid() {
       return this.workItem?.iid;
@@ -645,7 +651,7 @@ export default {
       )?.canRollUp;
     },
     workItemCustomFields() {
-      return findWidget(WIDGET_TYPE_CUSTOM_FIELDS, this.workItem)?.customFieldValues ?? null;
+      return findCustomFieldsWidget(this.workItem)?.customFieldValues ?? null;
     },
     inputNamespacePath() {
       if (this.shouldShowNamespaceSelector) {
@@ -1092,6 +1098,7 @@ export default {
             input: {
               ...workItemCreateInput,
             },
+            useWorkItemFeatures: this.useWorkItemFeatures,
           },
           update: (store, { data: { workItemCreate } }) => {
             const { workItem } = workItemCreate;

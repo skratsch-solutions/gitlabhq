@@ -822,6 +822,31 @@ module ApplicationSettingsHelper
   def custom_admin_roles_available?
     false
   end
+
+  def logging_field_changes_data
+    ApplicationSetting::LOGGING_FIELD_SCHEMA_VERSIONS.each_with_object({}) do |v, hash|
+      next if v == 0
+
+      hash[v] = logging_field_changes_for_version(v)
+    end
+  end
+
+  private
+
+  def logging_field_changes_for_version(target_version)
+    variant_versions = Labkit::Fields::VARIANT_VERSION
+    deprecated_mappings = Labkit::Fields::Deprecated::MAPPINGS
+
+    variant_versions.filter_map do |standard_field, version|
+      next unless version == target_version
+
+      deprecated_names = deprecated_mappings[standard_field] || []
+      {
+        standard_field: standard_field,
+        deprecated_fields: deprecated_names
+      }
+    end
+  end
 end
 
 ApplicationSettingsHelper.prepend_mod_with('ApplicationSettingsHelper')

@@ -169,7 +169,7 @@
 {"name":"faraday-multipart","version":"1.1.1","platform":"ruby","checksum":"77a18ff40149030fd1aef55bb4fc7a67ce46419a8a3fcd010e28c2526e8d8903"},
 {"name":"faraday-net_http","version":"3.1.0","platform":"ruby","checksum":"1627be414960d0131691190ff524506ba6607402a50fb6eccda9e64ca60f859f"},
 {"name":"faraday-net_http_persistent","version":"2.1.0","platform":"ruby","checksum":"b41720b13f56dae77114d9de54baef2d76d0b06ab40d695b2a98e254b56ade0b"},
-{"name":"faraday-retry","version":"2.2.1","platform":"ruby","checksum":"4146fed14549c0580bf14591fca419a40717de0dd24f267a8ec2d9a728677608"},
+{"name":"faraday-retry","version":"2.4.0","platform":"ruby","checksum":"7b79c48fb7e56526faf247b12d94a680071ff40c9fda7cf1ec1549439ad11ebe"},
 {"name":"faraday-typhoeus","version":"1.1.0","platform":"ruby","checksum":"24c6147c213818dde3ebc50ae47ab92f9a7e554903aa362707126f749c6890e7"},
 {"name":"faraday_middleware-aws-sigv4","version":"1.0.1","platform":"ruby","checksum":"a001ea4f687ca1c60bad8f2a627196905ce3dbf285e461dc153240e92eaabe8f"},
 {"name":"fast_blank","version":"1.0.1","platform":"java","checksum":"90d82106b0e4aa19ac24ba1604c79a0c5a4c471601e800c9b2b072938a6d9a92"},

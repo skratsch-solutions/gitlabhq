@@ -51,8 +51,18 @@ export default {
       required: false,
       default: () => [],
     },
+    activeItem: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+    detailPanelEnabled: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
-  emits: ['set-error', 'toggle-collapse'],
+  emits: ['set-error', 'set-active-item', 'toggle-collapse'],
   data() {
     return {
       groupBy: { property: 'status' },
@@ -295,8 +305,11 @@ export default {
       :drop-disabled="invalidValueIds.includes(value.id)"
       :collapsed="isColumnCollapsed(value)"
       :hidden-metadata-keys="hiddenMetadataKeys"
+      :active-item="activeItem"
+      :detail-panel-enabled="detailPanelEnabled"
       @drag-start="onDragStart"
       @card-move="onCardMove"
+      @set-active-item="$emit('set-active-item', $event)"
       @toggle-collapse="$emit('toggle-collapse', groupId(value))"
     />
   </div>

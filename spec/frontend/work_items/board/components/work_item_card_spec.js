@@ -1,5 +1,6 @@
 import { GlLabel, GlTruncate } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
+import { visitUrl } from '~/lib/utils/url_utility';
 import WorkItemCard from '~/work_items/board/components/work_item_card.vue';
 import WorkItemTypeIcon from '~/work_items/components/work_item_type_icon.vue';
 import IssuableAssignees from '~/issuable/components/issue_assignees.vue';
@@ -26,6 +27,11 @@ import {
   mockParent,
 } from '../mock_data';
 
+jest.mock('~/lib/utils/url_utility', () => ({
+  ...jest.requireActual('~/lib/utils/url_utility'),
+  visitUrl: jest.fn(),
+}));
+
 const buildItem = (overrides = {}) => buildWorkItemNode(1, overrides);
 
 describe('WorkItemCard', () => {
@@ -49,13 +55,17 @@ describe('WorkItemCard', () => {
 
   const stubFrom = (name, props = []) => ({ name, props, template: '<div />' });
 
+  const findCard = () => wrapper.findByTestId('work-item-board-card');
+
   const createComponent = ({
     item = buildItem(),
     hiddenMetadataKeys = [],
     rootPageFullPath = '',
+    activeItem = null,
+    detailPanelEnabled = true,
   } = {}) => {
     wrapper = shallowMountExtended(WorkItemCard, {
-      propsData: { item, hiddenMetadataKeys, rootPageFullPath },
+      propsData: { item, hiddenMetadataKeys, rootPageFullPath, activeItem, detailPanelEnabled },
       stubs: {
         WorkItemStatusBadge: stubFrom('WorkItemStatusBadge', ['item']),
         IssueWeight: stubFrom('IssueWeight'),
@@ -78,6 +88,45 @@ describe('WorkItemCard', () => {
       createComponent({ item: buildItem({ webPath: '/some/path/-/issues/42' }) });
 
       expect(findLink().attributes('href')).toBe('/some/path/-/issues/42');
+    });
+  });
+
+  describe('when selecting a card', () => {
+    it('emits the `set-active-item` event with the selected item', async () => {
+      const item = buildItem();
+      createComponent({ item });
+
+      await findLink().trigger('click');
+
+      expect(wrapper.emitted('set-active-item')).toEqual([[item]]);
+    });
+
+    it('when already active, emits the `card-select` event with null', async () => {
+      const item = buildItem();
+      createComponent({ item, activeItem: item });
+
+      await findLink().trigger('click');
+
+      expect(wrapper.emitted('set-active-item')).toEqual([[null]]);
+    });
+
+    it('applies the active class when the card matches the active item', () => {
+      const item = buildItem();
+      createComponent({ item, activeItem: item });
+
+      expect(findCard().classes()).toContain('is-active');
+    });
+
+    it('navigates to the detail work item page if the side panel is disabled', async () => {
+      createComponent({
+        detailPanelEnabled: false,
+        item: buildItem({ webPath: '/group/project/-/work_items/1' }),
+      });
+
+      await findLink().trigger('click');
+
+      expect(wrapper.emitted('set-active-item')).toBeUndefined();
+      expect(visitUrl).toHaveBeenCalledWith('/group/project/-/work_items/1');
     });
   });
 

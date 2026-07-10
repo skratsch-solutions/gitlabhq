@@ -49,7 +49,6 @@ class Projects::BlobController < Projects::ApplicationController
   before_action do
     push_frontend_feature_flag(:inline_blame, @project)
     push_licensed_feature(:file_locks) if @project.licensed_feature_available?(:file_locks)
-    push_frontend_feature_flag(:blob_edit_refactor, @project)
     push_frontend_feature_flag(:duo_convert_ci_use_developer_flow, @project)
     push_frontend_feature_flag(:vue3_migrate_repository, current_user)
   end

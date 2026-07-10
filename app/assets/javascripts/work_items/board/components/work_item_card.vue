@@ -1,6 +1,8 @@
 <script>
 import { uniqueId } from 'lodash-es';
 import { GlLabel, GlTruncate } from '@gitlab/ui';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import { visitUrl } from '~/lib/utils/url_utility';
 import { WIDGET_TYPE_LABELS, METADATA_KEYS } from '~/work_items/constants';
 import {
   findAssigneesWidget,
@@ -53,13 +55,30 @@ export default {
       required: false,
       default: '',
     },
+    activeItem: {
+      required: false,
+      type: Object,
+      default: null,
+    },
+    detailPanelEnabled: {
+      required: false,
+      type: Boolean,
+      default: true,
+    },
   },
+  emits: ['set-active-item'],
   computed: {
     reference() {
       // Items that live in the board's own namespace are shortened to `#iid`;
       // items from a different namespace (e.g. on a group board) keep the full
       // reference so their project is identifiable.
       return getDisplayReference(this.rootPageFullPath, this.item.reference);
+    },
+    isActive() {
+      return (
+        Boolean(this.activeItem) &&
+        getIdFromGraphQLId(this.item.id) === getIdFromGraphQLId(this.activeItem.id)
+      );
     },
     labels() {
       const widget = this.item.widgets?.find((w) => w.type === WIDGET_TYPE_LABELS);
@@ -144,6 +163,17 @@ export default {
     isMetadataHidden(key) {
       return this.hiddenMetadataKeys.includes(key);
     },
+    handleCardClick(event) {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) {
+        return;
+      }
+      event.preventDefault();
+      if (!this.detailPanelEnabled) {
+        visitUrl(this.item.webPath);
+        return;
+      }
+      this.$emit('set-active-item', this.isActive ? null : this.item);
+    },
   },
 };
 </script>
@@ -151,12 +181,15 @@ export default {
 <template>
   <li
     :data-work-item-id="item.id"
+    data-testid="work-item-board-card"
+    :class="{ 'is-active !gl-bg-blue-50 hover:!gl-bg-blue-50': isActive }"
     class="js-board-card gl-border gl-rounded-lg gl-border-section gl-bg-section hover:gl-bg-subtle"
   >
     <a
       :href="item.webPath"
       data-testid="work-item-link"
       class="gl-flex gl-min-w-0 gl-flex-col gl-gap-2 gl-p-3 gl-text-default hover:gl-text-default hover:gl-no-underline"
+      @click="handleCardClick"
     >
       <div class="gl-flex gl-min-w-0 gl-items-center gl-gap-2">
         <work-item-type-icon

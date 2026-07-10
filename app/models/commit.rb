@@ -275,7 +275,7 @@ class Commit
     committed_date.xmlschema
   end
 
-  def hook_attrs(with_changed_files: false)
+  def hook_attrs(with_changed_files: false, changed_paths: nil)
     data = {
       id: id,
       message: safe_message,
@@ -288,7 +288,10 @@ class Commit
       }
     }
 
-    data.merge!(repo_changes) if with_changed_files
+    if with_changed_files
+      changes = changed_paths ? repo_changes_from_paths(changed_paths) : repo_changes
+      data.merge!(changes)
+    end
 
     data
   end
@@ -635,6 +638,25 @@ class Commit
         changes[:added] << diff.new_path
       else
         changes[:modified] << diff.new_path
+      end
+    end
+
+    changes
+  end
+
+  def repo_changes_from_paths(paths)
+    changes = { added: [], modified: [], removed: [] }
+
+    paths.each do |path|
+      # New and renamed files report only their new path under :added; everything
+      # else (content or type changes) reports the path under :modified. This keeps
+      # the webhook payload identical to the previous per-commit diff behavior.
+      if path.deleted_file?
+        changes[:removed] << path.old_path
+      elsif path.new_file? || path.renamed_file?
+        changes[:added] << path.path
+      else
+        changes[:modified] << path.path
       end
     end
 

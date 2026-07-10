@@ -260,10 +260,10 @@ Additional response attributes:
     "include_recommended_allowed": false,
     "allow_all_unix_sockets": false,
     "allow_project_extension": true,
-    "minimum_access_level_execute": 30,
-    "minimum_access_level_execute_async": 30,
-    "minimum_access_level_manage": 40,
-    "minimum_access_level_enable_on_projects": 40
+    "minimum_access_level_execute": "developer",
+    "minimum_access_level_execute_async": "developer",
+    "minimum_access_level_manage": "maintainer",
+    "minimum_access_level_enable_on_projects": "maintainer"
   },
   ...
 }
@@ -293,10 +293,10 @@ when GitLab Duo Agent Platform is available for the group. The object contains t
 | `duo_workflow_mcp_enabled` | boolean | When `true`, MCP support for GitLab Duo Agent Platform is enabled. Premium and Ultimate. Also available on the Free tier on GitLab.com with GitLab Credits. |
 | `foundational_agents_default_enabled` | boolean | When `true`, new foundational agents are enabled by default for this group. Premium and Ultimate. Also available on the Free tier on GitLab.com with GitLab Credits. |
 | `include_recommended_allowed` | boolean | When `true`, recommended domains are included in the network access allowlist for GitLab Duo Agent Platform. Returned when the `dap_group_network_access_controls` feature flag is enabled. |
-| `minimum_access_level_enable_on_projects` | integer | The minimum access level required to enable GitLab Duo Agent Platform on projects. One of `30` (Developer), `40` (Maintainer), or `50` (Owner). Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
-| `minimum_access_level_execute` | integer | The minimum access level required for users to interact with GitLab Duo Agent Platform features. One of `10` (Guest), `15` (Planner), `20` (Reporter), `30` (Developer), `40` (Maintainer), or `50` (Owner). Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
-| `minimum_access_level_execute_async` | integer | The minimum access level required to execute GitLab Duo Agent Platform features in CI/CD. One of `30` (Developer), `40` (Maintainer), or `50` (Owner). Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
-| `minimum_access_level_manage` | integer | The minimum access level required to manage GitLab Duo Agent Platform. One of `30` (Developer), `40` (Maintainer), or `50` (Owner). Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `minimum_access_level_enable_on_projects` | string | The minimum access level required to enable GitLab Duo Agent Platform on projects. One of `developer`, `maintainer`, or `owner`. Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `minimum_access_level_execute` | string | The minimum access level required for users to interact with GitLab Duo Agent Platform features. One of `guest`, `planner`, `reporter`, `developer`, `maintainer`, or `owner`. Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `minimum_access_level_execute_async` | string | The minimum access level required to execute GitLab Duo Agent Platform features in CI/CD. One of `developer`, `maintainer`, or `owner`. Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
+| `minimum_access_level_manage` | string | The minimum access level required to manage GitLab Duo Agent Platform. One of `developer`, `maintainer`, or `owner`. Returned when the `dap_group_customizable_permissions` feature flag is enabled. |
 | `prompt_injection_protection_level` | string | The prompt injection protection level. One of `no_checks`, `log_only`, or `interrupt`. |
 
 When adding the parameter `with_projects=false`, projects aren't returned.

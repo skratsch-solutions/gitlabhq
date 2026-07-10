@@ -216,7 +216,7 @@ RSpec.describe Keeps::CleanupUnusedIndexes, feature_category: :database do
       result = keep.make_change!(change)
 
       expect(result).to be_a(::Gitlab::Housekeeper::Change)
-      expect(result.title).to eq('Draft: Remove unused index index_users_on_foo')
+      expect(result.title).to eq('Remove unused index index_users_on_foo')
       expect(result.changed_files).to contain_exactly(
         migration_file,
         'db/schema_migrations/20260601000000',
@@ -243,6 +243,14 @@ RSpec.describe Keeps::CleanupUnusedIndexes, feature_category: :database do
       expect(result.description).to include('[180d]')
       expect(result.description).to include('Cross-environment review checklist')
       expect(result.description).to include('keeps/cleanup_unused_indexes/index_keep_list.yml')
+    end
+
+    it 'interpolates the table and columns into the Kibana review step', :aggregate_failures do
+      result = keep.make_change!(change)
+
+      expect(result.description).to include('pubsub-postgres-inf-gprd*')
+      expect(result.description).to include('json.sql: users AND json.sql: *foo*')
+      expect(result.description).to include('filters/orders on `foo`')
     end
 
     it 'warns to use asynchronous removal for large tables', :aggregate_failures do
@@ -273,8 +281,8 @@ RSpec.describe Keeps::CleanupUnusedIndexes, feature_category: :database do
 
     it 'combines group labels with the standard maintenance and review labels' do
       expect(keep.send(:labels, 'users')).to eq(
-        ['group::foo', 'maintenance::removal', 'type::maintenance', 'Category:Database',
-          'pipeline::tier-1', 'database::review pending', 'workflow::in review']
+        ['group::foo', 'automation:cleanup-unused-indexes', 'maintenance::removal', 'type::maintenance',
+          'Category:Database', 'pipeline::tier-1', 'database::review pending', 'workflow::in review']
       )
     end
 
@@ -285,8 +293,8 @@ RSpec.describe Keeps::CleanupUnusedIndexes, feature_category: :database do
 
       it 'falls back to the standard maintenance and review labels only' do
         expect(keep.send(:labels, 'users')).to eq(
-          ['maintenance::removal', 'type::maintenance', 'Category:Database',
-            'pipeline::tier-1', 'database::review pending', 'workflow::in review']
+          ['automation:cleanup-unused-indexes', 'maintenance::removal', 'type::maintenance',
+            'Category:Database', 'pipeline::tier-1', 'database::review pending', 'workflow::in review']
         )
       end
     end

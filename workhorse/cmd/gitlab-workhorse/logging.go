@@ -17,6 +17,7 @@ const (
 	textLogFormat    = "text"
 	structuredFormat = "structured"
 	noneLogType      = "none"
+	stderrOutput     = "stderr"
 )
 
 // Configure global Labkit v2 slog instance.
@@ -51,7 +52,7 @@ func configureLoggingV2(file string, format string) (*slog.Logger, io.Closer, er
 	)
 
 	switch file {
-	case "", "stderr":
+	case "", stderrOutput:
 		// Labkit v2 writes to stderr by default
 		logger = logv2.NewWithConfig(&cfg)
 		closer = io.NopCloser(nil)
@@ -77,7 +78,7 @@ func configureLoggingV1(file string, format string) (io.Closer, error) {
 	goLog.SetOutput(os.Stderr)
 
 	if file == "" {
-		file = "stderr"
+		file = stderrOutput
 	}
 
 	switch format {
@@ -91,7 +92,7 @@ func configureLoggingV1(file string, format string) (io.Closer, error) {
 	case textLogFormat:
 		// In this mode, default (non-access) logs will always go to stderr
 		return logkit.Initialize(
-			logkit.WithOutputName("stderr"),
+			logkit.WithOutputName(stderrOutput),
 			logkit.WithFormatter("text"),
 		)
 	case structuredFormat:
@@ -111,7 +112,7 @@ func getAccessLogger(file string, format string) (*log.Logger, io.Closer, error)
 	}
 
 	if file == "" {
-		file = "stderr"
+		file = stderrOutput
 	}
 
 	accessLogger := log.New()

@@ -76,8 +76,18 @@ export default {
       required: false,
       default: () => [],
     },
+    activeItem: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+    detailPanelEnabled: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
-  emits: ['card-move', 'toggle-collapse', 'drag-start'],
+  emits: ['card-move', 'set-active-item', 'toggle-collapse', 'drag-start'],
   data() {
     return {
       workItemsConnection: { nodes: [], pageInfo: {} },
@@ -277,6 +287,9 @@ export default {
           :item="workItem"
           :hidden-metadata-keys="hiddenMetadataKeys"
           :root-page-full-path="rootPageFullPath"
+          :active-item="activeItem"
+          :detail-panel-enabled="detailPanelEnabled"
+          @set-active-item="$emit('set-active-item', $event)"
         />
         <work-item-card-skeleton
           v-for="n in isLoading || fetchNextPageInProgress ? $options.skeletonCount : 0"

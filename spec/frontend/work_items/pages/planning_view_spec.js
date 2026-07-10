@@ -2706,7 +2706,13 @@ describe('planning-view', () => {
     };
     const boardViewStub = {
       name: 'BoardView',
-      props: ['rootPageFullPath', 'queryVariables', 'collapsedGroups'],
+      props: [
+        'rootPageFullPath',
+        'queryVariables',
+        'collapsedGroups',
+        'activeItem',
+        'detailPanelEnabled',
+      ],
       template: '<div />',
     };
 
@@ -2799,6 +2805,72 @@ describe('planning-view', () => {
           fullPath: 'full/path',
           sort: RELATIVE_POSITION_ASC,
           state: STATUS_OPEN,
+        });
+      });
+
+      describe('when board card is selected', () => {
+        it('opens the detail panel and marks the card active', async () => {
+          const payload = { id: 'gid://gitlab/WorkItem/1', iid: '1' };
+          findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+          await waitForPromises();
+
+          findBoardView().vm.$emit('set-active-item', payload);
+          await waitForPromises();
+
+          expect(findDetailPanel().props('open')).toBe(true);
+          expect(findDetailPanel().props('activeItem')).toEqual(payload);
+          expect(findBoardView().props('activeItem')).toEqual(payload);
+        });
+
+        it('keeps the detail panel open when switching from board to list view', async () => {
+          const payload = { id: 'gid://gitlab/WorkItem/1', iid: '1' };
+          findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+          await waitForPromises();
+
+          findBoardView().vm.$emit('set-active-item', payload);
+          await waitForPromises();
+
+          findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_LIST);
+          await waitForPromises();
+
+          expect(findBoardView().exists()).toBe(false);
+          expect(findDetailPanel().props('open')).toBe(true);
+          expect(findDetailPanel().props('activeItem')).toEqual(payload);
+          expect(findListView().props('activeItem')).toEqual(payload);
+        });
+
+        it('disables the side panel on the board when the preference is off', async () => {
+          await mountComponent({
+            provide: {
+              glFeatures: {
+                planningViewBoards: true,
+              },
+            },
+            stubs: {
+              WorkItemsSavedViewsSelectors: savedViewsSelectorsStub,
+              BoardView: boardViewStub,
+            },
+            mockPreferencesHandler: jest.fn().mockResolvedValue({
+              data: {
+                currentUser: {
+                  __typename: 'CurrentUser',
+                  id: 'gid://gitlab/User/1',
+                  userPreferences: {
+                    __typename: 'UserPreferences',
+                    workItemsDisplaySettings: { shouldOpenItemsInSidePanel: false },
+                  },
+                  workItemPreferences: null,
+                  workItemPreferencesWithType: null,
+                },
+              },
+            }),
+          });
+
+          findDisplaySettingsDrawer().vm.$emit('toggle-view-mode', VIEW_MODE_BOARD);
+          await waitForPromises();
+
+          expect(findBoardView().props('detailPanelEnabled')).toBe(false);
+          expect(findDetailPanel().exists()).toBe(false);
         });
       });
 

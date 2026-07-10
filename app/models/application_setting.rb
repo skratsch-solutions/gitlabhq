@@ -54,6 +54,7 @@ class ApplicationSetting < ApplicationRecord
   MIN_OAUTH_ACCESS_TOKEN_EXPIRES_IN = 300 # 5 mins
 
   LOGGING_FIELD_SCHEMA_VERSIONS = Labkit::Fields::VARIANT_VERSION.values.uniq.sort.freeze
+  LOGGING_FIELD_LATEST_VERSION  = LOGGING_FIELD_SCHEMA_VERSIONS.max
 
   enum :whats_new_variant, { all_tiers: 0, current_tier: 1, disabled: 2 }, prefix: true
   enum :email_confirmation_setting, { off: 0, soft: 1, hard: 2 }, prefix: true

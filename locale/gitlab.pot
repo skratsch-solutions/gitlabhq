@@ -6488,6 +6488,9 @@ msgstr ""
 msgid "AdminSettings|Affects all new and existing groups."
 msgstr ""
 
+msgid "AdminSettings|After upgrading, only the standard field names will be emitted. Enable dual-emit first if you need a transition period."
+msgstr ""
+
 msgid "AdminSettings|All new projects can use instance runners by default."
 msgstr ""
 
@@ -6513,6 +6516,9 @@ msgid "AdminSettings|Allow runner registration token"
 msgstr ""
 
 msgid "AdminSettings|Allow users to make their profiles private"
+msgstr ""
+
+msgid "AdminSettings|Also emitted as (deprecated)"
 msgstr ""
 
 msgid "AdminSettings|Are you sure you want to revert to the default extension host domain?"
@@ -6560,6 +6566,9 @@ msgstr ""
 msgid "AdminSettings|Could not update extension host domain"
 msgstr ""
 
+msgid "AdminSettings|Current version"
+msgstr ""
+
 msgid "AdminSettings|Default expiration time for parallel deployments (in seconds)"
 msgstr ""
 
@@ -6588,6 +6597,15 @@ msgid "AdminSettings|Dormant project deletion"
 msgstr ""
 
 msgid "AdminSettings|Download payload"
+msgstr ""
+
+msgid "AdminSettings|Dual-emit target version"
+msgstr ""
+
+msgid "AdminSettings|During dual-emit, both the standard and deprecated field names appear in every log line. Disable dual-emit to stop emitting deprecated names."
+msgstr ""
+
+msgid "AdminSettings|Emit this version alongside the schema version. Must be strictly greater than the schema version."
 msgstr ""
 
 msgid "AdminSettings|Enable Registration Features"
@@ -6645,6 +6663,9 @@ msgid "AdminSettings|Enable unique domains by default for Pages sites to avoid c
 msgstr ""
 
 msgid "AdminSettings|Enabled"
+msgstr ""
+
+msgid "AdminSettings|Enabling dual-emit can significantly increase logging costs. Every dual-emitted field is written twice on each request, which roughly doubles log volume for affected fields. Use only as long as needed to validate a schema migration, then disable."
 msgstr ""
 
 msgid "AdminSettings|Enforce PIPL compliance"
@@ -6818,6 +6839,9 @@ msgstr ""
 msgid "AdminSettings|No required configuration"
 msgstr ""
 
+msgid "AdminSettings|None (disabled)"
+msgstr ""
+
 msgid "AdminSettings|Only enable search after installing the plugin, enabling indexing, and recreating the index."
 msgstr ""
 
@@ -6848,6 +6872,9 @@ msgstr ""
 msgid "AdminSettings|Protect CI/CD variables by default"
 msgstr ""
 
+msgid "AdminSettings|Replaces (deprecated)"
+msgstr ""
+
 msgid "AdminSettings|Requeue indexing workers"
 msgstr ""
 
@@ -6867,6 +6894,9 @@ msgid "AdminSettings|Restricted visibility levels"
 msgstr ""
 
 msgid "AdminSettings|Save %{name} limits"
+msgstr ""
+
+msgid "AdminSettings|Schema version"
 msgstr ""
 
 msgid "AdminSettings|Search with advanced search"
@@ -6962,6 +6992,9 @@ msgstr ""
 msgid "AdminSettings|Skip confirmation when administrators reassign placeholder users %{link_start}%{icon}%{link_end}"
 msgstr ""
 
+msgid "AdminSettings|Standard field name"
+msgstr ""
+
 msgid "AdminSettings|The default domain to use for Auto Review Apps and Auto Deploy stages in all projects."
 msgstr ""
 
@@ -7043,16 +7076,25 @@ msgstr ""
 msgid "AdminSettings|When disabled, runner registration tokens are disabled from runner pages, and maintainers and owners cannot use registration tokens to register runners. They can use runner authentication tokens instead as the more secure runner registration method."
 msgstr ""
 
+msgid "AdminSettings|When dual-emitting v%{target}, the following fields will be emitted under both old and new names:"
+msgstr ""
+
 msgid "AdminSettings|When selected, built-in templates are available in the template selector."
 msgstr ""
 
 msgid "AdminSettings|When to delete dormant projects"
 msgstr ""
 
+msgid "AdminSettings|When upgrading to v%{target}, the following field names will change:"
+msgstr ""
+
 msgid "AdminSettings|When you turn on this setting, the GitLab Duo Agent Platform and external applications can access your data through MCP clients."
 msgstr ""
 
 msgid "AdminSettings|Wildcard domain used by the Web IDE to isolate and test VS Code extensions and third-party code."
+msgstr ""
+
+msgid "AdminSettings|You are on the latest available version. Dual-emit is not available."
 msgstr ""
 
 msgid "AdminSettings|You can enable Registration Features because Service Ping is enabled."
@@ -7065,6 +7107,12 @@ msgid "AdminSettings|You can't delete projects before the warning email is sent.
 msgstr ""
 
 msgid "AdminSettings|templates found"
+msgstr ""
+
+msgid "AdminSettings|v%{version}"
+msgstr ""
+
+msgid "AdminSettings|v%{version} (latest)"
 msgstr ""
 
 msgid "AdminStatistics|Active Users"
@@ -8048,7 +8096,7 @@ msgstr ""
 msgid "AgentPlan|Workplan:"
 msgstr ""
 
-msgid "AgentPlan|You are here to help refine a plan for the user from the Work Item context to a Markdown output with key information required for Agent to pick off the work. This plan is for the work item with ID %{workItemId}. Use this exact work item as your context, regardless of any other panels or items visible in the UI. The template should have a Why, How, What format with key insights and list of steps. If the issue is lacking details, start by reading the comments. Then, ask clarifying questions to the users in Chat until you are confident. If there are pending questions, please preserve them inside the plan. Then, please proceed with updating the work item 'Workplan' widget with your output. You can erase everything was there before and add your new plan entirely. Don't preserve existing notes if they dont align with what you wrote. If there is enough information but the title or description is lacking, please propose to update it minimally with key insights. Try to preserve anything that is already present, just add on top and dont repeat the full plan. What is important is syncing up enough to preserve the intent and adding data where we had none before."
+msgid "AgentPlan|You are here to help refine a plan for the user from the Work Item context to a Markdown output with key information required for Agent to pick off the work. This plan is for the work item %{workItemUrl}. Use this exact work item as your context, regardless of any other panels or items visible in the UI. The template should have a Why, How, What format with key insights and list of steps. If the issue is lacking details, start by reading the comments. Then, ask clarifying questions to the users in Chat until you are confident. If there are pending questions, please preserve them inside the plan. Then, please proceed with updating the work item 'Workplan' widget with your output. You can erase everything was there before and add your new plan entirely. Don't preserve existing notes if they dont align with what you wrote. If there is enough information but the title or description is lacking, please propose to update it minimally with key insights. Try to preserve anything that is already present, just add on top and dont repeat the full plan. What is important is syncing up enough to preserve the intent and adding data where we had none before."
 msgstr ""
 
 msgid "Agents|Cannot be assigned"
@@ -22522,6 +22570,9 @@ msgstr ""
 msgid "ContinuousDeployment|Filter environments..."
 msgstr ""
 
+msgid "ContinuousDeployment|Flow editor"
+msgstr ""
+
 msgid "ContinuousDeployment|Get started with environments"
 msgstr ""
 
@@ -22988,6 +23039,9 @@ msgid "Control + M"
 msgstr ""
 
 msgid "Control + Shift + M"
+msgstr ""
+
+msgid "Control the version of the logging field naming"
 msgstr ""
 
 msgid "Control whether events are sent to GitLab or your own %{snowplow_link_start}Snowplow%{snowplow_link_end} collector. Only one can be selected at a time and enabling one will disable the other. %{help_link_start}Learn more.%{help_link_end}"
@@ -28811,6 +28865,9 @@ msgstr ""
 msgid "DuoAgenticChat|Steps to turn on GitLab Duo"
 msgstr ""
 
+msgid "DuoAgenticChat|Talk to sales"
+msgstr ""
+
 msgid "DuoAgenticChat|The agent associated with this conversation is no longer available. You can view the conversation history but cannot send new messages."
 msgstr ""
 
@@ -33887,6 +33944,33 @@ msgid "FloC|Participate in FLoC"
 msgstr ""
 
 msgid "Flow execution"
+msgstr ""
+
+msgid "FlowEditor|Create flow"
+msgstr ""
+
+msgid "FlowEditor|Discard"
+msgstr ""
+
+msgid "FlowEditor|Draft v%{version}"
+msgstr ""
+
+msgid "FlowEditor|Edit flow"
+msgstr ""
+
+msgid "FlowEditor|Failed to load the application flow. Refresh to try again."
+msgstr ""
+
+msgid "FlowEditor|Failed to save the flow. Please try again."
+msgstr ""
+
+msgid "FlowEditor|No flow is defined for this application yet."
+msgstr ""
+
+msgid "FlowEditor|Save flow"
+msgstr ""
+
+msgid "FlowEditor|Version %{version}"
 msgstr ""
 
 msgid "Focus file browser"
@@ -45199,6 +45283,9 @@ msgstr ""
 msgid "LoggedOutMarketingHeader|Why GitLab"
 msgstr ""
 
+msgid "Logging fields"
+msgstr ""
+
 msgid "Login with smartcard"
 msgstr ""
 
@@ -52259,6 +52346,9 @@ msgid "OfflineTransfer|Export files not found for relation: %{relation}"
 msgstr ""
 
 msgid "OfflineTransfer|Export groups"
+msgstr ""
+
+msgid "OfflineTransfer|Export history"
 msgstr ""
 
 msgid "OfflineTransfer|Export relation batch file not found for relation: %{relation}, batch: %{batch_number}"

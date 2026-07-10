@@ -32,7 +32,7 @@ RSpec.describe 'Admin mode menu', :with_current_organization, :js, feature_categ
         click_link('Edit profile')
 
         expect(page).to have_current_path(
-          organization_user_settings_profile_path(organization_path: current_organization.path)
+          user_settings_profile_path
         )
       end
 
@@ -52,7 +52,7 @@ RSpec.describe 'Admin mode menu', :with_current_organization, :js, feature_categ
         click_button 'Enter admin mode'
         click_link 'Admin'
 
-        expect(page).to have_current_path(organization_admin_root_path(organization_path: current_organization.path))
+        expect(page).to have_current_path(admin_root_path)
       end
 
       context 'on a read-only instance' do
@@ -83,7 +83,7 @@ RSpec.describe 'Admin mode menu', :with_current_organization, :js, feature_categ
         click_link('Edit profile')
 
         expect(page).to have_current_path(
-          organization_user_settings_profile_path(organization_path: current_organization.path)
+          user_settings_profile_path
         )
       end
 

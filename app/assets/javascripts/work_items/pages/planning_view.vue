@@ -482,6 +482,9 @@ export default {
     isBoardView() {
       return this.viewMode === VIEW_MODE_BOARD && this.isPlanningViewBoardEnabled;
     },
+    detailPanelViewContext() {
+      return this.isBoardView ? VIEW_CONTEXT.drawerBoard : VIEW_CONTEXT.drawerList;
+    },
     // The board only supports Manual ordering, so it always reads/displays Manual sort
     // regardless of the list's sort. We override here rather than mutating sortKey, so the
     // list restores the user's sort on return and their preference is never overwritten.
@@ -1897,7 +1900,8 @@ export default {
       :active-item="activeItem"
       :open="isItemSelected"
       :issuable-type="activeWorkItemType"
-      :view-context="$options.VIEW_CONTEXT.drawerList"
+      :is-board="isBoardView"
+      :view-context="detailPanelViewContext"
       click-outside-exclude-selector=".issuable-list"
       @close="activeItem = null"
       @add-child="refetchItems"
@@ -2248,7 +2252,10 @@ export default {
       :query-variables="queryVariables"
       :collapsed-groups="collapsedGroups"
       :hidden-metadata-keys="hiddenMetadataKeys"
+      :active-item="activeItem"
+      :detail-panel-enabled="workItemDetailPanelEnabled"
       @set-error="($evt) => (error = $evt)"
+      @set-active-item="handleSetActiveItem"
       @toggle-collapse="handleToggleGroupCollapse"
     />
     <work-item-display-settings-drawer

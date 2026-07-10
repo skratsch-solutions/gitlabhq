@@ -613,4 +613,38 @@ RSpec.describe ApplicationSettingsHelper, feature_category: :shared do
       expect(work_items_option.first).to eq('Work items')
     end
   end
+
+  describe '#logging_field_changes_for_version' do
+    it 'returns fields introduced at the given version' do
+      changes = helper.send(:logging_field_changes_for_version, 1)
+
+      expect(changes).to be_an(Array)
+      expect(changes).not_to be_empty
+
+      change = changes.find { |c| c[:standard_field] == 'correlation_id' }
+      expect(change).to be_present
+      expect(change[:deprecated_fields]).to include('tags.correlation_id')
+    end
+
+    it 'returns fields with version 0' do
+      changes = helper.send(:logging_field_changes_for_version, 0)
+
+      expect(changes).to be_an(Array)
+      standard_fields = changes.map { |c| c[:standard_field] }
+      expect(standard_fields).not_to include('correlation_id')
+    end
+  end
+
+  describe '#logging_field_changes_data' do
+    it 'returns a hash keyed by version with field change arrays', :aggregate_failures do
+      data = helper.logging_field_changes_data
+
+      expect(data).to be_a(Hash)
+      expect(data).not_to have_key(0)
+      expect(data).to have_key(1)
+      expect(data[1]).to be_an(Array).and(be_present)
+      expect(data[1].first).to have_key(:standard_field)
+      expect(data[1].first).to have_key(:deprecated_fields)
+    end
+  end
 end

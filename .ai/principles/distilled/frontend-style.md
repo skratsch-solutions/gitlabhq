@@ -1,6 +1,6 @@
 ---
-source_checksum: c837d7aaddf99c90
-distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911
+source_checksum: 4b15dbf1a6397803
+distilled_at_sha: 0bc240cb0e70d2bba500cca6317a5c7e9e06605e
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -31,11 +31,8 @@ distilled_at_sha: 56d6e7df2193336003a2368db3b4c1ae9cb6f911
 
 - Use CSS container queries (mobile-first, min-width) instead of media queries.
 - DO NOT use desktop-first max-width media queries (e.g., `max-lg:gl-mt-3` as the default).
-- Use `@max-*:gl-hidden` on components instead of `gl-hidden` + overriding `display` on larger containers, to avoid assuming the component's internal display value.
+- Use a max-width container query when hiding a component (eg `@max-*:gl-hidden`) instead of `gl-hidden` + overriding `display` on larger containers, to avoid overriding the component's internal display value.
 - Use `@apply gl-mt-3 @lg:gl-mt-5` pattern in SCSS component classes for responsive styles.
-- Use `scripts/frontend/migrate_to_container_queries.mjs` when migrating existing media queries to container queries; pass multiple files at once and combine with `scripts/frontend/find_frontend_files.mjs` to resolve dependencies.
-- Add files that must not be auto-migrated to `scripts/frontend/lib/container_queries_migration_exclusions.txt`.
-- Manually migrate any JavaScript that reacts to window resize events to be container-aware after running the migration script.
 
 ### Dark Mode
 

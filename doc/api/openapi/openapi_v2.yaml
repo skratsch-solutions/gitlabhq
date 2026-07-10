@@ -52120,21 +52120,17 @@ definitions:
         type: boolean
         example: true
       minimum_access_level_execute:
-        type: integer
-        format: int32
-        example: 30
+        type: string
+        example: developer
       minimum_access_level_execute_async:
-        type: integer
-        format: int32
-        example: 30
+        type: string
+        example: developer
       minimum_access_level_manage:
-        type: integer
-        format: int32
-        example: 40
+        type: string
+        example: maintainer
       minimum_access_level_enable_on_projects:
-        type: integer
-        format: int32
-        example: 40
+        type: string
+        example: maintainer
     required:
     - duo_agent_platform_enabled
     - duo_workflow_mcp_enabled

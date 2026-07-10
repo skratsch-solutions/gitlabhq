@@ -1485,6 +1485,7 @@ Grants the ability to read knowledge graph data.
 | ------ | ------ | ------ | ---- |
 | Read | User | `GET` | `/orbit/agent/commands` |
 | Read | User | `GET` | `/orbit/graph_status` |
+| Read | User | `GET` | `/orbit/query/templates` |
 | Read | User | `GET` | `/orbit/schema` |
 | Read | User | `GET` | `/orbit/schema/dsl` |
 | Read | User | `GET` | `/orbit/schema/format` |

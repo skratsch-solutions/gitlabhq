@@ -464,28 +464,14 @@ RSpec.describe 'Projects > Files > User edits files', :js, feature_category: :so
       end
     end
 
-    context 'with blob_edit_refactor feature flag enabled' do
-      before do
-        stub_feature_flags(blob_edit_refactor: true)
-      end
+    it_behaves_like 'maintainer can commit to new branch in upstream', 'feature-branch'
 
-      it_behaves_like 'maintainer can commit to new branch in upstream', 'feature-branch'
+    it 'shows correct project context in the UI' do
+      visit project_edit_blob_path(upstream_project, tree_join(upstream_project.default_branch, 'README.md'))
+      wait_for_requests
 
-      it 'shows correct project context in the UI' do
-        visit project_edit_blob_path(upstream_project, tree_join(upstream_project.default_branch, 'README.md'))
-        wait_for_requests
-
-        expect(page).to have_content(upstream_project.name)
-        expect(page).not_to have_content(forked_project.name)
-      end
-    end
-
-    context 'with blob_edit_refactor feature flag disabled (old controller flow)' do
-      before do
-        stub_feature_flags(blob_edit_refactor: false)
-      end
-
-      it_behaves_like 'maintainer can commit to new branch in upstream', 'feature-branch-old'
+      expect(page).to have_content(upstream_project.name)
+      expect(page).not_to have_content(forked_project.name)
     end
   end
 end

@@ -257,7 +257,7 @@ module.exports = {
     };
   },
 
-  output: buildOutput(NO_HASHED_CHUNKS),
+  output: buildOutput({ hashChunks: !NO_HASHED_CHUNKS }),
 
   resolve: {
     extensions: ['.mjs', '.js'],

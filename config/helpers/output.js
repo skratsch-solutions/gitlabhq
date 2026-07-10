@@ -1,7 +1,7 @@
 const { IS_PRODUCTION, WEBPACK_OUTPUT_PATH, WEBPACK_PUBLIC_PATH } = require('../webpack.constants');
 
-function buildOutput(noHashedChunks) {
-  const hashed = IS_PRODUCTION && !noHashedChunks;
+function buildOutput({ hashChunks } = {}) {
+  const hashed = IS_PRODUCTION && hashChunks !== false;
 
   return {
     path: WEBPACK_OUTPUT_PATH,
