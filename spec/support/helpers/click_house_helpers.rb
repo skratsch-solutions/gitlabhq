@@ -54,6 +54,32 @@ module ClickHouseHelpers
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 
+  def insert_merge_requests_to_click_house(merge_requests_data, default_project: nil)
+    result = clickhouse_fixture(:merge_requests, merge_requests_data.map do |data|
+      project = data[:project] || default_project
+
+      {
+        id: data[:id],
+        iid: data[:id],
+        target_branch: data.fetch(:target_branch, 'main'),
+        source_branch: data.fetch(:source_branch, 'feature'),
+        title: 'Test MR',
+        description: '',
+        merge_jid: '',
+        target_project_id: project&.id || 0,
+        state_id: data.fetch(:state_id, MergeRequest.available_states[:opened]),
+        created_at: data[:created_at],
+        updated_at: data.fetch(:updated_at, data[:created_at]),
+        metric_merged_at: data[:metric_merged_at],
+        traversal_path: project&.project_namespace&.traversal_path(with_organization: true)&.to_s || '0/',
+        _siphon_replicated_at: data.fetch(:_siphon_replicated_at, data[:created_at]),
+        _siphon_deleted: data.fetch(:_siphon_deleted, false)
+      }
+    end)
+
+    expect(result).to be(true)
+  end
+
   def insert_ci_pipelines_to_click_house(pipelines)
     result = clickhouse_fixture(:ci_finished_pipelines, pipelines.map do |pipeline|
       project = pipeline.project

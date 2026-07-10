@@ -63,7 +63,12 @@ module Gitlab
               token: context[:access_token]
             ).execute
 
-            response.success? ? success : error(response.message)
+            if response.success?
+              success
+            else
+              ::Current.add_granular_denied_permissions(response.payload[:denied_permissions])
+              error(response.message)
+            end
           end
         end
 

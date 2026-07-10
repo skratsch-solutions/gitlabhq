@@ -49,6 +49,17 @@ RSpec.describe Import::Clients::ObjectStorage, feature_category: :importers do
       end
     end
 
+    context 'when the provider is gcs' do
+      let(:provider) { :gcs }
+
+      it 'builds a GCS adapter' do
+        expect(described_class::Adapters::Gcs).to receive(:new)
+          .with(provider: provider, bucket: bucket, credentials: credentials)
+
+        client
+      end
+    end
+
     context 'when the provider is unsupported' do
       let(:provider) { :unknown }
 

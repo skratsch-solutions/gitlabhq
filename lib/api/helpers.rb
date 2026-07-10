@@ -1289,6 +1289,8 @@ module API
 
       not_found! if result.reason == :resource_not_found
 
+      Current.add_granular_denied_permissions(result.payload[:denied_permissions])
+
       raise Gitlab::Auth::GranularPermissionsError, result.message
     end
 

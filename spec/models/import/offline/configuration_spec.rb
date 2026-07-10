@@ -20,7 +20,7 @@ RSpec.describe Import::Offline::Configuration, feature_category: :importers do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:provider) }
-    it { is_expected.to define_enum_for(:provider).with_values(%i[aws s3_compatible gcs_hmac]) }
+    it { is_expected.to define_enum_for(:provider).with_values(%i[aws s3_compatible gcs_hmac gcs]) }
 
     it { is_expected.to validate_presence_of(:export_prefix) }
     it { is_expected.to validate_presence_of(:object_storage_credentials) }
@@ -175,6 +175,139 @@ RSpec.describe Import::Offline::Configuration, feature_category: :importers do
 
             it { is_expected.to be(false) }
           end
+        end
+      end
+
+      context 'when provider is GCS with a service account JSON key' do
+        let(:provider) { :gcs }
+        let(:json_key) do
+          Gitlab::Json.dump(
+            type: 'service_account',
+            project_id: 'gitlab-project',
+            private_key: "-----BEGIN PRIVATE KEY-----\nFAKEKEYCONTENTS\n-----END PRIVATE KEY-----\n",
+            client_email: 'gcs@gitlab-project.iam.gserviceaccount.com'
+          )
+        end
+
+        let(:valid_credentials) do
+          {
+            google_project: 'gitlab-project',
+            google_json_key_string: json_key
+          }
+        end
+
+        context 'with valid credentials' do
+          it { is_expected.to be(true) }
+        end
+
+        context 'with an invalid credential value' do
+          where(:credential, :value) do
+            :google_project         | ('a' * 256)
+            :google_project         | ''
+            :google_project         | nil
+            :google_project         | 1234567890
+            :google_project         | 'Invalid_Project_ID'
+            :google_json_key_string | ('a' * 16385)
+            :google_json_key_string | ''
+            :google_json_key_string | nil
+            :google_json_key_string | 1234567890
+          end
+
+          with_them do
+            before do
+              valid_credentials.merge!({ credential => value })
+            end
+
+            it { is_expected.to be(false) }
+          end
+        end
+
+        context 'when the service account key is not valid JSON' do
+          before do
+            valid_credentials[:google_json_key_string] = 'not-json'
+          end
+
+          it { is_expected.to be(false) }
+        end
+
+        context 'when the service account key is valid JSON but not an object' do
+          before do
+            valid_credentials[:google_json_key_string] = '["service_account"]'
+          end
+
+          it { is_expected.to be(false) }
+        end
+
+        context 'when the service account key is missing required fields' do
+          before do
+            valid_credentials[:google_json_key_string] = Gitlab::Json.dump(
+              type: 'service_account',
+              project_id: 'gitlab-project'
+            )
+          end
+
+          it { is_expected.to be(false) }
+        end
+
+        context 'when the service account key has an invalid project_id format' do
+          before do
+            valid_credentials[:google_json_key_string] = Gitlab::Json.dump(
+              type: 'service_account',
+              project_id: 'Invalid_Project_ID',
+              private_key: "-----BEGIN PRIVATE KEY-----\nFAKEKEYCONTENTS\n-----END PRIVATE KEY-----\n",
+              client_email: 'gcs@gitlab-project.iam.gserviceaccount.com'
+            )
+          end
+
+          it { is_expected.to be(false) }
+        end
+
+        context 'when the service account key has a type other than service_account' do
+          before do
+            valid_credentials[:google_json_key_string] = Gitlab::Json.dump(
+              type: 'authorized_user',
+              project_id: 'gitlab-project',
+              private_key: "-----BEGIN PRIVATE KEY-----\nFAKEKEYCONTENTS\n-----END PRIVATE KEY-----\n",
+              client_email: 'gcs@gitlab-project.iam.gserviceaccount.com'
+            )
+          end
+
+          it { is_expected.to be(false) }
+        end
+
+        context 'when the service account key carries fields beyond the required ones' do
+          let(:json_key) do
+            Gitlab::Json.dump(
+              type: 'service_account',
+              project_id: 'gitlab-project',
+              private_key: "-----BEGIN PRIVATE KEY-----\nFAKEKEYCONTENTS\n-----END PRIVATE KEY-----\n",
+              client_email: 'gcs@gitlab-project.iam.gserviceaccount.com',
+              private_key_id: 'abc123',
+              client_id: '123456789',
+              token_uri: 'https://oauth2.googleapis.com/token',
+              unexpected_field: 'value'
+            )
+          end
+
+          it { is_expected.to be(true) }
+
+          it 'flattens the key into individual fields and drops the non-required ones' do
+            configuration = build(:offline_configuration, provider: provider,
+              object_storage_credentials: valid_credentials)
+            configuration.validate
+
+            expect(configuration.object_storage_credentials.keys).to contain_exactly(
+              'google_project', 'type', 'project_id', 'private_key', 'client_email'
+            )
+          end
+        end
+
+        context 'with an unexpected credential key' do
+          before do
+            valid_credentials[:google_application_default] = true
+          end
+
+          it { is_expected.to be(false) }
         end
       end
 

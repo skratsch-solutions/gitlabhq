@@ -13804,7 +13804,8 @@ paths:
   "/api/v4/users/{id}/custom_attributes":
     get:
       operationId: getApiV4UsersIdCustomAttributes
-      summary: Get all custom attributes on a user
+      summary: List all custom attributes for a user
+      description: Lists all custom attributes for a specified user.
       tags:
       - Custom attributes
       responses:
@@ -13826,7 +13827,8 @@ paths:
   "/api/v4/users/{id}/custom_attributes/{key}":
     get:
       operationId: getApiV4UsersIdCustomAttributesKey
-      summary: Get a custom attribute on a user
+      summary: Retrieve a custom attribute for a user
+      description: Retrieves a specified custom attribute for a user.
       tags:
       - Custom attributes
       responses:
@@ -13855,7 +13857,10 @@ paths:
         in: path
     put:
       operationId: putApiV4UsersIdCustomAttributesKey
-      summary: Set a custom attribute on a user
+      summary: Creates or updates a custom attribute for a user
+      description: Creates or updates a custom attribute for a specified user. If
+        the attribute already exists, it is updated, otherwise a new attribute is
+        created.
       tags:
       - Custom attributes
       responses:
@@ -13890,7 +13895,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_07d422dca893"
     delete:
       operationId: deleteApiV4UsersIdCustomAttributesKey
-      summary: Delete a custom attribute on a user
+      summary: Delete a custom attribute for a user
+      description: Deletes a specified custom attribute for a user.
       tags:
       - Custom attributes
       responses:
@@ -31392,7 +31398,8 @@ paths:
   "/api/v4/projects/{id}/custom_attributes":
     get:
       operationId: getApiV4ProjectsIdCustomAttributes
-      summary: Get all custom attributes on a project
+      summary: List all custom attributes for a project
+      description: Lists all custom attributes for a specified project.
       tags:
       - Custom attributes
       responses:
@@ -31417,7 +31424,8 @@ paths:
   "/api/v4/projects/{id}/custom_attributes/{key}":
     get:
       operationId: getApiV4ProjectsIdCustomAttributesKey
-      summary: Get a custom attribute on a project
+      summary: Retrieve a custom attribute for a project
+      description: Retrieves a specified custom attribute for a project.
       tags:
       - Custom attributes
       responses:
@@ -31449,7 +31457,10 @@ paths:
         example: 1
     put:
       operationId: putApiV4ProjectsIdCustomAttributesKey
-      summary: Set a custom attribute on a project
+      summary: Creates or updates a custom attribute for a project
+      description: Creates or updates a custom attribute for a specified project.
+        If the attribute already exists, it is updated, otherwise a new attribute
+        is created.
       tags:
       - Custom attributes
       responses:
@@ -31487,7 +31498,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_07d422dca893"
     delete:
       operationId: deleteApiV4ProjectsIdCustomAttributesKey
-      summary: Delete a custom attribute on a project
+      summary: Delete a custom attribute for a project
+      description: Deletes a specified custom attribute for a project.
       tags:
       - Custom attributes
       responses:
@@ -37761,7 +37773,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_15be2094db2f"
+              "$ref": "#/components/schemas/RequestBody_be62f6c2b50e"
     get:
       operationId: getApiV4OfflineExports
       summary: List all offline transfer exports
@@ -37866,7 +37878,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_df14f9cb9dcb"
+              "$ref": "#/components/schemas/RequestBody_fc578ac29f9b"
   "/api/v4/projects/{id}/packages/nuget/index":
     get:
       operationId: getApiV4ProjectsIdPackagesNugetIndex
@@ -40247,8 +40259,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/time_estimate":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidTimeEstimate
-      summary: Set a time estimate for a merge_request
-      description: Sets an estimated time of work for this merge_request.
+      summary: Set the estimated time for a merge request
+      description: Sets an estimated time of work for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40288,8 +40300,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/reset_time_estimate":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidResetTimeEstimate
-      summary: Reset the time estimate for a project merge_request
-      description: Resets the estimated time for this merge_request to 0 seconds.
+      summary: Reset the estimated time for a merge request
+      description: Resets the estimated time for a specified merge request to `0`
+        seconds.
       tags:
       - Merge requests
       responses:
@@ -40323,8 +40336,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/add_spent_time":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidAddSpentTime
-      summary: Add spent time for a merge_request
-      description: Adds spent time for this merge_request.
+      summary: Add spent time for a merge request
+      description: Adds spent time for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -40364,8 +40377,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/reset_spent_time":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidResetSpentTime
-      summary: Reset spent time for a merge_request
-      description: Resets the total spent time for this merge_request to 0 seconds.
+      summary: Reset spent time for a merge request
+      description: Resets the total spent time for a specified merge request to `0`
+        seconds.
       tags:
       - Merge requests
       responses:
@@ -40399,8 +40413,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/time_stats":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidTimeStats
-      summary: Get time tracking stats
-      description: Get time tracking stats
+      summary: Retrieve time tracking stats for a merge request
+      description: Retrieves time tracking stats for a specified merge request, including
+        time estimate and time spent in seconds and human-readable format (for example,
+        `1h 30m`).
       tags:
       - Merge requests
       responses:
@@ -45142,8 +45158,8 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/time_estimate":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidTimeEstimate
-      summary: Set a time estimate for a issue
-      description: Sets an estimated time of work for this issue.
+      summary: Set the estimated time for an issue
+      description: Sets an estimated time of work for a specified issue.
       tags:
       - Issues
       responses:
@@ -45183,8 +45199,8 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/reset_time_estimate":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidResetTimeEstimate
-      summary: Reset the time estimate for a project issue
-      description: Resets the estimated time for this issue to 0 seconds.
+      summary: Reset the estimated time for an issue
+      description: Resets the estimated time for a specified issue to `0` seconds.
       tags:
       - Issues
       responses:
@@ -45218,8 +45234,8 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/add_spent_time":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidAddSpentTime
-      summary: Add spent time for a issue
-      description: Adds spent time for this issue.
+      summary: Add spent time for an issue
+      description: Adds spent time for a specified issue.
       tags:
       - Issues
       responses:
@@ -45259,8 +45275,8 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/reset_spent_time":
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidResetSpentTime
-      summary: Reset spent time for a issue
-      description: Resets the total spent time for this issue to 0 seconds.
+      summary: Reset spent time for an issue
+      description: Resets the total spent time for a specified issue to `0` seconds.
       tags:
       - Issues
       responses:
@@ -45294,8 +45310,10 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/time_stats":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidTimeStats
-      summary: Get time tracking stats
-      description: Get time tracking stats
+      summary: Retrieve time tracking stats for an issue
+      description: Retrieves time tracking stats for a specified issue, including
+        time estimate and time spent in seconds and human-readable format (for example,
+        `1h 30m`).
       tags:
       - Issues
       responses:
@@ -68589,7 +68607,8 @@ paths:
   "/api/v4/groups/{id}/custom_attributes":
     get:
       operationId: getApiV4GroupsIdCustomAttributes
-      summary: Get all custom attributes on a group
+      summary: List all custom attributes for a group
+      description: Lists all custom attributes for a specified group.
       tags:
       - Custom attributes
       responses:
@@ -68613,7 +68632,8 @@ paths:
   "/api/v4/groups/{id}/custom_attributes/{key}":
     get:
       operationId: getApiV4GroupsIdCustomAttributesKey
-      summary: Get a custom attribute on a group
+      summary: Retrieve a custom attribute for a group
+      description: Retrieves a specified custom attribute for a group.
       tags:
       - Custom attributes
       responses:
@@ -68644,7 +68664,10 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdCustomAttributesKey
-      summary: Set a custom attribute on a group
+      summary: Creates or updates a custom attribute for a group
+      description: Creates or updates a custom attribute for a specified group. If
+        the attribute already exists, it is updated, otherwise a new attribute is
+        created.
       tags:
       - Custom attributes
       responses:
@@ -68681,7 +68704,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_07d422dca893"
     delete:
       operationId: deleteApiV4GroupsIdCustomAttributesKey
-      summary: Delete a custom attribute on a group
+      summary: Delete a custom attribute for a group
+      description: Deletes a specified custom attribute for a group.
       tags:
       - Custom attributes
       responses:
@@ -72080,9 +72104,9 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/award_emoji":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidAwardEmoji
-      summary: List an awardable's emoji reactions for projects
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for an issue
+      description: Lists all emoji reactions for a specified issue. This endpoint
+        can be accessed without authentication if the issue is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -72132,9 +72156,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to an issue
+      description: Adds an emoji reaction to an issue.
       tags:
       - Award emoji
       responses:
@@ -72173,9 +72196,9 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/award_emoji/{award_id}":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from an issue
+      description: Retrieves a specified emoji reaction from an issue. This endpoint
+        can be accessed without authentication if the issue is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -72213,9 +72236,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdIssuesIssueIidAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from an issue
+      description: Deletes a specified emoji reaction from an issue. Only an administrator
+        or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -72252,9 +72275,10 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/notes/{note_id}/award_emoji":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidNotesNoteIdAwardEmoji
-      summary: List an awardable's emoji reactions for projects
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for an issue comment
+      description: Lists all emoji reactions for a specified comment on an issue.
+        This endpoint can be accessed without authentication if the comment is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -72308,9 +72332,8 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdIssuesIssueIidNotesNoteIdAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to an issue comment
+      description: Adds an emoji reaction to a comment on an issue.
       tags:
       - Award emoji
       responses:
@@ -72353,9 +72376,10 @@ paths:
   "/api/v4/projects/{id}/issues/{issue_iid}/notes/{note_id}/award_emoji/{award_id}":
     get:
       operationId: getApiV4ProjectsIdIssuesIssueIidNotesNoteIdAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from an issue comment
+      description: Retrieves a specified emoji reaction from a comment on an issue.
+        This endpoint can be accessed without authentication if the comment is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -72397,9 +72421,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdIssuesIssueIidNotesNoteIdAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from an issue comment
+      description: Deletes a specified emoji reaction from a comment on an issue.
+        Only an administrator or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -72440,9 +72464,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/award_emoji":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidAwardEmoji
-      summary: List an awardable's emoji reactions for projects
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for a merge request
+      description: Lists all emoji reactions for a specified merge request. This endpoint
+        can be accessed without authentication if the merge request is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -72492,9 +72516,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to a merge request
+      description: Adds an emoji reaction to a merge request.
       tags:
       - Award emoji
       responses:
@@ -72533,9 +72556,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/award_emoji/{award_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from a merge request
+      description: Retrieves a specified emoji reaction from a merge request. This
+        endpoint can be accessed without authentication if the merge request is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -72573,9 +72597,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIidAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from a merge request
+      description: Deletes a specified emoji reaction from a merge request. Only an
+        administrator or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -72612,9 +72636,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/notes/{note_id}/award_emoji":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidNotesNoteIdAwardEmoji
-      summary: List an awardable's emoji reactions for projects
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for a merge request comment
+      description: Lists all emoji reactions for a specified comment on a merge request.
+        This endpoint can be accessed without authentication if the comment is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -72668,9 +72693,8 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidNotesNoteIdAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to a merge request comment
+      description: Adds an emoji reaction to a comment on a merge request.
       tags:
       - Award emoji
       responses:
@@ -72713,9 +72737,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/notes/{note_id}/award_emoji/{award_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidNotesNoteIdAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from a merge request comment
+      description: Retrieves a specified emoji reaction from a comment on a merge
+        request. This endpoint can be accessed without authentication if the comment
+        is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -72757,9 +72782,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIidNotesNoteIdAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from a merge request comment
+      description: Deletes a specified emoji reaction from a comment on a merge request.
+        Only an administrator or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -72800,9 +72825,9 @@ paths:
   "/api/v4/projects/{id}/snippets/{snippet_id}/award_emoji":
     get:
       operationId: getApiV4ProjectsIdSnippetsSnippetIdAwardEmoji
-      summary: List an awardable's emoji reactions for projects
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for a snippet
+      description: Lists all emoji reactions for a specified snippet. This endpoint
+        can be accessed without authentication if the snippet is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -72852,9 +72877,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdSnippetsSnippetIdAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to a snippet
+      description: Adds an emoji reaction to a snippet.
       tags:
       - Award emoji
       responses:
@@ -72893,9 +72917,9 @@ paths:
   "/api/v4/projects/{id}/snippets/{snippet_id}/award_emoji/{award_id}":
     get:
       operationId: getApiV4ProjectsIdSnippetsSnippetIdAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from a snippet
+      description: Retrieves a specified emoji reaction from a snippet. This endpoint
+        can be accessed without authentication if the snippet is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -72933,9 +72957,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdSnippetsSnippetIdAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from a snippet
+      description: Deletes a specified emoji reaction from a snippet. Only an administrator
+        or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -72972,9 +72996,10 @@ paths:
   "/api/v4/projects/{id}/snippets/{snippet_id}/notes/{note_id}/award_emoji":
     get:
       operationId: getApiV4ProjectsIdSnippetsSnippetIdNotesNoteIdAwardEmoji
-      summary: List an awardable's emoji reactions for projects
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for a snippet comment
+      description: Lists all emoji reactions for a specified comment on a snippet.
+        This endpoint can be accessed without authentication if the comment is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -73028,9 +73053,8 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdSnippetsSnippetIdNotesNoteIdAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to a snippet comment
+      description: Adds an emoji reaction to a comment on a snippet.
       tags:
       - Award emoji
       responses:
@@ -73073,9 +73097,10 @@ paths:
   "/api/v4/projects/{id}/snippets/{snippet_id}/notes/{note_id}/award_emoji/{award_id}":
     get:
       operationId: getApiV4ProjectsIdSnippetsSnippetIdNotesNoteIdAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from a snippet comment
+      description: Retrieves a specified emoji reaction from a comment on a snippet.
+        This endpoint can be accessed without authentication if the comment is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -73117,9 +73142,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdSnippetsSnippetIdNotesNoteIdAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from a snippet comment
+      description: Deletes a specified emoji reaction from a comment on a snippet.
+        Only an administrator or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -73160,9 +73185,9 @@ paths:
   "/api/v4/groups/{id}/epics/{epic_iid}/award_emoji":
     get:
       operationId: getApiV4GroupsIdEpicsEpicIidAwardEmoji
-      summary: List an awardable's emoji reactions for groups
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for an epic
+      description: Lists all emoji reactions for a specified epic. This endpoint can
+        be accessed without authentication if the epic is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -73212,9 +73237,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdEpicsEpicIidAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to an epic
+      description: Adds an emoji reaction to an epic.
       tags:
       - Award emoji
       responses:
@@ -73253,9 +73277,9 @@ paths:
   "/api/v4/groups/{id}/epics/{epic_iid}/award_emoji/{award_id}":
     get:
       operationId: getApiV4GroupsIdEpicsEpicIidAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from an epic
+      description: Retrieves a specified emoji reaction from an epic. This endpoint
+        can be accessed without authentication if the epic is publicly accessible.
       tags:
       - Award emoji
       responses:
@@ -73293,9 +73317,9 @@ paths:
         example: 1
     delete:
       operationId: deleteApiV4GroupsIdEpicsEpicIidAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from an epic
+      description: Deletes a specified emoji reaction from an epic. Only an administrator
+        or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -73332,9 +73356,10 @@ paths:
   "/api/v4/groups/{id}/epics/{epic_iid}/notes/{note_id}/award_emoji":
     get:
       operationId: getApiV4GroupsIdEpicsEpicIidNotesNoteIdAwardEmoji
-      summary: List an awardable's emoji reactions for groups
-      description: Get a list of all emoji reactions for a specified awardable. This
-        feature was introduced in 8.9
+      summary: List all emoji reactions for an epic comment
+      description: Lists all emoji reactions for a specified comment on an epic. This
+        endpoint can be accessed without authentication if the comment is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -73388,9 +73413,8 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdEpicsEpicIidNotesNoteIdAwardEmoji
-      summary: Add a new emoji reaction
-      description: Add an emoji reaction on the specified awardable. This feature
-        was introduced in 8.9
+      summary: Add an emoji reaction to an epic comment
+      description: Adds an emoji reaction to a comment on an epic.
       tags:
       - Award emoji
       responses:
@@ -73433,9 +73457,10 @@ paths:
   "/api/v4/groups/{id}/epics/{epic_iid}/notes/{note_id}/award_emoji/{award_id}":
     get:
       operationId: getApiV4GroupsIdEpicsEpicIidNotesNoteIdAwardEmojiAwardId
-      summary: Get a single emoji reaction
-      description: Get a single emoji reaction from an issue, snippet, or merge request.
-        This feature was introduced in 8.9
+      summary: Retrieve an emoji reaction from an epic comment
+      description: Retrieves a specified emoji reaction from a comment on an epic.
+        This endpoint can be accessed without authentication if the comment is publicly
+        accessible.
       tags:
       - Award emoji
       responses:
@@ -73477,9 +73502,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4GroupsIdEpicsEpicIidNotesNoteIdAwardEmojiAwardId
-      summary: Delete an emoji reaction
-      description: Only an administrator or the author of the reaction can delete
-        an emoji reaction. This feature was introduced in 8.9
+      summary: Delete an emoji reaction from an epic comment
+      description: Deletes a specified emoji reaction from a comment on an epic. Only
+        an administrator or the user who added the reaction can delete it.
       tags:
       - Award emoji
       responses:
@@ -106319,7 +106344,7 @@ components:
       required:
       - name
       - path
-    RequestBody_15be2094db2f:
+    RequestBody_be62f6c2b50e:
       type: object
       properties:
         bucket:
@@ -106381,6 +106406,23 @@ components:
           - aws_secret_access_key
           - region
           - endpoint
+          nullable: true
+        gcs_configuration:
+          type: object
+          description: Google Cloud Storage configuration using a service account
+            JSON key
+          properties:
+            google_project:
+              type: string
+              description: Google Cloud project ID
+              nullable: true
+            google_json_key_string:
+              type: string
+              description: Google Cloud service account JSON key contents
+              nullable: true
+          required:
+          - google_project
+          - google_json_key_string
           nullable: true
         gcs_hmac_configuration:
           type: object
@@ -106426,7 +106468,7 @@ components:
       required:
       - bucket
       - entities
-    RequestBody_df14f9cb9dcb:
+    RequestBody_fc578ac29f9b:
       type: object
       properties:
         bucket:
@@ -106488,6 +106530,23 @@ components:
           - aws_secret_access_key
           - region
           - endpoint
+          nullable: true
+        gcs_configuration:
+          type: object
+          description: Google Cloud Storage configuration using a service account
+            JSON key
+          properties:
+            google_project:
+              type: string
+              description: Google Cloud project ID
+              nullable: true
+            google_json_key_string:
+              type: string
+              description: Google Cloud service account JSON key contents
+              nullable: true
+          required:
+          - google_project
+          - google_json_key_string
           nullable: true
         gcs_hmac_configuration:
           type: object

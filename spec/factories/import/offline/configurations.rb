@@ -34,6 +34,19 @@ FactoryBot.define do
       end
     end
 
+    trait :gcs do
+      provider { :gcs }
+      object_storage_credentials do
+        {
+          google_project: 'gitlab-project',
+          type: 'service_account',
+          project_id: 'gitlab-project',
+          private_key: "-----BEGIN PRIVATE KEY-----\nFAKEKEYCONTENTS\n-----END PRIVATE KEY-----\n",
+          client_email: 'gcs@gitlab-project.iam.gserviceaccount.com'
+        }
+      end
+    end
+
     trait :gcs_hmac do
       provider { :gcs_hmac }
       object_storage_credentials do

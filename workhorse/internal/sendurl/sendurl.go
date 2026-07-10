@@ -156,6 +156,9 @@ func (e *entry) Inject(w http.ResponseWriter, r *http.Request, sendData string) 
 		return // Error handling is done in createNewRequest
 	}
 
+	// #nosec G704 -- params.URL is unpacked from the Gitlab-Workhorse-Send-Data
+	// response header set by the trusted GitLab Rails backend. Clients cannot
+	// set response headers, so this is not end-user-controlled input.
 	resp, err := cachedClient(params).Do(newReq) //nolint:errcheck
 	if err != nil {
 		e.handleRequestError(w, r, err, &params)

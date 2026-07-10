@@ -74,6 +74,7 @@ Grants the ability to create, read, and update vulnerabilities.
 | Create | Project | Mutation | `VulnerabilityCreate` |
 | Read | Project | Type | `CountableVulnerability` |
 | Read | Project | Type | `Vulnerability` |
+| Read | Project | Type | `VulnerabilityScanner` |
 | Read | Project | Field | `MergeRequest.findingReportsComparer` |
 | Update | Project | Mutation | `VulnerabilityAutoRemediation` |
 | Update | Project | Mutation | `VulnerabilityConfirm` |
@@ -573,6 +574,15 @@ Grants the ability to create, delete, read, and update badges.
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Read | Instance | Type | `OrganizationUserBadge` |
+
+#### Cycle Analytics
+
+Grants the ability to read cycle analytics.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Project | Field | `Analytics.mergeRequests` |
+| Read | Group | Field | `Analytics.mergeRequests` |
 
 #### Release
 

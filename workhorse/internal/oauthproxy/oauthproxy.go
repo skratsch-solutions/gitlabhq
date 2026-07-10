@@ -270,7 +270,7 @@ const (
 	reasonIAMRoutingEnabled    = "iam_routing_enabled"
 	reasonDoorkeeperToken      = "doorkeeper_token"
 	reasonDoorkeeperFFDisabled = "doorkeeper_ff_disabled"
-	reasonNoTokenParam         = "no_token_param"
+	reasonNoTokenParam         = "no_token_param" // #nosec G101 -- routing-decision log reason, not a credential
 	reasonBodyReadError        = "body_read_error"
 	reasonBodyParseError       = "body_parse_error"
 	reasonBodyTooLarge         = "body_too_large"

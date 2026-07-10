@@ -413,7 +413,6 @@ read_cross_project
 read_custom_emoji
 read_custom_field
 read_customizable_dashboards
-read_cycle_analytics
 read_dedicated_hosted_runner_usage
 read_deploy_board
 read_design
@@ -561,7 +560,6 @@ read_virtual_registry
 read_vulnerability_feedback
 read_vulnerability_merge_request_link
 read_vulnerability_representation_information
-read_vulnerability_scanner
 read_vulnerability_statistics
 read_web_hook
 read_web_ide_terminal

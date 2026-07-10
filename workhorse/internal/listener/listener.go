@@ -25,8 +25,17 @@ func New(name string, cfg config.ListenerConfig) (net.Listener, error) {
 
 	log.WithFields(log.Fields{"address": cfg.Addr, "network": cfg.Network}).Infof("Running %v server with tls", name)
 
+	// Default to TLS 1.2 when no minimum version is configured. An unset
+	// min_version maps to 0, which would otherwise allow TLS 1.0/1.1.
+	minVersion := config.TLSVersions[cfg.TLS.MinVersion]
+	if minVersion == 0 {
+		minVersion = tls.VersionTLS12
+	}
+
+	// #nosec G402 -- MinVersion defaults to TLS 1.2 above; a lower version is
+	// only used when an operator explicitly configures one.
 	tlsConfig := &tls.Config{
-		MinVersion:   config.TLSVersions[cfg.TLS.MinVersion],
+		MinVersion:   minVersion,
 		MaxVersion:   config.TLSVersions[cfg.TLS.MaxVersion],
 		Certificates: []tls.Certificate{cert},
 	}

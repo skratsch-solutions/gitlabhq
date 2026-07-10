@@ -57,6 +57,10 @@ class GraphqlController < ApplicationController
   # Max size of the query text in characters
   MAX_QUERY_SIZE = 10_000
 
+  # Cap the operation-name label so a multiplex batch with many named operations
+  # can't produce an unbounded string for the use_pat event's `label` field.
+  GRAPHQL_OPERATION_NAME_LABEL_LIMIT = 255
+
   # Operations temporarily allowed to exceed MAX_QUERY_SIZE during the
   # work-item widgets => features migration. Remove entries as the migration
   # completes. Tracked in https://gitlab.com/gitlab-org/gitlab/-/issues/587970
@@ -104,6 +108,7 @@ class GraphqlController < ApplicationController
   # callback execution order here
   around_action :sessionless_bypass_admin_mode!, if: :sessionless_user?
   around_action :track_user_experience_sli_by_operation_name
+  around_action :track_pat_usage, only: [:execute]
 
   # The default feature category is overridden to read from request
   feature_category :not_owned # rubocop:todo Gitlab/AvoidFeatureCategoryNotOwned
@@ -319,6 +324,44 @@ class GraphqlController < ApplicationController
   def track_user_experience_sli_by_operation_name
     ::Gitlab::Graphql::UxSliByOperationName
       .new(permitted_params[:operationName]).track { yield }
+  end
+
+  def track_pat_usage
+    yield
+  ensure
+    emit_pat_usage_event
+  end
+
+  def emit_pat_usage_event
+    token_info = ::Current.token_info
+    return unless token_info.is_a?(Hash) && token_info[:token_type] == 'PersonalAccessToken'
+    return unless current_user
+    return unless Feature.enabled?(:track_api_request_from_personal_access_token, current_user)
+
+    additional_properties = {
+      label: graphql_operation_name,
+      pat_type: token_info[:pat_type],
+      response_code: response.status
+    }
+
+    denied_permissions = ::Current.formatted_granular_denied_permissions
+    additional_properties[:denied_permissions] = denied_permissions if denied_permissions
+
+    ::Gitlab::InternalEvents.track_event(
+      'use_pat',
+      user: current_user,
+      additional_properties: additional_properties
+    )
+  end
+
+  def graphql_operation_name
+    name = if multiplex?
+             multiplex_param.filter_map { |q| q[:operationName] }.join(',')
+           else
+             permitted_params[:operationName].to_s
+           end
+
+    name.presence&.truncate(GRAPHQL_OPERATION_NAME_LABEL_LIMIT) || 'unknown'
   end
 
   def execute_multiplex

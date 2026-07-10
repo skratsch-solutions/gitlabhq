@@ -13130,6 +13130,9 @@ msgstr ""
 msgid "BillingPlans|Explore these Premium features to optimize your GitLab experience."
 msgstr ""
 
+msgid "BillingPlans|Explore usage"
+msgstr ""
+
 msgid "BillingPlans|Features include:"
 msgstr ""
 
@@ -13431,6 +13434,9 @@ msgid "BillingPlans|Vulnerability Management"
 msgstr ""
 
 msgid "BillingPlans|We recommend starting with 20 credits per month."
+msgstr ""
+
+msgid "BillingPlans|You have an active monthly commitment of GitLab Credits shared across your group. You keep these credits when the trial ends."
 msgstr ""
 
 msgid "BillingPlans|You have successfully started a GitLab Ultimate trial that will expire on %{exp_date}."
@@ -28435,7 +28441,7 @@ msgstr ""
 msgid "DuoAgentPlatform|%{base} Attention required."
 msgstr ""
 
-msgid "DuoAgentPlatform|%{completed} of %{total} completed"
+msgid "DuoAgentPlatform|%{completed} of %{total}"
 msgstr ""
 
 msgid "DuoAgentPlatform|%{component} did not produce an answer"
@@ -28481,6 +28487,9 @@ msgid "DuoAgentPlatform|Agent reasoning"
 msgstr ""
 
 msgid "DuoAgentPlatform|Agent required human input"
+msgstr ""
+
+msgid "DuoAgentPlatform|Agent todos"
 msgstr ""
 
 msgid "DuoAgentPlatform|Allow GitLab Duo agents to execute flows in this project."
@@ -28568,9 +28577,6 @@ msgid "DuoAgentPlatform|No GitLab Credits remain for this billing period. %{link
 msgstr ""
 
 msgid "DuoAgentPlatform|Paused"
-msgstr ""
-
-msgid "DuoAgentPlatform|Progress"
 msgstr ""
 
 msgid "DuoAgentPlatform|Remote GitLab Duo Flows"
@@ -52406,6 +52412,9 @@ msgid "OfflineTransfer|Start offline export"
 msgstr ""
 
 msgid "OfflineTransfer|Start offline import"
+msgstr ""
+
+msgid "OfflineTransfer|The Google Cloud service account key must be a valid JSON object."
 msgstr ""
 
 msgid "OfflineTransfer|Unable to access object storage bucket."

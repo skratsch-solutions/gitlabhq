@@ -7,6 +7,19 @@ module Import
 
       S3_BUCKET_REGEXP = %r{\A[a-z0-9.\-]*\z}
 
+      # The only fields fog-google needs to authenticate with a service account
+      # key. The API accepts the key as a pasted JSON string, which we flatten
+      # into these individual credential fields (see #flatten_gcs_json_key) and
+      # keep only these, for two reasons:
+      #   - we never persist credential data we do not use; and
+      #   - some key fields (for example universe_domain and token_uri) tell the
+      #     Google auth libraries which host to send the token-exchange and storage
+      #     requests to. The key is user-supplied, so honoring those would let a
+      #     caller point GitLab's outbound requests at a host they control (SSRF,
+      #     with forged responses), so we drop them and rely on the defaults. This
+      #     integration only ever targets commercial Google Cloud.
+      GCS_JSON_KEY_REQUIRED_FIELDS = %w[type project_id private_key client_email].freeze
+
       belongs_to :organization, class_name: 'Organizations::Organization'
       belongs_to :offline_export, class_name: 'Import::Offline::Export', optional: true
       belongs_to :bulk_import, inverse_of: :offline_configuration, optional: true
@@ -25,6 +38,9 @@ module Import
       validates :object_storage_credentials, json_schema: {
         filename: 'import_offline_configuration_gcs_hmac_credentials', size_limit: 64.kilobytes
       }, if: :gcs_hmac?
+      validates :object_storage_credentials, json_schema: {
+        filename: 'import_offline_configuration_gcs_credentials', size_limit: 64.kilobytes
+      }, if: :gcs?
       validates :endpoint, addressable_url: true, length: { maximum: 255 }, if: :s3_compatible?
       validates :entity_prefix_mapping, json_schema: {
         filename: 'import_offline_configuration_entity_prefix_mapping', size_limit: 64.kilobytes
@@ -36,10 +52,12 @@ module Import
       enum :provider, {
         aws: 0,
         s3_compatible: 1,
-        gcs_hmac: 2
+        gcs_hmac: 2,
+        gcs: 3
       }
 
       after_initialize :generate_export_prefix
+      before_validation :flatten_gcs_json_key
 
       def entity_prefix_for_path(source_full_path)
         entity_prefix_mapping[source_full_path]
@@ -71,6 +89,44 @@ module Import
         return if export_prefix.present?
 
         self.export_prefix = "#{Time.current.strftime('%F_%H-%M-%S')}_export_#{SecureRandom.alphanumeric(8)}"
+      end
+
+      # The API accepts the service account key as a pasted JSON string. We parse
+      # it here and replace google_json_key_string with the individual key fields
+      # fog-google needs (GCS_JSON_KEY_REQUIRED_FIELDS), so the JSON schema can
+      # validate each field and we drop everything else the key carries.
+      #
+      # Keeping only the required fields is the primary SSRF defense (see
+      # GCS_JSON_KEY_REQUIRED_FIELDS), so this fails closed: a key that is not
+      # valid JSON or not a JSON object is rejected here rather than persisted.
+      # The credentials are read by the object storage client immediately after
+      # validation (before save), so this must run before validation, not before
+      # save.
+      def flatten_gcs_json_key
+        return unless gcs?
+        return unless object_storage_credentials.is_a?(Hash)
+
+        credentials = object_storage_credentials.with_indifferent_access
+        raw_key = credentials[:google_json_key_string]
+        return unless raw_key.is_a?(String)
+
+        parsed_key = Gitlab::Json::SafeParser.parse(raw_key)
+
+        unless parsed_key.is_a?(Hash)
+          errors.add(:base, gcs_json_key_invalid_message)
+          throw :abort # rubocop:disable Cop/BanCatchThrow -- ActiveRecord callbacks halt only via throw :abort
+        end
+
+        flattened = credentials.except(:google_json_key_string)
+          .merge(parsed_key.slice(*GCS_JSON_KEY_REQUIRED_FIELDS))
+        self.object_storage_credentials = flattened.to_h
+      rescue JSON::ParserError
+        errors.add(:base, gcs_json_key_invalid_message)
+        throw :abort # rubocop:disable Cop/BanCatchThrow -- ActiveRecord callbacks halt only via throw :abort
+      end
+
+      def gcs_json_key_invalid_message
+        s_('OfflineTransfer|The Google Cloud service account key must be a valid JSON object.')
       end
 
       def supported_providers

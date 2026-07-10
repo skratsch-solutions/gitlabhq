@@ -28,6 +28,8 @@ module Import
         case provider.to_s
         when 'aws', 's3_compatible'
           Adapters::Aws
+        when 'gcs'
+          Adapters::Gcs
         when 'gcs_hmac'
           Adapters::GcsHmac
         else

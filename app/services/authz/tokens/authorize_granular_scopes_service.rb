@@ -130,8 +130,11 @@ module Authz
           assignable = Authz::PermissionGroups::Assignable.for_permission(permission).first
           "#{assignable.resource_name}: #{assignable.action.titleize}"
         end.uniq.sort.join(', ')
-        error "Access denied: This operation requires a fine-grained #{token_type} " \
-          "with the following #{boundary.type_label} permissions: [#{perms}]."
+        ::ServiceResponse.error(
+          message: "Access denied: This operation requires a fine-grained #{token_type} " \
+            "with the following #{boundary.type_label} permissions: [#{perms}].",
+          payload: { denied_permissions: eval[:missing] }
+        )
       end
 
       def resource_not_found_error

@@ -248,6 +248,9 @@ func (a *runHTTPActionHandler) buildRequest(ctx context.Context, action *pb.Acti
 		bodyBuffer.WriteString(*actionRequest.Body)
 	}
 
+	// #nosec G704 -- The request is dispatched in-process to the upstream
+	// GitLab router (serveHTTPSafe), not sent to an attacker-chosen network
+	// host, so the DWS-supplied path cannot cause SSRF.
 	req, err := http.NewRequestWithContext(ctx, actionRequest.Method, a.applyRelativeURLRoot(actionRequest.Path), &bodyBuffer)
 	if err != nil {
 		return nil, err

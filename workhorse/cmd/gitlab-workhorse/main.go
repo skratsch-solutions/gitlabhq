@@ -415,7 +415,13 @@ func run(boot bootConfig, cfg config.Config) error {
 		LoadShedder:          loadShedder,
 	})
 
-	srv := &http.Server{Handler: wrapRaven(up)}
+	srv := &http.Server{
+		Handler: wrapRaven(up),
+		// ReadHeaderTimeout bounds the time spent reading request headers to
+		// mitigate Slowloris-style attacks (gosec G112). It does not limit the
+		// time to read the request body, so large uploads are unaffected.
+		ReadHeaderTimeout: 1 * time.Minute,
+	}
 
 	for _, l := range listeners {
 		go func(l net.Listener) { finalErrors <- srv.Serve(l) }(l)

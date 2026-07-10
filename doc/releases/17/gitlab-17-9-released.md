@@ -519,7 +519,7 @@ The `inject_policy` stage replaces `inject_ci` which will be deprecated, allowin
 
 - Tier: Free, Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed
-- Links: [Documentation](../../user/profile/personal_access_tokens.md#personal-access-token-scopes) | [Related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/430748)
+- Links: [Documentation](../../security/tokens/access_token_scopes.md) | [Related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/430748)
 
 {{< /details >}}
 
