@@ -35,6 +35,7 @@ FactoryBot.define do
       end
 
       id_tokens { nil }
+      tag_list { nil }
     end
 
     after(:build) do |build, evaluator|
@@ -42,7 +43,9 @@ FactoryBot.define do
         build.runner = evaluator.runner_manager.runner
         create(:ci_runner_machine_build, build: build, runner_manager: evaluator.runner_manager)
       end
+    end
 
+    after(:stub, :build) do |build, evaluator|
       job_definition_values = {
         id_tokens: evaluator.id_tokens,
         tag_list: evaluator.tag_list
@@ -236,8 +239,10 @@ FactoryBot.define do
     end
 
     trait :tags do
-      tag_list do
-        [:docker, :ruby]
+      transient do
+        tag_list do
+          [:docker, :ruby]
+        end
       end
     end
 

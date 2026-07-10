@@ -46,8 +46,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   it { is_expected.to have_many(:job_variables).with_foreign_key(:job_id) }
   it { is_expected.to have_many(:report_results).with_foreign_key(:build_id) }
   it { is_expected.to have_many(:pages_deployments).with_foreign_key(:ci_build_id) }
-  it { is_expected.to have_many(:taggings).with_foreign_key(:build_id).class_name('Ci::BuildTag').inverse_of(:build) }
-  it { is_expected.to have_many(:tags).class_name('Ci::Tag').through(:taggings).source(:tag) }
 
   it { is_expected.to have_one(:runner_manager).through(:runner_manager_build) }
   it { is_expected.to have_one(:runner_session).with_foreign_key(:build_id) }
@@ -512,7 +510,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
         it { expect(eager_load_for_api.last.association(:job_artifacts_archive)).to be_loaded }
         it { expect(eager_load_for_api.last.association(:job_artifacts)).to be_loaded }
         it { expect(eager_load_for_api.last.association(:runner)).to be_loaded }
-        it { expect(eager_load_for_api.last.association(:tags)).to be_loaded }
+        it { expect(eager_load_for_api.last.association(:job_definition)).to be_loaded }
         it { expect(eager_load_for_api.last.association(:ci_stage)).to be_loaded }
         it { expect(eager_load_for_api.last.association(:pipeline)).to be_loaded }
         it { expect(eager_load_for_api.last.pipeline.association(:project)).to be_loaded }
@@ -2321,64 +2319,17 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       end
     end
 
-    context 'when tags are not preloaded' do
-      it { expect(described_class.find(build.id).tag_list).to eq(['tag']) }
-    end
-
-    context 'when build has job_definition with tag_list' do
-      let(:job_definition_tags) { %w[job_definition_tag] }
-
-      before do
-        stub_ci_job_definition(build, tag_list: job_definition_tags)
-      end
-
-      it 'returns tag_list from job_definition config' do
-        is_expected.to eq(job_definition_tags)
-      end
-    end
-
     context 'when build has no job_definition' do
       let_it_be(:build_without_job_definition) do
-        create(:ci_build, :without_job_definition, tag_list: ['tag_from_tags'], pipeline: pipeline)
+        create(:ci_build, :without_job_definition, pipeline: pipeline)
       end
 
       specify do
         expect(build_without_job_definition.job_definition).to be_nil
       end
 
-      it 'does not create build tagging' do
-        expect(Ci::BuildTag.where(build_id: build_without_job_definition, tag_id: Ci::Tag.find_by_name('tag_from_tags')))
-          .to be_empty
-      end
-
-      it 'falls back to tags table' do
-        expect(build_without_job_definition.tag_list).to contain_exactly('tag_from_tags')
-      end
-    end
-
-    context 'when build has tags and job_definition without tag_list' do
-      let_it_be(:build) { create(:ci_build, options: { script: ['echo hello'] }, pipeline: pipeline) }
-
-      before_all do
-        create(:ci_build_tag, tag: create(:ci_tag, name: 'tag1'), build: build, project_id: build.project.id)
-      end
-
-      it 'does not fall back to super' do
-        expect(build.job_definition).not_to be_nil
-        expect(build.job_definition.config).not_to be_nil
-        expect(build.job_definition.config[:tag_list]).to eq([])
-
-        is_expected.to eq([])
-      end
-    end
-
-    context 'when build has empty tag_list in job_definition config' do
-      before do
-        stub_ci_job_definition(build, tag_list: [])
-      end
-
-      it 'returns empty array from job_definition config instead of falling back to super' do
-        is_expected.to eq([])
+      it 'returns an empty array' do
+        expect(build_without_job_definition.tag_list).to eq([])
       end
     end
   end
@@ -3700,12 +3651,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       it { is_expected.to include({ key: 'CI_RUNNER_ID', value: runner.id.to_s, public: true, masked: false }) }
       it { is_expected.to include({ key: 'CI_RUNNER_DESCRIPTION', value: 'description', public: true, masked: false }) }
       it { is_expected.to include({ key: 'CI_RUNNER_TAGS', value: expected_tags_value, public: true, masked: false }) }
-
-      context 'when the tags are preloaded' do
-        subject { described_class.preload(:tags).find(build.id).variables }
-
-        it { is_expected.to include({ key: 'CI_RUNNER_TAGS', value: expected_tags_value, public: true, masked: false }) }
-      end
     end
 
     context 'when build is for a deployment' do
@@ -6328,28 +6273,14 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
         it { expect(matchers).to all be_protected }
       end
-
-      context 'when job_definition has no tag_list but tags exist (hypothetical scenario)' do
-        let!(:build_without_tags_in_job_def) do
-          create(:ci_build, pipeline: pipeline).tap do |build|
-            # Manually add tags to the build via the legacy tables
-            create(:ci_build_tag, tag: create(:ci_tag, name: 'legacy_tag'), build: build, project_id: build.project.id)
-          end
-        end
-
-        it 'uses tags from tags relation' do
-          expect(matchers.map(&:build_ids)).to contain_exactly(
-            [build_without_tags.id, build_without_tags_in_job_def.id],
-            match_array([build_with_tags.id, other_build_with_tags.id])
-          )
-        end
-      end
     end
   end
 
   describe '#build_matcher' do
-    let_it_be(:build) do
-      build_stubbed(:ci_build, tag_list: %w[tag1 tag2], pipeline: pipeline)
+    let(:build) do
+      build_stubbed(:ci_build, pipeline: pipeline).tap do |build|
+        allow(build).to receive(:tag_list).and_return(%w[tag1 tag2])
+      end
     end
 
     subject(:matcher) { build.build_matcher }

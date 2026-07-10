@@ -47,143 +47,128 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
       end
     end
 
-    context 'when the feature flag is enabled' do
-      context 'when a changed path matches' do
-        let(:regexp) { '\Asrc/.*\.rb\z' }
+    context 'when a changed path matches' do
+      let(:regexp) { '\Asrc/.*\.rb\z' }
+
+      it 'includes the job' do
+        expect(pipeline).to be_persisted
+        expect(build_names).to contain_exactly('regexp-job', 'control-job')
+      end
+    end
+
+    context 'when no changed path matches' do
+      let(:regexp) { '\.go\z' }
+
+      it 'excludes the job' do
+        expect(pipeline).to be_persisted
+        expect(build_names).to contain_exactly('control-job')
+      end
+    end
+
+    context 'with a negative lookahead' do
+      let(:regexp) { '\A(?!docs/)' }
+
+      context 'when a non-docs file changed' do
+        let(:changed_paths) { [instance_double(Gitlab::Git::ChangedPath, path: 'src/app.rb')] }
 
         it 'includes the job' do
-          expect(pipeline).to be_persisted
           expect(build_names).to contain_exactly('regexp-job', 'control-job')
         end
       end
 
-      context 'when no changed path matches' do
-        let(:regexp) { '\.go\z' }
+      context 'when only a docs file changed' do
+        let(:changed_paths) { [instance_double(Gitlab::Git::ChangedPath, path: 'docs/index.md')] }
 
         it 'excludes the job' do
-          expect(pipeline).to be_persisted
           expect(build_names).to contain_exactly('control-job')
-        end
-      end
-
-      context 'with a negative lookahead' do
-        let(:regexp) { '\A(?!docs/)' }
-
-        context 'when a non-docs file changed' do
-          let(:changed_paths) { [instance_double(Gitlab::Git::ChangedPath, path: 'src/app.rb')] }
-
-          it 'includes the job' do
-            expect(build_names).to contain_exactly('regexp-job', 'control-job')
-          end
-        end
-
-        context 'when only a docs file changed' do
-          let(:changed_paths) { [instance_double(Gitlab::Git::ChangedPath, path: 'docs/index.md')] }
-
-          it 'excludes the job' do
-            expect(build_names).to contain_exactly('control-job')
-          end
-        end
-      end
-
-      context 'with variable expansion' do
-        let(:config) do
-          <<-YAML
-            variables:
-              SRC_DIR: src
-            regexp-job:
-              script: echo regexp
-              rules:
-                - changes:
-                    regexp: '\\A$SRC_DIR/'
-            control-job:
-              script: echo control
-          YAML
-        end
-
-        it 'expands the variable before matching and includes the job' do
-          expect(build_names).to contain_exactly('regexp-job', 'control-job')
-        end
-      end
-
-      context 'when the expanded pattern exceeds the length limit' do
-        let(:config) do
-          <<-YAML
-            variables:
-              HUGE: '#{'a' * 300}'
-            regexp-job:
-              script: echo regexp
-              rules:
-                - changes:
-                    regexp: '\\A$HUGE/'
-            control-job:
-              script: echo control
-          YAML
-        end
-
-        it 'fails the pipeline with a configuration error' do
-          expect(pipeline.errors.full_messages).to contain_exactly(
-            'Failed to parse rule for regexp-job: rules:changes:regexp is too long ' \
-              '(maximum is 255 characters after variable expansion)'
-          )
-        end
-      end
-
-      context 'when a match exceeds the per-match timeout' do
-        let(:regexp) { '\Asrc/a{1,30}{1,30}{1,30}b' }
-        let(:changed_paths) do
-          [instance_double(Gitlab::Git::ChangedPath, path: "src/#{'a' * 60}.rb")]
-        end
-
-        it 'fails the pipeline with a configuration error' do
-          expect(pipeline.errors.full_messages).to contain_exactly(
-            a_string_matching(/Failed to parse rule for regexp-job: rules:changes:regexp timed out/)
-          )
-        end
-      end
-
-      context 'when evaluation exceeds the total time budget' do
-        let(:regexp) { '\Asrc/' }
-
-        before do
-          # Stub the matcher's clock so the deadline is set, then immediately exceeded
-          # on the first per-path check. Scoped to the matcher to avoid affecting the
-          # many other monotonic_time calls during pipeline creation.
-          budget = Gitlab::Ci::Build::Rules::Rule::Clause::REGEXP_TOTAL_TIMEOUT_SECONDS
-          allow_next_instance_of(Gitlab::Ci::Build::Rules::Rule::Clause::RegexpMatcher) do |matcher|
-            allow(matcher).to receive(:current_monotonic_time).and_return(0, budget + 1)
-          end
-        end
-
-        it 'fails the pipeline with a configuration error' do
-          expect(pipeline.errors.full_messages).to contain_exactly(
-            a_string_matching(/Failed to parse rule for regexp-job: rules:changes:regexp exceeded the time budget/)
-          )
-        end
-      end
-
-      context 'when the number of changed paths exceeds the comparison limit' do
-        let(:regexp) { '\.go\z' }
-        let(:changed_paths) do
-          limit = Gitlab::Ci::Build::Rules::Rule::Clause::Changes::CHANGES_MAX_PATTERN_COMPARISONS
-          Array.new(limit + 1) { |i| instance_double(Gitlab::Git::ChangedPath, path: "docs/file#{i}.md") }
-        end
-
-        it 'fails open and includes the job' do
-          expect(pipeline).to be_persisted
-          expect(build_names).to contain_exactly('regexp-job', 'control-job')
         end
       end
     end
 
-    context 'when the feature flag is disabled' do
-      let(:regexp) { '\.go\z' }
-
-      before do
-        stub_feature_flags(ci_rules_regexp: false)
+    context 'with variable expansion' do
+      let(:config) do
+        <<-YAML
+          variables:
+            SRC_DIR: src
+          regexp-job:
+            script: echo regexp
+            rules:
+              - changes:
+                  regexp: '\\A$SRC_DIR/'
+          control-job:
+            script: echo control
+        YAML
       end
 
-      it 'fails open and includes the job regardless of the pattern' do
+      it 'expands the variable before matching and includes the job' do
+        expect(build_names).to contain_exactly('regexp-job', 'control-job')
+      end
+    end
+
+    context 'when the expanded pattern exceeds the length limit' do
+      let(:config) do
+        <<-YAML
+          variables:
+            HUGE: '#{'a' * 300}'
+          regexp-job:
+            script: echo regexp
+            rules:
+              - changes:
+                  regexp: '\\A$HUGE/'
+          control-job:
+            script: echo control
+        YAML
+      end
+
+      it 'fails the pipeline with a configuration error' do
+        expect(pipeline.errors.full_messages).to contain_exactly(
+          'Failed to parse rule for regexp-job: rules:changes:regexp is too long ' \
+            '(maximum is 255 characters after variable expansion)'
+        )
+      end
+    end
+
+    context 'when a match exceeds the per-match timeout' do
+      let(:regexp) { '\Asrc/a{1,30}{1,30}{1,30}b' }
+      let(:changed_paths) do
+        [instance_double(Gitlab::Git::ChangedPath, path: "src/#{'a' * 60}.rb")]
+      end
+
+      it 'fails the pipeline with a configuration error' do
+        expect(pipeline.errors.full_messages).to contain_exactly(
+          a_string_matching(/Failed to parse rule for regexp-job: rules:changes:regexp timed out/)
+        )
+      end
+    end
+
+    context 'when evaluation exceeds the total time budget' do
+      let(:regexp) { '\Asrc/' }
+
+      before do
+        # Stub the matcher's clock so the deadline is set, then immediately exceeded
+        # on the first per-path check. Scoped to the matcher to avoid affecting the
+        # many other monotonic_time calls during pipeline creation.
+        budget = Gitlab::Ci::Build::Rules::Rule::Clause::REGEXP_TOTAL_TIMEOUT_SECONDS
+        allow_next_instance_of(Gitlab::Ci::Build::Rules::Rule::Clause::RegexpMatcher) do |matcher|
+          allow(matcher).to receive(:current_monotonic_time).and_return(0, budget + 1)
+        end
+      end
+
+      it 'fails the pipeline with a configuration error' do
+        expect(pipeline.errors.full_messages).to contain_exactly(
+          a_string_matching(/Failed to parse rule for regexp-job: rules:changes:regexp exceeded the time budget/)
+        )
+      end
+    end
+
+    context 'when the number of changed paths exceeds the comparison limit' do
+      let(:regexp) { '\.go\z' }
+      let(:changed_paths) do
+        limit = Gitlab::Ci::Build::Rules::Rule::Clause::Changes::CHANGES_MAX_PATTERN_COMPARISONS
+        Array.new(limit + 1) { |i| instance_double(Gitlab::Git::ChangedPath, path: "docs/file#{i}.md") }
+      end
+
+      it 'fails open and includes the job' do
         expect(pipeline).to be_persisted
         expect(build_names).to contain_exactly('regexp-job', 'control-job')
       end

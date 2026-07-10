@@ -336,9 +336,7 @@ RSpec.describe Ci::UpdateBuildQueueService, feature_category: :continuous_integr
 
     shared_examples 'mismatching tags' do
       context 'when there is no runner that can pick build due to tag mismatch' do
-        before do
-          build.tag_list = [:docker]
-        end
+        let(:build) { create(:ci_build, pipeline: pipeline, tag_list: [:docker]) }
 
         it_behaves_like 'does not refresh runner'
       end

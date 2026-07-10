@@ -54,7 +54,7 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
 
     let(:clone_accessors) do
       %i[pipeline project ref tag name allow_failure stage_idx
-        when environment coverage_regex description tag_list protected needs_attributes job_variables_attributes
+        when environment coverage_regex description protected needs_attributes job_variables_attributes
         timeout timeout_source debug_trace_enabled
         resource_group scheduling_type ci_stage partition_id id_tokens]
     end
@@ -83,7 +83,7 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
     let(:ignore_accessors) do
       %i[type namespace lock_version target_url base_tags trace_sections
         commit_id deployment job_environment erased_by_id project_id project_mirror
-        runner_id taggings tags trigger trigger_id
+        runner_id taggings tags tag_list trigger trigger_id
         user_id auto_canceled_by_id retried failure_reason
         sourced_pipelines sourced_pipeline artifacts_file_store artifacts_metadata_store
         runner_manager_build runner_manager build_runtime_environment runner_session trace_chunks

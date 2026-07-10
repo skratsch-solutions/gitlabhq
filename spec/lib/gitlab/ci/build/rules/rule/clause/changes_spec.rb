@@ -48,7 +48,6 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Changes, feature_category
       let(:files) { ['src/main.rb', 'README.md'] }
 
       before do
-        stub_feature_flags(ci_rules_regexp: true)
         allow(pipeline).to receive(:changed_paths).and_return(changed_files)
       end
 
@@ -60,19 +59,6 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Changes, feature_category
         let(:files) { ['README.md', 'docs/guide.md'] }
 
         it { is_expected.to be_falsey }
-      end
-
-      context 'when the ci_rules_regexp feature flag is disabled' do
-        let(:globs) { { regexp: '^src/.*' } }
-        let(:changed_files) { [instance_double(Gitlab::Git::ChangedPath, path: 'src/main.rb')] }
-
-        before do
-          stub_feature_flags(ci_rules_regexp: false)
-        end
-
-        it 'returns true (fail-open) without evaluating the regexp' do
-          is_expected.to be_truthy
-        end
       end
 
       context 'when regexp is combined with compare_to' do

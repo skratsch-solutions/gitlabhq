@@ -616,12 +616,20 @@ class ApplicationSetting < ApplicationRecord
     public_url: ADDRESSABLE_URL_VALIDATION_OPTIONS
 
   jsonb_accessor :integrations,
-    jira_connect_additional_audience_url: :string
+    jira_connect_additional_audience_url: :string,
+    jira_forge_app_id: :string
 
   validates :jira_connect_additional_audience_url,
     length: { maximum: 255, message: N_('is too long (maximum is %{count} characters)') },
     allow_blank: true,
     public_url: ADDRESSABLE_URL_VALIDATION_OPTIONS
+
+  JIRA_FORGE_APP_ID_REGEX = %r{\Aari:cloud:ecosystem::app/[0-9a-fA-F-]{36}\z}
+
+  validates :jira_forge_app_id,
+    length: { maximum: 255, message: N_('is too long (maximum is %{count} characters)') },
+    format: { with: JIRA_FORGE_APP_ID_REGEX, message: N_('must be a valid Forge app ID (ARI)') },
+    allow_blank: true
 
   validates :integrations, json_schema: { filename: "application_setting_integrations" }
 

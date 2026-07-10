@@ -249,6 +249,7 @@ module API
       optional :jira_connect_application_key, type: String, desc: "ID of the OAuth application used to authenticate with the GitLab for Jira Cloud app."
       optional :jira_connect_public_key_storage_enabled, type: Boolean, desc: 'Enable public key storage for the GitLab for Jira Cloud app.'
       optional :jira_connect_proxy_url, type: String, desc: "URL of the GitLab instance used as a proxy for the GitLab for Jira Cloud app."
+      optional :jira_forge_app_id, type: String, desc: "Atlassian Forge app ID (ARI) of the GitLab for Jira Cloud app, used to verify inbound Forge Invocation Tokens."
       optional :bulk_import_concurrent_pipeline_batch_limit, type: Integer, desc: 'Maximum simultaneous direct transfer batch exports to process.'
       optional :concurrent_relation_batch_export_limit, type: Integer, desc: 'Maximum number of simultaneous batch export jobs to process.'
       optional :bulk_import_enabled, type: Boolean, desc: 'Enable migrating GitLab groups and projects by direct transfer'

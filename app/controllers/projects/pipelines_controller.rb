@@ -286,7 +286,7 @@ class Projects::PipelinesController < Projects::ApplicationController
       end
 
     @pipeline = pipelines
-      .includes(builds: :tags, user: :status)
+      .includes(builds: :job_definition, user: :status)
       .take
       &.present(current_user: current_user)
 

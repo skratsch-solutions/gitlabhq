@@ -493,6 +493,19 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
     it { is_expected.to allow_value(http).for(:jira_connect_additional_audience_url) }
     it { is_expected.to allow_value(https).for(:jira_connect_additional_audience_url) }
 
+    it { is_expected.to allow_value(nil).for(:jira_forge_app_id) }
+    it { is_expected.to allow_value('').for(:jira_forge_app_id) }
+
+    it 'allows a valid Forge app ARI' do
+      valid_ari = 'ari:cloud:ecosystem::app/77334c21-3dd0-474f-a53f-28b4eeee5a71'
+
+      is_expected.to allow_value(valid_ari).for(:jira_forge_app_id)
+    end
+
+    it { is_expected.not_to allow_value('not-an-ari').for(:jira_forge_app_id) }
+    it { is_expected.not_to allow_value('ari:cloud:ecosystem::app/too-short').for(:jira_forge_app_id) }
+    it { is_expected.not_to allow_value("ari:cloud:ecosystem::app/#{'a' * 300}").for(:jira_forge_app_id) }
+
     it { is_expected.not_to allow_value(apdex_slo: '10').for(:prometheus_alert_db_indicators_settings) }
     it { is_expected.to allow_value(nil).for(:prometheus_alert_db_indicators_settings) }
 

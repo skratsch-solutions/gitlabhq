@@ -16971,7 +16971,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_549da98e2090"
+              "$ref": "#/components/schemas/RequestBody_67e3765e00d7"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -82149,6 +82149,8 @@ components:
           type: string
         jira_connect_additional_audience_url:
           type: string
+        jira_forge_app_id:
+          type: string
         math_rendering_limits_enabled:
           type: string
         require_sha_for_merge:
@@ -95717,7 +95719,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_549da98e2090:
+    RequestBody_67e3765e00d7:
       type: object
       properties:
         admin_mode:
@@ -96500,6 +96502,11 @@ components:
           type: string
           description: URL of the GitLab instance used as a proxy for the GitLab for
             Jira Cloud app.
+          nullable: true
+        jira_forge_app_id:
+          type: string
+          description: Atlassian Forge app ID (ARI) of the GitLab for Jira Cloud app,
+            used to verify inbound Forge Invocation Tokens.
           nullable: true
         bulk_import_concurrent_pipeline_batch_limit:
           type: integer

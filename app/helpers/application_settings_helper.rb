@@ -398,6 +398,7 @@ module ApplicationSettingsHelper
       :jira_connect_public_key_storage_enabled,
       :jira_connect_proxy_url,
       :jira_connect_additional_audience_url,
+      :jira_forge_app_id,
       :math_rendering_limits_enabled,
       :require_sha_for_merge,
       :lock_require_sha_for_merge,

@@ -19,8 +19,6 @@ module Gitlab
 
         def satisfied_by?(_pipeline, context)
           if @regexp
-            return true unless Feature.enabled?(:ci_rules_regexp, context.project)
-
             context = change_context(context) if @project_path
             return regexp_match?(context)
           end

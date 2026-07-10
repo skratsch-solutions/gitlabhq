@@ -58,10 +58,6 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
           project: project, sha: project.commit.sha, user: user, variables: variables)
       end
 
-      before do
-        stub_feature_flags(ci_rules_regexp: true)
-      end
-
       context 'when the regexp matches an existing file' do
         let(:regexp_pattern) { '^subdir/.*' }
 
@@ -128,18 +124,6 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
           expect(context).to receive(:all_worktree_paths).once.and_call_original
 
           2.times { expect(instance.satisfied_by?(pipeline, context)).to be_truthy }
-        end
-      end
-
-      context 'when the ci_rules_regexp feature flag is disabled' do
-        let(:regexp_pattern) { '^subdir/.*' }
-
-        before do
-          stub_feature_flags(ci_rules_regexp: false)
-        end
-
-        it 'returns true (fail-open) without evaluating the regexp' do
-          is_expected.to be_truthy
         end
       end
     end

@@ -176,26 +176,18 @@ RSpec.describe Ci::PendingBuild, feature_category: :continuous_integration do
       end
 
       context 'and tags are not present in tags table' do
-        let(:build_tags) { Ci::BuildTag.joins(:tag).where(build_id: build.id, partition_id: build.partition_id) }
-
         before do
           Ci::Tag.named(build.tag_list).delete_all
         end
 
-        it 'upserts tags from job_definition.config[:tag_list] without new taggings' do
+        it 'upserts tags from job_definition.config[:tag_list]' do
           expect { upsert_from_build }
             .to change { Ci::Tag.all.pluck(:name) }.from([]).to(%w[docker ruby])
-            .and not_change { build_tags.reload.count }.from(0)
         end
       end
 
       context 'when build has job definition without tag_list' do
         let!(:build) { create(:ci_build, options: { script: ['echo hello'] }) }
-
-        before do
-          # Manually add tags to the build via the legacy tables
-          create(:ci_build_tag, tag: create(:ci_tag, name: 'legacy_tag'), build: build, project_id: build.project.id)
-        end
 
         it 'uses empty tag_list from job_definition config' do
           upsert_from_build

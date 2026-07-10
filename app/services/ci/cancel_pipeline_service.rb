@@ -107,7 +107,7 @@ module Ci
     end
 
     def build_preloads
-      [:project, :pipeline, :deployment, :taggings, :pending_state]
+      [:project, :pipeline, :deployment, :pending_state, :job_definition_instance, :job_definition]
     end
 
     def cancel_job(job)
@@ -156,5 +156,3 @@ module Ci
     end
   end
 end
-
-Ci::CancelPipelineService.prepend_mod

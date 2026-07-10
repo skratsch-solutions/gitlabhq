@@ -11,7 +11,6 @@ module Ci
     include Ci::HasRef
     include Ci::TrackEnvironmentUsage
     include EachBatch
-    include Ci::Taggable
     include ChronicDurationAttribute
 
     extend ::Gitlab::Utils::Override
@@ -98,17 +97,6 @@ module Ci
 
     has_many :pages_deployments, foreign_key: :ci_build_id, inverse_of: :ci_build
 
-    has_many :taggings, ->(build) { in_partition(build) },
-      class_name: 'Ci::BuildTag',
-      foreign_key: :build_id,
-      partition_foreign_key: :partition_id,
-      inverse_of: :build
-
-    has_many :tags,
-      class_name: 'Ci::Tag',
-      through: :taggings,
-      source: :tag
-
     Ci::JobArtifact.file_types.each_key do |key|
       has_one :"job_artifacts_#{key}", ->(build) { in_partition(build).with_file_types([key]) },
         class_name: 'Ci::JobArtifact',
@@ -169,11 +157,11 @@ module Ci
     scope :with_artifacts, ->(artifact_scope) { with_existing_job_artifacts(artifact_scope).eager_load_job_artifacts }
 
     scope :eager_load_job_artifacts, -> { includes(:job_artifacts) }
-    scope :eager_load_tags, -> { includes(:job_definition, :tags) }
+    scope :eager_load_tags, -> { includes(:job_definition) }
     scope :eager_load_for_archiving_trace, -> { preload(:project, :pending_state) }
     scope :eager_load_for_api, -> do
       preload(
-        :job_artifacts_archive, :ci_stage, :job_artifacts, :runner, :tags, :runner_manager,
+        :job_artifacts_archive, :ci_stage, :job_artifacts, :runner, :runner_manager,
         :job_definition,
         pipeline: :project,
         user: [:user_preference, :user_detail, :followees, :followers]
@@ -257,12 +245,6 @@ module Ci
       run_after_commit { build.execute_hooks }
     end
 
-    # Builds no longer use the p_ci_build_tags table for tag storage.
-    # Tags are stored in ci_job_definitions and accessed via job_definition.tag_list.
-    # Tag records in the `tags` table are created by Ci::PendingBuild.build_tags_ids.
-    # See https://gitlab.com/gitlab-org/gitlab/-/issues/580301
-    skip_callback :save, :after, :save_tags
-
     class << self
       # This is needed for url_for to work,
       # as the controller is JobsController
@@ -271,12 +253,12 @@ module Ci
       end
 
       def with_preloads
-        preload(:job_artifacts_archive, :job_artifacts, :tags, project: [:namespace])
+        preload(:job_artifacts_archive, :job_artifacts, :job_definition, project: [:namespace])
       end
 
       def clone_accessors
         %i[pipeline project ref tag name allow_failure stage_idx when
-          environment coverage_regex description tag_list protected
+          environment coverage_regex description protected
           needs_attributes job_variables_attributes resource_group
           scheduling_type timeout timeout_source debug_trace_enabled
           ci_stage partition_id inputs_attributes].freeze
@@ -505,10 +487,6 @@ module Ci
 
     def self.ids_in_merge_request(merge_request_id)
       in_merge_request(merge_request_id).pluck(:id)
-    end
-
-    def self.taggings_join_model
-      ::Ci::BuildTag
     end
 
     def self.keep_artifacts!
@@ -923,11 +901,8 @@ module Ci
       tag_list.any?
     end
 
-    override :tag_list
     def tag_list
-      return super if job_definition.nil?
-
-      job_definition.tag_list
+      Gitlab::Ci::Tags::Parser.new(read_job_definition_attribute(:tag_list, [])).parse
     end
     strong_memoize_attr :tag_list
 

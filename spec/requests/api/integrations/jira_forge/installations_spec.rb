@@ -36,6 +36,38 @@ RSpec.describe API::Integrations::JiraForge::Installations, :with_current_organi
     )
   end
 
+  describe 'Forge Invocation Token audience' do
+    let(:setting_ari) { 'ari:cloud:ecosystem::app/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+    let(:config_ari) { 'ari:cloud:ecosystem::app/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' }
+
+    let(:verified_token) do
+      instance_double(Atlassian::Forge::InvocationToken, valid?: true, cloud_id: cloud_id, principal: account_id)
+    end
+
+    it 'verifies against the jira_forge_app_id application setting when set' do
+      stub_application_setting(jira_forge_app_id: setting_ari)
+
+      expect(Atlassian::Forge::InvocationToken).to receive(:new)
+        .with(anything, audience: setting_ari).and_return(verified_token)
+
+      put api('/integrations/jira_forge/installation'), params: {}, headers: fit_headers
+
+      expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    it 'falls back to the configured forge_app_id when the setting is blank' do
+      stub_application_setting(jira_forge_app_id: nil)
+      allow(Gitlab.config.jira_connect).to receive(:forge_app_id).and_return(config_ari)
+
+      expect(Atlassian::Forge::InvocationToken).to receive(:new)
+        .with(anything, audience: config_ari).and_return(verified_token)
+
+      put api('/integrations/jira_forge/installation'), params: {}, headers: fit_headers
+
+      expect(response).to have_gitlab_http_status(:ok)
+    end
+  end
+
   describe 'PUT /integrations/jira_forge/installation' do
     subject(:update_installation) do
       put api('/integrations/jira_forge/installation'),

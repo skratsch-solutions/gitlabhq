@@ -21,11 +21,7 @@ module Gitlab
           return true unless modified_paths
           return false if modified_paths.empty?
 
-          if @globs.key?(:regexp)
-            return true unless Feature.enabled?(:ci_rules_regexp, pipeline.project)
-
-            return regexp_match?(modified_paths, pipeline, context, compare_to_sha)
-          end
+          return regexp_match?(modified_paths, pipeline, context, compare_to_sha) if @globs.key?(:regexp)
 
           expanded_globs = expand_globs(context).uniq
           return false if expanded_globs.empty?

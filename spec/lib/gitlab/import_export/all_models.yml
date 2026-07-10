@@ -474,8 +474,6 @@ builds:
 - runner_session
 - trace_metadata
 - terraform_state_versions
-- taggings
-- tags
 - security_scans
 - dast_site_profiles_build
 - dast_site_profile

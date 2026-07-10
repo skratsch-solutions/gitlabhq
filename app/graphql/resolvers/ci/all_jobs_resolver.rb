@@ -74,7 +74,7 @@ module Resolvers
           browse_artifacts_path: [{ project: { namespace: [:route] } }],
           play_path: [{ project: { namespace: [:route] } }],
           web_path: [{ project: { namespace: [:route] } }],
-          tags: [:tags],
+          tags: [:job_definition],
           trace: [{ project: [:namespace] }, :job_artifacts_trace],
           source: [:job_source],
           [:trace, :html_summary] => [:trace_chunks]

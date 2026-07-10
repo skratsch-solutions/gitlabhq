@@ -42405,6 +42405,9 @@ msgstr ""
 msgid "JiraConnect|Are you a Jira administrator?"
 msgstr ""
 
+msgid "JiraConnect|Atlassian Forge app ID (ARI) used to verify inbound Forge tokens. Required only for a manual (self-managed) Forge install."
+msgstr ""
+
 msgid "JiraConnect|Change GitLab version"
 msgstr ""
 
@@ -42454,6 +42457,9 @@ msgid "JiraConnect|Failed to update the GitLab instance. See the %{linkStart}tro
 msgstr ""
 
 msgid "JiraConnect|For example: https://gitlab.example.com"
+msgstr ""
+
+msgid "JiraConnect|Forge app ID"
 msgstr ""
 
 msgid "JiraConnect|GitLab for Jira App"
@@ -92887,6 +92893,9 @@ msgid "must be a single line"
 msgstr ""
 
 msgid "must be a string"
+msgstr ""
+
+msgid "must be a valid Forge app ID (ARI)"
 msgstr ""
 
 msgid "must be a valid IPv4 or IPv6 address"

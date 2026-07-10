@@ -925,7 +925,7 @@ GEM
       omniauth (>= 1.3, < 3)
       pyu-ruby-sasl (>= 0.0.3.3, < 0.1)
       rubyntlm (~> 0.5)
-    gitlab_quality-test_tooling (3.20.0)
+    gitlab_quality-test_tooling (3.20.1)
       activesupport (>= 7.0)
       amatch (~> 0.4.1)
       fog-google (~> 1.24, >= 1.24.1)
@@ -2505,7 +2505,7 @@ DEPENDENCIES
   gitlab-utils!
   gitlab_chronic_duration (~> 0.12)
   gitlab_omniauth-ldap (~> 2.3.0)
-  gitlab_quality-test_tooling (~> 3.20.0)
+  gitlab_quality-test_tooling (~> 3.20.1)
   gitlab_query_language (~> 0.29.0)
   gon (~> 6.5.0)
   google-apis-androidpublisher_v3 (~> 0.92.0)
@@ -3016,7 +3016,7 @@ CHECKSUMS
   gitlab-utils (0.2.0)
   gitlab_chronic_duration (0.12.0) sha256=0d766944d415b5c831f176871ee8625783fc0c5bfbef2d79a3a616f207ffc16d
   gitlab_omniauth-ldap (2.3.0) sha256=167036fe37c2711f2e1d2047260766e4c9b31ac37dfc873b101bcd4ea2a3a3b4
-  gitlab_quality-test_tooling (3.20.0) sha256=366ad90e3fd30aedfcaeb2a696ee9e596a179c79ae91cc848fa07fb8bd047b0e
+  gitlab_quality-test_tooling (3.20.1) sha256=8187257e3844a10b7c4741fdd4068cf31e127546d62a415da09b4a74f0dcb3ec
   gitlab_query_language (0.29.0) sha256=ef2d06bc8d77b8018c8586f1d78da5b41c8f5e256ab4171d08eb78853e2abaad
   gitlab_query_language (0.29.0-aarch64-linux-gnu) sha256=4a4857677aa39da7480e2eae7fc6d5fd4a98280ab20c85f21a04028b260ee3ce
   gitlab_query_language (0.29.0-arm64-darwin) sha256=b427271632ce3546a8661a26eb81e27aded1cce2bd94e94c6c46a358c9ec772c

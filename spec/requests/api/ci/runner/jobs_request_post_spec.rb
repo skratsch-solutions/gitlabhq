@@ -849,10 +849,6 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
           end
 
           context 'when job has no tags' do
-            before do
-              job.update!(tags: [])
-            end
-
             context 'when runner is allowed to pick untagged jobs' do
               before do
                 runner.update_column(:run_untagged, true)

@@ -27,7 +27,7 @@ module Ci
             jobs = Ci::Build
                     .in_partition(partition_id)
                     .id_in(records.map(&:build_id))
-                    .includes(:tags, :runner, project: [:namespace, :route])
+                    .includes(:job_definition, :runner, project: [:namespace, :route])
                     .to_a
 
             preload_pending_states(jobs)
@@ -41,7 +41,7 @@ module Ci
 
       def fetch(builds)
         loop do
-          jobs = builds.includes(:tags, :runner, project: [:namespace, :route])
+          jobs = builds.includes(:job_definition, :runner, project: [:namespace, :route])
             .limit(BATCH_SIZE)
             .to_a
 

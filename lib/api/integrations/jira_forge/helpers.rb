@@ -54,8 +54,16 @@ module API
           token = bearer_token
           return if token.blank? || !forge_invocation_token?(token)
 
-          fit = Atlassian::Forge::InvocationToken.new(token, audience: Gitlab.config.jira_connect.forge_app_id)
+          fit = Atlassian::Forge::InvocationToken.new(token, audience: forge_app_id)
           fit if fit.valid?
+        end
+
+        # Expected FIT audience (our Forge app ARI). The admin-configurable
+        # application setting is authoritative when present (set per instance for
+        # a manual/self-managed Forge install); the gitlab.yml value is the
+        # fallback for gitlab.com / managed configs.
+        def forge_app_id
+          Gitlab::CurrentSettings.jira_forge_app_id.presence || Gitlab.config.jira_connect.forge_app_id
         end
         strong_memoize_attr :valid_forge_token
 

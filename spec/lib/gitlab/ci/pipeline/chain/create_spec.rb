@@ -102,7 +102,6 @@ RSpec.describe Gitlab::Ci::Pipeline::Chain::Create, feature_category: :pipeline_
 
           expect(job).to be_persisted
           expect(job.reload.tag_list).to eq(%w[tag1 tag2])
-          expect(job.reload.taggings).to be_empty
           expect(Ci::Tag.named(%w[tag1 tag2])).to be_empty
         end
       end
