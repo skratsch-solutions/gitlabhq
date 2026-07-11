@@ -322,8 +322,9 @@ tags:
 paths:
   "/api/v4/groups/{id}/access_requests":
     get:
-      summary: Gets a list of access requests for a group.
-      description: This feature was introduced in GitLab 8.11.
+      summary: List all access requests for a group
+      description: Lists all access requests for a specified group that are viewable
+        by the authenticated user.
       produces:
       - application/json
       parameters:
@@ -351,15 +352,15 @@ paths:
         example: 20
       responses:
         '200':
-          description: Gets a list of access requests for a group.
+          description: List all access requests for a group
           schema:
             "$ref": "#/definitions/API_Entities_AccessRequester"
       tags:
       - access_requests
       operationId: getApiV4GroupsIdAccessRequests
     post:
-      summary: Requests access for the authenticated user to a group.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Request access to a group
+      description: Requests access to a specified group for the authenticated user.
       produces:
       - application/json
       consumes:
@@ -373,7 +374,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Requests access for the authenticated user to a group.
+          description: Request access to a group
           schema:
             "$ref": "#/definitions/API_Entities_AccessRequester"
       tags:
@@ -382,8 +383,7 @@ paths:
   "/api/v4/groups/{id}/access_requests/{user_id}/approve":
     put:
       summary: Approve an access request
-      description: Approves an access request for a specified user in a specified
-        group or project.
+      description: Approves an access request for a specified user in a group.
       produces:
       - application/json
       consumes:
@@ -416,8 +416,8 @@ paths:
       operationId: putApiV4GroupsIdAccessRequestsUserIdApprove
   "/api/v4/groups/{id}/access_requests/{user_id}":
     delete:
-      summary: Denies an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Deny an access request
+      description: Denies an access request for a specified user in a group.
       produces:
       - application/json
       parameters:
@@ -761,8 +761,8 @@ paths:
       operationId: deleteApiV4GroupsIdEpicsEpicIidNotesNoteIdAwardEmojiAwardId
   "/api/v4/groups/{id}/badges":
     get:
-      summary: List group badges.
-      description: This feature was introduced in GitLab 10.6.
+      summary: List all badges for a group
+      description: Lists all badges for a specified group.
       produces:
       - application/json
       parameters:
@@ -795,7 +795,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List group badges.
+          description: List all badges for a group
           schema:
             type: array
             items:
@@ -804,8 +804,8 @@ paths:
       - badges
       operationId: getApiV4GroupsIdBadges
     post:
-      summary: Add a badge to a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Create a badge for a group
+      description: Creates a badge for a specified group.
       produces:
       - application/json
       consumes:
@@ -824,7 +824,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdBadges"
       responses:
         '201':
-          description: Add a badge to a group.
+          description: Create a badge for a group
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
@@ -832,8 +832,9 @@ paths:
       operationId: postApiV4GroupsIdBadges
   "/api/v4/groups/{id}/badges/render":
     get:
-      summary: Preview a badge from a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge preview for a group
+      description: Previews the final `link_url` and `image_url` for a specified group
+        after resolving the placeholder interpolation.
       produces:
       - application/json
       parameters:
@@ -855,7 +856,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Preview a badge from a group.
+          description: Retrieve a badge preview for a group
           schema:
             "$ref": "#/definitions/API_Entities_BasicBadgeDetails"
       tags:
@@ -863,8 +864,8 @@ paths:
       operationId: getApiV4GroupsIdBadgesRender
   "/api/v4/groups/{id}/badges/{badge_id}":
     get:
-      summary: Get a badge of a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge for a group
+      description: Retrieves a specified badge for a group.
       produces:
       - application/json
       parameters:
@@ -882,15 +883,15 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a badge of a group.
+          description: Retrieve a badge for a group
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: getApiV4GroupsIdBadgesBadgeId
     put:
-      summary: Update a badge of a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Update a badge for a group
+      description: Updates a specified badge for a group.
       produces:
       - application/json
       consumes:
@@ -914,15 +915,15 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdBadgesBadgeId"
       responses:
         '200':
-          description: Update a badge of a group.
+          description: Update a badge for a group
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: putApiV4GroupsIdBadgesBadgeId
     delete:
-      summary: Remove a badge from the group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Delete a badge from a group
+      description: Deletes a specified badge from a group.
       produces:
       - application/json
       parameters:
@@ -9475,8 +9476,9 @@ paths:
       operationId: postApiV4GroupsIdWikisAttachments
   "/api/v4/projects/{id}/access_requests":
     get:
-      summary: Gets a list of access requests for a project.
-      description: This feature was introduced in GitLab 8.11.
+      summary: List all access requests for a project
+      description: Lists all access requests for a specified project that are viewable
+        by the authenticated user.
       produces:
       - application/json
       parameters:
@@ -9504,15 +9506,15 @@ paths:
         example: 20
       responses:
         '200':
-          description: Gets a list of access requests for a project.
+          description: List all access requests for a project
           schema:
             "$ref": "#/definitions/API_Entities_AccessRequester"
       tags:
       - access_requests
       operationId: getApiV4ProjectsIdAccessRequests
     post:
-      summary: Requests access for the authenticated user to a project.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Request access to a project
+      description: Requests access to a specified project for the authenticated user.
       produces:
       - application/json
       consumes:
@@ -9526,7 +9528,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Requests access for the authenticated user to a project.
+          description: Request access to a project
           schema:
             "$ref": "#/definitions/API_Entities_AccessRequester"
       tags:
@@ -9535,8 +9537,7 @@ paths:
   "/api/v4/projects/{id}/access_requests/{user_id}/approve":
     put:
       summary: Approve an access request
-      description: Approves an access request for a specified user in a specified
-        group or project.
+      description: Approves an access request for a specified user in a project.
       produces:
       - application/json
       consumes:
@@ -9569,8 +9570,8 @@ paths:
       operationId: putApiV4ProjectsIdAccessRequestsUserIdApprove
   "/api/v4/projects/{id}/access_requests/{user_id}":
     delete:
-      summary: Denies an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Deny an access request
+      description: Denies an access request for a specified user in a project.
       produces:
       - application/json
       parameters:
@@ -10755,8 +10756,8 @@ paths:
       operationId: deleteApiV4ProjectsIdSnippetsSnippetIdNotesNoteIdAwardEmojiAwardId
   "/api/v4/projects/{id}/badges":
     get:
-      summary: List project badges.
-      description: This feature was introduced in GitLab 10.6.
+      summary: List all badges for a project
+      description: Lists all badges for a specified project, including group badges.
       produces:
       - application/json
       parameters:
@@ -10789,7 +10790,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List project badges.
+          description: List all badges for a project
           schema:
             type: array
             items:
@@ -10798,8 +10799,8 @@ paths:
       - badges
       operationId: getApiV4ProjectsIdBadges
     post:
-      summary: Add a badge to a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Create a badge for a project
+      description: Creates a badge for a specified project.
       produces:
       - application/json
       consumes:
@@ -10818,7 +10819,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdBadges"
       responses:
         '201':
-          description: Add a badge to a project.
+          description: Create a badge for a project
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
@@ -10826,8 +10827,9 @@ paths:
       operationId: postApiV4ProjectsIdBadges
   "/api/v4/projects/{id}/badges/render":
     get:
-      summary: Preview a badge from a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge preview for a project
+      description: Previews the final `link_url` and `image_url` for a specified project
+        after resolving the placeholder interpolation.
       produces:
       - application/json
       parameters:
@@ -10849,7 +10851,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Preview a badge from a project.
+          description: Retrieve a badge preview for a project
           schema:
             "$ref": "#/definitions/API_Entities_BasicBadgeDetails"
       tags:
@@ -10857,8 +10859,8 @@ paths:
       operationId: getApiV4ProjectsIdBadgesRender
   "/api/v4/projects/{id}/badges/{badge_id}":
     get:
-      summary: Get a badge of a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge for a project
+      description: Retrieves a specified badge for a project.
       produces:
       - application/json
       parameters:
@@ -10876,15 +10878,15 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a badge of a project.
+          description: Retrieve a badge for a project
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: getApiV4ProjectsIdBadgesBadgeId
     put:
-      summary: Update a badge of a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Update a badge for a project
+      description: Updates a specified badge for a project.
       produces:
       - application/json
       consumes:
@@ -10908,15 +10910,15 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdBadgesBadgeId"
       responses:
         '200':
-          description: Update a badge of a project.
+          description: Update a badge for a project
           schema:
             "$ref": "#/definitions/API_Entities_Badge"
       tags:
       - badges
       operationId: putApiV4ProjectsIdBadgesBadgeId
     delete:
-      summary: Remove a badge from the project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Delete a badge from a project
+      description: Deletes a specified badge from a project.
       produces:
       - application/json
       parameters:
@@ -49971,7 +49973,7 @@ definitions:
     required:
     - link_url
     - image_url
-    description: Add a badge to a group.
+    description: Create a badge for a group
   putApiV4GroupsIdBadgesBadgeId:
     type: object
     properties:
@@ -49984,7 +49986,7 @@ definitions:
       name:
         type: string
         description: Name for the badge
-    description: Update a badge of a group.
+    description: Update a badge for a group
   putApiV4GroupsIdCustomAttributesKey:
     type: object
     properties:
@@ -57365,7 +57367,7 @@ definitions:
     required:
     - link_url
     - image_url
-    description: Add a badge to a project.
+    description: Create a badge for a project
   putApiV4ProjectsIdBadgesBadgeId:
     type: object
     properties:
@@ -57378,7 +57380,7 @@ definitions:
       name:
         type: string
         description: Name for the badge
-    description: Update a badge of a project.
+    description: Update a badge for a project
   API_Entities_Branch:
     type: object
     properties:

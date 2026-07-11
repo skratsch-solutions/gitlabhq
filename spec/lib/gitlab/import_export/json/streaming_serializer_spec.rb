@@ -270,6 +270,37 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
         )
       end
 
+      context 'when offline_export_id is present' do
+        subject(:serializer) do
+          described_class.new(
+            exportable,
+            relations_schema,
+            json_writer,
+            exportable_path: exportable_path,
+            logger: logger,
+            current_user: user,
+            offline_export_id: offline_export.id
+          )
+        end
+
+        it 'logs the relation name with the offline transfer importer' do
+          allow(json_writer).to receive(:write_relation)
+          allow(logger).to receive(:info)
+
+          serializer.execute
+
+          expect(logger).to have_received(:info).with(
+            importer: ::Import::SOURCE_OFFLINE_TRANSFER,
+            message: 'Exporting relation: namespace',
+            relation: 'namespace',
+            Labkit::Fields::GL_ORGANIZATION_ID => exportable.organization_id,
+            project_id: exportable.id,
+            project_name: exportable.name,
+            project_path: exportable.full_path
+          )
+        end
+      end
+
       context 'contributing user id caching' do
         let(:namespace_options) do
           { include: [], only: [:name, :path, :description, :owner_id] }

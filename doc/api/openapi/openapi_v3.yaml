@@ -16403,8 +16403,8 @@ paths:
   "/api/v4/templates/licenses":
     get:
       operationId: getApiV4TemplatesLicenses
-      summary: Get all license templates
-      description: This feature was introduced in GitLab 8.7.
+      summary: List all license templates
+      description: Lists all available license templates.
       tags:
       - Templates
       responses:
@@ -16445,8 +16445,9 @@ paths:
   "/api/v4/templates/licenses/{name}":
     get:
       operationId: getApiV4TemplatesLicensesName
-      summary: Get a single license template
-      description: This feature was introduced in GitLab 8.7.
+      summary: Retrieve a license template
+      description: Retrieves a specified license template. You can pass parameters
+        to replace the license placeholder.
       tags:
       - Templates
       responses:
@@ -16484,8 +16485,8 @@ paths:
   "/api/v4/templates/gitignores":
     get:
       operationId: getApiV4TemplatesGitignores
-      summary: Get all .gitignore templates
-      description: This feature was introduced in GitLab 8.8.
+      summary: List all .gitignore templates
+      description: Lists all .gitignore templates.
       tags:
       - Templates
       responses:
@@ -16519,8 +16520,8 @@ paths:
   "/api/v4/templates/gitignores/{name}":
     get:
       operationId: getApiV4TemplatesGitignoresName
-      summary: Get a single .gitignore template
-      description: This feature was introduced in GitLab 8.8.
+      summary: Retrieve a .gitignore template
+      description: Retrieves a specified .gitignore template.
       tags:
       - Templates
       responses:
@@ -16544,8 +16545,8 @@ paths:
   "/api/v4/templates/gitlab_ci_ymls":
     get:
       operationId: getApiV4TemplatesGitlabCiYmls
-      summary: Get all GitLab CI/CD YAML templates
-      description: This feature was introduced in GitLab 8.9.
+      summary: List all GitLab CI/CD YAML templates
+      description: Lists all GitLab CI/CD YAML templates.
       tags:
       - Templates
       responses:
@@ -16579,8 +16580,8 @@ paths:
   "/api/v4/templates/gitlab_ci_ymls/{name}":
     get:
       operationId: getApiV4TemplatesGitlabCiYmlsName
-      summary: Get a single GitLab CI/CD YAML template
-      description: This feature was introduced in GitLab 8.9.
+      summary: Retrieve a GitLab CI/CD YAML template
+      description: Retrieves a specified GitLab CI/CD YAML template.
       tags:
       - Templates
       responses:
@@ -16604,8 +16605,8 @@ paths:
   "/api/v4/templates/dockerfiles":
     get:
       operationId: getApiV4TemplatesDockerfiles
-      summary: Get all Dockerfile templates
-      description: This feature was introduced in GitLab 8.15.
+      summary: List all Dockerfile templates
+      description: Lists all Dockerfile templates.
       tags:
       - Templates
       responses:
@@ -16639,8 +16640,8 @@ paths:
   "/api/v4/templates/dockerfiles/{name}":
     get:
       operationId: getApiV4TemplatesDockerfilesName
-      summary: Get a single Dockerfile template
-      description: This feature was introduced in GitLab 8.15.
+      summary: Retrieve a Dockerfile template
+      description: Retrieves a specified Dockerfile template.
       tags:
       - Templates
       responses:
@@ -17211,7 +17212,8 @@ paths:
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
-      summary: Create a service account user. Available only for instance admins.
+      summary: Create an instance service account
+      description: Creates an instance service account.
       tags:
       - Service accounts
       responses:
@@ -17235,8 +17237,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_4d6a710f0d2d"
     get:
       operationId: getApiV4ServiceAccounts
-      summary: Get list of service account users. Available only for instance admins
-      description: Get list of service account users
+      summary: List all instance service accounts
+      description: Lists all instance service accounts. Use the `page` and `per_page`
+        pagination parameters to filter the results.
       tags:
       - Service accounts
       responses:
@@ -17296,8 +17299,8 @@ paths:
   "/api/v4/service_accounts/{user_id}":
     patch:
       operationId: patchApiV4ServiceAccountsUserId
-      summary: Update a service account user. Available only for instance admins.
-      description: Update a service account user
+      summary: Update an instance service account
+      description: Updates a specified instance service account.
       tags:
       - Service accounts
       responses:
@@ -17854,7 +17857,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdServiceAccounts
       summary: Create a project service account
-      description: Creates a service account in the specified project
+      description: Creates a service account in a specified project.
       tags:
       - Service accounts
       responses:
@@ -17890,7 +17893,8 @@ paths:
     get:
       operationId: getApiV4ProjectsIdServiceAccounts
       summary: List all project service accounts
-      description: Lists all service accounts for a specified project
+      description: Lists all service accounts in a specified project. Use the `page`
+        and `per_page` pagination parameters to filter the results.
       tags:
       - Service accounts
       responses:
@@ -17961,9 +17965,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdServiceAccountsUserId
       summary: Delete a project service account
-      description: |-
-        Deletes a service account from a specified project.
-                    Available only for project Owners or Maintainers, and administrators.
+      description: Deletes a specified project service account. Available only for
+        project Owners, Maintainers, and administrators.
       tags:
       - Service accounts
       responses:
@@ -18189,10 +18192,9 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdServiceAccountsUserIdPersonalAccessTokens
-      summary: Create a personal access token for a project service account.
-      description: |-
-        Creates a personal access token for a specified project service account.
-                      Available only for project Owners or Maintainers.
+      summary: Create a personal access token for a project service account
+      description: Creates a personal access token for a specified project service
+        account. Available only for project Owners, Maintainers, and administrators.
       tags:
       - Access tokens
       - Service accounts
@@ -18272,7 +18274,8 @@ paths:
       operationId: postApiV4ProjectsIdServiceAccountsUserIdPersonalAccessTokensTokenIdRotate
       summary: Rotate a personal access token for a project service account
       description: Rotates a specified personal access token for a project service
-        account.
+        account. This revokes the existing token and creates a token with the same
+        name, description, and scopes.
       tags:
       - Access tokens
       - Service accounts
@@ -20713,7 +20716,7 @@ paths:
     post:
       operationId: postApiV4GroupsIdServiceAccounts
       summary: Create a group service account
-      description: Creates a service account in the specified group
+      description: Creates a service account in a specified group.
       tags:
       - Service accounts
       responses:
@@ -20749,7 +20752,8 @@ paths:
     get:
       operationId: getApiV4GroupsIdServiceAccounts
       summary: List all group service accounts
-      description: Lists all service accounts for a specified group
+      description: Lists all service accounts in a specified group. Use the `page`
+        and `per_page` pagination parameters to filter the results.
       tags:
       - Service accounts
       responses:
@@ -20819,9 +20823,9 @@ paths:
   "/api/v4/groups/{id}/service_accounts/{user_id}":
     delete:
       operationId: deleteApiV4GroupsIdServiceAccountsUserId
-      summary: Delete a group service account.
-      description: Deletes a service account from a specified group. Available only
-        for group owners and admins.
+      summary: Delete a group service account
+      description: Deletes a specified group service account. Available only for group
+        Owners and administrators.
       tags:
       - Service accounts
       responses:
@@ -21047,10 +21051,10 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdServiceAccountsUserIdPersonalAccessTokens
-      summary: Create a personal access token for a group service account.
-      description: |-
-        Creates a personal access token for a specified group service account.
-                      Requires the group Owner role. This feature was introduced in GitLab 16.1.
+      summary: Create a personal access token for a group service account
+      description: Creates a personal access token for a specified group service account.
+        Available only for group Owners and administrators. This feature was introduced
+        in GitLab 16.1.
       tags:
       - Access tokens
       - Service accounts
@@ -21127,8 +21131,10 @@ paths:
   "/api/v4/groups/{id}/service_accounts/{user_id}/personal_access_tokens/{token_id}/rotate":
     post:
       operationId: postApiV4GroupsIdServiceAccountsUserIdPersonalAccessTokensTokenIdRotate
-      summary: Rotate personal access token for group service account
+      summary: Rotate a personal access token for a group service account
       description: Rotates a specified personal access token for a group service account.
+        This revokes the existing token and creates a token with the same name, description,
+        and scopes.
       tags:
       - Access tokens
       - Service accounts
@@ -71668,8 +71674,8 @@ paths:
   "/api/v4/groups/{id}/badges":
     get:
       operationId: getApiV4GroupsIdBadges
-      summary: List group badges.
-      description: This feature was introduced in GitLab 10.6.
+      summary: List all badges for a group
+      description: Lists all badges for a specified group.
       tags:
       - Badges
       responses:
@@ -71718,8 +71724,8 @@ paths:
         in: query
     post:
       operationId: postApiV4GroupsIdBadges
-      summary: Add a badge to a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Create a badge for a group
+      description: Creates a badge for a specified group.
       tags:
       - Badges
       responses:
@@ -71750,8 +71756,9 @@ paths:
   "/api/v4/groups/{id}/badges/render":
     get:
       operationId: getApiV4GroupsIdBadgesRender
-      summary: Preview a badge from a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge preview for a group
+      description: Previews the final `link_url` and `image_url` for a specified group
+        after resolving the placeholder interpolation.
       tags:
       - Badges
       responses:
@@ -71790,8 +71797,8 @@ paths:
   "/api/v4/groups/{id}/badges/{badge_id}":
     get:
       operationId: getApiV4GroupsIdBadgesBadgeId
-      summary: Get a badge of a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge for a group
+      description: Retrieves a specified badge for a group.
       tags:
       - Badges
       responses:
@@ -71821,8 +71828,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdBadgesBadgeId
-      summary: Update a badge of a group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Update a badge for a group
+      description: Updates a specified badge for a group.
       tags:
       - Badges
       responses:
@@ -71858,8 +71865,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_4294eea0e484"
     delete:
       operationId: deleteApiV4GroupsIdBadgesBadgeId
-      summary: Remove a badge from the group.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Delete a badge from a group
+      description: Deletes a specified badge from a group.
       tags:
       - Badges
       responses:
@@ -71886,8 +71893,8 @@ paths:
   "/api/v4/projects/{id}/badges":
     get:
       operationId: getApiV4ProjectsIdBadges
-      summary: List project badges.
-      description: This feature was introduced in GitLab 10.6.
+      summary: List all badges for a project
+      description: Lists all badges for a specified project, including group badges.
       tags:
       - Badges
       responses:
@@ -71936,8 +71943,8 @@ paths:
         in: query
     post:
       operationId: postApiV4ProjectsIdBadges
-      summary: Add a badge to a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Create a badge for a project
+      description: Creates a badge for a specified project.
       tags:
       - Badges
       responses:
@@ -71968,8 +71975,9 @@ paths:
   "/api/v4/projects/{id}/badges/render":
     get:
       operationId: getApiV4ProjectsIdBadgesRender
-      summary: Preview a badge from a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge preview for a project
+      description: Previews the final `link_url` and `image_url` for a specified project
+        after resolving the placeholder interpolation.
       tags:
       - Badges
       responses:
@@ -72008,8 +72016,8 @@ paths:
   "/api/v4/projects/{id}/badges/{badge_id}":
     get:
       operationId: getApiV4ProjectsIdBadgesBadgeId
-      summary: Get a badge of a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve a badge for a project
+      description: Retrieves a specified badge for a project.
       tags:
       - Badges
       responses:
@@ -72039,8 +72047,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdBadgesBadgeId
-      summary: Update a badge of a project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Update a badge for a project
+      description: Updates a specified badge for a project.
       tags:
       - Badges
       responses:
@@ -72076,8 +72084,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_4294eea0e484"
     delete:
       operationId: deleteApiV4ProjectsIdBadgesBadgeId
-      summary: Remove a badge from the project.
-      description: This feature was introduced in GitLab 10.6.
+      summary: Delete a badge from a project
+      description: Deletes a specified badge from a project.
       tags:
       - Badges
       responses:
@@ -74803,8 +74811,9 @@ paths:
   "/api/v4/groups/{id}/access_requests":
     get:
       operationId: getApiV4GroupsIdAccessRequests
-      summary: Gets a list of access requests for a group.
-      description: This feature was introduced in GitLab 8.11.
+      summary: List all access requests for a group
+      description: Lists all access requests for a specified group that are viewable
+        by the authenticated user.
       tags:
       - Access requests
       responses:
@@ -74846,8 +74855,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdAccessRequests
-      summary: Requests access for the authenticated user to a group.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Request access to a group
+      description: Requests access to a specified group for the authenticated user.
       tags:
       - Access requests
       responses:
@@ -74879,8 +74888,7 @@ paths:
     put:
       operationId: putApiV4GroupsIdAccessRequestsUserIdApprove
       summary: Approve an access request
-      description: Approves an access request for a specified user in a specified
-        group or project.
+      description: Approves an access request for a specified user in a group.
       tags:
       - Access requests
       responses:
@@ -74924,8 +74932,8 @@ paths:
   "/api/v4/groups/{id}/access_requests/{user_id}":
     delete:
       operationId: deleteApiV4GroupsIdAccessRequestsUserId
-      summary: Denies an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Deny an access request
+      description: Denies an access request for a specified user in a group.
       tags:
       - Access requests
       responses:
@@ -74952,8 +74960,9 @@ paths:
   "/api/v4/projects/{id}/access_requests":
     get:
       operationId: getApiV4ProjectsIdAccessRequests
-      summary: Gets a list of access requests for a project.
-      description: This feature was introduced in GitLab 8.11.
+      summary: List all access requests for a project
+      description: Lists all access requests for a specified project that are viewable
+        by the authenticated user.
       tags:
       - Access requests
       responses:
@@ -74995,8 +75004,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdAccessRequests
-      summary: Requests access for the authenticated user to a project.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Request access to a project
+      description: Requests access to a specified project for the authenticated user.
       tags:
       - Access requests
       responses:
@@ -75028,8 +75037,7 @@ paths:
     put:
       operationId: putApiV4ProjectsIdAccessRequestsUserIdApprove
       summary: Approve an access request
-      description: Approves an access request for a specified user in a specified
-        group or project.
+      description: Approves an access request for a specified user in a project.
       tags:
       - Access requests
       responses:
@@ -75073,8 +75081,8 @@ paths:
   "/api/v4/projects/{id}/access_requests/{user_id}":
     delete:
       operationId: deleteApiV4ProjectsIdAccessRequestsUserId
-      summary: Denies an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Deny an access request
+      description: Denies an access request for a specified user in a project.
       tags:
       - Access requests
       responses:

@@ -315,7 +315,8 @@ module Gitlab
         strong_memoize_attr :user_contributions_export_mapper
 
         def log_base_data
-          log = { importer: 'Import/Export' }
+          importer = @offline_export_id ? ::Import::SOURCE_OFFLINE_TRANSFER : 'Import/Export'
+          log = { importer: importer }
           log.merge!(Gitlab::ImportExport::LogUtil.exportable_to_log_payload(exportable))
           log
         end

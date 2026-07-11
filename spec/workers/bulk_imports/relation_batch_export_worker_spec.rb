@@ -113,7 +113,8 @@ RSpec.describe BulkImports::RelationBatchExportWorker, feature_category: :import
     shared_examples 'a failed relation batch export' do
       context 'when called by .sidekiq_retries_exhausted' do
         it 'sets export status to failed and tracks the exception' do
-          portable = batch.export.portable
+          export = batch.export
+          portable = export.portable
 
           expect(Gitlab::ErrorTracking)
             .to receive(:track_exception)
@@ -121,7 +122,9 @@ RSpec.describe BulkImports::RelationBatchExportWorker, feature_category: :import
               kind_of(StandardError),
               portable_id: portable.id,
               portable_type: portable.class.name,
-              offline_export_id: offline_export_id
+              relation: export.relation,
+              offline_export_id: offline_export_id,
+              importer: export.import_source
             )
 
           described_class.sidekiq_retries_exhausted_block.call(job, StandardError.new('*' * 300))
@@ -143,7 +146,8 @@ RSpec.describe BulkImports::RelationBatchExportWorker, feature_category: :import
 
       context 'when called by .sidekiq_interruptions_exhausted' do
         it 'sets export status to failed and tracks the exception' do
-          portable = batch.export.portable
+          export = batch.export
+          portable = export.portable
 
           expect(Gitlab::ErrorTracking)
             .to receive(:track_exception)
@@ -151,7 +155,9 @@ RSpec.describe BulkImports::RelationBatchExportWorker, feature_category: :import
               kind_of(Import::Exceptions::SidekiqExhaustedInterruptionsError),
               portable_id: portable.id,
               portable_type: portable.class.name,
-              offline_export_id: offline_export_id
+              relation: export.relation,
+              offline_export_id: offline_export_id,
+              importer: export.import_source
             )
 
           described_class.interruptions_exhausted_block.call(job)

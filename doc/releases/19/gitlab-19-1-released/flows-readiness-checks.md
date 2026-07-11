@@ -9,8 +9,6 @@ categories: [ Duo Agent Platform ]
 level: secondary
 ---
 
-<!-- categories: Duo Agent Platform  -->
-
 GitLab Duo health checks now include foundational flows readiness checks, which verify:
 
 - The instance-level flow execution setting is enabled.

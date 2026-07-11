@@ -9,8 +9,6 @@ categories: [ 'Duo Agent Platform', 'Duo Chat', 'Editor Extensions' ]
 weight: 50
 ---
 
-<!-- categories: Duo Agent Platform, Duo Chat, Editor Extensions -->
-
 Previously, when Agentic Chat asked you to approve a tool invocation, you could approve it once or approve the tool call with these arguments for the remainder of the session. Different arguments would require additional approval.
 
 Workflows that repeated similar

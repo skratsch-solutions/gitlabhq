@@ -5,11 +5,9 @@ offering: [ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_gov
 stage: verify
 documentation_link: https://docs.gitlab.com/runner
 work_item: https://gitlab.com/gitlab-org/gitlab-runner/-/work_items/?milestone_title=19.1&state=closed
-categories: [ Runner Core ]
+categories: [ GitLab Runner Core ]
 level: secondary
 ---
-
-<!-- categories: Runner Core -->
 
 We're also releasing GitLab Runner 19.1 today! GitLab Runner is the highly-scalable build agent that runs your CI/CD jobs and sends the results back to a GitLab instance. GitLab Runner works in conjunction with GitLab CI/CD, the open-source continuous integration service included with GitLab.
 
