@@ -520,7 +520,6 @@ RSpec/NamedSubject:
     - 'ee/spec/requests/api/merge_trains_spec.rb'
     - 'ee/spec/requests/api/namespaces_spec.rb'
     - 'ee/spec/requests/api/projects_spec.rb'
-    - 'ee/spec/requests/api/releases_spec.rb'
     - 'ee/spec/requests/api/remote_mirrors_spec.rb'
     - 'ee/spec/requests/api/saml_group_links_spec.rb'
     - 'ee/spec/requests/api/status_checks_spec.rb'
