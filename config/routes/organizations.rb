@@ -32,7 +32,7 @@ unless @organization_scoped_routes
           get :general
         end
 
-        resource :groups, only: [:new, :create, :destroy], as: :groups_organization
+        resource :groups, only: [:new, :create], as: :groups_organization
 
         scope(
           path: 'groups/*id',

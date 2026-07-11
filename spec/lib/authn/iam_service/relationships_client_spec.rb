@@ -59,6 +59,52 @@ RSpec.describe Authn::IamService::RelationshipsClient, feature_category: :system
       client.write_relationships([], token: user_token)
     end
 
+    context 'when the IAM write fails with a gRPC status' do
+      # Each gRPC error IAM can return maps to a machine-readable reason the
+      # caller translates; the client stays transport-only.
+      {
+        GRPC::PermissionDenied => :permission_denied,
+        GRPC::Unauthenticated => :unauthenticated,
+        GRPC::InvalidArgument => :invalid_request,
+        GRPC::Unavailable => :unavailable,
+        GRPC::DeadlineExceeded => :timeout
+      }.each do |error_class, reason|
+        it "raises a RequestError with reason #{reason} for #{error_class}" do
+          allow(update_stub).to receive(:write_relationships).and_raise(error_class.new)
+
+          expect { client.write_relationships([], token: user_token) }
+            .to raise_error(described_class::RequestError, /write failed/) { |e| expect(e.reason).to eq(reason) }
+        end
+      end
+
+      it 'falls back to the :unknown reason for an unmapped status' do
+        allow(update_stub).to receive(:write_relationships).and_raise(GRPC::Internal.new)
+
+        expect { client.write_relationships([], token: user_token) }
+          .to raise_error(described_class::RequestError) { |e| expect(e.reason).to eq(:unknown) }
+      end
+
+      it 'tracks the underlying gRPC exception' do
+        error = GRPC::PermissionDenied.new
+        allow(update_stub).to receive(:write_relationships).and_raise(error)
+
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(error)
+
+        expect { client.write_relationships([], token: user_token) }
+          .to raise_error(described_class::RequestError)
+      end
+    end
+
+    context 'when the data access service is misconfigured' do
+      it 'raises a RequestError with the :unavailable reason' do
+        allow(Authn::IamDataAccessService).to receive(:grpc_address)
+          .and_raise(Authn::IamDataAccessService::ConfigurationError)
+
+        expect { client.write_relationships([], token: user_token) }
+          .to raise_error(described_class::RequestError) { |e| expect(e.reason).to eq(:unavailable) }
+      end
+    end
+
     context 'with a real stub and interceptor chain' do
       # Everything up to the stub is unmocked here (including
       # ServiceTokenInterceptor and GRPC::ClientStub#request_response) so the

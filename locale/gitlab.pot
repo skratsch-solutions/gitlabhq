@@ -11698,13 +11698,31 @@ msgstr ""
 msgid "ArtifactRegistry|At least one assignment is required."
 msgstr ""
 
+msgid "ArtifactRegistry|Could not authenticate with the Artifact Registry service."
+msgstr ""
+
 msgid "ArtifactRegistry|Organization could not be determined."
 msgstr ""
 
 msgid "ArtifactRegistry|Resource ID must be a valid UUID."
 msgstr ""
 
+msgid "ArtifactRegistry|The Artifact Registry service did not respond in time."
+msgstr ""
+
+msgid "ArtifactRegistry|The Artifact Registry service is unavailable."
+msgstr ""
+
+msgid "ArtifactRegistry|The role assignment could not be completed."
+msgstr ""
+
+msgid "ArtifactRegistry|The role assignment request was invalid."
+msgstr ""
+
 msgid "ArtifactRegistry|Unknown Artifact Registry role: %{role}."
+msgstr ""
+
+msgid "ArtifactRegistry|You are not authorized to grant this role on this resource."
 msgstr ""
 
 msgid "ArtifactRegistry|You cannot grant roles in another organization."
@@ -31182,6 +31200,9 @@ msgid "EndOfTrialModal|Purchase GitLab Credits"
 msgstr ""
 
 msgid "EndOfTrialModal|Source Code Management & CI/CD"
+msgstr ""
+
+msgid "EndOfTrialModal|Upgrade %{name} to Premium for advanced features, or purchase GitLab Credits to power your usage."
 msgstr ""
 
 msgid "EndOfTrialModal|Upgrade %{name} to Premium to maintain access to advanced features and keep your workflow running smoothly."

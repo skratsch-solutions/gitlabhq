@@ -121,7 +121,7 @@ export const newGroupsOrganizationPath = /*#__PURE__*/ __jsr.r({"organization_pa
  * - href: `/o/:organization_path/-/groups(.:format)`
  * - Path helper: `groups_organization_path`
  * - URL helper: `groups_organization_url`
- * - controller#action: `organizations/groups#destroy`
+ * - controller#action: `organizations/groups#create`
  *
  * @param {any} organizationPath
  * @param {object | undefined} options

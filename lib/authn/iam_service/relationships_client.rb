@@ -8,11 +8,33 @@ module Authn
     # (Authn::TokenExchange::TokenIssuer). IAM validates the token and authorizes
     # the caller server-side -- this client does not perform authorization.
     class RelationshipsClient < BaseClient
-      RequestError = Class.new(StandardError)
+      # Carries a machine-readable reason so callers can map the failure to a
+      # user-facing message without parsing the message text. The message itself
+      # stays diagnostic (it includes the raw gRPC status) for logs and Sentry.
+      class RequestError < StandardError
+        attr_reader :reason
+
+        def initialize(message, reason: :unknown)
+          @reason = reason
+          super(message)
+        end
+      end
 
       # Allows headroom for bulk writes, which send up to the array argument
       # limit of tuples in a single all-or-nothing transaction.
       TIMEOUT_SECONDS = 15
+
+      # Maps the gRPC statuses the IAM Relationships API returns on a failed
+      # write to a machine-readable reason for the caller to translate. Keyed by
+      # the integer gRPC status code (GRPC::BadStatus#code); unlisted statuses
+      # fall back to :unknown.
+      WRITE_ERROR_REASONS = {
+        GRPC::Core::StatusCodes::PERMISSION_DENIED => :permission_denied,
+        GRPC::Core::StatusCodes::UNAUTHENTICATED => :unauthenticated,
+        GRPC::Core::StatusCodes::INVALID_ARGUMENT => :invalid_request,
+        GRPC::Core::StatusCodes::UNAVAILABLE => :unavailable,
+        GRPC::Core::StatusCodes::DEADLINE_EXCEEDED => :timeout
+      }.freeze
 
       # Assigns roles by writing one ASSIGNMENT tuple per entry in a single
       # all-or-nothing write. Each assignment is a hash of the per-subject
@@ -45,10 +67,13 @@ module Authn
         client.write_relationships(request, metadata: bearer_metadata(token))
       rescue ::Authn::IamDataAccessService::ConfigurationError => e
         Gitlab::ErrorTracking.track_exception(e)
-        raise RequestError, 'The Artifact Registry service is unavailable.'
+        raise RequestError.new('IAM data access service is not configured', reason: :unavailable)
       rescue GRPC::BadStatus => e
         Gitlab::ErrorTracking.track_exception(e)
-        raise RequestError, "IAM Relationships API write failed: #{e.code}"
+        raise RequestError.new(
+          "IAM Relationships API write failed: #{e.code}",
+          reason: WRITE_ERROR_REASONS.fetch(e.code, :unknown)
+        )
       end
 
       private

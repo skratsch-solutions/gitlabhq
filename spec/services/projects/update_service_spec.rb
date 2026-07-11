@@ -549,13 +549,21 @@ RSpec.describe Projects::UpdateService, feature_category: :groups_and_projects d
             stub_rename_base_repository_in_registry(dry_run: true, result: :bad_request)
           end
 
-          it_behaves_like 'renaming the project fails with message', /container registry path rename validation failed/
+          it_behaves_like 'renaming the project fails with message', /container registry path rename validation failed: Bad Request/
 
           it 'logs the error' do
             expect_any_instance_of(described_class).to receive(:log_error).with("Dry run failed for renaming project with tags: #{project.full_path}, error: bad_request")
 
             update_project(project, admin, path: new_name)
           end
+        end
+
+        context 'when the dry run reports the registry does not support renaming' do
+          before do
+            stub_rename_base_repository_in_registry(dry_run: true, result: :rename_not_supported)
+          end
+
+          it_behaves_like 'renaming the project fails with message', /Cannot rename or delete project because it contains container registry tags. Delete all container registry tags first/
         end
 
         context 'when the dry run succeeds' do
