@@ -53,19 +53,6 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
       execute_service
     end
 
-    context 'when async_write_diffs_cache_on_mr_create is disabled' do
-      before do
-        stub_feature_flags(async_write_diffs_cache_on_mr_create: false)
-      end
-
-      it 'writes diffs to the cache synchronously' do
-        expect(merge_request)
-          .to receive_message_chain(:diffs, :write_cache)
-
-        execute_service
-      end
-    end
-
     it 'creates cross references' do
       expect(merge_request)
         .to receive(:create_cross_references!).with(merge_request.author)

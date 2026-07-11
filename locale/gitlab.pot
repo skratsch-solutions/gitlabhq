@@ -28546,6 +28546,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Creating session"
 msgstr ""
 
+msgid "DuoAgentPlatform|Default model"
+msgstr ""
+
 msgid "DuoAgentPlatform|Delegated to %{target} —"
 msgstr ""
 

@@ -48,11 +48,7 @@ module MergeRequests
     # The diffs highlight/stats cache is display-only and not required for the MR
     # to be prepared, so it can be warmed off the critical path. See #417973.
     def write_diffs_cache(merge_request)
-      if Feature.enabled?(:async_write_diffs_cache_on_mr_create, merge_request.target_project)
-        MergeRequests::WriteDiffsCacheWorker.perform_async(merge_request.id)
-      else
-        merge_request.diffs(include_stats: false).write_cache
-      end
+      MergeRequests::WriteDiffsCacheWorker.perform_async(merge_request.id)
     end
 
     def link_lfs_objects(merge_request)
