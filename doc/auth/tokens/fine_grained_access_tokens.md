@@ -80,3 +80,74 @@ calls:
 - [Fine-grained permissions for REST API](fine_grained_access_tokens_rest.md)
 - [Fine-grained permissions for GraphQL API](fine_grained_access_tokens_graphql.md)
 - [Fine-grained permissions for Git and other operations](fine_grained_access_tokens_other.md)
+
+## Enforce fine-grained personal access tokens
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/groups/gitlab-org/-/work_items/20180) in GitLab 18.11 [with flags](../../administration/feature_flags/_index.md) named `granular_personal_access_tokens_enforcement` and `granular_personal_access_tokens_enforcement_saas`. Disabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/596613) on GitLab Self-Managed in GitLab 19.2.
+
+{{< /history >}}
+
+You can require your users to adopt fine-grained personal access tokens after a specified enforcement
+date. After this date, any existing legacy personal access tokens remain listed in user profiles, but
+cannot be used to access resources.
+
+Enforcement works differently on GitLab.com and GitLab Self-Managed:
+
+- On GitLab.com, enforcement is applied to a top-level group and inherited by all subgroups and projects.
+- On GitLab Self-Managed, enforcement is applied to the entire instance.
+
+### Enforce fine-grained tokens for a top-level group
+
+Prerequisites:
+
+- You must have the Owner role for the top-level group.
+
+On GitLab.com, enforcement applies to the group and its subgroups and projects, and blocks legacy
+personal access tokens from accessing those resources after the enforcement date. Users can still
+create legacy tokens, but those tokens cannot access the enforced resources for the group.
+
+This setting is not available on GitLab Self-Managed.
+
+You can enforce fine-grained tokens only on a top-level group.
+
+To enforce fine-grained personal access tokens for a top-level group:
+
+1. In the left sidebar, select **Search or go to** and find your group.
+1. Select **Settings** > **General**.
+1. Expand **Permissions and group features**.
+1. Select **Require fine-grained personal access tokens after a specific date**.
+1. Enter a future enforcement date.
+   The enforcement date is in Coordinated Universal Time (UTC).
+1. Select **Save changes**.
+
+After the enforcement date, users receive an error when they attempt to use a legacy token to access
+resources in the top-level group, any subgroups, or projects. The error lists the resource boundary
+and permissions a fine-grained token needs. For example:
+
+```plaintext
+Access denied: This operation requires a fine-grained personal access token with the following project permissions: [Project: Read].
+```
+
+### Enforce fine-grained tokens on GitLab Self-Managed
+
+Prerequisites:
+
+- You must be an administrator.
+
+On GitLab Self-Managed, enforcement applies to the entire instance, and blocks users from creating or
+rotating legacy personal access tokens after the enforcement date. Users can create fine-grained
+tokens only. Existing legacy tokens continue to work until they expire.
+
+To enforce fine-grained personal access tokens for the instance:
+
+1. In the left sidebar, at the bottom, select **Admin**.
+1. Select **Settings** > **General**.
+1. Expand **Account and limit**.
+1. Select **Require fine-grained personal access tokens after a specific date**.
+1. In **Fine-grained personal access tokens enforcement date**, enter a future date.
+1. Select **Save changes**.
+
+After the enforcement date, users receive an error when they attempt to create or rotate a legacy token.
