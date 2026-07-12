@@ -212,7 +212,7 @@ RSpec.describe Milestone, 'Milestoneish', factory_default: :keep do
 
   describe '#complete?', :use_clean_rails_memory_store_caching do
     it 'returns false when has items opened' do
-      expect(milestone.complete?).to eq false
+      expect(milestone.complete?).to be false
     end
 
     it 'returns true when all items are closed' do
@@ -220,7 +220,7 @@ RSpec.describe Milestone, 'Milestoneish', factory_default: :keep do
       security_issue_1.close
       security_issue_2.close
 
-      expect(milestone.complete?).to eq true
+      expect(milestone.complete?).to be true
     end
   end
 

@@ -323,7 +323,7 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache, feature_category: 
 
       context 'when the markdown field does not exist' do
         it 'returns nil' do
-          expect(thing.updated_cached_html_for(:something)).to eq(nil)
+          expect(thing.updated_cached_html_for(:something)).to be_nil
         end
       end
 
@@ -357,7 +357,7 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache, feature_category: 
         it 'returns nil' do
           allow(thing).to receive(:can_cache_field?).with(:description).and_return false
 
-          expect(thing.rendered_field_content(:description)).to eq nil
+          expect(thing.rendered_field_content(:description)).to be_nil
         end
       end
     end
@@ -468,24 +468,24 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache, feature_category: 
       it 'returns false when cached_markdown_version is ahead of the current one' do
         thing.cached_markdown_version += 1
 
-        expect(thing.attribute_invalidated?(:description_html)).to eq(false)
+        expect(thing.attribute_invalidated?(:description_html)).to be(false)
       end
 
       it 'returns true when markdown is changed' do
         thing.description = updated_markdown
 
-        expect(thing.attribute_invalidated?(:description_html)).to eq(true)
+        expect(thing.attribute_invalidated?(:description_html)).to be(true)
       end
 
       it 'returns true when both markdown and HTML are changed' do
         thing.description = updated_markdown
         thing.description_html = updated_html
 
-        expect(thing.attribute_invalidated?(:description_html)).to eq(true)
+        expect(thing.attribute_invalidated?(:description_html)).to be(true)
       end
 
       it 'returns false when there are no changes' do
-        expect(thing.attribute_invalidated?(:description_html)).to eq(false)
+        expect(thing.attribute_invalidated?(:description_html)).to be(false)
       end
 
       it 'returns false if skip_markdown_cache_validation is true' do
@@ -495,7 +495,7 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache, feature_category: 
 
         thing.skip_markdown_cache_validation = true
 
-        expect(thing.attribute_invalidated?(:description_html)).to eq(false)
+        expect(thing.attribute_invalidated?(:description_html)).to be(false)
       end
     end
 

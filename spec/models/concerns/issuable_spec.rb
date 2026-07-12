@@ -161,7 +161,7 @@ RSpec.describe Issuable, feature_category: :team_planning do
       issue.author_id = nil
       issue.save!(validate: false)
 
-      expect(issue.author_name).to eq nil
+      expect(issue.author_name).to be_nil
     end
   end
 
