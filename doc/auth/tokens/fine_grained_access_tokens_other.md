@@ -2,7 +2,7 @@
 stage: Software Supply Chain Security
 group: Authorization
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
-title: Fine-grained permissions for personal access tokens in Git and other operations
+title: Fine-grained permissions for Git and other operations
 ---
 
 {{< details >}}
@@ -18,11 +18,9 @@ title: Fine-grained permissions for personal access tokens in Git and other oper
 
 {{< /history >}}
 
-To create a fine-grained personal access token, see
-[Fine-grained permissions for personal access tokens](fine_grained_access_tokens.md#create-a-fine-grained-personal-access-token).
-
-Besides the REST and GraphQL APIs, fine-grained personal access tokens can authenticate other
-requests, such as Git operations over HTTPS and container registry requests.
+A fine-grained personal access token can access only the resources and permissions you grant it.
+To use one with Git and other operations, create a token and define its scope. For more information, see
+[fine-grained personal access tokens](fine_grained_access_tokens.md).
 
 In the following tables:
 
@@ -40,15 +38,17 @@ following permissions:
 | ---------------------------------- | -------- | ---------- | ------------- |
 | Clone or pull a project repository | Code     | Download   | Project       |
 | Push to a project repository       | Code     | Push       | Project       |
-| Clone or pull a wiki               | Wiki     | Read       | Project, Group |
-| Push to a wiki                     | Wiki     | Create     | Project, Group |
-| Clone or pull a snippet            | Snippet  | Read       | Project, User |
-| Push to a snippet                  | Snippet  | Update     | Project, User |
+| Clone or pull a wiki               | Wiki     | Read       | Project, Group <sup>1</sup> |
+| Push to a wiki                     | Wiki     | Create     | Project, Group <sup>1</sup> |
+| Clone or pull a snippet            | Snippet  | Read       | Project, User <sup>2</sup> |
+| Push to a snippet                  | Snippet  | Update     | Project, User <sup>2</sup> |
 | Download Git LFS objects           | Code     | Download   | Project       |
 | Upload Git LFS objects             | Code     | Push       | Project       |
 
-Project wikis use the project boundary and group wikis use the group boundary.
-Similarly, project snippets use the project boundary and personal snippets use the user boundary.
+**Footnotes**:
+
+1. Project wikis use the project boundary and group wikis use the group boundary.
+1. Project snippets use the project boundary and personal snippets use the user boundary.
 
 ## Container registry
 
@@ -61,7 +61,8 @@ must have the following permissions:
 | Pull container images                         | Container Repository | Read       | Project |
 | Delete container images and tags              | Container Repository | Delete     | Project |
 
-You cannot push container images with a fine-grained personal access token.
+> [!note]
+> You cannot use fine-grained personal access tokens to push container images.
 
 ## Dependency proxy
 
