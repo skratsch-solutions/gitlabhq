@@ -9621,6 +9621,9 @@ msgstr ""
 msgid "Allow %{strongOpen}%{provider}%{strongClose} to sign you in?"
 msgstr ""
 
+msgid "Allow Policy Store experiment for groups"
+msgstr ""
+
 msgid "Allow access to members of the following group"
 msgstr ""
 
@@ -38066,6 +38069,9 @@ msgstr ""
 msgid "GroupSettings|Enable JWT format for the CI_JOB_TOKEN variable. When disabled, it uses the legacy database format."
 msgstr ""
 
+msgid "GroupSettings|Enable Policy Store experiment"
+msgstr ""
+
 msgid "GroupSettings|Enable built-in project templates"
 msgstr ""
 
@@ -38237,6 +38243,15 @@ msgstr ""
 msgid "GroupSettings|The Auto DevOps pipeline runs if no alternative CI configuration file is found."
 msgstr ""
 
+msgid "GroupSettings|The Policy Store experiment cannot be enabled while the group has security policies configured. Remove them before enabling the experiment."
+msgstr ""
+
+msgid "GroupSettings|The Policy Store experiment feature is not available."
+msgstr ""
+
+msgid "GroupSettings|The Policy Store experiment is not enabled for this instance."
+msgstr ""
+
 msgid "GroupSettings|The group from which to source contacts for issues in this group and its subgroups."
 msgstr ""
 
@@ -38286,6 +38301,9 @@ msgid "GroupSettings|When disabled, members cannot use runner registration token
 msgstr ""
 
 msgid "GroupSettings|When enabled, enterprise users in this group can create personal snippets. When disabled, enterprise users will be restricted from creating snippets in their personal namespace."
+msgstr ""
+
+msgid "GroupSettings|When enabled, this group can use the experimental Policy Store. It cannot be enabled while the group has security policies configured."
 msgstr ""
 
 msgid "GroupSettings|When selected, built-in templates appear in the template selector."
@@ -67120,6 +67138,9 @@ msgstr ""
 msgid "SecretsManager|An error occurred while fetching secrets manager data. Please try again."
 msgstr ""
 
+msgid "SecretsManager|An error occurred while starting the trial."
+msgstr ""
+
 msgid "SecretsManager|Are you sure you want to delete secret %{secretName}? This action cannot be undone, and the secret cannot be recovered."
 msgstr ""
 
@@ -67262,6 +67283,9 @@ msgid "SecretsManager|This field is required and must be 200 characters or less.
 msgstr ""
 
 msgid "SecretsManager|To confirm, enter %{secretName}:"
+msgstr ""
+
+msgid "SecretsManager|Trial enabled. Redirecting to secrets manager..."
 msgstr ""
 
 msgid "SecretsManager|Use the GitLab Secrets Manager to securely store and manage secrets and credentials for your projects and groups."
@@ -87132,6 +87156,9 @@ msgid "When enabled, SSH keys with no expiry date or an invalid expiration date 
 msgstr ""
 
 msgid "When enabled, cleanup policies execute faster but put more load on Redis."
+msgstr ""
+
+msgid "When enabled, group owners can opt in to the experimental Policy Store, provided their group has no existing security policies."
 msgstr ""
 
 msgid "When enabled, it will send 301 Moved Permanently instead of 302 if you want web crawlers to index a different site such as the Home Page URL."

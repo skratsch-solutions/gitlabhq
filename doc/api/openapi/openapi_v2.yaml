@@ -39011,8 +39011,8 @@ paths:
       operationId: postApiV4ProjectsIdAccessTokensSelfRotate
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_milestone_events":
     get:
-      summary: List project Issue milestone events
-      description: Gets a list of all milestone events for a single Issue
+      summary: List all project issue milestone events
+      description: Lists all milestone events for a specified issue.
       produces:
       - application/json
       parameters:
@@ -39045,7 +39045,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List project Issue milestone events
+          description: List all project issue milestone events
           schema:
             type: array
             items:
@@ -39055,8 +39055,8 @@ paths:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceMilestoneEvents
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_milestone_events/{event_id}":
     get:
-      summary: Get single Issue milestone event
-      description: Returns a single milestone event for a specific project Issue
+      summary: Retrieve an issue milestone event
+      description: Retrieves a specified milestone event for a project issue.
       produces:
       - application/json
       parameters:
@@ -39078,7 +39078,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get single Issue milestone event
+          description: Retrieve an issue milestone event
           schema:
             "$ref": "#/definitions/API_Entities_ResourceMilestoneEvent"
         '404':
@@ -39088,8 +39088,8 @@ paths:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceMilestoneEventsEventId
   "/api/v4/projects/{id}/merge_requests/{eventable_id}/resource_milestone_events":
     get:
-      summary: List project Merge request milestone events
-      description: Gets a list of all milestone events for a single Merge request
+      summary: List all project merge request milestone events
+      description: Lists all milestone events for a specified merge request.
       produces:
       - application/json
       parameters:
@@ -39122,7 +39122,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List project Merge request milestone events
+          description: List all project merge request milestone events
           schema:
             type: array
             items:
@@ -39132,8 +39132,8 @@ paths:
       operationId: getApiV4ProjectsIdMergeRequestsEventableIdResourceMilestoneEvents
   "/api/v4/projects/{id}/merge_requests/{eventable_id}/resource_milestone_events/{event_id}":
     get:
-      summary: Get single Merge request milestone event
-      description: Returns a single milestone event for a specific project Merge request
+      summary: Retrieve a merge request milestone event
+      description: Retrieves a specified milestone event for a project merge request.
       produces:
       - application/json
       parameters:
@@ -39155,7 +39155,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get single Merge request milestone event
+          description: Retrieve a merge request milestone event
           schema:
             "$ref": "#/definitions/API_Entities_ResourceMilestoneEvent"
         '404':

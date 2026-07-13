@@ -3,8 +3,9 @@
     .gl-align-top.gl-text-left.gl-max-w-80.gl-wrap-anywhere
       .user-info
         - if @user.confirmed?
+          - bio_html = markdown_field(@user.user_detail, :bio)
           .gl-flex.gl-gap-4.gl-flex-col
-            - if @user.pronouns.present? || @user.pronunciation.present? || @user.bio.present?
+            - if @user.pronouns.present? || @user.pronunciation.present? || bio_html.present?
               %div
                 %h2.gl-text-base.gl-mb-2.gl-mt-4= s_('UserProfile|About')
                 .gl-flex.gl-gap-2.gl-flex-col
@@ -18,9 +19,9 @@
                         %p.gl-m-0
                           = s_("UserProfile|Pronouns:")
                           %span.gl-text-sm.gl-text-subtle.gl-inline-flex= @user.pronouns
-                  - if @user.bio.present?
+                  - if bio_html.present?
                     %p.profile-user-bio.gl-mb-0
-                      = @user.bio
+                      = bio_html
 
             - if Ability.allowed?(current_user, :read_user_profile, @user)
               #js-user-achievements{ data: { root_url: root_url, user_id: @user.id } }

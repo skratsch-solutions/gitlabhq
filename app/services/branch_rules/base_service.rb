@@ -151,12 +151,19 @@ module BranchRules
 
     delegate :project, to: :branch_rule, allow_nil: true, private: true
 
+    def all_branches_rule?
+      branch_rule.is_a?(::Projects::AllBranchesRule)
+    end
+
+    def branch_rule?
+      branch_rule.is_a?(::Projects::BranchRule)
+    end
+
     def execute_on_branch_rule_type
-      case branch_rule
-      when ::Projects::AllBranchesRule then execute_on_all_branches_rule
-      when ::Projects::BranchRule then execute_on_branch_rule
-      else ServiceResponse.error(message: 'Unknown branch rule type.')
-      end
+      return execute_on_all_branches_rule if all_branches_rule?
+      return execute_on_branch_rule if branch_rule?
+
+      ServiceResponse.error(message: 'Unknown branch rule type.')
     end
 
     def execute_on_branch_rule

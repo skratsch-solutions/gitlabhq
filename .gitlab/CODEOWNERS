@@ -104,11 +104,13 @@ yarn.lock @gitlab-org/maintainers/frontend
 /ee/spec/frontend_integration/ @gitlab-org/maintainers/frontend
 /lib/gitlab/js_routes.rb @gitlab-org/maintainers/frontend
 
-# Events / Analytics
+# Events / Analytics / Feature flags
 /config/metrics/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
 /ee/config/metrics/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
 /config/events/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
 /ee/config/events/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
+/config/feature_flags/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
+/ee/config/feature_flags/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
 
 # Database
 /db/ @gitlab-org/maintainers/database

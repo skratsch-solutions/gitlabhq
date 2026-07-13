@@ -2869,8 +2869,8 @@ paths:
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_iteration_events":
     get:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceIterationEvents
-      summary: Get a list of issue resource iteration events
-      description: This feature was introduced in GitLab 13.4
+      summary: List all issue iteration events
+      description: Lists all iteration events for a specified issue.
       tags:
       - Resource events
       responses:
@@ -2922,8 +2922,8 @@ paths:
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_iteration_events/{event_id}":
     get:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceIterationEventsEventId
-      summary: Get a single issue resource iteration event
-      description: This feature was introduced in GitLab 13.4
+      summary: Retrieve an issue iteration event
+      description: Retrieves an iteration event for a specified issue.
       tags:
       - Resource events
       responses:
@@ -14288,7 +14288,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/APIEntitiesUser"
+                "$ref": "#/components/schemas/APIEntitiesUserProfile"
         '404':
           description: Not Found
         '400':
@@ -17272,7 +17272,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_67e3765e00d7"
+              "$ref": "#/components/schemas/RequestBody_e4642b3ac7e6"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -17650,8 +17650,8 @@ paths:
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_label_events":
     get:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceLabelEvents
-      summary: Get a list of issue resource label events
-      description: This feature was introduced in 11.3
+      summary: List all project issue label events
+      description: Lists all label events for a specified issue.
       tags:
       - Resource events
       responses:
@@ -17701,8 +17701,8 @@ paths:
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_label_events/{event_id}":
     get:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceLabelEventsEventId
-      summary: Get a single issue resource label event
-      description: This feature was introduced in 11.3
+      summary: Retrieve an issue label event
+      description: Retrieves a label event for a specified project issue.
       tags:
       - Resource events
       responses:
@@ -17740,8 +17740,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{eventable_id}/resource_label_events":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsEventableIdResourceLabelEvents
-      summary: Get a list of merge request resource label events
-      description: This feature was introduced in 11.3
+      summary: List all project merge request label events
+      description: Lists all label events for a specified merge request.
       tags:
       - Resource events
       responses:
@@ -17791,8 +17791,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{eventable_id}/resource_label_events/{event_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsEventableIdResourceLabelEventsEventId
-      summary: Get a single merge request resource label event
-      description: This feature was introduced in 11.3
+      summary: Retrieve a merge request label event
+      description: Retrieves a label event for a specified project merge request.
       tags:
       - Resource events
       responses:
@@ -17830,8 +17830,8 @@ paths:
   "/api/v4/groups/{id}/epics/{eventable_id}/resource_label_events":
     get:
       operationId: getApiV4GroupsIdEpicsEventableIdResourceLabelEvents
-      summary: Get a list of epic resource label events
-      description: This feature was introduced in 11.3
+      summary: List all group epic label events
+      description: Lists all label events for a specified epic.
       tags:
       - Resource events
       responses:
@@ -17881,8 +17881,8 @@ paths:
   "/api/v4/groups/{id}/epics/{eventable_id}/resource_label_events/{event_id}":
     get:
       operationId: getApiV4GroupsIdEpicsEventableIdResourceLabelEventsEventId
-      summary: Get a single epic resource label event
-      description: This feature was introduced in 11.3
+      summary: Retrieve an epic label event
+      description: Retrieves a label event for a specified group epic.
       tags:
       - Resource events
       responses:
@@ -18978,8 +18978,8 @@ paths:
   "/api/v4/notification_settings":
     get:
       operationId: getApiV4NotificationSettings
-      summary: Get global notification level settings and email, defaults to Participate
-      description: This feature was introduced in GitLab 8.12
+      summary: Retrieve global notification settings
+      description: Retrieves the global notification level and email address.
       tags:
       - Notification settings
       responses:
@@ -18993,8 +18993,8 @@ paths:
           description: Unauthorized
     put:
       operationId: putApiV4NotificationSettings
-      summary: Update global notification level settings and email, defaults to Participate
-      description: This feature was introduced in GitLab 8.12
+      summary: Update global notification settings
+      description: Updates notification settings and email address.
       tags:
       - Notification settings
       responses:
@@ -19017,8 +19017,8 @@ paths:
   "/api/v4/groups/{id}/notification_settings":
     get:
       operationId: getApiV4GroupsIdNotificationSettings
-      summary: Get group level notification level settings, defaults to Global
-      description: This feature was introduced in GitLab 8.12
+      summary: Retrieve notification settings for a group
+      description: Retrieves the notification level for a specified group.
       tags:
       - Notification settings
       responses:
@@ -19043,8 +19043,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdNotificationSettings
-      summary: Update group level notification level settings, defaults to Global
-      description: This feature was introduced in GitLab 8.12
+      summary: Update notification settings for a group
+      description: Updates the notification settings for a specified group.
       tags:
       - Notification settings
       responses:
@@ -19076,8 +19076,8 @@ paths:
   "/api/v4/projects/{id}/notification_settings":
     get:
       operationId: getApiV4ProjectsIdNotificationSettings
-      summary: Get project level notification level settings, defaults to Global
-      description: This feature was introduced in GitLab 8.12
+      summary: Retrieve notification settings for a project
+      description: Retrieves the notification level for a specified project.
       tags:
       - Notification settings
       responses:
@@ -19102,8 +19102,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdNotificationSettings
-      summary: Update project level notification level settings, defaults to Global
-      description: This feature was introduced in GitLab 8.12
+      summary: Update notification settings for a project
+      description: Updates the notification settings for a specified project.
       tags:
       - Notification settings
       responses:
@@ -19135,7 +19135,8 @@ paths:
   "/api/v4/projects/{id}/issues/{noteable_id}/notes":
     get:
       operationId: getApiV4ProjectsIdIssuesNoteableIdNotes
-      summary: Get a list of issue notes
+      summary: List all issue notes
+      description: Lists all notes for a specified issue.
       tags:
       - Notes
       responses:
@@ -19216,7 +19217,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdIssuesNoteableIdNotes
-      summary: Create a new issue note
+      summary: Create an issue note
+      description: Creates a note for an issue.
       tags:
       - Notes
       responses:
@@ -19252,7 +19254,8 @@ paths:
   "/api/v4/projects/{id}/issues/{noteable_id}/notes/{note_id}":
     get:
       operationId: getApiV4ProjectsIdIssuesNoteableIdNotesNoteId
-      summary: Get a single issue note
+      summary: Retrieve an issue note
+      description: Retrieves a specified note for an issue.
       tags:
       - Notes
       responses:
@@ -19287,7 +19290,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdIssuesNoteableIdNotesNoteId
-      summary: Update an existing issue note
+      summary: Update an issue note
+      description: Updates an existing note for an issue.
       tags:
       - Notes
       responses:
@@ -19328,7 +19332,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_c1925678aad5"
     delete:
       operationId: deleteApiV4ProjectsIdIssuesNoteableIdNotesNoteId
-      summary: Delete a issue note
+      summary: Delete an issue note
+      description: Deletes a specified note from an issue.
       tags:
       - Notes
       responses:
@@ -19364,7 +19369,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{noteable_id}/notes":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsNoteableIdNotes
-      summary: Get a list of merge request notes
+      summary: List all merge request notes
+      description: Lists all notes for a specified merge request.
       tags:
       - Notes
       responses:
@@ -19445,7 +19451,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdMergeRequestsNoteableIdNotes
-      summary: Create a new merge request note
+      summary: Create a merge request note
+      description: Creates a note for a merge request.
       tags:
       - Notes
       responses:
@@ -19481,7 +19488,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{noteable_id}/notes/{note_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsNoteableIdNotesNoteId
-      summary: Get a single merge request note
+      summary: Retrieve a merge request note
+      description: Retrieves a specified note for a merge request.
       tags:
       - Notes
       responses:
@@ -19516,7 +19524,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdMergeRequestsNoteableIdNotesNoteId
-      summary: Update an existing merge request note
+      summary: Update a merge request note
+      description: Updates an existing note for a merge request.
       tags:
       - Notes
       responses:
@@ -19558,6 +19567,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsNoteableIdNotesNoteId
       summary: Delete a merge request note
+      description: Deletes a specified note from a merge request.
       tags:
       - Notes
       responses:
@@ -19593,7 +19603,8 @@ paths:
   "/api/v4/projects/{id}/snippets/{noteable_id}/notes":
     get:
       operationId: getApiV4ProjectsIdSnippetsNoteableIdNotes
-      summary: Get a list of snippet notes
+      summary: List all snippet notes
+      description: Lists all notes for a specified snippet.
       tags:
       - Notes
       responses:
@@ -19674,7 +19685,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdSnippetsNoteableIdNotes
-      summary: Create a new snippet note
+      summary: Create a snippet note
+      description: Creates a note for a snippet.
       tags:
       - Notes
       responses:
@@ -19710,7 +19722,8 @@ paths:
   "/api/v4/projects/{id}/snippets/{noteable_id}/notes/{note_id}":
     get:
       operationId: getApiV4ProjectsIdSnippetsNoteableIdNotesNoteId
-      summary: Get a single snippet note
+      summary: Retrieve a snippet note
+      description: Retrieves a specified note for a snippet.
       tags:
       - Notes
       responses:
@@ -19745,7 +19758,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdSnippetsNoteableIdNotesNoteId
-      summary: Update an existing snippet note
+      summary: Update a snippet note
+      description: Updates an existing note for a snippet.
       tags:
       - Notes
       responses:
@@ -19787,6 +19801,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdSnippetsNoteableIdNotesNoteId
       summary: Delete a snippet note
+      description: Deletes a specified note from a snippet.
       tags:
       - Notes
       responses:
@@ -19822,7 +19837,8 @@ paths:
   "/api/v4/projects/{id}/wiki_pages/{noteable_id}/notes":
     get:
       operationId: getApiV4ProjectsIdWikiPagesNoteableIdNotes
-      summary: Get a list of wiki page meta notes
+      summary: List all wiki page meta notes
+      description: Lists all notes for a specified wiki page meta.
       tags:
       - Notes
       responses:
@@ -19903,7 +19919,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdWikiPagesNoteableIdNotes
-      summary: Create a new wiki page meta note
+      summary: Create a wiki page meta note
+      description: Creates a note for a wiki page meta.
       tags:
       - Notes
       responses:
@@ -19939,7 +19956,8 @@ paths:
   "/api/v4/projects/{id}/wiki_pages/{noteable_id}/notes/{note_id}":
     get:
       operationId: getApiV4ProjectsIdWikiPagesNoteableIdNotesNoteId
-      summary: Get a single wiki page meta note
+      summary: Retrieve a wiki page meta note
+      description: Retrieves a specified note for a wiki page meta.
       tags:
       - Notes
       responses:
@@ -19974,7 +19992,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdWikiPagesNoteableIdNotesNoteId
-      summary: Update an existing wiki page meta note
+      summary: Update a wiki page meta note
+      description: Updates an existing note for a wiki page meta.
       tags:
       - Notes
       responses:
@@ -20016,6 +20035,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdWikiPagesNoteableIdNotesNoteId
       summary: Delete a wiki page meta note
+      description: Deletes a specified note from a wiki page meta.
       tags:
       - Notes
       responses:
@@ -20051,7 +20071,8 @@ paths:
   "/api/v4/groups/{id}/epics/{noteable_id}/notes":
     get:
       operationId: getApiV4GroupsIdEpicsNoteableIdNotes
-      summary: Get a list of epic notes
+      summary: List all epic notes
+      description: Lists all notes for a specified epic.
       tags:
       - Notes
       responses:
@@ -20132,7 +20153,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdEpicsNoteableIdNotes
-      summary: Create a new epic note
+      summary: Create an epic note
+      description: Creates a note for an epic.
       tags:
       - Notes
       responses:
@@ -20168,7 +20190,8 @@ paths:
   "/api/v4/groups/{id}/epics/{noteable_id}/notes/{note_id}":
     get:
       operationId: getApiV4GroupsIdEpicsNoteableIdNotesNoteId
-      summary: Get a single epic note
+      summary: Retrieve an epic note
+      description: Retrieves a specified note for an epic.
       tags:
       - Notes
       responses:
@@ -20203,7 +20226,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdEpicsNoteableIdNotesNoteId
-      summary: Update an existing epic note
+      summary: Update an epic note
+      description: Updates an existing note for an epic.
       tags:
       - Notes
       responses:
@@ -20244,7 +20268,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_c1925678aad5"
     delete:
       operationId: deleteApiV4GroupsIdEpicsNoteableIdNotesNoteId
-      summary: Delete a epic note
+      summary: Delete an epic note
+      description: Deletes a specified note from an epic.
       tags:
       - Notes
       responses:
@@ -20280,7 +20305,8 @@ paths:
   "/api/v4/projects/{id}/vulnerabilities/{noteable_id}/notes":
     get:
       operationId: getApiV4ProjectsIdVulnerabilitiesNoteableIdNotes
-      summary: Get a list of vulnerability notes
+      summary: List all vulnerability notes
+      description: Lists all notes for a specified vulnerability.
       tags:
       - Notes
       responses:
@@ -20361,7 +20387,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdVulnerabilitiesNoteableIdNotes
-      summary: Create a new vulnerability note
+      summary: Create a vulnerability note
+      description: Creates a note for a vulnerability.
       tags:
       - Notes
       responses:
@@ -20397,7 +20424,8 @@ paths:
   "/api/v4/projects/{id}/vulnerabilities/{noteable_id}/notes/{note_id}":
     get:
       operationId: getApiV4ProjectsIdVulnerabilitiesNoteableIdNotesNoteId
-      summary: Get a single vulnerability note
+      summary: Retrieve a vulnerability note
+      description: Retrieves a specified note for a vulnerability.
       tags:
       - Notes
       responses:
@@ -20432,7 +20460,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdVulnerabilitiesNoteableIdNotesNoteId
-      summary: Update an existing vulnerability note
+      summary: Update a vulnerability note
+      description: Updates an existing note for a vulnerability.
       tags:
       - Notes
       responses:
@@ -20474,6 +20503,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdVulnerabilitiesNoteableIdNotesNoteId
       summary: Delete a vulnerability note
+      description: Deletes a specified note from a vulnerability.
       tags:
       - Notes
       responses:
@@ -20509,7 +20539,8 @@ paths:
   "/api/v4/groups/{id}/wiki_pages/{noteable_id}/notes":
     get:
       operationId: getApiV4GroupsIdWikiPagesNoteableIdNotes
-      summary: Get a list of wiki page meta notes
+      summary: List all wiki page meta notes
+      description: Lists all notes for a specified wiki page meta.
       tags:
       - Notes
       responses:
@@ -20590,7 +20621,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdWikiPagesNoteableIdNotes
-      summary: Create a new wiki page meta note
+      summary: Create a wiki page meta note
+      description: Creates a note for a wiki page meta.
       tags:
       - Notes
       responses:
@@ -20626,7 +20658,8 @@ paths:
   "/api/v4/groups/{id}/wiki_pages/{noteable_id}/notes/{note_id}":
     get:
       operationId: getApiV4GroupsIdWikiPagesNoteableIdNotesNoteId
-      summary: Get a single wiki page meta note
+      summary: Retrieve a wiki page meta note
+      description: Retrieves a specified note for a wiki page meta.
       tags:
       - Notes
       responses:
@@ -20661,7 +20694,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdWikiPagesNoteableIdNotesNoteId
-      summary: Update an existing wiki page meta note
+      summary: Update a wiki page meta note
+      description: Updates an existing note for a wiki page meta.
       tags:
       - Notes
       responses:
@@ -20703,6 +20737,7 @@ paths:
     delete:
       operationId: deleteApiV4GroupsIdWikiPagesNoteableIdNotesNoteId
       summary: Delete a wiki page meta note
+      description: Deletes a specified note from a wiki page meta.
       tags:
       - Notes
       responses:
@@ -28114,8 +28149,8 @@ paths:
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_milestone_events":
     get:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceMilestoneEvents
-      summary: List project Issue milestone events
-      description: Gets a list of all milestone events for a single Issue
+      summary: List all project issue milestone events
+      description: Lists all milestone events for a specified issue.
       tags:
       - Resource events
       responses:
@@ -28167,8 +28202,8 @@ paths:
   "/api/v4/projects/{id}/issues/{eventable_id}/resource_milestone_events/{event_id}":
     get:
       operationId: getApiV4ProjectsIdIssuesEventableIdResourceMilestoneEventsEventId
-      summary: Get single Issue milestone event
-      description: Returns a single milestone event for a specific project Issue
+      summary: Retrieve an issue milestone event
+      description: Retrieves a specified milestone event for a project issue.
       tags:
       - Resource events
       responses:
@@ -28208,8 +28243,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{eventable_id}/resource_milestone_events":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsEventableIdResourceMilestoneEvents
-      summary: List project Merge request milestone events
-      description: Gets a list of all milestone events for a single Merge request
+      summary: List all project merge request milestone events
+      description: Lists all milestone events for a specified merge request.
       tags:
       - Resource events
       responses:
@@ -28261,8 +28296,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{eventable_id}/resource_milestone_events/{event_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsEventableIdResourceMilestoneEventsEventId
-      summary: Get single Merge request milestone event
-      description: Returns a single milestone event for a specific project Merge request
+      summary: Retrieve a merge request milestone event
+      description: Retrieves a specified milestone event for a project merge request.
       tags:
       - Resource events
       responses:
@@ -82254,7 +82289,7 @@ components:
           type: string
           description: The expiration time of the PIN
           format: date-time
-    APIEntitiesUser:
+    APIEntitiesUserProfile:
       type: object
       properties:
         id:
@@ -82322,6 +82357,9 @@ components:
           type: string
         local_time:
           type: string
+        bio_html:
+          type: string
+          example: My <em>bio</em>.
     APIEntitiesUserStatus:
       type: object
       properties:
@@ -82334,6 +82372,74 @@ components:
         message_html:
           type: string
         clear_status_at:
+          type: string
+    APIEntitiesUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: admin
+        public_email:
+          type: string
+          example: john@example.com
+        name:
+          type: string
+          example: Administrator
+        state:
+          type: string
+          example: active
+        locked:
+          type: boolean
+        avatar_url:
+          type: string
+          example: https://gravatar.com/avatar/1
+        avatar_path:
+          type: string
+          example: "/user/avatar/28/The-Big-Lebowski-400-400.png"
+        custom_attributes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesCustomAttribute"
+        web_url:
+          type: string
+          example: https://gitlab.example.com/root
+        created_at:
+          type: string
+        bio:
+          type: string
+        location:
+          type: string
+        linkedin:
+          type: string
+        twitter:
+          type: string
+        discord:
+          type: string
+        website_url:
+          type: string
+        github:
+          type: string
+        job_title:
+          type: string
+        pronouns:
+          type: string
+        organization:
+          type: string
+        bot:
+          type: boolean
+        work_information:
+          type: string
+        followers:
+          type: string
+        following:
+          type: string
+        is_followed:
+          type: string
+        local_time:
           type: string
     APIEntitiesUserWithAdmin:
       type: object
@@ -84265,6 +84371,8 @@ components:
         vulnerability_management_policies_per_configuration_limit:
           type: string
         dependency_firewall_policies_per_configuration_limit:
+          type: string
+        policy_store_experiment_enabled:
           type: string
         secret_detection_service_auth_token:
           type: string
@@ -97108,7 +97216,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_67e3765e00d7:
+    RequestBody_e4642b3ac7e6:
       type: object
       properties:
         admin_mode:
@@ -99444,6 +99552,9 @@ components:
           type: string
           nullable: true
         dependency_firewall_policies_per_configuration_limit:
+          type: string
+          nullable: true
+        policy_store_experiment_enabled:
           type: string
           nullable: true
         secret_detection_service_auth_token:

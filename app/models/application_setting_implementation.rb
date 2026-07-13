@@ -363,6 +363,7 @@ module ApplicationSettingImplementation
         pages_unique_domain_default_enabled: true,
         scan_execution_policies_action_limit: 0,
         scan_execution_policies_schedule_limit: 0,
+        policy_store_experiment_enabled: false,
         seat_control: 0,
         show_migrate_from_jenkins_banner: true,
         top_level_group_creation_enabled: true,

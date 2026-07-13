@@ -11,8 +11,8 @@ module API
     helpers ::API::Helpers::MembersHelpers
 
     resource :notification_settings do
-      desc 'Get global notification level settings and email, defaults to Participate' do
-        detail 'This feature was introduced in GitLab 8.12'
+      desc 'Retrieve global notification settings' do
+        detail 'Retrieves the global notification level and email address.'
         success Entities::GlobalNotificationSetting
         failure [
           { code: 401, message: 'Unauthorized' }
@@ -26,8 +26,8 @@ module API
         present notification_setting, with: Entities::GlobalNotificationSetting
       end
 
-      desc 'Update global notification level settings and email, defaults to Participate' do
-        detail 'This feature was introduced in GitLab 8.12'
+      desc 'Update global notification settings' do
+        detail 'Updates notification settings and email address.'
         success Entities::GlobalNotificationSetting
         failure [
           { code: 400, message: 'Bad request' },
@@ -77,8 +77,8 @@ module API
         requires :id, type: String, desc: "The #{source_type} ID"
       end
       resource source_type.pluralize, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-        desc "Get #{source_type} level notification level settings, defaults to Global" do
-          detail 'This feature was introduced in GitLab 8.12'
+        desc "Retrieve notification settings for a #{source_type}" do
+          detail "Retrieves the notification level for a specified #{source_type}."
           success Entities::NotificationSetting
           failure [
             { code: 401, message: 'Unauthorized' }
@@ -94,8 +94,8 @@ module API
           present notification_setting, with: Entities::NotificationSetting
         end
 
-        desc "Update #{source_type} level notification level settings, defaults to Global" do
-          detail 'This feature was introduced in GitLab 8.12'
+        desc "Update notification settings for a #{source_type}" do
+          detail "Updates the notification settings for a specified #{source_type}."
           success Entities::NotificationSetting
           failure [
             { code: 400, message: 'Bad request' },

@@ -292,7 +292,7 @@ export default {
           variant="warning"
         />
         <a
-          :href="item.path || item.webUrl || ''"
+          :href="item.path || item.webPath || ''"
           :title="item.title"
           :class="{ '!gl-text-disabled': isLoading }"
           class="js-no-trigger-title gl-text-default hover:gl-text-default"
@@ -448,7 +448,7 @@ export default {
           :blocked-by-count="blockedByCount"
           :work-item-full-path="workItemFullPath"
           :work-item-iid="item.iid"
-          :work-item-web-url="item.webUrl"
+          :work-item-web-url="item.webPath"
           :target-id="targetId"
         />
         <div class="gl-max-w-20">

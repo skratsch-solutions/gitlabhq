@@ -269,7 +269,7 @@ module API
 
       desc 'Retrieve a user as a regular user' do
         detail 'Retrieves a specified user as a regular user.'
-        success Entities::User
+        success Entities::UserProfile
         tags ['users']
       end
       params do
@@ -293,7 +293,7 @@ module API
 
         not_found!('User') unless user && can?(current_user, :read_user, user)
 
-        opts = { with: can_read_admin_user_data? ? Entities::UserDetailsWithAdmin : Entities::User, current_user: current_user }
+        opts = { with: can_read_admin_user_data? ? Entities::UserDetailsWithAdmin : Entities::UserProfile, current_user: current_user }
         user, opts = with_custom_attributes(user, opts)
 
         present user, opts

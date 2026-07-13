@@ -25,10 +25,6 @@ module BranchRules
       def execute_on_branch_rule
         ServiceResponse.error(message: 'Updating BranchRule not supported')
       end
-
-      def success_response
-        ServiceResponse.success(payload: branch_rule.squash_option)
-      end
     end
   end
 end

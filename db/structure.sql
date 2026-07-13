@@ -6860,6 +6860,7 @@ CREATE TABLE p_duo_workflows_checkpoint_blobs (
     workflow_id bigint NOT NULL,
     project_id bigint,
     namespace_id bigint,
+    workflow_created_at timestamp with time zone NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     current_thread integer DEFAULT 0 NOT NULL,
@@ -6877,7 +6878,7 @@ CREATE TABLE p_duo_workflows_checkpoint_blobs (
     CONSTRAINT check_duo_wf_checkpoint_blobs_sharding_key CHECK ((num_nonnulls(namespace_id, project_id) = 1)),
     CONSTRAINT check_f7e2b28e64 CHECK ((char_length(channel) <= 255))
 )
-PARTITION BY RANGE (created_at);
+PARTITION BY RANGE (workflow_created_at);
 
 CREATE TABLE p_duo_workflows_checkpoints (
     id bigint NOT NULL,
@@ -25494,6 +25495,7 @@ CREATE TABLE namespace_settings (
     ai_audit_events_storage_enabled boolean,
     lock_ai_audit_events_storage_enabled boolean DEFAULT false NOT NULL,
     dependency_firewall_enabled boolean DEFAULT false NOT NULL,
+    policy_store_experiment_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_0ba93c78c7 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_d9644d516f CHECK ((char_length(step_up_auth_required_oauth_provider) <= 255)),
     CONSTRAINT check_namespace_settings_pat_settings_is_hash CHECK ((jsonb_typeof(personal_access_token_settings) = 'object'::text)),
@@ -41804,7 +41806,7 @@ ALTER TABLE ONLY p_ci_workloads
     ADD CONSTRAINT p_ci_workloads_pkey PRIMARY KEY (id, partition_id);
 
 ALTER TABLE ONLY p_duo_workflows_checkpoint_blobs
-    ADD CONSTRAINT p_duo_workflows_checkpoint_blobs_pkey PRIMARY KEY (id, created_at);
+    ADD CONSTRAINT p_duo_workflows_checkpoint_blobs_pkey PRIMARY KEY (id, workflow_created_at);
 
 ALTER TABLE ONLY p_duo_workflows_checkpoints
     ADD CONSTRAINT p_duo_workflows_checkpoints_pkey PRIMARY KEY (id, created_at);
@@ -46113,7 +46115,7 @@ CREATE INDEX idx_dlep_upl_states_on_verification_state ON dependency_list_export
 
 CREATE INDEX idx_dlep_upl_states_pending_verification ON dependency_list_export_part_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
-CREATE UNIQUE INDEX idx_duo_wf_checkpoint_blobs_dedup ON ONLY p_duo_workflows_checkpoint_blobs USING btree (project_id, workflow_id, thread_ts, channel, version, step_action, created_at) NULLS NOT DISTINCT;
+CREATE UNIQUE INDEX idx_duo_wf_checkpoint_blobs_dedup ON ONLY p_duo_workflows_checkpoint_blobs USING btree (project_id, workflow_id, thread_ts, channel, version, step_action, workflow_created_at) NULLS NOT DISTINCT;
 
 CREATE INDEX idx_elastic_reindexing_slices_on_elastic_reindexing_subtask_id ON elastic_reindexing_slices USING btree (elastic_reindexing_subtask_id);
 

@@ -863,6 +863,17 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
       expect(json_response['username']).to eq(user.username)
     end
 
+    it "returns the user's bio rendered as HTML", :aggregate_failures do
+      user2.update!(bio: '**bold** [link](https://example.com)')
+
+      get api("/users/#{user2.id}", user)
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['bio']).to eq('**bold** [link](https://example.com)')
+      # Links are removed in user bios.
+      expect(json_response['bio_html']).to eq('<strong>bold</strong> link')
+    end
+
     it_behaves_like 'authorizing granular token permissions', :read_user do
       let(:boundary_object) { :user }
       let(:request) do
@@ -1055,6 +1066,17 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
 
         expect(response).to match_response_schema('public_api/v4/user/admin')
         expect(json_response['highest_role']).to be(0)
+      end
+
+      it "includes the user's bio rendered as HTML" do
+        user2.update!(bio: '**bold** [link](https://example.com)')
+
+        get api("/users/#{user2.id}", admin, admin_mode: true)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['bio']).to eq('**bold** [link](https://example.com)')
+        # Links are removed in user bios.
+        expect(json_response['bio_html']).to eq('<strong>bold</strong> link')
       end
 
       it 'includes the `namespace_id` field' do

@@ -87,6 +87,7 @@ mutation:BranchRuleDelete
 mutation:BranchRuleExternalStatusCheckCreate
 mutation:BranchRuleExternalStatusCheckDestroy
 mutation:BranchRuleExternalStatusCheckUpdate
+mutation:BranchRuleSquashOptionCreate
 mutation:BranchRuleSquashOptionDelete
 mutation:BranchRuleSquashOptionUpdate
 mutation:BulkEnableDevopsAdoptionNamespaces

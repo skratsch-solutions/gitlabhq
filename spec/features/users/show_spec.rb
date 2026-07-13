@@ -65,6 +65,24 @@ RSpec.describe 'User page', feature_category: :user_profile do
       end
     end
 
+    context 'bio' do
+      let_it_be(:user, freeze: false) do
+        create(:user, bio: '**bold** _emphasis_ [link](https://example.com) <script>alert(1)</script>')
+      end
+
+      it 'renders the bio as restricted Markdown #security', :aggregate_failures do
+        subject
+
+        page.within('.profile-user-bio') do
+          expect(page).to have_css('strong', text: 'bold')
+          expect(page).to have_css('em', text: 'emphasis')
+          expect(page).to have_content('link')
+          expect(page).not_to have_link
+          expect(page).not_to have_content('alert(1)')
+        end
+      end
+    end
+
     context 'location' do
       let_it_be(:location) { 'San Francisco, CA' }
 

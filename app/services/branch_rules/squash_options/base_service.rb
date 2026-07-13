@@ -6,8 +6,16 @@ module BranchRules
     class BaseService < ::BranchRules::BaseService
       private
 
-      def squash_option
-        params[:squash_option]
+      delegate :protected_branch, to: :branch_rule, allow_nil: true, private: true
+
+      def execute_on_branch_rule
+        ServiceResponse.error(message: 'Squash options are not supported for this branch rule')
+      end
+
+      def execute_on_all_branches_rule
+        ServiceResponse.error(
+          message: 'Squash options for all branches can only be changed using the update mutation'
+        )
       end
 
       def execute_on_all_protected_branches_rule
@@ -17,7 +25,17 @@ module BranchRules
           reason: :unprocessable_entity
         )
       end
+
+      def success_response
+        ServiceResponse.success(payload: branch_rule.squash_option)
+      end
+
+      def squash_option
+        params[:squash_option]
+      end
     end
   end
 end
 # rubocop:enable Gitlab/BoundedContexts
+
+::BranchRules::SquashOptions::BaseService.prepend_mod

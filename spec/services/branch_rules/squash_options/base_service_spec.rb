@@ -18,6 +18,24 @@ RSpec.describe BranchRules::SquashOptions::BaseService, feature_category: :sourc
     end
   end
 
+  describe '#execute_on_branch_rule' do
+    it 'returns a not supported error', :aggregate_failures do
+      response = service.send(:execute_on_branch_rule)
+
+      expect(response).to be_error
+      expect(response.message).to eq('Squash options are not supported for this branch rule')
+    end
+  end
+
+  describe '#execute_on_all_branches_rule' do
+    it 'returns a not supported error', :aggregate_failures do
+      response = service.send(:execute_on_all_branches_rule)
+
+      expect(response).to be_error
+      expect(response.message).to eq('Squash options for all branches can only be changed using the update mutation')
+    end
+  end
+
   describe '#execute_on_all_protected_branches_rule' do
     it 'returns a not supported error', :aggregate_failures do
       response = service.send(:execute_on_all_protected_branches_rule)

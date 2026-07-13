@@ -321,9 +321,13 @@ RSpec.describe Gitlab::TopologyServiceClient::ClaimService, feature_category: :c
     end
   end
 
-  describe '#warmup!' do
+  describe '#warmup!', :freeze_time do
+    let(:created_after) { 1.hour.from_now }
     let(:expected_request) do
-      Gitlab::Cells::TopologyService::Claims::V1::ListLeasesRequest.new(limit: 1, cell_id: cell_id)
+      Gitlab::Cells::TopologyService::Claims::V1::ListLeasesRequest.new(
+        limit: 1, cell_id: cell_id,
+        created_after: Google::Protobuf::Timestamp.new(seconds: created_after.to_i, nanos: created_after.nsec)
+      )
     end
 
     before do

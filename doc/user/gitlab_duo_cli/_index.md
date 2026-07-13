@@ -40,6 +40,8 @@ title: GitLab Duo CLI (`duo`)
   - Introduced in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.101.0) 8.101.0.
 - System notifications [introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v8.105.0) in GitLab Duo CLI 8.105.0, during the GitLab 19.1 release.
 - [Generally available](https://gitlab.com/groups/gitlab-org/-/work_items/19717) as GitLab Duo CLI 9.0.0 in GitLab 19.2.
+- Pattern-based tool approval [removed](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/3699) on July 10, 2026.
+  - Removed in [GitLab Duo CLI](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/releases/v9.3.0) 9.3.0.
 
 {{< /history >}}
 
@@ -336,12 +338,10 @@ Your options are:
 - **Approve**: GitLab Duo can use the tool once.
 - **Approve for session**: GitLab Duo can use the tool with these arguments for the remainder of the
   session. Different arguments require additional approval.
-- **Approve all uses of this tool for session** (pattern or wildcard approval): GitLab Duo can use
-  this tool for the remainder of the session whenever the arguments match the approved pattern.
 - **Deny**: GitLab Duo cannot use the tool.
 
 > [!note]
-> To use the **Approve for session** and **Approve all uses of this tool for session** options,
+> To use the **Approve for session** option,
 > your administrator must turn it on for your group or instance.
 > For more information, see [tool approvals](../gitlab_duo_chat/agentic_chat.md#tool-approvals).
 

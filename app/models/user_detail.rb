@@ -103,6 +103,13 @@ class UserDetail < ApplicationRecord
 
   before_save :prevent_nil_fields
 
+  # Allow rendering `bio` with MarkupHelper.markdown_field using the UserBioPipeline.
+  def banzai_render_context(field)
+    raise ArgumentError, "Unknown field: #{field.inspect}" unless field == :bio
+
+    { pipeline: :user_bio, project: nil }
+  end
+
   # Exclude the hashed email_otp attribute
   def serializable_hash(options = nil)
     options = options.try(:dup) || {}

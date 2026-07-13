@@ -88,9 +88,14 @@ module Gitlab
       # is not paid on a deadline-bound claim RPC. Uses ListLeases (read-only, and not counted by the
       # concurrency limiter) purely to force the connection. Best-effort: callers must rescue, because a
       # failure only means the connection is established lazily on first use.
+      # A future created_after keeps this on the cheap indexed-seek path instead of the unbounded scan
+      # that seeks past the whole deleted-row tombstone backlog, and guarantees zero rows are returned
+      # (we discard the result anyway) since no lease can have a created_at in the future.
       # @return [void]
       def warmup!
-        list_leases(limit: 1, deadline: GRPC::Core::TimeConsts.from_relative_time(WARMUP_TIMEOUT_IN_SECONDS))
+        list_leases(
+          limit: 1, created_after: 1.hour.from_now,
+          deadline: GRPC::Core::TimeConsts.from_relative_time(WARMUP_TIMEOUT_IN_SECONDS))
         nil
       end
 

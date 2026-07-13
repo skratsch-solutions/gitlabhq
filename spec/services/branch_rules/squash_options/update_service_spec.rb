@@ -39,7 +39,7 @@ RSpec.describe BranchRules::SquashOptions::UpdateService, feature_category: :sou
       end
     end
 
-    context 'when branch rule is a BranchRule' do
+    context 'when branch rule is a BranchRule', unless: Gitlab.ee? do
       let_it_be(:protected_branch) { create(:protected_branch, project: project) }
       let(:branch_rule) { ::Projects::BranchRule.new(project, protected_branch) }
 

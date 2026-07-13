@@ -19,7 +19,6 @@ app/models/ci/pipeline.rb:
   - not_ref_protected
 app/models/ci/processable.rb:
   - without_needs
-  - with_metadata_interruptible_false
 app/models/ci/runner.rb:
   - deprecated_shared
   - deprecated_specific
@@ -146,6 +145,7 @@ ee/app/models/ee/member.rb:
   - order_access_level_desc
 ee/app/models/ee/namespace.rb:
   - not_in_active_trial
+  - namespace_settings_with_experiment_duo_features_enabled
 ee/app/models/ee/project.rb:
   - with_wiki_enabled
   - with_security_reports_stored
