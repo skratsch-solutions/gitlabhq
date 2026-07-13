@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	goLog "log"
@@ -11,6 +12,41 @@ import (
 	logkit "gitlab.com/gitlab-org/labkit/log"
 	logv2 "gitlab.com/gitlab-org/labkit/v2/log"
 )
+
+// multiCloser closes several io.Closers, joining any errors.
+type multiCloser []io.Closer
+
+func (m multiCloser) Close() error {
+	var errs []error
+	for _, c := range m {
+		if err := c.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// setupLogging configures both the labkit v1 (logrus) and v2 (slog) loggers,
+// installs the v2 logger as the default slog logger, and returns a closer that
+// closes both log files.
+func setupLogging(file, format string) (io.Closer, error) {
+	// Set global labkit v1 logrus logger.
+	// NOTE: To be removed after all log call sites are modified to use the
+	// labkit v2 logger.
+	v1Closer, err := configureLoggingV1(file, format)
+	if err != nil {
+		return nil, err
+	}
+
+	v2Logger, v2Closer, err := configureLoggingV2(file, format)
+	if err != nil {
+		_ = v1Closer.Close()
+		return nil, err
+	}
+	slog.SetDefault(v2Logger)
+
+	return multiCloser{v1Closer, v2Closer}, nil
+}
 
 const (
 	jsonLogFormat    = "json"

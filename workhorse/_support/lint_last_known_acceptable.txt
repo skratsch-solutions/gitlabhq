@@ -1,1 +1,0 @@
-cmd/gitlab-workhorse/main.go:297:1: cognitive complexity 21 of func `run` is high (> 20) (gocognit)

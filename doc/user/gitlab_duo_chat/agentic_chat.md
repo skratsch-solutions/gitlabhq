@@ -74,6 +74,9 @@ You can use GitLab Duo Chat in:
 - A JetBrains IDE.
 - Visual Studio for Windows.
 
+With the [GitLab Duo CLI](../gitlab_duo_cli/_index.md), you can also use Agentic Chat
+in your terminal.
+
 ### Use GitLab Duo Chat in the GitLab UI
 
 {{< history >}}

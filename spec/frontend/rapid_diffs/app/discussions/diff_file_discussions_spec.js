@@ -67,7 +67,6 @@ describe('DiffFileDiscussions', () => {
     wrapper = shallowMount(DiffFileDiscussions, {
       provide: {
         store,
-        userPermissions: { can_create_note: true },
         filePaths: { oldPath, newPath },
         ...extraProvide,
       },

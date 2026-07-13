@@ -17,6 +17,9 @@ module API
     # requirement re-suppresses the implicit `(.:format)` suffix so a trailing extension or
     # dot stays inside the wildcard/param instead of being parsed off as a response format.
     NO_FORMAT_SUFFIX_REQUIREMENT = { format: /(?!)/ }.freeze
+    # Origin of the catch-all `route :any, '*path'` that handles requests mapping to no real
+    # endpoint (unknown paths and unmatched API versions).
+    UNMATCHED_ROUTE_ORIGIN = '/api/:version/*path'
     LOG_FILTERS = ::Rails.application.config.filter_parameters + [/^output$/]
     LOG_FILTER_EXCEPTIONS = %w[controller action format Content-Type].freeze
     LOG_FORMATTER = Gitlab::GrapeLogging::Formatters::LogrageWithTimestamp.new
@@ -86,9 +89,14 @@ module API
     end
 
     before do
+      api_endpoint = request.env[Grape::Env::API_ENDPOINT]
+
+      # Skip when the request is for the catch-all route (`route :any, '*path'`),
+      # since that route is only supposed to return 404 Not Found
+      next if api_endpoint&.route&.pattern&.origin == UNMATCHED_ROUTE_ORIGIN
+
       coerce_nil_params_to_array!
 
-      api_endpoint = request.env[Grape::Env::API_ENDPOINT]
       feature_category = api_endpoint.options[:for].try(:feature_category_for_app, api_endpoint).to_s
 
       # remote_ip is added here and the ContextLogger so that the

@@ -172,19 +172,25 @@ For the argument `noteable_id: "gid://gitlab/Issue/1"`, the extractor locates th
 **For root query fields:**
 
 Root query fields have no parent object, so the boundary is read from the field arguments with `boundary_argument`.
-Declare the directive on the field's resolver — directives declared on a resolver are applied to the fields that mount it:
+Declare the directive on the field's resolver.
+Directives declared on a resolver are applied to the fields that mount it:
 
 ```ruby
 module Resolvers
   module Ai
     class ToolRulesResolver < BaseResolver
       authorize_granular_token permissions: :read_ai_tool_rule, boundary_argument: :full_path, boundary_type: :group
+
+      argument :full_path, GraphQL::Types::ID, required: true
     end
   end
 end
 ```
 
 When the token lacks the permission, the field resolves to `null`, matching how type-level authorization redacts objects.
+For the full implementation and its authorization test, see
+`ee/app/graphql/resolvers/ai/tool_rules_resolver.rb` and
+`ee/spec/requests/api/graphql/ai/tool_rules_spec.rb`.
 
 #### When `boundary` applies
 
@@ -315,9 +321,7 @@ class VulnerabilityIdentifierType < BaseObject
 end
 ```
 
-The valid reasons are defined in `lib/tasks/gitlab/permissions/graphql/skip_reasons.rb`.
-Currently the only valid reason is `:parent_authorizes`, for types whose data is only
-reachable through a parent type that already declares its own directive.
+The valid reasons and their meanings are defined in `lib/tasks/gitlab/permissions/graphql/skip_reasons.rb`.
 
 The `gitlab:permissions:validate` Rake task requires every object type
 to declare either a directive or a skip. Types that predate this requirement are

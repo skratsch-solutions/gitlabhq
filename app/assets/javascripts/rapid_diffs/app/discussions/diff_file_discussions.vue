@@ -20,7 +20,6 @@ export default {
   },
   inject: {
     store: { type: Object },
-    userPermissions: { type: Object },
     filePaths: { type: Object },
     diffRefs: { type: Object, default: undefined },
     showWhitespace: { default: undefined },

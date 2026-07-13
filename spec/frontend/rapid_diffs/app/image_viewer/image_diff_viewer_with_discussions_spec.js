@@ -37,14 +37,6 @@ describe('ImageDiffViewerWithDiscussions', () => {
     userPermissions: {
       can_create_note: true,
     },
-    endpoints: {
-      discussions: '/api/discussions',
-      previewMarkdown: '/api/preview',
-      markdownDocs: '/docs/markdown',
-      register: '/register',
-      signIn: '/sign_in',
-      reportAbuse: '/report',
-    },
   };
 
   const createImageDiscussion = (id, oldPath, newPath) => ({

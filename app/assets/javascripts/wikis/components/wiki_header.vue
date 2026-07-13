@@ -43,7 +43,6 @@ export default {
     showEditButton: { default: null },
     showRestoreVersionButton: { default: null },
     isPageTemplate: { default: null },
-    editButtonUrl: { default: null },
     lastVersion: { default: null },
     pageVersion: { default: null },
     authorUrl: { default: null },

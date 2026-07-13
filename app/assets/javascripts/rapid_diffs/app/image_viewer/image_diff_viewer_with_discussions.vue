@@ -21,9 +21,6 @@ export default {
     userPermissions: {
       type: Object,
     },
-    endpoints: {
-      type: Object,
-    },
   },
   props: {
     imageData: {
