@@ -13,6 +13,8 @@ import {
   hasDecorationIcon,
   decorationIconStyle,
 } from '~/work_items/board/grouping';
+import { getGroupId } from '~/work_items/board/utils';
+import { persistMetadataPreference, alertPreferenceError } from '../display_settings_preferences';
 
 export default {
   name: 'WorkItemDisplaySettingsGroupBy',
@@ -37,7 +39,30 @@ export default {
       type: String,
       required: true,
     },
+    workItemTypeId: {
+      type: String,
+      required: true,
+    },
+    sortKey: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    namespacePreferences: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+    isSavedView: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
+  emits: ['update-settings'],
+  // Status is the only supported grouping today, so the identifier scheme is
+  // scoped to it. Kept generic so future groupings can reuse the same shape.
+  groupBy: { property: 'status' },
   GROUP_BY_LABEL_ID: 'work-item-display-settings-group-by-label',
   SORT_LABEL_ID: 'work-item-display-settings-sort-label',
   data() {
@@ -86,6 +111,62 @@ export default {
           iconStyle: decorationIconStyle(decoration),
         };
       });
+    },
+    // null means every group is visible; otherwise it holds the ids of the
+    // groups to render.
+    visibleGroups() {
+      return this.namespacePreferences?.visibleGroups ?? null;
+    },
+    allGroupIds() {
+      return this.groupByValues.map((value) => this.groupId(value));
+    },
+  },
+  methods: {
+    groupId(value) {
+      return getGroupId({ groupBy: this.$options.groupBy, value });
+    },
+    isGroupVisible(value) {
+      return this.visibleGroups === null || this.visibleGroups.includes(this.groupId(value));
+    },
+    toggleGroupVisibility(value) {
+      const id = this.groupId(value);
+      const current = this.visibleGroups ?? this.allGroupIds;
+      const nextVisible = current.includes(id)
+        ? current.filter((groupId) => groupId !== id)
+        : [...current, id];
+
+      // Collapse back to null once every group is shown again so the "all
+      // visible" default stays represented consistently.
+      const normalized = this.allGroupIds.every((groupId) => nextVisible.includes(groupId))
+        ? null
+        : nextVisible;
+
+      this.persist(normalized);
+    },
+    hideAll() {
+      if (this.visibleGroups?.length === 0) return;
+      this.persist([]);
+    },
+    async persist(visibleGroups) {
+      const input = { ...this.namespacePreferences, visibleGroups };
+
+      if (this.isSavedView) {
+        this.$emit('update-settings', input);
+        return;
+      }
+
+      try {
+        await persistMetadataPreference({
+          apolloClient: this.$apollo,
+          namespace: this.fullPath,
+          workItemTypeId: this.workItemTypeId,
+          userPreferencesOnly: false,
+          displaySettings: input,
+          sort: this.sortKey,
+        });
+      } catch (error) {
+        alertPreferenceError(error);
+      }
     },
   },
 };
@@ -136,8 +217,8 @@ export default {
           <button
             type="button"
             class="gl-border-none gl-bg-transparent gl-p-0 gl-text-sm gl-text-subtle"
-            disabled
             data-testid="hide-all"
+            @click="hideAll"
           >
             {{ $options.i18n.hideAll }}
           </button>
@@ -150,11 +231,11 @@ export default {
           >
             <gl-icon v-if="row.showIcon" :name="row.iconName" :style="row.iconStyle" />
             <gl-toggle
-              disabled
-              :value="true"
+              :value="isGroupVisible(row.value)"
               :label="row.value.name"
               class="gl-w-full gl-justify-between"
               label-position="left"
+              @change="toggleGroupVisibility(row.value)"
             />
           </li>
         </ul>

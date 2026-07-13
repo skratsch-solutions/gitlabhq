@@ -2481,9 +2481,6 @@ msgstr ""
 msgid "A release with a date in the future is labeled as an %{linkStart}Upcoming Release%{linkEnd}."
 msgstr ""
 
-msgid "A rollout requires at least one environment."
-msgstr ""
-
 msgid "A rule must have at least a minimum access role for push or delete."
 msgstr ""
 
@@ -22588,10 +22585,16 @@ msgstr ""
 msgid "ContinuousDeployment|Failed to load the application. Please try again later."
 msgstr ""
 
+msgid "ContinuousDeployment|Failed to trigger the deployment. Please try again."
+msgstr ""
+
 msgid "ContinuousDeployment|Filter applications..."
 msgstr ""
 
 msgid "ContinuousDeployment|Filter environments..."
+msgstr ""
+
+msgid "ContinuousDeployment|Flow"
 msgstr ""
 
 msgid "ContinuousDeployment|Flow editor"
@@ -22616,6 +22619,9 @@ msgid "ContinuousDeployment|Last deployed"
 msgstr ""
 
 msgid "ContinuousDeployment|Last deployed %{time}"
+msgstr ""
+
+msgid "ContinuousDeployment|Latest deployment flow"
 msgstr ""
 
 msgid "ContinuousDeployment|Links"
@@ -22732,7 +22738,19 @@ msgstr ""
 msgid "ContinuousDeployment|The deployable units. Each service has its own deployment strategy."
 msgstr ""
 
+msgid "ContinuousDeployment|This deployment will honour all policies and approval gates configured for the target environments."
+msgstr ""
+
 msgid "ContinuousDeployment|Tier"
+msgstr ""
+
+msgid "ContinuousDeployment|Trigger a manual deployment of %{name}. Pick the flow to run."
+msgstr ""
+
+msgid "ContinuousDeployment|Trigger deployment"
+msgstr ""
+
+msgid "ContinuousDeployment|Trigger deployment — %{name}"
 msgstr ""
 
 msgid "ContinuousDeployment|Type"
@@ -22742,6 +22760,9 @@ msgid "ContinuousDeployment|Version"
 msgstr ""
 
 msgid "ContinuousDeployment|Waiting for your approval"
+msgstr ""
+
+msgid "ContinuousDeployment|default"
 msgstr ""
 
 msgid "ContinuousDeployment|e.g. acme-platform"

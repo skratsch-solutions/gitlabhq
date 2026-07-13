@@ -61,6 +61,13 @@ export default {
       required: false,
       default: true,
     },
+    // null means every group is visible; otherwise it holds the ids of the
+    // groups to render. Not typed Array so a null default doesn't warn.
+    visibleGroups: {
+      required: false,
+      default: null,
+      validator: (value) => value === null || Array.isArray(value),
+    },
   },
   emits: ['set-error', 'set-active-item', 'toggle-collapse'],
   data() {
@@ -89,6 +96,13 @@ export default {
     // immediately override a reorder, so we don't persist position then.
     isManualSort() {
       return this.queryVariables.sort === RELATIVE_POSITION_ASC;
+    },
+    // Columns hidden via display settings are removed from the board entirely.
+    visibleGroupByValues() {
+      if (this.visibleGroups === null) {
+        return this.groupByValues;
+      }
+      return this.groupByValues.filter((value) => this.visibleGroups.includes(this.groupId(value)));
     },
   },
   apollo: {
@@ -295,7 +309,7 @@ export default {
   >
     <gl-loading-icon v-if="isLoading && groupByValues.length === 0" size="lg" class="gl-m-auto" />
     <column-group
-      v-for="value in groupByValues"
+      v-for="value in visibleGroupByValues"
       :key="value.id"
       :value="value"
       :strategy="strategy"

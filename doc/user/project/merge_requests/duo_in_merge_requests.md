@@ -110,6 +110,10 @@ After the review completes, you can also look for a Code Review Flow session in 
 
 {{< /history >}}
 
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
+
 To prevent GitLab Duo Enterprise seat holders from using a feature that consumes GitLab Credits, all
 code reviews they initiate use GitLab Duo Code Review by default. This behavior occurs even
 if a user with the Owner role turns on Code Review Flow for the group.
@@ -117,17 +121,17 @@ if a user with the Owner role turns on Code Review Flow for the group.
 You can change this default and configure all code reviews to use Code Review Flow instead,
 regardless of the user's seat.
 
-Prerequisites:
-
-- The Owner role for the top-level group.
-- [Code Review Flow](../../duo_agent_platform/flows/foundational_flows/code_review.md#prerequisites) turned on
-  and configured correctly for your top-level group.
-
 To override the default code review feature for GitLab Duo Enterprise seats:
 
 {{< tabs >}}
 
 {{< tab title="GitLab.com" >}}
+
+Prerequisites:
+
+- The Owner role for the top-level group.
+- [Code Review Flow](../../duo_agent_platform/flows/foundational_flows/code_review.md#prerequisites)
+  turned on and configured correctly for your top-level group.
 
 1. In the top bar, select **Search or go to** and find your top-level group.
 1. Select **Settings** > **GitLab Duo**.
@@ -139,6 +143,12 @@ To override the default code review feature for GitLab Duo Enterprise seats:
 {{< /tab >}}
 
 {{< tab title="GitLab Self-Managed and GitLab Dedicated" >}}
+
+Prerequisites:
+
+- The Maintainer or Owner role for the group.
+- [Code Review Flow](../../duo_agent_platform/flows/foundational_flows/code_review.md#prerequisites)
+  turned on and configured correctly for the instance.
 
 1. In the top bar, select **Search or go to** and find your group or subgroup.
 1. Select **Settings** > **General**.

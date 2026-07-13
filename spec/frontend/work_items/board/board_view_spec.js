@@ -75,4 +75,20 @@ describe('BoardView', () => {
       expect(wrapper.emitted('set-error')).toBeUndefined();
     });
   });
+
+  describe('visibleGroups prop', () => {
+    it('defaults to null (all groups visible)', () => {
+      createComponent();
+
+      expect(wrapper.props('visibleGroups')).toBeNull();
+    });
+
+    it('accepts an array without error', async () => {
+      createComponent({ props: { visibleGroups: [] } });
+      await waitForPromises();
+
+      expect(Sentry.captureException).not.toHaveBeenCalled();
+      expect(findColumnGroups()).toHaveLength(0);
+    });
+  });
 });

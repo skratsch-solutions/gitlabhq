@@ -3,7 +3,7 @@ title: 基本フローの準備状況チェック
 offering: [ self_managed, gitlab_dedicated_for_government ]
 tier: [ Premium, Ultimate ]
 stage: ai-powered
-documentation_link: "../../administration/gitlab_duo/configure/#run-a-health-check-for-gitlab-duo"
+documentation_link: "../../../administration/gitlab_duo/configure/#run-a-health-check-for-gitlab-duo"
 work_item: https://gitlab.com/gitlab-org/gitlab/-/work_items/599536
 categories: [ Duo Agent Platform ]
 level: secondary

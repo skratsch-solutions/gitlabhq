@@ -61,10 +61,16 @@ export const updateNoteErrorMessage = (e) => {
  *   no `duo_session_status`, so it is matched via its bot author's user_type.
  *   `duo_code_review_bot` is the dedicated internal GitLab Duo user (see
  *   Users::Internal); it is the author's account type, not a per-note flag.
+ *
+ * The bot also authors `cross_reference` notes ("mentioned in ...") from its
+ * review summary, which must stay plain, so the author branch excludes the
+ * `comment-dots` icon that only `cross_reference` produces.
  */
 export const shouldRenderAsDuoSystemNote = (note) =>
   Boolean(note?.system) &&
-  (note.duo_session_status !== undefined || note.author?.user_type === 'duo_code_review_bot');
+  (note.duo_session_status !== undefined ||
+    (note.author?.user_type === 'duo_code_review_bot' &&
+      note.system_note_icon_name !== 'comment-dots'));
 
 /**
  * Finds the Duo "thinking" note that an incoming reply should remove, matched by

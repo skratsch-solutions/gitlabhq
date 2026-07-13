@@ -3,12 +3,6 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/analytics/ci_cd/components/ci_cd_analytics_charts.vue',
-    'app/assets/javascripts/analytics/cycle_analytics/components/formatted_stage_count.vue',
-    'app/assets/javascripts/analytics/cycle_analytics/components/total_time.vue',
-    'app/assets/javascripts/analytics/devops_reports/components/devops_score.vue',
-    'app/assets/javascripts/analytics/devops_reports/components/service_ping_disabled.vue',
-    'app/assets/javascripts/analytics/shared/components/daterange.vue',
     'app/assets/javascripts/branches/components/delete_branch_modal.vue',
     'app/assets/javascripts/branches/components/delete_merged_branches.vue',
     'app/assets/javascripts/branches/components/divergence_graph.vue',
@@ -44,19 +38,6 @@ export default {
     'app/assets/javascripts/custom_emoji/pages/index.vue',
     'app/assets/javascripts/custom_emoji/pages/new.vue',
 
-    'ee/app/assets/javascripts/analytics/code_review_analytics/components/app.vue',
-    'ee/app/assets/javascripts/analytics/code_review_analytics/components/filter_bar.vue',
-    'ee/app/assets/javascripts/analytics/contribution_analytics/components/column_chart.vue',
-    'ee/app/assets/javascripts/analytics/contribution_analytics/components/group_members_table.vue',
-    'ee/app/assets/javascripts/analytics/cycle_analytics/components/value_stream_select.vue',
-    'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/components/devops_adoption_overview_chart.vue',
-    'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/components/devops_adoption_section.vue',
-    'ee/app/assets/javascripts/analytics/productivity_analytics/components/app.vue',
-    'ee/app/assets/javascripts/analytics/productivity_analytics/components/filter_dropdowns.vue',
-    'ee/app/assets/javascripts/analytics/productivity_analytics/components/metric_column.vue',
-    'ee/app/assets/javascripts/analytics/productivity_analytics/components/mr_table.vue',
-    'ee/app/assets/javascripts/analytics/productivity_analytics/components/mr_table_row.vue',
-    'ee/app/assets/javascripts/analytics/shared/components/scatterplot.vue',
     'ee/app/assets/javascripts/audit_events/components/audit_events_app.vue',
     'ee/app/assets/javascripts/audit_events/components/audit_events_export_button.vue',
     'ee/app/assets/javascripts/audit_events/components/audit_events_filter.vue',

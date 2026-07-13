@@ -137,7 +137,7 @@ To update the content for the current release:
 
    ```markdown
    # Original
-   title: GitLab <version> - not yet released
+   title: GitLab <version> (Upcoming release)
 
    # New
    title: GitLab <version>
@@ -278,7 +278,7 @@ values unless a note must absolutely appear first.
 
 | Metadata      | Format                                                                                                                         | Description |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------- |
-| `title`       | Pre-release: `GitLab <version> - not yet released`<br>Post-release: `GitLab <version>`                                         | Page title. Uses the first format before release, and the second on release day. |
+| `title`       | Pre-release: `GitLab <version> (Upcoming release)`<br>Post-release: `GitLab <version>`                                         | Page title. Uses the first format before release, and the second on release day. |
 | `description` | Pre-release: `Summary of features included in <version>`<br>Post-release: `GitLab <version> released with <top feature title>` | Short summary displayed on cards for the index page. |
 | `group`       | `Monthly Release`, `Patch Release`                                                                                             | Used for analytics and feedback. Always uses `Monthly Release`; patch releases are created through a different process. |
 | `stage`       | `Release Notes`                                                                                                                | Used for analytics and feedback. Always uses `Release Notes`. |
@@ -303,7 +303,7 @@ values unless a note must absolutely appear first.
 
 ```markdown
 ---
-title: "GitLab <version> - not yet released"
+title: "GitLab <version> (Upcoming release)"
 description: "Summary of features included in <version>"
 group: Monthly Release
 stage: Release Notes

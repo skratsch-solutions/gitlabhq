@@ -4,6 +4,7 @@ import EMPTY_STATE_SVG from '@gitlab/svgs/dist/illustrations/empty-state/empty-d
 import { helpPagePath } from '~/helpers/help_page_helper';
 
 export default {
+  name: 'ServicePingDisabled',
   components: {
     GlEmptyState,
     GlSprintf,

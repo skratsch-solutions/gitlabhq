@@ -371,6 +371,16 @@ Grants the ability to restore AI catalog items.
 | ------ | ------ | ---- | ---- |
 | Restore | Project | Mutation | `AiCatalogItemVersionRestore` |
 
+#### AI tool rule
+
+Grants the ability to read and update AI tool rules, which control per-tool approval (Allow, Ask, Deny) for the Duo Agent Platform.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Group | Field | `Query.aiToolRules` |
+| Update | Group | Mutation | `BulkUpdateAiToolRules` |
+| Update | Group | Mutation | `UpdateAiToolRule` |
+
 #### Duo Workflow
 
 Grants the ability to create, read, resume, and update duo workflows.

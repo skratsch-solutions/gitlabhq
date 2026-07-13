@@ -12,6 +12,7 @@ const defaultHeaderAttrs = {
 };
 
 export default {
+  name: 'DevopsScore',
   components: {
     GlBadge,
     GlTableLite,

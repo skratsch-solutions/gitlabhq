@@ -966,6 +966,9 @@ export default {
     collapsedGroups() {
       return this.namespacePreferences.collapsedGroups ?? [];
     },
+    visibleGroups() {
+      return this.namespacePreferences.visibleGroups ?? null;
+    },
     hiddenMetadataKeys() {
       return this.namespacePreferences.hiddenMetadataKeys ?? [];
     },
@@ -1120,6 +1123,7 @@ export default {
             },
             namespacePreferences: {
               hiddenMetadataKeys: value.namespacePreferences?.hiddenMetadataKeys ?? [],
+              visibleGroups: value.namespacePreferences?.visibleGroups ?? null,
             },
           };
         }
@@ -2251,6 +2255,7 @@ export default {
       :root-page-full-path="rootPageFullPath"
       :query-variables="queryVariables"
       :collapsed-groups="collapsedGroups"
+      :visible-groups="visibleGroups"
       :hidden-metadata-keys="hiddenMetadataKeys"
       :active-item="activeItem"
       :detail-panel-enabled="workItemDetailPanelEnabled"

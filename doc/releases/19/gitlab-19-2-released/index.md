@@ -1,5 +1,5 @@
 ---
-title: "GitLab 19.2 (not yet released)"
+title: "GitLab 19.2 (Upcoming release)"
 description: "Release notes for the upcoming version of GitLab."
 group: Monthly Release
 stage: Release Notes

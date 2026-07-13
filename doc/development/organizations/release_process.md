@@ -23,6 +23,10 @@ See [Organizations release stages](https://handbook.gitlab.com/handbook/engineer
 That page is the source of truth, written for everyone working on Organizations, including product and design.
 This page is the engineering guide.
 
+Not every feature is on this process yet.
+See [How organizations get created](organization_creation.md) for an audit of one feature, organization creation,
+whose paths are not all on the release layer today.
+
 Releasing a feature has four steps:
 
 1. [Gate your feature](#gate-your-feature) with the release layer.

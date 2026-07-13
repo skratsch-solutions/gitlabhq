@@ -92,7 +92,6 @@ mutation:BranchRuleSquashOptionUpdate
 mutation:BulkEnableDevopsAdoptionNamespaces
 mutation:BulkRunnerDelete
 mutation:BulkSetVulnerabilityFindingsDueDates
-mutation:BulkUpdateAiToolRules
 mutation:BulkUpdateSecurityAttributes
 mutation:ClusterAgentTokenRevoke
 mutation:ConfigureContainerScanning
@@ -371,7 +370,6 @@ mutation:TimelineEventUpdate
 mutation:TimelogCreate
 mutation:TimelogDelete
 mutation:UnlinkProjectComplianceViolationIssue
-mutation:UpdateAiToolRule
 mutation:UpdateAlertStatus
 mutation:UpdateBoard
 mutation:UpdateBoardEpicUserPreferences
@@ -500,7 +498,6 @@ type:AiModelSelectionNamespaceFeatureSetting
 type:AiModelSelectionOfferedModel
 type:AiNamespaceSettings
 type:AiSelfHostedModel
-type:AiToolRule
 type:AiUsageData
 type:AiUsageEvent
 type:AiUserMetrics
@@ -547,7 +544,6 @@ type:BooleanExpression
 type:BranchProtection
 type:BranchRule
 type:BulkImportExportUploadUploadRegistry
-type:BulkToolRuleResult
 type:BurnupChartDailyTotals
 type:CarPermissions
 type:CiApplicationSettings

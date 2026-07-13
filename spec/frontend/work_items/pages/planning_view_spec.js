@@ -2712,6 +2712,7 @@ describe('planning-view', () => {
         'collapsedGroups',
         'activeItem',
         'detailPanelEnabled',
+        'visibleGroups',
       ],
       template: '<div />',
     };
@@ -3081,6 +3082,22 @@ describe('planning-view', () => {
           });
 
           expect(findBoardView().props('collapsedGroups')).toEqual([collapsedId]);
+        });
+
+        it('passes the persisted visible groups to the board view', async () => {
+          await mountAllItemsBoard({
+            mockPreferencesHandler: preferencesHandlerWith({ visibleGroups: [collapsedId] }),
+          });
+
+          expect(findBoardView().props('visibleGroups')).toEqual([collapsedId]);
+        });
+
+        it('defaults visibleGroups to null when none are persisted', async () => {
+          await mountAllItemsBoard({
+            mockPreferencesHandler: preferencesHandlerWith({}),
+          });
+
+          expect(findBoardView().props('visibleGroups')).toBeNull();
         });
 
         it('persists a newly collapsed column, merged with existing display settings', async () => {

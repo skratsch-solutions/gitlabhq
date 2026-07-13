@@ -35,6 +35,7 @@ describe('WorkItemDisplaySettingsGroupBy', () => {
       apolloProvider,
       propsData: {
         fullPath: 'group/full/path',
+        workItemTypeId: 'gid://gitlab/WorkItems::Type/1',
         ...props,
       },
     });
@@ -72,11 +73,12 @@ describe('WorkItemDisplaySettingsGroupBy', () => {
     expect(findSearchBox().props('disabled')).toBe(true);
   });
 
-  it('renders a non-functional Hide all link', async () => {
+  it('renders an enabled Hide all button', async () => {
     createComponent();
     await waitForPromises();
 
     expect(findHideAll().text()).toBe('Hide all');
+    expect(findHideAll().attributes('disabled')).toBeUndefined();
   });
 
   it('calls the statuses query with fullPath', async () => {

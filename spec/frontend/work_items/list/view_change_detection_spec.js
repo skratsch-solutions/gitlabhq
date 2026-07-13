@@ -126,10 +126,28 @@ describe('view change detection', () => {
       ).toBe(false);
     });
 
-    it('treats missing tracked keys as empty arrays', () => {
+    it('returns true when visibleGroups differ', () => {
       expect(
         preferencesChanged({
-          currentPreferences: { hiddenMetadataKeys: [] },
+          currentPreferences: { visibleGroups: ['status:gid://gitlab/Status/1'] },
+          baselinePreferences: { visibleGroups: null },
+        }),
+      ).toBe(true);
+    });
+
+    it('returns false when visibleGroups match', () => {
+      expect(
+        preferencesChanged({
+          currentPreferences: { visibleGroups: ['status:gid://gitlab/Status/1'] },
+          baselinePreferences: { visibleGroups: ['status:gid://gitlab/Status/1'] },
+        }),
+      ).toBe(false);
+    });
+
+    it('treats missing tracked keys as empty arrays and visibleGroups as null', () => {
+      expect(
+        preferencesChanged({
+          currentPreferences: { hiddenMetadataKeys: [], visibleGroups: null },
           baselinePreferences: {},
         }),
       ).toBe(false);

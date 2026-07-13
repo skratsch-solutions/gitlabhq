@@ -184,7 +184,15 @@ export default {
       <h2 v-else class="gl-my-0 gl-text-size-h2 gl-leading-24">{{ $options.i18n.title }}</h2>
     </template>
     <template #default>
-      <work-item-display-settings-group-by v-if="isGroupByPage" :full-path="fullPath" />
+      <work-item-display-settings-group-by
+        v-if="isGroupByPage"
+        :full-path="fullPath"
+        :work-item-type-id="workItemTypeId"
+        :sort-key="sortKey"
+        :namespace-preferences="namespacePreferences"
+        :is-saved-view="isSavedView"
+        @update-settings="onSettingsUpdate"
+      />
       <div v-else class="gl-flex gl-h-full gl-flex-col !gl-p-0">
         <gl-segmented-control
           v-if="isPlanningViewBoardEnabled"

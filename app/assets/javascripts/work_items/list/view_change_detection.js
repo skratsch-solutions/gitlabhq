@@ -46,6 +46,7 @@ export const viewModeChanged = ({ viewMode, baselineViewMode }) => viewMode !== 
 const pickTrackedPreferences = (preferences) => ({
   hiddenMetadataKeys: preferences?.hiddenMetadataKeys ?? [],
   collapsedGroups: preferences?.collapsedGroups ?? [],
+  visibleGroups: preferences?.visibleGroups ?? null,
 });
 
 export const preferencesChanged = ({ currentPreferences, baselinePreferences }) =>

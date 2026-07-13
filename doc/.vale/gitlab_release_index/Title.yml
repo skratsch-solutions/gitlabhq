@@ -1,7 +1,7 @@
 ---
 name: gitlab_release_index.Title
 description: Ensures the minor release index page has a non-empty title.
-message: "The `title` metadata is required (for example, `GitLab 19.1` or `GitLab 19.1 - not yet released`)."
+message: "The `title` metadata is required (for example, `GitLab 19.1` or `GitLab 19.1 (Upcoming release)`)."
 link: https://docs.gitlab.com/development/documentation/release_notes/#minor-release-index-metadata
 level: error
 extends: script

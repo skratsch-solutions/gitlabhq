@@ -116,13 +116,15 @@ describe('note utils', () => {
 
   describe('shouldRenderAsDuoSystemNote', () => {
     it.each`
-      description                                     | note                                                              | expected
-      ${'duo mention note (duo_session_status set)'}  | ${{ system: true, duo_session_status: 'running', author: {} }}    | ${true}
-      ${'duo mention note (duo_session_status null)'} | ${{ system: true, duo_session_status: null, author: {} }}         | ${true}
-      ${'duo code review progress note (bot author)'} | ${{ system: true, author: { user_type: 'duo_code_review_bot' } }} | ${true}
-      ${'plain system note'}                          | ${{ system: true, author: { user_type: 'human' } }}               | ${false}
-      ${'non-system note with duo_session_status'}    | ${{ system: false, duo_session_status: 'running', author: {} }}   | ${false}
-      ${'undefined note'}                             | ${undefined}                                                      | ${false}
+      description                                      | note                                                                                                     | expected
+      ${'duo mention note (duo_session_status set)'}   | ${{ system: true, duo_session_status: 'running', author: {} }}                                           | ${true}
+      ${'duo mention note (duo_session_status null)'}  | ${{ system: true, duo_session_status: null, author: {} }}                                                | ${true}
+      ${'duo mention note despite comment-dots icon'}  | ${{ system: true, duo_session_status: 'running', system_note_icon_name: 'comment-dots', author: {} }}    | ${true}
+      ${'duo code review progress note (bot author)'}  | ${{ system: true, author: { user_type: 'duo_code_review_bot' } }}                                        | ${true}
+      ${'duo bot cross-reference note (comment-dots)'} | ${{ system: true, system_note_icon_name: 'comment-dots', author: { user_type: 'duo_code_review_bot' } }} | ${false}
+      ${'plain system note'}                           | ${{ system: true, author: { user_type: 'human' } }}                                                      | ${false}
+      ${'non-system note with duo_session_status'}     | ${{ system: false, duo_session_status: 'running', author: {} }}                                          | ${false}
+      ${'undefined note'}                              | ${undefined}                                                                                             | ${false}
     `('returns $expected for $description', ({ note, expected }) => {
       expect(shouldRenderAsDuoSystemNote(note)).toBe(expected);
     });
