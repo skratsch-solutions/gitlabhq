@@ -235,6 +235,8 @@ Start by creating the following files in your working directory.
        # Forward all requests to the AI Gateway
        location / {
            proxy_pass http://gitlab-ai-gateway:5052;
+           # proxy_read_timeout is the longest allowed idle gap between response chunks,
+           # not the total response time. Reasoning models can pause for minutes before responding.
            proxy_read_timeout 300s;
            proxy_connect_timeout 75s;
            proxy_buffering off;
@@ -271,6 +273,8 @@ Start by creating the following files in your working directory.
        # Forward all requests to the AI Gateway
        location / {
            proxy_pass http://gitlab-ai-gateway:5052;
+           # proxy_read_timeout is the longest allowed idle gap between response chunks,
+           # not the total response time. Reasoning models can pause for minutes before responding.
            proxy_read_timeout 300s;
            proxy_connect_timeout 75s;
            proxy_buffering off;
