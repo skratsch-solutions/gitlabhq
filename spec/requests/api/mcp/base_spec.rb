@@ -17,6 +17,15 @@ RSpec.describe API::Mcp::Base, feature_category: :mcp_server do
 
         expect(response).to have_gitlab_http_status(:unauthorized)
       end
+
+      it 'returns a WWW-Authenticate challenge pointing at the resource metadata', :aggregate_failures do
+        post api('/mcp')
+
+        metadata_url = "#{Gitlab.config.gitlab.url}/.well-known/oauth-protected-resource/api/v4/mcp"
+        expect(response).to have_gitlab_http_status(:unauthorized)
+        expect(response.headers['WWW-Authenticate'])
+          .to eq(%(Bearer realm="GitLab", resource_metadata="#{metadata_url}"))
+      end
     end
 
     context 'when authenticated' do
@@ -207,6 +216,15 @@ RSpec.describe API::Mcp::Base, feature_category: :mcp_server do
         get api('/mcp')
 
         expect(response).to have_gitlab_http_status(:unauthorized)
+      end
+
+      it 'returns a WWW-Authenticate challenge pointing at the resource metadata', :aggregate_failures do
+        get api('/mcp')
+
+        metadata_url = "#{Gitlab.config.gitlab.url}/.well-known/oauth-protected-resource/api/v4/mcp"
+        expect(response).to have_gitlab_http_status(:unauthorized)
+        expect(response.headers['WWW-Authenticate'])
+          .to eq(%(Bearer realm="GitLab", resource_metadata="#{metadata_url}"))
       end
     end
 

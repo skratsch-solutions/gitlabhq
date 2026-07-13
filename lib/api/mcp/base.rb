@@ -7,6 +7,8 @@ module API
       include APIGuard
       include ::Mcp::Tools::VersionHelper
 
+      helpers ::API::Helpers::Mcp::AuthChallenge
+
       # JSON-RPC Specification
       # See: https://www.jsonrpc.org/specification
       JSONRPC_VERSION = '2.0'
