@@ -467,8 +467,25 @@ For dates and times in the UI, see [Pajamas](https://design.gitlab.com/content/d
 To make the source content easy to read, and to compare diffs,
 follow these best practices.
 
-- Split long lines at approximately 100 characters. (Exception: Do not split links.)
-- Start each new sentence on a new line.
+- Split long lines at approximately 100 characters, but do not split links.
+- Try to avoid splitting lines between logical word groupings, keep them together on the same line.
+
+For example:
+
+- Use:
+
+  ```markdown
+  This long line talks about how to manage a GitLab Self-Managed instance
+  deployed to Google Cloud for Education.
+  ```
+
+- Instead of:
+
+  ```markdown
+  This long line talks about how to manage a GitLab
+  Self-Managed instance deployed to Google Cloud for
+  Education.
+  ```
 
 ### Comments
 

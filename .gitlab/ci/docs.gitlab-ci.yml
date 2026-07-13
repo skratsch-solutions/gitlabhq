@@ -120,7 +120,7 @@ docs code_quality:
     when: always
 
 docs hugo_build:
-  image: ${REGISTRY_HOST}/${REGISTRY_GROUP}/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.150.1
+  image: ${REGISTRY_HOST}/${REGISTRY_GROUP}/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.154.5
   extends:
     - .docs:rules:docs-all-lint
     - .lint-base

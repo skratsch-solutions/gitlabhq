@@ -293,6 +293,9 @@ The following slash commands are available:
 | `/settings` | Open the settings panel.                             |
 | `/skills`   | List available Agent Skills in the current project.  |
 
+You can also create your own slash commands.
+For more information, see [custom slash commands](#custom-slash-commands).
+
 #### Settings
 
 To change a setting:
@@ -639,6 +642,77 @@ To create a hook:
    ```shell
    export GITLAB_ENABLE_PROJECT_HOOKS=true
    ```
+
+## Custom slash commands
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/3617) in GitLab Duo CLI 9.2.0, during the GitLab 19.2 release.
+
+{{< /history >}}
+
+Create custom slash commands for prompts you use frequently.
+
+The GitLab Duo CLI supports custom slash commands at two levels:
+
+- User-level: Apply to all of your projects.
+- Project-level: Apply only to a specific project.
+
+If a user-level command and a project-level command share the same name, the project-level command
+takes precedence. Custom slash commands cannot override built-in slash commands or
+[Agent Skills slash commands](../duo_agent_platform/customize/agent_skills.md#expose-skills-as-slash-commands).
+
+### Create a custom slash command
+
+To create a custom slash command, you create a Markdown file.
+
+The filename is the command name, and the file content is the prompt.
+
+For example, a file named `daily.md` creates the `/daily` command:
+
+1. Create a `commands` directory:
+   - For a project-level command, create the directory in the root of your project:
+     `<project>/.agents/commands/`.
+   - For a user-level command, use one of the following locations:
+     - To keep your commands with your other GitLab Duo customization files:
+       - On Linux or macOS, create the directory at `~/.gitlab/duo/commands/`.
+       - On Windows, create the directory at `%APPDATA%\GitLab\duo\commands\`.
+       - If you have set `GLAB_CONFIG_DIR` or `XDG_CONFIG_HOME`, use `$GLAB_CONFIG_DIR/commands/`
+         or `$XDG_CONFIG_HOME/gitlab/duo/commands/`. If both are set, `GLAB_CONFIG_DIR` takes
+         priority.
+     - To share commands with other AI tools:
+       - On Linux or macOS, create the directory at `~/.agents/commands/`.
+       - On Windows, create the directory at `%USERPROFILE%\.agents\commands\`.
+1. In the directory, create a Markdown file.
+   Use the command name as the filename.
+   Command names must start with a letter or number, and can contain only letters, numbers,
+   hyphens, and underscores.
+1. Add the prompt to the file.
+1. Optional. Add a `description` field in YAML front matter at the top of the file.
+   The description appears next to the command in the slash command menu.
+
+   For example, a `/daily` command defined in `daily.md`:
+
+   ```markdown
+   ---
+   description: Prepare a daily report
+   ---
+
+   Use `glab todo list` to fetch my open TODO items. Give me a concise morning report ranked by priority.
+   ```
+
+1. Restart the GitLab Duo CLI. The CLI discovers custom slash commands when it starts.
+
+### Use a custom slash command
+
+In interactive mode, enter the slash command at the prompt and press <kbd>Enter</kbd>.
+The GitLab Duo CLI sends the file content as the prompt.
+
+Any text you enter after the command name is added to the end of the prompt.
+
+Use this to customize what the custom slash command does.
+
+For example, `/daily prioritize my milestone deliverables`.
 
 ## Reference
 
