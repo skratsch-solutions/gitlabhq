@@ -193,7 +193,10 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
 end
 
 RSpec.shared_examples 'authorizing granular token permissions for GraphQL' do |permissions|
-  it_behaves_like 'authorizing granular token permissions', permissions, context_type: :graphql
+  # `include_examples` (not `it_behaves_like`) so the inner example group's
+  # default `let` definitions (e.g. `error_boundary_object`) land on this
+  # group and remain overridable from the caller's customization block.
+  include_examples 'authorizing granular token permissions', permissions, context_type: :graphql
 end
 
 RSpec.shared_examples 'authorizing granular token permissions for GraphQL with a skipped child type' do |permissions|

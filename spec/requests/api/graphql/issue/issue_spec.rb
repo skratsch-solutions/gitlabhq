@@ -64,6 +64,15 @@ RSpec.describe 'Query.issue(id)', feature_category: :team_planning do
       let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
     end
 
+    # Exercises the granular scope directive on the Issue.createNoteEmail field.
+    # The token also needs read_issue to authorize the enclosing Issue type.
+    it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_issue, :create_issue_note] do
+      let(:user) { current_user }
+      let(:boundary_object) { project }
+      let(:issue_fields) { 'id createNoteEmail' }
+      let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+    end
+
     context 'when using a granular personal access token' do
       let(:issue_fields) { 'id createNoteEmail' }
 

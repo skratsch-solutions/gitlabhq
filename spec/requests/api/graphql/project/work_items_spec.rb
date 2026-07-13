@@ -1178,6 +1178,23 @@ RSpec.describe 'getting a work item list for a project', feature_category: :port
     end
   end
 
+  # Exercises the WorkItem type-level granular token authorization through
+  # the Project.workItems connection.
+  it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_project, :read_work_item] do
+    let(:user) { reporter }
+    let(:boundary_object) { project }
+    # createNoteEmail requires write permissions since it can be used to create issues and notes.
+    let(:fields) do
+      <<~QUERY
+        nodes {
+          #{all_graphql_fields_for('WorkItem', max_depth: 1, excluded: ['createNoteEmail'])}
+        }
+      QUERY
+    end
+
+    let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+  end
+
   context 'when skipping authorization' do
     shared_examples  'request with skipped abilities' do |abilities = []|
       it 'authorizes objects as expected' do

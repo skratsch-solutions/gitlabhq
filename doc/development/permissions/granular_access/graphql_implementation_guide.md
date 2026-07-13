@@ -108,7 +108,7 @@ Follow the instructions in the [Assignable Permissions](assignable_permissions.m
 
 **Goal:** Add granular PAT authorization directives to GraphQL types and mutations.
 
-Use the `authorize_granular_token` method to declare permissions on types and mutations. This method is available on all GraphQL types (via `Types::BaseObject`) and mutations (via `Mutations::BaseMutation`).
+Use the `authorize_granular_token` method to declare permissions on types and mutations. This method is available on all GraphQL types (via `Types::BaseObject`), mutations (via `Mutations::BaseMutation`), and resolvers (via `Resolvers::BaseResolver`).
 
 **Method Signature:**
 
@@ -168,6 +168,23 @@ end
 ```
 
 For the argument `noteable_id: "gid://gitlab/Issue/1"`, the extractor locates the issue, then calls `issue.resource_parent` to reach the boundary.
+
+**For root query fields:**
+
+Root query fields have no parent object, so the boundary is read from the field arguments with `boundary_argument`.
+Declare the directive on the field's resolver — directives declared on a resolver are applied to the fields that mount it:
+
+```ruby
+module Resolvers
+  module Ai
+    class ToolRulesResolver < BaseResolver
+      authorize_granular_token permissions: :read_ai_tool_rule, boundary_argument: :full_path, boundary_type: :group
+    end
+  end
+end
+```
+
+When the token lacks the permission, the field resolves to `null`, matching how type-level authorization redacts objects.
 
 #### When `boundary` applies
 
@@ -451,9 +468,8 @@ IO.popen('pbcopy', 'w') { |f| f.puts "curl \"http://#{Gitlab.host_with_port}/api
    - A `skip_reason:` is not defined in `lib/tasks/gitlab/permissions/graphql/skip_reasons.rb`.
    - A directive declares both `skip_reason:` and `permissions:`.
    - A permission in a directive has no authorization test. Each type, mutation, or field declaring
-     the permission needs its own test per boundary type. Declarations that predate this check are
-     listed in `config/authz/graphql/test_coverage_todo.txt`. Do not add new entries to that file:
-     a new declaration needs a test even when its permission appears there.
+     the permission needs its own test per boundary type. This is strictly enforced with no
+     grandfathered exceptions, so add the test in the same merge request as the declaration.
    - The generated reference documentation is out of date.
 
 ## See Also

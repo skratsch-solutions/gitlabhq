@@ -675,11 +675,13 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Delete | Group | Mutation | `IterationCadenceDestroy` |
 | Delete | Group | Mutation | `IterationDelete` |
 | Delete | Group | Mutation | `WorkItemDelete` |
+| Read | Project | Type | `Board` |
 | Read | Project | Type | `EpicIssue` |
 | Read | Project | Type | `Issue` |
 | Read | Project | Type | `Milestone` |
 | Read | Project | Type | `Note` |
 | Read | Project | Type | `WorkItem` |
+| Read | Group | Type | `Board` |
 | Read | Group | Type | `BoardEpic` |
 | Read | Group | Type | `Epic` |
 | Read | Group | Type | `Iteration` |

@@ -3,9 +3,8 @@ package listener
 
 import (
 	"crypto/tls"
+	"log/slog"
 	"net"
-
-	"gitlab.com/gitlab-org/labkit/log"
 
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/config"
 )
@@ -13,7 +12,12 @@ import (
 // New creates a network listener with optional TLS support
 func New(name string, cfg config.ListenerConfig) (net.Listener, error) {
 	if cfg.TLS == nil {
-		log.WithFields(log.Fields{"address": cfg.Addr, "network": cfg.Network}).Infof("Running %v server", name)
+		slog.Info(
+			"Running server",
+			slog.String("name", name),
+			slog.String("address", cfg.Addr),
+			slog.String("network", cfg.Network),
+		)
 
 		return net.Listen(cfg.Network, cfg.Addr)
 	}
@@ -23,7 +27,12 @@ func New(name string, cfg config.ListenerConfig) (net.Listener, error) {
 		return nil, err
 	}
 
-	log.WithFields(log.Fields{"address": cfg.Addr, "network": cfg.Network}).Infof("Running %v server with tls", name)
+	slog.Info(
+		"Running server with tls",
+		slog.String("name", name),
+		slog.String("address", cfg.Addr),
+		slog.String("network", cfg.Network),
+	)
 
 	// Default to TLS 1.2 when no minimum version is configured. An unset
 	// min_version maps to 0, which would otherwise allow TLS 1.0/1.1.

@@ -41,13 +41,11 @@ When the flag is disabled, granular PATs do not work for GraphQL requests.
     itself. Use for entry-point fields like `Query.group(fullPath:)` where downstream
     fields enforce the real permissions.
 
-### 3. Boundary extractors
+### 3. Boundary extractor
 
-- **Location**: `lib/gitlab/graphql/authz/boundary_extractors/`
+- **Location**: `lib/gitlab/graphql/authz/boundary_extractor.rb`
 - **Purpose**: Resolve the object the token must be scoped to. The object can be a project, group, `:user`, or `:instance`, but is not limited to these.
-- **Classes**:
-  - `BoundaryExtractors::FromObject`: Extracts the boundary from an already-resolved object. Used for GraphQL queries.
-  - `BoundaryExtractors::FromInputArguments`: Extracts the boundary from GraphQL arguments. Used for GraphQL mutations.
+- **Behavior**: Extracts the boundary from the source each directive declares: directives with `boundary_argument` read from the field or mutation arguments, all other directives read from the already-resolved object.
 
 ### 4. Helper module
 
@@ -90,7 +88,7 @@ If no granular directives are declared, authorization fails.
 
 **Step 3: Boundary extraction**
 
-The boundaries are extracted from the resolved object for queries, or from the input arguments for mutations.
+The boundaries are extracted from the source each directive declares: the resolved object for type-level checks, or the arguments for mutations and root query fields.
 For details, see [Boundary extraction](#boundary-extraction).
 
 **Step 4: Authorization**
@@ -107,14 +105,14 @@ Granular permission checks also apply to legacy (non-granular) tokens when a bou
 
 ## Boundary extraction
 
-GitLab has two boundary extractors, one for queries and one for mutations.
-Queries authorize an object that GraphQL has already resolved, so the boundary is reached by calling a method on that object.
-Mutations authorize before any object is resolved, so the boundary must be derived from the input arguments.
+Each directive declares where its boundary comes from, and `BoundaryExtractor` reads from that source.
+Type-level checks authorize an object that GraphQL has already resolved, so the boundary is reached by calling a method on that object.
+Mutations and root query fields authorize before any object is resolved, so the boundary must be derived from the arguments.
 
-### 1. From a resolved object (queries)
+### 1. From a resolved object (types and nested fields)
 
-Queries use `BoundaryExtractors::FromObject`.
-It reads the `boundary` method from the directive and resolves the boundary from the already-resolved object:
+Directives without a `boundary_argument` read from the resolved object.
+The extractor reads the `boundary` method from the directive and resolves the boundary from the already-resolved object:
 
 - `boundary: :itself` returns the object as its own boundary. Use this for types that are themselves a Project or Group.
 - Any other value calls that method on the object.
@@ -133,10 +131,11 @@ authorize_granular_token permissions: :read_issue, boundary: :project, boundary_
 # boundary => issue.project
 ```
 
-### 2. From arguments (mutations)
+### 2. From arguments (mutations and root query fields)
 
-Mutations use `BoundaryExtractors::FromInputArguments`.
-It reads the `boundary_argument` from the directive and locates the record:
+Directives with a `boundary_argument` read from the arguments.
+This applies to mutations and to root query fields, where no parent object exists to reach a boundary from.
+The extractor reads the `boundary_argument` from the directive and locates the record:
 
 - A GlobalID is located through `GitlabSchema.find_by_gid` (forced with `Gitlab::Graphql::Lazy`), so the lookup participates in GraphQL batch loading.
 - A full-path string is located through `Project.find_by_full_path` or `Group.find_by_full_path`.
@@ -209,7 +208,7 @@ authorize_granular_token permissions: :create_issue, boundary_argument: :project
 ```
 
 1. GraphQL Ruby calls `Mutations::BaseMutation#authorized?` before the mutation runs.
-1. `BoundaryExtractors::FromInputArguments` reads `project_path` and resolves the Project through `Project.find_by_full_path`.
+1. `BoundaryExtractor` reads `project_path` and resolves the Project through `Project.find_by_full_path`.
 1. `AuthorizeGranularScopesService` checks whether the token has `create_issue` on that project.
 1. When the token has the permission, the mutation runs. Otherwise, `Gitlab::Graphql::Errors::ArgumentError` is raised.
 
@@ -234,7 +233,7 @@ authorize_granular_token permissions: :read_issue, boundary: :project, boundary_
 ```
 
 1. When each `Issue` is resolved, `Types::BaseObject.authorized?` runs for `IssueType`.
-1. `BoundaryExtractors::FromObject` calls `issue.project` to reach the boundary.
+1. `BoundaryExtractor` calls `issue.project` to reach the boundary.
 1. `AuthorizeGranularScopesService` checks whether the token has `read_issue` on that project.
 1. When the token has the permission, the issue resolves. Otherwise, access is denied and the check returns `false`.
 
@@ -246,7 +245,32 @@ A `createNote` mutation passes a GlobalID, and the boundary is reached from the 
 authorize_granular_token permissions: :create_note, boundary_argument: :id, boundary: :project, boundary_type: :project
 ```
 
-For the argument `id: "gid://gitlab/Issue/1"`, `BoundaryExtractors::FromInputArguments` locates the Issue through `GitlabSchema.find_by_gid`, then calls `issue.project` to reach the boundary.
+For the argument `id: "gid://gitlab/Issue/1"`, `BoundaryExtractor` locates the Issue through `GitlabSchema.find_by_gid`, then calls `issue.project` to reach the boundary.
+
+### Scenario 4: Root query field with `boundary_argument`
+
+A root query field resolves computed data for a namespace passed as an argument, so there is no parent object and no resolved record to reach a boundary from:
+
+```graphql
+query {
+  aiToolRules(fullPath: "gitlab-org") {
+    nodes { id }
+  }
+}
+```
+
+The field's resolver declares:
+
+```ruby
+authorize_granular_token permissions: :read_ai_tool_rule, boundary_argument: :full_path, boundary_type: :group
+```
+
+1. GraphQL Ruby calls `Types::BaseField#authorized?` with the field arguments before the resolver runs.
+1. `BoundaryExtractor` reads `full_path` and resolves the Group through `Group.find_by_full_path`.
+1. `AuthorizeGranularScopesService` checks whether the token has `read_ai_tool_rule` on that group.
+1. When the token has the permission, the field resolves. Otherwise, the field is nulled.
+
+Directives declared on a resolver class are applied to the fields the resolver is mounted on, so `authorize_granular_token` can be declared either on the resolver or on the field definition itself with `directives: granular_scope_directive(...)`.
 
 ## Performance optimizations
 

@@ -235,7 +235,6 @@ module Tasks
 
             violations[:insufficient_tests].each do |v|
               out += "  - #{v[:permission]}: #{v[:endpoint_count]} #{'declaration'.pluralize(v[:endpoint_count])}"
-              out += " (#{v[:grandfathered_count]} grandfathered)" if v[:grandfathered_count] > 0
               out += ", #{v[:test_count]} #{'test'.pluralize(v[:test_count])}\n"
               v[:endpoints].each do |endpoint|
                 out += "      [#{endpoint[:kind]}] #{endpoint[:name]} (#{endpoint[:source]})\n"

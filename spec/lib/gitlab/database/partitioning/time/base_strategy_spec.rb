@@ -44,6 +44,39 @@ RSpec.describe Gitlab::Database::Partitioning::Time::BaseStrategy, feature_categ
     end
   end
 
+  describe '#retain_detached_partitions_for' do
+    subject(:strategy) do
+      described_class.new(model, partitioning_key, retain_for: :ever,
+        retain_detached_partitions_for: retain_detached_partitions_for)
+    end
+
+    context 'when not given' do
+      let(:retain_detached_partitions_for) { nil }
+
+      it 'defaults to nil so the partition manager falls back to its global default' do
+        expect(strategy.retain_detached_partitions_for).to be_nil
+      end
+    end
+
+    context 'when given a duration' do
+      let(:retain_detached_partitions_for) { 2.days }
+
+      it 'stores the duration' do
+        expect(strategy.retain_detached_partitions_for).to eq(2.days)
+      end
+    end
+
+    context 'when given an unsupported value' do
+      let(:retain_detached_partitions_for) { 5 }
+
+      it 'raises an ArgumentError' do
+        expect { strategy }.to raise_error(
+          ArgumentError, /retain_detached_partitions_for must be an ActiveSupport::Duration.*got: 5/m
+        )
+      end
+    end
+  end
+
   describe '#current_partitions' do
     subject(:current_partitions) { base_strategy.current_partitions }
 

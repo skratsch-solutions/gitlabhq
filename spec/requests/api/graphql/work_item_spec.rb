@@ -77,6 +77,15 @@ RSpec.describe 'Query.work_item(id)', :with_current_organization, feature_catego
       let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
     end
 
+    # Exercises the granular scope directive on the WorkItem.createNoteEmail field.
+    # The token also needs read_work_item to authorize the enclosing WorkItem type.
+    it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_work_item, :create_issue_note] do
+      let(:user) { developer }
+      let(:boundary_object) { project }
+      let(:work_item_fields) { 'id createNoteEmail' }
+      let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+    end
+
     it 'returns all fields' do
       expect(work_item_data).to include(
         'description' => work_item.description,

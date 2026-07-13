@@ -46,6 +46,11 @@ module API
 
         # GET projects/:id/packages/debian/pool/:distribution/:letter/:package_name/:package_version/:file_name
         params do
+          requires :distribution, type: String, desc: 'The Debian Codename or Suite', regexp: Gitlab::Regex.debian_distribution_regex, documentation: { example: 'my-distro' }
+          requires :letter, type: String, desc: 'The Debian Classification (first-letter or lib-first-letter)', documentation: { example: 'a' }
+          requires :package_name, type: String, desc: 'The Debian Source Package Name', regexp: Gitlab::Regex.debian_package_name_regex, documentation: { example: 'my-pkg' }
+          requires :package_version, type: String, desc: 'The Debian Source Package Version', regexp: Gitlab::Regex.debian_version_regex, documentation: { example: '1.0.0' }
+          requires :file_name, type: String, desc: 'The Debian File Name', documentation: { example: 'example_1.0.0~alpha2_amd64.deb' }
           use :shared_package_file_params
         end
 

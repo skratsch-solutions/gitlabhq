@@ -192,7 +192,6 @@ RSpec.describe Ci::Partitionable, feature_category: :continuous_integration do
     it 'returns a list of CI models being partitioned' do
       expected_list = %w[
         Ci::BuildName
-        Ci::BuildTag
         Ci::BuildSource
         Ci::JobAnnotation
         Ci::JobArtifact

@@ -424,44 +424,6 @@ RSpec.describe Gitlab::Ci::Variables::Builder, :clean_gitlab_redis_cache, featur
     end
   end
 
-  describe '#unprotected_scoped_variables' do
-    let(:expose_project_variables) { true }
-    let(:expose_group_variables) { true }
-    let(:environment_name) { job.expanded_environment_name }
-    let(:dependencies) { true }
-
-    subject { builder.unprotected_scoped_variables(job, expose_project_variables: expose_project_variables, expose_group_variables: expose_group_variables, environment: environment_name, dependencies: dependencies) }
-
-    it { is_expected.to be_instance_of(Gitlab::Ci::Variables::Collection) }
-
-    context 'when pipeline disables all except yaml variables' do
-      before do
-        pipeline.source = :duo_workflow
-        workload = create(:ci_workload, pipeline: pipeline)
-        create(:ci_workload_variable_inclusion, workload: workload, project: workload.project, variable_name: "VP1")
-        create(:ci_workload_variable_inclusion, workload: workload, project: workload.project, variable_name: "VG1")
-        create(:ci_workload_variable_inclusion, workload: workload, project: workload.project, variable_name: "VI1")
-        create(:ci_variable, project: workload.project, key: "VP1", value: "v1")
-        create(:ci_variable, project: workload.project, key: "VP2", value: "v2")
-        create(:ci_group_variable, group: workload.project.group, key: "VG1", value: "v3")
-        create(:ci_group_variable, group: workload.project.group, key: "VG2", value: "v3")
-        create(:ci_instance_variable, key: "VI1", value: "v3")
-        create(:ci_instance_variable, key: "VI2", value: "v3")
-      end
-
-      it 'only includes the YAML, project predefined variables and user defined explicitly requested' do
-        expect(subject).to include(
-          Gitlab::Ci::Variables::Collection::Item.fabricate({ key: 'YAML_VARIABLE', value: 'value' })
-        )
-        expect(subject).to include(
-          Gitlab::Ci::Variables::Collection::Item.fabricate({ key: 'CI_PROJECT_PATH', value: project.full_path })
-        )
-        expect(subject.map(&:key)).to include("VP1", "VG1", "VI1")
-        expect(subject.map(&:key)).not_to include("VP2", "VG2", "VI2")
-      end
-    end
-  end
-
   describe '#scoped_variables_for_pipeline_seed' do
     let(:environment_name) { 'test/main' }
     let(:kubernetes_namespace) { nil }

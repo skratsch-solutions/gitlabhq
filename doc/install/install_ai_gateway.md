@@ -594,6 +594,57 @@ To do this for a Helm chart deployment of the AI Gateway:
 
 For a Docker deployment, use the same method. The only difference is that, to mount the local file in the container, use `--volume /root/ca-certificates.crt:/tmp/ca-certificates.crt`.
 
+## Connect to a model endpoint that requires mutual TLS (mTLS)
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/6084) in GitLab 19.3.
+
+{{< /history >}}
+
+If your model endpoint or a proxy in front of it requires callers to authenticate
+with a client certificate, configure the AI Gateway to present a certificate.
+This approach is equivalent to the `curl --cert` option.
+
+To connect to a model endpoint that requires mTLS,
+set the following environment variables on the AI Gateway:
+
+| Variable                  | Required | Description |
+|---------------------------|----------|-------------|
+| `AIGW_MTLS__ENABLED`      | Yes      | Set to `true` to present a client certificate to upstream model endpoints. |
+| `AIGW_MTLS__CERT_FILE`    | Yes      | Path to the client certificate PEM file. Can contain a combined certificate and private key or use `AIGW_MTLS__KEY_FILE` for a separate key. |
+| `AIGW_MTLS__KEY_FILE`     | No       | Path to the client private key if not bundled in `AIGW_MTLS__CERT_FILE`. |
+| `AIGW_MTLS__KEY_PASSWORD` | No       | Password for an encrypted private key. Requires `AIGW_MTLS__KEY_FILE`. |
+| `AIGW_MTLS__VERIFY`       | No       | Set to `false` to disable upstream server certificate verification. Defaults to `true`. |
+| `AIGW_MTLS__CA_BUNDLE`    | No       | Path to a CA bundle used to verify the upstream server certificate (for example, a corporate CA). When this variable is not set, the AI Gateway verifies against `SSL_CERT_FILE` (if set) or its built-in CA bundle. |
+
+For a GitLab Helm chart deployment, mount the client certificate and set the variables:
+
+```yaml
+volumes:
+  - name: mtls-client-cert
+    secret:
+      secretName: aigw-mtls-client-cert
+      optional: false
+
+volumeMounts:
+  - name: mtls-client-cert
+    mountPath: /certs
+    readOnly: true
+
+extraEnvironmentVariables:
+  - name: AIGW_MTLS__ENABLED
+    value: "true"
+  - name: AIGW_MTLS__CERT_FILE
+    value: /certs/client.pem
+```
+
+For a Docker deployment, use the same environment variables and mount the certificate with `--volume /path/to/client.pem:/certs/client.pem`.
+
+The AI Gateway presents the client certificate only when the upstream server
+requests a certificate during the TLS handshake.
+This configuration does not affect model endpoints that do not require a client certificate.
+
 ## Upgrade the AI Gateway Docker image
 
 To upgrade the AI Gateway, download the newest Docker image tag.

@@ -42,6 +42,9 @@ module API
           success Entities::Board
           tags ['boards']
         end
+        params do
+          requires :board_id, type: Integer, desc: 'The ID of a board'
+        end
         route_setting :authorization, permissions: :read_issue_board, boundary_type: :group
         get '/:board_id' do
           authorize!(:read_issue_board, user_group)
@@ -54,6 +57,7 @@ module API
           tags ['boards']
         end
         params do
+          requires :board_id, type: Integer, desc: 'The ID of a board'
           use :update_params
         end
         route_setting :authorization, permissions: :update_issue_board, boundary_type: :group

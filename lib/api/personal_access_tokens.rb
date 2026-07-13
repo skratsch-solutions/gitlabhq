@@ -53,6 +53,9 @@ module API
         ]
         tags %w[access_tokens]
       end
+      params do
+        requires :id, type: Integer, desc: 'The ID of a personal access token'
+      end
       route_setting :authorization, permissions: :read_personal_access_token, boundary_type: :user
       get ':id' do
         token = PersonalAccessToken.preload_granular_scopes.find_by_id(params[:id])
@@ -77,6 +80,7 @@ module API
         tags %w[access_tokens]
       end
       params do
+        requires :id, type: Integer, desc: 'The ID of a personal access token'
         optional :expires_at,
           type: Date,
           desc: "The expiration date of the token",
@@ -110,6 +114,9 @@ module API
           { code: 400, message: 'Bad Request' }
         ]
         tags %w[access_tokens]
+      end
+      params do
+        requires :id, type: Integer, desc: 'The ID of a personal access token'
       end
       route_setting :authorization, permissions: :revoke_personal_access_token, boundary_type: :user
       delete ':id' do

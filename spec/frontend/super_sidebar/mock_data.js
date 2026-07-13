@@ -146,12 +146,6 @@ export const mergeRequestMenuGroup = [
   },
 ];
 
-export const contextSwitcherLinks = [
-  { title: 'Explore', link: '/explore', icon: 'compass', link_classes: 'persistent-link-class' },
-  { title: 'Admin area', link: '/admin', icon: 'admin' },
-  { title: 'Leave admin mode', link: '/admin/session/destroy', data_method: 'post' },
-];
-
 export const sidebarData = {
   is_logged_in: true,
   admin_mode: {
@@ -193,7 +187,6 @@ export const sidebarData = {
   gitlab_version: { major: 16, minor: 0 },
   gitlab_version_check: { severity: 'success' },
   gitlab_com_and_canary: false,
-  context_switcher_links: contextSwitcherLinks,
   search: {},
   pinned_items: [],
   panel_type: 'your_work',

@@ -218,6 +218,8 @@ module API
         tags %w[snippets]
       end
       params do
+        requires :ref, type: String, desc: 'The name of branch, tag or commit'
+        requires :file_path, type: String, file_path: true, desc: 'The URL-encoded path to the file, like lib%2Fclass%2Erb'
         use :raw_file_params
       end
       route_setting :authorization, permissions: :read_snippet, boundary_type: :project

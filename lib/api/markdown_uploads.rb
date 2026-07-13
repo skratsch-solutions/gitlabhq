@@ -32,6 +32,9 @@ module API
       end
     end
 
+    params do
+      requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
+    end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Workhorse authorize the file upload' do
         detail 'This feature was introduced in GitLab 13.11'
@@ -197,6 +200,9 @@ module API
       end
     end
 
+    params do
+      requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the group'
+    end
     resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Workhorse authorize the file upload' do
         detail 'This feature was introduced in GitLab 19.0'

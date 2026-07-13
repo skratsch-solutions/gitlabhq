@@ -62,7 +62,6 @@ export const getSuperSidebarData = () => {
   const projectBlobPath = commandPaletteData.project_blob_url;
   const commandPaletteCommands = sidebarData.create_new_menu_groups || [];
   const commandPaletteLinks = convertObjectPropsToCamelCase(sidebarData.current_menu_items || []);
-  const contextSwitcherLinks = sidebarData.context_switcher_links;
   const isImpersonating = parseBoolean(sidebarData.is_impersonating);
   const isGroup = Boolean(sidebarData.current_context?.namespace === CONTEXT_NAMESPACE_GROUPS);
 
@@ -79,7 +78,6 @@ export const getSuperSidebarData = () => {
     projectBlobPath,
     commandPaletteCommands,
     commandPaletteLinks,
-    contextSwitcherLinks,
     isImpersonating,
     isGroup,
   };
@@ -98,7 +96,6 @@ export const initSuperSidebar = ({
   projectBlobPath,
   commandPaletteCommands,
   commandPaletteLinks,
-  contextSwitcherLinks,
   isImpersonating,
   isGroup,
 }) => {
@@ -118,7 +115,6 @@ export const initSuperSidebar = ({
       ...getTrialStatusWidgetData(sidebarData),
       commandPaletteCommands,
       commandPaletteLinks,
-      contextSwitcherLinks,
       searchContext,
       projectFilesPath,
       projectBlobPath,
@@ -164,7 +160,6 @@ export const initSuperTopbar = ({
   projectBlobPath,
   commandPaletteCommands,
   commandPaletteLinks,
-  contextSwitcherLinks,
   isImpersonating,
   isGroup,
   isSaas,
@@ -181,7 +176,6 @@ export const initSuperTopbar = ({
       isImpersonating,
       commandPaletteCommands,
       commandPaletteLinks,
-      contextSwitcherLinks,
       searchContext,
       projectFilesPath,
       projectBlobPath,

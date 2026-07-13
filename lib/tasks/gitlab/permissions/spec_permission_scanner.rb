@@ -9,8 +9,6 @@ module Tasks
       # Subclasses must define:
       #   SPEC_DIRS     - directories to scan for spec files
       #   EXAMPLE_NAMES - names of the shared examples that test a permission
-      # and may define:
-      #   TODO_FILE     - permissions exempt from coverage (legacy backlog)
       class SpecPermissionScanner
         EACH_LOOP_LOOKBACK_LINES = 15
 
@@ -42,23 +40,19 @@ module Tasks
         end
 
         # Returns permissions with fewer tests than endpoints.
-        # Declarations grandfathered in TODO_FILE lower the required test count,
-        # so adding a declaration for a grandfathered permission is still flagged.
-        # Each entry: { permission:, endpoint_count:, grandfathered_count:, test_count:, endpoints: [...] }
+        # Each entry: { permission:, endpoint_count:, test_count:, endpoints: [...] }
         def insufficient_test_coverage
           ensure_scanned!
 
           violations = []
 
           @endpoint_counts.each do |permission, endpoint_count|
-            grandfathered = grandfathered_count(permission)
             tc = test_count(permission)
-            next if tc >= endpoint_count - grandfathered
+            next if tc >= endpoint_count
 
             violations << {
               permission: permission,
               endpoint_count: endpoint_count,
-              grandfathered_count: grandfathered,
               test_count: tc,
               endpoints: @endpoint_details[permission]
             }
@@ -79,15 +73,6 @@ module Tasks
         end
 
         private
-
-        # TODO_FILE lines are "<endpoint_id> <permission>", the same format as the
-        # keys in @seen_endpoint_permissions. Only entries that still match a
-        # registered endpoint count, so deleting a grandfathered declaration
-        # shrinks the exemption automatically.
-        def grandfathered_count(permission)
-          suffix = " #{permission}"
-          todo_entries.count { |entry| entry.end_with?(suffix) && @seen_endpoint_permissions.include?(entry) }
-        end
 
         # Matches permission symbols after `it_behaves_like '<example name>'`.
         # Handles: :symbol, [:sym1, :sym2], %i[sym1 sym2], and dynamic variables (ignored)
@@ -275,20 +260,6 @@ module Tasks
           end
 
           map
-        end
-
-        def todo_entries
-          @todo_entries ||= load_todo_entries
-        end
-
-        def load_todo_entries
-          return Set.new unless self.class.const_defined?(:TODO_FILE)
-          return Set.new unless self.class::TODO_FILE.exist?
-
-          self.class::TODO_FILE.readlines.each_with_object(Set.new) do |line, set|
-            stripped = line.strip
-            set << stripped unless stripped.empty? || stripped.start_with?('#')
-          end
         end
       end
     end

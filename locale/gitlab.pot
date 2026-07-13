@@ -36404,6 +36404,9 @@ msgstr ""
 msgid "GlobalSearch|%{linkStart}Exact code search (powered by Zoekt)%{linkEnd} is enabled."
 msgstr ""
 
+msgid "GlobalSearch|Admin area"
+msgstr ""
+
 msgid "GlobalSearch|Aggregations load error."
 msgstr ""
 
@@ -49479,9 +49482,6 @@ msgstr ""
 msgid "Navigation|Admin"
 msgstr ""
 
-msgid "Navigation|Admin area"
-msgstr ""
-
 msgid "Navigation|Analyze"
 msgstr ""
 
@@ -49501,9 +49501,6 @@ msgid "Navigation|Deploy"
 msgstr ""
 
 msgid "Navigation|Expand sidebar"
-msgstr ""
-
-msgid "Navigation|Explore"
 msgstr ""
 
 msgid "Navigation|Frequently visited groups"
@@ -49545,13 +49542,7 @@ msgstr ""
 msgid "Navigation|Plan"
 msgstr ""
 
-msgid "Navigation|Preferences"
-msgstr ""
-
 msgid "Navigation|Primary navigation"
-msgstr ""
-
-msgid "Navigation|Profile"
 msgstr ""
 
 msgid "Navigation|Projects you visit often will appear here."
@@ -63614,6 +63605,9 @@ msgid "Reset token"
 msgstr ""
 
 msgid "Resize AI panel"
+msgstr ""
+
+msgid "Resize blame column"
 msgstr ""
 
 msgid "Resize panel"

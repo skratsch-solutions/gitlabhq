@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -18,14 +19,11 @@ import (
 	"github.com/dlclark/regexp2"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/gitlab-org/labkit/v2/fields"
+	"go.uber.org/goleak"
 
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/metrics"
-
-	"gitlab.com/gitlab-org/labkit/log"
-
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/secret"
-
-	"go.uber.org/goleak"
 )
 
 const (
@@ -79,11 +77,11 @@ func TestServerWithHandler(t *testing.T, url *regexp.Regexp, handler http.Handle
 // TestServerWithHandlerWithGeoPolling creates a test server with the provided handler and URL pattern for geopolling tests.
 func TestServerWithHandlerWithGeoPolling(t *testing.T, url *regexp.Regexp, handler http.HandlerFunc) *httptest.Server {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logEntry := log.WithFields(log.Fields{
-			"method": r.Method,
-			"url":    r.URL,
-			"action": "DENY",
-		})
+		logEntry := slog.With(
+			slog.String(fields.HTTPMethod, r.Method),
+			slog.String(fields.HTTPURL, r.URL.String()),
+			slog.String("action", "DENY"),
+		)
 
 		if url != nil && !url.MatchString(r.URL.Path) {
 			logEntry.Info("UPSTREAM")

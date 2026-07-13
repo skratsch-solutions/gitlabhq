@@ -20,7 +20,6 @@ Gitlab::Application.config.to_prepare do
       BatchedGitRefUpdates::Deletion,
       Ci::BuildName,
       Ci::BuildNeed,
-      Ci::BuildTag,
       Ci::BuildTraceMetadata,
       Ci::BuildSource,
       Ci::Catalog::Resources::SyncEvent,

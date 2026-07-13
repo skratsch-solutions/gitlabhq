@@ -1103,7 +1103,6 @@ RSpec.describe Tasks::Gitlab::Permissions::Graphql::ValidateTask, :silence_stdou
           insufficient_test_coverage: [{
             permission: 'read_project',
             endpoint_count: 1,
-            grandfathered_count: 0,
             test_count: 0,
             endpoints: [{
               kind: 'type', name: 'ProjectType',

@@ -35,7 +35,6 @@ module SidebarsHelper
     super_sidebar_instance_version_data.merge(super_sidebar_whats_new_data).merge({
       is_logged_in: false,
       compare_plans_url: compare_plans_url,
-      context_switcher_links: context_switcher_links,
       current_menu_items: panel.super_sidebar_menu_items,
       current_context_header: panel.super_sidebar_context_header,
       university_path: university_url,
@@ -344,23 +343,6 @@ module SidebarsHelper
     {}
   end
 
-  def context_switcher_links
-    links = [
-      ({ title: s_('Navigation|Your work'), link: root_path, icon: 'work' } if current_user),
-      { title: s_('Navigation|Explore'), link: explore_root_path, icon: 'compass' },
-      ({ title: s_('Navigation|Profile'), link: user_settings_profile_path, icon: 'profile' } if current_user),
-      ({ title: s_('Navigation|Preferences'), link: profile_preferences_path, icon: 'preferences' } if current_user)
-    ]
-
-    if display_admin_area_link?
-      links.append(
-        { title: s_('Navigation|Admin area'), link: admin_area_link, icon: 'admin' }
-      )
-    end
-
-    links.compact
-  end
-
   def impersonating?
     !!session[:impersonator_id]
   end
@@ -456,14 +438,6 @@ module SidebarsHelper
 
   def terms_link
     Gitlab::CurrentSettings.terms ? terms_path : nil
-  end
-
-  def admin_area_link
-    admin_root_path
-  end
-
-  def display_admin_area_link?
-    current_user&.can?(:access_admin_area)
   end
 end
 

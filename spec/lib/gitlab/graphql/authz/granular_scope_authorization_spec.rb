@@ -19,7 +19,9 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
   subject(:authorization) { described_class.new(directives) }
 
   describe '#ok?' do
-    subject(:ok) { authorization.ok?(object, context) }
+    subject(:ok) { authorization.ok?(object, context, arguments: arguments) }
+
+    let(:arguments) { nil }
 
     context 'with a legacy (non-granular) token' do
       let(:access_token) { create(:personal_access_token, user: user) }
@@ -181,6 +183,39 @@ RSpec.describe Gitlab::Graphql::Authz::GranularScopeAuthorization, feature_categ
 
           it { is_expected.to be(false) }
         end
+      end
+
+      context 'when boundaries are resolved from field arguments (root query field path)' do
+        let(:object) { nil }
+        let(:directives) do
+          [create_directive(boundary_argument: 'project_path', permissions: ['read_wiki'], boundary_type: 'project')]
+        end
+
+        let(:arguments) { { project_path: project.full_path } }
+
+        context 'when the token has the required permission on the resolved boundary' do
+          it { is_expected.to be(true) }
+        end
+
+        context 'when the token does not have the required permission on the resolved boundary' do
+          let(:access_token) do
+            create(:granular_pat, user: user, boundary: Authz::Boundary.for(project), permissions: [:create_work_item])
+          end
+
+          it { is_expected.to be(false) }
+        end
+
+        context 'when the arguments do not resolve to a boundary' do
+          let(:arguments) { { project_path: 'nonexistent/path' } }
+
+          it { is_expected.to be(false) }
+        end
+      end
+
+      context 'when an object-sourced directive is checked with both an object and arguments present' do
+        let(:arguments) { { some_arg: 'value' } }
+
+        it { is_expected.to be(true) }
       end
 
       context 'with caching' do

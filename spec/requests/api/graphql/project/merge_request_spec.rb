@@ -34,6 +34,31 @@ RSpec.describe 'getting merge request information nested in a project', feature_
     let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
   end
 
+  describe 'granular PAT authorization for merge request assignees' do
+    # The public project lets the token pass the parent Project and MergeRequest
+    # type authorizations via the public-access bypass, so the test gates on
+    # MergeRequestAssignee's `read_user` permission at the user boundary.
+    let_it_be(:assignee) { create(:user, developer_of: project) }
+
+    before_all do
+      merge_request.assignees << assignee
+    end
+
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :read_user do
+      let(:user) { assignee }
+      let(:boundary_object) { :user }
+      let(:query) do
+        graphql_query_for(
+          :project,
+          { full_path: project.full_path },
+          query_graphql_field(:merge_request, { iid: merge_request.iid.to_s }, 'assignees { nodes { id } }')
+        )
+      end
+
+      let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+    end
+  end
+
   it_behaves_like 'a working graphql query' do
     # we exclude Project.pipeline because it needs arguments,
     # codequalityReportsComparer because it is behind a feature flag

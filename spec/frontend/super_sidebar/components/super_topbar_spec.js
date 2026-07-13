@@ -20,7 +20,10 @@ describe('SuperTopbar', () => {
   let wrapper;
 
   const OrganizationSwitcherStub = stubComponent(OrganizationSwitcher);
-  const SearchModalStub = stubComponent(SearchModal);
+  const SearchModalStub = stubComponent(SearchModal, {
+    inject: { showAdminAreaLink: { default: false } },
+    template: '<div :data-show-admin-area-link="String(showAdminAreaLink)"></div>',
+  });
 
   const findSkipToLink = () => wrapper.findByTestId('super-topbar-skip-to');
   const findAdminLink = () => wrapper.findByTestId('topbar-admin-link');
@@ -294,6 +297,17 @@ describe('SuperTopbar', () => {
           });
           expect(findAdminLink().attributes('href')).toBe('/admin');
         });
+
+        it('provides showAdminAreaLink as true to the search modal', () => {
+          createComponent({
+            sidebarData: {
+              ...mockSidebarData,
+              admin_mode: { user_is_admin: true, admin_mode_feature_enabled: false },
+            },
+          });
+
+          expect(findSearchModal().attributes('data-show-admin-area-link')).toBe('true');
+        });
       });
 
       describe('when user is admin and admin mode is active', () => {
@@ -332,6 +346,12 @@ describe('SuperTopbar', () => {
         it('does not render', () => {
           createComponent();
           expect(findAdminLink().exists()).toBe(false);
+        });
+
+        it('provides showAdminAreaLink as false to the search modal', () => {
+          createComponent();
+
+          expect(findSearchModal().attributes('data-show-admin-area-link')).toBe('false');
         });
       });
     });

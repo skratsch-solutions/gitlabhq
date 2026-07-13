@@ -47,6 +47,9 @@ module API
           end
         end
 
+        params do
+          requires :timestamp, type: Integer, desc: 'The migration version timestamp'
+        end
         resources 'migrations/:timestamp/mark' do
           desc 'Update status of a migration' do
             detail 'Updates the status of a migration to indicate a successful execution. This prevent them from ' \

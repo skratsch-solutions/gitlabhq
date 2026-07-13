@@ -151,6 +151,8 @@ partitioned_by :created_at, strategy: :monthly, retain_for: 3.months, analyze_in
 - `strategy`: One of `:daily`, `:weekly`, or `:monthly` (required)
 - `retain_for`: How long to retain partitions: a duration, or `:ever` (required, see [Retention](#retention))
 - `analyze_interval`: How often to run ANALYZE on new partitions (optional)
+- `retain_detached_partitions_for`: How long to keep a detached partition before dropping it: a duration (optional,
+  see [Post-detach retention](#post-detach-retention))
 
 Choose `:daily` for high-volume tables that need fine-grained partitioning, `:weekly` for an intermediate granularity, or `:monthly` for tables with moderate data volume where daily partitioning would be excessive.
 
@@ -176,6 +178,21 @@ partitioned_by :created_at, strategy: :monthly, retain_for: :ever
 
 `retain_for` must be a duration or `:ever`. Omitting it, or passing any other value
 such as `nil`, raises an `ArgumentError`.
+
+### Post-detach retention
+
+After the partition manager detaches a partition, it keeps the detached table around for a
+grace period before dropping it, in case the data is still needed. `PartitionManager` defaults
+this grace period to `RETAIN_DETACHED_PARTITIONS_FOR` (one week) for every partitioned table.
+
+To use a shorter or longer grace period for a specific table, pass `retain_detached_partitions_for`:
+
+```ruby
+partitioned_by :created_at, strategy: :daily, retain_for: 14.days, retain_detached_partitions_for: 2.days
+```
+
+`retain_detached_partitions_for` must be a duration. If not set, the table uses the
+default grace period.
 
 ## Example
 

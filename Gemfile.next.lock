@@ -1078,9 +1078,8 @@ GEM
       mustermann-grape (~> 1.1.0)
       rack (>= 2)
       zeitwerk
-    grape-entity (1.0.1)
+    grape-entity (1.1.0)
       activesupport (>= 3.0.0)
-      multi_json (>= 1.3.2)
     grape-path-helpers (2.0.1)
       activesupport
       grape (~> 2.0)
@@ -2540,7 +2539,7 @@ DEPENDENCIES
   googleauth (~> 1.14)
   gpgme (~> 2.0.24)
   grape (~> 2.4)
-  grape-entity (~> 1.0.1)
+  grape-entity (~> 1.1.0)
   grape-path-helpers (~> 2.0.1)
   grape-swagger (~> 2.1.2)
   grape-swagger-entity (~> 0.7.0)
@@ -3079,7 +3078,7 @@ CHECKSUMS
   googleauth (1.14.0) sha256=62e7de11791890c3d3dc70582dfd9ab5516530e4e4f56d96451fd62c76475149
   gpgme (2.0.26) sha256=1aebfd2eb83b745341e6f416f318597568af5ad4d7d1f55bfab4f1078123abaa
   grape (2.4.0) sha256=3d59673e80f11d49ba86270b78344e5348dc057b318c2bbc1c01f3532f9b6aec
-  grape-entity (1.0.1) sha256=e00f9e94e407aff77aa2945d741f544d07e48501927942988799913151d02634
+  grape-entity (1.1.0) sha256=ab6a1004e57791834e8497d5e85a3c101b72144d8ca31462a26e6d0a380c3d89
   grape-path-helpers (2.0.1) sha256=ad5216e52c6e796738a9118087352ab4c962900dbad1d8f8c0f96e093c6702d7
   grape-swagger (2.1.2) sha256=8ad7bd53c8baee704575808875dba8c08d269c457db3cf8f1b8a2a1dbf827294
   grape-swagger-entity (0.7.1) sha256=082144811cdd14c15b9d9f0a27a4e3ff9c27c7081130d334a3de59953769b37d

@@ -386,9 +386,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       requestBody:
         required: true
@@ -417,9 +419,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       requestBody:
         required: false
@@ -445,9 +449,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
   "/api/v4/namespaces/{id}/minutes":
     post:
@@ -537,9 +543,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       - name: add_on_name
         required: true
@@ -574,9 +582,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       - name: add_on_name
         required: true
@@ -605,9 +615,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       - name: add_on_name
         required: true
@@ -3871,10 +3883,14 @@ paths:
           description: Forbidden
         '404':
           description: Not found
+        '400':
+          description: Bad Request
       parameters:
       - name: name
         required: true
-        schema: {}
+        description: The alias of the project
+        schema:
+          type: string
         in: path
     delete:
       operationId: deleteApiV4ProjectAliasesName
@@ -3889,10 +3905,14 @@ paths:
           description: Forbidden
         '404':
           description: Not found
+        '400':
+          description: Bad Request
       parameters:
       - name: name
         required: true
-        schema: {}
+        description: The alias of the project
+        schema:
+          type: string
         in: path
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approval_rules":
     get:
@@ -4215,10 +4235,14 @@ paths:
                 "$ref": "#/components/schemas/APIEntitiesVulnerabilityExport"
         '404':
           description: Not Found
+        '400':
+          description: Bad Request
       parameters:
       - name: id
         required: true
-        schema: {}
+        description: The ID of the vulnerability export
+        schema:
+          type: integer
         in: path
   "/api/v4/security/vulnerability_exports/{id}/download":
     get:
@@ -4232,10 +4256,14 @@ paths:
           description: OK
         '404':
           description: Not Found
+        '400':
+          description: Bad Request
       parameters:
       - name: id
         required: true
-        schema: {}
+        description: The ID of the vulnerability export
+        schema:
+          type: integer
         in: path
   "/api/v4/security/projects/{id}/vulnerability_archive_exports":
     post:
@@ -4994,7 +5022,9 @@ paths:
         in: path
       - name: managed_license_id
         required: true
-        schema: {}
+        description: The ID of a managed license
+        schema:
+          type: string
         in: path
     patch:
       operationId: patchApiV4ProjectsIdManagedLicensesManagedLicenseId
@@ -5027,7 +5057,9 @@ paths:
         in: path
       - name: managed_license_id
         required: true
-        schema: {}
+        description: The ID of a managed license
+        schema:
+          type: string
         in: path
       requestBody:
         required: false
@@ -5062,7 +5094,9 @@ paths:
         in: path
       - name: managed_license_id
         required: true
-        schema: {}
+        description: The ID of a managed license
+        schema:
+          type: string
         in: path
   "/api/v4/groups/{id}/manage/personal_access_tokens":
     get:
@@ -6378,6 +6412,18 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: hook_id
+        required: true
+        description: The ID of the hook
+        schema:
+          type: integer
+        in: path
+      - name: hook_log_id
+        required: true
+        description: The ID of the hook log entry
+        schema:
+          type: integer
+        in: path
       - name: id
         required: true
         description: The ID or URL-encoded path of the group
@@ -6385,16 +6431,6 @@ paths:
           oneOf:
           - type: string
           - type: integer
-        in: path
-      - name: hook_id
-        required: true
-        description: The ID of a group hook
-        schema:
-          type: integer
-        in: path
-      - name: hook_log_id
-        required: true
-        schema: {}
         in: path
   "/api/v4/groups/{id}/saml/identities":
     get:
@@ -7769,6 +7805,12 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: provider
+        required: true
+        description: The LDAP provider name
+        schema:
+          type: string
+        in: path
       - name: search
         required: false
         description: Search for a specific LDAP group
@@ -7777,10 +7819,6 @@ paths:
           default: ''
           nullable: true
         in: query
-      - name: provider
-        required: true
-        schema: {}
-        in: path
   "/api/v4/geo_sites":
     post:
       operationId: postApiV4GeoSites
@@ -13655,11 +13693,16 @@ paths:
           description: 401 Unauthorized
         '404':
           description: Not Found
+        '400':
+          description: Bad Request
       parameters:
       - name: settings_context_hash
-        required: true
-        schema: {}
-        in: path
+        required: false
+        description: The settings context hash
+        schema:
+          type: string
+          nullable: true
+        in: query
   "/api/v4/vscode/settings_sync(/{settings_context_hash})/v1/resource/{resource_name}/{id}":
     get:
       operationId: getApiV4VscodeSettingsSyncSettingsContextHashV1ResourceResourceNameId
@@ -13682,6 +13725,13 @@ paths:
         '404':
           description: Not Found
       parameters:
+      - name: settings_context_hash
+        required: false
+        description: The settings context hash
+        schema:
+          type: string
+          nullable: true
+        in: query
       - name: resource_name
         required: true
         description: Name of the resource such as settings
@@ -13704,10 +13754,6 @@ paths:
         schema:
           type: string
         in: path
-      - name: settings_context_hash
-        required: true
-        schema: {}
-        in: path
   "/api/v4/vscode/settings_sync(/{settings_context_hash})/v1/resource/{resource_name}":
     get:
       operationId: getApiV4VscodeSettingsSyncSettingsContextHashV1ResourceResourceName
@@ -13728,6 +13774,13 @@ paths:
         '404':
           description: Not Found
       parameters:
+      - name: settings_context_hash
+        required: false
+        description: The settings context hash
+        schema:
+          type: string
+          nullable: true
+        in: query
       - name: resource_name
         required: true
         description: Name of the resource such as settings
@@ -13743,10 +13796,6 @@ paths:
           - tasks
           - profiles
           minLength: 1
-        in: path
-      - name: settings_context_hash
-        required: true
-        schema: {}
         in: path
     post:
       operationId: postApiV4VscodeSettingsSyncSettingsContextHashV1ResourceResourceName
@@ -13796,11 +13845,16 @@ paths:
           description: 401 Unauthorized
         '404':
           description: Not Found
+        '400':
+          description: Bad Request
       parameters:
       - name: settings_context_hash
-        required: true
-        schema: {}
-        in: path
+        required: false
+        description: The settings context hash
+        schema:
+          type: string
+          nullable: true
+        in: query
   "/api/v4/users/{id}/custom_attributes":
     get:
       operationId: getApiV4UsersIdCustomAttributes
@@ -13817,12 +13871,16 @@ paths:
                 "$ref": "#/components/schemas/APIEntitiesCustomAttribute"
         '404':
           description: Not Found
+        '400':
+          description: Bad Request
       parameters:
       - name: id
         required: true
-        description: The ID of the user
+        description: The ID or URL-encoded path of the user
         schema:
-          type: integer
+          oneOf:
+          - type: string
+          - type: integer
         in: path
   "/api/v4/users/{id}/custom_attributes/{key}":
     get:
@@ -13851,9 +13909,11 @@ paths:
         in: path
       - name: id
         required: true
-        description: The ID of the user
+        description: The ID or URL-encoded path of the user
         schema:
-          type: integer
+          oneOf:
+          - type: string
+          - type: integer
         in: path
     put:
       operationId: putApiV4UsersIdCustomAttributesKey
@@ -13883,9 +13943,11 @@ paths:
         in: path
       - name: id
         required: true
-        description: The ID of the user
+        description: The ID or URL-encoded path of the user
         schema:
-          type: integer
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       requestBody:
         required: true
@@ -13915,9 +13977,11 @@ paths:
         in: path
       - name: id
         required: true
-        description: The ID of the user
+        description: The ID or URL-encoded path of the user
         schema:
-          type: integer
+          oneOf:
+          - type: string
+          - type: integer
         in: path
   "/api/v4/users/{id}/support_pin":
     get:
@@ -27332,15 +27396,15 @@ paths:
         '400':
           description: Bad Request
       parameters:
-      - name: file_path
-        required: true
-        description: The URL-encoded path to the file, like lib%2Fclass%2Erb
-        schema:
-          type: string
-        in: path
       - name: ref
         required: true
         description: The name of branch, tag or commit
+        schema:
+          type: string
+        in: path
+      - name: file_path
+        required: true
+        description: The URL-encoded path to the file, like lib%2Fclass%2Erb
         schema:
           type: string
         in: path
@@ -31417,6 +31481,8 @@ paths:
                 "$ref": "#/components/schemas/APIEntitiesCustomAttribute"
         '404':
           description: Not Found
+        '400':
+          description: Bad Request
       parameters:
       - name: id
         required: true
@@ -31426,7 +31492,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
   "/api/v4/projects/{id}/custom_attributes/{key}":
     get:
       operationId: getApiV4ProjectsIdCustomAttributesKey
@@ -33772,15 +33837,15 @@ paths:
           - type: string
           - type: integer
         in: path
-      - name: file_path
-        required: true
-        description: The URL-encoded path to the file, like lib%2Fclass%2Erb
-        schema:
-          type: string
-        in: path
       - name: ref
         required: true
         description: The name of branch, tag or commit
+        schema:
+          type: string
+        in: path
+      - name: file_path
+        required: true
+        description: The URL-encoded path to the file, like lib%2Fclass%2Erb
         schema:
           type: string
         in: path
@@ -35326,6 +35391,18 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: hook_id
+        required: true
+        description: The ID of the hook
+        schema:
+          type: integer
+        in: path
+      - name: hook_log_id
+        required: true
+        description: The ID of the hook log entry
+        schema:
+          type: integer
+        in: path
       - name: id
         required: true
         description: The ID or URL-encoded path of the project
@@ -35335,16 +35412,6 @@ paths:
           - type: integer
         in: path
         example: 1
-      - name: hook_id
-        required: true
-        description: The ID of the hook
-        schema:
-          type: integer
-        in: path
-      - name: hook_log_id
-        required: true
-        schema: {}
-        in: path
   "/api/v4/projects/{id}/export":
     get:
       operationId: getApiV4ProjectsIdExport
@@ -37162,10 +37229,14 @@ paths:
           description: Unauthorized
         '404':
           description: Not found
+        '400':
+          description: Bad Request
       parameters:
       - name: id
         required: true
-        schema: {}
+        description: The ID of a personal access token
+        schema:
+          type: integer
         in: path
     delete:
       operationId: deleteApiV4PersonalAccessTokensId
@@ -37184,7 +37255,9 @@ paths:
       parameters:
       - name: id
         required: true
-        schema: {}
+        description: The ID of a personal access token
+        schema:
+          type: integer
         in: path
   "/api/v4/personal_access_tokens/{id}/rotate":
     post:
@@ -37209,7 +37282,9 @@ paths:
       parameters:
       - name: id
         required: true
-        schema: {}
+        description: The ID of a personal access token
+        schema:
+          type: integer
         in: path
       requestBody:
         required: false
@@ -38622,9 +38697,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       requestBody:
         required: false
@@ -38685,9 +38762,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
       requestBody:
         required: true
@@ -38717,9 +38796,11 @@ paths:
       parameters:
       - name: id
         required: true
-        description: The ID of a namespace
+        description: The ID or URL-encoded path of the namespace
         schema:
-          type: string
+          oneOf:
+          - type: string
+          - type: integer
         in: path
   "/api/v4/namespaces/storage/limit_exclusions":
     get:
@@ -39020,6 +39101,8 @@ paths:
                 "$ref": "#/components/schemas/APIEntitiesMergeRequestApprovals"
         '404':
           description: Not found
+        '400':
+          description: Bad Request
       parameters:
       - name: id
         required: true
@@ -39029,7 +39112,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
       - name: merge_request_iid
         required: true
         description: The IID of a merge request
@@ -39109,7 +39191,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
       - name: merge_request_iid
         required: true
         description: The IID of a merge request
@@ -39154,7 +39235,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
       - name: merge_request_iid
         required: true
         description: The IID of a merge request
@@ -39188,7 +39268,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
       - name: merge_request_iid
         required: true
         description: The IID of a merge request
@@ -42925,7 +43004,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
   "/api/v4/projects/{id}/uploads":
     post:
       operationId: postApiV4ProjectsIdUploads
@@ -42953,7 +43031,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
       requestBody:
         required: true
         content:
@@ -42981,6 +43058,14 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: page
         required: false
         description: Current page number
@@ -42999,15 +43084,6 @@ paths:
           nullable: true
         in: query
         example: 20
-      - name: id
-        required: true
-        description: The ID or URL-encoded path of the project
-        schema:
-          oneOf:
-          - type: string
-          - type: integer
-        in: path
-        example: 1
   "/api/v4/projects/{id}/uploads/{upload_id}":
     get:
       operationId: getApiV4ProjectsIdUploadsUploadId
@@ -43026,12 +43102,6 @@ paths:
         '400':
           description: Bad Request
       parameters:
-      - name: upload_id
-        required: true
-        description: The ID of a project upload
-        schema:
-          type: integer
-        in: path
       - name: id
         required: true
         description: The ID or URL-encoded path of the project
@@ -43040,7 +43110,12 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
+      - name: upload_id
+        required: true
+        description: The ID of a project upload
+        schema:
+          type: integer
+        in: path
     delete:
       operationId: deleteApiV4ProjectsIdUploadsUploadId
       summary: Delete an uploaded file by ID
@@ -43058,12 +43133,6 @@ paths:
         '404':
           description: Not found
       parameters:
-      - name: upload_id
-        required: true
-        description: The ID of a project upload
-        schema:
-          type: integer
-        in: path
       - name: id
         required: true
         description: The ID or URL-encoded path of the project
@@ -43072,7 +43141,12 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
+      - name: upload_id
+        required: true
+        description: The ID of a project upload
+        schema:
+          type: integer
+        in: path
   "/api/v4/projects/{id}/uploads/{secret}/{filename}":
     get:
       operationId: getApiV4ProjectsIdUploadsSecretFilename
@@ -43092,6 +43166,14 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: secret
         required: true
         description: The 32-character secret of a project upload
@@ -43104,15 +43186,6 @@ paths:
         schema:
           type: string
         in: path
-      - name: id
-        required: true
-        description: The ID or URL-encoded path of the project
-        schema:
-          oneOf:
-          - type: string
-          - type: integer
-        in: path
-        example: 1
     delete:
       operationId: deleteApiV4ProjectsIdUploadsSecretFilename
       summary: Delete an uploaded file by secret and filename
@@ -43130,6 +43203,14 @@ paths:
         '404':
           description: Not found
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: secret
         required: true
         description: The 32-character secret of a project upload
@@ -43142,15 +43223,6 @@ paths:
         schema:
           type: string
         in: path
-      - name: id
-        required: true
-        description: The ID or URL-encoded path of the project
-        schema:
-          oneOf:
-          - type: string
-          - type: integer
-        in: path
-        example: 1
   "/api/v4/groups/{id}/uploads/authorize":
     post:
       operationId: postApiV4GroupsIdUploadsAuthorize
@@ -43229,6 +43301,14 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the group
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: page
         required: false
         description: Current page number
@@ -43247,14 +43327,6 @@ paths:
           nullable: true
         in: query
         example: 20
-      - name: id
-        required: true
-        description: The ID or URL-encoded path of the group
-        schema:
-          oneOf:
-          - type: string
-          - type: integer
-        in: path
   "/api/v4/groups/{id}/uploads/{upload_id}":
     get:
       operationId: getApiV4GroupsIdUploadsUploadId
@@ -43273,12 +43345,6 @@ paths:
         '400':
           description: Bad Request
       parameters:
-      - name: upload_id
-        required: true
-        description: The ID of a group upload
-        schema:
-          type: integer
-        in: path
       - name: id
         required: true
         description: The ID or URL-encoded path of the group
@@ -43286,6 +43352,12 @@ paths:
           oneOf:
           - type: string
           - type: integer
+        in: path
+      - name: upload_id
+        required: true
+        description: The ID of a group upload
+        schema:
+          type: integer
         in: path
     delete:
       operationId: deleteApiV4GroupsIdUploadsUploadId
@@ -43304,12 +43376,6 @@ paths:
         '404':
           description: Not found
       parameters:
-      - name: upload_id
-        required: true
-        description: The ID of a group upload
-        schema:
-          type: integer
-        in: path
       - name: id
         required: true
         description: The ID or URL-encoded path of the group
@@ -43317,6 +43383,12 @@ paths:
           oneOf:
           - type: string
           - type: integer
+        in: path
+      - name: upload_id
+        required: true
+        description: The ID of a group upload
+        schema:
+          type: integer
         in: path
   "/api/v4/groups/{id}/uploads/{secret}/{filename}":
     get:
@@ -43337,6 +43409,14 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the group
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: secret
         required: true
         description: The 32-character secret of a group upload
@@ -43348,14 +43428,6 @@ paths:
         description: The filename of a group upload
         schema:
           type: string
-        in: path
-      - name: id
-        required: true
-        description: The ID or URL-encoded path of the group
-        schema:
-          oneOf:
-          - type: string
-          - type: integer
         in: path
     delete:
       operationId: deleteApiV4GroupsIdUploadsSecretFilename
@@ -43374,6 +43446,14 @@ paths:
         '404':
           description: Not found
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the group
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: secret
         required: true
         description: The 32-character secret of a group upload
@@ -43385,14 +43465,6 @@ paths:
         description: The filename of a group upload
         schema:
           type: string
-        in: path
-      - name: id
-        required: true
-        description: The ID or URL-encoded path of the group
-        schema:
-          oneOf:
-          - type: string
-          - type: integer
         in: path
   "/api/v4/markdown":
     post:
@@ -43437,6 +43509,14 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: sha
         required: false
         description: 'Deprecated: Use content_ref instead'
@@ -43484,15 +43564,6 @@ paths:
           type: string
           nullable: true
         in: query
-      - name: id
-        required: true
-        description: The ID or URL-encoded path of the project
-        schema:
-          oneOf:
-          - type: string
-          - type: integer
-        in: path
-        example: 1
     post:
       operationId: postApiV4ProjectsIdCiLint
       summary: Validate a CI/CD configuration
@@ -43520,7 +43591,6 @@ paths:
           - type: string
           - type: integer
         in: path
-        example: 1
       requestBody:
         required: true
         content:
@@ -68626,6 +68696,8 @@ paths:
                 "$ref": "#/components/schemas/APIEntitiesCustomAttribute"
         '404':
           description: Not Found
+        '400':
+          description: Bad Request
       parameters:
       - name: id
         required: true
@@ -74675,6 +74747,12 @@ paths:
         '400':
           description: Bad Request
       parameters:
+      - name: id
+        required: true
+        description: The batched background migration id
+        schema:
+          type: integer
+        in: path
       - name: database
         required: false
         description: The name of the database
@@ -74689,12 +74767,6 @@ paths:
           default: main
           nullable: true
         in: query
-      - name: id
-        required: true
-        description: The batched background migration id
-        schema:
-          type: integer
-        in: path
   "/api/v4/admin/batched_background_migrations":
     get:
       operationId: getApiV4AdminBatchedBackgroundMigrations

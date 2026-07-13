@@ -591,6 +591,7 @@ export default [
       '@gitlab/no-max-width-media-queries': 'off',
       '@gitlab/vue-tailwind-no-max-width-media-queries': 'off',
       'require-await': 'error',
+      'import/no-extraneous-dependencies': 'off',
       'import/no-dynamic-require': 'off',
       'no-import-assign': 'off',
 

@@ -26,6 +26,9 @@ module API
         end
 
         resource :vscode do
+          params do
+            optional :settings_context_hash, type: String, desc: 'The settings context hash'
+          end
           resource '/settings_sync(/:settings_context_hash)' do
             content_type :json, 'application/json'
             content_type :json, 'text/plain'

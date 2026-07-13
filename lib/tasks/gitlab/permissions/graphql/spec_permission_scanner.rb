@@ -18,10 +18,6 @@ module Tasks
             spec/support/shared_examples/graphql
             ee/spec/support/shared_examples/graphql
           ].freeze
-
-          # Permissions that predate the test coverage check. Do not add new
-          # entries -- add tests for new permissions instead.
-          TODO_FILE = ::Rails.root.join('config/authz/graphql/test_coverage_todo.txt')
         end
       end
     end

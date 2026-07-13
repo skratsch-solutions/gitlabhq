@@ -50,6 +50,11 @@ export default {
     menuLabel: __('Open navigation menu'),
   },
   inject: ['isSaas'],
+  provide() {
+    return {
+      showAdminAreaLink: this.showAdminButton,
+    };
+  },
   props: {
     sidebarData: {
       type: Object,

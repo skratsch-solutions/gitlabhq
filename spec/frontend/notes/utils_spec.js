@@ -203,10 +203,55 @@ describe('note utils', () => {
       expect(findStartedNoteForReply([], discussions)).toBeNull();
     });
 
-    it('returns null when the reply note discussion does not match any discussion', () => {
+    it('returns null when an author-less reply lands in an unloaded discussion', () => {
       const noteInOtherDiscussion = { id: 'reply-2', system: false, discussion_id: 'disc-99' };
 
       expect(findStartedNoteForReply([noteInOtherDiscussion], discussions)).toBeNull();
+    });
+
+    it('returns the standalone started note when a same-author reply lands in an unloaded discussion (Duo Code Review path)', () => {
+      const progressNote = {
+        id: 'progress-1',
+        system: true,
+        author: { id: 999, user_type: 'duo_code_review_bot' },
+        discussion_id: 'disc-1',
+      };
+      // Review output lands in a brand-new diff discussion not yet loaded on the
+      // frontend, so the reply's discussion_id matches no loaded discussion.
+      const botReply = {
+        id: 'bot-reply-1',
+        system: false,
+        author: { id: 999, user_type: 'duo_code_review_bot' },
+        discussion_id: 'disc-unloaded',
+      };
+      const discussionsWithProgress = [{ id: 'disc-1', notes: [progressNote] }];
+
+      expect(findStartedNoteForReply([botReply], discussionsWithProgress)).toBe(progressNote);
+    });
+
+    it('returns null when a same-author reply lands in an unloaded discussion with no started note loaded', () => {
+      // The progress note has already been removed from frontend state, so the
+      // fallback scan across all discussions must not produce a false positive.
+      const botReply = {
+        id: 'bot-reply-2',
+        system: false,
+        author: { id: 999, user_type: 'duo_code_review_bot' },
+        discussion_id: 'disc-unloaded',
+      };
+      const discussionsWithoutProgress = [{ id: 'disc-1', notes: [{ id: 'plain', system: true }] }];
+
+      expect(findStartedNoteForReply([botReply], discussionsWithoutProgress)).toBeNull();
+    });
+
+    it('does not remove the started note when a human reply lands in an unloaded discussion', () => {
+      const humanReply = {
+        id: 'human-reply-2',
+        system: false,
+        discussion_id: 'disc-unloaded',
+        author: { id: 7, user_type: 'human' },
+      };
+
+      expect(findStartedNoteForReply([humanReply], discussions)).toBeNull();
     });
 
     it('ignores system notes in the incoming batch when searching for a reply', () => {

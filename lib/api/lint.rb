@@ -16,6 +16,9 @@ module API
       )
     end
 
+    params do
+      requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
+    end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Validate existing CI/CD configuration' do
         detail 'Validates the `.gitlab-ci.yml` configuration for a specified project.'
@@ -62,6 +65,9 @@ module API
       end
     end
 
+    params do
+      requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
+    end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Validate a CI/CD configuration' do
         detail 'Validates a provided CI/CD configuration in the context of a specified project.'

@@ -73,11 +73,7 @@ module Gitlab
         end
 
         def boundary_extractor(object, arguments)
-          if arguments.nil?
-            BoundaryExtractors::FromObject.new(directives, object)
-          else
-            BoundaryExtractors::FromInputArguments.new(directives, arguments)
-          end
+          BoundaryExtractor.new(directives, object: object, arguments: arguments)
         end
 
         def fetch_cached(context, key)

@@ -48,62 +48,27 @@ RSpec.describe Tasks::Gitlab::Permissions::Graphql::SpecPermissionScanner, featu
 
   describe '#insufficient_test_coverage' do
     let(:details) { { kind: 'type', name: 'Project', source: 'app/graphql/types/project_type.rb' } }
-    let(:todo_lines) { ["# comment\n", "type:Epic group read_epic\n"] }
 
     before do
       allow(scanner).to receive_messages(spec_files: ['test.rb'], build_shared_example_inclusions: Hash.new(0))
       allow(File).to receive(:read).with('test.rb').and_return('')
-      allow(described_class::TODO_FILE).to receive_messages(exist?: true, readlines: todo_lines)
     end
 
     it 'returns violations for permissions with insufficient tests' do
       scanner.add_endpoint(endpoint_id: 'type:Project project', permission: :read_project, details: details)
 
       expect(scanner.insufficient_test_coverage).to contain_exactly(
-        hash_including(permission: 'read_project', endpoint_count: 1, grandfathered_count: 0, test_count: 0,
-          endpoints: [details])
+        hash_including(permission: 'read_project', endpoint_count: 1, test_count: 0, endpoints: [details])
       )
     end
 
-    it 'skips declarations grandfathered in the TODO file' do
-      scanner.add_endpoint(endpoint_id: 'type:Epic group', permission: :read_epic, details: details)
-
-      expect(scanner.insufficient_test_coverage).to be_empty
-    end
-
-    it 'still flags a new declaration of a grandfathered permission' do
+    it 'counts each declaration of a permission' do
       scanner.add_endpoint(endpoint_id: 'type:Epic group', permission: :read_epic, details: details)
       scanner.add_endpoint(endpoint_id: 'type:BoardEpic group', permission: :read_epic, details: details)
 
       expect(scanner.insufficient_test_coverage).to contain_exactly(
-        hash_including(permission: 'read_epic', endpoint_count: 2, grandfathered_count: 1, test_count: 0)
+        hash_including(permission: 'read_epic', endpoint_count: 2, test_count: 0)
       )
-    end
-
-    context 'when a TODO entry no longer matches a registered declaration' do
-      let(:todo_lines) { ["type:RemovedEpicType group read_epic\n"] }
-
-      it 'does not count it as grandfathered' do
-        scanner.add_endpoint(endpoint_id: 'type:Epic group', permission: :read_epic, details: details)
-
-        expect(scanner.insufficient_test_coverage).to contain_exactly(
-          hash_including(permission: 'read_epic', endpoint_count: 1, grandfathered_count: 0, test_count: 0)
-        )
-      end
-    end
-
-    context 'when the TODO file does not exist' do
-      before do
-        allow(described_class::TODO_FILE).to receive(:exist?).and_return(false)
-      end
-
-      it 'flags grandfathered declarations too' do
-        scanner.add_endpoint(endpoint_id: 'type:Epic group', permission: :read_epic, details: details)
-
-        expect(scanner.insufficient_test_coverage).to contain_exactly(
-          hash_including(permission: 'read_epic', endpoint_count: 1, grandfathered_count: 0, test_count: 0)
-        )
-      end
     end
   end
 end

@@ -6293,15 +6293,6 @@ CREATE TABLE p_ci_build_sources (
 )
 PARTITION BY LIST (partition_id);
 
-CREATE TABLE p_ci_build_tags (
-    id bigint NOT NULL,
-    tag_id bigint NOT NULL,
-    build_id bigint NOT NULL,
-    partition_id bigint NOT NULL,
-    project_id bigint NOT NULL
-)
-PARTITION BY LIST (partition_id);
-
 CREATE TABLE p_ci_build_trace_metadata (
     build_id bigint NOT NULL,
     partition_id bigint NOT NULL,
@@ -26444,6 +26435,15 @@ CREATE SEQUENCE p_catalog_resource_sync_events_id_seq
     CACHE 1;
 
 ALTER SEQUENCE p_catalog_resource_sync_events_id_seq OWNED BY p_catalog_resource_sync_events.id;
+
+CREATE TABLE p_ci_build_tags (
+    id bigint NOT NULL,
+    tag_id bigint NOT NULL,
+    build_id bigint NOT NULL,
+    partition_id bigint NOT NULL,
+    project_id bigint NOT NULL
+)
+PARTITION BY LIST (partition_id);
 
 CREATE SEQUENCE p_ci_build_tags_id_seq
     START WITH 1

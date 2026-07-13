@@ -3,6 +3,7 @@ package upstream
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -376,9 +377,10 @@ func configureRoutes(u *upstream) {
 	// (Rails-only).
 	var iamProxy http.Handler
 	if u.IAMServiceURL == nil {
-		log.WithFields(log.Fields{
-			"iam_routing_enabled": false,
-		}).Info("oauthproxy: IAMServiceURL not set; OAuth requests will be handled by Rails")
+		slog.Info(
+			"oauthproxy: IAMServiceURL not set; OAuth requests will be handled by Rails",
+			slog.Bool("iam_routing_enabled", false),
+		)
 	} else {
 		iamRoundTripper := roundtripper.NewBackendRoundTripper(u.IAMServiceURL, "", u.ProxyHeadersTimeout, u.DevelopmentMode)
 		// When IAMServiceURL points at the GATE sandbox Envoy gateway, that
@@ -397,10 +399,11 @@ func configureRoutes(u *upstream) {
 			proxypkg.WithCorrelationID(),
 			proxypkg.WithCustomHeaders(map[string]string{"x-gitlab-svc": "iam-auth-http"}),
 		)
-		log.WithFields(log.Fields{
-			"iam_routing_enabled": true,
-			"iam_backend_url":     u.IAMServiceURL.String(),
-		}).Info("oauthproxy: OAuth routing to IAM service enabled")
+		slog.Info(
+			"oauthproxy: OAuth routing to IAM service enabled",
+			slog.Bool("iam_routing_enabled", true),
+			slog.String("iam_backend_url", u.IAMServiceURL.String()),
+		)
 	}
 	oauthHandler := &oauthproxy.Handler{
 		API:           api,

@@ -63,7 +63,7 @@ module Types
     # we should call `super` here, to apply argument authorization checks.
     # See: https://gitlab.com/gitlab-org/gitlab/-/issues/324647
     def authorized?(object, args, ctx)
-      field_authorized?(object, ctx) && resolver_authorized?(object, ctx)
+      field_authorized?(object, args, ctx) && resolver_authorized?(object, ctx)
     end
 
     # This gets called from the gem's `calculate_complexity` method, allowing us
@@ -106,10 +106,10 @@ module Types
 
     private
 
-    def field_authorized?(object, ctx)
+    def field_authorized?(object, args, ctx)
       object = object.node if object.is_a?(GraphQL::Pagination::Connection::Edge)
 
-      return true if granular_token_authorized?(object, ctx) &&
+      return true if granular_token_authorized?(object, args, ctx) &&
         authorization.ok?(object, ctx[:current_user], scope_validator: ctx[:scope_validator])
 
       # Fields on MutationType should populate the 'errors' response when authorization fails
@@ -120,10 +120,13 @@ module Types
       raise_resource_not_available_error!
     end
 
-    def granular_token_authorized?(object, ctx)
+    def granular_token_authorized?(object, args, ctx)
       return true if granular_scope_authorization.empty?
+      # Mutations enforce their directives in BaseMutation#authorized?, where
+      # the unwrapped input arguments are available (`args` here is `{ input: ... }`).
+      return true if @resolver_class && @resolver_class <= GraphQL::Schema::Mutation
 
-      granular_scope_authorization.ok?(object, ctx)
+      granular_scope_authorization.ok?(object, ctx, arguments: args)
     end
 
     # Historically our resolvers have used declarative permission checks only

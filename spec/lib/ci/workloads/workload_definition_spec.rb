@@ -54,6 +54,31 @@ RSpec.describe Ci::Workloads::WorkloadDefinition, feature_category: :continuous_
       })
     end
 
+    it 'allows setting artifacts_reports' do
+      definition.artifacts_reports = { 'sast' => ['gl-sast-report.json'] }
+      expect(definition.to_job_hash[:artifacts]).to eq({
+        reports: { 'sast' => ['gl-sast-report.json'] }
+      })
+    end
+
+    it 'combines artifacts_paths and artifacts_reports' do
+      definition.artifacts_paths = ['my-artifact-path']
+      definition.artifacts_reports = { 'sast' => ['gl-sast-report.json'] }
+      expect(definition.to_job_hash[:artifacts]).to eq({
+        paths: ['my-artifact-path'],
+        reports: { 'sast' => ['gl-sast-report.json'] }
+      })
+    end
+
+    it 'does not include artifacts when neither paths nor reports are set' do
+      expect(definition.to_job_hash).not_to have_key(:artifacts)
+    end
+
+    it 'does not include artifacts when artifacts_reports is an empty hash' do
+      definition.artifacts_reports = {}
+      expect(definition.to_job_hash).not_to have_key(:artifacts)
+    end
+
     it 'allows setting cache' do
       cache_config = { key: 'my-cache-key', paths: ['node_modules'] }
       definition.cache = cache_config

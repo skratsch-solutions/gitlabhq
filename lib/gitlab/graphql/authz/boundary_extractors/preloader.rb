@@ -78,7 +78,7 @@ module Gitlab
           # for enforcement checks.
           def preload_root_namespace_enforcement(nodes)
             root_namespace_ids = nodes
-              .flat_map { |node| FromObject.new(directives, node).extract }
+              .flat_map { |node| BoundaryExtractor.new(directives, object: node, arguments: nil).extract }
               .filter_map { |resource| ::Authz::Boundary.for(resource)&.root_namespace_id }
 
             ::Authz::Tokens::EnforcementCache.new.any_enforced?(root_namespace_ids)
@@ -95,7 +95,7 @@ module Gitlab
 
             namespace_association = strategy.namespace_association
 
-            if boundary_method == Base::ITSELF
+            if boundary_method == BoundaryExtractor::ITSELF
               namespace_association if namespace_association && klass.reflect_on_association(namespace_association)
             else
               reflection = klass.reflect_on_association(boundary_method)

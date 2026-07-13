@@ -33,6 +33,9 @@ module API
         end
       end
 
+      params do
+        requires :id, types: [String, Integer], desc: "The ID or URL-encoded path of the #{attributable_name}"
+      end
       desc "List all custom attributes for a #{attributable_name}" do
         detail "Lists all custom attributes for a specified #{attributable_name}."
         success Entities::CustomAttribute

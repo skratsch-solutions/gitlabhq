@@ -422,6 +422,7 @@ RSpec.describe WebHookLog, :freeze_time, feature_category: :webhooks do
       expect(web_hook_logs_daily_entry.partitioning_strategy)
         .to be_a(Gitlab::Database::Partitioning::Time::DailyStrategy)
       expect(web_hook_logs_daily_entry.partitioning_strategy.retain_for).to eq(14.days)
+      expect(web_hook_logs_daily_entry.partitioning_strategy.retain_detached_partitions_for).to eq(2.days)
     end
   end
 end

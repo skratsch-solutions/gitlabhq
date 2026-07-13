@@ -3,11 +3,13 @@ package objectstore
 import (
 	"context"
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"gitlab.com/gitlab-org/labkit/log"
+	logv1 "gitlab.com/gitlab-org/labkit/log"
 	"gitlab.com/gitlab-org/labkit/v2/fields"
+	logv2 "gitlab.com/gitlab-org/labkit/v2/log"
 	"gocloud.dev/blob"
 	"gocloud.dev/gcerrors"
 )
@@ -51,7 +53,7 @@ func NewGoCloudObject(p *GoCloudObjectParams) (*GoCloudObject, error) {
 const ChunkSize = 5 * 1024 * 1024
 
 func phaseLog(ctx context.Context, phase string, start time.Time) *logrus.Entry {
-	return log.WithContextFields(ctx, log.Fields{
+	return logv1.WithContextFields(ctx, logv1.Fields{
 		"phase":          phase,
 		fields.DurationS: time.Since(start).Seconds(),
 	})
@@ -125,13 +127,13 @@ func (o *GoCloudObject) Delete() {
 
 	bucket, err := o.mux.OpenBucket(deleteCtx, o.bucketURL)
 	if err != nil {
-		log.WithError(err).Error("error opening bucket for delete")
+		slog.Error("error opening bucket for delete", logv2.Error(err))
 		return
 	}
 
 	if err := bucket.Delete(deleteCtx, o.objectName); err != nil {
 		if gcerrors.Code(err) != gcerrors.NotFound {
-			log.WithError(err).Error("error deleting object")
+			slog.Error("error deleting object", logv2.Error(err))
 		}
 	}
 }

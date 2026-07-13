@@ -67,32 +67,36 @@ export const shouldRenderAsDuoSystemNote = (note) =>
   (note.duo_session_status !== undefined || note.author?.user_type === 'duo_code_review_bot');
 
 /**
- * Finds the Duo "thinking" note that an incoming reply should remove.
+ * Finds the Duo "thinking" note that an incoming reply should remove, matched by
+ * author so a human comment during the flow never removes it early.
  *
- * Duo posts the thinking note and its reply as the same author (the Duo bot or
- * the mention service account) in the same discussion, so removal is keyed off
- * that author match: a human comment landing in the discussion while Duo is
- * still working has a different author and must not remove the note early.
- *
- * Callers must pass the full discussions list, not a filtered subset, so the
- * reply's discussion (which always holds the thinking note) is in scope.
+ * Looks in the reply's own discussion first (the @mention path, where the note
+ * lives in the reply's thread), then falls back to all discussions (the Duo Code
+ * Review path, where the note is top-level and the reply lands in an unloaded
+ * diff discussion). Callers must pass the full discussions list.
  *
  * @param {Array} incomingNotes - Notes received from the poll endpoint.
  * @param {Array} discussions   - Current discussions to search within.
  * @returns {Object|null} The started note to remove, or null if none found.
  */
 export const findStartedNoteForReply = (incomingNotes, discussions) => {
+  const matchesAuthor = (candidate, authorId) =>
+    shouldRenderAsDuoSystemNote(candidate) && candidate.author?.id === authorId;
+
   for (const note of incomingNotes) {
-    if (note.system) continue;
+    if (note.system || note.author?.id == null) continue;
 
-    const discussion = discussions.find((d) => d.id === note.discussion_id);
-    if (!discussion) continue;
+    const authorId = note.author.id;
 
-    const startedNote = discussion.notes?.find((n) => shouldRenderAsDuoSystemNote(n));
-    if (!startedNote) continue;
+    // Prefer the reply's own discussion, then fall back to the others.
+    const ownDiscussion = discussions.find((d) => d.id === note.discussion_id);
+    const startedInOwn = ownDiscussion?.notes?.find((n) => matchesAuthor(n, authorId));
+    if (startedInOwn) return startedInOwn;
 
-    if (note.author?.id != null && note.author.id === startedNote.author?.id) {
-      return startedNote;
+    for (const discussion of discussions) {
+      if (discussion === ownDiscussion) continue;
+      const startedNote = discussion.notes?.find((n) => matchesAuthor(n, authorId));
+      if (startedNote) return startedNote;
     }
   }
 

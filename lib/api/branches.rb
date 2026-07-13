@@ -99,6 +99,9 @@ module API
         render_api_error!('Regex is invalid', 400)
       end
 
+      params do
+        requires :branch, type: String, desc: 'The name of the branch'
+      end
       resource ':id/repository/branches/:branch', requirements: BRANCH_ENDPOINT_REQUIREMENTS do
         params do
           requires :branch, type: String, desc: 'The name of the branch'
