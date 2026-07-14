@@ -409,6 +409,32 @@ Example:
 Show me all comments on work item 42 in project gitlab-org/gitlab
 ```
 
+## `get_saved_view_work_items`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/227911) in GitLab 18.11.
+
+{{< /history >}}
+
+Retrieves a saved view and its list of work items from a namespace. The tool applies the
+filters and the sort order in the saved view to the returned work items.
+
+| Parameter       | Type    | Required | Description |
+|-----------------|---------|----------|-------------|
+| `saved_view_id` | string  | Yes      | Global ID of the saved view (in the format `gid://gitlab/WorkItems::SavedViews::SavedView/<id>`). |
+| `url`           | string  | No       | URL for the namespace (project or group). Required if `group_id` or `project_id` is missing. |
+| `group_id`      | string  | No       | ID or path of the group. Required if `url` and `project_id` are missing. |
+| `project_id`    | string  | No       | ID or path of the project. Required if `url` and `group_id` are missing. |
+| `after`         | string  | No       | Cursor for forward pagination. |
+| `first`         | integer | No       | Number of work items to return. Maximum 100. |
+
+Example:
+
+```plaintext
+Show me the work items in this saved view: <URL>
+```
+
 ## `search`
 
 {{< history >}}

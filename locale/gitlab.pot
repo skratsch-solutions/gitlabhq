@@ -52315,6 +52315,9 @@ msgstr ""
 msgid "OfflineTransferExport|Export for offline transfer"
 msgstr ""
 
+msgid "OfflineTransferExport|Export history"
+msgstr ""
+
 msgid "OfflineTransferExport|Export your groups to an AWS S3 storage service you control. You can import them to any GitLab instance, even without a network connection between this instance and the destination instance. Each group is exported with all of its subgroups and projects."
 msgstr ""
 
@@ -52408,10 +52411,10 @@ msgstr ""
 msgid "OfflineTransfer|Export groups"
 msgstr ""
 
-msgid "OfflineTransfer|Export history"
+msgid "OfflineTransfer|Export relation batch file not found for relation: %{relation}, batch: %{batch_number}"
 msgstr ""
 
-msgid "OfflineTransfer|Export relation batch file not found for relation: %{relation}, batch: %{batch_number}"
+msgid "OfflineTransfer|History"
 msgstr ""
 
 msgid "OfflineTransfer|If your GitLab instances can access each other over a network, use direct transfer instead. Direct transfer migrates groups and projects directly without separate export and import steps."
@@ -63943,6 +63946,9 @@ msgid "Roll up totals may reflect child items you don’t have access to."
 msgstr ""
 
 msgid "Rollback"
+msgstr ""
+
+msgid "Rollout cannot be started because it has no flow definition."
 msgstr ""
 
 msgid "Rollout cannot be started because it is not pending."

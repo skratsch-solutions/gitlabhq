@@ -886,6 +886,7 @@ RSpec.describe Organizations::Transfer::UsersService, :aggregate_failures, featu
             "Ai::Catalog::ItemStar",
             "Ai::Catalog::ItemVersion",
             "Ai::Catalog::McpServer",
+            "Ai::Catalog::McpServerBlock",
             "Ai::Catalog::McpServersUser",
             "Ai::Conversation::Thread",
             "Ai::EventsCount",

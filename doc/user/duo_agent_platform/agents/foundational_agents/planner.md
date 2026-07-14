@@ -21,6 +21,8 @@ title: Planner Agent
 - To-do management introduced in GitLab 19.0.
 - [Orbit](https://docs.gitlab.com/orbit/) integration for graph-based queries
   [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/598775) in GitLab 19.1.
+- Support for saved views
+  [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592440) in GitLab 19.2.
 
 {{< /history >}}
 
@@ -48,6 +50,7 @@ Use the Planner Agent when you need help with:
 - Planning sessions: Organizing sprints, milestones, or quarterly planning.
 - Status reporting: Generating summaries of progress, risks, and blockers.
 - Backlog management: Identifying stale issues, duplicates, or items needing refinement.
+- Saved views: Analyzing the work items in a saved view, using the view's filters and sort order.
 - Estimation: Suggesting relative sizing or effort estimates for work items.
 - Graph-based context: Finding similar past work, cross-project dependencies, and contributors
   with related experience. Requires [Orbit](https://docs.gitlab.com/orbit/).
@@ -174,6 +177,9 @@ Then, to use the Planner Agent:
   - "Find stale work items that have not been updated in 6 months."
   - "Identify duplicate or similar work items in this project."
   - "Show work items assigned to me."
+- Saved views:
+  - "Summarize the work items in this saved view: `<URL>`"
+  - "Which work items in this saved view are unassigned? `<URL>`"
 - Content editing:
   - "Close this work item as completed and create a new retrospective work item documenting
     what went well and what needs improvement: `<URL>`"

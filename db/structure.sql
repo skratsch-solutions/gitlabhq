@@ -13652,6 +13652,25 @@ CREATE SEQUENCE ai_catalog_items_id_seq
 
 ALTER SEQUENCE ai_catalog_items_id_seq OWNED BY ai_catalog_items.id;
 
+CREATE TABLE ai_catalog_mcp_server_blocks (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    organization_id bigint NOT NULL,
+    namespace_id bigint NOT NULL,
+    ai_catalog_mcp_server_id bigint NOT NULL,
+    created_by_id bigint
+);
+
+CREATE SEQUENCE ai_catalog_mcp_server_blocks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE ai_catalog_mcp_server_blocks_id_seq OWNED BY ai_catalog_mcp_server_blocks.id;
+
 CREATE TABLE ai_catalog_mcp_servers (
     id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -36853,6 +36872,8 @@ ALTER TABLE ONLY ai_catalog_item_versions ALTER COLUMN id SET DEFAULT nextval('a
 
 ALTER TABLE ONLY ai_catalog_items ALTER COLUMN id SET DEFAULT nextval('ai_catalog_items_id_seq'::regclass);
 
+ALTER TABLE ONLY ai_catalog_mcp_server_blocks ALTER COLUMN id SET DEFAULT nextval('ai_catalog_mcp_server_blocks_id_seq'::regclass);
+
 ALTER TABLE ONLY ai_catalog_mcp_servers ALTER COLUMN id SET DEFAULT nextval('ai_catalog_mcp_servers_id_seq'::regclass);
 
 ALTER TABLE ONLY ai_catalog_mcp_servers_users ALTER COLUMN id SET DEFAULT nextval('ai_catalog_mcp_servers_users_id_seq'::regclass);
@@ -39869,6 +39890,9 @@ ALTER TABLE ONLY ai_catalog_item_versions
 
 ALTER TABLE ONLY ai_catalog_items
     ADD CONSTRAINT ai_catalog_items_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY ai_catalog_mcp_server_blocks
+    ADD CONSTRAINT ai_catalog_mcp_server_blocks_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY ai_catalog_mcp_servers
     ADD CONSTRAINT ai_catalog_mcp_servers_pkey PRIMARY KEY (id);
@@ -45896,6 +45920,12 @@ CREATE UNIQUE INDEX idx_ai_catalog_item_version_dependencies_version_and_depende
 
 CREATE UNIQUE INDEX idx_ai_catalog_item_version_unique ON ai_catalog_item_versions USING btree (ai_catalog_item_id, version);
 
+CREATE INDEX idx_ai_catalog_mcp_server_blocks_on_mcp_server_id ON ai_catalog_mcp_server_blocks USING btree (ai_catalog_mcp_server_id);
+
+CREATE INDEX idx_ai_catalog_mcp_server_blocks_on_ns_and_server ON ai_catalog_mcp_server_blocks USING btree (namespace_id, ai_catalog_mcp_server_id);
+
+CREATE UNIQUE INDEX idx_ai_catalog_mcp_server_blocks_on_org_ns_server ON ai_catalog_mcp_server_blocks USING btree (organization_id, namespace_id, ai_catalog_mcp_server_id);
+
 CREATE INDEX idx_ai_catalog_mcp_servers_on_organization_id ON ai_catalog_mcp_servers USING btree (organization_id);
 
 CREATE INDEX idx_ai_catalog_mcp_servers_users_on_organization_id ON ai_catalog_mcp_servers_users USING btree (organization_id);
@@ -47149,6 +47179,8 @@ CREATE INDEX index_ai_catalog_items_on_public ON ai_catalog_items USING btree (p
 CREATE INDEX index_ai_catalog_items_on_verification_level ON ai_catalog_items USING btree (verification_level);
 
 CREATE INDEX index_ai_catalog_items_where_deleted_at_is_null ON ai_catalog_items USING btree (deleted_at) WHERE (deleted_at IS NULL);
+
+CREATE INDEX index_ai_catalog_mcp_server_blocks_on_created_by_id ON ai_catalog_mcp_server_blocks USING btree (created_by_id);
 
 CREATE INDEX index_ai_catalog_mcp_servers_on_created_by_id ON ai_catalog_mcp_servers USING btree (created_by_id);
 
@@ -58553,6 +58585,9 @@ ALTER TABLE ONLY ai_catalog_mcp_servers_users
 ALTER TABLE ONLY incident_management_timeline_events
     ADD CONSTRAINT fk_38a74279df FOREIGN KEY (updated_by_user_id) REFERENCES users(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY ai_catalog_mcp_server_blocks
+    ADD CONSTRAINT fk_38db221a21 FOREIGN KEY (ai_catalog_mcp_server_id) REFERENCES ai_catalog_mcp_servers(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY import_export_uploads
     ADD CONSTRAINT fk_38e11735aa FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
 
@@ -59038,6 +59073,9 @@ ALTER TABLE ONLY cd_artifact_sources
 
 ALTER TABLE ONLY merge_request_diff_details
     ADD CONSTRAINT fk_63097c0adc FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY ai_catalog_mcp_server_blocks
+    ADD CONSTRAINT fk_6323ec3250 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY saml_group_links
     ADD CONSTRAINT fk_6336b1d1d0 FOREIGN KEY (member_role_id) REFERENCES member_roles(id) ON DELETE SET NULL;
@@ -60104,6 +60142,9 @@ ALTER TABLE ONLY customer_relations_contacts
 ALTER TABLE ONLY system_access_group_microsoft_graph_access_tokens
     ADD CONSTRAINT fk_b961a3df76 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY ai_catalog_mcp_server_blocks
+    ADD CONSTRAINT fk_b98a05a2bf FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY deployments
     ADD CONSTRAINT fk_b9a3851b82 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -60346,6 +60387,9 @@ ALTER TABLE ONLY packages_dependencies
 
 ALTER TABLE ONLY incident_management_oncall_rotations
     ADD CONSTRAINT fk_cecf1b51f9 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY ai_catalog_mcp_server_blocks
+    ADD CONSTRAINT fk_cedee13ed3 FOREIGN KEY (created_by_id) REFERENCES users(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY work_item_agent_plans
     ADD CONSTRAINT fk_cf364a6cc2 FOREIGN KEY (work_item_id) REFERENCES issues(id) ON DELETE CASCADE;
