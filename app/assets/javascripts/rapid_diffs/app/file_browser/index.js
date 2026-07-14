@@ -77,7 +77,7 @@ const initBrowserComponent = async (el, shouldSort) => {
           linkedFilePath: useDiffsList().linkedFilePath,
         },
         on: {
-          clickFile(file) {
+          'click-file': (file) => {
             const diffsView = useDiffsView(pinia);
 
             if (diffsView.singleFileMode) {

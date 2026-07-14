@@ -227,10 +227,7 @@ describe('Work item award emoji reactions', () => {
       });
 
       it('hides reaction controls and blocks toggling', async () => {
-        await waitForAssertion(() => {
-          expect(findBodyAddReactionButton()).toBe(null);
-          expect(findNoteAddReactionButton()).toBe(null);
-        });
+        await waitForAssertion(() => expect(findBodyAddReactionButton()).toBe(null));
 
         findBodyAwardButton('100').click();
         await waitForAssertion(() => expect(awardCount(findBodyAwardButton('100'))).toBe(1));

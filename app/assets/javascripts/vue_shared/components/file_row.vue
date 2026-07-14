@@ -40,7 +40,7 @@ export default {
       default: true,
     },
   },
-  emits: ['clickFile', 'clickRow', 'clickSubmodule', 'clickTree', 'showMore', 'toggleTree'],
+  emits: ['click-file', 'clickRow', 'clickSubmodule', 'clickTree', 'showMore', 'toggleTree'],
   computed: {
     isTree() {
       return this.file.type === 'tree';
@@ -95,7 +95,7 @@ export default {
       } else if (this.file.submodule) {
         this.$emit('clickSubmodule', event);
       } else if (this.isBlob) {
-        this.$emit('clickFile', event);
+        this.$emit('click-file', event);
       }
 
       if (this.file.href) {

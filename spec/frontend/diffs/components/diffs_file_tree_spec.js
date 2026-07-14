@@ -69,11 +69,11 @@ describe('DiffsFileTree', () => {
     expect(wrapper.findComponent(FileBrowserHeight).exists()).toBe(true);
   });
 
-  it('re-emits clickFile event', () => {
+  it('re-emits click-file event', () => {
     const obj = {};
     createComponent();
-    wrapper.findComponent(TreeList).vm.$emit('clickFile', obj);
-    expect(wrapper.emitted('clickFile')).toStrictEqual([[obj]]);
+    wrapper.findComponent(TreeList).vm.$emit('click-file', obj);
+    expect(wrapper.emitted('click-file')).toStrictEqual([[obj]]);
   });
 
   it('re-emits toggleFolder event', () => {

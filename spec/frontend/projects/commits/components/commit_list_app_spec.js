@@ -40,6 +40,7 @@ describe('CommitListApp', () => {
   const defaultProvide = {
     projectFullPath: 'gitlab-org/gitlab',
     escapedRef: 'main',
+    refType: '',
   };
 
   const commitsQueryHandler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
@@ -304,6 +305,131 @@ describe('CommitListApp', () => {
         expect.objectContaining({
           ref: 'other-branch',
           after: null,
+        }),
+      );
+    });
+  });
+
+  describe('pipelineRef', () => {
+    const createRouterWithWildcard = (routeQuery = {}) => {
+      const router = new VueRouter({
+        mode: 'abstract',
+        routes: [
+          { path: '/', component: CommitListApp },
+          { path: '/:ref/:path*', name: 'commitsAnyRef', component: CommitListApp },
+        ],
+      });
+      router.push({ path: '/', query: routeQuery });
+      return router;
+    };
+
+    const createComponentWithRefType = (refType, handler = commitsQueryHandler) => {
+      wrapper = shallowMountExtended(CommitListApp, {
+        apolloProvider: createMockApollo([[commitsQuery, handler]]),
+        provide: { ...defaultProvide, refType },
+        router: createRouterWithWildcard(),
+      });
+    };
+
+    it('passes currentRef as pipelineRef when refType is "heads"', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithRefType('heads', handler);
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pipelineRef: 'main',
+        }),
+      );
+    });
+
+    it('passes currentRef as pipelineRef when refType is "tags"', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithRefType('tags', handler);
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pipelineRef: 'main',
+        }),
+      );
+    });
+
+    it('passes null as pipelineRef when refType is empty (commit SHA)', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithRefType('', handler);
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pipelineRef: null,
+        }),
+      );
+    });
+
+    it('updates pipelineRef when ref changes via header', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithRefType('heads', handler);
+      await waitForPromises();
+
+      handler.mockClear();
+      findCommitHeader().vm.$emit('ref-change', 'develop');
+      await wrapper.vm.$router.push({
+        path: `/${encodeURIComponent('develop')}/`,
+        query: { ref_type: 'heads' },
+      });
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ref: 'develop',
+          pipelineRef: 'develop',
+        }),
+      );
+    });
+
+    it('syncs refType from route query on in-app ref switch (SHA to branch)', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithRefType('', handler);
+      await waitForPromises();
+
+      handler.mockClear();
+      findCommitHeader().vm.$emit('ref-change', 'develop');
+      await wrapper.vm.$router.push({
+        path: `/${encodeURIComponent('develop')}/`,
+        query: { ref_type: 'heads' },
+      });
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ref: 'develop',
+          pipelineRef: 'develop',
+        }),
+      );
+    });
+
+    it('resets pipelineRef to null on in-app ref switch from a branch to a commit SHA', async () => {
+      // Start on a branch view (server injects refType='heads').
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithRefType('heads', handler);
+      await waitForPromises();
+
+      // Selecting a commit SHA drops ref_type from the route query. The inject
+      // fallback must NOT apply after the initial load, otherwise the SHA view
+      // would stay incorrectly ref-scoped.
+      handler.mockClear();
+      findCommitHeader().vm.$emit('ref-change', 'abc123def');
+      await wrapper.vm.$router.push({
+        path: `/${encodeURIComponent('abc123def')}/`,
+        query: {},
+      });
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ref: 'abc123def',
+          pipelineRef: null,
         }),
       );
     });

@@ -59,8 +59,8 @@ describe('FileBrowser', () => {
   it('handles click', async () => {
     const file = { fileHash: 'foo' };
     createComponent();
-    await wrapper.findComponent(DiffsFileTree).vm.$emit('clickFile', file);
-    expect(wrapper.emitted('clickFile')).toStrictEqual([[file]]);
+    await wrapper.findComponent(DiffsFileTree).vm.$emit('click-file', file);
+    expect(wrapper.emitted('click-file')).toStrictEqual([[file]]);
   });
 
   it('handles toggleFolder', async () => {

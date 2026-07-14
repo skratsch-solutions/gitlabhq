@@ -45,7 +45,11 @@ export default {
     CommitListItem,
   },
   mixins: [InternalEvents.mixin()],
-  inject: ['projectFullPath', 'escapedRef'],
+  inject: {
+    projectFullPath: { default: '' },
+    escapedRef: { default: '' },
+    injectedRefType: { from: 'refType', default: '' },
+  },
   data() {
     return {
       commits: [],
@@ -58,6 +62,7 @@ export default {
       cursors: [],
       currentCursor: null,
       currentRef: decodeURIComponent(this.escapedRef),
+      currentRefType: this.injectedRefType || '',
       currentPath: null,
       initialFilterTokens: [],
     };
@@ -65,6 +70,12 @@ export default {
   computed: {
     isLoading() {
       return this.$apollo.queries.commits.loading;
+    },
+    pipelineRef() {
+      // Only filter pipelines by ref when viewing a branch or tag.
+      // When the ref is a commit SHA, pass null so the query returns
+      // the latest pipeline for the commit regardless of branch.
+      return this.currentRefType ? this.currentRef : null;
     },
     groupedCommits() {
       return groupCommitsByDay(this.commits);
@@ -94,6 +105,7 @@ export default {
         return {
           projectPath: this.projectFullPath,
           ref: this.currentRef,
+          pipelineRef: this.pipelineRef,
           first: this.pageSize,
           after: this.currentCursor,
           author: this.authorFilter,
@@ -154,7 +166,7 @@ export default {
     },
   },
   created() {
-    this.syncRefFromRoute(this.$route);
+    this.syncRefFromRoute(this.$route, { isInitial: true });
     this.syncPathFromRoute(this.$route);
     this.syncFiltersFromRoute(this.$route);
   },
@@ -173,7 +185,14 @@ export default {
       const date = newDate(dateTime);
       return isValidDate(date) ? localeDateFormat.asDate.format(date) : dateTime;
     },
-    syncRefFromRoute(route) {
+    syncRefFromRoute(route, { isInitial = false } = {}) {
+      // The route query is the source of truth for the ref type after any in-app
+      // navigation: the ref selector writes ref_type for branches/tags and drops
+      // it for commit SHAs. Only fall back to the server-provided inject on the
+      // initial load, where the SSR URL for the default branch may omit ref_type.
+      const fallbackRefType = isInitial ? this.injectedRefType : '';
+      this.currentRefType = route.query.ref_type ?? fallbackRefType;
+
       // The static routes ('commitsPath' / 'commitsPathDecoded') are
       // hardcoded to the initial ref.  For refs containing '/' the route
       // path has literal slashes, so extractFirstPathSegment would split
@@ -344,11 +363,14 @@ export default {
         >
           <h2 class="gl-mb-5 gl-flex gl-items-center gl-gap-3 gl-text-base @md/panel:gl-gap-5">
             <gl-icon name="commit" />
-            <time class="gl-font-bold" :datetime="group.day">
+            <time class="gl-font-bold" :datetime="group.day" data-testid="daily-commits-date">
               {{ getFormattedDate(group.day) }}
             </time>
           </h2>
-          <ul class="daily-commits-item gl-mb-6 gl-flex gl-list-none gl-flex-col gl-gap-3 gl-p-0">
+          <ul
+            class="daily-commits-item gl-mb-6 gl-flex gl-list-none gl-flex-col gl-gap-3 gl-p-0"
+            data-testid="daily-commits-list"
+          >
             <commit-list-item v-for="commit in group.commits" :key="commit.id" :commit="commit" />
           </ul>
         </li>

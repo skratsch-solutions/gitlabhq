@@ -176,6 +176,16 @@ const awardEmojiMutationHandlers = {
   }),
 };
 
+const getWorkItemsCountOnlyResponse = () => ({
+  data: {
+    namespace: {
+      id: 'gid://gitlab/Group/1',
+      name: 'group1',
+      workItems: { count: workItemsFullResponse.data.namespace.workItems.nodes.length },
+    },
+  },
+});
+
 const MUTATION_OPERATION_HANDLERS = {
   ...awardEmojiMutationHandlers,
   createWorkItemNote: () => fixtures.createWorkItemNote,
@@ -261,15 +271,9 @@ const MUTATION_OPERATION_HANDLERS = {
     },
   }),
 
-  getWorkItemsCountOnlyEE: () => ({
-    data: {
-      namespace: {
-        id: 'gid://gitlab/Group/1',
-        name: 'group1',
-        workItems: { count: workItemsFullResponse.data.namespace.workItems.nodes.length },
-      },
-    },
-  }),
+  getWorkItemsCountOnly: getWorkItemsCountOnlyResponse,
+
+  getWorkItemsCountOnlyEE: getWorkItemsCountOnlyResponse,
 
   updateWorkItemListUserPreference: ({ variables }) => ({
     data: {

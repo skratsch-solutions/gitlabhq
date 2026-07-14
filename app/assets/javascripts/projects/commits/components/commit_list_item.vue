@@ -105,6 +105,7 @@ export default {
 
 <template>
   <li
+    :id="`commit-${commit.shortId}`"
     class="commit-list-item commit-card gl-border gl-overflow-hidden gl-rounded-lg @md/panel:gl-ml-7"
   >
     <div

@@ -857,7 +857,7 @@ export default {
           :total-files-count="numTotalFiles"
           :current-diff-file-id="currentDiffFileId"
           :linked-file-path="linkedFile ? linkedFile.file_path : null"
-          @clickFile="onFileTreeClick"
+          @click-file="onFileTreeClick"
           @toggleFolder="toggleTreeOpen"
         />
         <div class="gl-col-md-auto diff-files-holder gl-px-5">

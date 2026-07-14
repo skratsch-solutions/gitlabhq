@@ -64,12 +64,8 @@ RSpec.describe 'Commits', feature_category: :source_code_management do
           project.add_developer(user)
         end
 
-        describe 'Project commits' do
-          before do
-            # The new Vue UI resolves pipeline status differently (latest pipeline
-            # regardless of ref), so these ref-specific status tests need the old UI
-            stub_feature_flags(project_commits_refactor: false)
-          end
+        describe 'Project commits', :js do
+          let_it_be(:commit_short_id) { project.commit.short_id }
 
           let!(:pipeline_from_other_branch) do
             create(
@@ -86,8 +82,8 @@ RSpec.describe 'Commits', feature_category: :source_code_management do
               visit project_commits_path(project, :master)
             end
 
-            it 'shows correct build status from default branch' do
-              page.within("//li[@id='commit-#{pipeline.short_sha}']") do
+            it 'shows correct build status from default branch', :aggregate_failures do
+              page.within("#commit-#{commit_short_id}") do
                 expect(page).to have_css("[data-testid='ci-icon']")
                 expect(page).to have_css('[data-testid="status_success_borderless-icon"]')
               end
@@ -111,7 +107,7 @@ RSpec.describe 'Commits', feature_category: :source_code_management do
 
                 # Git prioritizes matching short SHAs to branches over commits
                 it 'does not show any build status' do
-                  page.within("//li[@id='commit-#{short_sha}']") do
+                  page.within("#commit-#{commit_short_id}") do
                     expect(page).not_to have_css("[data-testid='ci-icon']")
                   end
                 end
@@ -123,7 +119,7 @@ RSpec.describe 'Commits', feature_category: :source_code_management do
                 end
 
                 it 'does not show any build status' do
-                  page.within("//li[@id='commit-#{short_sha}']") do
+                  page.within("#commit-#{commit_short_id}") do
                     expect(page).not_to have_css("[data-testid='ci-icon']")
                   end
                 end
@@ -136,8 +132,8 @@ RSpec.describe 'Commits', feature_category: :source_code_management do
                   visit project_commits_path(project, sha)
                 end
 
-                it 'shows latest build status for the commit sha' do
-                  page.within("//li[@id='commit-#{short_sha}']") do
+                it 'shows latest build status for the commit sha', :aggregate_failures do
+                  page.within("#commit-#{commit_short_id}") do
                     expect(page).to have_css("[data-testid='ci-icon']")
                     expect(page).to have_css('[data-testid="status_failed_borderless-icon"]')
                   end
@@ -150,7 +146,7 @@ RSpec.describe 'Commits', feature_category: :source_code_management do
                 end
 
                 it 'does not show any build status' do
-                  page.within("//li[@id='commit-#{short_sha}']") do
+                  page.within("#commit-#{commit_short_id}") do
                     expect(page).not_to have_css("[data-testid='ci-icon']")
                   end
                 end

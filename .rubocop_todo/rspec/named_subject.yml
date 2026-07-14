@@ -631,7 +631,6 @@ RSpec/NamedSubject:
     - 'ee/spec/services/ci/compare_metrics_reports_service_spec.rb'
     - 'ee/spec/services/ci/create_pipeline_service/dast_configuration_spec.rb'
     - 'ee/spec/services/ci/delete_project_subscription_service_spec.rb'
-    - 'ee/spec/services/ci/external_pull_requests/process_github_event_service_spec.rb'
     - 'ee/spec/services/ci/minutes/refresh_cached_data_service_spec.rb'
     - 'ee/spec/services/ci/minutes/reset_usage_service_spec.rb'
     - 'ee/spec/services/ci/minutes/track_live_consumption_service_spec.rb'

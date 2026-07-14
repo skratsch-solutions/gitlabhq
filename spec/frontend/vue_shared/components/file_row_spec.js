@@ -102,7 +102,7 @@ describe('File row component', () => {
     expect(wrapper.emitted('clickTree')).toHaveLength(1);
   });
 
-  it('emits clickFile on blob click', () => {
+  it('emits click-file on blob click', () => {
     const fileName = 't3';
     const fileProp = {
       ...file(fileName),
@@ -115,7 +115,7 @@ describe('File row component', () => {
 
     findFileButton().trigger('click');
 
-    expect(wrapper.emitted('clickFile')).toHaveLength(1);
+    expect(wrapper.emitted('click-file')).toHaveLength(1);
   });
 
   it('emits clickRow event on blob click', () => {
@@ -368,7 +368,7 @@ describe('File row component', () => {
     expect(preventDefaultSpy).toHaveBeenCalled();
   });
 
-  it('emits clickRow and clickFile when clicking blob', () => {
+  it('emits clickRow and click-file when clicking blob', () => {
     createComponent({
       file: {
         ...file('test.rb'),
@@ -380,6 +380,6 @@ describe('File row component', () => {
     findFileButton().trigger('click');
 
     expect(wrapper.emitted('clickRow')).toHaveLength(1);
-    expect(wrapper.emitted('clickFile')).toHaveLength(1);
+    expect(wrapper.emitted('click-file')).toHaveLength(1);
   });
 });

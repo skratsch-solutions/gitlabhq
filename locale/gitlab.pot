@@ -85862,6 +85862,9 @@ msgstr ""
 msgid "VulnerabilityManagement|No longer detected %{timeago} as of commit %{commitShaLink}"
 msgstr ""
 
+msgid "VulnerabilityManagement|Other actions"
+msgstr ""
+
 msgid "VulnerabilityManagement|Read more about related issues"
 msgstr ""
 

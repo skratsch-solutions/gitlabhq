@@ -673,7 +673,7 @@ export default {
             @clickTree="onTreeClick(item)"
             @toggleTree.stop="toggleDirectory(item.path)"
             @clickSubmodule="handleClickSubmodule(item.webUrl)"
-            @clickFile="handleNavigate(item)"
+            @click-file="handleNavigate(item)"
             @clickRow="onFileClick"
             @showMore="handleShowMore(item.parentPath, $event)"
           />

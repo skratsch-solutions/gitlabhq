@@ -127,18 +127,18 @@ describe('Diffs tree list component', () => {
       ]);
     });
 
-    it('re-emits clickFile event', () => {
+    it('re-emits click-file event', () => {
       const row = wrapper.findComponent(FileRow);
       const item = row.props('file');
-      row.vm.$emit('clickFile', { stopPropagation: jest.fn() });
-      expect(wrapper.emitted('clickFile')).toMatchObject([[item]]);
+      row.vm.$emit('click-file', { stopPropagation: jest.fn() });
+      expect(wrapper.emitted('click-file')).toMatchObject([[item]]);
     });
 
-    it('re-emits clickSubmodule as clickFile event', () => {
+    it('re-emits clickSubmodule as click-file event', () => {
       const row = wrapper.findComponent(FileRow);
       const item = row.props('file');
       row.vm.$emit('clickSubmodule', { stopPropagation: jest.fn() });
-      expect(wrapper.emitted('clickFile')).toMatchObject([[item]]);
+      expect(wrapper.emitted('click-file')).toMatchObject([[item]]);
     });
 
     it('re-emits clickTree event as toggleFolder', () => {
@@ -404,8 +404,8 @@ describe('Diffs tree list component', () => {
       const loadedFile = getLoadingFile();
       createComponent({ loadedFiles: { [loadedFile.fileHash]: true } });
       const loadingItemIndex = getScroller().props('items').indexOf(findLoadingItem(loadedFile));
-      wrapper.findAllComponents(FileRow).at(loadingItemIndex).vm.$emit('clickFile', {});
-      expect(wrapper.emitted('clickFile')).toBe(undefined);
+      wrapper.findAllComponents(FileRow).at(loadingItemIndex).vm.$emit('click-file', {});
+      expect(wrapper.emitted('click-file')).toBe(undefined);
     });
   });
 });

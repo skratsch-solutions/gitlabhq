@@ -653,11 +653,11 @@ describe('diffs/components/app', () => {
         expect(wrapper.findComponent(DiffsFileTree).exists()).toBe(false);
       });
 
-      it('should handle clickFile events', () => {
+      it('should handle click-file events', () => {
         const file = { path: '111.js', fileHash: '111' };
         useFileBrowser().tree = [{ type: 'blob', fileHash: '111', path: '111.js' }];
         createComponent();
-        wrapper.findComponent(DiffsFileTree).vm.$emit('clickFile', file);
+        wrapper.findComponent(DiffsFileTree).vm.$emit('click-file', file);
         expect(store[types.SET_CURRENT_DIFF_FILE]).toHaveBeenLastCalledWith(file.fileHash);
         expect(store.goToFile).toHaveBeenCalledWith({ path: file.path });
       });

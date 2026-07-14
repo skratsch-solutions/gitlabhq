@@ -28,7 +28,7 @@ export default {
       default: null,
     },
   },
-  emits: ['clickFile'],
+  emits: ['click-file'],
   data() {
     return {
       openedOnce: false,
@@ -49,7 +49,7 @@ export default {
   },
   methods: {
     clickFile(file) {
-      this.$emit('clickFile', file);
+      this.$emit('click-file', file);
       this.close();
     },
     toggleFolder(path) {
@@ -81,7 +81,7 @@ export default {
           :total-files-count="totalFilesCount"
           :group-blobs-list-items="groupBlobsListItems"
           :linked-file-path="linkedFilePath"
-          @clickFile="clickFile"
+          @click-file="clickFile"
           @toggleFolder="toggleFolder"
         />
       </template>

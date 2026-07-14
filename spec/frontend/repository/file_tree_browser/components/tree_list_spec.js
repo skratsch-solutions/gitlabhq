@@ -1267,7 +1267,7 @@ describe('Tree List', () => {
   });
 
   it('navigates when clicking on file', () => {
-    findFileRows().at(1).vm.$emit('clickFile');
+    findFileRows().at(1).vm.$emit('click-file');
 
     expect(wrapper.vm.$router.push).toHaveBeenCalledWith(
       '/-/blob/main/dir_1/file.txt?ref_type=heads',
@@ -1277,19 +1277,19 @@ describe('Tree List', () => {
   it('calls resetFileTreeBrowserAllStates when clicking on file when peek is on', () => {
     store.fileTreeBrowserIsPeekOn = true;
 
-    findFileRows().at(1).vm.$emit('clickFile');
+    findFileRows().at(1).vm.$emit('click-file');
     expect(store.resetFileTreeBrowserAllStates).toHaveBeenCalled();
   });
 
   it('does not call resetFileTreeBrowserAllStates when clicking on directory even when peek is on', () => {
     store.fileTreeBrowserIsPeekOn = true;
 
-    findFileRows().at(0).vm.$emit('clickFile');
+    findFileRows().at(0).vm.$emit('click-file');
     expect(store.resetFileTreeBrowserAllStates).not.toHaveBeenCalled();
   });
 
   it('does not call resetFileTreeBrowserAllStates when clicking on file when peek is off', () => {
-    findFileRows().at(1).vm.$emit('clickFile');
+    findFileRows().at(1).vm.$emit('click-file');
     expect(store.resetFileTreeBrowserAllStates).not.toHaveBeenCalled();
   });
 

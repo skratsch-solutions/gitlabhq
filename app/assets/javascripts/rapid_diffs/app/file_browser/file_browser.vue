@@ -22,7 +22,7 @@ export default {
       default: null,
     },
   },
-  emits: ['clickFile'],
+  emits: ['click-file'],
   data() {
     return {
       currentFileHash: '',
@@ -39,7 +39,7 @@ export default {
   methods: {
     clickFile(file) {
       this.currentFileHash = file.fileHash;
-      this.$emit('clickFile', file);
+      this.$emit('click-file', file);
     },
     toggleFolder(path) {
       useFileBrowser().toggleTreeOpen(path);
@@ -57,7 +57,7 @@ export default {
     :group-blobs-list-items="groupBlobsListItems"
     :current-diff-file-id="currentFileHash"
     :linked-file-path="linkedFilePath"
-    @clickFile="clickFile"
+    @click-file="clickFile"
     @toggleFolder="toggleFolder"
   />
 </template>

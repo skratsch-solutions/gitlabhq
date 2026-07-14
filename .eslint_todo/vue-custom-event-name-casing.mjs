@@ -86,8 +86,6 @@ export default {
     'app/assets/javascripts/rapid_diffs/app/discussions/note_form.vue',
     'app/assets/javascripts/rapid_diffs/app/discussions/noteable_discussion.vue',
     'app/assets/javascripts/rapid_diffs/app/discussions/noteable_note.vue',
-    'app/assets/javascripts/rapid_diffs/app/file_browser/file_browser.vue',
-    'app/assets/javascripts/rapid_diffs/app/file_browser/file_browser_drawer.vue',
     'app/assets/javascripts/related_issues/components/related_issues_block.vue',
     'app/assets/javascripts/repository/components/blob_content_viewer.vue',
     'app/assets/javascripts/repository/components/header_area/blob_button_group.vue',
