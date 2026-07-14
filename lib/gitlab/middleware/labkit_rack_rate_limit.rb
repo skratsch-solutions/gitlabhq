@@ -64,17 +64,20 @@ module Gitlab
         request = build_request(env)
         context = with_isolated_throttle_instrumentation { request.labkit_facts }
         results = limiters.all.values.map { |limiter| limiter.check(context) }
-        { results: results, response: enforced_response(results) }
+        { facts: context, results: results, response: enforced_response(results) }
       end
 
       # Outbound: compare labkit's block decision against Rack::Attack's for the same
       # request. The comparison is on the decision, not per-throttle counts: labkit
       # blocked iff one of its rules blocked, Rack::Attack blocked iff one of the
-      # throttles it annotated onto the env exceeded its limit.
+      # throttles it annotated onto the env exceeded its limit. The full result set
+      # and the request facts ride along for the sampled divergence log.
       def record(env, decision)
         divergence.record(
           labkit_result: blocking_result(decision[:results]),
-          rackattack_throttle_data: env['rack.attack.throttle_data'] || {}
+          rackattack_throttle_data: env['rack.attack.throttle_data'] || {},
+          labkit_results: decision[:results],
+          facts: decision[:facts]
         )
       end
 

@@ -1,0 +1,16 @@
+- require_sha_setting_locked = cascading_namespace_setting_locked?(:require_sha_for_merge, @group)
+
+.form-group
+  = form.gitlab_ui_checkbox_component :require_sha_for_merge,
+    help_text: _('When configured, a valid commit SHA must be provided when calling the merge request merge API.'),
+    checkbox_options: { disabled: require_sha_setting_locked } do |c|
+    - c.with_label do
+      = _('Require commit SHA on merge API')
+      - if require_sha_setting_locked
+        = sprite_icon('lock', css_class: 'gl-align-middle gl-ml-1')
+  - unless require_sha_setting_locked
+    .gl-pl-6
+      = form.gitlab_ui_checkbox_component :lock_require_sha_for_merge do |c|
+        - c.with_label do
+          = sprite_icon('lock', css_class: 'gl-align-middle gl-mr-1')
+          = s_('CascadingSettings|Enforce for all subgroups')

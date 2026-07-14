@@ -42,6 +42,8 @@ constraints(Namespaces::GroupUrlConstraint.new) do
     resources :saved_views, only: [:show], path: 'work_items/views'
 
     namespace :settings do
+      resource :merge_requests, only: [:update]
+
       resource :ci_cd, only: [:show, :update], controller: 'ci_cd' do
         put :reset_registration_token
         patch :update_auto_devops

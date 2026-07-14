@@ -12,7 +12,7 @@ module API
     rescue_from ::Gitlab::Ci::Lint::RateLimitError do
       too_many_requests!(
         { error: _('This endpoint has been requested too many times. Try again later.') },
-        retry_after: ::Gitlab::ApplicationRateLimiter.interval(:ci_lint)
+        retry_after: ::Gitlab::ApplicationRateLimiter.period_for(:ci_lint)
       )
     end
 

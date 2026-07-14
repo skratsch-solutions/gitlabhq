@@ -125,6 +125,9 @@ module Groups
         params.delete(:math_rendering_limits_enabled)
         params.delete(:lock_math_rendering_limits_enabled)
         params.delete(:allow_runner_registration_token)
+      end
+
+      unless can?(current_user, :manage_merge_request_settings, group)
         params.delete(:require_sha_for_merge)
         params.delete(:lock_require_sha_for_merge)
       end

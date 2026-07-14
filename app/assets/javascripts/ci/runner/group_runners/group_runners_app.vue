@@ -264,7 +264,7 @@ export default {
         :checkable="true"
         :loading="runnersLoading"
         @deleted="onDeleted"
-        @toggledPaused="onToggledPaused"
+        @toggled-paused="onToggledPaused"
       >
         <template #runner-name="{ runner }">
           <gl-link :href="webUrl(runner)">
@@ -275,7 +275,7 @@ export default {
           <runner-actions-cell
             :runner="runner"
             :edit-url="editUrl(runner)"
-            @toggledPaused="onToggledPaused"
+            @toggled-paused="onToggledPaused"
             @deleted="onDeleted"
           />
         </template>

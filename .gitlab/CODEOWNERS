@@ -213,6 +213,7 @@ yarn.lock @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/frontend-haml.md @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/frontend-a11y.md @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/testing-rspec.md @gitlab-org/maintainers/rails-backend
+/.ai/principles/distilled/authentication-testing.md @gitlab-org/software-supply-chain-security/authentication/approvers @gitlab-com/gl-security/appsec
 /.ai/principles/distilled/testing-jest.md @gitlab-org/maintainers/frontend
 /.ai/principles/distilled/testing-migrations.md @gitlab-org/maintainers/database
 /.ai/principles/distilled/testing-frontend-testing-hierarchy.md @gitlab-org/maintainers/frontend @gitlab-org/plan-stage/frontend-engineers

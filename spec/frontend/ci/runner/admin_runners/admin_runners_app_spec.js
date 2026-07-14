@@ -507,7 +507,7 @@ describe('AdminRunnersApp', () => {
     it('When runner is paused or unpaused, some data is refetched', () => {
       expect(mockRunnersCountHandler).toHaveBeenCalledTimes(COUNT_QUERIES);
 
-      findRunnerActionsCell().vm.$emit('toggledPaused');
+      findRunnerActionsCell().vm.$emit('toggled-paused');
 
       expect(mockRunnersCountHandler).toHaveBeenCalledTimes(COUNT_QUERIES * 2);
       expect(showToast).toHaveBeenCalledTimes(0);
@@ -614,7 +614,7 @@ describe('AdminRunnersApp', () => {
       it('toast is shown', () => {
         expect(showToast).toHaveBeenCalledTimes(0);
 
-        findRunnerList().vm.$emit('toggledPaused', { message: 'runners paused' });
+        findRunnerList().vm.$emit('toggled-paused', { message: 'runners paused' });
 
         expect(showToast).toHaveBeenCalledTimes(1);
         expect(showToast).toHaveBeenCalledWith('runners paused');

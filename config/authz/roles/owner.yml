@@ -23,6 +23,7 @@ project:
   - create_container_registry_protection_immutable_tag_rule
   - create_group_link
   - create_observability_access_request
+  - create_security_policy
   - delete_group_link
   - destroy_issue
   - destroy_merge_request
@@ -33,7 +34,6 @@ project:
   - manage_owners
   - mark_issue_for_publication
   - modify_security_policy
-  - read_agent_artifacts
   - read_ai_tool_rule
   - read_compliance_adherence_report
   - read_compliance_dashboard
@@ -103,6 +103,7 @@ group:
   - create_placeholder_reassignment
   - create_runners
   - create_secrets_manager_enrollment
+  - create_security_policy
   - create_service_account
   - delete_approval_rule
   - delete_enterprise_user

@@ -213,7 +213,7 @@ describe('RunnerBulkActions', () => {
         });
 
         it(`emits ${test} confirmation`, () => {
-          expect(wrapper.emitted('toggledPaused')).toEqual([[{ message }]]);
+          expect(wrapper.emitted('toggled-paused')).toEqual([[{ message }]]);
         });
       });
 
@@ -247,7 +247,7 @@ describe('RunnerBulkActions', () => {
         });
 
         it(`does not emit ${test} confirmation`, () => {
-          expect(wrapper.emitted('toggledPaused')).toBeUndefined();
+          expect(wrapper.emitted('toggled-paused')).toBeUndefined();
         });
       });
 

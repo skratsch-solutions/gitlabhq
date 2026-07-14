@@ -52,7 +52,7 @@ export default {
       default: 0,
     },
   },
-  emits: ['setFilters'],
+  emits: ['set-filters'],
   data() {
     return {
       activeBoardItem: undefined,
@@ -272,7 +272,7 @@ export default {
         :update-filters="true"
         :index="index"
         :show-work-item-type-icon="showWorkItemTypeIcon"
-        @setFilters="$emit('setFilters', $event)"
+        @set-filters="$emit('set-filters', $event)"
         @view-all-sessions="openWorkItemPanel"
       >
         <slot></slot>

@@ -73,7 +73,7 @@ export default {
       default: false,
     },
   },
-  emits: ['setFilters', 'view-all-sessions'],
+  emits: ['set-filters', 'view-all-sessions'],
   data() {
     return {
       limitBeforeCounter: 2,
@@ -247,7 +247,7 @@ export default {
 
         const rawFilterParams = queryToObject(window.location.search, { gatherArrays: true });
         const filters = convertObjectPropsToCamelCase(rawFilterParams, {});
-        this.$emit('setFilters', filters);
+        this.$emit('set-filters', filters);
       }
     },
     showScopedLabel(label) {

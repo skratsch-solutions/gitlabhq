@@ -76,7 +76,7 @@ export const presentersByFieldKey = {
   status: {
     Pipeline: CiStatusPresenter,
     CiJob: CiStatusPresenter,
-    FinishedPipelinesAggregationResponseDimensions: CiStatusPresenter,
+    PipelinesAggregationResponseDimensions: CiStatusPresenter,
   },
   description: HtmlPresenter,
   descriptionHtml: HtmlPresenter,

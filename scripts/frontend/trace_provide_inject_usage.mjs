@@ -543,27 +543,19 @@ async function traceFile(providerRel) {
   const groups = new Map(VERDICT_ORDER.map((verdict) => [verdict, []]));
   classified.forEach((entry) => groups.get(entry.verdict).push(entry));
 
-  // Pad keys within a section so the trailing notes line up into a column.
-  const padKeys = (entries) => Math.max(0, ...entries.map(({ key }) => key.length));
-
   for (const verdict of VERDICT_ORDER) {
     const entries = groups.get(verdict);
     if (entries.length === 0) continue;
     console.log(`\n  ${SECTION_LABEL[verdict]} (${entries.length})`);
-    const width = padKeys(entries);
 
     for (const { key, injectors, reachableInjectors } of entries) {
-      const padded = key.padEnd(width);
       if (verdict === VERDICT.REMOVABLE) {
         console.log(`    ${key}`);
-      } else if (verdict === VERDICT.LIKELY_REMOVABLE || verdict === VERDICT.INCONCLUSIVE) {
-        const more = injectors.length > 1 ? ` +${injectors.length - 1}` : '';
-        console.log(`    ${padded}  ← ${shortPath(injectors[0])}${more}`);
-      } else {
-        const more =
-          reachableInjectors.length > 1 ? ` +${reachableInjectors.length - 1} reachable` : '';
-        console.log(`    ${padded}  ← ${shortPath(reachableInjectors[0])}${more}`);
+        continue;
       }
+      const list = verdict === VERDICT.IN_USE ? reachableInjectors : injectors;
+      console.log(`    ${key}`);
+      list.forEach((m) => console.log(`      ← ${shortPath(m)}`));
     }
   }
 

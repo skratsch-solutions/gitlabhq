@@ -98,9 +98,9 @@ describe('BoardTopBar', () => {
       expect(wrapper.findComponent(ToggleFocus).exists()).toBe(true);
     });
 
-    it('emits setFilters when setFilters is emitted by filtered search', () => {
-      wrapper.findComponent(IssueBoardFilteredSearch).vm.$emit('setFilters');
-      expect(wrapper.emitted('setFilters')).toHaveLength(1);
+    it('emits set-filters when set-filters is emitted by filtered search', () => {
+      wrapper.findComponent(IssueBoardFilteredSearch).vm.$emit('set-filters');
+      expect(wrapper.emitted('set-filters')).toHaveLength(1);
     });
 
     it('emits updateBoard when updateBoard is emitted by boards selector', () => {

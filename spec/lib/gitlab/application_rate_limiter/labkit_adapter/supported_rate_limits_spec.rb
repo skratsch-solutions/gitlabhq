@@ -3,74 +3,209 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits,
-  feature_category: :system_access do
+  :clean_gitlab_redis_rate_limiting, feature_category: :system_access do
+  let(:cost_mode_keys) do
+    %i[
+      main_db_duration_limit_per_worker
+      ci_db_duration_limit_per_worker
+      sec_db_duration_limit_per_worker
+    ]
+  end
+
+  let(:threshold_from_caller_keys) do
+    %i[
+      web_hook_calls
+      web_hook_calls_low
+      web_hook_calls_mid
+    ]
+  end
+
+  let(:call_site_less_keys) do
+    %i[
+      code_suggestions_x_ray_dependencies
+      code_suggestions_x_ray_scan
+    ]
+  end
+
   describe 'registry coverage' do
-    # The labkit adapter is the only rate-limiting path; there is no legacy
-    # fallback. A rate_limits key with no registry entry would not have a Labkit
-    # rule to route through. This guard fails
-    # loudly when a new key is added to ApplicationRateLimiter.rate_limits
-    # without a matching SupportedRateLimits entry.
-    it 'registers every ApplicationRateLimiter.rate_limits key' do
-      rate_limit_keys = ::Gitlab::ApplicationRateLimiter.rate_limits.keys.to_set
-      registered = described_class.all.keys.to_set
+    it 'builds limiters for every registered rule' do
+      expect(described_class.all.keys).to match_array(described_class.rules.keys)
+    end
 
-      unregistered = rate_limit_keys - registered
+    it 'registers valid labkit rate-limit entries', :aggregate_failures do
+      expect(described_class.all).not_to be_empty
 
-      expect(unregistered).to be_empty,
-        "These ApplicationRateLimiter.rate_limits keys have no Labkit::RateLimit registry " \
-          "entry, so they would not be rate limited: #{unregistered.to_a.sort.join(', ')}. " \
-          "Add an entry in SupportedRateLimits (or its EE counterpart)."
+      described_class.all.to_a.each do |key, limiter|
+        rule = described_class.rule_for(key)
+
+        expect(limiter).to be_a(::Labkit::RateLimit::Limiter), "#{key} limiter must be a Labkit limiter"
+        expect(rule).to be_a(::Labkit::RateLimit::Rule), "#{key} rule must be a Labkit rule"
+        expect(rule.name).not_to be_empty, "#{key} rule name must not be empty"
+        expect(rule.characteristics).to be_an(Array), "#{key} characteristics must be an Array"
+        expect(rule.characteristics).not_to be_empty, "#{key} characteristics must not be empty"
+        expect(rule.characteristics).to all(be_a(Symbol)), "#{key} characteristics must be Symbols"
+        expect(rule.action).to eq(:block), "#{key} action must be :block"
+      end
+    end
+
+    it 'requires limit and period unless the entry documents why they are caller-supplied', :aggregate_failures do
+      described_class.rules.to_a.each do |key, rule|
+        if cost_mode_keys.include?(key)
+          expect(described_class.cost_mode?(key)).to be(true), "#{key} must be marked as cost_mode"
+          next
+        end
+
+        if threshold_from_caller_keys.include?(key)
+          expect(rule.limit).to respond_to(:call), "#{key} must define a caller-aware limit"
+          expect(rule.period).to be_present, "#{key} must define a period"
+          expect(described_class.cost_mode?(key)).to be(false),
+            "#{key} must not be both threshold-from-caller and cost_mode"
+          next
+        end
+
+        next if call_site_less_keys.include?(key)
+
+        expect(rule.limit).to be_present,
+          "#{key} must define a limit unless it is an explicit special case"
+        expect(rule.period).to be_present,
+          "#{key} must define a period unless it is an explicit special case"
+      end
     end
   end
 
-  describe 'limit/period parity with the legacy rate_limits hash' do
-    # The registry now carries each key's limit/period, and the
-    # rate_limiter_resolve_limits_from_registry flag selects whether
-    # ApplicationRateLimiter.threshold/interval (and therefore the labkit
-    # adapter) resolve from this registry (flag on) or from the legacy
-    # ApplicationRateLimiter.rate_limits hash (flag off). For the flag to be a
-    # safe, value-preserving switch, both sources must resolve to identical
-    # values for every key. The registry-coverage guard only checks key
-    # presence, not values, so this is the spec that catches a mistranscribed
-    # limit or period.
-    #
-    # Iterates the live rate_limits map: under EE it also covers the EE
-    # overrides and additions, without naming any EE-only key here (so the
-    # spec stays correct under FOSS_ONLY).
-    it 'resolves identical threshold and interval whether the flag is on or off', :aggregate_failures do
-      arl = ::Gitlab::ApplicationRateLimiter
+  describe '.limiter_for' do
+    it 'returns a labkit limiter for a registered key' do
+      expect(described_class.limiter_for(:pipelines_create)).to be_a(::Labkit::RateLimit::Limiter)
+    end
 
-      # Make every application setting return a value derived from its own name.
-      # A registry callable that reads a *different* setting than its rate_limits
-      # counterpart (e.g. a sibling like users_api_limit_gpg_key vs _gpg_keys that
-      # shares a default) then resolves to a different number, so the eq assertions
-      # below catch the mistranscription. Static-integer entries are unaffected:
-      # both sides return the literal and never touch settings.
-      fake_settings = Class.new do
-        def method_missing(name, *)
-          name.to_s.hash.abs
-        end
+    it 'caches the limiter for a registered key' do
+      limiter = described_class.limiter_for(:pipelines_create)
 
-        def respond_to_missing?(*)
-          true
-        end
-      end.new
-      allow(::Gitlab::CurrentSettings).to receive(:current_application_settings).and_return(fake_settings)
+      expect(described_class.limiter_for(:pipelines_create)).to be(limiter)
+    end
 
-      arl.rate_limits.each_key do |key|
-        stub_feature_flags(rate_limiter_resolve_limits_from_registry: false)
-        legacy_threshold = arl.threshold(key)
-        legacy_interval = arl.interval(key)
+    it 'raises KeyError for an unregistered key' do
+      expect { described_class.limiter_for(:not_a_registered_key) }.to raise_error(KeyError)
+    end
 
-        stub_feature_flags(rate_limiter_resolve_limits_from_registry: true)
-        registry_threshold = arl.threshold(key)
-        registry_interval = arl.interval(key)
+    it 'builds a limiter that can check using the registered rule' do
+      user = build_stubbed(:user)
+      limiter = described_class.limiter_for(:users_get_by_id)
 
-        expect(registry_threshold).to eq(legacy_threshold),
-          "threshold mismatch for #{key}: registry=#{registry_threshold} legacy=#{legacy_threshold}"
-        expect(registry_interval).to eq(legacy_interval),
-          "interval mismatch for #{key}: registry=#{registry_interval} legacy=#{legacy_interval}"
-      end
+      allow(Gitlab::CurrentSettings.current_application_settings)
+        .to receive(:users_get_by_id_limit).and_return(1)
+
+      expect(limiter.check({ user: user.id }).exceeded?).to be(false)
+      expect(limiter.check({ user: user.id }).exceeded?).to be(true)
+    end
+  end
+
+  describe '.uncached_limiter_for' do
+    it 'returns a labkit limiter for a registered key' do
+      expect(described_class.uncached_limiter_for(:pipelines_create)).to be_a(::Labkit::RateLimit::Limiter)
+    end
+
+    it 'does not cache the limiter' do
+      limiter = described_class.uncached_limiter_for(:pipelines_create)
+
+      expect(described_class.uncached_limiter_for(:pipelines_create)).not_to be(limiter)
+    end
+
+    it 'raises KeyError for an unregistered key' do
+      expect { described_class.uncached_limiter_for(:not_a_registered_key) }.to raise_error(KeyError)
+    end
+  end
+
+  describe '.accepts_context?' do
+    it 'returns false for fixed values' do
+      expect(described_class.accepts_context?(1)).to be(false)
+    end
+
+    it 'returns false for zero-arity callables' do
+      expect(described_class.accepts_context?(-> { 1 })).to be(false)
+    end
+
+    it 'returns true for one-arity callables' do
+      expect(described_class.accepts_context?(->(_ctx) { 1 })).to be(true)
+    end
+
+    it 'returns false for variadic callables' do
+      expect(described_class.accepts_context?(->(*_ctx) { 1 })).to be(false)
+    end
+  end
+
+  describe '.limit_for' do
+    let(:rule) do
+      ::Labkit::RateLimit::Rule.new(
+        name: 'limit_configured_limit',
+        characteristics: %i[user],
+        limit: ->(ctx) { ctx&.dig(:threshold) || 3 },
+        period: ->(ctx) { ctx&.dig(:interval) || 1.minute },
+        action: :block
+      )
+    end
+
+    before do
+      allow(described_class).to receive(:rule_for).with(:configured_limit).and_return(rule)
+    end
+
+    it 'resolves registry callables' do
+      expect(described_class.limit_for(:configured_limit)).to eq(3)
+    end
+
+    it 'prefers caller context overrides' do
+      expect(described_class.limit_for(:configured_limit, context: { threshold: 5 })).to eq(5)
+    end
+
+    it 'preserves zero caller overrides' do
+      expect(described_class.limit_for(:configured_limit, context: { threshold: 0 })).to eq(0)
+    end
+  end
+
+  describe '.period_for' do
+    let(:configured_period_rule) do
+      ::Labkit::RateLimit::Rule.new(
+        name: 'limit_configured_period',
+        characteristics: %i[user],
+        limit: ->(ctx) { ctx&.dig(:threshold) || 1 },
+        period: ->(ctx) { ctx&.dig(:interval) || 2.minutes },
+        action: :block
+      )
+    end
+
+    let(:caller_period_rule) do
+      ::Labkit::RateLimit::Rule.new(
+        name: 'limit_caller_period',
+        characteristics: %i[user],
+        limit: ->(ctx) { ctx&.dig(:threshold) || 1 },
+        period: ->(ctx) { ctx&.dig(:interval) || 0 },
+        action: :block
+      )
+    end
+
+    before do
+      allow(described_class).to receive(:rule_for).with(:configured_period).and_return(configured_period_rule)
+      allow(described_class).to receive(:rule_for).with(:caller_period).and_return(caller_period_rule)
+    end
+
+    it 'resolves registry callables' do
+      expect(described_class.period_for(:configured_period)).to eq(2.minutes)
+    end
+
+    it 'prefers caller context overrides' do
+      expect(described_class.period_for(:configured_period, context: { interval: 5 })).to eq(5)
+    end
+
+    it 'preserves zero caller overrides' do
+      expect(described_class.period_for(:configured_period, context: { interval: 0 })).to eq(0)
+    end
+
+    it 'resolves caller-supplied periods for entries without a registry period' do
+      expect(described_class.period_for(:caller_period, context: { interval: 10 })).to eq(10)
+    end
+
+    it 'falls back to zero for entries without a registry period or caller override' do
+      expect(described_class.period_for(:caller_period)).to eq(0)
     end
   end
 end

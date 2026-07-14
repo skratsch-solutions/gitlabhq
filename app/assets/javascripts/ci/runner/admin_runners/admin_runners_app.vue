@@ -287,7 +287,7 @@ export default {
         :runners="runners.items"
         :loading="runnersLoading"
         :checkable="canAdminRunners"
-        @toggledPaused="onUpdated"
+        @toggled-paused="onUpdated"
         @deleted="onUpdated"
       >
         <template #runner-name="{ runner }">
@@ -299,7 +299,7 @@ export default {
           <runner-actions-cell
             :runner="runner"
             :edit-url="runner.editAdminUrl"
-            @toggledPaused="onUpdated"
+            @toggled-paused="onUpdated"
             @deleted="onUpdated"
           />
         </template>

@@ -62,6 +62,20 @@ module API
         format == 'jar'
       end
 
+      def maven_upload_authorize_params
+        use_final_store_path = ::Feature.enabled?(:skip_copy_operation_in_maven_packages_upload, user_project)
+
+        params = {
+          has_length: true,
+          maximum_size: user_project.actual_limits.maven_max_file_size,
+          use_final_store_path: use_final_store_path
+        }
+
+        params[:final_store_path_config] = { root_hash: user_project.id } if use_final_store_path
+
+        params
+      end
+
       def find_and_present_package_file(package, file_name, format, params)
         package_file = nil
 
@@ -253,7 +267,7 @@ module API
 
         status 200
         content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
-        ::Packages::PackageFileUploader.workhorse_authorize(has_length: true, maximum_size: user_project.actual_limits.maven_max_file_size)
+        ::Packages::PackageFileUploader.workhorse_authorize(**maven_upload_authorize_params)
       end
 
       desc 'Upload the maven package file' do

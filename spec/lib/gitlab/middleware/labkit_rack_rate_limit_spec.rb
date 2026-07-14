@@ -51,9 +51,11 @@ RSpec.describe Gitlab::Middleware::LabkitRackRateLimit, feature_category: :rate_
     it 'compares labkit\'s block decision against the Rack::Attack data on the way back up' do
       # The request did not block (the :allow result), so there is no blocking
       # result; Divergence still receives the call and decides whether it is worth a
-      # data point.
+      # data point. The full result set and the request facts ride along for the
+      # sampled divergence log.
       expect(divergence).to receive(:record)
-        .with(labkit_result: nil, rackattack_throttle_data: throttle_data)
+        .with(labkit_result: nil, rackattack_throttle_data: throttle_data,
+          labkit_results: [result], facts: hash_including(:ip, :requester_id, :path, :method))
 
       middleware.call(env)
     end

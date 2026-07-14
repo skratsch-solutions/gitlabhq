@@ -101,7 +101,7 @@ export default {
     'drag-start',
     'dragStop',
     'focus-adjacent',
-    'setFilters',
+    'set-filters',
     'toggleNewForm',
   ],
   data() {
@@ -916,7 +916,7 @@ export default {
         :column-index="columnIndex"
         :data-draggable-item-type="$options.draggableItemTypes.card"
         :show-work-item-type-icon="!isEpicBoard"
-        @setFilters="$emit('setFilters', $event)"
+        @set-filters="$emit('set-filters', $event)"
       >
         <board-card-move-to-position
           v-if="showMoveToPosition"
@@ -944,7 +944,7 @@ export default {
         :data-draggable-item-type="$options.draggableItemTypes.card"
         :show-work-item-type-icon="!isEpicBoard"
         :list-items-length="boardListItems.length"
-        @setFilters="$emit('setFilters', $event)"
+        @set-filters="$emit('set-filters', $event)"
       >
         <board-card-move-to-position
           v-if="showMoveToPosition"

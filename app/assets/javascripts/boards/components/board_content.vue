@@ -77,7 +77,7 @@ export default {
     'drawer-opened',
     'setActiveList',
     'setAddColumnFormVisibility',
-    'setFilters',
+    'set-filters',
   ],
   data() {
     return {
@@ -325,7 +325,7 @@ export default {
           @dragStop="handleDragStop"
           @highlight-list="highlightList"
           @setActiveList="$emit('setActiveList', $event)"
-          @setFilters="$emit('setFilters', $event)"
+          @set-filters="$emit('set-filters', $event)"
           @addNewListAfter="$emit('setAddColumnFormVisibility', $event)"
           @cannot-find-active-item="handleCannotFindActiveItem"
           @focus-adjacent="focusAdjacentList(list.id, $event)"
@@ -359,7 +359,7 @@ export default {
       :highlighted-lists="highlightedLists"
       @setActiveList="$emit('setActiveList', $event)"
       @move-list="updateListPosition"
-      @setFilters="$emit('setFilters', $event)"
+      @set-filters="$emit('set-filters', $event)"
     >
       <template #create-list-button>
         <div v-if="!addColumnFormVisible" class="gl-sticky gl-top-0 gl-inline-block gl-pl-3">

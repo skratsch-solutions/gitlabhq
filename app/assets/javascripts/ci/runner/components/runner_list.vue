@@ -79,7 +79,7 @@ export default {
       required: true,
     },
   },
-  emits: ['deleted', 'toggledPaused'],
+  emits: ['deleted', 'toggled-paused'],
   data() {
     return { checkedRunnerIds: [] };
   },
@@ -112,7 +112,7 @@ export default {
       return runner.userPermissions?.deleteRunner;
     },
     onToggledPaused(event) {
-      this.$emit('toggledPaused', event);
+      this.$emit('toggled-paused', event);
     },
     onDeleted(event) {
       this.$emit('deleted', event);
@@ -143,7 +143,7 @@ export default {
       v-if="checkable"
       :runners="runners"
       @deleted="onDeleted"
-      @toggledPaused="onToggledPaused"
+      @toggled-paused="onToggledPaused"
     />
     <gl-table-lite
       :aria-busy="loading"

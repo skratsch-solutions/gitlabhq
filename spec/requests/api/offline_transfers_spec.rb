@@ -249,7 +249,9 @@ RSpec.describe API::OfflineTransfers, feature_category: :importers do
         request
 
         expect(response).to have_gitlab_http_status(:too_many_requests)
-        expect(response.headers).to include('Retry-After' => Gitlab::ApplicationRateLimiter.interval(:offline_export))
+        expect(response.headers).to include(
+          'Retry-After' => Gitlab::ApplicationRateLimiter.period_for(:offline_export)
+        )
         expect(json_response['message']['error']).to eq(
           'This endpoint has been requested too many times. Try again later.'
         )
@@ -602,7 +604,9 @@ RSpec.describe API::OfflineTransfers, feature_category: :importers do
         request
 
         expect(response).to have_gitlab_http_status(:too_many_requests)
-        expect(response.headers).to include('Retry-After' => Gitlab::ApplicationRateLimiter.interval(:offline_import))
+        expect(response.headers).to include(
+          'Retry-After' => Gitlab::ApplicationRateLimiter.period_for(:offline_import)
+        )
         expect(json_response['message']['error']).to eq(
           'This endpoint has been requested too many times. Try again later.'
         )

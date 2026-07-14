@@ -291,7 +291,7 @@ module VerifiesWithEmail
   end
 
   def rate_limit_interval(rate_limit)
-    interval_in_seconds = Gitlab::ApplicationRateLimiter.rate_limits[rate_limit][:interval]
+    interval_in_seconds = Gitlab::ApplicationRateLimiter.period_for(rate_limit)
     distance_of_time_in_words(interval_in_seconds)
   end
 

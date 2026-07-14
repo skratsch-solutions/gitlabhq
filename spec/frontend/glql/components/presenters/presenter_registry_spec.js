@@ -140,10 +140,10 @@ describe('presenter_registry', () => {
         );
       });
 
-      it('resolves status on FinishedPipelinesAggregationResponseDimensions to CiStatusPresenter', () => {
+      it('resolves status on PipelinesAggregationResponseDimensions to CiStatusPresenter', () => {
         expect(
           presenterFor(
-            { __typename: 'FinishedPipelinesAggregationResponseDimensions', status: 'SUCCESS' },
+            { __typename: 'PipelinesAggregationResponseDimensions', status: 'SUCCESS' },
             'status',
           ),
         ).toBe(CiStatusPresenter);

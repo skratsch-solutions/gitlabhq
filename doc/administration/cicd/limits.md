@@ -406,6 +406,27 @@ To set the maximum number of included files per pipeline:
 1. Enter a value in the **Maximum includes** text box.
 1. Select **Save changes**.
 
+## Maximum size of the CI artifacts archive
+
+This setting restricts YAML sizes for [dynamic child pipelines](../../ci/pipelines/downstream_pipelines.md#dynamic-child-pipelines).
+
+The default maximum size of the CI artifacts archive is 5 megabytes.
+
+To change this limit in the Admin area:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
+1. Enter a value in the **Maximum artifact size for dynamic child pipelines (bytes)** text box.
+1. Select **Save changes**.
+
+To change this limit using the [GitLab Rails console](../operations/rails_console.md#starting-a-rails-console-session),
+update `max_artifacts_content_include_size` with the new value. For example, to set it to 20 MB:
+
+```ruby
+ApplicationSetting.update(max_artifacts_content_include_size: 20.megabytes)
+```
+
 ## Maximum number of caches per job
 
 {{< history >}}
@@ -656,20 +677,6 @@ Update `dast_profile_schedules` with the new value:
 
 ```ruby
 Plan.default.actual_limits.update!(dast_profile_schedules: 50)
-```
-
-### Maximum size of the CI artifacts archive
-
-This setting is used to restrict YAML sizes for [dynamic child pipelines](../../ci/pipelines/downstream_pipelines.md#dynamic-child-pipelines).
-
-The default maximum size of the CI artifacts archive is 5 megabytes.
-
-You can change this limit by using the [GitLab Rails console](../operations/rails_console.md#starting-a-rails-console-session).
-To update the maximum size of the CI artifacts archive,
-update `max_artifacts_content_include_size` with the new value. For example, to set it to 20 MB:
-
-```ruby
-ApplicationSetting.update(max_artifacts_content_include_size: 20.megabytes)
 ```
 
 ### Maximum size and depth of CI/CD configuration YAML files

@@ -21508,6 +21508,9 @@ msgstr ""
 msgid "Configure it later"
 msgstr ""
 
+msgid "Configure merge request settings."
+msgstr ""
+
 msgid "Configure pipelines to deploy web apps, backend services, APIs and static resources to Google Cloud"
 msgstr ""
 
@@ -38018,6 +38021,9 @@ msgstr ""
 msgid "GroupSettings|Configure merge request checks and automatic reviews by GitLab Duo for projects in this group. These settings cascade to subgroups and projects."
 msgstr ""
 
+msgid "GroupSettings|Configure merge request settings for projects in this group. These settings cascade to subgroups and projects."
+msgstr ""
+
 msgid "GroupSettings|Contact source"
 msgstr ""
 
@@ -45994,7 +46000,7 @@ msgstr ""
 msgid "Maximum allowed lifetime for SSH keys (days)"
 msgstr ""
 
-msgid "Maximum artifacts archive size (bytes)"
+msgid "Maximum artifact size for dynamic child pipelines (bytes)"
 msgstr ""
 
 msgid "Maximum artifacts size"
@@ -63517,6 +63523,9 @@ msgstr ""
 msgid "Require additional authentication for administrative tasks."
 msgstr ""
 
+msgid "Require commit SHA on merge API"
+msgstr ""
+
 msgid "Require email verification when account is locked."
 msgstr ""
 
@@ -77976,9 +77985,6 @@ msgstr ""
 msgid "The maximum file size allowed is %{size}."
 msgstr ""
 
-msgid "The maximum file size for job artifacts archive."
-msgstr ""
-
 msgid "The maximum file size for job artifacts."
 msgstr ""
 
@@ -78001,6 +78007,9 @@ msgid "The maximum number of tags that a single worker accepts for cleanup. If t
 msgstr ""
 
 msgid "The maximum number of vulnerability management policies allowed per security policy configuration can exceed the limit for the instance. Set to 0 to use instance limit."
+msgstr ""
+
+msgid "The maximum size of an artifact used as a CI/CD configuration file in dynamic child pipelines."
 msgstr ""
 
 msgid "The merge checks are incomplete because the latest pipeline failed, the pipeline status cannot be verified, or the merge request target branch was changed. You should run a new pipeline before merging."
@@ -87159,6 +87168,9 @@ msgid "When a deployment job is successful, prevent older deployment jobs that a
 msgstr ""
 
 msgid "When all the merge checks for this merge request pass, it will %{linkStart}automatically merge%{linkEnd}."
+msgstr ""
+
+msgid "When configured, a valid commit SHA must be provided when calling the merge request merge API."
 msgstr ""
 
 msgid "When enabled, SSH keys with no expiry date or an invalid expiration date are no longer accepted. Leave blank for no limit."

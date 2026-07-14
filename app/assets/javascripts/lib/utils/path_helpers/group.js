@@ -423,6 +423,29 @@ export const groupSavedViewPath = /*#__PURE__*/ (...args) => {
 /**
  * Generates the Rails route:
  *
+ * - href: `/groups/*group_id/-/settings/merge_requests(.:format)`
+ * - Path helper: `group_settings_merge_requests_path`
+ * - URL helper: `group_settings_merge_requests_url`
+ * - controller#action: `groups/settings/merge_requests#update`
+ *
+ * @param {any} groupId
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const groupSettingsMergeRequestsPath = /*#__PURE__*/ (...args) => {
+  const _organizationGroupSettingsMergeRequestsPath = /*#__PURE__*/ __jsr.r({"organization_path":{"r":true},"group_id":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"o"],[2,[7,"/"],[2,[3,"organization_path"],[2,[7,"/"],[2,[6,"groups"],[2,[7,"/"],[2,[5,[3,"group_id"]],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"settings"],[2,[7,"/"],[2,[6,"merge_requests"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]]]]]);
+  const _groupSettingsMergeRequestsPath = /*#__PURE__*/ __jsr.r({"group_id":{"r":true},"format":{}}, [2,[7,"/"],[2,[6,"groups"],[2,[7,"/"],[2,[5,[3,"group_id"]],[2,[7,"/"],[2,[6,"-"],[2,[7,"/"],[2,[6,"settings"],[2,[7,"/"],[2,[6,"merge_requests"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]);
+
+  if (hasOrganizationScopedPaths()) {
+    return _organizationGroupSettingsMergeRequestsPath(gon.current_organization.path, ...args);
+  }
+
+  return _groupSettingsMergeRequestsPath(...args);
+};
+
+/**
+ * Generates the Rails route:
+ *
  * - href: `/groups/*group_id/-/settings/ci_cd/reset_registration_token(.:format)`
  * - Path helper: `reset_registration_token_group_settings_ci_cd_path`
  * - URL helper: `reset_registration_token_group_settings_ci_cd_url`

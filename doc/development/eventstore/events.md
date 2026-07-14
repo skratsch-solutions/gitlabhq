@@ -110,9 +110,12 @@ To find subscribers, search the subscription files under
 | Event | Feature category | Edition | Description |
 |-------|-----------------|---------|-------------|
 | `MergeRequests::ApprovalsResetEvent` | `code_review_workflow` | EE | Published when existing approvals on a merge request are reset, typically because new commits were pushed or other state changes invalidated prior approvals. |
+| `MergeRequests::ApprovedCloudEvent` | `code_suggestions` | CE | Published when a merge request receives all required approvals. CloudEvent counterpart of the legacy ApprovedEvent, using the CloudEvents v1.0 envelope with a richer payload that includes merge_request IID, project ID, and organization context. |
 | `MergeRequests::ApprovedEvent` | `code_review_workflow` | CE | Published when a user approves a merge request. Fires only when the approving user is eligible (not the author, satisfies any approval rules), the MR is not already merged, and the approval record is persisted. |
+| `MergeRequests::AssignedReviewersEvent` | `code_review_workflow` | CE | Published when new reviewers are assigned to a merge request. Carries the list of newly assigned reviewers with their IDs and user types. |
 | `MergeRequests::AutoMerge::TitleDescriptionUpdateEvent` | `code_review_workflow` | CE | Published when an MR title or description changes while auto-merge is enabled and the project has merge_request_title_regex configured. Does not fire for description-only changes unless EE Jira-key detection also triggers. |
 | `MergeRequests::ClosedEvent` | `code_review_workflow` | EE | Published when a merge request is closed, so EE subscribers (such as security policy workers) can react to the state change. |
+| `MergeRequests::CodeConflictEvent` | `code_review_workflow` | CE | Published when a merge request cannot be merged due to a code conflict. Only fires when the conflict notification condition is met. |
 | `MergeRequests::CreatedEvent` | `code_review_workflow` | EE | Published when a new merge request is created and prepared, so EE subscribers can react to the new merge request. |
 | `MergeRequests::DiscussionsResolvedEvent` | `code_review_workflow` | CE | Published when resolving a discussion brings an auto-merge-enabled MR to a fully resolved state (mergeable_discussions_state? becomes true). Does not fire on every resolution — only when the resolution unblocks auto-merge. |
 | `MergeRequests::DraftNotePublishedEvent` | `code_review_workflow` | CE | Published when a draft note (pending review comment) is published on a merge request. |
@@ -123,6 +126,7 @@ To find subscribers, search the subscription files under
 | `MergeRequests::MergedEvent` | `code_review_workflow` | EE | Published when a merge request has been merged and post-merge processing runs, allowing EE subscribers (such as compliance, security policy, and audit workers) to react. |
 | `MergeRequests::OverrideRequestedChangesStateEvent` | `code_review_workflow` | CE | Published when a reviewer's "requested changes" status is overridden on a merge request. |
 | `MergeRequests::PipelineCreationCompletedEvent` | `code_review_workflow` | CE | Published when an asynchronous MR-scoped pipeline creation attempt finishes. `pipeline_id` is set if a `Ci::Pipeline` row was persisted, nil if creation produced no pipeline (workflow:rules dropped, missing CI config, etc.). Used to re-trigger auto-merge when no `Ci::Pipeline.after_transition` will fire. |
+| `MergeRequests::ReadyEvent` | `code_suggestions` | CE | Published when a merge request transitions from draft to ready status, indicating it is no longer a work in progress. |
 | `MergeRequests::ReopenedEvent` | `code_review_workflow` | EE | Published when a closed merge request is reopened, so EE subscribers can react to the state change. |
 | `MergeRequests::UnblockedStateEvent` | `code_review_workflow` | CE | Published when the set of blocking merge requests changes (for example, a blocking MR is merged, unlinked, or added). Requires the :blocking_merge_requests feature on the target project, and only fires when the set actually differs from the previous state. |
 | `MergeRequests::UpdatedEvent` | `code_review_workflow` | EE | Published when a merge request is updated, so EE subscribers can react to changes on the merge request. |
@@ -267,6 +271,8 @@ To find subscribers, search the subscription files under
 | Event | Feature category | Edition | Description |
 |-------|-----------------|---------|-------------|
 | `WorkItems::BulkUpdatedEvent` | `team_planning` | CE | Published after a batch of work items is updated in bulk (for example, milestone cleared on milestone destroy, parent link changes). Each event batch covers up to EVENTS_BATCH_SIZE work items; published via publish_group. |
+| `WorkItems::CreatedEvent` | `code_suggestions` | CE | CloudEvent counterpart of WorkItemCreatedEvent, published after a work item is created. Unlike the legacy event, which fires unconditionally, this event is skipped for imports, external authors, non-human users, and work items without a project. Uses the CloudEvents v1.0 envelope and carries a richer payload including work item type and confidentiality. |
+| `WorkItems::StatusChangedEvent` | `team_planning` | EE | Published when a work item status is updated. |
 | `WorkItems::WorkItemClosedEvent` | `team_planning` | EE | Published when a work item (issue or epic work item) is closed. |
 | `WorkItems::WorkItemCreatedEvent` | `team_planning` | CE | Published after a new work item (issue, task, etc.) is created. |
 | `WorkItems::WorkItemDeletedEvent` | `team_planning` | CE | Published after a work item is permanently deleted. |

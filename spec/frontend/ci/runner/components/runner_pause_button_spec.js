@@ -150,11 +150,11 @@ describe('RunnerPauseButton', () => {
     expect(mockOnClick).toHaveBeenCalled();
   });
 
-  it('Emits toggledPaused when done', () => {
+  it('Emits toggled-paused when done', () => {
     createComponent();
 
     findRunnerPauseAction().vm.$emit('done');
 
-    expect(wrapper.emitted('toggledPaused')).toHaveLength(1);
+    expect(wrapper.emitted('toggled-paused')).toHaveLength(1);
   });
 });

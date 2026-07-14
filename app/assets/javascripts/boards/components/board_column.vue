@@ -74,7 +74,7 @@ export default {
     'focus-adjacent',
     'highlight-list',
     'setActiveList',
-    'setFilters',
+    'set-filters',
   ],
   data() {
     return {
@@ -156,7 +156,7 @@ export default {
           @dragStop="$emit('dragStop')"
           @drag-start="$emit('drag-start', $event)"
           @toggleNewForm="toggleNewForm"
-          @setFilters="$emit('setFilters', $event)"
+          @set-filters="$emit('set-filters', $event)"
           @cannot-find-active-item="$emit('cannot-find-active-item')"
           @focus-adjacent="$emit('focus-adjacent', $event)"
         />

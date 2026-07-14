@@ -409,6 +409,31 @@ Example:
 Show me all comments on work item 42 in project gitlab-org/gitlab
 ```
 
+## `link_work_items`
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/230221) in GitLab 19.0.
+
+{{< /history >}}
+
+Links a work item to one or more other work items with a relationship type.
+
+| Parameter        | Type             | Required | Description |
+|------------------|------------------|----------|-------------|
+| `work_items_ids` | array of strings | Yes      | Global IDs of the work items to link to (in the format `gid://gitlab/WorkItem/<id>`). Maximum 10 items. |
+| `url`            | string           | No       | URL for the source work item. Required if `group_id` or `project_id` and `work_item_iid` are missing. |
+| `group_id`       | string           | No       | ID or path of the group. Required if `url` and `project_id` are missing. |
+| `project_id`     | string           | No       | ID or path of the project. Required if `url` and `group_id` are missing. |
+| `work_item_iid`  | integer          | No       | Internal ID of the source work item. Required if `url` is missing. |
+| `link_type`      | string           | No       | Type of relationship. One of `relates_to`, `blocks`, or `blocked_by`. Default is `relates_to`. The `blocks` and `blocked_by` types require GitLab Premium or Ultimate. |
+
+Example:
+
+```plaintext
+Mark work item 42 in project gitlab-org/gitlab as blocked by work item 40
+```
+
 ## `get_saved_view_work_items`
 
 {{< history >}}
