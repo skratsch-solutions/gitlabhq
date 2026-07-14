@@ -15,6 +15,24 @@ RSpec.describe ActiveContext::Concerns::Queue do
     end
   end
 
+  let(:delayed_queue_class) do
+    Class.new do
+      def self.name
+        'MockModule::DelayedQueue'
+      end
+
+      def self.number_of_shards
+        2
+      end
+
+      def self.processing_delay
+        5.minutes
+      end
+
+      include ActiveContext::Concerns::Queue
+    end
+  end
+
   let(:redis_double) { instance_double(Redis) }
 
   before do
@@ -45,6 +63,28 @@ RSpec.describe ActiveContext::Concerns::Queue do
       expect(redis_double).to receive(:zadd).with('mockmodule:{test_queue}:1:zset', [[1, 'ref2']])
 
       mock_queue_class.push(references)
+    end
+
+    context 'when the queue has a processing_delay' do
+      it 'pushes references with spread due-time scores and does not use the score counter' do
+        freeze_time do
+          references = %w[ref1 ref2 ref3]
+          base_score = (Time.current + 5.minutes).to_f
+
+          allow(ActiveContext::Hasher).to receive(:consistent_hash).and_return(0, 1, 0)
+          expect(redis_double).not_to receive(:incrby)
+          expect(redis_double).to receive(:zadd).with(
+            'mockmodule:{delayed_queue}:0:zset',
+            [[base_score, 'ref1'], [base_score + 0.001, 'ref3']]
+          )
+          expect(redis_double).to receive(:zadd).with(
+            'mockmodule:{delayed_queue}:1:zset',
+            [[base_score, 'ref2']]
+          )
+
+          delayed_queue_class.push(references)
+        end
+      end
     end
   end
 
@@ -103,6 +143,21 @@ RSpec.describe ActiveContext::Concerns::Queue do
       expect(mock_queue_class.queued_items).to eq({
         0 => [['ref1', 1.0], ['ref2', 2.0]]
       })
+    end
+
+    context 'when the queue has a processing_delay' do
+      it 'includes items that are not yet due' do
+        expect(redis_double).to receive(:zrangebyscore)
+          .with('mockmodule:{delayed_queue}:0:zset', '-inf', '+inf', limit: [0, anything], with_scores: true)
+          .and_return([['ref1', 1.0]])
+        expect(redis_double).to receive(:zrangebyscore)
+          .with('mockmodule:{delayed_queue}:1:zset', '-inf', '+inf', limit: [0, anything], with_scores: true)
+          .and_return([])
+
+        expect(delayed_queue_class.queued_items).to eq({
+          0 => [['ref1', 1.0]]
+        })
+      end
     end
   end
 
@@ -199,6 +254,44 @@ RSpec.describe ActiveContext::Concerns::Queue do
         )
       end
     end
+
+    context 'when the queue has a processing_delay' do
+      it 'bounds the fetched scores by the current time' do
+        freeze_time do
+          expect(redis_double).to receive(:zrangebyscore)
+            .with('mockmodule:{delayed_queue}:0:zset', '-inf', Time.current.to_f, limit: [0, 1000], with_scores: true)
+            .and_return([['ref1', 1.0]])
+          expect(redis_double).to receive(:zrangebyscore)
+            .with('mockmodule:{delayed_queue}:1:zset', '-inf', Time.current.to_f, limit: [0, 1000], with_scores: true)
+            .and_return([])
+
+          expect do |block|
+            delayed_queue_class.each_queued_items_by_shard(redis_double, &block)
+          end.to yield_successive_args(
+            [0, [['ref1', 1.0]]],
+            [1, []]
+          )
+        end
+      end
+
+      context 'when `include_delayed` is set to true' do
+        it 'fetches items regardless of their due time' do
+          expect(redis_double).to receive(:zrangebyscore)
+            .with('mockmodule:{delayed_queue}:0:zset', '-inf', '+inf', limit: [0, 1000], with_scores: true)
+            .and_return([['ref1', 1.0]])
+          expect(redis_double).to receive(:zrangebyscore)
+            .with('mockmodule:{delayed_queue}:1:zset', '-inf', '+inf', limit: [0, 1000], with_scores: true)
+            .and_return([])
+
+          expect do |block|
+            delayed_queue_class.each_queued_items_by_shard(redis_double, include_delayed: true, &block)
+          end.to yield_successive_args(
+            [0, [['ref1', 1.0]]],
+            [1, []]
+          )
+        end
+      end
+    end
   end
 
   describe '.remove_shard_items' do
@@ -290,6 +383,12 @@ RSpec.describe ActiveContext::Concerns::Queue do
   describe '.limit_throughput?' do
     it 'returns `false` by default' do
       expect(mock_queue_class.limit_throughput?).to be(false)
+    end
+  end
+
+  describe '.processing_delay' do
+    it 'returns `nil` by default' do
+      expect(mock_queue_class.processing_delay).to be_nil
     end
   end
 

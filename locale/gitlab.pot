@@ -57295,6 +57295,9 @@ msgstr ""
 msgid "Pipeline|Pipeline cannot be run."
 msgstr ""
 
+msgid "Pipeline|Pipeline could not be created due to CI/CD configuration problems. Validate the configuration on pipeline editor page for the full list of issues."
+msgstr ""
+
 msgid "Pipeline|Pipeline creation failed. Please try again."
 msgstr ""
 

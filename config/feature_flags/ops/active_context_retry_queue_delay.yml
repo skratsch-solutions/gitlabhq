@@ -1,0 +1,9 @@
+---
+name: active_context_retry_queue_delay
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/604055
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/244899
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/604055
+milestone: '19.3'
+type: ops
+group: group::ai core infra
+default_enabled: false

@@ -2509,7 +2509,7 @@ RSpec.describe API::Commits, feature_category: :source_code_management do
       context 'with an invalid form encoding' do
         context 'with a query limit error' do
           it 'returns bad request' do
-            expect(Rack::Utils).to receive(:parse_nested_query).twice.and_call_original
+            allow(Rack::Utils).to receive(:parse_nested_query).and_call_original
             expect(Rack::Utils).to receive(:parse_nested_query).with("").and_raise(Rack::QueryParser::QueryLimitError)
 
             workhorse_body_upload(url, {})
@@ -2521,7 +2521,7 @@ RSpec.describe API::Commits, feature_category: :source_code_management do
 
         context 'with a parameter type error' do
           it 'returns bad request' do
-            expect(Rack::Utils).to receive(:parse_nested_query).twice.and_call_original
+            allow(Rack::Utils).to receive(:parse_nested_query).and_call_original
             expect(Rack::Utils).to receive(:parse_nested_query).with("").and_raise(Rack::QueryParser::ParameterTypeError)
 
             workhorse_body_upload(url, {})
@@ -2533,7 +2533,7 @@ RSpec.describe API::Commits, feature_category: :source_code_management do
 
         context 'with a invalid parameter error' do
           it 'returns bad request' do
-            expect(Rack::Utils).to receive(:parse_nested_query).twice.and_call_original
+            allow(Rack::Utils).to receive(:parse_nested_query).and_call_original
             expect(Rack::Utils).to receive(:parse_nested_query).with("").and_raise(Rack::QueryParser::InvalidParameterError)
 
             workhorse_body_upload(url, {})

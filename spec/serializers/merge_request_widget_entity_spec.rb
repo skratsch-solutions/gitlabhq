@@ -39,7 +39,7 @@ RSpec.describe MergeRequestWidgetEntity, feature_category: :code_review_workflow
       end
 
       it 'includes the correct permission info' do
-        expect(subject[:can_create_pipeline_in_target_project]).to eq(true)
+        expect(subject[:can_create_pipeline_in_target_project]).to be(true)
       end
     end
 
@@ -49,7 +49,7 @@ RSpec.describe MergeRequestWidgetEntity, feature_category: :code_review_workflow
       end
 
       it 'includes the correct permission info' do
-        expect(subject[:can_create_pipeline_in_target_project]).to eq(false)
+        expect(subject[:can_create_pipeline_in_target_project]).to be(false)
       end
     end
   end

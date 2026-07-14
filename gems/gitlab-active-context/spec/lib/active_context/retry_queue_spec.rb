@@ -17,4 +17,20 @@ RSpec.describe ActiveContext::RetryQueue do
       expect(described_class.preprocess_options).to eq({ skip_missing_content: true })
     end
   end
+
+  describe '.processing_delay' do
+    it 'returns the delay so transient errors can clear before the single retry' do
+      expect(described_class.processing_delay).to eq(5.minutes)
+    end
+
+    context 'when the retry queue delay is disabled' do
+      before do
+        allow(ActiveContext::Config).to receive(:retry_queue_delay_enabled?).and_return(false)
+      end
+
+      it 'returns nil so the queue behaves as FIFO' do
+        expect(described_class.processing_delay).to be_nil
+      end
+    end
+  end
 end

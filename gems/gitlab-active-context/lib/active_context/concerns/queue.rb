@@ -25,6 +25,13 @@ module ActiveContext
           false
         end
 
+        # Queues are FIFO by default (scores are counter sequence numbers).
+        # Override to return a duration and the queue becomes time-based:
+        # scores are due timestamps, and items stay invisible to reads until due.
+        def processing_delay
+          nil
+        end
+
         def number_of_shards
           raise NotImplementedError
         end
@@ -35,16 +42,21 @@ module ActiveContext
 
         def push(references)
           refs_by_shard = references.group_by { |ref| ActiveContext::Hasher.consistent_hash(number_of_shards, ref) }
+          delay = processing_delay
 
           ActiveContext::Redis.with_redis do |redis|
             refs_by_shard.each do |shard_number, shard_items|
               set_key = redis_set_key(shard_number)
 
-              max = redis.incrby(redis_score_key(shard_number), shard_items.size)
-              min = (max - shard_items.size) + 1
+              if delay
+                push_with_delay(redis, set_key, shard_items, delay)
+              else
+                max = redis.incrby(redis_score_key(shard_number), shard_items.size)
+                min = (max - shard_items.size) + 1
 
-              (min..max).zip(shard_items).each_slice(SLICE_SIZE) do |group|
-                redis.zadd(set_key, group)
+                (min..max).zip(shard_items).each_slice(SLICE_SIZE) do |group|
+                  redis.zadd(set_key, group)
+                end
               end
             end
           end
@@ -63,19 +75,26 @@ module ActiveContext
         def queued_items
           {}.tap do |hash|
             ActiveContext::Redis.with_redis do |redis|
-              each_queued_items_by_shard(redis) do |shard_number, specs|
+              each_queued_items_by_shard(redis, include_delayed: true) do |shard_number, specs|
                 hash[shard_number] = specs unless specs.empty?
               end
             end
           end
         end
 
-        def each_queued_items_by_shard(redis, shards: queue_shards, include_orphaned: false, limit: shard_limit)
+        def each_queued_items_by_shard(
+          redis, shards: queue_shards, include_orphaned: false, limit: shard_limit, include_delayed: false)
           shards &= queue_shards unless include_orphaned
+
+          max_score = if processing_delay && !include_delayed
+                        Time.current.to_f
+                      else
+                        '+inf'
+                      end
 
           shards.each do |shard_number|
             set_key = redis_set_key(shard_number)
-            specs = redis.zrangebyscore(set_key, '-inf', '+inf', limit: [0, limit], with_scores: true)
+            specs = redis.zrangebyscore(set_key, '-inf', max_score, limit: [0, limit], with_scores: true)
 
             yield shard_number, specs
           end
@@ -137,6 +156,26 @@ module ActiveContext
 
         def preprocess_options
           {}
+        end
+
+        private
+
+        # The FIFO counter gives unique scores for free; timestamps don't.
+        # That matters because processed batches are removed by score range:
+        # an unfetched item sharing the last fetched score would be deleted
+        # unprocessed. Scores are Unix epoch seconds, so adding 0.001 per item
+        # spaces them one millisecond apart and keeps one push's scores unique.
+        # Collisions across pushes are rare enough to accept.
+        def push_with_delay(redis, set_key, shard_items, delay)
+          base_score = (Time.current + delay).to_f
+
+          scored_items = shard_items.each_with_index.map do |item, index|
+            [base_score + (index * 0.001), item]
+          end
+
+          scored_items.each_slice(SLICE_SIZE) do |group|
+            redis.zadd(set_key, group)
+          end
         end
       end
     end
