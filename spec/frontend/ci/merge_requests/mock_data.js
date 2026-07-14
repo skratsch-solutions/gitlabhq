@@ -352,22 +352,6 @@ export const generatePipelineCreationRequest = ({
   __typename: 'CiPipelineCreationRequest',
 });
 
-export const generateMockDownstreamSkeleton = ({ id = '100', status = 'RUNNING' } = {}) => ({
-  id: `gid://gitlab/Ci::Pipeline/${id}`,
-  detailedStatus: {
-    id: `${status.toLowerCase()}-${id}-${id}`,
-    name: status,
-    icon: `status_${status.toLowerCase()}`,
-    __typename: 'DetailedStatus',
-  },
-  sourceJob: {
-    id: `gid://gitlab/Ci::Build/${id}`,
-    retried: false,
-    __typename: 'CiBuild',
-  },
-  __typename: 'Pipeline',
-});
-
 export const generateMockDownstreamPipeline = ({ id = '100', status = 'RUNNING' } = {}) => ({
   id: `gid://gitlab/Ci::Pipeline/${id}`,
   iid: id,

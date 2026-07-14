@@ -35,13 +35,11 @@ export const mockProjectNamespace = 'user1';
 export const mockProjectPath = 'project1';
 export const mockProjectFullPath = `${mockProjectNamespace}/${mockProjectPath}`;
 export const mockDefaultBranch = 'main';
-export const mockNewBranch = 'new-branch';
 export const mockNewMergeRequestPath = '/-/merge_requests/new';
 export const mockCiLintPath = '/-/ci/lint';
 export const mockCommitSha = 'aabbccdd';
 export const mockCommitNextSha = 'eeffgghh';
 export const mockIncludesHelpPagePath = '/-/includes/help';
-export const mockLintHelpPagePath = '/-/lint-help';
 export const mockCiTroubleshootingPath = '/-/pipeline-editor/troubleshoot';
 export const mockSimulatePipelineHelpPagePath = '/-/simulate-pipeline-help';
 export const mockYmlHelpPagePath = '/-/yml-help';
@@ -93,12 +91,6 @@ export const mockBlobContentQueryResponse = {
 export const mockBlobContentQueryResponseNoCiFile = {
   data: {
     project: { id: 'gid://gitlab/Project/1', repository: { blobs: { nodes: [] } } },
-  },
-};
-
-export const mockBlobContentQueryResponseEmptyCiFile = {
-  data: {
-    project: { id: 'gid://gitlab/Project/1', repository: { blobs: { nodes: [{ rawBlob: '' }] } } },
   },
 };
 

@@ -12,9 +12,6 @@ export default {
     'app/assets/javascripts/repository/pages/blob_edit_header.vue',
     'app/assets/javascripts/wikis/components/wiki_content.vue',
     'app/assets/javascripts/wikis/components/wiki_form.vue',
-    'app/assets/javascripts/wikis/wiki_notes/components/placeholder_note.vue',
-    'app/assets/javascripts/wikis/wiki_notes/components/wiki_discussion.vue',
-    'app/assets/javascripts/wikis/wiki_notes/components/wiki_notes_app.vue',
   ],
   rules: {
     'vue/no-unused-properties': 'off',

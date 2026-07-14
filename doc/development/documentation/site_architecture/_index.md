@@ -25,6 +25,7 @@ The documentation source files are in the same repositories as the product code.
 | [Charts](https://gitlab.com/gitlab-org/charts/gitlab) | [`/doc`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc) |
 | [GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator) | [`/doc`](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator/-/tree/master/doc) |
 | [GitLab CLI (glab)](https://gitlab.com/gitlab-org/cli/) | [`/docs/source`](https://gitlab.com/gitlab-org/cli/-/tree/main/docs/source) |
+| [Artifact Registry](https://gitlab.com/gitlab-org/ops/artifact-registry/) | [`/docs`](https://gitlab.com/gitlab-org/ops/artifact-registry/-/tree/main/docs) |
 
 Documentation issues and merge requests are part of their respective repositories and all have the label `Documentation`.
 

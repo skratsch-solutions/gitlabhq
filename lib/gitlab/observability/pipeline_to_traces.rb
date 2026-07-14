@@ -147,7 +147,7 @@ module Gitlab
       def pipeline_legacy_attributes
         [
           { key: 'pipeline.id', value: { intValue: pipeline[:id] } },
-          { key: 'pipeline.iid', value: { intValue: pipeline[:iid] } },
+          ({ key: 'pipeline.iid', value: { intValue: pipeline[:iid] } } if pipeline[:iid]),
           { key: 'pipeline.name', value: { stringValue: pipeline[:name] || '' } },
           { key: 'pipeline.ref', value: { stringValue: pipeline[:ref] } },
           { key: 'pipeline.sha', value: { stringValue: pipeline[:sha] } },

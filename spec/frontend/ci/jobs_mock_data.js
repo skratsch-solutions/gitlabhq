@@ -1113,29 +1113,6 @@ export default {
   has_trace: true,
 };
 
-export const failedJobStatus = {
-  icon: 'status_warning',
-  text: 'failed',
-  label: 'failed (allowed to fail)',
-  group: 'failed-with-warnings',
-  tooltip: 'failed - (unknown failure) (allowed to fail)',
-  has_details: true,
-  details_path: '/gitlab-org/gitlab-shell/-/jobs/454',
-  illustration: {
-    image: 'illustrations/empty-state/empty-job-skipped-md.svg',
-    size: 'svg-content svg-430',
-    title: 'This job does not have a trace.',
-  },
-  favicon:
-    '/assets/ci_favicons/favicon_status_failed-41304d7f7e3828808b0c26771f0309e55296819a9beea3ea9fbf6689d9857c12.png',
-  action: {
-    icon: 'retry',
-    title: 'Retry',
-    path: '/gitlab-org/gitlab-shell/-/jobs/454/retry',
-    method: 'post',
-  },
-};
-
 export const jobsInStage = {
   name: 'build',
   title: 'build: running',

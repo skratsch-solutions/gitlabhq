@@ -220,6 +220,7 @@ export default {
       this.namespaceCache = unionBy(this.namespaceCache, projectsList, 'id');
     },
     group(groupData) {
+      if (!groupData) return;
       const descendents = groupData.descendantGroups?.nodes || [];
       const groupList = [groupData, ...descendents];
       this.namespaceCache = unionBy(this.namespaceCache, groupList, 'id');

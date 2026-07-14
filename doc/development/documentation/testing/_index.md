@@ -479,6 +479,7 @@ in the relevant projects:
 - <https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/.gitlab-ci.yml>
 - <https://gitlab.com/gitlab-org/cloud-native/gitlab-operator/-/blob/master/.gitlab-ci.yml>
 - <https://gitlab.com/gitlab-org/cli/-/blob/main/.gitlab-ci.yml>
+- <https://gitlab.com/gitlab-org/ops/artifact-registry/-/blob/main/.gitlab-ci.yml>
 
 We also run some documentation tests in these projects:
 

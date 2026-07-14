@@ -68,10 +68,6 @@ const createFailedJobsMock = (nodes, active = false) => {
 };
 
 export const failedJobsMock = createFailedJobsMock([allowedToFailJob, job]);
-export const failedJobsMockEmpty = createFailedJobsMock([]);
-
-export const activeFailedJobsMock = createFailedJobsMock([allowedToFailJob, job], true);
-
 export const failedJobsMock2 = createFailedJobsMock([job]);
 
 export const failedJobsCountMock = createFailedJobsMockCount();

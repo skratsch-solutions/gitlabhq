@@ -46,9 +46,6 @@ export default {
     resolved() {
       return this.discussion.resolved;
     },
-    renderPlaceHolderNote() {
-      return Boolean(this.placeholderNote.body);
-    },
     canReply() {
       return this.userSignedId && this.getUserPermissions(this.firstNote).createNote;
     },
@@ -61,13 +58,6 @@ export default {
     userSignedId() {
       return Boolean(this.currentUserData?.id);
     },
-    author() {
-      const { author } = this.firstNote;
-      return {
-        ...author,
-        id: getIdFromGid(author.id),
-      };
-    },
     noteId() {
       return getIdFromGid(this.firstNote.id);
     },
@@ -76,9 +66,6 @@ export default {
     },
     autosaveKey() {
       return getAutosaveKey(this.noteableType, this.discussionId);
-    },
-    externalAuthor() {
-      return '';
     },
     canResolve() {
       return this.discussion.resolvable && this.firstNote.userPermissions?.resolveNote;

@@ -58,6 +58,7 @@ export default {
   },
   data() {
     return {
+      // eslint-disable-next-line vue/no-unused-properties -- needed for `wikiPage` Apollo query
       wikiPage: {},
       noteableId: '',
       userPermissions: {},
@@ -87,14 +88,6 @@ export default {
     },
     isLoading() {
       return this.$apollo.queries.wikiPage.loading;
-    },
-    queryData() {
-      const { defaultClient: cache } = this.$apollo.provider.clients;
-
-      return cache.readQuery({
-        query: wikiPageQuery,
-        variables: this.queryVariables,
-      });
     },
     sortedDiscussions() {
       if (!this.wikiDiscussionSortOrder) return this.discussions;

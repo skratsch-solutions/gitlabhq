@@ -1803,11 +1803,11 @@ lib/gitlab/checks/
 /app/presenters/generic_commit_status_presenter.rb
 /app/services/projects/refresh_build_artifacts_size_statistics_service.rb
 /app/uploaders/job_artifact_uploader.rb
-/app/validators/json_schemas/build_metadata_id_tokens.json
-/app/validators/json_schemas/build_metadata_config_options.json
-/app/validators/json_schemas/build_metadata_secrets.json
 /app/validators/json_schemas/ci_job_definition_config.json
-/app/validators/json_schemas/ci_run_steps.json
+/app/validators/json_schemas/ci_job_definition_id_tokens.json
+/app/validators/json_schemas/ci_job_definition_options.json
+/app/validators/json_schemas/ci_job_definition_run_steps.json
+/app/validators/json_schemas/ci_job_definition_secrets.json
 /app/workers/build_queue_worker.rb
 /app/workers/create_pipeline_worker.rb
 /app/workers/expire_build_artifacts_worker.rb
