@@ -21,6 +21,10 @@ describe('RapidDiffsToggle', () => {
 
   useMockLocationHelper();
 
+  beforeEach(() => {
+    jest.spyOn(window.history, 'replaceState').mockImplementation();
+  });
+
   const findTryButton = () => wrapper.findByTestId('rapid-diffs-try-button');
   const findBadge = () => wrapper.findByTestId('rapid-diffs-beta-badge');
   const findPopover = () => wrapper.findComponent(GlPopover);
@@ -68,7 +72,12 @@ describe('RapidDiffsToggle', () => {
         label: 'enabled',
       });
       expect(setCookie).toHaveBeenCalledWith(RAPID_DIFFS_COOKIE_NAME, 'true');
-      expect(window.location.assign).toHaveBeenCalledWith('https://example.com/diffs');
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        'https://example.com/diffs',
+      );
+      expect(window.location.reload).toHaveBeenCalled();
     });
   });
 
@@ -120,7 +129,12 @@ describe('RapidDiffsToggle', () => {
         label: 'disabled',
       });
       expect(removeCookie).toHaveBeenCalledWith(RAPID_DIFFS_COOKIE_NAME);
-      expect(window.location.assign).toHaveBeenCalledWith('https://example.com/diffs');
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        'https://example.com/diffs',
+      );
+      expect(window.location.reload).toHaveBeenCalled();
     });
   });
 });

@@ -22588,6 +22588,9 @@ msgstr ""
 msgid "ContinuousDeployment|Failed"
 msgstr ""
 
+msgid "ContinuousDeployment|Failed to load releases. Reload to try again."
+msgstr ""
+
 msgid "ContinuousDeployment|Failed to load the application. Please try again later."
 msgstr ""
 

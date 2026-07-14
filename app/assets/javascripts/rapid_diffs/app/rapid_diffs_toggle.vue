@@ -83,16 +83,19 @@ export default {
     async enable() {
       await waitableTrackEvent('toggle_rapid_diffs', { label: 'enabled' });
       setCookie(RAPID_DIFFS_COOKIE_NAME, 'true');
-      const url = new URL(window.location.href);
-      url.searchParams.delete('rapid_diffs_disabled');
-      window.location.assign(url.toString());
+      this.reloadWithoutParam('rapid_diffs_disabled');
     },
     async disable() {
       await waitableTrackEvent('toggle_rapid_diffs', { label: 'disabled' });
       removeCookie(RAPID_DIFFS_COOKIE_NAME);
+      this.reloadWithoutParam('rapid_diffs');
+    },
+    reloadWithoutParam(param) {
       const url = new URL(window.location.href);
-      url.searchParams.delete('rapid_diffs');
-      window.location.assign(url.toString());
+      url.searchParams.delete(param);
+      // replaceState + reload forces a full load even when the URL is otherwise unchanged
+      window.history.replaceState(null, '', url.toString());
+      window.location.reload();
     },
   },
   i18n: {

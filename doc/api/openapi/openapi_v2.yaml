@@ -28873,8 +28873,6 @@ paths:
           description: Approve merge request
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestApprovals"
-        '304':
-          description: Not modified
         '404':
           description: Not found
         '401':
@@ -28908,8 +28906,6 @@ paths:
           description: Unapprove a merge request
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequestApprovals"
-        '304':
-          description: Not modified
         '404':
           description: Not found
         '401':
