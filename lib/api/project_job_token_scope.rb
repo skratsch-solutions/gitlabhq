@@ -20,6 +20,9 @@ module API
         success code: 200, model: Entities::ProjectJobTokenScope
         tags %w[projects_job_token_scope]
       end
+      params do
+        requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
+      end
       route_setting :authorization, permissions: :read_job_token_scope, boundary_type: :project
       get ':id/job_token_scope' do
         authorize_admin_project
@@ -39,6 +42,7 @@ module API
         tags %w[projects_job_token_scope]
       end
       params do
+        requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
         requires :enabled,
           type: Boolean,
           as: :ci_inbound_job_token_scope_enabled,
@@ -69,6 +73,7 @@ module API
         tags %w[projects_job_token_scope]
       end
       params do
+        requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
         use :pagination
       end
       route_setting :authorization, permissions: :read_job_token_scope_allowlist, boundary_type: :project
@@ -91,6 +96,7 @@ module API
         tags %w[projects_job_token_scope]
       end
       params do
+        requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
         use :pagination
       end
       route_setting :authorization, permissions: :read_job_token_scope_allowlist, boundary_type: :project

@@ -381,6 +381,9 @@ module API
         success ::API::Entities::Project
         tags ['projects']
       end
+      params do
+        requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
+      end
       route_setting :authorization, permissions: :restore_project, boundary_type: :project
       post ':id/restore', feature_category: :system_access do
         authorize!(:remove_project, user_project)

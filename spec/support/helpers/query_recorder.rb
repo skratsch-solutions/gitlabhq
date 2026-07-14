@@ -50,7 +50,7 @@ module ActiveRecord
     end
 
     def get_sql_source(sql)
-      matches = sql.match(%r{,line:(?<line>.*):in\s+`(?<method>.*)'\*/})
+      matches = sql.match(%r{,line:(?<line>.*):in\s+['`](?<method>.*)'\*/})
       matches ? [matches[:line], matches[:method]] : UNKNOWN
     end
 

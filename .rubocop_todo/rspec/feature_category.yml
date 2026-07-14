@@ -451,7 +451,6 @@ RSpec/FeatureCategory:
     - 'ee/spec/serializers/status_page/incident_serializer_spec.rb'
     - 'ee/spec/serializers/status_page/renderer_spec.rb'
     - 'ee/spec/serializers/storage_shard_entity_spec.rb'
-    - 'ee/spec/serializers/test_reports_comparer_entity_spec.rb'
     - 'ee/spec/serializers/test_reports_comparer_serializer_spec.rb'
     - 'ee/spec/serializers/test_suite_comparer_entity_spec.rb'
     - 'ee/spec/serializers/user_analytics_entity_spec.rb'

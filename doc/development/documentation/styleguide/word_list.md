@@ -1444,6 +1444,10 @@ If you use it in a context of describing the
 [different installation methods](_index.md#how-to-document-different-installation-methods)
 use **GitLab Operator (Kubernetes)**.
 
+## GitLab Orbit
+
+Do not use **Orbit** by itself. Always use **GitLab Orbit**.
+
 ## GitLab Pages
 
 For consistency and branding, use **GitLab Pages** rather than **Pages**.

@@ -49,6 +49,7 @@ RSpec.describe Mutations::WorkItems::SavedViews::Unsubscribe, feature_category: 
           result = resolve_mutation(id: saved_view.to_global_id)
 
           expect(result[:saved_view]).to eq(saved_view)
+          expect(result[:errors]).to eq([])
         end
 
         it 'deletes the user saved view record' do

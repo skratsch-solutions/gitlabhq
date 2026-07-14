@@ -203,7 +203,6 @@ Style/ClassAndModuleChildren:
     - 'app/controllers/projects/web_ide_schemas_controller.rb'
     - 'app/controllers/projects/web_ide_terminals_controller.rb'
     - 'app/controllers/projects/wikis_controller.rb'
-    - 'app/controllers/projects/work_items_controller.rb'
     - 'app/controllers/snippets/application_controller.rb'
     - 'app/controllers/snippets/blobs_controller.rb'
     - 'app/controllers/snippets/notes_controller.rb'

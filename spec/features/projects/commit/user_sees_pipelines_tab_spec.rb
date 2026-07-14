@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'Commit > Pipelines tab', :js, feature_category: :continuous_integration do
+  include Spec::Support::Helpers::GraphqlSubscriptionHelpers
   using RSpec::Parameterized::TableSyntax
 
   let_it_be_with_reload(:project) { create(:project, :repository) }
@@ -66,6 +67,51 @@ RSpec.describe 'Commit > Pipelines tab', :js, feature_category: :continuous_inte
           end
         end
       end
+    end
+  end
+
+  describe 'real-time updates with commit_pipelines_tab_graphql enabled', :sidekiq_inline do
+    let!(:pipeline) do
+      create(:ci_pipeline,
+        :running,
+        project: project,
+        ref: project.default_branch,
+        sha: project.commit.sha)
+    end
+
+    before do
+      wait_for_new_graphql_subscription do
+        visit pipelines_project_commit_path(project, project.commit.id)
+      end
+    end
+
+    it "updates a running pipeline's status without reloading" do
+      expect(page).to have_testid('pipeline-table-row')
+
+      within_testid('pipeline-table-row') do
+        expect(page).to have_testid('ci-icon', text: 'Running')
+      end
+
+      pipeline.succeed!
+
+      within_testid('pipeline-table-row') do
+        expect(page).to have_testid('ci-icon', text: 'Passed')
+      end
+    end
+
+    it 'shows a brand-new pipeline created for the commit without reloading', :aggregate_failures do
+      expect(page).to have_testid('pipeline-table-row', count: 1)
+
+      new_pipeline = create(:ci_pipeline,
+        :running,
+        project: project,
+        ref: project.default_branch,
+        sha: project.commit.sha)
+      # Force notifications on state of new pipeline
+      GraphqlTriggers.ci_pipeline_statuses_updated(new_pipeline)
+
+      expect(page).to have_content("##{new_pipeline.id}")
+      expect(page).to have_testid('pipeline-table-row', count: 2)
     end
   end
 end

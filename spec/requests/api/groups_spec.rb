@@ -3576,7 +3576,8 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
           end.not_to change { Group.count }
 
           expect(response).to have_gitlab_http_status(:bad_request)
-          expect(json_response['message']).to eq("Failed to save group {:path=>[\"has already been taken\"]}")
+          errors = { path: ['has already been taken'] }
+          expect(json_response['message']).to eq("Failed to save group #{errors}")
         end
       end
     end

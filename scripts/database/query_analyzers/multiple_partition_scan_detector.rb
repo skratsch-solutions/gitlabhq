@@ -12,7 +12,8 @@ module Database
 
         return if allowlisted?(query['fingerprint'])
 
-        # "Subplans Removed"=>0 only appears for a partitioned scan that pruned nothing
+        # "Subplans Removed"=>0 only appears for a partitioned scan that pruned nothing.
+        # This isn't a guaranteed signal for _all_ unpruned queries, so it may miss some.
         return unless query['plan'].to_s.include?('"Subplans Removed"=>0')
 
         query['query'].scan(P_CI_TABLE_REGEX).uniq.each do |table_name|

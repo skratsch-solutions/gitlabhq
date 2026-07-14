@@ -86,6 +86,11 @@ Tracking classes already have three built-in properties:
 - `property` (string)
 - `value`(numeric)
 
+We recommend using these built-in properties first when possible.
+They correspond to dedicated unnested columns in Snowflake (`se_la`, `se_pr`, `se_va`), making them immediately queryable without any additional Data team work.
+
+Custom properties are stored in the nested `extra` field within the `gitlab_standard` Snowplow context and are not automatically available as flat columns in the data warehouse. Querying them may require Data team involvement.
+
 If the built-in properties are not suitable or descriptive, properties of any name can be used.
 
 ```yaml

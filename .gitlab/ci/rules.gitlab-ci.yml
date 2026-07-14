@@ -151,6 +151,9 @@
 .if-merge-request-labels-skip-release-note-categories: &if-merge-request-labels-skip-release-note-categories
   if: '($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train") && $CI_MERGE_REQUEST_LABELS =~ /pipeline:skip-release-note-categories/'
 
+.if-merge-request-labels-skip-check-ci-partition-pruning: &if-merge-request-labels-skip-check-ci-partition-pruning
+  if: '($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train") && $CI_MERGE_REQUEST_LABELS =~ /pipeline:skip-check-ci-partition-pruning/'
+
 .if-merge-request-labels-jh-contribution: &if-merge-request-labels-jh-contribution
   if: '($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train") && $CI_MERGE_REQUEST_LABELS =~ /JiHu contribution/'
 
@@ -3141,6 +3144,19 @@
       changes: *code-backstage-patterns
     - <<: *if-default-branch-refs
       changes: *code-patterns
+
+.rails:rules:check-ci-partition-pruning:
+  rules:
+    - <<: *if-not-ee
+      when: never
+    - <<: *if-merge-request-labels-pipeline-expedite
+      when: never
+    - <<: *if-merge-request-labels-skip-check-ci-partition-pruning
+      when: never
+    - <<: *if-merge-request-labels-run-all-rspec
+    # Same condition under which the merge_request_query_differ.rb dependency runs
+    - <<: *if-dot-com-gitlab-org-merge-request
+      changes: *code-backstage-patterns
 
 .rails:rules:default-branch-schedule-nightly--code-backstage-default-rules:
   rules:

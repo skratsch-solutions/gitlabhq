@@ -59,7 +59,6 @@ Style/IfUnlessModifier:
     - 'app/models/suggestion.rb'
     - 'app/models/synthetic_note.rb'
     - 'app/models/user.rb'
-    - 'app/models/work_items/parent_link.rb'
     - 'app/presenters/blob_presenter.rb'
     - 'app/presenters/ci/pipeline_presenter.rb'
     - 'app/presenters/merge_request_presenter.rb'

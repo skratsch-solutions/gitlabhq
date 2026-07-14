@@ -85991,6 +85991,9 @@ msgstr ""
 msgid "Vulnerability|A solution is available for this vulnerability"
 msgstr ""
 
+msgid "Vulnerability|AI analysis"
+msgstr ""
+
 msgid "Vulnerability|AI false positive confidence score"
 msgstr ""
 
@@ -86010,6 +86013,9 @@ msgid "Vulnerability|AI false positive scan in progress"
 msgstr ""
 
 msgid "Vulnerability|AI false positive scan is in progress. Results will appear here when complete."
+msgstr ""
+
+msgid "Vulnerability|AI false-positive analysis"
 msgstr ""
 
 msgid "Vulnerability|AI has created a merge request to resolve this vulnerability"
@@ -86076,6 +86082,9 @@ msgid "Vulnerability|Comments"
 msgstr ""
 
 msgid "Vulnerability|Component"
+msgstr ""
+
+msgid "Vulnerability|Confidence"
 msgstr ""
 
 msgid "Vulnerability|Container Image:"
@@ -86159,6 +86168,9 @@ msgstr ""
 msgid "Vulnerability|FP scanning found that this vulnerability is "
 msgstr ""
 
+msgid "Vulnerability|False positive confidence"
+msgstr ""
+
 msgid "Vulnerability|False positive detected"
 msgstr ""
 
@@ -86171,6 +86183,9 @@ msgstr ""
 msgid "Vulnerability|For more information, view vulnerability details."
 msgstr ""
 
+msgid "Vulnerability|GitLab Duo evaluated this finding. Confidence that it is a false positive: %{level}."
+msgstr ""
+
 msgid "Vulnerability|GitLab Duo scanned this vulnerability to identify the likelihood that it is a false positive (FP) and found that this vulnerability is %{falsePositiveResult}."
 msgstr ""
 
@@ -86178,6 +86193,9 @@ msgid "Vulnerability|GitLab Security Report"
 msgstr ""
 
 msgid "Vulnerability|GitLab checks if detected secrets are active. You should revoke and replace active secrets immediately, because they can be used to impersonate legitimate activity."
+msgstr ""
+
+msgid "Vulnerability|High"
 msgstr ""
 
 msgid "Vulnerability|Identifier"
@@ -86213,10 +86231,19 @@ msgstr ""
 msgid "Vulnerability|Links"
 msgstr ""
 
+msgid "Vulnerability|Low"
+msgstr ""
+
+msgid "Vulnerability|Medium"
+msgstr ""
+
 msgid "Vulnerability|NOT a false positive"
 msgstr ""
 
 msgid "Vulnerability|Namespace:"
+msgstr ""
+
+msgid "Vulnerability|None"
 msgstr ""
 
 msgid "Vulnerability|Not an FP"

@@ -143,6 +143,12 @@ module API
                   requires :package_channel, type: String, desc: 'Package channel', documentation: { example: 'stable' }
                 end
               end
+              params do
+                requires :package_name, type: String, desc: 'The package name'
+                requires :package_version, type: String, desc: 'The package version'
+                requires :package_username, type: String, desc: 'The package username'
+                requires :package_channel, type: String, desc: 'The package channel'
+              end
 
               namespace ':package_name/:package_version/:package_username/:package_channel/search',
                 requirements: PACKAGE_REQUIREMENTS do

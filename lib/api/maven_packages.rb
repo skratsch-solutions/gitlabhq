@@ -123,6 +123,7 @@ module API
       tags %w[packages]
     end
     params do
+      requires :file_name, type: String, desc: 'The package file name'
       use :path_and_file_name
     end
     route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true, basic_auth_personal_access_token: true
@@ -172,6 +173,7 @@ module API
     end
     resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       params do
+        requires :file_name, type: String, desc: 'The package file name'
         use :path_and_file_name
       end
       route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true, basic_auth_personal_access_token: true
@@ -216,6 +218,7 @@ module API
         tags %w[packages]
       end
       params do
+        requires :file_name, type: String, desc: 'The package file name'
         use :path_and_file_name
       end
       route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true, basic_auth_personal_access_token: true

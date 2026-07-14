@@ -878,6 +878,20 @@ rspec:merge-auto-explain-logs:
     paths:
       - auto_explain/
 
+# Checks for new queries that fail partition pruning on CI tables (p_ci_*).
+# Soft-launch: allow_failure warns without blocking; flip to `false` to enforce.
+rspec:check-ci-partition-pruning:
+  extends:
+    - .rails:rules:check-ci-partition-pruning
+  stage: post-test
+  needs:
+    - job: "rspec:merge-auto-explain-logs"
+      artifacts: true
+      optional: true
+  allow_failure: true
+  script:
+    - scripts/database/check_ci_partition_pruning.rb "$RSPEC_AUTO_EXPLAIN_LOG_PATH"
+
 # EE/FOSS: default refs (MRs, default branch, schedules) jobs #
 #######################################################
 

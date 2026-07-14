@@ -88,6 +88,10 @@ module API
             requires :module_namespace, type: String, desc: "Group's ID or slug", regexp: API::NO_SLASH_URL_PART_REGEX
             includes :module_name
           end
+          params do
+            requires :module_name, type: String, desc: 'The module name'
+            requires :module_system, type: String, desc: 'The module system (provider)'
+          end
 
           namespace 'packages/terraform/modules/v1/:module_namespace/:module_name/:module_system',
             requirements: TERRAFORM_MODULE_REQUIREMENTS do

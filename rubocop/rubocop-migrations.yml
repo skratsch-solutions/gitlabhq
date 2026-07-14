@@ -68,6 +68,7 @@ Migration/UpdateLargeTable:
   - :security_scans
   - :vulnerabilities
   - :vulnerability_occurrence_identifiers
+  - :vulnerability_state_transitions
   DeniedMethods:
   - :change_column_type_concurrently
   - :rename_column_concurrently

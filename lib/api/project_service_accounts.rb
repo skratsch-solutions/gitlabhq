@@ -240,6 +240,9 @@ module API
             ]
             tags %w[access_tokens service_accounts]
           end
+          params do
+            requires :token_id, type: Integer, desc: 'The ID of the personal access token'
+          end
 
           route_setting :authorization, permissions: :revoke_service_account_personal_access_token,
             boundary_type: :project
@@ -264,6 +267,7 @@ module API
           end
 
           params do
+            requires :token_id, type: Integer, desc: 'The ID of the personal access token'
             optional :expires_at,
               type: Date,
               desc: "The expiration date of the token",

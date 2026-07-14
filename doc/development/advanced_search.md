@@ -852,8 +852,8 @@ gradual rollout. After the migration completes, remove the legacy entry and the
 QUERY_COMPONENTS = {
   ::Search::Elastic::Filters => [
     :by_type,
-    { method: :by_search_level_and_membership, migration: :migration_name },
-    { method: :by_project_authorization, unless_migration: :migration_name },
+    { method: :new_filter_method, migration: :migration_name },
+    { method: :old_filter_method, unless_migration: :migration_name },
     :by_archived
   ],
   ::Search::Elastic::Formats => [

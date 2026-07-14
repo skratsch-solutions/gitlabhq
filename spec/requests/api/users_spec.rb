@@ -6865,7 +6865,7 @@ RSpec.describe API::Users, '(API behavior when Current.organization is nil)', fe
       post api("/users", admin_no_org_context, admin_mode: true), params: user_creation_params
 
       expect(response).to have_gitlab_http_status(:internal_server_error)
-      expect(json_response['message']).to match(/NoMethodError \(undefined method `id' for nil/)
+      expect(json_response['message']).to match(/NoMethodError \(undefined method [`']id' for nil/)
     end
   end
 
@@ -6877,7 +6877,7 @@ RSpec.describe API::Users, '(API behavior when Current.organization is nil)', fe
         params: { name: 'Test Token For Target No Org', scopes: ['api'] }
 
       expect(response).to have_gitlab_http_status(:internal_server_error)
-      expect(json_response['message']).to match(/NoMethodError \(undefined method `id' for nil/)
+      expect(json_response['message']).to match(/NoMethodError \(undefined method [`']id' for nil/)
     end
   end
 
@@ -6892,7 +6892,7 @@ RSpec.describe API::Users, '(API behavior when Current.organization is nil)', fe
         }
 
       expect(response).to have_gitlab_http_status(:internal_server_error)
-      expect(json_response['message']).to match(/NoMethodError \(undefined method `id' for nil/)
+      expect(json_response['message']).to match(/NoMethodError \(undefined method [`']id' for nil/)
     end
   end
 end

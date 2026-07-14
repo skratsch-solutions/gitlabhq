@@ -191,8 +191,8 @@ RSpec.describe Mcp::Tools::Response, feature_category: :mcp_server do
         items = [{ 'name' => 'First' }, { 'name' => 'Second' }]
         result = described_class.send(:format_text, items)
 
-        expected_first = "{\"name\"=>\"first\"}:"
-        expected_second = "{\"name\"=>\"second\"}:"
+        expected_first = "#{items.first.to_s.humanize}:"
+        expected_second = "#{items.second.to_s.humanize}:"
         expect(result).to eq("#{expected_first} \n#{expected_second} ")
       end
     end

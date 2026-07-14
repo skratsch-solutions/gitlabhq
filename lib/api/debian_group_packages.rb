@@ -48,6 +48,13 @@ module API
           ]
           tags %w[packages_debian]
         end
+        params do
+          requires :distribution, type: String, desc: 'The Debian distribution name'
+          requires :letter, type: String, desc: 'The package name first letter'
+          requires :package_name, type: String, desc: 'The package name'
+          requires :package_version, type: String, desc: 'The package version'
+          requires :file_name, type: String, desc: 'The package file name'
+        end
 
         route_setting :authorization, permissions: :download_debian_package, boundary_type: :group
         get 'pool/:distribution/:project_id/:letter/:package_name/:package_version/:file_name', requirements: PACKAGE_FILE_REQUIREMENTS do

@@ -130,7 +130,6 @@ For more information, see [scopes](_index.md#scopes).
 **Notes**:
 
 - For the `=` operator, the time range is considered from 00:00 to 23:59 in the user's time zone.
-- `>=` and `<=` operators are inclusive of the dates being queried, whereas `>` and `<` are not.
 
 ### Confidential {#workitem-confidential}
 
@@ -171,7 +170,6 @@ For more information, see [scopes](_index.md#scopes).
 **Notes**:
 
 - For the `=` operator, the time range is considered from 00:00 to 23:59 in the user's time zone.
-- `>=` and `<=` operators are inclusive of the dates being queried, whereas `>` and `<` are not.
 
 ### Custom field {#workitem-custom-field}
 
@@ -219,7 +217,6 @@ For more information, see [scopes](_index.md#scopes).
 **Notes**:
 
 - For the `=` operator, the time range is considered from 00:00 to 23:59 in the user's time zone.
-- `>=` and `<=` operators are inclusive of the dates being queried, whereas `>` and `<` are not.
 
 ### Epic {#workitem-epic}
 
@@ -471,7 +468,6 @@ For more information, see [scopes](_index.md#scopes).
 **Notes**:
 
 - For the `=` operator, the time range is considered from 00:00 to 23:59 in the user's time zone.
-- `>=` and `<=` operators are inclusive of the dates being queried, whereas `>` and `<` are not.
 
 ### Weight {#workitem-weight}
 

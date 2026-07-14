@@ -15,7 +15,7 @@ RSpec.describe Mutations::WorkItems::SavedViews::Reorder, feature_category: :por
 
   subject(:mutation) { described_class.new(object: nil, context: query_context, field: nil) }
 
-  it { expect(described_class).to require_graphql_authorizations(:read_saved_view) }
+  it { expect(described_class).to require_graphql_authorizations(:reorder_saved_view) }
 
   describe 'arguments' do
     subject { described_class }
