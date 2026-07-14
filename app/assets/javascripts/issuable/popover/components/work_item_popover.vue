@@ -90,7 +90,14 @@ export default {
         return {
           fullPath: this.namespacePath,
           iid: this.iid,
-          useWorkItemFeatures: Boolean(this.glFeatures?.workItemFeaturesField),
+          // We're reading the flag value additionally from `gon.features`
+          // as the component is mounted bare across GitLab when a work
+          // item is referenced in any GFM field (including Wikis), this
+          // ensures that popover query always sends the flag value to fetch
+          // correct sub-tree (i.e. `widgets[]` or `features`).
+          useWorkItemFeatures: Boolean(
+            this.glFeatures?.workItemFeaturesField || window.gon?.features?.workItemFeaturesField,
+          ),
         };
       },
       update: (data) => data.namespace?.workItem,

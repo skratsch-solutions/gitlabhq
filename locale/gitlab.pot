@@ -26644,6 +26644,21 @@ msgstr ""
 msgid "Dependency scanning"
 msgstr ""
 
+msgid "DependencyFirewall|Dependency Firewall"
+msgstr ""
+
+msgid "DependencyFirewall|Dependency Firewall settings were successfully updated."
+msgstr ""
+
+msgid "DependencyFirewall|Enable Dependency Firewall"
+msgstr ""
+
+msgid "DependencyFirewall|Enable the Dependency Firewall to protect against malicious and suspicious packages."
+msgstr ""
+
+msgid "DependencyFirewall|Failed to update the Dependency Firewall settings."
+msgstr ""
+
 msgid "DependencyListExport|License Identifiers"
 msgstr ""
 
@@ -38208,6 +38223,9 @@ msgid "GroupSettings|Retry"
 msgstr ""
 
 msgid "GroupSettings|Saving…"
+msgstr ""
+
+msgid "GroupSettings|Secure"
 msgstr ""
 
 msgid "GroupSettings|Select a project"

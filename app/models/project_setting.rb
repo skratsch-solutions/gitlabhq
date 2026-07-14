@@ -8,6 +8,14 @@ class ProjectSetting < ApplicationRecord
   include Gitlab::EncryptedAttribute
   include AfterCommitQueue
   include SafelyChangeColumnDefault
+  include Cells::Claimable
+
+  cells_claims_scope { where.not(pages_unique_domain: nil) }
+
+  cells_claims_attribute :pages_unique_domain, type: CLAIMS_BUCKET_TYPE::PAGES_UNIQUE_DOMAINS,
+    feature_flag: :cells_claims_project_settings_pages_unique_domains
+
+  cells_claims_metadata subject_type: CLAIMS_SUBJECT_TYPE::PROJECT, subject_key: :project_id
 
   columns_changing_default :auto_duo_code_review_enabled, :duo_remote_flows_enabled
 
@@ -128,6 +136,10 @@ class ProjectSetting < ApplicationRecord
   end
 
   private
+
+  def unique_attributes
+    [:pages_unique_domain]
+  end
 
   def presence_of_merge_request_title_regex_settings
     # Either both are present, or neither

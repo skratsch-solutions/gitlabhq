@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Argo Rollouts: supported deploy steps",
+  "description": "The step types a flow definition/pipeline stage targeting an Argo Rollouts environment may use. Discriminated by `type`.",
+  "oneOf": [
+    {
+      "title": "Rolling deploy",
+      "description": "Deploys the named services to the Argo Rollouts environment using a rolling update, replacing pods incrementally within the max_surge and max_unavailable bounds.",
+      "type": "object",
+      "required": ["type", "environment", "services"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "gitlab.cd.argo_rollouts.deploy_rolling" },
+        "environment": {
+          "type": "string",
+          "description": "The environment id this step targets; join key into the top-level environments map and flow_definition.environments."
+        },
+        "services": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The services this step deploys. At least one is required.",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the service to deploy, matching a service defined for this environment."
+              }
+            }
+          }
+        },
+        "max_surge": {
+          "type": "string",
+          "pattern": "^[0-9]+%?$",
+          "examples": ["1", "25%"],
+          "description": "Maximum pods that may run above the desired replica count during the rollout. Defaults to \"1\".",
+          "gitlab": {
+            "type": "com.gitlab.cd.number_or_percentage"
+          }
+        },
+        "max_unavailable": {
+          "type": "string",
+          "pattern": "^[0-9]+%?$",
+          "examples": ["0", "25%"],
+          "description": "Maximum pods that may be unavailable during the rollout. Defaults to \"0\", so new pods surge up before old ones are retired (zero-downtime).",
+          "gitlab": {
+            "type": "com.gitlab.cd.number_or_percentage"
+          }
+        }
+      }
+    }
+  ]
+}

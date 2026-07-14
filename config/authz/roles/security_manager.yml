@@ -24,6 +24,7 @@ project:
   - edit_on_demand_dast_scan
   - enable_container_scanning_for_registry
   - enable_secret_push_protection
+  - execute_vulnerability_duo_workflow
   - manage_project_security_exclusions
   - read_agent_artifacts
   - read_any_audit_event

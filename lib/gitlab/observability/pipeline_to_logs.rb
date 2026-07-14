@@ -5,6 +5,7 @@ module Gitlab
     class PipelineToLogs
       include Gitlab::Utils::StrongMemoize
       include Gitlab::Observability::CicdSemconv
+      include Gitlab::Observability::TracingHelpers
 
       def initialize(integration, pipeline_data)
         @integration = integration
@@ -82,6 +83,9 @@ module Gitlab
 
       def build_pipeline_log
         {
+          traceId: pipeline_trace_id,
+          spanId: pipeline_span_id,
+          flags: 1,
           timeUnixNano: time_to_nanoseconds(pipeline[:finished_at] || pipeline[:created_at]),
           severityNumber: map_severity(pipeline[:status]),
           severityText: map_severity_text(pipeline[:status]),
@@ -102,11 +106,11 @@ module Gitlab
           { key: 'pipeline.ref', value: { stringValue: pipeline[:ref] } },
           { key: 'pipeline.sha', value: { stringValue: pipeline[:sha] } },
           { key: 'pipeline.status', value: { stringValue: pipeline[:status] } },
-          { key: 'pipeline.detailed_status', value: { stringValue: pipeline[:detailed_status] } },
+          { key: 'pipeline.detailed_status', value: { stringValue: pipeline[:detailed_status] || '' } },
           { key: 'pipeline.duration', value: { intValue: (pipeline[:duration] || 0).to_i } },
           { key: 'pipeline.queued_duration', value: { intValue: (pipeline[:queued_duration] || 0).to_i } },
           { key: 'pipeline.protected_ref', value: { boolValue: pipeline[:protected_ref] || false } },
-          { key: 'pipeline.url', value: { stringValue: pipeline[:url] } },
+          { key: 'pipeline.url', value: { stringValue: pipeline[:url] || '' } },
           { key: 'pipeline.stages', value: { arrayValue: { values: pipeline[:stages]&.map do |stage|
             { stringValue: stage }
           end || [] } } }
@@ -130,6 +134,9 @@ module Gitlab
 
       def build_job_log(build)
         {
+          traceId: pipeline_trace_id,
+          spanId: job_span_id(build),
+          flags: 1,
           timeUnixNano: time_to_nanoseconds(build[:finished_at] || build[:started_at] || build[:created_at]),
           severityNumber: map_severity(build[:status]),
           severityText: map_severity_text(build[:status]),
@@ -282,10 +289,9 @@ module Gitlab
 
       def time_to_nanoseconds(active_support_time_value)
         return 0 if active_support_time_value.blank?
+        return 0 unless active_support_time_value.is_a?(ActiveSupport::TimeWithZone)
 
-        active_support_time_value.to_i * 1_000_000_000
-      rescue ArgumentError
-        Time.current.to_i * 1_000_000_000
+        (active_support_time_value.utc.to_f * 1_000_000_000).to_i
       end
     end
   end

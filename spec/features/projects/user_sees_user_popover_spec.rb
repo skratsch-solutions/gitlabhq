@@ -27,9 +27,7 @@ RSpec.describe 'User sees user popover', :js, feature_category: :groups_and_proj
     end
 
     it 'displays user popover' do
-      find('.detail-page-description .js-user-link').hover
-
-      expect(page).to have_css(popover_selector, visible: :visible)
+      hover_until_popover_appears('.detail-page-description .js-user-link')
 
       page.within(popover_selector) do
         expect(page).to have_content("#{user.name} (they/them)")
@@ -39,10 +37,20 @@ RSpec.describe 'User sees user popover', :js, feature_category: :groups_and_proj
     it 'displays user popover in system note', :sidekiq_inline do
       add_note("/assign @#{user.username}")
 
-      find('.system-note-message .js-user-link').hover
+      hover_until_popover_appears('.system-note-message .js-user-link')
 
       page.within(popover_selector) do
         expect(page).to have_content(user.name)
+      end
+    end
+
+    # The popover launches from a delegated `mouseover` listener, so Capybara's
+    # single synthetic hover can be dropped if the listener has not attached yet
+    # or the page re-renders and shifts the link. Re-hovering absorbs that race.
+    def hover_until_popover_appears(link_selector)
+      wait_for('user popover to appear') do
+        find(link_selector).hover
+        has_css?(popover_selector, visible: :visible, wait: 0.5)
       end
     end
   end

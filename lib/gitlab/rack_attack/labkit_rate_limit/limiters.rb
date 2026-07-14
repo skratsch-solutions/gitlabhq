@@ -44,14 +44,19 @@ module Gitlab
       #             throttles that exclude them). One rule per ThrottleRegistry.skip_match
       #             (a path matcher, plus EE's verified_geo_request rule), each named by
       #             its skip_matches key.
-      #   runner  - authenticated requests on the runner-jobs API path
-      #             (/api/v4/jobs/*), excluded from the authenticated API throttle
-      #             (Rack::Attack's !runner_jobs_request?). Gated on requester presence,
-      #             not path alone, so anonymous requests to that path still fall
-      #             through to the unauthenticated API throttle, as Rack::Attack does.
-      #             Runner-token requests need no rule here: they have no requester (so
-      #             no authenticated rule matches) and runner_id present (so no
-      #             unauthenticated rule matches), so they escape on every path.
+      #   runner  - runner- or job-token-authenticated requests on the runner-jobs
+      #             API path (/api/v4/jobs/*), excluded from the authenticated API
+      #             throttle (Rack::Attack's !runner_jobs_request?, mirrored by the
+      #             runner_jobs fact). The fact carries the auth method, not just
+      #             requester presence, so a PAT- or OAuth-authenticated request on
+      #             that path (a bot polling job status) is NOT skipped and falls
+      #             through to the authenticated API throttle, exactly as
+      #             Rack::Attack counts it. The requester gate keeps the edge cases
+      #             right: an anonymous request to that path falls through to the
+      #             unauthenticated API throttle, and a runner-token request (fact
+      #             true, requester nil) escapes every rule - no requester for the
+      #             authenticated rules, runner_id present blocking the
+      #             unauthenticated ones - as it does on every other path.
       #
       # All three are :skip: they terminate evaluation while permitting, so the
       # throttle rules below never run, and they perform no Redis write (the
@@ -100,7 +105,8 @@ module Gitlab
           # every limiter (the safelist skips all throttles); skip is on the limiters
           # whose unauthenticated throttles exclude should_be_skipped? paths; the
           # runner-jobs rule is on the general limiter, whose authenticated API throttle
-          # excludes authenticated requests on the runner-jobs path.
+          # excludes runner- and job-token-authenticated requests on the runner-jobs
+          # path (the runner_jobs fact).
           def synthetic_rules(limiter_name)
             rules = [skip_rule(BYPASS_RULE_NAME, { bypass: true })]
 
@@ -111,8 +117,7 @@ module Gitlab
             end
 
             if limiter_name == ThrottleRegistry::GENERAL
-              rules << skip_rule(RUNNER_RULE_NAME,
-                { path: ::Gitlab::RackAttack::Request::RUNNER_JOBS_PATH_REGEX, requester_id: /./ })
+              rules << skip_rule(RUNNER_RULE_NAME, { runner_jobs: true, requester_id: /./ })
             end
 
             rules

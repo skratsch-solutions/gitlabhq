@@ -34,8 +34,10 @@ module Gitlab
       # in the registry, so they do not appear here. Auth state is the requester_id /
       # runner_id presence facts. What remains as classification facts are the
       # conditions a matcher cannot express: the web/frontend disjunction, the
-      # admin-dynamic protected-path match, and the param-derived deprecated condition.
+      # admin-dynamic protected-path match, the param-derived deprecated condition,
+      # and the auth-method-dependent runner-jobs condition.
       class ClassifiedRequest < ::Rack::Request
+        include ::Gitlab::Utils::StrongMemoize
         include ::Gitlab::RackAttack::Request
 
         def labkit_facts
@@ -141,6 +143,8 @@ module Gitlab
         #     and each rule's own `method:` gate ensures the fact was computed against the
         #     matching list;
         #   - deprecated: a path match plus the with_projects param default;
+        #   - runner_jobs: a path match plus the auth method (runner or job token),
+        #     which no path matcher or presence fact can see (see #runner_jobs?);
         #   - bypass: the safelist header, matched by the bypass rule.
         def classification_facts
           settings = ::Gitlab::Throttle.settings
@@ -149,6 +153,7 @@ module Gitlab
             frontend: frontend_request?, # frontend_request checks HTTP_X_CSRF_TOKEN header - not a regex
             protected_path: protected_path?,
             deprecated: deprecated_api_request?, # TODO use path matchers for deprecated API requests: https://gitlab.com/gitlab-org/ruby/gems/labkit-ruby/-/work_items/71
+            runner_jobs: runner_jobs?,
             bypass: labkit_bypassed?,
 
             # per-throttle enable settings each rule matches on (option 2: matched
@@ -178,8 +183,25 @@ module Gitlab
         # Used purely as a presence fact: a runner-authenticated request has no
         # requester, so the unauthenticated rules' `runner_id: nil` guard is what keeps
         # it out of the IP throttles (mirroring unauthenticated? accounting for runners).
+        # Memoized because #runner_jobs? reads it too and the underlying runner lookup
+        # is a token query the authenticator does not cache.
         def runner_id
           request_authenticator.runner&.id&.to_s
+        end
+        strong_memoize_attr :runner_id
+
+        # The auth half of Gitlab::RackAttack::Request#runner_jobs_request?, paired
+        # with its path half: a request on the runner-jobs API path authenticated as
+        # a runner or with a CI job token. The legacy authenticated API throttle
+        # excludes exactly these via !runner_jobs_request?, and the runner_jobs skip
+        # rule (see Limiters) matches this fact to mirror that. The auth method
+        # matters, not just requester presence: a job token resolves to the job's
+        # user, so a job-token request and a PAT request are indistinguishable by
+        # requester_id alone, yet Rack::Attack skips the former and counts the
+        # latter (a PAT-driven bot polling job status is real API usage).
+        def runner_jobs?
+          runner_jobs_api_path? &&
+            (runner_id.present? || request_authenticator.job_from_token.present?)
         end
 
         # Combines the module's protected_path? (POST list) and

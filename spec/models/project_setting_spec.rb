@@ -6,6 +6,12 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
   using RSpec::Parameterized::TableSyntax
   it { is_expected.to belong_to(:project) }
 
+  it_behaves_like 'cells claimable model',
+    subject_type: Cells::Claimable::CLAIMS_SUBJECT_TYPE::PROJECT,
+    subject_key: :project_id,
+    source_type: Cells::Claimable::CLAIMS_SOURCE_TYPE::RAILS_TABLE_PROJECT_SETTINGS,
+    claiming_attributes: [:pages_unique_domain]
+
   describe 'default values' do
     it { expect(subject.legacy_open_source_license_available).to be_truthy }
   end

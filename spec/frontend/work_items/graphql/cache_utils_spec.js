@@ -17,20 +17,29 @@ import {
   getNewWorkItemWidgetsAutoSaveKey,
 } from '~/work_items/utils';
 import getWorkItemTreeQuery from '~/work_items/graphql/work_item_tree.query.graphql';
+import workItemByIdQuery from '~/work_items/graphql/work_item_by_id.query.graphql';
 import workItemLinkedItemsSlimQuery from '~/work_items/graphql/work_items_linked_items_slim.query.graphql';
 import waitForPromises from 'helpers/wait_for_promises';
 import { apolloProvider } from '~/graphql_shared/issuable_client';
-import { linkedItems } from '~/graphql_shared/issuable_client_state';
 import {
+  linkedItems,
+  currentAssignees,
+  appliedLabels,
+} from '~/graphql_shared/issuable_client_state';
+
+import {
+  workItemResponseFactory,
   childrenWorkItems,
   createWorkItemNoteResponse,
   mockWorkItemNotesByIidResponse,
-  workItemResponseFactory,
   mockCreateWorkItemDraftData,
   mockNewWorkItemCache,
   restoredDraftDataWidgets,
   restoredDraftDataWidgetsEmpty,
-} from '../mock_data';
+  mockAssignees,
+  mockLabels,
+  mockWorkItemFeaturesData,
+} from 'ee_else_ce_jest/work_items/mock_data';
 
 describe('work items graphql cache utils', () => {
   const originalFeatures = window.gon.features;
@@ -752,6 +761,169 @@ describe('work items graphql cache utils', () => {
       }
 
       expect(linkedItems()[key]).toMatchObject(expectedItems);
+    });
+  });
+
+  describe('reactive variables populated from widgets and features merges', () => {
+    const fullPath = 'gitlab-org';
+    const iid = '1';
+    const workItemId = 'gid://gitlab/WorkItem/1';
+    const { cache } = apolloProvider.clients.defaultClient;
+    const originalWriteQuery = cache.writeQuery.bind(cache);
+
+    // On the widgets path the factory already provides mockAssignees/mockLabels; on the
+    // features path we overlay the same nodes so both paths assert an identical result.
+    const writeWorkItem = (useWorkItemFeatures) => {
+      const featureDefaults = mockWorkItemFeaturesData();
+      const { data } = workItemResponseFactory({
+        id: workItemId,
+        features: useWorkItemFeatures
+          ? {
+              assignees: {
+                ...featureDefaults.assignees,
+                assignees: { __typename: 'UserCoreConnection', nodes: mockAssignees },
+              },
+              labels: {
+                ...featureDefaults.labels,
+                labels: { __typename: 'LabelConnection', nodes: mockLabels },
+              },
+            }
+          : null,
+      });
+
+      cache.writeQuery({
+        query: workItemByIdQuery,
+        variables: { id: workItemId, useWorkItemFeatures },
+        data,
+      });
+    };
+
+    const linkedItemNode = {
+      __typename: 'LinkedWorkItemType',
+      linkId: 'gid://gitlab/WorkItems::RelatedWorkItemLink/1',
+      linkType: 'relates_to',
+      workItemState: 'OPEN',
+      workItem: {
+        __typename: 'WorkItem',
+        id: 'gid://gitlab/WorkItem/10',
+        iid: '10',
+        confidential: false,
+        namespace: { __typename: 'Namespace', id: 'gid://gitlab/Group/1', fullPath },
+        workItemType: {
+          __typename: 'WorkItemType',
+          id: 'gid://gitlab/WorkItems::Type/8',
+          name: 'Epic',
+          iconName: 'work-item-epic',
+        },
+        title: 'Item 10',
+        state: 'OPEN',
+        createdAt: '2025-01-01T00:00:00Z',
+        closedAt: null,
+        webUrl: 'https://example.com/10',
+        reference: `${fullPath}#10`,
+      },
+    };
+
+    const writeLinkedItems = (useWorkItemFeatures) => {
+      const widget = {
+        __typename: 'WorkItemWidgetLinkedItems',
+        type: 'LINKED_ITEMS',
+        blockedByCount: 0,
+        blockingCount: 0,
+        linkedItems: { __typename: 'LinkedWorkItemTypeConnection', nodes: [linkedItemNode] },
+      };
+
+      cache.writeQuery({
+        query: workItemLinkedItemsSlimQuery,
+        variables: { fullPath, iid, useWorkItemFeatures },
+        data: {
+          namespace: {
+            __typename: 'Namespace',
+            id: 'gid://gitlab/Group/1',
+            workItem: {
+              __typename: 'WorkItem',
+              id: workItemId,
+              ...(useWorkItemFeatures
+                ? {
+                    features: {
+                      __typename: 'WorkItemFeatures',
+                      linkedItems: { ...widget, type: undefined },
+                    },
+                  }
+                : { widgets: [widget] }),
+            },
+          },
+        },
+      });
+    };
+
+    // Restore the real writeQuery, which `setNewWorkItemCache` tests replace with a mock.
+    beforeEach(() => {
+      cache.writeQuery = originalWriteQuery;
+      cache.restore({});
+      currentAssignees({});
+      appliedLabels({});
+      linkedItems({});
+    });
+
+    describe.each`
+      path          | useWorkItemFeatures
+      ${'widgets'}  | ${false}
+      ${'features'} | ${true}
+    `('when a work item is written via the $path shape', ({ useWorkItemFeatures }) => {
+      beforeEach(() => {
+        // Write twice: the widgets merge returns `incoming` early on the first (empty) write.
+        writeWorkItem(useWorkItemFeatures);
+        writeWorkItem(useWorkItemFeatures);
+        writeLinkedItems(useWorkItemFeatures);
+        writeLinkedItems(useWorkItemFeatures);
+      });
+
+      it('populates the currentAssignees reactive variable', () => {
+        expect(currentAssignees()[workItemId]).toMatchObject(
+          mockAssignees.map(({ username, avatarUrl }) => ({ username, avatar_url: avatarUrl })),
+        );
+      });
+
+      it('populates the appliedLabels reactive variable', () => {
+        expect(appliedLabels()[workItemId]).toMatchObject(
+          mockLabels.map(({ title }) => ({ title })),
+        );
+      });
+
+      it('populates the linkedItems reactive variable', () => {
+        expect(linkedItems()[`${fullPath}:${iid}`]).toMatchObject([
+          { iid: '10', title: 'Item 10' },
+        ]);
+      });
+    });
+
+    describe('when an assignee ref is not yet resolvable in the cache', () => {
+      const originalExtract = cache.extract.bind(cache);
+      const [missingAssignee, resolvableAssignee] = mockAssignees;
+
+      beforeEach(() => {
+        // Populate the cache, then evict one assignee so it is missing during extraction.
+        writeWorkItem(true);
+
+        jest.spyOn(cache, 'extract').mockImplementation(() => {
+          const data = originalExtract();
+          delete data[`UserCore:${missingAssignee.id}`];
+          return data;
+        });
+      });
+
+      afterEach(() => {
+        cache.extract.mockRestore();
+      });
+
+      it('skips the unresolved assignee instead of throwing', () => {
+        expect(() => writeWorkItem(true)).not.toThrow();
+
+        expect(currentAssignees()[workItemId]).toMatchObject([
+          { username: resolvableAssignee.username },
+        ]);
+      });
     });
   });
 });

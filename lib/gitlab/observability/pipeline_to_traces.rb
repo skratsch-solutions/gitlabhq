@@ -5,12 +5,13 @@ module Gitlab
     class PipelineToTraces
       include Gitlab::Utils::StrongMemoize
       include Gitlab::Observability::CicdSemconv
+      include Gitlab::Observability::TracingHelpers
 
       def initialize(integration, pipeline_data)
         @integration = integration
         @pipeline_data = pipeline_data
         @pipeline = pipeline_data[:object_attributes]
-        @builds = pipeline_data[:builds] || []
+        @builds = (pipeline_data[:builds] || []) + (pipeline_data[:bridges] || [])
       end
 
       def convert
@@ -92,7 +93,7 @@ module Gitlab
         {
           traceId: pipeline_trace_id,
           spanId: pipeline_span_id,
-          parentSpanId: '',
+          parentSpanId: parent_span_id_for_pipeline,
           name: "pipeline: #{pipeline[:name] || pipeline[:ref]}",
           kind: 1,
           startTimeUnixNano: time_to_nanoseconds(pipeline[:created_at]),
@@ -102,10 +103,23 @@ module Gitlab
         }
       end
 
+      def parent_span_id_for_pipeline
+        return '' unless pipeline_data[:trace_correlation_enabled]
+
+        bridge_id = pipeline_data.dig(:source_pipeline, :bridge_id)
+        return '' unless bridge_id
+
+        source_project_id = pipeline_data.dig(:source_pipeline, :project, :id)
+        current_project_id = pipeline_data.dig(:project, :id)
+        return '' unless source_project_id == current_project_id
+
+        Gitlab::Ci::TraceContext.span_id_for_bridge(bridge_id)
+      end
+
       def build_job_span(build)
         {
           traceId: pipeline_trace_id,
-          spanId: generate_span_id,
+          spanId: exported_span_id(build),
           parentSpanId: pipeline_span_id,
           name: "job: #{build[:name]}",
           kind: 1,
@@ -303,6 +317,7 @@ module Gitlab
 
       def build_optional_job_attributes(build)
         attrs = []
+        attrs << { key: 'job.type', value: { stringValue: 'bridge' } } if build[:bridge]
         attrs += build_timestamp_attributes(build)
         attrs += build_user_attributes(build)
         attrs += build_artifacts_attributes(build)
@@ -448,18 +463,13 @@ module Gitlab
         (active_support_time_value.utc.to_f * 1_000_000_000).to_i
       end
 
-      def pipeline_trace_id
-        SecureRandom.hex(16)
-      end
-      strong_memoize_attr :pipeline_trace_id
+      # Resolves the span ID for a build in the exported trace.
+      # Bridges use a distinct formula (span_id_for_bridge) so child
+      # pipelines can reference them as parentSpanId.
+      def exported_span_id(build)
+        return Gitlab::Ci::TraceContext.span_id_for_bridge(build[:id]) if build[:bridge]
 
-      def pipeline_span_id
-        generate_span_id
-      end
-      strong_memoize_attr :pipeline_span_id
-
-      def generate_span_id
-        SecureRandom.hex(8)
+        job_span_id(build)
       end
     end
   end

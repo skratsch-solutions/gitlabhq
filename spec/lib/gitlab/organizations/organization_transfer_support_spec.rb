@@ -43,14 +43,9 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       dependency_list_export_part_upload_states
       dependency_list_export_part_uploads
       dependency_list_export_parts
-      dependency_list_export_upload_states
-      dependency_list_export_uploads
       iam_outbox
-      issue_tracker_data
       jira_connect_installations
-      jira_tracker_data
       ldap_admin_role_links
-      member_roles
       merge_request_diff_commit_users
       non_sql_service_pings
       oauth_device_grants
@@ -69,8 +64,6 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       scim_oauth_access_tokens
       security_policy_settings
       slack_api_scopes
-      slack_integrations
-      slack_integrations_scopes
       snippet_uploads
       personal_snippet_upload_states
       topics
@@ -83,10 +76,6 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       vulnerability_export_parts
       vulnerability_export_upload_states
       vulnerability_export_uploads
-      work_item_custom_types
-      work_item_settings
-      work_item_type_visibility_defaults
-      zentao_tracker_data
     ]
   end
 
@@ -98,11 +87,17 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       bulk_import_failures
       bulk_import_trackers
       cd_environments
+      dependency_list_export_upload_states
+      dependency_list_export_uploads
       dependency_list_exports
       enabled_foundational_flow_check_results
       import_offline_configurations
       integrations
+      issue_tracker_data
+      jira_tracker_data
       labels
+      loose_foreign_keys_organization_deleted_records
+      member_roles
       organization_detail_upload_states
       organization_detail_uploads
       organization_details
@@ -110,9 +105,14 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       organization_isolations
       organization_push_rules
       organization_settings
-      loose_foreign_keys_organization_deleted_records
-      web_hooks
+      slack_integrations
+      slack_integrations_scopes
       web_hook_logs_daily
+      web_hooks
+      work_item_custom_types
+      work_item_settings
+      work_item_type_visibility_defaults
+      zentao_tracker_data
     ]
   end
 

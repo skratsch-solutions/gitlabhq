@@ -1824,6 +1824,49 @@ describe('planning-view', () => {
         expect(trackEventSpy).not.toHaveBeenCalledWith('saved_view_view', {}, undefined);
       });
 
+      it('navigates to /work_items with sv_not_found query parameter when saved view is a board view and planningViewBoards is disabled', async () => {
+        const boardSavedView = {
+          ...singleSavedView[0],
+          displaySettings: { viewMode: VIEW_MODE_BOARD },
+        };
+        await mountComponent({
+          savedViewHandler: jest
+            .fn()
+            .mockResolvedValue(savedViewResponseFactory({ savedViews: [boardSavedView] })),
+          route: { name: 'savedView', params: { type: 'work_items', view_id: '3' } },
+        });
+
+        expect(window.location.pathname).toBe('/work_items');
+        expect(window.location.search).toContain('sv_not_found');
+      });
+
+      it.each`
+        message                      | planningViewBoards | listViewExists | boardViewExists
+        ${'falls back to list view'} | ${false}           | ${true}        | ${false}
+        ${'restores board view'}     | ${true}            | ${false}       | ${true}
+      `(
+        '$message from the unsaved draft when planningViewBoards is $planningViewBoards',
+        async ({ planningViewBoards, listViewExists, boardViewExists }) => {
+          localStorage.setItem(
+            'full/path-saved-view-3',
+            JSON.stringify({
+              sortKey: 'UPDATED_DESC',
+              displaySettings: {},
+              viewMode: VIEW_MODE_BOARD,
+            }),
+          );
+
+          await mountComponent({
+            provide: { glFeatures: { planningViewBoards } },
+            route: { name: 'savedView', params: { type: 'work_items', view_id: '3' } },
+          });
+
+          expect(window.location.search).not.toContain('sv_not_found');
+          expect(findListView().exists()).toBe(listViewExists);
+          expect(findBoardView().exists()).toBe(boardViewExists);
+        },
+      );
+
       describe('when visiting an unsubscribed view', () => {
         describe('when at subscription limit', () => {
           it('navigates to /work_items with sv_limit_id query parameter', async () => {

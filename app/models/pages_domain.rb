@@ -5,6 +5,13 @@ class PagesDomain < ApplicationRecord
   include FromUnion
   include AfterCommitQueue
   include Gitlab::EncryptedAttribute
+  include Cells::Claimable
+
+  cells_claims_scope { where.not(domain: nil) }
+
+  cells_claims_attribute :domain, type: CLAIMS_BUCKET_TYPE::PAGES_DOMAINS, feature_flag: :cells_claims_pages_domains
+
+  cells_claims_metadata subject_type: CLAIMS_SUBJECT_TYPE::PROJECT, subject_key: :project_id
 
   VERIFICATION_KEY = 'gitlab-pages-verification-code'
   VERIFICATION_THRESHOLD = 3.days.freeze
@@ -247,6 +254,10 @@ class PagesDomain < ApplicationRecord
   end
 
   private
+
+  def unique_attributes
+    [:domain]
+  end
 
   def max_certificate_key_length
     return unless pkey.is_a?(OpenSSL::PKey::RSA)

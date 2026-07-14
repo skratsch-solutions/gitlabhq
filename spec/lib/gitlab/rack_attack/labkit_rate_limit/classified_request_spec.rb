@@ -93,10 +93,57 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::ClassifiedRequest, feature_c
         request = described_class.new(Rack::MockRequest.env_for('/api/v4/jobs/request'))
         runner = instance_double(Ci::Runner, id: 1)
         authenticator = instance_double(Gitlab::Auth::RequestAuthenticator,
-          find_authenticated_requester: nil, runner: runner)
+          find_authenticated_requester: nil, runner: runner, job_from_token: nil)
         allow(request).to receive(:request_authenticator).and_return(authenticator)
 
         expect(request.labkit_facts).to include(runner_id: '1', requester_id: nil)
+      end
+    end
+
+    # runner_jobs mirrors runner_jobs_request?: the path plus the auth method. The
+    # method matters because a job token resolves to the job's user, so requester
+    # presence alone cannot separate a runner updating its job from a PAT-driven
+    # bot polling the same endpoints - and only the former is exempt from the
+    # authenticated API throttle.
+    describe 'the runner_jobs fact' do
+      def request_with(path:, runner: nil, job: nil, requester: nil)
+        request = described_class.new(Rack::MockRequest.env_for(path))
+        authenticator = instance_double(Gitlab::Auth::RequestAuthenticator,
+          find_authenticated_requester: requester, runner: runner, job_from_token: job)
+        allow(request).to receive(:request_authenticator).and_return(authenticator)
+        request
+      end
+
+      it 'is true for a job-token request on the runner-jobs path' do
+        request = request_with(path: '/api/v4/jobs/1/trace',
+          job: instance_double(Ci::Build), requester: instance_double(User, id: 1))
+
+        expect(request.labkit_facts).to include(runner_jobs: true, requester_id: '1')
+      end
+
+      it 'is true for a runner-token request on the runner-jobs path' do
+        request = request_with(path: '/api/v4/jobs/request', runner: instance_double(Ci::Runner, id: 1))
+
+        expect(request.labkit_facts).to include(runner_jobs: true, runner_id: '1', requester_id: nil)
+      end
+
+      it 'is false for a PAT-authenticated request on the runner-jobs path' do
+        request = request_with(path: '/api/v4/jobs/1', requester: instance_double(User, id: 1))
+
+        expect(request.labkit_facts).to include(runner_jobs: false, requester_id: '1')
+      end
+
+      it 'is false for an anonymous request on the runner-jobs path' do
+        request = request_with(path: '/api/v4/jobs/1')
+
+        expect(request.labkit_facts).to include(runner_jobs: false, requester_id: nil)
+      end
+
+      it 'is false for a job-token request outside the runner-jobs path' do
+        request = request_with(path: '/api/v4/projects/1/packages/npm/foo',
+          job: instance_double(Ci::Build), requester: instance_double(User, id: 1))
+
+        expect(request.labkit_facts).to include(runner_jobs: false)
       end
     end
 

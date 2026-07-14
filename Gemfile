@@ -420,6 +420,8 @@ gem 'gitlab-http', path: 'gems/gitlab-http', feature_category: :shared # rubocop
 gem 'gitlab-bitbucket', path: 'gems/gitlab-bitbucket', require: 'bitbucket', feature_category: :importers
 gem 'gitlab-bitbucket-server', path: 'gems/gitlab-bitbucket-server',
   require: 'bitbucket_server', feature_category: :importers
+gem 'gitlab-deploy-driver-argo-rollouts', path: 'gems/gitlab-deploy-driver-argo-rollouts', require: false,
+  feature_category: :continuous_delivery
 
 gem 'premailer-rails', '~> 1.12.0', feature_category: :notifications
 gem 'gitlab-labkit', '~> 2.7.0', feature_category: :error_budgets
@@ -510,7 +512,10 @@ group :development do
   gem 'solargraph-rspec', '~> 0.5.1', require: false, feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
   gem 'letter_opener_web', '~> 3.0.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
-  gem 'lookbook', '~> 2.3', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
+  # GitLab's fork of lookbook, which relaxes the upper bound on the rouge
+  # dependency to allow rouge 5.x. See:
+  # https://gitlab.com/gitlab-org/gitlab/-/work_items/581507
+  gem 'gitlab-lookbook', '~> 2.3', require: 'lookbook', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
   gem 'sprite-factory', '~> 1.7', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 

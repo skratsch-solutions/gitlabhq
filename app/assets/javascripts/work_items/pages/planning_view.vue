@@ -382,7 +382,11 @@ export default {
           const limit = data?.namespace?.subscribedSavedViewLimit;
           const count = data?.namespace?.currentSavedViews?.nodes.length;
 
-          if (!savedView) {
+          const isDisabledBoardView =
+            savedView?.displaySettings?.viewMode === VIEW_MODE_BOARD &&
+            !this.isPlanningViewBoardEnabled;
+
+          if (!savedView || isDisabledBoardView) {
             this.handleSavedViewNotFound();
             return;
           }
@@ -1395,9 +1399,15 @@ export default {
       const draft = getSavedViewDraft(this.draftStorageContext);
       if (!draft) return;
 
+      const isDraftBoardModeUnavailable =
+        draft.viewMode === VIEW_MODE_BOARD && !this.isPlanningViewBoardEnabled;
+
       this.sortKey = draft.sortKey;
       this.localDisplaySettings = draft.displaySettings;
-      this.viewMode = draft.viewMode;
+      // A genuinely inaccessible board saved view is already redirected to "not found" by
+      // the savedView query result handler, so an unavailable board draft here means the
+      // persisted view itself is a list view with a stale/invalid draft view mode.
+      this.viewMode = isDraftBoardModeUnavailable ? VIEW_MODE_LIST : draft.viewMode;
     },
     handleClickTab(state) {
       if (this.state === state) {

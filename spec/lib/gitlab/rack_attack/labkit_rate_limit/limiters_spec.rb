@@ -75,7 +75,7 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
 
         expect(Labkit::RateLimit::Rule).to have_received(:new)
           .with(hash_including(name: 'runner_jobs',
-            match: { path: Gitlab::RackAttack::Request::RUNNER_JOBS_PATH_REGEX, requester_id: /./ }, action: :skip))
+            match: { runner_jobs: true, requester_id: /./ }, action: :skip))
       end
     end
 
@@ -247,10 +247,19 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
         path: '/-/health', setting_unauthenticated_api: true)).to eq('skip_health_checks')
     end
 
-    it 'skips an authenticated request on the runner-jobs path before the authenticated API throttle' do
+    it 'skips a job-token request on the runner-jobs path before the authenticated API throttle' do
+      expect(selected_in(general,
+        path: '/api/v4/jobs/1', runner_jobs: true, setting_authenticated_api: true,
+        requester_type: 'user', requester_id: '1')).to eq('runner_jobs')
+    end
+
+    it 'counts a PAT-authenticated request on the runner-jobs path under the authenticated API throttle' do
+      # Only runner- or job-token-authenticated requests are exempt from the
+      # authenticated API throttle on the jobs path (runner_jobs fact); a bot
+      # polling job status with a PAT is ordinary API usage and stays counted.
       expect(selected_in(general,
         path: '/api/v4/jobs/1', setting_authenticated_api: true,
-        requester_type: 'user', requester_id: '1')).to eq('runner_jobs')
+        requester_type: 'user', requester_id: '1')).to eq('authenticated_api')
     end
 
     it 'lets a runner-token request escape every throttle (no requester, runner_id present)' do
@@ -258,6 +267,14 @@ RSpec.describe Gitlab::RackAttack::LabkitRateLimit::Limiters, feature_category: 
       # and runner_id present fails the unauthenticated rules' runner_id: nil gate.
       expect(selected_in(general,
         path: paths[:api], runner_id: '5',
+        setting_unauthenticated_api: true, setting_authenticated_api: true)).to be_nil
+    end
+
+    it 'lets a runner-token request on the runner-jobs path escape every rule including the skip' do
+      # The runner_jobs skip carries a requester presence gate, so a runner-token
+      # request is not claimed by it and escapes unmatched, as on every other path.
+      expect(selected_in(general,
+        path: '/api/v4/jobs/request', runner_jobs: true, runner_id: '5',
         setting_unauthenticated_api: true, setting_authenticated_api: true)).to be_nil
     end
 
