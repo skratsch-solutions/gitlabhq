@@ -28,6 +28,7 @@
 - :click_house
 - :cloud_licenses
 - :config
+- :pact
 - :counter_attribute
 - :database_replica
 - :db_load_balancing

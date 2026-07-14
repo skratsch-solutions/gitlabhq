@@ -13498,6 +13498,28 @@ CREATE SEQUENCE ai_active_context_tasks_id_seq
 
 ALTER SEQUENCE ai_active_context_tasks_id_seq OWNED BY ai_active_context_tasks.id;
 
+CREATE TABLE ai_agent_identities (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    revoked_at timestamp with time zone,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    agent_type text NOT NULL,
+    machine_fingerprint text NOT NULL,
+    CONSTRAINT check_0dd47fa572 CHECK ((char_length(machine_fingerprint) <= 64)),
+    CONSTRAINT check_4648ea2626 CHECK ((char_length(agent_type) <= 50))
+);
+
+CREATE SEQUENCE ai_agent_identities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE ai_agent_identities_id_seq OWNED BY ai_agent_identities.id;
+
 CREATE SEQUENCE ai_audit_events_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -24059,7 +24081,7 @@ ALTER SEQUENCE lfs_objects_id_seq OWNED BY lfs_objects.id;
 
 CREATE TABLE lfs_objects_projects (
     id bigint NOT NULL,
-    lfs_object_id bigint NOT NULL,
+    lfs_object_id bigint,
     project_id bigint NOT NULL,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
@@ -36817,6 +36839,8 @@ ALTER TABLE ONLY ai_active_context_migrations ALTER COLUMN id SET DEFAULT nextva
 
 ALTER TABLE ONLY ai_active_context_tasks ALTER COLUMN id SET DEFAULT nextval('ai_active_context_tasks_id_seq'::regclass);
 
+ALTER TABLE ONLY ai_agent_identities ALTER COLUMN id SET DEFAULT nextval('ai_agent_identities_id_seq'::regclass);
+
 ALTER TABLE ONLY ai_audit_events ALTER COLUMN id SET DEFAULT nextval('ai_audit_events_id_seq'::regclass);
 
 ALTER TABLE ONLY ai_catalog_item_consumers ALTER COLUMN id SET DEFAULT nextval('ai_catalog_item_consumers_id_seq'::regclass);
@@ -39824,6 +39848,9 @@ ALTER TABLE ONLY ai_active_context_migrations
 
 ALTER TABLE ONLY ai_active_context_tasks
     ADD CONSTRAINT ai_active_context_tasks_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY ai_agent_identities
+    ADD CONSTRAINT ai_agent_identities_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY ai_audit_events
     ADD CONSTRAINT ai_audit_events_pkey PRIMARY KEY (id, created_at);
@@ -45850,6 +45877,10 @@ CREATE INDEX idx_abuse_reports_user_id_status_and_category ON abuse_reports USIN
 CREATE INDEX idx_addon_purchases_on_last_refreshed_at_desc_nulls_last ON subscription_add_on_purchases USING btree (last_assigned_users_refreshed_at DESC NULLS LAST);
 
 CREATE INDEX idx_ai_active_context_code_enabled_namespaces_namespace_id ON ONLY p_ai_active_context_code_enabled_namespaces USING btree (namespace_id);
+
+CREATE INDEX idx_ai_agent_identities_on_project_id ON ai_agent_identities USING btree (project_id);
+
+CREATE UNIQUE INDEX idx_ai_agent_identities_unique_identity ON ai_agent_identities USING btree (user_id, project_id, agent_type, machine_fingerprint);
 
 CREATE UNIQUE INDEX idx_ai_audit_events_on_cloud_event_id_created_at_unique ON ONLY ai_audit_events USING btree (cloud_event_id, created_at);
 
@@ -57997,6 +58028,9 @@ ALTER TABLE ONLY cluster_agent_migrations
 ALTER TABLE ONLY bulk_import_trackers
     ADD CONSTRAINT fk_13c8d30bfb FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY ai_agent_identities
+    ADD CONSTRAINT fk_13f32a9c67 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY project_control_compliance_statuses
     ADD CONSTRAINT fk_13fb61bcfa FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
@@ -58188,6 +58222,9 @@ ALTER TABLE ONLY security_pipeline_execution_project_schedules
 
 ALTER TABLE p_ci_build_trace_metadata
     ADD CONSTRAINT fk_21d25cac1a_p FOREIGN KEY (partition_id, trace_artifact_id) REFERENCES p_ci_job_artifacts(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY ai_agent_identities
+    ADD CONSTRAINT fk_22685ec132 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY dependency_firewall_policy_rules
     ADD CONSTRAINT fk_22827be539 FOREIGN KEY (security_policy_management_project_id) REFERENCES projects(id) ON DELETE CASCADE;
