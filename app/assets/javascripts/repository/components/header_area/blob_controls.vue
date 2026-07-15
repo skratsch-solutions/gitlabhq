@@ -347,7 +347,7 @@ export default {
       :is-empty-repository="repository.empty"
       :is-using-lfs="isUsingLfs"
       @copy="onCopy"
-      @showForkSuggestion="onShowForkSuggestion"
+      @show-fork-suggestion="onShowForkSuggestion"
       @lockedFile="onLockedFile"
     />
   </div>

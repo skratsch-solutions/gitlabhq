@@ -404,7 +404,7 @@ Dangerfile
 /ee/app/assets/javascripts/dependencies/
 /ee/spec/frontend/dependencies/
 
-[Security Insights frontend] @gitlab-org/security-risk-management/security-insights/frontend
+[Security Insights frontend GraphQL] @gitlab-org/security-risk-management/security-insights/frontend
 /ee/app/assets/javascripts/security_dashboard/graphql/
 
 ^[Composition Analysis backend] @gitlab-org/secure/composition-analysis-be

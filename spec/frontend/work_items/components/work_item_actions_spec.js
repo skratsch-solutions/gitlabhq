@@ -998,7 +998,7 @@ describe('WorkItemActions component', () => {
       expect(findSidebarToggle().exists()).toBe(true);
 
       findSidebarToggle().vm.$emit('action');
-      expect(wrapper.emitted('toggleSidebar')).toEqual([[]]);
+      expect(wrapper.emitted('toggle-sidebar')).toEqual([[]]);
     });
   });
 });

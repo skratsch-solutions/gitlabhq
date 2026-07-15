@@ -67162,6 +67162,39 @@ msgstr ""
 msgid "SecretsManagerPermissions|The full path to the group to add. For example, %{example}."
 msgstr ""
 
+msgid "SecretsManagerTrial|%{creditsRemaining}%% of credits left in secrets manager trial"
+msgstr ""
+
+msgid "SecretsManagerTrial|0 credits left in secrets manager trial"
+msgstr ""
+
+msgid "SecretsManagerTrial|Contact your billing administrator to enable on-demand billing and avoid disruption."
+msgstr ""
+
+msgid "SecretsManagerTrial|On-demand billing is disabled"
+msgstr ""
+
+msgid "SecretsManagerTrial|On-demand billing is enabled, and you will incur charges after the trial period ends. %{linkStart}How is secrets manager billed?%{linkEnd}"
+msgstr ""
+
+msgid "SecretsManagerTrial|On-demand billing is enabled. When all trial credits are consumed, GitLab credits will be used. Disable secrets manager to stop credit consumption."
+msgstr ""
+
+msgid "SecretsManagerTrial|Secrets manager trial ends in %{trialDaysRemaining} days"
+msgstr ""
+
+msgid "SecretsManagerTrial|Secrets manager trial period has ended"
+msgstr ""
+
+msgid "SecretsManagerTrial|You have a short grace period remaining before access is removed. Contact your billing administrator to enable on-demand billing and avoid disruption."
+msgstr ""
+
+msgid "SecretsManagerTrial|Your secrets manager add-on has been removed from your license"
+msgstr ""
+
+msgid "SecretsManagerTrial|Your secrets manager subscription has been cancelled"
+msgstr ""
+
 msgid "SecretsManager|Add a description for the secret"
 msgstr ""
 

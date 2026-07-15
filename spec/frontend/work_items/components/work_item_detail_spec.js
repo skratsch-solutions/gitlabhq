@@ -1461,7 +1461,7 @@ describe('WorkItemDetail component', () => {
       it('tracks when sidebar is toggled', async () => {
         const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
 
-        findWorkItemActions().vm.$emit('toggleSidebar');
+        findWorkItemActions().vm.$emit('toggle-sidebar');
         await nextTick();
 
         expect(trackEventSpy).toHaveBeenCalledWith(
@@ -1472,7 +1472,7 @@ describe('WorkItemDetail component', () => {
           undefined,
         );
 
-        findWorkItemActions().vm.$emit('toggleSidebar');
+        findWorkItemActions().vm.$emit('toggle-sidebar');
         await nextTick();
 
         expect(trackEventSpy).toHaveBeenCalledWith(

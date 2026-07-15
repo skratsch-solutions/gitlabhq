@@ -1047,7 +1047,7 @@ export default {
                 @workItemTypeChanged="workItemTypeChanged"
                 @toggleReportAbuseModal="toggleReportAbuseModal"
                 @work-item-created="handleWorkItemCreated"
-                @toggleSidebar="handleToggleSidebar"
+                @toggle-sidebar="handleToggleSidebar"
                 @toggleTruncationEnabled="handleTruncationEnabled"
               />
             </template>
@@ -1151,7 +1151,7 @@ export default {
               @workItemTypeChanged="workItemTypeChanged"
               @toggleReportAbuseModal="toggleReportAbuseModal"
               @work-item-created="handleWorkItemCreated"
-              @toggleSidebar="handleToggleSidebar"
+              @toggle-sidebar="handleToggleSidebar"
               @toggleTruncationEnabled="handleTruncationEnabled"
             />
             <gl-button

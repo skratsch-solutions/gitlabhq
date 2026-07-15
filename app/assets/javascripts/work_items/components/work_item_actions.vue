@@ -246,7 +246,7 @@ export default {
     'error',
     'promotedToObjective',
     'toggleReportAbuseModal',
-    'toggleSidebar',
+    'toggle-sidebar',
     'toggleTruncationEnabled',
     'toggleWorkItemConfidentiality',
     'work-item-created',
@@ -842,7 +842,7 @@ export default {
         <gl-disclosure-dropdown-item
           data-testid="sidebar-toggle-action"
           class="work-item-container-xs-hidden js-sidebar-toggle-action gl-hidden @md/panel:gl-block"
-          @action="$emit('toggleSidebar')"
+          @action="$emit('toggle-sidebar')"
         >
           <template #list-item>
             <div class="gl-flex gl-items-center gl-justify-between">

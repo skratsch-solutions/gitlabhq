@@ -8771,6 +8771,50 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
+  describe '#cached_html_up_to_date?', feature_category: :code_review_workflow do
+    let(:merge_request) { create(:merge_request, source_project: project) }
+
+    # A freshly loaded record, so the per-instance regeneration guard starts unset.
+    let(:reloaded) { described_class.find(merge_request.id) }
+
+    context 'when regenerate_merge_request_cached_html is disabled' do
+      before do
+        stub_feature_flags(regenerate_merge_request_cached_html: false)
+        merge_request.refresh_markdown_cache!
+      end
+
+      it 'delegates to the default behaviour and reports fresh HTML as up to date', :aggregate_failures do
+        expect(reloaded.cached_html_up_to_date?(:title)).to be(true)
+        expect(reloaded.cached_html_up_to_date?(:description)).to be(true)
+      end
+    end
+
+    context 'when regenerate_merge_request_cached_html is enabled for the project' do
+      before do
+        stub_feature_flags(regenerate_merge_request_cached_html: project)
+        merge_request.refresh_markdown_cache!
+      end
+
+      it 'reports the cached HTML as stale on a freshly loaded record, even when the cache is current', :aggregate_failures do
+        expect(reloaded.cached_html_up_to_date?(:title)).to be(false)
+        expect(reloaded.cached_html_up_to_date?(:description)).to be(false)
+      end
+
+      it 'regenerates and re-persists the HTML on read' do
+        merge_request.update_columns(description_html: 'stale')
+
+        expect { reloaded.updated_cached_html_for(:description) }
+          .to change { merge_request.reload.description_html }.from('stale')
+      end
+
+      it 'is scoped to the project actor' do
+        stub_feature_flags(regenerate_merge_request_cached_html: create(:project))
+
+        expect(reloaded.cached_html_up_to_date?(:description)).to be(true)
+      end
+    end
+  end
+
   describe '#update_and_mark_in_progress_merge_commit_sha' do
     let(:ref) { subject.target_project.repository.commit.id }
 

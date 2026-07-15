@@ -2643,6 +2643,29 @@ class MergeRequest < ApplicationRecord
     super.merge(label_url_method: :project_merge_requests_url)
   end
 
+  # When the experiment flag is on for this project, treat the cached HTML as
+  # stale so `title_html`/`description_html` are regenerated and re-persisted,
+  # letting us observe the cold-cache regeneration path for a selected project.
+  #
+  # We only force staleness until the first regeneration on this instance:
+  # `refresh_markdown_cache` re-reads these fields while collecting mentions,
+  # and without this guard that read would recurse back into regeneration. A
+  # freshly loaded instance (a new request) regenerates again, so reads keep
+  # hitting the cold-cache path per request. See the
+  # `regenerate_merge_request_cached_html` rollout.
+  def cached_html_up_to_date?(markdown_field)
+    return super unless always_regenerate_cached_html?
+    return super if @markdown_cache_regenerated
+
+    false
+  end
+
+  def refresh_markdown_cache
+    @markdown_cache_regenerated = true if always_regenerate_cached_html?
+
+    super
+  end
+
   def ensure_metrics!
     MergeRequest::Metrics.record!(self)
   end
@@ -2979,6 +3002,12 @@ class MergeRequest < ApplicationRecord
   end
 
   private
+
+  def always_regenerate_cached_html?
+    strong_memoize(:always_regenerate_cached_html) do
+      Feature.enabled?(:regenerate_merge_request_cached_html, project)
+    end
+  end
 
   # Runs the block with `allow_broken` enabled, restoring the previous value
   # afterwards. Used to bypass the structural validations that would otherwise
