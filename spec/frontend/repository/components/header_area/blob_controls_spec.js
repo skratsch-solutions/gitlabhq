@@ -442,10 +442,10 @@ describe('Blob controls component', () => {
     });
 
     it('proxy locked-file event', async () => {
-      findOverflowMenu().vm.$emit('lockedFile', true);
+      findOverflowMenu().vm.$emit('locked-file', true);
       await nextTick();
 
-      expect(wrapper.emitted('lockedFile')).toEqual([[true]]);
+      expect(wrapper.emitted('locked-file')).toEqual([[true]]);
     });
   });
 

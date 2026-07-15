@@ -15,6 +15,7 @@ import getClusterAgentQuery from '../graphql/queries/get_cluster_agent.query.gra
 import { removeTokenFromStore } from '../graphql/cache_update';
 
 export default {
+  name: 'RevokeTokenButton',
   components: {
     GlButton,
     GlTooltip,

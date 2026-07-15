@@ -52,7 +52,6 @@ class ApplicationController < BaseActionController
   before_action :ldap_security_check
   before_action :default_headers
   before_action :add_gon_variables, if: :html_request?
-  before_action :push_frontend_feature_flags, if: :html_request?
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :require_email, unless: :devise_controller?
   before_action :active_user_check, unless: :devise_controller?
@@ -521,12 +520,6 @@ class ApplicationController < BaseActionController
 
   def html_request?
     request.format.html?
-  end
-
-  # Feature flags that need to be available to the frontend across GitLab, e.g.
-  # for globally-rendered components such as work item reference popovers.
-  def push_frontend_feature_flags
-    push_frontend_feature_flag(:work_item_features_field, current_user)
   end
 
   def json_request?

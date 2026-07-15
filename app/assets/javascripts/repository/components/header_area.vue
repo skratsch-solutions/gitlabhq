@@ -366,7 +366,7 @@ export default {
           v-if="!isRoot"
           :project-path="projectPath"
           :path="currentPath"
-          @lockedDirectory="onLockedDirectory"
+          @locked-directory="onLockedDirectory"
         />
         <gl-button
           v-gl-tooltip.html="findFileTooltip"
@@ -457,7 +457,7 @@ export default {
         :project-id-as-number="projectIdAsNumber"
         :ref-type="getRefType"
         :is-binary="isBinary"
-        @lockedFile="onLockedFile"
+        @locked-file="onLockedFile"
       />
     </div>
   </section>

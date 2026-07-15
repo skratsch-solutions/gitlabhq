@@ -82,7 +82,7 @@ export default {
       default: false,
     },
   },
-  emits: ['lockedFile'],
+  emits: ['locked-file'],
   apollo: {
     project: {
       query: blobControlsQuery,
@@ -267,7 +267,7 @@ export default {
       }
     },
     onLockedFile(event) {
-      this.$emit('lockedFile', event);
+      this.$emit('locked-file', event);
     },
   },
 };
@@ -348,7 +348,7 @@ export default {
       :is-using-lfs="isUsingLfs"
       @copy="onCopy"
       @show-fork-suggestion="onShowForkSuggestion"
-      @lockedFile="onLockedFile"
+      @locked-file="onLockedFile"
     />
   </div>
 </template>

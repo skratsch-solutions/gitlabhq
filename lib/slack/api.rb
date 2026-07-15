@@ -82,7 +82,11 @@ module Slack
       # update_message uses `unless blocks.nil?` so it can clear blocks with [].
       payload[:blocks] = blocks if blocks.present?
       response = post('chat.postMessage', payload)
-      log_error('Slack API error when posting message', response, channel) unless response['ok']
+      unless response['ok']
+        log_error('Slack API error when posting message', response, channel,
+          blocks: payload[:blocks])
+      end
+
       response
     rescue *Gitlab::HTTP::HTTP_ERRORS => e
       handle_http_error(e, 'Slack API error when posting message', channel)
@@ -99,28 +103,14 @@ module Slack
       payload = { channel: channel, ts: ts, text: text }
       payload[:blocks] = blocks unless blocks.nil?
       response = post('chat.update', payload)
-      log_error('Slack API error when updating message', response, channel) unless response['ok']
+      unless response['ok']
+        log_error('Slack API error when updating message', response, channel,
+          blocks: payload[:blocks])
+      end
+
       response
     rescue *Gitlab::HTTP::HTTP_ERRORS => e
       handle_http_error(e, 'Slack API error when updating message', channel)
-    end
-
-    # Sets a thread's AI status indicator. loading_messages (max 10) auto-rotate
-    # as a loading animation; the status clears when the app posts a reply, and
-    # otherwise times out after 2 minutes. Needs only chat:write.
-    # See https://docs.slack.dev/reference/methods/assistant.threads.setStatus
-    def set_status(channel:, thread_ts:, status:, loading_messages: nil)
-      Gitlab::IntegrationsLogger.info(
-        message: 'Slack API: setting status',
-        channel_id: channel
-      )
-      payload = { channel_id: channel, thread_ts: thread_ts, status: status }
-      payload[:loading_messages] = loading_messages if loading_messages.present?
-      response = post('assistant.threads.setStatus', payload)
-      log_error('Slack API error when setting status', response, channel) unless response['ok']
-      response
-    rescue *Gitlab::HTTP::HTTP_ERRORS => e
-      handle_http_error(e, 'Slack API error when setting status', channel)
     end
 
     private
@@ -138,11 +128,14 @@ module Slack
       error_response
     end
 
-    def log_error(message, response, channel)
+    def log_error(message, response, channel, blocks: nil)
       Gitlab::IntegrationsLogger.error(
         message: message,
         channel_id: channel,
-        response: response
+        response: response,
+        # Surfaced for block-validation failures (e.g. invalid_blocks): the
+        # response_metadata json-pointer indexes into exactly these blocks.
+        blocks: blocks
       )
     end
   end

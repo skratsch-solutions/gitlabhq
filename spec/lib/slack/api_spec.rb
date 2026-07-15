@@ -275,52 +275,6 @@ RSpec.describe Slack::API, feature_category: :integrations do
     end
   end
 
-  describe '#set_status' do
-    let(:slack_installation) { build(:slack_integration) }
-    let(:api) { described_class.new(slack_installation) }
-    let(:api_url) { "#{described_class::BASE_URL}/assistant.threads.setStatus" }
-
-    before do
-      stub_request(:post, api_url).to_return(
-        status: 200, body: { ok: true }.to_json, headers: { 'Content-Type' => 'application/json' }
-      )
-    end
-
-    it 'posts channel_id, thread_ts and status' do
-      api.set_status(channel: 'C123', thread_ts: '1.2', status: 'is thinking')
-
-      expect(WebMock).to have_requested(:post, api_url)
-        .with(body: hash_including('channel_id' => 'C123', 'thread_ts' => '1.2', 'status' => 'is thinking'))
-    end
-
-    it 'includes loading_messages when provided' do
-      api.set_status(channel: 'C123', thread_ts: '1.2', status: 'x', loading_messages: %w[a b])
-
-      expect(WebMock).to have_requested(:post, api_url).with(body: hash_including('loading_messages' => %w[a b]))
-    end
-
-    it 'omits loading_messages when not provided' do
-      api.set_status(channel: 'C123', thread_ts: '1.2', status: 'x')
-
-      expect(WebMock).to have_requested(:post, api_url).with { |req| req.body.exclude?('loading_messages') }
-    end
-
-    context 'when the Slack API returns an error' do
-      before do
-        stub_request(:post, api_url).to_return(
-          status: 200, body: { ok: false, error: 'boom' }.to_json, headers: { 'Content-Type' => 'application/json' }
-        )
-      end
-
-      it 'logs the error' do
-        expect(Gitlab::IntegrationsLogger).to receive(:error)
-          .with(hash_including(message: 'Slack API error when setting status'))
-
-        api.set_status(channel: 'C123', thread_ts: '1.2', status: 'x')
-      end
-    end
-  end
-
   describe '#get' do
     let(:slack_installation) { build(:slack_integration) }
     let(:api_method) { 'conversations.replies' }

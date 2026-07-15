@@ -332,6 +332,10 @@ class CheckCiPartitionPruning
         If you have any questions, please ask in `#g_ci-platform`.
 
         _#{COVERAGE_CAVEAT}_
+
+        ----
+
+        <small>Something doesn't look right? [Share your feedback](https://gitlab.com/gitlab-org/gitlab/-/work_items/606192).</small>
       BODY
     end
 

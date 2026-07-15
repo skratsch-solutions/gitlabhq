@@ -177,10 +177,10 @@ pre-push:
     secrets-detection:
       tags: secrets
       run: .lefthook/gitleaks.sh pre-push
-    permissions_docs:
+    permissions-verify:
       tags: documentation
       files: git diff --name-only $(git merge-base origin/master HEAD)..HEAD
-      glob: '{config/authz/**/*,lib/tasks/gitlab/permissions/**/*.rb,{,ee/}app/policies/**/*.rb,{,ee/}app/graphql/**/*.rb,{,ee/}lib/api/**/*.rb}'
+      glob: '{config/authz/**/*,lib/tasks/gitlab/permissions/**/*.rb,{,ee/}app/policies/**/*.rb,{,ee/}app/graphql/**/*.rb,{,ee/}lib/api/**/*.rb,doc/auth/tokens/fine_grained_access_tokens_{rest,graphql}.md,tooling/authz/permissions/docs/templates/*}'
       run: bundle exec rake gitlab:permissions:validate
     unused-methods-linter:
       tags: backend

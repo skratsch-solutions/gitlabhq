@@ -820,13 +820,22 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
     end
   end
 
+  context 'notes' do
+    let!(:note) { create(:note, project: project, noteable: create(:issue, project: project)) }
+
+    it 'deletes project notes during project destroy' do
+      expect { destroy_project(project, user, {}) }
+        .to change { Note.where(project_id: project.id).count }.by(-1)
+    end
+  end
+
   context 'snippets' do
     let!(:snippet1) { create(:project_snippet, project: project, author: user) }
     let!(:snippet2) { create(:project_snippet, project: project, author: user) }
 
-    it 'does not include snippets when deleting in batches' do
-      expect(project).to receive(:destroy_dependent_associations_in_batches).with({ exclude: [:container_repositories,
-        :snippets] })
+    it 'does not include snippets or notes when deleting in batches' do
+      expect(project).to receive(:destroy_dependent_associations_in_batches)
+        .with(exclude: include(:snippets, :notes))
 
       destroy_project(project, user)
     end
@@ -1114,6 +1123,69 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
 
         expect { service.send(:delete_environments) }
           .to change { Environment.for_project(project).count }.from(3).to(0)
+      end
+    end
+  end
+
+  describe '#delete_notes' do
+    let(:service) { described_class.new(project, user, {}) }
+
+    context 'when there are no notes' do
+      it 'does not delete anything and logs zero count' do
+        expect(Gitlab::AppLogger).to receive(:info).with(
+          class: described_class.name,
+          project_id: project.id,
+          message: 'Deleting notes completed',
+          deleted_notes_count: 0
+        )
+
+        expect { service.send(:delete_notes) }.not_to change { Note.count }
+      end
+    end
+
+    context 'when there are fewer notes than the batch size' do
+      let!(:note1) { create(:note, project: project, noteable: create(:issue, project: project)) }
+      let!(:note2) { create(:note, project: project, noteable: create(:issue, project: project)) }
+      let!(:emoji_on_note) { create(:award_emoji, awardable: note1) }
+      let!(:other_project_note) { create(:note) }
+      let!(:emoji_on_other_project_note) { create(:award_emoji, awardable: other_project_note) }
+
+      it 'deletes all notes and award emoji in a single batch without affecting other projects', :aggregate_failures do
+        expect(Gitlab::AppLogger).to receive(:info).with(
+          class: described_class.name,
+          project_id: project.id,
+          message: 'Deleting notes completed',
+          deleted_notes_count: 2
+        )
+
+        expect { service.send(:delete_notes) }
+          .to  change { Note.where(project_id: project.id).count }.from(2).to(0)
+          .and change { AwardEmoji.where(awardable_type: 'Note').count }.by(-1)
+
+        expect(Note.where(id: other_project_note.id).count).to eq(1)
+        expect(AwardEmoji.where(id: emoji_on_other_project_note.id).count).to eq(1)
+      end
+    end
+
+    context 'when there are more notes than the batch size' do
+      let(:notes) { create_list(:note, 3, project: project, noteable: create(:issue, project: project)) }
+
+      before do
+        stub_const("#{described_class}::BATCH_SIZE", 2)
+        notes.each { |note| create(:award_emoji, awardable: note) }
+      end
+
+      it 'deletes notes and award emoji across multiple batches and logs the total count', :aggregate_failures do
+        expect(Gitlab::AppLogger).to receive(:info).with(
+          class: described_class.name,
+          project_id: project.id,
+          message: 'Deleting notes completed',
+          deleted_notes_count: 3
+        )
+
+        expect { service.send(:delete_notes) }
+          .to  change { Note.where(project_id: project.id).count }.from(3).to(0)
+          .and change { AwardEmoji.where(awardable_type: 'Note').count }.by(-3)
       end
     end
   end

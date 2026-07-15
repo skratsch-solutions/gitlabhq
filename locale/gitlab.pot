@@ -10595,6 +10595,9 @@ msgstr ""
 msgid "AnalyticsDashboards|Dashboard filters"
 msgstr ""
 
+msgid "AnalyticsDashboards|Dashboard saved."
+msgstr ""
+
 msgid "AnalyticsDashboards|Dashboard settings"
 msgstr ""
 
@@ -30450,6 +30453,9 @@ msgstr ""
 msgid "DuoSlack|On it! Working on your request."
 msgstr ""
 
+msgid "DuoSlack|Plan"
+msgstr ""
+
 msgid "DuoSlack|Set your default Duo namespace in your GitLab preferences (%{preferences_url}) to use Duo from Slack."
 msgstr ""
 
@@ -30469,15 +30475,6 @@ msgid "DuoSlack|View session in GitLab"
 msgstr ""
 
 msgid "DuoSlack|Your message is too long for me to process (the limit is about %{limit} characters). Shorten it and mention me again."
-msgstr ""
-
-msgid "DuoSlack|is getting started…"
-msgstr ""
-
-msgid "DuoSlack|is reviewing your request…"
-msgstr ""
-
-msgid "DuoSlack|is spinning up the agent…"
 msgstr ""
 
 msgid "DuoTrialDiscover|Ask questions, explore concepts, test ideas, and receive instant feedback directly in your workflow."
@@ -66971,6 +66968,9 @@ msgid "Secret push protection"
 msgstr ""
 
 msgid "Secret push protection skipped via"
+msgstr ""
+
+msgid "Secret push protection was skipped: %{changed_paths_count} changed paths exceeds the threshold of %{changed_paths_threshold}. The push has been accepted."
 msgstr ""
 
 msgid "Secret token."

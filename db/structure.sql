@@ -49422,8 +49422,6 @@ CREATE INDEX index_job_artifact_states_failed_verification ON ci_job_artifact_st
 
 CREATE INDEX index_job_artifact_states_needs_verification ON ci_job_artifact_states USING btree (verification_state) WHERE ((verification_state = 0) OR (verification_state = 3));
 
-CREATE INDEX index_job_artifact_states_on_verification_state ON ci_job_artifact_states USING btree (verification_state);
-
 CREATE INDEX index_job_artifact_states_pending_verification ON ci_job_artifact_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
 CREATE UNIQUE INDEX index_job_environments_on_ci_job_id_and_environment_id ON job_environments USING btree (ci_job_id, environment_id);
@@ -51366,15 +51364,17 @@ CREATE INDEX index_sec_finding_enrichments_on_vulnerability_id ON security_findi
 
 CREATE INDEX index_secret_rotation_infos_on_next_reminder_at ON secret_rotation_infos USING btree (next_reminder_at);
 
+CREATE UNIQUE INDEX index_security_attributes_on_category_name_not_deleted ON security_attributes USING btree (security_category_id, name) WHERE (deleted_at IS NULL);
+
 CREATE INDEX index_security_attributes_on_namespace_id ON security_attributes USING btree (namespace_id);
 
 CREATE INDEX index_security_attributes_on_namespace_id_where_not_deleted ON security_attributes USING btree (namespace_id) WHERE (deleted_at IS NULL);
 
-CREATE UNIQUE INDEX index_security_attributes_security_category_name ON security_attributes USING btree (security_category_id, name);
+CREATE INDEX index_security_attributes_on_security_category_id ON security_attributes USING btree (security_category_id);
 
-CREATE UNIQUE INDEX index_security_categories_namespace_name ON security_categories USING btree (namespace_id, name);
+CREATE INDEX index_security_categories_on_namespace_id ON security_categories USING btree (namespace_id);
 
-CREATE INDEX index_security_categories_on_namespace_id_where_not_deleted ON security_categories USING btree (namespace_id) WHERE (deleted_at IS NULL);
+CREATE UNIQUE INDEX index_security_categories_on_namespace_name_not_deleted ON security_categories USING btree (namespace_id, name) WHERE (deleted_at IS NULL);
 
 CREATE INDEX index_security_finding_enrichments_on_cve_enrichment_id_and_id ON security_finding_enrichments USING btree (cve_enrichment_id, id);
 

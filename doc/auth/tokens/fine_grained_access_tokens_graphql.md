@@ -45,6 +45,7 @@ Grants the ability to read dependencies.
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |
 | Read | Project | Type | `DependencyLocation` |
+| Read | Project | Type | `DependencyTrackedRef` |
 
 #### Pipeline Execution Project Schedule
 

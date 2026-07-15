@@ -113,6 +113,8 @@ module Gitlab
       push_frontend_feature_flag(:feature_library_modal, current_user)
       push_frontend_feature_flag(:hide_unpinned_sidebar_items, current_user)
       push_frontend_feature_flag(:accessible_disabled_button, current_user, type: :gitlab_com_derisk)
+      # Needed for globally-rendered components such as work item reference popovers.
+      push_frontend_feature_flag(:work_item_features_field, current_user)
 
       push_force_frontend_feature_flag(:security_manager_role_enabled, Gitlab::Security::SecurityManagerConfig.enabled?)
     end

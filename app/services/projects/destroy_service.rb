@@ -204,6 +204,7 @@ module Projects
       destroy_merge_request_diffs!
       delete_environments
       delete_lfs_objects_projects
+      delete_notes
 
       # Rails attempts to load all related records into memory before
       # destroying: https://github.com/rails/rails/issues/22510
@@ -211,7 +212,7 @@ module Projects
       #
       # Exclude container repositories because its before_destroy would be
       # called multiple times, and it doesn't destroy any database records.
-      project.destroy_dependent_associations_in_batches(exclude: [:container_repositories, :snippets])
+      project.destroy_dependent_associations_in_batches(exclude: [:container_repositories, :snippets, :notes])
       project.destroy!
     rescue ActiveRecord::RecordNotDestroyed => e
       raise_error(
@@ -379,6 +380,28 @@ module Projects
         deleted_lfs_objects_project_count: deleted_count
       )
     end
+
+    # rubocop: disable CodeReuse/ActiveRecord -- Direct AR usage required for batched DELETE without loading records into memory
+    def delete_notes
+      deleted_count = 0
+
+      loop do
+        note_ids = Note.where(project_id: project.id).limit(BATCH_SIZE).pluck(:id)
+        break if note_ids.empty?
+
+        # Polymorphic association: no FK cascade, delete explicitly first
+        AwardEmoji.where(awardable_type: 'Note', awardable_id: note_ids).delete_all
+        deleted_count += Note.where(id: note_ids).delete_all
+      end
+
+      Gitlab::AppLogger.info(
+        class: self.class.name,
+        project_id: project.id,
+        message: 'Deleting notes completed',
+        deleted_notes_count: deleted_count
+      )
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def destroy_web_hooks!
       project.hooks.find_each do |web_hook|

@@ -367,6 +367,7 @@ export default {
           await this.$nextTick();
           handleLocationHash(); // Ensures that we scroll to the hash when async content is loaded
           if (type === SIMPLE_BLOB_VIEWER) {
+            // eslint-disable-next-line vue/custom-event-name-casing -- Global event bus event shared with code_navigation/diffs and bound to a Vuex action; renaming is out of scope
             eventHub.$emit('showBlobInteractionZones', this.blobInfo.path);
           }
         })

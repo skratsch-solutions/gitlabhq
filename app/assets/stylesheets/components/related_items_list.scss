@@ -41,7 +41,7 @@ $item-remove-button-space: 42px;
     flex-basis: 100%;
 
     .sortable-link {
-      color: $gray-900;
+      color: var(--gl-text-color-strong);
       font-weight: 500;
     }
   }
