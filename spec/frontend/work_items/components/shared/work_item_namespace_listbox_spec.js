@@ -172,4 +172,25 @@ describe('WorkItemNamespaceListbox', () => {
     // in the toggle. Search results are displayed in the dropdown item list
     expect(findDropdown().props('toggleText')).toBe('Group A');
   });
+
+  it('renders without error when the group query returns null (e.g. personal namespace)', async () => {
+    const nullGroupResolver = jest.fn().mockResolvedValue({ data: { group: null } });
+
+    wrapper = mountExtended(WorkItemNamespaceListbox, {
+      apolloProvider: createMockApollo([
+        [namespaceProjectsForLinksWidgetQuery, namespaceProjectsFormLinksWidgetResolver],
+        [namespaceGroupsForLinksWidgetQuery, nullGroupResolver],
+      ]),
+      propsData: {
+        fullPath: 'group-a',
+        isGroup: true,
+        selectedNamespacePath: null,
+      },
+    });
+
+    await waitForPromises();
+
+    expect(findDropdown().exists()).toBe(true);
+    expect(findDropdown().props('items')).not.toBeUndefined();
+  });
 });

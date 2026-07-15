@@ -38,7 +38,7 @@ module API
         end
 
         desc 'List all active integrations' do
-          detail "Get a list of all active integrations."
+          detail 'Lists all active integrations.'
           success Entities::IntegrationBasic
           failure [
             { code: 401, message: 'Unauthorized' },
@@ -57,8 +57,8 @@ module API
         end
 
         INTEGRATIONS.each do |slug, settings|
-          desc "Create/Edit #{slug.titleize} integration" do
-            detail "Set #{slug.titleize} integration."
+          desc "Create or update the #{slug.titleize} integration" do
+            detail "Creates or updates the #{slug.titleize} integration."
             success Entities::IntegrationBasic
             failure [
               { code: 400, message: 'Bad request' },
@@ -109,8 +109,8 @@ module API
           end
         end
 
-        desc "Disable an integration" do
-          detail "Disable the integration. Integration settings are preserved."
+        desc 'Disable an integration' do
+          detail 'Disables a specified integration. Integration settings are preserved.'
           success code: 204
           failure [
             { code: 400, message: 'Bad request' },
@@ -154,8 +154,8 @@ module API
           end
         end
 
-        desc "Get an integration settings" do
-          detail "Get the integration settings."
+        desc 'Retrieve integration settings' do
+          detail 'Retrieves the settings for a specified integration.'
           success Entities::Integration
           failure [
             { code: 400, message: 'Bad request' },

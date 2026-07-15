@@ -7,8 +7,6 @@ RSpec.describe 'Issue Boards focus mode', :js, feature_category: :portfolio_mana
 
   before do
     visit project_boards_path(project)
-
-    wait_for_requests
   end
 
   it 'shows focus mode button to anonymous users' do

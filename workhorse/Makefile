@@ -24,7 +24,7 @@ BUILD_TAGS := tracer_static tracer_static_jaeger continuous_profiler_stackdriver
 OS := $(shell uname | tr A-Z a-z)
 ARCH ?= $(shell uname -m | sed -e 's/x86_64/amd64/' | sed -e 's/aarch64/arm64/')
 
-LABKIT_VALIDATE_VERSION := v2.0.0-20260325011833-45bdfd4bfc9f
+LABKIT_VALIDATE_VERSION := v2.3.0
 
 GOLANGCI_LINT_VERSION := 2.11.4
 GOLANGCI_LINT_ARCH ?= ${ARCH}

@@ -463,6 +463,7 @@ end
 
 - **Inheritance from GraphqlService**: Provides user validation and GraphQL tool execution infrastructure
 - **Version registration**: Uses register_version to define tool metadata per version
+- **Automatic `additionalProperties: false`**: The shared tool abstraction rejects unrecognized arguments by default, so you do not add `additionalProperties` to `input_schema`. To accept arbitrary arguments, set `additionalProperties: true`. Schemas that use `oneOf`, `anyOf`, `allOf`, or `$ref` keep their own behavior.
 - **Version-specific methods**: Implement perform_0_1_0, perform_0_2_0, etc. for different versions
 - **GraphQL tool class**: Override `graphql_tool_class` to specify which tool to use
 - **Simplified perform methods**: Just call `execute_graphql_tool(arguments)` which handles tool instantiation and execution

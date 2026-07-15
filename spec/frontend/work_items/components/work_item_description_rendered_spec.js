@@ -5,6 +5,7 @@ import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_
 import { renderGFM } from '~/behaviors/markdown/render_gfm';
 import { handleLocationHash } from '~/lib/utils/common_utils';
 import eventHub from '~/issues/show/event_hub';
+import { taskListSortableOptions } from '~/issues/show/utils';
 import CreateWorkItemModal from '~/work_items/components/create_work_item_modal.vue';
 import WorkItemDescriptionRendered from '~/work_items/components/work_item_description_rendered.vue';
 import {
@@ -267,6 +268,12 @@ describe('WorkItemDescriptionRendered', () => {
           forceFallback: true,
           handle: '.drag-icon',
         });
+      });
+
+      it('passes the shared task list drag callbacks to Sortable', () => {
+        const options = Sortable.create.mock.calls[0][1];
+
+        expect(options).toMatchObject(taskListSortableOptions);
       });
     });
 

@@ -62,19 +62,6 @@ RETURN NEW;
 END
 $$;
 
-CREATE FUNCTION assign_p_ci_build_tags_id_value() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-IF NEW."id" IS NOT NULL THEN
-  RAISE WARNING 'Manually assigning ids is not allowed, the value will be ignored';
-END IF;
-NEW."id" := nextval('p_ci_build_tags_id_seq'::regclass);
-RETURN NEW;
-
-END
-$$;
-
 CREATE FUNCTION assign_p_ci_builds_execution_configs_id_value() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -26508,24 +26495,6 @@ CREATE SEQUENCE p_catalog_resource_sync_events_id_seq
 
 ALTER SEQUENCE p_catalog_resource_sync_events_id_seq OWNED BY p_catalog_resource_sync_events.id;
 
-CREATE TABLE p_ci_build_tags (
-    id bigint NOT NULL,
-    tag_id bigint NOT NULL,
-    build_id bigint NOT NULL,
-    partition_id bigint NOT NULL,
-    project_id bigint NOT NULL
-)
-PARTITION BY LIST (partition_id);
-
-CREATE SEQUENCE p_ci_build_tags_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE p_ci_build_tags_id_seq OWNED BY p_ci_build_tags.id;
-
 CREATE TABLE p_ci_builds_execution_configs (
     id bigint NOT NULL,
     partition_id bigint NOT NULL,
@@ -41831,9 +41800,6 @@ ALTER TABLE ONLY p_ci_build_needs
 ALTER TABLE ONLY p_ci_build_sources
     ADD CONSTRAINT p_ci_build_sources_pkey PRIMARY KEY (build_id, partition_id);
 
-ALTER TABLE ONLY p_ci_build_tags
-    ADD CONSTRAINT p_ci_build_tags_pkey PRIMARY KEY (id, partition_id);
-
 ALTER TABLE ONLY p_ci_build_trace_metadata
     ADD CONSTRAINT p_ci_build_trace_metadata_pkey PRIMARY KEY (build_id, partition_id);
 
@@ -50290,12 +50256,6 @@ CREATE INDEX index_p_ci_build_sources_on_project_id_and_build_id ON ONLY p_ci_bu
 
 CREATE INDEX index_p_ci_build_sources_on_search_columns ON ONLY p_ci_build_sources USING btree (project_id, source, build_id, partition_id);
 
-CREATE INDEX index_p_ci_build_tags_on_build_id_and_partition_id ON ONLY p_ci_build_tags USING btree (build_id, partition_id);
-
-CREATE INDEX index_p_ci_build_tags_on_project_id ON ONLY p_ci_build_tags USING btree (project_id);
-
-CREATE UNIQUE INDEX index_p_ci_build_tags_on_tag_id_and_build_id_and_partition_id ON ONLY p_ci_build_tags USING btree (tag_id, build_id, partition_id);
-
 CREATE INDEX index_p_ci_build_trace_metadata_on_project_id ON ONLY p_ci_build_trace_metadata USING btree (project_id);
 
 CREATE INDEX index_p_ci_build_trace_metadata_on_trace_artifact_id ON ONLY p_ci_build_trace_metadata USING btree (trace_artifact_id);
@@ -57044,8 +57004,6 @@ CREATE TRIGGER assign_ci_runner_taggings_id_trigger BEFORE INSERT ON ci_runner_t
 
 CREATE TRIGGER assign_ci_runners_id_trigger BEFORE INSERT ON ci_runners FOR EACH ROW EXECUTE FUNCTION assign_ci_runners_id_value();
 
-CREATE TRIGGER assign_p_ci_build_tags_id_trigger BEFORE INSERT ON p_ci_build_tags FOR EACH ROW EXECUTE FUNCTION assign_p_ci_build_tags_id_value();
-
 CREATE TRIGGER assign_p_ci_builds_execution_configs_id_trigger BEFORE INSERT ON p_ci_builds_execution_configs FOR EACH ROW EXECUTE FUNCTION assign_p_ci_builds_execution_configs_id_value();
 
 CREATE TRIGGER assign_p_ci_builds_id_trigger BEFORE INSERT ON p_ci_builds FOR EACH ROW EXECUTE FUNCTION assign_p_ci_builds_id_value();
@@ -62277,9 +62235,6 @@ ALTER TABLE ONLY required_code_owners_sections
 ALTER TABLE ONLY personal_access_token_granular_scopes
     ADD CONSTRAINT fk_rails_824dd5f58e FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
-ALTER TABLE p_ci_build_tags
-    ADD CONSTRAINT fk_rails_8284d35c66 FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE;
-
 ALTER TABLE ONLY namespace_ldap_settings
     ADD CONSTRAINT fk_rails_82cd0ad4bb FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
@@ -62975,9 +62930,6 @@ ALTER TABLE ONLY user_project_member_roles
 
 ALTER TABLE ONLY packages_rpm_metadata
     ADD CONSTRAINT fk_rails_d79f02264b FOREIGN KEY (package_id) REFERENCES packages_packages(id) ON DELETE CASCADE;
-
-ALTER TABLE p_ci_build_tags
-    ADD CONSTRAINT fk_rails_d7bd025909 FOREIGN KEY (partition_id, build_id) REFERENCES p_ci_builds(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE ONLY note_metadata
     ADD CONSTRAINT fk_rails_d853224d37 FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;

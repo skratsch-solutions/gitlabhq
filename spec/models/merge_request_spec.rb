@@ -4757,6 +4757,44 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     it_behaves_like 'reports in child pipelines', :terraform_reports
   end
 
+  describe '#has_sast_reports_for?' do
+    let(:merge_request) { build_stubbed(:merge_request) }
+
+    subject { merge_request.has_sast_reports_for?(pipeline) }
+
+    context 'when the pipeline has sast reports' do
+      let(:report_builds) { instance_double(ActiveRecord::Relation, exists?: true) }
+      let(:pipeline) do
+        instance_double(Ci::Pipeline, complete_or_manual?: true,
+          latest_report_builds_in_self_and_project_descendants: report_builds)
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the pipeline has no sast reports' do
+      let(:report_builds) { instance_double(ActiveRecord::Relation, exists?: false) }
+      let(:pipeline) do
+        instance_double(Ci::Pipeline, complete_or_manual?: true,
+          latest_report_builds_in_self_and_project_descendants: report_builds)
+      end
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the pipeline is not complete or manual' do
+      let(:pipeline) { instance_double(Ci::Pipeline, complete_or_manual?: false) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the pipeline is nil' do
+      let(:pipeline) { nil }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#has_sast_reports?' do
     subject { merge_request.has_sast_reports? }
 

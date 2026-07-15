@@ -3269,6 +3269,11 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
           let(:request) do
             post api("/groups", personal_access_token: pat), params: { parent_id: group2.id, name: 'foo', path: 'foo' }
           end
+
+          # Query-count reduction tracked in https://gitlab.com/gitlab-org/gitlab/-/work_items/605844.
+          before do
+            allow(Gitlab::QueryLimiting).to receive(:threshold).and_return(102)
+          end
         end
 
         it 'can create subgroups' do

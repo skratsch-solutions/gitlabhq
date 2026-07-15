@@ -847,14 +847,7 @@ module API
     # content-based ETag should pass one via the `etag:` kwarg; otherwise we
     # suppress Rack::ETag's default by setting Last-Modified, matching the
     # approach used for streaming responses in ApplicationController.
-    #
-    # Gated by the `workhorse_download_etag_caching` feature flag so the change
-    # in response headers can be de-risked on GitLab.com. Uses `@project` (set
-    # by `user_project` / `find_project!` on project-scoped endpoints) as the
-    # actor; project-less endpoints fall back to nil, the global gate.
     def apply_etag_or_suppress_rack_etag!(etag)
-      return unless Feature.enabled?(:workhorse_download_etag_caching, @project) # rubocop:disable Gitlab/ModuleWithInstanceVariables -- @project is the conventional memoized project for API endpoints
-
       if etag
         header 'ETag', etag
       elsif !headers['Last-Modified']

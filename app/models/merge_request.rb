@@ -2369,8 +2369,12 @@ class MergeRequest < ApplicationRecord
   end
 
   def has_sast_reports?
-    !!diff_head_pipeline&.complete_or_manual? &&
-      pipeline_has_report_in_self_or_descendants?(:sast)
+    has_sast_reports_for?(diff_head_pipeline)
+  end
+
+  def has_sast_reports_for?(pipeline)
+    !!pipeline&.complete_or_manual? &&
+      pipeline_has_report_in_self_or_descendants?(:sast, pipeline)
   end
 
   def calculate_reactive_cache(identifier, current_user_id = nil, report_type = nil, *args)
@@ -3312,8 +3316,8 @@ class MergeRequest < ApplicationRecord
     end
   end
 
-  def pipeline_has_report_in_self_or_descendants?(report_type)
-    !!diff_head_pipeline
+  def pipeline_has_report_in_self_or_descendants?(report_type, pipeline = diff_head_pipeline)
+    !!pipeline
       &.latest_report_builds_in_self_and_project_descendants(::Ci::JobArtifact.of_report_type(report_type))
       &.exists?
   end

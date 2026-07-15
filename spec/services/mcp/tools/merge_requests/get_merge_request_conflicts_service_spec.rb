@@ -40,8 +40,7 @@ RSpec.describe Mcp::Tools::MergeRequests::GetMergeRequestConflictsService, featu
               description: 'Merge request internal ID'
             }
           },
-          required: %w[project_id merge_request_iid],
-          additionalProperties: false
+          required: %w[project_id merge_request_iid]
         })
       end
     end

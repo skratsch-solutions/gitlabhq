@@ -1607,49 +1607,29 @@ RSpec.describe API::Helpers, feature_category: :api do
       allow(helper).to receive(:header) { |key, value| response_headers[key] = value }
     end
 
-    context 'when workhorse_download_etag_caching is enabled' do
-      context 'when an etag is provided' do
-        it 'sets the ETag header to the provided value' do
-          helper.apply_etag_or_suppress_rack_etag!(%("digest"))
+    context 'when an etag is provided' do
+      it 'sets the ETag header to the provided value' do
+        helper.apply_etag_or_suppress_rack_etag!(%("digest"))
 
-          expect(response_headers).to eq('ETag' => %("digest"))
-        end
-      end
-
-      context 'when no etag is provided and Last-Modified is not set' do
-        it 'sets Last-Modified to 0 to suppress Rack::ETag' do
-          helper.apply_etag_or_suppress_rack_etag!(nil)
-
-          expect(response_headers).to eq('Last-Modified' => '0')
-        end
-      end
-
-      context 'when no etag is provided and Last-Modified is already set' do
-        let(:response_headers) { { 'Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT' } }
-
-        it 'leaves Last-Modified unchanged' do
-          helper.apply_etag_or_suppress_rack_etag!(nil)
-
-          expect(response_headers).to eq('Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT')
-        end
+        expect(response_headers).to eq('ETag' => %("digest"))
       end
     end
 
-    context 'when workhorse_download_etag_caching is disabled' do
-      before do
-        stub_feature_flags(workhorse_download_etag_caching: false)
-      end
-
-      it 'does not set ETag even when one is provided' do
-        helper.apply_etag_or_suppress_rack_etag!(%("digest"))
-
-        expect(response_headers).to be_empty
-      end
-
-      it 'does not set Last-Modified when no etag is provided' do
+    context 'when no etag is provided and Last-Modified is not set' do
+      it 'sets Last-Modified to 0 to suppress Rack::ETag' do
         helper.apply_etag_or_suppress_rack_etag!(nil)
 
-        expect(response_headers).to be_empty
+        expect(response_headers).to eq('Last-Modified' => '0')
+      end
+    end
+
+    context 'when no etag is provided and Last-Modified is already set' do
+      let(:response_headers) { { 'Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT' } }
+
+      it 'leaves Last-Modified unchanged' do
+        helper.apply_etag_or_suppress_rack_etag!(nil)
+
+        expect(response_headers).to eq('Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT')
       end
     end
   end

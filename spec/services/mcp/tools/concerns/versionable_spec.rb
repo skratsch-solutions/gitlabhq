@@ -253,7 +253,7 @@ RSpec.describe Mcp::Tools::Concerns::Versionable, feature_category: :mcp_server 
   end
 
   describe '#input_schema' do
-    it 'returns input schema for the current version' do
+    it 'returns input schema for the current version with additionalProperties defaulted to false' do
       instance = test_class.new(version: '1.1.0')
       expected_schema = {
         type: 'object',
@@ -261,9 +261,44 @@ RSpec.describe Mcp::Tools::Concerns::Versionable, feature_category: :mcp_server 
           name: { type: 'string' },
           age: { type: 'integer' }
         },
-        required: ['name']
+        required: ['name'],
+        additionalProperties: false
       }
       expect(instance.input_schema).to eq(expected_schema)
+    end
+
+    it 'preserves an explicit additionalProperties setting' do
+      opt_out_class = Class.new do
+        include Mcp::Tools::Concerns::Versionable
+
+        register_version '1.0.0', {
+          input_schema: { type: 'object', properties: {}, additionalProperties: true }
+        }
+
+        def initialize(version: nil)
+          initialize_version(version)
+        end
+      end
+
+      instance = opt_out_class.new(version: '1.0.0')
+      expect(instance.input_schema[:additionalProperties]).to be(true)
+    end
+
+    it 'does not inject additionalProperties for a composition schema' do
+      composition_class = Class.new do
+        include Mcp::Tools::Concerns::Versionable
+
+        register_version '1.0.0', {
+          input_schema: { oneOf: [{ type: 'object', properties: { a: { type: 'string' } } }] }
+        }
+
+        def initialize(version: nil)
+          initialize_version(version)
+        end
+      end
+
+      instance = composition_class.new(version: '1.0.0')
+      expect(instance.input_schema).not_to have_key(:additionalProperties)
     end
 
     it 'raises error when input schema is not defined' do

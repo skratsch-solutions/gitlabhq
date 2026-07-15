@@ -42,6 +42,10 @@ module RapidDiffs
       codequality_reports_project_merge_request_path(resource.project, resource, format: :json)
     end
 
+    def sast_report_available
+      resource.has_sast_reports?
+    end
+
     override(:reload_stream_url)
     def reload_stream_url(offset: nil, diff_view: nil, skip_old_path: nil, skip_new_path: nil)
       diffs_stream_project_merge_request_path(

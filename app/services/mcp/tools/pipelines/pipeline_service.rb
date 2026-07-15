@@ -87,8 +87,7 @@ module Mcp
                 description: 'Number of items per page (default: 20, max: 100)'
               }
             },
-            required: ['id'],
-            additionalProperties: false
+            required: ['id']
           }
         }
 

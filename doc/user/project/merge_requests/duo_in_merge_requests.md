@@ -107,12 +107,9 @@ After the review completes, you can also look for a Code Review Flow session in 
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/240432) in GitLab 19.2 [with a feature flag](../../../administration/feature_flags/_index.md) named `duo_code_review_dap_routing_consent_enabled`. Enabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/602689) in GitLab 19.3. Feature flag `duo_code_review_dap_routing_consent_enabled` removed.
 
 {{< /history >}}
-
-> [!flag]
-> The availability of this feature is controlled by a feature flag.
-> For more information, see the history.
 
 To prevent GitLab Duo Enterprise seat holders from using a feature that consumes GitLab Credits, all
 code reviews they initiate use GitLab Duo Code Review by default. This behavior occurs even

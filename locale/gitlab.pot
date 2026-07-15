@@ -8555,6 +8555,12 @@ msgstr ""
 msgid "AiPowered|Buy Credits"
 msgstr ""
 
+msgid "AiPowered|Buy GitLab Credits"
+msgstr ""
+
+msgid "AiPowered|Buy monthly credits for AI capabilities, additional compute, and GitLab add-ons. Credits from $1, with volume discounts."
+msgstr ""
+
 msgid "AiPowered|By turning on these features, you accept the %{linkStart}GitLab Testing Agreement%{linkEnd}."
 msgstr ""
 
@@ -8652,6 +8658,9 @@ msgid "AiPowered|Denylist"
 msgstr ""
 
 msgid "AiPowered|Direct connections"
+msgstr ""
+
+msgid "AiPowered|Do more with Premium"
 msgstr ""
 
 msgid "AiPowered|Domain added."
@@ -8990,6 +8999,9 @@ msgstr ""
 msgid "AiPowered|These settings are disabled because GitLab Duo availability is set to always on."
 msgstr ""
 
+msgid "AiPowered|This group has an admin lock. Click Reset to remove it."
+msgstr ""
+
 msgid "AiPowered|This setting applies to the entire instance. By turning on these features, you accept the %{termsLinkStart}GitLab Duo AI Terms%{termsLinkEnd} unless your organization has a separate agreement with GitLab that governs AI usage."
 msgstr ""
 
@@ -9072,6 +9084,9 @@ msgid "AiPowered|Turn on prompt caching"
 msgstr ""
 
 msgid "AiPowered|Unlock more credits with Premium"
+msgstr ""
+
+msgid "AiPowered|Upgrade to Premium to unlock advanced features and get more out of your GitLab Credits."
 msgstr ""
 
 msgid "AiPowered|Upgrade to keep using GitLab Duo Agent Platform and access a broad credit allocation."
@@ -33177,6 +33192,9 @@ msgstr ""
 msgid "Failed to load"
 msgstr ""
 
+msgid "Failed to load SAST findings. Try reloading the page."
+msgstr ""
+
 msgid "Failed to load What's new features. Refresh the page and try again."
 msgstr ""
 
@@ -41076,6 +41094,11 @@ msgstr[1] ""
 
 msgid "InlineFindings|1 SAST finding detected"
 msgid_plural "InlineFindings|%d SAST findings detected"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "InlineFindings|1 finding detected"
+msgid_plural "InlineFindings|%d findings detected"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -86150,6 +86173,9 @@ msgstr ""
 msgid "Vulnerability|Actual received response is the one received when this fault was detected"
 msgstr ""
 
+msgid "Vulnerability|Actual response"
+msgstr ""
+
 msgid "Vulnerability|Actual response:"
 msgstr ""
 
@@ -86159,13 +86185,22 @@ msgstr ""
 msgid "Vulnerability|Additional Info"
 msgstr ""
 
+msgid "Vulnerability|Additional info"
+msgstr ""
+
 msgid "Vulnerability|Affected Endpoint:"
 msgstr ""
 
 msgid "Vulnerability|Affected Location"
 msgstr ""
 
+msgid "Vulnerability|Affected endpoint"
+msgstr ""
+
 msgid "Vulnerability|Archive pending"
+msgstr ""
+
+msgid "Vulnerability|Assert"
 msgstr ""
 
 msgid "Vulnerability|Assert:"
@@ -86184,6 +86219,9 @@ msgid "Vulnerability|CVSS score"
 msgstr ""
 
 msgid "Vulnerability|CVSS v3"
+msgstr ""
+
+msgid "Vulnerability|Class"
 msgstr ""
 
 msgid "Vulnerability|Cluster"
@@ -86210,7 +86248,22 @@ msgstr ""
 msgid "Vulnerability|Container Image:"
 msgstr ""
 
+msgid "Vulnerability|Container image"
+msgstr ""
+
+msgid "Vulnerability|Crash"
+msgstr ""
+
+msgid "Vulnerability|Crash address"
+msgstr ""
+
 msgid "Vulnerability|Crash address:"
+msgstr ""
+
+msgid "Vulnerability|Crash state"
+msgstr ""
+
+msgid "Vulnerability|Crash type"
 msgstr ""
 
 msgid "Vulnerability|Crash type:"
@@ -86330,6 +86383,9 @@ msgstr ""
 msgid "Vulnerability|Identifiers"
 msgstr ""
 
+msgid "Vulnerability|Image"
+msgstr ""
+
 msgid "Vulnerability|Image and tag"
 msgstr ""
 
@@ -86357,7 +86413,13 @@ msgstr ""
 msgid "Vulnerability|Medium"
 msgstr ""
 
+msgid "Vulnerability|Method"
+msgstr ""
+
 msgid "Vulnerability|NOT a false positive"
+msgstr ""
+
+msgid "Vulnerability|Namespace"
 msgstr ""
 
 msgid "Vulnerability|Namespace:"
@@ -86417,6 +86479,9 @@ msgstr ""
 msgid "Vulnerability|Reproduction Assets"
 msgstr ""
 
+msgid "Vulnerability|Reproduction assets"
+msgstr ""
+
 msgid "Vulnerability|Request/Response"
 msgstr ""
 
@@ -86435,6 +86500,9 @@ msgstr ""
 msgid "Vulnerability|Select a severity"
 msgstr ""
 
+msgid "Vulnerability|Sent request"
+msgstr ""
+
 msgid "Vulnerability|Sent request:"
 msgstr ""
 
@@ -86451,6 +86519,9 @@ msgid "Vulnerability|Something went wrong while dismissing the vulnerability."
 msgstr ""
 
 msgid "Vulnerability|Something went wrong while trying to get the source file."
+msgstr ""
+
+msgid "Vulnerability|Stacktrace"
 msgstr ""
 
 msgid "Vulnerability|Stacktrace snippet:"
@@ -86510,10 +86581,16 @@ msgstr ""
 msgid "Vulnerability|Unknown"
 msgstr ""
 
+msgid "Vulnerability|Unmodified response"
+msgstr ""
+
 msgid "Vulnerability|Unmodified response:"
 msgstr ""
 
 msgid "Vulnerability|Use AI to understand a vulnerability and suggest a fix"
+msgstr ""
+
+msgid "Vulnerability|Validity check"
 msgstr ""
 
 msgid "Vulnerability|Validity check:"
@@ -88295,6 +88372,9 @@ msgstr ""
 msgid "WorkItem|Changes will be applied for anyone else who has access to the view."
 msgstr ""
 
+msgid "WorkItem|Checklist item actions"
+msgstr ""
+
 msgid "WorkItem|Child items"
 msgstr ""
 
@@ -89287,9 +89367,6 @@ msgid "WorkItem|Statuses"
 msgstr ""
 
 msgid "WorkItem|Statuses are used to manage workflow of planning items, helping you and your team understand how far an item has progressed."
-msgstr ""
-
-msgid "WorkItem|Task actions"
 msgstr ""
 
 msgid "WorkItem|Task deleted"
@@ -92695,6 +92772,9 @@ msgid "is invalid."
 msgstr ""
 
 msgid "is linked to an account pending deletion."
+msgstr ""
+
+msgid "is locked by an instance administrator and can only be changed by an instance administrator."
 msgstr ""
 
 msgid "is not"

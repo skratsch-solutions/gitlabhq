@@ -98,7 +98,7 @@ RSpec.describe Gitlab::Database::BackgroundOperation::Queueable, feature_categor
       end
 
       context "for 'gitlab_ci' table" do
-        let(:table_name) { 'p_ci_build_tags' }
+        let(:table_name) { 'p_ci_builds' }
 
         it 'uses gitlab_ci connection' do
           allow(worker_klass).to receive(:table_connection_info).with(table_name).and_call_original

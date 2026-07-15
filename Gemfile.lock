@@ -1158,7 +1158,7 @@ GEM
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos (~> 1.7.0)
       grpc (~> 1.41)
-    grpc-tools (1.81.0)
+    grpc-tools (1.81.1)
     grpc_reflection (0.2.0)
       grpc
     gssapi (1.3.1)
@@ -1928,7 +1928,7 @@ GEM
       actionpack (>= 5)
       redis-rack (>= 2.1.0, < 4)
       redis-store (>= 1.1.0, < 2)
-    redis-client (0.29.0)
+    redis-client (0.30.0)
       connection_pool
     redis-cluster-client (0.16.5)
       redis-client (~> 0.28)
@@ -3114,7 +3114,7 @@ CHECKSUMS
   grpc (1.81.1-x86_64-darwin) sha256=f8c44cdfc26270247f2beb49ecbc983d0c184b6c24ac4670d1d24f0efba811ed
   grpc (1.81.1-x86_64-linux-gnu) sha256=cf1053a594d026d2ec560457111258cd207bc67847aab24f96e04e2fbeddc4dd
   grpc-google-iam-v1 (1.11.0) sha256=8f0aa8a8503b3e001cb1561f31e43aa0445752fb675334afa1afac7f023f368c
-  grpc-tools (1.81.0) sha256=0f0a9ece9b67fa4df385b57c5e42278c36ea454d30c648cbc75c37a80e6a81ad
+  grpc-tools (1.81.1) sha256=5084f9cbb1b48d21509a555afdc65406405049cb69b2094db4fc3d7f71f0a16b
   grpc_reflection (0.2.0) sha256=f9c5308216c62185c26cacad764a1bf6cf67515dc110871441bafbb2825333e4
   gssapi (1.3.1) sha256=c51cf30842ee39bd93ce7fc33e20405ff8a04cda9dec6092071b61258284aee1
   guard (2.16.2) sha256=71ba7abaddecc8be91ab77bbaf78f767246603652ebbc7b976fda497ebdc8fbb
@@ -3409,7 +3409,7 @@ CHECKSUMS
   redcarpet (3.6.0) sha256=8ad1889c0355ff4c47174af14edd06d62f45a326da1da6e8a121d59bdcd2e9e9
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae
   redis-actionpack (5.5.0) sha256=dc0570b78c14ec62b35c17b97fab778ee5986bc55e695bfb6826488088693311
-  redis-client (0.29.0) sha256=0c65bf1f8f6dca22063ddb085c0bb2054feef6f03a84869f4161b18a9a15bea3
+  redis-client (0.30.0) sha256=743f11ed42f0a41a0341554087b077479fec7e2d47a7c123fd90a12c0db5e477
   redis-cluster-client (0.16.5) sha256=3cd5e6422ec1a5dc1178aefdbd816f7ecefa586857e1be06b346fce18756a4f5
   redis-clustering (5.4.1) sha256=87444bb101fda5f1ef73b87243759224ca5952f3fe3c73842a2b8f78e45844ea
   redis-namespace (1.11.0) sha256=e91a1aa2b2d888b6dea1d4ab8d39e1ae6fac3426161feb9d91dd5cca598a2239

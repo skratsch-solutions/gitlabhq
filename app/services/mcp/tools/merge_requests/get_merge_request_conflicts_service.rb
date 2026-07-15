@@ -22,8 +22,7 @@ module Mcp
                 description: 'Merge request internal ID'
               }
             },
-            required: %w[project_id merge_request_iid],
-            additionalProperties: false
+            required: %w[project_id merge_request_iid]
           },
           annotations: {
             readOnlyHint: true

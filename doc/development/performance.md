@@ -392,7 +392,7 @@ and can additionally be enabled for [GDK](https://gitlab-org.gitlab.io/gitlab-de
 This patch provides the following metrics that make it easier to understand efficiency of memory use for a given code path:
 
 - `mem_total_bytes`: the number of bytes consumed both due to new objects being allocated into existing object slots
-                     plus additional memory allocated for large objects (that is, `mem_bytes + slot_size * mem_objects`).
+  plus additional memory allocated for large objects (that is, `mem_bytes + slot_size * mem_objects`).
 - `mem_bytes`: the number of bytes allocated by `malloc` for objects that did not fit into an existing object slot.
 - `mem_objects`: the number of objects allocated.
 - `mem_mallocs`: the number of `malloc` calls.

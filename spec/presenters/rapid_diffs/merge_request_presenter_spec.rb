@@ -373,6 +373,26 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
     end
   end
 
+  describe '#sast_report_available' do
+    subject(:available) { presenter.sast_report_available }
+
+    context 'when the versioned merge request has sast reports' do
+      before do
+        allow(presenter.resource).to receive(:has_sast_reports?).and_return(true)
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the versioned merge request has no sast reports' do
+      before do
+        allow(presenter.resource).to receive(:has_sast_reports?).and_return(false)
+      end
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#user_permissions' do
     let(:current_user) { build_stubbed(:user) }
     let(:can_create_note) { false }

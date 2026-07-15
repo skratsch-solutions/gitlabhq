@@ -15,7 +15,7 @@ RSpec.describe Mcp::Tools::Base::CustomService, :aggregate_failures, feature_cat
         description: 'First version of test tool',
         input_schema: {
           type: 'object',
-          properties: { name: { type: 'string' } },
+          properties: { name: { type: 'string' }, project_id: { type: 'string' } },
           required: ['name']
         }
       }
@@ -27,7 +27,8 @@ RSpec.describe Mcp::Tools::Base::CustomService, :aggregate_failures, feature_cat
           type: 'object',
           properties: {
             name: { type: 'string' },
-            age: { type: 'integer' }
+            age: { type: 'integer' },
+            project_id: { type: 'string' }
           },
           required: ['name']
         }
@@ -40,7 +41,8 @@ RSpec.describe Mcp::Tools::Base::CustomService, :aggregate_failures, feature_cat
           type: 'object',
           properties: {
             full_name: { type: 'string' },
-            metadata: { type: 'object' }
+            metadata: { type: 'object' },
+            project_id: { type: 'string' }
           },
           required: ['full_name']
         }

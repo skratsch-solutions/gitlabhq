@@ -231,7 +231,7 @@ RSpec.describe Mcp::Tools::Base::BaseService, feature_category: :mcp_server do
         result = test_service.execute(request: nil, params: arguments)
 
         expect(result[:isError]).to be true
-        expect(result[:content].first[:text]).to include('Validation error:')
+        expect(result[:content].first[:text]).to eq('Validation error: required_field is invalid')
       end
     end
 

@@ -76,9 +76,11 @@ module Mcp
         end
 
         def input_schema
-          version_metadata.fetch(:input_schema) do
+          schema = version_metadata.fetch(:input_schema) do
             raise NoMethodError, "Input schema not defined for version #{version}"
           end
+
+          Mcp::Tools::SchemaDefaults.with_additional_properties(schema)
         end
 
         def annotations

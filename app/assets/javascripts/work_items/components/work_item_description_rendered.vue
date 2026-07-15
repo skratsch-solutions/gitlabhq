@@ -15,6 +15,7 @@ import {
   enableTaskListItem,
   extractTaskTitleAndDescription,
   insertNextToTaskListItemText,
+  taskListSortableOptions,
 } from '~/issues/show/utils';
 import { getSortableDefaultOptions, isDragging } from '~/sortable/utils';
 import { handleLocationHash } from '~/lib/utils/common_utils';
@@ -220,6 +221,7 @@ export default {
           getSortableDefaultOptions({
             forceFallback: true,
             handle: '.drag-icon',
+            ...taskListSortableOptions,
             onUpdate: (event) => {
               const description = convertDescriptionWithNewSort(this.descriptionText, event.to);
               this.$emit('descriptionUpdated', description);

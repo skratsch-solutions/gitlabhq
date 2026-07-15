@@ -14,6 +14,7 @@ import workItemTypesQuery from '~/work_items/graphql/namespace_work_item_types.q
 import workItemByIidQuery from '~/work_items/graphql/work_item_by_iid.query.graphql';
 import TaskList from '~/task_list';
 import { renderGFM } from '~/behaviors/markdown/render_gfm';
+import { taskListSortableOptions } from '~/issues/show/utils';
 import {
   createWorkItemMutationErrorResponse,
   createWorkItemMutationResponse,
@@ -237,6 +238,12 @@ describe('Description component', () => {
         forceFallback: true,
         handle: '.drag-icon',
       });
+    });
+
+    it('passes the shared task list drag callbacks to Sortable', () => {
+      const options = Sortable.create.mock.calls[0][1];
+
+      expect(options).toMatchObject(taskListSortableOptions);
     });
   });
 

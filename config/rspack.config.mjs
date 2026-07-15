@@ -144,9 +144,6 @@ export default {
       cacheGroups,
     },
   },
-  experiments: {
-    css: false,
-  },
   node: {
     __dirname: 'mock',
     __filename: 'mock',

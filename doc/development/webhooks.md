@@ -250,9 +250,9 @@ reasons (for example, a webhook for a new issuable), the schema for new webhooks
 - The schema for new webhooks must have these required properties:
   - `"object_kind"`, the kind of object in snake case. Example: `"merge_request"`.
   - `"action"`, a domain-specific verb of what just happened, using present tense. Examples: `"create"`,
-     `"assign"`, `"update"` or `"revoke"`. This helps receivers to identify and handle different
-     kind of changes that happen to an object when webhooks are triggered at different points in the
-     object's lifecycle.
+    `"assign"`, `"update"` or `"revoke"`. This helps receivers to identify and handle different
+    kind of changes that happen to an object when webhooks are triggered at different points in the
+    object's lifecycle.
   - `"object_attributes"`, contains the attributes of the object after the event. These attributes are generated from [`#hook_attrs`](#defining-payloads).
 - Associated data must be top-level in the payload and not nested in `"object_attributes"`.
 - If the payload includes a record of [changed attribute values](#including-an-object-of-changes), these must be in a top-level `"changes"` object.

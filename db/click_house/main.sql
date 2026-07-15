@@ -1165,6 +1165,30 @@ PRIMARY KEY id
 ORDER BY id
 SETTINGS index_granularity = 8192;
 
+CREATE TABLE siphon_internal_events
+(
+    `uuid` UUID,
+    `stream_identifier` LowCardinality(String),
+    `producer_application_identifier` LowCardinality(String),
+    `consumer_application_identifier` LowCardinality(String),
+    `postgresql_schema` LowCardinality(String),
+    `postgresql_table` LowCardinality(String),
+    `timestamp` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(Delta(8), ZSTD(1)),
+    `produced_at` DateTime64(6, 'UTC') CODEC(Delta(8), ZSTD(1)),
+    `consumed_at` DateTime64(6, 'UTC') CODEC(Delta(8), ZSTD(1)),
+    `package_events_count` UInt64,
+    `package_size_in_bytes` UInt64,
+    `event_type` UInt8,
+    `version` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC'),
+    `deleted` Bool DEFAULT false
+)
+ENGINE = ReplacingMergeTree(version, deleted)
+PARTITION BY toYYYYMM(timestamp)
+PRIMARY KEY (postgresql_schema, postgresql_table, timestamp, uuid)
+ORDER BY (postgresql_schema, postgresql_table, timestamp, uuid)
+TTL timestamp + toIntervalMonth(12)
+SETTINGS index_granularity = 8192;
+
 CREATE TABLE siphon_issue_assignees
 (
     `user_id` Int64 CODEC(Delta(8), ZSTD(1)),

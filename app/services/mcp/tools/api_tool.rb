@@ -48,12 +48,11 @@ module Mcp
           end
         end
 
-        {
+        Mcp::Tools::SchemaDefaults.with_additional_properties(
           type: 'object',
           properties: properties,
-          required: required_fields,
-          additionalProperties: false
-        }
+          required: required_fields
+        )
       end
 
       def icons

@@ -41,8 +41,28 @@ describe('TaskListItemActions component', () => {
       category: 'tertiary',
       icon: 'ellipsis_v',
       placement: 'bottom-end',
+      size: 'small',
       textSrOnly: true,
-      toggleText: 'Task actions',
+      toggleText: 'Checklist item actions',
+    });
+  });
+
+  describe('active row highlight', () => {
+    it('adds active class to the parent list item when the dropdown is shown', () => {
+      mountComponent();
+
+      findGlDisclosureDropdown().vm.$emit('shown');
+
+      expect(document.querySelector('li').classList.contains('task-list-item-active')).toBe(true);
+    });
+
+    it('removes active class from the parent list item when the dropdown is hidden', () => {
+      mountComponent();
+      findGlDisclosureDropdown().vm.$emit('shown');
+
+      findGlDisclosureDropdown().vm.$emit('hidden');
+
+      expect(document.querySelector('li').classList.contains('task-list-item-active')).toBe(false);
     });
   });
 

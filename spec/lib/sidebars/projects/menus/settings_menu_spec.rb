@@ -182,4 +182,14 @@ RSpec.describe Sidebars::Projects::Menus::SettingsMenu, feature_category: :navig
       end
     end
   end
+
+  describe 'Feature Library metadata' do
+    let(:menu) { described_class.new(context) }
+
+    it 'gives every renderable item the settings library_icon' do
+      serialized = menu.renderable_items.map(&:serialize_for_super_sidebar)
+
+      expect(serialized).to all(include(library_icon: 'settings'))
+    end
+  end
 end

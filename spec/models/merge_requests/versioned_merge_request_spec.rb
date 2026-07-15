@@ -349,6 +349,36 @@ RSpec.describe MergeRequests::VersionedMergeRequest, feature_category: :code_rev
         it { expect(versioned.has_codequality_reports?).to be(false) }
       end
     end
+
+    describe '#has_sast_reports?' do
+      let(:report_builds) { instance_double(ActiveRecord::Relation, exists?: true) }
+
+      before do
+        allow(head_pipeline).to receive_messages(
+          complete_or_manual?: true,
+          latest_report_builds_in_self_and_project_descendants: report_builds
+        )
+      end
+
+      it 'resolves the head pipeline against the latest diff head' do
+        expect(versioned.has_sast_reports?).to be(true)
+        expect(head_pipeline).to have_received(:matches_sha_or_source_sha?).with('latest-sha')
+      end
+
+      it 'returns a boolean when there is no matching head pipeline' do
+        allow(merge_request).to receive(:head_pipeline).and_return(nil)
+
+        expect(versioned.has_sast_reports?).to be(false)
+      end
+
+      context 'when the diff target is not the latest version' do
+        before do
+          allow(diff_resolver).to receive(:latest?).and_return(false)
+        end
+
+        it { expect(versioned.has_sast_reports?).to be(false) }
+      end
+    end
   end
 
   it 'delegates other methods to the merge request', :aggregate_failures do

@@ -145,7 +145,14 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
           "Tool '#{name}' inputSchema 'properties' must be an object: #{schema.inspect}"
 
         expect(schema['required']).to be_an(Array) if schema.key?('required')
-        expect(schema['additionalProperties']).to be_in([true, false]) if schema.key?('additionalProperties')
+
+        composition_keys = %w[oneOf anyOf allOf $ref]
+        next if composition_keys.any? { |k| schema.key?(k) }
+
+        expect(schema).to have_key('additionalProperties'),
+          "Tool '#{name}' inputSchema must set additionalProperties: #{schema.inspect}"
+        expect(schema['additionalProperties']).to be_in([true, false]),
+          "Tool '#{name}' inputSchema additionalProperties must be a boolean: #{schema.inspect}"
       end
     end
 

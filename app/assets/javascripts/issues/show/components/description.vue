@@ -28,6 +28,7 @@ import {
   deleteTaskListItem,
   extractTaskTitleAndDescription,
   insertNextToTaskListItemText,
+  taskListSortableOptions,
 } from '../utils';
 import TaskListItemActions from './task_list_item_actions.vue';
 
@@ -202,6 +203,7 @@ export default {
           getSortableDefaultOptions({
             forceFallback: true,
             handle: '.drag-icon',
+            ...taskListSortableOptions,
             onUpdate: (event) => {
               const description = convertDescriptionWithNewSort(this.descriptionText, event.to);
               this.$emit('saveDescription', description);

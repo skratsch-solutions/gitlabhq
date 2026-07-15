@@ -60,6 +60,7 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       initial_preparation?: false,
       coverage_endpoint: coverage_endpoint,
       codequality_endpoint: codequality_endpoint,
+      sast_report_available: false,
       empty_state_type: nil
     )
   end
@@ -97,7 +98,8 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
         new_comment_template_paths: new_comment_template_paths,
         versions: versions,
         coverage_endpoint: coverage_endpoint,
-        codequality_endpoint: codequality_endpoint
+        codequality_endpoint: codequality_endpoint,
+        sast_report_available: false
       }
     )
 
@@ -124,6 +126,21 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       expect(RapidDiffs::AppComponent).to receive(:new).with(
         presenter,
         extra_app_data: hash_including(codequality_endpoint: codequality_endpoint)
+      )
+
+      render_component
+    end
+  end
+
+  context 'when sast_report_available is true' do
+    before do
+      allow(presenter).to receive(:sast_report_available).and_return(true)
+    end
+
+    it 'forwards sast_report_available via extra_app_data' do
+      expect(RapidDiffs::AppComponent).to receive(:new).with(
+        presenter,
+        extra_app_data: hash_including(sast_report_available: true)
       )
 
       render_component

@@ -124,6 +124,33 @@ RSpec.describe API::Mcp, 'Call tool request', feature_category: :mcp_server do
       end
     end
 
+    context 'when a tool receives an unknown argument' do
+      let(:invalid_params) do
+        {
+          jsonrpc: '2.0',
+          method: 'tools/call',
+          params: {
+            name: 'get_work_item_types',
+            arguments: { unexpected_argument: 'value' }
+          },
+          id: '1'
+        }
+      end
+
+      subject(:call_tool) do
+        post api('/mcp', user, oauth_access_token: access_token), params: invalid_params
+      end
+
+      it 'rejects the argument via the default additionalProperties: false' do
+        call_tool
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['result']['isError']).to be_truthy
+        expect(json_response['result']['content'].first['text'])
+          .to eq('Validation error: unexpected_argument is invalid')
+      end
+    end
+
     context 'with unknown tool name' do
       let(:params) do
         {

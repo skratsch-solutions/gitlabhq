@@ -111,6 +111,7 @@ module Gitlab
       push_frontend_feature_flag(:editor_sticky_table_headers, current_user)
       push_frontend_feature_flag(:explore_analytics_dashboards, current_user)
       push_frontend_feature_flag(:feature_library_modal, current_user)
+      push_frontend_feature_flag(:hide_unpinned_sidebar_items, current_user)
       push_frontend_feature_flag(:accessible_disabled_button, current_user, type: :gitlab_com_derisk)
 
       push_force_frontend_feature_flag(:security_manager_role_enabled, Gitlab::Security::SecurityManagerConfig.enabled?)

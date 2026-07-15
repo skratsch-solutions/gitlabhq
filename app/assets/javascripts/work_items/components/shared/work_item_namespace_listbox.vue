@@ -79,6 +79,9 @@ export default {
           groupSearch: this.searchKey,
         };
       },
+      update(data) {
+        return data.group ?? {};
+      },
       error() {
         this.$emit('error', __('There was a problem fetching groups.'));
       },
