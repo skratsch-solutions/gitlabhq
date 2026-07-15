@@ -186,6 +186,16 @@ These configurations include:
 - Release rollout and maintenance schedule
 - Inbound and outbound IP and domain allowlists
 
+### Public visibility
+
+By default, GitLab restricts the public visibility level for the instance.
+A top-level administrator can turn on public visibility for the instance in the Admin area, then
+configure visibility for specific groups or projects.
+When you turn on public visibility, your responsibilities expand.
+For more information, see
+[public visibility and open source code sharing](dedicated_for_government_shared_responsibility_model.md#public-visibility-and-open-source-code-sharing)
+in the shared responsibility model.
+
 ## Recommendation 1: Security settings for privileged accounts
 
 Privileged accounts below the top-level administrator have access to settings that can

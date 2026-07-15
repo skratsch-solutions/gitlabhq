@@ -36,7 +36,7 @@ documentation.
 
 ## Authorization boundary
 
-![Authorization boundary diagram](img/gdg_boundary_diagram_v18_9.png)
+![GitLab-managed and customer-managed resources on each side of the boundary.](img/gdg_boundary_diagram_v19_3.png)
 
 ## Responsibility overview
 
@@ -95,6 +95,8 @@ Optional features and customizations that may affect customer responsibilities:
   for inbound and outbound connections.
 - [Customer-managed encryption](../administration/dedicated/encryption.md#customer-managed-encryption):
   Provide your own encryption keys.
+- [Public visibility](#public-visibility-and-open-source-code-sharing): Turn on public
+  visibility for the instance, then configure visibility for specific groups or projects.
 
 ### Infrastructure management
 
@@ -227,3 +229,38 @@ Customers are responsible for the following:
   connected to the Dedicated for Government authorization boundary.
 - Reviewing monthly continuous monitoring submissions with the GitLab Information System
   Security Officer (ISSO).
+
+### Public visibility and open source code sharing
+
+Federal agencies may be required to share code publicly, for example, under the SHARE IT Act.
+By default, GitLab Dedicated for Government restricts the public visibility level for the
+instance.
+A top-level administrator must turn on public visibility before any group or project can be
+made public.
+For configuration steps, see
+[restrict visibility levels](../administration/settings/visibility_and_access_controls.md#restrict-visibility-levels)
+and [project and group visibility](../user/public_access.md).
+
+GitLab is responsible for the following:
+
+- Maintaining infrastructure and FedRAMP boundary controls, which are unchanged regardless of project
+  or group visibility settings.
+
+Customers are responsible for the following:
+
+- Turning on public visibility for the instance, then configuring visibility for
+  specific groups or projects.
+- Determining and documenting any exemptions from public disclosure requirements. GitLab
+  does not enforce or validate these exemptions.
+- Ensuring public groups and projects do not expose controlled unclassified information
+  (CUI), personally identifiable information (PII), or other controlled data. See
+  [roles and permissions](../user/permissions.md).
+- Enabling [secret detection](../user/application_security/secret_detection/_index.md) and
+  reviewing the [credentials inventory](../administration/credentials_inventory.md) before
+  making a repository public. Unauthenticated users can clone public repositories.
+- Confirming that CI/CD job logs, scan results, and runner tokens are not exposed. See
+  [pipeline security](../ci/pipeline_security/_index.md).
+- Scoping individual features within a public project, such as issues, the container
+  registry, and pipelines, to members only when needed. See
+  [change project visibility](../user/public_access.md#change-project-visibility) and
+  [change the visibility of individual features in a project](../user/public_access.md#change-the-visibility-of-individual-features-in-a-project).

@@ -22708,7 +22708,7 @@ msgstr ""
 msgid "ContinuousDeployment|Save service"
 msgstr ""
 
-msgid "ContinuousDeployment|Search by name, team, or description"
+msgid "ContinuousDeployment|Search by name or description"
 msgstr ""
 
 msgid "ContinuousDeployment|Service"
