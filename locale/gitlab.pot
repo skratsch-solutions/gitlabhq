@@ -4887,6 +4887,9 @@ msgstr ""
 msgid "AccessTokens|Rotate"
 msgstr ""
 
+msgid "AccessTokens|Rotate access token"
+msgstr ""
+
 msgid "AccessTokens|Rotate the token '%{tokenName}'?"
 msgstr ""
 
@@ -9521,6 +9524,9 @@ msgstr ""
 msgid "All environments"
 msgstr ""
 
+msgid "All external status checks must pass."
+msgstr ""
+
 msgid "All groups"
 msgstr ""
 
@@ -9543,6 +9549,12 @@ msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
 msgid "All merge request dependencies have been merged"
+msgstr ""
+
+msgid "All merge requests that block this one must be merged."
+msgstr ""
+
+msgid "All open threads must be resolved."
 msgstr ""
 
 msgid "All paths are relative to the GitLab URL. Do not include %{relative_url_link_start}relative URLs%{relative_url_link_end}."
@@ -9576,10 +9588,16 @@ msgstr ""
 msgid "All protected branches"
 msgstr ""
 
+msgid "All requested changes must be resolved."
+msgstr ""
+
 msgid "All required approvals given"
 msgstr ""
 
 msgid "All required approvals must be given."
+msgstr ""
+
+msgid "All security policy violations must be resolved."
 msgstr ""
 
 msgid "All threads resolved!"
@@ -77672,6 +77690,9 @@ msgstr ""
 msgid "The Kroki server that will be used to generate diagrams."
 msgstr ""
 
+msgid "The LFS files must not be locked by another user."
+msgstr ""
+
 msgid "The Matrix access token (for example, `syt-zyx57W2v1u123ew11`)."
 msgstr ""
 
@@ -77897,6 +77918,9 @@ msgstr ""
 msgid "The file you're about to delete is tracked by LFS"
 msgstr ""
 
+msgid "The files must not be locked by another user."
+msgstr ""
+
 msgid "The finding is not a vulnerability because it is part of a test or is test data."
 msgstr ""
 
@@ -78084,6 +78108,18 @@ msgstr ""
 msgid "The merge request approvals are currently syncing."
 msgstr ""
 
+msgid "The merge request must be approved."
+msgstr ""
+
+msgid "The merge request must be open."
+msgstr ""
+
+msgid "The merge request must not be a draft."
+msgstr ""
+
+msgid "The merge request must not have conflicts."
+msgstr ""
+
 msgid "The metric must be one of %{metrics}."
 msgstr ""
 
@@ -78150,6 +78186,9 @@ msgid "The password for your GitLab account on %{link_to_gitlab} has successfull
 msgstr ""
 
 msgid "The pipeline has been deleted"
+msgstr ""
+
+msgid "The pipeline must succeed."
 msgstr ""
 
 msgid "The policy is associated with a non-existing pipeline configuration file."
@@ -78227,7 +78266,13 @@ msgstr ""
 msgid "The scan has been created."
 msgstr ""
 
+msgid "The scheduled merge time must have passed."
+msgstr ""
+
 msgid "The secret is only available when you create the application or renew the secret."
+msgstr ""
+
+msgid "The security policy pipeline must complete."
 msgstr ""
 
 msgid "The selected image is not a valid SVG diagram"
@@ -78266,6 +78311,12 @@ msgstr ""
 msgid "The snippet is visible to any logged in user except external users."
 msgstr ""
 
+msgid "The source branch must be rebased."
+msgstr ""
+
+msgid "The source branch must exist and contain commits."
+msgstr ""
+
 msgid "The source project is a fork"
 msgstr ""
 
@@ -78300,6 +78351,12 @@ msgid "The target topic is not a topic."
 msgstr ""
 
 msgid "The time period in seconds that the maximum requests per project limit applies to."
+msgstr ""
+
+msgid "The title must match the required pattern."
+msgstr ""
+
+msgid "The title or description must reference a Jira issue."
 msgstr ""
 
 msgid "The update action will time out after %{number_of_minutes} minutes. For big repositories, use a clone/push combination."

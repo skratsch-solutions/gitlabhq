@@ -169,7 +169,8 @@ module Gitlab
             ::Environment => :environment,
             ::Ci::PipelineSchedule => :ci_pipeline_schedule,
             ::Import::SourceUser => :import_source_user,
-            ::Key => :key
+            ::Key => :key,
+            ::MergeRequest => :merge_request
           }.freeze
         end
 

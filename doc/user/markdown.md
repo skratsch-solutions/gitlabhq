@@ -1630,7 +1630,7 @@ KaTeX only supports a [subset](https://katex.org/docs/supported.html) of LaTeX.
 This syntax also works in AsciiDoc wikis and files using `:stem: latexmath`. For details, see
 the [Asciidoctor user manual](https://asciidoctor.org/docs/user-manual/#activating-stem-support).
 
-To prevent malicious activity, GitLab renders only the first 50 inline math instances.
+To prevent malicious activity, GitLab renders only the first 1000 inline math instances.
 You can disable this limit [for a group](../api/graphql/reference/_index.md#mutationgroupupdate)
 or for the entire [GitLab Self-Managed instance](../administration/instance_limits.md#math-rendering-limits).
 

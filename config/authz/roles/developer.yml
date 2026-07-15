@@ -59,6 +59,7 @@ project:
   - edit_on_demand_dast_scan
   - enable_continuous_vulnerability_scans
   - execute_ai_catalog_item
+  - force_evaluate_merge_request_security_policy
   - import_issues
   - keep_job_artifacts
   - play_job

@@ -5,7 +5,7 @@ module MergeRequests
     class CheckBaseService
       attr_reader :merge_request, :params
 
-      class_attribute :identifier, :description
+      class_attribute :identifier, :description, :failure_explanation
 
       def self.set_identifier(value)
         self.identifier = value
@@ -13,6 +13,13 @@ module MergeRequests
 
       def self.set_description(value)
         self.description = value
+      end
+
+      # User-facing explanation shown when this check fails, for example in the
+      # merge-train "Merge request is not mergeable" error. Stored raw (marked
+      # with N_ for extraction) and translated at the point of display.
+      def self.set_failure_explanation(value)
+        self.failure_explanation = value
       end
 
       def initialize(merge_request:, params:)
@@ -65,7 +72,10 @@ module MergeRequests
       end
 
       def default_payload(args)
-        args.merge(identifier: self.class.identifier)
+        args.merge(
+          identifier: self.class.identifier,
+          failure_explanation: self.class.failure_explanation
+        )
       end
     end
   end

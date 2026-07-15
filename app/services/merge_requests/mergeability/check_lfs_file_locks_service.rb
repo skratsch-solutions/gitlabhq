@@ -6,6 +6,7 @@ module MergeRequests
       include ::Gitlab::Utils::StrongMemoize
 
       set_identifier :locked_lfs_files
+      set_failure_explanation N_('The LFS files must not be locked by another user.')
       set_description <<~DESC.chomp
         Checks whether the merge request contains locked LFS files that are locked by users other than the merge request author
       DESC

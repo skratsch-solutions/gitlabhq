@@ -25,6 +25,7 @@ project:
   - enable_container_scanning_for_registry
   - enable_secret_push_protection
   - execute_vulnerability_duo_workflow
+  - force_evaluate_merge_request_security_policy
   - manage_project_security_exclusions
   - read_agent_artifacts
   - read_any_audit_event

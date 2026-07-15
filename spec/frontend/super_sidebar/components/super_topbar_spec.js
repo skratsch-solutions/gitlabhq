@@ -93,27 +93,18 @@ describe('SuperTopbar', () => {
 
     describe('Organization switcher', () => {
       describe.each`
-        uiForOrganizations | organizationSwitching | isLoggedIn | currentOrganization        | hasMultipleOrganizations | expected
-        ${false}           | ${false}              | ${false}   | ${undefined}               | ${false}                 | ${false}
-        ${false}           | ${false}              | ${true}    | ${mockCurrentOrganization} | ${true}                  | ${false}
-        ${false}           | ${true}               | ${true}    | ${mockCurrentOrganization} | ${true}                  | ${false}
-        ${true}            | ${false}              | ${true}    | ${mockCurrentOrganization} | ${true}                  | ${false}
-        ${true}            | ${true}               | ${false}   | ${undefined}               | ${false}                 | ${false}
-        ${true}            | ${true}               | ${false}   | ${mockCurrentOrganization} | ${true}                  | ${false}
-        ${true}            | ${true}               | ${true}    | ${undefined}               | ${false}                 | ${false}
-        ${true}            | ${true}               | ${true}    | ${undefined}               | ${true}                  | ${false}
-        ${true}            | ${true}               | ${true}    | ${mockCurrentOrganization} | ${false}                 | ${false}
-        ${true}            | ${true}               | ${true}    | ${mockCurrentOrganization} | ${true}                  | ${true}
+        orgSwitcher | isLoggedIn | currentOrganization        | hasMultipleOrganizations | expected
+        ${false}    | ${false}   | ${undefined}               | ${false}                 | ${false}
+        ${false}    | ${true}    | ${mockCurrentOrganization} | ${true}                  | ${false}
+        ${true}     | ${false}   | ${undefined}               | ${false}                 | ${false}
+        ${true}     | ${false}   | ${mockCurrentOrganization} | ${true}                  | ${false}
+        ${true}     | ${true}    | ${undefined}               | ${false}                 | ${false}
+        ${true}     | ${true}    | ${undefined}               | ${true}                  | ${false}
+        ${true}     | ${true}    | ${mockCurrentOrganization} | ${false}                 | ${false}
+        ${true}     | ${true}    | ${mockCurrentOrganization} | ${true}                  | ${true}
       `(
-        'when uiForOrganizations is $uiForOrganizations, organizationSwitching is $organizationSwitching, logged in state is $isLoggedIn, current organization $currentOrganization, and has_multiple_organizations is $hasMultipleOrganizations',
-        ({
-          uiForOrganizations,
-          organizationSwitching,
-          isLoggedIn,
-          currentOrganization,
-          hasMultipleOrganizations,
-          expected,
-        }) => {
+        'when orgSwitcher is $orgSwitcher, logged in state is $isLoggedIn, current organization $currentOrganization, and has_multiple_organizations is $hasMultipleOrganizations',
+        ({ orgSwitcher, isLoggedIn, currentOrganization, hasMultipleOrganizations, expected }) => {
           beforeEach(async () => {
             window.gon.current_organization = currentOrganization;
             createComponent(
@@ -124,7 +115,7 @@ describe('SuperTopbar', () => {
                   has_multiple_organizations: hasMultipleOrganizations,
                 },
               },
-              { glFeatures: { uiForOrganizations, organizationSwitching } },
+              { glFeatures: { orgSwitcher } },
             );
             await waitForPromises();
           });

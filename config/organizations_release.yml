@@ -38,3 +38,6 @@ flags:
   - name: org_admin_area
     description: Organization admin area for organization owners.
     stage: experimental
+  - name: org_switcher
+    description: The organization switcher dropdown component.
+    stage: experimental

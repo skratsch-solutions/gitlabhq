@@ -25,3 +25,4 @@ The stage determines who can use a flag and whether it can be disabled.
 | Flag | Stage | Description |
 |------|-------|-------------|
 | `org_admin_area` | Experimental | Organization admin area for organization owners. |
+| `org_switcher` | Experimental | The organization switcher dropdown component. |

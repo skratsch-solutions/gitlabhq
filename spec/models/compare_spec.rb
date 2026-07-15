@@ -36,6 +36,38 @@ RSpec.describe Compare, feature_category: :source_code_management do
     end
   end
 
+  describe '#raw_diffs' do
+    let(:base_sha) { start_commit.id }
+
+    subject(:compare) { described_class.new(raw_compare, project, base_sha: base_sha, straight: straight) }
+
+    it 'passes the known base_sha as the merge base' do
+      expect(raw_compare).to receive(:diffs).with(hash_including(merge_base: base_sha))
+
+      compare.raw_diffs
+    end
+
+    context 'when the comparison is straight' do
+      let(:straight) { true }
+
+      it 'does not pass a merge base' do
+        expect(raw_compare).to receive(:diffs).with(hash_excluding(:merge_base))
+
+        compare.raw_diffs
+      end
+    end
+
+    context 'when base_sha is unknown' do
+      let(:base_sha) { nil }
+
+      it 'does not pass a merge base' do
+        expect(raw_compare).to receive(:diffs).with(hash_excluding(:merge_base))
+
+        compare.raw_diffs
+      end
+    end
+  end
+
   describe '#commits' do
     subject { compare.commits }
 

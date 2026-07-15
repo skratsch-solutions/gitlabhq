@@ -83,6 +83,7 @@ describe('~/access_tokens/components/access_token_table_app', () => {
     await axios.waitForAll();
   };
 
+  const findModal = () => wrapper.findComponent(GlModal);
   const findTable = () => wrapper.findComponent(GlTable);
   const findHeaders = () => findTable().findAll('thead th > div > span');
   const findCells = () => findTable().findAll('tbody td, tbody th');
@@ -291,6 +292,12 @@ describe('~/access_tokens/components/access_token_table_app', () => {
       expect(cells.at(0).text()).toBe(tokenNameWithHtmlEntities);
       expect(cells.at(8).text()).toBe('b');
       expect(createAlert).not.toHaveBeenCalled();
+    });
+
+    it('gives the rotation confirmation modal an accessible name', () => {
+      createComponent({ backendPagination });
+
+      expect(findModal().props('ariaLabel')).toBe('Rotate access token');
     });
 
     it('shows error if token fails to be rotated', async () => {

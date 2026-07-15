@@ -473,7 +473,6 @@ RSpec/FeatureCategory:
     - 'ee/spec/services/app_sec/dast/site_profile_secret_variables/destroy_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/site_tokens/find_or_create_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/site_validations/find_or_create_service_spec.rb'
-    - 'ee/spec/services/app_sec/dast/site_validations/revoke_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/site_validations/runner_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/sites/find_or_create_service_spec.rb'
     - 'ee/spec/services/app_sec/fuzzing/api/ci_configuration_create_service_spec.rb'

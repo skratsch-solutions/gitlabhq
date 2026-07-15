@@ -830,6 +830,7 @@ Grants the ability to approve, create, delete, merge, read, subscribe, and updat
 | Update | Project | Mutation | `MergeRequestDestroyRequestedChanges` |
 | Update | Project | Mutation | `MergeRequestDestroyWorkItemRelations` |
 | Update | Project | Mutation | `MergeRequestRequestChanges` |
+| Update | Project | Mutation | `MergeRequestResyncSecurityPolicies` |
 | Update | Project | Mutation | `MergeRequestSetAssignees` |
 | Update | Project | Mutation | `MergeRequestSetBlockingMergeRequests` |
 | Update | Project | Mutation | `MergeRequestSetDraft` |

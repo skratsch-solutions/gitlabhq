@@ -610,7 +610,6 @@ RSpec/NamedSubject:
     - 'ee/spec/services/app_sec/dast/site_profiles/update_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/site_tokens/find_or_create_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/site_validations/find_or_create_service_spec.rb'
-    - 'ee/spec/services/app_sec/dast/site_validations/revoke_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/site_validations/runner_service_spec.rb'
     - 'ee/spec/services/app_sec/dast/sites/find_or_create_service_spec.rb'
     - 'ee/spec/services/approval_rules/create_service_spec.rb'

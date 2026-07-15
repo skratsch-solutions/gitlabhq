@@ -65,6 +65,37 @@ RSpec.shared_examples 'work item listing filters' do
       it_behaves_like 'contains only matching work items'
     end
 
+    context 'when filtering for task items' do
+      let(:params) { { work_item_type_ids: task_type.id } }
+
+      before do
+        work_item_1.update!(work_item_type: task_type)
+      end
+
+      it_behaves_like 'contains only matching work items'
+
+      context 'when filtering for task and ticket items' do
+        let_it_be(:ticket_type, freeze: false) do
+          ::WorkItems::TypesFramework::Provider.new.find_by_base_type(:ticket)
+        end
+
+        let(:matching) { [work_item_1, work_item_2] }
+        let(:params) { { work_item_type_ids: "#{task_type.id},#{ticket_type.id}" } }
+
+        before do
+          work_item_2.update!(work_item_type: ticket_type)
+        end
+
+        it_behaves_like 'contains only matching work items'
+      end
+
+      context 'when negating task items' do
+        let(:params) { { not: { work_item_type_ids: task_type.id } } }
+
+        it_behaves_like 'does not contain matching work items'
+      end
+    end
+
     context 'with author_username filter' do
       let(:params) { { author_username: user.username } }
 
@@ -414,7 +445,9 @@ RSpec.shared_examples 'work item listing filters' do
           [lazy { { milestone_title: 'v1.0', milestone_wildcard_id: 'None' } }],
           [lazy { { release_tag: 'v1.0', release_tag_wildcard_id: 'None' } }],
           [lazy { { parent_ids: '1', parent_wildcard_id: 'None' } }],
-          [lazy { { not: { milestone_title: 'v1.0', milestone_wildcard_id: 'Started' } } }]
+          [lazy { { not: { milestone_title: 'v1.0', milestone_wildcard_id: 'Started' } } }],
+          [lazy { { types: 'task', work_item_type_ids: task_type.id } }],
+          [lazy { { not: { types: 'task', work_item_type_ids: task_type.id } } }]
         ]
       end
 

@@ -52,6 +52,7 @@ module Gitlab
       class << self
         def between(repo, head, base, options = {}, *paths)
           straight = options.delete(:straight) || false
+          merge_base = options.delete(:merge_base)
 
           common_commit = if straight
                             base
@@ -63,7 +64,7 @@ module Gitlab
                             # branch1...branch2) From the git documentation:
                             # "git diff A...B" is equivalent to "git diff
                             # $(git-merge-base A B) B"
-                            repo.merge_base(head, base)
+                            merge_base || repo.merge_base(head, base)
                           end
 
           options ||= {}
