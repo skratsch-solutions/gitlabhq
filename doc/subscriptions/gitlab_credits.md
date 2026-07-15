@@ -531,6 +531,11 @@ all Agent Platform features (Duo Chat, Code Suggestions, Flows, and Agents)
 are suspended for all users on that subscription or instance. For user-level caps,
 only the individual user who reached their cap is suspended.
 
+Flat user caps and per-user override caps apply to usage beyond a user's included allocation.
+While a user still has included credits, they can continue to consume their included credits
+even after their usage reaches the cap.
+The cap is enforced only after the user's included credits are exhausted.
+
 Users who have reached their cap are unable to access Agent Platform features
 until the cap is raised or the next billing period begins.
 
@@ -580,11 +585,16 @@ This column shows whether each user can access
 [GitLab Duo Agent Platform](../user/duo_agent_platform/_index.md) features
 or is blocked because they reached their credit cap.
 
+The **Usage control status** column displays the status **Blocked** only when GitLab enforces the cap against the user.
+GitLab enforces the cap after the user's included credits are exhausted.
+A user who has reached their cap but still has included credits has the status **Regular**,
+because they can continue to consume their included credits.
+
 The column displays one of the following statuses:
 
 | Status | Description |
 |--------|-------------|
-| **Regular** | The user has not reached their credit cap and can use GitLab Duo Agent Platform features. |
+| **Regular** | The user has not reached their credit cap, or has reached their cap but still has included credits, and can use GitLab Duo Agent Platform features. |
 | **Blocked - subscription cap reached** | The user reached the flat per-user cap set at the subscription level. |
 | **Blocked - user cap reached** | The user reached a per-user override cap set specifically for them. |
 

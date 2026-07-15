@@ -115,6 +115,23 @@ ee/lib/api/entities/work_items/features/color.rb:
   fields:
   - color
   - text_color
+ee/lib/api/entities/work_items/features/custom_fields.rb:
+  usage_radius: 18
+  fields:
+  - active
+  - created_at
+  - created_by
+  - custom_field
+  - custom_field_values
+  - field_type
+  - id
+  - name
+  - select_options
+  - selected_options
+  - updated_at
+  - updated_by
+  - value
+  - work_item_types
 ee/lib/api/entities/work_items/features/health_status.rb:
   usage_radius: 18
   fields:
@@ -736,6 +753,18 @@ lib/api/entities/personal_access_token.rb:
   - revoked
   - scopes
   - user_id
+lib/api/entities/personal_access_token_granular_scope.rb:
+  usage_radius: 25
+  fields:
+  - access
+  - group_id
+  - permissions
+  - project_id
+lib/api/entities/personal_access_token_with_last_used_ips.rb:
+  usage_radius: 16
+  fields:
+  - granular_scopes
+  - last_used_ips
 lib/api/entities/platform/kubernetes.rb:
   usage_radius: 15
   fields:

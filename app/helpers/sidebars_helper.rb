@@ -39,7 +39,6 @@ module SidebarsHelper
       current_context_header: panel.super_sidebar_context_header,
       university_path: university_url,
       support_path: support_url,
-      docs_path: help_docs_path,
       display_whats_new: display_whats_new?,
       show_version_check: show_version_check?,
       search: search_data,
@@ -65,8 +64,6 @@ module SidebarsHelper
       admin_mode: {
         admin_mode_feature_enabled: Gitlab::CurrentSettings.admin_mode,
         admin_mode_active: current_user_mode.admin_mode?,
-        enter_admin_mode_url: new_admin_session_path,
-        leave_admin_mode_url: destroy_admin_session_path,
         user_is_admin: user.can_access_admin_area?
       },
       avatar_url: user.avatar_url,
@@ -115,8 +112,7 @@ module SidebarsHelper
     {
       whats_new_most_recent_release_items_count: whats_new_most_recent_release_items_count,
       whats_new_version_digest: whats_new_version_digest,
-      whats_new_read_articles: whats_new_read_articles,
-      whats_new_mark_as_read_path: whats_new_mark_as_read_path
+      whats_new_read_articles: whats_new_read_articles
     }
   end
 

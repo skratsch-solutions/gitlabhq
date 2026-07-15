@@ -179,6 +179,19 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION assign_p_duo_workflows_checkpoint_headers_id_value() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."id" IS NOT NULL THEN
+  RAISE WARNING 'Manually assigning ids is not allowed, the value will be ignored';
+END IF;
+NEW."id" := nextval('p_duo_workflows_checkpoint_headers_id_seq'::regclass);
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION assign_p_duo_workflows_checkpoints_id_value() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -6315,7 +6328,6 @@ CREATE TABLE p_ci_builds (
     started_at timestamp without time zone,
     coverage double precision,
     name character varying,
-    options text,
     allow_failure boolean DEFAULT false NOT NULL,
     stage_idx integer,
     tag boolean,
@@ -6327,7 +6339,6 @@ CREATE TABLE p_ci_builds (
     artifacts_expire_at timestamp without time zone,
     environment character varying,
     "when" character varying,
-    yaml_variables text,
     queued_at timestamp without time zone,
     lock_version integer DEFAULT 0,
     coverage_regex character varying,
@@ -6877,6 +6888,25 @@ CREATE TABLE p_duo_workflows_checkpoint_blobs (
     CONSTRAINT check_duo_wf_checkpoint_blobs_data_size CHECK ((octet_length(data) <= 1048576)),
     CONSTRAINT check_duo_wf_checkpoint_blobs_sharding_key CHECK ((num_nonnulls(namespace_id, project_id) = 1)),
     CONSTRAINT check_f7e2b28e64 CHECK ((char_length(channel) <= 255))
+)
+PARTITION BY RANGE (workflow_created_at);
+
+CREATE TABLE p_duo_workflows_checkpoint_headers (
+    id bigint NOT NULL,
+    workflow_id bigint NOT NULL,
+    project_id bigint,
+    namespace_id bigint,
+    workflow_created_at timestamp with time zone NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    current_thread integer DEFAULT 0 NOT NULL,
+    checkpoint jsonb NOT NULL,
+    metadata jsonb NOT NULL,
+    thread_ts text NOT NULL,
+    parent_ts text,
+    CONSTRAINT check_71babcae59 CHECK ((char_length(thread_ts) <= 255)),
+    CONSTRAINT check_8fe91401d3 CHECK ((char_length(parent_ts) <= 255)),
+    CONSTRAINT check_duo_wf_checkpoint_headers_sharding_key CHECK ((num_nonnulls(namespace_id, project_id) = 1))
 )
 PARTITION BY RANGE (workflow_created_at);
 
@@ -26586,6 +26616,15 @@ CREATE SEQUENCE p_duo_workflows_checkpoint_blobs_id_seq
 
 ALTER SEQUENCE p_duo_workflows_checkpoint_blobs_id_seq OWNED BY p_duo_workflows_checkpoint_blobs.id;
 
+CREATE SEQUENCE p_duo_workflows_checkpoint_headers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE p_duo_workflows_checkpoint_headers_id_seq OWNED BY p_duo_workflows_checkpoint_headers.id;
+
 CREATE SEQUENCE p_duo_workflows_checkpoints_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -41861,6 +41900,9 @@ ALTER TABLE ONLY p_ci_workloads
 ALTER TABLE ONLY p_duo_workflows_checkpoint_blobs
     ADD CONSTRAINT p_duo_workflows_checkpoint_blobs_pkey PRIMARY KEY (id, workflow_created_at);
 
+ALTER TABLE ONLY p_duo_workflows_checkpoint_headers
+    ADD CONSTRAINT p_duo_workflows_checkpoint_headers_pkey PRIMARY KEY (id, workflow_created_at);
+
 ALTER TABLE ONLY p_duo_workflows_checkpoints
     ADD CONSTRAINT p_duo_workflows_checkpoints_pkey PRIMARY KEY (id, created_at);
 
@@ -48579,6 +48621,10 @@ CREATE INDEX index_dts_on_expiring_at_thirty_days_notification_sent_at ON deploy
 CREATE INDEX index_duo_wf_checkpoint_blobs_on_namespace_id ON ONLY p_duo_workflows_checkpoint_blobs USING btree (namespace_id);
 
 CREATE INDEX index_duo_wf_checkpoint_blobs_on_workflow_id ON ONLY p_duo_workflows_checkpoint_blobs USING btree (workflow_id);
+
+CREATE INDEX index_duo_wf_checkpoint_headers_on_namespace_id ON ONLY p_duo_workflows_checkpoint_headers USING btree (namespace_id);
+
+CREATE INDEX index_duo_wf_checkpoint_headers_on_workflow_id ON ONLY p_duo_workflows_checkpoint_headers USING btree (workflow_id);
 
 CREATE INDEX index_duo_wf_session_artifacts_on_ns_wf_updated_wf_id ON duo_workflow_session_artifacts USING btree (namespace_id, workflow_updated_at DESC, workflow_id DESC);
 
@@ -57016,6 +57062,8 @@ CREATE TRIGGER assign_p_ci_stages_id_trigger BEFORE INSERT ON p_ci_stages FOR EA
 
 CREATE TRIGGER assign_p_duo_workflows_checkpoint_blobs_id_trigger BEFORE INSERT ON p_duo_workflows_checkpoint_blobs FOR EACH ROW EXECUTE FUNCTION assign_p_duo_workflows_checkpoint_blobs_id_value();
 
+CREATE TRIGGER assign_p_duo_workflows_checkpoint_headers_id_trigger BEFORE INSERT ON p_duo_workflows_checkpoint_headers FOR EACH ROW EXECUTE FUNCTION assign_p_duo_workflows_checkpoint_headers_id_value();
+
 CREATE TRIGGER assign_p_duo_workflows_checkpoints_id_trigger BEFORE INSERT ON p_duo_workflows_checkpoints FOR EACH ROW EXECUTE FUNCTION assign_p_duo_workflows_checkpoints_id_value();
 
 CREATE TRIGGER assign_p_knowledge_graph_code_indexing_tasks_id_trigger BEFORE INSERT ON p_knowledge_graph_code_indexing_tasks FOR EACH ROW EXECUTE FUNCTION assign_p_knowledge_graph_code_indexing_tasks_id_value();
@@ -60602,6 +60650,9 @@ ALTER TABLE ONLY issues
 
 ALTER TABLE p_duo_workflows_checkpoint_blobs
     ADD CONSTRAINT fk_duo_wf_checkpoint_blobs_workflow_id FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;
+
+ALTER TABLE p_duo_workflows_checkpoint_headers
+    ADD CONSTRAINT fk_duo_wf_checkpoint_headers_workflow_id FOREIGN KEY (workflow_id) REFERENCES duo_workflows_workflows(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY duo_workflows_workflows
     ADD CONSTRAINT fk_duo_workflows_workflows_ai_catalog_item_id FOREIGN KEY (ai_catalog_item_id) REFERENCES ai_catalog_items(id) ON DELETE SET NULL;

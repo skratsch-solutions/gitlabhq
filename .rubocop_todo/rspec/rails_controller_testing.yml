@@ -34,7 +34,6 @@ RSpec/RailsControllerTesting:
     - 'ee/spec/controllers/groups/saml_providers_controller_spec.rb'
     - 'ee/spec/controllers/groups/security/dashboard_controller_spec.rb'
     - 'ee/spec/controllers/groups/security/policies_controller_spec.rb'
-    - 'ee/spec/controllers/groups/security/vulnerabilities_controller_spec.rb'
     - 'ee/spec/controllers/groups/sso_controller_spec.rb'
     - 'ee/spec/controllers/oauth/geo_auth_controller_spec.rb'
     - 'ee/spec/controllers/operations_controller_spec.rb'

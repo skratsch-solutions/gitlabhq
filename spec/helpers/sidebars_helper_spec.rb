@@ -106,8 +106,6 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
         admin_mode: {
           admin_mode_feature_enabled: true,
           admin_mode_active: false,
-          enter_admin_mode_url: new_admin_session_path,
-          leave_admin_mode_url: destroy_admin_session_path,
           user_is_admin: false
         },
         avatar_url: user.avatar_url,
@@ -175,8 +173,7 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
           is_expected.to include({
             whats_new_most_recent_release_items_count: helper.whats_new_most_recent_release_items_count,
             whats_new_version_digest: helper.whats_new_version_digest,
-            whats_new_read_articles: helper.whats_new_read_articles,
-            whats_new_mark_as_read_path: whats_new_mark_as_read_path
+            whats_new_read_articles: helper.whats_new_read_articles
           })
         end
       end

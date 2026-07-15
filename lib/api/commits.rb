@@ -707,7 +707,7 @@ module API
         end
       end
 
-      desc 'List all merge requests for a commit' do
+      desc 'List all merge requests associated with a commit' do
         detail 'Lists all merge requests associated with a specified commit.'
         success code: 200, model: Entities::MergeRequestBasic
         tags %w[commits]

@@ -11,7 +11,6 @@ const baseSidebarData = {
   display_whats_new: true,
   whats_new_version_digest: 'v1',
   whats_new_read_articles: [1],
-  whats_new_mark_as_read_path: '/mark_as_read',
   whats_new_most_recent_release_items_count: 5,
 };
 
@@ -107,7 +106,7 @@ describe('WhatsNewForYouMenuItem', () => {
         {
           versionDigest: 'v1',
           initialReadArticles: [1],
-          markAsReadPath: '/mark_as_read',
+          markAsReadPath: '/-/whats_new/mark_as_read',
           mostRecentReleaseItemsCount: 5,
           placement: 'profile_menu',
         },

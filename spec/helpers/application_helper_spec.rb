@@ -810,6 +810,20 @@ RSpec.describe ApplicationHelper, feature_category: :shared do
       it { is_expected.to include('page-with-panels') }
     end
 
+    describe 'with-bloom' do
+      context 'when show_ai_bloom? is false' do
+        it { is_expected.not_to include('with-bloom') }
+      end
+
+      context 'when show_ai_bloom? is true' do
+        before do
+          allow(helper).to receive(:show_ai_bloom?).and_return(true)
+        end
+
+        it { is_expected.to include('with-bloom') }
+      end
+    end
+
     describe 'page-theme-background' do
       it { is_expected.to include('page-theme-background') }
     end
@@ -831,6 +845,20 @@ RSpec.describe ApplicationHelper, feature_category: :shared do
 
         it { is_expected.to include('user-logged-out') }
         it { is_expected.not_to include('user-logged-in') }
+      end
+    end
+
+    describe 'aura-tinted-themes' do
+      context 'when the aura_tinted_themes feature flag is enabled' do
+        it { is_expected.to include('aura-tinted-themes') }
+      end
+
+      context 'when the aura_tinted_themes feature flag is disabled' do
+        before do
+          stub_feature_flags(aura_tinted_themes: false)
+        end
+
+        it { is_expected.not_to include('aura-tinted-themes') }
       end
     end
   end

@@ -50,6 +50,21 @@ RSpec.describe 'Admin updates metrics and profiling settings', :request_store, :
     expect_field_value(_('Allow access to members of the following group'), nil)
   end
 
+  it 'changes logging field naming settings', :js, :aggregate_failures do
+    latest_version_text = format(s_('AdminSettings|v%{version} (latest)'),
+      version: ApplicationSetting::LOGGING_FIELD_LATEST_VERSION)
+
+    within_testid('logging-field-naming-settings-content') do
+      expect(page).to have_select(s_('AdminSettings|Schema version'), selected: 'v0')
+
+      select latest_version_text, from: s_('AdminSettings|Schema version')
+
+      expect_save_settings
+    end
+
+    expect(page).to have_select(s_('AdminSettings|Schema version'), selected: latest_version_text)
+  end
+
   context 'for service usage data', :with_license do
     before do
       stub_usage_data_connections

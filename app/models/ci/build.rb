@@ -838,10 +838,6 @@ module Ci
       trace.exist?
     end
 
-    def has_live_trace?
-      trace.live?
-    end
-
     def has_archived_trace?
       trace.archived?
     end

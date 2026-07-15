@@ -113,7 +113,10 @@ module API
         end
       end
 
-      desc 'Get a project repository tree' do
+      desc 'List all repository trees in a project' do
+        detail 'Lists all repository files and directories in a specified project. This endpoint can be accessed ' \
+          'without authentication if the repository is publicly accessible. This command provides essentially the ' \
+          'same features as the `git ls-tree` command.'
         success Entities::TreeObject
         tags ['repositories']
       end
@@ -154,7 +157,9 @@ module API
       end
 
       route_setting :authorization, permissions: :read_repository_blob, boundary_type: :project
-      desc 'Get raw blob contents from the repository' do
+      desc 'Retrieve raw blob content' do
+        detail 'Retrieves the raw file contents for a blob, by blob SHA. This endpoint can be accessed without ' \
+          'authentication if the repository is publicly accessible.'
         tags ['repositories']
       end
       params do
@@ -169,7 +174,9 @@ module API
         send_git_blob @repo, @blob
       end
 
-      desc 'Get a blob from the repository' do
+      desc 'Retrieve a blob from a repository' do
+        detail 'Retrieves information, such as size and content, about blobs in a repository. Blob content is Base64 ' \
+          'encoded. This endpoint can be accessed without authentication, if the repository is publicly accessible.'
         tags ['repositories']
       end
       params do
@@ -196,7 +203,10 @@ module API
         }
       end
 
-      desc 'Get an archive of the repository' do
+      desc 'Retrieve file archive from a repository' do
+        detail 'Retrieves the file archive of a specified repository. This endpoint can be accessed without ' \
+          'authentication if the repository is publicly accessible. For GitLab.com users, this endpoint has a rate ' \
+          'limit threshold of 5 requests per minute.'
         tags ['repositories']
       end
       params do
@@ -234,7 +244,9 @@ module API
         not_found!('File')
       end
 
-      desc 'Compare two branches, tags, or commits' do
+      desc 'Compare branches, tags, or commits' do
+        detail 'Compares branches, tags, or commits. Retrieves the differences between two branches, tags, or ' \
+          'commits in a specified project.'
         success Entities::Compare
         tags ['repositories']
       end
@@ -274,7 +286,10 @@ module API
         end
       end
 
-      desc 'Get repository health' do
+      desc 'Retrieve repository health statistics' do
+        detail 'Retrieves statistics related to the health of a project repository. This endpoint is rate-limited to ' \
+          '5 requests/hour per project when `generate` is `true`. Available only to users with push ' \
+          'access to the repository.'
         success Entities::RepositoryHealth
         tags ['repositories']
       end
@@ -301,7 +316,8 @@ module API
         present health, with: Entities::RepositoryHealth
       end
 
-      desc 'Get repository contributors' do
+      desc 'Retrieve contributors metrics' do
+        detail 'Retrieves a list of contributors to a specified repository.'
         success Entities::Contributor
         tags ['repositories']
       end
@@ -321,7 +337,8 @@ module API
         not_found!
       end
 
-      desc 'Get the common ancestor between commits' do
+      desc 'Retrieve a merge base' do
+        detail 'Retrieves the merge base for two specified commits.'
         success Entities::Commit
         tags ['repositories']
       end
@@ -354,8 +371,10 @@ module API
         end
       end
 
-      desc 'Generates a changelog section for a release and returns it' do
-        detail 'This feature was introduced in GitLab 14.6'
+      desc 'Generate changelog data' do
+        detail 'Generates changelog data based on commits in a repository, without committing them to a changelog ' \
+          'file. Works exactly like `POST /projects/:id/repository/changelog`, except the changelog data is not ' \
+          'committed to any changelog file.'
         success Entities::Changelog
         tags ['repositories']
       end
@@ -387,8 +406,8 @@ module API
         render_api_error!("Failed to generate the changelog: #{ex.message}", 422)
       end
 
-      desc 'Generates a changelog section for a release and commits it in a changelog file' do
-        detail 'This feature was introduced in GitLab 13.9'
+      desc 'Add changelog data to file' do
+        detail 'Adds changelog data to file.'
         success code: 200
         tags ['repositories']
       end

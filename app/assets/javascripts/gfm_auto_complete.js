@@ -184,8 +184,15 @@ export const highlighter = (li, query) => {
   if (!query) {
     return li;
   }
-  const escapedQuery = escapeRegExp(query);
-  const regexp = new RegExp(`>\\s*([^<]*?)(${escapedQuery})([^<]*)\\s*<`, 'ig');
+  let escapedQuery = escapeRegExp(query);
+  const buildHighlightRegex = (q, flags) => new RegExp(`>\\s*([^<]*?)(${q})([^<]*)\\s*<`, flags);
+  if (!buildHighlightRegex(escapedQuery, 'i').test(li) && !query.includes('_')) {
+    escapedQuery = query
+      .split('')
+      .map((c) => escapeRegExp(c))
+      .join('_*');
+  }
+  const regexp = buildHighlightRegex(escapedQuery, 'ig');
   // eslint-disable-next-line max-params
   return li.replace(regexp, (str, $1, $2, $3) => `> ${$1}<strong>${$2}</strong>${$3} <`);
 };
@@ -426,6 +433,10 @@ class GfmAutoComplete {
             let search = c.name;
             if (c.aliases.length > 0) {
               search = `${search} ${c.aliases.join(' ')}`;
+            }
+            const searchNoUnderscores = search.replace(/_/g, '');
+            if (searchNoUnderscores !== search) {
+              search = `${search} ${searchNoUnderscores}`;
             }
             return {
               name: c.name,

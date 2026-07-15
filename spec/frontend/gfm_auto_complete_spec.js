@@ -1182,6 +1182,17 @@ describe('GfmAutoComplete', () => {
         '<li> couple (woman,woman<strong>)</strong>  <gl-emoji data-name="couple_ww"></gl-emoji></li>',
       );
     });
+
+    it.each`
+      query          | emoji               | highlight
+      ${'thumbsup'}  | ${'thumbs_up'}      | ${`<strong>thumbs_up</strong>`}
+      ${'thumbs_up'} | ${'thumbs_up'}      | ${`<strong>thumbs_up</strong>`}
+      ${'prideflag'} | ${'gay_pride_flag'} | ${`gay_<strong>pride_flag</strong>`}
+      ${'servicedo'} | ${'service_dog'}    | ${`<strong>service_do</strong>g`}
+      ${'wo'}        | ${'wolf'}           | ${`<strong>wo</strong>lf`}
+    `('highlights "$query" in "$emoji"', ({ query, emoji, highlight }) => {
+      expect(highlighter(`<li>${emoji}</li>`, query)).toBe(`<li> ${highlight} </li>`);
+    });
   });
 
   describe('CRM Contacts', () => {
@@ -1898,6 +1909,47 @@ describe('GfmAutoComplete', () => {
         }
       },
     );
+  });
+
+  describe('commands underscore-insensitive matching', () => {
+    let autocomplete;
+    let $textarea;
+    let ajaxSpy;
+
+    const cmd = (name, aliases = []) => ({ name, aliases, params: [], description: '' });
+
+    const setupWithCommands = (commands) => {
+      ajaxSpy = jest.spyOn(AjaxCache, 'retrieve').mockReturnValue(Promise.resolve(commands));
+      setHTMLFixture('<textarea data-supports-quick-actions="true"></textarea>');
+      autocomplete = new GfmAutoComplete({
+        commands: `${TEST_HOST}/autocomplete_sources/commands`,
+      });
+      $textarea = $('textarea');
+      autocomplete.setup($textarea, { commands: true });
+    };
+
+    const getCommandsItems = () => getAutocompleteDropdownItems('at-view-commands');
+
+    afterEach(() => {
+      autocomplete?.destroy();
+      resetHTMLFixture();
+      ajaxSpy?.mockRestore();
+    });
+
+    it.each`
+      query                | commands                                        | expected
+      ${'/assignreviewer'} | ${[cmd('assign_reviewer'), cmd('label')]}       | ${['/assign_reviewer']}
+      ${'/label'}          | ${[cmd('label'), cmd('assign_reviewer')]}       | ${['/label']}
+      ${'/assignreviewer'} | ${[cmd('request_review', ['assign_reviewer'])]} | ${['/request_review']}
+    `('typing "$query" shows $expected', async ({ query, commands, expected }) => {
+      setupWithCommands(commands);
+      triggerDropdown($textarea, query);
+      await waitForPromises();
+
+      const items = getCommandsItems();
+      expect(items).toHaveLength(expected.length);
+      expected.forEach((name, i) => expect(items[i]).toContain(name));
+    });
   });
 
   describe('commands sorting', () => {

@@ -666,6 +666,7 @@ describe('UserMenu component', () => {
           },
         });
         expect(findEnterAdminModeItem().exists()).toBe(true);
+        expect(findEnterAdminModeItem().find('a').attributes('href')).toBe('/admin/session/new');
         expect(findLeaveAdminModeItem().exists()).toBe(false);
       });
     });
@@ -681,6 +682,9 @@ describe('UserMenu component', () => {
         });
         expect(findEnterAdminModeItem().exists()).toBe(false);
         expect(findLeaveAdminModeItem().exists()).toBe(true);
+        expect(findLeaveAdminModeItem().find('a').attributes('href')).toBe(
+          '/admin/session/destroy',
+        );
       });
     });
   });
@@ -725,7 +729,6 @@ describe('UserMenu component', () => {
       display_whats_new: true,
       whats_new_most_recent_release_items_count: 3,
       whats_new_version_digest: 'abc',
-      whats_new_mark_as_read_path: '/mark_as_read',
       whats_new_read_articles: [],
     };
 

@@ -517,7 +517,6 @@ Layout/LineEndStringConcatenationIndentation:
     - 'spec/services/snippets/create_service_spec.rb'
     - 'spec/services/uploads/destroy_service_spec.rb'
     - 'spec/services/users/email_verification/validate_token_service_spec.rb'
-    - 'spec/services/users/migrate_records_to_ghost_user_service_spec.rb'
     - 'spec/services/work_items/related_work_item_links/destroy_service_spec.rb'
     - 'spec/support/database/prevent_cross_joins.rb'
     - 'spec/support/helpers/graphql/subscriptions/action_cable/mock_action_cable.rb'

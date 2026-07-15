@@ -32,6 +32,7 @@ module API
       parent_type = noteable_type.parent_class.to_s.underscore
       noteables_str = noteable_type.to_s.underscore.pluralize
       notable_name = noteable_type.to_s.underscore.humanize.downcase
+      notable_article = notable_name.match?(/\A[aeiou]/i) ? 'an' : 'a'
       notable_id_type = noteable_type == Commit ? String : Integer
       noteables_path = noteable_type == Commit ? "repository/#{noteables_str}" : noteables_str
       notable_type_underscore = noteable_type.to_s.underscore
@@ -41,7 +42,8 @@ module API
         requires :id, type: String, desc: "The ID of a #{parent_type}"
       end
       resource parent_type.pluralize.to_sym, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-        desc "Get a list of #{notable_name} discussions" do
+        desc "List all discussions for #{notable_article} #{notable_name}" do
+          detail "Lists all discussions for a specified #{notable_name}."
           success Entities::Discussion
           tags ['discussions']
         end
@@ -60,7 +62,8 @@ module API
           present Discussion.build_collection(notes, noteable), with: Entities::Discussion
         end
 
-        desc "Get a single #{notable_name} discussion" do
+        desc "Retrieve a discussion for #{notable_article} #{notable_name}" do
+          detail "Retrieves a specified discussion for #{notable_article} #{notable_name}."
           success Entities::Discussion
           tags ['discussions']
         end
@@ -82,7 +85,8 @@ module API
           present discussion, with: Entities::Discussion
         end
 
-        desc "Create a new #{notable_name} discussion" do
+        desc "Create #{notable_article} #{notable_name} discussion" do
+          detail "Creates a discussion for a specified #{notable_name}. Replies can be added to it later."
           success Entities::Discussion
           tags ['discussions']
         end
@@ -147,7 +151,8 @@ module API
             present note.discussion, with: Entities::Discussion
           end
         end
-        desc "Get comments in a single #{notable_name} discussion" do
+        desc "List comments in #{notable_article} #{notable_name} discussion" do
+          detail "Lists the comments in a specified #{notable_name} discussion."
           success Entities::Discussion
           tags ['discussions']
         end
@@ -167,7 +172,8 @@ module API
           present notes, with: Entities::Note
         end
 
-        desc "Add a comment to a #{notable_name} discussion" do
+        desc "Add a comment to #{notable_article} #{notable_name} discussion" do
+          detail "Adds a comment to a specified #{notable_name} discussion."
           success Entities::Note
           tags ['discussions']
         end
@@ -214,7 +220,8 @@ module API
           end
         end
 
-        desc "Get a comment in a #{notable_name} discussion" do
+        desc "Retrieve a comment from #{notable_article} #{notable_name} discussion" do
+          detail "Retrieves a specified comment from a #{notable_name} discussion."
           success Entities::Note
           tags ['discussions']
         end
@@ -230,7 +237,8 @@ module API
           get_note(noteable, params[:note_id], noteable_type)
         end
 
-        desc "Edit a comment in a #{notable_name} discussion" do
+        desc "Update a comment in #{notable_article} #{notable_name} discussion" do
+          detail "Updates or changes the status of a specified comment in a #{notable_name} discussion."
           success Entities::Note
           tags ['discussions']
         end
@@ -253,7 +261,8 @@ module API
           end
         end
 
-        desc "Delete a comment in a #{notable_name} discussion" do
+        desc "Delete a comment from #{notable_article} #{notable_name} discussion" do
+          detail "Deletes a specified comment from a #{notable_name} discussion."
           success Entities::Note
           tags ['discussions']
         end
@@ -270,7 +279,8 @@ module API
         end
 
         if Noteable.resolvable_types.include?(noteable_type.to_s)
-          desc "Resolve/unresolve an existing #{notable_name} discussion" do
+          desc "Resolve or unresolve #{notable_article} #{notable_name} discussion" do
+            detail "Resolves or unresolves a specified #{notable_name} discussion."
             success Entities::Discussion
             tags ['discussions']
           end

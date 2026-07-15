@@ -161,11 +161,18 @@ export function findCustomEmoji(name) {
 }
 
 function getAliasesMatchingQuery(query) {
+  const queryHasNoUnderscores = query.length > 0 && !query.includes('_');
   return Object.keys(emojiAliases)
-    .filter((alias) => alias.includes(query))
+    .filter((alias) => {
+      if (alias.includes(query)) return true;
+      if (queryHasNoUnderscores) return alias.replace(/_/g, '').includes(query);
+      return false;
+    })
     .reduce((map, alias) => {
       const emojiName = emojiAliases[alias];
-      const score = alias.indexOf(query);
+      const score = alias.includes(query)
+        ? alias.indexOf(query)
+        : alias.replace(/_/g, '').indexOf(query) + 0.5;
 
       const prev = map.get(emojiName);
       // overwrite if we beat the previous score or we're more alphabetical
@@ -216,6 +223,18 @@ function getNameMatch(emoji, query) {
       fieldValue: emoji.name,
       emoji,
     };
+  }
+
+  if (query.length > 0 && !query.includes('_')) {
+    const nameNoUnderscores = emoji.name.replace(/_/g, '');
+    if (nameNoUnderscores.includes(query)) {
+      return {
+        score: nameNoUnderscores.indexOf(query) + 0.5,
+        field: 'name',
+        fieldValue: emoji.name,
+        emoji,
+      };
+    }
   }
 
   return null;

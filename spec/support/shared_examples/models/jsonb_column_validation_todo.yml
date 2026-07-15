@@ -6,6 +6,8 @@
 - Ai::DuoWorkflows::Checkpoint#checkpoint
 - Ai::DuoWorkflows::Checkpoint#metadata
 - Ai::DuoWorkflows::Checkpoint#ui_chat_log
+- Ai::DuoWorkflows::CheckpointHeader#checkpoint
+- Ai::DuoWorkflows::CheckpointHeader#metadata
 - AlertManagement::Alert#payload
 - AlertManagement::HttpIntegration#payload_example
 - ApplicationSetting#ci_cd_settings

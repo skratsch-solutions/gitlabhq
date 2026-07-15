@@ -6557,6 +6557,9 @@ msgstr ""
 msgid "AdminSettings|Configure when dormant projects should be automatically deleted. %{linkStart}What are dormant projects?%{linkEnd}"
 msgstr ""
 
+msgid "AdminSettings|Control the version of the logging field naming"
+msgstr ""
+
 msgid "AdminSettings|Control whether built-in project templates are available for new projects. You can enforce this setting for all groups."
 msgstr ""
 
@@ -6759,6 +6762,9 @@ msgid "AdminSettings|Let's Encrypt email"
 msgstr ""
 
 msgid "AdminSettings|Limit the amount of namespace and project data to index"
+msgstr ""
+
+msgid "AdminSettings|Logging fields"
 msgstr ""
 
 msgid "AdminSettings|MCP client access"
@@ -11705,6 +11711,9 @@ msgid "Artifact was successfully deleted."
 msgstr ""
 
 msgid "ArtifactRegistry|A user can hold only one Artifact Registry role per resource. The following are listed more than once."
+msgstr ""
+
+msgid "ArtifactRegistry|Artifact registry settings"
 msgstr ""
 
 msgid "ArtifactRegistry|Assignee could not be found."
@@ -23111,9 +23120,6 @@ msgid "Control + M"
 msgstr ""
 
 msgid "Control + Shift + M"
-msgstr ""
-
-msgid "Control the version of the logging field naming"
 msgstr ""
 
 msgid "Control whether events are sent to GitLab or your own %{snowplow_link_start}Snowplow%{snowplow_link_end} collector. Only one can be selected at a time and enabling one will disable the other. %{help_link_start}Learn more.%{help_link_end}"
@@ -45398,9 +45404,6 @@ msgid "LoggedOutMarketingHeader|Pricing"
 msgstr ""
 
 msgid "LoggedOutMarketingHeader|Why GitLab"
-msgstr ""
-
-msgid "Logging fields"
 msgstr ""
 
 msgid "Login with smartcard"

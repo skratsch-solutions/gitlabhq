@@ -24,7 +24,12 @@ import { logError } from '~/lib/logger';
 import GitlabExperiment from '~/experimentation/components/gitlab_experiment.vue';
 import { isExperimentVariant } from '~/experimentation/utils';
 import WhatsNewForYouMenuItem from '~/whats_new/components/whats_new_for_you_menu_item.vue';
-import { adminImpersonationPath, adminRootPath } from '~/lib/utils/path_helpers/admin';
+import {
+  adminImpersonationPath,
+  adminRootPath,
+  destroyAdminSessionPath,
+  newAdminSessionPath,
+} from '~/lib/utils/path_helpers/admin';
 import { profilePreferencesPath } from '~/lib/utils/path_helpers/profile';
 import { destroyUserSessionPath } from '~/lib/utils/path_helpers/routes';
 import { userPath } from '~/lib/utils/path_helpers/user';
@@ -174,7 +179,7 @@ export default {
     enterAdminModeItem() {
       return {
         text: this.$options.i18n.enterAdminMode,
-        href: this.data.admin_mode.enter_admin_mode_url,
+        href: newAdminSessionPath(),
         extraAttrs: {
           ...USER_MENU_TRACKING_DEFAULTS,
           'data-track-label': 'enter_admin_mode',
@@ -184,7 +189,7 @@ export default {
     leaveAdminModeItem() {
       return {
         text: this.$options.i18n.leaveAdminMode,
-        href: this.data.admin_mode.leave_admin_mode_url,
+        href: destroyAdminSessionPath(),
         extraAttrs: {
           ...USER_MENU_TRACKING_DEFAULTS,
           'data-track-label': 'leave_admin_mode',

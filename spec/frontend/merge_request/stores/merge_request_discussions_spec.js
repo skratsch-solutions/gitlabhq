@@ -836,6 +836,7 @@ describe('mergeRequestDiscussions store', () => {
               ignore_whitespace_change: !useDiffsView().showWhitespace,
             }),
             type: 'DiffNote',
+            commit_id: null,
             line_code: 'hash_0_1',
           },
         },

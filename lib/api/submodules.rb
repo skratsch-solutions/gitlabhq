@@ -26,7 +26,8 @@ module API
         documentation: { example: 'gitlab-org/gitlab' }
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-      desc 'Update existing submodule reference in repository' do
+      desc 'Update a submodule reference' do
+        detail 'Updates a reference for a specified submodule.'
         success code: 200, model: Entities::CommitDetail
         tags ['submodules']
         failure [

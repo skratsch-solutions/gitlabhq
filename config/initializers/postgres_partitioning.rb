@@ -93,6 +93,7 @@ Gitlab::Application.config.to_prepare do
         Ai::ActiveContext::Code::Repository,
         Ai::DuoWorkflows::Checkpoint,
         Ai::DuoWorkflows::CheckpointBlob,
+        Ai::DuoWorkflows::CheckpointHeader,
         Analytics::KnowledgeGraph::CodeIndexingTask,
         AuditEvents::AiAuditEvent
       ])

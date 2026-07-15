@@ -70,7 +70,7 @@ describe('HelpCenter component', () => {
     },
     {
       text: HelpCenter.i18n.docs,
-      href: customSidebarData.docs_path,
+      href: '/help/docs',
       extraAttrs: trackingAttrs('gitlab_documentation'),
     },
     {

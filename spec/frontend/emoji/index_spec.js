@@ -1069,6 +1069,28 @@ describe('emoji', () => {
 
       expect(searchEmoji(query)).toEqual(expected);
     });
+
+    it.each`
+      query             | emojiName          | field      | fieldValue
+      ${'greyquestion'} | ${'grey_question'} | ${'name'}  | ${'grey_question'}
+      ${'atomsymbol'}   | ${'atom'}          | ${'alias'} | ${'atom_symbol'}
+    `(
+      'matches "$emojiName" when searching "$query" without underscores',
+      ({ query, emojiName, field, fieldValue }) => {
+        expect(searchEmoji(query)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ emoji: getEmojiMap()[emojiName], field, fieldValue }),
+          ]),
+        );
+      },
+    );
+
+    it('ranks exact matches above underscore-insensitive matches', () => {
+      const exact = searchEmoji('grey_question').find((r) => r.emoji.name === 'grey_question');
+      const fuzzy = searchEmoji('greyquestion').find((r) => r.emoji.name === 'grey_question');
+
+      expect(exact.score).toBeLessThan(fuzzy.score);
+    });
   });
 
   describe('sortEmoji', () => {

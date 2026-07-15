@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { parseRailsFormFields } from '~/lib/utils/forms';
 import LoggingFieldSettings from './components/logging_field_settings.vue';
 
 export const initLoggingFieldSettings = () => {
@@ -16,6 +17,8 @@ export const initLoggingFieldSettings = () => {
     fieldChanges,
   } = el.dataset;
 
+  const { schemaVersion, dualEmitTarget } = parseRailsFormFields(el);
+
   return new Vue({
     el,
     name: 'LoggingFieldSettingsRoot',
@@ -30,6 +33,8 @@ export const initLoggingFieldSettings = () => {
           latestVersion: parseInt(latestVersion, 10),
           availableVersions: JSON.parse(availableVersions),
           fieldChanges: JSON.parse(fieldChanges || '{}'),
+          schemaFieldName: schemaVersion.name,
+          dualEmitFieldName: dualEmitTarget.name,
         },
       });
     },

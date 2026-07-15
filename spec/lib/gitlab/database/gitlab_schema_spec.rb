@@ -33,6 +33,7 @@ RSpec.describe Gitlab::Database::GitlabSchema, feature_category: :database do
       'ci_builds'                                    | :gitlab_ci
       'my_schema.ci_builds'                          | :gitlab_ci
       'my_schema.ci_runner_machine_builds_100'       | :gitlab_ci
+      'ci_build_tags_100'                            | :gitlab_ci
       'my_schema._test_gitlab_main_table'            | :gitlab_main
       'information_schema.columns'                   | :gitlab_internal
       'audit_events_part_5fc467ac26'                 | :gitlab_main

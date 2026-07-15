@@ -167,6 +167,7 @@ RSpec.describe 'Database schema',
       p_ci_pipelines_config: %w[partition_id project_id],
       p_ci_stages: %w[project_id],
       p_duo_workflows_checkpoint_blobs: %w[project_id namespace_id],
+      p_duo_workflows_checkpoint_headers: %w[project_id namespace_id],
       p_duo_workflows_checkpoints: %w[project_id namespace_id],
       # No LFK needed: daily partitions are dropped after 1 day via retain_for
       # https://gitlab.com/gitlab-org/gitlab/-/blob/ccc2459924e2805e43ad8f97eec15a6932d84f68/ee/app/models/analytics/knowledge_graph/code_indexing_task.rb#L13
@@ -589,6 +590,8 @@ RSpec.describe 'Database schema',
       {
         "Ai::Conversation::Message" => %w[extras error_details],
         "Ai::DuoWorkflows::Checkpoint" => %w[checkpoint metadata], # https://gitlab.com/gitlab-org/gitlab/-/issues/468632
+        "Ai::DuoWorkflows::CheckpointHeader" => %w[checkpoint metadata], # slim langgraph checkpoint header; schema is externally defined
+
         "ApplicationSetting" => %w[repository_storages_weighted oauth_provider rate_limits_unauthenticated_git_http],
         "AlertManagement::Alert" => %w[payload],
         "AlertManagement::HttpIntegration" => %w[payload_example],

@@ -94,7 +94,7 @@ The following features are extended from standard Markdown:
 |---------------------------------------|-----------------------------|
 | [Blockquotes](#blockquotes)           | [Multiline blockquotes](#multiline-blockquote) |
 | [Code blocks](#code-spans-and-blocks) | [Colored code and syntax highlighting](#syntax-highlighting) |
-| [Headings](#headings)                 | [Linkable heading IDs](#heading-ids-and-links) |
+| [Headings](#headings)                 | [Linkable heading anchors](#heading-anchors) |
 | [Images](#images)                     | [Embedded videos](#videos) and [audio](#audio) |
 | [Links](#links)                       | [Automatically linking URLs](#url-auto-linking) |
 
@@ -165,7 +165,7 @@ Alt-H2
 ------
 ```
 
-### Heading IDs and links
+### Heading anchors
 
 {{< history >}}
 
@@ -176,23 +176,22 @@ Alt-H2
 GitLab automatically adds an anchor to every Markdown heading,
 so you can link to it.
 
-On hover, a link to those IDs becomes visible to make it easier to copy the link to
+On hover, a link to those anchors becomes visible to make it easier to copy the link to
 the heading to use it somewhere else.
 
-The IDs are generated from the content of the heading according to the following rules:
+The anchors are generated from the content of the heading according to the following rules:
 
 1. All text is converted to lowercase.
-1. All non-word text (such as punctuation or HTML) is removed.
+1. All characters except letters, numbers, hyphens, and underscores are removed.
 1. All spaces are converted to hyphens.
-1. Two or more hyphens in a row are converted to one.
-1. If a heading with the same ID has already been generated, a unique
-   incrementing number is appended, starting at 1.
+1. If a heading with the same anchor has already been generated,
+   a unique incrementing number is appended, starting at 1.
 
 Example:
 
 <!--
 Translation note: DO NOT TRANSLATE this example. The example must stay untranslated
-to stay in sync with the example link IDs.
+to stay in sync with the example anchors.
 -->
 
 ```markdown
@@ -202,18 +201,18 @@ to stay in sync with the example link IDs.
 ## This heading has spaces in it
 ### This heading has spaces in it
 ## This heading has 3.5 in it (and parentheses)
-## This heading has  multiple spaces and --- hyphens
+## This heading has  multiple spaces and --- hyphens_and_underscores
 ```
 
-Would generate the following link IDs:
+Would generate the following heading anchors:
 
-1. `this-heading-has-spaces-in-it`
-1. `this-heading-has-a-thumbsup-in-it`
-1. `this-heading-has-unicode-in-it-한글`
-1. `this-heading-has-spaces-in-it-1`
-1. `this-heading-has-spaces-in-it-2`
-1. `this-heading-has-35-in-it-and-parentheses`
-1. `this-heading-has--multiple-spaces-and-----hyphens`
+1. `#this-heading-has-spaces-in-it`
+1. `#this-heading-has-a-thumbsup-in-it`
+1. `#this-heading-has-unicode-in-it-한글`
+1. `#this-heading-has-spaces-in-it-1`
+1. `#this-heading-has-spaces-in-it-2`
+1. `#this-heading-has-35-in-it-and-parentheses`
+1. `#this-heading-has--multiple-spaces-and-----hyphens_and_underscores`
 
 ## Line breaks
 
@@ -705,17 +704,17 @@ in separate Git repositories in GitLab. For example, `[I'm a reference-style lin
 points to `wikis/style` only when the link is inside a wiki Markdown file.
 For more information, see [Wiki-specific Markdown](project/wiki/markdown.md).
 
-Use heading ID anchors to link to a specific section in a page:
+Use heading anchors to link to a specific section in a page:
 
 ```markdown
-- This line links to [a section on a different Markdown page, using a `#` and the heading ID](permissions.md#project-permissions)
-- This line links to [a different section on the same page, using a `#` and the heading ID](#heading-ids-and-links)
+- This line links to [a section on a different Markdown page, using a `#` and the heading anchor](permissions.md#project-permissions)
+- This line links to [a different section on the same page, using a `#` and the heading anchor](#heading-anchors)
 ```
 
 When rendered, the examples look similar to:
 
-> - This line links to [a section on a different Markdown page, using a `#` and the heading ID](permissions.md#project-permissions)
-> - This line links to [a different section on the same page, using a `#` and the heading ID](#heading-ids-and-links)
+> - This line links to [a section on a different Markdown page, using a `#` and the heading anchor](permissions.md#project-permissions)
+> - This line links to [a different section on the same page, using a `#` and the heading anchor](#heading-anchors)
 
 Using link references:
 

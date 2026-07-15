@@ -8,6 +8,7 @@ import {
 import HelpCenterUpgradeSubscription from 'ee_component/super_sidebar/components/help_center_upgrade_subscription.vue';
 import GitlabVersionCheckBadge from 'jh_else_ce/gitlab_version_check/components/gitlab_version_check_badge.vue';
 import { helpPagePath } from '~/helpers/help_page_helper';
+import { helpDocsPath } from '~/lib/utils/path_helpers/help';
 import { FORUM_URL, PROMO_URL, CONTRIBUTE_URL } from '~/constants';
 import { __ } from '~/locale';
 import Tracking from '~/tracking';
@@ -80,7 +81,7 @@ export default {
             },
             {
               text: this.$options.i18n.docs,
-              href: this.sidebarData.docs_path,
+              href: helpDocsPath(),
               extraAttrs: {
                 ...this.trackingAttrs('gitlab_documentation'),
               },

@@ -26,7 +26,6 @@ Lint/UnusedMethodArgument:
     - 'app/graphql/resolvers/users/participants_resolver.rb'
     - 'app/graphql/resolvers/users_resolver.rb'
     - 'app/graphql/types/alert_management/integration_type.rb'
-    - 'app/graphql/types/base_field.rb'
     - 'app/graphql/types/ci/job_need_union.rb'
     - 'app/graphql/types/color_type.rb'
     - 'app/graphql/types/commit_signature_interface.rb'

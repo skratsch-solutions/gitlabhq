@@ -317,8 +317,16 @@ module ApplicationHelper
     class_names << 'with-gl-container-queries'
     class_names << system_message_class
     class_names << (current_user ? 'user-logged-in' : 'user-logged-out')
+    class_names << 'aura-tinted-themes' if Feature.enabled?(:aura_tinted_themes, current_user)
+    class_names << 'with-bloom' if show_ai_bloom? && Feature.enabled?(:aura_tinted_themes, current_user)
 
     class_names
+  end
+
+  # Gates the bloom background so it only renders on pages that surface
+  # AI features. Overridden in EE; CE has no AI panel.
+  def show_ai_bloom?
+    false
   end
 
   def system_message_class

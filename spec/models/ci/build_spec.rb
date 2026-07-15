@@ -1938,20 +1938,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     end
   end
 
-  describe '#has_live_trace?' do
-    subject { build.has_live_trace? }
-
-    let(:build) { create(:ci_build, :trace_live, pipeline: pipeline) }
-
-    it { is_expected.to be_truthy }
-
-    context 'when build does not have live trace' do
-      let(:build) { create(:ci_build, pipeline: pipeline) }
-
-      it { is_expected.to be_falsy }
-    end
-  end
-
   describe '#has_archived_trace?' do
     subject { build.has_archived_trace? }
 
