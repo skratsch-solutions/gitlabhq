@@ -93,6 +93,27 @@ RSpec.describe "Groups::Observability::Setup", feature_category: :observability 
           end
         end
 
+        context 'when pipeline existence check times out' do
+          before do
+            allow_next_instance_of(Observability::PipelinesSinceSetupExist) do |service|
+              allow(service).to receive(:execute).and_raise(ActiveRecord::QueryCanceled)
+            end
+          end
+
+          it 'logs the error and falls back to false' do
+            expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+              an_instance_of(ActiveRecord::QueryCanceled), group_id: group.id
+            )
+
+            get_setup_page
+
+            aggregate_failures do
+              expect(response).to have_gitlab_http_status(:success)
+              expect(assigns(:has_pipelines_since_setup)).to be(false)
+            end
+          end
+        end
+
         describe 'page layout and section order' do
           it 'renders the connect your application section before endpoint details' do
             get_setup_page

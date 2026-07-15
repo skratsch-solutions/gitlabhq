@@ -6,6 +6,7 @@ import { TAB_KEY_CODE } from '~/lib/utils/keycodes';
 import { keysFor, TOGGLE_SUPER_SIDEBAR } from '~/behaviors/shortcuts/keybindings';
 import { s__ } from '~/locale';
 import Tracking from '~/tracking';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { JS_TOGGLE_EXPAND_CLASS } from '../constants';
 import { sidebarState } from '../state';
 import {
@@ -30,7 +31,7 @@ export default {
     ScrollScrim,
     TrialWidget: () => import('jh_else_ee/contextual_sidebar/components/trial_widget.vue'),
   },
-  mixins: [Tracking.mixin()],
+  mixins: [Tracking.mixin(), glFeatureFlagsMixin()],
   i18n: {
     primaryNavigation: s__('Navigation|Primary navigation'),
   },
@@ -219,6 +220,7 @@ export default {
           ref="helpCenter"
           :sidebar-data="sidebarData"
           class="gl-p-3"
+          :class="{ 'gl-pt-0': glFeatures.hideUnpinnedSidebarItems }"
         />
         <div v-else class="gl-p-2">
           <div class="gl-flex gl-flex-col gl-justify-end">

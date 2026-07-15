@@ -402,6 +402,30 @@ RSpec.describe 'Navigation menu item pinning', :js, feature_category: :navigatio
     end
   end
 
+  describe 'when hide_unpinned_sidebar_items is enabled' do
+    let_it_be(:maintainer_project) { create(:project, maintainers: user) }
+
+    before do
+      # Overrides the global stub in spec_helper.rb (hide_unpinned_sidebar_items: false)
+      # to test the enabled state.
+      stub_feature_flags(hide_unpinned_sidebar_items: true)
+      visit project_path(maintainer_project)
+    end
+
+    it 'shows pinned items and settings but hides other navigation sections' do
+      within '#super-sidebar' do
+        within_testid 'pinned-nav-items' do
+          expect(page).to have_link 'Work items'
+        end
+
+        expect(page).to have_button 'Settings'
+        expect(page).not_to have_button 'Manage'
+        expect(page).not_to have_button 'Plan'
+        expect(page).not_to have_button 'Code'
+      end
+    end
+  end
+
   describe 'section collapse states after using a pinned item to navigate' do
     before do
       project.add_member(user, :owner)

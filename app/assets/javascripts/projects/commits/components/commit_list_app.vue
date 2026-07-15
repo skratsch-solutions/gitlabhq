@@ -346,6 +346,7 @@ export default {
     <commit-list-header
       :file-path="currentPath"
       :current-ref="currentRef"
+      :current-ref-type="currentRefType"
       :initial-filter-tokens="initialFilterTokens"
       @filter="handleFilter"
       @ref-change="handleRefChange"

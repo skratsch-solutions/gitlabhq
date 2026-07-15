@@ -1,5 +1,6 @@
 <script>
 import { GlAvatar, GlBadge, GlButton, GlIcon, GlNavItem, GlTooltipDirective } from '@gitlab/ui';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { s__, sprintf } from '~/locale';
 import {
   CLICK_MENU_ITEM_ACTION,
@@ -27,6 +28,7 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
+  mixins: [glFeatureFlagsMixin()],
   inject: {
     pinnedItemIds: { default: { ids: [] } },
     panelSupportsPins: { default: false },
@@ -177,6 +179,12 @@ export default {
     hasBadge() {
       return Boolean(this.item.badge);
     },
+    itemIcon() {
+      if (this.glFeatures.hideUnpinnedSidebarItems) {
+        return this.item.library_icon || this.item.icon;
+      }
+      return this.item.icon;
+    },
   },
   mounted() {
     if (this.isActive && !this.isFlyout) {
@@ -235,7 +243,14 @@ export default {
           }"
         >
           <slot name="icon">
-            <gl-icon v-if="item.icon" :name="item.icon" />
+            <gl-icon
+              v-if="itemIcon"
+              :name="itemIcon"
+              :class="{
+                'js-draggable-icon gl-cursor-grab':
+                  isInPinnedSection && glFeatures.hideUnpinnedSidebarItems,
+              }"
+            />
             <gl-icon
               v-else-if="isInPinnedSection"
               name="grip"

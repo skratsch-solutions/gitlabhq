@@ -1630,7 +1630,20 @@ export default {
         search,
       });
     },
-    fetchLabelsWithFetchPolicy(search, fetchPolicy = fetchPolicies.CACHE_FIRST) {
+    async fetchLabelsWithFetchPolicy(search, fetchPolicy = fetchPolicies.CACHE_FIRST) {
+      // Wait for metadata to load so isGroup has the correct value.
+      // Without this, the query may fire with the wrong namespace type.
+      if (this.metadataLoading) {
+        await new Promise((resolve) => {
+          const unwatch = this.$watch('metadataLoading', (loading) => {
+            if (!loading) {
+              unwatch();
+              resolve();
+            }
+          });
+        });
+      }
+
       return this.$apollo
         .query({
           query: searchLabelsQuery,

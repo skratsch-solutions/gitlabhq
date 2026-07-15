@@ -5,11 +5,6 @@ export default {
   files: [
     'app/assets/javascripts/diffs/components/diff_row.vue',
     'app/assets/javascripts/ref/components/ref_selector.vue',
-    'app/assets/javascripts/repository/components/blob_content_viewer.vue',
-    'app/assets/javascripts/repository/components/blob_viewers/geo_json/geo_json_viewer.vue',
-    'app/assets/javascripts/repository/components/commit_changes_modal.vue',
-    'app/assets/javascripts/repository/components/delete_blob_modal.vue',
-    'app/assets/javascripts/repository/pages/blob_edit_header.vue',
     'app/assets/javascripts/wikis/components/wiki_content.vue',
     'app/assets/javascripts/wikis/components/wiki_form.vue',
   ],

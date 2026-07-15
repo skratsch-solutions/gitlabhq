@@ -44,6 +44,11 @@ export default {
       required: false,
       default: false,
     },
+    headerless: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     asyncCount: {
       type: Object,
       required: false,
@@ -53,7 +58,7 @@ export default {
   emits: ['collapse-toggle', 'nav-link-click', 'pin-add', 'pin-remove'],
   data() {
     return {
-      isExpanded: Boolean(this.expanded || this.item.is_active),
+      isExpanded: Boolean(this.headerless || this.expanded || this.item.is_active),
       isMouseOverSection: false,
       isMouseOverFlyout: false,
       keepFlyoutClosed: false,
@@ -91,6 +96,16 @@ export default {
     },
     showExpanded() {
       return !this.isIconOnly && this.isExpanded;
+    },
+    showFlyout() {
+      return (
+        !this.headerless &&
+        this.hasFlyout &&
+        this.isMouseOver &&
+        !this.showExpanded &&
+        !this.keepFlyoutClosed &&
+        this.navItems.length > 0
+      );
     },
   },
   watch: {
@@ -149,6 +164,7 @@ export default {
 <template>
   <component :is="tag">
     <gl-nav-item
+      v-if="!headerless"
       :id="`menu-section-button-${itemId}`"
       v-outside="handleClickOutside"
       class="gl-relative gl-mb-1"
@@ -173,7 +189,7 @@ export default {
     </gl-nav-item>
 
     <flyout-menu
-      v-if="hasFlyout && isMouseOver && !showExpanded && !keepFlyoutClosed && navItems.length > 0"
+      v-if="showFlyout"
       :target-id="`menu-section-button-${itemId}`"
       :title="item.title"
       :items="navItems"

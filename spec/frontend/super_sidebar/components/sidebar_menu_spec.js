@@ -23,6 +23,11 @@ const menuItems = [
   { id: 2, title: 'With subitems', items: [{ id: 21, title: 'Pinned subitem' }] },
   { id: 3, title: 'Empty subitems array', items: [] },
   { id: 4, title: 'Also with subitems', items: [{ id: 41, title: 'Subitem' }] },
+  {
+    id: 'settings_menu',
+    title: 'Settings',
+    items: [{ id: 'settings_general', title: 'General' }],
+  },
 ];
 
 Vue.use(VueApollo);
@@ -119,6 +124,7 @@ describe('Sidebar Menu', () => {
         expect(findNonStaticSectionItems().wrappers.map((w) => w.props('item').title)).toEqual([
           'With subitems',
           'Also with subitems',
+          'Settings',
         ]);
       });
     });
@@ -153,6 +159,7 @@ describe('Sidebar Menu', () => {
           expect(findNonStaticSectionItems().wrappers.map((w) => w.props('hasFlyout'))).toEqual([
             false,
             false,
+            false,
           ]);
         });
       });
@@ -169,6 +176,7 @@ describe('Sidebar Menu', () => {
 
         it('adds flyout menus to sections', () => {
           expect(findNonStaticSectionItems().wrappers.map((w) => w.props('hasFlyout'))).toEqual([
+            true,
             true,
             true,
           ]);
@@ -571,7 +579,7 @@ describe('Sidebar Menu', () => {
           findFeatureLibraryModal()
             .props('sections')
             .map((s) => s.id),
-        ).toEqual([2, 4]);
+        ).toEqual([2, 4, 'settings_menu']);
       });
     });
 
@@ -634,6 +642,96 @@ describe('Sidebar Menu', () => {
         wrapper.vm.onModalPinToggle('some_item', true);
         expect(spy).toHaveBeenCalledWith('some_item', 'some_item');
       });
+    });
+  });
+
+  describe('when hide_unpinned_sidebar_items feature flag is enabled', () => {
+    describe.each`
+      panelType
+      ${'project'}
+      ${'group'}
+    `('with panelType=$panelType', ({ panelType }) => {
+      beforeEach(() => {
+        createWrapper({
+          items: menuItems,
+          panelType,
+          provide: { glFeatures: { hideUnpinnedSidebarItems: true } },
+        });
+      });
+
+      it('renders only the settings section in the non-static items', () => {
+        const sections = findNonStaticSectionItems();
+        expect(sections).toHaveLength(1);
+        expect(sections.at(0).props('item').id).toBe('settings_menu');
+      });
+
+      it('does not render non-settings sections', () => {
+        const sectionTitles = findNonStaticSectionItems().wrappers.map(
+          (w) => w.props('item').title,
+        );
+        expect(sectionTitles).not.toContain('With subitems');
+        expect(sectionTitles).not.toContain('Also with subitems');
+      });
+    });
+
+    describe.each`
+      panelType
+      ${'your_work'}
+      ${'explore'}
+    `('with panelType=$panelType', ({ panelType }) => {
+      beforeEach(() => {
+        createWrapper({
+          items: menuItems,
+          panelType,
+          provide: { glFeatures: { hideUnpinnedSidebarItems: true } },
+        });
+      });
+
+      it('renders all non-static items', () => {
+        expect(findNonStaticSectionItems().length).toBeGreaterThan(1);
+      });
+    });
+
+    it('does not hide unpinned items for logged-out users', () => {
+      createWrapper({
+        items: menuItems,
+        panelType: 'project',
+        isLoggedIn: false,
+        provide: { glFeatures: { hideUnpinnedSidebarItems: true } },
+      });
+
+      expect(findNonStaticSectionItems().length).toBeGreaterThan(1);
+    });
+
+    it('hides the main menu separator', () => {
+      createWrapper({
+        items: menuItems,
+        panelType: 'project',
+        provide: { glFeatures: { hideUnpinnedSidebarItems: true } },
+      });
+
+      expect(findMainMenuSeparator().exists()).toBe(false);
+    });
+
+    it('does not hide unpinned items for organization panel', () => {
+      createWrapper({
+        items: menuItems,
+        panelType: 'organization',
+        provide: { glFeatures: { hideUnpinnedSidebarItems: true } },
+      });
+
+      expect(findNonStaticSectionItems().length).toBeGreaterThan(1);
+    });
+
+    it('still renders the pinned section and feature library trigger', () => {
+      createWrapper({
+        items: menuItems,
+        panelType: 'project',
+        provide: { glFeatures: { hideUnpinnedSidebarItems: true, featureLibraryModal: true } },
+      });
+
+      expect(findPinnedSection().exists()).toBe(true);
+      expect(wrapper.findByTestId('feature-library-trigger').exists()).toBe(true);
     });
   });
 });

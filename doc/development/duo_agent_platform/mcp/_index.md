@@ -134,6 +134,83 @@ and follow the template instructions.
 >
 > We strongly encourage all engineers to follow the tool proposal process and provide clear explanations of their use cases.
 
+#### Tool naming and consolidation conventions
+
+When adding or consolidating tools, follow these conventions to keep the tool surface small and
+predictable.
+These conventions reduce tool count and token overhead without losing functionality.
+
+**Verb classes:** every tool name uses a `verb_object` shape, and the verb signals the operation
+class:
+
+- `get_` for a single object, `list_` for a collection.
+- `save_` for create and update field mutations. The presence of `id` defines whether the operation is a create or update action.
+  Parameters required on create should be marked as such in the tool definition.
+- `delete_` for actual delete operations. These should never be folded into `save_` to allow for better governance handling.
+- `add_` or other deviations from the pattern are reserved for objects that do not have a typical CRUD shape, such as commits or sessions (for example `add_commit`).
+
+**Resource identification:** every project-scoped tool identifies its target the same way, inherited
+from the shared input base classes (`ProjectResourceInput` supplies `url`, `project_id`, and the
+resource's internal ID). A caller provides either:
+
+- `url` — a full GitLab URL that encodes the whole path (for example
+  `https://gitlab.com/group/project/-/merge_requests/1`), or
+- The ID group — `project_id` (numeric ID or URL-encoded path such as `gitlab-org%2Fgitlab`) plus
+  the resource's internal ID (`merge_request_iid`, `work_item_iid`, `commit_sha`, and so on).
+
+Keep the project identifier and the internal ID as separate parameters.
+Do not fold them into a
+single `id`. They are different values (`iid`/`sha` is scoped to a project and is meaningless without
+`project_id`), and `url` is already the single-value convenience that collapses them. When both `url`
+and IDs are supplied they are cross-validated and a mismatch raises an error. Work-item tools accept
+`group_id` or `project_id` in the same group.
+
+**Reads (single vs. collection):**
+
+- Facets scoped to one parent object fold into that object's `get_` tool through an `include`
+  enum (for example `get_merge_request` with `include: diffs|commits|notes|pipelines|conflicts`).
+  rather than separate `list_*` tools.
+- Independent collections that can be queried on their own get their own `list_` tool (for example
+  `list_merge_requests`, `list_pipelines`).
+- Facet-scoped pagination lives on the `get_` reader and applies only to the relevant `include[]`
+  value. Document this in the parameter description.
+- Add a `detail` enum (`none`/`stats`/`full_patch`) on diff-bearing reads where the diff dominates
+  the payload (for example the `diff` facet of `get_commit` and the `diffs` facet of
+  `get_merge_request`). Do not retrofit `detail` where a better-suited knob already exists: file
+  content uses line pagination (`offset`/`limit`) and job logs use byte pagination
+  (`byte_offset`/`byte_limit`), because those APIs have no diff-style verbosity levels.
+- Prefer a filter parameter over a new facet or tool when one facet is a subset of another (for
+  example a `job_status: failed` filter instead of a separate `failing_jobs` facet).
+
+**Pagination:** a tool's pagination scheme mirrors the endpoint it wraps, rather than forcing a
+single server-wide convention. Do not translate between schemes (for example, do not wrap a page
+number in an opaque cursor): a synthetic cursor over offset pagination hides the mechanism without
+gaining cursor stability, and misleads the caller about the guarantees the endpoint provides.
+
+- **REST-backed tools** use offset pagination with `page` (1-based, default `1`) and `per_page`
+  (default `20`, capped at `100`), and return a `metadata` object with `page`, `per_page`, and
+  `has_more`. Applies to tools such as `list_repository_tree`, `list_branches`, `list_commits`,
+  `list_merge_requests`, `list_pipelines`, and `search`.
+- **GraphQL-backed tools** use native cursor pagination with `first` (default `20`, capped at `100`)
+  and `after` (an opaque cursor), and return a `pageInfo` object with `endCursor` and `hasNextPage`.
+  Applies to tools such as `list_work_items`.
+- **Content readers** use a range window suited to their payload instead of item pagination: file
+  content uses line pagination (`offset`/`limit`) and job logs use byte pagination
+  (`byte_offset`/`byte_limit`). Return a `system_instruction` telling the caller how to fetch the
+  next window.
+- Facet-scoped pagination on a `get_` reader is prefixed with the facet name (for example
+  `notes_page`/`notes_per_page` on `get_merge_request`, `comments_page`/`comments_per_page` on
+  `get_commit`) and follows the scheme of the endpoint backing that facet.
+
+**Consolidation over proliferation:**
+
+- Merge scoped search variants into the unified `search` tool with a `scope` parameter instead of
+  adding per-resource search tools.
+
+**Document intentional exceptions.** When a tool deliberately breaks a convention (a one-off action
+verb, a second `write_` tool on one resource), record it as intentional
+in the proposal so it is not mistaken for an oversight.
+
 #### Implement a tool from a REST API route
 
 This [merge request](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/201838) defines a process for creating an MCP tool from an API route.

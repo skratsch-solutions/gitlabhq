@@ -80,7 +80,12 @@ function loadScannerData() {
   const data = JSON.parse(readFileSync(SCANNER_JSON_PATH, 'utf-8'));
   const graph = new Map();
   for (const [filePath, entry] of Object.entries(data.graph)) {
-    graph.set(filePath, { infected: entry.infected, appRoot: entry.appRoot });
+    // Keep the resolved import edges (sans the bulky `alternatives`) so the loader can
+    // propagate infection via the scanner's resolution instead of re-resolving.
+    const imports = Array.isArray(entry.imports)
+      ? entry.imports.map((e) => ({ source: e.source, resolved: e.resolved, dynamic: e.dynamic }))
+      : [];
+    graph.set(filePath, { infected: entry.infected, appRoot: entry.appRoot, imports });
   }
   console.log(
     `[vue3-infection] Loaded scanner data: ${graph.size} files, ` +

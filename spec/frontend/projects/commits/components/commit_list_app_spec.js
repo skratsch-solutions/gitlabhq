@@ -48,7 +48,10 @@ describe('CommitListApp', () => {
   const createRouter = (routeQuery = {}) => {
     const router = new VueRouter({
       mode: 'abstract',
-      routes: [{ path: '/', component: CommitListApp }],
+      routes: [
+        { path: '/', component: CommitListApp },
+        { path: '/:ref/:path*', name: 'commitsAnyRef', component: CommitListApp },
+      ],
     });
 
     router.push({ path: '/', query: routeQuery });
@@ -56,11 +59,15 @@ describe('CommitListApp', () => {
     return router;
   };
 
-  const createComponent = (handler = commitsQueryHandler, routeQuery = {}) => {
+  const createComponent = (
+    handler = commitsQueryHandler,
+    routeQuery = {},
+    { provide = {}, router } = {},
+  ) => {
     wrapper = shallowMountExtended(CommitListApp, {
       apolloProvider: createMockApollo([[commitsQuery, handler]]),
-      provide: defaultProvide,
-      router: createRouter(routeQuery),
+      provide: { ...defaultProvide, ...provide },
+      router: router ?? createRouter(routeQuery),
     });
   };
 
@@ -105,14 +112,7 @@ describe('CommitListApp', () => {
   describe('escapedRef decoding', () => {
     it('decodes percent-encoded escapedRef for the initial query', async () => {
       const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
-      wrapper = shallowMountExtended(CommitListApp, {
-        apolloProvider: createMockApollo([[commitsQuery, handler]]),
-        provide: {
-          ...defaultProvide,
-          escapedRef: 'feature%2Fmy-branch',
-        },
-        router: createRouter(),
-      });
+      createComponent(handler, {}, { provide: { escapedRef: 'feature%2Fmy-branch' } });
       await waitForPromises();
 
       expect(handler).toHaveBeenCalledWith(
@@ -142,6 +142,25 @@ describe('CommitListApp', () => {
       await waitForPromises();
 
       expect(findCommitHeader().props('currentRef')).toBe('develop');
+    });
+
+    it('updates currentRefType passed to header when switching from a branch to a tag', async () => {
+      await wrapper.vm.$router.push({
+        path: `/${encodeURIComponent('main')}/`,
+        query: { ref_type: 'heads' },
+      });
+      await waitForPromises();
+
+      expect(findCommitHeader().props('currentRefType')).toBe('heads');
+
+      findCommitHeader().vm.$emit('ref-change', 'v1.0');
+      await wrapper.vm.$router.push({
+        path: `/${encodeURIComponent('v1.0')}/`,
+        query: { ref_type: 'tags' },
+      });
+      await waitForPromises();
+
+      expect(findCommitHeader().props('currentRefType')).toBe('tags');
     });
   });
 
@@ -311,25 +330,8 @@ describe('CommitListApp', () => {
   });
 
   describe('pipelineRef', () => {
-    const createRouterWithWildcard = (routeQuery = {}) => {
-      const router = new VueRouter({
-        mode: 'abstract',
-        routes: [
-          { path: '/', component: CommitListApp },
-          { path: '/:ref/:path*', name: 'commitsAnyRef', component: CommitListApp },
-        ],
-      });
-      router.push({ path: '/', query: routeQuery });
-      return router;
-    };
-
-    const createComponentWithRefType = (refType, handler = commitsQueryHandler) => {
-      wrapper = shallowMountExtended(CommitListApp, {
-        apolloProvider: createMockApollo([[commitsQuery, handler]]),
-        provide: { ...defaultProvide, refType },
-        router: createRouterWithWildcard(),
-      });
-    };
+    const createComponentWithRefType = (refType, handler = commitsQueryHandler) =>
+      createComponent(handler, {}, { provide: { refType } });
 
     it('passes currentRef as pipelineRef when refType is "heads"', async () => {
       const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
@@ -944,14 +946,7 @@ describe('CommitListApp', () => {
 
       it('handles encoded refs in initial route path', async () => {
         const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
-        wrapper = shallowMountExtended(CommitListApp, {
-          apolloProvider: createMockApollo([[commitsQuery, handler]]),
-          provide: {
-            ...defaultProvide,
-            escapedRef: 'feature%2Fmy-branch',
-          },
-          router: createRouter(),
-        });
+        createComponent(handler, {}, { provide: { escapedRef: 'feature%2Fmy-branch' } });
         await waitForPromises();
 
         expect(handler).toHaveBeenCalledWith(expect.objectContaining({ ref: 'feature/my-branch' }));
@@ -978,11 +973,7 @@ describe('CommitListApp', () => {
         });
         await router.push('/feature/my-branch/');
 
-        wrapper = shallowMountExtended(CommitListApp, {
-          apolloProvider: createMockApollo([[commitsQuery, handler]]),
-          provide: { ...defaultProvide, escapedRef },
-          router,
-        });
+        createComponent(handler, {}, { provide: { escapedRef }, router });
         await waitForPromises();
 
         // Must send the full ref, not just 'feature'
@@ -1005,13 +996,8 @@ describe('CommitListApp', () => {
       return router;
     };
 
-    const createComponentWithPath = (handler, filePath = '', routeQuery = {}) => {
-      wrapper = shallowMountExtended(CommitListApp, {
-        apolloProvider: createMockApollo([[commitsQuery, handler]]),
-        provide: defaultProvide,
-        router: createPathRouter(filePath, routeQuery),
-      });
-    };
+    const createComponentWithPath = (handler, filePath = '', routeQuery = {}) =>
+      createComponent(handler, {}, { router: createPathRouter(filePath, routeQuery) });
 
     it('passes file path to GraphQL query', async () => {
       const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);

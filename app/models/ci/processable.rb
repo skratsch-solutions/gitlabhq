@@ -66,18 +66,6 @@ module Ci
     scope :preload_job_definition_instances, -> { preload(:job_definition_instance) }
     scope :manual_actions, -> { where(when: :manual, status: COMPLETED_STATUSES + %i[manual]) }
 
-    scope :with_needs, ->(names = nil) do
-      needs = Ci::BuildNeed.scoped_build.select(1)
-      needs = needs.where(name: names) if names
-      where('EXISTS (?)', needs)
-    end
-
-    scope :without_needs, ->(names = nil) do
-      needs = Ci::BuildNeed.scoped_build.select(1)
-      needs = needs.where(name: names) if names
-      where('NOT EXISTS (?)', needs)
-    end
-
     scope :with_interruptible_true, -> do
       where_exists(
         Ci::JobDefinitionInstance

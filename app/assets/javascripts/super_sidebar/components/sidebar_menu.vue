@@ -185,6 +185,26 @@ export default {
     hasStaticItems() {
       return this.staticItems.length > 0;
     },
+    showUnpinnedItems() {
+      return (
+        !this.isLoggedIn ||
+        !this.glFeatures.hideUnpinnedSidebarItems ||
+        !PANELS_WITH_PINS.filter((p) => p !== 'organization').includes(this.panelType)
+      );
+    },
+    showFeatureLibrary() {
+      return (
+        this.supportsPins &&
+        this.panelType !== 'organization' &&
+        (this.glFeatures.featureLibraryModal || !this.showUnpinnedItems)
+      );
+    },
+    sectionsToRender() {
+      if (!this.showUnpinnedItems) {
+        return this.nonStaticItems.filter((item) => item.id === 'settings_menu');
+      }
+      return this.nonStaticItems;
+    },
   },
   mounted() {
     this.decideFlyoutState();
@@ -271,7 +291,12 @@ export default {
 </script>
 
 <template>
-  <div class="gl-relative gl-px-3 gl-py-2">
+  <div
+    class="gl-relative gl-px-3 gl-py-2"
+    :class="{
+      'gl-flex gl-h-full gl-flex-col': !showUnpinnedItems,
+    }"
+  >
     <ul
       v-if="hasStaticItems"
       class="gl-m-0 gl-mb-3 gl-list-none gl-p-0"
@@ -293,12 +318,13 @@ export default {
       :items="pinnedItems"
       :has-flyout="showFlyoutMenus"
       :was-pinned-nav="wasPinnedNav"
+      :headerless="!showUnpinnedItems"
       :async-count="asyncCount"
       @pin-remove="destroyPin"
       @pin-reorder="movePin"
     />
     <gl-nav-item
-      v-if="supportsPins && glFeatures.featureLibraryModal"
+      v-if="showFeatureLibrary"
       v-gl-modal="$options.modalId"
       v-gl-tooltip.right.viewport="isIconOnly ? $options.i18n.browseMoreFeatures : ''"
       :aria-label="$options.i18n.browseMoreFeatures"
@@ -307,19 +333,19 @@ export default {
       :is-icon-only="isIconOnly"
     >
       {{ $options.i18n.browseMoreFeatures }}
-      <template #end>
+      <template v-if="glFeatures.featureLibraryModal" #end>
         <gl-badge class="browser-more-features-badge gl-mr-4">{{ __('New') }}</gl-badge>
       </template>
     </gl-nav-item>
     <feature-library-modal
-      v-if="supportsPins && glFeatures.featureLibraryModal"
+      v-if="showFeatureLibrary"
       :sections="nonStaticItems"
       :current-pinned-ids="changedPinnedItemIds.ids"
       :show-feedback-link="showFeedbackLink"
       @pin-toggle="onModalPinToggle"
     />
     <hr
-      v-if="supportsPins"
+      v-if="supportsPins && showUnpinnedItems"
       aria-hidden="true"
       class="gl-mx-3 gl-my-4"
       data-testid="main-menu-separator"
@@ -328,9 +354,12 @@ export default {
       id="super-sidebar-non-static-section"
       aria-labelledby="super-sidebar-context-header"
       class="gl-mb-0 gl-list-none gl-p-0"
+      :class="{
+        'gl-mt-auto': !showUnpinnedItems,
+      }"
       data-testid="non-static-items-section"
     >
-      <template v-for="item in nonStaticItems">
+      <template v-for="item in sectionsToRender">
         <menu-section
           v-if="isSection(item)"
           :key="item.id"

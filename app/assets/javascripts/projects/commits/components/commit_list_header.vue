@@ -30,13 +30,17 @@ export default {
     'projectFullPath',
     'projectId',
     'escapedRef',
-    'refType',
     'rootRef',
     'browseFilesPath',
     'commitsFeedPath',
   ],
   props: {
     currentRef: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    currentRefType: {
       type: String,
       required: false,
       default: '',
@@ -81,7 +85,7 @@ export default {
     },
     refSelectorValue() {
       const ref = this.currentRef || this.escapedRef;
-      return this.refType ? joinPaths('refs', this.refType, ref) : ref;
+      return this.currentRefType ? joinPaths('refs', this.currentRefType, ref) : ref;
     },
   },
   methods: {

@@ -23,6 +23,7 @@ export default {
     };
   },
   methods: {
+    // eslint-disable-next-line vue/no-unused-properties -- called via $refs by parent components
     show() {
       this.$refs.modal.show();
     },

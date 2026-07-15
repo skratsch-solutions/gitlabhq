@@ -44,6 +44,11 @@ export default {
       required: false,
       default: false,
     },
+    headerless: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     asyncCount: {
       type: Object,
       required: false,
@@ -108,6 +113,7 @@ export default {
     :item="sectionItem"
     :expanded="expanded"
     :has-flyout="hasFlyout"
+    :headerless="headerless"
     @collapse-toggle="expanded = !expanded"
     @pin-remove="onPinRemove"
     @nav-link-click="writePinnedClick"
@@ -116,6 +122,7 @@ export default {
       v-if="items.length > 0"
       v-model="draggableItems"
       class="gl-m-0 gl-list-none gl-p-0"
+      :aria-label="$options.i18n.pinned"
       data-testid="pinned-nav-items"
       handle=".js-draggable-icon"
       tag="ul"
@@ -134,7 +141,11 @@ export default {
         @nav-link-click="writePinnedClick"
       />
     </draggable>
-    <div v-else class="gl-ml-[2.25rem] gl-py-3 gl-text-sm gl-text-subtle">
+    <div
+      v-else
+      class="gl-py-3 gl-text-sm gl-text-subtle"
+      :class="{ 'gl-ml-[2.25rem]': !headerless }"
+    >
       {{ $options.i18n.emptyHint }}
     </div>
   </menu-section>

@@ -25,7 +25,7 @@ describe('CommitListHeader', () => {
   const createComponent = ({
     filePath = 'README.md',
     currentRef = '',
-    refType = 'heads',
+    currentRefType = 'heads',
     routePath = '/dev/README.md',
     routeParams = {},
   } = {}) => {
@@ -34,13 +34,13 @@ describe('CommitListHeader', () => {
         projectFullPath: 'gitlab-org/gitlab',
         projectId: '1',
         escapedRef: 'feature',
-        refType,
         rootRef: 'main',
         browseFilesPath,
         commitsFeedPath,
       },
       propsData: {
         currentRef,
+        currentRefType,
         filePath,
       },
       mocks: {
@@ -141,14 +141,23 @@ describe('CommitListHeader', () => {
         expect(findRefSelector().props('value')).toBe('refs/heads/develop');
       });
 
-      it('uses currentRef without refType prefix when refType is absent', () => {
-        createComponent({ currentRef: 'develop', refType: '' });
+      it('uses currentRef without refType prefix when currentRefType is absent', () => {
+        createComponent({ currentRef: 'develop', currentRefType: '' });
         expect(findRefSelector().props('value')).toBe('develop');
       });
 
       it('falls back to escapedRef when currentRef is empty string', () => {
         createComponent({ currentRef: '' });
         expect(findRefSelector().props('value')).toBe('refs/heads/feature');
+      });
+
+      it('updates the value when switching from a branch to a tag', async () => {
+        createComponent({ currentRef: 'develop', currentRefType: 'heads' });
+        expect(findRefSelector().props('value')).toBe('refs/heads/develop');
+
+        await wrapper.setProps({ currentRef: 'v1.0', currentRefType: 'tags' });
+
+        expect(findRefSelector().props('value')).toBe('refs/tags/v1.0');
       });
     });
 

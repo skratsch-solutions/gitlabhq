@@ -17,8 +17,6 @@ app/models/ci/job_artifact.rb:
 app/models/ci/pipeline.rb:
   - where_not_sha
   - not_ref_protected
-app/models/ci/processable.rb:
-  - without_needs
 app/models/ci/runner.rb:
   - deprecated_shared
   - deprecated_specific

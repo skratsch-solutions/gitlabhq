@@ -29084,6 +29084,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Actions"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Agent Platform health checks pass and runners are available to this project."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Agent or flow is required."
 msgstr ""
 
@@ -29180,6 +29183,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Create triggers to automatically run pipelines when specified events occur in your project."
 msgstr ""
 
+msgid "DuoAgentsPlatform|Customize agents for this project"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Data Analyst"
 msgstr ""
 
@@ -29243,6 +29249,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Failed to submit modification. Please try again."
 msgstr ""
 
+msgid "DuoAgentsPlatform|Files that tune how agents read and act on this codebase"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Find files"
 msgstr ""
 
@@ -29252,7 +29261,13 @@ msgstr ""
 msgid "DuoAgentsPlatform|Flow"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Flows can't run yet"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Full view"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Generate"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Get access to GitLab Duo"
@@ -29265,6 +29280,12 @@ msgid "DuoAgentsPlatform|Get issue"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Get merge request"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Get this project ready for GitLab Duo Agent Platform"
+msgstr ""
+
+msgid "DuoAgentsPlatform|GitLab Duo Agent Platform"
 msgstr ""
 
 msgid "DuoAgentsPlatform|GitLab Duo can autonomously change code. Responses and changes can be inaccurate. Review carefully."
@@ -29306,6 +29327,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|No agent sessions yet"
 msgstr ""
 
+msgid "DuoAgentsPlatform|No runner is available to this project. You can still prepare the repository below while this is fixed."
+msgstr ""
+
 msgid "DuoAgentsPlatform|No triggers yet"
 msgstr ""
 
@@ -29313,6 +29337,12 @@ msgid "DuoAgentsPlatform|Onboarding"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Onboarding setup path not configured."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Open group settings"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Open setup guide"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Owner"
@@ -29339,13 +29369,7 @@ msgstr ""
 msgid "DuoAgentsPlatform|Review a merge request"
 msgstr ""
 
-msgid "DuoAgentsPlatform|Run"
-msgstr ""
-
 msgid "DuoAgentsPlatform|Run command"
-msgstr ""
-
-msgid "DuoAgentsPlatform|Run the available initializers to prepare this repository for GitLab Duo Agent Platform. Each one opens a draft merge request you can review."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Save changes"
@@ -29405,7 +29429,7 @@ msgstr ""
 msgid "DuoAgentsPlatform|Sessions"
 msgstr ""
 
-msgid "DuoAgentsPlatform|Set up your project for GitLab Duo Agent Platform"
+msgid "DuoAgentsPlatform|Set up what your project needs to work well with the Agent Platform. Start with the highest-impact step; the rest are recommendations you can take as they fit."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Skipped"
@@ -29424,6 +29448,12 @@ msgid "DuoAgentsPlatform|Start your free %{strongStart}%{trialDuration}-day tria
 msgstr ""
 
 msgid "DuoAgentsPlatform|Tell the agent what to change and it will generate an updated plan for your review."
+msgstr ""
+
+msgid "DuoAgentsPlatform|The Agent Platform isn't enabled for this project yet"
+msgstr ""
+
+msgid "DuoAgentsPlatform|The Agent Platform isn't enabled for this project yet. Here's what your group needs to do, and what you can already start on."
 msgstr ""
 
 msgid "DuoAgentsPlatform|The trigger could not be created. Try again."
@@ -29454,6 +29484,9 @@ msgid "DuoAgentsPlatform|Try GitLab Duo Agent Platform"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Unknown"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Until your group enables it, agents and flows can't run on this project. You can still install local tools below, and review what setup is required."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Update merge request"
@@ -29487,6 +29520,9 @@ msgid "DuoAgentsPlatform|You do not have permission to cancel this session."
 msgstr ""
 
 msgid "DuoAgentsPlatform|You don't have permission to use GitLab Duo Agent Platform in this %{namespaceType}. %{learnMoreLinkStart}Learn more%{learnMoreLinkEnd}."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Your project environment is healthy"
 msgstr ""
 
 msgid "DuoChat|%{count} character over limit."

@@ -51,6 +51,10 @@ Your instance includes the following security controls:
 - Encryption standards that meet FIPS requirements for data at rest and in transit
 - Access controls that follow principle of least privilege with comprehensive audit trails
 
+For a detailed breakdown of security responsibilities, see the
+[shared responsibility model](../../security/dedicated_for_government_shared_responsibility_model.md)
+and the [secure configuration guide](../../security/dedicated_for_government_secure_config_guide.md).
+
 ### Data residency and infrastructure isolation
 
 To meet US data residency requirements, your instance is deployed on

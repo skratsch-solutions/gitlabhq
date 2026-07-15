@@ -425,45 +425,6 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       end
     end
 
-    describe '.with_needs' do
-      let_it_be(:build) { create(:ci_build, pipeline: pipeline) }
-      let_it_be(:build_b) { create(:ci_build, pipeline: pipeline) }
-      let_it_be(:build_need_a) { create(:ci_build_need, build: build) }
-      let_it_be(:build_need_b) { create(:ci_build_need, build: build_b) }
-
-      context 'when passing build name' do
-        subject { described_class.with_needs(build_need_a.name) }
-
-        it { is_expected.to contain_exactly(build) }
-      end
-
-      context 'when not passing any build name' do
-        subject { described_class.with_needs }
-
-        it { is_expected.to contain_exactly(build, build_b) }
-      end
-
-      context 'when not matching build name' do
-        subject { described_class.with_needs('undefined') }
-
-        it { is_expected.to be_empty }
-      end
-    end
-
-    describe '.without_needs' do
-      subject { described_class.without_needs }
-
-      context 'when no build_need is created' do
-        it { is_expected.to contain_exactly(build, old_build, new_build) }
-      end
-
-      context 'when a build_need is created' do
-        let!(:need_a) { create(:ci_build_need, build: build) }
-
-        it { is_expected.to contain_exactly(old_build, new_build) }
-      end
-    end
-
     describe '.belonging_to_runner_manager' do
       subject { described_class.belonging_to_runner_manager(runner_manager) }
 

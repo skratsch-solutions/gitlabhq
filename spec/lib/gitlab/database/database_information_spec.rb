@@ -257,6 +257,25 @@ RSpec.describe Gitlab::Database::DatabaseInformation, feature_category: :databas
           expect(connection).not_to have_received(:select_all).with(a_string_matching(/v\.delay_time/))
         end
       end
+
+      context 'on PostgreSQL 16' do
+        let(:database_version) { 16_00_10 }
+        let(:vacuum_rows) do
+          [{ 'pid' => '4242', 'phase' => 'scanning heap', 'index_vacuum_count' => '0' }]
+        end
+
+        it 'omits the dead-tuple and index-progress columns and reports nil', :aggregate_failures do
+          expect(vacuums.first).to include(
+            max_dead_tuple_bytes: nil,
+            dead_tuple_bytes: nil,
+            indexes_total: nil,
+            indexes_processed: nil,
+            delay_time: nil
+          )
+          expect(connection).not_to have_received(:select_all).with(a_string_matching(/v\.max_dead_tuple_bytes/))
+          expect(connection).not_to have_received(:select_all).with(a_string_matching(/v\.delay_time/))
+        end
+      end
     end
 
     context 'when a database name does not map to a known model' do

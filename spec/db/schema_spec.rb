@@ -20,8 +20,7 @@ RSpec.describe 'Database schema',
   let(:removed_fks_map) do
     {
       # example_table: %w[example_column]
-      search_namespace_index_assignments: [%w[search_index_id index_type]],
-      work_item_descriptions: %w[work_item_id namespace_id last_edited_by_id]
+      search_namespace_index_assignments: [%w[search_index_id index_type]]
     }.with_indifferent_access.freeze
   end
 

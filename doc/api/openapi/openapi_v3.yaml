@@ -24953,13 +24953,6 @@ paths:
           type: string
           nullable: true
         in: query
-      - name: policy_sync_config_id
-        required: false
-        description: Metadata key to match
-        schema:
-          type: string
-          nullable: true
-        in: query
       - name: worker_class
         required: false
         description: Metadata key to match

@@ -421,7 +421,7 @@ class ProjectsController < Projects::ApplicationController
   def disable_transfer_query_limiting
     return if Feature.enabled?(:groups_and_projects_async_transfer, project.root_ancestor)
 
-    Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/work_items/606043', new_threshold: 101)
+    Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/work_items/606043', new_threshold: 110)
   end
 
   def enqueue_async_transfer(namespace)

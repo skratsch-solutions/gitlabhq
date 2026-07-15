@@ -9,10 +9,16 @@ module Observability
       @namespace = observability_namespace
 
       if @namespace.observability_group_o11y_setting.present?
-        @has_pipelines_since_setup =
-          ::Observability::PipelinesSinceSetupExist
-            .new(@namespace)
-            .execute
+        begin
+          @has_pipelines_since_setup =
+            ::Observability::PipelinesSinceSetupExist
+              .new(@namespace)
+              .execute
+        rescue ActiveRecord::QueryCanceled => e # rubocop:disable Database/RescueQueryCanceled -- graceful degradation when pipeline existence check times out
+          Gitlab::ErrorTracking.track_exception(e, group_id: @namespace.id)
+          @has_pipelines_since_setup = false
+        end
+
         @export_variable = @namespace.observability_group_o11y_setting
           .observability_export_variable_for(project_for_export_variable)
         return

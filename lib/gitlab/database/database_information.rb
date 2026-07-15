@@ -9,10 +9,13 @@ module Gitlab
 
       USER_TOKEN = '$user'
 
-      # pg_stat_progress_vacuum gained delay_time in PostgreSQL 18. All other
-      # columns we read are present from PostgreSQL 17 (our minimum version),
-      # so this is the only column that needs version gating.
+      # pg_stat_progress_vacuum gained delay_time in PostgreSQL 18, and
+      # max_dead_tuple_bytes/dead_tuple_bytes/indexes_total/indexes_processed
+      # in PostgreSQL 17 (replacing the older max_dead_tuples/num_dead_tuples).
+      # 17 is our documented minimum, but CI still runs a nightly job against
+      # PG16 to cover self-managed instances mid-upgrade, so both need gating.
       DELAY_TIME_MINIMUM_VERSION = 18_00_00
+      DEAD_TUPLE_AND_INDEX_PROGRESS_MINIMUM_VERSION = 17_00_00
 
       # An autovacuum triggered to prevent transaction ID (or multixact)
       # wraparound is reported by PostgreSQL with this marker appended to the
@@ -41,8 +44,9 @@ module Gitlab
       # backend_type separates autovacuum workers from manual VACUUM, the
       # query text reveals anti-wraparound runs, and query_start gives the
       # elapsed running time (computed server-side so the value does not depend
-      # on the browser clock). The %{delay_time_column} placeholder is filled
-      # in only on PostgreSQL 18+ (see DELAY_TIME_MINIMUM_VERSION).
+      # on the browser clock). %{delay_time_column} is filled in only on
+      # PostgreSQL 18+ and %{dead_tuple_and_index_progress_columns} only on
+      # PostgreSQL 17+ (see the MINIMUM_VERSION constants above).
       VACUUM_PROGRESS_SQL = <<~SQL
         SELECT v.pid,
           n.nspname AS schema_name,
@@ -52,13 +56,10 @@ module Gitlab
           v.heap_blks_scanned,
           v.heap_blks_vacuumed,
           v.index_vacuum_count,
-          v.max_dead_tuple_bytes,
-          v.dead_tuple_bytes,
-          v.indexes_total,
-          v.indexes_processed,
           a.backend_type,
           a.query AS activity_query,
           EXTRACT(EPOCH FROM (clock_timestamp() - a.query_start))::bigint AS running_time_seconds
+          %{dead_tuple_and_index_progress_columns}
           %{delay_time_column}
         FROM pg_stat_progress_vacuum v
         JOIN pg_class c ON c.oid = v.relid
@@ -169,9 +170,14 @@ module Gitlab
       # Returns an ordered list of in-progress vacuums as plain hashes. Reads
       # are routed to the primary because autovacuum only runs there; a replica
       # would report an empty progress view. Byte/count columns are returned as
-      # integers and delay_time (PostgreSQL 18+) as a float or nil.
+      # integers; delay_time (PostgreSQL 18+) and the dead-tuple/index-progress
+      # columns (PostgreSQL 17+) are nil on older versions.
       def collect_vacuums(connection)
-        sql = format(VACUUM_PROGRESS_SQL, delay_time_column: delay_time_column(connection))
+        sql = format(
+          VACUUM_PROGRESS_SQL,
+          dead_tuple_and_index_progress_columns: dead_tuple_and_index_progress_columns(connection),
+          delay_time_column: delay_time_column(connection)
+        )
 
         rows = Gitlab::Database::LoadBalancing::SessionMap
           .current(connection.load_balancer)
@@ -187,10 +193,10 @@ module Gitlab
             heap_blks_scanned: row['heap_blks_scanned'].to_i,
             heap_blks_vacuumed: row['heap_blks_vacuumed'].to_i,
             index_vacuum_count: row['index_vacuum_count'].to_i,
-            max_dead_tuple_bytes: row['max_dead_tuple_bytes'].to_i,
-            dead_tuple_bytes: row['dead_tuple_bytes'].to_i,
-            indexes_total: row['indexes_total'].to_i,
-            indexes_processed: row['indexes_processed'].to_i,
+            max_dead_tuple_bytes: row['max_dead_tuple_bytes']&.to_i,
+            dead_tuple_bytes: row['dead_tuple_bytes']&.to_i,
+            indexes_total: row['indexes_total']&.to_i,
+            indexes_processed: row['indexes_processed']&.to_i,
             vacuum_type: vacuum_type(row),
             anti_wraparound: anti_wraparound?(row),
             running_time_seconds: row['running_time_seconds']&.to_i,
@@ -214,6 +220,12 @@ module Gitlab
         return '' if connection.database_version < DELAY_TIME_MINIMUM_VERSION
 
         ', v.delay_time'
+      end
+
+      def dead_tuple_and_index_progress_columns(connection)
+        return '' if connection.database_version < DEAD_TUPLE_AND_INDEX_PROGRESS_MINIMUM_VERSION
+
+        ', v.max_dead_tuple_bytes, v.dead_tuple_bytes, v.indexes_total, v.indexes_processed'
       end
     end
   end

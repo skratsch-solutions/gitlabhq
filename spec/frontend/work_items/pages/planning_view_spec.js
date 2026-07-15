@@ -73,6 +73,7 @@ import {
 } from '~/work_items/constants';
 
 import namespaceWorkItemTypesQuery from '~/work_items/graphql/namespace_work_item_types.query.graphql';
+import searchLabelsQuery from '~/work_items/list/graphql/search_labels.query.graphql';
 import hasWorkItemsQuery from '~/work_items/list/graphql/has_work_items.query.graphql';
 import getWorkItemsCountOnlyQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_count_only.query.graphql';
 import getUserWorkItemsPreferences from '~/work_items/graphql/get_user_preferences.query.graphql';
@@ -1530,6 +1531,63 @@ describe('planning-view', () => {
     await mountComponent({ provide: { metadataLoading: true } });
 
     expect(findListView().props('skipQuery')).toBe(true);
+  });
+
+  describe('label token fetchLabels', () => {
+    const searchLabelsResponse = {
+      data: {
+        group: {
+          __typename: 'Group',
+          __persist: true,
+          id: 'gid://gitlab/Group/1',
+          labels: {
+            __typename: 'LabelConnection',
+            __persist: true,
+            nodes: [],
+          },
+        },
+      },
+    };
+    const searchLabelsHandler = jest.fn().mockResolvedValue(searchLabelsResponse);
+
+    const getLabelToken = () =>
+      findFilteredSearchBar()
+        .props('tokens')
+        .find((token) => token.type === TOKEN_TYPE_LABEL);
+
+    beforeEach(() => {
+      searchLabelsHandler.mockClear();
+    });
+
+    it('waits for metadata to finish loading before firing searchLabels query', async () => {
+      const metadataLoading = ref(true);
+
+      await mountComponent({
+        provide: { metadataLoading: computed(() => metadataLoading.value) },
+        additionalHandlers: [[searchLabelsQuery, searchLabelsHandler]],
+      });
+
+      const fetchLabelsPromise = getLabelToken().fetchLabels('test');
+      await waitForPromises();
+
+      expect(searchLabelsHandler).not.toHaveBeenCalled();
+
+      metadataLoading.value = false;
+      await fetchLabelsPromise;
+
+      expect(searchLabelsHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('fires searchLabels query immediately when metadata is already loaded', async () => {
+      await mountComponent({
+        provide: { metadataLoading: false },
+        additionalHandlers: [[searchLabelsQuery, searchLabelsHandler]],
+      });
+
+      await getLabelToken().fetchLabels('test');
+
+      expect(searchLabelsHandler).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('Saved Views', () => {

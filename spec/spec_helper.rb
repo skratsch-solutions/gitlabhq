@@ -306,6 +306,10 @@ RSpec.configure do |config|
       # New personal homepage is still a WIP and not functional.
       stub_feature_flags(personal_homepage: false)
 
+      # Hiding unpinned sidebar items is WIP; disable globally to avoid
+      # breaking feature specs that interact with sidebar sections.
+      stub_feature_flags(hide_unpinned_sidebar_items: false)
+
       # Handle dynamic partitions creation
       stub_feature_flags(disallow_database_ddl_feature_flags: false)
 

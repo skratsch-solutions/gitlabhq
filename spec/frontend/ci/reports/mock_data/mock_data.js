@@ -30,12 +30,12 @@ export const findingSastInfoEnhanced = {
   name: SEVERITIES_SAST.info.name,
 };
 
-export const findingsCodeQualityBlocker = {
+const findingsCodeQualityBlocker = {
   scale: 'codeQuality',
   severity: 'blocker',
 };
 
-export const findingCodeQualityBlockerEnhanced = {
+const findingCodeQualityBlockerEnhanced = {
   scale: 'codeQuality',
   severity: 'blocker',
   class: SEVERITIES_CODE_QUALITY.blocker.class,

@@ -97,6 +97,8 @@ Optional features and customizations that may affect customer responsibilities:
   Provide your own encryption keys.
 - [Public visibility](#public-visibility-and-open-source-code-sharing): Turn on public
   visibility for the instance, then configure visibility for specific groups or projects.
+- [GitLab Duo](#gitlab-duo-and-the-ai-gateway): Requires GitLab Duo Self-Hosted. You install
+  and maintain the AI Gateway.
 
 ### Infrastructure management
 
@@ -264,3 +266,21 @@ Customers are responsible for the following:
   registry, and pipelines, to members only when needed. See
   [change project visibility](../user/public_access.md#change-project-visibility) and
   [change the visibility of individual features in a project](../user/public_access.md#change-the-visibility-of-individual-features-in-a-project).
+
+### GitLab Duo and the AI Gateway
+
+GitLab Dedicated for Government requires a
+[self-hosted AI Gateway](../administration/gitlab_duo/configure/gitlab_dedicated_for_government.md)
+instead of the GitLab-managed AI Gateway and models.
+
+GitLab is responsible for the following:
+
+- Enabling network connectivity between your instance and your self-hosted AI Gateway after
+  you request access.
+
+Customers are responsible for the following:
+
+- Installing and maintaining the [AI Gateway](../install/install_ai_gateway.md) in your
+  AWS GovCloud environment, including applying security updates and verifying images.
+- Selecting, hosting, and maintaining the large language models used with GitLab Duo.
+- Configuring network access between the AI Gateway, your instance, and the selected models.

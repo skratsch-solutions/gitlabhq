@@ -83,7 +83,6 @@ export default {
         this.displayError();
       },
       update({ project }) {
-        this.pathLocks = project?.pathLocks || DEFAULT_BLOB_INFO.pathLocks;
         this.userPermissions = project?.userPermissions || DEFAULT_BLOB_INFO.userPermissions;
         this.defaultBranch = project?.repository?.rootRef || '';
       },
@@ -162,17 +161,15 @@ export default {
   data() {
     return {
       orbitPanelOpen: false,
-      forkTarget: null,
       legacyRichViewer: null,
       legacySimpleViewer: null,
       isBinary: false,
       isLoadingLegacyViewer: false,
       isRenderingLegacyTextViewer: false,
       activeViewerType: SIMPLE_BLOB_VIEWER,
+      // eslint-disable-next-line vue/no-unused-properties -- needed for `project` Apollo query
       project: DEFAULT_BLOB_INFO.project,
-      currentUser: DEFAULT_BLOB_INFO.currentUser,
       useFallback: false,
-      pathLocks: DEFAULT_BLOB_INFO.pathLocks,
       userPermissions: DEFAULT_BLOB_INFO.userPermissions,
       defaultBranch: '',
       blobInfo: {},
@@ -235,21 +232,6 @@ export default {
         (this.activeViewerType === RICH_BLOB_VIEWER && this.legacyRichViewer)
       );
     },
-    canLock() {
-      const { pushCode, downloadCode } = this.userPermissions;
-      const currentUsername = window.gon?.current_username;
-
-      if (this.pathLockedByUser && this.pathLockedByUser.username !== currentUsername) {
-        return false;
-      }
-
-      return pushCode && downloadCode;
-    },
-    pathLockedByUser() {
-      const pathLock = this.pathLocks?.nodes.find((node) => node.path === this.path);
-
-      return pathLock ? pathLock.user : null;
-    },
     canFork() {
       const { createMergeRequestIn, forkProject } = this.userPermissions;
 
@@ -263,18 +245,6 @@ export default {
       const { canModifyBlobWithWebIde } = this.blobInfo;
 
       return this.canFork && !canModifyBlobWithWebIde;
-    },
-    showForkSuggestion() {
-      return this.showSingleFileEditorForkSuggestion || this.showWebIdeForkSuggestion;
-    },
-    forkPath() {
-      const forkPaths = {
-        ide: this.blobInfo.ideForkAndEditPath,
-        simple: this.blobInfo.forkAndEditPath,
-        view: this.blobInfo.forkAndViewPath,
-      };
-
-      return forkPaths[this.forkTarget];
     },
     isUsingLfs() {
       return this.blobInfo.storedExternally && this.blobInfo.externalStorage === LFS_STORAGE;
@@ -402,18 +372,10 @@ export default {
         : this.showSingleFileEditorForkSuggestion;
     },
     editBlob(target) {
-      const { ideEditPath, editBlobPath } = this.blobInfo;
-      const isIdeTarget = this.isIdeTarget(target);
-      const showForkSuggestionForSelectedEditor = this.forkSuggestionForSelectedEditor(target);
+      if (this.forkSuggestionForSelectedEditor(target)) return;
 
-      if (showForkSuggestionForSelectedEditor) {
-        this.setForkTarget(target);
-      } else {
-        visitUrl(isIdeTarget ? ideEditPath : editBlobPath);
-      }
-    },
-    setForkTarget(target) {
-      this.forkTarget = target;
+      const { ideEditPath, editBlobPath } = this.blobInfo;
+      visitUrl(this.isIdeTarget(target) ? ideEditPath : editBlobPath);
     },
     ...mapActions(useFileTreeBrowserVisibility, ['collapseForBlame']),
     onCopy() {
