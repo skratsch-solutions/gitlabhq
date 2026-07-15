@@ -19,6 +19,8 @@ class ServiceDeskSetting < ApplicationRecord
 
   belongs_to :project
 
+  before_save :set_project_key_address_slug
+
   validates :project_id, presence: true
   validate :valid_issue_template
   validate :valid_project_key
@@ -91,6 +93,21 @@ class ServiceDeskSetting < ApplicationRecord
     end
   end
 
+  # Whether the current project_key would collide with another project's service
+  # desk address for the project's current full path slug. Used to block a
+  # project rename or transfer that would create such a collision.
+  def project_key_address_slug_conflict?
+    project_key.present? && projects_with_same_slug_and_key_exists?
+  end
+
+  # Recomputes and persists project_key_address_slug from the project's current
+  # full path via the before_save callback.
+  def refresh_project_key_address_slug!
+    return unless project_key.present?
+
+    save!
+  end
+
   def custom_email_enabled_state
     return unless custom_email_enabled?
 
@@ -107,6 +124,11 @@ class ServiceDeskSetting < ApplicationRecord
   end
 
   private
+
+  def set_project_key_address_slug
+    self.project_key_address_slug =
+      project_key.present? ? "#{project.full_path_slug}-#{project_key}" : nil
+  end
 
   def source_template_project
     nil

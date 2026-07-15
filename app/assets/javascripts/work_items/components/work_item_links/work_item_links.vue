@@ -219,6 +219,7 @@ export default {
     },
     hideAddForm() {
       this.$refs.workItemsLinks.hideForm();
+      this.formType = null;
     },
     openChild({ event, child }) {
       event.preventDefault();
@@ -308,6 +309,7 @@ export default {
     :count="childrenCountLabel"
     :is-loading="isLoading && !fetchNextPageInProgress"
     is-collapsible
+    :collapsed="isChildrenEmpty && !error && !isLoading && !formType"
     data-testid="work-item-links"
   >
     <template #actions>

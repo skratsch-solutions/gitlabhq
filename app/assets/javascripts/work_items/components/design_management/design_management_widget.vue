@@ -176,6 +176,10 @@ export default {
     hasDesignsAndVersions() {
       return this.hasDesigns || this.allVersions.length > 0;
     },
+    isCollapsedByDefault() {
+      // "All designs archived": versions exist but none are active.
+      return this.allVersions.length > 0 && !this.hasDesigns;
+    },
     hasSelectedDesigns() {
       return this.selectedDesigns.length > 0;
     },
@@ -518,6 +522,7 @@ export default {
       :body-class="crudBodyClass"
       is-collapsible
       persist-collapsed-state
+      :collapsed="isCollapsedByDefault"
       @click-collapsed="handleCrudCollapsed(true)"
       @click-expanded="handleCrudCollapsed(false)"
     >

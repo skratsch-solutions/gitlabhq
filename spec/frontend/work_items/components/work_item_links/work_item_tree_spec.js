@@ -565,6 +565,42 @@ describe('WorkItemTree', () => {
     });
   });
 
+  describe('collapses by default when empty', () => {
+    it('is not collapsed while the query is loading', async () => {
+      await createComponent({ shouldWaitForPromise: false });
+
+      expect(findCrudComponent().props('collapsed')).toBe(false);
+    });
+
+    it('is collapsed once the query resolves with no children', async () => {
+      await createComponent({
+        workItemHierarchyTreeHandler: jest
+          .fn()
+          .mockResolvedValue(workItemHierarchyTreeEmptyResponse),
+      });
+
+      expect(findCrudComponent().props('collapsed')).toBe(true);
+      expect(wrapper.findByTestId('crud-body').isVisible()).toBe(false);
+    });
+
+    it('is not collapsed when children exist', async () => {
+      await createComponent();
+
+      expect(findCrudComponent().props('collapsed')).toBe(false);
+      expect(wrapper.findByTestId('crud-body').isVisible()).toBe(true);
+    });
+
+    it('is not collapsed when there are no children but an error occurred', async () => {
+      await createComponent({
+        workItemHierarchyTreeHandler: jest.fn().mockRejectedValue(new Error('Some error')),
+      });
+
+      expect(findCrudComponent().props('collapsed')).toBe(false);
+      expect(wrapper.findByTestId('crud-body').isVisible()).toBe(true);
+      expect(findErrorMessage().exists()).toBe(true);
+    });
+  });
+
   describe('metadata visibility', () => {
     useLocalStorageSpy();
 

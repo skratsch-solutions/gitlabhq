@@ -1141,21 +1141,21 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:importing) { false }
 
       context 'when projects #merge_requests_enabled? is true' do
-        it { expect(merge_request.valid?(false)).to eq true }
+        it { expect(merge_request.valid?(false)).to be true }
       end
 
       context 'when projects #merge_requests_enabled? is false' do
         let(:project) { build_stubbed(:project, merge_requests_enabled: false) }
 
         it 'is invalid' do
-          expect(merge_request.valid?(false)).to eq false
+          expect(merge_request.valid?(false)).to be false
           expect(merge_request.errors.full_messages).to contain_exactly('Target project has disabled merge requests')
         end
 
         context 'when #import? is true' do
           let(:importing) { true }
 
-          it { expect(merge_request.valid?(false)).to eq true }
+          it { expect(merge_request.valid?(false)).to be true }
         end
       end
 
@@ -1970,17 +1970,17 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     it 'returns true for a user that is assigned to a merge request' do
       subject.assignees = [user]
 
-      expect(subject.assignee_or_author?(user)).to eq(true)
+      expect(subject.assignee_or_author?(user)).to be(true)
     end
 
     it 'returns true for a user that is the author of a merge request' do
       subject.author = user
 
-      expect(subject.assignee_or_author?(user)).to eq(true)
+      expect(subject.assignee_or_author?(user)).to be(true)
     end
 
     it 'returns false for a user that is not the assignee or author' do
-      expect(subject.assignee_or_author?(user)).to eq(false)
+      expect(subject.assignee_or_author?(user)).to be(false)
     end
   end
 
@@ -3117,7 +3117,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       it "detects the '#{draft_prefix}' prefix" do
         subject.title = "#{draft_prefix}#{subject.title}"
 
-        expect(subject.draft?).to eq true
+        expect(subject.draft?).to be true
       end
     end
 
@@ -3134,7 +3134,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         it "when '#{trigger}' prefixes the title" do
           subject.title = "#{trigger}#{subject.title}"
 
-          expect(subject.draft?).to eq false
+          expect(subject.draft?).to be false
         end
       end
 
@@ -3142,42 +3142,42 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         it "when merge request title is simply '#{trigger}'" do
           subject.title = trigger
 
-          expect(subject.draft?).to eq false
+          expect(subject.draft?).to be false
         end
 
         it "when #{trigger} is in the middle of the title" do
           subject.title = "Something with #{trigger} in the middle"
 
-          expect(subject.draft?).to eq false
+          expect(subject.draft?).to be false
         end
 
         it "when #{trigger} is at the end of the title" do
           subject.title = "Something ends with #{trigger}"
 
-          expect(subject.draft?).to eq false
+          expect(subject.draft?).to be false
         end
 
         it "when title contains words starting with #{trigger}" do
           subject.title = "#{trigger}foo #{subject.title}"
 
-          expect(subject.draft?).to eq false
+          expect(subject.draft?).to be false
         end
 
         it "when title contains words containing with #{trigger}" do
           subject.title = "Foo#{trigger}Bar #{subject.title}"
 
-          expect(subject.draft?).to eq false
+          expect(subject.draft?).to be false
         end
       end
 
       it 'when Draft: in the middle of the title' do
         subject.title = 'Something with Draft: in the middle'
 
-        expect(subject.draft?).to eq false
+        expect(subject.draft?).to be false
       end
 
       it "when the title does not contain draft" do
-        expect(subject.draft?).to eq false
+        expect(subject.draft?).to be false
       end
 
       it "is aliased to #draft?" do
@@ -3201,7 +3201,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         subject.title = "#{draft_prefix}#{subject.title}"
         subject.title = subject.draftless_title
 
-        expect(subject.work_in_progress?).to eq false
+        expect(subject.work_in_progress?).to be false
       end
     end
 
@@ -3264,7 +3264,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     it "is satisfies the #work_in_progress? method" do
       subject.title = subject.draft_title
 
-      expect(subject.work_in_progress?).to eq true
+      expect(subject.work_in_progress?).to be true
     end
   end
 
@@ -3355,7 +3355,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
     context 'when the source project is set' do
       it 'returns true when the branch exists' do
-        expect(merge_request.source_branch_exists?).to eq(true)
+        expect(merge_request.source_branch_exists?).to be(true)
       end
     end
 
@@ -3365,7 +3365,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       it 'returns false' do
-        expect(merge_request.source_branch_exists?).to eq(false)
+        expect(merge_request.source_branch_exists?).to be(false)
       end
     end
   end
@@ -4581,12 +4581,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         let_it_be(:pipeline) { create(:ci_pipeline, :running, sha: merge_request.diff_head_sha, merge_requests_as_head_pipeline: [merge_request]) }
 
         it 'returns false if head pipeline is running' do
-          expect(subject).to eq(false)
+          expect(subject).to be(false)
         end
       end
 
       it 'returns true if head pipeline is finished' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
   end
@@ -5798,7 +5798,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
           it 'does not take into account the mergeability check and always returns true' do
             allow(subject).to receive(:should_be_rebased?) { should_be_rebased }
 
-            expect(subject.mergeable?(skip_rebase_check: skip_rebase_check)).to eq(true)
+            expect(subject.mergeable?(skip_rebase_check: skip_rebase_check)).to be(true)
           end
         end
       end
@@ -6293,13 +6293,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         it 'returns true' do
-          expect(mr.has_ci_enabled?).to eq(true)
+          expect(mr.has_ci_enabled?).to be(true)
         end
       end
 
       context 'when pipeline has no creation request' do
         it 'returns true' do
-          expect(mr.has_ci_enabled?).to eq(true)
+          expect(mr.has_ci_enabled?).to be(true)
         end
       end
     end
@@ -6313,13 +6313,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         it 'returns true' do
-          expect(mr.has_ci_enabled?).to eq(true)
+          expect(mr.has_ci_enabled?).to be(true)
         end
       end
 
       context 'when pipeline has no creation request' do
         it 'returns false' do
-          expect(mr.has_ci_enabled?).to eq(false)
+          expect(mr.has_ci_enabled?).to be(false)
         end
       end
     end
@@ -6339,7 +6339,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:creating) { true }
 
       it 'is true' do
-        expect(pipeline_creating).to eq true
+        expect(pipeline_creating).to be true
       end
     end
 
@@ -6347,7 +6347,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:creating) { false }
 
       it 'is false' do
-        expect(pipeline_creating).to eq false
+        expect(pipeline_creating).to be false
       end
     end
   end
@@ -7795,7 +7795,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         it 'clears merge error' do
           subject.close!
 
-          expect(subject.reload.merge_error).to eq(nil)
+          expect(subject.reload.merge_error).to be_nil
         end
       end
     end
@@ -7938,7 +7938,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
             expect(todo_service).not_to receive(:merge_request_became_unmergeable)
 
             expect { subject.mark_as_unmergeable }.not_to raise_error
-            expect(subject.cannot_be_merged?).to eq(true)
+            expect(subject.cannot_be_merged?).to be(true)
           end
         end
       end
@@ -8365,14 +8365,14 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
     context 'when the merge request does not change state' do
       it 'returns to previous state and has no errors on the object' do
-        expect(merge_request.opened?).to eq(true)
+        expect(merge_request.opened?).to be(true)
 
         merge_request.in_locked_state do
-          expect(merge_request.locked?).to eq(true)
+          expect(merge_request.locked?).to be(true)
           expect(Gitlab::MergeRequests::LockedSet.all).to eq([merge_request.id.to_s])
         end
 
-        expect(merge_request.opened?).to eq(true)
+        expect(merge_request.opened?).to be(true)
         expect(merge_request.errors).to be_empty
         expect(Gitlab::MergeRequests::LockedSet.all).to be_empty
       end
@@ -8380,15 +8380,15 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
     context 'when the merge request is merged while locked' do
       it 'becomes merged and has no errors on the object' do
-        expect(merge_request.opened?).to eq(true)
+        expect(merge_request.opened?).to be(true)
 
         merge_request.in_locked_state do
-          expect(merge_request.locked?).to eq(true)
+          expect(merge_request.locked?).to be(true)
           expect(Gitlab::MergeRequests::LockedSet.all).to eq([merge_request.id.to_s])
           merge_request.mark_as_merged!
         end
 
-        expect(merge_request.merged?).to eq(true)
+        expect(merge_request.merged?).to be(true)
         expect(merge_request.errors).to be_empty
         expect(Gitlab::MergeRequests::LockedSet.all).to be_empty
       end
@@ -8666,7 +8666,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     context 'merge request can be merged' do
       context 'merge_head diff is not created' do
         it 'returns true' do
-          expect(merge_request.diffable_merge_ref?).to eq(false)
+          expect(merge_request.diffable_merge_ref?).to be(false)
         end
       end
 
@@ -8676,7 +8676,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         it 'returns true' do
-          expect(merge_request.diffable_merge_ref?).to eq(true)
+          expect(merge_request.diffable_merge_ref?).to be(true)
         end
 
         context 'merge request is merged' do
@@ -8685,7 +8685,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
           end
 
           it 'returns false' do
-            expect(merge_request.diffable_merge_ref?).to eq(false)
+            expect(merge_request.diffable_merge_ref?).to be(false)
           end
         end
 
@@ -8695,7 +8695,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
           end
 
           it 'returns false' do
-            expect(merge_request.diffable_merge_ref?).to eq(false)
+            expect(merge_request.diffable_merge_ref?).to be(false)
           end
         end
       end
@@ -8836,19 +8836,19 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     context 'when diff_stats is nil' do
       let(:diff_stats) {}
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when diff_stats does not include the ci config path of the project' do
       let(:diff_stats) { [double(path: 'abc.txt')] }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when diff_stats includes the ci config path of the project' do
       let(:diff_stats) { [double(path: '.gitlab-ci.yml')] }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
   end
 
@@ -8995,12 +8995,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
     subject { merge_request.hidden? }
 
-    it { is_expected.to eq(false) }
+    it { is_expected.to be(false) }
 
     context 'when the author is banned' do
       let_it_be(:author) { create(:user, :banned) }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
   end
 
@@ -9096,12 +9096,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       merge_request.title = 'New title'
     end
 
-    it { is_expected.to eq(true) }
+    it { is_expected.to be(true) }
 
     context 'when project is private' do
       let_it_be(:project) { create(:project, :private) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when no spammable attribute has changed' do
@@ -9109,7 +9109,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         merge_request.title = merge_request.title_was
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -9119,7 +9119,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     subject { merge_request.supports_lock_on_merge? }
 
     context 'when MR is open' do
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when MR is merged' do
@@ -9127,14 +9127,14 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         merge_request.state = :merged
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
 
       context 'when feature flag is disabled' do
         before do
           stub_feature_flags(enforce_locked_labels_on_merge: false)
         end
 
-        it { is_expected.to eq(false) }
+        it { is_expected.to be(false) }
       end
     end
   end
@@ -9232,13 +9232,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     context 'when associated project only_allow_merge_if_pipeline_succeeds? returns true' do
       let(:only_allow_merge_if_pipeline_succeeds?) { true }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when associated project only_allow_merge_if_pipeline_succeeds? returns false' do
       let(:only_allow_merge_if_pipeline_succeeds?) { false }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -9257,13 +9257,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     context 'when associated project only_allow_merge_if_all_discussions_are_resolved? returns true' do
       let(:only_allow_merge_if_all_discussions_are_resolved?) { true }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when associated project only_allow_merge_if_all_discussions_are_resolved? returns false' do
       let(:only_allow_merge_if_all_discussions_are_resolved?) { false }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -9282,13 +9282,13 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     context 'when associated project allow_merge_without_pipeline? returns true' do
       let(:allow_merge_without_pipeline?) { true }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when associated project allow_merge_without_pipeline? returns false' do
       let(:allow_merge_without_pipeline?) { false }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -9297,7 +9297,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
     let(:merge_request) { build_stubbed(:merge_request) }
 
-    it { is_expected.to eq(false) }
+    it { is_expected.to be(false) }
   end
 
   describe '#has_jira_issue_keys?' do
@@ -9357,7 +9357,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         .and_return(false)
     end
 
-    it { is_expected.to eq(false) }
+    it { is_expected.to be(false) }
   end
 
   describe '#allows_multiple_reviewers?' do
@@ -9371,7 +9371,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         .and_return(false)
     end
 
-    it { is_expected.to eq(false) }
+    it { is_expected.to be(false) }
   end
 
   describe '#reviewer_auto_assignment_enabled?' do
@@ -9385,7 +9385,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         .and_return(true)
     end
 
-    it { is_expected.to eq(true) }
+    it { is_expected.to be(true) }
   end
 
   describe '#previous_diff' do
@@ -9583,7 +9583,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:target_branch_sha) { 'def456' }
 
       it 'returns true' do
-        expect(merge_request.source_and_target_branches_exist?).to eq(true)
+        expect(merge_request.source_and_target_branches_exist?).to be(true)
       end
     end
 
@@ -9592,7 +9592,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:target_branch_sha) { 'def456' }
 
       it 'returns false' do
-        expect(merge_request.source_and_target_branches_exist?).to eq(false)
+        expect(merge_request.source_and_target_branches_exist?).to be(false)
       end
     end
 
@@ -9601,7 +9601,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:target_branch_sha) { nil }
 
       it 'returns false' do
-        expect(merge_request.source_and_target_branches_exist?).to eq(false)
+        expect(merge_request.source_and_target_branches_exist?).to be(false)
       end
     end
   end
@@ -9619,7 +9619,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:diff_collection) { instance_double(Gitlab::Git::DiffCollection, any?: true) }
 
       it 'returns true' do
-        expect(merge_request.has_diffs?).to eq(true)
+        expect(merge_request.has_diffs?).to be(true)
       end
     end
 
@@ -9627,7 +9627,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       let(:diff_collection) { instance_double(Gitlab::Git::DiffCollection, any?: false) }
 
       it 'returns false' do
-        expect(merge_request.has_diffs?).to eq(false)
+        expect(merge_request.has_diffs?).to be(false)
       end
     end
   end
@@ -9824,7 +9824,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
 
     it 'checks existence of commit by SHA from merge_request_commits_metadata table' do
-      expect(merge_request.commit_exists?(commits_metadata.sha)).to eq(true)
+      expect(merge_request.commit_exists?(commits_metadata.sha)).to be(true)
     end
 
     it 'includes a project_id filter on merge_request_diff_commits for partition pruning' do
@@ -9847,7 +9847,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       it 'returns false (fallback to diff_commits.sha is skipped)' do
-        expect(merge_request.commit_exists?(orphan_diff_commit.sha)).to eq(false)
+        expect(merge_request.commit_exists?(orphan_diff_commit.sha)).to be(false)
       end
 
       context 'when mr_diff_commits_read_new_table is disabled' do
@@ -9856,7 +9856,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         it 'checks existence of commit by SHA from merge_request_diff_commits table' do
-          expect(merge_request.commit_exists?(orphan_diff_commit.sha)).to eq(true)
+          expect(merge_request.commit_exists?(orphan_diff_commit.sha)).to be(true)
         end
       end
     end
@@ -9868,7 +9868,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       it 'checks commit existence' do
-        expect(merge_request.commit_exists?(commits_metadata.sha)).to eq(true)
+        expect(merge_request.commit_exists?(commits_metadata.sha)).to be(true)
       end
 
       it 'omits the project_id filter on merge_request_diff_commits' do
@@ -9966,7 +9966,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
             expect(merge_request.merge_data).to be_present
             expect(merge_request.merge_data.persisted?).to be_truthy
-            expect(merge_request.merge_data.merge_jid).to eq(nil)
+            expect(merge_request.merge_data.merge_jid).to be_nil
           end
         end
 

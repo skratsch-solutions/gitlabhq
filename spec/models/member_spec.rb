@@ -1111,11 +1111,11 @@ RSpec.describe Member, feature_category: :groups_and_projects do
 
   describe '.valid_email?' do
     it 'is a valid email format' do
-      expect(described_class.valid_email?('foo')).to eq(false)
+      expect(described_class.valid_email?('foo')).to be(false)
     end
 
     it 'is not a valid email format' do
-      expect(described_class.valid_email?('foo@example.com')).to eq(true)
+      expect(described_class.valid_email?('foo@example.com')).to be(true)
     end
   end
 
@@ -1132,7 +1132,7 @@ RSpec.describe Member, feature_category: :groups_and_projects do
 
     context 'when the user type is invalid' do
       it 'returns nil' do
-        expect(described_class.filter_by_user_type('invalid_type')).to eq(nil)
+        expect(described_class.filter_by_user_type('invalid_type')).to be_nil
       end
     end
   end
@@ -1392,13 +1392,13 @@ RSpec.describe Member, feature_category: :groups_and_projects do
     context 'when the member does not have an associated user' do
       it 'returns false' do
         member.update_column(:user_id, nil)
-        expect(member.reload.hook_prerequisites_met?).to eq(false)
+        expect(member.reload.hook_prerequisites_met?).to be(false)
       end
     end
 
     context 'when the member has an associated user' do
       it 'returns true' do
-        expect(member.hook_prerequisites_met?).to eq(true)
+        expect(member.hook_prerequisites_met?).to be(true)
       end
     end
   end
@@ -1612,13 +1612,13 @@ RSpec.describe Member, feature_category: :groups_and_projects do
     context 'when user is nil' do
       let(:user) { nil }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when user is set' do
       let(:user) { build(:user) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 

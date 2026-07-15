@@ -234,7 +234,7 @@ module Projects
             # Apply changes to the project
             update_namespace_and_visibility(@new_namespace)
             project.reconcile_shared_runners_setting!
-            project.save!
+            save_project!
 
             # Notifications
             project.send_move_instructions(@old_path)
@@ -271,6 +271,15 @@ module Projects
       raise
     ensure
       refresh_permissions
+    end
+
+    # Translate the persistence error into the service's own TransferError so it
+    # is surfaced to the user via execute's rescue, consistent with the other
+    # transfer preconditions.
+    def save_project!
+      project.save!
+    rescue ActiveRecord::RecordInvalid => e
+      raise TransferError, e.record.errors.full_messages.to_sentence
     end
 
     def transfer_project_path_in_registry(old_project_path, new_namespace_path, project:, dry_run:)

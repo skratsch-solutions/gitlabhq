@@ -164,6 +164,12 @@ class Project < ApplicationRecord
   after_update :enqueue_catalog_resource_sync_event_worker,
     if: -> { catalog_resource && (saved_change_to_name? || saved_change_to_description? || saved_change_to_visibility_level?) }
 
+  # The service desk project_key_address_slug is derived from the project full
+  # path, so it must be recomputed whenever the path changes (rename or
+  # transfer). Runs in the same transaction as the path change.
+  after_update :refresh_service_desk_project_key_address_slug,
+    if: -> { saved_change_to_path? || saved_change_to_namespace_id? }
+
   before_destroy :remove_private_deploy_keys
   after_destroy :remove_exports
 
@@ -174,6 +180,11 @@ class Project < ApplicationRecord
   after_save :create_import_state, if: ->(project) do
     project.import? && project.import_state.nil? && (!project.transfer_import? || project.mirror?)
   end
+
+  # Block a rename or transfer that would make the service desk address collide
+  # with another project's, before the write happens, so the operation fails
+  # with a clear error instead of leaving an unclaimable slug.
+  validate :service_desk_project_key_available, if: -> { persisted? && full_path_changed? }
 
   after_save :save_topics
 
@@ -3737,6 +3748,17 @@ class Project < ApplicationRecord
     return unless ProjectSetting.where(pages_unique_domain: base).exists?
 
     errors.add(:path, s_('Project|already in use'))
+  end
+
+  def service_desk_project_key_available
+    return unless service_desk_setting&.project_key_address_slug_conflict?
+
+    errors.add(:base,
+      s_('Project|Service Desk address is already in use. Change the Service Desk project key before moving or renaming this project.'))
+  end
+
+  def refresh_service_desk_project_key_address_slug
+    service_desk_setting&.refresh_project_key_address_slug!
   end
 
   def repository_object_format

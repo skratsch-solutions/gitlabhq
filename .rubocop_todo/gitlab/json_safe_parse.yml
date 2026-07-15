@@ -241,7 +241,6 @@ Gitlab/JsonSafeParse:
     - 'lib/click_house/write_buffer.rb'
     - 'lib/gitlab/auth/otp/strategies/duo_auth/manual_otp.rb'
     - 'lib/gitlab/auth/otp/strategies/forti_token_cloud.rb'
-    - 'lib/gitlab/beyond_identity/client.rb'
     - 'lib/gitlab/chat_name_token.rb'
     - 'lib/gitlab/ci/ansi2html.rb'
     - 'lib/gitlab/ci/build/artifacts/metadata.rb'

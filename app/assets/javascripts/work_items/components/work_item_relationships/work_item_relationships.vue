@@ -381,6 +381,7 @@ export default {
     :is-loading="isLoading"
     is-collapsible
     persist-collapsed-state
+    :collapsed="isEmptyRelatedWorkItems && !isLoading && !isFormVisible"
     data-testid="work-item-relationships"
     @click-collapsed="handleCrudCollapsed(true)"
     @click-expanded="handleCrudCollapsed(false)"

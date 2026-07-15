@@ -3461,6 +3461,46 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
+  describe 'service desk project_key_address_slug maintenance' do
+    # group1/test/one and group1/test-one both slugify to 'group1-test-one'
+    let_it_be(:group) { create(:group) }
+    let_it_be(:subgroup) { create(:group, parent: group, name: 'test') }
+    let_it_be_with_reload(:existing_project) { create(:project, path: 'test-one', group: group) }
+    let_it_be_with_reload(:project) { create(:project, path: 'original', group: subgroup) }
+
+    before do
+      create(:service_desk_setting, project: existing_project, project_key: 'key')
+    end
+
+    context 'when the project has a service desk project_key' do
+      let!(:setting) { create(:service_desk_setting, project: project, project_key: 'mykey') }
+
+      it 'recomputes project_key_address_slug on rename' do
+        project.update!(path: 'renamed')
+
+        expect(setting.reload.project_key_address_slug).to eq("#{project.reload.full_path_slug}-mykey")
+      end
+
+      it 'blocks a rename that would collide with another service desk address' do
+        setting.update!(project_key: 'key')
+
+        expect(project.update(path: 'one')).to be(false)
+        expect(project.errors[:base]).to include(
+          a_string_including('Service Desk address is already in use')
+        )
+        expect(project.reload.path).to eq('original')
+      end
+    end
+
+    context 'when the project has no service desk project_key' do
+      it 'allows the rename' do
+        create(:service_desk_setting, project: project, project_key: nil)
+
+        expect { project.update!(path: 'renamed') }.not_to raise_error
+      end
+    end
+  end
+
   describe '.with_service_desk_key' do
     it 'returns projects with given key' do
       project1 = create(:project)

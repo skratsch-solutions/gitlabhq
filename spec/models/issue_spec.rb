@@ -1063,7 +1063,7 @@ RSpec.describe Issue, feature_category: :team_planning do
     subject { issue.can_move?(user) }
 
     context 'user is not a member of project issue belongs to' do
-      it { is_expected.to eq false }
+      it { is_expected.to be false }
     end
 
     context 'user is reporter in project issue belongs to' do
@@ -1073,12 +1073,12 @@ RSpec.describe Issue, feature_category: :team_planning do
         reusable_project.add_reporter(user)
       end
 
-      it { is_expected.to eq true }
+      it { is_expected.to be true }
 
       context 'issue not persisted' do
         let(:issue) { build(:issue, project: reusable_project) }
 
-        it { is_expected.to eq false }
+        it { is_expected.to be false }
       end
 
       context 'checking destination project also' do
@@ -1091,7 +1091,7 @@ RSpec.describe Issue, feature_category: :team_planning do
             to_project.add_reporter(user)
           end
 
-          it { is_expected.to eq true }
+          it { is_expected.to be true }
         end
 
         context 'destination project not allowed' do
@@ -1099,7 +1099,7 @@ RSpec.describe Issue, feature_category: :team_planning do
             to_project.add_guest(user)
           end
 
-          it { is_expected.to eq false }
+          it { is_expected.to be false }
         end
       end
     end
@@ -1125,14 +1125,14 @@ RSpec.describe Issue, feature_category: :team_planning do
     subject { issue.duplicated? }
 
     context 'issue not duplicated' do
-      it { is_expected.to eq false }
+      it { is_expected.to be false }
     end
 
     context 'issue already duplicated' do
       let(:duplicated_to_issue) { create(:issue, project: reusable_project) }
       let(:issue) { create(:issue, project: reusable_project, duplicated_to: duplicated_to_issue) }
 
-      it { is_expected.to eq true }
+      it { is_expected.to be true }
     end
   end
 
@@ -1142,14 +1142,14 @@ RSpec.describe Issue, feature_category: :team_planning do
     context 'when issue belongs to a group' do
       let(:issue) { build_stubbed(:issue, :group_level, namespace: build_stubbed(:group)) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when issue belongs to a project' do
       let(:issue) { build_stubbed(:issue, project: reusable_project) }
 
       context 'when autoclose_referenced_issues is enabled for the project' do
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
 
       context 'when autoclose_referenced_issues is disabled for the project' do
@@ -1157,7 +1157,7 @@ RSpec.describe Issue, feature_category: :team_planning do
           issue.project.update!(autoclose_referenced_issues: false)
         end
 
-        it { is_expected.to eq(false) }
+        it { is_expected.to be(false) }
       end
     end
   end
@@ -1388,14 +1388,14 @@ RSpec.describe Issue, feature_category: :team_planning do
 
     context 'when the `allow_possible_spam` application setting is turned off' do
       context 'when the issue is private' do
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
 
         context 'when the user is the support bot' do
           before do
             allow(issue.author).to receive(:support_bot?).and_return(true)
           end
 
-          it { is_expected.to eq(false) }
+          it { is_expected.to be(false) }
         end
       end
 
@@ -1404,7 +1404,7 @@ RSpec.describe Issue, feature_category: :team_planning do
           allow(issue).to receive(:publicly_visible?).and_return(true)
         end
 
-        it { is_expected.to eq(false) }
+        it { is_expected.to be(false) }
       end
     end
 
@@ -1413,7 +1413,7 @@ RSpec.describe Issue, feature_category: :team_planning do
         stub_application_setting(allow_possible_spam: true)
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
   end
 
@@ -1556,7 +1556,7 @@ RSpec.describe Issue, feature_category: :team_planning do
     end
 
     it 'is not blocked for repositioning by default' do
-      expect(issue1.blocked_for_repositioning?).to eq(false)
+      expect(issue1.blocked_for_repositioning?).to be(false)
     end
 
     context 'when block_issue_repositioning flag is enabled for group' do
@@ -1565,7 +1565,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       end
 
       it 'is blocked for repositioning' do
-        expect(issue1.blocked_for_repositioning?).to eq(true)
+        expect(issue1.blocked_for_repositioning?).to be(true)
       end
 
       it 'does not move issues with null position' do
@@ -2231,41 +2231,41 @@ RSpec.describe Issue, feature_category: :team_planning do
     let(:issue) { build_stubbed(:issue, project: reusable_project) }
 
     it 'returns false when comparing with a non-ActiveRecord object' do
-      expect(issue == :some_symbol).to eq(false)
+      expect(issue == :some_symbol).to be(false)
     end
 
     it 'returns false when comparing with an unrelated ActiveRecord object' do
       user = build_stubbed(:user, id: issue.id)
 
-      expect(issue == user).to eq(false)
+      expect(issue == user).to be(false)
     end
 
     it 'returns false when issues have different ids' do
       other_issue = build_stubbed(:issue, project: reusable_project)
 
-      expect(issue == other_issue).to eq(false)
+      expect(issue == other_issue).to be(false)
     end
 
     it 'returns false when comparing different unpersisted issues' do
-      expect(build(:issue) == build(:issue)).to eq(false)
+      expect(build(:issue) == build(:issue)).to be(false)
     end
 
     it 'returns true when comparing the same unpersisted issue' do
       new_issue = build(:issue)
 
-      expect(new_issue == new_issue).to eq(true)
+      expect(new_issue == new_issue).to be(true)
     end
 
     it 'returns true when ids are the same' do
       other_issue_instance = build_stubbed(:issue, project: reusable_project, id: issue.id)
 
-      expect(issue == other_issue_instance).to eq(true)
+      expect(issue == other_issue_instance).to be(true)
     end
 
     it 'returns true when compared with subclass having the same id' do
       work_item = build_stubbed(:work_item, project: reusable_project, id: issue.id)
 
-      expect(issue == work_item).to eq(true)
+      expect(issue == work_item).to be(true)
     end
   end
 

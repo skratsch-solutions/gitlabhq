@@ -99,6 +99,7 @@ describe('WorkItemLinks', () => {
   const findAbuseCategoryModal = () => wrapper.findComponent(WorkItemAbuseModal);
   const findWorkItemLinkChildrenWrapper = () => wrapper.findComponent(WorkItemChildrenWrapper);
   const findMoreActions = () => wrapper.findComponent(WorkItemMoreActions);
+  const findCrudComponent = () => wrapper.findComponent(CrudComponent);
 
   afterEach(() => {
     mockApollo = null;
@@ -159,6 +160,33 @@ describe('WorkItemLinks', () => {
 
     it('displays empty state if there are no children', () => {
       expect(findEmptyState().exists()).toBe(true);
+    });
+
+    it('is collapsed by default', () => {
+      expect(findCrudComponent().props('collapsed')).toBe(true);
+    });
+  });
+
+  describe('collapses by default when empty', () => {
+    it('is not collapsed while the query is loading', () => {
+      createComponent();
+
+      expect(findCrudComponent().props('collapsed')).toBe(false);
+    });
+
+    it('is not collapsed when children exist', async () => {
+      await createComponent();
+
+      expect(findCrudComponent().props('collapsed')).toBe(false);
+    });
+
+    it('is not collapsed when there are no children but an error occurred', async () => {
+      await createComponent({
+        fetchHandler: jest.fn().mockRejectedValue(new Error('Some error')),
+      });
+
+      expect(findCrudComponent().props('collapsed')).toBe(false);
+      expect(findErrorMessage().exists()).toBe(true);
     });
   });
 

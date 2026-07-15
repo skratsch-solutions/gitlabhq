@@ -251,7 +251,7 @@ export default {
       return this.$apollo.queries.hierarchyWidget.loading;
     },
     showEmptyMessage() {
-      return this.children.length === 0 && !this.isLoadingChildren;
+      return this.children.length === 0 && !this.isLoadingChildren && !this.error;
     },
     pageInfo() {
       return this.hierarchyWidget?.pageInfo;
@@ -348,6 +348,7 @@ export default {
     },
     hideAddForm() {
       this.$refs.workItemTree.hideForm();
+      this.formType = null;
     },
     showModal({ event, child }) {
       this.$emit('show-modal', { event, modalWorkItem: child });
@@ -421,6 +422,7 @@ export default {
     :is-loading="isLoadingChildren && !fetchNextPageInProgress"
     is-collapsible
     persist-collapsed-state
+    :collapsed="showEmptyMessage && !formType"
     data-testid="work-item-tree"
     @click-collapsed="handleCrudCollapsed(true)"
     @click-expanded="handleCrudCollapsed(false)"

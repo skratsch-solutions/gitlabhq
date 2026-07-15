@@ -7409,7 +7409,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_a7a890622ef9"
+              "$ref": "#/components/schemas/RequestBody_de9fcc78c876"
     put:
       operationId: putApiV4ProjectsIdMirrorPull
       summary: Update project pull mirroring settings
@@ -94922,7 +94922,7 @@ components:
           description: Reject commit when it’s not DCO certified.
           example: true
           nullable: true
-    RequestBody_a7a890622ef9:
+    RequestBody_de9fcc78c876:
       type: object
       properties:
         action:
@@ -94956,6 +94956,11 @@ components:
         pull_request.base.repo.full_name:
           type: string
           description: Target repository
+          nullable: true
+        force:
+          type: boolean
+          description: Reset the mirror if it is in a hard-failed state and retry
+            the update
           nullable: true
     RequestBody_dc0e88ca59c5:
       type: object

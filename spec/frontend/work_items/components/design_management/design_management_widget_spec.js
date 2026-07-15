@@ -605,6 +605,47 @@ describe('DesignWidget', () => {
     });
   });
 
+  describe('collapses by default when all designs are archived', () => {
+    const localStorageKey = 'crud-collapse-designs';
+
+    beforeEach(() => {
+      localStorage.removeItem(localStorageKey);
+    });
+
+    afterEach(() => {
+      localStorage.removeItem(localStorageKey);
+    });
+
+    it('collapses when there is no saved preference', async () => {
+      createComponent({
+        designCollectionQueryHandler: allDesignsArchivedQueryHandler,
+        stubs: { CrudComponent },
+      });
+      await waitForPromises();
+
+      expect(wrapper.findByTestId('crud-body').isVisible()).toBe(false);
+    });
+
+    it('respects a previously expanded preference', async () => {
+      localStorage.setItem(localStorageKey, 'false');
+      createComponent({
+        designCollectionQueryHandler: allDesignsArchivedQueryHandler,
+        stubs: { CrudComponent },
+      });
+      await waitForPromises();
+
+      expect(wrapper.findByTestId('crud-body').isVisible()).toBe(true);
+    });
+
+    it('does not collapse when there are non-archived designs', async () => {
+      localStorage.setItem(localStorageKey, 'false');
+      createComponent({ stubs: { CrudComponent } });
+      await waitForPromises();
+
+      expect(wrapper.findByTestId('crud-body').isVisible()).toBe(true);
+    });
+  });
+
   describe('workItemFeaturesField feature flag', () => {
     describe('when the feature flag is disabled', () => {
       let queryHandler;

@@ -612,6 +612,33 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
     end
   end
 
+  context 'when the transfer would collide with a service desk address in the target' do
+    # Once transferred under `group`, the project's full path is "<group>/foo-bar".
+    # An existing project at "<group>/foo/bar" (via a subgroup named "foo")
+    # slugifies to the same value, so both share the service desk address
+    # "<group>-foo-bar-key" and the transfer must be blocked.
+    let_it_be(:subgroup) { create(:group, parent: group, path: 'foo') }
+    let_it_be(:existing_project) { create(:project, path: 'bar', namespace: subgroup) }
+    let_it_be_with_reload(:project) { create(:project, path: 'foo-bar', namespace: user.namespace) }
+
+    before do
+      group.add_owner(user)
+
+      create(:service_desk_setting, project: existing_project, project_key: 'key')
+      create(:service_desk_setting, project: project, project_key: 'key')
+    end
+
+    it 'does not allow the project transfer and surfaces a clear error' do
+      transfer_result = execute_transfer
+
+      expect(transfer_result).to be false
+      expect(project.namespace).to eq(user.namespace)
+      expect(project.errors[:new_namespace]).to include(
+        a_string_including('Service Desk address is already in use')
+      )
+    end
+  end
+
   context 'when target namespace has a conflicting ProjectNamespace from a deleted project' do
     let!(:deleted_project) { create(:project, name: project.name, group: group) }
 

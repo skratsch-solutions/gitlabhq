@@ -1113,18 +1113,18 @@ RSpec.shared_examples 'work items color' do
 end
 
 RSpec.shared_examples 'work items hierarchy' do |testid, type|
-  it 'shows no child items by default and toggles card', :aggregate_failures do
+  it 'collapses card by default when empty and toggles card', :aggregate_failures do
     within_testid testid do
       expect(page).to have_css('h2', text: 'Child items')
-      expect(page).to have_text('No child items are currently assigned.')
-
-      click_button 'Collapse'
-
       expect(page).not_to have_text('No child items are currently assigned.')
 
       click_button 'Expand'
 
       expect(page).to have_text('No child items are currently assigned.')
+
+      click_button 'Collapse'
+
+      expect(page).not_to have_text('No child items are currently assigned.')
     end
   end
 
@@ -1217,6 +1217,10 @@ RSpec.shared_examples 'work items linked items' do |is_group = false|
 
   it 'toggles widget body and form', :aggregate_failures do
     within_testid('work-item-relationships') do
+      expect(page).not_to have_selector('[data-testid="crud-empty"]')
+
+      click_button 'Expand'
+
       expect(page).to have_selector('[data-testid="crud-empty"]')
 
       click_button 'Collapse'

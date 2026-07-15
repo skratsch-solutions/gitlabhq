@@ -60959,6 +60959,9 @@ msgstr ""
 msgid "Projects|You left the \"%{nameWithNamespace}\" project."
 msgstr ""
 
+msgid "Project|Service Desk address is already in use. Change the Service Desk project key before moving or renaming this project."
+msgstr ""
+
 msgid "Project|already in use"
 msgstr ""
 

@@ -252,7 +252,7 @@ RSpec.describe Organizations::OrganizationUser, type: :model, feature_category: 
     context 'when user is not the owner' do
       let(:organization_user) { build(:organization_user) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when user is the owner' do
@@ -260,7 +260,7 @@ RSpec.describe Organizations::OrganizationUser, type: :model, feature_category: 
       let_it_be(:organization) { organization_user.organization }
 
       context 'when another owner does not exist' do
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
 
       context 'when another owner exists' do
