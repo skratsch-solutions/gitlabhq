@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module Labels
-      class SearchTool < Mcp::Tools::GraphqlTool
+      class SearchTool < Mcp::Tools::Base::GraphqlTool
         register_version VERSIONS[:v0_1_0], {
           graphql_operation: load_graphql('labels/search.query.graphql')
         }

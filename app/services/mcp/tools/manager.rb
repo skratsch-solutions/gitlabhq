@@ -181,7 +181,7 @@ module Mcp
             next if settings[:aggregators].present?
 
             name = settings[:tool_name].to_s
-            tool = Mcp::Tools::ApiTool.new(name: name, route: route)
+            tool = Mcp::Tools::Base::ApiTool.new(name: name, route: route)
             api_tools[name] = tool
           end
 
@@ -201,7 +201,7 @@ module Mcp
             aggregators = settings[:aggregators]
             next if aggregators.blank?
 
-            tool = Mcp::Tools::ApiTool.new(name: name, route: route)
+            tool = Mcp::Tools::Base::ApiTool.new(name: name, route: route)
 
             aggregators.each do |aggregator|
               aggregated_api_tools[aggregator] ||= []

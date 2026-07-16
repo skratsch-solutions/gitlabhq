@@ -48,14 +48,14 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
       let(:routes) { [route1, route2] }
       let(:mcp_settings1) { { tool_name: :create_user, params: [:name, :email], version: '1.0.0' } }
       let(:mcp_settings2) { { tool_name: :delete_user, params: [:id], version: '1.1.0' } }
-      let(:api_tool1) { instance_double(Mcp::Tools::ApiTool) }
-      let(:api_tool2) { instance_double(Mcp::Tools::ApiTool) }
+      let(:api_tool1) { instance_double(Mcp::Tools::Base::ApiTool) }
+      let(:api_tool2) { instance_double(Mcp::Tools::Base::ApiTool) }
 
       before do
         allow(app1).to receive(:route_setting).with(:mcp).and_return(mcp_settings1)
         allow(app2).to receive(:route_setting).with(:mcp).and_return(mcp_settings2)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'create_user', route: route1).and_return(api_tool1)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'delete_user', route: route2).and_return(api_tool2)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new).with(name: 'create_user', route: route1).and_return(api_tool1)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new).with(name: 'delete_user', route: route2).and_return(api_tool2)
       end
 
       it 'creates ApiTool instances for routes with MCP settings' do
@@ -91,18 +91,18 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
       let(:mcp_settings1) { { tool_name: :search_issues, aggregators: [aggregator_class] } }
       let(:mcp_settings2) { { tool_name: :search_mrs, aggregators: [aggregator_class] } }
       let(:mcp_settings3) { { tool_name: :regular_tool } }
-      let(:api_tool1) { instance_double(Mcp::Tools::ApiTool) }
-      let(:api_tool2) { instance_double(Mcp::Tools::ApiTool) }
-      let(:api_tool3) { instance_double(Mcp::Tools::ApiTool) }
+      let(:api_tool1) { instance_double(Mcp::Tools::Base::ApiTool) }
+      let(:api_tool2) { instance_double(Mcp::Tools::Base::ApiTool) }
+      let(:api_tool3) { instance_double(Mcp::Tools::Base::ApiTool) }
 
       before do
         allow(app1).to receive(:route_setting).with(:mcp).and_return(mcp_settings1)
         allow(app2).to receive(:route_setting).with(:mcp).and_return(mcp_settings2)
         allow(app3).to receive(:route_setting).with(:mcp).and_return(mcp_settings3)
-        allow(Mcp::Tools::ApiTool).to receive(:new)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new)
           .with(name: 'search_issues', route: route1).and_return(api_tool1)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'search_mrs', route: route2).and_return(api_tool2)
-        allow(Mcp::Tools::ApiTool).to receive(:new)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new).with(name: 'search_mrs', route: route2).and_return(api_tool2)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new)
           .with(name: 'regular_tool', route: route3).and_return(api_tool3)
         allow(aggregator_class).to receive(:new).with(tools: [api_tool1, api_tool2]).and_return(aggregated_service)
       end
@@ -144,21 +144,21 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
       let(:mcp_settings2) { { tool_name: :search_mrs, aggregators: [search_aggregator] } }
       let(:mcp_settings3) { { tool_name: :create_user, aggregators: [user_aggregator] } }
       let(:mcp_settings4) { { tool_name: :standalone_tool, params: [:id], version: '1.1.0' } }
-      let(:api_tool1) { instance_double(Mcp::Tools::ApiTool) }
-      let(:api_tool2) { instance_double(Mcp::Tools::ApiTool) }
-      let(:api_tool3) { instance_double(Mcp::Tools::ApiTool) }
-      let(:api_tool4) { instance_double(Mcp::Tools::ApiTool) }
+      let(:api_tool1) { instance_double(Mcp::Tools::Base::ApiTool) }
+      let(:api_tool2) { instance_double(Mcp::Tools::Base::ApiTool) }
+      let(:api_tool3) { instance_double(Mcp::Tools::Base::ApiTool) }
+      let(:api_tool4) { instance_double(Mcp::Tools::Base::ApiTool) }
 
       before do
         allow(app1).to receive(:route_setting).with(:mcp).and_return(mcp_settings1)
         allow(app2).to receive(:route_setting).with(:mcp).and_return(mcp_settings2)
         allow(app3).to receive(:route_setting).with(:mcp).and_return(mcp_settings3)
         allow(app4).to receive(:route_setting).with(:mcp).and_return(mcp_settings4)
-        allow(Mcp::Tools::ApiTool).to receive(:new)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new)
           .with(name: 'search_issues', route: route1).and_return(api_tool1)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'search_mrs', route: route2).and_return(api_tool2)
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'create_user', route: route3).and_return(api_tool3)
-        allow(Mcp::Tools::ApiTool).to receive(:new)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new).with(name: 'search_mrs', route: route2).and_return(api_tool2)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new).with(name: 'create_user', route: route3).and_return(api_tool3)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new)
           .with(name: 'standalone_tool', route: route4).and_return(api_tool4)
         allow(search_aggregator).to receive(:new).with(tools: [api_tool1, api_tool2]).and_return(search_service)
         allow(user_aggregator).to receive(:new).with(tools: [api_tool3]).and_return(user_service)
@@ -187,13 +187,13 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
       let(:route3) { instance_double(Grape::Router::Route, app: app3) }
       let(:routes) { [route1, route2, route3] }
       let(:mcp_settings1) { { tool_name: :valid_tool, params: [:param] } }
-      let(:api_tool1) { instance_double(Mcp::Tools::ApiTool) }
+      let(:api_tool1) { instance_double(Mcp::Tools::Base::ApiTool) }
 
       before do
         allow(app1).to receive(:route_setting).with(:mcp).and_return(mcp_settings1)
         allow(app2).to receive(:route_setting).with(:mcp).and_return(nil)
         allow(app3).to receive(:route_setting).with(:mcp).and_return({})
-        allow(Mcp::Tools::ApiTool).to receive(:new).with(name: 'valid_tool', route: route1).and_return(api_tool1)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new).with(name: 'valid_tool', route: route1).and_return(api_tool1)
       end
 
       it 'skips routes with blank MCP settings' do
@@ -205,9 +205,9 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
           'create_workitem_note' => be_a(Mcp::Tools::WorkItems::CreateWorkItemNoteService)
         )
         expect(manager.tools.size).to eq(3)
-        expect(Mcp::Tools::ApiTool).to have_received(:new).once.with(name: 'valid_tool', route: route1)
-        expect(Mcp::Tools::ApiTool).not_to have_received(:new).with('route2', route2)
-        expect(Mcp::Tools::ApiTool).not_to have_received(:new).with('route3', route3)
+        expect(Mcp::Tools::Base::ApiTool).to have_received(:new).once.with(name: 'valid_tool', route: route1)
+        expect(Mcp::Tools::Base::ApiTool).not_to have_received(:new).with('route2', route2)
+        expect(Mcp::Tools::Base::ApiTool).not_to have_received(:new).with('route3', route3)
       end
     end
   end
@@ -375,13 +375,13 @@ RSpec.describe Mcp::Tools::Manager, feature_category: :ai_agents do
     describe 'semantic search tool' do
       let(:semantic_search_app) { instance_double(Grape::Endpoint) }
       let(:semantic_search_route) { instance_double(Grape::Router::Route, app: semantic_search_app) }
-      let(:semantic_search_api_tool) { instance_double(Mcp::Tools::ApiTool) }
+      let(:semantic_search_api_tool) { instance_double(Mcp::Tools::Base::ApiTool) }
 
       before do
         allow(semantic_search_app).to receive(:route_setting).with(:mcp)
           .and_return({ tool_name: :semantic_code_search })
         allow(API::API).to receive(:routes).and_return([semantic_search_route])
-        allow(Mcp::Tools::ApiTool).to receive(:new)
+        allow(Mcp::Tools::Base::ApiTool).to receive(:new)
           .with(name: 'semantic_code_search', route: semantic_search_route)
           .and_return(semantic_search_api_tool)
         allow(semantic_search_api_tool).to receive(:version).and_return('1.0.0')

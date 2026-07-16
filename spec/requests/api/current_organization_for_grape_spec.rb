@@ -3,10 +3,6 @@
 require 'spec_helper'
 
 RSpec.describe 'Current.organization resolution in Grape API', feature_category: :organization do
-  before do
-    stub_feature_flags(set_current_organization_for_grape_api: true)
-  end
-
   let_it_be(:default_organization) { create(:organization, :default) } # rubocop:disable Gitlab/RSpec/AvoidCreateDefaultOrganization -- needed for fallback
   let_it_be(:user_organization) { create(:organization) }
   let_it_be(:project_organization) { create(:organization) }

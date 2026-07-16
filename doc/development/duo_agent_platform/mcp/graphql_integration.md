@@ -58,7 +58,7 @@ integration:
 
 Introduce a **two-layer architecture** for GraphQL-based MCP tools:
 
-**Layer 1: GraphQL Tool Classes** (`Mcp::Tools::GraphqlTool`)
+**Layer 1: GraphQL Tool Classes** (`Mcp::Tools::Base::GraphqlTool`)
 
 - Load GraphQL operations (queries and mutations) from `.graphql` files that are validated against the schema at build time
 - Support single mutation or multiple mutations in one request
@@ -66,7 +66,7 @@ Introduce a **two-layer architecture** for GraphQL-based MCP tools:
 - Execute operations against `GitlabSchema`
 - Standardize result processing and error handling
 
-**Layer 2: Service Wrappers** (`Mcp::Tools::*Service < GraphqlService`)
+**Layer 2: Service Wrappers** (`Mcp::Tools::*Service < Base::GraphqlService`)
 
 - Extend `GraphqlService` which provides user validation and GraphQL tool execution
 - Implement version-specific logic using `Versionable` concern
@@ -133,7 +133,7 @@ Renaming a Ruby class does not rename its registered tool, so keep the keys unch
 
 ### Layer 1: GraphQL Tool Base Class
 
-**File**: `app/services/mcp/tools/graphql_tool.rb`
+**File**: `app/services/mcp/tools/base/graphql_tool.rb`
 
 **Purpose**: Base class for GraphQL-based MCP tools that handles GraphQL
 execution, error processing, and versioning.
@@ -141,90 +141,89 @@ execution, error processing, and versioning.
 ```ruby
 module Mcp
   module Tools
-    class GraphqlTool
-      include Mcp::Tools::Concerns::Versionable
+    module Base
+      class GraphqlTool
+        include Mcp::Tools::Concerns::Versionable
 
-      QUERIES_ROOT = Rails.root.join('app/graphql/queries/mcp').freeze
+        QUERIES_ROOT = Rails.root.join('app/graphql/queries/mcp').freeze
 
-      # Reads a .graphql operation file once at class-load and returns it frozen.
-      def self.load_graphql(relative_path)
-        File.read(QUERIES_ROOT.join(relative_path)).freeze
-      end
-
-      attr_reader :current_user, :params
-
-      def initialize(current_user:, params:, version: nil)
-        @current_user = current_user
-        @params = params
-        initialize_version(version)
-      end
-
-      # Override in subclasses or use version metadata
-      def graphql_operation
-        raise NotImplementedError unless self.class.version_metadata(version)[:graphql_operation]
-
-        self.class.version_metadata(version)[:graphql_operation]
-      end
-
-      def operation_name
-        self.class.version_metadata(version)[:operation_name] ||
-        raise(NotImplementedError, "operation_name must be defined")
-      end
-
-      # Can be overridden with version-specific methods
-      def build_variables
-        raise NotImplementedError, "build_variables must be implemented"
-      end
-
-      def execute
-        result = GitlabSchema.execute(
-          graphql_operation_for_version,
-          variables: build_variables_for_version,
-          context: execution_context
-        )
-
-        process_result(result)
-      end
-
-      private
-
-      def execution_context
-        {
-          current_user: current_user,
-          is_sessionless_user: false
-        }
-      end
-
-      def process_result(result)
-        # Handle GraphQL-level errors (syntax, validation, etc.)
-        if result['errors']
-          error_messages = extract_error_messages(result['errors'])
-          return ::Mcp::Tools::Response.error(error_messages.join(', '))
+        def self.load_graphql(relative_path)
+          File.read(QUERIES_ROOT.join(relative_path)).freeze
         end
 
-        operation_data = result.dig('data', operation_name)
+        attr_reader :current_user, :params
 
-        return ::Mcp::Tools::Response.error("Operation returned no data") if operation_data.nil?
-
-        # Check for operation-specific errors
-        operation_errors = operation_data['errors']
-        if operation_errors&.any?
-          error_messages = extract_error_messages(operation_errors)
-          return ::Mcp::Tools::Response.error(error_messages.join(', '))
+        def initialize(current_user:, params:, version: nil)
+          @current_user = current_user
+          @params = params
+          initialize_version(version)
         end
 
-        formatted_content = [{ type: 'text', text: Gitlab::Json.dump(operation_data) }]
-        ::Mcp::Tools::Response.success(formatted_content, operation_data)
-      end
+        # Override in subclasses or use version metadata
+        def graphql_operation
+          raise NotImplementedError unless self.class.version_metadata(version)[:graphql_operation]
 
-      def extract_error_messages(errors)
-        errors.map do |error|
-          if error.is_a?(String)
-            error
-          elsif error.is_a?(Hash)
-            error['message'] || error.to_s
-          else
-            error.to_s
+          self.class.version_metadata(version)[:graphql_operation]
+        end
+
+        def operation_name
+          self.class.version_metadata(version)[:operation_name] ||
+          raise(NotImplementedError, "operation_name must be defined")
+        end
+
+        # Can be overridden with version-specific methods
+        def build_variables
+          raise NotImplementedError, "build_variables must be implemented"
+        end
+
+        def execute
+          result = GitlabSchema.execute(
+            graphql_operation_for_version,
+            variables: build_variables_for_version,
+            context: execution_context
+          )
+
+          process_result(result)
+        end
+
+        private
+
+        def execution_context
+          {
+            current_user: current_user,
+            is_sessionless_user: false
+          }
+        end
+
+        def process_result(result)
+          if result['errors']
+            error_messages = extract_error_messages(result['errors'])
+            return ::Mcp::Tools::Response.error(error_messages.join(', '))
+          end
+
+          operation_data = result.dig('data', operation_name)
+
+          return ::Mcp::Tools::Response.error("Operation returned no data") if operation_data.nil?
+
+          operation_errors = operation_data['errors']
+          if operation_errors&.any?
+            error_messages = extract_error_messages(operation_errors)
+            return ::Mcp::Tools::Response.error(error_messages.join(', '))
+          end
+
+          formatted_content = [{ type: 'text', text: Gitlab::Json.dump(operation_data) }]
+          ::Mcp::Tools::Response.success(formatted_content, operation_data)
+        end
+
+        def extract_error_messages(errors)
+          errors.map do |error|
+            if error.is_a?(String)
+              error
+            elsif error.is_a?(Hash)
+              error['message'] || error.to_s
+            else
+              error.to_s
+            end
           end
         end
       end
@@ -291,57 +290,59 @@ The `Mcp/UseGraphqlQueryFile` RuboCop rule flags an inline string or HEREDOC pas
 
 ### Layer 2: GraphqlService Base Class
 
-**File**: `app/services/mcp/tools/graphql_service.rb`
+**File**: `app/services/mcp/tools/base/graphql_service.rb`
 
 **Purpose**: Provides a specialized base service for GraphQL-based MCP tools with user validation, versioning support, and GraphQL tool execution.
 
 ```ruby
 module Mcp
   module Tools
-    class GraphqlService < BaseService
-      include Mcp::Tools::Concerns::Versionable
-      extend Gitlab::Utils::Override
+    module Base
+      class GraphqlService < BaseService
+        include Mcp::Tools::Concerns::Versionable
+        extend Gitlab::Utils::Override
 
-      def initialize(name:, version: nil)
-        super(name: name)
-        initialize_version(version)
-      end
+        def initialize(name:, version: nil)
+          super(name: name)
+          initialize_version(version)
+        end
 
-      override :set_cred
-      def set_cred(current_user: nil, access_token: nil)
-        @current_user = current_user
-        _ = access_token # access_token is not used in GraphqlService
-      end
+        override :set_cred
+        def set_cred(current_user: nil, access_token: nil)
+          @current_user = current_user
+          _ = access_token # access_token is not used in GraphqlService
+        end
 
-      override :execute
-      def execute(request: nil, params: nil)
-        return Response.error("#{self.class.name}: current_user is not set") unless current_user.present?
+        override :execute
+        def execute(request: nil, params: nil)
+          return Response.error("#{self.class.name}: current_user is not set") unless current_user.present?
 
-        super
-      end
+          super
+        end
 
-      protected
+        protected
 
-      # Subclasses should override this to return their GraphQL tool class
-      def graphql_tool_class
-        raise NotImplementedError, "#{self.class.name}#graphql_tool_class must be implemented"
-      end
+        # Subclasses should override this to return their GraphQL tool class
+        def graphql_tool_class
+          raise NotImplementedError, "#{self.class.name}#graphql_tool_class must be implemented"
+        end
 
-      # Default implementation - can be overridden in subclasses
-      def perform_default(_arguments = {})
-          raise NoMethodError, "No implementation found for version #{version}"
-      end
+        # Default implementation - can be overridden in subclasses
+        def perform_default(_arguments = {})
+            raise NoMethodError, "No implementation found for version #{version}"
+        end
 
-      private
+        private
 
-      def execute_graphql_tool(arguments)
-        tool = graphql_tool_class.new(
-          current_user: current_user,
-          params: arguments,
-          version: version
-        )
+        def execute_graphql_tool(arguments)
+          tool = graphql_tool_class.new(
+            current_user: current_user,
+            params: arguments,
+            version: version
+          )
 
-        tool.execute
+          tool.execute
+        end
       end
     end
   end
@@ -422,7 +423,7 @@ management. Authorization is delegated to GraphQL layer.
 ```ruby
 module Mcp
   module Tools
-    class CreateIssueService < GraphqlService
+    class CreateIssueService < Base::GraphqlService
       # Register version 0.1.0 with metadata
       register_version '0.1.0', {
         description: 'Create a new issue in a GitLab project using GraphQL mutation',
@@ -519,7 +520,7 @@ mutation createIssue($input: CreateIssueInput!) {
 ```ruby
 module Mcp
   module Tools
-    class CreateIssueTool < GraphqlTool
+    class CreateIssueTool < Base::GraphqlTool
       register_version '0.1.0', {
         operation_name: 'createIssue',
         graphql_operation: load_graphql('issues/create_issue.v0_1_0.mutation.graphql')
@@ -663,7 +664,7 @@ mutation yourMutation($input: YourInput!) {
 # app/services/mcp/tools/your_tool.rb
 module Mcp
   module Tools
-    class YourTool < GraphqlTool
+    class YourTool < Base::GraphqlTool
       # Load the operation from its .graphql file
       register_version '0.1.0', {
         operation_name: 'yourMutation',
@@ -703,7 +704,7 @@ end
 # app/services/mcp/tools/your_service.rb
 module Mcp
   module Tools
-    class YourService < GraphqlService
+    class YourService < Base::GraphqlService
       # Register version with metadata
       register_version '0.1.0', {
         description: 'Description of what this tool does',
@@ -763,7 +764,7 @@ GRAPHQL_TOOLS = {
 **Approach**: Execute GraphQL directly in service classes without abstraction layer.
 
 ```ruby
-class CreateIssueService < GraphqlService
+class CreateIssueService < Base::GraphqlService
   def perform_0_1_0(params)
     result = GitlabSchema.execute(MUTATION, variables: params, context: {...})
     # Handle result inline
@@ -790,7 +791,7 @@ end
 **Approach**: Generic service that accepts arbitrary GraphQL queries from MCP clients.
 
 ```ruby
-class ProxyService < GraphqlService
+class ProxyService < Base::GraphqlService
   def perform_0_1_0(params)
     query = params[:query]
     GitlabSchema.execute(query, variables: params[:variables], context: {...})

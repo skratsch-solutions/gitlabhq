@@ -79,6 +79,19 @@ RSpec.shared_examples 'wiki_page' do |container_type|
     end
   end
 
+  describe '#last_version=' do
+    it 'uses the primed commit so no per-page Gitaly lookup is made' do
+      create(:wiki_page, container: container, title: 'home', content: 'content')
+
+      commit = wiki.list_pages.first.last_version
+      primed = wiki.list_pages.first
+      primed.last_version = commit
+
+      expect(primed.wiki.repository).not_to receive(:last_commit_for_path)
+      expect(primed.version_commit_timestamp).to eq(commit.committed_date)
+    end
+  end
+
   describe '#front_matter' do
     let(:wiki_page) { create(:wiki_page, container: container, content: content) }
 

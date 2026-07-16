@@ -25,7 +25,7 @@ module Mcp
           raise NoMethodError
         end
 
-        def execute(request: nil, params: nil) # rubocop: disable Lint/UnusedMethodArgument -- request param to match Mcp::Tools::ApiTool
+        def execute(request: nil, params: nil) # rubocop: disable Lint/UnusedMethodArgument -- request param to match Mcp::Tools::Base::ApiTool
           args = params[:arguments]
           validate_arguments!(args)
           perform(args)

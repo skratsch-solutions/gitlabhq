@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module MergeRequests
-      class CreateMergeRequestNoteTool < Mcp::Tools::GraphqlTool
+      class CreateMergeRequestNoteTool < Mcp::Tools::Base::GraphqlTool
         include Mcp::Tools::Concerns::ContentValidation
         include Mcp::Tools::Concerns::ResourceFinder
 

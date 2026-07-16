@@ -106,16 +106,6 @@ module API
     # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
     def set_current_organization(user: current_user)
-      # When the feature flag is enabled the global before_validation hook in
-      # API::API resolves Current.organization for every non-opted-out Grape
-      # request, so the per-endpoint helper has nothing to do. Returning
-      # early lets us delete the explicit calls in a follow-up MR without
-      # changing behaviour while the flag is on.
-      #
-      # Endpoints that opt out of the global hook (skip_global_organization_setup!)
-      # still rely on the helper, so do not short-circuit for those.
-      return if global_hook_will_resolve_current_organization?
-
       return if ::Current.organization_assigned
 
       ::Current.organization = Gitlab::Current::Organization.new(
@@ -125,15 +115,6 @@ module API
       ).organization
 
       check_organization_read_only!
-    end
-
-    def global_hook_will_resolve_current_organization?
-      return false unless Feature.enabled?(:set_current_organization_for_grape_api, Feature.current_request)
-
-      endpoint_class = request.env[Grape::Env::API_ENDPOINT]&.options&.dig(:for)
-      return true unless endpoint_class.respond_to?(:skip_global_organization_setup?)
-
-      !endpoint_class.skip_global_organization_setup?
     end
 
     def save_current_user_in_env(user)

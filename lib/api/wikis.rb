@@ -60,7 +60,17 @@ module API
             current_user: current_user
           }
 
-          present container.wiki.list_pages(load_content: params[:with_content]), options
+          pages = container.wiki.list_pages(load_content: params[:with_content])
+
+          # Bulk-fetch last commits so serialization does not make one Gitaly call per page
+          # (which times out on large wikis). See Wiki#last_commits_for_pages.
+          last_commits = container.wiki.last_commits_for_pages(pages)
+          pages.each do |page|
+            last_commit = last_commits[page.path]
+            page.last_version = last_commit if last_commit
+          end
+
+          present pages, options
         end
 
         desc "Retrieve a wiki page for a #{boundary_type}" do

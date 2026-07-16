@@ -22579,6 +22579,9 @@ msgstr ""
 msgid "ContinuousDeployment|Deploying"
 msgstr ""
 
+msgid "ContinuousDeployment|Deployment ID"
+msgstr ""
+
 msgid "ContinuousDeployment|Deployment in progress"
 msgstr ""
 
@@ -22595,6 +22598,9 @@ msgid "ContinuousDeployment|Development"
 msgstr ""
 
 msgid "ContinuousDeployment|Digest"
+msgstr ""
+
+msgid "ContinuousDeployment|Drift detected"
 msgstr ""
 
 msgid "ContinuousDeployment|Edit"
@@ -22657,10 +22663,16 @@ msgstr ""
 msgid "ContinuousDeployment|Get started with environments"
 msgstr ""
 
+msgid "ContinuousDeployment|Health"
+msgstr ""
+
 msgid "ContinuousDeployment|Healthy"
 msgstr ""
 
 msgid "ContinuousDeployment|In progress"
+msgstr ""
+
+msgid "ContinuousDeployment|In sync"
 msgstr ""
 
 msgid "ContinuousDeployment|It may have been removed or you may not have access to it."
@@ -22783,6 +22795,9 @@ msgstr ""
 msgid "ContinuousDeployment|Sync"
 msgstr ""
 
+msgid "ContinuousDeployment|Sync status"
+msgstr ""
+
 msgid "ContinuousDeployment|Synced"
 msgstr ""
 
@@ -22808,6 +22823,9 @@ msgid "ContinuousDeployment|Trigger deployment — %{name}"
 msgstr ""
 
 msgid "ContinuousDeployment|Type"
+msgstr ""
+
+msgid "ContinuousDeployment|Unknown"
 msgstr ""
 
 msgid "ContinuousDeployment|Version"
@@ -45687,6 +45705,9 @@ msgstr ""
 msgid "Manage secret detection behavior for all projects in your GitLab instance"
 msgstr ""
 
+msgid "Manage security policies in the experimental Policy Store"
+msgstr ""
+
 msgid "Manage security policy settings in your GitLab instance"
 msgstr ""
 
@@ -57870,6 +57891,9 @@ msgid "Policy management project does not have any policies in %{policy_path}"
 msgstr ""
 
 msgid "Policy project doesn't exist"
+msgstr ""
+
+msgid "Policy store"
 msgstr ""
 
 msgid "PolicyRuleMultiSelect|%{firstLabel} %{moreLabel}"

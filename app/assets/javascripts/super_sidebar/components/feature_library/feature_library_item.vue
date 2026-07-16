@@ -72,29 +72,39 @@ export default {
       solidBackground ? 'gl-bg-default hover:gl-shadow-md' : 'gl-bg-transparent hover:gl-bg-strong'
     "
   >
-    <gl-icon :name="item.icon" class="gl-mt-1 gl-shrink-0" />
-    <div class="gl-min-w-0 gl-flex-grow">
-      <span class="gl-inline-flex gl-items-center gl-gap-2 gl-text-lg gl-font-semibold">
-        <gl-link
-          v-if="item.link"
-          variant="meta"
-          :href="item.link"
-          data-testid="feature-library-item-title"
-          @click="onNavigate"
-        >
-          {{ item.title }}
-        </gl-link>
-        <span v-else data-testid="feature-library-item-title">
-          {{ item.title }}
+    <!-- The title link stretches over this wrapper only, so the pin action
+         stays outside the link's click target. -->
+    <div
+      class="gl-relative gl-flex gl-min-w-0 gl-grow gl-items-start gl-gap-3"
+      data-testid="feature-library-item-content"
+    >
+      <gl-icon :name="item.icon" class="gl-mt-1 gl-shrink-0" />
+      <div class="gl-min-w-0 gl-flex-grow">
+        <span class="gl-inline-flex gl-items-center gl-gap-2 gl-text-lg gl-font-semibold">
+          <!-- eslint-disable tailwindcss/no-arbitrary-value -->
+          <gl-link
+            v-if="item.link"
+            variant="meta"
+            :href="item.link"
+            class="after:gl-absolute after:gl-inset-0 after:gl-content-['']"
+            data-testid="feature-library-item-title"
+            @click="onNavigate"
+          >
+            {{ item.title }}
+          </gl-link>
+          <!-- eslint-enable tailwindcss/no-arbitrary-value -->
+          <span v-else data-testid="feature-library-item-title">
+            {{ item.title }}
+          </span>
+          <gl-badge v-if="tierLabel" data-testid="feature-library-item-tier">
+            {{ tierLabel }}
+          </gl-badge>
         </span>
-        <gl-badge v-if="tierLabel" data-testid="feature-library-item-tier">
-          {{ tierLabel }}
-        </gl-badge>
-      </span>
 
-      <p data-testid="feature-library-item-description" class="gl-mb-0 gl-mt-1 gl-text-subtle">
-        {{ item.description }}
-      </p>
+        <p data-testid="feature-library-item-description" class="gl-mb-0 gl-mt-1 gl-text-subtle">
+          {{ item.description }}
+        </p>
+      </div>
     </div>
     <gl-button
       v-gl-tooltip.hover="pinTooltipText"

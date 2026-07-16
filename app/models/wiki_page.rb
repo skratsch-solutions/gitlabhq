@@ -115,6 +115,10 @@ class WikiPage
   # new Page values before writing to the raw repository.
   attr_accessor :attributes
 
+  # Lets a caller set a last commit fetched in bulk, so we skip the per-page Gitaly
+  # lookup. See Wiki#last_commits_for_pages.
+  attr_writer :last_version
+
   def hook_attrs
     Gitlab::HookData::WikiPageBuilder.new(self).build
   end

@@ -148,6 +148,7 @@ KNOWN_STABLE_EE_IDS = %i[
   insights
   issues_analytics
   learn_gitlab
+  policy_store
   productivity_analytics
   roadmap
   scan_policies

@@ -23,6 +23,7 @@ describe('FeatureLibraryItem', () => {
     });
   };
 
+  const findContent = () => wrapper.findByTestId('feature-library-item-content');
   const findTitle = () => wrapper.findByTestId('feature-library-item-title');
   const findTitleLink = () => wrapper.findComponent(GlLink);
   const findDescription = () => wrapper.findByTestId('feature-library-item-description');
@@ -113,6 +114,20 @@ describe('FeatureLibraryItem', () => {
       link.element.addEventListener('click', (e) => e.preventDefault());
       await link.trigger('click');
       expect(wrapper.emitted('navigate')).toEqual([['repository']]);
+    });
+
+    it('stretches the title link over the tile content area', () => {
+      createWrapper({ item: { ...baseItem, link: '/-/repository' } });
+      // The ::after overlay stretches against the positioned content wrapper.
+      expect(findContent().classes()).toContain('gl-relative');
+      expect(findTitleLink().classes()).toEqual(
+        expect.arrayContaining(["after:gl-content-['']", 'after:gl-absolute', 'after:gl-inset-0']),
+      );
+    });
+
+    it('keeps the pin action outside the stretched link click target', () => {
+      createWrapper({ item: { ...baseItem, link: '/-/repository' } });
+      expect(findContent().findComponent(GlButton).exists()).toBe(false);
     });
   });
 

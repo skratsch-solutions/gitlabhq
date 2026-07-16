@@ -3,7 +3,7 @@
 module Mcp
   module Tools
     module MergeRequests
-      class GetMergeRequestNotesTool < Mcp::Tools::GraphqlTool
+      class GetMergeRequestNotesTool < Mcp::Tools::Base::GraphqlTool
         include Mcp::Tools::Concerns::ResourceFinder
 
         def self.build_query

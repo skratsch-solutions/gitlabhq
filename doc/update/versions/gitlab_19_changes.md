@@ -45,6 +45,7 @@ Before upgrading to GitLab 19.0, review the following:
 
 - [19.0.0 - 19.0.1] - [Container registry metadata database enabled by default in prefer mode](#container-registry-metadata-database-enabled-by-default-in-prefer-mode) (Linux package, self-compiled)
 - [19.0.0] - [Container registry S3 storage driver replaced by s3_v2](#container-registry-s3-storage-driver-replaced-by-s3_v2) (Linux package, self-compiled)
+- [19.0.0 - 19.1.0] - [Orphaned `.agents` and `.claude` directories on Linux package RPM installs](#orphaned-agents-and-claude-directories-on-linux-package-rpm-installs) (Linux package)
 - [19.0.0] - [PostgreSQL 17 minimum requirement](#postgresql-17-minimum-requirement)
 - [19.0.0] - [Linux package support for Ubuntu 20.04 discontinued](#linux-package-support-for-ubuntu-2004-discontinued) (Linux package)
 - [19.0.0] - [Redis 6 support removed](#redis-6-support-removed) (Linux package)
@@ -318,3 +319,51 @@ for proof-of-concept and test environments and are not recommended for productio
 instance with any of these bundled services, follow the
 [migration guide](https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/)
 to configure external services before upgrading to GitLab 19.0.
+
+### Orphaned `.agents` and `.claude` directories on Linux package RPM installs
+
+- Affects: Linux package (RPM)
+- Affected versions:
+
+  | Release | Affected patch releases | Fixed patch level |
+  |:--------|:------------------------|:------------------|
+  | 19.0    | 19.0.0 - 19.0.2         | 19.0.3            |
+  | 19.1    | 19.1.0                  | 19.1.1            |
+
+Linux packages for the affected patch release mistakenly included two
+directories under `/opt/gitlab/embedded/service/gitlab-rails/`:
+
+- `.agents/`
+- `.claude/`
+
+These directories are excluded from the package payload starting with the fixed patch levels,
+and by default in GitLab 19.2 and later. For more information, see
+[issue 603547](https://gitlab.com/gitlab-org/gitlab/-/issues/603547).
+
+On RPM-based distributions, RPM does not remove a directory it no longer owns
+if the directory still contains files. Even after you upgrade a Linux
+package RPM install past a fixed version, these directories can be left
+behind on disk:
+
+- `/opt/gitlab/embedded/service/gitlab-rails/.agents`
+- `/opt/gitlab/embedded/service/gitlab-rails/.claude`
+
+RPM does not remove these orphaned directories automatically. Check for these directories and,
+if present, remove them manually:
+
+1. Check whether the directories exist:
+
+   ```shell
+   ls -la /opt/gitlab/embedded/service/gitlab-rails/.agents \
+          /opt/gitlab/embedded/service/gitlab-rails/.claude
+   ```
+
+1. If the directories are present, remove them:
+
+   ```shell
+   sudo rm -rf /opt/gitlab/embedded/service/gitlab-rails/.agents \
+               /opt/gitlab/embedded/service/gitlab-rails/.claude
+   ```
+
+DEB-based distributions are not affected because `dpkg` removes directories
+it no longer owns during the upgrade.

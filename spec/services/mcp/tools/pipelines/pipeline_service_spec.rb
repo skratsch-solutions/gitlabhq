@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 RSpec.describe Mcp::Tools::Pipelines::PipelineService, feature_category: :mcp_server do
-  let(:create_tool) { instance_double(Mcp::Tools::ApiTool, name: :create_pipeline) }
-  let(:update_tool) { instance_double(Mcp::Tools::ApiTool, name: :update_pipeline) }
-  let(:retry_tool) { instance_double(Mcp::Tools::ApiTool, name: :retry_pipeline) }
-  let(:cancel_tool) { instance_double(Mcp::Tools::ApiTool, name: :cancel_pipeline) }
-  let(:delete_tool) { instance_double(Mcp::Tools::ApiTool, name: :delete_pipeline) }
-  let(:list_tool) { instance_double(Mcp::Tools::ApiTool, name: :list_pipelines) }
+  let(:create_tool) { instance_double(Mcp::Tools::Base::ApiTool, name: :create_pipeline) }
+  let(:update_tool) { instance_double(Mcp::Tools::Base::ApiTool, name: :update_pipeline) }
+  let(:retry_tool) { instance_double(Mcp::Tools::Base::ApiTool, name: :retry_pipeline) }
+  let(:cancel_tool) { instance_double(Mcp::Tools::Base::ApiTool, name: :cancel_pipeline) }
+  let(:delete_tool) { instance_double(Mcp::Tools::Base::ApiTool, name: :delete_pipeline) }
+  let(:list_tool) { instance_double(Mcp::Tools::Base::ApiTool, name: :list_pipelines) }
   let(:tools) { [create_tool, update_tool, retry_tool, cancel_tool, delete_tool, list_tool] }
   let(:service) { described_class.new(tools: tools) }
 

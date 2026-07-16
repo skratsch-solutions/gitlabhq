@@ -117,7 +117,6 @@ module API
     end
 
     before_validation do
-      next unless Feature.enabled?(:set_current_organization_for_grape_api, Feature.current_request)
       next if ::Current.organization_assigned
 
       endpoint_class = request.env[Grape::Env::API_ENDPOINT]&.options&.dig(:for)

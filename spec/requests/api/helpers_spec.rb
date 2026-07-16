@@ -505,10 +505,6 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
   end
 
   describe '.set_current_organization' do
-    before do
-      stub_feature_flags(set_current_organization_for_grape_api: false)
-    end
-
     context 'when user argument is omitted' do
       before do
         allow(self).to receive(:current_user).and_return(user)
@@ -540,18 +536,6 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
         set_current_organization(user: user)
 
         expect(Current.organization).to eq(header_organization)
-      end
-    end
-
-    context 'when the set_current_organization_for_grape_api feature flag is enabled' do
-      before do
-        stub_feature_flags(set_current_organization_for_grape_api: true)
-      end
-
-      it 'is a no-op (the global before_validation hook resolves the organization)' do
-        set_current_organization(user: user)
-
-        expect(Current.organization_assigned).to be_falsey
       end
     end
   end

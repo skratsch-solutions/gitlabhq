@@ -8298,45 +8298,6 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
   end
 
-  describe '#has_erasable_artifacts?' do
-    subject { pipeline.has_erasable_artifacts? }
-
-    context 'when pipeline is not complete' do
-      let(:pipeline) { create(:ci_pipeline, :running, :with_job) }
-
-      context 'and has erasable artifacts' do
-        before do
-          create(:ci_job_artifact, :archive, job: pipeline.builds.first)
-        end
-
-        it { is_expected.to be_falsey }
-      end
-    end
-
-    context 'when pipeline is complete' do
-      let(:pipeline) { create(:ci_pipeline, :success, :with_job) }
-
-      context 'and has no artifacts' do
-        it { is_expected.to be_falsey }
-      end
-
-      Ci::JobArtifact.erasable_file_types.each do |type|
-        context "and has an artifact of type #{type}" do
-          before do
-            create(
-              :ci_job_artifact,
-              file_format: ::Enums::Ci::JobArtifact.type_and_format_pairs[type.to_sym],
-              file_type: type,
-              job: pipeline.builds.first
-            )
-          end
-
-          it { is_expected.to be_truthy }
-        end
-      end
-    end
-  end
-
   describe '#auto_cancel_on_new_commit' do
     let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project) }
 

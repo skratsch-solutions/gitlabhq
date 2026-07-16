@@ -48,24 +48,34 @@ context to conditionally scope queries to that organization.
 
 ### Where `Current.organization` is available
 
-`Current.organization` is available in the following contexts. Some are set up automatically, while others require you to call `set_current_organization` explicitly.
+`Current.organization` is set automatically in the following contexts:
 
-Set automatically (platform-wide):
+- Controllers: `ApplicationController` includes a `before_action :set_current_organization` that runs for every request.
+- GraphQL: `GraphqlController` inherits from `ApplicationController`, so the same `before_action` applies automatically.
+- Grape API: a global `before_validation` hook in `lib/api/api.rb` runs for every endpoint.
+  The hook resolves the organization from the `X-GitLab-Organization-ID` header, then from the
+  organization of the authenticated user, and falls back to the default organization.
+- Sidekiq: set from the organization context captured when the job is enqueued.
 
-- Controllers — `ApplicationController` includes a `before_action :set_current_organization` that runs for every request.
-- GraphQL — `GraphqlController` inherits from `ApplicationController`, so the same `before_action` applies automatically.
-- Sidekiq — set from the organization context captured when the job is enqueued.
+You must set `Current.organization` yourself in these cases:
 
-Requires developer setup:
-
-- Grape API endpoints — `Current.organization` is not set automatically. Call the `set_current_organization` helper in a `before` block for each API class that needs it:
+- Grape API classes that opt out of the global hook with `skip_global_organization_setup!`.
+  The global hook derives the organization from standard API authentication, such as personal
+  access tokens. If your endpoint uses a custom authentication mechanism (for example, deploy
+  tokens), the hook cannot resolve the correct organization. Opt out and derive the
+  organization from the authenticated entity instead:
 
   ```ruby
-  before do
-    authenticate_non_get!
-    set_current_organization
+  class MyAPI < ::API::Base
+    skip_global_organization_setup!
+
+    before do
+      Current.organization = some_custom_method
+    end
   end
   ```
+
+- Code that runs outside a request or Sidekiq context, such as Rake tasks and the Rails console.
 
 ### Passing organization context
 

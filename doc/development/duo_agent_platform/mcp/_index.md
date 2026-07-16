@@ -244,12 +244,12 @@ tool instead of three.
 
 **Implementation steps:**
 
-1. Create an aggregated service class that inherits from `Mcp::Tools::AggregatedService`:
+1. Create an aggregated service class that inherits from `Mcp::Tools::Base::AggregatedService`:
 
 ```ruby
 module Mcp
   module Tools
-    class ExampleAggregatedService < AggregatedService
+    class ExampleAggregatedService < Base::AggregatedService
       include Gitlab::Utils::StrongMemoize
       extend ::Gitlab::Utils::Override
 
@@ -371,7 +371,7 @@ For aggregated API, custom, and graphQL tools, register versions using `register
 ```ruby
 module Mcp
   module Tools
-    class GetServerVersionService < CustomService
+    class GetServerVersionService < Base::CustomService
       register_version '0.1.0', {
         description: 'Get the current version of MCP server.',
         input_schema: {
@@ -488,7 +488,7 @@ in [this issue](https://gitlab.com/gitlab-org/gitlab/-/work_items/582750)).
 ```ruby
 module Mcp
   module Tools
-    class RenamedService < AggregatedService
+    class RenamedService < Base::AggregatedService
       override :tool_name
       def self.tool_name
         'new_name'

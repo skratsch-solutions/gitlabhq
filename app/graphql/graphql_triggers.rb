@@ -38,11 +38,23 @@ module GraphqlTriggers
       pipeline
     )
 
+    GitlabSchema.subscriptions.trigger(
+      :ci_pipeline_statuses_updated,
+      { project_full_path: pipeline.project.full_path },
+      pipeline
+    )
+
     return unless Feature.enabled?(:commit_pipelines_tab_graphql, pipeline.project)
 
     GitlabSchema.subscriptions.trigger(
       :ci_pipeline_statuses_updated,
       { project_id: pipeline.project.to_gid, sha: pipeline.sha },
+      pipeline
+    )
+
+    GitlabSchema.subscriptions.trigger(
+      :ci_pipeline_statuses_updated,
+      { project_full_path: pipeline.project.full_path, sha: pipeline.sha },
       pipeline
     )
   end

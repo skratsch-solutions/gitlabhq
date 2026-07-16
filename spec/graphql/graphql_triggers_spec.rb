@@ -220,8 +220,25 @@ RSpec.describe GraphqlTriggers, feature_category: :api do
   describe '.ci_pipeline_statuses_updated' do
     let_it_be(:pipeline) { create(:ci_pipeline) }
 
+    it 'triggers the project-scoped and full_path-scoped subscriptions' do
+      stub_feature_flags(commit_pipelines_tab_graphql: false)
+
+      expect(GitlabSchema.subscriptions).to receive(:trigger).with(
+        :ci_pipeline_statuses_updated,
+        { project_id: pipeline.project.to_gid },
+        pipeline
+      )
+      expect(GitlabSchema.subscriptions).to receive(:trigger).with(
+        :ci_pipeline_statuses_updated,
+        { project_full_path: pipeline.project.full_path },
+        pipeline
+      )
+
+      described_class.ci_pipeline_statuses_updated(pipeline)
+    end
+
     context 'when commit_pipelines_tab_graphql is enabled' do
-      it 'also triggers a sha-scoped ci_pipeline_statuses_updated subscription' do
+      it 'also triggers the sha-scoped subscriptions for project_id and full_path' do
         expect(GitlabSchema.subscriptions).to receive(:trigger).with(
           :ci_pipeline_statuses_updated,
           { project_id: pipeline.project.to_gid },
@@ -229,7 +246,17 @@ RSpec.describe GraphqlTriggers, feature_category: :api do
         )
         expect(GitlabSchema.subscriptions).to receive(:trigger).with(
           :ci_pipeline_statuses_updated,
+          { project_full_path: pipeline.project.full_path },
+          pipeline
+        )
+        expect(GitlabSchema.subscriptions).to receive(:trigger).with(
+          :ci_pipeline_statuses_updated,
           { project_id: pipeline.project.to_gid, sha: pipeline.sha },
+          pipeline
+        )
+        expect(GitlabSchema.subscriptions).to receive(:trigger).with(
+          :ci_pipeline_statuses_updated,
+          { project_full_path: pipeline.project.full_path, sha: pipeline.sha },
           pipeline
         )
 
@@ -242,15 +269,25 @@ RSpec.describe GraphqlTriggers, feature_category: :api do
         stub_feature_flags(commit_pipelines_tab_graphql: false)
       end
 
-      it 'does not trigger the sha-scoped subscription' do
+      it 'does not trigger the sha-scoped subscriptions' do
         expect(GitlabSchema.subscriptions).to receive(:trigger).with(
           :ci_pipeline_statuses_updated,
           { project_id: pipeline.project.to_gid },
           pipeline
         )
+        expect(GitlabSchema.subscriptions).to receive(:trigger).with(
+          :ci_pipeline_statuses_updated,
+          { project_full_path: pipeline.project.full_path },
+          pipeline
+        )
         expect(GitlabSchema.subscriptions).not_to receive(:trigger).with(
           :ci_pipeline_statuses_updated,
           { project_id: pipeline.project.to_gid, sha: pipeline.sha },
+          pipeline
+        )
+        expect(GitlabSchema.subscriptions).not_to receive(:trigger).with(
+          :ci_pipeline_statuses_updated,
+          { project_full_path: pipeline.project.full_path, sha: pipeline.sha },
           pipeline
         )
 
