@@ -929,6 +929,10 @@ security_project_tracked_contexts:
   - table: projects
     column: project_id
     on_delete: async_delete
+security_scan_profile_configurations:
+  - table: namespaces
+    column: namespace_id
+    on_delete: async_delete
 security_scan_profile_project_statuses:
   - table: projects
     column: project_id
