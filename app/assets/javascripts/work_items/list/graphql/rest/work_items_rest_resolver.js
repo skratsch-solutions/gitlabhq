@@ -106,6 +106,7 @@ function mapHierarchyFeature(features, itemNamespace) {
           id: hierarchy.parent.global_id,
           iid: String(hierarchy.parent.iid),
           title: hierarchy.parent.title,
+          titleHtml: hierarchy.parent.title_html,
           confidential: hierarchy.parent.confidential ?? false,
           webUrl: hierarchy.parent.web_url ?? null, // eslint-disable-line local-rules/no-web-url
           namespace: itemNamespace,
@@ -206,7 +207,7 @@ export function mapWorkItemToGraphQL(item, sharedNamespace, { useWorkItemFeature
     id: item.global_id,
     iid: String(item.iid),
     title: item.title,
-    titleHtml: item.title_html ?? item.title,
+    titleHtml: item.title_html,
     state: REST_STATE_TO_GRAPHQL[item.state] ?? item.state,
     createdAt: item.created_at,
     updatedAt: item.updated_at,

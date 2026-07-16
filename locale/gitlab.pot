@@ -51888,7 +51888,7 @@ msgstr ""
 msgid "Observability|Feature overview and capabilities"
 msgstr ""
 
-msgid "Observability|Filter by group ID"
+msgid "Observability|Filter by namespace ID"
 msgstr ""
 
 msgid "Observability|Filter data by month:"
@@ -51928,15 +51928,6 @@ msgid "Observability|Give feedback"
 msgstr ""
 
 msgid "Observability|Give feedback on this experience"
-msgstr ""
-
-msgid "Observability|Group ID"
-msgstr ""
-
-msgid "Observability|Group name"
-msgstr ""
-
-msgid "Observability|Group not found"
 msgstr ""
 
 msgid "Observability|HTTP endpoint"
@@ -52053,7 +52044,16 @@ msgstr ""
 msgid "Observability|Monitor service health and performance"
 msgstr ""
 
+msgid "Observability|Namespace ID"
+msgstr ""
+
 msgid "Observability|Namespace is required"
+msgstr ""
+
+msgid "Observability|Namespace name"
+msgstr ""
+
+msgid "Observability|Namespace not found"
 msgstr ""
 
 msgid "Observability|Native Kubernetes monitoring with pod-level metrics and cluster health insights"
@@ -52122,13 +52122,13 @@ msgstr ""
 msgid "Observability|Observability service settings updated successfully."
 msgstr ""
 
-msgid "Observability|Observability settings for group %{group_name} created successfully."
+msgid "Observability|Observability settings for namespace %{namespace_name} created successfully."
 msgstr ""
 
-msgid "Observability|Observability settings for group %{group_name} deleted successfully."
+msgid "Observability|Observability settings for namespace %{namespace_name} deleted successfully."
 msgstr ""
 
-msgid "Observability|Observability settings for group %{group_name} updated successfully."
+msgid "Observability|Observability settings for namespace %{namespace_name} updated successfully."
 msgstr ""
 
 msgid "Observability|Open CI/CD settings"
@@ -52242,7 +52242,7 @@ msgstr ""
 msgid "Observability|Test your endpoints"
 msgstr ""
 
-msgid "Observability|The ID of the group for this o11y service configuration."
+msgid "Observability|The ID of the namespace for this o11y service configuration."
 msgstr ""
 
 msgid "Observability|The commit SHA of the running code. Lets you correlate traces and errors to the exact version deployed."
@@ -52251,7 +52251,7 @@ msgstr ""
 msgid "Observability|The environment where the code is running (for example, %{code_start}production%{code_end} or %{code_start}staging%{code_end})."
 msgstr ""
 
-msgid "Observability|The name of the group for this o11y service configuration."
+msgid "Observability|The name of the namespace for this o11y service configuration."
 msgstr ""
 
 msgid "Observability|The name of your o11y service instance."
@@ -52284,7 +52284,7 @@ msgstr ""
 msgid "Observability|Unified platform"
 msgstr ""
 
-msgid "Observability|Unknown group"
+msgid "Observability|Unknown namespace"
 msgstr ""
 
 msgid "Observability|Up to %{minutes} minutes"
@@ -53685,6 +53685,9 @@ msgstr ""
 msgid "Orbit|Failed to load initial graph neighbors."
 msgstr ""
 
+msgid "Orbit|Failed to load query templates."
+msgstr ""
+
 msgid "Orbit|Failed to load references."
 msgstr ""
 
@@ -53799,9 +53802,6 @@ msgstr ""
 msgid "Orbit|Map"
 msgstr ""
 
-msgid "Orbit|Merge requests fixing open vulnerabilities"
-msgstr ""
-
 msgid "Orbit|MergeRequest"
 msgstr ""
 
@@ -53812,12 +53812,6 @@ msgid "Orbit|MergeRequestDiffFile"
 msgstr ""
 
 msgid "Orbit|Milestone"
-msgstr ""
-
-msgid "Orbit|My merge requests and their head pipelines"
-msgstr ""
-
-msgid "Orbit|My neighbors in the graph"
 msgstr ""
 
 msgid "Orbit|Navigate to"
@@ -53923,9 +53917,6 @@ msgid "Orbit|Query Orbit directly, or power up your agents with GitLab context. 
 msgstr ""
 
 msgid "Orbit|Query editor"
-msgstr ""
-
-msgid "Orbit|Recently merged merge requests and the people who merged them"
 msgstr ""
 
 msgid "Orbit|References"
@@ -54034,9 +54025,6 @@ msgid "Orbit|Toggle indexed content"
 msgstr ""
 
 msgid "Orbit|Tools overview"
-msgstr ""
-
-msgid "Orbit|Top authors of merged merge requests"
 msgstr ""
 
 msgid "Orbit|Total indexed:"
@@ -91921,7 +91909,7 @@ msgstr ""
 msgid "cannot be used for user namespace"
 msgstr ""
 
-msgid "cannot contain HTML/XML tags, including any word between angle brackets (&lt;,&gt;)."
+msgid "cannot contain HTML/XML tags, including any word between angle brackets (%{lt}, %{gt})."
 msgstr ""
 
 msgid "cannot contain empty patterns"

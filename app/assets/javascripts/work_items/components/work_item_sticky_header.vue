@@ -7,6 +7,7 @@ import { NAMESPACE_PROJECT } from '~/issues/constants';
 import ConfidentialityBadge from '~/vue_shared/components/confidentiality_badge.vue';
 import ImportedBadge from '~/vue_shared/components/imported_badge.vue';
 import SafeHtml from '~/vue_shared/directives/safe_html';
+import { titleInLinkSafeHtmlConfig } from '~/lib/dompurify';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import WorkItemTypeIcon from '~/work_items/components/work_item_type_icon.vue';
 import { STATE_CLOSED } from '~/work_items/constants';
@@ -110,6 +111,7 @@ export default {
   NAMESPACE_PROJECT,
   STATE_CLOSED,
   TITLE_CLASS: 'gl-mr-auto gl-block gl-truncate gl-pr-3 gl-font-bold gl-text-strong',
+  titleInLinkSafeHtmlConfig,
 };
 </script>
 
@@ -161,7 +163,7 @@ export default {
             :class="$options.TITLE_CLASS"
           ></span>
           <gl-link v-else :class="$options.TITLE_CLASS" href="#top" :title="workItem.title">
-            <span v-safe-html="workItem.titleHtml"></span>
+            <span v-safe-html:[$options.titleInLinkSafeHtmlConfig]="workItem.titleHtml"></span>
           </gl-link>
           <gl-button
             v-if="canUpdate"

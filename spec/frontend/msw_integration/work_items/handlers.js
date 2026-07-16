@@ -19,6 +19,7 @@ const LINKABLE_WORK_ITEM = {
   id: 'gid://gitlab/WorkItem/99',
   iid: '99',
   title: 'Linkable test issue',
+  titleHtml: 'Linkable test issue',
   confidential: false,
   webUrl: 'http://localhost/group1/project-1/-/work_items/99',
   namespace: {

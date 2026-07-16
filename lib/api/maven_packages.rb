@@ -53,6 +53,29 @@ module API
         end
       end
 
+      def fast_path_maven_checksum_upload?(format)
+        %w[sha1 md5].include?(format) && ::Feature.enabled?(:maven_checksum_upload_fast_path, user_project)
+      end
+
+      # Checksums (.sha1/.md5) are stored as columns on the package file, so they
+      # skip find-or-create: md5 is a no-op, sha1 only verifies the stored file.
+      # No primary pinning is needed here: this path only reads, and per-user load
+      # balancing sticking (set in API::Helpers#current_user) already routes reads
+      # to a caught-up replica or the primary, so the package file written by the
+      # preceding artifact upload is visible.
+      def upload_maven_checksum_file(file_name, format)
+        return '' if format == 'md5'
+
+        package = ::Packages::Maven::PackageFinder
+          .new(current_user, user_project, path: params[:path]).execute&.last
+        not_found!('Package') unless package
+
+        package_file = ::Packages::PackageFileFinder
+          .new(package, file_name).execute!
+
+        verify_package_file(package_file, params[:file])
+      end
+
       def find_project_by_path(path)
         project_path = path.rpartition('/').first
         Project.find_by_full_path(project_path)
@@ -304,6 +327,9 @@ module API
         # 422 (https://github.com/gradle/gradle/blob/v8.5.0/platforms/software/maven/src/main/java/org/gradle/api/publish/maven/internal/publisher/AbstractMavenPublisher.java#L240),
         # so we need to skip the second FIPS check here.
         file_name, format = extract_format(params[:file_name], skip_fips_check: true)
+
+        # Fast-path checksum uploads (skips find-or-create); flag-gated while de-risking.
+        break upload_maven_checksum_file(file_name, format) if fast_path_maven_checksum_upload?(format)
 
         lb = ::ApplicationRecord.load_balancer
         ::Gitlab::Database::LoadBalancing::SessionMap.current(lb).use_primary do

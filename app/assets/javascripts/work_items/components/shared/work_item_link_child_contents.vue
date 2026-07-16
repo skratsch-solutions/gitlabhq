@@ -10,6 +10,8 @@ import {
 } from '@gitlab/ui';
 import { __, s__, sprintf } from '~/locale';
 import { isScopedLabel } from '~/lib/utils/common_utils';
+import SafeHtml from '~/vue_shared/directives/safe_html';
+import { titleInLinkSafeHtmlConfig } from '~/lib/dompurify';
 import UserLinkWithTooltip from '~/vue_shared/components/user_link_with_tooltip.vue';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -58,7 +60,9 @@ export default {
   },
   directives: {
     GlTooltip: GlTooltipDirective,
+    SafeHtml,
   },
+  titleInLinkSafeHtmlConfig,
   mixins: [glFeatureFlagMixin()],
   inject: {
     preventRouterNav: {
@@ -270,7 +274,7 @@ export default {
             @mouseover="$emit('mouseover')"
             @mouseout="$emit('mouseout')"
           >
-            {{ childItem.title }}
+            <span v-safe-html:[$options.titleInLinkSafeHtmlConfig]="childItem.titleHtml"></span>
           </gl-link>
         </div>
         <div

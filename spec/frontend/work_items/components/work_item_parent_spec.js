@@ -313,9 +313,9 @@ describe('WorkItemParent component', () => {
 
       expect(findSidebarDropdownWidget().props('loading')).toBe(false);
       expect(findSidebarDropdownWidget().props('listItems')).toStrictEqual([
-        { text: 'Objective 101', value: 'gid://gitlab/WorkItem/716' },
-        { text: 'Objective 103', value: 'gid://gitlab/WorkItem/712' },
-        { text: 'Objective 102', value: 'gid://gitlab/WorkItem/711' },
+        { text: 'Objective 101', textHtml: 'Objective 101', value: 'gid://gitlab/WorkItem/716' },
+        { text: 'Objective 103', textHtml: 'Objective 103', value: 'gid://gitlab/WorkItem/712' },
+        { text: 'Objective 102', textHtml: 'Objective 102', value: 'gid://gitlab/WorkItem/711' },
       ]);
       expect(availableWorkItemsSuccessHandler).toHaveBeenCalled();
     });
@@ -372,7 +372,7 @@ describe('WorkItemParent component', () => {
       });
       expect(workItemReferencesSuccessHandler).not.toHaveBeenCalled();
       expect(findSidebarDropdownWidget().props('listItems')).toStrictEqual([
-        { text: mockText, value: 'gid://gitlab/WorkItem/716' },
+        { text: mockText, textHtml: 'Objective 101', value: 'gid://gitlab/WorkItem/716' },
       ]);
     });
 
@@ -406,7 +406,11 @@ describe('WorkItemParent component', () => {
         refs,
       });
       expect(findSidebarDropdownWidget().props('listItems')).toStrictEqual([
-        { text: 'Objective _linked_ items 104', value: 'gid://gitlab/WorkItem/705' },
+        {
+          text: 'Objective _linked_ items 104',
+          textHtml: 'Objective <em>linked</em> items 104',
+          value: 'gid://gitlab/WorkItem/705',
+        },
       ]);
     });
 
@@ -424,9 +428,9 @@ describe('WorkItemParent component', () => {
       await waitForPromises();
 
       expect(findSidebarDropdownWidget().props('listItems')).toEqual([
-        { text: 'Objective 101', value: 'gid://gitlab/WorkItem/716' },
-        { text: 'Objective 103', value: 'gid://gitlab/WorkItem/712' },
-        { text: 'Objective 102', value: 'gid://gitlab/WorkItem/711' },
+        { text: 'Objective 101', textHtml: 'Objective 101', value: 'gid://gitlab/WorkItem/716' },
+        { text: 'Objective 103', textHtml: 'Objective 103', value: 'gid://gitlab/WorkItem/712' },
+        { text: 'Objective 102', textHtml: 'Objective 102', value: 'gid://gitlab/WorkItem/711' },
       ]);
     });
 
@@ -442,9 +446,9 @@ describe('WorkItemParent component', () => {
       await waitForPromises();
 
       expect(findSidebarDropdownWidget().props('listItems')).toEqual([
-        { text: 'Objective 101', value: 'gid://gitlab/WorkItem/716' },
-        { text: 'Objective 103', value: 'gid://gitlab/WorkItem/712' },
-        { text: 'Objective 102', value: 'gid://gitlab/WorkItem/711' },
+        { text: 'Objective 101', textHtml: 'Objective 101', value: 'gid://gitlab/WorkItem/716' },
+        { text: 'Objective 103', textHtml: 'Objective 103', value: 'gid://gitlab/WorkItem/712' },
+        { text: 'Objective 102', textHtml: 'Objective 102', value: 'gid://gitlab/WorkItem/711' },
       ]);
     });
 
@@ -466,6 +470,7 @@ describe('WorkItemParent component', () => {
 
       expect(findSidebarDropdownWidget().props('listItems')).not.toContainEqual({
         text: 'Objective 101',
+        textHtml: 'Objective 101',
         value: 'gid://gitlab/WorkItem/716',
       });
     });

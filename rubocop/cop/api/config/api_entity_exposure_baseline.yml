@@ -1069,6 +1069,7 @@ lib/api/entities/work_items/features/work_item_reference.rb:
   - reference
   - state
   - title
+  - title_html
   - web_path
   - web_url
   - work_item_type

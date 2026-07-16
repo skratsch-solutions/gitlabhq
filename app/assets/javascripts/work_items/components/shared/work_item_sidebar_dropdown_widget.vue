@@ -3,9 +3,10 @@ import { GlCollapsibleListbox } from '@gitlab/ui';
 import { debounce, isEmpty } from 'lodash-es';
 import { keysFor } from '~/behaviors/shortcuts/keybindings';
 import { shouldDisableShortcuts } from '~/behaviors/shortcuts/shortcuts_toggle';
-import { sanitize } from '~/lib/dompurify';
+import { sanitize, titleInLinkSafeHtmlConfig } from '~/lib/dompurify';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
 import { __, sprintf } from '~/locale';
+import SafeHtml from '~/vue_shared/directives/safe_html';
 import WorkItemSidebarWidget from './work_item_sidebar_widget.vue';
 
 export default {
@@ -13,6 +14,9 @@ export default {
   components: {
     GlCollapsibleListbox,
     WorkItemSidebarWidget,
+  },
+  directives: {
+    SafeHtml,
   },
   props: {
     canUpdate: {
@@ -225,6 +229,7 @@ export default {
       this.$emit('updateValue', this.localSelectedItem);
     },
   },
+  titleInLinkSafeHtmlConfig,
 };
 </script>
 
@@ -275,7 +280,13 @@ export default {
           @bottom-reached="$emit('bottomReached')"
         >
           <template #list-item="{ item }">
-            <slot name="list-item" :item="item">{{ item.text }}</slot>
+            <slot name="list-item" :item="item">
+              <span
+                v-if="item.textHtml"
+                v-safe-html:[$options.titleInLinkSafeHtmlConfig]="item.textHtml"
+              ></span>
+              <span v-else>{{ item.text }}</span>
+            </slot>
           </template>
           <template v-if="showFooter" #footer>
             <div class="gl-border-t-1 gl-border-t-dropdown !gl-p-2 gl-border-t-solid">

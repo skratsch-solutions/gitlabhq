@@ -21,6 +21,7 @@ const makeRestItem = (overrides = {}) => ({
   global_id: 'gid://gitlab/WorkItem/1',
   iid: 42,
   title: 'My work item',
+  title_html: '<p>My work item</p>',
   state: 'opened',
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-02T00:00:00Z',
@@ -920,6 +921,7 @@ describe('workItemsRestResolver', () => {
                 global_id: 'gid://gitlab/WorkItem/10',
                 iid: 5,
                 title: 'Parent work item',
+                title_html: '<p>Parent work item</p>',
                 confidential: true,
                 web_url: 'https://gitlab.example.com/work_items/10',
                 work_item_type: {
@@ -942,6 +944,7 @@ describe('workItemsRestResolver', () => {
             id: 'gid://gitlab/WorkItem/10',
             iid: '5',
             title: 'Parent work item',
+            titleHtml: '<p>Parent work item</p>',
             confidential: true,
             webUrl: 'https://gitlab.example.com/work_items/10',
           },

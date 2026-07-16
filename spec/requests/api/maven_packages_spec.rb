@@ -1437,6 +1437,8 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
         let(:file_upload) { fixture_file_upload('spec/fixtures/packages/maven/my-app-1.0-20180724.124855-1.pom.sha1') }
         let(:stored_sha1) { File.read(file_upload.path) }
 
+        let!(:sha1_package) { create(:maven_package, project: project, name: package_name, version: version) }
+
         subject(:upload) { upload_file_with_token(params: params, file_extension: 'pom.sha1') }
 
         before do
@@ -1449,20 +1451,44 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
           allow(dummy_package).to receive(:file_sha1).and_return(stored_sha1)
         end
 
-        it 'returns no content' do
-          expect_use_primary
+        it 'verifies the stored file without finding-or-creating the package' do
+          expect(::Packages::Maven::FindOrCreatePackageService).not_to receive(:new)
 
           upload
 
           expect(response).to have_gitlab_http_status(:no_content)
+        end
+
+        context 'when the package does not exist' do
+          let(:sha1_package) { nil }
+
+          it 'returns not found' do
+            upload
+
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+        end
+
+        context 'when the maven_checksum_upload_fast_path flag is disabled' do
+          before do
+            stub_feature_flags(maven_checksum_upload_fast_path: false)
+          end
+
+          it 'verifies the file via the find-or-create path' do
+            expect(::Packages::Maven::FindOrCreatePackageService).to receive(:new).and_call_original
+
+            upload
+
+            expect(response).to have_gitlab_http_status(:no_content)
+          end
         end
       end
 
       context 'for md5 file' do
         subject { upload_file_with_token(params: params, file_extension: 'jar.md5') }
 
-        it 'returns an empty body' do
-          expect_use_primary
+        it 'returns an empty body without touching the package' do
+          expect(::Packages::Maven::FindOrCreatePackageService).not_to receive(:new)
 
           subject
 
@@ -1472,6 +1498,21 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
 
         context 'with FIPS mode enabled', :fips_mode do
           it 'returns an empty body' do
+            expect(::Packages::Maven::FindOrCreatePackageService).not_to receive(:new)
+
+            subject
+
+            expect(response.body).to eq('')
+            expect(response).to have_gitlab_http_status(:ok)
+          end
+        end
+
+        context 'when the maven_checksum_upload_fast_path flag is disabled' do
+          before do
+            stub_feature_flags(maven_checksum_upload_fast_path: false)
+          end
+
+          it 'returns an empty body via the find-or-create path' do
             expect_use_primary
 
             subject

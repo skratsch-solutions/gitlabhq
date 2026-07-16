@@ -1,6 +1,8 @@
 <script>
 import { uniqueId } from 'lodash-es';
 import { GlIcon, GlTooltip, GlDisclosureDropdown, GlResizeObserverDirective } from '@gitlab/ui';
+import SafeHtml from '~/vue_shared/directives/safe_html';
+import { titleInLinkSafeHtmlConfig } from '~/lib/dompurify';
 import { PanelBreakpointInstance } from '~/panel_breakpoint_instance';
 import DisclosureHierarchyItem from './disclosure_hierarchy_item.vue';
 
@@ -14,23 +16,28 @@ export default {
   },
   directives: {
     GlResizeObserver: GlResizeObserverDirective,
+    SafeHtml,
   },
+  titleInLinkSafeHtmlConfig,
   props: {
     /**
      * A list of items in the form:
      * ```
      * {
-     *   title:    String, required
-     *   icon:     String, optional
+     *   titleHtml: String (rendered as HTML)
+     *   title:     String (plain text; label for the collapsed ellipsis dropdown, where HTML can't be used)
+     *   message:   String (rendered as plain text)
+     *   icon:      String, optional
      * }
      * ```
+     * Either a message, or both titleHtml and its plain-text title, must be provided.
      */
     items: {
       type: Array,
       required: false,
       default: () => [],
       validator: (items) => {
-        return items.every((item) => Object.keys(item).includes('title'));
+        return items.every((item) => (item.titleHtml && item.title) || item.message);
       },
     },
     /**
@@ -59,9 +66,11 @@ export default {
   computed: {
     middleItems() {
       if (this.isMobile) {
-        return this.items.slice(0, -1).map((item) => ({ ...item, text: item.title }));
+        return this.items
+          .slice(0, -1)
+          .map((item) => ({ ...item, text: item.title ?? item.message }));
       }
-      return this.items.slice(1, -1).map((item) => ({ ...item, text: item.title }));
+      return this.items.slice(1, -1).map((item) => ({ ...item, text: item.title ?? item.message }));
     },
     firstItem() {
       return this.items[0];
@@ -113,7 +122,11 @@ export default {
                   :name="item.icon"
                   class="gl-mr-3 gl-shrink-0 gl-align-middle"
                 />
-                {{ item.title }}
+                <span
+                  v-if="item.titleHtml"
+                  v-safe-html:[$options.titleInLinkSafeHtmlConfig]="item.titleHtml"
+                ></span>
+                <span v-else>{{ item.message }}</span>
               </span>
             </template>
           </gl-disclosure-dropdown>

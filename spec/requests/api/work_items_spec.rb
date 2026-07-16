@@ -464,7 +464,10 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
             params: { features: 'hierarchy' }
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['features']['hierarchy']['parent']).to include('id' => hidden_parent.id)
+          expect(json_response['features']['hierarchy']['parent']).to include(
+            'id' => hidden_parent.id,
+            'title_html' => a_string_including(hidden_parent.title)
+          )
         end
       end
     end

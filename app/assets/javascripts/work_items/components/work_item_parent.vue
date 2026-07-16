@@ -6,6 +6,8 @@ import { s__, sprintf } from '~/locale';
 import WorkItemSidebarDropdownWidget from '~/work_items/components/shared/work_item_sidebar_dropdown_widget.vue';
 import updateParentMutation from '~/work_items/graphql/update_parent.mutation.graphql';
 import { isValidURL } from '~/lib/utils/url_utility';
+import SafeHtml from '~/vue_shared/directives/safe_html';
+import { titleInLinkSafeHtmlConfig } from '~/lib/dompurify';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 import {
@@ -35,6 +37,10 @@ export default {
     WorkItemPopover: () => import('~/issuable/popover/components/work_item_popover.vue'),
     WorkItemSidebarDropdownWidget,
   },
+  directives: {
+    SafeHtml,
+  },
+  titleInLinkSafeHtmlConfig,
   mixins: [glFeatureFlagsMixin()],
   inject: ['getWorkItemTypeConfiguration', 'workItemTypesConfiguration'],
   props: {
@@ -117,12 +123,22 @@ export default {
         s__('WorkItem|None')
       );
     },
+    selectedParentTitleHtml() {
+      return (
+        this.workItems.find(({ value }) => this.localSelectedItem === value)?.textHtml ||
+        this.parent?.titleHtml
+      );
+    },
     workItems() {
       const items = this.shouldAddParent
         ? [this.parent, ...this.availableWorkItems]
         : this.availableWorkItems;
 
-      return (items || []).map(({ id, title }) => ({ text: title, value: id }));
+      return (items || []).map(({ id, title, titleHtml }) => ({
+        text: title,
+        textHtml: titleHtml,
+        value: id,
+      }));
     },
     parentWebUrl() {
       return this.parent?.webUrl;
@@ -367,8 +383,13 @@ export default {
           data-testid="work-item-parent-link"
           class="gl-inline-block gl-max-w-full gl-overflow-hidden gl-text-ellipsis gl-whitespace-nowrap gl-align-top gl-text-default"
           :href="parentWebUrl"
-          >{{ listboxText }}</gl-link
         >
+          <span
+            v-if="selectedParentTitleHtml"
+            v-safe-html:[$options.titleInLinkSafeHtmlConfig]="selectedParentTitleHtml"
+          ></span>
+          <template v-else>{{ s__('WorkItem|None') }}</template>
+        </gl-link>
         <work-item-popover
           v-if="parent"
           :cached-title="parent.title"
