@@ -1,8 +1,8 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { normalizeRender } from '~/lib/utils/vue3compat/normalize_render';
 
 export default normalizeRender({
+  name: 'StrategiesDefault',
   mounted() {
     this.$emit('change', { parameters: {} });
   },

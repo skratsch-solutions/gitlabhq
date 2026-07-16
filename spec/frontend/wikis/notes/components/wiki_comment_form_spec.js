@@ -1,11 +1,14 @@
 import { GlAlert, GlButton } from '@gitlab/ui';
 import { nextTick } from 'vue';
+import { clearDraft } from '~/lib/utils/autosave';
 import WikiCommentForm from '~/wikis/wiki_notes/components/wiki_comment_form.vue';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import WikiDiscussionsSignedOut from '~/wikis/wiki_notes/components/wiki_discussions_signed_out.vue';
 import * as secretsDetection from '~/lib/utils/secret_detection';
 import * as confirmViaGLModal from '~/lib/utils/confirm_via_gl_modal/confirm_action';
 import { wikiCommentFormProvideData, noteableId } from '../mock_data';
+
+jest.mock('~/lib/utils/autosave');
 
 describe('WikiCommentForm', () => {
   let wrapper;
@@ -352,6 +355,13 @@ describe('WikiCommentForm', () => {
           it('should set note to empty string', async () => {
             await wrapper.vm.handleSave();
             expect(wrapper.vm.$refs.markdownEditor.value).toBe('');
+          });
+
+          it('should clear the autosave drafts for the note and the internal note flag', async () => {
+            await wrapper.vm.handleSave();
+
+            expect(clearDraft).toHaveBeenCalledWith(wrapper.vm.autosaveKey);
+            expect(clearDraft).toHaveBeenCalledWith(wrapper.vm.autosaveKeyInternalNote);
           });
         });
 

@@ -50,7 +50,7 @@ export const getSuperSidebarData = () => {
   const el = document.querySelector('.js-super-sidebar');
   if (!el) return false;
 
-  const { rootPath, sidebar, commandPalette, isSaas } = el.dataset;
+  const { sidebar, commandPalette, isSaas } = el.dataset;
   const sidebarData = JSON.parse(sidebar);
   const searchData = convertObjectPropsToCamelCase(sidebarData.search);
   const { searchContext } = searchData;
@@ -67,7 +67,6 @@ export const getSuperSidebarData = () => {
 
   return {
     el,
-    rootPath,
     currentPath,
     isSaas,
     sidebarData,
@@ -85,7 +84,6 @@ export const getSuperSidebarData = () => {
 
 export const initSuperSidebar = ({
   el,
-  rootPath,
   currentPath,
   isSaas,
   sidebarData,
@@ -109,7 +107,6 @@ export const initSuperSidebar = ({
     name: 'SuperSidebarRoot',
     apolloProvider,
     provide: {
-      rootPath,
       currentPath,
       isImpersonating,
       ...getTrialStatusWidgetData(sidebarData),
@@ -151,7 +148,6 @@ export const initSuperSidebar = ({
  * both functions.
  */
 export const initSuperTopbar = ({
-  rootPath,
   sidebarData,
   searchContext,
   projectsPath,
@@ -172,7 +168,6 @@ export const initSuperTopbar = ({
     name: 'SuperTopbarRoot',
     apolloProvider,
     provide: {
-      rootPath,
       isImpersonating,
       commandPaletteCommands,
       commandPaletteLinks,

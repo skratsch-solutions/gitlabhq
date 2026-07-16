@@ -223,8 +223,9 @@ After you have configured the mappings and the settings, return to the app overv
 
 ## Remove access
 
-Removing or deactivating a user on the identity provider blocks the user on
-the GitLab instance, while the SCIM identity remains linked to the GitLab user.
+Removing or deactivating a user on the identity provider blocks the user on GitLab by marking the identity with `active: false`, while the SCIM identity remains linked to the GitLab user account.
+
+Deprovisioning a user through SCIM does not remove the linked SAML identity.
 
 To update the user SCIM identity, use the
 [internal GitLab SCIM API](../../development/internal_api/_index.md#update-a-single-scim-provisioned-user-1).
@@ -238,11 +239,11 @@ To update the user SCIM identity, use the
 
 {{< /history >}}
 
-After a user is removed or deactivated through SCIM, you can reactivate that user by
-adding them to the SCIM identity provider.
+After a user is removed or deactivated through SCIM, you can reactivate that user by adding them to the SCIM identity provider.
 
 After the identity provider performs a sync based on its configured schedule,
 the user's SCIM identity is reactivated and their GitLab instance access is restored.
+Because the linked SAML identity is retained during deprovisioning, users can immediately sign in using SSO.
 
 ## Group synchronization with SCIM
 

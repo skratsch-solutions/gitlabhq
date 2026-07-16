@@ -75,7 +75,7 @@ describe('HelpCenter component', () => {
     },
     {
       text: HelpCenter.i18n.university,
-      href: customSidebarData.university_path,
+      href: 'https://university.gitlab.com',
       extraAttrs: trackingAttrs('gitlab_university'),
     },
     {

@@ -176,7 +176,6 @@ export const sidebarData = {
   projects_path: 'path/to/projects',
   groups_path: 'path/to/groups',
   support_path: '/support',
-  university_path: 'https://university.gitlab.com/',
   display_whats_new: true,
   whats_new_most_recent_release_items_count: 2,
   whats_new_version_digest: 1,

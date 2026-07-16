@@ -97,7 +97,7 @@ RSpec.describe WebHookLog, :freeze_time, feature_category: :webhooks do
 
       subject { web_hook_log.save! }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
 
       it 'obfuscates the basic auth credentials' do
         subject
@@ -111,7 +111,7 @@ RSpec.describe WebHookLog, :freeze_time, feature_category: :webhooks do
 
       subject { web_hook_log.save! }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
 
       it 'obfuscates the basic auth credentials' do
         subject

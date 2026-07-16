@@ -76,7 +76,7 @@ RSpec.describe Integrations::JiraCloudApp, feature_category: :integrations do
       integration.jira_cloud_app_enable_deployment_gating = true
       integration.jira_cloud_app_deployment_gating_environments = "development,development, production,development"
 
-      expect(integration.save).to eq(true)
+      expect(integration.save).to be(true)
       expect(integration.jira_cloud_app_deployment_gating_environments).to eq('development,production')
     end
 

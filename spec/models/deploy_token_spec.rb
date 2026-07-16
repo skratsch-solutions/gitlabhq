@@ -32,7 +32,7 @@ RSpec.describe DeployToken, feature_category: :continuous_delivery do
         deploy_token.update_column(:revoked, true)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'expired' do
@@ -40,7 +40,7 @@ RSpec.describe DeployToken, feature_category: :continuous_delivery do
         deploy_token.update!(expires_at: Date.today - 1.month)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'project type' do
@@ -48,7 +48,7 @@ RSpec.describe DeployToken, feature_category: :continuous_delivery do
         deploy_token.update_column(:deploy_token_type, 2)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -110,13 +110,13 @@ RSpec.describe DeployToken, feature_category: :continuous_delivery do
     context 'has legacy registry scopes' do
       let_it_be_with_reload(:deploy_token) { create(:deploy_token, :group, :dependency_proxy_scopes) }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'has virtual registry scopes' do
       let_it_be_with_reload(:deploy_token) { create(:deploy_token, :group, :virtual_registry_scopes) }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'insufficient scopes' do
@@ -124,7 +124,7 @@ RSpec.describe DeployToken, feature_category: :continuous_delivery do
         deploy_token.update_column(:write_registry, false)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -136,20 +136,20 @@ RSpec.describe DeployToken, feature_category: :continuous_delivery do
 
     subject { deploy_token.has_access_to_group?(test_group) }
 
-    it { is_expected.to eq(true) }
+    it { is_expected.to be(true) }
 
     it_behaves_like 'invalid group deploy token'
 
     context 'for a sub group' do
       let(:test_group) { create(:group, parent: group) }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'for a different group' do
       let(:test_group) { create(:group) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 

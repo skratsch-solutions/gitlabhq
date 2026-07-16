@@ -3,6 +3,7 @@ import { GlTooltipDirective } from '@gitlab/ui';
 import { __ } from '~/locale';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { hasTouchCapability } from '~/lib/utils/touch_detection';
+import { rootPath } from '~/lib/utils/path_helpers/routes';
 import logo from '../../../../views/shared/_logo.svg?raw';
 
 export default {
@@ -15,7 +16,6 @@ export default {
     GlTooltip: GlTooltipDirective,
     SafeHtml,
   },
-  inject: ['rootPath'],
   props: {
     logoUrl: {
       type: String,
@@ -26,6 +26,9 @@ export default {
   computed: {
     homepageTooltip() {
       return hasTouchCapability() ? null : this.$options.i18n.homepage;
+    },
+    rootPath() {
+      return rootPath();
     },
   },
 };

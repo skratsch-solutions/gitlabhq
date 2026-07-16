@@ -190,7 +190,7 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
       commit_status.update!(retried: false, status: :running)
 
       # we look at a persisted state in DB
-      expect(described_class.find(commit_status.id).processed).to eq(false)
+      expect(described_class.find(commit_status.id).processed).to be(false)
     end
   end
 
@@ -217,7 +217,7 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
   describe '#supports_force_cancel?' do
     subject { commit_status.supports_force_cancel? }
 
-    it { is_expected.to eq(false) }
+    it { is_expected.to be(false) }
   end
 
   describe '#started?' do
@@ -238,7 +238,7 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
             commit_status.status = status
           end
 
-          it { is_expected.to eq(true) }
+          it { is_expected.to be(true) }
         end
       end
 
@@ -870,7 +870,7 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
 
     let(:commit_status) { build_stubbed(:commit_status) }
 
-    it { is_expected.to eq(true) }
+    it { is_expected.to be(true) }
   end
 
   describe '#enqueue' do
@@ -963,7 +963,7 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
         commit_status.success!
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -1114,7 +1114,7 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
       expect(commit_status.commit_id).to eq(pipeline.id)
       expect(commit_status.partition_id).to eq(123)
       expect(commit_status.project_id).to eq(pipeline.project_id)
-      expect(commit_status.processed).to eq(false)
+      expect(commit_status.processed).to be(false)
       expect(commit_status.stage_id).to eq(456)
     end
 

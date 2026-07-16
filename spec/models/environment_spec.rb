@@ -201,25 +201,25 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
     context 'when a stopping environment has not been updated recently' do
       let(:environment1) { create(:environment, state: 'stopping', project: project, updated_at: long_ago) }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when a stopping environment has been updated recently' do
       let(:environment1) { create(:environment, state: 'stopping', project: project, updated_at: not_long_ago) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when a non stopping environment has not been updated recently' do
       let(:environment1) { create(:environment, project: project, updated_at: long_ago) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when a non stopping environment has been updated recently' do
       let(:environment1) { create(:environment, project: project, updated_at: not_long_ago) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -1705,14 +1705,14 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
     subject { environment.has_running_deployments? }
 
     it 'return false when no deployments exist' do
-      is_expected.to eq(false)
+      is_expected.to be(false)
     end
 
     context 'when deployment is running on the environment' do
       let!(:deployment) { create(:deployment, :running, environment: environment) }
 
       it 'return true' do
-        is_expected.to eq(true)
+        is_expected.to be(true)
       end
     end
   end
@@ -2116,13 +2116,13 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
       context 'when environment is production tier' do
         let(:environment) { create(:environment, project: project, name: 'production/aws') }
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
 
       context 'when environment is development tier' do
         let(:environment) { create(:environment, project: project, name: 'review/feature') }
 
-        it { is_expected.to eq(false) }
+        it { is_expected.to be(false) }
       end
     end
 
@@ -2130,13 +2130,13 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
       context 'when environment is production tier' do
         let(:environment) { create(:environment, project: project, name: 'production') }
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
 
       context 'when environment is development tier' do
         let(:environment) { create(:environment, project: project, name: 'development') }
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to be(true) }
       end
     end
   end

@@ -32,7 +32,7 @@ RSpec.describe Compare, feature_category: :source_code_management do
     it 'returns nil if compare base commit is nil' do
       expect(raw_compare).to receive(:base).and_return(nil)
 
-      expect(subject.start_commit).to eq(nil)
+      expect(subject.start_commit).to be_nil
     end
   end
 
@@ -104,7 +104,7 @@ RSpec.describe Compare, feature_category: :source_code_management do
     it 'returns nil if compare head commit is nil' do
       expect(raw_compare).to receive(:head).and_return(nil)
 
-      expect(subject.commit).to eq(nil)
+      expect(subject.commit).to be_nil
     end
   end
 
@@ -140,13 +140,13 @@ RSpec.describe Compare, feature_category: :source_code_management do
     it 'returns nil if there is no start_commit' do
       expect(subject).to receive(:start_commit).and_return(nil)
 
-      expect(subject.base_commit_sha).to eq(nil)
+      expect(subject.base_commit_sha).to be_nil
     end
 
     it 'returns nil if there is no head commit' do
       expect(subject).to receive(:head_commit).and_return(nil)
 
-      expect(subject.base_commit_sha).to eq(nil)
+      expect(subject.base_commit_sha).to be_nil
     end
   end
 

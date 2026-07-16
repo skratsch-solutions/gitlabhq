@@ -173,19 +173,19 @@ RSpec.describe CommitCollection, feature_category: :source_code_management do
       it 'returns true when all commits are backed by gitaly data' do
         collection = described_class.new(project, [gitaly_commit, gitaly_commit])
 
-        expect(collection.fully_enriched?).to eq(true)
+        expect(collection.fully_enriched?).to be(true)
       end
 
       it 'returns false when any commits are not backed by gitaly data' do
         collection = described_class.new(project, [gitaly_commit, hash_commit])
 
-        expect(collection.fully_enriched?).to eq(false)
+        expect(collection.fully_enriched?).to be(false)
       end
 
       it 'returns true when the collection is empty' do
         collection = described_class.new(project, [])
 
-        expect(collection.fully_enriched?).to eq(true)
+        expect(collection.fully_enriched?).to be(true)
       end
     end
 
@@ -197,8 +197,8 @@ RSpec.describe CommitCollection, feature_category: :source_code_management do
 
         new_commit = collection.commits.first
         expect(new_commit.id).to eq(hash_commit.id)
-        expect(hash_commit.gitaly_commit?).to eq(false)
-        expect(new_commit.gitaly_commit?).to eq(true)
+        expect(hash_commit.gitaly_commit?).to be(false)
+        expect(new_commit.gitaly_commit?).to be(true)
       end
 
       it 'maintains the original order of the commits' do
@@ -262,13 +262,13 @@ RSpec.describe CommitCollection, feature_category: :source_code_management do
     it 'returns true when the underlying Array responds to the message' do
       collection = described_class.new(project, [])
 
-      expect(collection.respond_to?(:last)).to eq(true)
+      expect(collection.respond_to?(:last)).to be(true)
     end
 
     it 'returns false when the underlying Array does not respond to the message' do
       collection = described_class.new(project, [])
 
-      expect(collection.respond_to?(:foo)).to eq(false)
+      expect(collection.respond_to?(:foo)).to be(false)
     end
   end
 

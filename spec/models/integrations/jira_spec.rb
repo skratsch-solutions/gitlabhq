@@ -228,7 +228,7 @@ RSpec.describe Integrations::Jira, feature_category: :integrations do
     end
 
     it 'provides additional cookies to allow basic auth with oracle webgate' do
-      expect(integration.options[:use_cookies]).to eq(true)
+      expect(integration.options[:use_cookies]).to be(true)
       expect(integration.options[:additional_cookies]).to eq(['OBBasicAuth=fromDialog'])
     end
 
@@ -803,7 +803,7 @@ RSpec.describe Integrations::Jira, feature_category: :integrations do
     context 'with restricted restrict_project_key option' do
       subject(:find_issue) { jira_integration.find_issue(issue_key, restrict_project_key: true) }
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
 
       context 'when project_keys includes issue_key' do
         let(:project_keys) { ['JIRA'] }

@@ -278,9 +278,10 @@ export default {
         this.noteIsInternal = false;
 
         if (noteHasContent) {
-          this.$emit('creating-note:success', response);
           this.note = '';
+          clearDraft(this.autosaveKey);
           clearDraft(this.autosaveKeyInternalNote);
+          this.$emit('creating-note:success', response);
         }
       } catch (err) {
         this.setError(createNoteErrorMessages(err));

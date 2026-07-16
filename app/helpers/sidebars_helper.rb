@@ -37,7 +37,6 @@ module SidebarsHelper
       compare_plans_url: compare_plans_url,
       current_menu_items: panel.super_sidebar_menu_items,
       current_context_header: panel.super_sidebar_context_header,
-      university_path: university_url,
       support_path: support_url,
       display_whats_new: display_whats_new?,
       show_version_check: show_version_check?,
