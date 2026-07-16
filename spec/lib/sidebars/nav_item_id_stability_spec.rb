@@ -133,6 +133,7 @@ KNOWN_STABLE_EE_IDS = %i[
   ai_catalog_mcp_servers
   ai_flow_triggers
   ai_flows
+  artifact_registry_repositories
   audit_events
   compliance
   contribution_analytics

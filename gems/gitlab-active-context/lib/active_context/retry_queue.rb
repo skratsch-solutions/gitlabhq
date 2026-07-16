@@ -21,7 +21,7 @@ module ActiveContext
       end
 
       def processing_delay
-        PROCESSING_DELAY if ActiveContext::Config.retry_queue_delay_enabled?
+        PROCESSING_DELAY
       end
     end
   end

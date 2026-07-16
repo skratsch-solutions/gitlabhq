@@ -271,30 +271,6 @@ RSpec.describe ActiveContext::Config do
     end
   end
 
-  describe '.retry_queue_delay_enabled?' do
-    context 'when retry_queue_delay_enabled is not set' do
-      it 'returns true' do
-        expect(described_class.retry_queue_delay_enabled?).to be true
-      end
-    end
-
-    context 'when retry_queue_delay_enabled is set to false' do
-      before do
-        described_class.configure do |config|
-          config.retry_queue_delay_enabled = false
-        end
-      end
-
-      after do
-        described_class.configure { |config| config.enabled = nil }
-      end
-
-      it 'returns false' do
-        expect(described_class.retry_queue_delay_enabled?).to be false
-      end
-    end
-  end
-
   describe '#initialize' do
     let(:config_block) { proc { |config| config.enabled = true } }
     let(:instance) { described_class.new(config_block) }

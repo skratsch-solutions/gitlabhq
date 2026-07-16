@@ -513,13 +513,13 @@ Assuming the current analyzer release is `v{N}`:
 1. Ensure three scheduled pipelines exist, creating them if necessary, and set `PUBLISH_IMAGES: true` for all of them:
    - `Republish images v{N}` (against the `v{N}` branch)
 
-      This scheduled pipeline needs to be created
+     This scheduled pipeline needs to be created
    - `Daily build` (against the `default` branch)
 
-      This scheduled pipeline should already exist
+     This scheduled pipeline should already exist
    - `Republish images v{N-1}` (against the `v{N-1}` branch)
 
-      This scheduled pipeline should already exist
+     This scheduled pipeline should already exist
 1. Delete the scheduled pipeline for the `v{N-2}` branch (if it exists), since we only support [two previous major versions](https://about.gitlab.com/support/statement-of-support/#version-support).
 
 ##### Bump major analyzer versions in the CI/CD templates and components

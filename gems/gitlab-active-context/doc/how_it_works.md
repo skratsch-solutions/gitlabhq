@@ -26,5 +26,3 @@ Async processing depends on the following configuration values:
       ```ruby
       config.re_enqueue_indexing_workers = Gitlab::CurrentSettings.elasticsearch_requeue_workers?
       ```
-
-  1. `retry_queue_delay_enabled`: whether items pushed to `ActiveContext::RetryQueue` wait `PROCESSING_DELAY` before becoming visible for their retry. Defaults to `true`. The GitLab initializer ties it to the `active_context_retry_queue_delay` ops feature flag during rollout.

@@ -11731,6 +11731,9 @@ msgstr ""
 msgid "ArtifactRegistry|A user can hold only one Artifact Registry role per resource. The following are listed more than once."
 msgstr ""
 
+msgid "ArtifactRegistry|Artifact registry"
+msgstr ""
+
 msgid "ArtifactRegistry|Artifact registry settings"
 msgstr ""
 
@@ -11747,6 +11750,9 @@ msgid "ArtifactRegistry|Could not authenticate with the Artifact Registry servic
 msgstr ""
 
 msgid "ArtifactRegistry|Organization could not be determined."
+msgstr ""
+
+msgid "ArtifactRegistry|Repositories"
 msgstr ""
 
 msgid "ArtifactRegistry|Resource ID must be a valid UUID."
@@ -45417,6 +45423,9 @@ msgstr ""
 msgid "Lock %{issuableType}"
 msgstr ""
 
+msgid "Lock a file or directory so only you can edit it, which helps avoid merge conflicts. To lock one, open it in the repository and select %{strongStart}Lock%{strongEnd}."
+msgstr ""
+
 msgid "Lock directory?"
 msgstr ""
 
@@ -63477,7 +63486,7 @@ msgstr ""
 msgid "Repository has more than one branch."
 msgstr ""
 
-msgid "Repository has no locks"
+msgid "Repository has no locked files yet"
 msgstr ""
 
 msgid "Repository has tags."
@@ -79798,6 +79807,9 @@ msgid "TimeTrackingReport|From the start of"
 msgstr ""
 
 msgid "TimeTrackingReport|Run report"
+msgstr ""
+
+msgid "TimeTrackingReport|Select a group or user to see results."
 msgstr ""
 
 msgid "TimeTrackingReport|Something went wrong. Please try again."

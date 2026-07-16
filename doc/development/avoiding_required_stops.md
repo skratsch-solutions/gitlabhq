@@ -86,8 +86,8 @@ that background migrations have completed before running or loading.
   GitLab `14.3`
 - GitLab `14.3`: Includes a potentially long-running background migration against
   `merge_request_diff_commits` that was foregrounded in `14.5`. This change resulted in
-   extensive downtime for users with large GitLab installations. Not documented
-   until GitLab `15.1`
+  extensive downtime for users with large GitLab installations. Not documented
+  until GitLab `15.1`
 - GitLab `14.9`: Includes a batched background migration for `namespaces` and `projects`
   that needs to finish before another batched background migration added in `14.10` executes,
   forcing a required stop. The migration can take hours or days to complete on

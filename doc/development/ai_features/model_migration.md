@@ -128,8 +128,8 @@ R = Responsible, A = Accountable, C = Consulted, I = Informed
 
 1. **Deprecation Announcement**
    - AI Framework team adds a `deprecation` block to the model entry in
-      [`ai_gateway/model_selection/models.yml`](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/ai_gateway/model_selection/models.yml)
-      following the [model deprecation instructions](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/docs/model_selection.md#model-deprecations)
+     [`ai_gateway/model_selection/models.yml`](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/ai_gateway/model_selection/models.yml)
+     following the [model deprecation instructions](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/docs/model_selection.md#model-deprecations)
    - (Optional) Marketing/AI Partnership publishes a blog post on the model deprecation
 1. **Evaluation**
    - AI Framework team evaluates replacement models

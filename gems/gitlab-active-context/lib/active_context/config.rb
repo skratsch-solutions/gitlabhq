@@ -9,7 +9,6 @@ module ActiveContext
       :logger,
       :indexing_enabled,
       :re_enqueue_indexing_workers,
-      :retry_queue_delay_enabled,
       :migrations_path,
       :connection_model,
       :collection_model,
@@ -55,15 +54,6 @@ module ActiveContext
 
       def re_enqueue_indexing_workers?
         current.re_enqueue_indexing_workers || false
-      end
-
-      # Defaults to true: the delay is the queue's intended behavior. The host
-      # application can set this to false, for example while a feature flag
-      # controls the rollout.
-      def retry_queue_delay_enabled?
-        value = current.retry_queue_delay_enabled
-
-        value.nil? ? true : value
       end
 
       def queue_classes

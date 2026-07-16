@@ -82,7 +82,6 @@ If the queue is not empty after processing, the worker re-enqueues itself to con
 If embedding generation fails, the references are moved to a retry queue.
 Items in the retry queue become visible for processing five minutes after they are pushed,
 so transient errors have time to clear before the retry.
-During rollout, the delay is behind the `active_context_retry_queue_delay` ops feature flag.
 If the retry fails, the references are placed on a dead queue.
 
 ### Query execution

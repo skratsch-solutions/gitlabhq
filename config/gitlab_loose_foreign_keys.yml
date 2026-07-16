@@ -673,6 +673,7 @@ p_ci_job_artifacts:
   - table: projects
     column: project_id
     on_delete: async_delete
+    cleaner_class: Ci::JobArtifacts::LooseForeignKeyCleanerService
 p_ci_job_definition_instances:
   - table: projects
     column: project_id

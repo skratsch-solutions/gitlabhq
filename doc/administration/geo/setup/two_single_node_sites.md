@@ -312,36 +312,36 @@ Prerequisites:
 1. Test that the `gitlab-psql` user can connect to the primary site database.
    The default Linux package name is `gitlabhq_production`:
 
-    {{< tabs >}}
+   {{< tabs >}}
 
-    {{< tab title="Linux package" >}}
+   {{< tab title="Linux package" >}}
 
-    ```shell
-    sudo \
-        -u gitlab-psql /opt/gitlab/embedded/bin/psql \
-        --list \
-        -U gitlab_replicator \
-        -d "dbname=gitlabhq_production sslmode=verify-ca" \
-        -W \
-        -h <primary_site_ip>
-    ```
+   ```shell
+   sudo \
+       -u gitlab-psql /opt/gitlab/embedded/bin/psql \
+       --list \
+       -U gitlab_replicator \
+       -d "dbname=gitlabhq_production sslmode=verify-ca" \
+       -W \
+       -h <primary_site_ip>
+   ```
 
-    {{< /tab >}}
+   {{< /tab >}}
 
-    {{< tab title="Docker" >}}
+   {{< tab title="Docker" >}}
 
-    ```shell
-    docker exec -it <container_name> su - gitlab-psql -c '/opt/gitlab/embedded/bin/psql \
-        --list \
-        -U gitlab_replicator \
-        -d "dbname=gitlabhq_production sslmode=verify-ca" \
-        -W \
-        -h <primary_site_ip>'
-    ```
+   ```shell
+   docker exec -it <container_name> su - gitlab-psql -c '/opt/gitlab/embedded/bin/psql \
+       --list \
+       -U gitlab_replicator \
+       -d "dbname=gitlabhq_production sslmode=verify-ca" \
+       -W \
+       -h <primary_site_ip>'
+   ```
 
-    {{< /tab >}}
+   {{< /tab >}}
 
-    {{< /tabs >}}
+   {{< /tabs >}}
 
    When prompted, enter the plaintext password you set for the `gitlab_replicator` user.
    If all worked correctly, you should see the list of the primary site databases.

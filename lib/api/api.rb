@@ -48,6 +48,7 @@ module API
       logger: LOGGER,
       formatter: LOG_FORMATTER,
       include: [
+        Gitlab::GrapeLogging::Loggers::TruncateParameters.new,
         Gitlab::GrapeLogging::Loggers::FilterParameters.new(LOG_FILTERS, nil, LOG_FILTER_EXCEPTIONS),
         Gitlab::GrapeLogging::Loggers::ClientEnvLogger.new,
         Gitlab::GrapeLogging::Loggers::JsonMetadataLogger.new,

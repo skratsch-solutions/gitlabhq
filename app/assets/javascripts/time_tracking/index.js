@@ -12,7 +12,7 @@ export default () => {
     return false;
   }
 
-  const { limitToHours } = el.dataset;
+  const { limitToHours, canReadAllResources, emptyStateSvgPath } = el.dataset;
 
   const apolloProvider = new VueApollo({
     defaultClient: createDefaultClient(),
@@ -26,6 +26,8 @@ export default () => {
       return createElement(TimelogsApp, {
         props: {
           limitToHours: parseBoolean(limitToHours),
+          canReadAllResources: parseBoolean(canReadAllResources),
+          emptyStateSvgPath,
         },
       });
     },

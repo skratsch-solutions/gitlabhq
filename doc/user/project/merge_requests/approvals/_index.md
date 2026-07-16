@@ -144,7 +144,7 @@ Each reviewer's status is shown next to their name.
 - {{< icon name="comment-lines" >}} Reviewer commented
 - {{< icon name="status_warning" >}} Reviewer requested changes
 
-   ![The warning status indicating a reviewer has requested changes.](img/reviewer_blocks_mr_v17_3.png)
+  ![The warning status indicating a reviewer has requested changes.](img/reviewer_blocks_mr_v17_3.png)
 
 To [re-request a review](../reviews/_index.md#re-request-a-review), select the **Re-request a review** icon ({{< icon name="redo" >}}) next to the user.
 
