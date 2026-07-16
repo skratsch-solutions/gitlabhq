@@ -672,6 +672,7 @@ principles:
     file_filters:
       - 'spec/frontend/**/*'
       - 'ee/spec/frontend/**/*'
+    baseline: .ai/principles/baselines/testing-jest.md
     sources:
       - path: doc/development/testing_guide/frontend_testing.md
         url: https://docs.gitlab.com/development/testing_guide/frontend_testing/

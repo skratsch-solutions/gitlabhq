@@ -684,7 +684,6 @@ RSpec/NamedSubject:
     - 'ee/spec/services/ee/post_receive_service_spec.rb'
     - 'ee/spec/services/ee/projects/autocomplete_service_spec.rb'
     - 'ee/spec/services/ee/projects/deploy_tokens/create_service_spec.rb'
-    - 'ee/spec/services/ee/projects/deploy_tokens/destroy_service_spec.rb'
     - 'ee/spec/services/ee/resource_events/change_labels_service_spec.rb'
     - 'ee/spec/services/ee/system_notes/issuables_service_spec.rb'
     - 'ee/spec/services/ee/terraform/states/destroy_service_spec.rb'

@@ -31427,6 +31427,7 @@ CREATE TABLE subscription_add_on_purchases (
     organization_id bigint NOT NULL,
     subscription_add_on_uid smallint,
     CONSTRAINT check_3313c4d200 CHECK ((char_length(purchase_xid) <= 255)),
+    CONSTRAINT check_c4de34843d CHECK ((subscription_add_on_uid IS NOT NULL)),
     CONSTRAINT check_d79ce199b3 CHECK ((started_at IS NOT NULL))
 );
 

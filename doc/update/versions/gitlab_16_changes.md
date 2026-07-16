@@ -93,13 +93,15 @@ For additional information for Helm chart installations, see
     the request if the headers get too big.
   - If possible, increase the header limit on the receiving system.
   - See [issue 467253](https://gitlab.com/gitlab-org/gitlab/-/issues/467253) for more details.
-- After upgrading to GitLab 16.11 some users with large environments and databases experience
+- After upgrading to GitLab 16.11, some users with large environments and databases experience
   timeouts loading source code pages in the web UI.
-  - These timeouts are caused by slow PostgreSQL queries for pipeline data, which then
-    exceed the internal 60 second timeout.
-  - You can still clone Git repositories, and other requests for repository data works.
-  - See [issue 472420](https://gitlab.com/gitlab-org/gitlab/-/issues/472420) for more details,
-    including steps to confirm you're affected and housekeeping to run in PostgreSQL to correct it.
+  These timeouts are caused by slow PostgreSQL queries for pipeline data that exceed the
+  internal 60-second timeout.
+  - You can still clone Git repositories, and other requests for repository data work.
+  - See [issue 472420](https://gitlab.com/gitlab-org/gitlab/-/issues/472420) for steps to confirm
+    you're affected and the housekeeping to run in PostgreSQL to fix your database now.
+  - [Fixed in GitLab 17.4.0](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/162894), which
+    no longer runs the query that causes these timeouts.
 
 ### Linux package installations
 

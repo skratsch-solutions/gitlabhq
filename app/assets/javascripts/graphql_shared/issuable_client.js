@@ -10,6 +10,7 @@ import typeDefs from '~/work_items/graphql/typedefs.graphql';
 import {
   WIDGET_TYPE_NOTES,
   WIDGET_TYPE_AWARD_EMOJI,
+  WIDGET_TYPE_HIERARCHY,
   WIDGET_TYPE_LINKED_ITEMS,
   WIDGET_TYPE_ASSIGNEES,
   WIDGET_TYPE_LABELS,
@@ -457,6 +458,29 @@ export const config = {
                   updateLinkedItems(mergedLinkedItemsWidget, context);
 
                   return mergedLinkedItemsWidget;
+                }
+
+                // concat next page of hierarchy children onto the existing ones.
+                // Without this, the generic shallow merge below replaces the
+                // accumulated children with just the incoming page, making the
+                // child items widget appear to lose its items on "Load more".
+                // This is FF-agnostic: when `work_item_features_field` is on,
+                // children arrive via `features.hierarchy` (handled by the
+                // `WorkItem.features` merge) and there is no hierarchy widget in
+                // `widgets[]`, so this branch is skipped.
+                if (
+                  incomingWidget?.type === WIDGET_TYPE_HIERARCHY &&
+                  context.variables.endCursor &&
+                  existingWidget?.children?.nodes &&
+                  incomingWidget?.children?.nodes
+                ) {
+                  return {
+                    ...incomingWidget,
+                    children: {
+                      ...incomingWidget.children,
+                      nodes: [...existingWidget.children.nodes, ...incomingWidget.children.nodes],
+                    },
+                  };
                 }
 
                 const mergedWidget = { ...existingWidget, ...incomingWidget };

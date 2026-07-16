@@ -1,5 +1,6 @@
-import { map } from 'lodash-es';
+import { cloneDeep, map } from 'lodash-es';
 import { EMOJI_THUMBS_UP, EMOJI_THUMBS_DOWN } from '~/emoji/constants';
+import { findHierarchyWidget } from '~/work_items/utils';
 import {
   CREATION_CONTEXT_LIST_ROUTE,
   WIDGET_TYPE_LINKED_ITEMS,
@@ -3951,6 +3952,30 @@ export const workItemHierarchyPaginatedTreeResponse = {
       ],
     },
   },
+};
+
+/**
+ * Reshapes a `widgets[]`-based work item tree response into the `features`-based
+ * shape used when the `work_item_features_field` flag is enabled: the hierarchy
+ * moves to `workItem.features.hierarchy`, and every child node exposes `features`
+ * instead of `widgets[]`.
+ *
+ * The caller is responsible for gating on the flag; this helper always transforms.
+ */
+export const buildFeaturesTreeResponse = (widgetsResponse) => {
+  const clone = cloneDeep(widgetsResponse);
+  const { workItem } = clone.data;
+  const hierarchy = findHierarchyWidget(workItem);
+
+  hierarchy.children.nodes = hierarchy.children.nodes.map(({ widgets, ...node }) => ({
+    ...node,
+    features: mockWorkItemFeaturesData(),
+  }));
+
+  workItem.features = { __typename: 'WorkItemFeatures', hierarchy };
+  delete workItem.widgets;
+
+  return clone;
 };
 
 export const workItemHierarchyTreeFailureResponse = {

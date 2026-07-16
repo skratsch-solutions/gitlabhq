@@ -79629,7 +79629,7 @@ msgstr ""
 msgid "This user has an unconfirmed email address. You may force a confirmation."
 msgstr ""
 
-msgid "This user has no active %{accessTokenTypePlural}."
+msgid "This user has no active impersonation tokens."
 msgstr ""
 
 msgid "This user has no identities"
@@ -92689,9 +92689,6 @@ msgstr[1] ""
 msgid "group access token"
 msgstr ""
 
-msgid "group access tokens"
-msgstr ""
-
 msgid "groups"
 msgstr ""
 
@@ -92758,9 +92755,6 @@ msgid "image_pull_secrets.namespace and shared_namespace must match if shared_na
 msgstr ""
 
 msgid "impersonation token"
-msgstr ""
-
-msgid "impersonation tokens"
 msgstr ""
 
 msgid "import flow"
@@ -93835,9 +93829,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "project access token"
-msgstr ""
-
-msgid "project access tokens"
 msgstr ""
 
 msgid "project bots cannot be added to other groups / projects"

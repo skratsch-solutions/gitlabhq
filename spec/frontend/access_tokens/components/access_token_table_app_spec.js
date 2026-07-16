@@ -19,7 +19,6 @@ describe('~/access_tokens/components/access_token_table_app', () => {
   let mockAxios;
 
   const accessTokenType = 'personal access token';
-  const accessTokenTypePlural = 'personal access tokens';
   const noActiveTokensMessage = 'This user has no active personal access tokens.';
   const showRole = false;
   const tokenNameWithHtmlEntities = "John's & ¥200<>";
@@ -61,7 +60,6 @@ describe('~/access_tokens/components/access_token_table_app', () => {
     wrapper = mountExtended(AccessTokenTableApp, {
       provide: {
         accessTokenType,
-        accessTokenTypePlural,
         initialActiveAccessTokens: defaultActiveAccessTokens,
         noActiveTokensMessage,
         showRole,
@@ -119,9 +117,7 @@ describe('~/access_tokens/components/access_token_table_app', () => {
 
       const cells = findCells();
       expect(cells).toHaveLength(1);
-      expect(cells.at(0).text()).toBe(
-        sprintf('This user has no active %{accessTokenTypePlural}.', { accessTokenTypePlural }),
-      );
+      expect(cells.at(0).text()).toBe('This user has no active personal access tokens.');
     });
 
     it('should render an empty table with a custom message', async () => {
