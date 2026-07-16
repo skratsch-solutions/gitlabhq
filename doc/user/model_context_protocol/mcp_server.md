@@ -19,6 +19,7 @@ title: GitLab MCP server
 - Introduced as an [experiment](../../policy/development_stages_support.md#experiment) in GitLab 18.3 [with feature flags](../../administration/feature_flags/_index.md) named `mcp_server` and `oauth_dynamic_client_registration`. Disabled by default.
 - Changed from experiment to [beta](../../policy/development_stages_support.md#beta) in GitLab 18.6. Feature flags [`mcp_server`](https://gitlab.com/gitlab-org/gitlab/-/issues/556448) and [`oauth_dynamic_client_registration`](https://gitlab.com/gitlab-org/gitlab/-/issues/555942) removed.
 - Support for `2025-03-26` and `2025-06-18` MCP protocol specifications [added](https://gitlab.com/gitlab-org/gitlab/-/issues/581459) in GitLab 18.7.
+- [Changed](https://gitlab.com/gitlab-org/gitlab/-/work_items/590729) to a separate setting and [moved](https://gitlab.com/groups/gitlab-org/-/work_items/21183) from GitLab Premium to GitLab Free in GitLab 19.2.
 
 {{< /history >}}
 

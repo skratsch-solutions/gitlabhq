@@ -1,6 +1,6 @@
 ---
-stage: AI-powered
-group: AI Framework
+stage: AI Coding
+group: Code Review
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 description: AI-native features and functionality.
 title: GitLab Duo Non-Agentic features
@@ -13,14 +13,6 @@ title: GitLab Duo Non-Agentic features
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 {{< /details >}}
-
-{{< history >}}
-
-- [GitLab Duo first introduced](https://about.gitlab.com/blog/gitlab-ai-assisted-features/) in GitLab 16.0.
-- [Removed third-party AI setting](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/136144) in GitLab 16.6.
-- [Removed support for OpenAI from all GitLab Duo features](https://gitlab.com/groups/gitlab-org/-/epics/10964) in GitLab 16.6.
-
-{{< /history >}}
 
 The following features are generally available on GitLab.com, GitLab Self-Managed, and GitLab Dedicated.
 They require a Premium or Ultimate subscription and one of the available add-ons.

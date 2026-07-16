@@ -196,7 +196,13 @@ RSpec.shared_examples 'work item API create parity' do
   end
 
   let(:widget_field_exceptions) do
-    { 'start_and_due_date_widget' => %w[is_fixed] }
+    {
+      'start_and_due_date_widget' => %w[is_fixed],
+
+      # `task_list_toggle` is GraphQL- and update-only (see WorkItemWidgetDescriptionInput).
+      # It appears on the create mutation only because the description input type is shared between create and update.
+      'description_widget' => %w[task_list_toggle]
+    }
   end
 
   # Widgets whose REST/GraphQL input fields are structurally incompatible (e.g. REST uses

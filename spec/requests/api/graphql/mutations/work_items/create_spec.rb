@@ -103,6 +103,27 @@ RSpec.describe 'Create a work item', feature_category: :team_planning do
           }
         )
       end
+
+      context 'with a taskListToggle input' do
+        let(:input) do
+          {
+            title: 'title',
+            workItemTypeId: work_item_type_gid.to_s,
+            descriptionWidget: {
+              taskListToggle: { checked: true, lineSource: '- [ ] Task 1', lineSourcepos: '1:4-1:4' }
+            }
+          }
+        end
+
+        it 'does not create a work item and returns an argument error' do
+          expect do
+            post_graphql_mutation(mutation, current_user: current_user)
+          end.to not_change(WorkItem, :count)
+
+          expect(graphql_errors.first['message'])
+            .to include('`taskListToggle` is not supported when creating a work item')
+        end
+      end
     end
 
     context 'with hierarchy widget input' do
