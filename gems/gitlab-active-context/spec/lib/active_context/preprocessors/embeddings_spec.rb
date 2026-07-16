@@ -456,4 +456,71 @@ RSpec.describe ActiveContext::Preprocessors::Embeddings do
       end
     end
   end
+
+  describe 'retry error handling' do
+    before do
+      allow(mock_embedding_models).to receive(:generate_embeddings).and_raise(ArgumentError, 'Invalid argument')
+    end
+
+    it 'marks the refs as failed and logs the error' do
+      expect(ActiveContext::Logger).to receive(:retryable_exception).with(
+        instance_of(ArgumentError),
+        class_name: 'Class',
+        queue_name: nil,
+        preprocessor: 'embeddings',
+        infinite_retry: false,
+        refs: [test_reference.serialize]
+      )
+
+      result = ActiveContext::Reference.preprocess_references([test_reference])
+
+      expect(result[:successful]).to be_empty
+      expect(result[:failed]).to eq([test_reference])
+      expect(result[:retryable]).to be_empty
+    end
+
+    context 'when the queue_name is specified' do
+      it 'does not log the queue name if the reference class does not pass it' do
+        expect(ActiveContext::Logger).to receive(:retryable_exception).with(
+          instance_of(ArgumentError),
+          class_name: 'Class',
+          queue_name: nil,
+          preprocessor: 'embeddings',
+          infinite_retry: false,
+          refs: [test_reference.serialize]
+        )
+
+        ActiveContext::Reference.preprocess_references([test_reference], queue_name: 'test_queue')
+      end
+
+      context 'when the reference class passes the queue_name' do
+        let(:mock_reference_class) do
+          Class.new(Test::References::MockWithDatabaseRecord) do
+            add_preprocessor :embeddings do |refs, queue_name: nil|
+              apply_embeddings(
+                refs: refs, content_method: :embedding_content, queue_name: queue_name
+              )
+            end
+
+            def embedding_content
+              'content returned in reference method'
+            end
+          end
+        end
+
+        it 'logs the queue_name' do
+          expect(ActiveContext::Logger).to receive(:retryable_exception).with(
+            instance_of(ArgumentError),
+            class_name: 'Class',
+            queue_name: 'test_queue',
+            preprocessor: 'embeddings',
+            infinite_retry: false,
+            refs: [test_reference.serialize]
+          )
+
+          ActiveContext::Reference.preprocess_references([test_reference], queue_name: 'test_queue')
+        end
+      end
+    end
+  end
 end

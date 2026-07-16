@@ -10,13 +10,18 @@ module ActiveContext
       class_methods do
         def apply_embeddings(
           refs:,
+          queue_name: nil,
           content_field: :content,
           content_method: nil,
           remove_content: false,
           next_model_only: false,
           infinite_retry_error_types: []
         )
-          with_batch_handling(refs, infinite_retry_error_types: infinite_retry_error_types) do
+          with_batch_handling(
+            refs,
+            queue_name: queue_name,
+            preprocessor: 'embeddings',
+            infinite_retry_error_types: infinite_retry_error_types) do
             docs_to_process = refs.flat_map do |ref|
               models = ref.indexing_embedding_models(next_model_only: next_model_only)
 

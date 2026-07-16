@@ -27265,7 +27265,6 @@ CREATE TABLE plan_limits (
     import_placeholder_user_limit_tier_4 integer DEFAULT 0 NOT NULL,
     ci_max_artifact_size_slsa_provenance_statement bigint DEFAULT 0 NOT NULL,
     cargo_max_file_size bigint DEFAULT '5368709120'::bigint NOT NULL,
-    ci_max_artifact_size_scip integer DEFAULT 200 NOT NULL,
     plan_name_uid smallint,
     ci_max_artifact_size_sarif integer DEFAULT 10 NOT NULL,
     max_pipelines_per_merge_train smallint DEFAULT 20 NOT NULL
@@ -28301,8 +28300,8 @@ CREATE TABLE project_features (
     feature_flags_access_level integer DEFAULT 20 NOT NULL,
     environments_access_level integer DEFAULT 20 NOT NULL,
     releases_access_level integer DEFAULT 20 NOT NULL,
-    model_experiments_access_level integer DEFAULT 20 NOT NULL,
-    model_registry_access_level integer DEFAULT 20 NOT NULL
+    model_experiments_access_level integer NOT NULL,
+    model_registry_access_level integer NOT NULL
 );
 
 CREATE SEQUENCE project_features_id_seq

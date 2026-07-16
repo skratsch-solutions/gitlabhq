@@ -65,6 +65,50 @@ RSpec.describe Database::QueryAnalyzers::MultiplePartitionScanDetector, feature_
       expect(analyzer.output).to be_empty
     end
 
+    context 'with a DatabaseCleaner-style table-existence sweep' do
+      it 'does not flag it (it is test cleanup, not application code)' do
+        sweep_query = offending_query.merge(
+          'query' => '(SELECT EXISTS( SELECT * FROM p_ci_builds )) UNION ' \
+            '(SELECT EXISTS( SELECT * FROM p_ci_pipelines )) UNION ' \
+            '(SELECT EXISTS( SELECT * FROM vulnerability_reads ))'
+        )
+
+        analyzer.analyze(sweep_query)
+
+        expect(analyzer.output).to be_empty
+      end
+
+      it 'excludes the minimum sweep of exactly two bare probes' do
+        query = offending_query.merge(
+          'query' => '(SELECT EXISTS( SELECT * FROM p_ci_builds )) UNION ' \
+            '(SELECT EXISTS( SELECT * FROM p_ci_pipelines ))'
+        )
+
+        analyzer.analyze(query)
+
+        expect(analyzer.output).to be_empty
+      end
+
+      it 'still flags a single unfiltered existence probe (not a sweep)' do
+        query = offending_query.merge('query' => 'SELECT EXISTS( SELECT * FROM p_ci_builds )')
+
+        analyzer.analyze(query)
+
+        expect(analyzer.output.keys).to contain_exactly('p_ci_builds')
+      end
+
+      it 'does not treat repeated filtered EXISTS checks as a sweep' do
+        query = offending_query.merge(
+          'query' => '(SELECT EXISTS( SELECT * FROM p_ci_builds WHERE id = $1 )) UNION ' \
+            '(SELECT EXISTS( SELECT * FROM p_ci_pipelines WHERE id = $2 ))'
+        )
+
+        analyzer.analyze(query)
+
+        expect(analyzer.output.keys).to contain_exactly('p_ci_builds', 'p_ci_pipelines')
+      end
+    end
+
     context 'when the fingerprint is in todos (bare string)' do
       let(:config) { { 'todos' => [offending_query['fingerprint']] } }
 

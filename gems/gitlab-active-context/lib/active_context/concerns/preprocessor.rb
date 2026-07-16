@@ -39,7 +39,12 @@ module ActiveContext
         result
       end
 
-      def with_per_ref_handling(refs, retry_error_types: [StandardError], skip_error_types: [])
+      def with_per_ref_handling(
+        refs,
+        retry_error_types: [StandardError],
+        skip_error_types: [],
+        queue_name: nil,
+        preprocessor: nil)
         return { successful: [], failed: [] } unless refs.any?
 
         failed_refs = []
@@ -50,11 +55,22 @@ module ActiveContext
           successful_refs << ref
         rescue *skip_error_types => e
           ::ActiveContext::Logger.skippable_exception(
-            e, class_name: self.class.name, reference: ref.serialize, reference_id: ref.identifier
+            e,
+            class_name: self.class.name,
+            queue_name: queue_name,
+            preprocessor: preprocessor,
+            reference: ref.serialize,
+            reference_id: ref.identifier
           )
         rescue *retry_error_types => e
           ::ActiveContext::Logger.retryable_exception(
-            e, class_name: self.class.name, reference: ref.serialize, reference_id: ref.identifier
+            e,
+            class_name: self.class.name,
+            queue_name: queue_name,
+            preprocessor: preprocessor,
+            infinite_retry: false,
+            reference: ref.serialize,
+            reference_id: ref.identifier
           )
 
           failed_refs << ref
@@ -63,7 +79,12 @@ module ActiveContext
         { successful: successful_refs, failed: failed_refs }
       end
 
-      def with_batch_handling(refs, error_types: [StandardError], infinite_retry_error_types: [])
+      def with_batch_handling(
+        refs,
+        error_types: [StandardError],
+        infinite_retry_error_types: [],
+        queue_name: nil,
+        preprocessor: nil)
         return { successful: [], failed: [], retryable: [] } unless refs.any?
 
         begin
@@ -71,11 +92,25 @@ module ActiveContext
 
           { successful: refs, failed: [], retryable: [] }
         rescue *infinite_retry_error_types => e
-          ::ActiveContext::Logger.retryable_exception(e, class_name: self.class.name, refs: refs.map(&:serialize))
+          ::ActiveContext::Logger.retryable_exception(
+            e,
+            class_name: self.class.name,
+            queue_name: queue_name,
+            preprocessor: preprocessor,
+            infinite_retry: true,
+            refs: refs.map(&:serialize)
+          )
 
           { successful: [], failed: [], retryable: refs }
         rescue *error_types => e
-          ::ActiveContext::Logger.retryable_exception(e, class_name: self.class.name, refs: refs.map(&:serialize))
+          ::ActiveContext::Logger.retryable_exception(
+            e,
+            class_name: self.class.name,
+            queue_name: queue_name,
+            preprocessor: preprocessor,
+            infinite_retry: false,
+            refs: refs.map(&:serialize)
+          )
 
           { successful: [], failed: refs, retryable: [] }
         end

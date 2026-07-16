@@ -7,10 +7,16 @@ module Database
     class MultiplePartitionScanDetector < Database::QueryAnalyzers::Base
       P_CI_TABLE_REGEX = /\bp_ci_\w+/
 
+      # DatabaseCleaner's :deletion strategy probes every table with a UNION of bare
+      # `SELECT EXISTS(SELECT * FROM <table>)` branches. Its fingerprint churns on
+      # any table add/drop, so we can't just allowlist it.
+      TABLE_EXISTENCE_PROBE_REGEX = /SELECT\s+EXISTS\s*\(\s*SELECT\s+\*\s+FROM\s+(?:"?\w+"?\.)?"?\w+"?\s*\)/i
+
       def analyze(query)
         super
 
         return if allowlisted?(query['fingerprint'])
+        return if database_cleaner_query?(query['query'])
 
         # "Subplans Removed"=>0 only appears for a partitioned scan that pruned nothing.
         # This isn't a guaranteed signal for _all_ unpruned queries, so it may miss some.
@@ -32,6 +38,10 @@ module Database
       end
 
       private
+
+      def database_cleaner_query?(query)
+        query.to_s.scan(TABLE_EXISTENCE_PROBE_REGEX).size > 1
+      end
 
       def allowlisted?(fingerprint)
         allowlisted_fingerprints.include?(fingerprint)

@@ -16,7 +16,7 @@ module ActiveContext
         1
       end
 
-      def preprocess_options
+      def extra_preprocess_options
         { skip_missing_content: true }
       end
 

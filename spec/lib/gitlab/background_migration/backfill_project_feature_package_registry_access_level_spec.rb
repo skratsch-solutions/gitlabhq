@@ -3,7 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::BackgroundMigration::BackfillProjectFeaturePackageRegistryAccessLevel do
-  let(:non_null_project_features) { { pages_access_level: 20 } }
+  # model_registry/experiments lost their DB defaults, so they must be set explicitly here.
+  let(:non_null_project_features) do
+    { pages_access_level: 20, model_registry_access_level: 20, model_experiments_access_level: 20 }
+  end
+
   let(:organizations) { table(:organizations) }
   let(:namespaces) { table(:namespaces) }
   let(:projects) { table(:projects) }

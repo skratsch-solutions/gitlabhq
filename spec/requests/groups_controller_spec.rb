@@ -410,6 +410,232 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
       it_behaves_like 'does not enforce step-up authentication'
     end
+
+    context 'when creating a group', :with_current_organization do
+      let_it_be(:group, freeze: false) { create(:group, :public, organization: current_organization) }
+      let_it_be(:user) { create(:user) }
+      let_it_be(:admin) { create(:admin) }
+      let_it_be(:owner, freeze: false) { create(:user, owner_of: group) }
+      let_it_be(:developer, freeze: false) { create(:user, developer_of: group) }
+
+      it 'allows a user to create a group', :aggregate_failures do
+        sign_in(user)
+
+        expect do
+          post groups_path, params: { group: { name: 'new_group', path: 'new_group' } }
+        end.to change { Group.count }.by(1)
+
+        expect(response).to have_gitlab_http_status(:found)
+      end
+
+      it 'allows an admin to create a group', :aggregate_failures do
+        sign_in(admin)
+
+        expect do
+          post groups_path, params: { group: { name: 'new_group', path: 'new_group' } }
+        end.to change { Group.count }.by(1)
+
+        expect(response).to have_gitlab_http_status(:found)
+      end
+
+      context 'when creating a chat team' do
+        before do
+          stub_mattermost_setting(enabled: true)
+          sign_in(user)
+        end
+
+        it 'triggers Mattermost::CreateTeamService' do
+          expect_next_instance_of(::Mattermost::CreateTeamService) do |service|
+            expect(service).to receive(:execute).and_return({ name: 'test-chat-team', id: 1 })
+          end
+
+          post groups_path, params: { group: { name: 'new_group', path: 'new_group', create_chat_team: 1 } }
+
+          expect(response).to have_gitlab_http_status(:found)
+        end
+      end
+
+      context 'when creating a subgroup' do
+        [true, false].each do |can_create_group_status|
+          context "and can_create_group is #{can_create_group_status}" do
+            context 'and logged in as an owner' do
+              it 'creates the subgroup', :aggregate_failures do
+                owner.update_attribute(:can_create_group, can_create_group_status)
+                sign_in(owner)
+
+                post groups_path, params: { group: { parent_id: group.id, path: 'subgroup' } }
+
+                expect(response).to redirect_to("/#{group.path}/subgroup")
+                expect(Group.order(:id).last.organization).to eq(current_organization)
+              end
+            end
+
+            context 'and logged in as a developer' do
+              it 'renders the new template and does not create the subgroup', :aggregate_failures do
+                developer.update_attribute(:can_create_group, can_create_group_status)
+                sign_in(developer)
+
+                expect do
+                  post groups_path, params: { group: { parent_id: group.id, path: 'subgroup' } }
+                end.not_to change { Group.count }
+
+                expect(response).to have_gitlab_http_status(:ok)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when creating a top-level group' do
+        before do
+          sign_in(developer)
+        end
+
+        context 'and can_create_group is enabled' do
+          before do
+            developer.update_attribute(:can_create_group, true)
+          end
+
+          it 'creates the group', :aggregate_failures do
+            expect do
+              post groups_path, params: { group: { path: 'top-level' } }
+            end.to change { Group.count }.by(1)
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(Group.order(:id).last.organization).to eq(current_organization)
+          end
+        end
+
+        context 'and can_create_group is disabled' do
+          before do
+            developer.update_attribute(:can_create_group, false)
+          end
+
+          it 'does not create the group', :aggregate_failures do
+            expect do
+              post groups_path, params: { group: { path: 'top-level' } }
+            end.not_to change { Group.count }
+
+            expect(response).to have_gitlab_http_status(:ok)
+          end
+        end
+      end
+
+      context 'with a malicious group name' do
+        before do
+          sign_in(user)
+        end
+
+        subject(:create_group) do
+          post groups_path, params: { group: { name: "<script>alert('Mayday!');</script>", path: 'invalid_group_url' } }
+        end
+
+        it 'does not create the group and renders the new template', :aggregate_failures do
+          expect { create_group }.not_to change { Group.count }
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
+      context 'with the default_branch_protection attribute' do
+        before do
+          sign_in(user)
+        end
+
+        subject(:create_group) do
+          post groups_path,
+            params: { group: { name: 'new_group', path: 'new_group', default_branch_protection: Gitlab::Access::PROTECTION_NONE } }
+        end
+
+        context 'when the user can create a group with default_branch_protection' do
+          it 'creates the group with the specified branch protection level', :aggregate_failures do
+            create_group
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(Group.order(:id).last.default_branch_protection).to eq(Gitlab::Access::PROTECTION_NONE)
+          end
+        end
+
+        context 'when the user cannot create a group with default_branch_protection' do
+          it 'does not apply the specified branch protection level', :aggregate_failures do
+            allow(Ability).to receive(:allowed?).and_call_original
+            allow(Ability).to receive(:allowed?).with(user, :create_group_with_default_branch_protection).and_return(false)
+
+            create_group
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(Group.order(:id).last.default_branch_protection).not_to eq(Gitlab::Access::PROTECTION_NONE)
+          end
+        end
+      end
+
+      context 'with the default_branch_protection_defaults attribute' do
+        let(:protection_defaults) do
+          {
+            "allowed_to_push" => [{ 'access_level' => Gitlab::Access::MAINTAINER.to_s }],
+            "allowed_to_merge" => [{ 'access_level' => Gitlab::Access::DEVELOPER.to_s }],
+            "allow_force_push" => "false",
+            "developer_can_initial_push" => "false"
+          }
+        end
+
+        before do
+          sign_in(user)
+        end
+
+        context 'when the user can create a group with default_branch_protection' do
+          it 'creates the group with the specified default branch protection', :aggregate_failures do
+            post groups_path,
+              params: { group: { name: 'new_group', path: 'new_group', default_branch_protected: 'true',
+                                 default_branch_protection_defaults: protection_defaults } },
+              as: :json
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(Group.order(:id).last.default_branch_protection_defaults)
+              .to eq(::Gitlab::Access::BranchProtection.protected_against_developer_pushes.stringify_keys)
+          end
+
+          it 'ignores the defaults when default_branch_protected is false', :aggregate_failures do
+            post groups_path,
+              params: { group: { name: 'new_group', path: 'new_group', default_branch_protected: 'false',
+                                 default_branch_protection_defaults: protection_defaults } },
+              as: :json
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(Group.order(:id).last.default_branch_protection_defaults)
+              .to eq(::Gitlab::Access::BranchProtection.protection_none.stringify_keys)
+          end
+        end
+
+        context 'when the user cannot create a group with default_branch_protection' do
+          it 'does not apply the specified default branch protection', :aggregate_failures do
+            allow(Ability).to receive(:allowed?).and_call_original
+            allow(Ability).to receive(:allowed?).with(user, :create_group_with_default_branch_protection).and_return(false)
+
+            post groups_path,
+              params: { group: { name: 'new_group', path: 'new_group', default_branch_protected: 'true',
+                                 default_branch_protection_defaults: protection_defaults } },
+              as: :json
+
+            expect(response).to have_gitlab_http_status(:found)
+            expect(Group.order(:id).last.default_branch_protection_defaults)
+              .not_to eq(::Gitlab::Access::BranchProtection.protected_against_developer_pushes.stringify_keys)
+          end
+        end
+      end
+
+      context 'with the jobs_to_be_done attribute' do
+        before do
+          sign_in(user)
+        end
+
+        it 'stores the jobs_to_be_done value' do
+          post groups_path, params: { group: { name: 'new_group', path: 'new_group', jobs_to_be_done: 'other' } }
+
+          expect(Group.order(:id).last.jobs_to_be_done).to eq('other')
+        end
+      end
+    end
   end
 
   describe 'GET #edit' do

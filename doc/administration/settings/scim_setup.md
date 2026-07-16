@@ -127,16 +127,15 @@ After saving, the **Mappings** and **Settings** sections appear.
 
 #### Configure mappings
 
-Under the **Mappings** section, first provision the groups:
+Group synchronization is optional. If you want to configure it, under the **Mappings** section, first provision the groups:
 
 1. Select **Provision Microsoft Entra ID Groups**.
-1. On the Attribute Mapping page, turn off the **Enabled** toggle.
-
-   SCIM group provisioning is not supported in GitLab. Leaving group provisioning enabled does not break the SCIM user provisioning, but it causes errors in the
-   Entra ID SCIM provisioning log that might be confusing and misleading.
-
-   > [!note]
-   > Even when **Provision Microsoft Entra ID Groups** is disabled, the mappings section might display **Enabled: Yes**. This behavior is a display bug that you can safely ignore.
+1. On the Attribute Mapping page, turn on the **Enabled** toggle.
+1. Under **Target Object Actions**, select the **Create**, **Update**, and **Delete** checkboxes.
+1. Under **Attribute Mappings**, edit the first attribute to have a:
+   - **source attribute** of `displayName`.
+   - **target attribute** of `displayName`.
+   - **matching precedence** of `1`.
 
 1. Select **Save**.
 
@@ -149,9 +148,10 @@ Next, provision the users:
    the [configured attribute mappings](#configure-attribute-mappings):
    1. Optional. In the **customappsso Attribute** column, find `externalId` and delete it.
    1. Edit the first attribute to have a:
-      - **source attribute** of `objectId`.
-      - **target attribute** of `externalId`.
-      - **matching precedence** of `1`.
+      - **Source attribute** of `objectId`.
+      - **Target attribute** of `externalId`.
+      - **Matching precedence** of `1`.
+      - **Apply this mapping** is set to `Always`
    1. Update the existing **customappsso** attributes to match the
       [configured attribute mappings](#configure-attribute-mappings).
    1. Delete any additional attributes that are not present in the [attribute mappings table](#configure-attribute-mappings). They do not cause problems if they are

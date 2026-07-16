@@ -351,8 +351,10 @@ RSpec.describe ActiveContext::Concerns::Queue do
   end
 
   describe '.preprocess_options' do
-    it 'returns an empty hash by default' do
-      expect(mock_queue_class.preprocess_options).to eq({})
+    it 'returns a hash with queue_name by default' do
+      expect(mock_queue_class.preprocess_options).to eq({
+        queue_name: 'test_queue'
+      })
     end
 
     context 'when a queue overrides preprocess_options' do
@@ -376,6 +378,54 @@ RSpec.describe ActiveContext::Concerns::Queue do
 
       it 'returns the custom options' do
         expect(custom_queue_class.preprocess_options).to eq({ next_model_only: true })
+      end
+    end
+
+    context 'when the queue class sets extra_preprocess_options' do
+      before do
+        allow(mock_queue_class).to receive(:extra_preprocess_options).and_return(
+          { custom_option_1: 'one' }
+        )
+      end
+
+      it 'returns the base options with the extra options' do
+        expect(mock_queue_class.preprocess_options).to eq({
+          queue_name: 'test_queue',
+          custom_option_1: 'one'
+        })
+      end
+    end
+  end
+
+  describe '.extra_preprocess_options' do
+    it 'returns an empty hash by default' do
+      expect(mock_queue_class.extra_preprocess_options).to eq({})
+    end
+
+    context 'when a queue overrides extra_preprocess_options' do
+      let(:custom_queue_class) do
+        Class.new do
+          def self.name
+            'CustomModule::CustomQueue'
+          end
+
+          def self.number_of_shards
+            1
+          end
+
+          def self.extra_preprocess_options
+            { custom_option_1: 'one', custom_option_2: 'two' }
+          end
+
+          include ActiveContext::Concerns::Queue
+        end
+      end
+
+      it 'returns the custom extra options' do
+        expect(custom_queue_class.extra_preprocess_options).to eq({
+          custom_option_1: 'one',
+          custom_option_2: 'two'
+        })
       end
     end
   end

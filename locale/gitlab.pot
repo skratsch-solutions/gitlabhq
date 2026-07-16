@@ -2986,6 +2986,9 @@ msgstr ""
 msgid "AICatalog|Failed to load MCP server"
 msgstr ""
 
+msgid "AICatalog|Failed to load items."
+msgstr ""
+
 msgid "AICatalog|Failed to load project memberships. Please try again."
 msgstr ""
 
@@ -73260,7 +73263,10 @@ msgstr ""
 msgid "SemanticSearch|Chunking strategy examples:"
 msgstr ""
 
-msgid "SemanticSearch|Configuration not allowed."
+msgid "SemanticSearch|Configuration is not allowed, and indexing is disabled."
+msgstr ""
+
+msgid "SemanticSearch|Configuration is not allowed."
 msgstr ""
 
 msgid "SemanticSearch|Configure"

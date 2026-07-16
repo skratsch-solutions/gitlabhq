@@ -155,6 +155,12 @@ module ActiveContext
         end
 
         def preprocess_options
+          {
+            queue_name: queue_name
+          }.merge(extra_preprocess_options)
+        end
+
+        def extra_preprocess_options
           {}
         end
 

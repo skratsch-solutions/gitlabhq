@@ -903,5 +903,23 @@ describe('Ref selector component', () => {
 
       expect(defaultBranchItem).toHaveLength(1);
     });
+
+    it('uses the bare branch name as the value by default', async () => {
+      createComponent({ propsData: { defaultBranch: defaultBranchName } });
+      await waitForRequests();
+
+      expect(wrapper.findByTestId(`listbox-item-${defaultBranchName}`).exists()).toBe(true);
+    });
+
+    it('uses a symbolic ref name as the value when useSymbolicRefNames is true', async () => {
+      createComponent({
+        propsData: { defaultBranch: defaultBranchName, useSymbolicRefNames: true },
+      });
+      await waitForRequests();
+
+      expect(wrapper.findByTestId(`listbox-item-refs/heads/${defaultBranchName}`).exists()).toBe(
+        true,
+      );
+    });
   });
 });

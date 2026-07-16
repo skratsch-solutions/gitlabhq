@@ -141,7 +141,11 @@ export default {
       // since the API for getting list of branches is paginated, we might not have a
       // default branch available, so in that case we add it to the list
       if (this.defaultBranch && !defaultBranchData) {
-        branches.push({ name: this.defaultBranch, value: this.defaultBranch, default: true });
+        branches.push({
+          name: this.defaultBranch,
+          value: this.useSymbolicRefNames ? `refs/heads/${this.defaultBranch}` : undefined,
+          default: true,
+        });
       }
 
       return formatListBoxItems({ branches, tags, commits, selectedRef });

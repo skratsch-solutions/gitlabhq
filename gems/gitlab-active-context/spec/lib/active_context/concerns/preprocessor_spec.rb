@@ -188,7 +188,32 @@ RSpec.describe ActiveContext::Concerns::Preprocessor do
         expect(result[:successful]).to be_empty
         expect(result[:failed]).to eq(refs)
         expect(result[:retryable]).to be_empty
-        expect(ActiveContext::Logger).to have_received(:retryable_exception)
+
+        expect(ActiveContext::Logger).to have_received(:retryable_exception).with(
+          instance_of(StandardError),
+          class_name: 'Class',
+          queue_name: nil,
+          preprocessor: nil,
+          infinite_retry: false,
+          refs: ['ref:1', 'ref:2']
+        )
+      end
+
+      context 'when queue_name and preprocessor are specified' do
+        it 'includes queue_name and preprocessor in the logged exception' do
+          test_ref_class.with_batch_handling(refs, queue_name: 'test_queue', preprocessor: 'test_preprocessor') do
+            raise StandardError, "some error"
+          end
+
+          expect(ActiveContext::Logger).to have_received(:retryable_exception).with(
+            instance_of(StandardError),
+            class_name: 'Class',
+            queue_name: 'test_queue',
+            preprocessor: 'test_preprocessor',
+            infinite_retry: false,
+            refs: ['ref:1', 'ref:2']
+          )
+        end
       end
     end
 
@@ -203,7 +228,15 @@ RSpec.describe ActiveContext::Concerns::Preprocessor do
         expect(result[:successful]).to be_empty
         expect(result[:failed]).to be_empty
         expect(result[:retryable]).to eq(refs)
-        expect(ActiveContext::Logger).to have_received(:retryable_exception)
+
+        expect(ActiveContext::Logger).to have_received(:retryable_exception).with(
+          instance_of(custom_error),
+          class_name: 'Class',
+          queue_name: nil,
+          preprocessor: nil,
+          infinite_retry: true,
+          refs: ['ref:1', 'ref:2']
+        )
       end
     end
 
@@ -268,6 +301,170 @@ RSpec.describe ActiveContext::Concerns::Preprocessor do
         expect(result[:successful]).to be_empty
         expect(result[:failed]).to be_empty
         expect(result[:retryable]).to be_empty
+      end
+    end
+  end
+
+  describe '.with_per_ref_handling' do
+    let(:ref1) { double('ref1', serialize: 'ref:1', identifier: 'id:1') }
+    let(:ref2) { double('ref2', serialize: 'ref:2', identifier: 'id:2') }
+    let(:ref3) { double('ref3', serialize: 'ref:3', identifier: 'id:3') }
+    let(:refs) { [ref1, ref2, ref3] }
+
+    before do
+      allow(ActiveContext::Logger).to receive(:retryable_exception)
+      allow(ActiveContext::Logger).to receive(:skippable_exception)
+    end
+
+    context 'when block succeeds for all refs' do
+      it 'returns all refs as successful' do
+        result = test_ref_class.with_per_ref_handling(refs) do |ref|
+          # success
+        end
+
+        expect(result[:successful]).to eq(refs)
+        expect(result[:failed]).to be_empty
+      end
+    end
+
+    context 'when block raises StandardError for some refs' do
+      it 'returns failed refs and successful refs' do
+        result = test_ref_class.with_per_ref_handling(refs) do |ref|
+          raise StandardError, "error" if [ref2, ref3].include?(ref)
+        end
+
+        expect(result[:successful]).to eq([ref1])
+        expect(result[:failed]).to eq([ref2, ref3])
+
+        expect(ActiveContext::Logger).to have_received(:retryable_exception).with(
+          instance_of(StandardError),
+          class_name: 'Class',
+          queue_name: nil,
+          preprocessor: nil,
+          infinite_retry: false,
+          reference: 'ref:2',
+          reference_id: 'id:2'
+        ).ordered
+
+        expect(ActiveContext::Logger).to have_received(:retryable_exception).with(
+          instance_of(StandardError),
+          class_name: 'Class',
+          queue_name: nil,
+          preprocessor: nil,
+          infinite_retry: false,
+          reference: 'ref:3',
+          reference_id: 'id:3'
+        ).ordered
+      end
+
+      context 'when queue_name and preprocessor are specified' do
+        it 'includes queue_name in the logged exception' do
+          result = test_ref_class.with_per_ref_handling(
+            refs,
+            queue_name: 'test_queue',
+            preprocessor: 'test_preprocessor') do |ref|
+            raise StandardError, "error" if ref == ref1
+          end
+
+          expect(result[:successful]).to eq([ref2, ref3])
+          expect(result[:failed]).to eq([ref1])
+
+          expect(ActiveContext::Logger).to have_received(:retryable_exception).with(
+            instance_of(StandardError),
+            class_name: 'Class',
+            queue_name: 'test_queue',
+            preprocessor: 'test_preprocessor',
+            infinite_retry: false,
+            reference: 'ref:1',
+            reference_id: 'id:1'
+          )
+        end
+      end
+    end
+
+    context 'when block raises skip error for some refs' do
+      let(:skip_error) { Class.new(StandardError) }
+
+      it 'removes affected refs from the process and logs skippable exception' do
+        result = test_ref_class.with_per_ref_handling(refs, skip_error_types: [skip_error]) do |ref|
+          raise skip_error, "skip this" if ref == ref1
+        end
+
+        expect(result[:successful]).to eq([ref2, ref3])
+        expect(result[:failed]).to be_empty
+
+        expect(ActiveContext::Logger).to have_received(:skippable_exception).with(
+          instance_of(skip_error),
+          class_name: 'Class',
+          queue_name: nil,
+          preprocessor: nil,
+          reference: 'ref:1',
+          reference_id: 'id:1'
+        )
+      end
+
+      context 'when queue_name and preprocessor are specified' do
+        it 'includes queue_name in the logged exception' do
+          result = test_ref_class.with_per_ref_handling(
+            refs,
+            skip_error_types: [skip_error],
+            queue_name: 'test_queue',
+            preprocessor: 'test_preprocessor') do |ref|
+            raise skip_error, "skip this" if ref == ref1
+          end
+
+          expect(result[:successful]).to eq([ref2, ref3])
+          expect(result[:failed]).to be_empty
+
+          expect(ActiveContext::Logger).to have_received(:skippable_exception).with(
+            instance_of(skip_error),
+            class_name: 'Class',
+            queue_name: 'test_queue',
+            preprocessor: 'test_preprocessor',
+            reference: 'ref:1',
+            reference_id: 'id:1'
+          )
+        end
+      end
+    end
+
+    context 'with custom retry_error_types' do
+      let(:custom_error) { Class.new(StandardError) }
+
+      it 'catches only specified error types as failed' do
+        result = test_ref_class.with_per_ref_handling(refs, retry_error_types: [custom_error]) do |ref|
+          raise custom_error, "custom error" if ref == ref1
+        end
+
+        expect(result[:successful]).to eq([ref2, ref3])
+        expect(result[:failed]).to eq([ref1])
+      end
+
+      context 'when there is an error other than the specified type' do
+        def run_per_ref_handling
+          test_ref_class.with_per_ref_handling(refs, retry_error_types: [custom_error]) do |ref|
+            raise custom_error, "custom error" if ref == ref1
+            raise StandardError, "standard error" if ref == ref2
+          end
+        end
+
+        it 'raises an error' do
+          expect { run_per_ref_handling }.to raise_error(StandardError, 'standard error')
+        end
+      end
+    end
+
+    context 'with empty refs' do
+      it 'returns empty result without executing block' do
+        block_executed = false
+
+        result = test_ref_class.with_per_ref_handling([]) do |_ref|
+          block_executed = true
+        end
+
+        expect(block_executed).to be(false)
+        expect(result[:successful]).to be_empty
+        expect(result[:failed]).to be_empty
       end
     end
   end
