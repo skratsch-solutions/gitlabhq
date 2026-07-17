@@ -625,7 +625,6 @@ export default {
         @taskListUpdateStarted="taskListUpdateStarted"
         @taskListUpdateSucceeded="taskListUpdateSucceeded"
         @taskListUpdateFailed="taskListUpdateFailed"
-        @updateDescription="state.descriptionHtml = $event"
       />
 
       <edited-component

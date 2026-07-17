@@ -38,6 +38,44 @@ RSpec.shared_examples 'applications controller - GET #new' do
   end
 end
 
+RSpec.shared_examples 'applications controller - scopes exclude mcp' do
+  it "does not include mcp or mcp_orbit scopes" do
+    perform_scopes_action
+
+    expect(assigns[:scopes].map(&:to_s)).not_to include('mcp', 'mcp_orbit')
+  end
+end
+
+RSpec.shared_examples 'admin applications controller - scopes include mcp' do
+  it "sets `@scopes` to list of all scopes that should be shown, including mcp scopes" do
+    perform_admin_scopes_action
+
+    expect(assigns[:scopes]).to match_array(%w[
+      admin_mode
+      ai_features
+      api
+      create_runner
+      email
+      k8s_proxy
+      manage_runner
+      mcp
+      mcp_orbit
+      openid
+      profile
+      read_api
+      read_observability
+      read_repository
+      read_service_ping
+      read_user
+      read_virtual_registry
+      sudo
+      write_observability
+      write_repository
+      write_virtual_registry
+    ])
+  end
+end
+
 RSpec.shared_examples 'applications controller - POST #create' do
   it "sets `@created` instance variable to `true`" do
     create_application

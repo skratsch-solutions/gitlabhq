@@ -670,6 +670,75 @@ RSpec.describe Issue, feature_category: :team_planning do
       expect(project.issues.order_by_relative_position)
         .to match [issue3, issue4, issue1, issue2]
     end
+
+    # Reads come from `work_item_positions.relative_position` (step 5 of the
+    # work_item_positions cutover, see
+    # https://gitlab.com/gitlab-org/gitlab/-/work_items/594236). The forward
+    # trigger populates `work_item_positions` when `issues.relative_position`
+    # is written, so ordering must reflect the value stored on the new table.
+    it 'left-joins work_item_positions and orders by its relative_position' do
+      sql = project.issues.order_by_relative_position.to_sql
+
+      expect(sql).to include('LEFT OUTER JOIN "work_item_positions"')
+      expect(sql).to include('ORDER BY "work_item_positions"."relative_position" ASC NULLS LAST')
+    end
+
+    it 'reflects updates that only landed in work_item_positions' do
+      # Simulate the future write path: bypass the issues column entirely and
+      # update only the new table. With reads on `work_item_positions`, the
+      # ordering must follow the new value.
+      issue4.work_item_position.update_column(:relative_position, -300)
+
+      expect(project.issues.order_by_relative_position)
+        .to match [issue4, issue3, issue1, issue2]
+    end
+
+    context 'when read_relative_positions_from_work_item_positions is disabled' do
+      before do
+        stub_feature_flags(read_relative_positions_from_work_item_positions: false)
+      end
+
+      it 'orders by issues.relative_position without joining work_item_positions' do
+        sql = project.issues.order_by_relative_position.to_sql
+
+        expect(sql).not_to include('work_item_positions')
+        expect(sql).to include('ORDER BY "issues"."relative_position" ASC NULLS LAST')
+      end
+
+      it 'still returns the ordered list' do
+        expect(project.issues.order_by_relative_position)
+          .to match [issue3, issue4, issue1, issue2]
+      end
+    end
+  end
+
+  describe '.with_null_relative_position / .with_non_null_relative_position' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:positioned)   { create(:issue, project: project, relative_position: 10) }
+    let_it_be(:unpositioned) { create(:issue, project: project, relative_position: nil) }
+
+    it 'returns issues without a paired work_item_positions row as null', :aggregate_failures do
+      expect(described_class.with_null_relative_position).to include(unpositioned)
+      expect(described_class.with_null_relative_position).not_to include(positioned)
+    end
+
+    it 'returns issues with a populated work_item_positions row as non-null', :aggregate_failures do
+      expect(described_class.with_non_null_relative_position).to include(positioned)
+      expect(described_class.with_non_null_relative_position).not_to include(unpositioned)
+    end
+
+    context 'when read_relative_positions_from_work_item_positions is disabled' do
+      before do
+        stub_feature_flags(read_relative_positions_from_work_item_positions: false)
+      end
+
+      it 'filters on issues.relative_position instead of work_item_positions', :aggregate_failures do
+        expect(described_class.with_null_relative_position).to include(unpositioned)
+        expect(described_class.with_null_relative_position).not_to include(positioned)
+        expect(described_class.with_non_null_relative_position).to include(positioned)
+        expect(described_class.with_null_relative_position.to_sql).not_to include('work_item_positions')
+      end
+    end
   end
 
   context 'order by escalation status' do
@@ -1595,6 +1664,64 @@ RSpec.describe Issue, feature_category: :team_planning do
 
         expect(scope).to include(project_issue, subgroup_project_issue)
         expect(scope).not_to include(other_group_issue)
+      end
+
+      context 'when read_relative_positions_from_work_item_positions is enabled' do
+        it 'joins work_item_positions while keeping the namespace scope' do
+          sql = described_class.relative_positioning_query_base(project_issue).to_sql
+
+          expect(sql).to include('INNER JOIN "work_item_positions"')
+          expect(sql).to include('"issues"."namespace_id" IN')
+        end
+      end
+
+      context 'when read_relative_positions_from_work_item_positions is disabled' do
+        before do
+          stub_feature_flags(read_relative_positions_from_work_item_positions: false)
+        end
+
+        it 'does not join work_item_positions' do
+          sql = described_class.relative_positioning_query_base(project_issue).to_sql
+
+          expect(sql).not_to include('work_item_positions')
+          expect(sql).to include('"issues"."namespace_id" IN')
+        end
+
+        it 'still scopes to the root namespace hierarchy' do
+          scope = described_class.relative_positioning_query_base(project_issue)
+
+          expect(scope).to include(project_issue, subgroup_project_issue)
+          expect(scope).not_to include(other_group_issue)
+        end
+      end
+    end
+
+    describe '.relative_positioning_column' do
+      let_it_be(:issue) { create(:issue, project: project, relative_position: 100) }
+
+      context 'when read_relative_positions_from_work_item_positions is enabled' do
+        it 'resolves to the joined work_item_positions.relative_position column' do
+          expect(described_class.relative_positioning_column(issue))
+            .to eq(WorkItems::Position.arel_table[:relative_position])
+        end
+      end
+
+      context 'when read_relative_positions_from_work_item_positions is disabled' do
+        before do
+          stub_feature_flags(read_relative_positions_from_work_item_positions: false)
+        end
+
+        it 'resolves to issues.relative_position' do
+          expect(described_class.relative_positioning_column(issue))
+            .to eq(described_class.arel_table[:relative_position])
+        end
+      end
+
+      it 'resolves to issues.relative_position when called without an object' do
+        stub_feature_flags(read_relative_positions_from_work_item_positions: false)
+
+        expect(described_class.relative_positioning_column)
+          .to eq(described_class.arel_table[:relative_position])
       end
     end
   end

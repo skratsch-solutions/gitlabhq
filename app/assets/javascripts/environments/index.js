@@ -16,7 +16,6 @@ export default (el) => {
       newEnvironmentPath,
       helpPagePath,
       projectPath,
-      defaultBranchName,
       projectId,
     } = el.dataset;
 
@@ -26,8 +25,6 @@ export default (el) => {
       apolloProvider: apolloProvider(endpoint),
       provide: {
         projectPath,
-        defaultBranchName,
-        endpoint,
         newEnvironmentPath,
         helpPagePath,
         projectId,

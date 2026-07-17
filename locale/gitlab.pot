@@ -92507,6 +92507,12 @@ msgstr ""
 msgid "created by"
 msgstr ""
 
+msgid "created merge request %{mergeRequestLink}"
+msgstr ""
+
+msgid "created merge request %{mergeRequestLink} at %{projectLink}"
+msgstr ""
+
 msgid "custom_roles licensed feature must be available"
 msgstr ""
 

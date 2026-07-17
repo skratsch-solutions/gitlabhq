@@ -2,6 +2,7 @@
 
 class Admin::ApplicationsController < Admin::ApplicationController
   include OauthApplications
+  extend ::Gitlab::Utils::Override
 
   before_action :set_application, only: [:show, :edit, :update, :renew, :destroy]
   before_action :load_scopes, only: [:new, :create, :edit, :update]
@@ -89,5 +90,10 @@ class Admin::ApplicationsController < Admin::ApplicationController
 
   def applications_finder_params
     params.permit(:id)
+  end
+
+  override :excluded_scopes
+  def excluded_scopes
+    super - [::Gitlab::Auth::MCP_SCOPE.to_s, ::Gitlab::Auth::MCP_ORBIT_SCOPE.to_s]
   end
 end

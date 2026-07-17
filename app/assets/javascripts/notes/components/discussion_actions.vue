@@ -55,7 +55,7 @@ export default {
       default: false,
     },
   },
-  emits: ['resolve', 'showReplyForm'],
+  emits: ['resolve', 'show-reply-form'],
   data() {
     return {
       isDuoLoading: false,
@@ -87,7 +87,7 @@ export default {
   <div class="gl-flex gl-flex-wrap gl-gap-4" data-testid="discussion-with-resolve-btn">
     <discussion-reply-placeholder
       class="!gl-mb-0 gl-min-w-0 gl-flex-1 gl-basis-full @sm/panel:gl-basis-0"
-      @focus="$emit('showReplyForm')"
+      @focus="$emit('show-reply-form')"
     />
 
     <div v-if="userCanResolveDiscussion" class="btn-group gl-w-auto gl-min-w-0" role="group">

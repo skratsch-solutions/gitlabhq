@@ -36,6 +36,10 @@ module RelativePositioning
   include ::Gitlab::RelativePositioning
 
   class_methods do
+    def relative_positioning_column(_object = nil)
+      arel_table[:relative_position]
+    end
+
     def relative_positioning_min_position
       ::Gitlab::RelativePositioning::MIN_POSITION
     end

@@ -393,7 +393,7 @@ export default {
                     :can-resolve-discussions-with-ai="
                       getNoteableData.can_resolve_discussions_with_ai
                     "
-                    @showReplyForm="showReplyForm"
+                    @show-reply-form="showReplyForm"
                     @resolve="resolveHandler"
                   />
                   <note-form

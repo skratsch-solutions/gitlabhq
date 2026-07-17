@@ -57,7 +57,7 @@ export default {
       default: false,
     },
   },
-  emits: ['deleteNote', 'start-replying'],
+  emits: ['delete-note', 'start-replying'],
   computed: {
     ...mapState(useNotes, ['userCanReply']),
     hasReplies() {
@@ -147,7 +147,7 @@ export default {
           :is-overview-tab="isOverviewTab"
           :internal-note="isDiscussionInternal"
           :class="{ '!gl-border-t-0': isFileDiscussion }"
-          @handleDeleteNote="$emit('deleteNote')"
+          @handleDeleteNote="$emit('delete-note')"
           @start-replying="$emit('start-replying')"
         >
           <template #discussion-resolved-text>
@@ -182,7 +182,7 @@ export default {
               :help-page-path="helpPagePath"
               :line="line"
               :internal-note="isDiscussionInternal"
-              @handleDeleteNote="$emit('deleteNote')"
+              @handleDeleteNote="$emit('delete-note')"
             />
           </template>
           <slot :show-replies="isExpanded || !hasReplies" name="footer"></slot>
@@ -201,7 +201,7 @@ export default {
           :discussion-resolve-path="discussion.resolve_path"
           :is-overview-tab="isOverviewTab"
           :internal-note="isDiscussionInternal"
-          @handleDeleteNote="$emit('deleteNote')"
+          @handleDeleteNote="$emit('delete-note')"
         >
           <template #avatar-badge>
             <slot v-if="index === 0" name="avatar-badge"></slot>

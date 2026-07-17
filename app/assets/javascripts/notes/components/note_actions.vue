@@ -160,7 +160,7 @@ export default {
       default: '',
     },
   },
-  emits: ['handleDelete', 'handleEdit', 'handleResolve', 'start-replying', 'updateAssignees'],
+  emits: ['handle-delete', 'handleEdit', 'handle-resolve', 'start-replying', 'update-assignees'],
   data() {
     return {
       isReportAbuseDrawerOpen: false,
@@ -280,10 +280,10 @@ export default {
       this.$emit('handleEdit');
     },
     onDelete() {
-      this.$emit('handleDelete');
+      this.$emit('handle-delete');
     },
     onResolve() {
-      this.$emit('handleResolve');
+      this.$emit('handle-resolve');
     },
     onAbuse() {
       this.toggleReportAbuseDrawer(true);
@@ -314,7 +314,7 @@ export default {
       this.$toast.show(__('Link copied to clipboard.'));
     },
     handleAssigneeUpdate(assignees) {
-      this.$emit('updateAssignees', assignees);
+      this.$emit('update-assignees', assignees);
     },
     assignUser() {
       let { assignees } = this;

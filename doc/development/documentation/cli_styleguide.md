@@ -320,7 +320,7 @@ For deprecation guidance, see [deprecated environment variables](#deprecated-env
 
 ## Deprecations
 
-Use the following guidance when deprecating flags or environment variables in `glab`.
+Use the following guidance when deprecating flags, commands, or environment variables in `glab`.
 
 ### Deprecated flags
 
@@ -345,6 +345,31 @@ Avoid time-relative words like `now` or [`currently`](styleguide/word_list.md#cu
 
 This convention parallels the [REST API deprecation guidance](restful_api_styleguide.md#deprecations),
 adapted for Cobra's wrapper.
+
+### Deprecated commands
+
+To deprecate a command, set the `Deprecated` field on its `cobra.Command` to a message that names the replacement.
+Cobra prepends a fixed prefix to your message:
+
+```plaintext
+Command "<command>" is deprecated, <your message>
+```
+
+As with [deprecated flags](#deprecated-flags), start your message as a sentence continuation
+with a lowercase first letter and end with a period.
+When the command has a direct replacement, name it.
+For example, ``use `glab mr create --related-issue <issueID>`.`` produces:
+
+```plaintext
+Command "for" is deprecated, use `glab mr create --related-issue <issueID>`.
+```
+
+Cobra prints this message in the CLI when a user runs the command, so they see the migration path in context.
+Do not add a separate deprecation notice to the documentation.
+Deprecated commands are treated like hidden commands and are excluded from the generated pages.
+When you run `make gen-docs`, the command's page is pruned and it no longer appears in the
+navigation or in parent command listings.
+Commit the deleted page with your merge request.
 
 ### Deprecated environment variables
 

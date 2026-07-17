@@ -530,10 +530,10 @@ export default {
           :discussion-id="discussionId"
           :award-path="note.toggle_award_path"
           @handleEdit="editHandler"
-          @handleDelete="deleteHandler"
-          @handleResolve="resolveHandler"
+          @handle-delete="deleteHandler"
+          @handle-resolve="resolveHandler"
           @start-replying="$emit('start-replying')"
-          @updateAssignees="assigneesUpdate"
+          @update-assignees="assigneesUpdate"
         />
       </div>
       <div class="timeline-discussion-body">
