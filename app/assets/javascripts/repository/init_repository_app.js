@@ -10,15 +10,12 @@ export default function initRepositoryApp(router, options = {}) {
     blobPath,
     projectPath,
     refType,
-    targetBranch,
     originalBranch,
     resourceId,
-    userId,
     explainCodeAvailable,
     canDownloadCode,
     hasRevsFile,
     highlightWorker,
-    webIdeLinkData: { newWorkspacePath } = {},
   } = options;
 
   if (!viewBlobEl || !blobPath || !projectPath || !highlightWorker) return null;
@@ -31,14 +28,11 @@ export default function initRepositoryApp(router, options = {}) {
     apolloProvider,
     provide: {
       highlightWorker,
-      targetBranch,
       originalBranch,
       resourceId,
-      userId,
       explainCodeAvailable: parseBoolean(explainCodeAvailable),
       canDownloadCode: parseBoolean(canDownloadCode),
       hasRevsFile: parseBoolean(hasRevsFile),
-      newWorkspacePath,
     },
     render(createElement) {
       return createElement(RepositoryApp, {

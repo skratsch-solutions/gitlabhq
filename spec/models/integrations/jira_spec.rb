@@ -1253,6 +1253,71 @@ RSpec.describe Integrations::Jira, feature_category: :integrations do
             expect(WebMock).not_to have_requested(:post, comment_url)
           end
         end
+
+        context 'when Jira rejects the remote link with HTTP 413' do
+          let(:remote_link_path) { '/rest/api/2/issue/JIRA-123/remotelink' }
+          let(:error_response_body) do
+            '{"errorMessages":["REMOTE_ISSUE_LINKS_PER_ISSUE_LIMIT_EXCEEDED: 2000"],"errors":{}}'
+          end
+
+          before do
+            WebMock.stub_request(:post, remote_link_url).with(basic_auth: [username, password])
+              .to_raise(JIRA::HTTPError.new(
+                double(message: 'Request Entity Too Large', code: '413', body: error_response_body)
+              ))
+          end
+
+          it 'creates the comment but skips the remote link, logs it, and does not raise', :aggregate_failures do
+            expect(jira_integration).to receive(:log_error).with(
+              'Skipped creating remote link: per-issue remote link limit exceeded',
+              client_url: url,
+              client_path: remote_link_path,
+              client_status: '413'
+            )
+
+            result = nil
+            expect { result = subject }.not_to raise_error
+
+            expect(result).to be_nil
+            expect(WebMock).to have_requested(:post, comment_url).once
+          end
+        end
+
+        context 'when Jira returns HTTP 413 for a reason other than the remote link limit' do
+          before do
+            WebMock.stub_request(:post, remote_link_url).with(basic_auth: [username, password])
+              .to_raise(JIRA::HTTPError.new(
+                double(message: 'Request Entity Too Large', code: '413', body: '{"errorMessages":["Payload too large"]}')
+              ))
+          end
+
+          it 'does not swallow the error and logs it via jira_request' do
+            expect(jira_integration).to receive(:log_exception).with(
+              kind_of(JIRA::HTTPError),
+              hash_including(message: 'Error sending message')
+            )
+
+            expect { subject }.not_to raise_error
+          end
+        end
+
+        context 'when Jira rejects the remote link with a non-413 HTTP error' do
+          before do
+            WebMock.stub_request(:post, remote_link_url).with(basic_auth: [username, password])
+              .to_raise(JIRA::HTTPError.new(
+                double(message: 'Internal Server Error', code: '500', body: 'error')
+              ))
+          end
+
+          it 'does not swallow the error and logs it via jira_request' do
+            expect(jira_integration).to receive(:log_exception).with(
+              kind_of(JIRA::HTTPError),
+              hash_including(message: 'Error sending message')
+            )
+
+            expect { subject }.not_to raise_error
+          end
+        end
       end
 
       context 'when disabled' do

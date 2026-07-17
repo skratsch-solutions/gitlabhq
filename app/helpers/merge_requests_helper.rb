@@ -669,14 +669,6 @@ module MergeRequestsHelper
     }
   end
 
-  def dashboard_list_title(list_id)
-    merge_request_dashboard_data[:tabs]
-      .flat_map { |tab| tab[:lists] }
-      .flatten
-      .find { |list| list[:id] == list_id }
-      &.dig(:title) || ''
-  end
-
   def duo_code_review_bot_username(user)
     strong_memoize_with(:duo_code_review_bot_username, user) do
       ::Users::Internal.in_organization(user.organization_id).duo_code_review_bot.username

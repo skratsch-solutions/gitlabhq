@@ -336,6 +336,34 @@ on both on GitLab.com and GitLab Self-Managed instances prior to removal.
 - For partitioned tables, only the parent index can be dropped. PostgreSQL does not permit child indexes
   (i.e. the corresponding indexes on its partitions) to be independently removed.
 
+### Automated detection and removal
+
+The [`CleanupUnusedIndexes` keep](https://gitlab.com/gitlab-org/gitlab/-/blob/master/keeps/cleanup_unused_indexes.rb)
+runs on a schedule through [`gitlab-housekeeper`](https://gitlab.com/gitlab-org/gitlab/-/tree/master/gems/gitlab-housekeeper)
+and automates the first steps of this process.
+The keep does the following:
+
+- Finds non-unique indexes with no recorded scans on GitLab.com, based on the
+  `pg_stat_user_indexes_idx_scan` metric.
+- Skips indexes that support a foreign key and indexes on the
+  [keep list](https://gitlab.com/gitlab-org/gitlab/-/blob/master/keeps/cleanup_unused_indexes/index_keep_list.yml).
+- Opens a merge request, labeled `automation:cleanup-unused-indexes`, with a post-deployment
+  migration that removes the index.
+- Requests review from an engineer on the team that owns the affected table, based on the table's
+  `db/docs` dictionary entry, and falls back to a database team member when it cannot find one.
+
+A merge request from this automation is a removal proposal, not a final verdict.
+The zero-scan signal covers a short window on GitLab.com only, so you must still complete the
+checks in [Verifying that an index is unused](#verifying-that-an-index-is-unused).
+In particular, confirm that the index is not needed by GitLab Self-Managed or GitLab Dedicated
+instances and is not used by infrequent processes such as periodic cron jobs.
+Each merge request includes this checklist along with a Grafana link to inspect usage over the
+past six months.
+
+If your team receives one of these merge requests and the index must stay, add the index to the
+[keep list](https://gitlab.com/gitlab-org/gitlab/-/blob/master/keeps/cleanup_unused_indexes/index_keep_list.yml) and close the merge request.
+The keep does not propose to remove an index on that list again.
+
 ### Finding possible unused indexes
 
 To see which indexes are candidates for removal, you can run the following query:

@@ -18,10 +18,7 @@ export default () => {
     assignedMergeRequestsPath,
     assignedWorkItemsPath,
     authoredWorkItemsPath,
-    preferencesPath,
     duoCodeReviewBotUsername,
-    mergeRequestsReviewRequestedTitle,
-    mergeRequestsYourMergeRequestsTitle,
     lastPushEvent,
   } = el.dataset;
 
@@ -32,10 +29,7 @@ export default () => {
     el,
     name: 'HomepageAppRoot',
     provide: {
-      preferencesPath,
       duoCodeReviewBotUsername,
-      mergeRequestsReviewRequestedTitle,
-      mergeRequestsYourMergeRequestsTitle,
     },
     apolloProvider: new VueApollo({
       defaultClient: createDefaultClient(),

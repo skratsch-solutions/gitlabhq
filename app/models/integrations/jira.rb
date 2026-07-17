@@ -647,10 +647,23 @@ module Integrations
 
         create_issue_comment(issue, message) unless remote_link
         remote_link ||= issue.remotelink.build
-        remote_link.save!(remote_link_props)
 
-        log_info("Successfully posted", client_url: client_url, client_path: path)
-        "SUCCESS: Successfully posted to #{client_url}."
+        begin
+          remote_link.save!(remote_link_props)
+
+          log_info("Successfully posted", client_url: client_url, client_path: path)
+          "SUCCESS: Successfully posted to #{client_url}."
+        rescue JIRA::HTTPError => e
+          # https://developer.atlassian.com/changelog/#CHANGE-1133
+          remote_link_limit_exceeded = e.code.to_i == 413 &&
+            e.response.body.to_s.include?('REMOTE_ISSUE_LINKS_PER_ISSUE_LIMIT_EXCEEDED')
+
+          raise unless remote_link_limit_exceeded
+
+          log_error("Skipped creating remote link: per-issue remote link limit exceeded",
+            client_url: client_url, client_path: path, client_status: e.code)
+          nil
+        end
       end
     end
 

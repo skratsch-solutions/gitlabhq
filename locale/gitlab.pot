@@ -22812,6 +22812,9 @@ msgstr ""
 msgid "ContinuousDeployment|Services in this release"
 msgstr ""
 
+msgid "ContinuousDeployment|Show %{size} items"
+msgstr ""
+
 msgid "ContinuousDeployment|Source"
 msgstr ""
 

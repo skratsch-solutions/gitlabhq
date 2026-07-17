@@ -66,8 +66,6 @@ describe('Homepage index', () => {
         data-assigned-work-items-path="/assigned/work-items"
         data-authored-work-items-path="/authored/work-items"
         data-duo-code-review-bot-username="GitLabDuo"
-        data-merge-requests-review-requested-title="Review Requested"
-        data-merge-requests-your-merge-requests-title="Your Merge Requests"
         data-last-push-event='{"branch_name": "feature-branch", "project": {"name": "Test Project", "web_url": "/test-project"}, "created_at": "2023-01-01T00:00:00Z", "create_mr_path": "/create-mr"}'
       ></div>
     `);
@@ -91,8 +89,6 @@ describe('Homepage index', () => {
           el: mockElement,
           provide: {
             duoCodeReviewBotUsername: 'GitLabDuo',
-            mergeRequestsReviewRequestedTitle: 'Review Requested',
-            mergeRequestsYourMergeRequestsTitle: 'Your Merge Requests',
           },
           apolloProvider: expect.objectContaining({ mockVueApolloInstance: true }),
           render: expect.any(Function),
@@ -199,8 +195,6 @@ describe('Homepage index', () => {
           data-assigned-work-items-path="/assigned/work-items"
           data-authored-work-items-path="/authored/work-items"
           data-duo-code-review-bot-username="GitLabDuo"
-          data-merge-requests-review-requested-title="Review Requested"
-          data-merge-requests-your-merge-requests-title="Your Merge Requests"
           data-last-push-event="invalid-json"
         ></div>
       `);

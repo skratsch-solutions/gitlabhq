@@ -115,6 +115,7 @@ describe('Snippet header component', () => {
   const findSpamIcon = () => wrapper.findByTestId('snippets-spam-icon');
   const findCodeDropdown = () => wrapper.findComponent(CloneCodeDropdown);
   const findImportedBadge = () => wrapper.findComponent(ImportedBadge);
+  const findTitle = () => wrapper.findByTestId('snippet-title-content');
 
   const webUrl = 'http://foo.bar';
   const dummyHTTPUrl = webUrl;
@@ -126,6 +127,7 @@ describe('Snippet header component', () => {
     snippet = {
       id: 'gid://gitlab/PersonalSnippet/50',
       title,
+      titleHtml: title,
       visibilityLevel: 'private',
       webUrl: 'http://personal.dev.null/42',
       userPermissions: {
@@ -160,6 +162,24 @@ describe('Snippet header component', () => {
     createComponent();
 
     expect(wrapper.text().trim()).toContain(title);
+  });
+
+  it('renders inline markup in the title', () => {
+    snippet.titleHtml = 'hello <code>friend</code>';
+    createComponent();
+
+    expect(findTitle().find('code').exists()).toBe(true);
+    expect(findTitle().find('code').text()).toBe('friend');
+  });
+
+  it('sanitises unsafe HTML in the title', () => {
+    // The backend is not expected to ever send this; this prevents v-safe-html
+    // being removed/replaced with something weaker.
+    snippet.titleHtml = "<script>alert(1)</script><span\nonclick='alert(1)'>friend";
+    createComponent();
+
+    expect(findTitle().find('script').exists()).toBe(false);
+    expect(findTitle().find('[onclick]').exists()).toBe(false);
   });
 
   it('does not render spam icon when author is not banned', () => {

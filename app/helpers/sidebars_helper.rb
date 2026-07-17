@@ -119,12 +119,9 @@ module SidebarsHelper
     if project&.persisted?
       return {
         full_path: project.full_path,
-        has_issuable_health_status_feature: project.licensed_feature_available?(:issuable_health_status).to_s,
         issues_list_path: project_issues_path(project),
         labels_manage_path: project_labels_path(project),
-        can_admin_label: can?(current_user, :admin_label, project).to_s,
-        has_issue_weights_feature: project.licensed_feature_available?(:issue_weights).to_s,
-        has_iterations_feature: project.licensed_feature_available?(:iterations).to_s
+        can_admin_label: can?(current_user, :admin_label, project).to_s
       }
     end
 
@@ -132,11 +129,9 @@ module SidebarsHelper
 
     {
       full_path: group.full_path,
-      has_issuable_health_status_feature: group.licensed_feature_available?(:issuable_health_status).to_s,
       issues_list_path: issues_group_path(group),
       labels_manage_path: group_labels_path(group),
-      can_admin_label: can?(current_user, :admin_label, group).to_s,
-      has_issue_weights_feature: group.licensed_feature_available?(:issue_weights).to_s
+      can_admin_label: can?(current_user, :admin_label, group).to_s
     }
   end
 

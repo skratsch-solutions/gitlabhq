@@ -22,6 +22,7 @@ import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import { createAlert, VARIANT_DANGER, VARIANT_SUCCESS } from '~/alert';
 import { VISIBILITY_LEVEL_PUBLIC_STRING } from '~/visibility_level/constants';
 import ImportedBadge from '~/vue_shared/components/imported_badge.vue';
+import SafeHtml from '~/vue_shared/directives/safe_html';
 import DeleteSnippetMutation from '../mutations/delete_snippet.mutation.graphql';
 
 export const i18n = {
@@ -52,6 +53,7 @@ export default {
   },
   directives: {
     GlTooltip: GlTooltipDirective,
+    SafeHtml,
   },
   apollo: {
     canCreateSnippet: {
@@ -275,7 +277,7 @@ export default {
         class="!gl-m-0 gl-w-full gl-grow gl-text-size-h-display"
         data-testid="snippet-title-content"
       >
-        {{ snippet.title }}
+        <span v-safe-html="snippet.titleHtml"></span>
       </h1>
 
       <div

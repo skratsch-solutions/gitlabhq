@@ -146,8 +146,6 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
       expect(context_with_group_id).to include({
         work_items: {
           full_path: group_with_id.full_path,
-          has_issuable_health_status_feature: "false",
-          has_issue_weights_feature: "false",
           issues_list_path: issues_group_path(group_with_id),
           labels_manage_path: group_labels_path(group_with_id),
           can_admin_label: "true"

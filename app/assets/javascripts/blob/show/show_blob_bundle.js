@@ -1,4 +1,3 @@
-import { provideWebIdeLink } from 'ee_else_ce/pages/projects/shared/web_ide_link/provide_web_ide_link';
 import { BlobViewer, initAuxiliaryViewer } from '~/blob/viewer/index';
 import GpgBadges from '~/gpg_badges';
 import initBlob from '~/pages/projects/init_blob';
@@ -38,17 +37,14 @@ export default function initBlobShow() {
     const {
       blobPath,
       projectPath,
-      targetBranch,
       originalBranch,
       resourceId,
-      userId,
       explainCodeAvailable,
       refType,
       escapedRef,
       canDownloadCode,
       fullName,
       hasRevsFile,
-      ...dataset
     } = viewBlobEl.dataset;
 
     // Initialize Apollo cache with critical GraphQL queries
@@ -69,15 +65,12 @@ export default function initBlobShow() {
       blobPath,
       projectPath,
       refType,
-      targetBranch,
       originalBranch,
       resourceId,
-      userId,
       explainCodeAvailable,
       canDownloadCode,
       hasRevsFile,
       highlightWorker: new HighlightWorker(),
-      webIdeLinkData: provideWebIdeLink(dataset),
     };
 
     const router = createRouter(projectPath, originalBranch, fullName);
