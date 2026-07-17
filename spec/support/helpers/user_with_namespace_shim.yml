@@ -516,7 +516,6 @@
 - spec/features/projects/tree/tree_show_spec.rb
 - spec/features/projects/user_creates_project_spec.rb
 - spec/features/projects/user_sees_sidebar_spec.rb
-- spec/features/projects/user_sees_user_popover_spec.rb
 - spec/features/projects/user_uses_shortcuts_spec.rb
 - spec/features/projects/wiki/user_views_wiki_empty_spec.rb
 - spec/features/projects/wiki_spec.rb

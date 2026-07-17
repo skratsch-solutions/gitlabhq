@@ -44,7 +44,7 @@ export const mockGroupsResponse = {
   },
 };
 
-export const mockGroupsPage2 = [
+const mockGroupsPage2 = [
   {
     id: 'gid://glab/Group/4',
     fullName: 'Comet',

@@ -1,6 +1,6 @@
 ---
-source_checksum: fdddf765995a1dff
-distilled_at_sha: 9eb89263152259e883603c908db1e1cea6a1a74e
+source_checksum: 87cff74ae8d8aa47
+distilled_at_sha: a12edd3cd641812cf27868b59ce605d439d981b5
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -60,8 +60,7 @@ distilled_at_sha: 9eb89263152259e883603c908db1e1cea6a1a74e
 - Any `<a>` tags created with HTML must use absolute URLs as `href` attributes.
 - Use inline links, not reference-style links.
 - Split long lines at approximately 100 characters; DO NOT split links across lines.
-- Start each new sentence on a new line.
-- Use `<!-- comment -->` HTML comments for author notes; DO NOT use comments to hide documentation.
+- Use `<!-- -->` HTML comments for author notes; DO NOT use comments to hide documentation.
 
 ### Text Formatting
 

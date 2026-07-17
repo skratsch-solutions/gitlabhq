@@ -217,19 +217,6 @@ export const mockPermissionsMutationResponse = ({
   },
 });
 
-export const mockAuthLogsCountResponse = (count) => ({
-  data: {
-    project: {
-      id: 'gid://gitlab/Project/26',
-      __typename: 'Project',
-      ciJobTokenAuthLogs: {
-        __typename: 'CiJobTokenAuthLogConnection',
-        count,
-      },
-    },
-  },
-});
-
 export const mockCiJobTokenScopeAllowlistResponse = () => ({
   data: {
     project: {

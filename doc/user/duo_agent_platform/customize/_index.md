@@ -1,6 +1,6 @@
 ---
-stage: AI-powered
-group: Duo Chat
+stage: Agent Foundations
+group: Agent Execution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 description: Customize GitLab Duo Agent Platform behavior to match your workflow, coding standards, and project requirements.
 title: Customize GitLab Duo Agent Platform

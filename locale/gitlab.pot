@@ -27772,10 +27772,13 @@ msgstr ""
 msgid "DeviceAuth|Confirm"
 msgstr ""
 
-msgid "DeviceAuth|Please make sure that you intended to authorize this device."
+msgid "DeviceAuth|Device code"
 msgstr ""
 
-msgid "DeviceAuth|Scopes associated with this request:"
+msgid "DeviceAuth|Enter the code shown on your device to grant it access to your GitLab account."
+msgstr ""
+
+msgid "DeviceAuth|Please make sure that you intended to authorize this device."
 msgstr ""
 
 msgid "DeviceAuth|You are an administrator, which means authorizing access will allow it to interact with GitLab as an administrator as well."

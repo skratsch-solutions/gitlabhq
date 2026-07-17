@@ -16756,9 +16756,11 @@ CREATE TABLE cd_version_sets (
     name text NOT NULL,
     entries_digest text,
     organization_id bigint,
+    description text,
     CONSTRAINT check_093aa0099e CHECK ((char_length(entries_digest) <= 64)),
     CONSTRAINT check_141e70e0e2 CHECK ((char_length(name) <= 255)),
-    CONSTRAINT check_703e061dd2 CHECK ((organization_id IS NOT NULL))
+    CONSTRAINT check_703e061dd2 CHECK ((organization_id IS NOT NULL)),
+    CONSTRAINT check_d5a6b29f4a CHECK ((char_length(description) <= 2000))
 );
 
 CREATE SEQUENCE cd_version_sets_id_seq

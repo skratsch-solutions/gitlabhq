@@ -38,7 +38,6 @@ export default () => {
   const vm = new Vue({
     el: '#js-vue-mr-widget',
     provide: {
-      falsePositiveDocUrl: gl.mrWidgetData.false_positive_doc_url,
       canViewFalsePositive: parseBoolean(gl.mrWidgetData.can_view_false_positive),
       canCreatePipelineInTargetProject: parseBoolean(
         gl.mrWidgetData.can_create_pipeline_in_target_project,
