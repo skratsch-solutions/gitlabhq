@@ -326,16 +326,58 @@ RSpec.describe AbuseReport, feature_category: :insider_threat do
 
     subject(:reported_content) { report.reported_content }
 
+    # `record` and `source_text` are provided by the including context.
+    shared_examples 'self-healing cached HTML' do |field|
+      context 'when the cached HTML is empty' do
+        before do
+          record.update_columns("#{field}_html" => nil)
+        end
+
+        it 're-renders and returns the cached HTML from the source', :aggregate_failures do
+          expect(reported_content).to eq(record.reload.public_send(:"#{field}_html"))
+          expect(reported_content).to include(source_text)
+        end
+      end
+
+      context 'when the cached HTML version is stale' do
+        before do
+          record.update_columns("#{field}_html" => '<p>outdated cached html</p>', cached_markdown_version: 1)
+        end
+
+        it 're-renders from the source instead of returning the stale HTML', :aggregate_failures do
+          expect(reported_content).not_to include('outdated cached html')
+          expect(reported_content).to include(source_text)
+          expect(reported_content).to eq(record.reload.public_send(:"#{field}_html"))
+        end
+      end
+    end
+
     context 'when reported from an issue' do
       let(:url) { ::Gitlab::UrlBuilder.build(issue) }
 
       it { is_expected.to eq issue.description_html }
+
+      context 'with a stale or empty cache' do
+        let(:issue) { create(:issue, description: 'issue description') }
+        let(:record) { issue }
+        let(:source_text) { 'issue description' }
+
+        it_behaves_like 'self-healing cached HTML', :description
+      end
     end
 
     context 'when reported from a merge request' do
       let(:url) { project_merge_request_url(merge_request.project, merge_request) }
 
       it { is_expected.to eq merge_request.description_html }
+
+      context 'with a stale or empty cache' do
+        let(:merge_request) { create(:merge_request, description: 'mr description') }
+        let(:record) { merge_request }
+        let(:source_text) { 'mr description' }
+
+        it_behaves_like 'self-healing cached HTML', :description
+      end
     end
 
     context 'when reported from a merge request with an invalid note ID' do
@@ -369,6 +411,13 @@ RSpec.describe AbuseReport, feature_category: :insider_threat do
       let(:url) { project_issue_url(issue.project, issue, anchor: "note_#{note.id}") }
 
       it { is_expected.to eq note.note_html }
+
+      context 'with a stale or empty cache' do
+        let(:record) { note }
+        let(:source_text) { 'comment in issue' }
+
+        it_behaves_like 'self-healing cached HTML', :note
+      end
     end
 
     context 'when reported from a merge request comment' do

@@ -336,6 +336,13 @@ module Gitlab
               period: 1.minute,
               action: :block
             ),
+            groups_create: ::Labkit::RateLimit::Rule.new(
+              name: 'limit_groups_created_by_user',
+              characteristics: %i[user],
+              limit: -> { Gitlab::CurrentSettings.current_application_settings.group_create_limit },
+              period: 1.day,
+              action: :block
+            ),
             import_source_user_notification: ::Labkit::RateLimit::Rule.new(
               name: 'limit_import_source_user_notifications_by_source_user',
               characteristics: %i[import_source_user],
@@ -581,6 +588,13 @@ module Gitlab
                 Gitlab::CurrentSettings.current_application_settings.projects_api_rate_limit_unauthenticated
               },
               period: 10.minutes,
+              action: :block
+            ),
+            projects_create: ::Labkit::RateLimit::Rule.new(
+              name: 'limit_projects_created_by_user',
+              characteristics: %i[user],
+              limit: -> { Gitlab::CurrentSettings.current_application_settings.project_create_limit },
+              period: 1.day,
               action: :block
             ),
             raw_blob: ::Labkit::RateLimit::Rule.new(

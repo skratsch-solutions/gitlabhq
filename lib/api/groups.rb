@@ -325,6 +325,10 @@ module API
       end
       route_setting :authorization, permissions: :create_group, boundary_type: :user
       post feature_category: :groups_and_projects, urgency: :low do
+        if Feature.enabled?(:namespace_create_rate_limit, current_user)
+          check_rate_limit!(:groups_create, scope: [current_user])
+        end
+
         organization = find_organization!(params[:organization_id]) if params[:organization_id].present?
         authorize! :create_group, organization if organization
 

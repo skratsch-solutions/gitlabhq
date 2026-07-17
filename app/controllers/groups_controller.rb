@@ -54,6 +54,7 @@ class GroupsController < Groups::ApplicationController
   before_action :user_actions, only: [:show]
 
   before_action :check_export_rate_limit!, only: [:export, :download_export]
+  before_action :check_create_rate_limit!, only: [:create]
 
   skip_cross_project_access_check :index, :new, :create, :edit, :update, :destroy
   # When loading show as an atom feed, we render events that could leak cross
@@ -364,6 +365,12 @@ class GroupsController < Groups::ApplicationController
     scope = params[:action] == :download_export ? @group : nil
 
     check_rate_limit!(prefixed_action, scope: [current_user, scope].compact)
+  end
+
+  def check_create_rate_limit!
+    return unless Feature.enabled?(:namespace_create_rate_limit, current_user)
+
+    check_rate_limit!(:groups_create, scope: [current_user])
   end
 
   private

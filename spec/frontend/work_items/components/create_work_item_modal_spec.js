@@ -39,6 +39,8 @@ describe('CreateWorkItemModal', () => {
   const findOpenInFullPageButton = () => wrapper.find('[data-testid="new-work-item-modal-link"]');
   const findCancelConfirmationModal = () =>
     wrapper.findComponent(CreateWorkItemCancelConfirmationModal);
+  const findRelationshipNote = () =>
+    wrapper.find('[data-testid="merge-request-relationship-note"]');
 
   const createComponent = ({
     asDropdownItem = false,
@@ -47,6 +49,9 @@ describe('CreateWorkItemModal', () => {
     relatedItem = null,
     alwaysShowWorkItemTypeSelect = false,
     namespaceFullName = 'GitLab.org / GitLab',
+    mergeRequestLinkType = null,
+    mergeRequestTitle = '',
+    mergeRequestReference = '',
   } = {}) => {
     wrapper = shallowMount(CreateWorkItemModal, {
       propsData: {
@@ -58,6 +63,9 @@ describe('CreateWorkItemModal', () => {
         relatedItem,
         alwaysShowWorkItemTypeSelect,
         namespaceFullName,
+        mergeRequestLinkType,
+        mergeRequestTitle,
+        mergeRequestReference,
       },
       mocks: {
         $toast: {
@@ -77,6 +85,46 @@ describe('CreateWorkItemModal', () => {
 
   afterEach(() => {
     localStorage.clear();
+  });
+
+  describe('merge request relationship note', () => {
+    it('does not render the note when no merge request link type is set', () => {
+      createComponent({ mergeRequestTitle: 'Fix the bug' });
+
+      expect(findRelationshipNote().exists()).toBe(false);
+    });
+
+    it('does not render the note when no merge request title is set', () => {
+      createComponent({ mergeRequestLinkType: 'CLOSES' });
+
+      expect(findRelationshipNote().exists()).toBe(false);
+    });
+
+    it('renders the closing relationship with the merge request title and reference', () => {
+      createComponent({
+        mergeRequestLinkType: 'CLOSES',
+        mergeRequestTitle: 'Fix the bug',
+        mergeRequestReference: 'acme-web!1234',
+      });
+
+      const note = findRelationshipNote();
+      expect(note.text()).toContain('Item will be closed by:');
+      expect(note.text()).toContain('Fix the bug');
+      expect(note.text()).toContain('acme-web!1234');
+    });
+
+    it('renders the related relationship with the merge request title and reference', () => {
+      createComponent({
+        mergeRequestLinkType: 'RELATED',
+        mergeRequestTitle: 'Fix the bug',
+        mergeRequestReference: 'acme-web!1234',
+      });
+
+      const note = findRelationshipNote();
+      expect(note.text()).toContain('Item will be related to:');
+      expect(note.text()).toContain('Fix the bug');
+      expect(note.text()).toContain('acme-web!1234');
+    });
   });
 
   it('renders create-work-item component with preselectedWorkItemType prop set from localStorage draft', async () => {

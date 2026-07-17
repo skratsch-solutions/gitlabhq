@@ -185,6 +185,39 @@ describe('FeatureLibraryModal', () => {
     });
   });
 
+  describe('hidden nav items', () => {
+    beforeEach(() => {
+      createWrapper({
+        sections: [
+          {
+            id: 'plan_menu',
+            title: 'Plan',
+            items: [
+              {
+                id: 'issue_list',
+                title: 'Work items',
+                description: 'Plan, track, and manage work in one place',
+                library_icon: 'work-items',
+              },
+              {
+                id: 'group_epic_list',
+                title: 'Work items',
+                description: 'Break down large initiatives into smaller, manageable work items',
+                library_icon: 'epic',
+                tier: 'premium',
+                link_classes: 'js-super-sidebar-nav-item-hidden',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('excludes items hidden in the super sidebar (js-super-sidebar-nav-item-hidden)', () => {
+      expect(findItemIds()).toEqual(['issue_list']);
+    });
+  });
+
   describe('modal layout', () => {
     describe('with default props', () => {
       beforeEach(() => createWrapper());

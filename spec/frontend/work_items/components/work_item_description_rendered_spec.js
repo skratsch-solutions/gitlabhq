@@ -349,6 +349,10 @@ and even more`,
           preselectedWorkItemType: WORK_ITEM_TYPE_NAME_TASK,
           isEpicsList: false,
           fromGlobalMenu: false,
+          mergeRequestId: null,
+          mergeRequestLinkType: null,
+          mergeRequestReference: '',
+          mergeRequestTitle: '',
         });
 
         findCreateWorkItemModal().vm.$emit('work-item-created');

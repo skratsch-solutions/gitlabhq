@@ -48,6 +48,7 @@ class ProjectsController < Projects::ApplicationController
 
   # Project Export Rate Limit
   before_action :check_export_rate_limit!, only: [:export, :download_export, :generate_new_export]
+  before_action :check_create_rate_limit!, only: [:create]
 
   before_action do
     push_frontend_feature_flag(:inline_blame, @project)
@@ -676,6 +677,12 @@ class ProjectsController < Projects::ApplicationController
     project_scope = params[:action] == 'download_export' ? @project : nil
 
     check_rate_limit!(prefixed_action, scope: [current_user, project_scope].compact)
+  end
+
+  def check_create_rate_limit!
+    return unless Feature.enabled?(:namespace_create_rate_limit, current_user)
+
+    check_rate_limit!(:projects_create, scope: [current_user])
   end
 
   def render_edit

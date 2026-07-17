@@ -567,6 +567,8 @@ module ApplicationSettingsHelper
       :email_restrictions_enabled,
       :email_restrictions,
       :issues_create_limit,
+      :project_create_limit,
+      :group_create_limit,
       :notes_create_limit,
       :notes_create_limit_allowlist_raw,
       :members_delete_limit,

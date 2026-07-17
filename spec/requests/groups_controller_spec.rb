@@ -411,6 +411,40 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       it_behaves_like 'does not enforce step-up authentication'
     end
 
+    context 'when rate limiting group creation' do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:current_user) { user }
+      let_it_be(:create_params) { { group: { name: 'rate-limited-group', path: 'rate-limited-group' } } }
+
+      before do
+        sign_in(user)
+      end
+
+      def request
+        post groups_path, params: create_params
+      end
+
+      it_behaves_like 'rate limited endpoint', rate_limit_key: :groups_create, use_second_scope: false
+
+      context 'when the `namespace_create_rate_limit` feature flag is disabled' do
+        before do
+          stub_feature_flags(namespace_create_rate_limit: false)
+        end
+
+        it 'does not check the rate limit' do
+          expect(Gitlab::ApplicationRateLimiter).not_to receive(:throttled_request?)
+
+          request
+        end
+
+        it 'creates the group' do
+          request
+
+          expect(response).to have_gitlab_http_status(:found)
+        end
+      end
+    end
+
     context 'when creating a group', :with_current_organization do
       let_it_be(:group, freeze: false) { create(:group, :public, organization: current_organization) }
       let_it_be(:user) { create(:user) }

@@ -140,6 +140,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         gravatar_enabled: Settings.gravatar['enabled'],
         group_api_limit: 400,
         group_archive_unarchive_api_limit: 60,
+        group_create_limit: 200,
         group_download_export_limit: 1,
         group_export_limit: 6,
         group_import_limit: 6,
@@ -211,6 +212,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         plantuml_enabled: false,
         plantuml_diagram_proxy_enabled: false,
         project_api_limit: 400,
+        project_create_limit: 200,
         project_members_api_limit: 200,
         project_download_export_limit: 1,
         project_export_enabled: true,
@@ -651,6 +653,8 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
           pipeline_limit_per_project_user_sha
           create_organization_api_limit
           project_api_limit
+          project_create_limit
+          group_create_limit
           projects_api_limit
           projects_api_rate_limit_unauthenticated
           raw_blob_request_limit

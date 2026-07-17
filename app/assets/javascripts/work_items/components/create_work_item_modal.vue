@@ -1,9 +1,16 @@
 <script>
-import { GlButton, GlModal, GlDisclosureDropdownItem, GlTooltipDirective } from '@gitlab/ui';
+import {
+  GlButton,
+  GlIcon,
+  GlModal,
+  GlDisclosureDropdownItem,
+  GlTooltipDirective,
+} from '@gitlab/ui';
 import { visitUrl } from '~/lib/utils/url_utility';
 import { __, s__, sprintf } from '~/locale';
 import { isMetaClick } from '~/lib/utils/common_utils';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { MR_WORK_ITEM_RELATIONSHIP_TYPES } from '~/sidebar/constants';
 import { newWorkItemPath, canRouterNav, getDraftWorkItemType } from '~/work_items/utils';
 
 import {
@@ -21,6 +28,7 @@ export default {
     CreateWorkItem,
     CreateWorkItemCancelConfirmationModal,
     GlButton,
+    GlIcon,
     GlModal,
     GlDisclosureDropdownItem,
   },
@@ -92,6 +100,26 @@ export default {
       required: false,
       validator: (i) => i.id && i.type && i.reference && i.webUrl,
       default: null,
+    },
+    mergeRequestId: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    mergeRequestLinkType: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    mergeRequestTitle: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    mergeRequestReference: {
+      type: String,
+      required: false,
+      default: '',
     },
     namespaceFullName: {
       type: String,
@@ -172,6 +200,18 @@ export default {
       return sprintf(s__('WorkItem|New %{workItemType}'), {
         workItemType: this.selectedWorkItemTypeName,
       });
+    },
+    showMergeRequestRelationshipNote() {
+      return Boolean(this.mergeRequestLinkType && this.mergeRequestTitle);
+    },
+    mergeRequestRelationshipIntro() {
+      if (this.mergeRequestLinkType === MR_WORK_ITEM_RELATIONSHIP_TYPES.closing) {
+        return s__('WorkItem|Item will be closed by:');
+      }
+      if (this.mergeRequestLinkType === MR_WORK_ITEM_RELATIONSHIP_TYPES.related) {
+        return s__('WorkItem|Item will be related to:');
+      }
+      return '';
     },
   },
   watch: {
@@ -350,6 +390,20 @@ export default {
           />
         </div>
       </template>
+      <div
+        v-if="showMergeRequestRelationshipNote"
+        class="gl-mb-5 gl-inline-block gl-rounded-base gl-bg-blue-50 gl-px-4 gl-py-3"
+        data-testid="merge-request-relationship-note"
+      >
+        <span class="gl-text-sm gl-text-subtle">{{ mergeRequestRelationshipIntro }}</span>
+        <div class="gl-flex gl-items-start gl-gap-2">
+          <gl-icon name="merge-request" class="gl-icon-subtle" />
+          <span class="gl-text-sm gl-font-bold">{{ mergeRequestTitle }}</span>
+          <span v-if="mergeRequestReference" class="gl-text-sm gl-text-subtle">{{
+            mergeRequestReference
+          }}</span>
+        </div>
+      </div>
       <create-work-item
         :always-show-work-item-type-select="alwaysShowWorkItemTypeSelect"
         :creation-context="creationContext"
@@ -363,6 +417,8 @@ export default {
         :title="title"
         :preselected-work-item-type="selectedWorkItemTypeName"
         :related-item="relatedItem"
+        :merge-request-id="mergeRequestId"
+        :merge-request-link-type="mergeRequestLinkType"
         :should-discard-draft="shouldDiscardDraft"
         :namespace-full-name="namespaceFullName"
         :is-modal="true"

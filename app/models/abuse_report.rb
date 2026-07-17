@@ -145,11 +145,14 @@ class AbuseReport < ApplicationRecord
     when :issue
       # WorkItems URLs identifiers are iid instead of id.
       issue_id = route_hash[:id] || route_hash[:iid]
-      reported_project.issues.iid_in(issue_id).pick(:description_html)
+      issue = reported_project.issues.iid_in(issue_id).first
+      issue&.updated_cached_html_for(:description)
     when :merge_request
-      reported_project.merge_requests.iid_in(route_hash[:id]).pick(:description_html)
+      merge_request = reported_project.merge_requests.iid_in(route_hash[:id]).first
+      merge_request&.updated_cached_html_for(:description)
     when :comment
-      reported_project.notes.id_in(note_id_from_url).pick(:note_html)
+      note = reported_project.notes.id_in(note_id_from_url).first
+      note&.updated_cached_html_for(:note)
     end
   end
 

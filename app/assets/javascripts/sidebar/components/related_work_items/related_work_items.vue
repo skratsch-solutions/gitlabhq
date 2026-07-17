@@ -10,12 +10,13 @@ import {
   GlSprintf,
 } from '@gitlab/ui';
 import { createAlert } from '~/alert';
-import { __ } from '~/locale';
+import { __, n__, s__ } from '~/locale';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import WorkItemDetailPanel from '~/work_items/components/work_item_detail_panel.vue';
 import { convertToGraphQLId, getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { TYPENAME_MERGE_REQUEST } from '~/graphql_shared/constants';
 import mergeRequestRelatedWorkItemsQuery from '~/sidebar/queries/merge_request_related_work_items.query.graphql';
+import createMergeRequestWorkItemRelationMutation from '~/sidebar/queries/create_merge_request_work_item_relation.mutation.graphql';
 import { DETAIL_VIEW_QUERY_PARAM_NAME, VIEW_CONTEXT } from '~/work_items/constants';
 import { getParameterByName, removeParams, updateHistory } from '~/lib/utils/url_utility';
 import { MR_WORK_ITEM_RELATIONSHIP_TYPES } from '~/sidebar/constants';
@@ -75,8 +76,14 @@ export default {
     isLoading() {
       return this.$apollo.queries.mergeRequest.loading;
     },
+    mergeRequestGid() {
+      return convertToGraphQLId(TYPENAME_MERGE_REQUEST, this.id);
+    },
     allItems() {
-      return (this.mergeRequest?.linkedWorkItems || []).filter((i) => i.workItem);
+      const relations = this.glFeatures.explicitMrWorkItemRelations
+        ? this.mergeRequest?.workItemRelations?.nodes
+        : this.mergeRequest?.linkedWorkItems;
+      return (relations || []).filter((i) => i.workItem);
     },
     canAdminMergeRequest() {
       return this.mergeRequest?.userPermissions?.adminMergeRequest || false;
@@ -84,6 +91,11 @@ export default {
     closingWorkItems() {
       return this.allItems
         .filter((i) => i.linkType === MR_WORK_ITEM_RELATIONSHIP_TYPES.closing)
+        .map((i) => i.workItem);
+    },
+    relatedWorkItems() {
+      return this.allItems
+        .filter((i) => i.linkType === MR_WORK_ITEM_RELATIONSHIP_TYPES.related)
         .map((i) => i.workItem);
     },
     mentionedWorkItems() {
@@ -98,6 +110,9 @@ export default {
       const parts = [];
       if (this.closingWorkItems.length > 0) {
         parts.push(`${__('Closing')} ${this.closingWorkItems.length}`);
+      }
+      if (this.relatedWorkItems.length > 0) {
+        parts.push(`${__('Related')} ${this.relatedWorkItems.length}`);
       }
       if (this.mentionedWorkItems.length > 0) {
         parts.push(`${__('Mentioned')} ${this.mentionedWorkItems.length}`);
@@ -126,6 +141,122 @@ export default {
     window.removeEventListener('popstate', this.checkDetailPanelParams);
   },
   methods: {
+    async handleLink({ workItems = [], linkType } = {}) {
+      if (!workItems.length) {
+        this.isAddModalVisible = false;
+        return;
+      }
+
+      try {
+        const { data } = await this.$apollo.mutate({
+          mutation: createMergeRequestWorkItemRelationMutation,
+          variables: {
+            projectPath: this.fullPath,
+            iid: this.mergeRequest.iid,
+            workItemIds: workItems.map((item) => item.id),
+            linkType,
+          },
+          update: (cache, { data: result }) => this.updateLinkedWorkItemsCache(cache, result),
+        });
+
+        const errors = data?.mergeRequestCreateWorkItemRelations?.errors || [];
+        if (errors.length) {
+          createAlert({ message: errors.join(' ') });
+          return;
+        }
+
+        /**
+         * Close the modal only after a successful response so a failed link
+         * keeps the modal open and the user can retry without reopening it.
+         */
+        this.isAddModalVisible = false;
+        this.$toast.show(
+          n__('WorkItem|Linked item added', 'WorkItem|Linked items added', workItems.length),
+        );
+      } catch (error) {
+        createAlert({
+          message: __('Something went wrong while linking the work item.'),
+          error,
+          captureError: true,
+        });
+      }
+    },
+    async handleCreated() {
+      this.isAddModalVisible = false;
+
+      /**
+       * workItemCreate does not return the MergeRequestWorkItemRelation node
+       * (id, fromMrDescription) that the query is keyed on, so refetch to pick
+       * up the new relation.
+       */
+      await this.$apollo.queries.mergeRequest.refetch();
+
+      /**
+       * Show the toast only after the refetch has resolved, so a failed refetch
+       * does not show a success message.
+       */
+      this.$toast.show(s__('WorkItem|Linked item added'));
+    },
+    updateLinkedWorkItemsCache(cache, result) {
+      const created = result?.mergeRequestCreateWorkItemRelations?.workItemRelations || [];
+      if (!created.length) {
+        return;
+      }
+
+      const variables = {
+        id: this.mergeRequestGid,
+        explicitMrWorkItemRelations: Boolean(this.glFeatures.explicitMrWorkItemRelations),
+      };
+
+      const existing = cache.readQuery({ query: mergeRequestRelatedWorkItemsQuery, variables });
+      if (!existing?.mergeRequest) {
+        return;
+      }
+
+      if (this.glFeatures.explicitMrWorkItemRelations) {
+        const existingNodes = existing.mergeRequest.workItemRelations?.nodes || [];
+        const existingIds = new Set(existingNodes.map((node) => node.workItem?.id));
+        const newNodes = created.filter(
+          (relation) => relation.workItem && !existingIds.has(relation.workItem.id),
+        );
+
+        cache.writeQuery({
+          query: mergeRequestRelatedWorkItemsQuery,
+          variables,
+          data: {
+            mergeRequest: {
+              ...existing.mergeRequest,
+              workItemRelations: {
+                __typename: 'MergeRequestWorkItemRelationConnection',
+                nodes: [...existingNodes, ...newNodes],
+              },
+            },
+          },
+        });
+        return;
+      }
+
+      const existingLinks = existing.mergeRequest.linkedWorkItems || [];
+      const existingIds = new Set(existingLinks.map((link) => link.workItem?.id));
+      const newLinks = created
+        .filter((relation) => relation.workItem && !existingIds.has(relation.workItem.id))
+        .map((relation) => ({
+          __typename: 'LinkedWorkItem',
+          linkType: relation.linkType,
+          workItem: relation.workItem,
+        }));
+
+      cache.writeQuery({
+        query: mergeRequestRelatedWorkItemsQuery,
+        variables,
+        data: {
+          mergeRequest: {
+            ...existing.mergeRequest,
+            linkedWorkItems: [...existingLinks, ...newLinks],
+          },
+        },
+      });
+    },
     openDetailPanel(event, item) {
       if (event.metaKey || event.ctrlKey) {
         return;
@@ -219,6 +350,24 @@ export default {
             </li>
           </ul>
         </div>
+        <div v-if="relatedWorkItems.length > 0" class="gl-mt-3">
+          <span class="gl-text-sm gl-font-bold gl-text-subtle">{{ __('Related') }}</span>
+          <ul class="gl-m-0 gl-list-none gl-p-0">
+            <li v-for="item in relatedWorkItems" :key="item.id" class="gl-mt-1">
+              <gl-link
+                :href="item.webPath"
+                class="has-popover gl-block gl-truncate"
+                data-reference-type="work_item"
+                data-placement="top"
+                :data-iid="item.iid"
+                :data-project-path="item.namespace.fullPath"
+                @click="openDetailPanel($event, item)"
+              >
+                {{ item.title }}
+              </gl-link>
+            </li>
+          </ul>
+        </div>
         <div v-if="mentionedWorkItems.length > 0" class="gl-mt-3">
           <span class="gl-text-sm gl-font-bold gl-text-subtle">{{ __('Mentioned') }}</span>
           <ul class="gl-m-0 gl-list-none gl-p-0">
@@ -271,9 +420,13 @@ export default {
     <related-work-items-add-form
       v-if="canAdminMergeRequest"
       :full-path="fullPath"
+      :merge-request-id="mergeRequestGid"
+      :merge-request-title="mergeRequest.title"
+      :merge-request-reference="mergeRequest.reference"
       :visible="isAddModalVisible"
       @hide="isAddModalVisible = false"
-      @link="isAddModalVisible = false"
+      @link="handleLink"
+      @created="handleCreated"
     />
   </div>
 </template>

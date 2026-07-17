@@ -443,6 +443,10 @@ module API
       end
       route_setting :authorization, permissions: :create_project, boundary_type: :user
       post urgency: :low do
+        if Feature.enabled?(:namespace_create_rate_limit, current_user)
+          check_rate_limit!(:projects_create, scope: [current_user])
+        end
+
         Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/issues/21139')
         attrs = declared_params(include_missing: false)
         attrs = translate_params_for_compatibility(attrs)

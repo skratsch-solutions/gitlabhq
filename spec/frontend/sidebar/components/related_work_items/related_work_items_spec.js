@@ -9,6 +9,7 @@ import WorkItemDetailPanel from '~/work_items/components/work_item_detail_panel.
 import MRRelatedWorkItems from '~/sidebar/components/related_work_items/related_work_items.vue';
 import RelatedWorkItemsAddForm from '~/sidebar/components/related_work_items/related_work_items_add_form.vue';
 import mergeRequestRelatedWorkItemsQuery from '~/sidebar/queries/merge_request_related_work_items.query.graphql';
+import createMergeRequestWorkItemRelationMutation from '~/sidebar/queries/create_merge_request_work_item_relation.mutation.graphql';
 import { getParameterByName, removeParams, updateHistory } from '~/lib/utils/url_utility';
 
 jest.mock('~/alert');
@@ -40,17 +41,33 @@ const mockLinkedItem = ({ title, linkType }) => {
   };
 };
 
+const mockRelationItem = ({ title, linkType }) => {
+  const { workItem } = mockLinkedItem({ title, linkType });
+  return {
+    id: `gid://gitlab/MergeRequestsClosingIssues/${workItemCounter}`,
+    linkType,
+    fromMrDescription: true,
+    workItem,
+    __typename: 'MergeRequestWorkItemRelation',
+  };
+};
+
 const closingItem1 = mockLinkedItem({ title: 'Fix bug', linkType: 'CLOSES' });
 const closingItem2 = mockLinkedItem({ title: 'Update docs', linkType: 'CLOSES' });
 const mentionedItem = mockLinkedItem({ title: 'Refactor code', linkType: 'MENTIONED' });
 
+const MOCK_MERGE_REQUEST_IID = '1';
+
 const buildQueryResponse = (
   linkedWorkItems = [],
-  { adminMergeRequest = true, includePermissions = true } = {},
+  { adminMergeRequest = true, includePermissions = true, workItemRelations = [] } = {},
 ) => ({
   data: {
     mergeRequest: {
       id: MOCK_MERGE_REQUEST_ID,
+      iid: MOCK_MERGE_REQUEST_IID,
+      title: 'Fix the bug',
+      reference: 'group/project!1',
       ...(includePermissions
         ? {
             userPermissions: {
@@ -59,14 +76,32 @@ const buildQueryResponse = (
             },
           }
         : {}),
+      workItemRelations: {
+        nodes: workItemRelations,
+        __typename: 'MergeRequestWorkItemRelationConnection',
+      },
       linkedWorkItems,
       __typename: 'MergeRequest',
     },
   },
 });
 
+const buildRelationsResponse = (nodes = [], options = {}) =>
+  buildQueryResponse([], { ...options, workItemRelations: nodes });
+
+const buildCreateMutationResponse = (workItemRelations = [], errors = []) => ({
+  data: {
+    mergeRequestCreateWorkItemRelations: {
+      errors,
+      workItemRelations,
+      __typename: 'MergeRequestCreateWorkItemRelationsPayload',
+    },
+  },
+});
+
 describe('MRRelatedWorkItems', () => {
   let wrapper;
+  const showToast = jest.fn();
 
   const findCollapseButton = () => wrapper.findComponent(GlButton);
   const findInfoIcon = () => wrapper.findComponent(GlIcon);
@@ -89,6 +124,9 @@ describe('MRRelatedWorkItems', () => {
         fullPath: 'group/project',
         id: '1',
         ...provide,
+      },
+      mocks: {
+        $toast: { show: showToast },
       },
       stubs: {
         GlCollapse,
@@ -409,6 +447,11 @@ describe('MRRelatedWorkItems', () => {
       expect(findAddForm().props('visible')).toBe(false);
     });
 
+    it('passes the merge request title and reference to the add form', () => {
+      expect(findAddForm().props('mergeRequestTitle')).toBe('Fix the bug');
+      expect(findAddForm().props('mergeRequestReference')).toBe('group/project!1');
+    });
+
     it('shows the add form when the add button is clicked', async () => {
       findAddButton().vm.$emit('click');
       await nextTick();
@@ -484,6 +527,207 @@ describe('MRRelatedWorkItems', () => {
 
       expect(findAddButton().exists()).toBe(false);
       expect(findAddForm().exists()).toBe(false);
+    });
+  });
+
+  describe('when the feature flag is enabled and relations are present', () => {
+    const closingRelation = mockRelationItem({ title: 'Fix bug', linkType: 'CLOSES' });
+    const relatedRelation = mockRelationItem({ title: 'Investigate flake', linkType: 'RELATED' });
+    const mentionedRelation = mockRelationItem({ title: 'Refactor code', linkType: 'MENTIONED' });
+
+    const createWithRelations = (nodes) =>
+      createComponent({
+        queryHandler: jest.fn().mockResolvedValue(buildRelationsResponse(nodes)),
+        provide: { glFeatures: { explicitMrWorkItemRelations: true } },
+      });
+
+    it('consumes workItemRelations instead of linkedWorkItems', async () => {
+      createWithRelations([closingRelation]);
+      await waitForPromises();
+
+      expect(findNoneText().exists()).toBe(false);
+      expect(findAllLinks().at(0).text()).toBe('Fix bug');
+    });
+
+    it('renders closing, related, and mentioned section labels', async () => {
+      createWithRelations([closingRelation, relatedRelation, mentionedRelation]);
+      await waitForPromises();
+
+      expect(wrapper.text()).toContain('Closing');
+      expect(wrapper.text()).toContain('Related');
+      expect(wrapper.text()).toContain('Mentioned');
+    });
+
+    it('renders a collapsed summary covering all three relationship types', async () => {
+      createWithRelations([closingRelation, relatedRelation, mentionedRelation]);
+      await waitForPromises();
+
+      expect(findAllLinks().at(0).text()).toBe('Closing 1, Related 1, Mentioned 1');
+    });
+  });
+
+  describe('creating a related work item', () => {
+    const newRelation = mockRelationItem({ title: 'New related item', linkType: 'RELATED' });
+    let mutationHandler;
+
+    const createWithMutation = ({
+      mutationResponse = buildCreateMutationResponse([newRelation]),
+    } = {}) => {
+      mutationHandler = jest.fn().mockResolvedValue(mutationResponse);
+      wrapper = shallowMountExtended(MRRelatedWorkItems, {
+        apolloProvider: createMockApollo([
+          [
+            mergeRequestRelatedWorkItemsQuery,
+            jest.fn().mockResolvedValue(buildRelationsResponse([])),
+          ],
+          [createMergeRequestWorkItemRelationMutation, mutationHandler],
+        ]),
+        provide: {
+          fullPath: 'group/project',
+          id: '1',
+          glFeatures: { explicitMrWorkItemRelations: true },
+        },
+        mocks: {
+          $toast: { show: showToast },
+        },
+        stubs: { GlCollapse },
+      });
+    };
+
+    beforeEach(async () => {
+      createWithMutation();
+      await waitForPromises();
+    });
+
+    it('calls the create mutation with the selected work items and link type', async () => {
+      findAddForm().vm.$emit('link', {
+        workItems: [newRelation.workItem],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(mutationHandler).toHaveBeenCalledWith({
+        projectPath: 'group/project',
+        iid: MOCK_MERGE_REQUEST_IID,
+        workItemIds: [newRelation.workItem.id],
+        linkType: 'RELATED',
+      });
+    });
+
+    it('adds the created relation to the rendered list', async () => {
+      expect(findNoneText().exists()).toBe(true);
+
+      findAddForm().vm.$emit('link', {
+        workItems: [newRelation.workItem],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(wrapper.text()).toContain('Related');
+      expect(findAllLinks().at(0).text()).toBe('New related item');
+    });
+
+    it('hides the add form after linking', async () => {
+      findAddForm().vm.$emit('link', {
+        workItems: [newRelation.workItem],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(findAddForm().props('visible')).toBe(false);
+    });
+
+    it('shows a toast after linking succeeds', async () => {
+      findAddForm().vm.$emit('link', {
+        workItems: [newRelation.workItem],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(showToast).toHaveBeenCalledWith('Linked item added');
+    });
+
+    it('shows a pluralized toast when multiple items are linked', async () => {
+      findAddForm().vm.$emit('link', {
+        workItems: [
+          newRelation.workItem,
+          { ...newRelation.workItem, id: 'gid://gitlab/WorkItem/999' },
+        ],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(showToast).toHaveBeenCalledWith('Linked items added');
+    });
+
+    it('shows a toast when a new work item is created and linked', async () => {
+      findAddForm().vm.$emit('created', {
+        workItem: newRelation.workItem,
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(showToast).toHaveBeenCalledWith('Linked item added');
+    });
+
+    it('shows an alert and captures the error when the mutation request fails', async () => {
+      const error = new Error('Network error');
+      mutationHandler.mockRejectedValueOnce(error);
+
+      findAddForm().vm.$emit('link', {
+        workItems: [newRelation.workItem],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(createAlert).toHaveBeenCalledWith({
+        message: 'Something went wrong while linking the work item.',
+        error,
+        captureError: true,
+      });
+      expect(showToast).not.toHaveBeenCalled();
+    });
+
+    it('keeps the add form open when linking fails so the user can retry', async () => {
+      mutationHandler.mockRejectedValueOnce(new Error('Network error'));
+
+      findAddButton().vm.$emit('click');
+      await nextTick();
+      expect(findAddForm().props('visible')).toBe(true);
+
+      findAddForm().vm.$emit('link', {
+        workItems: [newRelation.workItem],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(findAddForm().props('visible')).toBe(true);
+    });
+
+    it('shows an alert and does not link when the mutation returns errors', async () => {
+      createWithMutation({
+        mutationResponse: buildCreateMutationResponse([], ['Work item could not be linked.']),
+      });
+      await waitForPromises();
+
+      findAddForm().vm.$emit('link', {
+        workItems: [newRelation.workItem],
+        linkType: 'RELATED',
+      });
+      await waitForPromises();
+
+      expect(createAlert).toHaveBeenCalledWith({
+        message: 'Work item could not be linked.',
+      });
+      expect(showToast).not.toHaveBeenCalled();
+      expect(findNoneText().exists()).toBe(true);
+    });
+
+    it('does not call the mutation when no work items are selected', async () => {
+      findAddForm().vm.$emit('link', { workItems: [], linkType: 'RELATED' });
+      await waitForPromises();
+
+      expect(mutationHandler).not.toHaveBeenCalled();
     });
   });
 });

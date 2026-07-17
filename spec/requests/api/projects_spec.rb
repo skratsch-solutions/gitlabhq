@@ -1453,6 +1453,35 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
   describe 'POST /projects' do
     let(:path) { '/projects' }
 
+    context 'when rate limiting project creation' do
+      let_it_be(:current_user) { user }
+      let_it_be(:create_params) { { name: 'rate-limited-project', path: 'rate-limited-project' } }
+
+      def request
+        post api(path, current_user), params: create_params
+      end
+
+      it_behaves_like 'rate limited endpoint', rate_limit_key: :projects_create, use_second_scope: false
+
+      context 'when the namespace_create_rate_limit feature flag is disabled' do
+        before do
+          stub_feature_flags(namespace_create_rate_limit: false)
+        end
+
+        it 'does not check the rate limit' do
+          expect(Gitlab::ApplicationRateLimiter).not_to receive(:throttled_request?)
+
+          request
+        end
+
+        it 'creates the project' do
+          request
+
+          expect(response).to have_gitlab_http_status(:created)
+        end
+      end
+    end
+
     context 'maximum number of projects reached' do
       it 'does not create new project and respond with 403' do
         allow_any_instance_of(User).to receive(:projects_limit_left).and_return(0)

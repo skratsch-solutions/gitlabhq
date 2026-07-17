@@ -67,6 +67,7 @@ import {
   WIDGET_TYPE_START_AND_DUE_DATE,
   WIDGET_TYPE_CRM_CONTACTS,
   WIDGET_TYPE_LINKED_ITEMS,
+  WIDGET_TYPE_DEVELOPMENT,
   WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_MILESTONE,
   DEFAULT_EPIC_COLORS,
@@ -219,6 +220,16 @@ export default {
       type: Object,
       required: false,
       validator: (i) => i.id && i.type && i.reference && i.webUrl,
+      default: null,
+    },
+    mergeRequestId: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    mergeRequestLinkType: {
+      type: String,
+      required: false,
       default: null,
     },
     shouldDiscardDraft: {
@@ -1053,6 +1064,13 @@ export default {
       if (this.shouldIncludeRelatedItem) {
         workItemCreateInput.linkedItemsWidget = {
           workItemsIds: [this.relatedItem.id],
+        };
+      }
+
+      if (this.mergeRequestId && this.isWidgetSupported(WIDGET_TYPE_DEVELOPMENT)) {
+        workItemCreateInput.developmentWidget = {
+          mergeRequestIds: [this.mergeRequestId],
+          ...(this.mergeRequestLinkType && { linkType: this.mergeRequestLinkType }),
         };
       }
 

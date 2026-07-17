@@ -45,8 +45,8 @@ same file the GitLab application's own mail_room uses. There is no separate
 config file or `.env`: the service reads the enabled mailbox sections
 (`incoming_email`, `service_desk_email`) for the IMAP settings and wildcard
 address, and the `cell` section for Topology Service and forwarding settings. As
-a result the service polls the same mailboxes, talks to the same Topology
-Service, and verifies JWTs with the same secret as the GitLab application.
+a result the service polls the same mailboxes and talks to the same Topology
+Service as the GitLab application.
 
 The gitlab.yml location is taken from the `MAIL_ROOM_GITLAB_CONFIG_FILE`
 environment variable (the same variable the GitLab application's mail_room uses),
@@ -69,9 +69,13 @@ environments. Set it via `cell.email_forwarding.scheme` in `config/gitlab.yml`.
 
 ### Authentication
 
-Requests to the cell's internal mail_room endpoint are authenticated with a JWT
-signed with the mailbox's `secret_file` (the same secret the GitLab application
-verifies with). Hardening the signing scheme is tracked separately.
+Requests to the cell's internal mail_room endpoint are authenticated with an
+asymmetric JWT (ES256). This service signs each request with a **private key**
+(`<mailbox>.signing_key_file` in `config/gitlab.yml`) and each cell verifies it
+with the matching **public key** it has configured. The `kid` header identifies
+which key signed the token, so public keys can be rotated without a hard
+cutover. See
+[!242985](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/242985).
 
 ## Running
 

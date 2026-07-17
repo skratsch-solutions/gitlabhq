@@ -33,6 +33,9 @@ import {
 import FeatureLibraryItem from './feature_library_item.vue';
 
 const SETTINGS_MENU_ID = 'settings_menu';
+// Items flagged as hidden in the super sidebar (e.g. duplicate "Work items"
+// entries) must be excluded here too, mirroring menu_section.vue's filter.
+const HIDDEN_NAV_ITEM_CLASS = 'js-super-sidebar-nav-item-hidden';
 const trackingMixin = InternalEvents.mixin();
 const MIN_SEARCH_QUERY_LENGTH = 2;
 
@@ -95,7 +98,9 @@ export default {
       return this.sections
         .map((section) => ({
           ...section,
-          items: section.items || [],
+          items: (section.items || []).filter(
+            (item) => !item.link_classes?.includes(HIDDEN_NAV_ITEM_CLASS),
+          ),
         }))
         .filter((section) => {
           // The settings menu currently remains in the super sidebar and should not appear within

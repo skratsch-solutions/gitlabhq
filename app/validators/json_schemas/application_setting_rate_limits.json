@@ -39,6 +39,16 @@
       "minimum": 0,
       "description": "Number of requests allowed to the POST /api/v4/organizations endpoint."
     },
+    "project_create_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of requests allowed to the POST /api/v4/projects endpoint per user per day."
+    },
+    "group_create_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of requests allowed to the POST /api/v4/groups endpoint per user per day."
+    },
     "dependency_scanning_sbom_scan_api_upload_limit": {
       "type": "integer",
       "minimum": 0,
