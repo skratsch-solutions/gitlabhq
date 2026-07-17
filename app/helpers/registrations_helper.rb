@@ -15,7 +15,7 @@ module RegistrationsHelper
         buttonText: button_text,
         buttonClass: button_class,
         trackLabel: track_label
-      }.to_json
+      }.compact.to_json
     }
   end
 

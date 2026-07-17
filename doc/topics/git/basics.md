@@ -77,4 +77,3 @@ For more information, see [update a fork](forks.md).
   - [Common Git commands](commands.md)
 - [Advanced operations](advanced.md)
 - [Troubleshooting Git](troubleshooting_git.md)
-- [Git cheat sheet](https://about.gitlab.com/images/press/git-cheat-sheet.pdf)

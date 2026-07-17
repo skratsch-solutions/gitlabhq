@@ -49,6 +49,8 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       code_review_enabled: code_review_enabled,
       environment: nil,
       resource: merge_request,
+      conflict_resolution_path: "#{mr_path}/conflicts",
+      can_merge: false,
       mr_path: mr_path,
       project_path: project_path,
       project_name: project_name,
@@ -99,7 +101,12 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
         versions: versions,
         coverage_endpoint: coverage_endpoint,
         codequality_endpoint: codequality_endpoint,
-        sast_report_available: false
+        sast_report_available: false,
+        is_fork: merge_request.for_fork?.to_s,
+        source_project_path: merge_request.source_project.path,
+        source_project_default_url: merge_request.source_project.http_url_to_repo,
+        reviewing_docs_path: '/help/user/project/merge_requests/merge_request_troubleshooting.md' \
+          '#check-out-merge-requests-locally-through-the-head-ref'
       }
     )
 
@@ -153,6 +160,7 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
     render_component
 
     expect(RapidDiffs::MergeRequestDiffFileComponent).to have_received(:with_collection)
+      .with(anything, hash_including(conflict_resolution_path: presenter.conflict_resolution_path))
   end
 
   it "loads merge request rapid diffs stylesheet" do

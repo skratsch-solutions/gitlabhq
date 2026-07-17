@@ -664,7 +664,9 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
         expect_next_instance_of(described_class) do |instance|
           presenter = instance_double(RapidDiffs::MergeRequestPresenter)
           allow(instance).to receive(:rapid_diffs_presenter).and_return(presenter)
-          allow(presenter).to receive(:diff_files).and_return([diff_file])
+          allow(presenter).to receive_messages(
+            diff_files: [diff_file], conflict_resolution_path: nil, can_merge: false
+          )
 
           expect(presenter).to receive(:diff_files).with(
             hash_including(ignore_whitespace_change: false)

@@ -65,8 +65,8 @@ RSpec.describe Database::QueryAnalyzers::MultiplePartitionScanDetector, feature_
       expect(analyzer.output).to be_empty
     end
 
-    context 'with a DatabaseCleaner-style table-existence sweep' do
-      it 'does not flag it (it is test cleanup, not application code)' do
+    context 'with a table-existence sweep' do
+      it 'does not flag it (a bare existence probe over every table has no partition key to prune)' do
         sweep_query = offending_query.merge(
           'query' => '(SELECT EXISTS( SELECT * FROM p_ci_builds )) UNION ' \
             '(SELECT EXISTS( SELECT * FROM p_ci_pipelines )) UNION ' \

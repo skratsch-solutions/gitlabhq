@@ -39,8 +39,15 @@ module RapidDiffs
         versions: versions,
         coverage_endpoint: coverage_endpoint,
         codequality_endpoint: codequality_endpoint,
-        sast_report_available: sast_report_available
+        sast_report_available: sast_report_available,
+        **check_out_branch_data
       }
+    end
+
+    def check_out_branch_data
+      helpers.how_merge_modal_data(presenter.resource).slice(
+        :is_fork, :source_project_path, :source_project_default_url, :reviewing_docs_path
+      )
     end
   end
 end

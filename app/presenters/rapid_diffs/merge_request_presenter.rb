@@ -85,6 +85,16 @@ module RapidDiffs
       project_merge_request_path(resource.project, resource)
     end
 
+    def conflict_resolution_path
+      resource.present(current_user: current_user).conflict_resolution_path
+    end
+    strong_memoize_attr :conflict_resolution_path
+
+    def can_merge
+      resource.can_be_merged_by?(current_user)
+    end
+    strong_memoize_attr :can_merge
+
     def project_path
       resource.project.full_path
     end

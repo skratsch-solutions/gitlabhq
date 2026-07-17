@@ -70,14 +70,31 @@ To subscribe to GitLab.com:
 
 To subscribe to GitLab for a GitLab Self-Managed instance:
 
-1. Go to the [Pricing page](https://about.gitlab.com/pricing/) and select a self-managed plan. You are redirected to the [Customers Portal](https://customers.gitlab.com/) to complete your purchase.
-1. After purchase, an activation code is sent to the email address associated with the Customers Portal account.
-   You must [add this code to your GitLab instance](../administration/license.md).
+- Go to the [Pricing page](https://about.gitlab.com/pricing/) and select a self-managed plan.
+  You are redirected to the [Customers Portal](https://customers.gitlab.com/) to complete your purchase.
 
 > [!note]
 > If you're purchasing a subscription for an existing **Free** GitLab Self-Managed
 > instance, ensure you're purchasing enough seats to
 > [cover your users](../administration/admin_area.md#administering-users).
+
+## Activate subscription
+
+After you buy a subscription:
+
+- On GitLab.com, your subscription applies to your top-level group automatically.
+  You do not need an activation code.
+  If you bought the subscription through an account representative or a GitLab partner, you must first link the subscription to your top-level group.
+- On GitLab Self-Managed, you receive an activation code to the email address on your Customers Portal account.
+
+To get started using your subscription:
+
+1. For GitLab Self-Managed, [activate your license](../administration/license.md) with the activation code.
+1. View your subscription to confirm the tier, seat count, start and end dates.
+1. For GitLab.com, if the subscription is not applied to the correct top-level group, link the subscription to a group.
+1. Review your account to verify your payment method, and billing and subscription contacts.
+1. Add or change subscription contacts so the right people receive subscription notifications.
+1. Add users, manage seats, and assign add-ons for your team.
 
 ## View subscription
 

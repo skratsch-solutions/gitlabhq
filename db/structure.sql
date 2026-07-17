@@ -16924,35 +16924,6 @@ CREATE SEQUENCE ci_builds_id_seq
 
 ALTER SEQUENCE ci_builds_id_seq OWNED BY p_ci_builds.id;
 
-CREATE TABLE p_ci_builds_metadata (
-    project_id bigint NOT NULL,
-    timeout integer,
-    timeout_source integer DEFAULT 1 NOT NULL,
-    interruptible boolean,
-    config_options jsonb,
-    config_variables jsonb,
-    has_exposed_artifacts boolean,
-    environment_auto_stop_in character varying(255),
-    expanded_environment_name character varying(255),
-    secrets jsonb DEFAULT '{}'::jsonb NOT NULL,
-    build_id bigint NOT NULL,
-    id bigint NOT NULL,
-    id_tokens jsonb DEFAULT '{}'::jsonb NOT NULL,
-    partition_id bigint NOT NULL,
-    debug_trace_enabled boolean DEFAULT false NOT NULL,
-    exit_code smallint
-)
-PARTITION BY LIST (partition_id);
-
-CREATE SEQUENCE ci_builds_metadata_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE ci_builds_metadata_id_seq OWNED BY p_ci_builds_metadata.id;
-
 CREATE TABLE ci_builds_runner_session (
     id bigint NOT NULL,
     url character varying NOT NULL,
@@ -36957,8 +36928,6 @@ ALTER TABLE ONLY p_catalog_resource_sync_events ALTER COLUMN id SET DEFAULT next
 
 ALTER TABLE ONLY p_ci_build_needs ALTER COLUMN id SET DEFAULT nextval('ci_build_needs_id_seq'::regclass);
 
-ALTER TABLE ONLY p_ci_builds_metadata ALTER COLUMN id SET DEFAULT nextval('ci_builds_metadata_id_seq'::regclass);
-
 ALTER TABLE ONLY p_ci_job_definitions ALTER COLUMN id SET DEFAULT nextval('p_ci_job_definitions_id_seq'::regclass);
 
 ALTER TABLE ONLY p_ci_job_inputs ALTER COLUMN id SET DEFAULT nextval('p_ci_job_inputs_id_seq'::regclass);
@@ -40728,9 +40697,6 @@ ALTER TABLE ONLY p_ci_build_trace_metadata
 
 ALTER TABLE ONLY p_ci_builds_execution_configs
     ADD CONSTRAINT p_ci_builds_execution_configs_pkey PRIMARY KEY (id, partition_id);
-
-ALTER TABLE ONLY p_ci_builds_metadata
-    ADD CONSTRAINT p_ci_builds_metadata_pkey PRIMARY KEY (id, partition_id);
 
 ALTER TABLE ONLY p_ci_builds
     ADD CONSTRAINT p_ci_builds_pkey PRIMARY KEY (id, partition_id);
@@ -51314,14 +51280,6 @@ CREATE INDEX p_ci_builds_commit_id_type_name_ref_idx ON ONLY p_ci_builds USING b
 
 CREATE INDEX p_ci_builds_commit_id_type_ref_idx ON ONLY p_ci_builds USING btree (commit_id, type, ref);
 
-CREATE INDEX p_ci_builds_metadata_build_id_id_idx ON ONLY p_ci_builds_metadata USING btree (build_id) INCLUDE (id) WHERE (interruptible = true);
-
-CREATE INDEX p_ci_builds_metadata_build_id_idx ON ONLY p_ci_builds_metadata USING btree (build_id) WHERE (has_exposed_artifacts IS TRUE);
-
-CREATE UNIQUE INDEX p_ci_builds_metadata_build_id_partition_id_idx ON ONLY p_ci_builds_metadata USING btree (build_id, partition_id);
-
-CREATE INDEX p_ci_builds_metadata_project_id_idx ON ONLY p_ci_builds_metadata USING btree (project_id);
-
 CREATE INDEX p_ci_builds_name_id_idx ON ONLY p_ci_builds USING btree (name, id) WHERE (((name)::text = ANY (ARRAY[('container_scanning'::character varying)::text, ('dast'::character varying)::text, ('dependency_scanning'::character varying)::text, ('license_management'::character varying)::text, ('sast'::character varying)::text, ('secret_detection'::character varying)::text, ('coverage_fuzzing'::character varying)::text, ('license_scanning'::character varying)::text, ('apifuzzer_fuzz'::character varying)::text, ('apifuzzer_fuzz_dnd'::character varying)::text])) AND ((type)::text = 'Ci::Build'::text));
 
 CREATE INDEX p_ci_builds_project_id_id_idx ON ONLY p_ci_builds USING btree (project_id, id);
@@ -58926,9 +58884,6 @@ ALTER TABLE ONLY ci_sources_pipelines
 
 ALTER TABLE ONLY cd_rollouts
     ADD CONSTRAINT fk_e1c7f6029e FOREIGN KEY (version_set_id) REFERENCES cd_version_sets(id) ON DELETE CASCADE;
-
-ALTER TABLE p_ci_builds_metadata
-    ADD CONSTRAINT fk_e20479742e_p FOREIGN KEY (partition_id, build_id) REFERENCES p_ci_builds(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE ONLY protected_branch_push_access_levels
     ADD CONSTRAINT fk_e23067f9e1 FOREIGN KEY (protected_branch_project_id) REFERENCES projects(id) ON DELETE CASCADE;

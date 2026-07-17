@@ -649,10 +649,6 @@ p_ci_builds_execution_configs:
   - table: projects
     column: project_id
     on_delete: async_delete
-p_ci_builds_metadata:
-  - table: projects
-    column: project_id
-    on_delete: async_delete
 p_ci_builds_partition_overrides:
   - table: projects
     column: project_id

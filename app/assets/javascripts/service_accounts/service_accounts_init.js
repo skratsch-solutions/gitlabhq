@@ -14,7 +14,6 @@ export default (el) => {
 
   const {
     basePath,
-    isGroup,
     serviceAccountsEnabled,
     serviceAccountsPath,
     serviceAccountsDeletePath,
@@ -39,7 +38,6 @@ export default (el) => {
     router,
     pinia,
     provide: {
-      isGroup: parseBoolean(isGroup),
       serviceAccountsEnabled: parseBoolean(serviceAccountsEnabled),
       serviceAccountsPath,
       serviceAccountsDeletePath,

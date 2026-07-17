@@ -40,6 +40,26 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
 
   it_behaves_like 'rapid diffs presenter base diffs_resource'
 
+  describe '#conflict_resolution_path' do
+    let(:mr_presenter) { instance_double(MergeRequestPresenter, conflict_resolution_path: "#{base_path}/conflicts") }
+
+    before do
+      allow(resource).to receive(:present).with(current_user: current_user).and_return(mr_presenter)
+    end
+
+    it 'delegates to the merge request presenter' do
+      expect(presenter.conflict_resolution_path).to eq("#{base_path}/conflicts")
+    end
+  end
+
+  describe '#can_merge' do
+    it 'delegates to the merge request' do
+      expect(resource).to receive(:can_be_merged_by?).with(current_user).and_return(true)
+
+      expect(presenter.can_merge).to be(true)
+    end
+  end
+
   shared_examples 'calls write_cache on the collection' do
     it 'calls write_cache on the collection' do
       expect(collection).to receive(:write_cache)

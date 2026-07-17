@@ -666,6 +666,11 @@ Gitlab.ee do
     executor_binary_urls: executor_binary_urls,
     executor_version: executor_version
   )
+
+  if ENV['GITLAB_DUO_WORKFLOW_SERVICE_URL'].present?
+    Settings.duo_workflow['service_url'] = ENV['GITLAB_DUO_WORKFLOW_SERVICE_URL']
+    Settings.duo_workflow['secure'] = Gitlab::Utils.to_boolean(ENV['GITLAB_DUO_WORKFLOW_SECURE'], default: true)
+  end
 end
 
 #

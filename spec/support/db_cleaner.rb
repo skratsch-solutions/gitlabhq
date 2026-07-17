@@ -142,3 +142,31 @@ module PostgreSQLDatabaseTasksPatch
 end
 
 ActiveRecord::Tasks::PostgreSQLDatabaseTasks.prepend(PostgreSQLDatabaseTasksPatch)
+
+# Batches per-table DELETEs into a single execute() to cut round-trips during
+# suite/migration cleanup. GitLab only calls the :deletion strategy without
+# :reset_ids, so we deliberately omit the base gem's sequence-reset path.
+#
+# The batched statement spans tables from multiple gitlab_schemas, which trips
+# both GitlabSchemasValidateConnection and the PreventCrossJoins spec guard.
+# We suppress both for the cleanup query only.
+# Upstream: https://github.com/DatabaseCleaner/database_cleaner-active_record/pull/113
+module DatabaseCleanerDeletionBatchPatch
+  private
+
+  def delete_tables(connection, table_names)
+    return if table_names.empty?
+
+    statements = table_names.map do |table_name|
+      "DELETE FROM #{connection.quote_table_name(table_name)};"
+    end
+
+    Gitlab::Database::QueryAnalyzers::GitlabSchemasValidateConnection.with_suppressed do
+      Gitlab::Database.allow_cross_joins_across_databases(url: 'https://gitlab.com/gitlab-org/gitlab/-/work_items/589022') do
+        connection.execute(statements.join)
+      end
+    end
+  end
+end
+
+DatabaseCleaner::ActiveRecord::Deletion.prepend(DatabaseCleanerDeletionBatchPatch)

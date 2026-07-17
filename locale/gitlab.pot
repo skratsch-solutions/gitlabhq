@@ -1812,9 +1812,6 @@ msgstr ""
 msgid "'%{name}' is already taken."
 msgstr ""
 
-msgid "'%{slug}' is a reserved name"
-msgstr ""
-
 msgid "'%{source}' is not a import source"
 msgstr ""
 
@@ -3555,13 +3552,13 @@ msgstr ""
 msgid "AICatalog|Unstar"
 msgstr ""
 
+msgid "AICatalog|Update"
+msgstr ""
+
 msgid "AICatalog|Update available"
 msgstr ""
 
 msgid "AICatalog|Update the settings for this MCP server."
-msgstr ""
-
-msgid "AICatalog|Update to %{version}"
 msgstr ""
 
 msgid "AICatalog|Updating a flow in this group does not update the flows enabled in this group's projects."
@@ -3592,9 +3589,6 @@ msgid "AICatalog|Use flows to automate complex, multi-step tasks."
 msgstr ""
 
 msgid "AICatalog|Users can continue to use the %{itemType} in the groups and projects it is enabled in."
-msgstr ""
-
-msgid "AICatalog|View enabled version"
 msgstr ""
 
 msgid "AICatalog|View latest version"
@@ -8759,6 +8753,9 @@ msgid "AiPowered|GitLab Duo availability"
 msgstr ""
 
 msgid "AiPowered|GitLab Duo availability for %{groupName}"
+msgstr ""
+
+msgid "AiPowered|GitLab Duo availability for this group is managed by your instance administrator."
 msgstr ""
 
 msgid "AiPowered|GitLab Duo is always available. Groups, subgroups, and projects cannot opt out."
@@ -92874,6 +92871,9 @@ msgstr ""
 msgid "is a parent or child of this %{item}"
 msgstr ""
 
+msgid "is a reserved name. Reserved names are: %{reserved_names}"
+msgstr ""
+
 msgid "is already associated to a GitLab Issue. New issue will not be associated."
 msgstr ""
 
@@ -93605,6 +93605,9 @@ msgid "must be inside the fork network"
 msgstr ""
 
 msgid "must be less than the limit of %{tag_limit} tags"
+msgstr ""
+
+msgid "must be nil or a lambda accepting keyword arguments: %{keywords}"
 msgstr ""
 
 msgid "must be no greater than the number of agent config versions"

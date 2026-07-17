@@ -327,6 +327,16 @@ ai-gateway:
     - !reference [.rules:test:omnibus-base, rules]
     - if: $QA_SUITES =~ /Test::Integration::AiGateway/
 
+# ========== duo-agent-platform ===========
+duo-agent-platform:
+  extends:
+    - .omnibus-e2e
+  variables:
+    QA_SCENARIO: Test::Integration::DuoAgentPlatform
+  rules:
+    - !reference [.rules:test:omnibus-base, rules]
+    - if: $QA_SUITES =~ /Test::Integration::DuoAgentPlatform/
+
 ai-gateway-no-seat-assigned:
   extends:
     - .omnibus-e2e

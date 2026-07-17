@@ -740,7 +740,11 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
 
   def diff_file_component(base_args)
     ::RapidDiffs::MergeRequestDiffFileComponent.new(
-      **base_args.merge({ merge_request: @merge_request })
+      **base_args.merge({
+        merge_request: @merge_request,
+        conflict_resolution_path: rapid_diffs_presenter.conflict_resolution_path,
+        can_merge: rapid_diffs_presenter.can_merge
+      })
     )
   end
 
