@@ -68,6 +68,11 @@ export default {
       default: null,
       validator: (value) => value === null || Array.isArray(value),
     },
+    updatedWorkItem: {
+      type: Object,
+      required: false,
+      default: null,
+    },
   },
   emits: ['set-error', 'set-active-item', 'toggle-collapse'],
   data() {
@@ -103,6 +108,11 @@ export default {
         return this.groupByValues;
       }
       return this.groupByValues.filter((value) => this.visibleGroups.includes(this.groupId(value)));
+    },
+  },
+  watch: {
+    updatedWorkItem(workItem) {
+      this.moveCardToMatchingColumn(workItem);
     },
   },
   apollo: {
@@ -170,6 +180,89 @@ export default {
         baseQueryVariables: this.queryVariables,
         groupProperty: this.groupBy.property,
         value,
+      });
+    },
+    // Shared method to move the card and adjust the work item count
+    moveWorkItemBetweenColumns({
+      cache,
+      workItemId,
+      node,
+      fromColumn,
+      toColumn,
+      index,
+      patchCard = null,
+    }) {
+      const query = this.columnQuery;
+
+      removeWorkItemFromColumn({
+        cache,
+        query,
+        variables: this.columnVariables(fromColumn),
+        workItemId,
+      });
+      addWorkItemToColumn({
+        cache,
+        query,
+        variables: this.columnVariables(toColumn),
+        workItem: node,
+        index,
+        patchCard,
+      });
+      adjustWorkItemCountInColumn({
+        cache,
+        query: getWorkItemsCountOnlyQuery,
+        variables: this.columnCountVariables(fromColumn),
+        delta: -1,
+      });
+      adjustWorkItemCountInColumn({
+        cache,
+        query: getWorkItemsCountOnlyQuery,
+        variables: this.columnCountVariables(toColumn),
+        delta: 1,
+      });
+    },
+    moveCardToMatchingColumn(workItem) {
+      const workItemId = workItem?.id;
+      if (!workItemId || !this.strategy?.itemValueId) {
+        return;
+      }
+
+      const matchingColumn = this.valueById(this.strategy.itemValueId(workItem));
+      if (!matchingColumn) {
+        return;
+      }
+
+      const { cache } = this.$apollo.getClient();
+      const query = this.columnQuery;
+
+      const currentColumn = this.groupByValues.find((column) =>
+        readWorkItemFromColumn({
+          cache,
+          query,
+          variables: this.columnVariables(column),
+          workItemId,
+        }),
+      );
+
+      if (!currentColumn || currentColumn.id === matchingColumn.id) {
+        return;
+      }
+
+      const node = readWorkItemFromColumn({
+        cache,
+        query,
+        variables: this.columnVariables(currentColumn),
+        workItemId,
+      });
+
+      this.moveWorkItemBetweenColumns({
+        cache,
+        workItemId,
+        node,
+        fromColumn: currentColumn,
+        toColumn: matchingColumn,
+        index: 0,
+        patchCard: (draftNode) => this.strategy.patchCard(draftNode, matchingColumn),
       });
     },
     onDragStart(workItem) {
@@ -258,32 +351,17 @@ export default {
               return;
             }
 
-            removeWorkItemFromColumn({ cache: store, query, variables: fromVariables, workItemId });
-            addWorkItemToColumn({
+            this.moveWorkItemBetweenColumns({
               cache: store,
-              query,
-              variables: toVariables,
-              workItem: node,
+              workItemId,
+              node,
+              fromColumn: fromValue,
+              toColumn: toValue,
               index: newIndex,
               // Only patch the card on a cross-column move; a reorder keeps its value.
               patchCard: valueChanged
                 ? (draftNode) => this.strategy.patchCard(draftNode, toValue)
                 : null,
-            });
-
-            // The header counts live in their own count-only query cache, so keep them
-            // in step with the connection updates above (rolled back on a failed move).
-            adjustWorkItemCountInColumn({
-              cache: store,
-              query: getWorkItemsCountOnlyQuery,
-              variables: this.columnCountVariables(fromValue),
-              delta: -1,
-            });
-            adjustWorkItemCountInColumn({
-              cache: store,
-              query: getWorkItemsCountOnlyQuery,
-              variables: this.columnCountVariables(toValue),
-              delta: 1,
             });
           },
         });

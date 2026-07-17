@@ -26,7 +26,14 @@ class CustomEnvironment extends TestEnvironment {
         // https://gitlab.com/gitlab-org/gitlab/-/issues/396779#note_1788506238
         /^\[Vue warn\]: Missing required prop/,
         /^\[Vue warn\]: Invalid prop/,
+
+        // pretty-format's ReactTestComponent plugin probes an unrelated `$$typeof` property
+        // on a reactive object while building a failed assertion's diff, which otherwise masks
+        // the real failure behind an unrelated console error.
+        /^\[Vue warn\]: Property or method ".*" is not defined on the instance but referenced during render/,
+        // @vue/compat's wording of the "unknown property accessed during render" warning.
         /^\[Vue warn\]: Property .* was accessed during render but is not defined on instance/,
+
         // TODO: Implement robust vue-demi switching logic.
         // https://gitlab.com/groups/gitlab-org/-/epics/15340
         /^\[Vue warn\]: \(deprecation GLOBAL_PRIVATE_UTIL\)/,

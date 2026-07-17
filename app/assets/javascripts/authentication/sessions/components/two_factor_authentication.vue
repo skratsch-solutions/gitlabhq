@@ -48,7 +48,7 @@ export default {
     webauthnParams: {
       type: Object,
       required: false,
-      default: () => ({}),
+      default: null,
     },
   },
   data() {

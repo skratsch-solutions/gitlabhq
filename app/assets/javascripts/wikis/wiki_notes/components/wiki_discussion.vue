@@ -174,7 +174,7 @@ export default {
             :discussion-id="firstNote.discussion.id"
             :show-resolve-button="canResolve && discussion.resolvable"
             :is-resolved="discussion.resolved"
-            @showReplyForm="toggleReplying(true)"
+            @show-reply-form="toggleReplying(true)"
           />
           <wiki-comment-form
             v-else-if="renderCommentForm"
@@ -186,9 +186,9 @@ export default {
             :discussion-resolved="resolved"
             :can-resolve="canResolve"
             @cancel="toggleReplying(false)"
-            @creating-note:start="setPlaceHolderNote"
-            @creating-note:success="updateNote"
-            @creating-note:done="setPlaceHolderNote({})"
+            @creating-note-start="setPlaceHolderNote"
+            @creating-note-success="updateNote"
+            @creating-note-done="setPlaceHolderNote({})"
           />
         </li>
       </ul>

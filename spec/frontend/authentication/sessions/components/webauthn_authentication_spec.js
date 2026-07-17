@@ -82,7 +82,7 @@ describe('WebAuthnAuthentication', () => {
       createComponent();
       await nextTick();
 
-      expect(findInProgress().exists()).toBe(true);
+      expect(findInProgress().text()).toContain('Trying to communicate with your device');
     });
 
     it('disables the "Try again" button while authentication is in progress', async () => {
@@ -206,6 +206,13 @@ describe('WebAuthnAuthentication', () => {
 
     it('emits webauthn-not-supported and does not call get', () => {
       expect(wrapper.emitted('webauthn-not-supported')).toHaveLength(1);
+    });
+
+    it('keeps the aria-live region in the DOM even without an in-progress message', () => {
+      // The live region must be present before its text so screen readers register it.
+      expect(findInProgress().exists()).toBe(true);
+      expect(findInProgress().attributes('aria-live')).toBe('polite');
+      expect(findInProgress().text()).toBe('');
     });
   });
 });

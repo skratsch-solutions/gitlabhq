@@ -175,10 +175,10 @@ describe('WikiCommentForm', () => {
           expect(detectAndConfirmSensitiveTokens).toHaveBeenCalledWith({ content: 'Test comment' });
         });
 
-        it('should not emit the creating-note:start event when note is empty', async () => {
+        it('should not emit the creating-note-start event when note is empty', async () => {
           createComponent();
           await wrapper.vm.handleSave();
-          expect(Boolean(wrapper.emitted('creating-note:start'))).toBe(false);
+          expect(Boolean(wrapper.emitted('creating-note-start'))).toBe(false);
         });
 
         it('should clear the editor content', () => {
@@ -188,12 +188,12 @@ describe('WikiCommentForm', () => {
           expect(content).toBe('');
         });
 
-        it('should emit the creating-note:start event with the correct data when isEdit is true', async () => {
+        it('should emit the creating-note-start event with the correct data when isEdit is true', async () => {
           createWrapperWithNote({ isEdit: true });
           wrapper.vm.handleSave();
           await nextTick();
 
-          expect(wrapper.emitted('creating-note:start')).toMatchObject([
+          expect(wrapper.emitted('creating-note-start')).toMatchObject([
             [
               {
                 body: 'Test comment',
@@ -203,11 +203,11 @@ describe('WikiCommentForm', () => {
           ]);
         });
 
-        it('should emit the creating-note:start event with the correct data when isReply is true', async () => {
+        it('should emit the creating-note-start event with the correct data when isReply is true', async () => {
           createWrapperWithNote({ isReply: true });
           wrapper.vm.handleSave();
           await nextTick();
-          expect(wrapper.emitted('creating-note:start')).toMatchObject([
+          expect(wrapper.emitted('creating-note-start')).toMatchObject([
             [
               {
                 body: 'Test comment',
@@ -220,10 +220,10 @@ describe('WikiCommentForm', () => {
           ]);
         });
 
-        it('should emit the creating-note:start event with the correct data when isReply and isEdit are false', async () => {
+        it('should emit the creating-note-start event with the correct data when isReply and isEdit are false', async () => {
           wrapper.vm.handleSave();
           await nextTick();
-          expect(wrapper.emitted('creating-note:start')).toMatchObject([
+          expect(wrapper.emitted('creating-note-start')).toMatchObject([
             [
               {
                 body: 'Test comment',
@@ -313,7 +313,7 @@ describe('WikiCommentForm', () => {
               .mockImplementation(() => false);
 
             await wrapper.vm.handleSave();
-            expect(Boolean(wrapper.emitted('creating-note:start'))).toBe(false);
+            expect(Boolean(wrapper.emitted('creating-note-start'))).toBe(false);
           });
 
           it('should start submitting if the user confirms to continue with sensitive tokens', async () => {
@@ -323,7 +323,7 @@ describe('WikiCommentForm', () => {
               .mockImplementation(() => true);
 
             await wrapper.vm.handleSave();
-            expect(Boolean(wrapper.emitted('creating-note:start'))).toBe(true);
+            expect(Boolean(wrapper.emitted('creating-note-start'))).toBe(true);
           });
         });
 
@@ -338,18 +338,18 @@ describe('WikiCommentForm', () => {
             });
           });
 
-          it('should emit the creating-note:success event with the correct data when isEdit is true', async () => {
+          it('should emit the creating-note-success event with the correct data when isEdit is true', async () => {
             createWrapperWithNote({ isEdit: true });
             await wrapper.vm.handleSave();
 
-            expect(wrapper.emitted('creating-note:success')).toStrictEqual([[{ id: '1' }]]);
+            expect(wrapper.emitted('creating-note-success')).toStrictEqual([[{ id: '1' }]]);
           });
 
-          it('should emit the creating-note:success event with the correct data when isEdit is false', async () => {
+          it('should emit the creating-note-success event with the correct data when isEdit is false', async () => {
             createWrapperWithNote({ isEdit: false });
             await wrapper.vm.handleSave();
 
-            expect(wrapper.emitted('creating-note:success')).toStrictEqual([[{ id: '2' }]]);
+            expect(wrapper.emitted('creating-note-success')).toStrictEqual([[{ id: '2' }]]);
           });
 
           it('should set note to empty string', async () => {
@@ -370,10 +370,10 @@ describe('WikiCommentForm', () => {
             $apollo.mutate.mockRejectedValue('random error');
           });
 
-          it('should emit the creating-note:failed event with the correct value', async () => {
+          it('should emit the creating-note-failed event with the correct value', async () => {
             await wrapper.vm.handleSave();
 
-            expect(wrapper.emitted('creating-note:failed')).toStrictEqual([['random error']]);
+            expect(wrapper.emitted('creating-note-failed')).toStrictEqual([['random error']]);
           });
 
           it('should set the note to the previous value', async () => {

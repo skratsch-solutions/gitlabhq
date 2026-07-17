@@ -47290,6 +47290,8 @@ CREATE INDEX index_duo_workflows_workflows_on_merge_request_id ON duo_workflows_
 
 CREATE INDEX index_duo_workflows_workflows_on_namespace_id ON duo_workflows_workflows USING btree (namespace_id);
 
+CREATE INDEX index_duo_workflows_workflows_on_namespace_id_created_at ON duo_workflows_workflows USING btree (namespace_id, created_at DESC) WHERE (workflow_definition <> 'chat'::text);
+
 CREATE INDEX index_duo_workflows_workflows_on_project_id ON duo_workflows_workflows USING btree (project_id);
 
 CREATE INDEX index_duo_workflows_workflows_on_service_account_id ON duo_workflows_workflows USING btree (service_account_id);

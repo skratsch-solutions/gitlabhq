@@ -294,15 +294,15 @@ describe('WikiNote', () => {
           expect(clearDraftSpy).toHaveBeenCalled();
         });
 
-        it('should pass down isEditing as false when cancel:edit event is fired from note body component', async () => {
-          wrapper.findComponent(NoteBody).vm.$emit('cancel:edit');
+        it('should pass down isEditing as false when cancel-edit event is fired from note body component', async () => {
+          wrapper.findComponent(NoteBody).vm.$emit('cancel-edit');
 
           await nextTick();
           expect(wrapper.findComponent(NoteBody).props('isEditing')).toBe(false);
         });
 
-        it('should pass down isEditing as false when creating-note:success event is fired from note body component', async () => {
-          wrapper.findComponent(NoteBody).vm.$emit('creating-note:success');
+        it('should pass down isEditing as false when creating-note-success event is fired from note body component', async () => {
+          wrapper.findComponent(NoteBody).vm.$emit('creating-note-success');
 
           await nextTick();
           expect(wrapper.findComponent(NoteBody).props('isEditing')).toBe(false);
@@ -335,8 +335,8 @@ describe('WikiNote', () => {
           verifyEditingOrDeletingStyles(true);
         });
 
-        it('should pass isEditing down as true and remove spinner when creating-note:done event is fired from note body component', async () => {
-          wrapper.findComponent(NoteBody).vm.$emit('creating-note:done');
+        it('should pass isEditing down as true and remove spinner when creating-note-done event is fired from note body component', async () => {
+          wrapper.findComponent(NoteBody).vm.$emit('creating-note-done');
 
           await nextTick();
           expect(wrapper.findComponent(NoteBody).props('isEditing')).toBe(false);
@@ -345,14 +345,14 @@ describe('WikiNote', () => {
       });
 
       describe('when not updating', () => {
-        it('should add editing styles when creating-note:start event is fired from note body component', async () => {
-          wrapper.findComponent(NoteBody).vm.$emit('creating-note:start');
+        it('should add editing styles when creating-note-start event is fired from note body component', async () => {
+          wrapper.findComponent(NoteBody).vm.$emit('creating-note-start');
           await nextTick();
           verifyEditingOrDeletingStyles();
         });
 
-        it('should show spinner on note header when creating-note:start event is fired from note body component', async () => {
-          wrapper.findComponent(NoteBody).vm.$emit('creating-note:start');
+        it('should show spinner on note header when creating-note-start event is fired from note body component', async () => {
+          wrapper.findComponent(NoteBody).vm.$emit('creating-note-start');
           await nextTick();
           verifyShowSpinner();
         });

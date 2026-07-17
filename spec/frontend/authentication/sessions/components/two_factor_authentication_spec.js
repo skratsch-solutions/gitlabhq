@@ -12,12 +12,22 @@ describe('TwoFactorAuthentication', () => {
 
   let wrapper;
 
+  // Valid base64 ("YQ==" = base64("a")) so convertGetParams/base64ToBuffer succeed; a
+  // webauthn-enabled user always receives these from gon.webauthn in production.
+  const webauthnParams = {
+    challenge: 'YQ==',
+    timeout: 120000,
+    allowCredentials: [{ type: 'public-key', id: 'YQ==' }],
+    userVerification: 'discouraged',
+  };
+
   const defaultProps = {
     path: '/users/sign_in',
     rememberMe: '1',
     rememberMeEnabled: true,
     webauthnEnabled: false,
     totpEnabled: true,
+    webauthnParams,
   };
 
   const createComponent = (props = {}) => {
@@ -91,7 +101,7 @@ describe('TwoFactorAuthentication', () => {
         rememberMe: defaultProps.rememberMe,
         rememberMeEnabled: defaultProps.rememberMeEnabled,
         totpEnabled: defaultProps.totpEnabled,
-        webauthnParams: {},
+        webauthnParams,
       });
     });
 

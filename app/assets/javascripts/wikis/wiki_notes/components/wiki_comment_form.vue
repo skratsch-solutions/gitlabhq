@@ -84,10 +84,10 @@ export default {
   },
   emits: [
     'cancel',
-    'creating-note:done',
-    'creating-note:failed',
-    'creating-note:start',
-    'creating-note:success',
+    'creating-note-done',
+    'creating-note-failed',
+    'creating-note-start',
+    'creating-note-success',
   ],
   data() {
     return {
@@ -254,7 +254,7 @@ export default {
           return;
         }
 
-        this.$emit('creating-note:start', {
+        this.$emit('creating-note-start', {
           ...this.createNoteInput,
           individualNote: this.noteType === constants.DISCUSSION,
         });
@@ -281,12 +281,12 @@ export default {
           this.note = '';
           clearDraft(this.autosaveKey);
           clearDraft(this.autosaveKeyInternalNote);
-          this.$emit('creating-note:success', response);
+          this.$emit('creating-note-success', response);
         }
       } catch (err) {
         this.setError(createNoteErrorMessages(err));
         if (noteHasContent) {
-          this.$emit('creating-note:failed', err);
+          this.$emit('creating-note-failed', err);
         }
         this.note = noteBackup;
 
@@ -298,7 +298,7 @@ export default {
       } finally {
         this.isSubmitting = false;
         if (noteHasContent) {
-          this.$emit('creating-note:done');
+          this.$emit('creating-note-done');
         }
       }
     },

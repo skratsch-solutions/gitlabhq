@@ -114,12 +114,14 @@ export default {
       }}
     </template>
 
-    <p v-if="inProgress" data-testid="webauthn-in-progress" class="gl-text-subtle">
-      {{
-        s__(
-          "TwoFactorAuth|Trying to communicate with your device. Plug it in (if you haven't already) and follow the instructions.",
-        )
-      }}
+    <p data-testid="webauthn-in-progress" aria-live="polite" class="gl-text-subtle">
+      <template v-if="inProgress">
+        {{
+          s__(
+            "TwoFactorAuth|Trying to communicate with your device. Plug it in (if you haven't already) and follow the instructions.",
+          )
+        }}
+      </template>
     </p>
 
     <gl-form ref="form" :action="path" method="post" class="gl-hidden">

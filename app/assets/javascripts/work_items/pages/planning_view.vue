@@ -320,6 +320,7 @@ export default {
       currentWorkItemIds: [],
       isDisplayDrawerOpen: false,
       drawerTopOffset: '0px',
+      boardUpdatedItem: null,
     };
   },
 
@@ -1250,6 +1251,12 @@ export default {
       this.activeItem = null;
       this.refetchItems({ refetchCounts: true });
     },
+    handleWorkItemUpdated(workItem) {
+      this.handleStatusChange(workItem);
+      if (this.isBoardView) {
+        this.boardUpdatedItem = workItem;
+      }
+    },
     handleStatusChange(workItem) {
       if (this.state === STATUS_ALL) {
         return;
@@ -1933,7 +1940,7 @@ export default {
       @close="activeItem = null"
       @add-child="refetchItems"
       @work-item-deleted="deleteItem"
-      @work-item-updated="handleStatusChange"
+      @work-item-updated="handleWorkItemUpdated"
     />
     <div>
       <template v-if="!isServiceDeskList">
@@ -2282,6 +2289,7 @@ export default {
       :hidden-metadata-keys="hiddenMetadataKeys"
       :active-item="activeItem"
       :detail-panel-enabled="workItemDetailPanelEnabled"
+      :updated-work-item="boardUpdatedItem"
       @set-error="($evt) => (error = $evt)"
       @set-active-item="handleSetActiveItem"
       @toggle-collapse="handleToggleGroupCollapse"
