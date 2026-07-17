@@ -221,6 +221,13 @@ class TodoService
     todos
   end
 
+  def transfer_failed(target, current_user)
+    attributes = attributes_for_todo(nil, target, current_user, Todo::TRANSFER_FAILED)
+    attributes[:project_id] = target.id if target.is_a?(Project)
+    attributes[:group_id] = target.id if target.is_a?(Group)
+    create_todos(current_user, attributes, nil, nil)
+  end
+
   def todo_exist?(issuable, current_user)
     current_user.todos.any_for_target?(issuable, :pending)
   end
@@ -471,7 +478,7 @@ class TodoService
 
   def attributes_for_target(target)
     attributes = {
-      project_id: target&.project&.id,
+      project_id: target.try(:project)&.id,
       target_id: target.id,
       target_type: target.class.try(:polymorphic_name) || target.class.name,
       commit_id: nil

@@ -2115,6 +2115,11 @@ msgid_plural "%{merge_requests} closed merge requests"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "1 custom role"
+msgid_plural "%d custom roles"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "1 day"
 msgid_plural "%d days"
 msgstr[0] ""
@@ -38366,6 +38371,9 @@ msgstr ""
 msgid "GroupSettings|Selected step-up authentication provider for this namespace"
 msgstr ""
 
+msgid "GroupSettings|Service Desk address for project %{project_path} is already in use. Change the Service Desk project key before moving or renaming this group."
+msgstr ""
+
 msgid "GroupSettings|Service access tokens expiration enforced setting was not saved"
 msgstr ""
 
@@ -59057,6 +59065,9 @@ msgstr ""
 msgid "Profiles|Send confirmation email"
 msgstr ""
 
+msgid "Profiles|Service Desk address for project %{project_path} is already in use. Change the Service Desk project key before changing the username."
+msgstr ""
+
 msgid "Profiles|Set new profile picture"
 msgstr ""
 
@@ -62228,13 +62239,13 @@ msgstr ""
 msgid "Reachability|Yes"
 msgstr ""
 
-msgid "Read"
-msgstr ""
-
 msgid "Read documentation"
 msgstr ""
 
 msgid "Read less"
+msgstr ""
+
+msgid "Read metadata"
 msgstr ""
 
 msgid "Read more"
@@ -62244,6 +62255,9 @@ msgid "Read more at %{link_to_promo}."
 msgstr ""
 
 msgid "Read their documentation."
+msgstr ""
+
+msgid "Read value"
 msgstr ""
 
 msgid "Ready to get started with GitLab? Follow these steps to get familiar with us:"
@@ -67224,10 +67238,13 @@ msgstr ""
 msgid "SecretsManagerPermissions|Can create and update secrets."
 msgstr ""
 
+msgid "SecretsManagerPermissions|Can fetch secret values with direct API requests."
+msgstr ""
+
 msgid "SecretsManagerPermissions|Can permanently delete secrets."
 msgstr ""
 
-msgid "SecretsManagerPermissions|Can read secret metadata but not the secret value."
+msgid "SecretsManagerPermissions|Can read the metadata of secrets but not the secret values."
 msgstr ""
 
 msgid "SecretsManagerPermissions|Enable secrets manager for this group"
@@ -80460,7 +80477,13 @@ msgstr ""
 msgid "Todos|Failed builds"
 msgstr ""
 
+msgid "Todos|Failed to retry transfer. Please try again."
+msgstr ""
+
 msgid "Todos|Failed to snooze todo. Try again later."
+msgstr ""
+
+msgid "Todos|Failed to transfer %{source} to %{target}. %{retryLinkStart}Try again.%{retryLinkEnd}"
 msgstr ""
 
 msgid "Todos|Failed to un-snooze todo. Try again later."
@@ -80706,6 +80729,9 @@ msgid "Todos|Until tomorrow"
 msgstr ""
 
 msgid "Todos|Updated"
+msgstr ""
+
+msgid "Todos|View %{name}"
 msgstr ""
 
 msgid "Todos|When an issue or merge request is assigned to you, or when you receive a %{strongStart}@mention%{strongEnd} in a comment, this automatically triggers a new item in your To-Do List."

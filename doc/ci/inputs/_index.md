@@ -893,12 +893,10 @@ test-job:
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/19368) in GitLab 19.2
   [with a feature flag](../../administration/feature_flags/_index.md) named `ci_interpolation_split_function`.
   Disabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/603990) in GitLab 19.2.
+  Feature flag `ci_interpolation_split_function` removed.
 
 {{< /history >}}
-
-> [!flag]
-> The availability of this feature is controlled by a feature flag.
-> For more information, see the history.
 
 Use `split` to divide a string input into an array of substrings on a separator. For example:
 

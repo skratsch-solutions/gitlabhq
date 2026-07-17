@@ -26,6 +26,16 @@ RSpec.describe Projects::TransferWorker, feature_category: :groups_and_projects 
         expect(project_namespace.reload).to be_ancestor_inherited
       end
 
+      context 'when a pending transfer-failed todo exists for the user' do
+        it 'marks the transfer-failed todo as done on successful transfer' do
+          transfer_failed_todo = TodoService.new.transfer_failed(project, user).first
+
+          perform
+
+          expect(transfer_failed_todo.reload).to be_done
+        end
+      end
+
       context 'when the project namespace is stuck in transfer_in_progress state' do
         before do
           project_namespace.schedule_transfer!(transition_user: user)
@@ -60,12 +70,18 @@ RSpec.describe Projects::TransferWorker, feature_category: :groups_and_projects 
       end
 
       context 'when TransferService returns false' do
-        it 'cancels the transfer' do
+        it 'cancels the transfer and creates a transfer failure todo' do
           expect_next_instance_of(::Projects::TransferService) do |service|
             expect(service).to receive(:execute).with(new_namespace).and_return(false)
           end
-
-          perform
+          expect { perform }.to change {
+            Todo.where(
+              user: user,
+              author: user,
+              action: Todo::TRANSFER_FAILED,
+              target: project
+            ).count
+          }.by(1)
 
           expect(project_namespace.reload).not_to be_transfer_in_progress
         end
@@ -79,7 +95,16 @@ RSpec.describe Projects::TransferWorker, feature_category: :groups_and_projects 
 
           allow(Gitlab::AppLogger).to receive(:error)
 
-          expect { perform }.to raise_error(StandardError, 'something went wrong')
+          expect do
+            expect { perform }.to raise_error(StandardError, 'something went wrong')
+          end.to change {
+            Todo.where(
+              user: user,
+              author: user,
+              action: Todo::TRANSFER_FAILED,
+              target: project
+            ).count
+          }.by(1)
           expect(project_namespace.reload).not_to be_transfer_in_progress
           expect(Gitlab::AppLogger).to have_received(:error).with(hash_including(
             message: 'Projects::TransferWorker failed',
@@ -87,6 +112,31 @@ RSpec.describe Projects::TransferWorker, feature_category: :groups_and_projects 
             new_namespace_id: new_namespace.id,
             error: 'something went wrong'
           ))
+        end
+      end
+
+      context 'when TransferService succeeds but a subsequent step raises an error' do
+        it 'does not create a transfer failure todo and re-raises the error', :aggregate_failures do
+          expect_next_instance_of(::Projects::TransferService) do |service|
+            expect(service).to receive(:execute).and_return(true)
+          end
+
+          allow_next_found_instance_of(Namespaces::ProjectNamespace) do |ns|
+            allow(ns).to receive(:complete_transfer!).and_raise(StandardError, 'post-success failure')
+          end
+
+          allow(Gitlab::AppLogger).to receive(:error)
+
+          expect do
+            expect { perform }.to raise_error(StandardError, 'post-success failure')
+          end.not_to change {
+            Todo.where(
+              user: user,
+              author: user,
+              action: Todo::TRANSFER_FAILED,
+              target: project
+            ).count
+          }
         end
       end
 
@@ -125,8 +175,16 @@ RSpec.describe Projects::TransferWorker, feature_category: :groups_and_projects 
 
         it 'does not call cancel_transfer! and re-raises' do
           allow(Gitlab::AppLogger).to receive(:error)
-
-          expect { perform }.to raise_error(StateMachines::InvalidTransition)
+          expect do
+            expect { perform }.to raise_error(StateMachines::InvalidTransition)
+          end.not_to change {
+            Todo.where(
+              user: user,
+              author: user,
+              action: Todo::TRANSFER_FAILED,
+              target: project
+            ).count
+          }
           expect(project_namespace.reload).not_to be_transfer_in_progress
           expect(Gitlab::AppLogger).to have_received(:error).with(hash_including(
             message: 'Projects::TransferWorker failed',

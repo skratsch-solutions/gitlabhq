@@ -290,13 +290,20 @@ RSpec.shared_examples 'work item API filter parity' do
     # instad of `iid` we have `iids`
     # `or`, `not` is just a key in GraphQL
     # `hierarchy_filters` is deprecated
-    known_exceptions = %w[iid not or hierarchy_filters]
+    # `types` (base-type filter) is intentionally dropped from the Work Items REST API in favour of
+    # `work_item_type_ids`. See https://gitlab.com/gitlab-org/gitlab/-/work_items/605897
+    known_exceptions = %w[iid not or hierarchy_filters types]
 
     ::Resolvers::Namespaces::WorkItemsResolver.arguments.keys.map(&:underscore) - known_exceptions - parity_wip
   end
 
   let(:graphql_not_filter_params) do
-    ::Types::WorkItems::NegatedWorkItemFilterInputType.arguments.keys.map(&:underscore) - not_filter_parity_wip
+    # `types` (base-type filter) is intentionally dropped from the Work Items REST API in favour of
+    # `work_item_type_ids`. See https://gitlab.com/gitlab-org/gitlab/-/work_items/605897
+    known_exceptions = %w[types]
+
+    ::Types::WorkItems::NegatedWorkItemFilterInputType.arguments.keys.map(&:underscore) -
+      known_exceptions - not_filter_parity_wip
   end
 
   let(:graphql_or_filter_params) do

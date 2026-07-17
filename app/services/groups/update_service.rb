@@ -36,8 +36,12 @@ module Groups
         after_update if success
 
         success
-      rescue Gitlab::UpdatePathError => e
+      rescue Gitlab::UpdatePathError, ActiveRecord::RecordInvalid => e
         group.errors.add(:base, e.message)
+
+        false
+      rescue ServiceDesk::RefreshProjectKeyAddressSlugsService::AddressSlugConflictError => e
+        group.errors.add(:base, service_desk_address_conflict_message(e.message))
 
         false
       end

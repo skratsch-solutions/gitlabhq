@@ -55,14 +55,16 @@ RSpec.shared_examples 'work item listing filters' do
       it_behaves_like 'contains only matching work items'
     end
 
-    context 'with types filter' do
-      let(:params) { { types: 'task' } }
+    context 'when the removed types filter is passed' do
+      it 'ignores the types param and returns the same items as an unfiltered request', :aggregate_failures do
+        get api(api_request_path, user), params: {}
+        unfiltered_ids = json_response.pluck('id')
 
-      before do
-        work_item_1.update!(work_item_type: task_type)
+        get api(api_request_path, user), params: { types: 'task' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.pluck('id')).to match_array(unfiltered_ids)
       end
-
-      it_behaves_like 'contains only matching work items'
     end
 
     context 'when filtering for task items' do
@@ -445,9 +447,7 @@ RSpec.shared_examples 'work item listing filters' do
           [lazy { { milestone_title: 'v1.0', milestone_wildcard_id: 'None' } }],
           [lazy { { release_tag: 'v1.0', release_tag_wildcard_id: 'None' } }],
           [lazy { { parent_ids: '1', parent_wildcard_id: 'None' } }],
-          [lazy { { not: { milestone_title: 'v1.0', milestone_wildcard_id: 'Started' } } }],
-          [lazy { { types: 'task', work_item_type_ids: task_type.id } }],
-          [lazy { { not: { types: 'task', work_item_type_ids: task_type.id } } }]
+          [lazy { { not: { milestone_title: 'v1.0', milestone_wildcard_id: 'Started' } } }]
         ]
       end
 

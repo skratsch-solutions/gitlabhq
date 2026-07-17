@@ -421,7 +421,6 @@ read_dora4_analytics
 read_duo_core_settings
 read_duo_workflow_event
 read_emoji
-read_enterprise_ai_analytics
 read_ephemeral_token
 read_epic_iid
 read_epic_link_relation

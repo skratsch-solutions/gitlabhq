@@ -68,6 +68,13 @@ module Groups
 
       log_group_transfer_success(@group, @new_parent_group)
 
+    rescue ServiceDesk::RefreshProjectKeyAddressSlugsService::AddressSlugConflictError => e
+      @group.errors.clear
+      @error = service_desk_address_conflict_message(e.message)
+
+      log_group_transfer_error(@group, @new_parent_group, e.message)
+
+      false
     rescue TransferError, ActiveRecord::RecordInvalid, Gitlab::UpdatePathError => e
       @group.errors.clear
       @error = s_("TransferGroup|Transfer failed: %{error_message}") % { error_message: e.message }

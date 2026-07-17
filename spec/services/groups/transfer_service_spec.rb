@@ -580,6 +580,40 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
         end
       end
 
+      context 'when a descendant project has a service desk project_key' do
+        # `let!`, not `let_it_be`: earlier examples transfer the shared group and
+        # mutate its in-memory route, so a project created in `before_all` can be
+        # persisted under a stale path. Sibling contexts use `let!` for the same
+        # reason.
+        let!(:project) { create(:project, namespace: group) }
+        let!(:setting) { create(:service_desk_setting, project: project, project_key: 'mykey') }
+
+        before do
+          TestEnv.clean_test_path
+        end
+
+        it 'recomputes project_key_address_slug from the new full path' do
+          transfer_service.execute(new_parent_group)
+
+          expect(setting.reload.project_key_address_slug).to eq("#{project.reload.full_path_slug}-mykey")
+        end
+
+        context 'when the new path collides with another service desk address' do
+          before do
+            # After the transfer the project's full path is
+            # "#{new_parent_group.path}/#{group.path}/#{project.path}", which
+            # slugifies to the same value as this existing project's path.
+            existing = create(:project, path: "#{group.path}-#{project.path}", namespace: new_parent_group)
+            create(:service_desk_setting, project: existing, project_key: 'mykey')
+          end
+
+          it 'blocks the transfer with a clear error' do
+            expect(transfer_service.execute(new_parent_group)).to be false
+            expect(transfer_service.error).to include('Service Desk address for project')
+          end
+        end
+      end
+
       context 'when transferring a group with subgroups & projects descendants' do
         let!(:project1) { create(:project, :private, namespace: group) }
         let!(:project2) { create(:project, :internal, namespace: group) }

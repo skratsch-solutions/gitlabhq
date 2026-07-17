@@ -1649,6 +1649,36 @@ RSpec.describe TodoService, feature_category: :notifications do
     end
   end
 
+  describe '#transfer_failed' do
+    context 'when transfer target is a project' do
+      it 'creates a transfer_failed todo scoped to the project' do
+        service.transfer_failed(project, author)
+
+        should_create_todo(
+          user: author,
+          target: project,
+          action: Todo::TRANSFER_FAILED,
+          project: project,
+          group: nil
+        )
+      end
+    end
+
+    context 'when transfer target is a group' do
+      it 'creates a transfer_failed todo scoped to the group' do
+        service.transfer_failed(group, author)
+
+        should_create_todo(
+          user: author,
+          target: group,
+          action: Todo::TRANSFER_FAILED,
+          project: nil,
+          group: group
+        )
+      end
+    end
+  end
+
   describe 'composite identity attribution', :request_store do
     let_it_be_with_reload(:service_account) { create(:user, :service_account, composite_identity_enforced: true, developer_of: project) }
     let_it_be_with_reload(:human) { create(:user, developer_of: project) }

@@ -49,6 +49,13 @@ class ServiceDeskSetting < ApplicationRecord
     if: :needs_custom_email_credentials?
 
   scope :with_project_key, ->(key) { where(project_key: key) }
+  scope :with_any_project_key, -> { where.not(project_key: nil) }
+  scope :preload_project, -> { preload(:project) }
+  scope :for_projects_inside_route_path, ->(path) do
+    where(
+      project_id: Route.for_routable_type('Project').inside_path(path).select(:source_id)
+    )
+  end
 
   def custom_email_credential
     project&.service_desk_custom_email_credential
@@ -100,8 +107,6 @@ class ServiceDeskSetting < ApplicationRecord
     project_key.present? && projects_with_same_slug_and_key_exists?
   end
 
-  # Recomputes and persists project_key_address_slug from the project's current
-  # full path via the before_save callback.
   def refresh_project_key_address_slug!
     return unless project_key.present?
 

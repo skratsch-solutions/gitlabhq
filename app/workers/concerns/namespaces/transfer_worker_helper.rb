@@ -16,5 +16,32 @@ module Namespaces
       )
       namespace.cancel_transfer!
     end
+
+    def create_transfer_failure_todo(target, user, worker_name:, **log_params)
+      TodoService.new.transfer_failed(target, user)
+    rescue StandardError => e
+      Gitlab::AppLogger.error(
+        {
+          message: "#{worker_name} failed to create transfer failure todo",
+          Labkit::Fields::GL_USER_ID => user.id,
+          Labkit::Fields::ERROR_MESSAGE => e.message
+        }.merge(log_params)
+      )
+    end
+
+    def resolve_transfer_failure_todo(target, user, worker_name:, **log_params)
+      todo = Todo.pending_transfer_failed_for(user: user, target: target)
+      return unless todo
+
+      TodoService.new.resolve_todo(todo, user)
+    rescue StandardError => e
+      Gitlab::AppLogger.error(
+        {
+          message: "#{worker_name} failed to resolve transfer failure todo",
+          Labkit::Fields::GL_USER_ID => user.id,
+          Labkit::Fields::ERROR_MESSAGE => e.message
+        }.merge(log_params)
+      )
+    end
   end
 end

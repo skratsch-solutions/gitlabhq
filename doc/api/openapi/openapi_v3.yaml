@@ -16357,6 +16357,7 @@ paths:
           - review_submitted
           - ssh_key_expired
           - ssh_key_expiring_soon
+          - transfer_failed
           - merge_train_removed
           - okr_checkin_requested
           - added_approver

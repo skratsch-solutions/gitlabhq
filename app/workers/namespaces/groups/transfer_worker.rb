@@ -44,19 +44,30 @@ module Namespaces
       private
 
       def execute_transfer(group, new_parent_group, user, exclusive_lease)
+        transfer_started = false
+        transfer_succeeded = false
         cancel_stale_transfer_state(group, group_id: group.id)
 
         group.schedule_transfer!(transition_user: user) unless group.transfer_scheduled?
         group.start_transfer!(transition_user: user)
+        transfer_started = true
 
         transfer_successful = ::Groups::TransferService.new(group, user).execute(new_parent_group)
 
         if transfer_successful
+          transfer_succeeded = true
           group.complete_transfer!
+          resolve_transfer_failure_todo(group, user, worker_name: self.class.name, group_id: group.id)
         else
+          create_transfer_failure_todo(group, user, worker_name: self.class.name, group_id: group.id)
           group.cancel_transfer!
         end
       rescue StandardError => e
+
+        if transfer_started && !transfer_succeeded
+          create_transfer_failure_todo(group, user, worker_name: self.class.name, group_id: group.id)
+        end
+
         begin
           cancel_transfer_if_in_progress(group)
         rescue StandardError => cancel_error

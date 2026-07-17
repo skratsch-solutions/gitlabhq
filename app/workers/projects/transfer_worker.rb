@@ -45,20 +45,30 @@ module Projects
 
     def execute_transfer(project, new_namespace, user, exclusive_lease)
       project_namespace = project.project_namespace
+      transfer_started = false
+      transfer_succeeded = false
 
       cancel_stale_transfer_state(project_namespace, project_id: project.id)
 
       project_namespace.schedule_transfer!(transition_user: user) unless project_namespace.transfer_scheduled?
       project_namespace.start_transfer!(transition_user: user)
+      transfer_started = true
 
       result = ::Projects::TransferService.new(project, user).execute(new_namespace)
 
       if result
+        transfer_succeeded = true
         project_namespace.complete_transfer!
+        resolve_transfer_failure_todo(project, user, worker_name: self.class.name, project_id: project.id)
       else
+        create_transfer_failure_todo(project, user, worker_name: self.class.name, project_id: project.id)
         project_namespace.cancel_transfer!
       end
     rescue StandardError => e
+      if transfer_started && !transfer_succeeded
+        create_transfer_failure_todo(project, user, worker_name: self.class.name, project_id: project.id)
+      end
+
       begin
         cancel_transfer_if_in_progress(project_namespace)
       rescue StandardError => cancel_error

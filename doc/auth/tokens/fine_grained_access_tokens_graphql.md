@@ -383,6 +383,15 @@ Grants the ability to read and update AI tool rules, which control per-tool appr
 | Update | Group | Mutation | `BulkUpdateAiToolRules` |
 | Update | Group | Mutation | `UpdateAiToolRule` |
 
+#### AI usage metric
+
+Grants the ability to read per-user GitLab Duo usage metrics.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Project | Field | `Project.aiUserMetrics` |
+| Read | Group | Field | `Group.aiUserMetrics` |
+
 #### Duo Workflow
 
 Grants the ability to create, read, resume, and update duo workflows.
