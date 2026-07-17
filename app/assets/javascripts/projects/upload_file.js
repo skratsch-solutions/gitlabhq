@@ -28,7 +28,6 @@ export const initUploadFileTrigger = () => {
       canPushCode: parseBoolean(canPushCode),
       canPushToBranch: parseBoolean(canPushToBranch),
       path,
-      projectPath,
       emptyRepo: true,
     },
     render(h) {

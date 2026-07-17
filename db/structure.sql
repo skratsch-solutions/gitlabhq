@@ -16461,6 +16461,7 @@ CREATE TABLE cd_applications (
     name text NOT NULL,
     description text,
     organization_id bigint,
+    last_rollout_iid integer DEFAULT 0 NOT NULL,
     CONSTRAINT check_5c9e2dc179 CHECK ((char_length(description) <= 2000)),
     CONSTRAINT check_66e220abb5 CHECK ((char_length(name) <= 255)),
     CONSTRAINT check_b0bed301c4 CHECK ((organization_id IS NOT NULL))
@@ -16665,6 +16666,8 @@ CREATE TABLE cd_rollouts (
     application_id bigint,
     application_flow_definition_id bigint,
     workflow_ref text,
+    iid integer,
+    CONSTRAINT check_1eef9fc5c9 CHECK ((iid IS NOT NULL)),
     CONSTRAINT check_311909ffdc CHECK ((char_length(workflow_ref) <= 255)),
     CONSTRAINT check_4ca25c42db CHECK ((application_id IS NOT NULL)),
     CONSTRAINT check_a1261339a4 CHECK ((organization_id IS NOT NULL))
@@ -46483,7 +46486,7 @@ CREATE INDEX index_cd_rollout_transitions_on_rollout_id_and_created_at ON cd_rol
 
 CREATE INDEX index_cd_rollouts_on_application_flow_definition_id ON cd_rollouts USING btree (application_flow_definition_id);
 
-CREATE INDEX index_cd_rollouts_on_application_id ON cd_rollouts USING btree (application_id);
+CREATE UNIQUE INDEX index_cd_rollouts_on_application_id_and_iid ON cd_rollouts USING btree (application_id, iid);
 
 CREATE UNIQUE INDEX index_cd_rollouts_on_application_id_non_terminal ON cd_rollouts USING btree (application_id) WHERE (state = ANY (ARRAY[0, 1, 2]));
 

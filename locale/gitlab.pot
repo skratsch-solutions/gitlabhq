@@ -22648,6 +22648,9 @@ msgstr ""
 msgid "ContinuousDeployment|Failed"
 msgstr ""
 
+msgid "ContinuousDeployment|Failed to load deployments. Reload to try again."
+msgstr ""
+
 msgid "ContinuousDeployment|Failed to load releases. Reload to try again."
 msgstr ""
 
@@ -22676,6 +22679,9 @@ msgid "ContinuousDeployment|Health"
 msgstr ""
 
 msgid "ContinuousDeployment|Healthy"
+msgstr ""
+
+msgid "ContinuousDeployment|ID"
 msgstr ""
 
 msgid "ContinuousDeployment|In progress"
@@ -64082,10 +64088,19 @@ msgstr ""
 msgid "Rollback"
 msgstr ""
 
+msgid "Rollout cannot be started because deploy driver '%{driver_ref}' is not registered."
+msgstr ""
+
+msgid "Rollout cannot be started because it has no environments bound to a deploy driver."
+msgstr ""
+
 msgid "Rollout cannot be started because it has no flow definition."
 msgstr ""
 
 msgid "Rollout cannot be started because it is not pending."
+msgstr ""
+
+msgid "Rollout cannot be started because its environments use different deploy drivers."
 msgstr ""
 
 msgid "Rollout is not awaiting approval."
@@ -92841,6 +92856,9 @@ msgid "is not"
 msgstr ""
 
 msgid "is not a descendant of the Group owning the template"
+msgstr ""
+
+msgid "is not a recognized deploy driver."
 msgstr ""
 
 msgid "is not a valid X509 certificate."

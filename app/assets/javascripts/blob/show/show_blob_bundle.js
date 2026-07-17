@@ -84,7 +84,7 @@ export default function initBlobShow() {
 
     initFileTreeBrowser(router, { projectPath, ref: originalBranch, refType });
     initLastCommitApp(router);
-    initHeaderApp({ router, isBlobView: true });
+    initHeaderApp({ router });
     initRepositoryApp(router, repositoryAppOptions);
 
     initAuxiliaryViewer();

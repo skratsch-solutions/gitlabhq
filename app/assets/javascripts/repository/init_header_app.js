@@ -30,7 +30,7 @@ const initClientQueries = ({ projectPath, projectShortPath, ref, escapedRef }) =
     });
 };
 
-export default function initHeaderApp({ router, isReadmeView = false, isBlobView = false }) {
+export default function initHeaderApp({ router, isReadmeView = false }) {
   const headerEl = document.getElementById('js-repository-blob-header-app');
   if (headerEl) {
     const {
@@ -111,7 +111,6 @@ export default function initHeaderApp({ router, isReadmeView = false, isBlobView
         uploadPath: breadcrumbsUploadPath,
         newDirPath: breadcrumbsNewDirPath,
         projectRootPath,
-        projectShortPath,
         comparePath,
         isReadmeView,
         isFork: parseBoolean(isFork),
@@ -137,7 +136,6 @@ export default function initHeaderApp({ router, isReadmeView = false, isBlobView
         downloadArtifacts: downloadArtifacts ? JSON.parse(downloadArtifacts) : [],
         showNoSshKeyMessage: parseBoolean(showNoSshKeyMessage),
         userSettingsSshKeysPath,
-        isBlobView,
         isBinary: parseBoolean(isBinary),
         rootRef,
         organizationId,
