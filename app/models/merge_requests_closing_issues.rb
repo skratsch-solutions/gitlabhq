@@ -11,7 +11,7 @@ class MergeRequestsClosingIssues < ApplicationRecord
 
   validates :merge_request_id, uniqueness: { scope: [:issue_id, :link_type] }, presence: true
   validates :issue_id, presence: true
-  validate :from_mr_description_only_for_closes
+  validate :ensure_related_links_are_not_from_description
 
   scope :with_opened_merge_request, -> { joins(:merge_request).merge(MergeRequest.with_state(:opened)) }
   scope :from_mr_description, -> { where(from_mr_description: true) }
@@ -64,9 +64,10 @@ class MergeRequestsClosingIssues < ApplicationRecord
 
   private
 
-  def from_mr_description_only_for_closes
-    return unless from_mr_description && !link_type_closes?
+  def ensure_related_links_are_not_from_description
+    return unless link_type_related?
+    return unless from_mr_description
 
-    errors.add(:from_mr_description, 'can only be true when link_type is closes')
+    errors.add(:from_mr_description, 'cannot be true for related link types')
   end
 end

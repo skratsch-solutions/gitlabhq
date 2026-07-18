@@ -362,13 +362,13 @@ module MergeRequests
     # If the merge requests closes any issues, save this information in the
     # `MergeRequestsClosingIssues` model (as a performance optimization).
     #
-    # Only open merge requests are considered: `cache_merge_request_closes_issues!`
+    # Only open merge requests are considered: `persist_merge_request_issues!`
     # is a no-op for closed and merged merge requests, so loading them here is
     # wasted work when a source branch is shared by many such merge requests.
     # rubocop: disable CodeReuse/ActiveRecord
     def cache_merge_requests_closing_issues
       @project.merge_requests.opened.where(source_branch: @push.branch_name).find_each do |merge_request|
-        merge_request.cache_merge_request_closes_issues!(@current_user)
+        merge_request.persist_merge_request_issues!(@current_user)
       end
     end
     # rubocop: enable CodeReuse/ActiveRecord

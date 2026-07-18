@@ -8,6 +8,7 @@ import waitForPromises from 'helpers/wait_for_promises';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import axios from '~/lib/utils/axios_utils';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
+import { visitUrl } from '~/lib/utils/url_utility';
 import {
   HTTP_STATUS_OK,
   HTTP_STATUS_INTERNAL_SERVER_ERROR,
@@ -25,6 +26,10 @@ import {
 } from '~/super_sidebar/tracking_constants';
 
 jest.mock('~/sentry/sentry_browser_wrapper');
+jest.mock('~/lib/utils/url_utility', () => ({
+  ...jest.requireActual('~/lib/utils/url_utility'),
+  visitUrl: jest.fn(),
+}));
 jest.mock('~/lib/utils/path_helpers/feature_library', () => ({
   onboardingFeatureLibrarySearchPath: () => '/-/onboarding/feature_library/search',
 }));
@@ -49,6 +54,7 @@ const defaultSections = [
         title: 'Boards',
         description: 'Visualize work with boards',
         library_icon: 'list-numbered',
+        link: '/group/project/-/boards',
       },
       {
         id: 'milestones',
@@ -80,6 +86,7 @@ const defaultSections = [
         title: 'Members',
         description: 'Manage project members',
         library_icon: 'users',
+        link: '/group/project/-/project_members',
       },
     ],
   },
@@ -107,6 +114,9 @@ describe('FeatureLibraryModal', () => {
     mockAxios.restore();
   });
 
+  const focusInput = jest.fn();
+  const hideModal = jest.fn();
+
   const createWrapper = ({
     currentPinnedIds = [],
     panelType = 'project',
@@ -118,7 +128,13 @@ describe('FeatureLibraryModal', () => {
       provide: { panelType },
       // Stub GlModal (declared props stay props, everything else surfaces as
       // attrs) and render all its slots so footer/body content is inspectable.
-      stubs: { GlModal: stubComponent(GlModal, { template: RENDER_ALL_SLOTS_TEMPLATE }) },
+      stubs: {
+        GlModal: stubComponent(GlModal, {
+          template: RENDER_ALL_SLOTS_TEMPLATE,
+          methods: { hide: hideModal },
+        }),
+        GlSearchBoxByType: stubComponent(GlSearchBoxByType, { methods: { focusInput } }),
+      },
     });
   };
 
@@ -684,6 +700,132 @@ describe('FeatureLibraryModal', () => {
     });
   });
 
+  describe('keyboard-first navigation', () => {
+    const pressEnter = () =>
+      findSearch().vm.$emit('keydown', new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    describe('when the modal is shown', () => {
+      beforeEach(() => {
+        createWrapper();
+        findModal().vm.$emit('shown');
+      });
+
+      it('focuses the search box', () => {
+        expect(focusInput).toHaveBeenCalled();
+      });
+    });
+
+    describe('when a query has results', () => {
+      beforeEach(async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        createWrapper();
+        await emitSearch('board');
+        await waitForPromises();
+      });
+
+      it('navigates to the first displayed result on Enter', () => {
+        pressEnter();
+
+        expect(visitUrl).toHaveBeenCalledWith('/group/project/-/boards');
+      });
+
+      it('closes the modal before navigating on Enter', () => {
+        pressEnter();
+
+        expect(hideModal).toHaveBeenCalled();
+      });
+    });
+
+    describe('when the modal is closed and reopened with a stale query', () => {
+      beforeEach(async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        createWrapper();
+        await emitSearch('board');
+        await waitForPromises();
+
+        findModal().vm.$emit('hidden');
+        findModal().vm.$emit('shown');
+      });
+
+      it('does not navigate on Enter', () => {
+        pressEnter();
+
+        expect(visitUrl).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when synonym matches exist', () => {
+      beforeEach(async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: ['members'] });
+        createWrapper();
+        await emitSearch('sprint');
+        await waitForPromises();
+      });
+
+      it('navigates to the backend-ranked first result on Enter', () => {
+        pressEnter();
+
+        expect(visitUrl).toHaveBeenCalledWith('/group/project/-/project_members');
+      });
+    });
+
+    describe('when the query is empty', () => {
+      beforeEach(() => {
+        createWrapper();
+      });
+
+      it('does nothing on Enter', () => {
+        pressEnter();
+
+        expect(visitUrl).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('while the search endpoint is in flight', () => {
+      beforeEach(async () => {
+        mockAxios.onGet(SEARCH_URL).reply(() => new Promise(() => {}));
+        createWrapper();
+        await emitSearch('board');
+      });
+
+      it('does nothing on Enter', () => {
+        pressEnter();
+
+        expect(visitUrl).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the first result has no link', () => {
+      beforeEach(async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        createWrapper();
+        await emitSearch('milestones');
+        await waitForPromises();
+      });
+
+      it('does nothing on Enter', () => {
+        pressEnter();
+
+        expect(visitUrl).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when there are no results', () => {
+      beforeEach(async () => {
+        mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+        createWrapper();
+        await emitSearch('nonexistent feature');
+        await waitForPromises();
+      });
+
+      it('does nothing on Enter', () => {
+        pressEnter();
+
+        expect(visitUrl).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   describe('pin toggle', () => {
     beforeEach(() => createWrapper());
 
@@ -754,6 +896,21 @@ describe('FeatureLibraryModal', () => {
       expect(trackEventSpy).toHaveBeenCalledWith(
         EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
         { label: 'repository' },
+        CATEGORY,
+      );
+    });
+
+    it('tracks navigating via Enter in the search box, labelled with the item id', async () => {
+      mockAxios.onGet(SEARCH_URL).reply(HTTP_STATUS_OK, { ids: [] });
+      await emitSearch('board');
+      await waitForPromises();
+
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findSearch().vm.$emit('keydown', new KeyboardEvent('keydown', { key: 'Enter' }));
+
+      expect(trackEventSpy).toHaveBeenCalledWith(
+        EVENT_NAVIGATE_TO_FEATURE_FROM_FEATURE_LIBRARY_MODAL,
+        { label: 'boards' },
         CATEGORY,
       );
     });

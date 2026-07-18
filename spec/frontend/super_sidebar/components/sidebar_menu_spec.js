@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
+import { createWrapper as createRootWrapper } from '@vue/test-utils';
 // eslint-disable-next-line no-restricted-syntax -- test mocks viewport breakpoints used by the source component
 import { GlBreakpointInstance } from '@gitlab/ui/src/utils';
 import superSidebarDataQuery from '~/super_sidebar/graphql/queries/super_sidebar.query.graphql';
@@ -8,6 +9,9 @@ import waitForPromises from 'helpers/wait_for_promises';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import SidebarMenu from '~/super_sidebar/components/sidebar_menu.vue';
 import PinnedSection from '~/super_sidebar/components/pinned_section.vue';
+import { Mousetrap } from '~/lib/mousetrap';
+import { BV_SHOW_MODAL } from '~/lib/utils/constants';
+import { MODAL_ID } from '~/super_sidebar/components/feature_library/constants';
 import NavItem from '~/super_sidebar/components/nav_item.vue';
 import MenuSection from '~/super_sidebar/components/menu_section.vue';
 import {
@@ -611,6 +615,107 @@ describe('Sidebar Menu', () => {
 
       it('does not render the modal', () => {
         expect(findFeatureLibraryModal().exists()).toBe(false);
+      });
+    });
+
+    describe('keyboard shortcut', () => {
+      const emittedShowModal = () => createRootWrapper(wrapper.vm.$root).emitted(BV_SHOW_MODAL);
+
+      describe('when the modal is available', () => {
+        beforeEach(() => {
+          createWrapper({
+            panelType: PANELS_WITH_PINS[0],
+            provide: { glFeatures: { featureLibraryModal: true } },
+          });
+        });
+
+        it('opens the modal on \\', () => {
+          Mousetrap.trigger('\\');
+
+          expect(emittedShowModal()[0]).toContain(MODAL_ID);
+        });
+
+        it('returns false from the handler to prevent the default browser behavior', () => {
+          expect(wrapper.vm.openFeatureLibrary()).toBe(false);
+        });
+      });
+
+      describe('when the component is destroyed', () => {
+        beforeEach(() => {
+          createWrapper({
+            panelType: PANELS_WITH_PINS[0],
+            provide: { glFeatures: { featureLibraryModal: true } },
+          });
+          jest.spyOn(Mousetrap, 'unbind');
+
+          wrapper.destroy();
+        });
+
+        it('unbinds the shortcut', () => {
+          expect(Mousetrap.unbind).toHaveBeenCalledWith(['\\']);
+        });
+      });
+
+      describe('when the panel does not support pins', () => {
+        beforeEach(() => {
+          createWrapper({
+            panelType: 'your_work',
+            provide: { glFeatures: { featureLibraryModal: true } },
+          });
+        });
+
+        it('does not bind the shortcut', () => {
+          Mousetrap.trigger('\\');
+
+          expect(emittedShowModal()).toBeUndefined();
+        });
+      });
+
+      describe('when the feature flag is off', () => {
+        beforeEach(() => {
+          createWrapper({
+            panelType: PANELS_WITH_PINS[0],
+            provide: { glFeatures: { featureLibraryModal: false } },
+          });
+        });
+
+        it('does not bind the shortcut', () => {
+          Mousetrap.trigger('\\');
+
+          expect(emittedShowModal()).toBeUndefined();
+        });
+      });
+
+      describe('when in pinned-only mode with the modal flag off', () => {
+        beforeEach(() => {
+          createWrapper({
+            panelType: PANELS_WITH_PINS[0],
+            provide: {
+              glFeatures: { featureLibraryModal: false, hideUnpinnedSidebarItems: true },
+            },
+          });
+        });
+
+        it('binds the shortcut', () => {
+          Mousetrap.trigger('\\');
+
+          expect(emittedShowModal()[0]).toContain(MODAL_ID);
+        });
+      });
+
+      describe('when on the organization panel', () => {
+        beforeEach(() => {
+          createWrapper({
+            panelType: 'organization',
+            provide: { glFeatures: { featureLibraryModal: true } },
+          });
+        });
+
+        it('does not bind the shortcut', () => {
+          Mousetrap.trigger('\\');
+
+          expect(emittedShowModal()).toBeUndefined();
+        });
       });
     });
 

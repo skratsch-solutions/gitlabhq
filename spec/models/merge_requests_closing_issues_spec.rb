@@ -27,7 +27,7 @@ RSpec.describe MergeRequestsClosingIssues, feature_category: :code_review_workfl
   end
 
   describe 'validations' do
-    it 'requires merge_request_id to be unique per (issue_id, link_type)' do
+    it 'requires merge_request_id to be unique per (issue_id, link_type)', :aggregate_failures do
       duplicate = build(:merge_requests_closing_issues,
         issue: issue1, merge_request: merge_request, link_type: closes_issue1.link_type)
 
@@ -43,22 +43,29 @@ RSpec.describe MergeRequestsClosingIssues, feature_category: :code_review_workfl
       expect(mentioned).to be_valid
     end
 
-    describe 'from_mr_description_only_for_closes' do
-      it 'is invalid when from_mr_description is true and link_type is not closes' do
-        record = build(:merge_requests_closing_issues,
-          issue: issue2, merge_request: merge_request,
-          link_type: :mentioned, from_mr_description: true)
+    describe 'ensure_related_links_are_not_from_description' do
+      using RSpec::Parameterized::TableSyntax
 
-        expect(record).not_to be_valid
-        expect(record.errors[:from_mr_description]).to be_present
+      where(:link_type, :from_mr_description, :expected_valid) do
+        :related   | true  | false
+        :mentioned | true  | true
+        :closes    | true  | true
+        :related   | false | true
+        :mentioned | false | true
+        :closes    | false | true
       end
 
-      it 'is valid when from_mr_description is false and link_type is mentioned' do
-        record = build(:merge_requests_closing_issues,
-          issue: issue2, merge_request: merge_request,
-          link_type: :mentioned, from_mr_description: false)
+      with_them do
+        let(:record) do
+          build(:merge_requests_closing_issues,
+            issue: issue2, merge_request: merge_request,
+            link_type: link_type, from_mr_description: from_mr_description)
+        end
 
-        expect(record).to be_valid
+        it 'only allows from_mr_description for description-derived link types', :aggregate_failures do
+          expect(record.valid?).to eq(expected_valid)
+          expect(record.errors[:from_mr_description]).to be_present unless expected_valid
+        end
       end
     end
   end

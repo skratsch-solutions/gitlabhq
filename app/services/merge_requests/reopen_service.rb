@@ -15,7 +15,7 @@ module MergeRequests
         merge_request.mark_as_unchecked
         invalidate_all_users_cache_count(merge_request)
         merge_request.invalidate_project_counter_caches
-        merge_request.cache_merge_request_closes_issues!(current_user)
+        merge_request.persist_merge_request_issues!(current_user)
         merge_request.cleanup_schedule&.destroy
         merge_request.update_merge_ref_sha(nil)
       end

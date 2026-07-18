@@ -1833,32 +1833,29 @@ class MergeRequest < ApplicationRecord
       .map(&:id)
 
     transaction do
-      update_cached_closing_issues_from_description!(squash_and_merge_commit_issue_ids)
+      update_relations_from_description!(squash_and_merge_commit_issue_ids, :closes)
       existing_issue_ids = merge_request_closing_issues.pluck(:issue_id)
       issue_ids_to_create = squash_and_merge_commit_issue_ids - existing_issue_ids
 
-      bulk_insert_cached_closing_issues(issue_ids_to_create)
+      bulk_insert_relations(issue_ids_to_create, :closes)
     end
   end
 
-  # If the merge request closes any issues, save this information in the
-  # `MergeRequestsClosingIssues` model. This is a performance optimization.
-  # Calculating this information for a number of merge requests requires
-  # running `ReferenceExtractor` on each of them separately.
-  # This optimization does not apply to issues from external sources.
-  def cache_merge_request_closes_issues!(current_user = self.author)
+  def persist_merge_request_issues!(current_user = self.author)
     return if closed? || merged?
 
-    issues_to_close_ids = closes_issues(current_user).reject { |issue| issue.is_a?(ExternalIssue) }.map(&:id)
+    # Re-derive from the current title/description in case it changed on this instance.
+    clear_memoization(:referenced_issues_in_description)
+
+    closing_issue_ids = closes_issues(current_user).reject { |issue| issue.is_a?(ExternalIssue) }.map(&:id)
+    mentioned_issue_ids = referenced_issue_ids_in_description_excluding(current_user, closing_issue_ids)
 
     transaction do
-      merge_request_closing_issues.from_mr_description.delete_all
+      # Rebuild all from-description rows; user-created rows are left untouched.
+      merge_request_issues.from_mr_description.delete_all
 
-      updated_issue_ids = update_cached_closing_issues_from_description!(issues_to_close_ids)
-      issue_ids_to_create = issues_to_close_ids - updated_issue_ids
-      next unless issue_ids_to_create.any?
-
-      bulk_insert_cached_closing_issues(issue_ids_to_create)
+      persist_description_issue_relations!(closing_issue_ids, :closes)
+      persist_description_issue_relations!(mentioned_issue_ids, :mentioned)
     end
   end
 
@@ -1897,12 +1894,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def issues_mentioned_but_not_closing(current_user)
-    return [] unless target_branch == project.default_branch
-
-    ext = Gitlab::ReferenceExtractor.new(project, current_user)
-    ext.analyze("#{title}\n#{description}")
-
-    ext.issues - visible_closing_issues_for(current_user)
+    referenced_issues_in_description(current_user) - visible_closing_issues_for(current_user)
   end
 
   def related_issues(user)
@@ -3125,29 +3117,53 @@ class MergeRequest < ApplicationRecord
       .where(u[:email].not_eq(nil))
   end
 
-  def update_cached_closing_issues_from_description!(issues_to_close_ids)
-    # These might have been created manually from the work item interface
-    issue_ids_to_update = merge_request_closing_issues
-      .where(from_mr_description: false, issue_id: issues_to_close_ids)
+  def persist_description_issue_relations!(issue_ids, link_type)
+    promoted_ids = update_relations_from_description!(issue_ids, link_type)
+    issue_ids_to_create = issue_ids - promoted_ids
+    return unless issue_ids_to_create.any?
+
+    bulk_insert_relations(issue_ids_to_create, link_type)
+  end
+
+  def referenced_issue_ids_in_description_excluding(current_user, excluded_ids)
+    referenced_issues_in_description(current_user)
+      .filter_map { |issue| issue.id if issue.is_a?(Issue) } - excluded_ids
+  end
+
+  def referenced_issues_in_description(current_user)
+    # Guard before memoizing so a stale [] is never cached.
+    return [] unless target_branch == project.default_branch
+
+    # ReferenceExtractor is expensive.
+    strong_memoize_with(:referenced_issues_in_description, current_user&.id) do
+      ext = Gitlab::ReferenceExtractor.new(project, current_user)
+      ext.analyze("#{title}\n#{description}")
+      ext.issues
+    end
+  end
+
+  def update_relations_from_description!(issue_ids, link_type)
+    issue_ids_to_update = merge_request_issues
+      .where(from_mr_description: false, link_type: link_type, issue_id: issue_ids)
       .pluck(:issue_id)
 
     if issue_ids_to_update.any?
-      merge_request_closing_issues
-        .where(issue_id: issue_ids_to_update)
+      merge_request_issues
+        .where(link_type: link_type, issue_id: issue_ids_to_update)
         .update_all(from_mr_description: true)
     end
 
     issue_ids_to_update
   end
 
-  def bulk_insert_cached_closing_issues(issue_ids_to_create)
+  def bulk_insert_relations(issue_ids_to_create, link_type)
     now = Time.zone.now
     new_associations = issue_ids_to_create.map do |issue_id|
       MergeRequestsClosingIssues.new(
         issue_id: issue_id,
         merge_request_id: id,
         from_mr_description: true,
-        link_type: :closes,
+        link_type: link_type,
         created_at: now,
         updated_at: now
       )

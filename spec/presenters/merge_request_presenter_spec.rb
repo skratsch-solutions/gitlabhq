@@ -140,7 +140,7 @@ RSpec.describe MergeRequestPresenter do
     before do
       allow(resource.project).to receive(:default_branch)
         .and_return(resource.target_branch)
-      resource.cache_merge_request_closes_issues!
+      resource.persist_merge_request_issues!
     end
 
     describe '#issues_sentence' do

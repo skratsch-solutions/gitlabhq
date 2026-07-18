@@ -13,6 +13,7 @@ import { s__, sprintf } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
 import { HTTP_STATUS_TOO_MANY_REQUESTS } from '~/lib/utils/http_status';
+import { visitUrl } from '~/lib/utils/url_utility';
 import { onboardingFeatureLibrarySearchPath } from '~/lib/utils/path_helpers/feature_library';
 import { InternalEvents } from '~/tracking';
 import {
@@ -188,8 +189,19 @@ export default {
       return this.currentPinnedIds.includes(itemId);
     },
     onShown() {
+      this.$refs.searchBox?.focusInput();
       this.revealRemainingItems();
       this.trackEvent(EVENT_OPEN_FEATURE_LIBRARY_MODAL);
+    },
+    onSearchEnter() {
+      if (!this.trimmedQuery || this.isSearching) return;
+
+      const [firstItem] = this.filteredItems;
+      if (!firstItem?.link) return;
+
+      this.onNavigate(firstItem.id);
+      this.$refs.modal.hide();
+      visitUrl(firstItem.link);
     },
     revealRemainingItems() {
       if (this.renderLimit >= this.catalog.length) return;
@@ -282,6 +294,7 @@ export default {
 
 <template>
   <gl-modal
+    ref="modal"
     :modal-id="$options.modalId"
     :aria-label="s__('FeatureLibrary|GitLab features')"
     :hide-footer="!showFeedbackLink"
@@ -294,11 +307,13 @@ export default {
     @hidden="onHidden"
   >
     <gl-search-box-by-type
+      ref="searchBox"
       :value="searchQuery"
       :placeholder="s__('FeatureLibrary|Search GitLab features')"
       :debounce="$options.DEFAULT_DEBOUNCE_AND_THROTTLE_MS"
       class="gl-mb-4 gl-mt-3"
       @input="onSearchInput"
+      @keydown.enter="onSearchEnter"
     />
     <gl-scrollable-tabs>
       <gl-tab

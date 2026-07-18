@@ -53381,6 +53381,9 @@ msgstr ""
 msgid "Open sidebar"
 msgstr ""
 
+msgid "Open the More features dialog"
+msgstr ""
+
 msgid "Open threads must be resolved."
 msgstr ""
 

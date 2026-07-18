@@ -2005,28 +2005,28 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       allow(subject).to receive(:commits).and_return([commit])
     end
 
-    it 'shows only allowed issues to guest' do
+    it 'shows only allowed issues to guest', :aggregate_failures do
       subject.project.add_guest(guest)
 
-      subject.cache_merge_request_closes_issues!
+      subject.persist_merge_request_issues!
 
       expect(subject.visible_closing_issues_for(guest)).to match_array([issue_1, issue_2])
       expect(subject.visible_closing_issues_for(nil)).to be_empty
     end
 
-    it 'shows only allowed issues to developer' do
+    it 'shows only allowed issues to developer', :aggregate_failures do
       subject.project.add_developer(developer)
 
-      subject.cache_merge_request_closes_issues!
+      subject.persist_merge_request_issues!
 
       expect(subject.visible_closing_issues_for(developer)).to match_array([issue_1, confidential_issue, issue_2])
       expect(subject.visible_closing_issues_for(nil)).to be_empty
     end
 
-    it 'isolates cache per user so each role sees its own issues' do
+    it 'isolates cache per user so each role sees its own issues', :aggregate_failures do
       project.add_guest(guest)
       project.add_developer(developer)
-      subject.cache_merge_request_closes_issues!
+      subject.persist_merge_request_issues!
 
       # Call in one order
       developer_view_first = subject.visible_closing_issues_for(developer)
@@ -2220,7 +2220,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
-  describe '#cache_merge_request_closes_issues!', :aggregate_failures do
+  describe '#persist_merge_request_issues!', :aggregate_failures do
     let_it_be_with_reload(:issue) { create(:issue, project: project) }
 
     before_all do
@@ -2235,7 +2235,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
       allow(subject).to receive(:commits).and_return([commit])
 
-      expect { subject.cache_merge_request_closes_issues!(subject.author) }.to change { subject.merge_request_closing_issues.count }.by(1)
+      expect { subject.persist_merge_request_issues!(subject.author) }.to change { subject.merge_request_closing_issues.count }.by(1)
       expect(subject.merge_request_closing_issues.last).to have_attributes(
         issue: issue,
         merge_request_id: subject.id,
@@ -2248,7 +2248,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       commit = double('commit1', safe_message: "Fixes #{work_item_url}")
       allow(subject).to receive(:commits).and_return([commit])
 
-      expect { subject.cache_merge_request_closes_issues!(subject.author) }.to change {
+      expect { subject.persist_merge_request_issues!(subject.author) }.to change {
         subject.merge_request_closing_issues.count
       }.by(1)
       expect(subject.merge_request_closing_issues.last).to have_attributes(
@@ -2268,7 +2268,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
       expect do
         subject.update_columns(description: "Fixes #{issue.to_reference}")
-        subject.cache_merge_request_closes_issues!(subject.author)
+        subject.persist_merge_request_issues!(subject.author)
       end.to not_change { subject.merge_request_closing_issues.count }.from(1).and(
         change { existing_association.reload.from_mr_description }.from(false).to(true)
       )
@@ -2280,7 +2280,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       allow(subject).to receive(:commits).and_return([commit])
       allow(subject).to receive(:state_id).and_return(described_class.available_states[:closed])
 
-      expect { subject.cache_merge_request_closes_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
+      expect { subject.persist_merge_request_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
     end
 
     it 'does not cache closed issues when merge request is merged' do
@@ -2288,7 +2288,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       allow(subject).to receive(:commits).and_return([commit])
       allow(subject).to receive(:state_id).and_return(described_class.available_states[:merged])
 
-      expect { subject.cache_merge_request_closes_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
+      expect { subject.persist_merge_request_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
     end
 
     context 'when both internal and external issue trackers are enabled' do
@@ -2302,15 +2302,15 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
         allow(subject).to receive(:commits).and_return([commit])
 
-        expect { subject.cache_merge_request_closes_issues!(subject.author) }.not_to raise_error
-        expect { subject.cache_merge_request_closes_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
+        expect { subject.persist_merge_request_issues!(subject.author) }.not_to raise_error
+        expect { subject.persist_merge_request_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
       end
 
       it 'caches an internal issue' do
         commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
         allow(subject).to receive(:commits).and_return([commit])
 
-        expect { subject.cache_merge_request_closes_issues!(subject.author) }
+        expect { subject.persist_merge_request_issues!(subject.author) }
           .to change { subject.merge_request_closing_issues.count }.by(1)
       end
     end
@@ -2331,14 +2331,14 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
         allow(subject).to receive(:commits).and_return([commit])
 
-        expect { subject.cache_merge_request_closes_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
+        expect { subject.persist_merge_request_issues!(subject.author) }.not_to change { subject.merge_request_closing_issues.count }
       end
 
       it 'does not cache an internal issue' do
         commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
         allow(subject).to receive(:commits).and_return([commit])
 
-        expect { subject.cache_merge_request_closes_issues!(subject.author) }
+        expect { subject.persist_merge_request_issues!(subject.author) }
           .not_to change { subject.merge_request_closing_issues.count }
       end
 
@@ -2348,7 +2348,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         commit = double('commit1', safe_message: "Fixes #{issue.to_reference(full: true)}")
         allow(subject).to receive(:commits).and_return([commit])
 
-        expect { subject.cache_merge_request_closes_issues!(subject.author) }
+        expect { subject.persist_merge_request_issues!(subject.author) }
           .to change { subject.merge_request_closing_issues.count }.by(1)
       end
     end
@@ -2364,7 +2364,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         commit = double('commit1', safe_message: 'no references')
         allow(subject).to receive(:commits).and_return([commit])
 
-        expect { subject.cache_merge_request_closes_issues!(subject.author) }
+        expect { subject.persist_merge_request_issues!(subject.author) }
           .not_to change { subject.merge_request_issues.where(link_type: :mentioned).count }
       end
 
@@ -2374,6 +2374,108 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
           from_mr_description: true)
 
         expect(subject.cached_closes_issues).not_to include(mentioned_row.issue)
+      end
+    end
+
+    context 'with issues mentioned but not closing' do
+      let_it_be_with_reload(:mentioned_issue) { create(:issue, project: project) }
+
+      before do
+        allow(subject).to receive(:commits).and_return([])
+      end
+
+      it 'caches them as mentioned from-description rows', :aggregate_failures do
+        subject.description = "Relates to #{mentioned_issue.to_reference}"
+
+        expect { subject.persist_merge_request_issues!(subject.author) }
+          .to change { subject.merge_request_issues.where(link_type: :mentioned).count }.by(1)
+
+        expect(subject.merge_request_issues.find_by(issue_id: mentioned_issue.id))
+          .to have_attributes(link_type: 'mentioned', from_mr_description: true)
+      end
+
+      it 'runs ReferenceExtractor once across the from-description and derived lookups' do
+        subject.description = "Relates to #{mentioned_issue.to_reference}"
+
+        expect(Gitlab::ReferenceExtractor).to receive(:new).once.and_call_original
+
+        subject.send(:referenced_issue_ids_in_description_excluding, subject.author, [])
+        subject.issues_mentioned_but_not_closing(subject.author)
+      end
+
+      it 'persists a closing issue as closes only, never as mentioned', :aggregate_failures do
+        subject.description = "Closes #{issue.to_reference}"
+
+        subject.persist_merge_request_issues!(subject.author)
+
+        expect(subject.merge_request_issues.find_by(issue_id: issue.id).link_type).to eq('closes')
+        expect(subject.merge_request_issues.where(link_type: :mentioned)).to be_empty
+      end
+
+      it 'rebuilds mentioned rows when the description no longer references the issue' do
+        subject.description = "Relates to #{mentioned_issue.to_reference}"
+        subject.persist_merge_request_issues!(subject.author)
+        expect(subject.merge_request_issues.where(link_type: :mentioned).count).to eq(1)
+
+        subject.description = 'no references'
+
+        expect { subject.persist_merge_request_issues!(subject.author) }
+          .to change { subject.merge_request_issues.where(link_type: :mentioned).count }.from(1).to(0)
+      end
+
+      context 'with a user-created row for the mentioned issue' do
+        let!(:user_created) do
+          create(:merge_requests_closing_issues,
+            issue: mentioned_issue, merge_request: subject,
+            link_type: link_type, from_mr_description: false)
+        end
+
+        context 'when the row is mentioned' do
+          let(:link_type) { :mentioned }
+
+          it 'promotes the row instead of duplicating it' do
+            subject.description = "Relates to #{mentioned_issue.to_reference}"
+
+            expect { subject.persist_merge_request_issues!(subject.author) }
+              .to not_change { subject.merge_request_issues.where(link_type: :mentioned).count }.from(1)
+              .and change { user_created.reload.from_mr_description }.from(false).to(true)
+          end
+        end
+
+        context 'when the row is related' do
+          let(:link_type) { :related }
+
+          it 'leaves the row untouched during the rebuild' do
+            subject.description = 'no references'
+
+            subject.persist_merge_request_issues!(subject.author)
+
+            expect(subject.merge_request_issues.where(link_type: :related, from_mr_description: false))
+              .to contain_exactly(user_created)
+          end
+        end
+      end
+
+      it 'moves an issue from mentioned to closes when the description changes to a closing reference',
+        :aggregate_failures do
+        subject.description = "Relates to #{mentioned_issue.to_reference}"
+        subject.persist_merge_request_issues!(subject.author)
+        expect(subject.merge_request_issues.where(issue_id: mentioned_issue.id).pluck(:link_type))
+          .to contain_exactly('mentioned')
+
+        subject.description = "Closes #{mentioned_issue.to_reference}"
+        subject.persist_merge_request_issues!(subject.author)
+
+        expect(subject.merge_request_issues.where(issue_id: mentioned_issue.id).pluck(:link_type))
+          .to contain_exactly('closes')
+      end
+
+      it 'is idempotent when the description is unchanged' do
+        subject.description = "Relates to #{mentioned_issue.to_reference}"
+        subject.persist_merge_request_issues!(subject.author)
+
+        expect { subject.persist_merge_request_issues!(subject.author) }
+          .to not_change { subject.merge_request_issues.where(link_type: :mentioned).count }.from(1)
       end
     end
   end
@@ -3082,7 +3184,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       allow(subject).to receive(:commits).and_return([commit])
       allow(subject.project).to receive(:default_branch)
         .and_return(subject.target_branch)
-      subject.cache_merge_request_closes_issues!
+      subject.persist_merge_request_issues!
 
       expect(subject.issues_mentioned_but_not_closing(subject.author)).to match_array([mentioned_issue])
     end
@@ -3101,7 +3203,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       it 'detects issues mentioned in description but not closed' do
-        subject.cache_merge_request_closes_issues!
+        subject.persist_merge_request_issues!
 
         expect(subject.issues_mentioned_but_not_closing(subject.author).map(&:to_s)).to match_array(['TEST-2'])
       end
@@ -3391,7 +3493,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       subject.project.add_developer(subject.author)
       subject.description = "This issue Closes #{issue.to_reference}"
       allow(subject.project).to receive(:default_branch).and_return(subject.target_branch)
-      subject.cache_merge_request_closes_issues!
+      subject.persist_merge_request_issues!
 
       expect(subject.default_merge_commit_message)
         .to match("Closes #{issue.to_reference}")

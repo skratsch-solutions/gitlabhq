@@ -5,6 +5,11 @@ module Import
     module Exports
       class CreateService
         include ::Gitlab::Utils::StrongMemoize
+        include ::Gitlab::InternalEvents::ServiceTracking
+
+        track_internal_event 'start_offline_transfer_export',
+          on: :success,
+          additional_properties: ->(result) { { label: result.payload.configuration.provider.to_s } }
 
         # @param current_user [User] current user object
         # @param portable_params [Array<Hash>] list of portables to export.

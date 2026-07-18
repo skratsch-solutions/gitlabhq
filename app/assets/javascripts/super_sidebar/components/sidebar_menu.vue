@@ -5,7 +5,10 @@ import superSidebarDataQuery from '~/super_sidebar/graphql/queries/super_sidebar
 import { __, s__, sprintf } from '~/locale';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import axios from '~/lib/utils/axios_utils';
+import { BV_SHOW_MODAL } from '~/lib/utils/constants';
 import { pinsPath } from '~/lib/utils/path_helpers/user';
+import { Mousetrap } from '~/lib/mousetrap';
+import { keysFor, OPEN_FEATURE_LIBRARY } from '~/behaviors/shortcuts/keybindings';
 import { userCounts } from '~/super_sidebar/user_counts_manager';
 import { formatAsyncCount } from '~/super_sidebar/utils';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -209,11 +212,24 @@ export default {
   mounted() {
     this.decideFlyoutState();
     window.addEventListener('resize', this.decideFlyoutState);
+
+    if (this.showFeatureLibrary) {
+      Mousetrap.bind(keysFor(OPEN_FEATURE_LIBRARY), this.openFeatureLibrary);
+    }
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.decideFlyoutState);
+
+    if (this.showFeatureLibrary) {
+      Mousetrap.unbind(keysFor(OPEN_FEATURE_LIBRARY));
+    }
   },
   methods: {
+    openFeatureLibrary() {
+      this.$root.$emit(BV_SHOW_MODAL, MODAL_ID);
+
+      return false;
+    },
     createPin(itemId, itemTitle) {
       this.changedPinnedItemIds.ids.push(itemId);
       this.$toast.show(

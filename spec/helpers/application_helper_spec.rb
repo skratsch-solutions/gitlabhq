@@ -810,20 +810,6 @@ RSpec.describe ApplicationHelper, feature_category: :shared do
       it { is_expected.to include('page-with-panels') }
     end
 
-    describe 'with-bloom' do
-      context 'when show_ai_bloom? is false' do
-        it { is_expected.not_to include('with-bloom') }
-      end
-
-      context 'when show_ai_bloom? is true' do
-        before do
-          allow(helper).to receive(:show_ai_bloom?).and_return(true)
-        end
-
-        it { is_expected.to include('with-bloom') }
-      end
-    end
-
     describe 'page-theme-background' do
       it { is_expected.to include('page-theme-background') }
     end

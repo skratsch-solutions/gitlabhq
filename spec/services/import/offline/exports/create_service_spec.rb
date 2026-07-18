@@ -101,6 +101,18 @@ RSpec.describe Import::Offline::Exports::CreateService, :aggregate_failures, fea
       result
     end
 
+    it 'tracks the start offline transfer export event', :clean_gitlab_redis_shared_state do
+      expect { result }
+        .to trigger_internal_events('start_offline_transfer_export')
+        .with(user: current_user, additional_properties: { label: 'aws' })
+        .and increment_usage_metrics(
+          'redis_hll_counters.count_distinct_user_id_from_start_offline_transfer_export_monthly',
+          'redis_hll_counters.count_distinct_user_id_from_start_offline_transfer_export_weekly',
+          'counts.count_total_start_offline_transfer_export_monthly',
+          'counts.count_total_start_offline_transfer_export'
+        )
+    end
+
     context 'when only groups are exported' do
       let(:portable_params) { [{ type: 'group', full_path: groups[0].full_path }] }
 
@@ -319,6 +331,10 @@ RSpec.describe Import::Offline::Exports::CreateService, :aggregate_failures, fea
       end
 
       it_behaves_like 'an error response', error: 'offline_transfer_exports feature flag must be enabled.'
+
+      it 'does not track the start offline transfer export event' do
+        expect { result }.not_to trigger_internal_events('start_offline_transfer_export')
+      end
     end
   end
 end

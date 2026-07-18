@@ -67,7 +67,7 @@ RSpec.describe MergeRequests::ReopenService, feature_category: :code_review_work
     end
 
     it 'caches merge request closing issues' do
-      expect(merge_request).to receive(:cache_merge_request_closes_issues!)
+      expect(merge_request).to receive(:persist_merge_request_issues!)
 
       described_class.new(project: project, current_user: user).execute(merge_request)
     end
