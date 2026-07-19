@@ -826,14 +826,14 @@ module Gitlab
             web_hook_event_resend: ::Labkit::RateLimit::Rule.new(
               name: 'limit_web_hook_event_resends_by_parent_user',
               characteristics: %i[project group user],
-              limit: 5,
+              limit: -> { Gitlab::CurrentSettings.current_application_settings.web_hook_event_resend_limit },
               period: 1.minute,
               action: :block
             ),
             web_hook_test: ::Labkit::RateLimit::Rule.new(
               name: 'limit_web_hook_tests_by_parent_user',
               characteristics: %i[project group user],
-              limit: 5,
+              limit: -> { Gitlab::CurrentSettings.current_application_settings.web_hook_test_limit },
               period: 1.minute,
               action: :block
             ),

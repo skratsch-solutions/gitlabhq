@@ -217,6 +217,16 @@
       "type": "integer",
       "minimum": 0,
       "description": "Maximum number of unauthenticated requests per minute across all raw paths in a project (default is 800). Set to 0 to disable throttling."
+    },
+    "web_hook_event_resend_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of webhook event resend requests a user can make per minute for a given project or group. Set to 0 to disable the limit."
+    },
+    "web_hook_test_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of webhook test requests a user can make per minute for a given project or group. Set to 0 to disable the limit."
     }
   }
 }

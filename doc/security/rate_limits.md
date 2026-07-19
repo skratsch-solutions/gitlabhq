@@ -60,6 +60,7 @@ You can set these rate limits in the **Admin** area of your instance:
 - [Groups API rate limits](../administration/settings/rate_limit_on_groups_api.md)
 - [Users API rate limits](../administration/settings/rate_limit_on_users_api.md)
 - [Organizations API rate limits](../administration/settings/rate_limit_on_organizations_api.md)
+- [Webhook operations rate limits](../administration/settings/rate-limit-on-webhook-operations.md)
 
 You can set these rate limits using the [ApplicationSettings API](../api/settings.md):
 
@@ -103,12 +104,6 @@ For configuration information, see
 A rate limit for [downloading repository archives](../api/repositories.md#retrieve-file-archive-from-a-repository) is
 available. The limit applies to the project and to the user initiating the download either through
 the UI or the API.
-
-The rate limit is 5 requests per minute per user.
-
-### Webhook Testing
-
-There is a rate limit for [testing webhooks](../user/project/integrations/webhooks.md#test-a-webhook), which prevents abuse of the webhook functionality.
 
 The rate limit is 5 requests per minute per user.
 

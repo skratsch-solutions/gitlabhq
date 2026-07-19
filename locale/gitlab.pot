@@ -46478,6 +46478,12 @@ msgstr ""
 msgid "Maximum users"
 msgstr ""
 
+msgid "Maximum webhook event resend requests allowed per minute on a group or project for each user"
+msgstr ""
+
+msgid "Maximum webhook test requests allowed per minute on a group or project for each user"
+msgstr ""
+
 msgid "May"
 msgstr ""
 
@@ -74153,6 +74159,9 @@ msgstr ""
 msgid "Set the per-user rate limits for the requests to Organizations API."
 msgstr ""
 
+msgid "Set the per-user rate limits for webhook test and event resend requests."
+msgstr ""
+
 msgid "Set this %{item_type} as blocked by %{target}."
 msgstr ""
 
@@ -86977,6 +86986,9 @@ msgid "Webhook events are displayed here."
 msgstr ""
 
 msgid "Webhook logs"
+msgstr ""
+
+msgid "Webhook rate limits"
 msgstr ""
 
 msgid "Webhook scheduled for deletion"

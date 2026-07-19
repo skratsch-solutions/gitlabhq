@@ -807,9 +807,9 @@ RSpec.shared_examples 'test web-hook endpoint' do
         post api("#{hook_uri}/test/push_events", user2), params: {}
       end
 
-      context 'when ops flag is disabled' do
+      context 'when the rate limit is disabled in application settings' do
         before do
-          stub_feature_flags(web_hook_test_api_endpoint_rate_limit: false)
+          stub_application_setting(web_hook_test_limit: 0)
         end
 
         it 'does not block the request' do
@@ -1047,9 +1047,9 @@ RSpec.shared_examples 'resend web-hook event endpoint' do
       post api("#{hook_uri}/events/#{log.id}/resend", user2, admin_mode: user2.admin?), params: {}
     end
 
-    context 'when ops flag is disabled' do
+    context 'when the rate limit is disabled in application settings' do
       before do
-        stub_feature_flags(web_hook_event_resend_api_endpoint_rate_limit: false)
+        stub_application_setting(web_hook_event_resend_limit: 0)
       end
 
       it 'does not block the request' do

@@ -328,6 +328,8 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         vscode_extension_marketplace_extension_host_domain:
           ::WebIde::ExtensionMarketplace::DEFAULT_EXTENSION_HOST_DOMAIN,
         vscode_extension_marketplace_single_origin_fallback_enabled: true,
+        web_hook_event_resend_limit: 5,
+        web_hook_test_limit: 5,
         whats_new_variant: 'all_tiers', # changed from 0 to "all_tiers" due to enum conversion
         wiki_asciidoc_allow_uri_includes: false,
         wiki_page_max_content_bytes: 5.megabytes,
@@ -680,6 +682,8 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
           users_api_limit_gpg_key
           git_push_pipeline_limit
           pipeline_limit_per_user
+          web_hook_event_resend_limit
+          web_hook_test_limit
         ]
       end
 

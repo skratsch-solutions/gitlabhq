@@ -651,6 +651,8 @@ module ApplicationSettingsHelper
       :users_api_limit_ssh_key,
       :users_api_limit_gpg_keys,
       :users_api_limit_gpg_key,
+      :web_hook_event_resend_limit,
+      :web_hook_test_limit,
       :gitlab_dedicated_instance,
       :gitlab_environment_toolkit_instance,
       :ci_max_includes,

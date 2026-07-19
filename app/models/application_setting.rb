@@ -771,7 +771,9 @@ class ApplicationSetting < ApplicationRecord
       :users_api_limit_ssh_key,
       :users_api_limit_gpg_keys,
       :users_api_limit_gpg_key,
-      :git_push_pipeline_limit
+      :git_push_pipeline_limit,
+      :web_hook_event_resend_limit,
+      :web_hook_test_limit
   end
 
   attribute :resource_usage_limits, ::Gitlab::Database::Type::IndifferentJsonb.new, default: -> { {} }
@@ -1387,7 +1389,9 @@ class ApplicationSetting < ApplicationRecord
       users_api_limit_gpg_keys: [:integer, { default: 120 }],
       users_api_limit_gpg_key: [:integer, { default: 120 }],
       pipeline_limit_per_user: [:integer, { default: 0 }],
-      raw_blob_request_limit_unauthenticated: [:integer, { default: DEFAULT_RAW_BLOB_UNAUTHENTICATED_REQUEST_LIMIT }]
+      raw_blob_request_limit_unauthenticated: [:integer, { default: DEFAULT_RAW_BLOB_UNAUTHENTICATED_REQUEST_LIMIT }],
+      web_hook_event_resend_limit: [:integer, { default: 5 }],
+      web_hook_test_limit: [:integer, { default: 5 }]
     }
   end
 

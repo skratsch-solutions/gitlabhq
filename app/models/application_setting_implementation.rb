@@ -354,6 +354,8 @@ module ApplicationSettingImplementation
         users_api_limit_ssh_key: 120,
         users_api_limit_gpg_keys: 120,
         users_api_limit_gpg_key: 120,
+        web_hook_event_resend_limit: 5,
+        web_hook_test_limit: 5,
         nuget_skip_metadata_url_validation: false,
         helm_max_packages_count: 1000,
         ai_action_api_rate_limit: 160,

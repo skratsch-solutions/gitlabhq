@@ -392,6 +392,8 @@ Example response:
   "users_api_limit_ssh_key": 120,
   "users_api_limit_gpg_keys": 120,
   "users_api_limit_gpg_key": 120,
+  "web_hook_event_resend_limit": 5,
+  "web_hook_test_limit": 5,
   "silent_mode_enabled": false,
   "security_policy_global_group_approvers_enabled": true,
   "security_approval_policies_limit": 5,
@@ -883,6 +885,8 @@ to configure other related settings. These requirements are in the `Required` co
 | `version_check_enabled`                  | boolean          | no                                   | Let GitLab inform you when an update is available. |
 | `valid_runner_registrars`                | array of strings | no                                   | List of types which are allowed to register a GitLab Runner. Can be `[]`, `['group']`, `['project']` or `['group', 'project']`. |
 | `vscode_extension_marketplace`           | hash             | no                                   | Settings for VS Code Extension Marketplace. Used by [Web IDE](../user/project/web_ide/_index.md) and [Workspaces](../user/workspace/_index.md). |
+| `web_hook_event_resend_limit`            | integer          | no                                   | Maximum number of webhook event resend requests per minute, per user, for a given project or group. Default: 5. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/587887) in GitLab 19.3. |
+| `web_hook_test_limit`                    | integer          | no                                   | Maximum number of webhook test requests per minute, per user, for a given project or group. Default: 5. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/587887) in GitLab 19.3. |
 | `whats_new_variant`                      | string           | no                                   | What's new variant, possible values: `all_tiers`, `current_tier`, and `disabled`. |
 | `wiki_page_max_content_bytes`            | integer          | no                                   | Maximum wiki page content size in **bytes**. Default: 5242880 Bytes (5 MB). The minimum value is 1024 bytes. |
 | `bulk_import_concurrent_pipeline_batch_limit` | integer     | no                                   | Maximum simultaneous direct transfer batch exports to process. |
