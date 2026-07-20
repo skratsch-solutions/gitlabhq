@@ -29,6 +29,11 @@ module Onboarding
         ai_gateway_ids(normalized) # Tier 3: LLM fall-through, only on Tier 2 miss
       end
 
+      # Overridden in EE
+      def ai_search_available?
+        false
+      end
+
       private
 
       attr_reader :query, :panel, :user, :resource

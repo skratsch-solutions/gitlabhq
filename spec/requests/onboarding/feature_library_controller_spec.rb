@@ -35,6 +35,7 @@ RSpec.describe Onboarding::FeatureLibraryController, feature_category: :onboardi
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['ids']).to be_an(Array).and include('project_merge_request_list')
+        expect(json_response['ai_search_available']).to be(false)
       end
 
       context 'with a resource_id for a project the user can read' do
@@ -84,11 +85,12 @@ RSpec.describe Onboarding::FeatureLibraryController, feature_category: :onboardi
       end
 
       context 'with an invalid panel' do
-        it 'returns an empty ids array', :aggregate_failures do
+        it 'returns an empty ids array and an unavailable AI search signal', :aggregate_failures do
           get onboarding_feature_library_search_path, params: { query: 'pr', panel: 'invalid' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['ids']).to eq([])
+          expect(json_response['ai_search_available']).to be(false)
         end
       end
 

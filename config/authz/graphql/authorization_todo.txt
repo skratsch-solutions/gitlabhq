@@ -714,7 +714,10 @@ type:DeleteJobsResponse
 type:DeletedNote
 type:Dependency
 type:DependencyAggregation
+type:DependencyFirewallActivitySummary
 type:DependencyFirewallPolicyAttributesType
+type:DependencyFirewallRuleActivity
+type:DependencyFirewallRuleLastModified
 type:DependencyListExportPartUploadRegistry
 type:DependencyListExportUploadRegistry
 type:DependencyPath

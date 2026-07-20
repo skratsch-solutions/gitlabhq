@@ -13,16 +13,16 @@ module Onboarding
 
     def search
       return not_found unless Feature.enabled?(:feature_library_modal, current_user)
-      return render json: { ids: [] } unless valid_panel?
+      return render json: { ids: [], ai_search_available: false } unless valid_panel?
 
-      ids = Onboarding::FeatureLibrary::FeatureMatchService.new(
+      service = Onboarding::FeatureLibrary::FeatureMatchService.new(
         query: truncated_query,
         panel: search_params[:panel],
         user: current_user,
         resource: resource
-      ).execute
+      )
 
-      render json: { ids: ids }
+      render json: { ids: service.execute, ai_search_available: service.ai_search_available? }
     end
 
     private
