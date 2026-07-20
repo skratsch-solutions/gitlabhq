@@ -12,6 +12,7 @@ import { DISPLAY_TYPES } from '~/glql/constants';
 
 const LANGUAGE = { key: 'language', label: 'Language', name: 'language', type: 'dimension' };
 const USER = { key: 'user', label: 'User', name: 'user', type: 'dimension' };
+const CREATED = { key: 'created', label: 'Created', name: 'created', type: 'dimension' };
 const TOTAL_COUNT = { key: 'totalCount', label: 'Total count', name: 'totalCount', type: 'metric' };
 const ACCEPTANCE_RATE = {
   key: 'acceptanceRate',
@@ -87,6 +88,33 @@ describe('dimensionValue', () => {
   it('returns an empty label for object shapes without a registered formatter', () => {
     const value = { __typename: 'SomeUnregisteredType', title: 'whatever' };
     expect(dimensionValue({ language: value }, LANGUAGE)).toBe('');
+  });
+
+  it('formats date-only strings as localized dates', () => {
+    expect(dimensionValue({ created: '2026-01-01' }, CREATED)).toBe('Jan 1, 2026');
+  });
+
+  // Datetime values deliberately render raw: today's engines emit date-only
+  // bucket values, so formatting anything else is deferred until an engine
+  // actually needs it.
+  it.each(['2026-01-01T00:00:00Z', '2026-01-01 00:00:00'])(
+    'passes the datetime string %s through unchanged',
+    (value) => {
+      expect(dimensionValue({ created: value }, CREATED)).toBe(value);
+    },
+  );
+
+  it.each([
+    '2026-01',
+    '2026-01-01-hotfix',
+    'v2026-01-01',
+    '20260101',
+    '2026-02-30',
+    '2027-02-29',
+    '0099-01-01',
+    '2026-01-01 release notes',
+  ])('passes the non-date string %s through unchanged', (value) => {
+    expect(dimensionValue({ created: value }, CREATED)).toBe(value);
   });
 });
 
@@ -221,6 +249,25 @@ describe('buildStackedByDimension', () => {
         { name: 'ruby', data: [12, 0] },
         { name: 'python', data: [0, 5] },
       ],
+    });
+  });
+
+  it('formats date-bucket primary dimension values into the groups', () => {
+    const nodes = [
+      { created: '2026-01-01', language: 'ruby', totalCount: 12 },
+      { created: '2026-02-01', language: 'ruby', totalCount: 6 },
+    ];
+
+    expect(
+      buildStackedByDimension({
+        nodes,
+        primaryDim: CREATED,
+        secondaryDim: LANGUAGE,
+        metric: TOTAL_COUNT,
+      }),
+    ).toEqual({
+      groups: ['Jan 1, 2026', 'Feb 1, 2026'],
+      bars: [{ name: 'ruby', data: [12, 6] }],
     });
   });
 

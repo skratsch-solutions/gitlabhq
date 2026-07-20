@@ -86484,6 +86484,9 @@ msgstr ""
 msgid "Vulnerability|File"
 msgstr ""
 
+msgid "Vulnerability|File contents"
+msgstr ""
+
 msgid "Vulnerability|File:"
 msgstr ""
 

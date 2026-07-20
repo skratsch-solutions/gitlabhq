@@ -1,3 +1,6 @@
+import { DATE_ONLY_REGEX, newDate } from '~/lib/utils/datetime/date_calculation_utility';
+import { toISODateFormat } from '~/lib/utils/datetime/date_format_utility';
+import { localeDateFormat } from '~/lib/utils/datetime/locale_dateformat';
 import { __ } from '~/locale';
 import { FIELD_TYPES, DISPLAY_TYPES } from '../constants';
 
@@ -14,9 +17,19 @@ const labelByObjectType = {
   Project: (value) => value.nameWithNamespace ?? value.fullPath ?? value.name,
 };
 
+// The round trip rejects shape-only matches like "2026-02-30" that Date would
+// silently roll over to another day.
+const isRealCalendarDate = (value) =>
+  DATE_ONLY_REGEX.test(value) && toISODateFormat(newDate(value)) === value;
+
+// newDate parses "YYYY-MM-DD" as a local date, keeping the label on the
+// bucket's own day in every viewer timezone.
+const formatDateLabel = (value) => localeDateFormat.asDate.format(newDate(value));
+
 export const dimensionValue = (node, dimension) => {
   const value = node[dimension.key];
   if (value == null) return __('Unknown');
+  if (typeof value === 'string' && isRealCalendarDate(value)) return formatDateLabel(value);
   if (typeof value !== 'object') return String(value);
 
   // eslint-disable-next-line no-underscore-dangle

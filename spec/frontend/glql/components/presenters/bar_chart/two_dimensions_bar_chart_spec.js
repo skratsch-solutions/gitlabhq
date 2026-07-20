@@ -1,6 +1,7 @@
 import { GlBarChart } from '@gitlab/ui/src/charts';
 import { mountExtended, shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import TwoDimensionsBarChart from '~/glql/components/presenters/bar_chart/two_dimensions_bar_chart.vue';
+import { barCategoryAxisOptions } from '~/glql/components/presenters/bar_chart/bar_chart_options';
 
 const PRIMARY_DIM = { key: 'user', label: 'User', name: 'user', type: 'dimension' };
 const SECONDARY_DIM = { key: 'language', label: 'Language', name: 'language', type: 'dimension' };
@@ -80,6 +81,36 @@ describe('TwoDimensionsBarChart', () => {
       });
 
       expect(xAxisOption().axisLabel.formatter(10000)).toBe('2.8h');
+    });
+  });
+
+  describe('y-axis category labels', () => {
+    it('overrides the truncating label formatter and sizes the gutter from the groups', () => {
+      // Long enough to exceed the minimum width clamp, so this asserts the
+      // gutter is really derived from the groups, not just the clamp floor.
+      wrapper = shallowMountExtended(TwoDimensionsBarChart, {
+        propsData: {
+          data: {
+            nodes: [
+              { user: 'a-very-long-username', language: 'ruby', totalCount: 12 },
+              { user: 'u2', language: 'ruby', totalCount: 6 },
+            ],
+          },
+          primaryDimension: PRIMARY_DIM,
+          secondaryDimension: SECONDARY_DIM,
+          metric: METRIC,
+        },
+      });
+
+      const option = findChart().props('option');
+      const { yAxis, grid } = barCategoryAxisOptions(['a-very-long-username', 'u2']);
+
+      expect(option.yAxis.axisLabel.formatter('Jan 1, 2026')).toBe('Jan 1, 2026');
+      expect(option.yAxis.axisLabel.width).toBe(yAxis.axisLabel.width);
+      expect(option.yAxis.nameGap).toBe(yAxis.nameGap);
+      expect(option.grid).toEqual(grid);
+      // the x-axis formatter in the same option object still applies
+      expect(option.xAxis.axisLabel.formatter(2500000)).toBe('2.5M');
     });
   });
 

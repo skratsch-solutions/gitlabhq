@@ -10,6 +10,7 @@ import {
   yAxisTitleFor,
 } from '../../../utils/value_format';
 import FormattedTooltipContent from '../chart/formatted_tooltip_content.vue';
+import { barCategoryAxisOptions } from './bar_chart_options';
 
 export default {
   name: 'SingleDimensionBarChart',
@@ -52,10 +53,19 @@ export default {
     xAxisTitle() {
       return yAxisTitleFor(this.metrics);
     },
+    // Every series maps the same nodes in order, so the first series' tuples
+    // carry all the category labels.
+    categoryLabels() {
+      const [firstSeries] = Object.values(this.chartData);
+      return (firstSeries ?? []).map(([, label]) => label);
+    },
     chartOptions() {
-      return this.sharedAxisFormatter
-        ? { xAxis: { axisLabel: { formatter: this.sharedAxisFormatter } } }
-        : {};
+      return {
+        ...barCategoryAxisOptions(this.categoryLabels),
+        ...(this.sharedAxisFormatter
+          ? { xAxis: { axisLabel: { formatter: this.sharedAxisFormatter } } }
+          : {}),
+      };
     },
   },
   methods: {

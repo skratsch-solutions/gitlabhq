@@ -1,8 +1,10 @@
 import { GlBarChart } from '@gitlab/ui/src/charts';
 import { mountExtended, shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import SingleDimensionBarChart from '~/glql/components/presenters/bar_chart/single_dimension_bar_chart.vue';
+import { barCategoryAxisOptions } from '~/glql/components/presenters/bar_chart/bar_chart_options';
 
 const DIMENSION = { key: 'language', label: 'Language', name: 'language', type: 'dimension' };
+const CREATED = { key: 'created', label: 'Created', name: 'created', type: 'dimension' };
 const TOTAL_COUNT = {
   key: 'totalCount',
   label: 'Total count',
@@ -134,7 +136,52 @@ describe('SingleDimensionBarChart', () => {
     it('omits the x-axis formatter override when metrics have mixed units', () => {
       createComponent({ metrics: [TOTAL_COUNT, ACCEPTANCE_RATE] });
 
-      expect(findChart().props('option')).toEqual({});
+      expect(findChart().props('option').xAxis).toBeUndefined();
+    });
+  });
+
+  describe('y-axis category labels', () => {
+    const yAxisOption = () => findChart().props('option').yAxis;
+
+    it('overrides the truncating label formatter with pixel-based sizing', () => {
+      createComponent();
+
+      expect(yAxisOption().axisLabel.formatter('Jan 1, 2026')).toBe('Jan 1, 2026');
+      expect(yAxisOption().axisLabel.overflow).toBe('truncate');
+    });
+
+    it('sizes the label gutter from the longest category label', () => {
+      createComponent({
+        dimension: CREATED,
+        data: { nodes: [{ created: '2026-01-01', totalCount: 21 }] },
+      });
+
+      // The sizing math itself is covered by bar_chart_options_spec; here we
+      // assert the formatted labels reach the util and its output the chart.
+      const { yAxis, grid } = barCategoryAxisOptions(['Jan 1, 2026']);
+
+      expect(yAxisOption().axisLabel.width).toBe(yAxis.axisLabel.width);
+      expect(yAxisOption().nameGap).toBe(yAxis.nameGap);
+      expect(findChart().props('option').grid).toEqual(grid);
+    });
+
+    it('formats date-bucket dimension values as localized dates', () => {
+      createComponent({
+        dimension: CREATED,
+        data: {
+          nodes: [
+            { created: '2026-01-01', totalCount: 21 },
+            { created: '2026-02-01', totalCount: 14 },
+          ],
+        },
+      });
+
+      expect(findChart().props('data')).toEqual({
+        'Total count': [
+          [21, 'Jan 1, 2026'],
+          [14, 'Feb 1, 2026'],
+        ],
+      });
     });
   });
 

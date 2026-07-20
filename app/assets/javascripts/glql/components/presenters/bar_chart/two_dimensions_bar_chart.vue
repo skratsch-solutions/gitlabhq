@@ -4,6 +4,7 @@ import { DISPLAY_TYPES } from '../../../constants';
 import { buildStackedByDimension, tooltipContentFromParams } from '../../../utils/chart_data';
 import { formatterFor, axisFormatterFor, dimensionAxisTitleFor } from '../../../utils/value_format';
 import FormattedTooltipContent from '../chart/formatted_tooltip_content.vue';
+import { barCategoryAxisOptions } from './bar_chart_options';
 
 export default {
   name: 'TwoDimensionsBarChart',
@@ -60,7 +61,10 @@ export default {
       return dimensionAxisTitleFor(this.primaryDimension, this.secondaryDimension);
     },
     chartOptions() {
-      return { xAxis: { axisLabel: { formatter: this.metricAxisFormatter } } };
+      return {
+        ...barCategoryAxisOptions(this.chart.groups),
+        xAxis: { axisLabel: { formatter: this.metricAxisFormatter } },
+      };
     },
   },
   methods: {

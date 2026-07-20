@@ -2063,7 +2063,24 @@ CREATE TABLE siphon_p_ci_stages
     `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
     `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
     `_siphon_watermark` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
-    INDEX idx_siphon_watermark_minmax _siphon_watermark TYPE minmax GRANULARITY 1
+    INDEX idx_siphon_watermark_minmax _siphon_watermark TYPE minmax GRANULARITY 1,
+    PROJECTION by_traversal_path_pipeline_id
+    (
+        SELECT
+            id,
+            partition_id,
+            traversal_path,
+            pipeline_id,
+            name,
+            status,
+            _siphon_replicated_at,
+            _siphon_deleted
+        ORDER BY
+            traversal_path,
+            pipeline_id,
+            id,
+            partition_id
+    )
 )
 ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, id, partition_id)
