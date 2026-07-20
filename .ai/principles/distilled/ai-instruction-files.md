@@ -1,6 +1,6 @@
 ---
-source_checksum: af9ed0ec46eedb9d
-distilled_at_sha: 7e6400c6673ccad101ddf620e6bf08ad99e5325a
+source_checksum: eb7c929edce58d7d
+distilled_at_sha: a12edd3cd641812cf27868b59ce605d439d981b5
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -55,6 +55,9 @@ distilled_at_sha: 7e6400c6673ccad101ddf620e6bf08ad99e5325a
 - Compare the distilled diff against the referenced SSOT documentation changes.
 - Confirm no still-valid, SSOT-supported rule was dropped and no unsupported rule was added.
 - Confirm the front matter checksums were updated by the tool, not by hand.
+- When reviewing a fence-reconcile MR (which changes only `.gitlab/duo/mr-review-instructions.yaml`), confirm the fence directives match the front matter of the distilled files on `master`; the reconcile job runs no distillation, so the fence body must never diverge from the committed distilled content.
+- Treat a malformed or orphaned fence as always-blocking; the `ai-duo-review-instructions` guard fails on its own ref regardless of the reconcile state.
+- Treat fence staleness as blocking only on the reconcile MR and on MRs that touch the fences' owned files. DO NOT treat staleness as blocking on a team's distilled MR or on unrelated `doc/**/*.md` edits — it is expected transient state until the daily reconcile catches up.
 
 ## Authoritative sources
 
