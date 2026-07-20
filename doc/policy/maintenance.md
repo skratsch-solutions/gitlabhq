@@ -1,6 +1,6 @@
 ---
 stage: GitLab Delivery
-group: Operate
+group: Release and Deploy
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 title: GitLab release and maintenance policy
 description: Version support, release cadence, and backporting policies.
