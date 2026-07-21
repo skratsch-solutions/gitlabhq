@@ -42,10 +42,6 @@ module Gitlab
           all.fetch(key)
         end
 
-        def self.uncached_limiter_for(key)
-          build_limiter(key)
-        end
-
         def self.rule_for(key)
           rules.fetch(key)
         end

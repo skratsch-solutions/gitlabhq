@@ -113,9 +113,8 @@ export default {
       matches: (state) => state.matches,
       lastQuery: (state) => state.query,
       selectedRef: (state) => state.selectedRef,
-      params: (state) => state.params,
     }),
-    ...mapGetters(['isLoading', 'isQueryPossiblyASha']),
+    ...mapGetters(['isLoading']),
     i18n() {
       return {
         ...DEFAULT_I18N,

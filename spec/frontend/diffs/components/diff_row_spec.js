@@ -42,7 +42,6 @@ describe('DiffRow', () => {
     const coverageFileData = state.coverageFiles?.files ? state.coverageFiles.files : {};
 
     const propsData = {
-      fileHash: 'abc',
       filePath: 'abc',
       line: {},
       index: 0,
@@ -215,7 +214,6 @@ describe('DiffRow', () => {
     const applyMap = mapParallel(mockDiffContent);
     const props = {
       line: applyMap(thisLine),
-      fileHash: diffFileMockData.file_hash,
       filePath: diffFileMockData.file_path,
       contextLinesPath: 'contextLinesPath',
       isHighlighted: false,

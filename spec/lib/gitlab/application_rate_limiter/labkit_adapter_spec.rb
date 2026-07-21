@@ -110,74 +110,6 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
       )
     end
 
-    context 'when static labkit limiter objects are disabled' do
-      before do
-        stub_feature_flags(application_rate_limiter_static_labkit_limiters: false)
-      end
-
-      it 'checks through a freshly built labkit limiter' do
-        result = Labkit::RateLimit::Result.new(matched: false, error: false, action: :allow)
-        limiter = instance_double(Labkit::RateLimit::Limiter, check: result)
-
-        allow(supported_rate_limits).to receive(:uncached_limiter_for).with(:users_get_by_id).and_return(limiter)
-        allow(supported_rate_limits).to receive(:limiter_for).and_call_original
-
-        described_class.run!(:users_get_by_id, scope: user)
-
-        expect(supported_rate_limits).not_to have_received(:limiter_for)
-        expect(limiter).to have_received(:check).with(
-          { user: user.id },
-          cost: 1,
-          rule_context: {}
-        )
-      end
-
-      it 'preserves cost-mode behavior through the dynamically built limiter', :aggregate_failures do
-        expected_key = "labkit:rl:applimiter_main_db_duration_limit_per_worker:limit_main_db_duration_per_worker" \
-          ":worker_name:DynamicWorker"
-
-        result = described_class.run!(:main_db_duration_limit_per_worker, scope: 'DynamicWorker',
-          context: { threshold: 3, interval: 60 }, cost: 4.0)
-        cost = Gitlab::Redis::RateLimiting.with { |r| r.get(expected_key) }
-
-        expect(result).to be(true)
-        expect(cost.to_f).to eq(4.0)
-      end
-
-      it 'preserves count_distinct behavior through the dynamically built limiter', :aggregate_failures do
-        other_project = build_stubbed(:project)
-
-        rule = ::Labkit::RateLimit::Rule.new(
-          name: 'limit_dynamic_distinct_downloads_by_user',
-          characteristics: %i[user],
-          count_distinct: :project_id,
-          limit: ->(ctx) { ctx&.dig(:threshold) || 1 },
-          period: ->(ctx) { ctx&.dig(:interval) || 60 },
-          action: :block
-        )
-        limiter = ::Labkit::RateLimit::Limiter.new(
-          name: 'applimiter_dynamic_distinct_downloads',
-          rules: [rule],
-          redis: ::Gitlab::Redis::RateLimiting,
-          logger: ::Gitlab::AppLogger
-        )
-        allow(supported_rate_limits).to receive(:rule_for).with(:dynamic_distinct_downloads).and_return(rule)
-        allow(supported_rate_limits).to receive(:uncached_limiter_for)
-          .with(:dynamic_distinct_downloads).and_return(limiter)
-
-        expect(described_class.run!(:dynamic_distinct_downloads, scope: user,
-          context: { resource_id: project.id })).to be(false)
-        expect(described_class.run!(:dynamic_distinct_downloads, scope: user,
-          context: { resource_id: other_project.id })).to be(true)
-
-        set_key = "labkit:rl:applimiter_dynamic_distinct_downloads:limit_dynamic_distinct_downloads_by_user" \
-          ":user:#{user.id}"
-        members = Gitlab::Redis::RateLimiting.with { |r| r.smembers(set_key) }
-
-        expect(members).to contain_exactly(project.id.to_s, other_project.id.to_s)
-      end
-    end
-
     it 'delegates to SupportedRateLimits.limiter_for on each check' do
       result = Labkit::RateLimit::Result.new(matched: false, error: false, action: :allow)
       limiter = instance_double(Labkit::RateLimit::Limiter, check: result)
@@ -610,38 +542,6 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
         { query_sha: 'sha-abc123' },
         rule_context: {}
       )
-    end
-
-    context 'when static labkit limiter objects are disabled' do
-      before do
-        stub_feature_flags(application_rate_limiter_static_labkit_limiters: false)
-      end
-
-      it 'peeks through a freshly built labkit limiter' do
-        result = Labkit::RateLimit::Result.new(matched: false, error: false, action: :allow)
-        limiter = instance_double(Labkit::RateLimit::Limiter, peek: result)
-
-        allow(supported_rate_limits).to receive(:uncached_limiter_for).with(:glql).and_return(limiter)
-        allow(supported_rate_limits).to receive(:limiter_for).and_call_original
-
-        described_class.run_peek!(:glql, scope: 'sha-abc123')
-
-        expect(supported_rate_limits).not_to have_received(:limiter_for)
-        expect(limiter).to have_received(:peek).with(
-          { query_sha: 'sha-abc123' },
-          rule_context: {}
-        )
-      end
-
-      it 'peeks through the dynamically built limiter using the same rule context' do
-        2.times do
-          described_class.run!(:pipelines_create, scope: [project, user, 'dynamic-peek-sha'],
-            context: { threshold: 1, interval: 30 })
-        end
-
-        expect(described_class.run_peek!(:pipelines_create, scope: [project, user, 'dynamic-peek-sha'],
-          context: { threshold: 1, interval: 30 })).to be(true)
-      end
     end
 
     it 'delegates to SupportedRateLimits.limiter_for on each peek' do

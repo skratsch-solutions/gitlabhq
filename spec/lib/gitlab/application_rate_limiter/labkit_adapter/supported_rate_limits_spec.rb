@@ -100,22 +100,6 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimit
     end
   end
 
-  describe '.uncached_limiter_for' do
-    it 'returns a labkit limiter for a registered key' do
-      expect(described_class.uncached_limiter_for(:pipelines_create)).to be_a(::Labkit::RateLimit::Limiter)
-    end
-
-    it 'does not cache the limiter' do
-      limiter = described_class.uncached_limiter_for(:pipelines_create)
-
-      expect(described_class.uncached_limiter_for(:pipelines_create)).not_to be(limiter)
-    end
-
-    it 'raises KeyError for an unregistered key' do
-      expect { described_class.uncached_limiter_for(:not_a_registered_key) }.to raise_error(KeyError)
-    end
-  end
-
   describe '.accepts_context?' do
     it 'returns false for fixed values' do
       expect(described_class.accepts_context?(1)).to be(false)

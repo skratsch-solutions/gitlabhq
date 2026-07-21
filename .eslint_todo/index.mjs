@@ -1,5 +1,3 @@
-export { default as vueNoUnusedProperties } from './vue-no-unused-properties.mjs';
-
 export { default as vueRequireNameProperty } from './vue-require-name-property.mjs';
 
 export { default as vueVOnEventHyphenation } from './vue-v-on-event-hyphenation.mjs';

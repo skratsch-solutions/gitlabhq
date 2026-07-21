@@ -102,11 +102,7 @@ module Gitlab
         private
 
         def limiter_for(key)
-          if Feature.enabled?(:application_rate_limiter_static_labkit_limiters, Feature.current_request)
-            SupportedRateLimits.limiter_for(key)
-          else
-            SupportedRateLimits.uncached_limiter_for(key)
-          end
+          SupportedRateLimits.limiter_for(key)
         end
 
         # Builds the labkit identifier hash from a scope by routing AR-typed

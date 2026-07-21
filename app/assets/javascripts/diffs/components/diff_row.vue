@@ -27,10 +27,6 @@ export default {
       import('ee_component/diffs/components/inline_findings_gutter_icon_dropdown.vue'),
   },
   props: {
-    fileHash: {
-      type: String,
-      required: true,
-    },
     filePath: {
       type: String,
       required: true,
@@ -40,11 +36,6 @@ export default {
       required: true,
     },
     isCommented: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    coverageLoaded: {
       type: Boolean,
       required: false,
       default: false,

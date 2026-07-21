@@ -28,7 +28,6 @@ export default {
       content: '',
       isLoadingContent: false,
       loadingContentFailed: false,
-      headings: [],
     };
   },
   mounted() {
