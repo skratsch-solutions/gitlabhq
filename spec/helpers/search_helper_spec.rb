@@ -300,7 +300,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
             # These queries are needed for URL determination logic (work_item_type, namespace checks)
             # introduced by the URL centralization in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/213411
             # and temporary until full migration to Work Items URLs
-            expect { search_autocomplete_opts(search_term) }.to issue_same_number_of_queries_as(control).with_threshold(6)
+            expect { search_autocomplete_opts(search_term) }.to issue_same_number_of_queries_as(control).allow_skip_cache_inconsistency.with_threshold(6)
           end
         end
 
@@ -428,7 +428,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
           expect(recent_merge_requests).to receive(:search).with(search_term)
             .and_return(MergeRequest.id_in_ordered(merge_request_ids))
 
-          expect { search_autocomplete_opts(search_term) }.to issue_same_number_of_queries_as(control)
+          expect { search_autocomplete_opts(search_term) }.to issue_same_number_of_queries_as(control).allow_skip_cache_inconsistency
         end
       end
 

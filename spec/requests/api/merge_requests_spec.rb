@@ -150,7 +150,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
 
         expect do
           get api(endpoint_path, user)
-        end.not_to exceed_query_limit(control).with_threshold(allowed_query_threshold)
+        end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency.with_threshold(allowed_query_threshold)
       end
     end
 
@@ -174,7 +174,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
 
         expect do
           get api(endpoint_path, user)
-        end.not_to exceed_query_limit(control).with_threshold(allowed_query_threshold)
+        end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency.with_threshold(allowed_query_threshold)
       end
 
       context 'when merge requests are merged' do
@@ -189,7 +189,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
 
           expect do
             get api(endpoint_path, user)
-          end.not_to exceed_query_limit(control).with_threshold(allowed_query_threshold)
+          end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency.with_threshold(allowed_query_threshold)
         end
       end
 

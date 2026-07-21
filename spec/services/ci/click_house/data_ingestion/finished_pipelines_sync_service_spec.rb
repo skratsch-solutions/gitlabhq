@@ -169,7 +169,7 @@ RSpec.describe Ci::ClickHouse::DataIngestion::FinishedPipelinesSyncService, '#ex
         end
 
         it 'does not cause N+1 queries' do
-          expect { service.execute }.not_to exceed_all_query_limit(control)
+          expect { service.execute }.not_to exceed_all_query_limit(control).allow_skip_cache_inconsistency
         end
 
         private

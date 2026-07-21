@@ -589,12 +589,22 @@ After you've [determined when and where](#setting-expectations) the user submitt
 - Content placed inside <i class="fa-youtube-play" aria-hidden="true"></i> [HTML URL GET parameters](https://youtu.be/2VFavqfDS6w?t=3494) need to be [URL-encoded](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#rule-5---url-escape-before-inserting-untrusted-data-into-html-url-parameter-values)
 - <i class="fa-youtube-play" aria-hidden="true"></i> [Additional contexts may require context-specific encoding](https://youtu.be/2VFavqfDS6w?t=2341).
 
+#### Text and HTML field fallbacks
+
+Many models expose a sanitized HTML field (for example `description_html`) alongside the raw text field (`description`). The raw text is unsanitized and attacker-controlled.
+
+- Send each field to its matching sink: the HTML field to an HTML sink, the text field to a text sink. Never substitute one for the other.
+- Never fall back from the HTML field to the text field in an HTML sink. `raw(description_html || description)` and `v-safe-html="item.descriptionHtml || item.description"` are both XSS.
+- If the HTML field is always populated, no fallback is needed. Don't add one. Treat a missing value as a bug to fix at its source.
+- If the HTML field can legitimately be absent, render it as HTML only when present, and otherwise render the text field as text. Don't mix the two.
+
 ### Additional information
 
 #### XSS mitigation and prevention in JavaScript and Vue
 
 - When updating the content of an HTML element using JavaScript, mark user-controlled values as `textContent` or `nodeValue` instead of `innerHTML`.
-- Avoid using `v-html` with user-controlled data, use [`v-safe-html`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/assets/javascripts/vue_shared/directives/safe_html.js) instead.
+- Never use `v-html`.
+- Only use [`v-safe-html`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/assets/javascripts/vue_shared/directives/safe_html.js) with user-controlled data when it has already been sanitized through the backend.
 - Render unsafe or unsanitized content using [`dompurify`](../fe_guide/security.md#sanitize-html-output).
 - Consider using [`gl-sprintf`](../i18n/externalization.md#interpolation) to interpolate translated strings securely.
 - Avoid `__()` with translations that contain user-controlled values.
@@ -621,6 +631,8 @@ After you've [determined when and where](#setting-expectations) the user submitt
 - [XSS vulnerability on custom project templates form](https://gitlab.com/gitlab-org/gitlab/-/issues/197302)
 - [Stored XSS in branch names](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/55320)
 - [Stored XSS in merge request pages](https://gitlab.com/gitlab-org/gitlab/-/issues/35096)
+- [Stored XSS resulting from backend HTML-to-text fallback](https://gitlab.com/gitlab-org/gitlab/-/work_items/588380)
+- [Stored XSS resulting from frontend HTML-to-text fallback](https://gitlab.com/gitlab-org/gitlab/-/work_items/591065)
 
 ### Internal Developer Training
 

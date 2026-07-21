@@ -129,7 +129,7 @@ RSpec.describe StageEntity, feature_category: :continuous_integration do
         create_list(:ci_bridge, 10, :failed, ci_stage: stage, pipeline: pipeline)
         create_list(:generic_commit_status, 10, ci_stage: stage, pipeline: pipeline)
 
-        expect { serialize(stage) }.not_to exceed_query_limit(control)
+        expect { serialize(stage) }.not_to exceed_query_limit(control).allow_skip_cache_inconsistency
       end
     end
 

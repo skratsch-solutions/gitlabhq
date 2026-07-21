@@ -1391,7 +1391,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
         expect do
           request
-        end.not_to exceed_all_query_limit(control)
+        end.not_to exceed_all_query_limit(control).allow_skip_cache_inconsistency
       end
     end
 

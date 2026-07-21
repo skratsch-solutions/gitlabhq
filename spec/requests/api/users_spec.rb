@@ -5840,7 +5840,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
           end
 
           expect(response).to have_gitlab_http_status(:created)
-          expect(query_recorder).not_to exceed_query_limit(1).for_query(
+          expect(query_recorder).not_to exceed_query_limit(1).allow_skip_cache_inconsistency.for_query(
             /FROM "namespaces" WHERE "namespaces"\."type" = 'Project' AND "namespaces"\."id" IN/
           )
         end

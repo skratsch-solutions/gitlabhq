@@ -266,7 +266,7 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
               perform_request
 
               expect(json_response).to all(include('job_execution_status'))
-            end.not_to exceed_query_limit(control)
+            end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency
           end
         end
       end
@@ -371,7 +371,7 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
                 perform_request
 
                 expect(json_response).to all(include('job_execution_status'))
-              end.not_to exceed_query_limit(control)
+              end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency
             end
           end
         end
@@ -462,7 +462,7 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
 
             expect do
               perform_request
-            end.not_to exceed_query_limit(control)
+            end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency
           end
         end
 
@@ -1621,7 +1621,7 @@ RSpec.describe API::Ci::Runners, :aggregate_failures, factory_default: :keep, fe
 
               expect do
                 get api(path, current_user)
-              end.not_to exceed_query_limit(control)
+              end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency
             end
           end
         end

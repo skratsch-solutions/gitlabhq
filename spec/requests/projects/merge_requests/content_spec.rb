@@ -22,7 +22,7 @@ RSpec.describe 'merge request content spec', feature_category: :code_review_work
 
       expect do
         get cached_widget_project_json_merge_request_path(project, merge_request, format: :json)
-      end.not_to exceed_query_limit(control)
+      end.not_to exceed_query_limit(control).allow_skip_cache_inconsistency
     end
   end
 

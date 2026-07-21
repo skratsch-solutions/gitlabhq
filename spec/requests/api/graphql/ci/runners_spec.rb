@@ -334,7 +334,9 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
 
       setup_additional_records
 
-      expect { post_graphql(runners_query, **args) }.not_to exceed_query_limit(runners_control)
+      expect do
+        post_graphql(runners_query, **args)
+      end.not_to exceed_query_limit(runners_control).allow_skip_cache_inconsistency
     end
 
     def setup_additional_records

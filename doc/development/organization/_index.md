@@ -33,6 +33,14 @@ The Organizations team are implementing changes which will automatically include
 
 Teams do not need to implement these, unless there are specific reasons.
 
+## Releasing organization features
+
+Organization features ship behind an `organization flag` that moves through a fixed ladder of stages, from Experimental to generally available (GA).
+A feature's audience only ever grows as its organization flag advances to a later stage, so an earlier stage's audience is never dropped.
+
+For the engineering guide on gating a feature, registering an organization flag, and advancing it through the stages, see [Organizations release process](../organizations/release_process.md).
+For the organization flags currently in the rollout process and their stage, see [Organizations platform release status](../organizations/release_status.md).
+
 ## Database table design
 
 See the [sharding guidelines](sharding/_index.md).

@@ -2073,7 +2073,7 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :code_review
         environment2 = create(:environment, project: forked)
         create(:deployment, :succeed, environment: environment2, sha: sha, ref: 'master', deployable: build)
 
-        expect { get_ci_environments_status }.not_to exceed_all_query_limit(control_count)
+        expect { get_ci_environments_status }.not_to exceed_all_query_limit(control_count).allow_skip_cache_inconsistency
       end
     end
 

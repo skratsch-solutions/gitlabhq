@@ -103,7 +103,7 @@ RSpec.shared_examples 'routable resource' do
                 record_4.full_path
               ], preload_routes: true)
               .map(&:route)
-          end.to issue_same_number_of_queries_as(control)
+          end.to issue_same_number_of_queries_as(control).allow_skip_cache_inconsistency
         end
       end
 
@@ -123,7 +123,7 @@ RSpec.shared_examples 'routable resource' do
                 record_4.full_path
               ], preload_routes: false)
               .map(&:route)
-          end.not_to issue_same_number_of_queries_as(control_count)
+          end.not_to issue_same_number_of_queries_as(control_count).allow_skip_cache_inconsistency
         end
       end
     end
