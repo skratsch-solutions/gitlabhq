@@ -16303,6 +16303,75 @@ CREATE SEQUENCE burned_project_routes_id_seq
 
 ALTER SEQUENCE burned_project_routes_id_seq OWNED BY burned_project_routes.id;
 
+CREATE TABLE catalog_bundled_resource_components (
+    id bigint NOT NULL,
+    catalog_bundled_resource_id bigint NOT NULL,
+    catalog_bundled_version_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    spec jsonb DEFAULT '{}'::jsonb NOT NULL,
+    CONSTRAINT check_da609233da CHECK ((char_length(name) <= 255))
+);
+
+CREATE SEQUENCE catalog_bundled_resource_components_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE catalog_bundled_resource_components_id_seq OWNED BY catalog_bundled_resource_components.id;
+
+CREATE TABLE catalog_bundled_resource_versions (
+    id bigint NOT NULL,
+    catalog_bundled_resource_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    released_at timestamp with time zone,
+    semver_major integer NOT NULL,
+    semver_minor integer NOT NULL,
+    semver_patch integer NOT NULL,
+    semver_prefixed boolean DEFAULT false NOT NULL,
+    semver_prerelease text,
+    readme text,
+    readme_html text,
+    CONSTRAINT check_82c917cc60 CHECK ((char_length(semver_prerelease) <= 255))
+);
+
+CREATE SEQUENCE catalog_bundled_resource_versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE catalog_bundled_resource_versions_id_seq OWNED BY catalog_bundled_resource_versions.id;
+
+CREATE TABLE catalog_bundled_resources (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    latest_released_at timestamp with time zone,
+    server_fqdn text NOT NULL,
+    full_path text NOT NULL,
+    name text NOT NULL,
+    description text,
+    search_vector tsvector GENERATED ALWAYS AS ((setweight(to_tsvector('english'::regconfig, COALESCE(name, ''::text)), 'A'::"char") || setweight(to_tsvector('english'::regconfig, COALESCE(description, ''::text)), 'B'::"char"))) STORED,
+    CONSTRAINT check_477b124aa9 CHECK ((char_length(description) <= 1024)),
+    CONSTRAINT check_88489344ae CHECK ((char_length(name) <= 255)),
+    CONSTRAINT check_a7f7ace410 CHECK ((char_length(server_fqdn) <= 255)),
+    CONSTRAINT check_a878d27127 CHECK ((char_length(full_path) <= 1024))
+);
+
+CREATE SEQUENCE catalog_bundled_resources_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE catalog_bundled_resources_id_seq OWNED BY catalog_bundled_resources.id;
+
 CREATE TABLE catalog_resource_component_last_usages (
     id bigint NOT NULL,
     component_id bigint NOT NULL,
@@ -36190,6 +36259,12 @@ ALTER TABLE ONLY bulk_imports ALTER COLUMN id SET DEFAULT nextval('bulk_imports_
 
 ALTER TABLE ONLY burned_project_routes ALTER COLUMN id SET DEFAULT nextval('burned_project_routes_id_seq'::regclass);
 
+ALTER TABLE ONLY catalog_bundled_resource_components ALTER COLUMN id SET DEFAULT nextval('catalog_bundled_resource_components_id_seq'::regclass);
+
+ALTER TABLE ONLY catalog_bundled_resource_versions ALTER COLUMN id SET DEFAULT nextval('catalog_bundled_resource_versions_id_seq'::regclass);
+
+ALTER TABLE ONLY catalog_bundled_resources ALTER COLUMN id SET DEFAULT nextval('catalog_bundled_resources_id_seq'::regclass);
+
 ALTER TABLE ONLY catalog_resource_component_last_usages ALTER COLUMN id SET DEFAULT nextval('catalog_resource_component_last_usages_id_seq'::regclass);
 
 ALTER TABLE ONLY catalog_resource_components ALTER COLUMN id SET DEFAULT nextval('catalog_resource_components_id_seq'::regclass);
@@ -39217,6 +39292,15 @@ ALTER TABLE ONLY bulk_imports
 
 ALTER TABLE ONLY burned_project_routes
     ADD CONSTRAINT burned_project_routes_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY catalog_bundled_resource_components
+    ADD CONSTRAINT catalog_bundled_resource_components_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY catalog_bundled_resource_versions
+    ADD CONSTRAINT catalog_bundled_resource_versions_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY catalog_bundled_resources
+    ADD CONSTRAINT catalog_bundled_resources_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY catalog_resource_component_last_usages
     ADD CONSTRAINT catalog_resource_component_last_usages_pkey PRIMARY KEY (id);
@@ -44694,6 +44778,12 @@ CREATE INDEX idx_bulk_import_exports_on_organization_id ON bulk_import_exports U
 
 CREATE UNIQUE INDEX idx_bulk_import_exports_on_project_relation_offline_export ON bulk_import_exports USING btree (project_id, relation, offline_export_id) WHERE ((project_id IS NOT NULL) AND (offline_export_id IS NOT NULL));
 
+CREATE INDEX idx_catalog_bundled_components_on_bundled_resource_id ON catalog_bundled_resource_components USING btree (catalog_bundled_resource_id);
+
+CREATE UNIQUE INDEX idx_catalog_bundled_components_on_version_and_name ON catalog_bundled_resource_components USING btree (catalog_bundled_version_id, name);
+
+CREATE UNIQUE INDEX idx_catalog_bundled_versions_on_bundled_resource_and_semver ON catalog_bundled_resource_versions USING btree (catalog_bundled_resource_id, semver_major, semver_minor, semver_patch, semver_prerelease) NULLS NOT DISTINCT;
+
 CREATE INDEX idx_catalog_resource_cpmt_last_usages_on_cpmt_project_id ON catalog_resource_component_last_usages USING btree (component_project_id);
 
 CREATE UNIQUE INDEX idx_ci_job_token_authorizations_on_accessed_and_origin_project ON ci_job_token_authorizations USING btree (accessed_project_id, origin_project_id);
@@ -46383,6 +46473,10 @@ CREATE UNIQUE INDEX index_burned_project_routes_on_org_id_lower_path ON burned_p
 CREATE INDEX index_ca_enabled_incomplete_aggregation_stages_on_last_run_at ON analytics_cycle_analytics_stage_aggregations USING btree (last_run_at NULLS FIRST) WHERE ((last_completed_at IS NULL) AND (enabled = true));
 
 CREATE UNIQUE INDEX index_cargo_metadata_on_project_normalized_name_version ON packages_cargo_metadata USING btree (project_id, normalized_name, normalized_version);
+
+CREATE UNIQUE INDEX index_catalog_bundled_resources_on_fqdn_and_full_path ON catalog_bundled_resources USING btree (lower(server_fqdn), lower(full_path));
+
+CREATE INDEX index_catalog_bundled_resources_on_search_vector ON catalog_bundled_resources USING gin (search_vector);
 
 CREATE INDEX index_catalog_resource_components_on_catalog_resource_id ON catalog_resource_components USING btree (catalog_resource_id);
 
@@ -57763,6 +57857,9 @@ ALTER TABLE ONLY related_epic_links
 ALTER TABLE ONLY project_settings
     ADD CONSTRAINT fk_8264eab4ae FOREIGN KEY (pipeline_execution_policy_bot_access_group_id) REFERENCES namespaces(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY catalog_bundled_resource_components
+    ADD CONSTRAINT fk_82ac455980 FOREIGN KEY (catalog_bundled_version_id) REFERENCES catalog_bundled_resource_versions(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY group_wiki_repository_states
     ADD CONSTRAINT fk_832511c9f1 FOREIGN KEY (group_wiki_repository_id) REFERENCES group_wiki_repositories(group_id) ON DELETE CASCADE;
 
@@ -57795,6 +57892,9 @@ ALTER TABLE ONLY scan_result_policies
 
 ALTER TABLE ONLY requirements
     ADD CONSTRAINT fk_85044baef0 FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY catalog_bundled_resource_versions
+    ADD CONSTRAINT fk_85b0753c0d FOREIGN KEY (catalog_bundled_resource_id) REFERENCES catalog_bundled_resources(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY catalog_resource_components
     ADD CONSTRAINT fk_85bb1d1e79 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -58716,6 +58816,9 @@ ALTER TABLE ONLY jira_tracker_data
 
 ALTER TABLE ONLY boards_epic_user_preferences
     ADD CONSTRAINT fk_d32c3d693c FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY catalog_bundled_resource_components
+    ADD CONSTRAINT fk_d3c7ceb004 FOREIGN KEY (catalog_bundled_resource_id) REFERENCES catalog_bundled_resources(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY user_admin_roles
     ADD CONSTRAINT fk_d3e201cb93 FOREIGN KEY (admin_role_id) REFERENCES admin_roles(id) ON DELETE CASCADE;

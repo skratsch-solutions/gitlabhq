@@ -21,7 +21,12 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
       sign_in(user)
     end
 
-    describe 'pipeline tab' do
+    describe 'pipeline tab', :clean_gitlab_redis_cache do
+      let_it_be(:user) { create(:user) }
+      let_it_be_with_reload(:project) { create(:project, :repository, maintainers: user) }
+
+      let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+
       context 'with pipelines' do
         let!(:pipeline) do
           create(
@@ -64,7 +69,10 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
         end
 
         context 'with a detached merge request pipeline' do
-          let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
+          let(:merge_request) do
+            create(:merge_request, :with_detached_merge_request_pipeline,
+              source_project: project, target_project: project)
+          end
 
           it 'displays the "Run pipeline" button' do
             visit project_merge_request_path(project, merge_request)
@@ -78,7 +86,10 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
         end
 
         context 'with a merged results pipeline' do
-          let(:merge_request) { create(:merge_request, :with_merge_request_pipeline) }
+          let(:merge_request) do
+            create(:merge_request, :with_merge_request_pipeline,
+              source_project: project, target_project: project)
+          end
 
           it 'displays the "Run pipeline" button' do
             visit project_merge_request_path(project, merge_request)

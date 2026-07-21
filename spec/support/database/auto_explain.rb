@@ -74,16 +74,22 @@ module AutoExplain
 
             pg.exec('SET statement_timeout TO 0;')
 
+            # The Postgres log (pglog.csv) is shared by every database in the
+            # cluster, so scope each pass to the current connection's database.
+            # Without this filter every connection re-parses (and re-fingerprints)
+            # the entire cluster-wide log, tripling the work in a decomposed setup.
+            #
             # Use UNION ALL to handle queries differently based on query_id:
             # - Apply DISTINCT for non-zero query_ids for efficient database-level deduplication
-            # - Process all query_id=0 cases separately to ensure nothing is missed
-            pg.send_query(<<~SQL.squish)
+            # - Process query_id=0 cases separately to ensure nothing is missed, deduplicating
+            #   by query text so identical repeated statements are not fingerprinted many times
+            pg.send_query_params(<<~SQL.squish, [connection.current_database])
               WITH base_data AS (
                   SELECT
                       substring(message from '\{.*$')::jsonb AS message,
                       query_id
                   FROM pglog
-                  WHERE message LIKE '%{%'
+                  WHERE database_name = $1 AND message LIKE '%{%'
               )
               (
                   SELECT DISTINCT ON (query_id)
@@ -95,12 +101,13 @@ module AutoExplain
               )
               UNION ALL
               (
-                  SELECT
+                  SELECT DISTINCT ON (m.message->>'Query Text')
                       m.query_id,
                       m.message->>'Query Text' as query,
                       m.message->'Plan' as plan
                   FROM base_data m
                   WHERE m.query_id = 0
+                  ORDER BY m.message->>'Query Text'
               )
               ORDER BY query_id;
             SQL
