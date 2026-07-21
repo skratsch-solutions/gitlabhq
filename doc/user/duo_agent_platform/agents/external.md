@@ -187,9 +187,33 @@ Prerequisites:
 
 To add external agents to your instance:
 
+{{< tabs >}}
+
+{{< tab title="GitLab UI" >}}
+
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **GitLab Duo**.
 1. Under **GitLab-managed external agents**, select **Add to AI Catalog**.
+
+{{< /tab >}}
+
+{{< tab title="Rake task" >}}
+
+For Linux package (Omnibus):
+
+```shell
+sudo gitlab-rake gitlab:ai_catalog:seed_external_agents
+```
+
+For self-compiled (source):
+
+```shell
+bundle exec rake gitlab:ai_catalog:seed_external_agents
+```
+
+{{< /tab >}}
+
+{{< /tabs >}}
 
 You can also add external agents with the [API](../../../api/admin/ai_catalog.md).
 

@@ -3794,35 +3794,12 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let(:emails) { ['test@example.com'] }
     let(:users) { double }
 
-    context 'when approval_committer_emails_from_diff is enabled' do
-      it 'queries committer emails from diff and selects user ids' do
-        allow(subject).to receive(:committer_emails_from_diff).and_return(emails)
-        allow(User).to receive(:by_any_email).with(emails).and_return(users)
-        allow(users).to receive(:select).with(:id).and_return(users)
+    it 'queries committer emails from diff and selects user ids' do
+      allow(subject).to receive(:committer_emails_from_diff).and_return(emails)
+      allow(User).to receive(:by_any_email).with(emails).and_return(users)
+      allow(users).to receive(:select).with(:id).and_return(users)
 
-        expect(subject.committer_ids_to_filter_from_approvers).to eq(users)
-      end
-    end
-
-    context 'when approval_committer_emails_from_diff is disabled' do
-      let(:commits) { double }
-      let(:committers) { double }
-
-      before do
-        stub_feature_flags(approval_committer_emails_from_diff: false)
-      end
-
-      it 'falls back to committers method' do
-        expect(subject).to receive(:commits).and_return(commits)
-        expect(commits).to receive(:committers).with(
-          with_merge_commits: true,
-          lazy: false,
-          include_author_when_signed: true
-        ).and_return(committers)
-        expect(committers).to receive(:select).with(:id).and_return(committers)
-
-        expect(subject.committer_ids_to_filter_from_approvers).to eq(committers)
-      end
+      expect(subject.committer_ids_to_filter_from_approvers).to eq(users)
     end
   end
 
@@ -3830,33 +3807,11 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let(:emails) { ['test@example.com'] }
     let(:users) { double }
 
-    context 'when approval_committer_emails_from_diff is enabled' do
-      it 'queries committer emails from diff and returns matching users' do
-        allow(subject).to receive(:committer_emails_from_diff).and_return(emails)
-        allow(User).to receive(:by_any_email).with(emails).and_return(users)
+    it 'queries committer emails from diff and returns matching users' do
+      allow(subject).to receive(:committer_emails_from_diff).and_return(emails)
+      allow(User).to receive(:by_any_email).with(emails).and_return(users)
 
-        expect(subject.committers_to_filter_from_approvers).to eq(users)
-      end
-    end
-
-    context 'when approval_committer_emails_from_diff is disabled' do
-      let(:commits) { double }
-      let(:committers) { double }
-
-      before do
-        stub_feature_flags(approval_committer_emails_from_diff: false)
-      end
-
-      it 'falls back to committers method' do
-        expect(subject).to receive(:commits).and_return(commits)
-        expect(commits).to receive(:committers).with(
-          with_merge_commits: true,
-          lazy: true,
-          include_author_when_signed: true
-        ).and_return(committers)
-
-        expect(subject.committers_to_filter_from_approvers).to eq(committers)
-      end
+      expect(subject.committers_to_filter_from_approvers).to eq(users)
     end
   end
 

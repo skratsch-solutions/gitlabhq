@@ -972,20 +972,12 @@ class MergeRequest < ApplicationRecord
   end
 
   def committer_ids_to_filter_from_approvers
-    if Feature.enabled?(:approval_committer_emails_from_diff, target_project)
-      User.by_any_email(committer_emails_from_diff).select(:id)
-    else
-      committers(with_merge_commits: true, include_author_when_signed: true).select(:id)
-    end
+    User.by_any_email(committer_emails_from_diff).select(:id)
   end
   strong_memoize_attr :committer_ids_to_filter_from_approvers
 
   def committers_to_filter_from_approvers
-    if Feature.enabled?(:approval_committer_emails_from_diff, target_project)
-      User.by_any_email(committer_emails_from_diff)
-    else
-      committers(with_merge_commits: true, lazy: true, include_author_when_signed: true)
-    end
+    User.by_any_email(committer_emails_from_diff)
   end
   strong_memoize_attr :committers_to_filter_from_approvers
 
@@ -3077,8 +3069,7 @@ class MergeRequest < ApplicationRecord
       end
 
     # This is a pure read used only for approval eligibility filtering, which
-    # can tolerate a few seconds of replication lag, and it is gated behind the
-    # approval_committer_emails_from_diff feature flag. We send it to a replica
+    # can tolerate a few seconds of replication lag. We send it to a replica
     # via select_all, which ConnectionProxy routes through the load balancer's
     # read path; the previous select_values fell through to #method_missing and
     # was treated as ambiguous, so it ran on the primary. The SQL is unchanged.
