@@ -19,7 +19,7 @@ const defaultProps = {
   },
   initialDuoRemoteFlowsAvailability: false,
   initialDuoFoundationalFlowsAvailability: false,
-  initialDuoSastFpDetectionEnabled: false,
+  initialDuoSastFalsePositiveDetectionEnabled: false,
   initialDuoSecretDetectionFpEnabled: false,
   initialDuoDependencyBumpBreakingChangesEnabled: false,
   initialDuoSastVrWorkflowEnabled: false,
@@ -365,7 +365,7 @@ describe('GitlabDuoSettings', () => {
           wrapper = createWrapper({
             duoFeaturesEnabled: true,
             amazonQAvailable: false,
-            initialDuoSastFpDetectionEnabled: true,
+            initialDuoSastFalsePositiveDetectionEnabled: true,
           });
 
           const findHiddenInput = () =>
@@ -924,7 +924,7 @@ describe('GitlabDuoSettings', () => {
           {
             duoFeaturesEnabled: true,
             amazonQAvailable: false,
-            visibleSettings: ['duoSastFpDetectionEnabled'],
+            visibleSettings: ['duoSastFalsePositiveDetectionEnabled'],
           },
           { enableVulnerabilityResolution: true },
         );
@@ -978,7 +978,7 @@ describe('GitlabDuoSettings', () => {
           {
             duoFeaturesEnabled: true,
             amazonQAvailable: false,
-            visibleSettings: ['duoSastVrWorkflowEnabled', 'duoSastFpDetectionEnabled'],
+            visibleSettings: ['duoSastVrWorkflowEnabled', 'duoSastFalsePositiveDetectionEnabled'],
           },
           { enableVulnerabilityResolution: true },
         );
@@ -1005,7 +1005,10 @@ describe('GitlabDuoSettings', () => {
           {
             duoFeaturesEnabled: true,
             amazonQAvailable: false,
-            visibleSettings: ['duoSastFpDetectionEnabled', 'duoSecretDetectionFpEnabled'],
+            visibleSettings: [
+              'duoSastFalsePositiveDetectionEnabled',
+              'duoSecretDetectionFpEnabled',
+            ],
           },
           { duoSecretDetectionFalsePositive: true },
         );

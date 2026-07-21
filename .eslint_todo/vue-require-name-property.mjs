@@ -3,11 +3,6 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/branches/components/delete_branch_modal.vue',
-    'app/assets/javascripts/branches/components/delete_merged_branches.vue',
-    'app/assets/javascripts/branches/components/divergence_graph.vue',
-    'app/assets/javascripts/branches/components/graph_bar.vue',
-    'app/assets/javascripts/branches/components/sort_dropdown.vue',
     'app/assets/javascripts/confidential_merge_request/components/dropdown.vue',
     'app/assets/javascripts/confidential_merge_request/components/project_form_group.vue',
     'app/assets/javascripts/contribution_events/components/contribution_event/contribution_event_base.vue',

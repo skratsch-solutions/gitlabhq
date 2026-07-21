@@ -102,7 +102,7 @@ module Mcp
         private
 
         def project(arguments)
-          @project ||= find_project(arguments['project_id'])
+          @project ||= find_project!(arguments['project_id'])
         end
 
         def merge_request(arguments)

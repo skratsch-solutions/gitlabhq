@@ -21,19 +21,19 @@ RSpec.describe Mcp::Tools::Concerns::ResourceFinder, feature_category: :mcp_serv
       end
 
       def test_find_project(project_id)
-        find_project(project_id)
+        find_project!(project_id)
       end
 
       def test_find_group(group_id)
-        find_group(group_id)
+        find_group!(group_id)
       end
 
       def test_find_parent_by_id_or_path(parent_type, identifier)
-        find_parent_by_id_or_path(parent_type, identifier)
+        find_parent_by_id_or_path!(parent_type, identifier)
       end
 
       def test_find_work_item_in_parent(parent, iid)
-        find_work_item_in_parent(parent, iid)
+        find_work_item_in_parent!(parent, iid)
       end
 
       def test_build_work_item_finder_params(parent)
@@ -74,27 +74,27 @@ RSpec.describe Mcp::Tools::Concerns::ResourceFinder, feature_category: :mcp_serv
     let(:resource) { public_send(resource_ref) }
 
     it 'finds resource by ID' do
-      result = service.send(finder_method, resource.id.to_s)
+      result = service.public_send(finder_method, resource.id.to_s)
       expect(result).to eq(resource)
     end
 
     it 'finds resource by full path' do
-      result = service.send(finder_method, resource.full_path)
+      result = service.public_send(finder_method, resource.full_path)
       expect(result).to eq(resource)
     end
 
     it 'raises error for non-existent ID' do
-      expect { service.send(finder_method, non_existing_record_id.to_s) }
+      expect { service.public_send(finder_method, non_existing_record_id.to_s) }
         .to raise_error(StandardError, /not found or inaccessible/)
     end
 
     it 'raises error for non-existent path' do
-      expect { service.send(finder_method, 'invalid/path') }
+      expect { service.public_send(finder_method, 'invalid/path') }
         .to raise_error(StandardError, /not found or inaccessible/)
     end
   end
 
-  describe '#find_project' do
+  describe '#find_project!' do
     subject(:find_project) { service.test_find_project(project_id_or_path) }
 
     let_it_be_with_refind(:project) { create(:project) }
@@ -146,7 +146,7 @@ RSpec.describe Mcp::Tools::Concerns::ResourceFinder, feature_category: :mcp_serv
     end
   end
 
-  describe '#find_group' do
+  describe '#find_group!' do
     subject(:find_group) { service.test_find_group(group_full_path) }
 
     it_behaves_like 'resource finder', :test_find_group, :private_group
@@ -161,7 +161,7 @@ RSpec.describe Mcp::Tools::Concerns::ResourceFinder, feature_category: :mcp_serv
     end
   end
 
-  describe '#find_parent_by_id_or_path' do
+  describe '#find_parent_by_id_or_path!' do
     subject(:find_parent_by_id_or_path) do
       test_class.new(user).test_find_parent_by_id_or_path(parent_type, identifier)
     end
@@ -195,7 +195,7 @@ RSpec.describe Mcp::Tools::Concerns::ResourceFinder, feature_category: :mcp_serv
     end
   end
 
-  describe '#find_work_item_in_parent' do
+  describe '#find_work_item_in_parent!' do
     let_it_be(:project) { public_project }
     let_it_be(:user) { create(:user, developer_of: [project]) }
     let_it_be(:work_item) { create(:work_item, :issue, project: project) }

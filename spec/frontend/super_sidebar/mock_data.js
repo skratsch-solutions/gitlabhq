@@ -194,7 +194,6 @@ export const sidebarData = {
       css_class: 'shortcut-link-class',
     },
   ],
-  sign_in_visible: true,
   allow_signup: true,
   trial_registration_path: '/trial_registrations/new',
   has_multiple_organizations: false,

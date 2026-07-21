@@ -54,7 +54,7 @@ RSpec.describe Mcp::Tools::Base::CustomService, :aggregate_failures, feature_cat
 
       def auth_target(params)
         project_id = params.dig(:arguments, :project_id)
-        find_project(project_id)
+        find_project!(project_id)
       end
 
       protected

@@ -377,26 +377,6 @@ describe('SuperTopbar', () => {
 
     describe('Signin button', () => {
       describe('when user is logged out', () => {
-        it('does not render when signin is not visible', () => {
-          createComponent({
-            sidebarData: {
-              ...mockSidebarData,
-              is_logged_in: false,
-              sign_in_visible: false,
-            },
-          });
-          expect(findSigninButton().exists()).toBe(false);
-
-          createComponent({
-            sidebarData: {
-              ...mockSidebarData,
-              is_logged_in: 'false',
-              sign_in_visible: 'false',
-            },
-          });
-          expect(findSigninButton().exists()).toBe(false);
-        });
-
         it('renders', () => {
           createComponent({
             sidebarData: {

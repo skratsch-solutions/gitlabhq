@@ -71,9 +71,6 @@ export default {
     allowSignUp() {
       return parseBoolean(this.sidebarData?.allow_signup);
     },
-    signInVisible() {
-      return parseBoolean(this.sidebarData?.sign_in_visible);
-    },
     shouldShowOrganizationSwitcher() {
       return (
         this.glFeatures.orgSwitcher &&
@@ -138,7 +135,6 @@ export default {
         v-if="!isLoggedIn"
         :pricing-url="sidebarData.compare_plans_url"
         :allow-sign-up="allowSignUp"
-        :sign-in-visible="signInVisible"
         class="gl-hidden lg:gl-flex"
       />
 
@@ -241,7 +237,6 @@ export default {
           {{ isSaas ? __('Get free trial') : __('Register') }}
         </gl-button>
         <gl-button
-          v-if="signInVisible"
           :href="signInPath()"
           class="gl-hidden lg:gl-flex"
           data-testid="topbar-signin-button"
@@ -253,7 +248,6 @@ export default {
           :sidebar-data="sidebarData"
           :pricing-url="sidebarData.compare_plans_url"
           :allow-sign-up="allowSignUp"
-          :sign-in-visible="signInVisible"
           class="gl-flex lg:gl-hidden"
         />
       </template>

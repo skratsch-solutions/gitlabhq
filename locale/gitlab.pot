@@ -22659,6 +22659,9 @@ msgstr ""
 msgid "ContinuousDeployment|Failed"
 msgstr ""
 
+msgid "ContinuousDeployment|Failed to load GitLab agents. Refresh the page to try again."
+msgstr ""
+
 msgid "ContinuousDeployment|Failed to load deployments. Reload to try again."
 msgstr ""
 
@@ -22686,6 +22689,9 @@ msgstr ""
 msgid "ContinuousDeployment|Get started with environments"
 msgstr ""
 
+msgid "ContinuousDeployment|GitLab Agent"
+msgstr ""
+
 msgid "ContinuousDeployment|Health"
 msgstr ""
 
@@ -22702,6 +22708,9 @@ msgid "ContinuousDeployment|In sync"
 msgstr ""
 
 msgid "ContinuousDeployment|It may have been removed or you may not have access to it."
+msgstr ""
+
+msgid "ContinuousDeployment|Kubernetes (Argo Rollouts)"
 msgstr ""
 
 msgid "ContinuousDeployment|Last deploy"
@@ -22794,6 +22803,9 @@ msgstr ""
 msgid "ContinuousDeployment|Search by name or description"
 msgstr ""
 
+msgid "ContinuousDeployment|Select an agent"
+msgstr ""
+
 msgid "ContinuousDeployment|Service"
 msgstr ""
 
@@ -22830,7 +22842,13 @@ msgstr ""
 msgid "ContinuousDeployment|Synced"
 msgstr ""
 
+msgid "ContinuousDeployment|Target"
+msgstr ""
+
 msgid "ContinuousDeployment|The application may have been removed or you may not have access to it."
+msgstr ""
+
+msgid "ContinuousDeployment|The cluster that backs this environment. Deploy connects through a GitLab Agent — no cluster endpoint required."
 msgstr ""
 
 msgid "ContinuousDeployment|The deployable units. Each service has its own deployment strategy."
@@ -67075,6 +67093,9 @@ msgid "Secret detection"
 msgstr ""
 
 msgid "Secret push protection"
+msgstr ""
+
+msgid "Secret push protection scan timed out. The push was accepted."
 msgstr ""
 
 msgid "Secret push protection skipped via"

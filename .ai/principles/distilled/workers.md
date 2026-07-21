@@ -1,6 +1,6 @@
 ---
-source_checksum: 83bb66f8bff79c34
-distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
+source_checksum: e73ec0269ddcc91b
+distilled_at_sha: a12edd3cd641812cf27868b59ce605d439d981b5
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -19,6 +19,8 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 - DO NOT mark a worker as both `urgency :high` and `worker_resource_boundary :memory`.
 - Prepend `::Geo::SkipSecondary` to workers that attempt database writes if they can be enqueued on Geo secondary sites.
 - Scope all Sidekiq jobs to a single organization; allow cross-organization jobs only when the job is both a recurring cron job and idempotent.
+- Annotate CPU-bound or memory-bound workers with `worker_resource_boundary :cpu` or `worker_resource_boundary :memory`; if a worker is both, mark it as memory-bound.
+- Minimize direct `Sidekiq.redis` and Sidekiq API interactions in generic application logic; abstract them into a Sidekiq middleware for reuse across teams.
 
 ### Sharding
 
@@ -92,7 +94,9 @@ distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 
 ### Deferring Workers
 
-- Use `defer_on_database_health_signal` with `gitlab_schema`, `delay_by`, and `tables` parameters to opt in to automatic deferral based on database health indicators.
+- Opt in to automatic database-health deferral by calling `defer_on_database_health_signal` with `gitlab_schema`, `tables` (used by the autovacuum indicator), and `delay_by` (defaults to 5 seconds), in that parameter order.
+- When the schema and tables are not known in advance, pass a block to `defer_on_database_health_signal` that receives the job arguments and returns the `[schema, tables]` to check; the middleware evaluates it when the job is fetched.
+- Override `self.defer_on_database_health_signal?` to control when deferral applies, for example to gate it behind a feature flag.
 
 ### LimitedCapacity::Worker
 

@@ -6,7 +6,7 @@ module Mcp
       module ResourceFinder
         private
 
-        def find_project(project_id)
+        def find_project!(project_id)
           raise ArgumentError, "project_id must be a string" unless project_id.is_a?(String)
 
           projects = ::Project.without_deleted.not_hidden
@@ -21,7 +21,7 @@ module Mcp
           project
         end
 
-        def find_group(group_id)
+        def find_group!(group_id)
           group = if ::API::Helpers::INTEGER_ID_REGEX.match?(group_id)
                     ::Group.id_in(group_id).first
                   else
@@ -33,15 +33,15 @@ module Mcp
           group
         end
 
-        def find_parent_by_id_or_path(parent_type, identifier)
-          parent = parent_type == :project ? find_project(identifier) : find_group(identifier)
+        def find_parent_by_id_or_path!(parent_type, identifier)
+          parent = parent_type == :project ? find_project!(identifier) : find_group!(identifier)
 
           authorize_parent_access!(parent, parent_type, identifier)
 
           parent
         end
 
-        def find_work_item_in_parent(parent, iid)
+        def find_work_item_in_parent!(parent, iid)
           finder_params = build_work_item_finder_params(parent)
 
           work_item = ::WorkItems::WorkItemsFinder.new(

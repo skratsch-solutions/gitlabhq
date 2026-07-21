@@ -219,15 +219,6 @@ RSpec.describe Mcp::Tools::Concerns::UrlParser, feature_category: :mcp_server do
         expect(result[:full_path]).to eq(project.full_path)
         expect(result[:record]).to eq(project)
       end
-
-      it 'raises ArgumentError when project not found' do
-        url = 'https://gitlab.com/nonexistent/project'
-
-        allow(service).to receive(:find_parent_by_id_or_path).and_return(nil)
-
-        expect { service.send(:resolve_parent_from_url, url) }
-          .to raise_error(ArgumentError, /Project not found/)
-      end
     end
 
     context 'with group URLs' do
@@ -238,15 +229,6 @@ RSpec.describe Mcp::Tools::Concerns::UrlParser, feature_category: :mcp_server do
         expect(result[:type]).to eq(:group)
         expect(result[:full_path]).to eq(group.full_path)
         expect(result[:record]).to eq(group)
-      end
-
-      it 'raises ArgumentError when group not found' do
-        url = 'https://gitlab.com/groups/nonexistent/group'
-
-        allow(service).to receive(:find_parent_by_id_or_path).and_return(nil)
-
-        expect { service.send(:resolve_parent_from_url, url) }
-          .to raise_error(ArgumentError, /Group not found/)
       end
     end
 
@@ -276,23 +258,12 @@ RSpec.describe Mcp::Tools::Concerns::UrlParser, feature_category: :mcp_server do
       it 'resolves work item and returns global ID' do
         url = "https://gitlab.com/groups/#{group.full_path}/-/work_items/#{group_work_item.iid}"
 
-        allow(service).to receive(:find_work_item_in_parent).with(group, group_work_item.iid)
+        allow(service).to receive(:find_work_item_in_parent!).with(group, group_work_item.iid)
           .and_return(group_work_item)
 
         result = service.send(:resolve_work_item_from_url, url)
 
         expect(result).to eq(group_work_item.to_global_id.to_s)
-      end
-    end
-
-    context 'with invalid parent' do
-      it 'raises ArgumentError when parent not found' do
-        url = 'https://gitlab.com/nonexistent/project/-/work_items/42'
-
-        allow(service).to receive(:find_parent_by_id_or_path).and_return(nil)
-
-        expect { service.send(:resolve_work_item_from_url, url) }
-          .to raise_error(ArgumentError, /Project not found/)
       end
     end
 

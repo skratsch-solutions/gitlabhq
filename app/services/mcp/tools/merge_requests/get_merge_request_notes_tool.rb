@@ -48,7 +48,7 @@ module Mcp
 
             raise ArgumentError, 'Provide either url, or project_id and merge_request_iid' unless iid && project_id
 
-            [find_project(project_id).full_path, iid]
+            [find_project!(project_id).full_path, iid]
           end
         end
 

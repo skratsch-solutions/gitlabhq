@@ -12,22 +12,15 @@ module Mcp
 
         def resolve_parent_from_url(url)
           parsed = parse_parent_url(url)
-          parent = find_parent_by_id_or_path(parsed[:type], parsed[:path])
-
-          raise ArgumentError, "#{parsed[:type].to_s.capitalize} not found: '#{parsed[:path]}'" unless parent
+          parent = find_parent_by_id_or_path!(parsed[:type], parsed[:path])
 
           { type: parsed[:type], full_path: parent.full_path, record: parent }
         end
 
         def resolve_work_item_from_url(url)
           parsed = parse_work_item_url(url)
-          parent = find_parent_by_id_or_path(parsed[:parent_type], parsed[:parent_path])
-
-          unless parent
-            raise ArgumentError, "#{parsed[:parent_type].to_s.capitalize} not found: '#{parsed[:parent_path]}'"
-          end
-
-          work_item = find_work_item_in_parent(parent, parsed[:work_item_iid])
+          parent = find_parent_by_id_or_path!(parsed[:parent_type], parsed[:parent_path])
+          work_item = find_work_item_in_parent!(parent, parsed[:work_item_iid])
 
           work_item.to_global_id.to_s
         end

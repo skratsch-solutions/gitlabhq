@@ -13,7 +13,7 @@ import {
   duoHelpPath,
   ALL_SETTINGS,
   DUO_SAST_VR_WORKFLOW_ENABLED,
-  DUO_SAST_FP_DETECTION_ENABLED,
+  DUO_SAST_FALSE_POSITIVE_DETECTION_ENABLED,
   DUO_SECRET_DETECTION_FP_ENABLED,
 } from '../constants';
 import ProjectSettingRow from './project_setting_row.vue';
@@ -109,7 +109,7 @@ export default {
       required: false,
       default: false,
     },
-    initialDuoSastFpDetectionEnabled: {
+    initialDuoSastFalsePositiveDetectionEnabled: {
       type: Boolean,
       required: false,
       default: false,
@@ -182,7 +182,7 @@ export default {
       exclusionRules: this.duoContextExclusionSettings?.exclusionRules || [],
       duoRemoteFlowsAvailability: this.initialDuoRemoteFlowsAvailability,
       duoFoundationalFlowsAvailability: this.initialDuoFoundationalFlowsAvailability,
-      duoSastFpDetectionEnabled: this.initialDuoSastFpDetectionEnabled,
+      duoSastFalsePositiveDetectionEnabled: this.initialDuoSastFalsePositiveDetectionEnabled,
       duoSecretDetectionFpEnabled: this.initialDuoSecretDetectionFpEnabled,
       duoDependencyBumpBreakingChangesEnabled: this.initialDuoDependencyBumpBreakingChangesEnabled,
       duoSastVrWorkflowEnabled: this.initialDuoSastVrWorkflowEnabled,
@@ -334,7 +334,7 @@ export default {
   },
   duoFlowHelpPath,
   DUO_SAST_VR_WORKFLOW_ENABLED,
-  DUO_SAST_FP_DETECTION_ENABLED,
+  DUO_SAST_FALSE_POSITIVE_DETECTION_ENABLED,
   DUO_SECRET_DETECTION_FP_ENABLED,
   i18n: {
     saveChanges: __('Save changes'),
@@ -561,7 +561,8 @@ export default {
         </project-setting-row>
         <project-setting-row
           v-if="
-            ultimateFeaturesAvailable && isSettingVisible($options.DUO_SAST_FP_DETECTION_ENABLED)
+            ultimateFeaturesAvailable &&
+            isSettingVisible($options.DUO_SAST_FALSE_POSITIVE_DETECTION_ENABLED)
           "
           :label="s__('DuoSAST|Turn on SAST false positive detection')"
           class="gl-mt-5"
@@ -570,7 +571,7 @@ export default {
           "
         >
           <gl-toggle
-            v-model="duoSastFpDetectionEnabled"
+            v-model="duoSastFalsePositiveDetectionEnabled"
             class="gl-mt-2"
             :disabled="!duoEnabled"
             :label="s__('DuoSAST|Turn on SAST false positive detection')"
