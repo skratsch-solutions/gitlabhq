@@ -3,7 +3,7 @@ stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 description: Browse and filter a unified record of GitLab Duo agent activity for compliance and governance purposes.
-title: AI audit event report
+title: Audit AI events
 ---
 
 {{< details >}}
@@ -25,7 +25,7 @@ title: AI audit event report
 > It is subject to change without notice.
 > For more information, see [GitLab Testing Agreement](https://handbook.gitlab.com/handbook/legal/testing-agreement/).
 
-The AI audit event report gives security and compliance teams a unified,
+Use the AI audit event report for a unified,
 browsable record of GitLab Duo agent activity. Each agent session produces
 a comprehensive audit artifact that you can inspect.
 
