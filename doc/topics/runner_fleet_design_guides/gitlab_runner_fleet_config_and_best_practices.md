@@ -210,7 +210,7 @@ Implementing this pattern reduces the number of separate runner configurations y
 - In the job definition (`.gitlab-ci.yml`), specify the right limit needed by the jobs.
   - If not specified, the default values set in the `config.toml` file is used.
   - If a container exceeds its memory limit, the system automatically terminates it using the Out of Memory (OOM) kill process.
-- Use the feature flags `FF_RETRIEVE_POD_WARNING_EVENTS` and `FF_PRINT_POD_EVENTS`. For more details, see the [feature flags documentation](https://docs.gitlab.com/runner/configuration/feature-flags/).
+- Use the feature flag `FF_PRINT_POD_EVENTS` and configuration `print_pod_warning_events`. For more details, see the [feature flags documentation](https://docs.gitlab.com/runner/configuration/feature-flags/) and [configure runner API permissions documentation](https://docs.gitlab.com/runner/executors/kubernetes/#configure-runner-api-permissions).
 
 ## Deploy the runner on GKE
 
@@ -335,7 +335,6 @@ config_template    = <<EOT
   name = "my-grit-gitlab-runner"
   shell = "bash"
   environment = [
-    "FF_RETRIEVE_POD_WARNING_EVENTS=true",
     "FF_PRINT_POD_EVENTS=true",
   ]
   [runners.kubernetes]
@@ -348,6 +347,7 @@ config_template    = <<EOT
     memory_limit_overwrite_max_allowed = "400Mi"
     helper_cpu_limit_overwrite_max_allowed = "150m"
     helper_memory_limit_overwrite_max_allowed = "150Mi"
+    print_pod_warning_events = true
   [runners.kubernetes.node_selector]
     "app" = "gitlab-runner-job"
 EOT
@@ -367,7 +367,7 @@ In the previous configuration:
 
 - The `pod_spec` parameter allows us to set a node selector for the pod running GitLab Runner. In the configuration, the node selector is set to `"app" = "gitlab-runner"` to ensure that GitLab Runner is installed on the runner-manager node pool.
 - The `config_template` parameters provides a default limit for all jobs run by the GitLab Runner Manager. It also allows an overwrite of those limits as long as the value set is not greater than the default values.
-- The feature flags `FF_RETRIEVE_POD_WARNING_EVENTS` and `FF_PRINT_POD_EVENTS`are also set to ease debugging in the event of a job failure. See the [feature flag documentation](https://docs.gitlab.com/runner/configuration/feature-flags/) for more details.
+- The feature flag `FF_PRINT_POD_EVENTS` and configuration `print_pod_warning_events` are also set to ease debugging in the event of a job failure. See the [feature flag documentation](https://docs.gitlab.com/runner/configuration/feature-flags/) and [configure runner API permissions documentation](https://docs.gitlab.com/runner/executors/kubernetes/#configure-runner-api-permissions) for more details.
 
 ### Real life applications for a hypothetical use case
 
@@ -461,7 +461,6 @@ config_template    = <<EOT
   name = "my-grit-gitlab-runner"
   shell = "bash"
   environment = [
-    "FF_RETRIEVE_POD_WARNING_EVENTS=true",
     "FF_PRINT_POD_EVENTS=true",
   ]
   [runners.kubernetes]
@@ -470,6 +469,7 @@ config_template    = <<EOT
     memory_limit_overwrite_max_allowed = "900Mi"
     helper_cpu_limit_overwrite_max_allowed = "250m"
     helper_memory_limit_overwrite_max_allowed = "100Mi"
+    print_pod_warning_events = true
 EOT
 pod_spec = [
   {

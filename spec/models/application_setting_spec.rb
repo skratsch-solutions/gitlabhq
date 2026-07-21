@@ -267,6 +267,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         Gitlab::SidekiqMiddleware::SizeLimiter::Validator::DEFAULT_COMPRESSION_THRESHOLD_BYTES,
         sidekiq_job_limiter_limit_bytes: Gitlab::SidekiqMiddleware::SizeLimiter::Validator::DEFAULT_SIZE_LIMIT,
         sidekiq_job_limiter_mode: Gitlab::SidekiqMiddleware::SizeLimiter::Validator::COMPRESS_MODE,
+        sidekiq_timezone_override: nil,
         sign_in_restrictions: {
           'disable_password_authentication_for_users_with_sso_identities' => false,
           'root_moved_permanently_redirection' => false,
@@ -996,6 +997,16 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
 
     context 'when mailgun_events_enabled is not enabled' do
       it { is_expected.not_to validate_presence_of(:mailgun_signing_key) }
+    end
+
+    describe 'sidekiq_timezone_override' do
+      it { is_expected.to validate_length_of(:sidekiq_timezone_override).is_at_most(255) }
+      it { is_expected.to allow_value(nil).for(:sidekiq_timezone_override) }
+      it { is_expected.to allow_value('').for(:sidekiq_timezone_override) }
+      it { is_expected.to allow_value('America/Chicago').for(:sidekiq_timezone_override) }
+      it { is_expected.to allow_value('UTC').for(:sidekiq_timezone_override) }
+      it { is_expected.not_to allow_value('Not/AZone').for(:sidekiq_timezone_override) }
+      it { is_expected.not_to allow_value('Pacific Time (US & Canada)').for(:sidekiq_timezone_override) }
     end
 
     context "when user accepted let's encrypt terms of service" do

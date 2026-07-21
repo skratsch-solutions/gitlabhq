@@ -261,6 +261,11 @@ class ApplicationSetting < ApplicationRecord
     hostname: true,
     length: { maximum: 255 }
 
+  validates :sidekiq_timezone_override,
+    length: { maximum: 255 },
+    allow_blank: true
+  validate :sidekiq_timezone_override_is_valid_iana, if: -> { sidekiq_timezone_override.present? }
+
   validates :max_pages_size,
     presence: true,
     numericality: {
@@ -1268,6 +1273,15 @@ class ApplicationSetting < ApplicationRecord
 
   def validate_kroki_url
     validate_url(parsed_kroki_url, :kroki_url, KROKI_URL_ERROR_MESSAGE)
+  end
+
+  # Validates that the configured value is a genuine IANA timezone identifier.
+  # Uses TZInfo directly so ActiveSupport aliases (for example, "Pacific Time (US & Canada)")
+  # are rejected, since sidekiq-cron's Fugit parser only accepts IANA identifiers.
+  def sidekiq_timezone_override_is_valid_iana
+    TZInfo::Timezone.get(sidekiq_timezone_override)
+  rescue TZInfo::InvalidTimezoneIdentifier
+    errors.add(:sidekiq_timezone_override, _('must be a valid IANA timezone identifier'))
   end
 
   def sourcegraph_url_is_com?

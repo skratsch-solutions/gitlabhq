@@ -47746,6 +47746,9 @@ msgstr ""
 msgid "MergeRequest|Search (e.g. *.vue) (%{SHORTCUT})"
 msgstr ""
 
+msgid "MergeRequest|Select one or more filters to see activity."
+msgstr ""
+
 msgid "MergeRequest|There are no changes yet"
 msgstr ""
 
@@ -50140,6 +50143,9 @@ msgid "No active Support PIN."
 msgstr ""
 
 msgid "No activities found"
+msgstr ""
+
+msgid "No activity to display"
 msgstr ""
 
 msgid "No agents available to create workspaces. Please consult %{linkStart}Workspaces documentation%{linkEnd} for troubleshooting."
@@ -93560,6 +93566,9 @@ msgid "must be a string"
 msgstr ""
 
 msgid "must be a valid Forge app ID (ARI)"
+msgstr ""
+
+msgid "must be a valid IANA timezone identifier"
 msgstr ""
 
 msgid "must be a valid IPv4 or IPv6 address"
