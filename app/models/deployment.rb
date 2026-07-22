@@ -9,7 +9,7 @@ class Deployment < ApplicationRecord
   include Gitlab::Utils::StrongMemoize
   include FastDestroyAll
   include EachBatch
-  include FromUnion # used in Environment#last_finished_deployment
+  include FromUnion # used in Environment's deployment associations
 
   StatusUpdateError = Class.new(StandardError)
   StatusSyncError = Class.new(StandardError)
@@ -55,7 +55,7 @@ class Deployment < ApplicationRecord
   scope :finished, -> { where(status: FINISHED_STATUSES) }
   scope :stoppable, -> { where.not(on_stop: nil).where.not(deployable_id: nil).success }
   scope :active, -> { where(status: %i[created running]) }
-  scope :upcoming, -> { where(status: %i[blocked running]) }
+  scope :upcoming, -> { where(status: UPCOMING_DEPLOYMENT_STATUSES) }
   scope :older_than, ->(deployment) { where('deployments.id < ?', deployment.id) }
   scope :with_api_entity_associations, -> do
     preload({ deployable: { runner: [], job_definition: [], user: [], job_artifacts_archive: [] } })
@@ -73,6 +73,9 @@ class Deployment < ApplicationRecord
 
   VISIBLE_STATUSES = %i[running success failed canceled blocked].freeze
   FINISHED_STATUSES = %i[success failed canceled].freeze
+  # Intentionally excludes :created; used by Environment#upcoming_deployment
+  # and the upcoming scope.
+  UPCOMING_DEPLOYMENT_STATUSES = %i[blocked running].freeze
   UPCOMING_STATUSES = %i[created blocked running].freeze
 
   state_machine :status, initial: :created do

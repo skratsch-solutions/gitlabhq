@@ -88,6 +88,12 @@ RSpec.shared_context 'project navbar structure' do
         nav_sub_items: project_analytics_sub_nav_item
       },
       {
+        nav_item: _('Observability'),
+        nav_sub_items: [
+          s_('Observability|Setup')
+        ]
+      },
+      {
         nav_item: _('Settings'),
         nav_sub_items: [
           _('General'),

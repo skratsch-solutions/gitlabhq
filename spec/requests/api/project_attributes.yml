@@ -53,6 +53,7 @@ itself: # project
   computed_attributes:
     - _links
     - can_create_merge_request_in
+    - cicd_catalog_enabled
     - compliance_frameworks
     - container_expiration_policy
     - container_registry_enabled

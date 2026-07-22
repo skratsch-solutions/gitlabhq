@@ -1522,8 +1522,20 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
   describe '#upcoming_deployment' do
     subject { environment.upcoming_deployment }
 
-    context 'when environment has a successful deployment' do
-      let!(:deployment) { create(:deployment, :success, environment: environment, project: project) }
+    it 'uses status-specific index lookups' do
+      sql = environment.association(:upcoming_deployment).scope.to_sql
+
+      expect(sql).to include('UNION ALL')
+      expect(sql).to include(%("deployments"."status" = #{Deployment.statuses.fetch('blocked')}))
+      expect(sql).to include(%("deployments"."status" = #{Deployment.statuses.fetch('running')}))
+    end
+
+    context 'when the environment only has finished deployments' do
+      before do
+        create(:deployment, :success, environment: environment, project: project)
+        create(:deployment, :failed, environment: environment, project: project)
+        create(:deployment, :canceled, environment: environment, project: project)
+      end
 
       it { is_expected.to be_nil }
     end
@@ -1538,6 +1550,25 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
       let!(:deployment) { create(:deployment, :blocked, environment: environment, project: project) }
 
       it { is_expected.to eq(deployment) }
+    end
+
+    context 'when environment has multiple upcoming deployments' do
+      let!(:running_deployment) { create(:deployment, :running, environment: environment, project: project) }
+      let!(:blocked_deployment) { create(:deployment, :blocked, environment: environment, project: project) }
+      let!(:created_deployment) { create(:deployment, :created, environment: environment, project: project) }
+
+      it 'returns the latest blocked or running deployment' do
+        is_expected.to eq(blocked_deployment)
+      end
+    end
+
+    context 'when the latest upcoming deployment is running' do
+      let!(:blocked_deployment) { create(:deployment, :blocked, environment: environment, project: project) }
+      let!(:running_deployment) { create(:deployment, :running, environment: environment, project: project) }
+
+      it 'returns the running deployment with the highest id' do
+        is_expected.to eq(running_deployment)
+      end
     end
   end
 

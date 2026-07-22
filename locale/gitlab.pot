@@ -32886,9 +32886,6 @@ msgstr ""
 msgid "Explore / AI Catalog (Flows)"
 msgstr ""
 
-msgid "Explore and analyze distributed traces"
-msgstr ""
-
 msgid "Explore groups"
 msgstr ""
 
@@ -51866,6 +51863,9 @@ msgstr ""
 msgid "Observability|Custom dashboards with anomaly-based alerting and intelligent notification systems"
 msgstr ""
 
+msgid "Observability|Custom observability dashboards"
+msgstr ""
+
 msgid "Observability|Danger Zone"
 msgstr ""
 
@@ -52103,10 +52103,16 @@ msgstr ""
 msgid "Observability|Links telemetry to the GitLab project. Required for GitLab Duo integration."
 msgstr ""
 
+msgid "Observability|List services sending observability data"
+msgstr ""
+
 msgid "Observability|Loading..."
 msgstr ""
 
 msgid "Observability|Logs"
+msgstr ""
+
+msgid "Observability|Manage API keys for observability access"
 msgstr ""
 
 msgid "Observability|Manage API keys for observability ingestion"
@@ -52218,6 +52224,9 @@ msgid "Observability|Observability is enabled for your group. Start by instrumen
 msgstr ""
 
 msgid "Observability|Observability is enabled for your personal namespace. Start by instrumenting your projects below."
+msgstr ""
+
+msgid "Observability|Observability is not enabled"
 msgstr ""
 
 msgid "Observability|Observability service settings deleted successfully."
@@ -52365,6 +52374,9 @@ msgid "Observability|The observability service is still initializing. Please try
 msgstr ""
 
 msgid "Observability|To enable GitLab Observability, please ask your %{strong_start}GitLab administrator%{strong_end} to enable it for %{scope}."
+msgstr ""
+
+msgid "Observability|To use GitLab Observability for this project, ask the %{strong_start}project owner%{strong_end} to enable it."
 msgstr ""
 
 msgid "Observability|To widen your search, change or remove filters above"
@@ -64821,6 +64833,9 @@ msgid "Runners|Maintenance note"
 msgstr ""
 
 msgid "Runners|Make sure the runner is online and available to run jobs (not paused). Jobs display here when the runner picks them up."
+msgstr ""
+
+msgid "Runners|Manage access and security settings"
 msgstr ""
 
 msgid "Runners|Manually verify that the runner is available to pick up jobs."

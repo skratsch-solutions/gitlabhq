@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlLink } from '@gitlab/ui';
+import { GlButton, GlLink, GlTooltipDirective } from '@gitlab/ui';
 import { createAlert } from '~/alert';
 import { updateHistory } from '~/lib/utils/url_utility';
 import { fetchPolicies } from '~/lib/graphql';
@@ -46,6 +46,9 @@ import {
 
 export default {
   name: 'AdminRunnersApp',
+  directives: {
+    GlTooltip: GlTooltipDirective,
+  },
   components: {
     GlButton,
     GlLink,
@@ -65,6 +68,10 @@ export default {
   mixins: [glFeatureFlagsMixin()],
   props: {
     newRunnerPath: {
+      type: String,
+      required: true,
+    },
+    runnerSettingsPath: {
       type: String,
       required: true,
     },
@@ -246,6 +253,16 @@ export default {
       <template #title>{{ s__('Runners|Runners') }}</template>
       <template #actions>
         <runner-dashboard-link />
+        <gl-button
+          v-if="canAdminRunners"
+          v-gl-tooltip
+          :href="runnerSettingsPath"
+          :title="s__('Runners|Manage access and security settings')"
+          :aria-label="s__('Runners|Manage access and security settings')"
+          icon="settings"
+          data-event-tracking="click_runner_settings_button_in_admin_runners"
+          data-testid="runner-settings-button"
+        />
         <gl-button v-if="canAdminRunners" :href="newRunnerPath" variant="confirm">
           {{ s__('Runners|Create instance runner') }}
         </gl-button>

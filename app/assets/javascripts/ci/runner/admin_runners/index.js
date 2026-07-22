@@ -35,6 +35,7 @@ export const initAdminRunners = (selector = '#js-admin-runners') => {
 
   const {
     newRunnerPath,
+    runnerSettingsPath,
     allowRegistrationToken,
     registrationToken,
     tagSuggestionsPath,
@@ -59,6 +60,7 @@ export const initAdminRunners = (selector = '#js-admin-runners') => {
       return h(AdminRunnersApp, {
         props: {
           newRunnerPath,
+          runnerSettingsPath,
           allowRegistrationToken: parseBoolean(allowRegistrationToken),
           registrationToken,
           canAdminRunners: parseBoolean(canAdminRunners),

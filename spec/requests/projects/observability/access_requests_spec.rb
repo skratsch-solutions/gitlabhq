@@ -22,7 +22,7 @@ RSpec.describe "Projects::Observability::AccessRequests", feature_category: :obs
 
     context 'when feature flag is disabled' do
       before do
-        stub_feature_flags(observability_sass_features: false)
+        stub_feature_flags(observability_saas_features_user_namespace: false)
       end
 
       it 'returns 404 without calling service' do
@@ -37,7 +37,7 @@ RSpec.describe "Projects::Observability::AccessRequests", feature_category: :obs
 
     context 'when feature flag is enabled' do
       before do
-        stub_feature_flags(observability_sass_features: user_namespace)
+        stub_feature_flags(observability_saas_features_user_namespace: user_namespace)
       end
 
       context 'when project belongs to a group' do

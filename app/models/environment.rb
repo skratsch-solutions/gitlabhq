@@ -49,7 +49,23 @@ class Environment < ApplicationRecord
     union.ordered
   }, class_name: 'Deployment', inverse_of: :environment
   has_one :last_visible_deployment, -> { visible.order(id: :desc) }, inverse_of: :environment, class_name: 'Deployment'
-  has_one :upcoming_deployment, -> { upcoming.order(id: :desc) }, class_name: 'Deployment', inverse_of: :environment
+  # NOTE: If you preload multiple upcoming deployments of environments, use
+  # Preloaders::Environments::DeploymentPreloader.
+  has_one :upcoming_deployment, ->(environment) {
+    # Fetch the latest deployment for each upcoming status independently so
+    # PostgreSQL can use the covering index on (environment_id, status, id).
+    # A single status IN query ordered by id can otherwise scan all historical
+    # deployments when there are no upcoming deployments.
+    union = Deployment.from_union(
+      Deployment::UPCOMING_DEPLOYMENT_STATUSES.map do |status|
+        where(environment_id: environment.id, status: status).ordered_as_upcoming.limit(1)
+      end,
+      remove_duplicates: false,
+      remove_order: false
+    )
+
+    union.ordered_as_upcoming
+  }, class_name: 'Deployment', inverse_of: :environment
 
   Deployment::FINISHED_STATUSES.each do |status|
     has_one :"last_#{status}_deployment", -> { where(status: status).ordered },

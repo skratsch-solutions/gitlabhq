@@ -32306,7 +32306,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_3b7de9f4db35"
+              "$ref": "#/components/schemas/RequestBody_cf91a0e3de5e"
   "/api/v4/projects/user/{user_id}":
     post:
       operationId: postApiV4ProjectsUserUserId
@@ -32340,7 +32340,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_2861e6bcd64d"
+              "$ref": "#/components/schemas/RequestBody_151cb880b5fa"
   "/api/v4/projects/{id}/share_locations":
     get:
       operationId: getApiV4ProjectsIdShareLocations
@@ -32388,7 +32388,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/APIEntitiesProjectWithAccess"
+                "$ref": "#/components/schemas/APIEntitiesProjectsWithAccessAndCatalogSetting"
         '404':
           description: Not Found
         '400':
@@ -32444,7 +32444,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/APIEntitiesProject"
+                "$ref": "#/components/schemas/APIEntitiesProjectsWithCatalogSetting"
         '400':
           description: Bad request
         '403':
@@ -32465,7 +32465,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_c759bc073ec5"
+              "$ref": "#/components/schemas/RequestBody_2913c4f9f47a"
     delete:
       operationId: deleteApiV4ProjectsId
       summary: Delete a project
@@ -35031,7 +35031,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_62cfdeef4f25"
+              "$ref": "#/components/schemas/RequestBody_1c830d224756"
   "/api/v4/projects/{id}/import":
     get:
       operationId: getApiV4ProjectsIdImport
@@ -35138,7 +35138,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_4e27310e47b5"
+              "$ref": "#/components/schemas/RequestBody_87fdf22dd64e"
   "/api/v4/projects/import-relation/authorize":
     post:
       operationId: postApiV4ProjectsImportRelationAuthorize
@@ -35251,7 +35251,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              "$ref": "#/components/schemas/RequestBody_22adef8ecfea"
+              "$ref": "#/components/schemas/RequestBody_f3a212c3c4f4"
   "/api/v4/projects/{id}/hooks/{hook_id}/url_variables/{key}":
     put:
       operationId: putApiV4ProjectsIdHooksHookIdUrlVariablesKey
@@ -87130,7 +87130,7 @@ components:
           type: string
         notification_level:
           type: string
-    APIEntitiesProjectWithAccess:
+    APIEntitiesProjectsWithAccessAndCatalogSetting:
       type: object
       properties:
         id:
@@ -87576,6 +87576,449 @@ components:
               "$ref": "#/components/schemas/APIEntitiesProjectAccess"
             group_access:
               "$ref": "#/components/schemas/APIEntitiesGroupAccess"
+        cicd_catalog_enabled:
+          type: boolean
+    APIEntitiesProjectsWithCatalogSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        description:
+          type: string
+          example: desc
+        name:
+          type: string
+          example: project1
+        name_with_namespace:
+          type: string
+          example: John Doe / project1
+        path:
+          type: string
+          example: project1
+        path_with_namespace:
+          type: string
+          example: namespace1/project1
+        created_at:
+          type: string
+          format: date-time
+          example: '2020-05-07T04:27:17.016Z'
+        default_branch:
+          type: string
+          example: main
+        tag_list:
+          type: array
+          example:
+          - tag
+          items:
+            type: string
+        topics:
+          type: array
+          example:
+          - topic
+          items:
+            type: string
+        ssh_url_to_repo:
+          type: string
+          example: git@gitlab.example.com:gitlab/gitlab.git
+        http_url_to_repo:
+          type: string
+          example: https://gitlab.example.com/gitlab/gitlab.git
+        web_url:
+          type: string
+          example: https://gitlab.example.com/gitlab/gitlab
+        readme_url:
+          type: string
+          example: https://gitlab.example.com/gitlab/gitlab/blob/master/README.md
+        forks_count:
+          type: integer
+          example: 1
+        license_url:
+          type: string
+          example: https://gitlab.example.com/gitlab/gitlab/blob/master/LICENCE
+        license:
+          "$ref": "#/components/schemas/APIEntitiesLicenseBasic"
+        avatar_url:
+          type: string
+          example: http://example.com/uploads/project/avatar/3/uploads/avatar.png
+        star_count:
+          type: integer
+          example: 1
+        last_activity_at:
+          type: string
+          format: date-time
+          example: '2013-09-30T13:46:02Z'
+        visibility:
+          type: string
+          example: public
+        namespace:
+          "$ref": "#/components/schemas/APIEntitiesNamespaceBasic"
+        custom_attributes:
+          "$ref": "#/components/schemas/APIEntitiesCustomAttribute"
+        repository_storage:
+          type: string
+          example: default
+        forked_from_project:
+          "$ref": "#/components/schemas/APIEntitiesBasicProjectDetails"
+        container_registry_image_prefix:
+          type: string
+          example: registry.gitlab.example.com/gitlab/gitlab-client
+        _links:
+          type: object
+          properties:
+            self:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4
+            issues:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4/issues
+            merge_requests:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4/merge_requests
+            repo_branches:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4/repository/branches
+            labels:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4/labels
+            events:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4/events
+            members:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4/members
+            cluster_agents:
+              type: string
+              example: https://gitlab.example.com/api/v4/projects/4/cluster_agents
+        marked_for_deletion_at:
+          type: string
+          format: date-time
+          example: '2020-05-07T04:27:17.016Z'
+        marked_for_deletion_on:
+          type: string
+          format: date-time
+          example: '2020-05-07T04:27:17.016Z'
+        packages_enabled:
+          type: boolean
+        empty_repo:
+          type: boolean
+        archived:
+          type: boolean
+        owner:
+          "$ref": "#/components/schemas/APIEntitiesUserBasic"
+        resolve_outdated_diff_discussions:
+          type: boolean
+        container_expiration_policy:
+          "$ref": "#/components/schemas/APIEntitiesContainerExpirationPolicy"
+        repository_object_format:
+          type: string
+          example: sha1
+        issues_enabled:
+          type: boolean
+        merge_requests_enabled:
+          type: boolean
+        wiki_enabled:
+          type: boolean
+        jobs_enabled:
+          type: boolean
+        snippets_enabled:
+          type: boolean
+        container_registry_enabled:
+          type: boolean
+        service_desk_enabled:
+          type: boolean
+        service_desk_address:
+          type: string
+          example: address@example.com
+        can_create_merge_request_in:
+          type: boolean
+        issues_access_level:
+          type: string
+          example: enabled
+        repository_access_level:
+          type: string
+          example: enabled
+        merge_requests_access_level:
+          type: string
+          example: enabled
+        forking_access_level:
+          type: string
+          example: enabled
+        wiki_access_level:
+          type: string
+          example: enabled
+        builds_access_level:
+          type: string
+          example: enabled
+        snippets_access_level:
+          type: string
+          example: enabled
+        pages_access_level:
+          type: string
+          example: enabled
+        analytics_access_level:
+          type: string
+          example: enabled
+        container_registry_access_level:
+          type: string
+          example: enabled
+        security_and_compliance_access_level:
+          type: string
+          example: enabled
+        releases_access_level:
+          type: string
+          example: enabled
+        environments_access_level:
+          type: string
+          example: enabled
+        feature_flags_access_level:
+          type: string
+          example: enabled
+        infrastructure_access_level:
+          type: string
+          example: enabled
+        monitor_access_level:
+          type: string
+          example: enabled
+        model_experiments_access_level:
+          type: string
+          example: enabled
+        model_registry_access_level:
+          type: string
+          example: enabled
+        package_registry_access_level:
+          type: string
+          example: enabled
+        emails_disabled:
+          type: boolean
+        emails_enabled:
+          type: boolean
+        show_diff_preview_in_email:
+          type: boolean
+        shared_runners_enabled:
+          type: boolean
+        lfs_enabled:
+          type: boolean
+        creator_id:
+          type: integer
+          format: int64
+          example: 1
+        mr_default_target_self:
+          type: boolean
+        import_url:
+          type: string
+          example: https://gitlab.com/gitlab/gitlab.git
+        import_type:
+          type: string
+          example: git
+        import_status:
+          type: string
+          example: none
+        import_error:
+          type: string
+          example: Import error
+        open_issues_count:
+          type: integer
+          example: 1
+        description_html:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+          example: '2020-05-07T04:27:17.016Z'
+        ci_default_git_depth:
+          type: integer
+          example: 20
+        ci_delete_pipelines_in_seconds:
+          type: integer
+          example: 86400
+        ci_forward_deployment_enabled:
+          type: boolean
+        ci_forward_deployment_rollback_allowed:
+          type: boolean
+        ci_job_token_scope_enabled:
+          type: boolean
+        ci_separated_caches:
+          type: boolean
+        ci_allow_fork_pipelines_to_run_in_parent_project:
+          type: boolean
+        ci_id_token_sub_claim_components:
+          type: array
+          items:
+            type: string
+        build_git_strategy:
+          type: string
+          example: fetch
+        keep_latest_artifact:
+          type: boolean
+        restrict_user_defined_variables:
+          type: boolean
+        ci_pipeline_variables_minimum_override_role:
+          type: string
+        runner_token_expiration_interval:
+          type: integer
+          example: 3600
+        group_runners_enabled:
+          type: boolean
+        resource_group_default_process_mode:
+          type: string
+          example: unordered
+        auto_cancel_pending_pipelines:
+          type: string
+          example: enabled
+        build_timeout:
+          type: integer
+          example: 3600
+        auto_devops_enabled:
+          type: boolean
+        auto_devops_deploy_strategy:
+          type: string
+          example: continuous
+        ci_push_repository_for_job_token_allowed:
+          type: boolean
+        protect_merge_request_pipelines:
+          type: boolean
+        ci_display_pipeline_variables:
+          type: boolean
+        runners_token:
+          type: string
+          example: b8547b1dc37721d05889db52fa2f02
+        ci_config_path:
+          type: string
+          example: ''
+        public_jobs:
+          type: boolean
+        shared_with_groups:
+          type: array
+          items:
+            type: object
+        only_allow_merge_if_pipeline_succeeds:
+          type: boolean
+        allow_merge_on_skipped_pipeline:
+          type: boolean
+        request_access_enabled:
+          type: boolean
+        only_allow_merge_if_all_discussions_are_resolved:
+          type: boolean
+        remove_source_branch_after_merge:
+          type: boolean
+        printing_merge_request_link_enabled:
+          type: boolean
+        merge_method:
+          type: string
+          example: merge
+        squash_option:
+          type: string
+          example: default_off
+        enforce_auth_checks_on_uploads:
+          type: boolean
+        suggestion_commit_message:
+          type: string
+          example: Suggestion message
+        merge_commit_template:
+          type: string
+          example: "%(title)"
+        squash_commit_template:
+          type: string
+          example: "%(source_branch)"
+        mr_default_title_template:
+          type: string
+          example: "%(source_branch)"
+        issue_branch_template:
+          type: string
+          example: "%(title)"
+        statistics:
+          "$ref": "#/components/schemas/APIEntitiesProjectStatistics"
+        warn_about_potentially_unwanted_characters:
+          type: boolean
+        autoclose_referenced_issues:
+          type: boolean
+        max_artifacts_size:
+          type: integer
+        approvals_before_merge:
+          type: string
+        mirror:
+          type: string
+        mirror_user_id:
+          type: string
+        mirror_trigger_builds:
+          type: string
+        only_mirror_protected_branches:
+          type: string
+        mirror_overwrites_diverged_branches:
+          type: string
+        external_authorization_classification_label:
+          type: string
+        requirements_enabled:
+          type: string
+        requirements_access_level:
+          type: string
+        security_and_compliance_enabled:
+          type: string
+        secret_push_protection_enabled:
+          type: boolean
+        pre_receive_secret_detection_enabled:
+          type: boolean
+        compliance_frameworks:
+          type: string
+        issues_template:
+          type: string
+        merge_requests_template:
+          type: string
+        ci_restrict_pipeline_cancellation_role:
+          type: string
+        merge_pipelines_enabled:
+          type: string
+        merge_trains_enabled:
+          type: string
+        merge_trains_skip_train_allowed:
+          type: string
+        merge_train_enforcement:
+          type: string
+        max_pipelines_per_merge_train:
+          type: string
+        only_allow_merge_if_all_status_checks_passed:
+          type: string
+        allow_pipeline_trigger_approve_deployment:
+          type: boolean
+        prevent_merge_without_jira_issue:
+          type: string
+        auto_duo_code_review_enabled:
+          type: string
+        reviewer_assignment_strategy:
+          type: string
+          example: code_owners
+        duo_remote_flows_enabled:
+          type: string
+        duo_foundational_flows_enabled:
+          type: string
+        duo_sast_fp_detection_enabled:
+          type: string
+        duo_secret_detection_fp_enabled:
+          type: string
+        duo_dependency_bump_breaking_changes_enabled:
+          type: string
+        duo_sast_vr_workflow_enabled:
+          type: string
+        web_based_commit_signing_enabled:
+          type: string
+        spp_repository_pipeline_access:
+          type: boolean
+          description: The spp_repository_pipeline_access setting is only visible
+            if the security_orchestration_policies feature is available.
+        security_policy_pipeline_must_succeed:
+          type: boolean
+          description: Require all security policy pipelines to succeed before merge
+            requests can be merged.
+        merge_request_title_regex:
+          type: string
+          example: "/Title of merge request/"
+        merge_request_title_regex_description:
+          type: string
+          example: This requires the title to include a Jira label
+        cicd_catalog_enabled:
+          type: boolean
     APIEntitiesProjectGroupLink:
       type: object
       properties:
@@ -102620,7 +103063,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_3b7de9f4db35:
+    RequestBody_cf91a0e3de5e:
       type: object
       properties:
         name:
@@ -103073,6 +103516,10 @@ components:
             Maximum 100 characters.
           nullable: true
           maxLength: 100
+        cicd_catalog_enabled:
+          type: boolean
+          description: Set whether the project is a CI/CD catalog project
+          nullable: true
         only_allow_merge_if_all_status_checks_passed:
           type: boolean
           description: Blocks merge requests from merging unless all status checks
@@ -103182,7 +103629,7 @@ components:
           type: integer
           description: Project ID of template from which to create project
           nullable: true
-    RequestBody_2861e6bcd64d:
+    RequestBody_151cb880b5fa:
       type: object
       properties:
         name:
@@ -103635,6 +104082,10 @@ components:
             Maximum 100 characters.
           nullable: true
           maxLength: 100
+        cicd_catalog_enabled:
+          type: boolean
+          description: Set whether the project is a CI/CD catalog project
+          nullable: true
         only_allow_merge_if_all_status_checks_passed:
           type: boolean
           description: Blocks merge requests from merging unless all status checks
@@ -103746,7 +104197,7 @@ components:
           nullable: true
       required:
       - name
-    RequestBody_c759bc073ec5:
+    RequestBody_2913c4f9f47a:
       type: object
       properties:
         name:
@@ -104199,6 +104650,10 @@ components:
             Maximum 100 characters.
           nullable: true
           maxLength: 100
+        cicd_catalog_enabled:
+          type: boolean
+          description: Set whether the project is a CI/CD catalog project
+          nullable: true
         only_allow_merge_if_all_status_checks_passed:
           type: boolean
           description: Blocks merge requests from merging unless all status checks
@@ -104761,7 +105216,7 @@ components:
           nullable: true
       required:
       - target_group_id
-    RequestBody_62cfdeef4f25:
+    RequestBody_1c830d224756:
       type: object
       properties:
         path:
@@ -105246,6 +105701,10 @@ components:
                 Maximum 100 characters.
               nullable: true
               maxLength: 100
+            cicd_catalog_enabled:
+              type: boolean
+              description: Set whether the project is a CI/CD catalog project
+              nullable: true
             only_allow_merge_if_all_status_checks_passed:
               type: boolean
               description: Blocks merge requests from merging unless all status checks
@@ -105383,7 +105842,7 @@ components:
           nullable: true
       required:
       - import_url
-    RequestBody_4e27310e47b5:
+    RequestBody_87fdf22dd64e:
       type: object
       properties:
         url:
@@ -105867,6 +106326,10 @@ components:
                 Maximum 100 characters.
               nullable: true
               maxLength: 100
+            cicd_catalog_enabled:
+              type: boolean
+              description: Set whether the project is a CI/CD catalog project
+              nullable: true
             only_allow_merge_if_all_status_checks_passed:
               type: boolean
               description: Blocks merge requests from merging unless all status checks
@@ -106008,7 +106471,7 @@ components:
       - path
       - file
       - relation
-    RequestBody_22adef8ecfea:
+    RequestBody_f3a212c3c4f4:
       type: object
       properties:
         region:
@@ -106508,6 +106971,10 @@ components:
                 Maximum 100 characters.
               nullable: true
               maxLength: 100
+            cicd_catalog_enabled:
+              type: boolean
+              description: Set whether the project is a CI/CD catalog project
+              nullable: true
             only_allow_merge_if_all_status_checks_passed:
               type: boolean
               description: Blocks merge requests from merging unless all status checks
