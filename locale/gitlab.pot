@@ -15728,7 +15728,7 @@ msgstr ""
 msgid "CICD|When enabled, all projects must use their allowlist to control CI/CD job token access between projects. The option to allow access from all groups and projects is hidden. %{link_start}Learn More.%{link_end}"
 msgstr ""
 
-msgid "CICD|When enabled, pushing to a branch with an open merge request creates only a merge request pipeline. The branch pipeline is skipped."
+msgid "CICD|When enabled, pushing to a branch with an open merge request creates only a merge request pipeline. The branch pipeline is skipped. Merge readiness checks, like pipelines must succeed, only consider merge request pipelines."
 msgstr ""
 
 msgid "CICD|When turned on, archived job logs are incrementally uploaded to object storage. %{link_start}Learn more.%{link_end}"
@@ -52474,6 +52474,11 @@ msgstr ""
 
 msgid "Offline nodes automatically deleted after"
 msgstr ""
+
+msgid "OfflineTransferExport|%{count} group will be exported to %{bucket}. Select %{boldStart}Start export%{boldEnd} to confirm."
+msgid_plural "OfflineTransferExport|%{count} groups will be exported to %{bucket}. Select %{boldStart}Start export%{boldEnd} to confirm."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "OfflineTransferExport|Access key ID"
 msgstr ""

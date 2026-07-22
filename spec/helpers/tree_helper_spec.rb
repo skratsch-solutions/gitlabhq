@@ -181,7 +181,6 @@ RSpec.describe TreeHelper, feature_category: :source_code_management do
 
     before do
       helper.instance_variable_set(:@ref_type, 'heads')
-      allow(helper).to receive(:selected_branch).and_return(sha)
     end
 
     context 'when there is no ignore revs file' do
@@ -220,8 +219,7 @@ RSpec.describe TreeHelper, feature_category: :source_code_management do
         ref: sha,
         escaped_ref: sha,
         full_name: project.name_with_namespace,
-        ref_type: 'heads',
-        target_branch: sha
+        ref_type: 'heads'
       )
     end
   end

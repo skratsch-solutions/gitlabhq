@@ -1100,11 +1100,69 @@ module API
       body ''
     end
 
+    # Enforces the project download ban (and, for real downloads, emits an audit
+    # event) before an archive is served. Overridden in EE; a no-op in CE. Runs
+    # before the caching/conditional-request logic so a banned user cannot get a
+    # `304`, and an error response never inherits the archive's cache headers.
+    # Enforces the project download ban before an archive is served. Overridden
+    # in EE; a no-op in CE (download bans are an EE feature). Runs before the
+    # caching/conditional-request logic so a banned user never receives a 304 and
+    # an error response never inherits the archive's cache headers.
+    def check_repository_archive_download!(repository); end
+
+    # Emits an audit event for a served archive download. Overridden in EE; a
+    # no-op in CE. Called only after the request is known to transfer the archive
+    # (past the 304 short-circuit) and only for a real GET download.
+    def audit_repository_archive_download(repository, client_name: nil); end
+
+    # Emits the same Cache-Control and strong ETag headers as the web archive
+    # controller so API archives are cacheable under the same rules, and returns
+    # `304 Not Modified` for matching conditional requests. The caller passes the
+    # `ArchiveHeaderBuilder`; its metadata (a single Gitaly RPC) is reused for the
+    # content headers and the archive body so the ETag and the served archive
+    # always describe the same commit.
+    def set_repository_archive_cache_headers!(project, builder, ref:, include_lfs_blobs: true, exclude_paths: [])
+      metadata = builder.metadata
+
+      raise Gitlab::Workhorse::ArchiveNotFoundError, 'Repository or ref not found' if metadata.empty?
+
+      cache = Gitlab::Repositories::ArchiveCacheControl.new(
+        project, ref: ref, metadata: metadata, include_lfs_blobs: include_lfs_blobs, exclude_paths: exclude_paths
+      )
+
+      header 'Cache-Control', cache.cache_control
+      header 'ETag', cache.etag
+
+      not_modified! if archive_etag_matches?(cache.etag)
+    end
+
+    def archive_etag_matches?(etag)
+      if_none_match = headers['If-None-Match']
+      return false if if_none_match.blank?
+
+      validators = if_none_match.split(',').map(&:strip)
+      return true if validators.include?('*')
+
+      # `If-None-Match` uses weak comparison (RFC 9110): a validator weakened in
+      # transit (a `W/` prefix) must still match our strong ETag. Rails' own
+      # `etag_matches?` compares exactly, so normalize the `W/` prefix ourselves.
+      weak_etag = etag.delete_prefix('W/')
+      validators.any? { |candidate| candidate.delete_prefix('W/') == weak_etag }
+    end
+
+    # Prevents a shared cache from storing an error response with the archive's
+    # Cache-Control/ETag when a failure happens after the headers were set.
+    def reset_archive_cache_headers!
+      header 'Cache-Control', 'no-store'
+      header.delete('ETag')
+    end
+
     # Respond to HEAD requests for archive endpoints without generating the archive.
     # Sets appropriate Content-Type and Content-Disposition headers.
     # Raises an exception if the ref is not found, matching send_git_archive behavior.
-    def send_git_archive_head(repository, ref:, format:, append_sha:, path: nil, ref_type: nil)
-      builder = Gitlab::Repositories::ArchiveHeaderBuilder.new(
+    # An existing `builder` can be passed in to reuse already-fetched metadata.
+    def send_git_archive_head(repository, ref:, format:, append_sha:, path: nil, ref_type: nil, builder: nil)
+      builder ||= Gitlab::Repositories::ArchiveHeaderBuilder.new(
         repository,
         ref: ref,
         format: format,

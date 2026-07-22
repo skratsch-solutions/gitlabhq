@@ -4484,7 +4484,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         allow(merge_request).to receive_message_chain(:source_project, :ci_integration) { nil }
         allow(merge_request).to receive(:head_pipeline_id) { nil }
         allow(merge_request).to receive(:has_no_commits?) { false }
-        allow(merge_request).to receive(:all_pipelines) { [double] }
+        allow(merge_request).to receive(:pipelines_for_mergeability) { [double] }
 
         expect(merge_request.has_ci?).to be(true)
       end
@@ -4493,7 +4493,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         allow(merge_request).to receive_message_chain(:source_project, :ci_integration) { double }
         allow(merge_request).to receive(:head_pipeline_id) { nil }
         allow(merge_request).to receive(:has_no_commits?) { false }
-        allow(merge_request).to receive(:all_pipelines) { [] }
+        allow(merge_request).to receive(:pipelines_for_mergeability) { [] }
 
         expect(merge_request.has_ci?).to be(true)
       end
@@ -4503,10 +4503,48 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       it 'returns false if MR has no CI integration nor pipeline, and no commits' do
         allow(merge_request).to receive_message_chain(:source_project, :ci_integration) { nil }
         allow(merge_request).to receive(:head_pipeline_id) { nil }
-        allow(merge_request).to receive(:all_pipelines) { [] }
+        allow(merge_request).to receive(:pipelines_for_mergeability) { [] }
         allow(merge_request).to receive(:has_no_commits?) { true }
 
         expect(merge_request.has_ci?).to be(false)
+      end
+    end
+
+    context 'when skip_branch_pipelines_for_mrs is enabled' do
+      let_it_be_with_reload(:project) { create(:project, :repository) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: project) }
+
+      before do
+        project.ci_cd_settings.update!(skip_branch_pipelines_for_mrs: true)
+      end
+
+      context 'when only a branch pipeline exists' do
+        let!(:branch_pipeline) do
+          create(:ci_pipeline, :success,
+            project: project,
+            source: :push,
+            ref: merge_request.source_branch,
+            sha: merge_request.diff_head_sha)
+        end
+
+        it 'returns false' do
+          expect(merge_request.has_ci?).to be(false)
+        end
+      end
+
+      context 'when an MR pipeline exists' do
+        let!(:mr_pipeline) do
+          create(:ci_pipeline,
+            source: :merge_request_event,
+            project: project,
+            ref: merge_request.ref_path,
+            sha: merge_request.diff_head_sha,
+            merge_request: merge_request)
+        end
+
+        it 'returns true' do
+          expect(merge_request.has_ci?).to be(true)
+        end
       end
     end
   end
@@ -4531,6 +4569,49 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         recorder = ActiveRecord::QueryRecorder.new { merge_request.head_pipeline }
 
         expect(recorder.count).to eq(0)
+      end
+    end
+  end
+
+  describe '#pipelines_for_mergeability' do
+    let_it_be_with_reload(:merge_request) { create(:merge_request) }
+
+    let!(:branch_pipeline) do
+      create(
+        :ci_empty_pipeline,
+        project: merge_request.project,
+        sha: merge_request.diff_head_sha,
+        ref: merge_request.source_branch
+      )
+    end
+
+    let!(:mr_pipeline) do
+      create(
+        :ci_pipeline,
+        source: :merge_request_event,
+        project: merge_request.source_project,
+        ref: merge_request.ref_path,
+        sha: merge_request.diff_head_sha,
+        merge_request: merge_request
+      )
+    end
+
+    context 'when skip_branch_pipelines_for_mrs is disabled' do
+      it 'returns both branch and MR pipelines' do
+        expect(merge_request.pipelines_for_mergeability).to include(branch_pipeline, mr_pipeline)
+      end
+    end
+
+    context 'when skip_branch_pipelines_for_mrs is enabled' do
+      before do
+        merge_request.project.ci_cd_settings.update!(skip_branch_pipelines_for_mrs: true)
+      end
+
+      it 'returns only MR pipelines' do
+        result = merge_request.pipelines_for_mergeability.to_a
+
+        expect(result).to include(mr_pipeline)
+        expect(result).not_to include(branch_pipeline)
       end
     end
   end
@@ -4623,6 +4704,74 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       it 'does not update the head pipeline' do
         expect { subject }
           .not_to change { merge_request.reload.head_pipeline }
+      end
+    end
+
+    context 'when skip_branch_pipelines_for_mrs is enabled' do
+      before do
+        merge_request.project.ci_cd_settings.update!(skip_branch_pipelines_for_mrs: true)
+      end
+
+      context 'when only a branch pipeline exists' do
+        let!(:branch_pipeline) do
+          create(
+            :ci_empty_pipeline,
+            project: merge_request.project,
+            sha: merge_request.diff_head_sha,
+            ref: merge_request.source_branch
+          )
+        end
+
+        it 'does not set the branch pipeline as head pipeline' do
+          expect { subject }.not_to change { merge_request.reload.head_pipeline_id }
+        end
+      end
+
+      context 'when both a branch pipeline and an MR pipeline exist' do
+        let!(:branch_pipeline) do
+          create(
+            :ci_empty_pipeline,
+            project: merge_request.project,
+            sha: merge_request.diff_head_sha,
+            ref: merge_request.source_branch
+          )
+        end
+
+        let!(:mr_pipeline) do
+          create(
+            :ci_pipeline,
+            source: :merge_request_event,
+            project: merge_request.source_project,
+            ref: merge_request.ref_path,
+            sha: merge_request.diff_head_sha,
+            merge_request: merge_request
+          )
+        end
+
+        it 'sets the MR pipeline as head pipeline' do
+          expect { subject }
+            .to change { merge_request.reload.head_pipeline }
+            .from(nil).to(mr_pipeline)
+        end
+      end
+
+      context 'when only an MR pipeline exists' do
+        let!(:mr_pipeline) do
+          create(
+            :ci_pipeline,
+            source: :merge_request_event,
+            project: merge_request.source_project,
+            ref: merge_request.ref_path,
+            sha: merge_request.diff_head_sha,
+            merge_request: merge_request
+          )
+        end
+
+        it 'sets the MR pipeline as head pipeline' do
+          expect { subject }
+            .to change { merge_request.reload.head_pipeline }
+            .from(nil).to(mr_pipeline)
+        end
       end
     end
   end

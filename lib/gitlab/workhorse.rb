@@ -104,12 +104,16 @@ module Gitlab
         include_lfs_blobs: true,
         exclude_paths: [],
         client_name: nil,
-        ref_type: nil
+        ref_type: nil,
+        metadata: nil
       )
         format ||= 'tar.gz'
         format = format.downcase
 
-        metadata = repository.archive_metadata(
+        # Callers can pass already-resolved metadata (for example, from the
+        # ArchiveHeaderBuilder used to compute the ETag) so the headers and the
+        # archive body describe the same commit instead of resolving the ref twice.
+        metadata ||= repository.archive_metadata(
           ref,
           Gitlab.config.gitlab.repository_downloads_path,
           format,

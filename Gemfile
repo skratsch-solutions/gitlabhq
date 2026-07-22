@@ -422,6 +422,8 @@ gem 'gitlab-bitbucket-server', path: 'gems/gitlab-bitbucket-server',
   require: 'bitbucket_server', feature_category: :importers
 gem 'gitlab-deploy-driver-argo-rollouts', path: 'gems/gitlab-deploy-driver-argo-rollouts', require: false,
   feature_category: :continuous_delivery
+gem 'gitlab-policy-store', path: 'gems/gitlab-policy-store',
+  require: 'gitlab/policy_store', feature_category: :security_policy_management
 
 gem 'premailer-rails', '~> 1.12.0', feature_category: :notifications
 gem 'gitlab-labkit', '~> 2.7.0', feature_category: :error_budgets

@@ -6,6 +6,8 @@ import waitForPromises from 'helpers/wait_for_promises';
 import OfflineTransferExportApp from '~/import/offline_transfer/export/app.vue';
 import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
 import SelectGroupsTab from '~/import/offline_transfer/export/select_groups_tab.vue';
+import ExportConfigTab from '~/import/offline_transfer/export/export_config_tab.vue';
+import ReviewExportTab from '~/import/offline_transfer/export/review_export_tab.vue';
 import offlineTransferSourceOwnedGroupsQuery from '~/import/offline_transfer/graphql/queries/offline_transfer_source_owned_groups.query.graphql';
 import { OFFLINE_EXPORT_TAB_HEADINGS } from '~/import/offline_transfer/constants';
 import {
@@ -30,8 +32,9 @@ describe('OfflineTransferExportApp', () => {
 
   const findFormStepper = () => wrapper.findComponent(FormStepper);
   const findSelectGroupsTab = () => wrapper.findComponent(SelectGroupsTab);
+  const findExportConfigTab = () => wrapper.findComponent(ExportConfigTab);
+  const findReviewExportTab = () => wrapper.findComponent(ReviewExportTab);
   const findCompletionAlert = () => wrapper.findByTestId('completion-alert');
-  const findValidationErrorAlert = () => wrapper.findByTestId('validation-alert');
   const findFetchErrorAlert = () => wrapper.findByTestId('fetch-error-alert');
 
   describe('passes to FormStepper', () => {
@@ -57,6 +60,7 @@ describe('OfflineTransferExportApp', () => {
       createComponent();
     });
 
+    // TODO - replace when form POST added
     it('triggers a completion alert when FormStepper emits complete', async () => {
       expect(findCompletionAlert().exists()).toBe(false);
 
@@ -65,32 +69,12 @@ describe('OfflineTransferExportApp', () => {
       expect(findCompletionAlert().exists()).toBe(true);
     });
 
-    // TODO delete or replace test when all steps are added
-    it('triggers a validation error alert when a step without inline errors fails', async () => {
-      expect(findValidationErrorAlert().exists()).toBe(false);
+    it('when `stepped-back` emitted clears previous step validation error', async () => {
+      await findFormStepper().vm.$emit('validation-failed', 1);
+      expect(findExportConfigTab().props('validationAttempted')).toBe(true);
 
-      await findFormStepper().vm.$emit('validation-failed', 2);
-
-      expect(findValidationErrorAlert().exists()).toBe(true);
-    });
-
-    it('clears the shared validation error alert when that step is passed (stepped-forward)', async () => {
-      await findFormStepper().vm.$emit('validation-failed', 2);
-      expect(findValidationErrorAlert().exists()).toBe(true);
-
-      await findFormStepper().vm.$emit('stepped-forward', { previousTabIndex: 2 });
-      expect(findValidationErrorAlert().exists()).toBe(false);
-    });
-
-    it('sets the previously completed step as invalid after FormStepper emits stepped-back', async () => {
-      wrapper.vm.isStepComplete.export = true;
-      expect(findFormStepper().props('validateStep')(2)).toBe(true);
-
-      await findFormStepper().vm.$emit('stepped-back', {
-        previousTabIndex: 2,
-      });
-
-      expect(findFormStepper().props('validateStep')(2)).toBe(false);
+      await findFormStepper().vm.$emit('stepped-back', { previousTabIndex: 1 });
+      expect(findExportConfigTab().props('validationAttempted')).toBe(false);
     });
   });
 
@@ -370,6 +354,25 @@ describe('OfflineTransferExportApp', () => {
         await nextTick();
         expect(findSelectGroupsTab().props('showSelectError')).toBe(false);
       });
+    });
+  });
+
+  describe('Review export tab', () => {
+    beforeEach(async () => {
+      createComponent();
+      await waitForPromises();
+    });
+
+    it('passes the selected groups down to the tab', async () => {
+      findSelectGroupsTab().vm.$emit('toggle', mockGroups[0]);
+      findSelectGroupsTab().vm.$emit('toggle', mockGroups[1]);
+      await nextTick();
+
+      expect(findReviewExportTab().props('selectedGroups')).toEqual([mockGroups[0], mockGroups[1]]);
+    });
+
+    it('always passes validation since the step has no action to validate', () => {
+      expect(findFormStepper().props('validateStep')(2)).toBe(true);
     });
   });
 });

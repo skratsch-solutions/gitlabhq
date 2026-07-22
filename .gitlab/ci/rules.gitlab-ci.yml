@@ -938,7 +938,6 @@
   - "{,ee/,jh/}app/policies/**/*"
   - "{,ee/,jh/}app/serializers/**/*"
   # Auto-generated files
-  - "doc/api/openapi/openapi_v2.yaml"
   - "doc/api/openapi/openapi_v3.yaml"
 
 # .code-patterns + .backstage-patterns + .qa-patterns
@@ -964,7 +963,6 @@
   - "vendor/assets/**/*"
   # Auto-generated files
   - "doc/api/graphql/reference/*"
-  - "doc/api/openapi/openapi_v2.yaml"
   - "doc/api/openapi/openapi_v3.yaml"
   - "doc/user/application_security/dast/browser/configuration/variables.md"
   # CI changes

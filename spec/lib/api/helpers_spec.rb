@@ -2489,4 +2489,31 @@ RSpec.describe API::Helpers, feature_category: :api do
       end
     end
   end
+
+  describe '#archive_etag_matches?' do
+    let(:etag) { %("abc123") }
+
+    # Uses weak comparison (RFC 9110): a weak validator matches our strong ETag,
+    # plus `*` and comma-separated lists.
+    where(:if_none_match, :expected) do
+      nil               | false
+      ''                | false
+      '"abc123"'        | true
+      '"different"'     | false
+      '*'               | true
+      'W/"abc123"'      | true
+      'W/"different"'   | false
+      '"x", "abc123"'   | true
+      '"x", "y"'        | false
+      'W/"x", W/"abc123"' | true
+    end
+
+    with_them do
+      before do
+        allow(helper).to receive(:headers).and_return({ 'If-None-Match' => if_none_match })
+      end
+
+      it { expect(helper.send(:archive_etag_matches?, etag)).to be(expected) }
+    end
+  end
 end

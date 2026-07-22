@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Rack Attack Headers', :use_clean_rails_memory_store_caching,
+RSpec.describe 'Rack Attack Headers', :use_clean_rails_memory_store_caching, :freeze_time,
   feature_category: :rate_limiting do
   include RackAttackSpecHelpers
   include WorkhorseHelpers

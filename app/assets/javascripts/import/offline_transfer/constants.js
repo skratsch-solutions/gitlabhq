@@ -6,8 +6,6 @@ const EXPORT = __('Export');
 
 export const OFFLINE_EXPORT_TAB_HEADINGS = [SELECT_ENTITIES, CONFIGURE, EXPORT];
 
-export const OFFLINE_EXPORT_TAB_FIELDS = ['select', 'configure', 'export'];
-
 export const FORM_STEPPER_TAB_COLOR = {
   active: 'gl-text-link gl-font-bold',
   pending: 'gl-text-subtle',

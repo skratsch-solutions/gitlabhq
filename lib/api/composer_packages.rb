@@ -224,11 +224,14 @@ module API
 
           # Return early for HEAD requests to avoid generating archives.
           if request.head?
+            check_repository_archive_download!(project.repository)
             send_git_archive_head(project.repository, ref: package.target_sha, format: 'zip', append_sha: true)
           else
             # For now we keep writing to the existing packages_packages table.
             # It contains the trigger to sync the data with packages_composer_packages table.
             ::Packages::Composer::Sti::Package.touch_last_downloaded_at(package.id)
+            check_repository_archive_download!(project.repository)
+            audit_repository_archive_download(project.repository)
             send_git_archive project.repository, ref: package.target_sha, format: 'zip', append_sha: true
           end
         end

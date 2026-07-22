@@ -1,11 +1,12 @@
 <script>
-import { GlAlert, GlFormCheckbox } from '@gitlab/ui';
+import { GlAlert } from '@gitlab/ui';
 import { DEFAULT_PER_PAGE } from '~/api';
 import offlineTransferSourceOwnedGroupsQuery from '~/import/offline_transfer/graphql/queries/offline_transfer_source_owned_groups.query.graphql';
 import FormStepper from '~/import/offline_transfer/components/form_stepper.vue';
 import SelectGroupsTab from '~/import/offline_transfer/export/select_groups_tab.vue';
 import ExportConfigTab from '~/import/offline_transfer/export/export_config_tab.vue';
-import { OFFLINE_EXPORT_TAB_HEADINGS, OFFLINE_EXPORT_TAB_FIELDS } from '../constants';
+import { OFFLINE_EXPORT_TAB_HEADINGS } from '../constants';
+import ReviewExportTab from './review_export_tab.vue';
 import { isStorageConfigValid } from './storage_config_validation';
 
 export default {
@@ -14,12 +15,10 @@ export default {
     FormStepper,
     SelectGroupsTab,
     ExportConfigTab,
+    ReviewExportTab,
     GlAlert,
-    GlFormCheckbox,
   },
   data() {
-    const tabFields = OFFLINE_EXPORT_TAB_FIELDS.map((field) => [field, false]);
-
     return {
       offlineTransferSourceOwnedGroups: null,
       selectedGroups: [],
@@ -40,8 +39,6 @@ export default {
         pathStyle: false,
       },
 
-      isStepComplete: Object.fromEntries(tabFields),
-      showValidationErrorTemp: false,
       isFormComplete: false,
     };
   },
@@ -134,8 +131,7 @@ export default {
       this.resetStepError(previousTabIndex);
     },
     onSteppedBack({ previousTabIndex }) {
-      // Stepping back resets previous step's 'completed' status
-      this.isStepComplete[OFFLINE_EXPORT_TAB_FIELDS[previousTabIndex]] = false;
+      // Stepping back resets validation if exists
       this.resetStepError(previousTabIndex);
     },
 
@@ -159,8 +155,6 @@ export default {
         this.showSelectError = true;
       } else if (stepIndex === 1) {
         this.showStorageConfigError = true;
-      } else {
-        this.showValidationErrorTemp = true;
       }
     },
 
@@ -169,8 +163,6 @@ export default {
         this.showSelectError = false;
       } else if (stepIndex === 1) {
         this.showStorageConfigError = false;
-      } else {
-        this.showValidationErrorTemp = false;
       }
     },
     validateStep(stepIndex) {
@@ -182,7 +174,7 @@ export default {
         case 1:
           return isStorageConfigValid(this.storageConfig);
         case 2:
-          return this.isStepComplete.export;
+          return true;
         default:
           return false;
       }
@@ -227,18 +219,6 @@ export default {
         data-testid="completion-alert"
         @dismiss="isFormComplete = false"
       />
-      <!-- TODO: When the review/export step gets real
-        validation, move form error inline at the top of each step's content (as
-        step 0 does) and remove this alert -->
-      <gl-alert
-        v-if="showValidationErrorTemp"
-        :title="__('Error')"
-        :dismiss-label="__('Dismiss')"
-        dismissible
-        variant="danger"
-        data-testid="validation-alert"
-        @dismiss="showValidationErrorTemp = false"
-      />
     </header>
 
     <form-stepper
@@ -278,7 +258,10 @@ export default {
 
       <template #step-2>
         <h2 class="gl-heading-3">{{ s__('OfflineTransferExport|Review and export') }}</h2>
-        <gl-form-checkbox v-model="isStepComplete.export" />
+        <review-export-tab
+          :selected-groups="selectedGroups"
+          :bucket-name="storageConfig.bucketName"
+        />
       </template>
     </form-stepper>
   </div>

@@ -232,15 +232,49 @@ module API
 
         not_acceptable! if Gitlab::HotlinkingDetector.intercept_hotlinking?(request)
 
+        # Enforce the download ban before any caching/conditional-request logic, so a
+        # banned user cannot receive a 304 and an error never inherits cache headers.
+        # The matching audit is deferred until the archive is actually transferred.
+        check_repository_archive_download!(user_project.repository)
+
+        caching_enabled = Feature.enabled?(:api_repository_archive_cache_headers, user_project)
+
+        # Resolve the archive metadata once (with the real storage path) and reuse it
+        # for the cache headers, the HEAD content headers, and the archive body, so
+        # they all describe the same commit. `#metadata` is lazy, so this is free
+        # until something actually reads it.
+        archive_builder = Gitlab::Repositories::ArchiveHeaderBuilder.new(
+          user_project.repository, ref: params[:sha], format: params[:format], append_sha: true,
+          path: params[:path], ref_type: params[:ref_type],
+          storage_path: Gitlab.config.gitlab.repository_downloads_path
+        )
+
+        if caching_enabled
+          set_repository_archive_cache_headers!(
+            user_project, archive_builder,
+            ref: params[:sha], include_lfs_blobs: params[:include_lfs_blobs], exclude_paths: params[:exclude_paths]
+          )
+        end
+
         # Return early for HEAD requests to avoid generating archives.
         if request.head?
-          send_git_archive_head(user_project.repository, ref: params[:sha], format: params[:format], append_sha: true, path: params[:path], ref_type: params[:ref_type])
+          send_git_archive_head(
+            user_project.repository,
+            ref: params[:sha], format: params[:format], append_sha: true, path: params[:path],
+            ref_type: params[:ref_type], builder: archive_builder
+          )
         else
-          send_git_archive user_project.repository, ref: params[:sha], format: params[:format], append_sha: true, path: params[:path], ref_type: params[:ref_type], include_lfs_blobs: params[:include_lfs_blobs], exclude_paths: params[:exclude_paths]
+          # Reached only for a real transfer (a matching conditional request has
+          # already returned 304 above), so audit the download here.
+          audit_repository_archive_download(user_project.repository)
+
+          send_git_archive user_project.repository, ref: params[:sha], format: params[:format], append_sha: true, path: params[:path], ref_type: params[:ref_type], include_lfs_blobs: params[:include_lfs_blobs], exclude_paths: params[:exclude_paths], metadata: archive_builder.metadata
         end
       rescue Gitlab::Git::CommandError
+        reset_archive_cache_headers! if caching_enabled
         service_unavailable!
       rescue Gitlab::Workhorse::ArchiveNotFoundError
+        reset_archive_cache_headers! if caching_enabled
         not_found!('File')
       end
 

@@ -2011,7 +2011,7 @@ class MergeRequest < ApplicationRecord
   def has_ci?
     return false if has_no_commits?
 
-    !!(head_pipeline_id || all_pipelines.any? || source_project&.ci_integration)
+    !!(head_pipeline_id || pipelines_for_mergeability.any? || source_project&.ci_integration)
   end
 
   def branch_missing?
@@ -2191,6 +2191,12 @@ class MergeRequest < ApplicationRecord
     strong_memoize(:all_pipelines) do
       Ci::PipelinesForMergeRequestFinder.new(self, nil).all
     end
+  end
+
+  def pipelines_for_mergeability
+    pipelines = all_pipelines
+    pipelines = pipelines.with_pipeline_source(:merge_request_event) if project.ci_skip_branch_pipelines_for_mrs?
+    pipelines
   end
 
   def update_head_pipeline
@@ -2616,7 +2622,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def find_diff_head_pipeline
-    all_pipelines.for_sha_or_source_sha(diff_head_sha).first
+    pipelines_for_mergeability.for_sha_or_source_sha(diff_head_sha).first
   end
 
   def real_time_notes_enabled?
