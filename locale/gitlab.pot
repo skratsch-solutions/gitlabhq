@@ -32691,6 +32691,27 @@ msgstr ""
 msgid "Exclusions"
 msgstr ""
 
+msgid "Execution already exists"
+msgstr ""
+
+msgid "Execution already in terminal state"
+msgstr ""
+
+msgid "Execution already started"
+msgstr ""
+
+msgid "Execution cancelled"
+msgstr ""
+
+msgid "Execution cannot be started"
+msgstr ""
+
+msgid "Execution created"
+msgstr ""
+
+msgid "Execution started"
+msgstr ""
+
 msgid "Execution time"
 msgstr ""
 
@@ -42480,6 +42501,9 @@ msgstr ""
 msgid "Items"
 msgstr ""
 
+msgid "Items appended"
+msgstr ""
+
 msgid "Items are already linked"
 msgstr ""
 
@@ -50151,6 +50175,9 @@ msgstr ""
 msgid "No active Support PIN."
 msgstr ""
 
+msgid "No active execution"
+msgstr ""
+
 msgid "No activities found"
 msgstr ""
 
@@ -53236,6 +53263,9 @@ msgid "One or more contacts were successfully added."
 msgstr ""
 
 msgid "One or more contacts were successfully removed."
+msgstr ""
+
+msgid "One or more findings do not belong to the project"
 msgstr ""
 
 msgid "One or more groups could not be found"
@@ -81887,6 +81917,9 @@ msgstr ""
 msgid "Unable to build Slack link."
 msgstr ""
 
+msgid "Unable to cancel execution"
+msgstr ""
+
 msgid "Unable to clone. Insufficient permissions."
 msgstr ""
 
@@ -82002,6 +82035,9 @@ msgid "Unable to send approval request to administrator."
 msgstr ""
 
 msgid "Unable to sign in to group with SAML: \"%{reason}\""
+msgstr ""
+
+msgid "Unable to start execution"
 msgstr ""
 
 msgid "Unable to suggest a path. Please refresh and try again."

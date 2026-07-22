@@ -51,7 +51,7 @@ module API
         tags ['labels']
       end
       params do
-        requires :name, type: String, desc: 'The name of a label'
+        requires :name, types: [String, Integer], desc: 'The ID or name of a label'
         optional :include_ancestor_groups, type: Boolean, default: true,
           desc: 'Include ancestor groups'
       end

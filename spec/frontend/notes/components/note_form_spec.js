@@ -1,7 +1,9 @@
 import { GlLink, GlFormCheckbox } from '@gitlab/ui';
 import Vue, { nextTick } from 'vue';
+import VueApollo from 'vue-apollo';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
+import createMockApollo from 'helpers/mock_apollo_helper';
 import NoteForm from '~/notes/components/note_form.vue';
 import MarkdownField from '~/vue_shared/components/markdown/field.vue';
 import CommentFieldLayout from '~/notes/components/comment_field_layout.vue';
@@ -14,11 +16,13 @@ import { globalAccessorPlugin } from '~/pinia/plugins';
 import { useLegacyDiffs } from '~/diffs/stores/legacy_diffs';
 import { useNotes } from '~/notes/store/legacy_notes';
 import { useBatchComments } from '~/batch_comments/store';
+import currentUserQuery from '~/graphql_shared/queries/current_user.query.graphql';
 import { noteableDataMock, notesDataMock, discussionMock } from '../mock_data';
 
 jest.mock('~/lib/utils/autosave');
 
 Vue.use(PiniaVuePlugin);
+Vue.use(VueApollo);
 
 describe('issue_note_form component', () => {
   let pinia;
@@ -30,21 +34,15 @@ describe('issue_note_form component', () => {
   const createComponentWrapper = (propsData = {}, provide = {}, stubs = {}) => {
     wrapper = mountExtended(NoteForm, {
       pinia,
+      apolloProvider: createMockApollo([
+        [currentUserQuery, jest.fn().mockResolvedValue({ data: { currentUser: null } })],
+      ]),
       propsData: {
         ...props,
         ...propsData,
       },
       provide: {
         glFeatures: provide,
-      },
-      mocks: {
-        $apollo: {
-          queries: {
-            currentUser: {
-              loading: false,
-            },
-          },
-        },
       },
       stubs,
     });
