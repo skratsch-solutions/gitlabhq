@@ -20,7 +20,6 @@ title: Install the Linux package on Ubuntu
 ## Prerequisites
 
 - OS requirements:
-  - Ubuntu 20.04
   - Ubuntu 22.04
   - Ubuntu 24.04
 - See the [installation requirements](../requirements.md) to learn about the
