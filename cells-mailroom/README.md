@@ -21,13 +21,15 @@ pipeline:
 1. `Cells::Mailroom::RecipientTargets` derives ordered `Target` candidates from
    the recipient addresses (in the GitLab receiver's header order):
    - incoming/service_desk wildcard keys → `Target.project_id`,
-     `Target.namespace_id` (decoded offline), or `Target.route`
+     `Target.namespace_id` (decoded offline), `Target.route`, or
+     `Target.service_desk_project_key_address_slug` (the opaque `<slug>-<key>`
+     project key, matched verbatim)
    - custom email replies with a partitioned reply key → `Target.namespace_id`
      (decoded offline)
    - bare custom email addresses → `Target.service_desk_custom_email`
 2. `Cells::Mailroom::CellRouter` classifies each candidate against the Topology
-   Service `Classify` RPC until one resolves to a cell. For custom emails the
-   `Classify` call doubles as the existence check.
+   Service `Classify` RPC until one resolves to a cell. For custom emails and
+   project keys the `Classify` call doubles as the existence check.
 3. `Cells::Mailroom::Forwarder` forwards the raw email directly to the resolved
    cell's internal mail_room endpoint.
 
@@ -36,7 +38,8 @@ Identification (parsing the email key into a `Target`) lives in the
 `Target` to a cell and forwarding the email are owned by this service.
 
 Emails that resolve to no cell (legacy reply keys without an encoded namespace,
-opaque service desk keys, unknown custom emails) are dropped.
+opaque service desk keys not yet claimed in the Topology Service, unknown custom
+emails) are dropped.
 
 ## Configuration
 
@@ -66,6 +69,20 @@ metadata the GitLab application uses (`cell.topology_service_client` in
 Cell addresses returned by the Topology Service are bare hosts, so the request
 scheme is chosen by this service: `https` by default, `http` for local
 environments. Set it via `cell.email_forwarding.scheme` in `config/gitlab.yml`.
+
+### Running multiple instances (arbitration)
+
+Like the GitLab application's own mail_room, several instances of this service
+can poll the same mailbox concurrently without double-processing a message. Each
+message is guarded by a short-lived Redis lock via mail_room's `redis`
+arbitration, using the same lock namespace (`mail_room:gitlab`) as the existing
+mailroom — so this service and the existing mailroom also stay coordinated while
+both run.
+
+Configure it under `cell.email_forwarding.arbitration` in `config/gitlab.yml`,
+pointing at the shared queues Redis (a `redis_url`, or `sentinels` for a Sentinel
+setup). When no Redis is configured the service runs without arbitration, which
+is fine for a single instance or local development.
 
 ### Authentication
 

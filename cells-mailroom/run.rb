@@ -27,10 +27,17 @@ config = Cells::Mailroom::Config.new(rails_root: rails_root)
 # resolves delivery methods to its own built-in classes; :delivery_klass lets us
 # inject Cells::Mailroom::Delivery. rails_root is passed through so the delivery
 # can locate config/gitlab.yml the same way.
+#
+# Arbitration attributes are merged in so that several service instances can
+# poll the same mailbox safely: mail_room coordinates via a Redis lock on the
+# same namespace the existing GitLab mailroom uses.
+arbitration = config.arbitration_attributes
+
 mailboxes = config.mailboxes.map do |attributes|
   attributes[:delivery_klass] = Cells::Mailroom::Delivery
   attributes[:delivery_options][:rails_root] = rails_root
   attributes[:logger] = { log_path: $stdout }
+  attributes.merge!(arbitration)
 
   MailRoom::Mailbox.new(attributes)
 end

@@ -51,6 +51,11 @@ RSpec.describe Cells::Mailroom::CellRouter do
           Gitlab::EmailHandler::Target.service_desk_custom_email('support@acme.com'),
           :service_desk_custom_email,
           'support@acme.com'
+        ],
+        'project key address slug' => [
+          Gitlab::EmailHandler::Target.service_desk_project_key_address_slug('gitlab-org-gitlab-ce-mykey_123'),
+          :service_desk_project_key_address_slug,
+          'gitlab-org-gitlab-ce-mykey_123'
         ]
       }.each do |name, (target, field, value)|
         it "sends a #{name} claim to Classify" do

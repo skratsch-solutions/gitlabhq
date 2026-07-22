@@ -29,6 +29,12 @@ module Cells
       # GitLab application defines them.
       MAILBOX_TYPES = %w[incoming_email service_desk_email].freeze
 
+      # Redis key namespace used by the arbitration lock. Matches the existing
+      # GitLab mailroom (Gitlab::Redis::Queues::MAILROOM_NAMESPACE) so this
+      # service coordinates against the same lock and never double-processes a
+      # message the existing mailroom, or another cells-mailroom pod, has taken.
+      ARBITRATION_NAMESPACE = 'mail_room:gitlab'
+
       def initialize(rails_root:, rails_env: nil)
         @rails_root = rails_root
         @rails_env = rails_env || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
@@ -76,8 +82,9 @@ module Cells
       #
       # This is needed while incoming email keys can still be unidentifiable
       # offline (for example legacy reply keys without an encoded namespace, or
-      # opaque service desk keys). Once those are fully claimable in the Topology
-      # Service this fallback, and the toggle, can be removed.
+      # opaque service desk keys whose project_key_address_slug has not been
+      # backfilled and claimed yet). Once those are fully claimable in the
+      # Topology Service this fallback, and the toggle, can be removed.
       def route_unidentified_to_default_cell?
         value = cell_config.dig('email_forwarding', 'route_unidentified_to_default_cell')
         value.nil? ? true : value
@@ -112,7 +119,40 @@ module Cells
         end
       end
 
+      # Arbitration lets several service instances poll the same mailbox without
+      # double-processing: mail_room takes a short-lived Redis lock per message
+      # (the same mechanism, and the same lock namespace, the existing GitLab
+      # mailroom uses). Configured via `cell.email_forwarding.arbitration` in
+      # config/gitlab.yml. When no Redis is configured (for example a local,
+      # single-instance run) we fall back to mail_room's default "noop"
+      # arbitration.
+      #
+      # @return [Hash] `{ arbitration_method:, arbitration_options: }` merged into
+      #   each mailbox's attributes
+      def arbitration_attributes
+        redis = arbitration_config
+        redis_url = redis['redis_url']
+        sentinels = redis['sentinels']
+
+        return { arbitration_method: 'noop', arbitration_options: {} } unless redis_url || sentinels
+
+        options = {
+          redis_url: redis_url,
+          namespace: ARBITRATION_NAMESPACE
+        }
+        options[:redis_ssl_params] = redis['redis_ssl_params'] if redis['redis_ssl_params']
+        options[:sentinels] = sentinels if sentinels
+        options[:sentinel_username] = redis['sentinel_username'] if redis['sentinel_username']
+        options[:sentinel_password] = redis['sentinel_password'] if redis['sentinel_password']
+
+        { arbitration_method: 'redis', arbitration_options: options }
+      end
+
       private
+
+      def arbitration_config
+        cell_config.dig('email_forwarding', 'arbitration') || {}
+      end
 
       def enabled?(settings)
         settings.is_a?(Hash) && settings['enabled'] && !settings['address'].to_s.empty?

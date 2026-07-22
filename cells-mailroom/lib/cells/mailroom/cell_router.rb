@@ -23,7 +23,8 @@ module Cells
         project_id: :project_id,
         namespace_id: :namespace_id,
         route: :route,
-        service_desk_custom_email: :service_desk_custom_email
+        service_desk_custom_email: :service_desk_custom_email,
+        service_desk_project_key_address_slug: :service_desk_project_key_address_slug
       }.freeze
 
       # @param stub [Gitlab::Cells::TopologyService::ClassifyService::Stub]

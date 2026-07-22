@@ -137,4 +137,66 @@ RSpec.describe Cells::Mailroom::Config do
       end
     end
   end
+
+  describe '#arbitration_attributes' do
+    context 'when no arbitration Redis is configured' do
+      it 'falls back to noop arbitration' do
+        expect(config.arbitration_attributes).to eq(arbitration_method: 'noop', arbitration_options: {})
+      end
+    end
+
+    context 'when a redis_url is configured' do
+      let(:gitlab_yml) do
+        <<~YAML
+          production:
+            cell:
+              email_forwarding:
+                arbitration:
+                  redis_url: "redis://redis.example.com:6379"
+        YAML
+      end
+
+      it 'enables redis arbitration with the shared mailroom namespace' do
+        expect(config.arbitration_attributes).to eq(
+          arbitration_method: 'redis',
+          arbitration_options: {
+            redis_url: 'redis://redis.example.com:6379',
+            namespace: described_class::ARBITRATION_NAMESPACE
+          }
+        )
+      end
+
+      it 'uses the same namespace as the existing GitLab mailroom' do
+        expect(described_class::ARBITRATION_NAMESPACE).to eq('mail_room:gitlab')
+      end
+    end
+
+    context 'when sentinels are configured' do
+      let(:gitlab_yml) do
+        <<~YAML
+          production:
+            cell:
+              email_forwarding:
+                arbitration:
+                  sentinels:
+                    - { host: "10.0.0.1", port: 26379 }
+                  sentinel_password: "sentinel-secret"
+                  redis_ssl_params: { verify_mode: "none" }
+        YAML
+      end
+
+      it 'enables redis arbitration with the sentinel options' do
+        expect(config.arbitration_attributes).to eq(
+          arbitration_method: 'redis',
+          arbitration_options: {
+            redis_url: nil,
+            namespace: described_class::ARBITRATION_NAMESPACE,
+            redis_ssl_params: { 'verify_mode' => 'none' },
+            sentinels: [{ 'host' => '10.0.0.1', 'port' => 26379 }],
+            sentinel_password: 'sentinel-secret'
+          }
+        )
+      end
+    end
+  end
 end

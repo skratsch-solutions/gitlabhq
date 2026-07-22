@@ -35,6 +35,15 @@ RSpec.describe Cells::Mailroom::RecipientTargets do
       expect(result).to eq([target.service_desk_custom_email('support@acme.com')])
     end
 
+    it 'derives a project key address slug target from an opaque service desk key' do
+      result = described_class.for_candidate(
+        candidate(value: 'contact+gitlab-org-gitlab-ce-mykey_123@example.com',
+          key: 'gitlab-org-gitlab-ce-mykey_123')
+      )
+
+      expect(result.first).to eq(target.service_desk_project_key_address_slug('gitlab-org-gitlab-ce-mykey_123'))
+    end
+
     it 'derives a namespace id target from a custom email reply key' do
       result = described_class.for_candidate(
         candidate(value: 'support+rs-0000000000000000000000abc-rs@acme.com')
