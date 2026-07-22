@@ -49,9 +49,7 @@ export default {
   },
   components: {
     ProjectSecurityAttributesList: () =>
-      import(
-        'ee_component/security_configuration/security_attributes/components/project_attributes_list.vue'
-      ),
+      import('ee_component/security_configuration/security_attributes/components/project_attributes_list.vue'),
     AutoDevOpsAlert,
     AutoDevOpsEnabledAlert,
     FeatureCard,
@@ -72,28 +70,18 @@ export default {
     RefTrackingList,
     ScanProfileConfiguration,
     ContainerScanningForRegistryFeatureCard: () =>
-      import(
-        'ee_component/security_configuration/components/container_scanning_for_registry_feature_card.vue'
-      ),
+      import('ee_component/security_configuration/components/container_scanning_for_registry_feature_card.vue'),
     CvsContainerScanningFeatureCard: () =>
-      import(
-        'ee_component/security_configuration/components/cvs_container_scanning_feature_card.vue'
-      ),
+      import('ee_component/security_configuration/components/cvs_container_scanning_feature_card.vue'),
     CvsDependencyScanningFeatureCard: () =>
-      import(
-        'ee_component/security_configuration/components/cvs_dependency_scanning_feature_card.vue'
-      ),
+      import('ee_component/security_configuration/components/cvs_dependency_scanning_feature_card.vue'),
     LicenseScanningForCyclonedxFeatureCard: () =>
-      import(
-        'ee_component/security_configuration/components/license_scanning_for_cyclonedx_feature_card.vue'
-      ),
+      import('ee_component/security_configuration/components/license_scanning_for_cyclonedx_feature_card.vue'),
     PageHeading,
     VulnerabilityArchives: () =>
       import('ee_component/security_configuration/components/vulnerability_archives.vue'),
     LicenseInformationSourceFeatureCard: () =>
-      import(
-        'ee_component/security_configuration/components/license_information_source_feature_card.vue'
-      ),
+      import('ee_component/security_configuration/components/license_information_source_feature_card.vue'),
   },
   directives: { SafeHtml },
   mixins: [glFeatureFlagsMixin()],

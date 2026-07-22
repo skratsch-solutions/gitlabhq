@@ -19,13 +19,9 @@ export default {
     MetadataItem,
     GlLink,
     MetadataContainerScanning: () =>
-      import(
-        'ee_component/packages_and_registries/container_registry/explorer/components/list_page/metadata_container_scanning.vue'
-      ),
+      import('ee_component/packages_and_registries/container_registry/explorer/components/list_page/metadata_container_scanning.vue'),
     ContainerScanningCounts: () =>
-      import(
-        'ee_component/packages_and_registries/container_registry/explorer/components/list_page/container_scanning_counts.vue'
-      ),
+      import('ee_component/packages_and_registries/container_registry/explorer/components/list_page/container_scanning_counts.vue'),
   },
   inject: ['config'],
   props: {

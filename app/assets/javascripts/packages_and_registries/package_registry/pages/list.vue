@@ -116,8 +116,8 @@ export default {
       },
       update(data) {
         return this.isGroupPage
-          ? data[this.graphqlResource].packageSettings ?? {}
-          : data[this.graphqlResource].group?.packageSettings ?? {};
+          ? (data[this.graphqlResource].packageSettings ?? {})
+          : (data[this.graphqlResource].group?.packageSettings ?? {});
       },
       skip() {
         return !(this.packagesCount > 0 && this.canDeletePackages);

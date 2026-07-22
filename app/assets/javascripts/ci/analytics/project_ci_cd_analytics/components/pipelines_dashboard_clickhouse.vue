@@ -22,9 +22,7 @@ export default {
     PipelineDurationChart,
     PipelineStatusChart,
     JobAnalyticsTable: () =>
-      import(
-        'ee_component/ci/analytics/project_ci_cd_analytics/components/job_analytics_table.vue'
-      ),
+      import('ee_component/ci/analytics/project_ci_cd_analytics/components/job_analytics_table.vue'),
   },
   inject: {
     defaultBranch: {

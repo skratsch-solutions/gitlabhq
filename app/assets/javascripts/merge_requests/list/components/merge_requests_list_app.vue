@@ -264,9 +264,9 @@ export default {
     hasSearch() {
       return Boolean(
         this.searchQuery ||
-          Object.keys(this.urlFilterParams).length ||
-          this.pageParams.afterCursor ||
-          this.pageParams.beforeCursor,
+        Object.keys(this.urlFilterParams).length ||
+        this.pageParams.afterCursor ||
+        this.pageParams.beforeCursor,
       );
     },
     apiFilterParams() {

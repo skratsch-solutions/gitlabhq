@@ -228,8 +228,8 @@ export default {
     canSuggest() {
       return Boolean(
         this.getNoteableData.can_receive_suggestion &&
-          this.line &&
-          this.line.can_receive_suggestion,
+        this.line &&
+        this.line.can_receive_suggestion,
       );
     },
     changedCommentText() {

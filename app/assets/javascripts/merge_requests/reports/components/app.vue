@@ -31,13 +31,9 @@ export default {
     SecurityNavItem: () =>
       import('ee_component/merge_requests/reports/security_scans/security_nav_item.vue'),
     LicenseComplianceProvider: () =>
-      import(
-        'ee_component/merge_requests/reports/license_compliance/license_compliance_provider.vue'
-      ),
+      import('ee_component/merge_requests/reports/license_compliance/license_compliance_provider.vue'),
     LicenseComplianceNavItem: () =>
-      import(
-        'ee_component/merge_requests/reports/license_compliance/license_compliance_nav_item.vue'
-      ),
+      import('ee_component/merge_requests/reports/license_compliance/license_compliance_nav_item.vue'),
     CodeQualityProvider: () =>
       import('~/merge_requests/reports/code_quality/code_quality_provider.vue'),
     CodeQualityNavItem: () =>

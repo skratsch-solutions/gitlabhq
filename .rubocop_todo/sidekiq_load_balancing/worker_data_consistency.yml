@@ -296,6 +296,7 @@ SidekiqLoadBalancing/WorkerDataConsistency:
     - 'ee/app/workers/package_metadata/advisories_sync_worker.rb'
     - 'ee/app/workers/package_metadata/cve_enrichment_sync_worker.rb'
     - 'ee/app/workers/package_metadata/licenses_sync_worker.rb'
+    - 'ee/app/workers/package_metadata/malware_advisories_sync_worker.rb'
     - 'ee/app/workers/personal_access_tokens/groups/policy_worker.rb'
     - 'ee/app/workers/personal_access_tokens/instance/policy_worker.rb'
     - 'ee/app/workers/refresh_license_compliance_checks_worker.rb'

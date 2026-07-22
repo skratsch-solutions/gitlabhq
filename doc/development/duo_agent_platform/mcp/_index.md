@@ -168,11 +168,12 @@ and IDs are supplied they are cross-validated and a mismatch raises an error. Wo
 **Reads (single vs. collection):**
 
 - Facets scoped to one parent object fold into that object's `get_` tool through an `include`
-  enum (for example `get_merge_request` with `include: diffs|commits|notes|pipelines|conflicts`).
-  rather than separate `list_*` tools.
+  parameter that takes a single facet name (for example `get_merge_request` with `include: diffs`
+  rather than separate `list_*` tools). Valid values are `diffs`, `commits`, `notes`, `pipelines`,
+  and `conflicts`.
 - Independent collections that can be queried on their own get their own `list_` tool (for example
   `list_merge_requests`, `list_pipelines`).
-- Facet-scoped pagination lives on the `get_` reader and applies only to the relevant `include[]`
+- Facet-scoped pagination lives on the `get_` reader and applies only to the relevant `include`
   value. Document this in the parameter description.
 - Add a `detail` enum (`none`/`stats`/`full_patch`) on diff-bearing reads where the diff dominates
   the payload (for example the `diff` facet of `get_commit` and the `diffs` facet of

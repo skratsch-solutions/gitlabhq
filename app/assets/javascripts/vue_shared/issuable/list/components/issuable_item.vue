@@ -255,17 +255,17 @@ export default {
     showIssuableMeta() {
       return Boolean(
         this.hasSlotContents('status') ||
-          this.hasSlotContents('statistics') ||
-          this.showDiscussions ||
-          this.issuable.assignees,
+        this.hasSlotContents('statistics') ||
+        this.showDiscussions ||
+        this.issuable.assignees,
       );
     },
     showDraftStatusBadge() {
       return Boolean(
         this.isMergeRequest &&
-          this.isOpen &&
-          this.issuable.draft &&
-          this.glFeatures.showMergeRequestStatusDraft,
+        this.isOpen &&
+        this.issuable.draft &&
+        this.glFeatures.showMergeRequestStatusDraft,
       );
     },
     statusBadgeVariant() {

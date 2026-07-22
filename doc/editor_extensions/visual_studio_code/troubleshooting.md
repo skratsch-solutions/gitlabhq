@@ -295,6 +295,9 @@ This occurs when your GitLab instance blocks WebSocket connections.
 To resolve this error, ask your network administrator to modify your GitLab instance to
 [allow inbound WebSocket connections from IDE clients](../../administration/gitlab_duo/configure/_index.md#allow-inbound-connections-from-clients-to-the-gitlab-instance).
 
+If the connection to the GitLab Duo Agent Platform fails with a WebSocket error `1006` or `404`, see
+[connection fails with WebSocket error `1006` or `404`](../../user/duo_agent_platform/troubleshooting.md#connection-fails-with-websocket-error-1006-or-404).
+
 ### GitLab Duo Chat fails to initialize in remote environments
 
 When using GitLab Duo Chat in remote development environments (such as browser-based VS Code or remote

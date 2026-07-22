@@ -96,3 +96,41 @@ export const mockDashboardCompactGridResponse = {
     },
   },
 };
+
+export const mockDashboardWithViews = {
+  ...mockCustomDashboard,
+  config: {
+    ...mockCustomDashboard.config,
+    views: [
+      {
+        title: 'Overview',
+        panels: [
+          {
+            title: 'Overview panel',
+            visualization: 'overview_over_time',
+            gridAttributes: { xPos: 0, yPos: 0, width: 3, height: 1 },
+          },
+        ],
+      },
+      {
+        title: 'Details',
+        panels: [
+          {
+            title: 'Details panel one',
+            visualization: 'details_one_over_time',
+            gridAttributes: { xPos: 0, yPos: 0, width: 3, height: 1 },
+          },
+          {
+            title: 'Details panel two',
+            visualization: 'details_two_over_time',
+            gridAttributes: { xPos: 3, yPos: 0, width: 3, height: 1 },
+          },
+        ],
+      },
+    ],
+  },
+};
+
+export const mockDashboardWithViewsResponse = {
+  customDashboard: mockDashboardWithViews,
+};

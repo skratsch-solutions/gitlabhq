@@ -40,6 +40,9 @@ Ask your network administrator to
 [allow WebSocket traffic to your GitLab instance](../../administration/gitlab_duo/configure/_index.md#allow-inbound-connections-from-clients-to-the-gitlab-instance)
 if you suspect this is the issue.
 
+If the connection to the GitLab Duo Agent Platform fails with a WebSocket error `1006` or `404`, see
+[connection fails with WebSocket error `1006` or `404`](../../user/duo_agent_platform/troubleshooting.md#connection-fails-with-websocket-error-1006-or-404).
+
 ## View more logs
 
 More logs are available in the **GitLab Extension Output** window:

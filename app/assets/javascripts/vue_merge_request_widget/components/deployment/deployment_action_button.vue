@@ -44,8 +44,8 @@ export default {
     isActionInProgress() {
       return Boolean(
         this.computedDeploymentStatus === RUNNING ||
-          this.computedDeploymentStatus === WILL_DEPLOY ||
-          this.actionInProgress,
+        this.computedDeploymentStatus === WILL_DEPLOY ||
+        this.actionInProgress,
       );
     },
     isLoading() {

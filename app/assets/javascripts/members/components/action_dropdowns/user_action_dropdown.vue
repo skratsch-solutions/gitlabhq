@@ -17,9 +17,7 @@ export default {
   components: {
     GlDisclosureDropdown,
     DisableTwoFactorDropdownItem: () =>
-      import(
-        'ee_component/members/components/action_dropdowns/disable_two_factor_dropdown_item.vue'
-      ),
+      import('ee_component/members/components/action_dropdowns/disable_two_factor_dropdown_item.vue'),
     LdapOverrideDropdownItem: () =>
       import('ee_component/members/components/action_dropdowns/ldap_override_dropdown_item.vue'),
     LeaveDropdownItem,

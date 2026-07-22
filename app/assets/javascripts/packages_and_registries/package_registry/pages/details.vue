@@ -79,9 +79,7 @@ export default {
       import('~/packages_and_registries/package_registry/components/details/package_files.vue'),
     DeletePackages,
     PackageVersionsList: () =>
-      import(
-        '~/packages_and_registries/package_registry/components/details/package_versions_list.vue'
-      ),
+      import('~/packages_and_registries/package_registry/components/details/package_versions_list.vue'),
   },
   directives: {
     GlTooltip: GlTooltipDirective,

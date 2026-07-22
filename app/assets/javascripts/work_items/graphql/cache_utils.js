@@ -612,7 +612,7 @@ export const getNewWorkItemSharedCache = ({
 
     let customFieldValues = workItemTypeSpecificFeatures[WIDGET_TYPE_CUSTOM_FIELDS]
       ? typeSpecificCustomFieldValues
-      : widgetDefinitionsHash[WIDGET_TYPE_CUSTOM_FIELDS]?.customFieldValues ?? [];
+      : (widgetDefinitionsHash[WIDGET_TYPE_CUSTOM_FIELDS]?.customFieldValues ?? []);
 
     if (cachedCustomFieldValues && availableCustomFieldValues) {
       customFieldValues = availableCustomFieldValues.map((availableField) => {
@@ -911,7 +911,7 @@ export const legacyGetNewWorkItemSharedCache = ({
         // Set fallback custom fields value.
         let customFieldValues = workItemTypeSpecificWidgets[WIDGET_TYPE_CUSTOM_FIELDS]
           ? typeSpecificCustomFieldValues
-          : customFieldsWidgetData?.customFieldValues ?? [];
+          : (customFieldsWidgetData?.customFieldValues ?? []);
 
         if (cachedCustomFieldValues && availableCustomFieldValues) {
           // Create a merged list of custom fields and its values from shared cache & type-specific cache

@@ -135,9 +135,7 @@ export default {
     SecretManagerSettings,
     BotAccessSettings,
     OtherProjectSettings: () =>
-      import(
-        'jh_component/pages/projects/shared/permissions/components/other_project_settings.vue'
-      ),
+      import('jh_component/pages/projects/shared/permissions/components/other_project_settings.vue'),
   },
   mixins: [settingsMixin],
   props: {

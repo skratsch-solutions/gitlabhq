@@ -1,6 +1,6 @@
 <script>
 import { computed } from 'vue';
-import { GlDashboardLayout } from '@gitlab/ui';
+import { GlDashboardLayout, GlTabs, GlTab } from '@gitlab/ui';
 import AnalyticsDashboardPanel from '~/analytics/shared/components/analytics_dashboard_panel.vue';
 import DashboardFilters from '../components/dashboard_filters.vue';
 import DashboardLoader from '../components/dashboard_loader.vue';
@@ -9,6 +9,8 @@ export default {
   name: 'ExploreAnalyticsDashboardDetails',
   components: {
     GlDashboardLayout,
+    GlTabs,
+    GlTab,
     AnalyticsDashboardPanel,
     DashboardFilters,
     DashboardLoader,
@@ -37,9 +39,20 @@ export default {
       filters: {},
       selectedGroup: null,
       selectedProject: null,
+      activeViewIndex: 0,
     };
   },
   methods: {
+    hasViews(config) {
+      return Boolean(config.views?.length);
+    },
+    // When a dashboard defines views, feed the active view's panels to the layout
+    // so the shared grid re-renders as the user switches views.
+    layoutConfig(config) {
+      if (!this.hasViews(config)) return config;
+
+      return { ...config, panels: config.views[this.activeViewIndex]?.panels || [] };
+    },
     panelTestId({ visualization: { slug = '' } }) {
       return `panel-${slug.replaceAll('_', '-')}`;
     },
@@ -78,8 +91,15 @@ export default {
 <template>
   <dashboard-loader>
     <template #dashboard="{ config, cellHeight, minCellHeight, isSystemDashboard }">
+      <!--
+        Keying the layout by the active view forces a clean remount of the grid on
+        view change. This routes panel rendering through GlDashboardLayout's initial
+        load (which does not scroll) instead of Gridstack's incremental "added" event,
+        which smooth-scrolls to the last panel and jumps the page to the bottom.
+      -->
       <gl-dashboard-layout
-        :config="config"
+        :key="activeViewIndex"
+        :config="layoutConfig(config)"
         :cell-height="cellHeight"
         :min-cell-height="minCellHeight"
         :filters="filters"
@@ -89,6 +109,15 @@ export default {
         </template>
 
         <template #filters>
+          <gl-tabs
+            v-if="hasViews(config)"
+            v-model="activeViewIndex"
+            class="gl-basis-full"
+            content-class="gl-hidden"
+            data-testid="dashboard-views"
+          >
+            <gl-tab v-for="(view, index) in config.views" :key="index" :title="view.title" />
+          </gl-tabs>
           <dashboard-filters
             :group-namespace="selectedGroup?.fullPath || ''"
             :dashboard-filters="config.filters"

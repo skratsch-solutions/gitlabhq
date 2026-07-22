@@ -220,7 +220,7 @@ export default {
     isFocusMode() {
       return Boolean(
         document.querySelector('.content-wrapper > .js-focus-mode-board.is-focused') ||
-          document.querySelector('.js-content-panels.is-focused'),
+        document.querySelector('.js-content-panels.is-focused'),
       );
     },
     cancel() {

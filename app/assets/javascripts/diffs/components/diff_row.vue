@@ -216,10 +216,10 @@ export default {
               "
               @dragstart="
                 !line.left.commentsDisabled &&
-                  $emit('startdragging', {
-                    event: $event,
-                    line: { ...line.left, index: index },
-                  })
+                $emit('startdragging', {
+                  event: $event,
+                  line: { ...line.left, index: index },
+                })
               "
             ></div>
           </span>
@@ -342,10 +342,10 @@ export default {
                 "
                 @dragstart="
                   !line.right.commentsDisabled &&
-                    $emit('startdragging', {
-                      event: $event,
-                      line: { ...line.right, index: index },
-                    })
+                  $emit('startdragging', {
+                    event: $event,
+                    line: { ...line.right, index: index },
+                  })
                 "
               ></div>
             </span>

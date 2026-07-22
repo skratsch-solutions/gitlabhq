@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
-import { GlDashboardLayout } from '@gitlab/ui';
+import { GlDashboardLayout, GlTabs, GlTab } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
@@ -31,6 +31,8 @@ describe('ExploreAnalyticsDashboardDetails', () => {
 
   const findDashboardLayout = () => wrapper.findComponent(GlDashboardLayout);
   const findDashboardFilters = () => wrapper.findComponent(DashboardFilters);
+  const findViewsTabs = () => wrapper.findComponent(GlTabs);
+  const findViewTabs = () => wrapper.findAllComponents(GlTab);
 
   describe('dashboard filters', () => {
     const dashboardLoaderSlotStub = {
@@ -121,6 +123,82 @@ describe('ExploreAnalyticsDashboardDetails', () => {
 
       it('passes the date range to the dashboard layout filters', () => {
         expect(findDashboardLayout().props('filters')).toMatchObject(dateRange);
+      });
+    });
+  });
+
+  describe('dashboard views', () => {
+    const overviewPanels = [{ id: 'panel-1', title: 'Overview panel' }];
+    const detailsPanels = [
+      { id: 'panel-2', title: 'Details panel one' },
+      { id: 'panel-3', title: 'Details panel two' },
+    ];
+    const configWithViews = {
+      panels: [],
+      views: [
+        { title: 'Overview', panels: overviewPanels },
+        { title: 'Details', panels: detailsPanels },
+      ],
+    };
+
+    const dashboardLoaderSlotStub = (config) => ({
+      data() {
+        return { slotConfig: config };
+      },
+      template: `
+        <div>
+          <slot name="dashboard" :config="slotConfig" :cell-height="undefined" :min-cell-height="undefined" />
+        </div>
+      `,
+    });
+
+    const filtersSlotStub = {
+      props: ['config'],
+      template: '<div><slot name="filters" /></div>',
+    };
+
+    const createWithConfig = async (config) => {
+      createComponent({
+        stubs: {
+          DashboardLoader: dashboardLoaderSlotStub(config),
+          GlDashboardLayout: filtersSlotStub,
+        },
+      });
+      await waitForPromises();
+    };
+
+    describe('when the dashboard defines views', () => {
+      beforeEach(() => createWithConfig(configWithViews));
+
+      it('renders a tab for each view', () => {
+        expect(findViewsTabs().exists()).toBe(true);
+        expect(findViewTabs().wrappers.map((tab) => tab.attributes('title'))).toEqual([
+          'Overview',
+          'Details',
+        ]);
+      });
+
+      it('feeds the first view panels to the layout by default', () => {
+        expect(findDashboardLayout().props('config').panels).toEqual(overviewPanels);
+      });
+
+      it('feeds the selected view panels to the layout when switching views', async () => {
+        findViewsTabs().vm.$emit('input', 1);
+        await waitForPromises();
+
+        expect(findDashboardLayout().props('config').panels).toEqual(detailsPanels);
+      });
+    });
+
+    describe('when the dashboard has no views', () => {
+      beforeEach(() => createWithConfig({ panels: overviewPanels }));
+
+      it('does not render the views tabs', () => {
+        expect(findViewsTabs().exists()).toBe(false);
+      });
+
+      it('passes the dashboard config through to the layout unchanged', () => {
+        expect(findDashboardLayout().props('config').panels).toEqual(overviewPanels);
       });
     });
   });

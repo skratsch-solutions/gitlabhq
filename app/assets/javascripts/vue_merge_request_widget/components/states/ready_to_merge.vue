@@ -156,17 +156,11 @@ export default {
     MergeFailedPipelineConfirmationDialog,
     RebaseConfirmationDialog,
     MergeImmediatelyConfirmationDialog: () =>
-      import(
-        'ee_component/vue_merge_request_widget/components/merge_immediately_confirmation_dialog.vue'
-      ),
+      import('ee_component/vue_merge_request_widget/components/merge_immediately_confirmation_dialog.vue'),
     MergeTrainFailedPipelineConfirmationDialog: () =>
-      import(
-        'ee_component/vue_merge_request_widget/components/merge_train_failed_pipeline_confirmation_dialog.vue'
-      ),
+      import('ee_component/vue_merge_request_widget/components/merge_train_failed_pipeline_confirmation_dialog.vue'),
     MergeTrainRestartTrainConfirmationDialog: () =>
-      import(
-        'ee_component/vue_merge_request_widget/components/merge_train_restart_train_confirmation_dialog.vue'
-      ),
+      import('ee_component/vue_merge_request_widget/components/merge_train_restart_train_confirmation_dialog.vue'),
     AddedCommitMessage,
     RelatedLinks,
     HelpPopover,

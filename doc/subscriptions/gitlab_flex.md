@@ -105,17 +105,16 @@ If provisioning is successful, GitLab sends an email confirmation with the alloc
 
 All future reservations are automatically synced to the namespace or instance used in the initial setup.
 
-### Allocate monthly reservation
+### Monthly reservation allocation
 
-Prerequisites:
+After you sign your GitLab Flex agreement, you can set your initial monthly reservation from the Flex dashboard.
 
-- You must be a billing account manager.
+The reservation management page displays:
 
-1. Sign in to [Customers Portal](https://customers.gitlab.com/).
-1. Select **Edit monthly reservation**.
-1. Allocate your monthly reservation across seats and products.
-1. Review your annual Flex balance.
-1. Select **Save changes**.
+- **Minimum required reservation**: The minimum monthly dollar amount fixed in your contract.
+- **Maximum reservation**: The maximum monthly dollar amount available based on your remaining annual balance.
+- **Seats**: The number of seats to reserve for the month.
+- **Credits (DAP)**: The number of GitLab Credits (Duo Agent Platform) to reserve for the month.
 
 ### Adjust your allocation
 
@@ -125,19 +124,32 @@ You can adjust your Flex allocation month-to-month without contract amendments:
 - Reserved credit pool: Increase or decrease your monthly use-it-or-lose-it credit reservation.
 - Spend control: Adjust your monthly allocated spend for per-use capabilities.
 
-To adjust your allocation:
+Prerequisites:
+
+- You must be a billing account manager.
+
+To adjust your allocation for an upcoming billing period:
 
 1. Sign in to [Customers Portal](https://customers.gitlab.com/).
-1. Update your allocation for the upcoming month.
-1. Review the changes.
-1. Select **Save**.
+1. Select **Flex dashboard**.
+1. Select the upcoming billing period, which is marked as editable.
+1. On the reservation management page, update the number of **Seats** and **Credits** (for Duo Agent Platform).
+1. Select **Save reservation**.
+
+After you save, a success message confirms the update. The Flex dashboard shows the new reserved amounts, which apply from the next billing period onward until you change them again.
+
+You can update your reservation as many times as you want before the next billing period begins. Only the most recent saved value takes effect on the 1st of the month.
+
+#### Credits reservation
+
+If you set the number of **Credits** for GitLab Duo Agent Platform to `0`, no credits are reserved for that billing period. Any credit usage draws from your on-demand balance.
 
 #### Allocation adjustment conditions
 
 The following adjustment conditions apply:
 
 - Changes must fit within the remaining balance. You cannot allocate more than your remaining annual commitment.
-- Due date for changes is end of month. You must submit the changes before 11:59pm UTC of the current month to apply to the next month.
+- Due date for changes is end of month. You must submit the changes before 11:59 PM UTC of the current month to apply to the next month.
   Changes submitted after the due date apply to the following month after the next.
   After a month begins, that month's reservation is final and you can't reduce, reverse, or prorate it.
 - Seat and reservation changes only take effect at month boundaries.
@@ -147,6 +159,34 @@ The following adjustment conditions apply:
 - Seat tier changes require contract amendment.
   If you want to change between Premium and Ultimate tiers, contact your GitLab account team.
   A tier change takes effect on the first of the month and cannot be applied mid-month.
+
+#### Troubleshooting
+
+The following errors prevent a reservation from being saved:
+
+##### Error: `Invalid value`
+
+The seat or credits quantity is negative. 
+
+To resolve this issue enter a whole number of `0` or greater.
+
+##### Error: `Seats cannot be zero`
+
+The seat quantity is set to `0`.
+
+To resolve this issue enter a seat count of at least `1`.
+
+##### Error: `Below minimum reservation`
+
+The total reservation value (seats plus credits) is less than the minimum required reservation shown at the top of the page.
+
+To resolve this issue increase the number of seats or credits until the total meets the minimum.
+
+##### Error: `Above maximum reservation`
+
+The total reservation value (seats plus credits) is greater than the maximum reservation shown at the top of the page.
+
+To resolve this issue decrease the number of seats or credits until the total does not exceed the maximum.
 
 ## Renew GitLab Flex
 

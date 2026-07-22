@@ -13,9 +13,7 @@ export default {
     GlTooltip,
     GlPopover,
     WorkItemRolledUpHealthStatus: () =>
-      import(
-        'ee_component/work_items/components/work_item_links/work_item_rolled_up_health_status.vue'
-      ),
+      import('ee_component/work_items/components/work_item_links/work_item_rolled_up_health_status.vue'),
   },
   mixins: [glFeatureFlagsMixin()],
   i18n: {

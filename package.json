@@ -216,7 +216,7 @@
     "portal-vue": "^2.1.7",
     "postcss": "^8.4.35",
     "postcss-custom-properties": "^13.3.12",
-    "prettier": "^3.3.2",
+    "prettier": "^3.9.5",
     "process": "^0.11.10",
     "prosemirror-markdown": "1.13.4",
     "raphael": "^2.2.7",

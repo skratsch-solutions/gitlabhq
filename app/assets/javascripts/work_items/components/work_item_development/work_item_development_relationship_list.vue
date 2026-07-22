@@ -16,9 +16,7 @@ export default {
   components: {
     WorkItemDevelopmentMrItem,
     WorkItemDevelopmentFfItem: () =>
-      import(
-        'ee_component/work_items/components/work_item_development/work_item_development_ff_item.vue'
-      ),
+      import('ee_component/work_items/components/work_item_development/work_item_development_ff_item.vue'),
     GlButton,
   },
   props: {

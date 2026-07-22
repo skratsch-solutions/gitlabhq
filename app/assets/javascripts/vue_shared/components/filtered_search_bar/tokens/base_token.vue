@@ -90,11 +90,11 @@ export default {
       searchKey: '',
       selectedTokens: [],
       recentSuggestions: this.config.recentSuggestionsStorageKey
-        ? getRecentlyUsedSuggestions(
+        ? (getRecentlyUsedSuggestions(
             this.config.recentSuggestionsStorageKey,
             this.appliedTokens,
             this.valueIdentifier,
-          ) ?? []
+          ) ?? [])
         : [],
     };
   },

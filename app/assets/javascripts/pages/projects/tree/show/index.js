@@ -11,9 +11,8 @@ if (gon.features?.vue3MigrateRepository) {
       // eslint-disable-next-line no-shadow -- Override with Vue 3 app
       const { default: initTree } = await import('ee_else_ce/repository?vue3');
       // eslint-disable-next-line no-shadow -- Override with Vue 3 app
-      const { default: initAmbiguousRefModal } = await import(
-        '~/ref/init_ambiguous_ref_modal?vue3'
-      );
+      const { default: initAmbiguousRefModal } =
+        await import('~/ref/init_ambiguous_ref_modal?vue3');
       initTree();
       initAmbiguousRefModal();
       return;

@@ -129,9 +129,9 @@ export default {
     hasExtraActions() {
       return Boolean(
         this.retryPath ||
-          this.canShowAutoStopDate ||
-          this.terminalPath ||
-          this.canDeleteEnvironment,
+        this.canShowAutoStopDate ||
+        this.terminalPath ||
+        this.canDeleteEnvironment,
       );
     },
     canShowAutoStopDate() {
