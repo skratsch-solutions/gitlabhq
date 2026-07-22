@@ -1912,12 +1912,12 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
-    re2 (2.23.0)
+    re2 (2.27.0)
       mini_portile2 (~> 2.8.9)
-    re2 (2.23.0-aarch64-linux-gnu)
-    re2 (2.23.0-arm64-darwin)
-    re2 (2.23.0-x86_64-darwin)
-    re2 (2.23.0-x86_64-linux-gnu)
+    re2 (2.27.0-aarch64-linux-gnu)
+    re2 (2.27.0-arm64-darwin)
+    re2 (2.27.0-x86_64-darwin)
+    re2 (2.27.0-x86_64-linux-gnu)
     recaptcha (5.12.3)
       json
     recursive-open-struct (1.1.3)
@@ -3401,11 +3401,11 @@ CHECKSUMS
   rbtrace (0.5.3) sha256=c432292f305d9ab12fd47d9722e0d5210d983758a951fe6107c36cc955cb923f
   rchardet (1.8.0) sha256=693acd5253d5ade81a51940697955f6dd4bb2f0d245bda76a8e23deec70a52c7
   rdoc (6.17.0) sha256=0f50d4e568fc98195f9bb155a9e8dff6c7feabfb515fb22ef6df1d12ad5a02b7
-  re2 (2.23.0) sha256=5545b7709832c26ded88f1829fa9b24cdd7c5f0ebb0526c3c476b92505ef256f
-  re2 (2.23.0-aarch64-linux-gnu) sha256=9b2fa8b565574ed5adad20f3b0af75842fe7913d638edce435b9be68ae70f792
-  re2 (2.23.0-arm64-darwin) sha256=c45864c4963bb5b1ba88387c6040f1af2c0dfd49a14099b3cfb22eab7222efce
-  re2 (2.23.0-x86_64-darwin) sha256=e7cb5114f63101c41871946ce17cf491033764406d5e40323ce71a32a5aedcc6
-  re2 (2.23.0-x86_64-linux-gnu) sha256=6ea94be71293defa16298e16adefc72df8d158c915ac51d46e7c99c41515d9a2
+  re2 (2.27.0) sha256=0a99378f3bc4c9a8c9f9b9875499dc999aaf20a4b174ccbb50854925bff3a385
+  re2 (2.27.0-aarch64-linux-gnu) sha256=2a650f340a3d472bc696ac03cd952089557cfc70bbaf5294ce76d789d09826be
+  re2 (2.27.0-arm64-darwin) sha256=8cc46fb0e565fbcf96ccf34add174471352bc567bb0360f4d299d5d6bb4de0d0
+  re2 (2.27.0-x86_64-darwin) sha256=1a8c8288e725b331e366b4de6ef5fae72c688128fe2464bc7d85145c56e31428
+  re2 (2.27.0-x86_64-linux-gnu) sha256=653bdb99d88c5a426f5fd7630b259501cd4b00e481a3f4dc8af790d2da023219
   recaptcha (5.12.3) sha256=37d1894add9e70a54d0c6c7f0ecbeedffbfa7d075acfbd4c509818dfdebdb7ee
   recursive-open-struct (1.1.3) sha256=a3538a72552fcebcd0ada657bdff313641a4a5fbc482c08cfb9a65acb1c9de5a
   redcarpet (3.6.0) sha256=8ad1889c0355ff4c47174af14edd06d62f45a326da1da6e8a121d59bdcd2e9e9

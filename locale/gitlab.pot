@@ -28830,6 +28830,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Track GitLab Duo Agent Platform sessions in commits"
 msgstr ""
 
+msgid "DuoAgentPlatform|Usage billing is not available for this account. To continue using GitLab Duo Agent Platform, contact your administrator."
+msgstr ""
+
 msgid "DuoAgentPlatform|User messaged agent"
 msgstr ""
 
@@ -29099,6 +29102,12 @@ msgid "DuoAgenticChat|Upgrade subscription"
 msgstr ""
 
 msgid "DuoAgenticChat|Upgrade to Premium"
+msgstr ""
+
+msgid "DuoAgenticChat|Usage billing is not available for this account. To continue using GitLab Duo Agent Platform, contact your administrator."
+msgstr ""
+
+msgid "DuoAgenticChat|Usage billing not available"
 msgstr ""
 
 msgid "DuoAgenticChat|Web search"
