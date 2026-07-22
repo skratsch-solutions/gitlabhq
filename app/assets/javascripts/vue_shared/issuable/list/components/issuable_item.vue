@@ -17,6 +17,7 @@ import { __, n__, sprintf } from '~/locale';
 import IssuableAssignees from '~/issuable/components/issue_assignees.vue';
 import StatusBadge from '~/issuable/components/status_badge.vue';
 import SafeHtml from '~/vue_shared/directives/safe_html';
+import { titleInLinkSafeHtmlConfig } from '~/lib/dompurify';
 
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -125,6 +126,7 @@ export default {
     },
   },
   emits: ['checked-input', 'select-issuable'],
+  titleInLinkSafeHtmlConfig,
   constants: {
     METADATA_KEYS,
   },
@@ -462,7 +464,7 @@ export default {
               @mouseover="prefetchWorkItem(issuableIid)"
               @mouseout="clearPrefetching"
             >
-              <span v-safe-html="issuable.titleHtml"></span>
+              <span v-safe-html:[$options.titleInLinkSafeHtmlConfig]="issuable.titleHtml"></span>
               <gl-icon v-if="isIssuableUrlExternal" name="external-link" class="gl-ml-2" />
             </gl-link>
           </template>
@@ -477,7 +479,7 @@ export default {
           v-bind="issuableTitleProps"
           @click.stop="handleIssuableItemClick"
         >
-          <span v-safe-html="issuable.titleHtml"></span>
+          <span v-safe-html:[$options.titleInLinkSafeHtmlConfig]="issuable.titleHtml"></span>
           <gl-icon v-if="isIssuableUrlExternal" name="external-link" class="gl-ml-2" />
         </gl-link>
         <slot name="title-icons"></slot>

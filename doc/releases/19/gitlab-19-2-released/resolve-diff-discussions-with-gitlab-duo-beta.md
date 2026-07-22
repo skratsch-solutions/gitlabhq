@@ -8,7 +8,6 @@ work_item: https://gitlab.com/groups/gitlab-org/-/work_items/22117
 categories: [ DAP Code Review ]
 ---
 
-
 In previous versions of GitLab, to resolve a code review comment, you had to switch to your editor, implement the fix, commit and push the change, and then manually close the thread.
 You had to repeat the cycle for every unresolved discussion, and the context-switch overhead would add up across a busy review.
 

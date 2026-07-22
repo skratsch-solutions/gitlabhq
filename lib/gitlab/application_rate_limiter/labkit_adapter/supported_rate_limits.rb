@@ -212,6 +212,13 @@ module Gitlab
               period: 1.minute,
               action: :block
             ),
+            feature_library_ai_search: ::Labkit::RateLimit::Rule.new(
+              name: 'limit_feature_library_ai_searches_by_user',
+              characteristics: %i[user],
+              limit: 10,
+              period: 1.minute,
+              action: :block
+            ),
             fetch_google_ip_list: ::Labkit::RateLimit::Rule.new(
               name: 'limit_google_ip_list_fetches_by_scope',
               characteristics: %i[scope],

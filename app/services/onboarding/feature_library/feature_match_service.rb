@@ -21,12 +21,19 @@ module Onboarding
         entries = ranked_entries(normalized) # Tier 1: whole-query match
         entries = keyword_entries(normalized) unless entries.any? # Tier 2: tokenized match, only on Tier 1 miss
 
-        ids = entries.map { |e| e['feature_key'] } # rubocop:disable Rails/Pluck -- entries is a plain Array, not an ActiveRecord relation
-                     .uniq
+        entries.map { |e| e['feature_key'] } # rubocop:disable Rails/Pluck -- entries is a plain Array, not an ActiveRecord relation
+               .uniq
+      end
 
-        return ids if ids.any?
+      def ai_execute
+        return [] unless VALID_PANELS.include?(panel)
 
-        ai_gateway_ids(normalized) # Tier 3: LLM fall-through, only on Tier 2 miss
+        ai_gateway_ids(normalize(query))
+      end
+
+      # Overridden in EE
+      def ai_search_enabled?
+        false
       end
 
       # Overridden in EE

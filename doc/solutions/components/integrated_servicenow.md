@@ -75,7 +75,7 @@ Below are the high-level steps:
       allow_failure: false
    ```
 
-    ![GitLab CI/CD pipeline job updated to support change control.](img/snow_automated_cr_pipeline_update_v17_9.png)
+   ![GitLab CI/CD pipeline job updated to support change control.](img/snow_automated_cr_pipeline_update_v17_9.png)
 
 #### Run Pipeline with Change Management
 

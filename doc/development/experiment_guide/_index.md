@@ -69,4 +69,4 @@ We recommend the following workflow:
 ## Additional resources
 
 - [Experimentation Framework Roadmap](experiment_roadmap.md) - Planned improvements and future direction
-- [Experiments API](../../api/experiments.md) - API endpoints for querying experiment data
+- [Experiments API](../../api/experiments.md) - API endpoints for querying experiment data and managing variant assignments

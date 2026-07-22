@@ -378,7 +378,6 @@ This is typically a trigger to remove associated records which are no longer rel
    `app/models/work_items/types_framework/system_defined/definitions/`.
    For example, to add a widget to the Issue type, add the string to
    `Definitions::Issue.widgets`. No database migration is needed.
-
 1. Update the GraphQL docs: `bundle exec rake gitlab:graphql:compile_docs`.
 1. Update translations: `tooling/bin/gettext_extractor locale/gitlab.pot`.
 

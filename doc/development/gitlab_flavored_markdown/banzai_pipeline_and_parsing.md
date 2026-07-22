@@ -173,9 +173,7 @@ Two MRs and feature flag adjustments are required for the rollout. The example b
    ```
 
 1. **Observe convergence.** At `100%`, every read of a row still at the previous version triggers a rewrite. The counter rises and then tapers as the hot population converges. Cold rows that are never read remain at the previous version indefinitely; this is intentional and harmless because nothing reads them, and they get picked up automatically on the next bump.
-
 1. **MR2: finalize the rollout.** Set `CACHE_COMMONMARK_VERSION_PREVIOUS` back to `nil`. The system returns to steady state: with `CACHE_COMMONMARK_VERSION_PREVIOUS` at `nil` the flag is ignored, and any remaining row at the previous version is treated as stale and rewritten on first read at natural read rate.
-
 1. **Clean up the flag.** After MR2 is fully deployed, delete the version-stamped flag through chatops.
 
    ```slack

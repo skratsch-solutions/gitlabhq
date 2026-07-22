@@ -284,9 +284,7 @@ Custom work item types delegate to a system-defined type's `base_type`, inheriti
 To add a new system-defined work item type to GitLab:
 
 1. **Create a definition module** in `app/models/work_items/types_framework/system_defined/definitions/` that defines the type configuration, widgets, and behavior.
-
 1. **Include the definition** in `WorkItems::TypesFramework::SystemDefined::Type` so it's loaded at application startup.
-
 1. **Add to visibility constants** - Add the base type to frontend and backend constants that control where the type appears in the UI and APIs.
 
 For specific implementation details, reach out to the Plan Project Management team in `#g_project-management` on Slack.

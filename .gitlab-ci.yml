@@ -336,6 +336,11 @@ variables:
   # https://gitlab.com/gitlab-org/gitlab/-/issues/591004
   # https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/6444
   FF_USE_GIT_PROACTIVE_AUTH: "true"
+  # if:exists rules max out at 50,000 files before returning true, unconditionally.
+  # https://docs.gitlab.com/ci/yaml/#rulesexists
+  # This causes dependency scanning templates to act as if maven/gradle/python dependency files exist, even though they don't.
+  # These additional dependency resolution jobs are not useful, so the variable below manually disables them.
+  DS_DISABLED_RESOLUTION_JOBS: "python gradle maven"
 
 include:
   - local: .gitlab/ci/overrides/skip.yml

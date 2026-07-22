@@ -5,8 +5,6 @@ info: Any user with at least the Maintainer role can merge updates to this conte
 title: Test Geo replication of upload partitions
 ---
 
-
-
 Create test data for every upload partition and exercise the partition replicators end to end
 on the GitLab Development Kit (GDK) or on a reference environment.
 

@@ -63,12 +63,6 @@ The cluster cannot assign replica shards to the same node as primary shards.
 
 #### Elasticsearch
 
-{{< history >}}
-
-- Support for Elasticsearch 6.8 [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/350275) in GitLab 15.0.
-
-{{< /history >}}
-
 > [!warning]
 > Support for Elasticsearch 7.x was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/583544)
 > in GitLab 18.10 and is planned for removal in 20.0.
@@ -308,12 +302,6 @@ the master username and password on your GitLab instance:
 1. Select **Save changes**.
 
 ### Upgrade to a new Elasticsearch version
-
-{{< history >}}
-
-- Support for Elasticsearch 6.8 [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/350275) in GitLab 15.0.
-
-{{< /history >}}
 
 Prerequisites:
 
@@ -597,8 +585,6 @@ The following Elasticsearch settings are available:
 
 {{< history >}}
 
-- Indexing all project records [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/428070) in GitLab 16.7 [with a feature flag](../../administration/feature_flags/_index.md) named `search_index_all_projects`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148111) in GitLab 16.11. Feature flag `search_index_all_projects` removed.
 - Indexing vulnerability records [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/536299) on GitLab.com and GitLab Dedicated in GitLab 18.1 [with a feature flag](../../administration/feature_flags/_index.md) named `vulnerability_es_ingestion`. Disabled by default.
 - Indexing vulnerability records is [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/536299) on GitLab.com and GitLab Dedicated in GitLab 18.2. Feature flag `vulnerability_es_ingestion` removed.
 
@@ -678,10 +664,10 @@ For guidance on what to install, see the following Elasticsearch language plugin
 
 | Parameter                                             | Description |
 |-------------------------------------------------------|-------------|
-| `Enable Chinese (smartcn) custom analyzer: Indexing`   | Enables or disables Chinese language support using [`smartcn`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html) custom analyzer for newly created indices.|
-| `Enable Chinese (smartcn) custom analyzer: Search`   | Enables or disables using [`smartcn`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html) fields for advanced search. Only enable this after [installing the plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html), enabling custom analyzer indexing and recreating the index.|
-| `Enable Japanese (kuromoji) custom analyzer: Indexing`   | Enables or disables Japanese language support using [`kuromoji`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html) custom analyzer for newly created indices.|
-| `Enable Japanese (kuromoji) custom analyzer: Search`  | Enables or disables using [`kuromoji`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html) fields for advanced search. Only enable this after [installing the plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html), enabling custom analyzer indexing and recreating the index.|
+| `Enable Chinese (smartcn) custom analyzer: Indexing`   | Enables or disables Chinese language support using [`smartcn`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html) custom analyzer for newly created indices. |
+| `Enable Chinese (smartcn) custom analyzer: Search`   | Enables or disables using [`smartcn`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html) fields for advanced search. Only enable this after [installing the plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html), enabling custom analyzer indexing and recreating the index. |
+| `Enable Japanese (kuromoji) custom analyzer: Indexing`   | Enables or disables Japanese language support using [`kuromoji`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html) custom analyzer for newly created indices. |
+| `Enable Japanese (kuromoji) custom analyzer: Search`  | Enables or disables using [`kuromoji`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html) fields for advanced search. Only enable this after [installing the plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html), enabling custom analyzer indexing and recreating the index. |
 
 ## Disable advanced search
 
@@ -863,13 +849,6 @@ To abandon an unfinished reindexing job and resume indexing:
 
 ## Index integrity
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/112369) in GitLab 15.10 [with a feature flag](../../administration/feature_flags/_index.md) named `search_index_integrity`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/392981) in GitLab 16.4. Feature flag `search_index_integrity` removed.
-
-{{< /history >}}
-
 Index integrity detects and fixes missing repository data.
 This feature is automatically used when code searches
 scoped to a group or project return no results.
@@ -885,12 +864,6 @@ to enable or disable the migration worker.
 By default, the migration worker is enabled.
 
 ### Migration dictionary files
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414674) in GitLab 16.3.
-
-{{< /history >}}
 
 Every migration has a corresponding dictionary file in the `ee/elastic/docs/` folder with the following information:
 
@@ -1032,7 +1005,7 @@ The following are some available Rake tasks:
 | [`sudo gitlab-rake gitlab:elastic:mark_reindex_failed`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)               | Mark the most recent reindex job as failed. |
 | [`sudo gitlab-rake gitlab:elastic:list_pending_migrations`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)           | List pending migrations. Pending migrations include those that have not yet started, have started but not finished, and those that are halted. |
 | [`sudo gitlab-rake gitlab:elastic:estimate_cluster_size`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)             | Get an estimate of code and wiki index sizes and total cluster size based on the total repository size. |
-| [`sudo gitlab-rake gitlab:elastic:estimate_shard_sizes`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)              | Get an estimate of shard sizes for each index based on approximate database counts. This estimate does not include repository data (code, commits, and wikis). [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/146108) in GitLab 16.11. |
+| [`sudo gitlab-rake gitlab:elastic:estimate_shard_sizes`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)              | Get an estimate of shard sizes for each index based on approximate database counts. This estimate does not include repository data (code, commits, and wikis). |
 | [`sudo gitlab-rake gitlab:elastic:enable_search_with_elasticsearch`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)  | Enables advanced search with Elasticsearch. |
 | [`sudo gitlab-rake gitlab:elastic:disable_search_with_elasticsearch`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake) | Disables advanced search with Elasticsearch. |
 
@@ -1104,7 +1077,6 @@ For basic guidance on choosing a cluster configuration, see also [Elastic Cloud 
 
 {{< history >}}
 
-- `gitlab:elastic:estimate_shard_sizes` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/146108) in GitLab 16.11.
 - `gitlab:elastic:estimate_shard_sizes` [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/348452) in GitLab 18.3 to include sizing for indices that contain repository data.
 
 {{< /history >}}
@@ -1375,13 +1347,6 @@ To create both an indexing and a non-indexing Sidekiq process in one node:
    sidekiq['concurrency'] = 20
    ```
 
-   If you are using GitLab 16.11 and earlier, explicitly disable any
-   [queue selectors](https://archives.docs.gitlab.com/16.11/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated):
-
-   ```ruby
-   sidekiq['queue_selector'] = false
-   ```
-
 1. Save the file and [reconfigure GitLab](../../administration/restart_gitlab.md)
    for the changes to take effect.
 1. On all other Rails and Sidekiq nodes, ensure that `sidekiq['routing_rules']` is the same as the previous configuration.
@@ -1412,13 +1377,6 @@ To handle these queue groups on two nodes:
    sidekiq['concurrency'] = 20
    ```
 
-   If you are using GitLab 16.11 and earlier, explicitly disable any
-   [queue selectors](https://archives.docs.gitlab.com/16.11/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated):
-
-   ```ruby
-   sidekiq['queue_selector'] = false
-   ```
-
 1. Save the file and [reconfigure GitLab](../../administration/restart_gitlab.md)
    for the changes to take effect.
 1. To set up the non-indexing Sidekiq process, on your non-indexing Sidekiq node, change the `/etc/gitlab/gitlab.rb` file to:
@@ -1436,13 +1394,6 @@ To handle these queue groups on two nodes:
    ]
 
    sidekiq['concurrency'] = 20
-   ```
-
-   If you are using GitLab 16.11 and earlier, explicitly disable any
-   [queue selectors](https://archives.docs.gitlab.com/16.11/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated):
-
-   ```ruby
-   sidekiq['queue_selector'] = false
    ```
 
 1. On all other Rails and Sidekiq nodes, ensure that `sidekiq['routing_rules']` is the same as the previous configuration.

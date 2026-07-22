@@ -177,7 +177,6 @@ your users:
 
 1. Obtain the user's public SSH key
    (for example, `id_ed25519.pub`).
-
 1. Sign the user's public key with the CA, setting the `-I`
    (identity/KeyId) flag to the user's exact GitLab username:
 
@@ -193,7 +192,6 @@ your users:
    one year.
 
 1. Distribute the certificate file to the user.
-
 1. The user connects using their certificate:
 
    ```shell

@@ -18,7 +18,6 @@ title: Notification emails
 - Enhanced email styling [enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/355907) in GitLab 14.9.
 - Enhanced email styling [enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/355907) in GitLab 15.0.
 - Enhanced email styling [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/355907) in GitLab 18.3. Feature flag `enhanced_notify_css` removed.
-- Product marketing emails [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/418137) in GitLab 16.6.
 
 {{< /history >}}
 
@@ -217,8 +216,6 @@ User notification events:
 
 {{< history >}}
 
-- Notification for project access expired [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12704) in GitLab 16.3.
-- Notification for project access tokens expiring soon [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/367706) in GitLab 16.4.
 - Notification for project deploy tokens expiring soon [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/512197) in GitLab 18.3.
 - Notification for project scheduled for deletion [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/522883) in GitLab 17.11.
 
@@ -241,8 +238,6 @@ Project notification events:
 
 {{< history >}}
 
-- Notification for group access expired [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12704) in GitLab 16.3.
-- Notification for group access tokens expiring soon [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/367705) in GitLab 16.4.
 - Notification for group scheduled for deletion [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/522883) in GitLab 17.11.
 
 {{< /history >}}
@@ -261,7 +256,7 @@ Group notification events:
 
 {{< history >}}
 
-- Notifications for merge requests you're eligible to approve [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12855) in GitLab 16.7 and [renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/465347) in GitLab 17.11.
+- Notifications for merge requests you're eligible to approve [renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/465347) in GitLab 17.11.
 - Service account pipeline notifications [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/178740) in GitLab 18.1.
 
 {{< /history >}}
@@ -391,7 +386,6 @@ For example:
 
 {{< history >}}
 
-- Listing the full name and username of the signed-in user [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/225183) in GitLab 15.10.
 - Geographic location [added](https://gitlab.com/gitlab-org/gitlab/-/issues/296128) in GitLab 17.5.
 
 {{< /history >}}
@@ -422,12 +416,6 @@ GitLab uses several methods to identify a known sign-in. All methods must fail f
 
 ## Notifications for attempted sign-ins using incorrect verification codes
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/374740) in GitLab 15.5.
-
-{{< /history >}}
-
 GitLab sends you an email notification if it detects an attempt to sign in to your account using a wrong two-factor
 authentication (2FA) code. This can help you detect that a bad actor gained access to your username and password, and is trying
 to brute force 2FA.
@@ -443,12 +431,6 @@ The participants are:
 - Anyone that is [mentioned](../discussions/_index.md#mentions) in a comment on the design.
 
 ## Notifications on group or project access expiration
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12704) in GitLab 16.3.
-
-{{< /history >}}
 
 GitLab sends an email notification if a user's access to a group or project expires in seven days.
 This reminds group or project members to extend their access duration if they want to.
@@ -523,8 +505,8 @@ The following table lists all GitLab-specific email headers:
 |-------------------------------|-------------|
 | `List-Id`                     | The path of the project in an RFC 2919 mailing list identifier. You can use it for email organization with filters. |
 | `X-GitLab-(Resource)-ID`      | The ID of the resource the notification is for. The resource, for example, can be `Issue`, `MergeRequest`, `Commit`, or another such resource. |
-| `X-GitLab-(Resource)-State`   | The state of the resource the notification is for. The resource can be, for example, `Issue` or `MergeRequest`. The value can be `opened`, `closed`, `merged`, or `locked`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/130967) in GitLab 16.4. |
-| `X-GitLab-ConfidentialIssue`  | The boolean value indicating issue confidentiality for notifications. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/222908) in GitLab 16.0. |
+| `X-GitLab-(Resource)-State`   | The state of the resource the notification is for. The resource can be, for example, `Issue` or `MergeRequest`. The value can be `opened`, `closed`, `merged`, or `locked`. |
+| `X-GitLab-ConfidentialIssue`  | The boolean value indicating issue confidentiality for notifications. |
 | `X-GitLab-Discussion-ID`      | The ID of the thread the comment belongs to, in notification emails for comments. |
 | `X-GitLab-Group-Id`           | The group's ID. Only present on notification emails for [epics](../group/epics/_index.md). |
 | `X-GitLab-Group-Path`         | The group's path. Only present on notification emails for [epics](../group/epics/_index.md). |

@@ -55,19 +55,14 @@ For a click-through demo, see [GitLab Flex](https://click-through-demo-generator
 GitLab Flex operates on a monthly drawdown cycle based on calendar month.
 
 - Beginning of the month
-
   - Seat count is set: GitLab sets your reserved seat count for the month, and charges for seats only at the end of the month.
   - Capabilities become active: GitLab enables all the capabilities you provisioned for the month.
   - Reserved credits become available: Your organization can start using your monthly credit pool.
   - Prior month's overage is billed: Any overage from the previous month is billed.
-
 - During the month
-
   - Usage is tracked: GitLab meters your credit consumption in real time for usage-based products.
   - Reserved credits are consumed first: Your usage draws from your monthly reserved pool first. After you use up the pool, usage draws from your On-Demand spend.
-
 - End of the month
-
   - Unused reserved credits expire: You lose any credits you did not use during the month, and they do not roll over. GitLab already debited the cost of these credits from your balance at the start of the month.
   - Reservation is debited: GitLab draws down your reserved credit pool and any reserved add-ons from your annual Flex balance at your discounted Flex rate. The drawdown reduces your reserved quantity at the discounted rate. It does not charge a separate dollar amount against your annual commitment.
   - Seats are charged at the monthly peak: GitLab counts the highest number of seats you used at any point during the month, and charges for that number. Seats above your reservation are charged at your per-seat rate and draw from your remaining Flex balance.
@@ -81,45 +76,6 @@ Tiered volume discounts are automatically applied based on your total Flex annua
 The volume discount does not reduce your commitment value, the reserved credits are debited from your Flex balance at this discounted rate.
 The higher your annual commitment, the lower your reserved per-credit rate.
 The per-user effective price is a separate component and is determined independently of your volume discount tier.
-
-## Mid-term top-offs
-
-You can increase your annual commitment at any point during your contract term.
-A top-off adds to your existing Flex balance without changing your contract end date.
-Your term continues as originally signed, with a larger balance to draw down.
-
-### Top-off provisioning
-
-A top-off increases your total annual Flex commitment by the amount you purchase in your Order Form.
-GitLab adds this balance to your total annual commitment.
-
-You can allocate this amount only from the first of the following calendar month.
-A top-off does not trigger any mid-month changes to your current reservation.
-Your current month's allocation remains locked as provisioned.
-
-### Discount tier upgrades from top-offs
-
-If your top-off brings your total annual commitment into a higher volume discount tier, you receive the better tier rate from the first of the following calendar month.
-The upgraded rate applies to your entire remaining annual commitment going forward, not just to the top-off amount.
-The upgraded rate does not apply retroactively to the current month or any prior months.
-
-For example, your original commitment is $90,000.
-A mid-term top-off brings your total to $120,000 and places you in the next discount tier.
-From the first of the following month, your credits and seats go farther under the new rate.
-Your current month's reservation continues at the original tier rate.
-
-### Top-off timing
-
-You can request a top-off on any business day of the month.
-After the top-off is added, you cannot modify existing monthly reservations for the current month.
-In the current month, you can draw down the top-off balance to offset usage that would otherwise exceed your annual per-use budget.
-This prevents an overage invoice.
-
-### Top-off requests
-
-To request a top-off, contact your GitLab account team.
-They can confirm the new commitment total and applicable discount tier,
-then issue a mid-term amendment Order Form reflecting the updated annual commitment and contract balance.
 
 ## Buy GitLab Flex
 

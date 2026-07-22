@@ -93,16 +93,18 @@ The selected security report is downloaded to your device.
 
 {{< /details >}}
 
-The pipeline security report contains details of all findings or vulnerabilities detected in the
-branch. For a pipeline run against the default branch, all vulnerabilities in the pipeline security
-report are also in the vulnerability report.
+The pipeline security report contains details of all findings or vulnerabilities detected by that
+pipeline run. Results reflect the state of the branch at the commit the pipeline ran against, so
+different pipelines on the same branch can show different results. For a pipeline run against the
+default branch, all vulnerabilities in the pipeline security report are also in the vulnerability
+report.
 
-![List of findings in the branch](img/pipeline_security_report_v18_1.png)
+![List of findings detected by a pipeline run](img/pipeline_security_report_v18_1.png)
 
 ### View pipeline security report
 
-View the pipeline security report to see details of all findings or vulnerabilities detected in the
-branch.
+View the pipeline security report to see details of all findings or vulnerabilities detected by a
+pipeline run.
 
 Prerequisites:
 

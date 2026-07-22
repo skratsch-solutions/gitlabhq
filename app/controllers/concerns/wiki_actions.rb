@@ -369,7 +369,6 @@ module WikiActions
   # rubocop:disable Gitlab/ModuleWithInstanceVariables
   def load_sidebar
     @sidebar_page = wiki.find_sidebar(params[:version_id])
-    @wiki_pages_count = pages_list.total_count
   end
   # rubocop:enable Gitlab/ModuleWithInstanceVariables
 

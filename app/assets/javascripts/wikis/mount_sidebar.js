@@ -12,7 +12,6 @@ export const mountWikiSidebar = () => {
     viewAllPagesPath,
     editing,
     customSidebarContent,
-    hasWikiPages,
     editSidebarUrl,
     isEditingSidebar,
   } = el.dataset;
@@ -27,7 +26,6 @@ export const mountWikiSidebar = () => {
       viewAllPagesPath,
       editing,
       customSidebarContent,
-      hasWikiPages: parseBoolean(hasWikiPages),
       editSidebarUrl,
       isEditingSidebar: parseBoolean(isEditingSidebar),
     },

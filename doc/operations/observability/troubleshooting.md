@@ -7,7 +7,6 @@ ignore_in_report: true
 title: Troubleshooting Observability
 ---
 
-
 {{< details >}}
 
 - Tier: Free, Premium, Ultimate

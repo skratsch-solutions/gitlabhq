@@ -135,7 +135,6 @@ if you can't upgrade to 15.11.12 and later.
      ```
 
   1. [Re-run database migrations](../../administration/raketasks/maintenance.md#run-incomplete-database-migrations).
-
 - You might also encounter the following error while upgrading to GitLab 15.10 or later:
 
   ```shell
