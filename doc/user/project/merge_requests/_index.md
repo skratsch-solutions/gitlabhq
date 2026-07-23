@@ -270,6 +270,7 @@ To delete the source branch for a merge request:
 - When you close a merge request without merging, by selecting **Delete source branch**.
 
 An administrator can make this option the default in the project's settings.
+For merge requests from forks, GitLab reads the **Delete source branch** default from the fork, not the target project.
 
 The user who sets auto-merge or merges the merge request performs the branch deletion.
 If that user lacks the correct role, such as in a forked project, the source branch deletion fails.

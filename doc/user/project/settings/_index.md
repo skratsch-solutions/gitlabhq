@@ -170,6 +170,10 @@ To set this default:
 1. Select **Enable "Delete source branch" option by default**.
 1. Select **Save changes**.
 
+This setting applies to merge requests with a source branch in this project.
+For merge requests from a fork, the default comes from the fork's setting, not this project's.
+Forks do not inherit this setting when they are created.
+
 ## Add additional webhook triggers for project access token expiration
 
 {{< history >}}
