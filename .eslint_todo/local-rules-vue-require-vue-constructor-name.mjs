@@ -4,7 +4,6 @@
 export default {
   files: [
     'app/assets/javascripts/admin/users/index.js',
-    'app/assets/javascripts/ci/artifacts/index.js',
     'app/assets/javascripts/ci/ci_variable_list/index.js',
     'app/assets/javascripts/code_navigation/index.js',
     'app/assets/javascripts/merge_request_dashboard/index.js',

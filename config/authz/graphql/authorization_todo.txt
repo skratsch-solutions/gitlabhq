@@ -995,7 +995,6 @@ type:PipelineSecurityReportFindingPermissions
 type:PipelinesAggregationResponse
 type:PipelinesAggregationResponseDimensions
 type:PipelinesAggregationScope
-type:PoliciesSyncUpdated
 type:PolicyAnyMergeRequestViolation
 type:PolicyApprovalGroup
 type:PolicyApprovalSettingsOverride

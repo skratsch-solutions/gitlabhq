@@ -23,6 +23,7 @@ export const initArtifactsTable = () => {
 
   return new Vue({
     el,
+    name: 'CiArtifactsRoot',
     apolloProvider,
     provide: {
       projectPath,
