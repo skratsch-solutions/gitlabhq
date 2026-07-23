@@ -653,6 +653,23 @@ RSpec.describe MergeRequests::PushOptionsHandlerService, feature_category: :sour
           it_behaves_like 'a service that can set a merge request to be squashed'
         end
       end
+
+      context 'when project squash_option is always' do
+        let(:push_options) { { create: true } }
+
+        before do
+          project.project_setting.update!(squash_option: 'always')
+        end
+
+        it 'creates a merge request without the required squash blocker', :aggregate_failures do
+          service.execute
+
+          merge_request = MergeRequest.last
+
+          expect(merge_request.squash).to be(true)
+          expect(merge_request.missing_required_squash?).to be(false)
+        end
+      end
     end
 
     context 'with an existing branch but no open MR' do

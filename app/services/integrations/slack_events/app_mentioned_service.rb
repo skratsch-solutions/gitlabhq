@@ -45,7 +45,8 @@ module Integrations
           slack_api.post_ephemeral(
             channel: channel_id, user: slack_user_id,
             text: 'You do not have access to this feature yet. ' \
-              "For more information, see #{DUO_SLACK_DOCS_URL}"
+              "For more information, see #{DUO_SLACK_DOCS_URL}",
+            thread_ts: ephemeral_thread_ts
           )
           return ServiceResponse.success
         end
@@ -55,7 +56,8 @@ module Integrations
           slack_api.post_ephemeral(
             channel: channel_id, user: slack_user_id,
             text: 'This feature requires GitLab Duo Agent Platform. ' \
-              "For more information, see #{DUO_SLACK_DOCS_URL}"
+              "For more information, see #{DUO_SLACK_DOCS_URL}",
+            thread_ts: ephemeral_thread_ts
           )
           return ServiceResponse.success
         end
@@ -71,6 +73,14 @@ module Integrations
 
       def valid_event?
         slack_workspace_id.present? && slack_user_id.present? && channel_id.present? && thread_ts.present?
+      end
+
+      # Returns the thread_ts to use for ephemeral messages, so they appear
+      # inside the thread when the bot was mentioned within one. When the
+      # mention is at the channel root (thread_ts == message_ts), returns nil
+      # so the ephemeral is posted at the channel root (existing behaviour).
+      def ephemeral_thread_ts
+        thread_ts != message_ts ? thread_ts : nil
       end
 
       def slack_installation
@@ -95,7 +105,12 @@ module Integrations
         return unless url
 
         presenter = ::Gitlab::SlashCommands::Presenters::Access.new(url)
-        slack_api.post_ephemeral(channel: channel_id, user: slack_user_id, text: presenter.authorize_for_mention[:text])
+        slack_api.post_ephemeral(
+          channel: channel_id,
+          user: slack_user_id,
+          text: presenter.authorize_for_mention[:text],
+          thread_ts: ephemeral_thread_ts
+        )
       rescue *Gitlab::HTTP::HTTP_ERRORS => e
         Gitlab::ErrorTracking.track_exception(e, slack_workspace_id: slack_workspace_id)
       end

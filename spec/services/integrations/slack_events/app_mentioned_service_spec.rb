@@ -294,6 +294,105 @@ RSpec.describe Integrations::SlackEvents::AppMentionedService, feature_category:
           is_expected.to be_success
         end
       end
+
+      context 'when the mention is inside a thread' do
+        let(:thread_ts) { '1234567890.000001' }
+
+        let(:params) do
+          {
+            team_id: slack_workspace_id,
+            event: {
+              user: slack_user_id,
+              channel: channel_id,
+              ts: message_ts,
+              thread_ts: thread_ts,
+              text: event_text
+            }
+          }
+        end
+
+        context 'when user is not authenticated' do
+          let(:slack_user_id) { 'U_UNLINKED' }
+
+          before do
+            stub_request(:post, reactions_add_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+            stub_request(:post, post_ephemeral_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+          end
+
+          it 'posts the ephemeral auth message inside the thread' do
+            is_expected.to be_success
+
+            expect(WebMock).to have_requested(:post, post_ephemeral_url).with(
+              body: hash_including('thread_ts' => thread_ts)
+            )
+          end
+        end
+
+        context 'when feature flag is disabled' do
+          before do
+            stub_feature_flags(slack_duo_agent: false)
+
+            stub_request(:post, reactions_add_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+            stub_request(:post, post_ephemeral_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+          end
+
+          it 'posts the ephemeral no-access message inside the thread' do
+            is_expected.to be_success
+
+            expect(WebMock).to have_requested(:post, post_ephemeral_url).with(
+              body: hash_including('thread_ts' => thread_ts)
+            )
+          end
+        end
+
+        context 'when user does not have Duo Agent Platform access' do
+          before do
+            stub_feature_flags(slack_duo_agent: user)
+            allow_next_instance_of(ChatNames::FindUserService) do |service|
+              allow(service).to receive(:execute).and_return(chat_name)
+            end
+            allow(user).to receive(:allowed_to_use?).with(:duo_agent_platform).and_return(false)
+
+            stub_request(:post, reactions_add_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+            stub_request(:post, post_ephemeral_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+          end
+
+          it 'posts the ephemeral Duo Agent Platform message inside the thread' do
+            is_expected.to be_success
+
+            expect(WebMock).to have_requested(:post, post_ephemeral_url).with(
+              body: hash_including('thread_ts' => thread_ts)
+            )
+          end
+        end
+      end
+
+      context 'when the mention is at the channel root (no thread)' do
+        context 'when user is not authenticated' do
+          let(:slack_user_id) { 'U_UNLINKED' }
+
+          before do
+            stub_request(:post, reactions_add_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+            stub_request(:post, post_ephemeral_url).to_return(status: 200, body: { ok: true }.to_json,
+              headers: { 'Content-Type' => 'application/json' })
+          end
+
+          it 'posts the ephemeral auth message at the channel root (no thread_ts)' do
+            is_expected.to be_success
+
+            expect(WebMock).to have_requested(:post, post_ephemeral_url).with(
+              body: ->(body) { !Gitlab::Json::SafeParser.parse(body).key?('thread_ts') }
+            )
+          end
+        end
+      end
     end
   end
 end

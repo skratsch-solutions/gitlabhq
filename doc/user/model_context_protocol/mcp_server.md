@@ -51,10 +51,10 @@ For a click-through demo, see [GitLab Duo Agent Platform - GitLab MCP server](ht
 
 ## Prerequisites
 
-- GitLab Duo availability is set to **On by default** or **Always on**.
+- Set GitLab Duo availability to **Always on** or **On by default**:
   - On GitLab.com, [for the top-level group](../../user/gitlab_duo/turn_on_off.md#for-a-top-level-group).
   - On GitLab Self-Managed and GitLab Dedicated, [for the instance](../../user/gitlab_duo/turn_on_off.md#for-an-instance).
-- Beta and experimental features are enabled. These features are subject to the [Testing Agreement](https://handbook.gitlab.com/handbook/legal/testing-agreement/).
+- Turn on beta and experimental features:
   - On GitLab.com, [for the top-level group](../../user/gitlab_duo/turn_on_off.md#on-gitlabcom-2).
   - On GitLab Self-Managed and GitLab Dedicated, [for the instance](../../user/gitlab_duo/turn_on_off.md#on-gitlab-self-managed-2).
 - Allow access to the MCP server:

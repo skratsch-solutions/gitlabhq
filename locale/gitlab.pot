@@ -34533,6 +34533,9 @@ msgstr ""
 msgid "FoundationalFlow|Analyze critical Secret Detection vulnerabilities."
 msgstr ""
 
+msgid "FoundationalFlow|Business Context Security Guidelines"
+msgstr ""
+
 msgid "FoundationalFlow|Code Review"
 msgstr ""
 
@@ -34546,6 +34549,9 @@ msgid "FoundationalFlow|Diagnose and fix issues in your GitLab CI/CD pipeline."
 msgstr ""
 
 msgid "FoundationalFlow|Fix CI/CD Pipeline"
+msgstr ""
+
+msgid "FoundationalFlow|Generate business context security guidelines for a project."
 msgstr ""
 
 msgid "FoundationalFlow|Migrate your Jenkins pipelines to GitLab CI/CD."
@@ -53944,6 +53950,9 @@ msgstr ""
 msgid "Orbit|Navigate to"
 msgstr ""
 
+msgid "Orbit|No eligible groups are available for Orbit."
+msgstr ""
+
 msgid "Orbit|No groups match your search."
 msgstr ""
 
@@ -54011,9 +54020,6 @@ msgid "Orbit|Orbit is unavailable."
 msgstr ""
 
 msgid "Orbit|Orbit not enabled"
-msgstr ""
-
-msgid "Orbit|Orbit requires a top-level group with at least a Premium license."
 msgstr ""
 
 msgid "Orbit|Owner instructions"
