@@ -207,7 +207,7 @@ the Maintainer role.
 
 ## Runner authentication tokens
 
-In GitLab 16.0 and later, to register a runner, you can use a runner authentication token
+To register a runner, you can use a runner authentication token
 instead of a runner registration token. Runner registration tokens are
 [deprecated](../../ci/runners/new_creation_workflow.md).
 
@@ -412,14 +412,14 @@ as they are designed to be standard identifications.
 | Impersonation token               | `glpat-`           |
 | Project access token              | `glpat-`           |
 | Group access token                | `glpat-`           |
-| Deploy token                      | `gldt-` ([Added in GitLab 16.7](https://gitlab.com/gitlab-org/gitlab/-/issues/376752)) |
+| Deploy token                      | `gldt-`            |
 | Runner authentication token       | `glrt-` or `glrtr-` if created via registration token |
-| CI/CD Job token                   | `glcbt-` <br /> &bull; ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/426137) in GitLab 16.8 behind a feature flag named `prefix_ci_build_tokens`. Disabled by default.) <br /> &bull; ([Generally available](https://gitlab.com/gitlab-com/gl-infra/production/-/issues/17299) in GitLab 16.9. Feature flag `prefix_ci_build_tokens` removed.) |
+| CI/CD Job token                   | `glcbt-`           |
 | Trigger token                     | `glptt-`           |
 | Feed token                        | `glft-`            |
 | Incoming mail token               | `glimt-`           |
 | GitLab agent for Kubernetes token | `glagent-`         |
 | Workspace token                   | `glwt-` (Added in GitLab 18.2) |
 | GitLab session cookies            | `_gitlab_session=` |
-| SCIM Tokens                       | `glsoat-` <br /> &bull; ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/435096) in GitLab 16.8 behind a feature flag named `prefix_scim_tokens`. Disabled by default.) <br > &bull; ([Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/435423) in GitLab 16.9. Feature flag `prefix_scim_tokens` removed.) |
+| SCIM Tokens                       | `glsoat-`          |
 | Feature Flags Client token        | `glffct-`          |

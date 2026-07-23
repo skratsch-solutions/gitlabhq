@@ -12,12 +12,6 @@ title: Kubernetes agent API
 
 {{< /details >}}
 
-{{< history >}}
-
-- Agent Tokens API [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/347046) in GitLab 15.0.
-
-{{< /history >}}
-
 Use this API to interact with the [GitLab agent for Kubernetes](../user/clusters/agent/_index.md).
 
 ## List all agents
@@ -257,12 +251,6 @@ curl --request DELETE \
 
 ## List all agent tokens
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/347046) in GitLab 15.0.
-
-{{< /history >}}
-
 Lists all active tokens for an agent.
 
 You must have the Developer, Maintainer, or Owner role to use this endpoint.
@@ -330,12 +318,6 @@ Example response:
 
 ## Retrieve an agent token
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/347046) in GitLab 15.0.
-
-{{< /history >}}
-
 Retrieves a single agent token.
 
 You must have the Developer, Maintainer, or Owner role to use this endpoint.
@@ -393,14 +375,6 @@ Example response:
 ```
 
 ## Create an agent token
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/347046) in GitLab 15.0.
-- Two-token limit [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/361030/) in GitLab 16.1 with a [flag](../administration/feature_flags/_index.md) named `cluster_agents_limit_tokens_created`.
-- Two-token limit [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/412399) in GitLab 16.2. Feature flag `cluster_agents_limit_tokens_created` removed.
-
-{{< /history >}}
 
 Creates a new token for an agent.
 
@@ -467,12 +441,6 @@ Example response:
 ```
 
 ## Revoke an agent token
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/347046) in GitLab 15.0.
-
-{{< /history >}}
 
 Revokes an agent token.
 

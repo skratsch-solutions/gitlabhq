@@ -62,12 +62,10 @@ title: あなたのインスタンスのプロジェクトテンプレート
 
 {{< history >}}
 
-- GitLab 19.0で`use_built_in_project_templates_enabled`[フラグ](feature_flags/_index.md)とともに[導入](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/230641)されました。デフォルトでは無効になっています。
+- GitLab 19.0で[導入](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/230641)され、`use_built_in_project_templates_enabled`という名前の[機能フラグと共に](feature_flags/_index.md)。デフォルトでは無効になっています。
+- GitLab 19.2で[一般提供](https://gitlab.com/gitlab-org/gitlab/-/work_items/593623)になりました。機能フラグ`use_built_in_project_templates_enabled`は削除されました。
 
 {{< /history >}}
-
-> [!flag]
-> この機能の利用可否は、機能フラグによって制御されます。詳細については、履歴を参照してください。この機能はテストには利用できますが、本番環境での使用には適していません。
 
 [組み込みのプロジェクトテンプレート](../user/project/_index.md#create-a-project-from-a-built-in-template)は、スターターファイルで新しいプロジェクトを作成します。デフォルトでは、これらのテンプレートはすべてのユーザーが利用できます。管理者は、インスタンスに対してこの設定を無効にし、オプションでグループオーナーがそれを上書きできないように強制することができます。グループオーナーも、[自分のグループに対してこの設定を制御](../user/group/manage.md#control-built-in-project-templates)できます。
 

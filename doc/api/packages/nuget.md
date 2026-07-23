@@ -85,12 +85,6 @@ This writes the downloaded file to `MyNuGetPkg.1.3.0.17.nupkg` in the current di
 
 ## Upload a package file
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/416404) in GitLab 16.2 for NuGet v2 feed.
-
-{{< /history >}}
-
 Uploads a NuGet package file for a specified project.
 
 - For NuGet v3 feed:
@@ -214,12 +208,6 @@ Example response:
 ```
 
 ### V3 source feed/protocol
-
-{{< history >}}
-
-- [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/214674) to be public in GitLab 16.1.
-
-{{< /history >}}
 
 Retrieves a list of available API resources.
 Authentication is not required.
@@ -433,12 +421,6 @@ Example response:
 
 ## Delete a package
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/38275) in GitLab 16.5.
-
-{{< /history >}}
-
 Deletes a specified NuGet package.
 
 ```plaintext
@@ -467,12 +449,6 @@ Possible request responses:
 | `404`  | Not found |
 
 ## Download a debugging symbol file `.pdb`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/416178) in GitLab 16.7.
-
-{{< /history >}}
 
 Downloads a specified debugging symbol file (`.pdb`).
 
@@ -508,12 +484,6 @@ Possible request responses:
 | `404`  | Not found |
 
 ## V2 Feed Metadata Endpoints
-
-{{< history >}}
-
-- Introduced in GitLab 16.3.
-
-{{< /history >}}
 
 ### $metadata endpoint
 
@@ -565,12 +535,6 @@ Example response:
 ```
 
 ### OData package entry endpoints
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127667) in GitLab 16.4.
-
-{{< /history >}}
 
 | Endpoint | Description |
 | -------- | ----------- |

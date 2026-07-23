@@ -409,12 +409,6 @@ Example response:
 
 ## Download a release asset
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/358188) in GitLab 15.4.
-
-{{< /history >}}
-
 Download a release asset file by making a request with the following format:
 
 ```plaintext
@@ -434,12 +428,6 @@ curl --location --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.ex
 ```
 
 ### Get the latest release
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/358188) in GitLab 15.4.
-
-{{< /history >}}
 
 Latest release information is accessible through a permanent API URL.
 
@@ -653,12 +641,6 @@ Example response:
 
 ## Update a release
 
-{{< history >}}
-
-- [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/72448) to allow for `JOB-TOKEN` in GitLab 14.5.
-
-{{< /history >}}
-
 Updates a release. Developer level access to the project is required to update a release.
 
 ```plaintext
@@ -766,12 +748,6 @@ Example response:
 
 ## Delete a Release
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/work_items/41766) in GitLab 11.7.
-
-{{< /history >}}
-
 Deletes a release. Deleting a release doesn't delete the associated tag. Requires at least the Developer role for the project.
 
 ```plaintext
@@ -861,12 +837,6 @@ as an **Upcoming Release** [in the UI](../../user/project/releases/_index.md#upc
 Additionally, if a [release is requested from the API](#list-releases), for each release with a `release_at` attribute set to a future date, an additional attribute `upcoming_release` (set to true) is returned as part of the response.
 
 ## Historical releases
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/199429) in GitLab 15.2.
-
-{{< /history >}}
 
 A release with a `released_at` attribute set to a past date is labeled
 as an **Historical release** [in the UI](../../user/project/releases/_index.md#historical-releases).

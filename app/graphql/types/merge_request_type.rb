@@ -22,6 +22,10 @@ module Types
 
     present_using MergeRequestPresenter
 
+    field :available_quick_actions,
+      resolver: Resolvers::Notes::AvailableQuickActionsResolver,
+      null: true,
+      description: 'Quick actions available to the current user on the merge request.'
     field :closed_at, Types::TimeType, null: true, complexity: 5,
       description: 'Timestamp of when the merge request was closed, null if not closed.'
     field :created_at, Types::TimeType, null: false,

@@ -16,6 +16,7 @@ title: AI監査イベントレポート
 {{< history >}}
 
 - GitLab 19.1で`agent_artifacts_page`[機能フラグ](../../administration/feature_flags/_index.md)とともに[ベータ版](../../policy/development_stages_support.md)として[導入](https://gitlab.com/groups/gitlab-org/-/work_items/20237)されました。デフォルトでは無効になっています。
+- GitLab 19.2でデフォルトで有効になりました。
 
 {{< /history >}}
 
@@ -26,7 +27,7 @@ title: AI監査イベントレポート
 
 ## AI監査イベントを表示 {#view-ai-audit-events}
 
-AI監査イベントは、**ガバナンス**ページで**エージェントアーティファクト**タブとして利用できます。
+AI監査イベントは、**ガバナンス**ページの**監査イベント**タブで利用できます。
 
 前提条件: 
 
@@ -60,7 +61,44 @@ AI監査イベントは、**ガバナンス**ページで**エージェントア
 1. セッション行を選択して、セッション詳細パネルを開きます。パネルには、セッションメタデータと監査イベントの時系列リストが表示されます。
 1. 個々のイベントを選択して、エンティティとターゲット情報を含む完全な詳細を表示します。
 
+## AI監査イベントストレージを有効にする {#enable-ai-audit-event-storage}
+
+{{< history >}}
+
+- GitLab 19.2で[導入されました](https://gitlab.com/gitlab-org/gitlab/-/work_items/603892)。
+
+{{< /history >}}
+
+AI監査イベントストレージはデフォルトで無効になっています。エージェントセッションデータがデータベースまたはClickHouseに書き込まれる前に、ストレージを明示的に有効にする必要があります。ストレージを無効にしても、AI監査イベントのリアルタイムストリーミングには影響しません。
+
+この設定はインスタンスからグループ、プロジェクトへとカスケードされます:
+
+- グループレベルで無効かつロックされている場合、そのグループ内のプロジェクトは設定を上書きできません。
+- グループレベルで有効かつロックされている場合、そのグループ内のすべてのプロジェクトでストレージが有効になり、無効にすることはできません。
+
+前提条件: 
+
+- グループまたはプロジェクトのオーナーロールまたはセキュリティマネージャーロールが必要です。
+
+### グループのストレージを有効にする {#enable-storage-for-a-group}
+
+1. 上部のバーで、**検索または移動先**を選択して、グループを見つけます。
+1. **設定** > **GitLab Duo**を選択します。
+1. **Data privacy**セクションで、**Enable AI audit event storage**を選択します。
+1. **変更を保存**を選択します。
+
+### プロジェクトのストレージを有効にする {#enable-storage-for-a-project}
+
+1. 上部のバーで、**検索または移動先**を選択して、プロジェクトを見つけます。
+1. **設定** > **GitLab Duo**を選択します。
+1. **Data privacy**セクションで、**Enable AI audit event storage**を選択します。
+1. **変更を保存**を選択します。
+
+親グループによって設定がロックされている場合、チェックボックスは無効になり、プロジェクトレベルでは変更できません。
+
 ## 関連トピック {#related-topics}
 
 - [GitLab Duo Agent Platform](_index.md)
-- [監査イベント](../../administration/compliance/audit_event_reports.md)
+- [監査イベント](../../user/compliance/audit_events.md)
+- [監査イベントタイプ](../../user/compliance/audit_event_types.md)
+- [監査イベントレポート](../../administration/compliance/audit_event_reports.md)

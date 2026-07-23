@@ -3,7 +3,7 @@ title: Organizations platform release status
 ---
 
 <!-- This file is generated from config/organizations_release.yml. Do not edit it manually. -->
-<!-- Regenerate it with: bin/rake gitlab:organizations:release:docs -->
+<!-- Regenerate it with: `bin/rake gitlab:organizations:release:docs` -->
 
 Every organization flag and its current stage are listed below.
 The stage determines who can use a flag and whether it can be disabled.

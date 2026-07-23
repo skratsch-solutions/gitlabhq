@@ -207,12 +207,6 @@ After a session ends, a window prompts the user to sign in again.
 
 ### Configure the Remember me option
 
-{{< history >}}
-
-- Enabling and disabling the **Remember me** setting [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/369133) in GitLab 16.0.
-
-{{< /history >}}
-
 Users can select the **Remember me** checkbox on sign-in. Their session remains active for an indefinite
 period of time when accessed from that specific browser. Turn off this setting to expire sessions for
 security or compliance purposes. Turning off this setting ensures users' sessions expire after the
@@ -666,12 +660,6 @@ By default, new users can create top-level groups. GitLab administrators can pre
 
 ## Prevent non-members from creating projects and groups
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/426279) in GitLab 16.8.
-
-{{< /history >}}
-
 By default, users with the Guest role can create projects and groups.
 GitLab administrators can prevent this behavior:
 
@@ -739,12 +727,6 @@ By default, newly created users have a public profile. GitLab administrators can
 - Offering: GitLab Self-Managed, GitLab Dedicated
 
 {{< /details >}}
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/26053) in GitLab 16.1 [with a feature flag](../feature_flags/_index.md) named `deleting_account_disabled_for_users`. Enabled by default.
-
-{{< /history >}}
 
 By default, users can delete their own accounts. GitLab administrators can prevent
 users from deleting their own accounts:

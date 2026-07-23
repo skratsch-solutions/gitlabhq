@@ -316,13 +316,6 @@ See how to look up [IP address ranges or CIDR blocks for GCP](https://cloud.goog
 
 ## Maximum number of reviewers and assignees
 
-{{< history >}}
-
-- Maximum assignees [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/368936) in GitLab 15.6.
-- Maximum reviewers [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/366485) in GitLab 15.9.
-
-{{< /history >}}
-
 Merge requests enforce these maximums:
 
 - Maximum assignees: 200
@@ -383,7 +376,6 @@ Settings related to the deletion of projects and groups.
 
 {{< history >}}
 
-- Delayed group deletion enabled by default for GitLab Premium and GitLab Ultimate in GitLab 16.1.
 - [Moved](https://gitlab.com/groups/gitlab-org/-/epics/17208) from GitLab Premium to GitLab Free in 18.0.
 - [Increased deletion period](https://gitlab.com/groups/gitlab-org/-/epics/17375) from seven days to 30 days in 18.0.2.
 
@@ -397,7 +389,6 @@ See how to [view and restore groups marked for deletion](../group/_index.md#rest
 
 {{< history >}}
 
-- Delayed project deletion enabled by default for GitLab Premium and GitLab Ultimate in GitLab 16.1.
 - [Moved](https://gitlab.com/groups/gitlab-org/-/epics/17208) from GitLab Premium to GitLab Free in 18.0.
 - [Increased deletion period](https://gitlab.com/groups/gitlab-org/-/epics/17375) from seven-days to 30 days in 18.0.2.
 
@@ -470,7 +461,7 @@ The following table describes the rate limits for GitLab.com:
 | GitLab Duo `aiAction`  requests                                  | 160 requests every 8 hours      |
 | [Pull mirroring](../project/repository/mirror/pull.md) intervals | 5 minutes                       |
 | API requests from a user to `/api/v4/users/:id`                  | 300 requests every 10 minutes   |
-| GitLab package hosting system requests for an IP address (introduced in GitLab 16.11) | 3,000 requests each minute      |
+| GitLab package hosting system requests for an IP address | 3,000 requests each minute      |
 | GitLab repository files | 500 requests each minute        |
 | User followers requests (`/api/v4/users/:id/followers`)            | 100 requests each minute        |
 | User following requests (`/api/v4/users/:id/following`)            | 100 requests each minute        |
