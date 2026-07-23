@@ -15,11 +15,11 @@ and the Rake task at `lib/tasks/gitlab/docs/compile_events.rake`.
 To add or update an event, edit the corresponding YAML file in `data/events/`.
 Then regenerate this page by running:
 
-  bin/rake gitlab:docs:compile_events
+`bin/rake gitlab:docs:compile_events`
 
 To verify this page is up to date, run:
 
-  bin/rake gitlab:docs:check_events
+`bin/rake gitlab:docs:check_events`
 -->
 
 This page lists all domain events published through the
@@ -279,4 +279,5 @@ To find subscribers, search the subscription files under
 | `WorkItems::WorkItemDeletedEvent` | `team_planning` | CE | Published after a work item is permanently deleted. |
 | `WorkItems::WorkItemReopenedEvent` | `team_planning` | EE | Published when a previously closed work item (issue or epic work item) is reopened. |
 | `WorkItems::WorkItemUpdatedEvent` | `team_planning` | CE | Published after a work item's attributes are updated. |
+
 <!-- vale on -->

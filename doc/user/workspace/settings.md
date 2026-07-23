@@ -149,12 +149,6 @@ The default value for `network_policy.enabled` is `true`.
 
 #### `network_policy.egress`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11629) in GitLab 16.7.
-
-{{< /history >}}
-
 Use this setting to define a list of IP CIDR ranges to allow as egress destinations from a workspace.
 
 Define egress rules when:
@@ -189,12 +183,6 @@ In this example, traffic from the workspace is allowed if:
 
 ### `default_resources_per_workspace_container`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11625) in GitLab 16.8.
-
-{{< /history >}}
-
 Use this setting to define the default [requests and limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits)
 for CPU and memory per workspace container.
 Any resources you define in your [devfile](_index.md#devfile) override this setting.
@@ -218,12 +206,6 @@ remote_development:
 ```
 
 ### `max_resources_per_workspace`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11625) in GitLab 16.8.
-
-{{< /history >}}
 
 Use this setting to define the maximum [requests and limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits)
 for CPU and memory per workspace.
@@ -261,12 +243,6 @@ to perform bootstrapping operations such as cloning the project repository.
 
 ### `workspaces_quota`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11586) in GitLab 16.9.
-
-{{< /history >}}
-
 Use this setting to set the maximum number of workspaces for the GitLab agent for Kubernetes.
 
 You cannot create new workspaces for an agent when:
@@ -290,12 +266,6 @@ remote_development:
 ```
 
 ### `workspaces_per_user_quota`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11586) in GitLab 16.9.
-
-{{< /history >}}
 
 Use this setting to set the maximum number of workspaces per user.
 

@@ -13,12 +13,6 @@ title: Merge request approvals API
 
 {{< /details >}}
 
-{{< history >}}
-
-- Endpoint `/approvals` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/353097) in GitLab 16.0.
-
-{{< /history >}}
-
 Use this API to manage [merge request approvals](../user/project/merge_requests/approvals/_index.md).
 
 All endpoints require authentication.
