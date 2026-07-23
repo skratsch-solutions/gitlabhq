@@ -421,6 +421,10 @@ ping-appsec-for-sast-findings:
     # Set SAST_TRIAGE_ENABLED=1 below to opt this job into shadow-mode Duo triage. Can also be set via a project-level CI/CD variable.
     # See: scripts/sast_triage_classifier.rb and work item gitlab-com/gl-security/product-security/appsec/appsec-team#1448
     SAST_TRIAGE_ENABLED: "0"
+    # Set SAST_TRIAGE_COMMENT_ENABLED=1 to also surface the Duo tp/fp recommendation in the inline MR comment.
+    # Requires SAST_TRIAGE_ENABLED=1 (verdicts only exist once shadow-mode triage has run).
+    # See: scripts/semgrep_result_processor.rb and work item gitlab-com/gl-security/product-security/appsec/appsec-team#1647
+    SAST_TRIAGE_COMMENT_ENABLED: "0"
   needs:
     - !reference [.lint-base, needs]
     - semgrep-appsec-custom-rules
