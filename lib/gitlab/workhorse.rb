@@ -246,7 +246,8 @@ module Gitlab
         response_statuses: {},
         response_headers: {},
         allowed_endpoints: [],
-        restrict_forwarded_response_headers: {}
+        restrict_forwarded_response_headers: {},
+        transform_config: {}
       )
         params = {
           'URL' => url,
@@ -273,6 +274,17 @@ module Gitlab
           if response_statuses[:timeout]
             params['TimeoutResponseStatus'] = Rack::Utils::SYMBOL_TO_STATUS_CODE[response_statuses[:timeout]]
           end
+        end
+
+        if transform_config.present?
+          raise ArgumentError, "transform_config requires :key, :from, and :to" \
+            unless transform_config[:key].present? && transform_config[:from].present? && transform_config[:to].present?
+
+          params['TransformConfig'] = {
+            'Key' => transform_config[:key],
+            'From' => transform_config[:from],
+            'To' => transform_config[:to]
+          }
         end
 
         [

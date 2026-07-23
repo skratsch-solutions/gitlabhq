@@ -16885,7 +16885,8 @@ CREATE TABLE chat_names (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     encrypted_token bytea,
-    encrypted_token_iv bytea
+    encrypted_token_iv bytea,
+    duo_privacy_notice_acknowledged_at timestamp with time zone
 );
 
 CREATE SEQUENCE chat_names_id_seq

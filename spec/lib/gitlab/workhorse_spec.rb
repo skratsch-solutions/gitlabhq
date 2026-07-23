@@ -882,6 +882,37 @@ RSpec.describe Gitlab::Workhorse, feature_category: :gitaly do
         expect(params).to eq(expected_params)
       end
     end
+
+    context 'when `transform_config` is set' do
+      let(:expected_params) do
+        super().merge('TransformConfig' => {
+          'Key' => 'tarball',
+          'From' => 'https://registry.npmjs.org/',
+          'To' => "https://#{Gitlab.config.gitlab.host}/api/v4/projects/7/packages/npm/"
+        })
+      end
+
+      it 'sets the header correctly' do
+        key, command, params = decode_workhorse_header(described_class.send_url(
+          url,
+          transform_config: {
+            key: 'tarball',
+            from: 'https://registry.npmjs.org/',
+            to: "https://#{Gitlab.config.gitlab.host}/api/v4/projects/7/packages/npm/"
+          }
+        ))
+
+        expect(key).to eq('Gitlab-Workhorse-Send-Data')
+        expect(command).to eq('send-url')
+        expect(params).to eq(expected_params)
+      end
+
+      it 'raises ArgumentError when a required transform_config key is missing' do
+        expect do
+          described_class.send_url(url, transform_config: { key: 'tarball', from: 'https://registry.npmjs.org/' })
+        end.to raise_error(ArgumentError, 'transform_config requires :key, :from, and :to')
+      end
+    end
   end
 
   describe '.send_scaled_image' do
