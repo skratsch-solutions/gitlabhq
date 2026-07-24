@@ -9,6 +9,7 @@ title: Agentic Breaking Change Resolution Flow
 
 - Tier: Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
+- Status: Beta
 
 {{< /details >}}
 
