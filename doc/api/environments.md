@@ -16,7 +16,6 @@ title: Environments API
 {{< history >}}
 
 - Parameter `auto_stop_setting` [added](https://gitlab.com/gitlab-org/gitlab/-/issues/428625) in GitLab 17.8.
-- Support for [GitLab CI/CD job token](../ci/jobs/ci_job_token.md) authentication [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414549) in GitLab 16.2.
 
 {{< /history >}}
 
@@ -251,12 +250,6 @@ Example response:
 ```
 
 ## Update an existing environment
-
-{{< history >}}
-
-- Parameter `name` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/338897) in GitLab 16.0.
-
-{{< /history >}}
 
 Updates an existing environment for a project.
 

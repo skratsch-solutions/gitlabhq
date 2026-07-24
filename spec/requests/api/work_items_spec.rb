@@ -178,22 +178,29 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
           create(:merge_requests_closing_issues, issue: other_closing_work_item, merge_request: other_merge_request)
         end
 
-        it 'loads the closing merge requests count for the whole page in a single query', :aggregate_failures do
+        it 'loads the development feature data for the whole page without N+1 queries', :aggregate_failures do
           api_path = "/namespaces/#{CGI.escape(namespace_record.full_path)}/-/work_items"
 
-          recorder = ActiveRecord::QueryRecorder.new do
+          # Warm-up request: primes once-per-process memoized queries (schema/postgres_constraints
+          # caches) so the control below records steady-state query counts, not first-hit noise.
+          get api(api_path, user), params: request_params
+
+          control = ActiveRecord::QueryRecorder.new do
             get api(api_path, user), params: request_params
           end
 
-          closing_mr_count_queries = recorder.log.grep(
-            /SELECT "merge_requests_closing_issues"\."issue_id", COUNT\(\*\)/
-          )
+          extra_work_item = create(:work_item, project: project)
+          extra_merge_request = create(:merge_request, source_project: project, source_branch: 'extra')
+          create(:merge_requests_closing_issues, issue: extra_work_item, merge_request: extra_merge_request)
+
+          expect { get api(api_path, user), params: request_params }.not_to exceed_query_limit(control)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(closing_mr_count_queries.size).to eq(1)
-          expect(features_json_for(closing_work_item)).to eq('development' => { 'closing_merge_requests_count' => 1 })
-          expect(features_json_for(other_closing_work_item)).to eq(
-            'development' => { 'closing_merge_requests_count' => 1 }
+          expect(features_json_for(closing_work_item)).to eq(
+            'development' => { 'closing_merge_requests_count' => 1, 'will_auto_close_by_merge_request' => true }
+          )
+          expect(features_json_for(extra_work_item)).to eq(
+            'development' => { 'closing_merge_requests_count' => 1, 'will_auto_close_by_merge_request' => true }
           )
         end
       end
@@ -209,15 +216,15 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
           create(:merge_requests_closing_issues, issue: closing_work_item, merge_request: merge_request)
         end
 
-        it 'exposes the visibility-aware closing merge requests count', :aggregate_failures do
+        it 'exposes the visibility-aware closing merge requests count and auto-close flag', :aggregate_failures do
           get api(api_path, user), params: request_params
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(features_json_for(closing_work_item)).to eq(
-            'development' => { 'closing_merge_requests_count' => 1 }
+            'development' => { 'closing_merge_requests_count' => 1, 'will_auto_close_by_merge_request' => true }
           )
           expect(features_json_for(project_work_item)).to eq(
-            'development' => { 'closing_merge_requests_count' => 0 }
+            'development' => { 'closing_merge_requests_count' => 0, 'will_auto_close_by_merge_request' => false }
           )
         end
 
@@ -231,7 +238,20 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(features_json_for(closing_work_item)).to eq(
-            'development' => { 'closing_merge_requests_count' => 1 }
+            'development' => { 'closing_merge_requests_count' => 1, 'will_auto_close_by_merge_request' => true }
+          )
+        end
+
+        it 'returns will_auto_close_by_merge_request false for a closed work item', :aggregate_failures do
+          closed_work_item = create(:work_item, :closed, project: project)
+          closed_work_item_mr = create(:merge_request, source_project: project, source_branch: 'closed-guard')
+          create(:merge_requests_closing_issues, issue: closed_work_item, merge_request: closed_work_item_mr)
+
+          get api(api_path, user), params: request_params
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(features_json_for(closed_work_item)).to eq(
+            'development' => { 'closing_merge_requests_count' => 1, 'will_auto_close_by_merge_request' => false }
           )
         end
       end

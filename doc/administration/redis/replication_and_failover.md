@@ -350,12 +350,6 @@ the same Sentinels.
 
 ### Step 3. Configuring the Redis Sentinel instances
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/235938) support for Sentinel password authentication in GitLab 16.1.
-
-{{< /history >}}
-
 Now that the Redis servers are all set up, let's configure the Sentinel
 servers.
 
@@ -787,12 +781,6 @@ You can find the relevant attributes defined in [`gitlab_rails.rb`](https://gitl
 
 ### Control startup behavior
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/6646) in GitLab 15.10.
-
-{{< /history >}}
-
 To prevent the bundled Redis service from starting at boot or restarting after changing its configuration:
 
 1. Edit `/etc/gitlab/gitlab.rb`:
@@ -813,12 +801,6 @@ working in the Redis cluster, set `start_down` to `false` and reconfigure GitLab
 to ensure the node starts and restarts as expected during operation.
 
 ### Control replica configuration
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/6646) in GitLab 15.10.
-
-{{< /history >}}
 
 To prevent the `replicaof` line from rendering in the Redis configuration file:
 

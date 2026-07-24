@@ -2742,6 +2742,7 @@ Grants the ability to create, delete, read, and update repositories.
 | Read | Project | `GET` | `/projects/:id/repository/health` |
 | Read | Project | `GET` | `/projects/:id/repository/merge_base` |
 | Read | Project | `GET` | `/projects/:id/repository/tree` |
+| Read | Project | `POST` | `/projects/:id/repository/blobs/batch` |
 | Read | Project | `HEAD` | `/projects/:id/repository/files/:file_path` |
 | Read | Project | `HEAD` | `/projects/:id/repository/files/:file_path/blame` |
 | Update | Project | `PUT` | `/projects/:id/repository/files/:file_path` |
@@ -3816,6 +3817,7 @@ feature is enabled.
 | Repository: Read | `GET` | `/projects/:id/repository/archive` |
 | Repository: Read | `GET` | `/projects/:id/repository/blobs/:sha` |
 | Repository: Read | `GET` | `/projects/:id/repository/blobs/:sha/raw` |
+| Repository: Read | `POST` | `/projects/:id/repository/blobs/batch` |
 | Branch: Read | `GET` | `/projects/:id/repository/branches` |
 | Branch: Read | `GET` | `/projects/:id/repository/branches/:branch` |
 | Branch: Read | `HEAD` | `/projects/:id/repository/branches/:branch` |

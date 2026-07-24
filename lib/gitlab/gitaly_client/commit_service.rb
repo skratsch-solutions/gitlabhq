@@ -321,7 +321,7 @@ module Gitlab
         consume_commits_response(response)
       end
 
-      def list_commits(revisions, params = {})
+      def list_commits(revisions, params = {}) # rubocop:disable Metrics/AbcSize -- request building requires many field assignments
         # We want to include the commit ref in the revisions if present.
         revisions = Array.wrap(params[:ref].presence || []) + Array.wrap(revisions)
 
@@ -336,6 +336,7 @@ module Gitlab
 
         request.order = params[:order].upcase if params[:order].present?
         request.skip = params[:skip].to_i if params[:skip].present?
+        request.first_parent = !!params[:first_parent]
 
         if params[:commit_message_patterns]
           request.commit_message_patterns += Array.wrap(params[:commit_message_patterns])

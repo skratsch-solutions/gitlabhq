@@ -724,18 +724,62 @@ RSpec.describe API::Commits, feature_category: :source_code_management do
       end
 
       context 'with an unsupported parameter' do
-        it_behaves_like 'rejects unsupported keyset parameter', { first_parent: true }
+        it_behaves_like 'rejects unsupported keyset parameter', { order: 'topo' }
+        it_behaves_like 'rejects unsupported keyset parameter', { trailers: true }
+        it_behaves_like 'rejects unsupported keyset parameter', { follow: true }
       end
 
       context 'with multiple unsupported parameters' do
         it 'returns a single 400 mentioning all of them', :aggregate_failures do
-          get api(route, current_user), params: { pagination: 'keyset', first_parent: true, follow: true }
+          get api(route, current_user), params: { pagination: 'keyset', trailers: true, follow: true }
 
           expect(response).to have_gitlab_http_status(:bad_request)
-          expect(json_response['message']).to include("'first_parent'")
+          expect(json_response['message']).to include("'trailers'")
           expect(json_response['message']).to include("'follow'")
           expect(json_response['message']).to include(::Repositories::CommitsFinder::KEYSET_PARAM_ERROR_SUFFIX)
           expect(json_response['message']).not_to eq('ref_name is invalid')
+        end
+      end
+
+      context 'with first_parent=true' do
+        it 'returns only first-parent history', :aggregate_failures do
+          get api(route, current_user), params: { pagination: 'keyset', first_parent: true, per_page: 100 }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to be_an(Array)
+          expect(json_response).to be_present
+
+          returned_ids = json_response.map { |c| c['id'] }
+          expected_ids = project.repository.commits(project.default_branch, first_parent: true, limit: 100).map(&:id)
+          expect(returned_ids).to eq(expected_ids)
+        end
+
+        it 'returns fewer commits than first_parent=false (proves the filter takes effect)', :aggregate_failures do
+          get api(route, current_user), params: { pagination: 'keyset', first_parent: true, per_page: 100 }
+          first_parent_ids = json_response.map { |c| c['id'] }
+
+          get api(route, current_user), params: { pagination: 'keyset', first_parent: false, per_page: 100 }
+          full_ids = json_response.map { |c| c['id'] }
+
+          expect(first_parent_ids.size).to be < full_ids.size
+        end
+
+        it 'paginates across pages without dropping or duplicating commits', :aggregate_failures do
+          get api(route, current_user), params: { pagination: 'keyset', first_parent: true, per_page: 2 }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          first_page = json_response.map { |c| c['id'] }
+
+          cursor = pagination_params_from_next_url(response)['page_token']
+          expect(cursor).to be_present
+
+          get api(route, current_user), params: { pagination: 'keyset', first_parent: true, per_page: 2, page_token: cursor }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          second_page = json_response.map { |c| c['id'] }
+
+          expected = project.repository.commits(project.default_branch, first_parent: true, limit: 4).map(&:id)
+          expect(first_page + second_page).to eq(expected)
         end
       end
 

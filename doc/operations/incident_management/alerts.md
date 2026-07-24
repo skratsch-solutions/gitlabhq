@@ -153,7 +153,7 @@ Changing the status has the following effects:
 - To **Resolved**: silences all on-call pages for the alert.
 - From **Resolved** to **Triggered**: restarts the alert escalating.
 
-In GitLab 15.1 and earlier, updating the status of an [alert with an associated incident](manage_incidents.md#from-an-alert) also updates the incident status. In [GitLab 15.2 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/356057), the incident status is independent and does not update when the alert status changes.
+Updating the status of an [alert with an associated incident](manage_incidents.md#from-an-alert) does not update the incident status. The incident status is independent of the alert status.
 
 ### Assign an alert
 

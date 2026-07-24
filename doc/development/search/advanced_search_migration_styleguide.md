@@ -12,12 +12,6 @@ title: Advanced search migration style guide
 
 ### With a script
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414674) in GitLab 16.3.
-
-{{< /history >}}
-
 Execute `scripts/elastic-migration` and follow the prompts to create:
 
 - A migration file to define the migration: `ee/elastic/migrate/YYYYMMDDHHMMSS_migration_name.rb`
@@ -25,12 +19,6 @@ Execute `scripts/elastic-migration` and follow the prompts to create:
 - A dictionary file to identify the migration: `ee/elastic/docs/YYYYMMDDHHMMSS_migration_name.yml`
 
 ### Manually
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/234046) in GitLab 13.6.
-
-{{< /history >}}
 
 In the [`ee/elastic/migrate/`](https://gitlab.com/gitlab-org/gitlab/-/tree/master/ee/elastic/migrate) folder, create a new file with the filename format `YYYYMMDDHHMMSS_migration_name.rb`. This format is the same for Rails database migrations.
 

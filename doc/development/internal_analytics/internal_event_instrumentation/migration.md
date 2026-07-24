@@ -159,7 +159,9 @@ Notice that we just need action to pass in the `data-event-tracking` attribute w
 
 Migration of RedisHLL metrics to Internal Events is not a stateful migration of Redis data. This migration replaces legacy HLLRedisCounter calls with `track_internal_event` and points metric definitions at `data_source: internal_events`. This makes Internal Events the single abstraction on top of Snowplow + Redis/RedisHLL.
 
-Under the hood, `Gitlab::InternalEvents.track_event` still updates Redis counters and RedisHLL keys according to the metric's event_selection_rules (unique, total, sum, etc.), and also emits the Snowplow event and Service Ping context with data_source: :redis_hll where appropriate.
+Under the hood, `Gitlab::InternalEvents.track_event` still updates Redis counters and RedisHLL keys
+according to the metric's event_selection_rules (unique, total, sum, etc.), and also emits the
+Snowplow event and Service Ping context with data_source: `:redis_hll` where appropriate.
 
 ### Backend
 

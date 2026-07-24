@@ -51,6 +51,14 @@ class MergeRequestsClosingIssues < ApplicationRecord
       closing_merge_requests(id, current_user).count
     end
 
+    # Returns the subset of `ids` that have at least one opened closing merge request, as a set.
+    # Intentionally not visibility-filtered (no `current_user`): this mirrors the widget's
+    # will_auto_close_by_merge_request, which checks the raw closing-issues association without an
+    # accessibility scope, so the boolean stays consistent between REST and GraphQL.
+    def auto_close_issue_ids(ids)
+      with_issues(ids).link_type_closes.with_opened_merge_request.distinct.pluck(:issue_id).to_set
+    end
+
     private
 
     def closing_merge_requests(ids, current_user)

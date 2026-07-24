@@ -355,13 +355,6 @@ To do this:
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127115) in GitLab 16.4 [with a feature flag](../../../../administration/feature_flags/_index.md) named `target_branch_rules_flag`. Enabled by default.
-- [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/136431) in GitLab 16.7.
-
-{{< /history >}}
-
 Some projects use multiple long-term branches for development, like `develop` and `qa`.
 In these projects, you might want to keep `main` as the default branch, but expect
 merge requests to target `develop` or `qa` instead. Target branch workflows help ensure

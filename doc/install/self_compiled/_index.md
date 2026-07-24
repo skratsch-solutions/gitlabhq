@@ -147,7 +147,7 @@ that:
 
 1. Clone the Gitaly repository and compile Git. Replace `<X-Y-stable>` with the
    stable branch that matches the GitLab version you want to install. For example,
-   if you want to install GitLab 16.7, use the branch name `16-7-stable`:
+   if you want to install GitLab 19.2, use the branch name `19-2-stable`:
 
    ```shell
    git clone https://gitlab.com/gitlab-org/gitaly.git -b <X-Y-stable> /tmp/gitaly
@@ -601,8 +601,8 @@ If you want to use HTTPS, see [Using HTTPS](#using-https) for the additional ste
 ### Configure GitLab DB Settings
 
 > [!note]
-> From [GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/issues/387898), `database.yml` with only a section: `main:` is deprecated.
-> In GitLab 17.0 and later, you must have the two `main:` and `ci:` sections in your `database.yml`.
+> A `database.yml` with only a `main:` section is [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/387898).
+> You must have both `main:` and `ci:` sections in your `database.yml`.
 
 ```shell
 sudo -u git cp config/database.yml.postgresql config/database.yml

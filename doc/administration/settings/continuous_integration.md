@@ -361,12 +361,6 @@ By default, GitLab fetches runner version data. To stop fetching this data:
 
 ### Control runner registration
 
-{{< history >}}
-
-- **Allow runner registration token** setting [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/147559) in GitLab 16.11.
-
-{{< /history >}}
-
 Control who can register runners and whether to allow registration tokens.
 
 > [!warning]
@@ -541,7 +535,6 @@ Projects not in the allowlist receive a `not authorized to publish` error when a
 
 {{< history >}}
 
-- [Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/389467) in GitLab 15.9.
 - [Removed](https://gitlab.com/gitlab-org/gitlab/-/issues/389467) in GitLab 17.0.
 - [Re-added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/165111) in GitLab 17.4 [with a feature flag](../feature_flags/_index.md) named `required_pipelines`. Disabled by default.
 

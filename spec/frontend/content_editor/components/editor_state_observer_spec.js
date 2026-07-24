@@ -27,8 +27,8 @@ describe('content_editor/components/editor_state_observer', () => {
     wrapper = shallowMount(EditorStateObserver, {
       provide: { tiptapEditor, eventHub },
       listeners: {
-        docUpdate: onDocUpdateListener,
-        selectionUpdate: onSelectionUpdateListener,
+        'doc-update': onDocUpdateListener,
+        'selection-update': onSelectionUpdateListener,
         transaction: onTransactionListener,
         [ALERT_EVENT]: onAlertListener,
         [KEYDOWN_EVENT]: onKeydownListener,
@@ -46,7 +46,7 @@ describe('content_editor/components/editor_state_observer', () => {
   });
 
   describe('when editor content changes', () => {
-    it('emits update, selectionUpdate, and transaction events', () => {
+    it('emits doc-update, selection-update, and transaction events', () => {
       const content = '<p>My paragraph</p>';
 
       buildWrapper();

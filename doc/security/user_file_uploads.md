@@ -27,13 +27,6 @@ Files uploaded by users to GitLab issues, merge requests, and epics contain `/up
 
 ## Access control for uploaded files
 
-{{< history >}}
-
-- Enforced authorization checks became [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/352291) in GitLab 15.3. Feature flag `enforce_auth_checks_on_uploads` removed.
-- Project settings in the user interface [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/88567) in GitLab 15.3.
-
-{{< /history >}}
-
 Access to non-image files uploaded to:
 
 - Issues or merge requests is determined by the project visibility.
@@ -73,7 +66,6 @@ To configure authentication settings for all media files:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/92791) in GitLab 15.3.
 - REST API [added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/157066) support in GitLab 17.2.
 
 {{< /history >}}

@@ -744,12 +744,6 @@ your provider's support.
 
 {{< /details >}}
 
-{{< history >}}
-
-- Microsoft Azure/Entra ID attribute support [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/420766) in GitLab 16.7.
-
-{{< /history >}}
-
 > [!note]
 > These attributes are case-sensitive.
 

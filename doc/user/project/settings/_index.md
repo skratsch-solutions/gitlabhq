@@ -83,11 +83,7 @@ To turn this feature off and remove the **Analyze** item from the left sidebar:
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/41203) in GitLab 13.4, only for public projects on GitLab.com.
-
-{{< /history >}}
+This feature is available only for public projects on GitLab.com.
 
 In some environments, users can submit a [CVE identifier request](../../application_security/cve_id_request.md) in an issue.
 

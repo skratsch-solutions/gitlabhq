@@ -14,8 +14,6 @@ title: Metadata API
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/357032) in GitLab 15.2.
-- `enterprise` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/103969) in GitLab 15.6.
 - `kas.externalK8sProxyUrl` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/172373) in GitLab 17.6.
 
 {{< /history >}}

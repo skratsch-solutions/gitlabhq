@@ -13,7 +13,7 @@ info:
   title: GitLab REST API
   description: GitLab REST API used to interact with a GitLab installation.
   termsOfService: https://handbook.gitlab.com/handbook/legal/api-terms/
-  version: v4
+  version: 19.3.0-pre
   license:
     name: CC BY-SA 4.0
     url: https://gitlab.com/gitlab-org/gitlab/-/blob/master/LICENSE
@@ -17479,7 +17479,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_224978a87e6f"
+              "$ref": "#/components/schemas/RequestBody_e7d6020c5ece"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -29652,6 +29652,46 @@ paths:
         - feature
         style: form
         explode: false
+  "/api/v4/projects/{id}/repository/blobs/batch":
+    post:
+      operationId: postApiV4ProjectsIdRepositoryBlobsBatch
+      summary: Get contents of multiple files in a single request
+      description: Each blob is truncated to the first 1 MB; the `truncated` field
+        indicates when this happens.
+      tags:
+      - Repositories
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBatchBlob"
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+        example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_d0e25dbef307"
+      x-gitlab-lifecycle: beta
   "/api/v4/projects/{id}/repository/changelog":
     get:
       operationId: getApiV4ProjectsIdRepositoryChangelog
@@ -84612,6 +84652,8 @@ components:
           type: string
         project_invited_groups_api_limit:
           type: string
+        project_repositories_blobs_batch_limit:
+          type: string
         projects_api_limit:
           type: string
         project_members_api_limit:
@@ -86410,6 +86452,27 @@ components:
         deletions:
           type: integer
           example: 5
+    APIEntitiesBatchBlob:
+      type: object
+      properties:
+        path:
+          type: string
+          example: app/models/user.rb
+        ref:
+          type: string
+          example: main
+        size:
+          type: integer
+          example: 1476
+        truncated:
+          type: boolean
+          example: false
+        encoding:
+          type: string
+          example: base64
+        content:
+          type: string
+          example: VGhpcyBpcyBhIGZpbGU=
     APIEntitiesChangelog:
       type: object
       properties:
@@ -98502,7 +98565,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_224978a87e6f:
+    RequestBody_e7d6020c5ece:
       type: object
       properties:
         admin_mode:
@@ -100433,6 +100496,9 @@ components:
           type: string
           nullable: true
         project_invited_groups_api_limit:
+          type: string
+          nullable: true
+        project_repositories_blobs_batch_limit:
           type: string
           nullable: true
         projects_api_limit:
@@ -102659,6 +102725,30 @@ components:
       required:
       - name
       - scopes
+    RequestBody_d0e25dbef307:
+      type: object
+      properties:
+        files:
+          type: array
+          description: Array of file objects to retrieve (max 20)
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                description: The file path
+                example: app/models/user.rb
+                nullable: true
+              ref:
+                type: string
+                description: The branch, tag, or commit. Defaults to the default branch
+                example: main
+                nullable: true
+            required:
+            - path
+          nullable: true
+      required:
+      - files
     RequestBody_ae26a1e02190:
       type: object
       properties:

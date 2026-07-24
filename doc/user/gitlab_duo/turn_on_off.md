@@ -14,13 +14,6 @@ title: Control GitLab Duo availability
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Settings to turn AI features on and off introduced](https://gitlab.com/groups/gitlab-org/-/epics/12404) in GitLab 16.10.
-- [Settings to turn AI features on and off added to the UI](https://gitlab.com/gitlab-org/gitlab/-/issues/441489) in GitLab 16.11.
-
-{{< /history >}}
-
 GitLab Duo is on by default.
 GitLab Duo includes a [set of features](feature_summary.md).
 

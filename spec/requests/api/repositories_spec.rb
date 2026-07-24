@@ -1870,4 +1870,172 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
       end
     end
   end
+
+  describe 'POST /projects/:id/repository/blobs/batch' do
+    let(:route) { "/projects/#{project.id}/repository/blobs/batch" }
+
+    before do
+      allow(::Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(false)
+    end
+
+    shared_examples 'batch blobs' do
+      it 'returns contents of multiple files' do
+        post api(route, current_user), params: { files: [{ path: 'README.md' }, { path: 'CHANGELOG' }] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to be_an(Array)
+        expect(json_response.size).to eq(2)
+        expect(json_response.first['path']).to eq('README.md')
+        expect(json_response.first['encoding']).to eq('base64')
+        expect(json_response.first['size']).to be > 0
+        expect(json_response.first['truncated']).to be(false)
+        expect(json_response.first['content']).to be_present
+      end
+
+      it 'skips files that do not exist' do
+        post api(route, current_user), params: { files: [{ path: 'README.md' }, { path: 'nonexistent.txt' }] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.size).to eq(1)
+        expect(json_response.first['path']).to eq('README.md')
+      end
+
+      it 'supports specifying ref per file' do
+        post api(route, current_user), params: { files: [{ path: 'README.md', ref: 'master' }] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.size).to eq(1)
+        expect(json_response.first['ref']).to eq('master')
+      end
+
+      it 'falls back to the default branch when ref is blank' do
+        post api(route, current_user), params: { files: [{ path: 'README.md', ref: '' }] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.size).to eq(1)
+        expect(json_response.first['ref']).to eq(project.default_branch)
+      end
+
+      it 'returns both entries when same path is requested at different refs' do
+        post api(route, current_user),
+          params: { files: [{ path: 'README.md', ref: 'master' }, { path: 'README.md', ref: 'feature' }] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.size).to eq(2)
+        expect(json_response.map { |r| r['ref'] }).to eq(%w[master feature])
+      end
+
+      it 'attributes the blob to the correct ref when the same path is missing at an earlier ref' do
+        # .gitattributes exists on master but not on the feature branch. Requesting the
+        # missing ref first must not cause master's content to be mislabeled as `feature`.
+        post api(route, current_user),
+          params: { files: [{ path: '.gitattributes', ref: 'feature' }, { path: '.gitattributes', ref: 'master' }] }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response.size).to eq(1)
+        expect(json_response.first['ref']).to eq('master')
+        expect(json_response.first['path']).to eq('.gitattributes')
+        expect(json_response.first['content']).to be_present
+      end
+
+      it 'returns 400 when files parameter is missing' do
+        post api(route, current_user)
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'returns 400 when files array is empty' do
+        post api(route, current_user), params: { files: [] }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'returns 400 when too many files are requested' do
+        files = (1..21).map { |i| { path: "file#{i}.txt" } }
+        post api(route, current_user), params: { files: files }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'returns 400 when a ref is invalid' do
+        post api(route, current_user), params: { files: [{ path: 'README.md', ref: 'invalid ref!' }] }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']).to include('Invalid ref')
+      end
+
+      it 'returns 400 when a path traverses outside the repository' do
+        post api(route, current_user), params: { files: [{ path: '../../../etc/passwd' }] }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'rate limits the user when the threshold is hit' do
+        allow(::Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(true)
+
+        post api(route, current_user), params: { files: [{ path: 'README.md' }] }
+
+        expect(response).to have_gitlab_http_status(:too_many_requests)
+      end
+
+      context 'when repository is disabled' do
+        include_context 'disabled repository'
+
+        it_behaves_like '403 response' do
+          let(:request) { post api(route, current_user), params: { files: [{ path: 'README.md' }] } }
+        end
+      end
+    end
+
+    context 'when authenticated', 'as a developer' do
+      it_behaves_like 'batch blobs' do
+        let(:current_user) { user }
+      end
+    end
+
+    context 'when authenticated', 'as a guest' do
+      it_behaves_like '403 response' do
+        let(:request) { post api(route, guest), params: { files: [{ path: 'README.md' }] } }
+      end
+    end
+
+    context 'when unauthenticated', 'and project is private' do
+      it_behaves_like '404 response' do
+        let(:request) { post api(route), params: { files: [{ path: 'README.md' }] } }
+        let(:message) { '404 Project Not Found' }
+      end
+    end
+
+    context 'when unauthenticated', 'and project is public' do
+      let_it_be(:public_project) { create(:project, :public, :repository) }
+      let(:route) { "/projects/#{public_project.id}/repository/blobs/batch" }
+
+      it_behaves_like '401 response' do
+        let(:request) { post api(route), params: { files: [{ path: 'README.md' }] } }
+      end
+
+      it 'returns 401 before validating parameters' do
+        post api(route), params: { files: [] }
+
+        expect(response).to have_gitlab_http_status(:unauthorized)
+      end
+    end
+
+    it_behaves_like 'authorizing granular token permissions', :read_repository_blob do
+      let(:boundary_object) { project }
+      let(:request) do
+        post api(route, personal_access_token: pat), params: { files: [{ path: 'README.md' }] }
+      end
+    end
+
+    context 'when the repository_blobs_batch_api feature flag is disabled' do
+      before do
+        stub_feature_flags(repository_blobs_batch_api: false)
+      end
+
+      it_behaves_like '404 response' do
+        let(:request) { post api(route, user), params: { files: [{ path: 'README.md' }] } }
+      end
+    end
+  end
 end

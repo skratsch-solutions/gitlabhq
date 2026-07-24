@@ -157,8 +157,6 @@ Example response:
 
 {{< history >}}
 
-- Feature flag `mirror_only_branches_match_regex` [enabled by default](https://gitlab.com/gitlab-org/gitlab/-/issues/381667) in GitLab 16.0.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/410354) in GitLab 16.2. Feature flag `mirror_only_branches_match_regex` removed.
 - [Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/494294) in GitLab 17.6.
 
 {{< /history >}}

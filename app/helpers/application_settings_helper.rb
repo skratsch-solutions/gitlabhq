@@ -639,6 +639,7 @@ module ApplicationSettingsHelper
       :groups_api_limit,
       :project_api_limit,
       :project_invited_groups_api_limit,
+      :project_repositories_blobs_batch_limit,
       :projects_api_limit,
       :project_members_api_limit,
       :create_organization_api_limit,

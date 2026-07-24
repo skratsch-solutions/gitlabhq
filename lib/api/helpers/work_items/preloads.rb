@@ -136,6 +136,7 @@ module API
 
           if feature_keys.include?(:development)
             preloads[:closing_merge_requests_counts] = preload_closing_merge_requests_counts(work_items)
+            preloads[:will_auto_close_ids] = preload_will_auto_close_ids(work_items)
           end
 
           preloads
@@ -217,6 +218,15 @@ module API
           return {} if work_items.empty?
 
           ::MergeRequestsClosingIssues.count_for_collection(work_items.map(&:id), current_user).to_h
+        end
+
+        # Bulk-resolves will_auto_close_by_merge_request for the whole page (open + project auto-closes +
+        # has an opened closing merge request) so the entity avoids an EXISTS query per work item.
+        def preload_will_auto_close_ids(work_items)
+          eligible = work_items.select(&:eligible_for_autoclose_by_merge_request?)
+          return Set.new if eligible.empty?
+
+          ::MergeRequestsClosingIssues.auto_close_issue_ids(eligible.map(&:id))
         end
 
         def preload_award_emoji_counts(work_items)

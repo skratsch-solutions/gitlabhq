@@ -191,4 +191,43 @@ RSpec.describe MergeRequestsClosingIssues, feature_category: :code_review_workfl
       expect(counts[issue1.id]).to eq(1)
     end
   end
+
+  describe '.auto_close_issue_ids' do
+    let_it_be(:closed_mr) do
+      create(:merge_request, :closed, source_project: project, target_branch: 'auto-close-closed')
+    end
+
+    let_it_be(:issue_with_closed_mr) { create(:issue, project: project) }
+    let_it_be(:issue_with_mentioned_mr) { create(:issue, project: project) }
+
+    let_it_be(:closes_closed_mr) do
+      create(:merge_requests_closing_issues, issue: issue_with_closed_mr, merge_request: closed_mr)
+    end
+
+    let_it_be(:mentioned_only_row) do
+      create(:merge_requests_closing_issues,
+        issue: issue_with_mentioned_mr, merge_request: merge_request,
+        link_type: :mentioned, from_mr_description: false)
+    end
+
+    subject(:auto_close_ids) { described_class.auto_close_issue_ids(issue_ids) }
+
+    context 'with an opened closes-type merge request' do
+      let(:issue_ids) { [issue1.id, issue_with_closed_mr.id, issue_with_mentioned_mr.id] }
+
+      it 'returns a Set with only the relevant issue ids', :aggregate_failures do
+        is_expected.to be_a(Set)
+        is_expected.to contain_exactly(issue1.id)
+      end
+    end
+
+    context 'without an opened closes-type merge request' do
+      let(:issue_ids) { [issue_with_closed_mr.id, issue_with_mentioned_mr.id] }
+
+      it 'returns an empty Set', :aggregate_failures do
+        is_expected.to be_a(Set)
+        is_expected.to be_empty
+      end
+    end
+  end
 end

@@ -15,12 +15,6 @@ description: Permissions granted by each scope for personal, group, and project 
 
 {{< history >}}
 
-- Personal access tokens can no longer access container or package registries
-  [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/387721) in GitLab 16.0.
-- `k8s_proxy` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/422408) in GitLab 16.4
-  [with a feature flag](../../administration/feature_flags/_index.md) named `k8s_proxy_pat`. Enabled by default.
-- Feature flag `k8s_proxy_pat`
-  [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/131518) in GitLab 16.5.
 - `read_service_ping`
   [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/42692#note_1222832412) in GitLab 17.1.
   Personal access tokens only.

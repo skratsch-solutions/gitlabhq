@@ -211,7 +211,7 @@ export default {
   <editor-state-observer
     :debounce="0"
     @transaction="onTransaction"
-    @selectionUpdate="updateLinkToState"
+    @selection-update="updateLinkToState"
   >
     <bubble-menu
       data-testid="link-bubble-menu"

@@ -123,7 +123,7 @@ describe('content_editor/components/bubble_menus/link_bubble_menu', () => {
     expect(wrapper.text()).toContain('Uploading: 100%');
   });
 
-  it('updates the bubble menu state when @selectionUpdate event is triggered', async () => {
+  it('updates the bubble menu state when @selection-update event is triggered', async () => {
     const linkUrl = 'https://gitlab.com';
 
     await buildWrapperAndDisplayMenu();
@@ -142,7 +142,7 @@ describe('content_editor/components/bubble_menus/link_bubble_menu', () => {
       .setTextSelection(11)
       .run();
 
-    findEditorStateObserver().vm.$emit('selectionUpdate');
+    findEditorStateObserver().vm.$emit('selection-update');
 
     await nextTick();
 
@@ -163,7 +163,7 @@ describe('content_editor/components/bubble_menus/link_bubble_menu', () => {
 
       tiptapEditor.commands.setTextSelection(13);
 
-      findEditorStateObserver().vm.$emit('selectionUpdate');
+      findEditorStateObserver().vm.$emit('selection-update');
 
       await nextTick();
 

@@ -72,11 +72,11 @@ Adding a FK constraint to an existing column is a multi-milestone process:
 
 1. `N.M`: Add a `NOT VALID` FK constraint to the column, it will also ensure there are no inconsistent records created or updated.
 1. `N.M`: Add a data migration, to fix or clean up existing records.
-   2. This can be a regular or post deployment migration if the migration queries lie within the [timing guidelines](query_performance.md).
-   3. If not, this has to be done in a [batched background migration](batched_background_migrations.md).
+   1. This can be a regular or post deployment migration if the migration queries lie within the [timing guidelines](query_performance.md).
+   1. If not, this has to be done in a [batched background migration](batched_background_migrations.md).
 1. Validate the FK constraint
-   2. If the data migration was a regular or a post deployment migration, the constraint can be validated in the same milestone.
-   3. If it was a background migration, then the FK can be validated only after the BBM is finalized.
+   1. If the data migration was a regular or a post deployment migration, the constraint can be validated in the same milestone.
+   1. If it was a background migration, then the FK can be validated only after the BBM is finalized.
       This is required so that the FK validation won't happen while the data migration is still running in background.
 
 > [!note]

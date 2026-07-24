@@ -87,12 +87,6 @@ To configure Okta for SCIM:
 
 ### Configure Microsoft Entra ID
 
-{{< history >}}
-
-- [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/143146) to Microsoft Entra ID terminology in GitLab 16.10.
-
-{{< /history >}}
-
 Prerequisites:
 
 - [GitLab is configured](#configure-gitlab).
@@ -316,13 +310,6 @@ accDescr: How removing users from your SCIM app removes them from GitLab groups.
 ```
 
 ### Reactivate access
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/379149) in GitLab 16.0 [with a feature flag](../../../administration/feature_flags/list.md) named `skip_saml_identity_destroy_during_scim_deprovision`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/121226) in GitLab 16.4. Feature flag `skip_saml_identity_destroy_during_scim_deprovision` removed.
-
-{{< /history >}}
 
 After a user is removed or deactivated through SCIM, you can reactivate that user by
 adding them to the SCIM identity provider.

@@ -206,6 +206,40 @@ RSpec.describe Repositories::CommitsFinder, feature_category: :source_code_manag
         end
       end
 
+      context 'when first_parent is specified' do
+        let(:params) { { first_parent: true } }
+
+        it 'passes first_parent: true to list_commits' do
+          expect(project.repository).to receive(:list_commits).with(
+            hash_including(first_parent: true)
+          ).and_call_original
+
+          commits
+        end
+
+        it 'returns commits' do
+          expect(commits).to be_present
+        end
+
+        it 'returns fewer commits than first_parent: false (proves the filter takes effect)' do
+          full = described_class.new(project, { per_page: 100 }).execute(gitaly_pagination: true)
+          first_parent_only = described_class.new(project, { first_parent: true, per_page: 100 })
+            .execute(gitaly_pagination: true)
+
+          expect(first_parent_only.map(&:id).size).to be < full.map(&:id).size
+        end
+
+        it 'matches offset pagination for the same first_parent filter' do
+          offset_commits = described_class.new(project, { first_parent: true, per_page: 100 })
+            .execute(gitaly_pagination: false)
+
+          keyset_commits = described_class.new(project, { first_parent: true, per_page: 100 })
+            .execute(gitaly_pagination: true)
+
+          expect(keyset_commits.map(&:id)).to eq(offset_commits.map(&:id))
+        end
+      end
+
       context 'when path is specified' do
         let(:params) { { path: 'files/ruby/popen.rb' } }
 
@@ -315,7 +349,6 @@ RSpec.describe Repositories::CommitsFinder, feature_category: :source_code_manag
         using RSpec::Parameterized::TableSyntax
 
         where(:param_name, :param_value) do
-          'first_parent' | true
           'order'        | 'topo'
           'trailers'     | true
           'follow'       | true
@@ -334,14 +367,22 @@ RSpec.describe Repositories::CommitsFinder, feature_category: :source_code_manag
         end
 
         context 'when multiple unsupported params are given' do
-          let(:params) { { first_parent: true, follow: true } }
+          let(:params) { { trailers: true, follow: true } }
 
           it 'raises UnsupportedKeysetParamError listing all unsupported params' do
             expect { commits }.to raise_error(described_class::UnsupportedKeysetParamError) do |error|
-              expect(error.message).to include("'first_parent'")
+              expect(error.message).to include("'trailers'")
               expect(error.message).to include("'follow'")
               expect(error.message).to include(described_class::KEYSET_PARAM_ERROR_SUFFIX)
             end
+          end
+        end
+
+        context 'when first_parent is given' do
+          let(:params) { { first_parent: true } }
+
+          it 'does not raise an error' do
+            expect { commits }.not_to raise_error
           end
         end
 

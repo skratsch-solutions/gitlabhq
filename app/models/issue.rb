@@ -946,6 +946,13 @@ class Issue < ApplicationRecord
     project.autoclose_referenced_issues
   end
 
+  # Whether the issue can still be auto-closed by one of its closing merge requests.
+  # Shared by the development widget (GraphQL) and the REST development feature preload
+  # so the eligibility check stays consistent across APIs.
+  def eligible_for_autoclose_by_merge_request?
+    opened? && autoclose_by_merged_closing_merge_request?
+  end
+
   # Overridden in EE
   def epic_work_item?
     false

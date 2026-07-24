@@ -558,8 +558,7 @@ for more details.
 
 When dealing with multiple databases, it's important to pay close attention to data modification
 that affects more than one database.
-[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/339811) GitLab 14.4, an automated check
-prevents cross-database modifications.
+An automated check prevents cross-database modifications.
 
 When at least two different databases are modified during a transaction initiated on any database
 server, the application triggers a cross-database modification error (only in test environment).

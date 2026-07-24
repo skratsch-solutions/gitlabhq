@@ -4,8 +4,8 @@ import { normalizeRender } from '~/lib/utils/vue3compat/normalize_render';
 import { ALERT_EVENT, KEYDOWN_EVENT } from '../constants';
 
 export const tiptapToComponentMap = {
-  update: 'docUpdate',
-  selectionUpdate: 'selectionUpdate',
+  update: 'doc-update',
+  selectionUpdate: 'selection-update',
   transaction: 'transaction',
   focus: 'focus',
   blur: 'blur',

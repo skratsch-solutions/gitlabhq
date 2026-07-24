@@ -249,7 +249,7 @@ See [Multiple Kubernetes clusters for Auto DevOps](multiple_clusters_auto_devops
 
 ## Customizing the Kubernetes namespace
 
-In GitLab 14.5 and earlier, you could use `environment:kubernetes:namespace`
+You could previously use `environment:kubernetes:namespace`
 to specify a namespace for the environment.
 However, this feature was [deprecated](https://gitlab.com/groups/gitlab-org/configure/-/epics/8),
 along with certificate-based integration.
@@ -282,7 +282,7 @@ You can configure many Auto DevOps jobs to run in an [offline environment](../..
 
 > [!warning]
 > Provisioning a PostgreSQL database by default was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/387766)
-> in GitLab 15.8 and will no longer be the default from 16.0. To enable database provisioning, set
+> and is no longer the default. To enable database provisioning, set
 > the associated [CI/CD variable](cicd_variables.md#database-variables).
 
 To support applications that require a database,
@@ -306,7 +306,7 @@ If you use an older chart version, you should [migrate your database](upgrading_
 to the newer PostgreSQL.
 
 The CI/CD variable `AUTO_DEVOPS_POSTGRES_CHANNEL` that controls default provisioned
-PostgreSQL changed to `2` in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/210499).
+PostgreSQL is set to `2`.
 To use the old PostgreSQL, set the `AUTO_DEVOPS_POSTGRES_CHANNEL` variable to
 `1`.
 

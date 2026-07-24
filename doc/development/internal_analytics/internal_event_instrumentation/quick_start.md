@@ -18,11 +18,11 @@ In order to instrument your code with Internal Events Tracking you need to do th
 
 ## Defining event and metrics
 
-To create event and/or metric definitions, use the [gitlab_internal_events_cli gem](https://gitlab.com/gitlab-org/analytics-section/product-analytics/analytics-cli#installation).
+To create event and/or metric definitions, use the [`gitlab_internal_events_cli` gem](https://gitlab.com/gitlab-org/analytics-section/product-analytics/analytics-cli#installation).
 
 ```shell
-> gem install gitlab_internal_events_cli
-> gem exec gitlab_internal_events_cli
+gem install gitlab_internal_events_cli
+gem exec gitlab_internal_events_cli
 ```
 
 This CLI gem will help you create the correct definition files based on your specific use-case, then provide code examples for instrumentation and testing.

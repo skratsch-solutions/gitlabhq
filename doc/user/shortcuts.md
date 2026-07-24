@@ -302,12 +302,6 @@ These shortcuts are available when viewing [epics](group/epics/_index.md):
 
 ## Disable keyboard shortcuts
 
-{{< history >}}
-
-- [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/202494) from the shortcuts page to user preferences in GitLab 16.4.
-
-{{< /history >}}
-
 To disable keyboard shortcuts:
 
 1. In the upper-right corner, select your avatar.
@@ -316,12 +310,6 @@ To disable keyboard shortcuts:
 1. Select **Save changes**.
 
 ## Enable keyboard shortcuts
-
-{{< history >}}
-
-- [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/202494) from the shortcuts page to user preferences in GitLab 16.4.
-
-{{< /history >}}
 
 To enable keyboard shortcuts:
 

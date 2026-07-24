@@ -257,7 +257,7 @@ describe('ContentEditor', () => {
       expect(wrapper.emitted('blur')).toHaveLength(1);
     });
   });
-  describe('when editorStateObserver emits docUpdate event', () => {
+  describe('when editorStateObserver emits doc-update event', () => {
     let markdown;
 
     beforeEach(async () => {
@@ -270,7 +270,7 @@ describe('ContentEditor', () => {
       await nextTick();
       await waitForPromises();
 
-      findEditorStateObserver().vm.$emit('docUpdate');
+      findEditorStateObserver().vm.$emit('doc-update');
     });
 
     it('emits change event with the latest markdown', () => {

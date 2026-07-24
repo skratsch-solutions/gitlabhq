@@ -79,12 +79,6 @@ To change the site name:
 
 ## Add system header and footer messages
 
-{{< history >}}
-
-- **Enable header and footer in emails** checkbox [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/344819) in GitLab 15.9.
-
-{{< /history >}}
-
 Add a small header message, a small footer message, or both, to the interface of your GitLab instance. These messages show on all projects and pages of the instance, such as the sign-in and register pages.
 
 - You can italicize, bold, or add links to your message with Markdown.
@@ -151,12 +145,6 @@ You can also add a [customized help message](settings/help_page.md) below the si
 You can remove the cookie-based language selector from the footer of the sign-in and register pages by enabling the `disable_preferred_language_cookie` feature flag.
 
 ## Customize the Progressive Web App
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/375708) in GitLab 15.9.
-
-{{< /history >}}
 
 Customize the icon, display name, short name, and description for your Progressive Web App (PWA). For more information, see [Progressive Web App](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps).
 
@@ -249,7 +237,7 @@ To [change the default navigation theme](../user/profile/preferences.md#change-t
    ```
 
    These colors are available:
-   <!-- The themes are defined in lib/gitlab/themes.rb -->
+   <!-- The themes are defined in `lib/gitlab/themes.rb` -->
 
    | Value | Color  |
    | ----- | -----  |

@@ -8,6 +8,9 @@ module API
     include Helpers::Unidiff
     include APIGuard
 
+    MAX_BATCH_BLOBS_FILES = 20
+    BATCH_BLOB_SIZE_LIMIT = 1.megabyte
+
     content_type :txt, 'text/plain'
 
     helpers ::API::Helpers::HeadersHelpers
@@ -402,6 +405,60 @@ module API
           present merge_base.commit, with: Entities::Commit
         else
           not_found!("Merge Base")
+        end
+      end
+
+      # Unlike the other repository endpoints, batch blob retrieval requires an
+      # authenticated user: the per-user rate limiter cannot protect against
+      # anonymous abuse on public projects. Authenticate in a `before` block so
+      # unauthenticated requests are rejected before parameter validation runs.
+      namespace do
+        before { authenticate! }
+
+        desc 'Get contents of multiple files in a single request' do
+          detail 'Each blob is truncated to the first 1 MB; the `truncated` field indicates when this happens.'
+          success code: 200, model: Entities::BatchBlob, is_array: true
+          failure [[400, 'Bad Request'], [401, 'Unauthorized'], [403, 'Forbidden'], [404, 'Not Found']]
+          tags ['repositories']
+        end
+        params do
+          requires :files, type: Array, allow_blank: false, limit: MAX_BATCH_BLOBS_FILES,
+            desc: 'Array of file objects to retrieve (max 20)' do
+            requires :path, type: String, file_path: true, desc: 'The file path',
+              documentation: { example: 'app/models/user.rb' }
+            optional :ref, type: String, desc: 'The branch, tag, or commit. Defaults to the default branch',
+              documentation: { example: 'main' }
+          end
+        end
+        route_setting :authorization, permissions: :read_repository_blob, boundary_type: :project
+        route_setting :lifecycle, :beta
+        post ':id/repository/blobs/batch', urgency: :low do
+          not_found! unless Feature.enabled?(:repository_blobs_batch_api, user_project)
+
+          check_rate_limit!(:project_repositories_blobs_batch, scope: [user_project, current_user])
+
+          default_ref = user_project.default_branch
+
+          revision_paths = params[:files].map do |file|
+            ref = file[:ref].presence || default_ref
+
+            render_api_error!('Ref is missing and the repository has no default branch', 400) if ref.blank?
+
+            unless Gitlab::GitRefValidator.validate(ref, skip_head_ref_check: true)
+              render_api_error!("Invalid ref: #{ref.inspect}", 400)
+            end
+
+            [ref, file[:path]]
+          end
+
+          blobs = user_project.repository.blobs_at(revision_paths.uniq, blob_size_limit: BATCH_BLOB_SIZE_LIMIT)
+
+          blobs_by_key = blobs.index_by { |blob| [blob.commit_id, blob.path] }
+
+          result = revision_paths.filter_map { |key| blobs_by_key[key] }
+
+          status 200
+          present result, with: Entities::BatchBlob
         end
       end
 

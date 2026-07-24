@@ -220,6 +220,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         project_import_limit: 6,
         project_invited_groups_api_limit: 60,
         project_jobs_api_rate_limit: 600,
+        project_repositories_blobs_batch_limit: 5,
         projects_api_limit: 2000,
         projects_api_rate_limit_unauthenticated: 400,
         protected_ci_variables: true,
@@ -658,6 +659,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
           project_api_limit
           project_create_limit
           group_create_limit
+          project_repositories_blobs_batch_limit
           projects_api_limit
           projects_api_rate_limit_unauthenticated
           raw_blob_request_limit

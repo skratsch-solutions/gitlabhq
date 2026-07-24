@@ -1022,6 +1022,7 @@ lib/api/entities/work_items/features/development.rb:
   usage_radius: 18
   fields:
   - closing_merge_requests_count
+  - will_auto_close_by_merge_request
 lib/api/entities/work_items/features/error_tracking.rb:
   usage_radius: 18
   fields:

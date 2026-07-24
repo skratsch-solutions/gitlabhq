@@ -395,7 +395,7 @@ export default {
         class="gl-absolute gl-bottom-0 gl-top-0 gl-z-1 gl-flex gl-w-full gl-items-center gl-justify-center"
       />
       <editor-state-observer
-        @docUpdate="notifyChange"
+        @doc-update="notifyChange"
         @focus="onFocus"
         @blur="onBlur"
         @keydown="$emit('keydown', $event)"
@@ -415,7 +415,7 @@ export default {
             :hide-attachment-button="disableAttachments"
             :new-comment-template-paths-prop="newCommentTemplatePaths"
             :class="{ 'gl-pt-0': immersive }"
-            @enableMarkdownEditor="$emit('enableMarkdownEditor')"
+            @enable-markdown-editor="$emit('enableMarkdownEditor')"
           >
             <template #header-buttons>
               <slot name="header-buttons"></slot>

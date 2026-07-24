@@ -7,12 +7,6 @@ title: Audit event schema and examples
 
 ## Audit event schema
 
-{{< history >}}
-
-- Documentation for an audit event streaming schema was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/358149) in GitLab 15.3.
-
-{{< /history >}}
-
 Audit events have a predictable schema in the body of the response.
 
 | Field            | Description                                                | Notes                                                                             | Streaming Only Field |
@@ -97,12 +91,6 @@ Use this field to identify GitLab Duo Agent Platform activity in your Security I
 Event Management (SIEM) tool or other external tools, instead of service account naming patterns.
 
 ### Headers
-
-{{< history >}}
-
-- `X-Gitlab-Audit-Event-Type` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/86881) in GitLab 15.0.
-
-{{< /history >}}
 
 Headers are formatted as follows:
 
