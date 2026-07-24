@@ -807,12 +807,6 @@ To set the maximum number of process restarts for nodes:
 
 ## Run Zoekt on a separate server
 
-{{< history >}}
-
-- Authentication for Zoekt [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/389749) in GitLab 16.3.
-
-{{< /history >}}
-
 Prerequisites:
 
 - Administrator access.

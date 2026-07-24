@@ -347,9 +347,9 @@ If the `latest` template does not exist yet, you can copy [the stable template](
 ### How to include an older stable template
 
 Users may want to use an older [stable template](#stable-version) that is not bundled
-in the current GitLab package. For example, the stable templates in GitLab 15.0 and
-GitLab 16.0 could be so different that a user wants to continue using the GitLab 15.0
-template even after upgrading to GitLab 16.0.
+in the current GitLab package. For example, the stable templates in GitLab 18.0 and
+GitLab 19.0 could be so different that a user wants to continue using the GitLab 18.0
+template even after upgrading to GitLab 19.0.
 
 You can add a note in the template or in documentation explaining how to use `include:remote`
 to include older template versions. If other templates are included with `include: template`,

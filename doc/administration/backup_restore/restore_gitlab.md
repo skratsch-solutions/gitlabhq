@@ -481,12 +481,6 @@ To exclude specific tasks:
 
 ### Restore specific repository storages
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/86896) in GitLab 15.0.
-
-{{< /history >}}
-
 > [!warning]
 > GitLab 17.1 and earlier are [affected by a race condition](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/158412)
 > that can cause data loss. The problem affects repositories that have been forked and use GitLab
@@ -513,12 +507,6 @@ For example:
   ```
 
 ### Restore specific repositories
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/88094) in GitLab 15.1.
-
-{{< /history >}}
 
 > [!warning]
 > GitLab 17.1 and earlier are [affected by a race condition](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/158412)
@@ -575,9 +563,6 @@ For example:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/4941) in `gitlab-backup` in GitLab 16.3.
-- Server-side support in `gitlab-backup` for restoring a specified backup instead of the latest backup [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/132188) in GitLab 16.6.
-- Server-side support in `gitlab-backup` for creating incremental backups [introduced](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6475) in GitLab 16.6.
 - Server-side support in `backup-utility` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/438393) in GitLab 17.0.
 
 {{< /history >}}

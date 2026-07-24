@@ -593,7 +593,6 @@ To update the `default` plan of one of these limits, in the
 
 {{< history >}}
 
-- `ci_max_artifact_size_annotations` limit [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/38337) in GitLab 16.3.
 - `ci_max_artifact_size_jacoco` limit [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/159696) in GitLab 17.3
 - `ci_max_artifact_size_lsif` limit [increased](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/175684) in GitLab 17.8.
 
@@ -738,12 +737,6 @@ A single job's configuration is always a subset of the entire pipeline configura
 
 ### Limit CI/CD job annotations
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/38337) in GitLab 16.3.
-
-{{< /history >}}
-
 You can set a limit on the maximum number of [annotations](../../ci/yaml/artifacts_reports.md#artifactsreportsannotations)
 per CI/CD job.
 
@@ -757,12 +750,6 @@ Plan.default.actual_limits.update!(ci_job_annotations_num: 100)
 ```
 
 ### Limit CI/CD job annotations file size
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/38337) in GitLab 16.3.
-
-{{< /history >}}
 
 You can set a limit on the maximum size of a CI/CD job [annotation](../../ci/yaml/artifacts_reports.md#artifactsreportsannotations).
 

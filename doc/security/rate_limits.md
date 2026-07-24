@@ -130,36 +130,17 @@ The rate limit is 20 calls per minute per IP address.
 
 ### Project Jobs API endpoint
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/382985) in GitLab 15.7 [with a feature flag](../administration/feature_flags/_index.md) named `ci_enforce_rate_limits_jobs_api`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/384186) in GitLab 16.0. Feature flag `ci_enforce_rate_limits_jobs_api` removed.
-
-{{< /history >}}
-
 There is a rate limit for the endpoint `project/:id/jobs`, which is enforced to reduce timeouts when retrieving jobs.
 
 The rate limit defaults to 600 calls per authenticated user. You can [configure the rate limit](../administration/settings/user_and_ip_rate_limits.md).
 
 ### AI action
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/118010) in GitLab 16.0.
-
-{{< /history >}}
-
 There is a rate limit for the GraphQL `aiAction` mutation, which is enforced to prevent from abusing this endpoint.
 
 The rate limit is 160 calls per 8 hours per authenticated user.
 
 ### Delete a member using the API
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/118296) in GitLab 16.0.
-
-{{< /history >}}
 
 There is a rate limit for [removing project or group members using the API endpoints](../api/group_members.md#remove-a-group-member) `/groups/:id/members` or `/project/:id/members`.
 

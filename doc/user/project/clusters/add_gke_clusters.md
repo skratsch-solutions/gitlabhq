@@ -12,12 +12,6 @@ title: Connect GKE clusters through cluster certificates (deprecated)
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Deprecated](https://gitlab.com/groups/gitlab-org/configure/-/epics/8) in GitLab 14.5.
-
-{{< /history >}}
-
 > [!warning]
 > This feature was [deprecated](https://gitlab.com/groups/gitlab-org/configure/-/epics/8) in GitLab 14.5.
 > Use [Infrastructure as Code with OpenTofu and GitLab](../../infrastructure/iac/_index.md).
@@ -38,12 +32,6 @@ All GKE clusters provisioned by GitLab are [VPC-native](https://docs.cloud.googl
 To create a new GKE cluster from GitLab, use [Infrastructure as Code with OpenTofu and GitLab](../../infrastructure/iac/_index.md).
 
 ## Create a new cluster on GKE through cluster certificates
-
-{{< history >}}
-
-- [Deprecated](https://gitlab.com/groups/gitlab-org/-/epics/6049) in GitLab 14.0.
-
-{{< /history >}}
 
 Prerequisites:
 

@@ -251,12 +251,6 @@ To edit group details:
 
 ## Leave a group
 
-{{< history >}}
-
-- The button to leave a group [moved](https://gitlab.com/gitlab-org/gitlab/-/issues/431539) to the Actions menu in GitLab 16.7.
-
-{{< /history >}}
-
 When you leave a group:
 
 - You are no longer a member of the group, its subgroups, and projects, and cannot contribute.
@@ -272,7 +266,6 @@ To leave a group:
 
 {{< history >}}
 
-- [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/389557) in GitLab 16.0. Premium and Ultimate only.
 - [Moved](https://gitlab.com/groups/gitlab-org/-/epics/17208) from GitLab Premium to GitLab Free in GitLab 18.0.
 
 {{< /history >}}
@@ -314,7 +307,6 @@ the deletion job instead restores the group, and the group is no longer schedule
 
 {{< history >}}
 
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/389557) in GitLab 16.0. Premium and Ultimate only.
 - [Moved](https://gitlab.com/groups/gitlab-org/-/epics/17208) from GitLab Premium to GitLab Free in GitLab 18.0.
 
 {{< /history >}}
@@ -453,7 +445,6 @@ You can sort members by **Account**, **Access granted**, **Role**, or **Last sig
 
 {{< history >}}
 
-- Expiring access email notification [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12704) in GitLab 16.2.
 - Access expiration date for direct members of subgroups and projects [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/471051) in GitLab 17.4.
 
 {{< /history >}}
